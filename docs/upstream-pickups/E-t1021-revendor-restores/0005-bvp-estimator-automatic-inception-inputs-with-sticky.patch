@@ -1,0 +1,1377 @@
+From 72d696fd5a34e3eeecde7c3aecca0168c3d1afb2 Mon Sep 17 00:00:00 2001
+From: Dimitri Geelen <dimitri@geelenandcompany.com>
+Date: Sun, 4 Oct 2026 12:25:59 +0200
+Subject: [PATCH 05/10] bvp estimator: automatic inception inputs with sticky
+ human values, a hypothesis draft that never fabricates its success clause,
+ and scores that cite the claim they argue about (from 832 T-865/T-867/T-868,
+ arc-004)
+
+Three slices of one arc, in the estimator only:
+- T-865: an inception's VoI and target blast radius are ESTIMATED when absent
+  (propose_inception_inputs), and a value a human wrote is STICKY: the estimator never
+  overwrites it, and it reports what the guard protected (telemetry row to
+  .context/telemetry/bvp-sticky.jsonl). Before, an absent or malformed VoI silently became a
+  neutral 2.
+- T-867: propose_hypothesis drafts the three-part ## Hypothesis from the task's own text, and
+  leaves the success clause as an explicit gap when the text names nothing observable, never
+  inventing a measure. Research-kind inceptions are skipped.
+- T-868: every declarative score names what it is an argument ABOUT. A human-sourced hypothesis
+  is cited; a machine draft is not (the machine would be citing itself); no hypothesis says so.
+  Citation adds provenance only: it moves no score.
+Probes (tests/unit/): test_t1021_sticky_scoring.sh 7/7, test_t1021_hypothesis_draft.sh 10/10,
+test_t1021_cited_support.sh 6/6 (brings its own declarative driver, so the result does not
+depend on the host's policy). On this tree before the patch, each probe refuses (TEETH BROKEN):
+the functions it tests do not exist.
+Unchanged before and after: tests/unit/test_bvp*.py and *bvp*.bats (24 files). One test,
+bvp_auto_promote.bats #1 (OFF default), fails on both sides.
+---
+ agents/termlink/bvp-estimator/estimator.py | 534 ++++++++++++++++++++-
+ tests/unit/test_t1021_cited_support.sh     | 260 ++++++++++
+ tests/unit/test_t1021_hypothesis_draft.sh  | 245 ++++++++++
+ tests/unit/test_t1021_sticky_scoring.sh    | 209 ++++++++
+ 4 files changed, 1228 insertions(+), 20 deletions(-)
+ create mode 100755 tests/unit/test_t1021_cited_support.sh
+ create mode 100755 tests/unit/test_t1021_hypothesis_draft.sh
+ create mode 100755 tests/unit/test_t1021_sticky_scoring.sh
+
+diff --git a/agents/termlink/bvp-estimator/estimator.py b/agents/termlink/bvp-estimator/estimator.py
+index 0b5ee77b..76962e72 100644
+--- a/agents/termlink/bvp-estimator/estimator.py
++++ b/agents/termlink/bvp-estimator/estimator.py
+@@ -2279,21 +2279,37 @@ _TEMPLATE_LINES_CACHE: set[str] | None = None
+ 
+ 
+ def _template_lines() -> set[str]:
+-    """Stripped non-empty lines of `.tasks/templates/default.md`, cached.
++    """Stripped non-empty lines of EVERY `.tasks/templates/*.md`, cached.
+ 
+-    Empty set when the template is absent (a consumer mid-bootstrap) — which
++    Empty set when templates are absent (a consumer mid-bootstrap) — which
+     degrades stripping to a no-op rather than failing the score.
++
++    T-865: this used to read ONLY `default.md`, and the omission was load-
++    bearing. Inceptions are created from `inception.md`, whose boilerplate was
++    therefore never stripped — so any signal keyed on a word that template
++    supplies fires on every inception in the corpus. Measured when it bit: a
++    VoI signal on "go/no-go" (a phrase `inception.md` ships) scored 11 of 14
++    active inceptions at an identical 0.6, reproducing the very uniform-score
++    defect it had just been written to fix, one level up.
++
++    A stripper that covers one of three templates is worse than none, because
++    it presents as coverage. Reading the directory means a new template is
++    covered the day it is added rather than the day someone remembers.
+     """
+     global _TEMPLATE_LINES_CACHE
+     if _TEMPLATE_LINES_CACHE is not None:
+         return _TEMPLATE_LINES_CACHE
+-    tpl = PROJECT_ROOT / ".tasks" / "templates" / "default.md"
+     lines: set[str] = set()
++    tpl_dir = PROJECT_ROOT / ".tasks" / "templates"
+     try:
+-        for ln in tpl.read_text(encoding="utf-8").splitlines():
+-            s = ln.strip()
+-            if s:
+-                lines.add(s)
++        for tpl in sorted(tpl_dir.glob("*.md")):
++            try:
++                for ln in tpl.read_text(encoding="utf-8").splitlines():
++                    s = ln.strip()
++                    if s:
++                        lines.add(s)
++            except OSError:
++                continue
+     except OSError:
+         pass
+     _TEMPLATE_LINES_CACHE = lines
+@@ -2471,12 +2487,51 @@ def declarative_matches(spec: dict, fm: dict, body: str,
+     ]).lower()
+     cand_paths = _candidate_paths(fm, body_txt)
+ 
++    # ── T-868 (arc-004 S3): cite the hypothesis, but only a HUMAN one ────────
++    #
++    # In the source BVP method a support score is an argument about a stated
++    # claim. Ours matches the task body and emits a number, so it can rank but
++    # cannot be wrong. Citing the claim is what makes a score correctable.
++    #
++    # CITATION COUNTS ONLY WHEN `hypothesis_source: human`. After S2 most
++    # hypotheses in a corpus are machine DRAFTS, and a score citing a draft is
++    # the machine citing itself — a layer of indirection that READS as grounded
++    # in a claim while the claim was also machine-made. That is worse than an
++    # honest pattern-match, because it borrows authority it has not earned and
++    # the evidence line looks identical either way. So an unconfirmed draft is
++    # not cited, and the evidence says so rather than staying quiet about it.
++    #
++    # SLICE BOUNDARY, recorded here because this is where a future reader looks:
++    # this covers the DECLARATIVE drivers only (F1/F3/F4 — 27 of 63 weight, the
++    # yardstick axes). D1-D4 keep their hand-written handlers, whose rubrics are
++    # judgement over prose rather than signal matching; rewiring those is a
++    # larger change and was deliberately left out of this slice.
++    hyp_human = str(fm.get("hypothesis_source") or "").strip().lower() == "human"
++    hyp_clauses: dict[str, str] = {}
++    if hyp_human:
++        _h = _hypothesis_section(body).lower()
++        if _h:
++            _m = re.search(r"we believe that(.*?)we will achieve(.*?)we will know(.*)",
++                           _h, re.S)
++            if _m:
++                hyp_clauses = {"change": _m.group(1), "outcome": _m.group(2),
++                               "signal": _m.group(3)}
++            else:
++                hyp_clauses = {"hypothesis": _h}
++
++    def _cite(needle: str) -> str:
++        """Which hypothesis clause, if any, carries this signal."""
++        for clause, txt in hyp_clauses.items():
++            if needle in txt:
++                return f"@hypothesis:{clause}"
++        return "@body" if hyp_clauses else ""
++
+     result: dict[int, list[str]] = {}
+     for lvl, sigs in sorted(_spec_levels(spec).items()):
+         matched: list[str] = []
+         for kw in (sigs.get("keywords") or []):
+             if isinstance(kw, str) and kw.strip() and kw.strip().lower() in hay:
+-                matched.append(f"L{lvl}:keyword={kw}")
++                matched.append(f"L{lvl}:keyword={kw}{_cite(kw.strip().lower())}")
+         for pat in (sigs.get("paths") or []):
+             if not isinstance(pat, str) or not pat.strip():
+                 continue
+@@ -2510,12 +2565,26 @@ def score_declarative(spec: dict, fm: dict, body: str,
+     ranking denominator).
+     """
+     matches = declarative_matches(spec, fm, body, tags)
++
++    # T-868: say what this score is an argument ABOUT, on every score. Silence
++    # here is what let a body-matched number read as a reasoned one — the reader
++    # had no way to tell whether a claim existed at all.
++    _src = str(fm.get("hypothesis_source") or "").strip().lower()
++    if _src == "human":
++        basis = "basis: human hypothesis (clauses cited below where they matched)"
++    elif _hypothesis_section(body):
++        basis = ("basis: task body — a hypothesis exists but is an unconfirmed DRAFT, "
++                 "so it is not cited; set hypothesis_source: human to make these "
++                 "scores arguments about your claim")
++    else:
++        basis = "basis: task body — no hypothesis, so this score has no claim to be wrong about"
++
+     hits = [(lvl, m) for lvl, m in matches.items() if m]
+     if not hits:
+-        return 0, ["L0: no signal", "→0 (declarative: no level matched)"]
++        return 0, [basis, "L0: no signal", "→0 (declarative: no level matched)"]
+     best = max(lvl for lvl, _ in hits)
+     ev = [s for _, m in sorted(hits) for s in m]
+-    return best, ev + [f"→{best} (declarative: highest matching level)"]
++    return best, [basis] + ev + [f"→{best} (declarative: highest matching level)"]
+ 
+ 
+ def _load_driver_specs() -> dict[str, dict]:
+@@ -2636,6 +2705,391 @@ def has_scorer(driver_id: str, name: str | None = None,
+     return bool(driver_id in specs or (name and name in specs))
+ 
+ 
++# ── T-865: automatic inception inputs, with human values made STICKY ─────────
++#
++# Operator direction 2026-09-26, verbatim in substance: rank everything, take
++# the human out of scoring as far as possible, keep a feedback signal so the
++# estimates improve — "but if I want to override it then it should not be
++# overwritten by an automatic ranking".
++#
++# That last clause is what makes full automation safe rather than reckless. If
++# a re-score can silently paint over a judgement call, then re-scoring is a
++# destructive act and nobody dares run it often; the estimates then never
++# improve, because improvement requires running them repeatedly. Sticky is the
++# precondition for "run it as often as you like".
++#
++# TWO STATES, NO THIRD. `<field>_source: human` is sticky. Everything else is
++# estimated and freely overwritten. A third "unknown provenance" state was
++# considered and rejected: it reintroduces exactly the ambiguity this replaces.
++# Legacy values carrying the template's 0.5 have no source, so they count as
++# estimated and are corrected on the first pass — which is the point.
++#
++# OBSERVABILITY IS NOT OPTIONAL HERE. A sticky guard that silently stops working
++# is indistinguishable from one that works, right up until someone notices their
++# overrides have been quietly erased for weeks. So every run reports the count
++# it protected. That is the whole reason the count exists.
++
++_STICKY_TELEMETRY_DEFAULT = ".context/telemetry/bvp-sticky.jsonl"
++
++
++def _sticky_telemetry(event: dict) -> None:
++    """Append one JSON line. Honours FW_BVP_STICKY_TELEMETRY_PATH.
++
++    The env override exists because T-856 learned it the hard way: its first
++    test run wrote fixture rows into the real append-only ledger, which cannot
++    be cleaned. A test must be able to point this somewhere disposable.
++    """
++    path = os.environ.get("FW_BVP_STICKY_TELEMETRY_PATH") or str(
++        PROJECT_ROOT / _STICKY_TELEMETRY_DEFAULT)
++    try:
++        os.makedirs(os.path.dirname(path), exist_ok=True)
++        with open(path, "a", encoding="utf-8") as fh:
++            fh.write(json.dumps(event, sort_keys=True) + "\n")
++    except OSError:
++        pass  # telemetry must never fail a score
++
++
++_VOI_SIGNALS = (
++    # (level, label, needles) — highest matching level wins, same ladder shape
++    # as the declarative driver specs so the two read alike.
++    (1.0, "blocks-named-work", ("blocks arc", "blocks every", "gating decision",
++                                "blocks all", "prerequisite for")),
++    (0.8, "unblocks-or-blocked", ("unblocks", "blocked on", "blocks ", "gates ")),
++    (0.6, "decision-with-alternatives", ("go/no-go", "alternatives", "option a",
++                                         "either way", "no-repair", "trade-off")),
++    (0.4, "open-question", ("open question", "we do not know", "unclear whether",
++                            "assumption", "validate whether", "decide ")),
++)
++
++
++def _estimate_voi(fm: dict, body: str, tags: list[str]) -> tuple[float, list[str]]:
++    """Estimate the value of RESOLVING this inception's question, 0.0..1.0.
++
++    Not "is this task important" — that is what the D-drivers measure. VoI is
++    how much is unlocked by turning the question into an answer, so the signals
++    are about leverage and blockage, not about the subject matter.
++
++    A no-signal inception scores 0.2, NOT a neutral mid. That is deliberate and
++    is the operator's direction: everything stays in the ranking grid, so an
++    inception that states no question and blocks nothing must rank low rather
++    than be excluded. 0.2 is a measurement ("nothing here indicates leverage"),
++    not an abstention — and unlike the old 0.5 it is distinguishable from a
++    human's considered mid-score, because that one carries source: human.
++    """
++    hay = "\n".join([
++        str(fm.get("name") or ""),
++        str(fm.get("description") or ""),
++        _strip_template(body or ""),
++        " ".join(str(t) for t in (tags or [])),
++    ]).lower()
++    ev: list[str] = []
++    for level, label, needles in _VOI_SIGNALS:
++        hit = next((n for n in needles if n in hay), None)
++        if hit:
++            ev.append(f"voi:{label}~'{hit.strip()}'")
++            return level, ev
++    # Related tasks are a weak dependency signal when the prose carries none.
++    rel = fm.get("related_tasks") or []
++    if isinstance(rel, list) and len(rel) >= 2:
++        return 0.4, [f"voi:has-{len(rel)}-related-tasks"]
++    return 0.2, ["voi:no-leverage-signal (measured low, not unassessed)"]
++
++
++def _estimate_target_blast_radius(fm: dict, body: str,
++                                  tags: list[str]) -> tuple[int, list[str]]:
++    """Estimate an inception's target blast radius 0..9 from its own text.
++
++    Same pre-fill problem as voi_score and the same 42/45 population. Scales
++    off how wide the question's ANSWER would reach, which the body states in
++    practice ("the standard", "every task", "one script").
++    """
++    hay = "\n".join([
++        str(fm.get("name") or ""),
++        str(fm.get("description") or ""),
++        _strip_template(body or ""),
++    ]).lower()
++    for score, needles in (
++        (9, ("every task", "corpus-wide", "the standard", "all agents",
++             "cross-cutting", "whole corpus")),
++        (7, ("subsystem", "every instrument", "all inceptions", "the ranking")),
++        (5, ("several files", "multiple", "each arc")),
++        (3, ("one subsystem", "a handful", "single surface")),
++    ):
++        hit = next((n for n in needles if n in hay), None)
++        if hit:
++            return score, [f"tbr:reach~'{hit}'→{score}"]
++    return 1, ["tbr:no-reach-signal→1"]
++
++
++def propose_inception_inputs(task_path: Path, dry_run: bool = False) -> dict:
++    """Estimate voi_score / target_blast_radius unless a human set them.
++
++    Returns {'protected': [...], 'estimated': {...}, 'diverged': [...]}.
++    `protected` is what the caller REPORTS — an unreported sticky guard is an
++    unverifiable one.
++    """
++    fm, body = parse_task(task_path)
++    out: dict = {"protected": [], "estimated": {}, "diverged": []}
++    if (fm.get("workflow_type") or "").lower() != "inception":
++        return out
++    tags = list(fm.get("tags") or [])
++
++    for field, estimator in (("voi_score", _estimate_voi),
++                             ("target_blast_radius", _estimate_target_blast_radius)):
++        src = str(fm.get(f"{field}_source") or "").strip().lower()
++        est, _ev = estimator(fm, body, tags)
++        if src == "human":
++            out["protected"].append(field)
++            # The gap between what a human chose and what the machine would have
++            # said IS the training signal. It cannot be reconstructed later —
++            # once the human value is stored, the estimate that disagreed with
++            # it is gone unless it is written down at the moment of divergence.
++            stored = fm.get(field)
++            try:
++                if stored is not None and abs(float(stored) - float(est)) > 1e-9:
++                    out["diverged"].append(field)
++                    _sticky_telemetry({
++                        "ts": _utc_now(),
++                        "task": str(fm.get("id") or task_path.stem),
++                        "field": field,
++                        "human": stored,
++                        "estimate": est,
++                        "delta": round(float(est) - float(stored), 4),
++                        "estimator": ESTIMATOR_ID,
++                    })
++            except (TypeError, ValueError):
++                pass
++            continue
++        out["estimated"][field] = est
++    return out
++
++
++# ── T-867 (arc-004): draft the hypothesis, never fabricate its success clause ──
++#
++# S1 gated GO on a hypothesis. Measured before building this: of 14 active
++# inceptions, ~11 are delivery-shaped and NONE carries one. So the gate alone is
++# an obstacle standing in front of eleven tasks belonging to the person who
++# reported that writing these is hard. This slice is the ramp.
++#
++# THE ONE RULE THIS FILE EXISTS TO ENFORCE: the drafter must not invent a success
++# clause. A plausible invented metric is WORSE than a blank one — it satisfies the
++# gate, reads as considered, and commits the project to a claim nobody made. That
++# is "manufacture a fake claim to pass a gate", which is the exact failure the
++# research exemption was added to prevent, arriving from the other side.
++#
++# So the split is deliberate and asymmetric. The machine does the mechanical
++# two-thirds it can source from the task's own words, and NAMES THE GAP where only
++# judgement will do. S1's gate then still refuses a draft carrying that marker —
++# and the two halves agreeing is the point: the drafter marks the hole, the gate
++# holds the line, and neither pretends the task is ready.
++
++_HYPOTHESIS_NEEDS_YOU = (
++    "[NEEDS YOU: name something a person could go and look at — a count, a "
++    "threshold, a named check, or a state that would visibly change]")
++
++# Candidate observables, most specific first. These are things a reader could
++# actually go and verify; vague quantifiers are deliberately absent.
++_OBSERVABLE_PATTERNS = (
++    r"\b\d+\s*%\s*[a-z][\w -]{2,30}",
++    r"\b\d+\s+(?:of|/)\s*\d+\s+[a-z][\w -]{2,30}",
++    r"\b(?:fw\s+(?:audit|doctor|bvp|fabric)[\w -]{0,20})",
++    r"\b(?:_t\d+[\w-]*\.(?:sh|py|mjs))",
++    r"\b\d+\s+(?:failures?|errors?|warnings?|tasks?|cards?|maps?|tests?|"
++    r"instruments?|inceptions?|files?|lanes?|commits?)\b",
++    r"\bexit code \d+\b",
++)
++
++
++def _hypothesis_section(body: str) -> str:
++    """The ## Hypothesis section body, HTML comments stripped."""
++    m = re.search(r"^##\s+Hypothesis\s*$(.*?)(?=^#{2,}\s|\Z)", body or "",
++                  re.M | re.S)
++    if not m:
++        return ""
++    txt = re.sub(r"<!--.*?-->", "", m.group(1), flags=re.S)
++    return "\n".join(ln for ln in txt.splitlines() if ln.strip()).strip()
++
++
++# Words a candidate must not END on. Caught on first live run: the raw patterns
++# happily returned "80% of the" — a fragment that MEANS nothing but CONTAINS a
++# digit, so S1's gate would have accepted it. A drafter that manufactures signals
++# which pass the gate while saying nothing is the fabrication failure this module
++# is built to refuse, arriving through a regex rather than through invention.
++_OBS_TRAILING_STOPWORDS = {
++    "the", "a", "an", "of", "in", "on", "to", "for", "and", "or", "with",
++    "that", "this", "these", "those", "is", "are", "was", "were", "be",
++    "at", "by", "from", "as", "its", "their",
++}
++
++
++def _candidate_observables(text: str) -> list[str]:
++    """Things in the task's own text that a person could later go and check.
++
++    A candidate survives only if, after trimming trailing function words, it still
++    carries a NOUN-ish tail — something being counted or named. "0 of 30 empty"
++    survives; "80% of the" does not, and is dropped rather than returned, so the
++    caller falls through to the NEEDS-YOU marker. Dropping a weak candidate costs
++    the author one sentence; returning it costs the project a claim nobody made.
++    """
++    out: list[str] = []
++    for pat in _OBSERVABLE_PATTERNS:
++        for m in re.finditer(pat, text or "", re.I):
++            words = " ".join(m.group(0).split()).split(" ")
++            while words and words[-1].lower().strip(".,;:") in _OBS_TRAILING_STOPWORDS:
++                words.pop()
++            if not words:
++                continue
++            tail = words[-1].strip(".,;:")
++            # The surviving tail must be a word, not the bare number itself —
++            # "43" alone is not an observation, "43 failures" is.
++            if not tail or tail.replace("%", "").replace(".", "").isdigit():
++                continue
++            if len(words) < 2:
++                continue
++            s = " ".join(words)
++            if s not in out:
++                out.append(s)
++    return out[:3]
++
++
++def _draft_hypothesis(fm: dict, body: str) -> tuple[str, list[str]]:
++    """Draft the three-part form from the task's own text. Returns (text, evidence).
++
++    The first two clauses are sourced mechanically and will often read awkwardly.
++    That is acceptable and expected: the draft exists so the author starts from
++    something to CORRECT rather than from a blank page, and an awkward sentence is
++    easy to fix. A fabricated success clause is not, because nothing signals that
++    it needs fixing.
++    """
++    ev: list[str] = []
++    name = str(fm.get("name") or "").strip().strip('"')
++    desc = str(fm.get("description") or "").strip()
++
++    change = name[:1].lower() + name[1:] if name else "this change lands"
++    ev.append("change<-name")
++
++    outcome = ""
++    pm = re.search(r"^##\s+Problem Statement\s*$(.*?)(?=^#{2,}\s|\Z)", body or "",
++                   re.M | re.S)
++    if pm:
++        ptxt = re.sub(r"<!--.*?-->", "", pm.group(1), flags=re.S).strip()
++        first = next((ln.strip() for ln in ptxt.splitlines() if ln.strip()), "")
++        if len(first) > 15:
++            outcome = first.rstrip(".")
++            ev.append("outcome<-problem-statement")
++    if not outcome and desc:
++        first = re.split(r"(?<=[.!?])\s", desc)[0].strip()
++        if len(first) > 15:
++            outcome = first.rstrip(".")
++            ev.append("outcome<-description")
++    if not outcome:
++        outcome = "[NEEDS YOU: what does this buy, stated as an outcome]"
++        ev.append("outcome<-NEEDS-YOU")
++
++    obs = _candidate_observables(f"{name}\n{desc}\n{_strip_template(body or '')}")
++    signal = obs[0] if obs else _HYPOTHESIS_NEEDS_YOU
++    # Evidence is DERIVED from the value, not emitted alongside it. Written the
++    # parallel way first, and the fabricate-mutation walked straight through the
++    # gap: it replaced the signal and left the `ev.append` beside it untouched, so
++    # the evidence line still said NEEDS-YOU while the clause carried an invented
++    # metric. An evidence line that can disagree with the thing it describes is a
++    # false green with extra steps — the reader trusts it precisely because it
++    # looks like provenance.
++    if signal is _HYPOTHESIS_NEEDS_YOU:
++        ev.append("signal<-NEEDS-YOU (nothing checkable in the task's own text)")
++    else:
++        ev.append(f"signal<-body:'{signal}'")
++
++    text = (f"We believe that {change},\n"
++            f"we will achieve {outcome}.\n"
++            f"We will know that we are successful when we see {signal}.")
++    return text, ev
++
++
++def propose_hypothesis(task_path: Path) -> dict:
++    """Draft a hypothesis unless a human wrote one. Returns a report dict.
++
++    `protected` is REPORTED, not merely honoured: a sticky guard nobody can see is
++    indistinguishable from one that has silently stopped working, which is the
++    failure class this whole arc sits inside.
++    """
++    fm, body = parse_task(task_path)
++    out: dict = {"protected": False, "drafted": None, "diverged": False,
++                 "needs_you": False, "evidence": []}
++    if (fm.get("workflow_type") or "").lower() != "inception":
++        return out
++    if str(fm.get("inception_kind") or "").strip().lower() == "research":
++        out["evidence"] = ["skipped: inception_kind: research (no claim to draft)"]
++        return out
++
++    existing = _hypothesis_section(body)
++    draft, ev = _draft_hypothesis(fm, body)
++    out["evidence"] = ev
++    out["needs_you"] = "[NEEDS YOU" in draft
++
++    if str(fm.get("hypothesis_source") or "").strip().lower() == "human":
++        out["protected"] = True
++        # The gap between what a person wrote and what the machine would have
++        # written IS the training signal, and it is unrecoverable once the human
++        # text is stored — the draft that disagreed with it is simply gone unless
++        # it is written down at the moment of divergence.
++        if existing and existing.split() != draft.split():
++            out["diverged"] = True
++            _sticky_telemetry({
++                "ts": _utc_now(),
++                "task": str(fm.get("id") or task_path.stem),
++                "field": "hypothesis",
++                "human": existing[:600],
++                "estimate": draft[:600],
++                "estimator": ESTIMATOR_ID,
++            })
++        return out
++
++    out["drafted"] = draft
++
++    # WRITE only into an absent or empty section. Never over existing prose —
++    # that is the same sticky rule as the numeric fields, applied to text, and it
++    # holds even without `hypothesis_source: human`: someone who typed a sentence
++    # into this section has said something, flag or no flag, and a drafting pass
++    # that silently replaced it would be the handover defect (OBS-383) rebuilt in
++    # a new place. A draft the author never sees in the file is not a ramp, which
++    # is why this writes at all; overwriting is where helping turns destructive.
++    if existing:
++        out["evidence"].append("not written: section already has content")
++        return out
++    if dry_run_writes():
++        return out
++
++    banner = ("<!-- DRAFTED by the estimator from this task's own text. Correct it, "
++              "then set `hypothesis_source: human` in the frontmatter to make your "
++              "wording permanent. Until then a later pass may redraft it. -->")
++    try:
++        raw = task_path.read_text(encoding="utf-8")
++    except OSError:
++        return out
++    block = f"## Hypothesis\n\n{banner}\n\n{draft}\n"
++    if re.search(r"^##\s+Hypothesis\s*$", raw, re.M):
++        new = re.sub(r"^##\s+Hypothesis\s*$(.*?)(?=^#{2,}\s|\Z)",
++                     block + "\n", raw, count=1, flags=re.M | re.S)
++    else:
++        # No section at all: place it before Assumptions, else append.
++        if re.search(r"^##\s+Assumptions\s*$", raw, re.M):
++            new = re.sub(r"^##\s+Assumptions\s*$", block + "\n## Assumptions",
++                         raw, count=1, flags=re.M)
++        else:
++            new = raw.rstrip("\n") + "\n\n" + block
++    if new != raw:
++        _atomic_write_text(task_path, new)
++        out["evidence"].append("written into the task")
++    return out
++
++
++def dry_run_writes() -> bool:
++    """Honour FW_HYPOTHESIS_DRY_RUN so a test can exercise drafting without
++    mutating fixtures it did not create."""
++    return os.environ.get("FW_HYPOTHESIS_DRY_RUN") == "1"
++
++
+ def _score_inception_voi(fm: dict, body: str, tags: list[str]) -> tuple[int, list[str]]:
+     """T-2189 inception scoring exception (050-Inceptions.md §Scoring Exception).
+ 
+@@ -2645,19 +3099,39 @@ def _score_inception_voi(fm: dict, body: str, tags: list[str]) -> tuple[int, lis
+     D-handlers measure. Same score is returned for every requested driver —
+     rank is determined by voi alone. Build-task scoring is unchanged.
+ 
+-    Missing or malformed `voi_score` returns a neutral mid-score (2) so
+-    grandfathered inceptions (pre-T-2188) still rank, just not by VoI.
++    T-865 (operator-directed 2026-09-26): the value is now ESTIMATED when no
++    human chose it, rather than read from whatever the template pre-filled.
++
++    Before T-865 this returned a neutral 2 for absent-or-malformed, while the
++    task template shipped `voi_score: 0.5` — and int(round(0.5*5)) is also 2. So
++    "nobody assessed this" and "someone judged it mid" produced an identical
++    score, and 42 of 45 inceptions ranked on a number no person had chosen.
++    T-624 tried to fix that with a warning printed above the field; 28 days
++    later the figure had not moved by one, because a comment is not a gate.
++
++    The rule now has exactly two states, and no third:
++      voi_score_source: human  -> STICKY. Used as-is, never re-derived.
++      anything else            -> estimated from the task's own text.
++
++    Nothing is excluded from ranking to achieve this (operator direction:
++    ranking is automatic and universal, no abstention bucket) — an inception
++    with no signal scores LOW, which is a measurement, not an abstention.
+     """
++    src = str(fm.get("voi_score_source") or "").strip().lower()
+     voi = fm.get("voi_score")
+-    if voi is None:
+-        return 2, ["→2 (voi-absent-grandfathered)"]
+-    try:
+-        voi_f = float(voi)
+-    except (TypeError, ValueError):
+-        return 2, ["→2 (voi-malformed)"]
+-    voi_f = max(0.0, min(1.0, voi_f))
++
++    if src == "human" and voi is not None:
++        try:
++            voi_f = max(0.0, min(1.0, float(voi)))
++        except (TypeError, ValueError):
++            voi_f = None
++        if voi_f is not None:
++            score = int(round(voi_f * 5))
++            return score, [f"→{score} (voi:{voi_f:.2f} HUMAN-SET, sticky)"]
++
++    voi_f, ev = _estimate_voi(fm, body, tags)
+     score = int(round(voi_f * 5))
+-    return score, [f"→{score} (voi:{voi_f:.2f})"]
++    return score, ev + [f"→{score} (voi:{voi_f:.2f} estimated)"]
+ 
+ 
+ def estimate_task(task_path: Path, drivers: dict[str, int]) -> dict:
+@@ -3264,12 +3738,32 @@ def cmd_one(task_id: str, dry_run: bool = False, json_out: bool = False) -> int:
+     result["reason"] = reason
+     result["task_id"] = task_id
+     result["task_path"] = str(task_path.relative_to(PROJECT_ROOT))
++    # T-865: report what the sticky guard protected. A guard nobody can see is
++    # indistinguishable from one that has silently stopped working — which is
++    # the failure mode this whole arc exists to hunt, so it is reported on every
++    # run rather than only when something looks wrong.
++    inc = propose_inception_inputs(task_path, dry_run=dry_run)
++    result["inception_inputs"] = inc
++    hyp = propose_hypothesis(task_path)
++    result["hypothesis"] = hyp
+     if json_out:
+         print(json.dumps(result, indent=2))
+     else:
+         sc = result["scores"]
+         sc_str = " ".join(f"{k}={v}" for k, v in sc.items())
+         print(f"{task_id}: {sc_str}  [{reason}]  ({result['latency_s']}s)")
++        if inc["protected"]:
++            extra = (f"; {len(inc['diverged'])} diverged from the estimate "
++                     f"(logged)") if inc["diverged"] else ""
++            print(f"  left {len(inc['protected'])} human-set value(s) untouched: "
++                  f"{', '.join(inc['protected'])}{extra}")
++        if hyp["protected"]:
++            print("  left the human-written hypothesis untouched"
++                  + ("; it diverges from the draft (logged)" if hyp["diverged"] else ""))
++        elif hyp["drafted"]:
++            note = (" — success clause NEEDS YOU, and the GO gate will still refuse "
++                    "it, which is correct") if hyp["needs_you"] else ""
++            print(f"  drafted a hypothesis{note}")
+     return 0
+ 
+ 
+diff --git a/tests/unit/test_t1021_cited_support.sh b/tests/unit/test_t1021_cited_support.sh
+new file mode 100755
+index 00000000..921a8f7f
+--- /dev/null
++++ b/tests/unit/test_t1021_cited_support.sh
+@@ -0,0 +1,260 @@
++#!/bin/bash
++# T-868 (arc-004 S3) — teeth for hypothesis-cited support scores.
++#
++# WHAT IT DEFENDS. In the source BVP method a support score is an ARGUMENT ABOUT A
++# STATED CLAIM: "support 5 on Legal/Regulatory" means something only because the
++# hypothesis says what success looks like. Ours matched the task body and emitted
++# a number, so it could rank but could not be wrong. Citing the claim is what
++# makes a score correctable.
++#
++# THE DESIGN THIS SUITE EXISTS TO PIN. Citation counts ONLY for a human-written
++# hypothesis. After S2 most hypotheses are machine DRAFTS, and a score citing a
++# draft is the machine citing itself — indirection that READS as grounded while
++# the claim was also machine-made, with an evidence line indistinguishable from
++# the real thing. So an unconfirmed draft must NOT be cited, and the evidence
++# must say why rather than going quiet.
++#
++# THE CONTROL THAT MATTERS MOST is scores_unchanged_by_citation. A slice that
++# quietly re-ranked the corpus while claiming to add provenance would be the
++# worst outcome here, and it is the one nobody would notice: the numbers would
++# still look plausible. Measured directly — 483 driver evaluations, 0 score
++# differences between the cited and uncited paths.
++#
++# THE MUTATION DISABLES BOTH READS of hypothesis_source, not one. T-865 shipped a
++# guard that lived in two functions; disabling one left the case that mattered
++# green and the run correctly refused. Same shape here: declarative_matches does
++# the citing, score_declarative writes the basis line.
++
++set -uo pipefail
++ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
++# the framework repo itself (FRAMEWORK.md at root), else a vendored consumer
++if [ -f "$ROOT/FRAMEWORK.md" ]; then FW_HOME="$ROOT"; else FW_HOME="$ROOT/.agentic-framework"; fi
++cd "$ROOT" || { echo "REFUSING: cannot cd to $ROOT"; exit 2; }
++SUBJECT="${SUBJECT:-$FW_HOME/agents/termlink/bvp-estimator/estimator.py}"
++WORK="$(mktemp -d "${TMPDIR:-/tmp}/t868.XXXXXX")"
++trap 'rm -rf "$WORK"; rm -f "${MUT:-}"' EXIT
++
++PASS=0; FAIL=0
++CITE_CASES="human_clause_is_cited basis_names_human_hypothesis"
++CONTROL_CASES="draft_is_not_cited no_hypothesis_says_no_claim scores_unchanged_by_citation driver_still_scores"
++
++ok()  { PASS=$((PASS+1)); printf '  PASS  %s\n' "$1"; }
++bad() { FAIL=$((FAIL+1)); printf '  FAIL  %s\n       %s\n' "$1" "$2"; }
++
++# Hermetic policy: the probe brings its own declarative driver (832's F4, verbatim), so the
++# result does not depend on which drivers the host project happens to declare.
++PROJ="$(mktemp -d)"; trap 'rm -rf "$WORK" "$PROJ"; rm -f "${MUT:-}"' EXIT
++mkdir -p "$PROJ/policy"
++cat > "$PROJ/policy/value-drivers.yaml" <<'POLICYEOF'
++version: 3
++free_drivers:
++- id: F4
++  name: V_WORKFLOW_ROUTING
++  weight: 9
++  protected: false
++  rationale: 'operator directive 2026-08-16: anything improving workflow routing /
++    clean workflows'
++  polarity: positive
++  rubric:
++    0: No routing or workflow-shape concern touched.
++    1: Mentions routing structure (lane, pool, gateway, sequence flow) incidentally.
++    2: Changes how one workflow routes or renders, single map or single rule.
++    3: Fixes or adds a routing RULE that applies corpus-wide -- validator check, layout
++      rule, lane/pool resolution.
++    4: Closes a routing loop -- unroutable input is detected and refused rather than
++      silently reassigned, or clean-layout is enforced rather than nudged.
++    5: Extends the routing substrate itself -- new node/edge semantics, a new routing
++      dimension, or cross-workflow dependency routing.
++  guardrails: 'Score ROUTING UPLIFT, not "this file happens to be a workflow". Editing
++    a map''s content is L0-L1; the value is in rules that hold across the corpus.
++
++    '
++  scoring:
++    kind: signals
++    strip_template: true
++    levels:
++      1:
++        keywords:
++        - lane
++        - pool
++        - gateway
++        - sequence flow
++        - flownoderef
++      2:
++        keywords:
++        - cleanlayout
++        - clean layout
++        - mapmessiness
++        - routing
++        - lane band
++        - swimlane
++        paths:
++        - examples/aef-processes/*.workflow.yaml
++        - examples/app-processes/*
++      3:
++        keywords:
++        - workflow validator
++        - validator rule
++        - layout rule
++        - lane resolution
++        - pool resolution
++        - dialect-relative
++      4:
++        keywords:
++        - silently reassigns
++        - unresolvable flownoderef
++        - refuses to route
++        - routing gate
++      5:
++        keywords:
++        - workflow fabric
++        - process-dependency graph
++        - new node type
++        - callactivity
++        - routing substrate
++POLICYEOF
++
++grep -q '_cite' "$SUBJECT" || {
++    echo "TEETH BROKEN — the citation helper is gone from $SUBJECT."
++    echo "This probe can no longer test what it claims to test. Not reporting a pass."
++    exit 4; }
++
++HYP='We believe that we add an import guard for lane and pool structure,
++we will achieve rejection of malformed BPMN at the designer boundary.
++We will know that we are successful when we see 0 fabricated lanes across 24 maps.'
++
++mkfix() { # $1=file $2=extra frontmatter $3=hypothesis body (empty for none)
++    { printf -- '---\nid: T-9995\nname: "Fix the importer"\nworkflow_type: inception\n'
++      [ -n "${2:-}" ] && printf '%s\n' "$2"
++      printf -- '---\n\n# body\n\n'
++      [ -n "${3:-}" ] && printf '## Hypothesis\n\n%s\n\n' "$3"
++      printf '## Assumptions\n\nnone\n'
++    } > "$1"
++}
++
++probe() { # $1=file -> prints F4 score + evidence
++    PROJECT_ROOT="$PROJ" python3 - "$1" "$SUBJECT" <<'PYEOF'
++import sys, importlib.util
++from pathlib import Path
++tp, subj = sys.argv[1], sys.argv[2]
++spec = importlib.util.spec_from_file_location("est", subj)
++m = importlib.util.module_from_spec(spec); sys.modules["est"] = m; spec.loader.exec_module(m)
++fm, body = m.parse_task(Path(tp))
++sp = m._load_driver_specs().get("F4")
++if not sp:
++    print("NOSPEC"); raise SystemExit(0)
++sc, ev = m.score_declarative(sp, fm, body, [])
++print("SCORE", sc)
++for e in ev:
++    print("EV", e)
++PYEOF
++}
++
++# ── mutation ────────────────────────────────────────────────────────────────
++if [ "${1:-}" = "--mutation" ]; then
++    MUT="$(dirname "$SUBJECT")/.t868-mutated-$$.py"
++    python3 - "$SUBJECT" "$MUT" <<'PYEOF'
++import sys
++src, dst = sys.argv[1], sys.argv[2]
++t = open(src).read()
++needles = [
++    ('    hyp_human = str(fm.get("hypothesis_source") or "").strip().lower() == "human"\n',
++     '    hyp_human = False  # MUTANT: citation disabled\n'),
++    ('    _src = str(fm.get("hypothesis_source") or "").strip().lower()\n',
++     '    _src = "none"  # MUTANT: basis never reports a human hypothesis\n'),
++]
++missing = [n for n, _ in needles if n not in t]
++if missing:
++    sys.exit(f"mutation anchor not found — a hypothesis_source read was restructured: {missing}")
++for n, r in needles:
++    t = t.replace(n, r, 1)
++open(dst, "w").write(t)
++PYEOF
++    [ -s "$MUT" ] || { echo "MUTATION SETUP FAILED: no mutant"; exit 1; }
++    python3 -c "import ast,sys;ast.parse(open(sys.argv[1]).read())" "$MUT" \
++        || { echo "MUTATION SETUP FAILED: mutant does not parse"; exit 1; }
++    echo "=== T-868 MUTATION RUN (citation disabled at both reads) ==="
++    out=$(SUBJECT="$MUT" bash "${BASH_SOURCE[0]}" 2>&1)
++    printf '%s\n' "$out" | sed 's/^/  | /'
++    echo
++    broken=""
++    for c in $CONTROL_CASES; do
++        printf '%s' "$out" | grep -q "PASS  $c\$" || broken="$broken $c"
++    done
++    if [ -n "$broken" ]; then
++        echo "MUTATION SETUP BROKEN — cases independent of citation also failed:$broken"
++        echo "The mutant is not blind, it is broken. Every red above is false."
++        exit 1
++    fi
++    survivors=""
++    for c in $CITE_CASES; do
++        printf '%s' "$out" | grep -q "PASS  $c\$" && survivors="$survivors $c"
++    done
++    [ -n "$survivors" ] && { echo "MUTATION FAILED — pass without citation:$survivors"; exit 1; }
++    echo "MUTATION OK — controls green, every citation case went red."
++    exit 0
++fi
++
++echo "=== T-868 cited-support teeth ==="
++echo "subject: $SUBJECT"
++echo
++
++mkfix "$WORK/human.md" "hypothesis_source: human" "$HYP"
++mkfix "$WORK/draft.md" "" "$HYP"
++mkfix "$WORK/none.md"  "" ""
++
++out=$(probe "$WORK/human.md")
++printf '%s' "$out" | grep -q '@hypothesis:' \
++  && ok human_clause_is_cited \
++  || bad human_clause_is_cited "a human hypothesis was not cited — the score stays a number with no referent: $(printf '%s' "$out" | grep '^EV' | head -3 | tr '\n' '/')"
++
++printf '%s' "$out" | grep -q 'basis: human hypothesis' \
++  && ok basis_names_human_hypothesis \
++  || bad basis_names_human_hypothesis "the evidence does not say what the score is an argument about"
++
++out=$(probe "$WORK/draft.md")
++if printf '%s' "$out" | grep -q 'unconfirmed DRAFT' && ! printf '%s' "$out" | grep -q '@hypothesis:'; then
++    ok draft_is_not_cited
++else bad draft_is_not_cited "a machine draft was cited as though it were a claim — that is the machine citing itself while looking like provenance"; fi
++
++out=$(probe "$WORK/none.md")
++printf '%s' "$out" | grep -q 'no claim to be wrong about' \
++  && ok no_hypothesis_says_no_claim \
++  || bad no_hypothesis_says_no_claim "a score with no hypothesis behind it did not say so"
++
++# THE CONTROL THAT MATTERS: citation must be purely additive to evidence. A
++# slice that quietly re-ranked while claiming to add provenance is the one
++# failure nobody would notice, because the numbers would still look plausible.
++moved=$(PROJECT_ROOT="$PROJ" python3 - "$SUBJECT" <<'PYEOF'
++import sys, glob, importlib.util
++from pathlib import Path
++spec = importlib.util.spec_from_file_location("est", sys.argv[1])
++m = importlib.util.module_from_spec(spec); sys.modules["est"] = m; spec.loader.exec_module(m)
++specs = m._load_driver_specs()
++moved = n = 0
++for f in sorted(glob.glob(".tasks/active/*.md")):
++    fm, body = m.parse_task(Path(f))
++    for did in ("F1", "F3", "F4"):
++        sp = specs.get(did)
++        if not sp:
++            continue
++        a, _ = m.score_declarative(sp, dict(fm, hypothesis_source="human"), body, [])
++        b, _ = m.score_declarative(sp, dict(fm, hypothesis_source=None), body, [])
++        n += 1
++        moved += (a != b)
++print(f"{moved} {n}")
++PYEOF
++)
++if [ "$(printf '%s' "$moved" | awk '{print $1}')" = "0" ] \
++   && [ "$(printf '%s' "$moved" | awk '{print $2}')" -gt 100 ]; then
++    ok scores_unchanged_by_citation
++else bad scores_unchanged_by_citation "citation moved a score (moved/total: $moved) — this slice must add provenance, not re-rank"; fi
++
++out=$(probe "$WORK/human.md")
++s=$(printf '%s' "$out" | grep -m1 '^SCORE' | awk '{print $2}')
++if [ -n "$s" ] && [ "$s" -ge 1 ] 2>/dev/null; then ok driver_still_scores
++else bad driver_still_scores "the driver stopped scoring entirely (SCORE=$s) — reds elsewhere would be meaningless"; fi
++
++echo
++echo "PASS $PASS / FAIL $FAIL"
++[ "$FAIL" -eq 0 ]
+diff --git a/tests/unit/test_t1021_hypothesis_draft.sh b/tests/unit/test_t1021_hypothesis_draft.sh
+new file mode 100755
+index 00000000..f62d3de9
+--- /dev/null
++++ b/tests/unit/test_t1021_hypothesis_draft.sh
+@@ -0,0 +1,245 @@
++#!/bin/bash
++# T-867 (arc-004) — teeth for hypothesis drafting.
++#
++# WHAT IT DEFENDS. S1 gates a GO on a hypothesis. Measured before S2 was built: of
++# 14 active inceptions, ~11 are delivery-shaped and NONE carried one — so the gate
++# alone stands in front of eleven tasks belonging to the person who said writing
++# these is hard. The drafter is the ramp.
++#
++# THE ONE RULE. The drafter must not invent a success clause. A plausible invented
++# metric is WORSE than a blank: it satisfies the gate, reads as considered, and
++# commits the project to a claim nobody made. So when the task's own text offers
++# nothing checkable, the third clause must carry [NEEDS YOU] and S1 must still
++# refuse it. The drafter marks the hole; the gate holds the line; neither pretends
++# the task is ready.
++#
++# TWO MUTATIONS, because the two ways of breaking that rule are independent:
++#   --mutation            the drafter FABRICATES instead of marking the gap
++#   --mutation-fragment   the trailing-stopword filter is removed
++#
++# The second is not hypothetical. It reproduces a defect this file's subject
++# actually shipped for about ten minutes: the raw patterns returned "80% of the",
++# a fragment that means nothing but CONTAINS a digit — so S1's gate would have
++# accepted it. A drafter manufacturing signals that pass the gate while saying
++# nothing is the fabrication failure arriving through a regex instead of through
++# invention, and it was caught by looking at the output rather than by reasoning.
++
++set -uo pipefail
++ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
++# the framework repo itself (FRAMEWORK.md at root), else a vendored consumer
++if [ -f "$ROOT/FRAMEWORK.md" ]; then FW_HOME="$ROOT"; else FW_HOME="$ROOT/.agentic-framework"; fi
++cd "$ROOT" || { echo "REFUSING: cannot cd to $ROOT"; exit 2; }
++SUBJECT="${SUBJECT:-$FW_HOME/agents/termlink/bvp-estimator/estimator.py}"
++AUDIT="$FW_HOME/lib/task-audit.sh"
++WORK="$(mktemp -d "${TMPDIR:-/tmp}/t867.XXXXXX")"
++trap 'rm -rf "$WORK"; rm -f "${MUT:-}"' EXIT
++# T-1005: never write fixture rows into the real append-only sticky ledger (found
++# 2026-10-03: two T-9993 rows had leaked into .context/telemetry/bvp-sticky.jsonl).
++export FW_BVP_STICKY_TELEMETRY_PATH="$WORK/sticky-tel.jsonl"
++
++PASS=0; FAIL=0
++# needs_you_still_refused_by_gate is a CONTROL here, not an honesty case. It
++# exercises S1's gate against a hand-built fixture and never touches the drafter,
++# so mutating the drafter cannot kill it — the mutation run said so. Fifth time
++# today a control set has corrected a classification rather than found a defect.
++# It is kept because "the two halves agree" is worth pinning; it is just pinned
++# on the gate's side of the seam, not the drafter's.
++HONESTY_CASES="no_observable_yields_needs_you needs_you_is_explained_in_evidence"
++FRAGMENT_CASES="fragment_is_not_offered_as_observable"
++CONTROL_CASES="needs_you_still_refused_by_gate draft_has_three_parts observable_proposed_when_present human_hypothesis_is_sticky existing_prose_never_overwritten non_inception_skipped research_kind_skipped"
++
++ok()  { PASS=$((PASS+1)); printf '  PASS  %s\n' "$1"; }
++bad() { FAIL=$((FAIL+1)); printf '  FAIL  %s\n       %s\n' "$1" "$2"; }
++
++grep -q "_draft_hypothesis" "$SUBJECT" || {
++    echo "TEETH BROKEN — _draft_hypothesis not found in $SUBJECT."
++    echo "This probe can no longer test what it claims to test. Not reporting a pass."
++    exit 4; }
++
++mkfix() { # $1=file $2=problem-statement text $3=extra frontmatter $4=hypothesis body
++    { printf -- '---\nid: T-9993\nname: "Surface validator findings"\nworkflow_type: inception\n'
++      [ -n "${3:-}" ] && printf '%s\n' "$3"
++      printf -- '---\n\n# body\n\n## Problem Statement\n\n%s\n\n' "$2"
++      [ -n "${4:-}" ] && printf '## Hypothesis\n\n%s\n\n' "$4"
++      printf '## Assumptions\n\nnone\n'
++    } > "$1"
++}
++
++NO_NUMBERS="The panel feels awkward and authors find it confusing to use."
++WITH_NUMBERS="We wrote a validator and never showed it to authors; 40% of ERRORs go unseen."
++FRAGMENT_BAIT="Adoption sits near 80% of the target for this quarter."
++
++probe() { # $1=file -> prints DRAFT/EVIDENCE/PROTECTED lines
++    PROJECT_ROOT="$ROOT" SUBJECT="$SUBJECT" FW_HYPOTHESIS_DRY_RUN=1 python3 - "$1" "$SUBJECT" <<'PYEOF'
++import sys, json, importlib.util
++from pathlib import Path
++tp, subj = sys.argv[1], sys.argv[2]
++spec = importlib.util.spec_from_file_location("est", subj)
++m = importlib.util.module_from_spec(spec); sys.modules["est"] = m; spec.loader.exec_module(m)
++r = m.propose_hypothesis(Path(tp))
++print("PROTECTED", r["protected"])
++print("NEEDSYOU", r["needs_you"])
++print("EVIDENCE", json.dumps(r["evidence"]))
++print("DRAFT_START")
++print(r["drafted"] or "")
++print("DRAFT_END")
++PYEOF
++}
++
++gate() { # $1=file -> rc of the S1 gate
++    ( set +e; source "$AUDIT" 2>/dev/null
++      audit_inception_hypothesis "$1" go >/dev/null 2>&1; echo "RC=$?" )
++}
++
++# ── mutations ───────────────────────────────────────────────────────────────
++run_mut() { # $1=label $2=tag $3=must_die $4=must_live
++    MUT="$(dirname "$SUBJECT")/.t867-mutated-$$.py"
++    python3 - "$SUBJECT" "$MUT" "$2" <<'PYEOF'
++import sys
++src, dst, tag = sys.argv[1], sys.argv[2], sys.argv[3]
++t = open(src).read()
++if tag == "fabricate":
++    needle = "    signal = obs[0] if obs else _HYPOTHESIS_NEEDS_YOU\n"
++    if needle not in t:
++        sys.exit("mutation anchor not found — the NEEDS-YOU fallback was restructured")
++    # Fabricate instead of marking the gap. Note this now also breaks the evidence
++    # line, which is the point: evidence is derived from the value, so a mutant
++    # that changes the value cannot leave the provenance claiming otherwise.
++    t = t.replace(needle,
++                  '    signal = obs[0] if obs else "a measurable improvement in adoption"  # MUTANT\n', 1)
++elif tag == "fragment":
++    needle = "            while words and words[-1].lower().strip(\".,;:\") in _OBS_TRAILING_STOPWORDS:\n                words.pop()\n"
++    if needle not in t:
++        sys.exit("mutation anchor not found — the stopword trim was restructured")
++    t = t.replace(needle, "            pass  # MUTANT: stopword trim removed\n", 1)
++else:
++    sys.exit("unknown tag")
++open(dst, "w").write(t)
++PYEOF
++    [ -s "$MUT" ] || { echo "MUTATION SETUP FAILED: no mutant"; exit 1; }
++    python3 -c "import ast,sys;ast.parse(open(sys.argv[1]).read())" "$MUT" \
++        || { echo "MUTATION SETUP FAILED: mutant does not parse"; exit 1; }
++    echo "=== T-867 MUTATION RUN ($1) ==="
++    local out; out=$(SUBJECT="$MUT" bash "${BASH_SOURCE[0]}" 2>&1)
++    printf '%s\n' "$out" | sed 's/^/  | /'
++    echo
++    local broken="" survivors="" c
++    for c in $4; do printf '%s' "$out" | grep -q "PASS  $c\$" || broken="$broken $c"; done
++    if [ -n "$broken" ]; then
++        echo "MUTATION SETUP BROKEN — cases independent of this mutation also failed:$broken"
++        echo "The mutant is not blind, it is broken. Every red above is false."
++        rm -f "$MUT"; exit 1
++    fi
++    for c in $3; do printf '%s' "$out" | grep -q "PASS  $c\$" && survivors="$survivors $c"; done
++    rm -f "$MUT"
++    [ -n "$survivors" ] && { echo "MUTATION FAILED — pass without the behaviour:$survivors"; exit 1; }
++    echo "MUTATION OK ($1) — controls green, every dependent case went red."
++}
++
++if [ "${1:-}" = "--mutation" ]; then
++    run_mut "drafter fabricates instead of marking the gap" fabricate \
++            "$HONESTY_CASES" "$CONTROL_CASES $FRAGMENT_CASES"; exit 0
++fi
++if [ "${1:-}" = "--mutation-fragment" ]; then
++    run_mut "trailing-stopword filter removed" fragment \
++            "$FRAGMENT_CASES" "$CONTROL_CASES"; exit 0
++fi
++
++echo "=== T-867 hypothesis-drafting teeth ==="
++echo "subject: $SUBJECT"
++echo
++
++# ── HONESTY: the rule this module exists for ────────────────────────────────
++mkfix "$WORK/plain.md" "$NO_NUMBERS"
++out=$(probe "$WORK/plain.md")
++if printf '%s' "$out" | grep -q '^NEEDSYOU True' && printf '%s' "$out" | grep -q 'NEEDS YOU'; then
++    ok no_observable_yields_needs_you
++else bad no_observable_yields_needs_you "a body with nothing checkable produced a signal anyway — that is a claim nobody made: $(printf '%s' "$out" | grep -A3 DRAFT_START | tr '\n' '/')"; fi
++
++# The two halves must AGREE. A drafter that marks the gap while the gate accepts
++# it would leave the hole invisible at exactly the moment it matters.
++mkfix "$WORK/needs.md" "$NO_NUMBERS" "" "We believe that x,
++we will achieve y.
++We will know that we are successful when we see $(printf '%s' '[NEEDS YOU: name something checkable]')."
++if printf '%s' "$(gate "$WORK/needs.md")" | grep -q 'RC=1'; then
++    ok needs_you_still_refused_by_gate
++else bad needs_you_still_refused_by_gate "S1 accepted a draft whose success clause is an open TODO"; fi
++
++
++# The evidence must SAY why the gap is there. A marker with no reason reads as a
++# bug in the drafter rather than as an honest refusal to invent, and an author
++# who thinks it is a bug will paper over it.
++out=$(probe "$WORK/plain.md")
++if printf '%s' "$out" | grep -q 'signal<-NEEDS-YOU'; then
++    ok needs_you_is_explained_in_evidence
++else bad needs_you_is_explained_in_evidence "the gap was marked but not explained: $(printf '%s' "$out" | grep EVIDENCE)"; fi
++
++# ── FRAGMENT: the defect the subject actually shipped ───────────────────────
++# Asserted against the extractor DIRECTLY rather than through a task fixture.
++# The first version of this case fed prose to the whole draft path and failed —
++# because "80% of the target for this quarter" ends on a content word and is a
++# legitimate candidate. The bait was wrong, not the code. The real defect is
++# narrower: a candidate whose tail is a function word ("80% of the") means
++# nothing yet contains a digit, so S1's gate would accept it. Testing the filter
++# at its own boundary pins exactly that and nothing else.
++frag=$(PROJECT_ROOT="$ROOT" python3 - "$SUBJECT" <<'PYEOF'
++import sys, importlib.util
++spec = importlib.util.spec_from_file_location("est", sys.argv[1])
++m = importlib.util.module_from_spec(spec); sys.modules["est"] = m; spec.loader.exec_module(m)
++# Each of these ends on a function word or is a bare number: none is an observation.
++for s in ("we reached 80% of the", "coverage hit 43 of", "it moved to 12 in the"):
++    got = m._candidate_observables(s)
++    print(f"{s!r} -> {got}")
++PYEOF
++)
++# `--` is load-bearing: the pattern starts with '-', and without it grep treats
++# it as an option, exits non-zero, and the leading `!` turns that error into a
++# PASS. Measured — this case went green on a grep usage error before the fix.
++if ! printf '%s' "$frag" | grep -qE -- "-> \['"; then
++    ok fragment_is_not_offered_as_observable
++else bad fragment_is_not_offered_as_observable "a function-word-tailed fragment was offered as a success signal — it means nothing but contains a digit, so the gate would accept it: $(printf '%s' "$frag" | tr '\n' '/')"; fi
++
++# ── CONTROLS ────────────────────────────────────────────────────────────────
++out=$(probe "$WORK/plain.md")
++n=$(printf '%s' "$out" | grep -c 'We believe that\|we will achieve\|We will know')
++if [ "${n:-0}" -ge 3 ]; then ok draft_has_three_parts
++else bad draft_has_three_parts "draft is not in the canonical form (matched $n of 3 clauses)"; fi
++
++mkfix "$WORK/num.md" "$WITH_NUMBERS"
++out=$(probe "$WORK/num.md")
++if printf '%s' "$out" | grep -q '^NEEDSYOU False' && printf '%s' "$out" | grep -q 'ERRORs'; then
++    ok observable_proposed_when_present
++else bad observable_proposed_when_present "a real figure in the body was not offered — helpful where there is material is half the contract"; fi
++
++mkfix "$WORK/human.md" "$WITH_NUMBERS" "hypothesis_source: human" "We believe that a human wrote this sentence,
++we will achieve exactly what it says.
++We will know that we are successful when we see 3 reviewers agree."
++before=$(md5sum < "$WORK/human.md")
++out=$(probe "$WORK/human.md")
++after=$(md5sum < "$WORK/human.md")
++if printf '%s' "$out" | grep -q '^PROTECTED True' && [ "$before" = "$after" ]; then
++    ok human_hypothesis_is_sticky
++else bad human_hypothesis_is_sticky "a human-written hypothesis was not protected (protected=$(printf '%s' "$out" | grep '^PROTECTED'), file changed=$([ "$before" = "$after" ] && echo no || echo YES))"; fi
++
++# Sticky must hold on PROSE even without the flag: someone who typed a sentence
++# here has said something, flag or no flag.
++mkfix "$WORK/prose.md" "$WITH_NUMBERS" "" "Some earlier wording nobody flagged."
++out=$(probe "$WORK/prose.md")
++if printf '%s' "$out" | grep -q 'already has content'; then ok existing_prose_never_overwritten
++else bad existing_prose_never_overwritten "unflagged existing prose would have been replaced — that is OBS-383 rebuilt in a new place"; fi
++
++{ printf -- '---\nid: T-9994\nworkflow_type: build\n---\n\n# body\n'; } > "$WORK/build.md"
++out=$(probe "$WORK/build.md")
++if printf '%s' "$out" | grep -q '^NEEDSYOU False' && printf '%s' "$out" | grep -q 'DRAFT_START'; then
++    d=$(printf '%s' "$out" | sed -n '/DRAFT_START/,/DRAFT_END/p' | sed '1d;$d' | tr -d '[:space:]')
++    [ -z "$d" ] && ok non_inception_skipped || bad non_inception_skipped "a build task was drafted a hypothesis"
++else bad non_inception_skipped "unexpected probe output for a build task"; fi
++
++mkfix "$WORK/research.md" "$NO_NUMBERS" "inception_kind: research"
++out=$(probe "$WORK/research.md")
++if printf '%s' "$out" | grep -q 'inception_kind: research'; then ok research_kind_skipped
++else bad research_kind_skipped "a declared research inception was drafted a claim it does not make"; fi
++
++echo
++echo "PASS $PASS / FAIL $FAIL"
++[ "$FAIL" -eq 0 ]
+diff --git a/tests/unit/test_t1021_sticky_scoring.sh b/tests/unit/test_t1021_sticky_scoring.sh
+new file mode 100755
+index 00000000..9cd059ed
+--- /dev/null
++++ b/tests/unit/test_t1021_sticky_scoring.sh
+@@ -0,0 +1,209 @@
++#!/bin/bash
++# T-865 — teeth for automatic inception scoring with STICKY human overrides.
++#
++# WHAT IT DEFENDS. Operator direction 2026-09-26: rank everything automatically,
++# take the human out of scoring — "but if I want to override it then it should
++# not be overwritten by an automatic ranking". Sticky is what makes repeated
++# auto-scoring safe: if a re-score can paint over a judgement call, re-scoring
++# is destructive, nobody runs it often, and the estimates never improve.
++#
++# THE FAILURE THAT MATTERS IS SILENT. A sticky guard that stops working looks
++# exactly like one that works, until someone notices their overrides have been
++# quietly erased for weeks. Two consequences for this file:
++#   - `bytes_unchanged` asserts the FILE, not just the returned dict. A guard
++#     that reports "protected" while the writer rewrites the value anyway would
++#     satisfy any check that only reads the return value.
++#   - `protection_is_reported` asserts the count reaches the operator. An
++#     unreported guard is an unverifiable one, which is the whole thesis of the
++#     arc this task sits in.
++#
++# MUTATION. Stripping the `src == "human"` branch must kill every sticky case
++# while the control cases — which do not depend on it — stay green. Controls
++# going red means the mutant is broken rather than blind, and every red in that
++# run is false; that is reported as MUTATION SETUP BROKEN rather than read as a
++# clean kill (the mistake T-849 actually made).
++
++set -uo pipefail
++ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
++# the framework repo itself (FRAMEWORK.md at root), else a vendored consumer
++if [ -f "$ROOT/FRAMEWORK.md" ]; then FW_HOME="$ROOT"; else FW_HOME="$ROOT/.agentic-framework"; fi
++cd "$ROOT" || { echo "REFUSING: cannot cd to $ROOT"; exit 2; }
++SUBJECT="${SUBJECT:-$FW_HOME/agents/termlink/bvp-estimator/estimator.py}"
++WORK="$(mktemp -d "${TMPDIR:-/tmp}/t865t.XXXXXX")"
++trap 'rm -rf "$WORK"; rm -f "${MUT:-}"' EXIT
++
++PASS=0; FAIL=0
++# WHERE THE PROTECTION ACTUALLY LIVES, corrected after the first mutation run.
++# The guard operates at SCORE time (_score_inception_voi prefers the human
++# value) — not at a write site, because nothing writes these fields back. The
++# first version of this suite asserted "not overwritten" and those cases PASSED
++# under the mutant: they were vacuous, true whether the guard existed or not,
++# because no writer exists to overwrite anything. They are kept, reclassified as
++# controls, because "the file is never rewritten" is still worth pinning — it
++# just is not evidence of stickiness.
++STICKY_CASES="score_uses_human_value protection_is_reported divergence_is_logged"
++CONTROL_CASES="unflagged_value_is_estimated non_inception_is_skipped estimator_still_produces_scores file_is_never_rewritten"
++
++ok()  { PASS=$((PASS+1)); printf '  PASS  %s\n' "$1"; }
++bad() { FAIL=$((FAIL+1)); printf '  FAIL  %s\n       %s\n' "$1" "$2"; }
++
++grep -q "propose_inception_inputs" "$SUBJECT" || {
++    echo "TEETH BROKEN — propose_inception_inputs not found in $SUBJECT."
++    echo "This probe can no longer test what it claims to test. Not reporting a pass."
++    exit 4; }
++
++mkfix() { # $1=path $2=extra frontmatter $3=workflow_type
++    cat > "$1" <<EOF
++---
++id: T-9991
++name: "Fixture inception"
++status: started-work
++workflow_type: ${3:-inception}
++owner: agent
++$2
++---
++
++# body
++
++States no leverage whatsoever, so the estimator scores it at the floor.
++EOF
++}
++
++# ── mutation ────────────────────────────────────────────────────────────────
++if [ "${1:-}" = "--mutation" ]; then
++    MUT="$(dirname "$SUBJECT")/.t865-mutated-$$.py"
++    python3 - "$SUBJECT" "$MUT" <<'PYEOF'
++import sys
++src, dst = sys.argv[1], sys.argv[2]
++t = open(src).read()
++# STICKINESS LIVES IN TWO PLACES, and the first version of this mutation only
++# found one. `propose_inception_inputs` has the REPORTING guard;
++# `_score_inception_voi` has the SCORING guard, which is the one that actually
++# changes a rank. Disabling only the reporter left score_uses_human_value green
++# and the run correctly refused as MUTATION FAILED. "Sticky off" means both.
++needles = [
++    ('        if src == "human":\n',
++     '        if False:  # MUTANT: reporting guard disabled\n'),
++    ('    if src == "human" and voi is not None:\n',
++     '    if False:  # MUTANT: scoring guard disabled\n'),
++]
++missing = [n for n, _ in needles if n not in t]
++if missing:
++    sys.exit(f"mutation anchor not found — a sticky branch was restructured: {missing}")
++for n, r in needles:
++    t = t.replace(n, r, 1)
++open(dst, "w").write(t)
++PYEOF
++    [ -s "$MUT" ] || { echo "MUTATION SETUP FAILED: no mutant"; exit 1; }
++    python3 -c "import ast,sys;ast.parse(open(sys.argv[1]).read())" "$MUT" \
++        || { echo "MUTATION SETUP FAILED: mutant does not parse"; exit 1; }
++    echo "=== T-865 MUTATION RUN (sticky guard disabled) ==="
++    out=$(SUBJECT="$MUT" bash "${BASH_SOURCE[0]}" 2>&1)
++    printf '%s\n' "$out" | sed 's/^/  | /'
++    echo
++    broken=""
++    for c in $CONTROL_CASES; do
++        printf '%s' "$out" | grep -q "PASS  $c\$" || broken="$broken $c"
++    done
++    if [ -n "$broken" ]; then
++        echo "MUTATION SETUP BROKEN — cases independent of the guard also failed:$broken"
++        echo "The mutant is not blind, it is broken. Every red above is false."
++        exit 1
++    fi
++    survivors=""
++    for c in $STICKY_CASES; do
++        printf '%s' "$out" | grep -q "PASS  $c\$" && survivors="$survivors $c"
++    done
++    [ -n "$survivors" ] && { echo "MUTATION FAILED — pass without the guard:$survivors"; exit 1; }
++    echo "MUTATION OK — controls green, every sticky case went red."
++    exit 0
++fi
++
++echo "=== T-865 sticky inception-scoring teeth ==="
++echo "subject: $SUBJECT"
++echo
++
++export FW_BVP_STICKY_TELEMETRY_PATH="$WORK/tel.jsonl"
++mkfix "$WORK/human.md" $'voi_score: 0.9\nvoi_score_source: human\ntarget_blast_radius: 7\ntarget_blast_radius_source: human'
++mkfix "$WORK/plain.md" $'voi_score: 0.5'
++mkfix "$WORK/build.md" $'voi_score: 0.5' build
++
++OUT="$WORK/out.txt"
++PROJECT_ROOT="$ROOT" SUBJECT="$SUBJECT" python3 - "$WORK" "$SUBJECT" > "$OUT" 2>&1 <<'PYEOF'
++import sys, json, importlib.util
++from pathlib import Path
++W, SUBJ = sys.argv[1], sys.argv[2]
++spec = importlib.util.spec_from_file_location("est", SUBJ)
++m = importlib.util.module_from_spec(spec); sys.modules["est"] = m; spec.loader.exec_module(m)
++
++p = Path(W) / "human.md"; before = p.read_bytes()
++r = m.propose_inception_inputs(p)
++fm, body = m.parse_task(p)
++print("PROTECTED", json.dumps(r["protected"]))
++print("DIVERGED", json.dumps(r["diverged"]))
++print("STORED_VOI", fm.get("voi_score"))
++print("BYTES_SAME", p.read_bytes() == before)
++s, ev = m._score_inception_voi(fm, body, [])
++print("SCORE_EV", ev[-1])
++
++p2 = Path(W) / "plain.md"
++r2 = m.propose_inception_inputs(p2)
++print("PLAIN_PROTECTED", json.dumps(r2["protected"]))
++print("PLAIN_ESTIMATED", json.dumps(sorted(r2["estimated"])))
++
++p3 = Path(W) / "build.md"
++r3 = m.propose_inception_inputs(p3)
++print("BUILD_RESULT", json.dumps([r3["protected"], sorted(r3["estimated"])]))
++
++drivers = m._load_drivers()
++res = m.estimate_task(Path(W) / "plain.md", drivers)
++print("SCORES_N", len(res["scores"]))
++PYEOF
++
++# ── STICKY CASES ────────────────────────────────────────────────────────────
++# THE CASE THAT ACTUALLY BITES. The score must come from the human's 0.9
++# (-> 4), not the estimator's floor 0.2 (-> 1). Everything else about
++# stickiness is bookkeeping; this is the behaviour the operator asked for.
++if grep -q 'HUMAN-SET, sticky' "$OUT" && grep -q '^SCORE_EV →4 ' "$OUT"; then
++    ok score_uses_human_value
++else
++    bad score_uses_human_value "the score ignored the human value and used the estimate: $(grep '^SCORE_EV' "$OUT")"
++fi
++
++grep -q '^PROTECTED \["voi_score", "target_blast_radius"\]$' "$OUT" \
++  && ok protection_is_reported \
++  || bad protection_is_reported "protection not reported to the caller: $(grep '^PROTECTED' "$OUT")"
++
++if grep -q '^DIVERGED \["voi_score", "target_blast_radius"\]$' "$OUT" \
++   && [ "$(grep -c '"field"' "$WORK/tel.jsonl" 2>/dev/null || echo 0)" -ge 2 ]; then
++    ok divergence_is_logged
++else
++    bad divergence_is_logged "the human-vs-estimate delta was not recorded; it cannot be reconstructed later"
++fi
++
++# ── CONTROL CASES — independent of the sticky branch ────────────────────────
++if grep -q '^PLAIN_PROTECTED \[\]$' "$OUT" \
++   && grep -q '^PLAIN_ESTIMATED \["target_blast_radius", "voi_score"\]$' "$OUT"; then
++    ok unflagged_value_is_estimated
++else
++    bad unflagged_value_is_estimated "an unflagged value was not estimated: $(grep '^PLAIN_' "$OUT" | tr '\n' ' ')"
++fi
++
++grep -q '^BUILD_RESULT \[\[\], \[\]\]$' "$OUT" \
++  && ok non_inception_is_skipped \
++  || bad non_inception_is_skipped "a build task was treated as an inception: $(grep '^BUILD_RESULT' "$OUT")"
++
++# Control: the file is never rewritten by a scoring pass. True with or without
++# the guard (nothing writes these fields), which is precisely why it is a
++# control and not evidence of stickiness — see the note by STICKY_CASES.
++grep -q '^BYTES_SAME True$' "$OUT" \
++  && ok file_is_never_rewritten \
++  || bad file_is_never_rewritten "a scoring pass rewrote the task file"
++
++n=$(grep -m1 '^SCORES_N' "$OUT" | awk '{print $2}')
++if [ -n "$n" ] && [ "$n" -ge 4 ] 2>/dev/null; then ok estimator_still_produces_scores
++else bad estimator_still_produces_scores "scoring broke entirely (SCORES_N=$n) — reds elsewhere would be meaningless"; fi
++
++echo
++echo "PASS $PASS / FAIL $FAIL"
++[ "$FAIL" -eq 0 ]
+-- 
+2.43.0
+

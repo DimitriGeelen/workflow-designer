@@ -1,0 +1,427 @@
+From 62ebdc13ec379d605fb2349051161a35ad10946a Mon Sep 17 00:00:00 2001
+From: Dimitri Geelen <dimitri@geelenandcompany.com>
+Date: Sun, 4 Oct 2026 14:18:10 +0200
+Subject: [PATCH 10/10] [PROPOSAL, not drop-in] inception decide: a GO requires
+ a falsifiable ## Hypothesis (from 832 T-866/T-1026)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+A GO is the moment a project takes on a claim. 832 requires that claim in three-part form, with a
+success clause naming something someone could go and look at; NO-GO and DEFER take on no claim
+and are not gated. audit_inception_hypothesis (lib/task-audit.sh) checks the form (research-kind
+inceptions are exempt, and the word "research" in the body does not exempt). The gate in
+do_inception_decide sits after the Recommendation gate and fails CLOSED if the audit lib did not
+load: a gate whose absence looks like a pass is the defect.
+Probe: tests/unit/test_t1021_hypothesis_gate.sh. Before: refuses (the function does not exist).
+After: 10/10.
+
+WHY THIS IS A PROPOSAL: it changes your governance, and it breaks 17 of your tests in 8 suites,
+because their fixtures record a GO with no ## Hypothesis (or, in t3641, expect the readiness
+lib's wording for a missing lib before ours fires):
+  inception_decide_atomicity.bats 1,2 · inception_decide_auto_create_decision_section.bats 1,2 ·
+  inception_decide_emit_review_post_move.bats 1 · inception_decide_propagate_exit.bats 1,2,3 ·
+  inception_decide_recommendation_gate.bats 8 · t2862_greenfield_first_inception_e2e.bats 1,3,4,5 ·
+  t3279_decision_readiness_parity.bats 6,8 · t3641_readiness_fail_closed.bats 7,8
+If you adopt the rule, those fixtures need a hypothesis; if you do not, drop this commit. The
+other commits in this series do not depend on it. The other 34 suites touching inception decide
+or task-audit are unchanged; audit_blocks_review_and_decide.bats #3 fails on both sides.
+---
+ lib/inception.sh                         |  32 ++++
+ lib/task-audit.sh                        | 127 ++++++++++++++
+ tests/unit/test_t1021_hypothesis_gate.sh | 205 +++++++++++++++++++++++
+ 3 files changed, 364 insertions(+)
+ create mode 100755 tests/unit/test_t1021_hypothesis_gate.sh
+
+diff --git a/lib/inception.sh b/lib/inception.sh
+index 3b359820..397a4bd6 100644
+--- a/lib/inception.sh
++++ b/lib/inception.sh
+@@ -556,6 +556,38 @@ do_inception_decide() {
+         exit 1
+     fi
+ 
++    # Gate: require a ## Hypothesis in the three-part form, with a success clause
++    # naming something checkable (T-866, arc-004). Fires on GO only — a NO-GO or
++    # DEFER takes on no claim, so demanding a measurable signal there is
++    # bureaucracy. Placed AFTER the Recommendation gate deliberately: the
++    # recommendation is what the human reads, the hypothesis is what the project
++    # will later be measured against, and failing the cheaper/closer one first
++    # keeps the refusals in the order an author can act on them.
++    # Fail CLOSED if the audit lib never loaded. Its sourcing above is inside an
++    # `if [ -f ... ]`, so a missing lib would otherwise reach this line as a bare
++    # "command not found" and — depending on shell settings — let the decision
++    # through. A gate whose absence is indistinguishable from a pass is the exact
++    # defect this arc is built around.
++    if ! command -v audit_inception_hypothesis >/dev/null 2>&1; then
++        echo -e "${RED}ERROR: hypothesis gate unavailable (lib/task-audit.sh did not load)${NC}" >&2
++        echo -e "Refusing the decision rather than recording one the gate never checked." >&2
++        exit 1
++    fi
++    if ! audit_inception_hypothesis "$task_file" "$decision"; then
++        echo "" >&2
++        echo -e "${RED}ERROR: ## Hypothesis required before a GO decision${NC}" >&2
++        echo "" >&2
++        echo -e "A GO is the moment this project takes on a claim. Every support score in" >&2
++        echo -e "this task's value-driver table is an argument about that claim — without it," >&2
++        echo -e "the scores can rank but cannot be wrong, because there is nothing for them" >&2
++        echo -e "to be wrong about." >&2
++        echo "" >&2
++        echo -e "The estimator can draft one from this task's own text; correct it and set" >&2
++        echo -e "  hypothesis_source: human" >&2
++        echo -e "in the frontmatter to make your wording permanent." >&2
++        exit 1
++    fi
++
+     local timestamp
+     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+     local decision_upper
+diff --git a/lib/task-audit.sh b/lib/task-audit.sh
+index 5f765d42..97524cb2 100644
+--- a/lib/task-audit.sh
++++ b/lib/task-audit.sh
+@@ -161,3 +161,130 @@ audit_inception_recommendation() {
+     fi
+     return 1
+ }
++
++# ── T-866 (arc-004): the Hypothesis gate ─────────────────────────────────────
++#
++# The BVP method this project scores with pairs every value-driver table with a
++# hypothesis in a fixed three-part form:
++#
++#   "We believe that <change>, we will achieve <outcome>.
++#    We will know that we are successful when we see <measurable signal>."
++#
++# The framework implemented Support x Weight and not the hypothesis, so a support
++# score has had no referent: it can rank, but it cannot be WRONG, because there is
++# no claim for it to be wrong about. This gate is the first half of fixing that.
++#
++# WHY IT FIRES ONLY ON GO. A NO-GO or DEFER commits nobody to delivering value, so
++# demanding a measurable success clause there would be bureaucracy. GO is the
++# moment the project takes on a claim, and the only moment at which refusing costs
++# less than the thing being prevented.
++#
++# THE THIRD CLAUSE IS CHECKED WITH A PROXY, AND IT IS AN HONEST ONE. "Names
++# something observable" cannot be decided mechanically. What CAN be decided is
++# whether the clause contains anything a person could later go and look at — a
++# number, a count, a named state. So: does the success clause carry a digit, or one
++# of a short list of concrete-observation markers?
++#
++# That proxy is foolable by someone determined ("we will know when we see 1 happy
++# user"). It is NOT foolable by the failure that actually occurs, which is the
++# sincere vague clause: "when the system is better", "when the team is more
++# productive", "when this feels right". Every one of those is refused. T-624 is the
++# design constraint here — it chose a warning as its prevention, the warning was
++# correct and adjacent to the field, and the number did not move in 28 days. A gate
++# that refuses the common case beats a comment that refuses nothing.
++audit_inception_hypothesis() {
++    local task_file="${1:-}"
++    local decision="${2:-go}"
++
++    if [ -z "$task_file" ] || [ ! -f "$task_file" ]; then
++        echo "audit_inception_hypothesis: missing or unreadable file: ${task_file}" >&2
++        return 2
++    fi
++
++    case "$(printf '%s' "$decision" | tr '[:upper:]' '[:lower:]')" in
++        go) ;;
++        *) return 0 ;;
++    esac
++
++    # ── Research exemption (T-866, operator 2026-09-26) ──────────────────────
++    #
++    # Not every inception carries a claim. "Research how X works" is a real and
++    # common shape: its output is understanding, and demanding "we will achieve
++    # <outcome>" of it would manufacture a fake value claim to satisfy a gate.
++    # That is worse than no gate — it teaches authors to write fiction.
++    #
++    # THE EXEMPTION IS DECLARED AT CREATION, NOT TAKEN AT DECISION TIME, and the
++    # distinction is the whole safety property. A flag reachable at the moment of
++    # decision is reached for under pressure, by an author who wants through;
++    # `inception_kind: research` is set when the work is framed, before anyone
++    # knows whether the hypothesis would have been inconvenient.
++    #
++    # AND IT IS COUNTABLE. `fw audit` can count inception_kind: research against
++    # the total, so an exemption that quietly becomes the default is visible
++    # rather than silent. An escape hatch nobody measures is how a gate decays
++    # into a warning — which is T-624's failure arriving by a different road.
++    local kind
++    kind=$(grep -m1 '^inception_kind:' "$task_file" 2>/dev/null \
++           | sed 's/^inception_kind:[[:space:]]*//' | tr -d " '\"" \
++           | tr '[:upper:]' '[:lower:]')
++    if [ "$kind" = "research" ]; then
++        echo "HYPOTHESIS: exempt — inception_kind: research (output is understanding," >&2
++        echo "  not a delivered outcome). Exemption declared at creation and countable." >&2
++        return 0
++    fi
++
++    # Same extraction shape as audit_inception_recommendation (T-1528): stop at any
++    # H2-or-deeper heading, so a later section quoting the word cannot leak in.
++    local section stripped
++    section=$(awk '
++        /^## Hypothesis[[:space:]]*$/ { in_h=1; next }
++        in_h && /^#{2,} / { exit }
++        in_h { print }
++    ' "$task_file")
++
++    stripped=$(printf '%s\n' "$section" | awk '
++        /<!--/ { in_c=1 }
++        !in_c { print }
++        /-->/ { in_c=0 }
++    ' | sed 's/[[:space:]]*$//' | grep -v '^[[:space:]]*$')
++
++    if [ -z "$stripped" ]; then
++        echo "HYPOTHESIS: missing or empty. A GO records that this project believes" >&2
++        echo "  something. Say what, in the form the scoring method expects:" >&2
++        echo "    We believe that <change>," >&2
++        echo "    we will achieve <outcome>." >&2
++        echo "    We will know that we are successful when we see <measurable signal>." >&2
++        return 1
++    fi
++
++    local lower
++    lower=$(printf '%s' "$stripped" | tr '[:upper:]' '[:lower:]')
++
++    local missing=""
++    printf '%s' "$lower" | grep -q 'we believe that' || missing="$missing 'We believe that'"
++    printf '%s' "$lower" | grep -q 'we will achieve' || missing="$missing 'we will achieve'"
++    printf '%s' "$lower" | grep -q 'we will know'    || missing="$missing 'We will know'"
++    if [ -n "$missing" ]; then
++        echo "HYPOTHESIS: not in the three-part form — missing:$missing" >&2
++        echo "  The form is not decoration. Each clause answers a different question:" >&2
++        echo "  what changes, what that buys, and how anyone would later tell if it worked." >&2
++        return 1
++    fi
++
++    local success
++    success=$(printf '%s' "$lower" | sed -n 's/.*we will know\(.*\)/\1/p')
++
++    if printf '%s' "$success" | grep -qE '[0-9]'; then
++        return 0
++    fi
++    if printf '%s' "$success" | grep -qE 'exit code|returns|reports|refuses|no longer|zero |none of|every |each |passes|fails'; then
++        return 0
++    fi
++
++    echo "HYPOTHESIS: the success clause names nothing anyone could go and look at." >&2
++    echo "  Found: ...we will know${success}" >&2
++    echo "  A success clause has to be checkable by someone who was not in the room." >&2
++    echo "  'the system is better' cannot be checked; '5 consecutive tests pass per site'" >&2
++    echo "  can. Give it a count, a threshold, a named state, or an observable outcome." >&2
++    return 1
++}
+diff --git a/tests/unit/test_t1021_hypothesis_gate.sh b/tests/unit/test_t1021_hypothesis_gate.sh
+new file mode 100755
+index 00000000..afd9bf5d
+--- /dev/null
++++ b/tests/unit/test_t1021_hypothesis_gate.sh
+@@ -0,0 +1,205 @@
++#!/bin/bash
++# T-866 (arc-004) — teeth for the Hypothesis gate.
++#
++# WHAT IT DEFENDS. The BVP method pairs every value-driver table with a hypothesis
++# in a fixed three-part form. The framework implemented Support x Weight and not
++# the hypothesis, so a support score has had no referent: it can rank, but it
++# cannot be WRONG, because there is no claim for it to be wrong about. This gate
++# makes a GO decision require that claim.
++#
++# THE FAILURE MODE THIS SUITE IS SHAPED AROUND IS NOT "the gate does not fire".
++# It is T-624's failure, repeated with a worse exit code. T-624 chose a warning as
++# its prevention; the warning was correct, emphatic, and physically adjacent to the
++# field it governed, and the number it tracked did not move in 28 days. A gate that
++# refuses EVERYTHING is just as useless — authors route around it — and a gate that
++# refuses NOTHING is the warning again. So the suite pins both edges:
++#   - the vague-but-sincere clause must be REFUSED (that is the real population)
++#   - a genuinely checkable clause must be ACCEPTED (or authors learn to bypass)
++#   - NO-GO and DEFER must pass untouched (they take on no claim; gating them is
++#     bureaucracy, and bureaucracy is how a gate loses its legitimacy)
++#
++# THE AGENT CANNOT RUN THE LIVE PATH. The inception decision verb is Tier 0 and
++# fires on the phrase in any command text, so these teeth exercise the audit
++# function directly against fixtures. The end-to-end wiring is a Human AC on T-866,
++# stated as such rather than quietly skipped — this suite proves the predicate,
++# not the plumbing, and says so.
++
++set -uo pipefail
++ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
++# the framework repo itself (FRAMEWORK.md at root), else a vendored consumer
++if [ -f "$ROOT/FRAMEWORK.md" ]; then FW_HOME="$ROOT"; else FW_HOME="$ROOT/.agentic-framework"; fi
++cd "$ROOT" || { echo "REFUSING: cannot cd to $ROOT"; exit 2; }
++SUBJECT="${SUBJECT:-$FW_HOME/lib/task-audit.sh}"
++WORK="$(mktemp -d "${TMPDIR:-/tmp}/t866.XXXXXX")"
++trap 'rm -rf "$WORK"; rm -f "${MUT:-}"' EXIT
++
++PASS=0; FAIL=0
++# unreadable_file_errors belongs with the GATE cases, not the controls. It was
++# filed as a control first and the mutation run refused: an always-pass stub
++# returns 0 for a missing file too, so the rc=2 path dies with everything else.
++# Third time today a control set has corrected a classification of mine rather
++# than found a defect in the subject — the reflex "a surviving case means missing
++# coverage" is wrong about as often as it is right, and the first hypothesis
++# should be that the case is in the wrong bucket.
++#
++# FOURTH correction, same run: research_kind_exempt was filed as a control too.
++# It asserts rc=0 AND that the output SAYS "exempt" — and the always-pass stub
++# returns 0 silently, so the message assertion dies with the body. The message is
++# kept rather than weakened: an exemption that fires without saying so is an
++# unobservable escape hatch, which is the thing this gate is designed not to be.
++GATE_CASES="empty_section_refused missing_clause_refused vague_success_refused refusal_names_what_is_missing unreadable_file_errors research_word_in_body_still_gated research_kind_exempt"
++CONTROL_CASES="checkable_success_accepted nogo_passes_untouched defer_passes_untouched"
++
++ok()  { PASS=$((PASS+1)); printf '  PASS  %s\n' "$1"; }
++bad() { FAIL=$((FAIL+1)); printf '  FAIL  %s\n       %s\n' "$1" "$2"; }
++
++grep -q 'audit_inception_hypothesis()' "$SUBJECT" || {
++    echo "TEETH BROKEN — audit_inception_hypothesis not found in $SUBJECT."
++    echo "This probe can no longer test what it claims to test. Not reporting a pass."
++    exit 4; }
++
++mk() { # $1 = file, $2 = hypothesis body, $3 = extra frontmatter line, $4 = problem text
++    { printf -- '---\nid: T-9992\nworkflow_type: inception\n'
++      [ -n "${3:-}" ] && printf '%s\n' "$3"
++      printf -- '---\n\n'
++      printf '## Problem Statement\n\n%s\n\n' "${4:-something}"
++      printf '## Hypothesis\n\n%s\n\n' "$2"
++      printf '## Assumptions\n\nnone\n'
++    } > "$1"
++}
++
++FULL_VAGUE="We believe that we will refactor the scheduler,
++we will achieve a cleaner system.
++We will know that we are successful when the system is better and the team is happier."
++FULL_GOOD="We believe that adding an import guard,
++we will achieve rejection of malformed BPMN.
++We will know that we are successful when we see 0 fabricated lanes across all 24 corpus maps."
++FULL_WORDY_GOOD="We believe that tightening the absence control,
++we will achieve honest failure reporting.
++We will know that we are successful when the probe no longer reports a pass for a file it never read."
++
++run_gate() { # $1 = file, $2 = decision -> prints stderr, returns rc
++    ( set +e
++      source "$SUBJECT" 2>/dev/null
++      audit_inception_hypothesis "$1" "$2" 2>&1
++      echo "RC=$?" )
++}
++
++# ── mutation ────────────────────────────────────────────────────────────────
++if [ "${1:-}" = "--mutation" ]; then
++    MUT="$(dirname "$SUBJECT")/.t866-mutated-$$.sh"
++    python3 - "$SUBJECT" "$MUT" <<'PYEOF'
++import re, sys
++src, dst = sys.argv[1], sys.argv[2]
++t = open(src).read()
++m = re.search(r"\naudit_inception_hypothesis\(\) \{.*?\n\}\n", t, re.S)
++if not m:
++    sys.exit("mutation anchor not found — audit_inception_hypothesis was renamed or removed")
++# The gate accepts everything: the classic "prevention that refuses nothing".
++t = t[:m.start()] + "\naudit_inception_hypothesis() { return 0; }\n" + t[m.end():]
++open(dst, "w").write(t)
++PYEOF
++    [ -s "$MUT" ] || { echo "MUTATION SETUP FAILED: no mutant"; exit 1; }
++    bash -n "$MUT" || { echo "MUTATION SETUP FAILED: mutant does not parse"; exit 1; }
++    echo "=== T-866 MUTATION RUN (gate accepts everything — T-624's failure) ==="
++    out=$(SUBJECT="$MUT" bash "${BASH_SOURCE[0]}" 2>&1)
++    printf '%s\n' "$out" | sed 's/^/  | /'
++    echo
++    broken=""
++    for c in $CONTROL_CASES; do
++        printf '%s' "$out" | grep -q "PASS  $c\$" || broken="$broken $c"
++    done
++    if [ -n "$broken" ]; then
++        echo "MUTATION SETUP BROKEN — cases that should survive an always-pass gate also failed:$broken"
++        echo "The mutant is not blind, it is broken. Every red above is false."
++        exit 1
++    fi
++    survivors=""
++    for c in $GATE_CASES; do
++        printf '%s' "$out" | grep -q "PASS  $c\$" && survivors="$survivors $c"
++    done
++    [ -n "$survivors" ] && { echo "MUTATION FAILED — these pass against a gate that refuses nothing:$survivors"; exit 1; }
++    echo "MUTATION OK — controls green, every refusal case went red."
++    exit 0
++fi
++
++echo "=== T-866 Hypothesis-gate teeth ==="
++echo "subject: $SUBJECT"
++echo
++
++# ── GATE CASES: the refusals ────────────────────────────────────────────────
++mk "$WORK/empty.md" ""
++out=$(run_gate "$WORK/empty.md" go)
++if printf '%s' "$out" | grep -q 'RC=1' && printf '%s' "$out" | grep -q 'missing or empty'; then
++    ok empty_section_refused
++else bad empty_section_refused "an absent hypothesis was accepted for GO: $(printf '%s' "$out" | tr '\n' '/')"; fi
++
++mk "$WORK/partial.md" "We believe that the importer is wrong, and we should fix it."
++out=$(run_gate "$WORK/partial.md" go)
++if printf '%s' "$out" | grep -q 'RC=1' && printf '%s' "$out" | grep -q 'three-part form'; then
++    ok missing_clause_refused
++else bad missing_clause_refused "a one-clause hypothesis passed: $(printf '%s' "$out" | tr '\n' '/')"; fi
++
++mk "$WORK/vague.md" "$FULL_VAGUE"
++out=$(run_gate "$WORK/vague.md" go)
++if printf '%s' "$out" | grep -q 'RC=1' && printf '%s' "$out" | grep -q 'nothing anyone could go and look at'; then
++    ok vague_success_refused
++else bad vague_success_refused "THE REAL POPULATION passed — a sincere vague clause is the failure that actually occurs: $(printf '%s' "$out" | tr '\n' '/')"; fi
++
++# A refusal that does not tell the author what to do is a warning with a worse
++# exit code, which is precisely T-624's failure.
++out=$(run_gate "$WORK/partial.md" go)
++if printf '%s' "$out" | grep -q "we will achieve"; then
++    ok refusal_names_what_is_missing
++else bad refusal_names_what_is_missing "the refusal did not name the absent clause"; fi
++
++# ── CONTROL CASES: what must NOT be refused ─────────────────────────────────
++mk "$WORK/good.md" "$FULL_GOOD"
++out=$(run_gate "$WORK/good.md" go)
++if printf '%s' "$out" | grep -q 'RC=0'; then ok checkable_success_accepted
++else bad checkable_success_accepted "a checkable clause was refused — authors route around a gate that refuses everything: $(printf '%s' "$out" | tr '\n' '/')"; fi
++
++out=$(run_gate "$WORK/vague.md" no-go)
++if printf '%s' "$out" | grep -q 'RC=0'; then ok nogo_passes_untouched
++else bad nogo_passes_untouched "NO-GO was gated; it takes on no claim, so this is bureaucracy"; fi
++
++out=$(run_gate "$WORK/vague.md" defer)
++if printf '%s' "$out" | grep -q 'RC=0'; then ok defer_passes_untouched
++else bad defer_passes_untouched "DEFER was gated; it takes on no claim"; fi
++
++out=$(run_gate "$WORK/nope.md" go)
++if printf '%s' "$out" | grep -q 'RC=2'; then ok unreadable_file_errors
++else bad unreadable_file_errors "a missing file did not report rc=2 — it must be distinguishable from a refusal"; fi
++
++# Prose-form acceptance is reported but not gated on: it documents that the
++# observability proxy accepts a non-numeric but genuinely checkable clause.
++out=$(run_gate "$WORK/good2.md" go) 2>/dev/null
++mk "$WORK/good2.md" "$FULL_WORDY_GOOD"
++out=$(run_gate "$WORK/good2.md" go)
++printf '%s' "$out" | grep -q 'RC=0' \
++  && echo "  note  non-numeric but checkable clause accepted ('no longer reports')" \
++  || echo "  note  non-numeric checkable clause REFUSED — proxy is stricter than intended"
++
++# ── The research exemption (operator 2026-09-26) ───────────────────────────
++# Not every inception carries a claim; "research how X works" produces
++# understanding. Forcing it into "we will achieve <outcome>" would manufacture
++# a fake claim to pass a gate, which teaches authors to write fiction.
++mk "$WORK/research.md" "" "inception_kind: research"
++out=$(run_gate "$WORK/research.md" go)
++if printf '%s' "$out" | grep -q 'RC=0' && printf '%s' "$out" | grep -q 'exempt'; then
++    ok research_kind_exempt
++else bad research_kind_exempt "a declared research inception was still gated: $(printf '%s' "$out" | tr '\n' '/')"; fi
++
++# THE CASE THAT KEEPS THE EXEMPTION HONEST. It must require the DECLARED field,
++# not the word appearing somewhere in the prose — otherwise every inception that
++# mentions research escapes, and the gate has a hole shaped like a common word.
++mk "$WORK/researchword.md" "" "" "We need to research how the importer handles lanes. Research is the point."
++out=$(run_gate "$WORK/researchword.md" go)
++if printf '%s' "$out" | grep -q 'RC=1'; then
++    ok research_word_in_body_still_gated
++else bad research_word_in_body_still_gated "the word 'research' in prose exempted the task — the exemption must be a declared field, not a word match"; fi
++
++
++echo
++echo "PASS $PASS / FAIL $FAIL"
++[ "$FAIL" -eq 0 ]
+-- 
+2.43.0
+

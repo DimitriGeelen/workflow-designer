@@ -45,7 +45,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-03T23:55:14Z
-last_update: 2026-10-04T09:19:34Z
+last_update: 2026-10-04T12:35:39Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -90,8 +90,8 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] docs/upstream-pickups/E-*/ holds format-patch series (T-1009's method: built on AEF bleeding-edge in a scratch clone) for: the T-1005 generics (BVP body-path blast radius, arc-004 estimator trio, BVP telemetry row, fw arc tag legacy-tag guard, fabric coverage ratio), the drift-gate repair (T-921/T-639/T-1023), and the T-1020 restores (T-1024 machine-id redaction — likely already done upstream by AEF T-3788 —, T-1025 fabric impact, T-1026 hypothesis gate, T-1027 promote, T-1028 resolve); each item: git am clean or a recorded reason, its probe run in the AEF tree, a MANIFEST row
-- [ ] Delivered to AEF with reassembly verified and the sidecar notice id recorded; anything AEF already has is listed as dropped with evidence
+- [x] docs/upstream-pickups/E-*/ holds format-patch series (T-1009's method: built on AEF bleeding-edge in a scratch clone) for: the T-1005 generics (BVP body-path blast radius, arc-004 estimator trio, BVP telemetry row, fw arc tag legacy-tag guard, fabric coverage ratio), the drift-gate repair (T-921/T-639/T-1023), and the T-1020 restores (T-1024 machine-id redaction — likely already done upstream by AEF T-3788 —, T-1025 fabric impact, T-1026 hypothesis gate, T-1027 promote, T-1028 resolve); each item: git am clean or a recorded reason, its probe run in the AEF tree, a MANIFEST row — DONE 2026-10-04: docs/upstream-pickups/E-t1021-revendor-restores/ holds 10 patches on 914326e0 + MANIFEST. All 10 git-am clean on a fresh clone (tree byte-identical to the build branch); 12 probes green there and on an A-to-E stack. Each item's probe was run before and after (e.g. drift 13/18→18/18, fabric impact 0/2→2/2, arc tag 8/10→10/10, telemetry 12/14→14/14, promote 1/5→5/5, resolve 5/7→7/7; the rest refuse on the unpatched tree because the function is absent), and AEF's own suites for each changed file were compared against an independent baseline clone. Recorded reasons: 0007 reworded to AEF's T-2735 single-claim rule (the first wording broke 3 of their tests); 0008 without the 832-only --human-ac; 0010 (hypothesis gate) is a PROPOSAL, because it breaks 17 AEF tests whose fixtures GO without a hypothesis.
+- [x] Delivered to AEF with reassembly verified and the sidecar notice id recorded; anything AEF already has is listed as dropped with evidence — DONE 2026-10-04: topic xfer-832-upstream-pickups offsets 14-34, 21 parts. Reassembly read back from the topic: b64 sha256 2ee5f5e7…815d1580, tar.gz b10ea2a9…a11ebfb, 10 patches. Sidecar notice 9bcc403a-151c-484c-984b-cda5524e5ad1; stacking addendum fde2bf71 and correction a4d16feb. Dropped with evidence: T-1024 machine-id redaction (AEF T-3788, @409/@434).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

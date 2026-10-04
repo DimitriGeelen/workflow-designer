@@ -1,0 +1,649 @@
+From 6d4053ed357779708e89c5f6d6952577ea652dfe Mon Sep 17 00:00:00 2001
+From: Dimitri Geelen <dimitri@geelenandcompany.com>
+Date: Sun, 4 Oct 2026 14:14:39 +0200
+Subject: [PATCH 07/10] audit: the fabric drift line states coverage and which
+ way the cards moved (from 832 T-525)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+"Fabric drift: N source file(s) have no fabric card" counts a DIFFERENCE of two quantities that
+move independently: the watch set grows with the tree, registered cards grow only when someone
+writes one. So "twenty files added, not carded" and "twenty cards DELETED" printed the same line.
+The line now also carries the ratio and the direction, on the SAME line (T-2735's rule: one
+coverage claim, never a second "registered, N unregistered" line):
+  Fabric drift: U source file(s) have no fabric card — P% covered (R of W watched; NOTE)
+NOTE compares registered cards with the most recent prior daily report (its "Fabric: N
+registered" line): CARD LOSS (a deleted or malformed card stops participating in component
+resolution), +N cards since <day>, cards flat since <day>, or "direction not evaluated" when no
+prior report exists (abstain rather than print a zero delta). FABRIC_HISTORY_DIR overrides where
+history is read. Cron reports are excluded. Severity is unchanged: still WARN, still only when
+unregistered > 0.
+Probe: tests/unit/test_t1021_fabric_coverage.py (+ _t1021_writeset_hermeticity.py). Hermetic
+fixture project for the four branches, FABRIC_HISTORY_DIR per leg. Before: refuses (no coverage
+line on this tree). After: 8/8.
+Unchanged before and after: fabric_coverage_single_source.bats (14 ok), t3431, t3430,
+fabric_watch_pattern_fitness, test_t3430_enrich_describe.py; t2298 tests 3 and 4 fail on both sides.
+---
+ agents/audit/audit.sh                     |  53 ++-
+ tests/unit/_t1021_writeset_hermeticity.py | 116 ++++++
+ tests/unit/test_t1021_fabric_coverage.py  | 420 ++++++++++++++++++++++
+ 3 files changed, 587 insertions(+), 2 deletions(-)
+ create mode 100644 tests/unit/_t1021_writeset_hermeticity.py
+ create mode 100644 tests/unit/test_t1021_fabric_coverage.py
+
+diff --git a/agents/audit/audit.sh b/agents/audit/audit.sh
+index ea69c365..a17ab462 100755
+--- a/agents/audit/audit.sh
++++ b/agents/audit/audit.sh
+@@ -2683,8 +2683,57 @@ DRIFTEOF
+              "expand_patterns.py returned: ${drift_result:-<no output>}" \
+              "Run: python3 agents/fabric/lib/expand_patterns.py .fabric/watch-patterns.yaml ."
+     elif [ "$drift_unreg" -gt 0 ] 2>/dev/null; then
+-        warn "Fabric drift: $drift_unreg source file(s) have no fabric card" \
+-             "$drift_unreg unregistered files matching watch-patterns.yaml" \
++        # T-525 (832-local, redesigned onto the T-2735 drift block under T-1005): the raw
++        # unregistered count is a DIFFERENCE of two independently moving quantities --
++        # watched grows with the tree, registered only when someone writes a card -- so
++        # "twenty files added, not carded" and "twenty cards DELETED" printed the same line.
++        # State the ratio and compare registered with the most recent prior daily report,
++        # naming a FALL; with no comparable prior, ABSTAIN rather than print a zero delta.
++        # Severity deliberately unchanged (still WARN, still gated on unregistered > 0).
++        # Cron reports are excluded: they run a reduced section set without this line.
++        fabric_registered=$drift_total   # registered card count (T-525 naming; T-549 mutates these lines)
++        fabric_prev=$({ python3 - "${FABRIC_HISTORY_DIR:-$CONTEXT_DIR/audits}" <<'PYEOF' 2>/dev/null || true
++import glob, os, re, sys
++best = None
++for path in sorted(glob.glob(os.path.join(sys.argv[1], "????-??-??.yaml"))):
++    day = os.path.basename(path)[:-5]
++    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
++        continue
++    try:
++        with open(path) as fh:
++            m = re.search(r"Fabric:\s*(\d+)\s+registered", fh.read())
++    except Exception:
++        continue
++    if m:
++        best = (day, m.group(1))      # sorted() => last match is the most recent day
++if best:
++    print("%s %s" % best)
++PYEOF
++        } || true)
++        fabric_prev_day=$(echo "$fabric_prev" | awk '{print $1}')
++        fabric_prev_reg=$(echo "$fabric_prev" | awk '{print $2}')
++        if [ -n "$fabric_prev_day" ] && [ "$fabric_prev_day" = "$(date +%Y-%m-%d)" ]; then
++            fabric_prev_day="earlier today"
++        fi
++        fabric_pct=0
++        [ "${drift_watched:-0}" -gt 0 ] && fabric_pct=$(( fabric_registered * 100 / drift_watched ))
++        if [ -z "$fabric_prev_reg" ]; then
++            fabric_dir_note="direction not evaluated — no prior audit report carries a Fabric line"
++            fabric_dir_evidence="first comparable run on this install"
++        elif [ "$fabric_registered" -lt "$fabric_prev_reg" ]; then
++            fabric_dir_note="CARD LOSS: $(( fabric_prev_reg - fabric_registered )) fewer cards than $fabric_prev_day ($fabric_prev_reg -> $fabric_registered)"
++            fabric_dir_evidence="registered cards FELL — this is not the accepted growth case; a deleted or malformed card stops participating in component resolution and its own file then reports as unregistered"
++        elif [ "$fabric_registered" -eq "$fabric_prev_reg" ]; then
++            fabric_dir_note="cards flat since $fabric_prev_day ($fabric_registered)"
++            fabric_dir_evidence="registered is unchanged while the watch set moves, so any change in the unregistered count is tree growth, not carding activity"
++        else
++            fabric_dir_note="+$(( fabric_registered - fabric_prev_reg )) cards since $fabric_prev_day"
++            fabric_dir_evidence="registered GREW; a rising unregistered count alongside this is tree growth outpacing carding, not regression"
++        fi
++        # T-2735 keeps ONE coverage claim, the "Fabric drift: N source file(s)" line; the ratio and the
++        # direction ride on that line rather than becoming a second "registered, N unregistered" claim.
++        warn "Fabric drift: $drift_unreg source file(s) have no fabric card — ${fabric_pct}% covered ($fabric_registered of $drift_watched watched; ${fabric_dir_note})" \
++             "$drift_unreg file(s) matching watch-patterns.yaml have no component card; $fabric_dir_evidence" \
+              "Run: fw fabric scan"
+     else
+         # T-2737: state the size of the set that was actually measured. The old
+diff --git a/tests/unit/_t1021_writeset_hermeticity.py b/tests/unit/_t1021_writeset_hermeticity.py
+new file mode 100644
+index 00000000..9853bb4a
+--- /dev/null
++++ b/tests/unit/_t1021_writeset_hermeticity.py
+@@ -0,0 +1,116 @@
++"""Content-addressed hermeticity for a probe's declared write-set (T-552).
++
++A probe that runs the real `fw audit` against this repository must not leave the tree dirtier
++than it found it, or every later verdict in the session is ambiguous. `_t525` has asserted that
++since T-527. What this module changes is the COMPARAND.
++
++The first form (T-533) diffed `git status --porcelain` across the run, scoped to
++`.context/audits` and excluding `cron/`. The scope was right and is kept. The comparand was
++wrong in both directions, measured 2026-08-17:
++
++  * **Blind.** Porcelain reports status LETTERS, not content. A file that is already dirty
++    stays ` M` however many times it is rewritten. Measured: appending to
++    `.context/audits/2026-08-16.yaml` changed its digest (f42311649879 -> 47b2499bdbf7) and
++    left the porcelain output byte-identical. Both files the audit actually writes are in that
++    state on every run after the first of the day, so the assertion was passing on silence.
++    It also could not see a rewrite of an uncommitted HISTORICAL audit, which is the class the
++    immutable-historical-record rule exists to protect.
++
++  * **Red once a day.** The first audit of any day CREATES `.context/audits/<today>.yaml`.
++    That adds a `??` line, so before != after and the leg failed — on a write the subject is
++    supposed to perform. This is what turned the instrument sweep rc=1 on 2026-08-17 while
++    `_t525` standalone was 8/8 minutes later (OBS-273).
++
++So: compare digests, and judge them against an ALLOW-LIST of the paths the subject is supposed
++to write. Both halves are load-bearing. Digests without an allow-list are red every morning;
++an allow-list without digests is the blindness above wearing a new name.
++
++The allow-list is derived from measurement, not from reading the audit's source: two
++consecutive `fw audit` runs touched exactly `.context/audits/<today>.yaml` and
++`.context/audits/discoveries/LATEST.yaml`, and nothing else among the write-set's 46 files.
++
++Kept in its own module rather than inline in `_t525` so that
++`tools/_t552-writeset-hermeticity-teeth.py` can drive the verdict over synthetic states
++without paying a 61-second audit run to test a pure function — and because this is the second
++repair to the same assertion, so the next probe that needs it should not copy it.
++"""
++
++import datetime
++import hashlib
++import os
++
++CRON = os.path.join("cron", "")
++
++
++def today_iso():
++    """The date the daily audit report is named for, read at call time.
++
++    Read twice by the caller — once before the run and once after — because a probe that takes
++    a minute can straddle midnight, and on that run the audit legitimately writes TOMORROW's
++    report. Allowing the union of the two observed dates covers it without permitting a report
++    for an arbitrary date, which is what a looser rule like "any ISO date" would do.
++    """
++    return datetime.date.today().isoformat()
++
++
++def snapshot(repo, subdir, exclude_subdir=CRON):
++    """Map every file under `repo/subdir` to a digest of its bytes.
++
++    Paths are returned repo-relative so violations read the way `git status` does. Files that
++    vanish between the walk and the read are skipped rather than raising: the point of the
++    snapshot is to compare two observations, and an unreadable path is reported by its absence
++    from one side, which the verdict below already treats as a change.
++    """
++    base = os.path.join(repo, subdir)
++    state = {}
++    for dirpath, _dirnames, filenames in os.walk(base):
++        rel_dir = os.path.relpath(dirpath, base)
++        if rel_dir != "." and (rel_dir + os.sep).startswith(exclude_subdir):
++            continue
++        for name in filenames:
++            path = os.path.join(dirpath, name)
++            try:
++                with open(path, "rb") as fh:
++                    state[os.path.relpath(path, repo)] = hashlib.sha256(fh.read()).hexdigest()
++            except OSError:
++                continue
++    return state
++
++
++def declared_writes_observed(before, after, allowed):
++    """The declared outputs that actually moved during the run.
++
++    Hermeticity is a negative claim, and a negative claim is satisfied by silence (T-524): a
++    run in which the subject wrote NOTHING has an empty violation list and looks identical to a
++    run in which it behaved. `_t525` runs a real `fw audit`, whose report carries a timestamp
++    and therefore always moves, so the caller can require this to be non-empty and turn "the
++    audit did not run at all" from a green into a red.
++    """
++    return sorted(p for p in allowed if before.get(p) != after.get(p))
++
++
++def write_set_violations(before, after, allowed):
++    """Every change to the write-set that the subject was not entitled to make.
++
++    `allowed` is the set of repo-relative paths the subject documents as its output. For those,
++    a create or a modify is the subject doing its job; a DELETE is still a violation, because
++    nothing about writing today's report entitles a run to remove a report.
++
++    Returns a list of human-readable strings, empty when the run was hermetic. A list rather
++    than a bool so the failure message can name the path — a hermeticity leg that says only
++    "something changed" costs an investigation to localise, which is exactly what T-526 was.
++    """
++    violations = []
++    for path in sorted(set(before) | set(after)):
++        was, now = before.get(path), after.get(path)
++        if was == now:
++            continue
++        if now is None:
++            violations.append("DELETED  %s" % path)
++        elif path in allowed:
++            continue
++        elif was is None:
++            violations.append("CREATED  %s (not in the subject's declared write-set)" % path)
++        else:
++            violations.append("MODIFIED %s (%s -> %s)" % (path, was[:12], now[:12]))
++    return violations
+diff --git a/tests/unit/test_t1021_fabric_coverage.py b/tests/unit/test_t1021_fabric_coverage.py
+new file mode 100644
+index 00000000..8d97642d
+--- /dev/null
++++ b/tests/unit/test_t1021_fabric_coverage.py
+@@ -0,0 +1,420 @@
++#!/usr/bin/env python3
++"""
++T-525 teeth — does the fabric coverage WARN actually discriminate, or just warn?
++
++The check being exercised warned unconditionally on `unregistered > 0` and printed raw counts.
++That is why no leg here may assert merely "a fabric warning appeared": the pre-change code
++satisfies that for free, on every run, for every input. The deliverable is the DISCRIMINATION —
++card loss must read differently from source growth — so every leg pins which branch was taken
++and, where it asserts a branch was NOT taken, also proves the check was reached at all.
++
++That second half is L-from-T-524, learned the hard way one task ago: a negative assertion is
++satisfied by silence. "The output does not say CARD LOSS" passes when there is no output, which
++is precisely the broken-audit case such a leg exists to catch. So legs 3 and 5 additionally
++require the coverage line to be present and well-formed.
++
++History is controlled through FABRIC_HISTORY_DIR (a seam the audit declares) rather than by
++writing fabricated audit reports into the live `.context/audits/`. Fabricating real-looking
++reports in the tree to test a check that reads reports is how you end up with a fixture nobody
++recognises six weeks later — and a crashed run leaves it behind.
++
++WHERE EACH LEG RUNS (T-549). The branch legs no longer audit THIS repository, and the reason
++is cost that grows on its own. Five full `fw audit --sections structure` runs cost 86.04s
++against _t509's 90s cap (T-543), and profiling one run (16.86s) found the three most expensive
++checks to be BVP coherence 3.93s, the tracked-tree secret scan 3.69s, and the concerns walk
++2.56s — 60% of the run, and not one of them can depend on FABRIC_HISTORY_DIR. The four branch
++runs were paying for a whole-repository audit to vary a single input that one check reads.
++Worse, that price tracks the tree: 254 watched files today and climbing, so raising the cap
++would have bought headroom the repo consumes again.
++
++So the four branch runs use PROJECT_ROOT — a seam the framework already declares and its own
++cron entries already use — pointed at a freshly built fixture of 20 watched files and 8 cards.
++This is a REAL `fw audit` process running the REAL check through the REAL code path; what
++changed is the tree it walks, not the thing under test. 16.86s -> ~1.5s each.
++
++What that must not cost, and what keeps it honest:
++  - Leg 1 still audits THIS repository. "The check is reached and its arithmetic is right"
++    is a claim about here, and a fixture cannot make it.
++  - Leg 6a is STRONGER on the fixture than it was on the real tree. It asserts severity is
++    invariant across branches, and on the real tree an unrelated check flapping mid-run (cron,
++    a concurrent agent, a handover commit) moved the warn count for reasons having nothing to
++    do with the branch — the same class of defect T-533 fixed in leg 7. On the fixture, history
++    is the only thing that varies, so a difference in the count means what the leg says it does.
++  - The standing risk is now fixture drift: a fixture cannot notice a branch the real tree
++    reaches and it does not. Leg 1 covers the reachability half. The other half is
++    tools/_t549-fabric-coverage-mutation-teeth.py, which mutates the audit's coverage branch
++    and requires these legs to go RED — because a cheaper stimulus that can no longer fail is
++    not a cheaper test, it is a deleted one (PL-206).
++
++Legs:
++  1  the check is REACHED on THIS repo and reports a ratio, not just a difference (guards 3/5)
++  2  history showing MORE cards than now → the CARD LOSS branch, with the arithmetic right
++  3  history showing FEWER cards than now → the growth branch, NOT card loss, and the line exists
++  4  history equal to now → the flat branch, which is the case that says "the unregistered
++     movement you are looking at is tree growth, not carding"
++  5  no usable history → ABSTAINS. "I have no prior value" must not render as "no change"
++     (PL-205), and must not silently fall into any of the three comparison branches.
++  6a severity is UNCHANGED across all four branches on the fixture.
++  6b the coverage finding on THIS repo is carried at WARN. The operator's T-344 [REVIEW]
++     accepted this warning; a reporting fix that quietly promoted it to FAIL would overturn
++     that decision under cover of a cosmetic change. Asserted on the FINDING's own severity
++     rather than on the repo's total Fail count, which is a global moving property that would
++     make this leg go red for somebody else's unrelated failure (G-015).
++  7  hermetic — the SUBJECT'S WRITE-SET is byte-identical after the run (scoped, T-533).
++
++Exit 0 all legs pass, 1 a leg failed, 2 REFUSE (the audit did not produce a coverage line at
++all — nothing was evaluated, and that is not a pass).
++"""
++
++import os
++import re
++import shutil
++import subprocess
++import sys
++import tempfile
++
++sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
++from _t1021_writeset_hermeticity import (declared_writes_observed, snapshot,  # noqa: E402
++                                   today_iso, write_set_violations)
++
++REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
++# the framework repo itself (FRAMEWORK.md at root), else a vendored consumer
++_SELF = os.path.isfile(os.path.join(REPO, "FRAMEWORK.md"))
++
++# T-549: which `fw` to drive. Defaults to the vendored one, which is the only value any
++# ordinary run uses. The override exists for exactly one caller —
++# tools/_t549-fabric-coverage-mutation-teeth.py — which points it at a copied framework whose
++# coverage branch has been deliberately broken, and then requires the legs below to go red.
++# Declared as a seam and named here for the same reason FABRIC_HISTORY_DIR is: an env var that
++# changes what a probe measures should be documented where the probe is read, not discovered.
++FW = os.environ.get("T525_FW") or os.path.join(REPO, "bin/fw" if _SELF else ".agentic-framework/bin/fw")
++
++# Fixture size for the branch legs. Chosen so every branch has arithmetic room: card loss
++# compares against CARDS+12, growth against CARDS-7, and both stay positive and distinct.
++FIXTURE_CARDS = 8
++FIXTURE_WATCHED = 20
++
++# T-549: run only the fixture legs (2-5, 6a) and skip the three that audit this repository.
++# The mutation probe needs to run this file four times, and at ~25s each that would rebuild
++# the cost problem this seam exists to have solved. Branch scope costs ~8s.
++#
++# A SUBSET RUN CAN NEVER EXIT 0. It abstains with rc=2 whatever the legs say, because the one
++# thing a partial instrument must not do is hand back the same green as the whole one — that
++# is the T-548 finding (an instrument nobody heard from is not a pass) applied to this file
++# before someone discovers it the expensive way.
++SCOPE = os.environ.get("T525_SCOPE", "full")
++BRANCHES_ONLY = SCOPE == "branches"
++
++# AEF form (T-2735: one coverage claim): "Fabric drift: U source file(s) have no fabric card —
++# P% covered (R of W watched; NOTE)". Named groups, read by name below.
++COVERAGE_RE = re.compile(r"Fabric drift:\s*(?P<unreg>\d+)\s+source file\(s\) have no fabric card\s*[—-]\s*"
++                         r"(?P<pct>\d+)%\s*covered\s*\((?P<reg>\d+)\s+of\s+(?P<watched>\d+)\s+watched;\s*(?P<note>.*)\)\s*$")
++
++failures = []
++passes = 0
++
++
++def refuse(msg):
++    print("REFUSE: %s" % msg)
++    print("This is an abstention, not a pass — no leg was evaluated.")
++    sys.exit(2)
++
++
++def leg(name, ok, detail=""):
++    global passes
++    if ok:
++        passes += 1
++        print("  PASS  %s" % name)
++    else:
++        failures.append(name)
++        print("  FAIL  %s%s" % (name, ("\n        " + detail) if detail else ""))
++
++
++def build_fixture():
++    """A minimal project the audit can walk in ~1.5s instead of ~17s.
++
++    Everything here exists to reach ONE branch: the coverage check needs a non-empty watch
++    set, at least one card, and unregistered > 0. The rest of the structure section runs too
++    — this is not a stub of the audit, it is the audit on a small tree — it simply has almost
++    nothing to walk.
++
++    Built fresh per run under mktemp and removed in a finally, so there is no fixture left in
++    any tree for someone to find in six weeks and fail to recognise, which is the failure this
++    file's own header warns about for fabricated audit reports.
++    """
++    root = tempfile.mkdtemp(prefix="t525-fixture-")
++    for d in (".tasks/active", ".tasks/completed", ".tasks/templates",
++              ".context/audits", ".context/project", ".fabric/components", "src"):
++        os.makedirs(os.path.join(root, d), exist_ok=True)
++    tmpl = os.path.join(REPO, ".tasks/templates/default.md")
++    if os.path.isfile(tmpl):
++        shutil.copy2(tmpl, os.path.join(root, ".tasks/templates/default.md"))
++    for i in range(FIXTURE_WATCHED):
++        with open(os.path.join(root, "src", "f%02d.py" % i), "w") as fh:
++            fh.write("# t525 fixture file %d — synthetic, built per run\nx = %d\n" % (i, i))
++    # T-1005 (1.7.740): one project YAML, so upstream's T-3105 "candidate set empty" rail is
++    # EVALUATED on every run. Without it the first run warns NOT EVALUATED and later runs do
++    # not (the first run's own output gives them a file), so leg 6a compared two different
++    # trees and read the difference as a severity change.
++    with open(os.path.join(root, ".context/project", "t525-fixture.yaml"), "w") as fh:
++        fh.write("fixture: t525\n")
++    with open(os.path.join(root, ".fabric/watch-patterns.yaml"), "w") as fh:
++        fh.write('patterns:\n  - glob: "src/**/*.py"\n')
++    for i in range(FIXTURE_CARDS):
++        with open(os.path.join(root, ".fabric/components", "c%02d.yaml" % i), "w") as fh:
++            fh.write("id: C-%03d\nname: f%02d\ntype: module\nlocation: src/f%02d.py\n"
++                     "purpose: t525 fixture card\n" % (i, i, i))
++    # A git repo, because several structure checks (secret scan, large-file scan) address the
++    # TRACKED tree and would otherwise be skipped rather than run cheaply — and a check that
++    # silently does not run is not a check that got faster.
++    for argv in (["git", "init", "-q", "."],
++                 ["git", "add", "-A"],
++                 ["git", "-c", "user.email=t525@fixture", "-c", "user.name=t525",
++                  "commit", "-qm", "t525 fixture"]):
++        subprocess.run(argv, cwd=root, capture_output=True, text=True, check=True)
++    return root
++
++
++def audit(history_dir=None, root=None):
++    """Run the structure audit and return (coverage_match, warn_count, fail_count, raw).
++
++    `root` selects the tree via PROJECT_ROOT (T-549). None means this repository.
++    """
++    env = dict(os.environ)
++    if history_dir is not None:
++        env["FABRIC_HISTORY_DIR"] = history_dir
++    cwd = root or REPO
++    if root is not None:
++        env["PROJECT_ROOT"] = root
++    p = subprocess.run([FW, "audit", "--sections", "structure"], cwd=cwd, env=env,
++                       capture_output=True, text=True, timeout=600, check=False)
++    raw = p.stdout + p.stderr
++    match = None
++    for line in raw.splitlines():
++        m = COVERAGE_RE.search(line)
++        if m:
++            match = m
++            break
++    warn = fail = None
++    mw = re.search(r"^Warn:\s*(\d+)", raw, re.M)
++    mf = re.search(r"^Fail:\s*(\d+)", raw, re.M)
++    if mw:
++        warn = int(mw.group(1))
++    if mf:
++        fail = int(mf.group(1))
++    return match, warn, fail, raw
++
++
++def coverage_severity(raw):
++    """The severity marker on the line carrying the coverage finding, e.g. 'WARN'.
++
++    Read off the finding itself rather than from the report's Fail: total. The total is a
++    property of the whole tree that moves whenever any unrelated check fails, so asserting on
++    it would make this leg report someone else's regression as a severity change here (G-015).
++    """
++    for line in raw.splitlines():
++        if COVERAGE_RE.search(line):
++            m = re.match(r"\s*\[([A-Z]+)\]", line)
++            return m.group(1) if m else None
++    return None
++
++
++def history(tmp, name, registered):
++    """A directory holding one daily audit report that states `registered` cards."""
++    d = os.path.join(tmp, name)
++    os.makedirs(d, exist_ok=True)
++    if registered is not None:
++        # Filename must be a plausible LATER day than any real report, because the reader
++        # takes the most recent. 2099 is unmistakably synthetic to anyone who sees it.
++        with open(os.path.join(d, "2099-01-01.yaml"), "w") as fh:
++            fh.write('  - check: "Fabric: %d registered, 1 unregistered (of 2 watched)"\n'
++                     % registered)
++    return d
++
++
++if not os.path.isfile(FW):
++    refuse("missing %s — the subject is not here" % FW)
++
++print("T-525 teeth — does the fabric coverage WARN discriminate, or just warn?")
++print("subject: agents/audit/audit.sh (fabric coverage check)")
++print()
++
++tmp = tempfile.mkdtemp(prefix="t525-teeth-")
++
++# T-533: SCOPED to this subject's write-set, not to the whole tree.
++# The original form compared over the entire repository across this script's ~61-second run, so
++# ANY other writer — cron, a handover commit, a concurrent agent — turned leg 7 red while the
++# script passed 7/7 standalone. Demonstrated under T-527: one persistent file created mid-run
++# drove it red naming the marker. That made the bridge suite non-deterministic and cost a whole
++# investigation (T-526) to localise.
++# The subject here is `fw audit`, which writes its report under `.context/audits/`. The `cron/`
++# subdirectory is EXCLUDED because it belongs to a different actor on a 15-minute timer — the
++# single likeliest unrelated writer, and including it would rebuild the defect at 1/15th scale.
++#
++# T-552: the SCOPE above was right; the COMPARAND was not. It was `git status --porcelain`,
++# which reports status letters rather than content — so a rewrite of any already-dirty file was
++# invisible, including both files the audit actually writes — and which reads the legitimate
++# creation of `<today>.yaml` as a violation, so the leg could not pass on the first audit of any
++# day (OBS-273). Now a path->digest map judged against the paths the subject is entitled to
++# write. See tools/_writeset_hermeticity.py for the measurements behind both halves.
++# T-1005 (1.7.740): upstream's audit also records its run time in full-audit-timing.yaml
++# (AUDIT_TIMING_FILE, used to size the pre-push timeout) -- a declared output of the subject.
++ALLOWED_WRITES = {os.path.join(".context/audits/discoveries", "LATEST.yaml"),
++                  os.path.join(".context/audits", "full-audit-timing.yaml"),
++                  # the GO-scope triage report (T-3562) is rewritten on every full audit
++                  os.path.join(".context/audits/go-scope-unpropagated", "LATEST.md")}
++
++
++def audits_state():
++    return snapshot(REPO, ".context/audits")
++
++
++before = audits_state()
++# Read on both sides of the run: this probe takes ~61s and can straddle midnight, on which run
++# the audit legitimately writes tomorrow's report rather than today's.
++allowed_writes = set(ALLOWED_WRITES) | {".context/audits/%s.yaml" % today_iso()}
++fixture = None
++try:
++    # ── leg 1: the real run reaches the check and reports a ratio ──────────────────────────
++    base_raw = ""
++    if BRANCHES_ONLY:
++        print("  SKIP  1 (branch scope — this repository is not audited in this mode)")
++    else:
++        base, base_warn, base_fail, base_raw = audit()
++        if base is None:
++            refuse("the audit produced no fabric coverage line at all, so no branch could be "
++                   "observed. Either the check did not run (is `unregistered` zero on this "
++                   "tree, which sends it down the pass() arm?) or its message shape changed "
++                   "and the regex in this file is stale. Nothing below was evaluated.")
++
++        now_reg = int(base.group("reg"))
++        watched = int(base.group("watched"))
++        pct = int(base.group("pct"))
++        leg("1 the check is REACHED and reports COVERAGE, not just a difference",
++            watched > 0 and pct == (now_reg * 100 // watched),
++            "registered=%d watched=%d printed=%d%%. The whole finding is that `unregistered` "
++            "alone moves opposite to coverage; if the ratio is absent or wrong, nothing else "
++            "here means anything." % (now_reg, watched, pct))
++
++    # ── the fixture the branch legs run against (T-549) ────────────────────────────────────
++    # Built once and reused across legs 2-5: each leg varies FABRIC_HISTORY_DIR only, which is
++    # precisely the isolation the old real-tree version could not offer.
++    fixture = build_fixture()
++    fx, fx_warn, fx_fail, fx_raw = audit(root=fixture)
++    if fx is None:
++        refuse("the audit produced no fabric coverage line on the T-549 fixture, so the four "
++               "branch legs have no stimulus. The fixture is meant to sit in the same arm the "
++               "real tree does (cards registered, watch set non-empty, unregistered > 0); if "
++               "the audit now takes a different arm on it — the expander-unavailable or "
++               "empty-watch-set warnings — the fixture has drifted from the thing it stands "
++               "in for and must be repaired, not worked around. Nothing below was evaluated.\n"
++               "fixture output:\n%s" % fx_raw[-1500:])
++    fx_reg = int(fx.group("reg"))
++
++    # ── leg 2: card loss ───────────────────────────────────────────────────────────────────
++    m, warn_loss, fail_loss, raw = audit(history(tmp, "loss", fx_reg + 12), root=fixture)
++    note = m.group("note") if m else ""
++    leg("2 history with MORE cards than now takes the CARD LOSS branch, arithmetic right",
++        m is not None and "CARD LOSS" in note and ("12 fewer cards" in note)
++        and ("%d -> %d" % (fx_reg + 12, fx_reg)) in note,
++        "note=%r. Card loss and routine growth must not print the same line — a deleted or "
++        "malformed card stops participating in component resolution (T-522/T-524) and makes "
++        "its own file report as unregistered." % note)
++
++    # ── leg 3: growth — a NEGATIVE assertion, so prove the line exists first ───────────────
++    m, warn_grow, fail_grow, raw = audit(history(tmp, "grow", max(fx_reg - 7, 0)), root=fixture)
++    note = m.group("note") if m else ""
++    leg("3 history with FEWER cards takes the growth branch and NOT card loss",
++        m is not None and note != "" and "CARD LOSS" not in note
++        and note.startswith("+%d cards since" % (fx_reg - max(fx_reg - 7, 0))),
++        "note=%r (line present=%s). This leg asserts a branch was NOT taken, so it must also "
++        "prove the check produced a line — otherwise a broken audit satisfies it by silence, "
++        "which is exactly the T-524 vacuous-leg failure." % (note, m is not None))
++
++    # ── leg 4: flat ────────────────────────────────────────────────────────────────────────
++    m, warn_flat, fail_flat, raw = audit(history(tmp, "flat", fx_reg), root=fixture)
++    note = m.group("note") if m else ""
++    leg("4 history EQUAL to now takes the flat branch",
++        m is not None and note.startswith("cards flat since"),
++        "note=%r. This is the branch that tells the operator the unregistered movement they are "
++        "looking at is tree growth rather than carding activity." % note)
++
++    # ── leg 5: abstention — also a negative assertion ──────────────────────────────────────
++    m, warn_abs, fail_abs, raw = audit(history(tmp, "empty", None), root=fixture)
++    note = m.group("note") if m else ""
++    leg("5 no usable history ABSTAINS rather than falling into a comparison branch",
++        m is not None and note.startswith("direction not evaluated")
++        and "CARD LOSS" not in note and "flat since" not in note and not note.startswith("+"),
++        "note=%r (line present=%s). 'I have no prior value' rendered as 'no change' would be a "
++        "claim about history the instrument cannot support (PL-205)." % (note, m is not None))
++
++    # ── leg 6a: severity untouched across branches, measured where only history varies ─────
++    leg("6a severity is UNCHANGED across every branch on the fixture",
++        None not in (fx_warn, warn_loss, warn_grow, warn_flat, warn_abs,
++                     fx_fail, fail_loss, fail_grow, fail_flat, fail_abs)
++        and fx_warn == warn_loss == warn_grow == warn_flat == warn_abs
++        and fx_fail == fail_loss == fail_grow == fail_flat == fail_abs == 0,
++        "warn counts base=%s loss=%s grow=%s flat=%s abstain=%s; fail %s/%s/%s/%s/%s. Only "
++        "FABRIC_HISTORY_DIR differs between these five runs, so any difference here is the "
++        "branch changing severity and nothing else. On the real tree this same comparison "
++        "could move because an unrelated check flapped mid-run (T-533's lesson, one leg over)."
++        % (fx_warn, warn_loss, warn_grow, warn_flat, warn_abs,
++           fx_fail, fail_loss, fail_grow, fail_flat, fail_abs))
++
++    # ── leg 6b: and on THIS repo the finding is still a WARN ────────────────────────────────
++    if BRANCHES_ONLY:
++        print("  SKIP  6b (branch scope — this repository is not audited in this mode)")
++    else:
++        base_sev = coverage_severity(base_raw)
++        leg("6b the coverage finding on THIS repo is carried at WARN, not FAIL",
++            base_sev == "WARN",
++            "severity=%r. The operator's T-344 [REVIEW] accepted this standing WARN; promoting "
++            "it to FAIL inside a reporting fix would overturn a ratified decision as a side "
++            "effect. Asserted on the finding's own marker rather than on the report's Fail: "
++            "total, which moves for reasons that have nothing to do with this check."
++            % base_sev)
++finally:
++    shutil.rmtree(tmp, ignore_errors=True)
++    if fixture:
++        shutil.rmtree(fixture, ignore_errors=True)
++
++after = audits_state()
++allowed_writes |= {".context/audits/%s.yaml" % today_iso()}
++if BRANCHES_ONLY:
++    # Nothing in this mode writes to the real .context/audits, so the leg has no stimulus and
++    # would be satisfied by that absence rather than by hermeticity — a vacuous pass of exactly
++    # the kind leg 3 and leg 5 were built to refuse.
++    print("  SKIP  7 (branch scope — nothing in this mode writes to the subject's write-set)")
++else:
++    breaches = write_set_violations(before, after, allowed_writes)
++    # T-552: hermeticity is a negative claim and a negative claim is satisfied by silence
++    # (T-524), so the leg also requires that the subject DID write. `fw audit` stamps its report
++    # with a timestamp, so an audit that ran always moves at least one declared output; an empty
++    # observation here means the audit did not run, which must not read as hermetic.
++    wrote = declared_writes_observed(before, after, allowed_writes)
++    leg("7 hermetic — the subject wrote its declared outputs and nothing else",
++        not breaches and wrote,
++        "content changed across the run WITHIN THIS SUBJECT'S WRITE-SET (.context/audits, "
++        "excluding cron/) at a path the subject does not declare as output. The audit writes "
++        "its report there, so a leg that let it run unconstrained would dirty the tree and "
++        "make every later verdict in the session ambiguous. Two scopings apply: T-533 means an "
++        "unrelated writer ELSEWHERE in the repo can no longer cause this, and T-552 means the "
++        "comparand is content rather than git status letters — so a red here is a real byte "
++        "change by this run, at a path outside %r. Declared outputs observed to move: %r — if "
++        "that list is EMPTY the audit did not write at all, and this leg is red because a "
++        "subject that never ran is not a hermetic subject.\n%s"
++        % (sorted(allowed_writes), wrote, "\n".join(breaches)))
++
++print()
++total = passes + len(failures)
++if failures:
++    print("%d/%d legs passed — FAILED: %s" % (passes, total, ", ".join(failures)))
++    sys.exit(1)
++if BRANCHES_ONLY:
++    print("%d/%d legs passed — SUBSET RUN (T525_SCOPE=branches), NOT a pass of this file. "
++          "Legs 1, 6b and 7 were not evaluated: they audit this repository and nothing here "
++          "did. Exiting 2 (abstain) so no caller can read a partial run as a whole one."
++          % (passes, total))
++    sys.exit(2)
++print("%d/%d legs passed" % (passes, total))
++sys.exit(0)
+-- 
+2.43.0
+

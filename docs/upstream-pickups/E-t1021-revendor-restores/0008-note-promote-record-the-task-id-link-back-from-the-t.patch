@@ -1,0 +1,199 @@
+From 797f39b4e59d3d3b1b7e550eb7a1a0473025e6e8 Mon Sep 17 00:00:00 2001
+From: Dimitri Geelen <dimitri@geelenandcompany.com>
+Date: Sun, 4 Oct 2026 14:16:06 +0200
+Subject: [PATCH 08/10] note promote: record the task id, link back from the
+ task, default the owner to agent, and stay pending when creation fails (from
+ 832 T-912/T-1027)
+
+do_promote wrote the literal string `promoted_to: task`, never an id, so nothing linked an
+observation to the task it became. It ignored create-task's exit code, so a failed creation still
+marked the observation promoted. And it created every task as owner: human, which the delegation
+surface then counts as a decision only the operator can close.
+Now: create-task's output is captured and its exit code checked; on failure the observation stays
+pending; on success promoted_to records the new T-id and the task gets `observation: OBS-NNN`.
+Owner defaults to agent; --owner overrides.
+Probe: tests/unit/test_t1021_note_promote.sh (hermetic scratch project, real CLI). Before: 1/5.
+After: 5/5.
+---
+ agents/observe/observe.sh             | 66 ++++++++++++++++++++----
+ tests/unit/test_t1021_note_promote.sh | 73 +++++++++++++++++++++++++++
+ 2 files changed, 128 insertions(+), 11 deletions(-)
+ create mode 100755 tests/unit/test_t1021_note_promote.sh
+
+diff --git a/agents/observe/observe.sh b/agents/observe/observe.sh
+index 6edcb3d7..5f37d0a7 100755
+--- a/agents/observe/observe.sh
++++ b/agents/observe/observe.sh
+@@ -311,16 +311,22 @@ do_promote() {
+     local obs_id=""
+     local task_type="build"
+     local allow_duplicate=false
++    # 832 T-912/T-1027: owner defaults to agent (--owner overrides). A promoted observation is
++    # "this needs doing", not "only the operator can close this"; hard-coding human made every
++    # promotion an operator-only decision on the delegation surface.
++    local task_owner="agent"
+     while [ $# -gt 0 ]; do
+         case "$1" in
+             --type|-t) task_type="$2"; shift 2 ;;
++            --owner|-o) task_owner="$2"; shift 2 ;;
+             --allow-duplicate) allow_duplicate=true; shift ;;
+             -h|--help)
+-                echo "Usage: fw note promote OBS-NNN [--type <build|inception|...>] [--allow-duplicate]"
++                echo "Usage: fw note promote OBS-NNN [--type <build|inception|...>] [--owner <agent|human>] [--allow-duplicate]"
++                echo "  --owner defaults to agent."
+                 return 0 ;;
+             -*)
+                 echo -e "${RED}Unknown flag: $1${NC}" >&2
+-                echo "Usage: fw note promote OBS-NNN [--type <build|inception|...>]" >&2
++                echo "Usage: fw note promote OBS-NNN [--type <build|inception|...>] [--owner <agent|human>]" >&2
+                 return 1 ;;
+             *)
+                 if [ -z "$obs_id" ]; then obs_id="$1"; else
+@@ -368,18 +374,56 @@ do_promote() {
+     echo -e "${YELLOW}Promoting $obs_id to task (type: $task_type)...${NC}"
+     echo ""
+ 
+-    # Create task
+-    PROJECT_ROOT="$PROJECT_ROOT" "$FRAMEWORK_ROOT/agents/task-create/create-task.sh" \
+-        --name "$text" \
+-        --description "Promoted from observation $obs_id" \
+-        --type "$task_type" \
+-        --owner human
++    # Create task. Output is CAPTURED so the created id can be read back, then re-printed in full.
++    local create_out create_rc=0
++    local -a create_args=(--name "$text" --description "Promoted from observation $obs_id"
++                          --type "$task_type" --owner "$task_owner")
++    create_out=$(PROJECT_ROOT="$PROJECT_ROOT" "$FRAMEWORK_ROOT/agents/task-create/create-task.sh" \
++        "${create_args[@]}" 2>&1) || create_rc=$?
++    printf '%s\n' "$create_out"
++    if [ "$create_rc" -ne 0 ]; then
++        echo -e "${RED}promote: task creation failed (rc=$create_rc)${NC}" >&2
++        echo "  $obs_id is left PENDING — an observation marked promoted with no task behind it" >&2
++        echo "  is worse than one still in the queue." >&2
++        return 1
++    fi
++
++    # T-912: record the REAL task id. 1.7.740 wrote the literal 'task' into promoted_to, so the field
++    # was filled with a constant and nothing linked an observation to the task it turned into.
++    local new_id
++    new_id=$(printf '%s\n' "$create_out" | sed -n 's/^ID:[[:space:]]*\(T-[0-9][0-9]*\).*/\1/p' | head -1)
++    if [ -z "$new_id" ]; then
++        echo -e "${RED}promote: could not read the created task id from create-task.sh output${NC}" >&2
++        echo "  $obs_id is left PENDING rather than marked with a placeholder." >&2
++        return 1
++    fi
++
++    # The REVERSE link, in a field a query can read (the description's prose is not an index).
++    local task_file
++    task_file=$(printf '%s\n' "$create_out" | sed -n 's/^File:[[:space:]]*\(.*[^[:space:]]\)[[:space:]]*$/\1/p' | head -1)
++    if [ -n "$task_file" ] && [ -f "$task_file" ]; then
++        OBS_ID="$obs_id" TASK_FILE="$task_file" python3 -c '
++import os, sys
++f, obs = os.environ["TASK_FILE"], os.environ["OBS_ID"]
++lines = open(f, encoding="utf-8").read().split("\n")
++if any(ln.startswith("observation:") for ln in lines):
++    sys.exit(0)
++for i, ln in enumerate(lines):
++    if ln.startswith("id: "):
++        lines.insert(i + 1, "observation: %s" % obs)
++        break
++else:
++    sys.exit(1)
++open(f, "w", encoding="utf-8").write("\n".join(lines))
++' || echo "  (warning: could not add the observation backlink to $task_file)" >&2
++    fi
+ 
+-    # Mark as promoted
+-    _sed_i "/id: $obs_id/,/promoted_to:/{s/status: pending/status: promoted/;s/promoted_to: null/promoted_to: task/}" "$INBOX_FILE"
++    # Mark as promoted, with the id rather than a constant.
++    _sed_i "/id: $obs_id/,/promoted_to:/{s/status: pending/status: promoted/;s/promoted_to: null/promoted_to: $new_id/}" "$INBOX_FILE"
+ 
+     echo ""
+-    echo -e "${GREEN}$obs_id promoted to task${NC}"
++    echo -e "${GREEN}$obs_id promoted to $new_id${NC} (owner: $task_owner)"
++    echo "  $obs_id.promoted_to → $new_id, and $new_id.observation → $obs_id"
+ }
+ 
+ do_dismiss() {
+diff --git a/tests/unit/test_t1021_note_promote.sh b/tests/unit/test_t1021_note_promote.sh
+new file mode 100755
+index 00000000..8257fe03
+--- /dev/null
++++ b/tests/unit/test_t1021_note_promote.sh
+@@ -0,0 +1,73 @@
++#!/usr/bin/env bash
++# _t1027-note-promote-teeth.sh — `fw note promote` links an observation to the task it became.
++#
++# WHY (T-912, erased silently by the 1.7.740 re-vendor; found by the T-1020 census): promote wrote
++# the literal string `promoted_to: task` — never an id — so nothing linked an observation to the
++# task it turned into; it ignored create-task's exit code, so a failed creation still marked the
++# observation promoted; and it created every task as owner: human, which the delegation surface
++# then counts as a decision only the operator can close.
++#
++# Legs, on a scratch project driven through the real CLI (hermetic):
++#   1. promoted_to records the created task id (T-NNNN), not the constant `task`
++#   2. the created task carries `observation: OBS-NNN` (the reverse link)
++#   3. the created task's owner is agent by default; --owner human is honoured
++#   4. when task creation fails, the observation stays pending (not promoted to nothing)
++# Exit 0 = all legs pass, 1 = a leg fails, 2 = cannot run.
++set -uo pipefail
++ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
++# the framework repo itself (FRAMEWORK.md at root), else a vendored consumer
++if [ -f "$ROOT/FRAMEWORK.md" ]; then FW_HOME="$ROOT"; else FW_HOME="$ROOT/.agentic-framework"; fi
++FWR="${T1027_FRAMEWORK:-$FW_HOME}"
++[ -x "$FWR/bin/fw" ] || { echo "CANNOT RUN: no fw at $FWR/bin/fw"; exit 2; }
++T="$(mktemp -d)"; trap 'rm -rf "$T"' EXIT
++PASS=0; FAIL=0
++ok()  { PASS=$((PASS+1)); echo "  PASS  $1"; }
++bad() { FAIL=$((FAIL+1)); echo "  FAIL  $1"; [ -n "${2:-}" ] && printf '%s\n' "$2" | sed 's/^/        /' | head -8; }
++
++mkproj() {
++  mkdir -p "$1/.tasks/active" "$1/.tasks/completed" "$1/.tasks/templates" "$1/.context/project" "$1/.context/working"
++  cp "$ROOT/.tasks/templates/default.md" "$1/.tasks/templates/" 2>/dev/null || true
++  printf 'project_name: t1027\n' > "$1/.framework.yaml"
++  git -C "$1" init -q 2>/dev/null
++}
++fwp() { (cd "$1" && shift && PROJECT_ROOT="$PWD" FRAMEWORK_ROOT="$FWR" CLAUDECODE= "$FWR/agents/observe/observe.sh" "$@") 2>&1; }
++obs_field() { # $1 inbox $2 obs $3 field
++  python3 - "$1" "$2" "$3" <<'PY'
++import sys, yaml
++d = yaml.safe_load(open(sys.argv[1])) or {}
++for o in d.get('observations', []) or []:
++    if o.get('id') == sys.argv[2]:
++        print(o.get(sys.argv[3])); break
++PY
++}
++
++echo "=== T-1027: fw note promote links observation <-> task ==="
++P="$T/p"; mkproj "$P"
++out=$(fwp "$P" "the save button sometimes does nothing" ); oid=$(printf '%s' "$out" | grep -oE 'OBS-[0-9]+' | head -1)
++[ -n "$oid" ] || { echo "CANNOT RUN: capture produced no OBS id"; printf '%s\n' "$out" | head -5; exit 2; }
++out=$(fwp "$P" promote "$oid")
++INBOX="$P/.context/inbox.yaml"; [ -f "$INBOX" ] || INBOX=$(ls "$P"/.context/*inbox*.yaml 2>/dev/null | head -1)
++pt=$(obs_field "$INBOX" "$oid" promoted_to)
++if [[ "$pt" =~ ^T-[0-9]+$ ]]; then ok "promoted_to records the task id ($oid -> $pt)"
++else bad "promoted_to records the task id (got '$pt')" "$out"; fi
++tf=$(ls "$P"/.tasks/active/"$pt"-*.md 2>/dev/null | head -1)
++if [ -n "$tf" ] && grep -q "^observation: $oid" "$tf"; then ok "the task carries the reverse link (observation: $oid)"
++else bad "the task carries the reverse link" "$(head -12 "${tf:-/dev/null}")"; fi
++if [ -n "$tf" ] && grep -q "^owner: agent" "$tf"; then ok "owner defaults to agent"
++else bad "owner defaults to agent (got: $(grep '^owner:' "${tf:-/dev/null}"))"; fi
++
++out=$(fwp "$P" "needs a person to judge the colour palette"); oid2=$(printf '%s' "$out" | grep -oE 'OBS-[0-9]+' | head -1)
++out=$(fwp "$P" promote "$oid2" --owner human); pt2=$(obs_field "$INBOX" "$oid2" promoted_to)
++tf2=$(ls "$P"/.tasks/active/"$pt2"-*.md 2>/dev/null | head -1)
++if [[ "$pt2" =~ ^T-[0-9]+$ ]] && [ -n "$tf2" ] && grep -q "^owner: human" "$tf2"; then ok "--owner human is honoured ($oid2 -> $pt2)"
++else bad "--owner human is honoured (promoted_to='$pt2')" "$out"; fi
++
++out=$(fwp "$P" "this one cannot become a task"); oid3=$(printf '%s' "$out" | grep -oE 'OBS-[0-9]+' | head -1)
++out=$(fwp "$P" promote "$oid3" --type no-such-type); st=$(obs_field "$INBOX" "$oid3" status); pt3=$(obs_field "$INBOX" "$oid3" promoted_to)
++if [ "$st" = "pending" ] && { [ "$pt3" = "None" ] || [ -z "$pt3" ]; }; then ok "a failed creation leaves the observation pending"
++else bad "a failed creation leaves the observation pending (status=$st promoted_to=$pt3)" "$out"; fi
++
++echo "=== SUMMARY ==="
++echo "PASS: $PASS"
++echo "FAIL: $FAIL"
++[ "$FAIL" -eq 0 ]
+-- 
+2.43.0
+
