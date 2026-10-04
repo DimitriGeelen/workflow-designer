@@ -61,16 +61,24 @@ echo
 python3 - "$HOOK" "$MUTANT" <<'PY'
 import sys
 src = open(sys.argv[1]).read()
-anchor = """    if type _sc_is_commit_only_command &>/dev/null && \\
-       _sc_is_commit_only_command "$BASH_CMD" && \\
-"""
+# Re-anchored (T-1039) on 1.7.740: the null-focus commit branch is
+#   if [ -z "$CURRENT_TASK" ] && [ "$TOOL_NAME" = "Bash" ] && [ -n "$BASH_CMD" ]; then
+#       if type is_commit_checkpoint_command &>/dev/null && \
+#          is_commit_checkpoint_command "$BASH_CMD"; then
+#           echo "NOTE: no active task — allowing 'git commit' ... (T-2054)..."
+# The mutant restores the PRE-FIX test at that one site: "the words git commit appear
+# anywhere", minus the --no-verify exclusion the pre-fix branch carried separately.
+anchor = """    if type is_commit_checkpoint_command &>/dev/null && \\
+       is_commit_checkpoint_command "$BASH_CMD"; then
+        echo "NOTE: no active task — allowing 'git commit' to checkpoint completed work (T-2054)."""
 if src.count(anchor) != 1:
     sys.stderr.write("MUTATION FAILED: %d occurrence(s) of the predicate call, expected 1.\n"
                      "The hook's shape changed — fix this mutation rather than pinning a copy.\n"
                      % src.count(anchor))
     sys.exit(1)
 old = """    if [[ "$BASH_CMD" =~ (^|[[:space:]])git[[:space:]]+commit($|[[:space:]]) ]] && \\
-"""
+       ! [[ "$BASH_CMD" =~ (^|[[:space:]])(--no-verify|-n)([[:space:]]|$) ]]; then
+        echo "NOTE: no active task — allowing 'git commit' to checkpoint completed work (T-2054)."""
 open(sys.argv[2], "w").write(src.replace(anchor, old, 1))
 PY
 if [ $? -ne 0 ]; then
@@ -178,9 +186,11 @@ echo "--- and the predicate stays fork-free (PreToolUse runs it on every Bash ca
 BODY=$(python3 - "$LIB" <<'PY'
 import sys
 code = open(sys.argv[1]).read()
-start = code.index("_sc_is_commit_only_command() {")
-print("\n".join(l for l in code[start:code.index("\n}", start)].splitlines()
-                if not l.lstrip().startswith("#")))
+out = []
+for fn in ("is_commit_checkpoint_command() {", "_fw_is_git_commit_clause() {"):
+    start = code.index(fn)
+    out += [l for l in code[start:code.index("\n}", start)].splitlines() if not l.lstrip().startswith("#")]
+print("\n".join(out))
 PY
 )
 FORKS=""

@@ -2,10 +2,14 @@
 id: T-1039
 name: "Repair the 13 hook-fix teeth so all run green in the bridge suite (T-1035 GO)"
 description: >
-  Re-anchor the 4 stale teeth (_t632, _t638, _t639, _t654), update the message-text legs (_t628, _t629), make _t633's census skip fixtures and docs, make _t637 read the live inception population; then wire all 13 (they are baselined under T-1035/T-1013 now) and remove them from tools/unwired-guard-baseline.txt.
+  Re-anchor the 4 stale teeth (_t632, _t638, _t639, _t654), update the message-text
+  legs (_t628, _t629), make _t633's census skip fixtures and docs, make _t637 read
+  the live inception population; then wire all 13 (they are baselined under T-1035/T-1013
+  now) and remove them from tools/unwired-guard-baseline.txt.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T14:44:17Z
-last_update: 2026-10-04T14:44:17Z
-date_finished: null
+last_update: 2026-10-04T15:53:39Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +54,47 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-04T15:29:02Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1039: Repair the 13 hook-fix teeth so all run green in the bridge suite (T-1035 GO)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+T-1035 GO. Of the 13 hook-fix teeth, `_t650` and `_t662` are green and wired (T-1037, T-1038). The other 11 fail or cannot measure on 1.7.740, although each protected behaviour holds or is deliberately obsolete (docs/reports/T-1035-hook-fix-census.md §Spike B). A stale tooth is worse than none: it trains readers to ignore red. Per tool:
+- **Re-anchor the mutation** (anchor gone): `_t632`, `_t636`, `_t638`, `_t654`.
+- **Update message-text legs** to today's wording: `_t628`, `_t629`, `_t634` (also narrow its call-site grep).
+- **Census over-matches:** `_t633` (skip fixtures and docs).
+- **Frozen population:** `_t637` (read the live undecided set, not the frozen brief).
+- **Obsolete; retire or rewrite to assert today's deliberate behaviour:** `_t631` (Tier-0 self-approval is now human-only by design), `_t639` (superseded by `_t1005`).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Each of the 11 exits 0 on today's tree, OR is retired, with its retirement and successor stated in its header and here. No leg is deleted or loosened merely to go green: a re-anchored mutation must still turn the tooth red when the behaviour it protects is removed. Each tooth's mutation (or a stated equivalent negative control) is shown biting
+- [ ] Every surviving tooth is wired into tests/run-bridge-tests.sh and removed from tools/unwired-guard-baseline.txt; retired ones are removed from the baseline with a note; `_t451 --ratchet` exits 0
+- [ ] No other bridge leg goes red
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,3 +351,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1039-repair-the-13-hook-fix-teeth-so-all-run-.md
 - **Context:** Initial task creation
+
+### 2026-10-04T15:29:02Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

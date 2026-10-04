@@ -111,6 +111,20 @@ print(json.dumps({"tool_name":"Bash","tool_input":{"command":sys.argv[1]},"cwd":
     RC=$?
 }
 
+# Same, for the Edit TOOL (T-1039). Remedies 1 and 2 are task-file edits, and the Edit tool is
+# the surface on which the gate exempts the task file (a FILE_PATH test). The Bash runner
+# above cannot exercise that, which is why it only ever saw the refusals.
+run_edit_hook() {  # <hook-path> <file-path>   -> sets RC, OUT
+    local hook="$1" fp="$2" json
+    json=$(python3 -c '
+import json,sys
+print(json.dumps({"tool_name":"Edit","tool_input":{"file_path":sys.argv[1],"old_string":"a","new_string":"b"},"cwd":sys.argv[2]}))' "$fp" "$SANDBOX")
+    OUT=$(printf '%s' "$json" | env -u PROJECT_ROOT -u TASKS_DIR -u CONTEXT_DIR \
+        -u _FW_PATHS_DERIVED_BY -u FRAMEWORK_ROOT \
+        CLAUDECODE=1 PROJECT_ROOT="$SANDBOX" bash "$hook" 2>&1 >/dev/null)
+    RC=$?
+}
+
 echo "=== T-629 G-067 remedy reachability ==="
 build_sandbox
 echo "sandbox: $SANDBOX  ($UNFILED unfiled; $FILED filed; $LEGACY no-section)"
@@ -183,20 +197,37 @@ else
 fi
 
 echo
+echo "--- the remedies the message names actually work (T-1039: through the Edit tool)"
+
+TASKFILE="$SANDBOX/.tasks/active/$UNFILED-t629-fixture.md"
+run_edit_hook "$HOOK" "$TASKFILE"
+if [ "$RC" -eq 0 ] && ! printf '%s' "$OUT" | grep -q 'G-067'; then
+    ok "remedies 1 and 2 (edit the task file) are reachable through the Edit tool (rc=0)"
+else
+    bad "the Edit tool is refused on the task file the message tells you to edit (rc=$RC)"
+fi
+run_edit_hook "$HOOK" "$SANDBOX/src/app.py"
+if printf '%s' "$OUT" | grep -q 'G-067'; then
+    ok "control: the same Edit tool on a SOURCE file is still refused by G-067 — the exemption is path-scoped"
+else
+    bad "control: Edit on a source file is not refused by G-067 (rc=$RC) — the gate is not firing"
+fi
+
+echo
 echo "--- the message itself"
 
 run_hook "$HOOK" 'echo probe > /tmp/t629.marker'
-if printf '%s' "$OUT" | grep -q 'Edit/Write tool'; then
-    ok "remedies 1 and 2 name the surface that works"
+MISSING=""
+printf '%s' "$OUT" | grep -q "Edit $UNFILED and add at least one entry under '## Open Questions'" || MISSING="$MISSING remedy-1"
+printf '%s' "$OUT" | grep -q 'IW-1:'                                                             || MISSING="$MISSING entry-shape"
+printf '%s' "$OUT" | grep -q "remove the '## Open Questions' section entirely"                   || MISSING="$MISSING remedy-2"
+printf '%s' "$OUT" | grep -q 'FW_ALLOW_INCEPTION_OPEN_QUESTIONS_DRIFT=1'                         || MISSING="$MISSING remedy-3-override"
+if [ -z "$MISSING" ]; then
+    ok "the message names all three remedies, the entry shape and the override variable"
 else
-    bad "remedies 1 and 2 are stated without a surface — shell forms are refused"
+    bad "the message no longer names:$MISSING"
 fi
-if printf '%s' "$OUT" | grep -qE '^Attempting to modify:[[:space:]]*$'; then
-    bad "prints a bare 'Attempting to modify:' with an empty target"
-else
-    ok "no empty 'Attempting to modify:' line"
-fi
-if printf '%s' "$OUT" | grep -q 'Attempting to run (Bash): echo probe'; then
+if printf '%s' "$OUT" | grep -q 'Blocked command: echo probe'; then
     ok "names the actual restricted Bash command"
 else
     bad "does not name the restricted command"
@@ -206,47 +237,38 @@ fi
 echo
 echo "--- teeth (mutate live source, assert the probe goes RED)"
 
-python3 - "$HOOK" "$MUT" <<'PY'
+# T-1039: the previous teeth swapped the message text for older text and then asserted the
+# older text was present -- it asserted its own mutation, so it could not fail. The behaviour
+# that makes remedies 1 and 2 reachable is the exempt-path case that lets the Edit tool
+# touch "$PROJECT_ROOT"/.tasks/*. Take that arm out and the remedy must become unreachable.
+python3 - "$HOOK" "$MUT" <<'PYEOF'
 import sys
 src = open(sys.argv[1]).read()
-# Revert the T-629 wording to its pre-fix form — BOTH remedies, not just the first.
-#
-# The first draft reverted remedy 1 alone, and the teeth leg stayed green on the mutant:
-# remedy 2's line also carries "Edit/Write tool", so the assertion still matched and the
-# leg proved nothing. A partial mutation under a whole-file assertion has no bite, and it
-# fails in the safe-looking direction — the suite reports PASS. Revert the whole fix, or
-# narrow the assertion to the one line the mutation touches; doing neither is the vacuity
-# this file exists to avoid.
-edits = [
-    ("  1. Edit $CURRENT_TASK with the Edit/Write tool and add at least one entry under '## Open Questions':",
-     "  1. Edit $CURRENT_TASK and add at least one entry under '## Open Questions':"),
-    ("  2. Or remove the '## Open Questions' section entirely, also with the Edit/Write tool (grandfathered).",
-     "  2. Or remove the '## Open Questions' section entirely (grandfathered)."),
-]
-for old, new in edits:
-    if src.count(old) != 1:
-        sys.stderr.write("MUTATION FAILED: %r not found exactly once (%d) — teeth cannot certify anything\n" % (old[:40], src.count(old)))
-        sys.exit(1)
-    src = src.replace(old, new)
-open(sys.argv[2], 'w').write(src)
-PY
+anchor = '    "$PROJECT_ROOT"/.context/*|"$PROJECT_ROOT"/.tasks/*|"$PROJECT_ROOT"/.claude/*|"$PROJECT_ROOT"/.git/*)\n        exit 0\n'
+if src.count(anchor) != 1:
+    sys.stderr.write("MUTATION FAILED: exempt-path arm found %d times, expected 1 -- teeth cannot certify anything\n" % src.count(anchor))
+    sys.exit(1)
+mutant = '    "$PROJECT_ROOT"/.context/*|"$PROJECT_ROOT"/.claude/*|"$PROJECT_ROOT"/.git/*)\n        exit 0\n'
+open(sys.argv[2], "w").write(src.replace(anchor, mutant, 1))
+PYEOF
 mut_rc=$?
 if [ "$mut_rc" -ne 0 ]; then
-    bad "teeth: could not build the mutant (rc=$mut_rc) — no teeth were demonstrated"
+    bad "teeth: could not build the mutant (rc=$mut_rc) -- no teeth were demonstrated"
 elif ! bash -n "$MUT" 2>/dev/null; then
-    bad "teeth: mutant has a syntax error — cannot certify the leg"
+    bad "teeth: mutant has a syntax error -- cannot certify the leg"
 else
     ok "teeth: mutant parses (its failure below is behavioural, not syntactic)"
-    run_hook "$MUT" 'echo probe > /tmp/t629.marker'
+    run_edit_hook "$MUT" "$SANDBOX/src/app.py"
     if printf '%s' "$OUT" | grep -q 'G-067'; then
         ok "teeth: mutant still reaches G-067 (the leg below is about the right gate)"
-        if printf '%s' "$OUT" | grep -q 'Edit/Write tool'; then
-            bad "teeth: mutant still names the surface — the leg has no bite"
+        run_edit_hook "$MUT" "$TASKFILE"
+        if [ "$RC" -ne 0 ]; then
+            ok "teeth: without the task-file exemption the Edit remedy is REFUSED (rc=$RC) -- the leg has bite"
         else
-            ok "teeth: without the fix the remedy is stated with no surface — the leg has bite"
+            bad "teeth: mutant still lets the Edit tool through -- the reachability leg would pass on a broken tree"
         fi
     else
-        bad "teeth: mutant does not reach G-067 — the teeth leg would be vacuous"
+        bad "teeth: mutant does not reach G-067 -- the teeth leg would be vacuous"
     fi
 fi
 

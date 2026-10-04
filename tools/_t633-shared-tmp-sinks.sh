@@ -70,30 +70,59 @@ echo "--- leg 2: reader-side census — every %{http_code} call site"
 # The hazard is `-w '%{http_code}'` combined with `-o <a real shared path>`: the code is
 # reported from the transfer while the bytes come from whatever was already there.
 # Writing to /dev/null cannot hold foreign content, so those sites are safe by shape.
+# T-1039: prose documents are not call sites. Only a TASK file carries a line the framework
+# executes (P-011 runs its ## Verification block); .md under .agentic-framework/ (vendored
+# prompt docs) and docs/ (reports) only DESCRIBE commands. landing-mode.md:182 is the live
+# case: an indented example whose line ends "-> prints 200", i.e. a transcript of a command
+# somebody ran once, in a prompt. Scripts (.sh/.py) anywhere are always judged.
+http_code_sites() {  # <root> -> every %{http_code} line that could be executed
+    grep -rn -- '%{http_code}' --include=*.sh --include=*.py --include=*.md \
+        "$1/tools" "$1/.tasks" "$1/.agentic-framework" "$1/docs" 2>/dev/null \
+        | grep -v '_t633-shared-tmp-sinks' \
+        | grep -vE "^$1/(\.agentic-framework|docs)/.*\.md:" || true
+}
+exposed_sites() {  # <sites-file> -> the subset that writes a body somewhere other than /dev/null
+    grep -v '`' "$1" | grep -v -- '-o /dev/null\|-o/dev/null\|--output /dev/null' || true
+}
 CENSUS="$SANDBOX/http-code-sites.txt"
-grep -rn -- '%{http_code}' --include=*.sh --include=*.py --include=*.md \
-    "$PROJ/tools" "$PROJ/.tasks" "$PROJ/.agentic-framework" "$PROJ/docs" 2>/dev/null \
-    | grep -v '_t633-shared-tmp-sinks' > "$CENSUS" || true
+http_code_sites "$PROJ" > "$CENSUS"
 SITES=$(grep -c '' "$CENSUS" 2>/dev/null || echo 0)
 if [ "$SITES" -eq 0 ]; then
     bad "census found 0 call sites — the scan is broken, not the tree clean (PL-160)"
 else
     ok "census populated: $SITES call site(s) to judge (denominator is real)"
     # Exposed = writes somewhere other than /dev/null. `-o /dev/null` and `-I` (headers
-    # only, no body written) are the safe shapes.
-    # Prose is not a call site. Task files DO carry executable curl lines (P-011 runs the
-    # ## Verification block), so markdown cannot simply be excluded — but a line that
-    # quotes a command in backticks is discussing one, not running one. That is the
-    # discriminator: P-011 lines here never contain a backtick, and every prose mention
-    # does. Judged AFTER that, exposure means `-o` onto something other than /dev/null.
-    EXPOSED=$(grep -v '`' "$CENSUS" \
-              | grep -v -- '-o /dev/null\|-o/dev/null\|--output /dev/null' || true)
+    # only, no body written) are the safe shapes. A line that quotes a command in
+    # backticks is discussing one, not running one.
+    EXPOSED=$(exposed_sites "$CENSUS")
     if [ -z "$EXPOSED" ]; then
         ok "every %{http_code} site writes to /dev/null — no shared-path body sink in this tree"
     else
         bad "call site(s) capture a body outside /dev/null:"
         printf '%s\n' "$EXPOSED" | sed 's/^/          /'
     fi
+fi
+
+# Teeth for leg 2, on a planted tree: the real shape in an EXECUTABLE place is caught, the
+# same text in a PROSE place is skipped. Without the first, the prose skip could be a blanket.
+FAKE="$SANDBOX/fake-root"
+mkdir -p "$FAKE/tools" "$FAKE/.tasks/active" "$FAKE/.agentic-framework/policy" "$FAKE/docs"
+BAD_LINE="curl -s -o /""tmp/.pg -w '%{http_code}' http://x/"
+printf '%s\n' "$BAD_LINE" > "$FAKE/tools/_probe.sh"
+printf -- '## Verification\n%s\n' "$BAD_LINE" > "$FAKE/.tasks/active/T-1-probe.md"
+printf '    %s  -> prints 200\n' "$BAD_LINE" > "$FAKE/.agentic-framework/policy/prose.md"
+printf '    %s  -> prints 200\n' "$BAD_LINE" > "$FAKE/docs/prose.md"
+http_code_sites "$FAKE" > "$SANDBOX/fake-sites.txt"
+FAKE_EXPOSED=$(exposed_sites "$SANDBOX/fake-sites.txt")
+if printf '%s' "$FAKE_EXPOSED" | grep -q '/tools/_probe.sh' && printf '%s' "$FAKE_EXPOSED" | grep -q '/.tasks/active/T-1-probe.md'; then
+    ok "teeth: a real shared-path body sink in a script and in a task Verification block is caught"
+else
+    bad "teeth: the census cannot see a planted executable sink — leg 2 is decoration"
+fi
+if printf '%s' "$FAKE_EXPOSED" | grep -q 'prose.md'; then
+    bad "teeth: prose documents are still counted as call sites"
+else
+    ok "teeth: the same text in vendored/prose markdown is skipped"
 fi
 
 echo
@@ -126,10 +155,17 @@ root = pathlib.Path(sys.argv[1])
 # (`open("/tmp/x", "w")`) and must stay visible — that exact line was the live defect this
 # task fixed, so a stripper that also ate double quotes would have hidden the finding.
 sq = re.compile(r"'[^']*'")
-lit = re.compile(r"/tmp/[A-Za-z0-9._-]+")
+# (?<![\w./-]) so that /var/tmp/x and ./tmp/x are not mistaken for /tmp/x.
+lit = re.compile(r"(?<![\w./-])/tmp/[A-Za-z0-9._-]+")
+# T-1039: classifier test data is not a write. These drivers hand a STRING to a predicate or
+# a hook that is expected to judge it; the script never runs it. Recognised by the driver at
+# the start of the line (shell test harness verbs) or a predicate call on the line (python
+# harness data), NOT by the path, so a real sink on any other line is still seen.
+driver = re.compile(r"^\s*(check|run|run_hook|hook_rc|ask|gate_allows|expect|probe)\s+\S"
+                    r"|\b(lvl|patterns_in|classify|is_[a-z_]+|has_[a-z_]+)\(")
 for f in sorted(root.glob("*.sh")):
     for ln in f.read_text().splitlines():
-        if ln.lstrip().startswith("#"):
+        if ln.lstrip().startswith("#") or driver.search(ln):
             continue
         for m in set(lit.findall(sq.sub("", ln))):
             if not m.startswith("/tmp/claude"):
@@ -180,6 +216,29 @@ if scan_tools "$SANDBOX/tools-mutant" | grep -q '/tmp/fixture.marker'; then
     bad "teeth: a never-executed hook fixture is flagged — the census cries wolf"
 else
     ok "teeth: a single-quoted hook fixture is not flagged — the census is specific"
+fi
+
+# T-1039: classifier test data is skipped by DRIVER, never by path. A fixture line must not
+# be flagged; a real write on the next line of the same file must still be.
+printf '#!/bin/bash\ncheck BLOCK "redirect is a write" "git commit > /tmp/zz-fixture.out"\nlvl("x /tmp/zz-py-fixture")\n' \
+    > "$SANDBOX/tools-mutant/_t633-driver-probe.sh"
+printf 'echo data > /tmp/zz-real-sink.txt\n' >> "$SANDBOX/tools-mutant/_t633-driver-probe.sh"
+DRV=$(scan_tools "$SANDBOX/tools-mutant")
+if printf '%s' "$DRV" | grep -q 'zz-fixture\|zz-py-fixture'; then
+    bad "teeth: classifier test data (check/lvl lines) is flagged as a write"
+else
+    ok "teeth: classifier test data passed to check/lvl is not flagged"
+fi
+if printf '%s' "$DRV" | grep -q '_t633-driver-probe.sh:/tmp/zz-real-sink.txt'; then
+    ok "teeth: a real fixed /tmp sink in the SAME file as fixtures is still caught"
+else
+    bad "teeth: the fixture skip also hides a real sink — the census went blind"
+fi
+printf 'echo x > /var/tmp/zz-vartmp.txt\n' > "$SANDBOX/tools-mutant/_t633-vartmp-probe.sh"
+if scan_tools "$SANDBOX/tools-mutant" | grep -q 'zz-vartmp'; then
+    bad "teeth: a var-tmp path is reported as if it were a shared-tmp path"
+else
+    ok "teeth: /var/tmp is not mistaken for /tmp"
 fi
 
 echo

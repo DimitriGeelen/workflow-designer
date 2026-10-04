@@ -1,50 +1,43 @@
 #!/bin/bash
-# T-631 — is the Tier-0 approval route reachable while Tier 0 is blocking? And is any
-# OTHER registered hook printing a remedy it would refuse?
+# T-631 — Tier-0 approval is deliberately the OPERATOR's act, and the block says how.
 #
-# WHY THIS ONE WAS WORTH ASKING FIRST. G-020 (T-628) wedged an agent, which held a second
-# write surface and escaped. check-tier0 is matched on Bash and prints `fw tier0 approve`
-# as its route forward — a Bash command, passing back through the hook that just blocked.
-# If that were refused, the wedged party would be the OPERATOR, at the exact moment the
-# framework is asking them to exercise sovereignty, and with no second surface to escape
-# through. Strictly worse than the instance that started this.
+# ORIGINAL QUESTION (T-631). Is the Tier-0 approval route reachable while Tier 0 is
+# blocking? check-tier0 prints `fw tier0 approve` as its way forward; if the same hook
+# refused that command the wedged party would be the operator. The original answer was "no,
+# the route is open", and the tool asserted `fw tier0 approve` PASSES the gate.
 #
-# THE ANSWER IS NO, AND THE NEGATIVE IS THE POINT. Measured below: the control fires and
-# the remedy passes. Recording a clean negative with its evidence is the difference
-# between "we checked" and "we assumed"; PL-205 in this project is about exactly the
-# absences that get reported without being measured.
+# WHY THAT PREMISE IS OBSOLETE (T-1039, from T-1035 Spike B). Vendored 1.7.740 made Tier-0
+# self-approval human-only on purpose (check-tier0.sh, "Tier 0 self-approval (T-3593 R2)" and
+# the round-5 rule: a command naming `tier0` is Tier 0 unless it is a plainly spelled
+# status|list|help). An agent's `fw tier0 approve` is REFUSED by design. The operator is not
+# wedged by that: they type the approval in their own terminal, where PreToolUse hooks do not
+# run. What still has to hold, and what this file now pins:
 #
-# THE REFINEMENT THIS PRODUCED, which is the part worth keeping. AEF's rule (@775) is
-# "run the remedy verbatim while the gate is firing". 577 added (@776) "and through the
-# same surface the gate is restricting". Working this one surfaced a third clause:
+#   1. the agent surface refuses self-approval, in every spelling that would make an agent
+#      look human (plain, bin/ prefix, --i-am-human, env -u CLAUDECODE, CLAUDECODE=), and
+#      says WHY (a SELF-APPROVAL risk label, not just any refusal);
+#   2. the read-only verbs stay usable (status), so the hardening is not an over-block;
+#   3. the block on a destructive command names the operator's route: the
+#      `cd <project> && fw tier0 approve` line AND the Watchtower /approvals URL;
+#   4. the block leaves a pending record for the operator's approval to pick up.
 #
-#     AND BY THE PARTY THE REMEDY ADDRESSES.
+# TEETH. Two mutants of the live hook, staged beside it (it derives FRAMEWORK_ROOT from its own
+# location): (a) `approve` added to the read-only verb list -> the agent's plain
+# self-approval passes, leg 1 must go red; (b) the operator-route echo lines removed -> leg 3
+# must go red.
 #
-# `fw tier0 approve` is the operator's act. An operator types it in their own terminal,
-# where PreToolUse hooks do not run at all — so for the party it addresses, this remedy is
-# reachable by construction, and measuring it against the agent's surface would have
-# answered a question nobody asked. The measurement below is still worth having, because
-# "the hook does not classify its own remedy as destructive" is a real property that a
-# future pattern change could break.
-#
-# AND THE TRIAGE RULE, which is what makes the population closeable rather than a
-# 9-hook slog: A REMEDY IS ONLY AT RISK WHEN THE HOOK THAT PRINTS IT MATCHES THE TOOL THE
-# REMEDY NEEDS. A Write-matched hook prescribing a Bash command cannot refuse it — the
-# hook never sees it. That narrows the registered PreToolUse population from nine hooks to
-# the two that are Bash-matched AND print Bash remedies: check-tier0 (this file) and
-# check-active-task (T-386/T-628/T-629, all three of its gates). Leg 3 below re-derives
-# that from .claude/settings.json on every run, so adding a tenth hook that breaks the
-# assumption fails here instead of silently widening the unprobed set.
+# HERMETIC. Every run uses a throwaway PROJECT_ROOT, so the pending-approval file the hook
+# writes lands in the sandbox and dies with it. Nothing here is ever approved.
 
 set -uo pipefail
 
 PROJ=/opt/832-Workflow-designer
 HOOK="$PROJ/.agentic-framework/agents/context/check-tier0.sh"
-SETTINGS="$PROJ/.claude/settings.json"
 SCRATCH="${TMPDIR:-/tmp/claude-0/-opt-832-Workflow-designer/500d44d9-1e04-4f5a-b40e-f29988622253/scratchpad}"
 SANDBOX="$SCRATCH/t631-$$-$(date +%s)"
-MUT="$(dirname "$HOOK")/.t631-mutant-$$.sh"
-trap 'rm -f "$MUT" 2>/dev/null || true; rm -rf "$SANDBOX" 2>/dev/null || true' EXIT INT TERM
+MUT_A="$(dirname "$HOOK")/.t631-mutant-a-$$.sh"
+MUT_B="$(dirname "$HOOK")/.t631-mutant-b-$$.sh"
+trap 'rm -f "$MUT_A" "$MUT_B" 2>/dev/null || true; rm -rf "$SANDBOX" 2>/dev/null || true' EXIT INT TERM
 
 [ -f "$HOOK" ] || { echo "COULD-NOT-MEASURE: hook not found at $HOOK" >&2; exit 3; }
 mkdir -p "$SANDBOX/.context/working" "$SANDBOX/.tasks/active"
@@ -65,131 +58,134 @@ print(json.dumps({"tool_name":"Bash","tool_input":{"command":sys.argv[1]},"cwd":
     RC=$?
 }
 
-echo "=== T-631 Tier-0 approval reachability ==="
+# The spellings that would let an agent approve its own block. Plain first: it is the one the
+# round-5 rule alone decides (no dedicated pattern names it).
+SELF_APPROVE=(
+    'fw tier0 approve'
+    'bin/fw tier0 approve'
+    'fw tier0 approve --i-am-human'
+    'env -u CLAUDECODE fw tier0 approve'
+    'CLAUDECODE= fw tier0 approve'
+)
+FORCE_PUSH='git push --force origin master'
+
+echo "=== T-631 Tier-0 approval is the operator's act, and the block says how ==="
 echo
 
-echo "--- anti-vacuity: the gate must actually fire on something"
-# NOTHING is approved by this file. The control is a destructive command against a
-# throwaway sandbox root, and the assertion is on the hook's banner — the pending-approval
-# file it writes lands in the sandbox and dies with it.
-run_hook "$HOOK" 'git push --force origin master'
-if printf '%s' "$OUT" | grep -q 'TIER 0 BLOCK'; then
-    ok "control: a destructive command is blocked (banner present)"
+echo "--- control: the Tier 0 gate fires on a destructive command"
+run_hook "$HOOK" "$FORCE_PUSH"
+if [ "$RC" -eq 2 ] && printf '%s' "$OUT" | grep -q 'TIER 0 BLOCK'; then
+    ok "control: a force push is blocked (rc=2, TIER 0 BLOCK banner)"
 else
-    bad "control: Tier 0 did not fire — every leg below would be vacuous"
-    echo "COULD-NOT-MEASURE: no firing gate to measure a remedy against." >&2
+    bad "control: Tier 0 did not fire (rc=$RC) — every leg below would be vacuous"
+    echo "COULD-NOT-MEASURE: no firing gate to test." >&2
     exit 3
 fi
 
 echo
-echo "--- the printed CLI remedy, run verbatim through the gate that prints it"
-run_hook "$HOOK" 'fw tier0 approve'
-if [ "$RC" -eq 0 ] && ! printf '%s' "$OUT" | grep -q 'TIER 0 BLOCK'; then
-    ok "'fw tier0 approve' is NOT refused by Tier 0 (rc=0) — the route forward is open"
+echo "--- 1. the agent surface refuses self-approval, and says why"
+for c in "${SELF_APPROVE[@]}"; do
+    run_hook "$HOOK" "$c"
+    if [ "$RC" -eq 2 ] && printf '%s' "$OUT" | grep -q 'TIER 0 SELF-APPROVAL'; then
+        ok "refused as SELF-APPROVAL (rc=2): $c"
+    else
+        bad "self-approval spelling not refused as such (rc=$RC): $c"
+    fi
+done
+
+echo
+echo "--- 2. the read-only verb stays usable (the hardening is not an over-block)"
+run_hook "$HOOK" 'fw tier0 status'
+if [ "$RC" -eq 0 ]; then
+    ok "'fw tier0 status' passes the gate (rc=0)"
 else
-    bad "Tier 0 refuses its own approval command (rc=$RC) — the OPERATOR is wedged"
+    bad "'fw tier0 status' is refused (rc=$RC) — the gate over-blocks a read"
 fi
 
 echo
-echo "--- population: which registered PreToolUse hooks could refuse their own remedy?"
-# Re-derived from the enforcement registry every run rather than pinned as a list, so a
-# newly added hook widens the check instead of silently escaping it.
-# T-633: the manifest goes in this run's sandbox, not a fixed path in shared /tmp.
-# 999-AEF @788 and 577 @789 established that this host carries at least three projects
-# and that we are one of the root ones — so a fixed `/tmp/t631-*.txt` is a path we would
-# write, grep AND `rm -f` with permissions that never deny us. The read hazard here was
-# nil (`>` truncates before the write, T-633), but the delete was not: as root the
-# cleanup below would have removed a same-named file belonging to anyone.
-MANIFEST="$SANDBOX/bash-matched-hooks.txt"
-python3 - "$SETTINGS" "$MANIFEST" <<'PY'
-import json, sys
-d = json.load(open(sys.argv[1]))
-bash_matched = []
-for m in d.get("hooks", {}).get("PreToolUse", []):
-    matcher = m.get("matcher", "*")
-    for h in m.get("hooks", []):
-        name = h.get("command", "").split()[-1]
-        # A remedy that is a shell command can only be refused by a hook that sees Bash.
-        if "Bash" in matcher or matcher in ("*", ""):
-            bash_matched.append(name)
-print("  Bash-matched PreToolUse hooks: %d" % len(bash_matched))
-for n in sorted(bash_matched):
-    print("    - %s" % n)
-open(sys.argv[2], "w").write("\n".join(sorted(bash_matched)))
-PY
-
-# The two that are Bash-matched AND print Bash-shaped remedies are the two already
-# probed. budget-gate and check-project-boundary are Bash-matched but their remedies are
-# not commands they would refuse (budget-gate explicitly allowlists commit/handover at
-# critical; the boundary gate's remedy is "write inside the project", not a command).
-UNPROBED=$(grep -vE 'check-tier0|check-active-task|budget-gate|check-project-boundary' "$MANIFEST" 2>/dev/null || true)
-if [ -z "$UNPROBED" ]; then
-    ok "every Bash-matched hook is either probed (tier0, active-task) or has a non-command remedy"
+echo "--- 3. the block message names the operator's route"
+run_hook "$HOOK" "$FORCE_PUSH"
+if printf '%s' "$OUT" | grep -qE "^[[:space:]]+cd [^ ]+ && (.*/)?fw tier0 approve[[:space:]]*$"; then
+    ok "names the operator's terminal command: cd <project> && fw tier0 approve"
 else
-    bad "Bash-matched hook(s) with no remedy-reachability probe: $(echo $UNPROBED | tr '\n' ' ')"
+    bad "the operator's 'cd <project> && fw tier0 approve' line is missing from the block message"
 fi
-# No explicit cleanup: the manifest lives in $SANDBOX, which the EXIT trap removes.
-# One owner for the lifetime of the file, rather than a delete that could land anywhere.
+if printf '%s' "$OUT" | grep -qE '^[[:space:]]+https?://[^ ]+/approvals[[:space:]]*$'; then
+    ok "names the Watchtower approvals URL (…/approvals)"
+else
+    bad "the Watchtower /approvals URL is missing from the block message"
+fi
+if printf '%s' "$OUT" | grep -q 'human-only'; then
+    ok "says the approval is human-only (the reader is told not to expect the agent to do it)"
+else
+    bad "the message no longer says the approval is human-only"
+fi
 
 echo
-echo "--- teeth (mutate live source, assert the remedy leg goes RED)"
-# Make the classifier treat the remedy itself as destructive. If the leg above cannot be
-# turned red by that, it was not measuring the classifier at all.
-python3 - "$HOOK" "$MUT" <<'PY'
+echo "--- 4. the block leaves the operator's approval something to pick up"
+if [ -s "$SANDBOX/.context/working/.tier0-approval.pending" ]; then
+    ok "pending-approval record written (sandbox)"
+else
+    bad "no pending-approval record was written — the operator's 'fw tier0 approve' would find nothing"
+fi
+
+echo
+echo "--- teeth: mutate the live hook, the matching leg must go RED"
+# (a) `approve` becomes a plainly read-only verb: the agent's plain self-approval passes.
+python3 - "$HOOK" "$MUT_A" <<'PYEOF'
 import sys
 src = open(sys.argv[1]).read()
-# Add a pattern that matches the REMEDY itself. This is the only mutation that can move
-# the leg above: it makes the classifier treat `fw tier0 approve` as destructive, which is
-# precisely the world the leg claims we are not in.
-#
-# An earlier draft of these teeth injected a no-op `case` and asserted only that the
-# mutant still reached the block. That certified nothing — it could not have turned the
-# remedy leg red, so the leg's greenness was never in question and the "teeth" were
-# decoration. Same family as the partial mutation in T-629 and 577's `!`-inverted leg
-# (@774 item 5): the instrument reports success while measuring less than it claims.
-# THE MUTATION MUST TARGET THE LAYER THAT ACTUALLY DECIDES FOR THIS INPUT.
-#
-# check-tier0 has TWO independent classifiers: a bash keyword pre-filter that `exit 0`s
-# on anything not matching a short regex, and only then the Python PATTERNS list. A first
-# attempt at these teeth added a PATTERNS entry for the remedy — and the leg stayed
-# green, correctly, because `fw tier0 approve` never reaches PATTERNS. The pre-filter had
-# already let it out.
-#
-# That is the sharper reason the remedy is reachable, and it is not the reason we
-# assumed: not "no pattern matches it" but "it never gets as far as the patterns". The
-# pre-filter already screens some `fw` verbs (`fw .*--force`, `fw .*inception .*decide`),
-# so `fw` is genuinely in its scope — one more clause there and the operator's approval
-# route would start being refused. Which is what the leg above now guards.
-#
-# Generalised: A MUTATION AIMED AT THE WRONG LAYER PRODUCES A GREEN LEG AND LOOKS LIKE
-# CONFIRMATION. Ours went red instead only because the leg asserts the blocked banner
-# rather than the mutation having been applied.
-anchor = "|fw\\s.*inception\\s.*decide'"
+anchor = "(?:\\s+(?:status|list|help|--help|-h))?')"
 if src.count(anchor) != 1:
-    sys.stderr.write("MUTATION FAILED: pre-filter anchor not found exactly once — teeth cannot certify anything\n")
+    sys.stderr.write("MUTATION FAILED: read-only verb list found %d times, expected 1\n" % src.count(anchor))
     sys.exit(1)
-src = src.replace(anchor, "|fw\\s.*inception\\s.*decide|fw\\s.*tier0\\s.*approve'", 1)
-pat_anchor = "PATTERNS = [\n"
-inject = pat_anchor + "    (r'\\btier0\\s+approve\\b', 'T-631 MUTANT: the remedy, classified as destructive'),\n"
-open(sys.argv[2], 'w').write(src.replace(pat_anchor, inject, 1))
-PY
-if [ ! -s "$MUT" ]; then
-    bad "teeth: could not build the mutant — no teeth were demonstrated"
-elif ! bash -n "$MUT" 2>/dev/null; then
-    bad "teeth: mutant has a syntax error — cannot certify the leg"
+open(sys.argv[2], "w").write(src.replace(anchor, "(?:\\s+(?:status|list|approve|help|--help|-h))?')", 1))
+PYEOF
+rc_a=$?
+# (b) the operator-route lines are removed from the block message.
+python3 - "$HOOK" "$MUT_B" <<'PYEOF'
+import sys
+src = open(sys.argv[1]).read()
+for anchor in ('echo "    $(_emit_user_command "tier0 approve")" >&2\n', 'echo "    ${WT_URL}/approvals" >&2\n'):
+    if src.count(anchor) != 1:
+        sys.stderr.write("MUTATION FAILED: %r found %d times, expected 1\n" % (anchor[:40], src.count(anchor)))
+        sys.exit(1)
+    src = src.replace(anchor, "", 1)
+open(sys.argv[2], "w").write(src)
+PYEOF
+rc_b=$?
+if [ "$rc_a" -ne 0 ] || [ "$rc_b" -ne 0 ] || ! bash -n "$MUT_A" 2>/dev/null || ! bash -n "$MUT_B" 2>/dev/null; then
+    bad "teeth: mutants not built or do not parse (a=$rc_a b=$rc_b) — no teeth were demonstrated"
 else
-    ok "teeth: mutant parses (its failure below is behavioural, not syntactic)"
-    run_hook "$MUT" 'git push --force origin master'
-    if printf '%s' "$OUT" | grep -q 'TIER 0 BLOCK'; then
-        ok "teeth: mutant still reaches the Tier-0 block (the leg below is about the right gate)"
-        run_hook "$MUT" 'fw tier0 approve'
-        if printf '%s' "$OUT" | grep -q 'TIER 0 BLOCK'; then
-            ok "teeth: a classifier that DID match the remedy turns the leg red — it has bite"
+    ok "teeth: both mutants parse (any failure below is behavioural, not syntactic)"
+    run_hook "$MUT_A" "$FORCE_PUSH"
+    if [ "$RC" -eq 2 ] && printf '%s' "$OUT" | grep -q 'TIER 0 BLOCK'; then
+        ok "teeth: mutant (a) still reaches the Tier 0 block (the leg below is about the right gate)"
+        run_hook "$MUT_A" 'fw tier0 approve'
+        if [ "$RC" -eq 0 ]; then
+            ok "teeth: with 'approve' read-only, the agent's plain self-approval PASSES — leg 1 has bite"
         else
-            bad "teeth: even a classifier matching the remedy leaves the leg green — it measures nothing"
+            bad "teeth: mutant (a) still refuses plain self-approval (rc=$RC) — leg 1 would stay green on a broken gate"
+        fi
+        run_hook "$MUT_A" 'fw tier0 approve --i-am-human'
+        if [ "$RC" -eq 2 ]; then
+            ok "teeth: mutant (a) still refuses the --i-am-human spelling — the legs are independent, not one blanket"
+        else
+            bad "teeth: mutant (a) lets --i-am-human through — the mutation is wider than intended"
         fi
     else
-        bad "teeth: mutant does not reach the Tier-0 block — teeth would be vacuous"
+        bad "teeth: mutant (a) does not reach the Tier 0 block — teeth would be vacuous"
+    fi
+    run_hook "$MUT_B" "$FORCE_PUSH"
+    if [ "$RC" -eq 2 ] && printf '%s' "$OUT" | grep -q 'TIER 0 BLOCK'; then
+        if ! printf '%s' "$OUT" | grep -qE "^[[:space:]]+cd [^ ]+ && (.*/)?fw tier0 approve[[:space:]]*$" \
+           && ! printf '%s' "$OUT" | grep -qE '^[[:space:]]+https?://[^ ]+/approvals[[:space:]]*$'; then
+            ok "teeth: mutant (b) blocks but names no operator route — leg 3 has bite"
+        else
+            bad "teeth: mutant (b) still shows the operator route — leg 3 would stay green on a broken message"
+        fi
+    else
+        bad "teeth: mutant (b) does not reach the Tier 0 block — teeth would be vacuous"
     fi
 fi
 

@@ -150,7 +150,7 @@ for spelling in \
     ".agentic-framework/bin/fw task update $FOCUSED --type inception"
 do
     run_hook "$HOOK" "$spelling"
-    if [ "$RC" -eq 0 ] && printf '%s' "$OUT" | grep -q 'T-628'; then
+    if [ "$RC" -eq 0 ] && printf '%s' "$OUT" | grep -q 'T-3299'; then
         ok "reachable: $spelling"
     else
         bad "REFUSED by the gate that prints it (rc=$RC): $spelling"
@@ -169,7 +169,7 @@ echo "--- bounding: the exemption must not become a general retype route"
 # is the same defect as a false green. The T-628 NOTE is the discriminating string:
 # nothing but the exemption can emit it.
 run_hook "$HOOK" "fw task update $OTHER --type inception"
-if printf '%s' "$OUT" | grep -q 'prescribed conversion (T-628)'; then
+if printf '%s' "$OUT" | grep -q 'T-3299'; then
     bad "exemption admits retyping an arbitrary task from inside a block (rc=$RC)"
 elif [ "$RC" -eq 0 ]; then
     bad "a DIFFERENT task id was allowed through (rc=0, no exemption NOTE) — which gate passed it?"
@@ -190,17 +190,17 @@ echo
 echo "--- the message itself"
 
 run_hook "$HOOK" 'echo probe > /tmp/t628.marker'
-if printf '%s' "$OUT" | grep -q 'Edit/Write tool'; then
+if printf '%s' "$OUT" | grep -q 'Write/Edit TOOL'; then
     ok "remedy 1 is surface-accurate (names the tool path)"
 else
     bad "remedy 1 still implies a shell edit is available"
 fi
-if printf '%s' "$OUT" | grep -qE '^Attempting to modify:[[:space:]]*$'; then
-    bad "prints a bare 'Attempting to modify:' with an empty target"
+if printf '%s' "$OUT" | grep -q 'Blocked command:'; then
+    ok "prints the blocked command header"
 else
-    ok "no empty 'Attempting to modify:' line"
+    bad "does not name why the command was blocked"
 fi
-if printf '%s' "$OUT" | grep -q 'Attempting to run (Bash): echo probe'; then
+if printf '%s' "$OUT" | grep -q 'Blocked command: echo probe'; then
     ok "names the actual restricted Bash command"
 else
     bad "does not name the restricted command"
@@ -228,15 +228,11 @@ trap 'rm -f "$MUT" 2>/dev/null || true; rm -rf "$SANDBOX" 2>/dev/null || true' E
 python3 - "$HOOK" "$MUT" <<'PY'
 import re, sys
 src = open(sys.argv[1]).read()
-# Strip the T-628 exemption: from its `if` to the `fi` that closes it.
+# Strip the T-628 exemption: the is_task_metadata_update_command check block.
 #
-# Anchored on `${BASH_CMD:-}`, which occurs ONLY in this block. The obvious anchor —
-# `if [ "$TOOL_NAME" = "Bash" ]` — matches at three sites, the earliest being the
-# focus-drift gate ~340 lines above; a non-greedy match from there swallowed that gate
-# whole and produced a mutant that failed to parse. The teeth leg reported "syntax
-# error" rather than a bogus pass, which is the only reason this was visible. The
-# indent backreference keeps the closing `fi` matched to the right nesting level.
-pat = re.compile(r'\n( *)if \[ "\$TOOL_NAME" = "Bash" \] && \[ -n "\$\{BASH_CMD:-\}" \].*?prescribed conversion \(T-628\).*?\n\1fi\n', re.S)
+# Anchored on "is_task_metadata_update_command" which is unique to this exemption.
+# Match from the "if [ "$TOOL_NAME" = "Bash" ]" line through its closing "fi".
+pat = re.compile(r'( +)if \[ "\$TOOL_NAME" = "Bash" \] && \[ -n "\$\{BASH_CMD:-\}" \] && \\\n.*?is_task_metadata_update_command "\$BASH_CMD"; then\n.*?exit 0\n\1fi\n', re.S)
 new, n = pat.subn('\n', src)
 if n != 1:
     sys.stderr.write("MUTATION FAILED: T-628 exemption not found (%d matches) — teeth cannot certify anything\n" % n)

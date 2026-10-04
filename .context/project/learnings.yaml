@@ -2669,3 +2669,9 @@ learnings:
   task: T-1013
   date: 2026-10-04
   context: Added via context agent
+- id: PL-381
+  learning: "A TermLink dispatch worker's liveness is its run.sh process and the exit_code file in /tmp/tl-dispatch/<name>/, NOT 'tmux has-session -t <name>': the tmux session is named differently, so that check is false from the first second and reads as 'worker died'. Acting on it, I re-dispatched onto the SAME files while the first worker was still writing them (T-1039). Wait on exit_code; before re-dispatching, confirm with pgrep on the run.sh path that the old worker is gone"
+  source: P-001
+  task: T-1039
+  date: 2026-10-04
+  context: Added via context agent

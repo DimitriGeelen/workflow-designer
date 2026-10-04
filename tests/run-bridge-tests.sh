@@ -2615,6 +2615,33 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1039: the 13 hook-fix teeth (T-628..T-662), repaired for 1.7.740 after the T-1035 census ──
+# _t650 and _t662 are wired above (T-1037/T-1038). Each tooth was re-anchored or updated, and its
+# mutation (or stated negative control) was shown biting; _t639 is retired to _t1005.
+T1039_TEETH=(
+  'tools/_t628-g020-remedy-reachable.sh|a G-020 block names a remedy that works from the blocked state (T-628/T-3299)'
+  'tools/_t629-g067-remedy-reachable.sh|a G-067 (inception open-questions) block remedy is reachable (T-629)'
+  'tools/_t631-tier0-approval-reachable.sh|Tier-0 self-approval stays human-only AND the block names the operator route (T-631, rewritten by T-1039)'
+  'tools/_t632-read-only-misclassification.sh|read-only commands are not refused as writes; curl -o / wget stay writes (T-632)'
+  'tools/_t633-shared-tmp-sinks.sh|no tool or verification loop uses a fixed shared /tmp sink (T-633)'
+  'tools/_t634-guard-verdict-reaches-caller.sh|a malformed Verification block stops completion (T-634)'
+  'tools/_t636-prose-verbs-vetoed-by-their-own-text.sh|a framework verb free-prose argument is not vetoed by rm/tee in the prose (T-636)'
+  'tools/_t637-inception-coverage.sh|every undecided inception reaches a reader (T-637)'
+  'tools/_t638-commit-exemption-is-clause-scoped.sh|the null-focus commit exemption is judged per clause (T-638)'
+  'tools/_t639-drift-gate-reads-fixtures.sh|RETIRED to _t1005 (drift target clause-scoped); fails if its successor is missing or red (T-639)'
+  'tools/_t654-watchdog-detections-must-be-surfaced.sh|completion-watchdog detections are surfaced, and a completed task with no episodic is flagged (T-654)'
+)
+for _entry in "${T1039_TEETH[@]}"; do
+  _tool="${_entry%%|*}"; _tool="${_tool#tools/}"; _why="${_entry#*|}"
+  if (cd "$ROOT" && timeout 600 bash "$ROOT/tools/$_tool") > "$TMP/leg-t1039-$_tool.out" 2>&1; then
+    pass=$((pass + 1))
+  else
+    report FAIL "hook-fix tooth $_tool failed: $_why (run 'bash tools/$_tool'; T-1039)"
+    show_output "$TMP/leg-t1039-$_tool.out" "$_tool"
+    fail=$((fail + 1))
+  fi
+done
+
 # ── T-1017: the round-trip leg counts DECLARED identities, not comment prose ──
 if python3 "$ROOT/tools/_t1017-uid-count-teeth.py" > "$TMP/leg-_t1017-uid-count.out" 2>&1; then
   pass=$((pass + 1))

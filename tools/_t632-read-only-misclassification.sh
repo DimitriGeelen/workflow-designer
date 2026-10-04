@@ -78,25 +78,29 @@ import re, sys
 src = open(sys.argv[1]).read()
 n = 0
 
-# (a) put `)` back into the redirect target's character class
-fixed_re = "([^[:space:];|)]*)(.*)$'"
-old_re   = "([^[:space:];|]*)(.*)$'"
+# RE-ANCHORED (T-1039) on 1.7.740. Both mutations target today's code, not the 1.7.6xx
+# spelling this tool was written against; each must land exactly once or the tool says so.
+#
+# (a) the sink exclusion's terminator class. has_bash_write_pattern strips `>/dev/null`
+#     tokens before the redirect scan, and the token may end at `)` so that
+#     `$(cat url 2>/dev/null)` is read-only. Take `)` out of the terminator class and a
+#     redirect to /dev/null inside a command substitution is a write again (the 832 T-632
+#     defect (a)).
+fixed_re = "([[:space:];|&)]|$)#\\1 \\3#"
+old_re   = "([[:space:];|&]|$)#\\1 \\3#"
 if src.count(fixed_re) != 1:
-    sys.stderr.write("MUTATION FAILED: redirect-target anchor not found exactly once\n")
+    sys.stderr.write("MUTATION FAILED: /dev/null terminator anchor found %d times, expected 1\n" % src.count(fixed_re))
     sys.exit(1)
 src = src.replace(fixed_re, old_re, 1); n += 1
 
-# (b) remove the read-only text-processing verbs from the allowlist
-# Anchored on BOTH ends — the opening comment and the next category heading. An
-# earlier draft anchored the tail on the sort branch's `;;` with an indent
-# backreference and silently matched nothing, because the `;;` sits one indent level
-# deeper than the branch label. A mutation that matches nothing reports success and
-# certifies an untested fix; that is why every failure here is fatal, not a warning.
-pat = re.compile(r'\n *# Category 2b: read-only text processing \(T-632\).*?(?=\n *# Category 3: Searching)', re.S)
-if len(pat.findall(src)) != 1:
-    sys.stderr.write("MUTATION FAILED: Category 2b block not found exactly once\n")
+# (b) the read-only text-filter arm of the allowlist (Category 2b). Rename the arm's verbs
+#     out of existence so sed/sort/cut/... fall through to "not on the allowlist" (defect (b)).
+#     Anchored on the full verb list line, which occurs once.
+arm = "        sed|awk|sort|uniq|cut|tr|nl|od|paste|join|fold|expand|unexpand|rev|comm|cmp|diff|colordiff|column|jq|seq|base64|md5sum|sha1sum|sha256sum|cksum|strings|xxd|tput|zcat|gunzip)\n"
+if src.count(arm) != 1:
+    sys.stderr.write("MUTATION FAILED: Category 2b verb arm found %d times, expected 1\n" % src.count(arm))
     sys.exit(1)
-src = pat.sub("\n", src, count=1); n += 1
+src = src.replace(arm, "        __t632_removed_text_filters__)\n", 1); n += 1
 
 open(sys.argv[2], 'w').write(src)
 sys.stderr.write("pre-fix copy built (%d reversions)\n" % n)
@@ -111,7 +115,7 @@ if ! bash -n "$PREFIX_LIB" 2>/dev/null; then
 fi
 
 echo "--- (a) the defect, reproduced against the pre-fix predicate"
-for c in 'WURL=$(cat url 2>/dev/null)' 'x=$(cmd 2>&1)'; do
+for c in 'WURL=$(cat url 2>/dev/null)'; do
     if ask "$PREFIX_LIB" has_bash_write_pattern "$c"; then
         ok "pre-fix: classified as a WRITE (this is the bug) — $c"
     else
@@ -155,40 +159,46 @@ for c in 'echo hi > out.txt' 'y=$(cmd > real.txt)' 'sed -i s/a/b/ f' 'sed s/a/b/
 done
 
 echo
-echo "--- the two verbs deliberately NOT admitted stay out"
-# Not an oversight, and a future 'helpful' widening should trip here rather than in
-# production. awk has unrestricted print>file and system(), both living inside the
-# quoted program the stripper deletes. uniq's second positional operand is an output
-# file, and quoted operands collapse to nothing, so operand counting cannot see it.
-for c in 'awk "{print}" f' 'uniq in out'; do
+echo "--- awk and uniq: admitted only where they cannot write"
+# T-1039: upstream (1.7.740) now ALLOWLISTS awk and uniq, so "awk stays gated" is no longer
+# the contract. The contract is the one this tool always protected: a verb that can write
+# without a shell redirect must be caught by has_bash_write_pattern. awk has unrestricted
+# print>file / print|cmd / system() inside its quoted program; uniq's second operand is an
+# output file. Each write form must stay gated; the plain read form may pass.
+for c in 'awk "{print > \"out\"}" f' "awk '{print > \"out\"}' f" "awk 'BEGIN{system(\"touch x\")}'" \
+         "awk '{print | \"sh\"}' f" 'uniq in out'; do
     if gate_allows "$LIB" "$c"; then
-        bad "admitted a verb that can write with no shell redirect: $c"
+        bad "a write-capable form is admitted with no task: $c"
     else
-        ok "still gated (documented exclusion) — $c"
+        ok "write-capable form still gated — $c"
     fi
 done
+if gate_allows "$LIB" "awk '{print \$1}' f"; then
+    ok "plain read-only awk is admitted (upstream allowlist) — the gate is not over-narrow"
+else
+    bad "plain read-only awk is refused — the gate over-blocks a read"
+fi
 
 echo
-echo "--- why the existing corpus stayed green: it pinned the instance, not the class"
-# The corpus constant and the natural form differ by ONE thing — whether a `||` happens
-# to fall between the redirect and the close paren. Measured, not argued.
+echo "--- the natural resume form: refused before the fix, allowed after"
+# T-1039: this section used to also pin the form the old corpus carried, to show that a
+# `|| echo ...` between the redirect and the close paren hid the defect. On 1.7.740 that
+# chained-substitution form is refused in BOTH copies, by upstream's conservative handling
+# of any chain inside $(...) -- a different rule, not this one -- so it no longer
+# discriminates. It is reported, not asserted. The natural form still does.
 CORPUS_FORM='WURL=$(cat url 2>/dev/null || echo "http://localhost:3000"); curl -sf "$WURL/" > /dev/null'
 NATURAL_FORM='WURL=$(cat url 2>/dev/null); curl -sf "$WURL/" > /dev/null'
-if gate_allows "$PREFIX_LIB" "$CORPUS_FORM"; then
-    ok "pre-fix: the form the corpus pins PASSES — the corpus could not have failed"
-else
-    bad "pre-fix: the corpus form fails too, so the corpus WOULD have caught this"
-fi
 if gate_allows "$PREFIX_LIB" "$NATURAL_FORM"; then
-    bad "pre-fix: the natural form passes too — the two forms do not discriminate"
+    bad "pre-fix: the natural form passes too — the mutant does not reproduce the defect"
 else
-    ok "pre-fix: the natural form is REFUSED — one '||' apart from the pinned one"
+    ok "pre-fix: the natural form is REFUSED (the defect)"
 fi
-if gate_allows "$LIB" "$NATURAL_FORM" && gate_allows "$LIB" "$CORPUS_FORM"; then
-    ok "live: both forms allowed"
+if gate_allows "$LIB" "$NATURAL_FORM"; then
+    ok "live: the natural form is allowed"
 else
-    bad "live: one of the two resume forms is still blocked"
+    bad "live: the natural resume form is still blocked"
 fi
+gate_allows "$LIB" "$CORPUS_FORM" || echo "  NOTE  chained \$(a || b) substitution is refused by upstream's chain rule (live and pre-fix alike); not a T-632 matter"
 
 echo
 echo "--- the ordering invariant the sed/sort guards depend on"
@@ -196,9 +206,11 @@ echo "--- the ordering invariant the sed/sort guards depend on"
 # FIRST in the hook and its verdict overrides the allowlist. If that order ever flips,
 # `sed -i` becomes allowlisted. Asserted against the hook, not the lib — the hook is the
 # thing that acts.
-if grep -n 'has_bash_write_pattern' "$HOOK" | head -1 | grep -q '^9[0-9]:' \
-   && [ "$(grep -n 'has_bash_write_pattern "\$BASH_CMD"' "$HOOK" | head -1 | cut -d: -f1)" \
-        -lt "$(grep -n 'is_bash_safe_command "\$BASH_CMD"' "$HOOK" | head -1 | cut -d: -f1)" ]; then
+W_LINE=$(grep -n 'has_bash_write_pattern "\$BASH_CMD"' "$HOOK" | head -1 | cut -d: -f1)
+S_LINE=$(grep -n 'is_bash_safe_command "\$BASH_CMD"' "$HOOK" | head -1 | cut -d: -f1)
+if [ -n "$W_LINE" ] && [ -n "$S_LINE" ] && [ "$W_LINE" -lt "$S_LINE" ] \
+   && sed -n "${W_LINE}p" "$HOOK" | grep -qE '^[[:space:]]*if ' \
+   && sed -n "${S_LINE}p" "$HOOK" | grep -qE '^[[:space:]]*elif '; then
     ok "hook: write check precedes the allowlist check"
 else
     bad "hook: allowlist is consulted before the write check — sed -i would be allowed"

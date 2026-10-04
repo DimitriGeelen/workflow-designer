@@ -144,19 +144,44 @@ else
 fi
 
 echo
-echo "--- the brief must cover every undecided inception"
-UNCOVERED=""
+echo "--- the population that reaches a reader is the LIVE one, counted exactly"
+# T-1039: this leg used to demand that the frozen brief (docs/reports/T-637-inception-blockers.md)
+# name every undecided inception. A snapshot written on one day cannot cover tasks opened or
+# left undecided after it — T-1010, T-811 and T-898 are exactly that — so the leg compared a
+# frozen set with a moving one and went red on time alone. The thing a reader actually
+# depends on is the scan, which reads the live tree. So: the scan's UNRULED rows must equal
+# the live census one-for-one (no omission, no duplicate, no stray). Stronger than the
+# membership checks above, which cannot see a duplicated row.
+scan_matches_census() {  # <scan-output-file> -> 0 iff rows == distinct ids == live census
+    local rows ids
+    rows=$(grep -c 'UNRULED' "$1" 2>/dev/null || true)
+    ids=$(grep 'UNRULED' "$1" | grep -oE 'T-[0-9]+' | sort -u | grep -c '' || true)
+    SCAN_ROWS=$rows; SCAN_IDS=$ids
+    [ "$rows" -eq "$INDEP" ] && [ "$ids" -eq "$INDEP" ]
+}
+if scan_matches_census "$SANDBOX/scan.txt"; then
+    ok "the scan lists exactly the $INDEP live undecided inception(s), once each"
+else
+    bad "scan shows $SCAN_ROWS UNRULED row(s) / $SCAN_IDS distinct id(s); the live census has $INDEP"
+fi
+# The frozen brief is a dated snapshot: report what it predates, never fail on it.
+POSTDATE=""
 while IFS= read -r tid; do
     [ -z "$tid" ] && continue
-    grep -q "$tid" "$REPORT" || UNCOVERED="$UNCOVERED $tid"
+    grep -q "$tid" "$REPORT" || POSTDATE="$POSTDATE $tid"
 done < "$SANDBOX/independent.txt"
-if [ -z "$UNCOVERED" ]; then
-    ok "the brief names all $INDEP of them"
+[ -n "$POSTDATE" ] && echo "  NOTE  live undecided inception(s) the frozen brief predates (informational):$POSTDATE"
+
+# Teeth for the count leg: a scan that drops a row, or repeats one, must not satisfy it.
+grep 'UNRULED' "$SANDBOX/scan.txt" | tail -n +2 > "$SANDBOX/scan-dropped.txt"
+{ cat "$SANDBOX/scan.txt"; grep 'UNRULED' "$SANDBOX/scan.txt" | head -1; } > "$SANDBOX/scan-dup.txt"
+if ! scan_matches_census "$SANDBOX/scan-dropped.txt" && ! scan_matches_census "$SANDBOX/scan-dup.txt" \
+   && scan_matches_census "$SANDBOX/scan.txt"; then
+    ok "teeth: the same comparison REJECTS a scan missing a row and a scan repeating one"
 else
-    bad "undecided inception(s) missing from the brief:$UNCOVERED"
+    bad "teeth: the count comparison cannot tell a missing or repeated row from the truth"
 fi
 
-echo
 echo "--- the brief must not rule on anything"
 # The sovereignty leg. A report written to make a ruling cheap is one edit away from
 # making it, and the completion gate reads `**Decision**:` wherever it finds it.

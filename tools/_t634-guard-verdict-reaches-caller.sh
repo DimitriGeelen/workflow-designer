@@ -102,10 +102,17 @@ echo "--- the guard, through the REAL script"
 LIVE="$SANDBOX/live"
 make_sandbox "$LIVE" "T-902" "$BAD_BLOCK"
 run_gate "$GATE" "$LIVE" "T-902"
-if printf '%s' "$OUT" | grep -q 'MALFORMED BLOCK'; then
-    ok "live: the guard fires and says nothing was run"
+if printf '%s' "$OUT" | grep -q 'bash cannot parse'; then
+    ok "live: the guard fires and names the problem (a line bash cannot parse)"
 else
     bad "live: the guard did not fire — the fixture no longer reaches it"
+fi
+# T-1039: assert the REMEDY the message names, not just its wording. It names two routes:
+# rewrite each line to stand alone, and a logged Tier-2 bypass variable.
+if printf '%s' "$OUT" | grep -q 'each line stands alone' && printf '%s' "$OUT" | grep -q 'FW_ALLOW_UNPARSEABLE_VERIFICATION=1'; then
+    ok "live: the message names both remedies (single-line rewrite, Tier-2 bypass variable)"
+else
+    bad "live: the message no longer names its remedies"
 fi
 if completed "$LIVE" "T-902"; then
     bad "live: THE TASK COMPLETED ANYWAY — the guard is a print statement (AEF @790 §3)"
@@ -114,36 +121,77 @@ else
 fi
 
 echo
-echo "--- WHAT blocks it: remove errexit and the same fixture must complete"
-# This is the whole point of the file. The leg above passing does not tell you WHY, and
-# the guards' own text (`return 1`) says the opposite. If dropping `set -e` leaves the
-# task still blocked, then errexit is not the mechanism and this analysis is wrong.
-python3 - "$GATE" "$MUT" <<'PY'
+echo "--- the remedy the message names actually works"
+FIXED="$SANDBOX/fixed"
+make_sandbox "$FIXED" "T-905" 'python3 -c "import sys; sys.exit(0)"'
+run_gate "$GATE" "$FIXED" "T-905"
+if completed "$FIXED" "T-905"; then
+    ok "remedy: the same intent written as ONE standalone line completes (rc=$RC)"
+else
+    bad "remedy: the single-line rewrite the message prescribes is itself refused (rc=$RC)"
+fi
+
+echo
+echo "--- WHAT blocks it (T-1039: re-anchored; upstream T-3220 changed the mechanism)"
+# History: this leg used to prove the verdict depended on errexit (set -e), because the
+# guards ended in `return 1` and the call site is a bare statement. Upstream has since made
+# the FIRST guard (check_verification_parseable) an explicit `exit 1`, so the verdict no
+# longer rides on errexit. The `return 1` guard is kept behind it as defence in depth, and
+# it STILL rides on errexit. Both facts are pinned, each with a mutant derived from live
+# source and staged beside the original:
+#   M1  early guard neutered, errexit kept    -> still blocked (the return-1 guard + errexit)
+#   M2  early guard neutered, errexit dropped -> COMPLETES (nothing left that blocks)
+#   M3  early guard intact,   errexit dropped -> still blocked (explicit exit is independent)
+python3 - "$GATE" "$MUT" <<'PYEOF'
 import sys
 src = open(sys.argv[1]).read()
-# Anchor on the LINE, not the substring: the phrase "set -euo pipefail" also appears in
-# two comments explaining errexit behaviour, so a substring count of 1 was never going to
-# hold and the first draft failed loudly here rather than mutating a comment. Loudly is
-# the point — a mutation that silently edits prose certifies nothing.
-lines = src.splitlines(keepends=True)
+anchor = '    if ! check_verification_parseable "$verify_cmds"; then\n        exit 1\n    fi\n'
+if src.count(anchor) != 1:
+    sys.stderr.write("MUTATION FAILED: %d early-guard block(s), expected 1\n" % src.count(anchor))
+    sys.exit(1)
+neutered = '    if ! check_verification_parseable "$verify_cmds"; then\n        :\n    fi\n'
+open(sys.argv[2], "w").write(src.replace(anchor, neutered, 1))
+PYEOF
+# Anchor on the LINE, not the substring: the phrase also appears in comments.
+drop_errexit() {  # <in> <out>
+    python3 - "$1" "$2" <<'PYEOF'
+import sys
+lines = open(sys.argv[1]).read().splitlines(keepends=True)
 hits = [i for i, ln in enumerate(lines) if ln.rstrip("\n") == "set -euo pipefail"]
 if len(hits) != 1:
     sys.stderr.write("MUTATION FAILED: %d executable errexit line(s), expected 1\n" % len(hits))
     sys.exit(1)
 lines[hits[0]] = "set -uo pipefail\n"
 open(sys.argv[2], "w").write("".join(lines))
-PY
-if [ ! -s "$MUT" ] || ! bash -n "$MUT" 2>/dev/null; then
-    bad "teeth: errexit mutant not built or does not parse — the dependency is unproven"
+PYEOF
+}
+MUT2="$(dirname "$GATE")/.t634-mutant-noee-$$.sh"
+MUT3="$(dirname "$GATE")/.t634-mutant-live-noee-$$.sh"
+trap 'rm -f "$MUT" "$MUT2" "$MUT3" 2>/dev/null || true; rm -rf "$SANDBOX" 2>/dev/null || true' EXIT INT TERM
+drop_errexit "$MUT" "$MUT2"; r2=$?
+drop_errexit "$GATE" "$MUT3"; r3=$?
+if [ "$r2" -ne 0 ] || [ "$r3" -ne 0 ] || [ ! -s "$MUT" ] || [ ! -s "$MUT2" ] || [ ! -s "$MUT3" ] \
+   || ! bash -n "$MUT" 2>/dev/null || ! bash -n "$MUT2" 2>/dev/null || ! bash -n "$MUT3" 2>/dev/null; then
+    bad "teeth: mutants not built or do not parse — the mechanism is unproven"
 else
-    ok "teeth: mutant parses (any failure below is behavioural, not syntactic)"
-    NOEE="$SANDBOX/noerrexit"
-    make_sandbox "$NOEE" "T-903" "$BAD_BLOCK"
-    run_gate "$MUT" "$NOEE" "T-903"
-    if completed "$NOEE" "T-903"; then
-        ok "teeth: without errexit the SAME fixture completes — errexit is what blocks it"
+    ok "teeth: all three mutants parse (any failure below is behavioural, not syntactic)"
+    M1="$SANDBOX/m1"; make_sandbox "$M1" "T-906" "$BAD_BLOCK"; run_gate "$MUT" "$M1" "T-906"
+    if completed "$M1" "T-906"; then
+        bad "teeth: early guard neutered, errexit kept: the task completed — the return-1 guard is inert"
     else
-        bad "teeth: still blocked without errexit — the guard blocks for some other reason"
+        ok "teeth: early guard neutered, errexit kept: still blocked (the return-1 guard works through errexit)"
+    fi
+    M2="$SANDBOX/m2"; make_sandbox "$M2" "T-907" "$BAD_BLOCK"; run_gate "$MUT2" "$M2" "T-907"
+    if completed "$M2" "T-907"; then
+        ok "teeth: early guard neutered AND errexit dropped: the SAME fixture completes — the explicit exit is what blocks it"
+    else
+        bad "teeth: still blocked with neither the exit nor errexit — it blocks for some other reason"
+    fi
+    M3="$SANDBOX/m3"; make_sandbox "$M3" "T-908" "$BAD_BLOCK"; run_gate "$MUT3" "$M3" "T-908"
+    if completed "$M3" "T-908"; then
+        bad "teeth: dropping errexit alone lets a malformed block complete — the verdict still depends on set -e"
+    else
+        ok "teeth: errexit dropped, early guard intact: still blocked — the verdict no longer depends on set -e"
     fi
 fi
 
@@ -151,8 +199,11 @@ echo
 echo "--- the call site must not suppress errexit"
 # Three guards depend on this line's shape. In a condition, an && / || chain, or a
 # subshell, errexit is suppressed and all three go inert with no diff to the guards.
+# T-1039: a CALL, not the definition. `run_verification_commands() {` is the function head,
+# and the bypass log mentions the name as a string; neither is a call.
 SITE=$(grep -nE '(^|[^#])\brun_verification_commands\b' "$GATE" \
-       | grep -v 'log_gate_bypass' | grep -v '^979:' || true)
+       | grep -vE 'run_verification_commands[[:space:]]*\(\)' \
+       | grep -v 'log_gate_bypass' | grep -vE '^[0-9]+:[[:space:]]*#' || true)
 NSITE=$(printf '%s' "$SITE" | grep -c '' || echo 0)
 if [ "$NSITE" -ne 1 ]; then
     bad "expected exactly 1 call site, found $NSITE — the analysis covers only one:"

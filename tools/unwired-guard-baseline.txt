@@ -229,7 +229,6 @@ _t440-drive-empty.sh
 _t440-zero-population-census.py
 _t612-operator-review-reachable.py
 _t618-determinism-census.py
-_t627-undecided-defer.py
 _t655-review-queue-ac-counts.py
 _t673-fabric-cards.py
 _t680-aef-reachability.py
@@ -254,28 +253,6 @@ operator-actions.sh
 # the failure; wire it when that task closes. Wiring them now would only repaint known red.
 # owner: T-1033 (8 tasks awaiting Human review lack a Recommendation)
 _norec-verify.py
-# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
-_t628-g020-remedy-reachable.sh
-# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
-_t629-g067-remedy-reachable.sh
-# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
-_t631-tier0-approval-reachable.sh
-# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
-_t632-read-only-misclassification.sh
-# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
-_t633-shared-tmp-sinks.sh
-# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
-_t634-guard-verdict-reaches-caller.sh
-# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
-_t636-prose-verbs-vetoed-by-their-own-text.sh
-# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
-_t637-inception-coverage.sh
-# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
-_t638-commit-exemption-is-clause-scoped.sh
-# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
-_t639-drift-gate-reads-fixtures.sh
-# owner: T-1035 (census: adopted upstream, lost, or obsolete?)
-_t654-watchdog-detections-must-be-surfaced.sh
 # owner: T-932 (G-052: the two encodings of the delegation boundary disagree)
 _t932-boundary-agreement.sh
 

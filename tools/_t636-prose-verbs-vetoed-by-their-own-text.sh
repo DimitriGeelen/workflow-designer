@@ -163,13 +163,16 @@ echo "--- teeth: remove the exemption from the live source and the refusal must 
 python3 - "$LIB" "$MUTLIB" <<'PY'
 import sys
 src = open(sys.argv[1]).read()
-anchor = '        cmd="$_SC_STRIPPED"\n'
+# Re-anchored (T-1039) on 1.7.740: the exemption is the one line in the destructive-file-ops
+# block of has_bash_write_pattern that swaps the quote-stripped view in for a framework prose verb:
+#     if [ "$_rview" != "$cmd" ] && _sc_is_framework_prose_verb "$cmd"; then _pview="$_rview"; fi
+anchor = '    if [ "$_rview" != "$cmd" ] && _sc_is_framework_prose_verb "$cmd"; then _pview="$_rview"; fi\n'
 if src.count(anchor) != 1:
     sys.stderr.write("MUTATION FAILED: %d occurrence(s) of the exemption assignment, expected 1\n"
                      % src.count(anchor))
     sys.exit(1)
 # Neutralise the exemption without deleting the branch: the guard stays, the effect goes.
-open(sys.argv[2], "w").write(src.replace(anchor, '        :\n', 1))
+open(sys.argv[2], "w").write(src.replace(anchor, '    :\n', 1))
 PY
 if [ ! -s "$MUTLIB" ] || ! bash -n "$MUTLIB" 2>/dev/null; then
     bad "teeth: mutant library not built or does not parse — the exemption is unproven"
