@@ -2927,3 +2927,59 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-472
+  text: "sidecar consult to cacc73ea32b121dd/proxmox-ring20-management unanswered after 11 attempt(s) on the retry ladder (rung 5, conversation consult-proxmox-ring20-management, client_msg_id 0cc9a889-5463-4061-b521-ac8a602d7a72). Re-posts and inbox nudges have not produced a reply."
+  captured: 2026-10-03T08:53:02Z
+  context_task: T-1008
+  tags: [sidecar]
+  status: pending
+  promoted_to: null
+- id: OBS-473
+  text: "sidecar consult to cacc73ea32b121dd/999-Agentic-Engineering-Framework unanswered after 11 attempt(s) on the retry ladder (rung 5, conversation sidecar-vendored-consumer-rca, client_msg_id 641ff426-e9d4-4588-bb17-bc84d187662e). Re-posts and inbox nudges have not produced a reply."
+  captured: 2026-10-03T08:53:02Z
+  context_task: T-1008
+  tags: [sidecar]
+  status: pending
+  promoted_to: null
+- id: OBS-474
+  text: "sidecar consult to cacc73ea32b121dd/999-Agentic-Engineering-Framework unanswered after 11 attempt(s) on the retry ladder (rung 5, conversation sidecar-vendored-consumer-rca, client_msg_id e0f045ed-f9d6-4ba9-a7c7-289bdf9b449f). Re-posts and inbox nudges have not produced a reply."
+  captured: 2026-10-03T08:53:02Z
+  context_task: T-1008
+  tags: [sidecar]
+  status: pending
+  promoted_to: null
+- id: OBS-475
+  text: "sidecar consult to cacc73ea32b121dd/999-Agentic-Engineering-Framework unanswered after 11 attempt(s) on the retry ladder (rung 5, conversation doc-understates-process, client_msg_id c01cc6fc-ab7e-4880-8ab5-da41da48ed3e). Re-posts and inbox nudges have not produced a reply."
+  captured: 2026-10-03T09:03:02Z
+  context_task: T-1008
+  tags: [sidecar]
+  status: pending
+  promoted_to: null
+- id: OBS-476
+  text: "sidecar consult to cacc73ea32b121dd/999-Agentic-Engineering-Framework unanswered after 11 attempt(s) on the retry ladder (rung 5, conversation revendor-protocol, client_msg_id eee4054b-d30e-4899-b206-de9efe4faee7). Re-posts and inbox nudges have not produced a reply."
+  captured: 2026-10-04T04:08:02Z
+  context_task: T-1020
+  tags: [sidecar]
+  status: pending
+  promoted_to: null
+- id: OBS-477
+  text: "sidecar consult to cacc73ea32b121dd/proxmox-ring20-management unanswered after 12 attempt(s) on the retry ladder (rung 5, conversation consult-proxmox-ring20-management, client_msg_id 0cc9a889-5463-4061-b521-ac8a602d7a72). Re-posts and inbox nudges have not produced a reply."
+  captured: 2026-10-04T08:53:02Z
+  context_task: T-1021
+  tags: [sidecar]
+  status: pending
+  promoted_to: null
+- id: OBS-478
+  text: "sidecar consult to cacc73ea32b121dd/999-Agentic-Engineering-Framework unanswered after 12 attempt(s) on the retry ladder (rung 5, conversation sidecar-vendored-consumer-rca, client_msg_id 641ff426-e9d4-4588-bb17-bc84d187662e). Re-posts and inbox nudges have not produced a reply."
+  captured: 2026-10-04T08:53:02Z
+  context_task: T-1021
+  tags: [sidecar]
+  status: pending
+  promoted_to: null
+- id: OBS-479
+  text: "fw context focus WM-002 exits 1 with NO message in 832 (no WM-* tasks exist here), while the no-active-task block tells the agent to use WM-001/002/003. A silent refusal plus advice that cannot work (seen 2026-10-04 closing T-1021)"
+  captured: 2026-10-04T12:37:12Z
+  context_task: T-737
+  tags: []
+  status: pending
+  promoted_to: null

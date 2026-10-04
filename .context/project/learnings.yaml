@@ -2651,3 +2651,15 @@ learnings:
   task: T-1030
   date: 2026-10-04
   context: Added via context agent
+- id: PL-378
+  learning: "A before/after baseline for framework code must be an INDEPENDENT clone, not a git worktree: AEF's bin/fw resolves FRAMEWORK_ROOT through the shared .git, so a worktree at the old commit silently ran the PATCHED framework and reported a fix as already present (T-1021 E5)"
+  source: P-001
+  task: T-1021
+  date: 2026-10-04
+  context: Added via context agent
+- id: PL-379
+  learning: "Patch bundles verified to apply one at a time can still conflict when stacked; verify the stack in the order the receiver will apply it (git am -3, A..E). Bundles A and B both added a rail at the same spot in audit.sh, and our 'independent' claim hid that (T-1021)"
+  source: P-001
+  task: T-1021
+  date: 2026-10-04
+  context: Added via context agent
