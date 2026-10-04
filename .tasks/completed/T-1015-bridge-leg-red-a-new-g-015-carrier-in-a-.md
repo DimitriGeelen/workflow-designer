@@ -6,13 +6,13 @@ description: >
   property (serve-root diff, hard-coded port). Identify the task(s), rewrite the line
   to assert what that task delivered. Pre-existing (T-995).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/verification-hygiene.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -41,8 +41,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-03T21:52:04Z
-last_update: 2026-10-04T16:33:11Z
-date_finished:
+last_update: 2026-10-04T16:33:14Z
+date_finished: 2026-10-04T16:33:14Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -354,3 +354,20 @@ The bridge leg `tools/verification-hygiene.py` (G-015 ratchet) fails. A task's `
 ### 2026-10-04T16:29:16Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9a37b227
+- **Timestamp:** 2026-10-04T16:33:16Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — `python3 tools/verification-hygiene.py` exits 0, and no other bridge leg goes red. rc 0. Only task Verification lines and this tool changed, and no other leg reads them
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/verification-hygiene.py in: `python3 tools/verification-hygiene.py` exits 0, and no other bridge leg goes red. rc 0. Only task Verification lines and this tool changed, and no ot`
+
+### 2026-10-04T16:33:14Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

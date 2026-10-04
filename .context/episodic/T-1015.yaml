@@ -1,0 +1,98 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1015: Bridge leg red: a new G-015 carrier in a task Verification block (verification-hygiene)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T16:33:23Z
+# ============================================================================
+
+task_id: T-1015
+task_name: "Bridge leg red: a new G-015 carrier in a task Verification block (verification-hygiene)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-03T21:52:04Z
+completed: 2026-10-04T16:33:14Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-04T18:33:11+02:00
+last_commit: 2026-10-04T18:33:11+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the G-015 ratchet is green — 35 verification carriers in 23 tasks fixed with the tool's documented remedies (28 counts -eq -> -ge with the old value noted, 4 unrelated serve-root diffs removed, 3 ports resolved from watchtower.url), 2 port false positives fixed in the detector (dict sizes), baseline tightened 94 -> 93
+
+# Key outcomes
+outcomes:
+  - 'The new carrier(s) beyond the ratchet''s baseline are identified by file and line, and each is either rewritten to assert the task''s own fact (stable under corpus growth) or, if it sits in a completed task whose record must not change, handled the way the tool documents for that case. The reason is stated here. The baseline is never raised just to go green. 37 lines in 23 tasks had piled up since the baseline of 2026-08-15, each fixed with the tool''s own documented remedy:'
+  - '`python3 tools/verification-hygiene.py` exits 0, and no other bridge leg goes red. rc 0. Only task Verification lines and this tool changed, and no other leg reads them'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the G-015 ratchet is green — 35 verification carriers in 23 tasks fixed with the tool''s documented remedies (28 counts -eq -> -ge with the old value noted, 4 unrelated serve-root diffs removed, 3 ports resolved from watchtower.url), 2 port false positives fixed in the detector (dict sizes), baseline tightened 94 -> 93'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1015-bridge-leg-red-a-new-g-015-carrier-in-a-.md'
+  - '.tasks/active/T-155-hierarchical-tree-grouping-for-open-proj.md'
+  - '.tasks/active/T-723-ra-027-fail-d2-human-review-queue-has-12.md'
+  - '.tasks/active/T-740-value-review-the-aef-seam-and-the-workfl.md'
+  - '.tasks/active/T-756-ra-047-ctl-013-reports-t-093-verificatio.md'
+  - '.tasks/active/T-764-ra-053-ctl-013-three-task-window-silentl.md'
+  - '.tasks/active/T-769-sq-4-design-recorded-check-exemptions-as.md'
+  - '.tasks/active/T-893-render-authority-on-the-element-and-indi.md'
+  - '.tasks/completed/T-1009-upstream-pickup-bundles-for-aef-t-931-st.md'
+  - '.tasks/completed/T-655-sweep-the-stuck-partial-complete-tasks-t.md'
+  - '.tasks/completed/T-708-ra-012-ctl-029-two-stuck-partial-complet.md'
+  - '.tasks/completed/T-744-audit-remediation-cycle-1-reconcile-live.md'
+  - '.tasks/completed/T-761-audit-remediation-cycle-2-the-first-comp.md'
+  - '.tasks/completed/T-762-audit-remediation-cycle-3-re-run-verifie.md'
+  - '.tasks/completed/T-766-act-on-sovereign-rulings-sq-1-sq-2-sq-4-.md'
+  - '.tasks/completed/T-767-sq-2-fix-an-agent-produced-task-must-nev.md'
+  - '.tasks/completed/T-768-sq-2-upstream-report-the-ownerhuman-with.md'
+  - '.tasks/completed/T-789-exercise-the-product-open-aef-workflow-d.md'
+  - '.tasks/completed/T-825-ewcr-arc-scoping-review-task-composition.md'
+  - '.tasks/completed/T-892-lane-configuration-in-the-editor-set-a-l.md'
+  - '.tasks/completed/T-925-toolsyaml-to-bpmnpy-drops-document-level.md'
+  - 'tools/verification-hygiene-baseline.json'
+  - 'tools/verification-hygiene.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T18:33:11'
+    action: 'T-1015: the G-015 ratchet is green — 35 verification carriers in 23 tasks fixed with the tool''s documented remedies (28 counts -eq -> -ge with the old value noted, 4 unrelated serve-root diffs removed, 3 ports resolved from watchtower.url), 2 port false positives fixed in the detector (dict sizes), baseline tightened 94 -> 93'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1121 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1121
+  commits: 1
+  files_changed: 23
+  lines_added: 105
+  lines_removed: 59
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1015-bridge-leg-red-a-new-g-015-carrier-in-a-.md
+generated_by: context-agent-hybrid
