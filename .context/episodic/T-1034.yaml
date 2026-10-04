@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1034: Mark bundle A-E deliveries in the divergence register (_t688 drain ratchet: 54 undrained vs baseline 46)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T15:28:55Z
+# ============================================================================
+
+task_id: T-1034
+task_name: "Mark bundle A-E deliveries in the divergence register (_t688 drain ratchet: 54 undrained vs baseline 46)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T14:04:23Z
+completed: 2026-10-04T15:28:46Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-04T17:28:42+02:00
+last_commit: 2026-10-04T17:28:42+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  14 register entries marked delivered (13 reported via bundles A, B, E and sidecar 92e8f572; 1 accepted: AEF T-3788); 3 partial deliveries deliberately left open; drain 55 -> 41, baseline lowered 46 -> 41; _t688 wired as a bridge leg
+
+# Key outcomes
+outcomes:
+  - 'Every register entry whose fix was really delivered carries `delivered:` with the honest state (`reported` for sent-and-acknowledged, `accepted` where AEF shipped it), naming the bundle or message. An entry is marked only if its change is actually in a delivered bundle or note, checked against the bundle MANIFESTs. Nothing is marked to make the count fall. 14 entries are marked, each with a `delivered_ref:`:'
+  - '`python3 tools/_t688-divergence-drain-ratchet.py` exits 0, by delivery marks, not by raising the baseline; if undelivered fixes remain above baseline, they are listed here as candidates for the next bundle. 55 → 41 undrained, which is BELOW the old baseline of 46. The baseline was LOWERED to 41 to lock the gain in (the tool''s own instruction). The 41 remaining (agents 20, web 12, lib 7, bin 2) are the candidates for a bundle F. `_t688` is wired as a bridge leg and has left the unwired baseline (ratchet rc 0)'
+  - 'The register still parses, with the same number of entries. 57 before and after; `_t517` confirms every diverged path is declared and every declared path still diverges'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.tasks/active/T-1034-mark-bundle-a-e-deliveries-in-the-diverg.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t688-divergence-drain-baseline.txt'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T17:28:42'
+    action: 'T-1034: 14 register entries marked delivered (13 reported via bundles A, B, E and sidecar 92e8f572; 1 accepted: AEF T-3788); 3 partial deliveries deliberately left open; drain 55 -> 41, baseline lowered 46 -> 41; _t688 wired as a bridge leg'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 84 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 84
+  commits: 1
+  files_changed: 5
+  lines_added: 82
+  lines_removed: 11
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1034-mark-bundle-a-e-deliveries-in-the-diverg.md
+generated_by: context-agent-hybrid

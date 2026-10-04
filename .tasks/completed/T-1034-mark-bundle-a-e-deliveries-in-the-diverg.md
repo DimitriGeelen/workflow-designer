@@ -7,13 +7,13 @@ description: >
   entries carry no delivered: field, so the drain ratchet reads 8 divergences added
   and none delivered.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T14:04:23Z
-last_update: 2026-10-04T15:28:42Z
-date_finished:
+last_update: 2026-10-04T15:28:46Z
+date_finished: 2026-10-04T15:28:46Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -356,3 +356,20 @@ The drain ratchet (`tools/_t688-divergence-drain-ratchet.py`) counts `upstream: 
 
 ### 2026-10-04T15:25:55Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a055acf0
+- **Timestamp:** 2026-10-04T15:28:47Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — `python3 tools/_t688-divergence-drain-ratchet.py` exits 0, by delivery marks, not by raising the baseline; if undelivered fixes remain above baseline, they are listed here as candidates for the next b
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t688-divergence-drain-ratchet.py in: `python3 tools/_t688-divergence-drain-ratchet.py` exits 0, by delivery marks, not by raising the baseline; if undelivered fixes remain above baseline,`
+
+### 2026-10-04T15:28:46Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
