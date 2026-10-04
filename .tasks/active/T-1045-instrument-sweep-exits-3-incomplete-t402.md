@@ -1,17 +1,11 @@
 ---
-id: T-1044
-name: "Instrument sweep: 5 more stale teeth inside the _t509 leg — _t400 (schema:
-  1 unaccounted field), _t411 (live registers fail census rc=2), _t550 (audit finding
-  shape moved), _t566 (note-field mutant B reddens extra legs), _t905 (control crashes)"
+id: T-1045
+name: "Instrument sweep exits 3 (incomplete): _t402, _t581, _t588 decline to certify (rc=2) — find why each abstains and make it run or document the exclusion"
 description: >
-  Found by T-1043 after fixing _t826 (and T-1019's _t570/_t572): the sweep reports
-  RAN 100, passed 92, regressed 4, dead-control 1, abstained 3. Each needs the T-1019/T-1039
-  treatment: decide stale tooth vs real regression, fix where the defect is, show
-  the mutation biting. Captured reasons: /tmp sweep output in T-1043's record.
+  After T-1044 the _t509 sweep reports RAN 100, passed 97, regressed 0, dead-control 0, abstained 3; the bridge leg treats rc=3 (incomplete) as red. The three abstentions predate today (masked behind the earlier rc=1).
 
-status: started-work
+status: captured
 workflow_type: build
-current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
@@ -39,13 +33,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1044` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1045` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-04T18:06:14Z
-last_update: 2026-10-04T18:23:49Z
-date_finished:
+created: 2026-10-04T18:23:26Z
+last_update: 2026-10-04T18:23:26Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -56,50 +50,20 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-10-04T18:08:36Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 0
-      F3: 0
-      F1: 0
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
-      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
-      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
-      about,L0: no signal)'
-    rubric_sha: e4a00f38e801
 ---
 
-# T-1044: Instrument sweep: 5 more stale teeth inside the _t509 leg — _t400 (schema: 1 unaccounted field), _t411 (live registers fail census rc=2), _t550 (audit finding shape moved), _t566 (note-field mutant B reddens extra legs), _t905 (control crashes)
+# T-1045: Instrument sweep exits 3 (incomplete): _t402, _t581, _t588 decline to certify (rc=2) — find why each abstains and make it run or document the exclusion
 
 ## Context
 
-After T-1043, the `_t509` instrument sweep reports RAN 100, passed 92, regressed 4, dead-control 1, abstained 3. The five named here:
-- `_t400`: SCHEMA FAIL, 1 field name nothing accounts for;
-- `_t411`: the live registers fail the census, rc=2;
-- `_t550`: leg 5, the live audit no longer emits the finding shape the fixtures imitate;
-- `_t566`: mutant B reddens more legs than pinned;
-- `_t905`: a control crashes with a traceback (`control_key_bound_from_structured_not_metaKeys`).
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] For each of the five, it is determined with evidence whether the tooth is stale or the guarded behaviour regressed, and the fix goes where the defect is. No leg is deleted or loosened merely to go green; a re-anchored mutation is shown biting. One line per tooth here.
-  - `_t905` STALE: T-573 moved key's first source to the module-scope STRUCT_LIST_KEYS. Control and misdeclare_key mutant re-anchored; 7/7, all three mutants bite.
-  - `_t400` REAL DATA: G-082 carried an unread field `prevention_needed` (the G-027 shape). It became decision_trigger + containment; 10/10 including the live-register reciprocal.
-  - `_t411` STALE PREMISE: upstream T-2901 stopped both emitters writing an application placeholder. The census's emitter check is inverted (it fails if an emitter writes one again, shown with a mutant); 7/7 over 785 records.
-  - `_t550` and `_t566`: both pass when run directly (rc 0, every mutant killed) and in the re-run sweep. Their earlier red came from that one sweep run; no change was made to either.
-- [x] Each of the five exits 0, `tools/_t509-instrument-sweep.sh` reports 0 regressed and 0 dead-control, and no other bridge leg goes red. Sweep: RAN 100, passed 97, regressed 0, dead-control 0. NOTE, stated: the sweep still exits 3 (incomplete), because _t402, _t581 and _t588 abstain (rc=2). They were abstaining all day, masked by the rc=1. The bridge leg treats 3 as red, so that leg stays red: opened as T-1045
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -125,11 +89,11 @@ After T-1043, the `_t509` instrument sweep reports RAN 100, passed 92, regressed
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1044`
+         1. Run `bin/fw reviewer T-1045`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1044 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1045 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -343,7 +307,7 @@ After T-1043, the `_t509` instrument sweep reports RAN 100, passed 92, regressed
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1044 go|no-go|defer --rationale "..."
+     fw inception decide T-1045 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -352,10 +316,7 @@ After T-1043, the `_t509` instrument sweep reports RAN 100, passed 92, regressed
 
 ## Updates
 
-### 2026-10-04T18:06:14Z — task-created [task-create-agent]
+### 2026-10-04T18:23:26Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1044-instrument-sweep-5-more-stale-teeth-insi.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1045-instrument-sweep-exits-3-incomplete-t402.md
 - **Context:** Initial task creation
-
-### 2026-10-04T18:08:36Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
