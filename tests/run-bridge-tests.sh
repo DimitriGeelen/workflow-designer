@@ -543,7 +543,7 @@ orphan_legs=(
   "tests/test_roundtrip_serialization.py|round-trip serialization is no longer a semantic fixed point"
   "tests/test_mapping_standard_conformance.py|frozen governance meta-keys drifted from the mapping standard"
   "tests/test_validate_iw9.py|IW-9 validator rules (W-TYPE-LANE-MISMATCH / E-INCEPTION-NOT-SOVEREIGN) regressed"
-  "tests/test_release_immutability.py|release immutability guard (G-007) — a pinned VERSION was mutated"
+  "tests/test_release_immutability.py|release immutability guard (G-007) — a released VERSION can be overwritten, or a release path (new, idempotent, blocked, bypass) stopped working; the test names the case"
   "tests/test_bridge_seam_roundtrip.py|bridge emissions are being silently dropped on editor import"
   "tests/test_designer_export_contract.py|designer export contract — an owner-bearing node lost its authority carrier"
   "tests/test_designer_owner_derived.py|designer owner-derived guard — an editable owner override reappeared (IW-9)"
