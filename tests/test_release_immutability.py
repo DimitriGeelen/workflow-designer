@@ -36,6 +36,10 @@ import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REAL_SCRIPT = os.path.join(ROOT, "scripts", "release-designer.sh")
+# T-1042: since T-808 (87a73faa) the release script refuses to cut unless this parity guard is
+# present AND src's APP_VERSION literal equals ./VERSION. The fixture repo carries both, so the
+# test exercises the immutability guard rather than stopping at the parity precondition.
+REAL_PARITY = os.path.join(ROOT, "tools", "_t808-version-parity.sh")
 
 # AEF's pinned artifact — must be byte-stable across this whole test run.
 PINNED_ARTIFACT = os.path.join(ROOT, "dist", "aef-workflow-designer-0.2.0.html")
@@ -43,6 +47,9 @@ PINNED_SHA = "e301986b993baf58d5ed29ed25436d94b08ed2be910c6781b0f4b906c25c153a"
 
 
 def sha256(path):
+    # T-1042: a missing artifact is a FAILED case, reported by the caller, never a crash.
+    if not os.path.exists(path):
+        return None
     with open(path, "rb") as fh:
         return hashlib.sha256(fh.read()).hexdigest()
 
@@ -52,15 +59,35 @@ def make_repo(tmp, version, src_body):
     os.makedirs(os.path.join(tmp, "scripts"))
     os.makedirs(os.path.join(tmp, "src"))
     os.makedirs(os.path.join(tmp, "dist"))
+    os.makedirs(os.path.join(tmp, "tools"))
     shutil.copy2(REAL_SCRIPT, os.path.join(tmp, "scripts", "release-designer.sh"))
-    write_src(tmp, src_body)
+    shutil.copy2(REAL_PARITY, os.path.join(tmp, "tools", "_t808-version-parity.sh"))
+    # T-1042: STAND-INS for the two authoring-kit steps the release grew in T-974/T-1008 (the kit
+    # calibration gate, the kit builder). This test's subject is the ARTIFACT immutability guard;
+    # the kit's own immutability and calibration are tested by tests/test_t974_authoring_kit.py
+    # and tests/test_t983_review_loop_kit.py. The stand-ins are deterministic and say what they are.
+    with open(os.path.join(tmp, "tools", "kit-calibration-gate.py"), "w") as fh:
+        fh.write("# fixture stand-in (test_release_immutability.py): the real gate is tested elsewhere\n"
+                 "import sys; sys.exit(0)\n")
+    with open(os.path.join(tmp, "tools", "build-authoring-kit.py"), "w") as fh:
+        fh.write("# fixture stand-in (test_release_immutability.py): --check passes; a build writes a\n"
+                 "# fixed SHA256SUMS, the only file release-designer.sh reads from the kit afterwards\n"
+                 "import os, sys\n"
+                 "a = sys.argv; out = a[a.index('--out') + 1]\n"
+                 "if '--check' in a: sys.exit(0)\n"
+                 "os.makedirs(out, exist_ok=True)\n"
+                 "open(os.path.join(out, 'SHA256SUMS'), 'w').write('0' * 64 + '  fixture\\n')\n")
     with open(os.path.join(tmp, "VERSION"), "w") as fh:
         fh.write(version + "\n")
+    write_src(tmp, src_body)
 
 
 def write_src(tmp, body):
+    # The APP_VERSION line tracks ./VERSION (T-808 parity); `body` stays the bytes under test.
+    with open(os.path.join(tmp, "VERSION")) as fh:
+        version = fh.read().strip()
     with open(os.path.join(tmp, "src", "aef-workflow-designer.html"), "w") as fh:
-        fh.write(body)
+        fh.write("const APP_VERSION = '%s';\n" % version + body)
 
 
 def set_version(tmp, version):
@@ -71,6 +98,10 @@ def set_version(tmp, version):
 def run(tmp, env=None):
     e = dict(os.environ)
     e.pop("RELEASE_ALLOW_OVERWRITE", None)
+    # T-1042: a fixture release must never announce to the fleet's rail, even if a later
+    # fixture copies scripts/announce-release.sh; and it has no browser render gate to run.
+    e["RELEASE_SKIP_ANNOUNCE"] = "1"
+    e["RELEASE_SKIP_RENDER_CHECK"] = "1"
     if env:
         e.update(env)
     return subprocess.run(
@@ -111,6 +142,8 @@ def failures():
         make_repo(tmp, "0.1.0", "<html>v1 bytes</html>")
         run(tmp)
         before = sha256(artifact(tmp, "0.1.0"))
+        if before is None:
+            fails.append("(2) the first release wrote no artifact, so idempotence cannot be checked")
         r = run(tmp)  # identical re-cut
         if r.returncode != 0:
             fails.append("(2) idempotent re-cut of UNCHANGED bytes was blocked "
@@ -138,7 +171,9 @@ def failures():
         for want in ("0.1.0", "VERSION", "RELEASE_ALLOW_OVERWRITE=1"):
             if want not in r.stderr:
                 fails.append("(3) block message not actionable — missing %r" % want)
-        if released_sha not in r.stderr:
+        if released_sha is None:
+            fails.append("(3) the first release wrote no artifact, so there is nothing to protect")
+        elif released_sha not in r.stderr:
             fails.append("(3) block message does not name the released sha")
 
         # (4) a refused release must leave dist/ exactly as it was
@@ -163,7 +198,9 @@ def failures():
             fails.append("(5) bypass did not actually overwrite the artifact")
         if "WARNING" not in r.stderr:
             fails.append("(5) bypass overwrote SILENTLY — no WARNING on stderr")
-        if old_sha not in r.stderr or new_src_sha not in r.stderr:
+        if old_sha is None:
+            fails.append("(5) the first release wrote no artifact, so there is nothing to overwrite")
+        elif old_sha not in r.stderr or new_src_sha not in r.stderr:
             fails.append("(5) bypass warning does not name BOTH the old and new sha")
 
     # ---- guard on the guard: the real pinned artifact is untouched -----------
