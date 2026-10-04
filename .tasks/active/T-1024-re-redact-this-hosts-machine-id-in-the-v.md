@@ -43,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T07:54:35Z
-last_update: 2026-10-04T07:56:33Z
+last_update: 2026-10-04T07:57:04Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -88,9 +88,9 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The vendored T-375 key-storage report no longer contains this host's machine-id (redacted with a readable placeholder); the change is declared in .vendor-divergence.yaml so the next re-vendor shows it STALE instead of silently restoring the value
-- [ ] tools/_t1024-machine-id-not-tracked.py fails if this host's /etc/machine-id appears in ANY tracked file at HEAD (comparison only, it prints paths, never the value), with a control proving it can find a planted copy; red before the redaction, green after; wired as a bridge leg
-- [ ] Git history and key rotation are NOT touched (operator's call), and the task says so
+- [x] The vendored T-375 key-storage report no longer contains this host's machine-id (redacted with a readable placeholder); the change is declared in .vendor-divergence.yaml so the next re-vendor shows it STALE instead of silently restoring the value — T-939's own redacted line restored (d34abb9f)
+- [x] tools/_t1024-machine-id-not-tracked.py fails if this host's /etc/machine-id appears in ANY tracked file at HEAD (comparison only, it prints paths, never the value), with a control proving it can find a planted copy; red before the redaction, green after; wired as a bridge leg — FAIL (1 file) before, PASS (10219 files) after
+- [x] Git history and key rotation are NOT touched (operator's call), and the task says so — commit message and register entry say so; AEF's public mirror still carries the value (AEF told, e28a469a)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
