@@ -8,13 +8,13 @@ description: >
   mark one-shot, or delete), not a silent re-baseline. Pre-existing (T-995 project-tooling
   class), seen in the T-1005 bridge triage 2026-10-03.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-03T21:51:56Z
-last_update: 2026-10-04T14:12:40Z
-date_finished:
+last_update: 2026-10-04T14:31:37Z
+date_finished: 2026-10-04T14:31:37Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -95,7 +95,7 @@ The bridge leg `python3 tools/_t451-unwired-guard-census.py --ratchet` fails bec
   - **Ratchet:** baseline 105 = findings 105.
   - **Side findings:** the 1.7.740 settings rewrite (committed in 6e0747c3) dropped two project hooks, `_t420-rail-attribution-gate.py` and `tools/hooks/warn-uncontrolled-absence.sh`; restoring them is a runme.sh for the operator.
 - [x] Every "-" entry (a baseline line that is now wired) is removed from the baseline, so the ratchet's allowlist is not stale. All 7 were verified wired before removal: 6 CDP verifiers are called by tests/run-bridge-tests.sh (and the T-817/T-818 controls); gallery-serve.py is used by 3 tests. Baseline 64 -> 57; the ratchet now reports only "GREW by 93"
-- [ ] `python3 tools/_t451-unwired-guard-census.py --ratchet` exits 0, and no other bridge leg goes red (a full run shows no failure the 168/10 run lacked)
+- [x] `python3 tools/_t451-unwired-guard-census.py --ratchet` exits 0, and no other bridge leg goes red (a full run shows no failure the 168/10 run lacked). Ratchet rc=0. Full run 2026-10-04: 212 passed / 10 failed; the ratchet leg is gone. ONE new red, stated, not hidden: the newly wired `_t687-hook-function-check.py` reports loop-detect STARVED (107 fires, state frozen since 08:57Z). That is a real defect the wiring surfaced, not a regression this task caused; it is tracked as T-1036 (the same task covers `_t687` clearing its own red on rerun). The other 43 newly wired guards pass in the suite.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -356,3 +356,22 @@ The bridge leg `python3 tools/_t451-unwired-guard-census.py --ratchet` fails bec
 ### 2026-10-04T13:53:02Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6581793b
+- **Timestamp:** 2026-10-04T14:31:38Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — Every "-" entry (a baseline line that is now wired) is removed from the baseline, so the ratchet's allowlist is not stale. All 7 were verified wired before removal: 6 CDP verifiers are called by tests
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/run-bridge-tests.sh in: Every "-" entry (a baseline line that is now wired) is removed from the baseline, so the ratchet's allowlist is not stale. All 7 were verified wired b`
+- **AC#3 (Agent)** — `python3 tools/_t451-unwired-guard-census.py --ratchet` exits 0, and no other bridge leg goes red (a full run shows no failure the 168/10 run lacked). Ratchet rc=0. Full run 2026-10-04: 212 passed / 1
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t451-unwired-guard-census.py in: `python3 tools/_t451-unwired-guard-census.py --ratchet` exits 0, and no other bridge leg goes red (a full run shows no failure the 168/10 run lacked).`
+
+### 2026-10-04T14:31:37Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1013: Bridge leg red: unwired-guard ratchet drifted (tools added unreported, 7 baseline entries now wired)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T14:31:46Z
+# ============================================================================
+
+task_id: T-1013
+task_name: "Bridge leg red: unwired-guard ratchet drifted (tools added unreported, 7 baseline entries now wired)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-03T21:51:56Z
+completed: 2026-10-04T14:31:37Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-04T16:07:50+02:00
+last_commit: 2026-10-04T16:12:40+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the unwired-guard ratchet is green — 44 standing guards wired into the bridge suite; 28 manual tools, 16 failing guards (each naming its owner task: T-1035, T-1033, T-1034, T-932) and 5 census blind spots baselined with reasons; 8 stale entries removed. Follow-ups T-1033/T-1034/T-1035 created. runme.sh restores the two project hooks the 1.7.740 settings rewrite dropped (_t420 rail-attribution gate, warn-uncontrolled-absence); both checked working on 1.7.740; dry-run clean, write step idempotent on a copy. operator restored the two hooks the 1.7.740 settings rewrite dropped (runme 20261004T161227, rc=0): _t420 rail-attribution gate (PreToolUse mcp__termlink__.*) and warn-uncontrolled-absence (PostToolUse Write|Edit)
+
+# Key outcomes
+outcomes:
+  - 'Every "+" entry is classified, one by one, with the reason recorded here: WIRE it (a guard or teeth script that should run in the bridge suite); BASELINE it (a deliberately manual tool: one-off census, CDP verifier, delivery helper); or DELETE it (dead). A guard is never baselined merely to make the leg green. All 93 are classified, with one reason each, in docs/reports/T-1013-unwired-classification.md: WIRE 60 (each run once), BASELINE 28, UNSURE 5, DELETE 0.'
+  - 'Every "-" entry (a baseline line that is now wired) is removed from the baseline, so the ratchet''s allowlist is not stale. All 7 were verified wired before removal: 6 CDP verifiers are called by tests/run-bridge-tests.sh (and the T-817/T-818 controls); gallery-serve.py is used by 3 tests. Baseline 64 -> 57; the ratchet now reports only "GREW by 93"'
+  - '`python3 tools/_t451-unwired-guard-census.py --ratchet` exits 0, and no other bridge leg goes red (a full run shows no failure the 168/10 run lacked). Ratchet rc=0. Full run 2026-10-04: 212 passed / 10 failed; the ratchet leg is gone. ONE new red, stated, not hidden: the newly wired `_t687-hook-function-check.py` reports loop-detect STARVED (107 fires, state frozen since 08:57Z). That is a real defect the wiring surfaced, not a regression this task caused; it is tracked as T-1036 (the same task covers `_t687` clearing its own red on rerun). The other 43 newly wired guards pass in the suite.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.claude/settings.json'
+  - 'docs/reports/T-1013-unwired-classification.md'
+  - 'runme.sh'
+  - '.tasks/active/T-1013-bridge-leg-red-unwired-guard-ratchet-dri.md'
+  - '.tasks/active/T-1033-8-tasks-awaiting-human-review-have-no-re.md'
+  - '.tasks/active/T-1034-mark-bundle-a-e-deliveries-in-the-diverg.md'
+  - '.tasks/active/T-1035-census-13-hook-fix-teeth-t-628t-662-fail.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T16:07:50'
+    action: 'T-1013: the unwired-guard ratchet is green — 44 standing guards wired into the bridge suite; 28 manual tools, 16 failing guards (each naming its owner task: T-1035, T-1033, T-1034, T-932) and 5 census blind spots baselined with reasons; 8 stale entries removed. Follow-ups T-1033/T-1034/T-1035 created'
+  - time: '2026-10-04T16:09:40'
+    action: 'T-1013: runme.sh restores the two project hooks the 1.7.740 settings rewrite dropped (_t420 rail-attribution gate, warn-uncontrolled-absence); both checked working on 1.7.740; dry-run clean, write step idempotent on a copy'
+  - time: '2026-10-04T16:12:40'
+    action: 'T-1013: operator restored the two hooks the 1.7.740 settings rewrite dropped (runme 20261004T161227, rc=0): _t420 rail-attribution gate (PreToolUse mcp__termlink__.*) and warn-uncontrolled-absence (PostToolUse Write|Edit)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 999 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 999
+  commits: 3
+  files_changed: 9
+  lines_added: 1210
+  lines_removed: 62
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1013-bridge-leg-red-unwired-guard-ratchet-dri.md
+generated_by: context-agent-hybrid

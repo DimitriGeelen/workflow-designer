@@ -2663,3 +2663,9 @@ learnings:
   task: T-1021
   date: 2026-10-04
   context: Added via context agent
+- id: PL-380
+  learning: "A 'is the suite running?' guard must not match itself: pgrep -f 'run-bridge-tests.sh' matches the agent's own bash wrapper whenever the command text contains that path (as an argument or the pattern). Anchor it to the invocation (pgrep -f '^(timeout N )?bash tests/run-bridge-tests\\.sh'), and never run the check in PARALLEL with the edit it guards: its answer must be read before the edit is issued (T-1013)"
+  source: P-001
+  task: T-1013
+  date: 2026-10-04
+  context: Added via context agent
