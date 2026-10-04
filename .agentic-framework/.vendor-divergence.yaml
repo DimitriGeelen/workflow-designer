@@ -135,6 +135,8 @@ entries:
     kind: content
     task: T-1005
     upstream: fix
+    delivered: reported
+    delivered_ref: "bundle E (T-1021) patch 0004 + 0005, delivered 2026-10-04 notice 9bcc403a; AEF acknowledged @479, queued in their T-3817"
     reason: >-
       T-1005 re-apply on 1.7.740, per-fix outcome. T-541 (three product-driver handlers,
       788a5103) SUPERSEDED in project-owned policy: T-864 moved F1/F3/F4 to declarative
@@ -156,6 +158,8 @@ entries:
     kind: content
     task: T-1009
     upstream: fix
+    delivered: reported
+    delivered_ref: "bundle A (T-1009) patch 0001, notice cc12f703 (resent af2f2c88); AEF T-3568, queued in T-3817 (@468)"
     reason: >-
       T-931 (0a00d59d, operator ruling 2026-09-29): `fw task delegate` flips owner human -> agent
       when no Human criterion is open, not only when the run converted something. Lost SILENTLY by
@@ -167,6 +171,8 @@ entries:
     kind: content
     task: T-939, T-1024
     upstream: fix
+    delivered: accepted
+    delivered_ref: "AEF redacted it themselves: T-3788, commit 057e45399 (@409, @434)"
     reason: >-
       SECURITY. Redacts this host's /etc/machine-id (the PBKDF2 input for the secrets-store Fernet
       key, web/secrets_store.py) from line 13. T-939 redacted it on 2026-09-30; the 1.7.740 pristine
@@ -179,6 +185,8 @@ entries:
     kind: content
     task: T-908, T-1025
     upstream: fix
+    delivered: reported
+    delivered_ref: "bundle E (T-1021) patch 0002, delivered 2026-10-04 notice 9bcc403a; AEF acknowledged @479, queued in their T-3817"
     reason: >-
       T-908 (547fb9eb) re-applied by T-1025 after the 1.7.740 re-vendor erased it silently (never
       declared; found by the T-1020 census). 24 of 704 depends_on entries in this corpus are plain
@@ -191,6 +199,8 @@ entries:
     kind: content
     task: T-866, T-1026
     upstream: fix
+    delivered: reported
+    delivered_ref: "bundle E (T-1021) patch 0010, delivered 2026-10-04 notice 9bcc403a; AEF acknowledged @479, queued in their T-3817 — sent as a PROPOSAL, AEF treats it as one (@479)"
     reason: >-
       audit_inception_hypothesis (T-866 4b6693d9 + research exemption 02bd9201): a GO requires a
       ## Hypothesis whose success clause names something observable (count, threshold, named check,
@@ -202,6 +212,8 @@ entries:
     kind: content
     task: T-866, T-1026
     upstream: fix
+    delivered: reported
+    delivered_ref: "bundle E (T-1021) patch 0010, delivered 2026-10-04 notice 9bcc403a; AEF acknowledged @479, queued in their T-3817 — sent as a PROPOSAL, AEF treats it as one (@479)"
     reason: >-
       The GO path of fw inception decide calls audit_inception_hypothesis and fails CLOSED if the
       function did not load (a gate whose absence looks like a pass is the defect class). Re-applied
@@ -210,6 +222,8 @@ entries:
     kind: content
     task: T-912, T-1027
     upstream: fix
+    delivered: reported
+    delivered_ref: "bundle E (T-1021) patch 0008, delivered 2026-10-04 notice 9bcc403a; AEF acknowledged @479, queued in their T-3817"
     reason: >-
       do_promote (T-912, 33964b83) ported onto 1.7.740 by T-1027 after the re-vendor erased it
       silently (found by the T-1020 census). 1.7.740 wrote the literal `promoted_to: task`, ignored
@@ -222,6 +236,8 @@ entries:
     kind: content
     task: T-914, T-1028
     upstream: fix
+    delivered: reported
+    delivered_ref: "bundle E (T-1021) patch 0009, delivered 2026-10-04 notice 9bcc403a; AEF acknowledged @479, queued in their T-3817"
     reason: >-
       `fw note resolve OBS-N --carrier <T-NNN|path> [--reason]` (T-914, d1dfb3ea) re-applied by
       T-1028 after the 1.7.740 re-vendor erased it silently (T-1020 census). It gives "already fixed,
@@ -233,6 +249,8 @@ entries:
     kind: content
     task: T-650, T-1037
     upstream: fix
+    delivered: reported
+    delivered_ref: "described and offered in sidecar 92e8f572 (2026-10-04); patch bundle offered on v1.8.0"
     reason: >-
       T-650 (3032e3e2) re-applied by T-1037 after the T-1035 census found it lost on 1.7.740 (T-1005
       had restored only its prose-verb half). With no active task, an alias is admitted exactly when
@@ -246,6 +264,8 @@ entries:
     kind: content
     task: T-1005
     upstream: fix
+    delivered: reported
+    delivered_ref: "bundle E (T-1021) patch 0003, delivered 2026-10-04 notice 9bcc403a; AEF acknowledged @479, queued in their T-3817"
     reason: >-
       T-1005 re-apply on 1.7.740. T-467 (78cf7d75) ADOPTED: upstream T-2955 makes `fw arc tag`
       write the canonical arc_id: and refuse a different existing arc_id:; it deliberately
@@ -261,6 +281,8 @@ entries:
     kind: content
     task: T-1005
     upstream: fix
+    delivered: reported
+    delivered_ref: "bundle E (T-1021) patch 0006, delivered 2026-10-04 notice 9bcc403a; AEF acknowledged @479, queued in their T-3817"
     reason: >-
       T-1005 re-apply on 1.7.740. T-542 (help line for `fw bvp estimate-cost`) SUPERSEDED:
       upstream usage lists the verb. T-856 (48e03e08) PARTLY ADOPTED: upstream T-3487 makes the
@@ -423,6 +445,8 @@ entries:
     kind: content
     task: T-1005, T-1023
     upstream: fix
+    delivered: reported
+    delivered_ref: "bundle E (T-1021) patch 0001, delivered 2026-10-04 notice 9bcc403a; AEF acknowledged @479, queued in their T-3817"
     reason: >-
       Focus-drift target extraction (_fw_extract_drift_target), re-applied/repaired on 1.7.740.
       T-639 (clause-scoped: only a clause that IS a command, heredoc bodies dropped); T-921's two
@@ -1003,6 +1027,8 @@ entries:
     kind: content
     task: T-662, T-1038
     upstream: fix
+    delivered: reported
+    delivered_ref: "described and offered in sidecar 92e8f572 (2026-10-04); patch bundle offered on v1.8.0"
     reason: >-
       T-662 (72588583) re-applied by T-1038 after the T-1035 census found its advisory gone from
       the 1.7.740 hook (the old entry here described code that no longer existed). With no focus,
@@ -1198,6 +1224,8 @@ entries:
     kind: added
     task: T-936, T-1005, T-1009
     upstream: fix
+    delivered: reported
+    delivered_ref: "bundle B (T-1009) patch 0001, notice cc12f703; AEF T-3572, queued in T-3817 (@468)"
     reason: >-
       Detector added by T-936. Undeclared, so deleted silently by the 1.7.740 re-vendor; restored.
       T-1009 (2026-10-04): wiring checked -- NOT enabled (the operator's `fw hook-enable`, pending

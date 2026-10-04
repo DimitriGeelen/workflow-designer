@@ -1,11 +1,15 @@
 ---
 id: T-1034
-name: "Mark bundle A-E deliveries in the divergence register (_t688 drain ratchet: 54 undrained vs baseline 46)"
+name: "Mark bundle A-E deliveries in the divergence register (_t688 drain ratchet:
+  54 undrained vs baseline 46)"
 description: >
-  Bundles A-E (T-1009, T-1021) delivered these fixes to AEF (T-3817); the register entries carry no delivered: field, so the drain ratchet reads 8 divergences added and none delivered.
+  Bundles A-E (T-1009, T-1021) delivered these fixes to AEF (T-3817); the register
+  entries carry no delivered: field, so the drain ratchet reads 8 divergences added
+  and none delivered.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T14:04:23Z
-last_update: 2026-10-04T14:04:23Z
-date_finished: null
+last_update: 2026-10-04T15:28:42Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +54,49 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-04T15:25:56Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1034: Mark bundle A-E deliveries in the divergence register (_t688 drain ratchet: 54 undrained vs baseline 46)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The drain ratchet (`tools/_t688-divergence-drain-ratchet.py`) counts `upstream: fix` register entries that carry no `delivered:` field. It reads 55 against a baseline of 46, because the register was never told about the deliveries:
+- bundles A to E (T-1009, T-1021), all acknowledged by AEF and folded into T-3817;
+- the machine-id redaction, done by AEF as T-3788;
+- today's sidecar offer of T-1037/T-1038 (92e8f572).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Every register entry whose fix was really delivered carries `delivered:` with the honest state (`reported` for sent-and-acknowledged, `accepted` where AEF shipped it), naming the bundle or message. An entry is marked only if its change is actually in a delivered bundle or note, checked against the bundle MANIFESTs. Nothing is marked to make the count fall. 14 entries are marked, each with a `delivered_ref:`:
+  - **reported, 13:** bundle A (delegation_cli), bundle B (check-bare-import), bundle E patches 0001-0006 and 0008-0010 (0010 noted as a proposal), and T-1037/T-1038 via sidecar 92e8f572;
+  - **accepted, 1:** the machine-id redaction, AEF T-3788 / 057e45399.
+
+  Left unmarked on purpose, because only part of each was delivered: `audit.sh` T-1005 (it covers 9 re-applies; bundle E carried only T-525), `safe-commands.sh` T-404/405/390 (bundle D carried the quote-aware half, not the no-task capture verbs) and `lib/task-ownership.sh` (bundle A shipped `delegation_cli.py`, not this lib).
+- [x] `python3 tools/_t688-divergence-drain-ratchet.py` exits 0, by delivery marks, not by raising the baseline; if undelivered fixes remain above baseline, they are listed here as candidates for the next bundle. 55 → 41 undrained, which is BELOW the old baseline of 46. The baseline was LOWERED to 41 to lock the gain in (the tool's own instruction). The 41 remaining (agents 20, web 12, lib 7, bin 2) are the candidates for a bundle F. `_t688` is wired as a bridge leg and has left the unwired baseline (ratchet rc 0)
+- [x] The register still parses, with the same number of entries. 57 before and after; `_t517` confirms every diverged path is declared and every declared path still diverges
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,3 +353,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1034-mark-bundle-a-e-deliveries-in-the-diverg.md
 - **Context:** Initial task creation
+
+### 2026-10-04T15:25:55Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

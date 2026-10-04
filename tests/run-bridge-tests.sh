@@ -2606,6 +2606,15 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-688 / T-1034: upstream debt may not grow faster than it is delivered ──
+if python3 "$ROOT/tools/_t688-divergence-drain-ratchet.py" > "$TMP/leg-_t688-drain.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the divergence drain ratchet moved: more upstream fixes are undelivered than tools/_t688-divergence-drain-baseline.txt allows (mark deliveries with delivered: + delivered_ref:), or fewer (lower the baseline) (run 'python3 tools/_t688-divergence-drain-ratchet.py'; T-1034)"
+  show_output "$TMP/leg-_t688-drain.out" "_t688-divergence-drain-ratchet.py"
+  fail=$((fail + 1))
+fi
+
 # ── T-1017: the round-trip leg counts DECLARED identities, not comment prose ──
 if python3 "$ROOT/tools/_t1017-uid-count-teeth.py" > "$TMP/leg-_t1017-uid-count.out" 2>&1; then
   pass=$((pass + 1))

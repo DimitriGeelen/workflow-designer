@@ -276,8 +276,6 @@ _t638-commit-exemption-is-clause-scoped.sh
 _t639-drift-gate-reads-fixtures.sh
 # owner: T-1035 (census: adopted upstream, lost, or obsolete?)
 _t654-watchdog-detections-must-be-surfaced.sh
-# owner: T-1034 (bundle A-E deliveries not yet marked in the register)
-_t688-divergence-drain-ratchet.py
 # owner: T-932 (G-052: the two encodings of the delegation boundary disagree)
 _t932-boundary-agreement.sh
 
