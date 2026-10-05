@@ -16,13 +16,13 @@
 # frozen annotated tag = published frozen bytes — 832's working tree stays
 # off-limits.
 
-version: "0.14.0"
-sha256: "0b5ae3a7f9b519c78b76a0784278ca4d68279fece220cc041d947a25b3d8e6f2"
-bytes: 1043238
+version: "0.15.3"
+sha256: "209d37bb000df8eb5ac6a91aa6b20c282bdefc6cd8a62b00b11a91a50322ddde"
+bytes: 1063551
 
 source_repo: "832-Workflow-designer"
-source_artifact: "dist/aef-workflow-designer-0.14.0.html"
-source_tag: "designer-v0.14.0"
+source_artifact: "dist/aef-workflow-designer-0.15.3.html"
+source_tag: "designer-v0.15.3"
 source_manifest: "dist/MANIFEST.yaml"                 # 832 side
 # Read-only LAN origin for pull-at-tag intake (T-247/D-335, tooling T-2616).
 # `fw designer sync --from-tag` fetches artifact + MANIFEST at the annotated tag
@@ -146,7 +146,14 @@ protocol: "docs/aef-designer-integration-protocol.md" # 832 side (pull → sha25
 #   New in 0.14.0 (832): aefMeta.authority first-class; lane authoring defaults; diagram-kind
 #   marker; instance overlay via an OPTIONAL /api/instances probe. Served statically here, that
 #   probe 404s once in the console by design (absence is a state, not a fault).
-vendored_path: "vendor/designer/aef-workflow-designer-0.14.0.html"
+# 832 T-988 (2026-10-01): LOCAL re-pin 0.14.0 -> 0.15.0 on operator request ("full upgrade"),
+#   ahead of AEF's own pin — declared in .vendor-divergence.yaml so a re-vendor cannot drop it
+#   silently. sha+bytes computed independently from the designer-v0.15.0 tag blob and equal to
+#   the MANIFEST at that tag (src_commit 1a179ecb).
+# 832 T-1007 (2026-10-03): 0.15.0 -> 0.15.2 (consumer intake; the pin had lagged two releases
+#   unseen because the T-382 release-lag rail was dropped from audit.sh by the 1.7.740 re-vendor).
+#   sha+bytes equal to designer-v0.15.2:dist/MANIFEST.yaml.
+vendored_path: "vendor/designer/aef-workflow-designer-0.15.3.html"
 
 # Offline-hardened (832 T-176): web fonts are embedded as base64 woff2 — ZERO network
 # on load (no fonts.googleapis.com / gstatic fetch). Fully self-contained for
