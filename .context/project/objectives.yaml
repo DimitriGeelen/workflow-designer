@@ -1,0 +1,70 @@
+# Project objectives — 832-Workflow-designer.
+#
+# Authored intent; progress is derived, never written here.
+# Arcs reference these ids via `supports: [O-n, ...]`.
+#
+# Drafted under T-986 (2026-10-05) from this project's own material only:
+# docs/832-project-purpose-and-goals.md (T-874, the operator's 2026-09-27 statement, §1-§3),
+# docs/aef-designer-integration-protocol.md, the corpus and its `aef:` vocabulary, and arcs
+# 001-005. O-1..O-6 are that document's G1..G6. Its G0 (the method: nothing is asserted that
+# cannot be wrong) is how these get built, not what the project is for, so it is not listed.
+# Independently reviewed (T-986); corrections applied — see the task's Recommendation.
+#
+# Stop conditions (purpose doc P5). The shape below has no field for these, so they are kept
+# here for the operator to place: the project is worth stopping
+#   - if AEF stops consuming the seam (an authoring surface nothing authors for is a drawing tool);
+#   - if instances cannot be bound to their templates without hand-maintenance (O-3/O-4 collapse);
+#   - if no second tenant can use it (tenant-neutrality never shown, O-5).
+headline: >-
+  Workflow Designer is AEF's process add-on, for process authors, AEF agents and operators:
+  it captures a process completely enough to execute it, so that a human and an agent can work
+  the same picture from idea to running implementation. Processes are modelled once as
+  templates (classes) and run many times as instances, for AEF and for other tenants.
+objectives:
+  - id: O-1
+    text: >-
+      A step on the diagram carries everything an implementer needs (its inputs, outputs,
+      decisions, the artifacts it reads and writes, and its pseudocode), so the picture alone
+      is enough to implement from.
+    measure: >-
+      A reader implements a step from the diagram with no recourse to the task text. Proxy
+      until that test is run: every carrier, pseudocode included, exists and round-trips.
+  - id: O-2
+    text: >-
+      A map says whether it is a template or a work-plan, so a picture of a process is refused
+      when something tries to promote it into real governed work.
+    measure: >-
+      The marker exists and survives a save and load, and AEF's promote path refuses an
+      unmarked documentation map.
+  - id: O-3
+    text: >-
+      Every real instance (a task, an inception, a sprint item) knows which template it
+      follows and which step it is on, and the system can answer that, not a person's memory.
+    measure: >-
+      Asked "what process is T-NNN following?", the framework answers with its template and
+      its current node.
+  - id: O-4
+    text: >-
+      A running process is observable, and a step that is not permitted is refused and
+      recorded instead of silently taken.
+    measure: >-
+      An out-of-order advance, a skipped human gateway and an unmet input contract are each
+      refused and land in the audit log, and the operator can see which step an instance is
+      on, which it failed at, and why.
+  - id: O-5
+    text: >-
+      The machinery is tenant-neutral: a second, unrelated application models and runs its own
+      processes with it, showing it is a modelling substrate rather than one project's diagram set.
+    measure: >-
+      The second tenant (the Sprind application) carries its own templates and instances.
+  - id: O-6
+    text: >-
+      Work can start as a picture and existing work can be seen as one: forward-compile and
+      reverse-render both hold between the designer and AEF.
+    measure: >-
+      A re-pin round-trips the corpus byte-identically with no hand repair. Rendering existing
+      work as a picture: not measured yet.
+out_of_scope:
+  - "A general-purpose BPMN editor. BPMN is the portable format, not the product."
+  - "Replacing the task system. Tasks are canonical: a diagram proposes governed work and never authors it."
+  - "Running processes. Observing and guarding execution is in scope; the framework driving execution node by node ('strict' mode) is not, and anything that actually runs belongs to EWCR (arc-002)."
