@@ -114,3 +114,10 @@ Sequence (to be wrapped in runme.sh when the operator decides T-988):
   T-646 (b8eb4af6): probes green, live T-568 probe green after a Watchtower restart. **47 left**,
   tracked in T-1005. update-task.sh (17 local commits) conflicts 13 times in a bulk merge and is
   being done commit by commit.
+
+## Step 5 (added 2026-10-06, T-1058): send AEF a post-upgrade report
+
+After `_t517` is clean and the bridge suite has run, send AEF one screen on the release conversation:
+path, environment, consumer shape, method, per-step outcome, post-upgrade manual steps, surprises,
+time. Template and the reason for each field: `docs/reports/T-1058-upgrade-report-1.8.3.md` (the
+first one, for 1.8.3). Proposed to AEF as a protocol step for every consumer.
