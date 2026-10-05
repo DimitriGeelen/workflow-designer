@@ -52,6 +52,19 @@ receipt/nudge inbox fix T-3792/T-3840.
 After both: `_t517` **OK — every diverged path is declared, and every declared path still diverges.**
 All 36 re-patched files pass a syntax check (bash -n / py_compile / node --check / yaml).
 
+## Suite results on 1.8.2
+
+- First bridge run: 234 passed, 5 failed. Four were instruments still aimed at 1.7.740 code:
+  `_t1047` (pre-fix library now taken from the pristine baseline), `_t644` (anchor on upstream's
+  preamble), `_t654` (1.8.2 has three horizon-null sites, AEF T-3744; the mutant reverts all three,
+  7/7), `_t1048` leg 6 (Watchtower still served pre-upgrade code; green after a restart, 6 cards /
+  6 tiles).
+- Final bridge run: **238 passed, 1 failed** (1478 s). The one failure is the `_t509` sweep's
+  coverage leg: `_t549-fabric-coverage-mutation-teeth.py` exceeded the 90 s cap. Run alone it is
+  5/5 green in 129 s — it did not finish within the cap, nothing regressed. It was inside the cap on
+  1.7.740 (sweep 100/100). Not "fixed" by raising the cap (the sweep's own rule: measure the cost
+  first); tracked as its own task.
+
 ## Outside .agentic-framework/
 
 - `.claude/settings.json`: our three project hooks (`check-bare-import`, `_t420` rail-attribution

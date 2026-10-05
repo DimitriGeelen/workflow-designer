@@ -1,13 +1,13 @@
 ---
-id: T-1049
-name: "Upgrade vendored AEF 1.7.740 -> 1.8.2 (T-1000 protocol)"
+id: T-1051
+name: "_t549 fabric-coverage teeth exceed the 90s sweep cap on AEF 1.8.2: measure where the cost went"
 description: >
-  Upgrade vendored AEF 1.7.740 -> 1.8.2 (T-1000 protocol)
+  After the 1.8.2 upgrade (T-1049) the T-509 instrument sweep reports DID NOT FINISH for _t549-fabric-coverage-mutation-teeth.py: 129s alone (5/5 green) against the 90s cap; it fit on 1.7.740. The only red leg in the final bridge run (238/1). Measure which phase grew (fabric tooling, 35 new uncarded vendored files) before touching the cap.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
-horizon: now
+horizon: next
 tags: []
 components: []
 related_tasks: []
@@ -33,12 +33,12 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1049` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1051` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-05T12:25:45Z
-last_update: 2026-10-05T12:25:45Z
+created: 2026-10-05T15:09:44Z
+last_update: 2026-10-05T15:09:44Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -52,22 +52,18 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-1049: Upgrade vendored AEF 1.7.740 -> 1.8.2 (T-1000 protocol)
+# T-1051: _t549 fabric-coverage teeth exceed the 90s sweep cap on AEF 1.8.2: measure where the cost went
 
 ## Context
 
-AEF v1.8.2 released 2026-10-05 (inbox @624). It carries the crontab-path fix (v1.8.1), the
-reindex disk fix T-3860, and the receipt/nudge inbox fix T-3792/T-3840. We are on 1.7.740.
-Upgrade under the T-1000 re-vendor protocol: pristine vendor commit, then re-apply the
-divergence register, then the baseline advance.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] runme.sh prepared for the operator (preconditions, y/N per step, log, runme-signal), `--dry-run` passes; the agent never runs it for real
-- [x] After the operator's run: `.agentic-framework/VERSION` reads 1.8.2 and the pristine commit touches only `.agentic-framework/`
-- [x] Every register entry in `.vendor-divergence.yaml` is re-applied, retired as superseded by 1.8.2, or recorded; `_t517` reports no STALE local fix
-- [x] Post-upgrade checks: project hooks in `.claude/settings.json` intact, crontab has no `/tmp/fw-upstream` path, `index-reindex-hourly` state recorded, bridge suite and `_t509` sweep re-run with results recorded
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -93,21 +89,14 @@ divergence register, then the baseline advance.
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1049`
+         1. Run `bin/fw reviewer T-1051`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1049 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1051 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
-
-grep -qx '1.8.2' .agentic-framework/VERSION
-test -z "$(git show --name-only --format= b37861b5 | grep -v '^\.agentic-framework/')"
-python3 tools/_t517-vendor-divergence.py > /tmp/.t1049-t517 2>&1 && grep -q '^OK' /tmp/.t1049-t517
-python3 tools/_t517-vendor-divergence-teeth.py > /tmp/.t1049-teeth 2>&1 && grep -q 'TEETH PASS' /tmp/.t1049-teeth
-! grep -q '/tmp/' /etc/cron.d/agentic-audit-832-workflow-designer
-test "$(grep -c '_t420-rail-attribution-gate\|warn-uncontrolled-absence\|check-bare-import' .claude/settings.json)" -ge 3
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -318,7 +307,7 @@ test "$(grep -c '_t420-rail-attribution-gate\|warn-uncontrolled-absence\|check-b
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1049 go|no-go|defer --rationale "..."
+     fw inception decide T-1051 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -327,7 +316,7 @@ test "$(grep -c '_t420-rail-attribution-gate\|warn-uncontrolled-absence\|check-b
 
 ## Updates
 
-### 2026-10-05T12:25:45Z — task-created [task-create-agent]
+### 2026-10-05T15:09:44Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1049-upgrade-vendored-aef-17740---182-t-1000-.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1051-t549-fabric-coverage-teeth-exceed-the-90.md
 - **Context:** Initial task creation
