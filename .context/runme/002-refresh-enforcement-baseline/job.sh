@@ -11,7 +11,7 @@ Step 1 prints the current hook list for you to look at; step 2 records it as the
 
 preflight() {
     check ".claude/settings.json is committed as reviewed (no uncommitted edits)" 'git diff --quiet -- .claude/settings.json'
-    check "fw doctor currently reports the baseline CHANGED" '.agentic-framework/bin/fw doctor 2>&1 | grep -q "Enforcement baseline CHANGED"'
+    check "fw doctor currently reports the baseline CHANGED" 'out=$(.agentic-framework/bin/fw doctor 2>&1); grep -q "Enforcement baseline CHANGED" <<<"$out"'
 }
 
 steps() {
@@ -21,7 +21,8 @@ steps() {
 
 do_refresh() {
     .agentic-framework/bin/fw enforcement baseline || return 1
-    ! .agentic-framework/bin/fw doctor 2>&1 | grep -q "Enforcement baseline CHANGED" || { echo "doctor still reports CHANGED"; return 1; }
+    local out; out=$(.agentic-framework/bin/fw doctor 2>&1)   # capture first: grep -q on a live pipe SIGPIPEs (L-387)
+    ! grep -q "Enforcement baseline CHANGED" <<<"$out" || { echo "doctor still reports CHANGED"; return 1; }
     git add .context/project/enforcement-baseline.sha256 && \
         git commit -q -m "T-1057: operator refreshed the enforcement baseline after reviewing the hooks (T-1022, T-1013, T-1049, T-1057 changes)"
 }
