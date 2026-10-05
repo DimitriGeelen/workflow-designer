@@ -20,7 +20,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T16:12:36Z
-last_update: '2026-09-26T07:56:35Z'
+last_update: 2026-10-05T07:37:11Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -106,6 +106,15 @@ cost_estimate_proposed:
 # T-358: Importer FABRICATES lane and pool structure the input never had: every third-party document gains 3 lanes and 1 participant on open
 
 ## Context
+
+> **Record correction (2026-10-05, T-1045).** Handovers from S-2026-1004 onward listed a red bridge leg
+> as "T-358 — third-party document bytes". That leg was `tools/_t358-byteid-thirdparty.mjs` (the byte-
+> identity gate this task created), and it was red because its goldens were stale: 9 drifts, bisected to
+> the deliberate fixes T-602, T-603 and T-891, re-recorded as a reviewed diff
+> (`docs/reports/T-1045-thirdparty-golden-rerecord.md`). The gate is green, and **this task's own defect is
+> untouched**: the importer still fabricates lanes (`defaultLanes()`) the input never had. Since T-891
+> those fabricated lanes are visibly EMPTY in the output, because orphan nodes no longer land in the first one.
+> The goldens now pin that state, so any repair here will show up as a drift to review.
 
 Measured 2026-08-03 by `tools/_t356-third-party-fidelity-cdp.mjs`; full table in
 `docs/reports/T-356-third-party-fidelity.md`.
