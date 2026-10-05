@@ -1,11 +1,15 @@
 ---
 id: T-1045
-name: "Instrument sweep exits 3 (incomplete): _t402, _t581, _t588 decline to certify (rc=2) — find why each abstains and make it run or document the exclusion"
+name: "Instrument sweep exits 3 (incomplete): _t402, _t581, _t588 decline to certify
+  (rc=2) — find why each abstains and make it run or document the exclusion"
 description: >
-  After T-1044 the _t509 sweep reports RAN 100, passed 97, regressed 0, dead-control 0, abstained 3; the bridge leg treats rc=3 (incomplete) as red. The three abstentions predate today (masked behind the earlier rc=1).
+  After T-1044 the _t509 sweep reports RAN 100, passed 97, regressed 0, dead-control
+  0, abstained 3; the bridge leg treats rc=3 (incomplete) as red. The three abstentions
+  predate today (masked behind the earlier rc=1).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T18:23:26Z
-last_update: 2026-10-04T18:23:26Z
-date_finished: null
+last_update: 2026-10-05T06:49:05Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +54,45 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-05T06:44:53Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1045: Instrument sweep exits 3 (incomplete): _t402, _t581, _t588 decline to certify (rc=2) — find why each abstains and make it run or document the exclusion
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The `_t509` instrument sweep runs every teeth/control instrument and exits 3 (incomplete) when any
+abstains with rc=2 (it declined to certify). Its bridge leg treats 3 as red. After T-1044 the only
+abstainers are three instruments of the T-402, T-581 and T-588 families. Each has its own cause.
+An abstention is honest only when the precondition it names really is missing on this host.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] For each of the three abstainers, the exact rc=2 reason is captured from a live run and its root cause is stated (one hypothesis at a time, at most 3 each)
+- [ ] Each is either made to run (and then passes, with its control/mutant biting), or excluded from the sweep with a written justification naming the missing precondition. An exclusion must not hide a regression: the reason has to be environmental and still true
+- [ ] `bash tools/_t509-instrument-sweep.sh` exits 0
+- [ ] The bridge leg for the sweep is green; the bridge suite's red set is only the known T-358 and T-1036 legs
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,3 +349,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1045-instrument-sweep-exits-3-incomplete-t402.md
 - **Context:** Initial task creation
+
+### 2026-10-05T06:44:52Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
