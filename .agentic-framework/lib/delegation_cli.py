@@ -325,13 +325,7 @@ def cmd_delegate(args) -> int:
     remaining_human = len(refused)
     owner = str(meta.get("owner") or "")
     new_owner = owner
-    # 832 T-931 (operator ruling 2026-09-29; re-applied by T-1009 after the 1.7.740 re-vendor lost
-    # it silently): `owner: human` is a sovereignty claim only while a Human criterion is open.
-    # The old `if converted and remaining_human == 0` flipped only when THIS run converted
-    # something, so a task with no open Human criterion kept `owner: human` forever (832: 45 of
-    # 112 human-owned tasks). Refused criteria still count as open, so anything genuinely human
-    # keeps its owner. Regression test: tools/_t931-delegate-owner-follows-criteria.py.
-    if owner == "human" and remaining_human == 0:
+    if converted and remaining_human == 0:
         new_owner = "agent"
 
     record = {

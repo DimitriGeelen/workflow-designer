@@ -116,6 +116,14 @@ def _replied_receipt(args) -> None:
 
 
 def cmd_send(args) -> int:
+    # T-3889: an empty body is a caller fault (e.g. --body "$(cat <missing>)"),
+    # never a message — refused before either path writes or posts anything.
+    if not (args.body or "").strip():
+        reason = "empty --body (nothing to send)"
+        if args.json:
+            print(json.dumps({"delivered": False, "state": "REFUSED", "reason": reason}))
+        print(f"send: REFUSED, nothing posted — {reason}", file=sys.stderr)
+        return 2
     rc = _cmd_send(args)
     if rc == 0:
         # REPLIED only for an answer that was actually delivered (RECEIVED by
@@ -208,6 +216,34 @@ def cmd_inbox(args) -> int:
                     receipts.send(m, receipts.RECEIVED, by="inbox-cli")
                 except Exception as e:  # never lose the consult over a receipt
                     print(f"receipt for {m.get('client_msg_id')} failed: {e}", file=sys.stderr)
+
+
+def cmd_alerts(args) -> int:
+    """T-3856: session-start mail check — both routes, read-only, never silent."""
+    from lib.sidecar import alerts
+    try:
+        rows = alerts.collect(limit=args.limit)
+    except Exception as e:
+        reason = str(e) or type(e).__name__
+        if args.json:
+            print(json.dumps({"checked": False, "reason": reason}))
+        else:
+            print(f"NOT CHECKED: {reason}")
+        return 3
+    if args.json:
+        print(json.dumps({"checked": True, "mail": [
+            {k: v for k, v in r.items() if not k.startswith("_")} for r in rows]}, indent=2))
+    elif not rows:
+        print("peer mail: nothing unseen")
+    else:
+        print(f"peer mail: {len(rows)} unseen")
+        for r in rows:
+            flag = "[URGENT] " if r["urgent"] else ""
+            print(f"  - {flag}{r['from']} [{r['conversation_id']}] {r['id'][:12]} ({r['route']}): "
+                  f"{r['first_line']}")
+    if args.mark_seen and rows:
+        alerts.mark_seen(rows)
+    return 0
 
 
 def _print_inbox(args, messages) -> int:
@@ -1001,6 +1037,14 @@ def build_parser() -> argparse.ArgumentParser:
     box.add_argument("--peek", action="store_true",
                      help="do not advance the cursor")
     box.set_defaults(func=cmd_inbox)
+
+    al = sub.add_parser("alerts", help="session-start check: unseen peer mail on both "
+                        "routes, read-only; prints NOT CHECKED (exit 3) when it cannot read")
+    al.add_argument("--limit", type=int, default=10)
+    al.add_argument("--json", action="store_true")
+    al.add_argument("--mark-seen", action="store_true",
+                    help="record the listed messages as shown (prompt hook will not repeat them)")
+    al.set_defaults(func=cmd_alerts)
 
     st = sub.add_parser("status", help="out-of-band channel status from our own "
                         "outbox/ledger/inbox state; never asks the hub")

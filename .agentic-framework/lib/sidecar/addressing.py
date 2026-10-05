@@ -36,7 +36,9 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -103,29 +105,47 @@ def circuit_name(cid: str) -> str | None:
 def learn(from_agent: str | None, from_circuit: str | None) -> bool:
     """Record a peer's exact address from an envelope we received.
 
-    Keyed by the sender's `from_agent` (what our agent will type as `--to`)
-    and by the circuit's own name. Returns True when something changed.
+    T-3880: both envelope fields are sender-asserted, so neither may pick WHOSE
+    address is being written. The address is learned only under the circuit's
+    own name, only when `from_agent` (if given) agrees with it, and an existing
+    entry is NEVER replaced by a different circuit — that is recorded as a
+    conflict for the operator and refused. (Previously the entry was keyed by
+    `from_agent` and last writer won: one posted envelope claiming to be
+    ring20-manager redirected every later `--to ring20-manager`.)
+    A first sighting is still trust-on-first-use; the authenticated hub id
+    (TermLink T-3345, our T-3873) is what closes that.
+
+    Returns True when something changed.
     """
     cid = strip_host(from_circuit or "")
     parts = circuit.parse_circuit(cid)
     if not cid or not parts.get("hub") or not parts.get("project"):
         return False
-    names = {n for n in (from_agent, circuit_name(cid)) if n and "/" not in str(n)}
-    if not names:
+    name = circuit_name(cid)
+    if not name or "/" in str(name):
         return False
+    if from_agent and from_agent != name:
+        return False   # the sender claims to be someone its own circuit is not
     data = load_peers()
-    changed = False
-    for name in names:
-        prev = data["peers"].get(name) or {}
-        if prev.get("circuit") != cid:
-            data["peers"][name] = {"circuit": cid, "hub_id": parts["hub"], "learned_at": _now()}
-            changed = True
-    if changed:
+    prev = data["peers"].get(name) or {}
+    if prev.get("circuit") == cid:
+        return False
+    if prev.get("circuit"):
+        conflicts = list(data.get("conflicts") or [])
+        conflicts.append({"name": name, "known": prev["circuit"], "claimed": cid,
+                          "at": _now(), "action": "refused"})
+        data["conflicts"] = conflicts[-200:]
         try:
             _save_peers(data)
         except OSError:
-            return False
-    return changed
+            pass
+        return False
+    data["peers"][name] = {"circuit": cid, "hub_id": parts["hub"], "learned_at": _now()}
+    try:
+        _save_peers(data)
+    except OSError:
+        return False
+    return True
 
 
 def peer(name: str) -> dict | None:
@@ -161,6 +181,22 @@ def _tofu_pin(address: str, runner) -> str | None:
     return None
 
 
+def _authenticated_hub_id(hub: str, runner) -> tuple[str | None, str | None]:
+    """(hub_id, hub_instance_id) from `termlink remote ping <hub> --json`, or
+    (None, None) when the call fails or the hub does not report an id."""
+    try:
+        proc = runner([_binary(), "remote", "ping", hub, "--json"],
+                      capture_output=True, text=True, timeout=15)
+        doc = json.loads(proc.stdout or "{}") if proc.returncode == 0 else {}
+    except (OSError, subprocess.SubprocessError, json.JSONDecodeError):
+        return None, None
+    hid = doc.get("hub_id") if isinstance(doc, dict) else None
+    if not isinstance(hid, str) or not re.fullmatch(r"[0-9a-f]{%d}" % circuit.HUB_ID_LEN, hid):
+        return None, None
+    inst = doc.get("hub_instance_id")
+    return hid, inst if isinstance(inst, str) else None
+
+
 def remote_hub_id(hub: str, *, runner=subprocess.run, hubs_file: Path | None = None,
                   use_cache: bool = True) -> tuple[str, str]:
     """(hub_id, address) for a `--hub` value (a hubs.toml profile name or an
@@ -181,6 +217,13 @@ def remote_hub_id(hub: str, *, runner=subprocess.run, hubs_file: Path | None = N
     if use_cache and cached and cached.get("address") == address and cached.get("hub_id"):
         return cached["hub_id"], address
 
+    # T-3873: the hub states its own id over an AUTHENTICATED call (TermLink
+    # T-3345: `remote ping --json` → hub_id, hub_instance_id). Read it; never
+    # derive it — hub_id stops being the fingerprint prefix once canonical-id
+    # minting lands. The fingerprint stays only as the warned fallback for hubs
+    # that return no hub_id.
+    auth_id, auth_inst = _authenticated_hub_id(hub, runner)
+
     try:
         proc = runner([_binary(), "hub", "probe", address, "--json"],
                       capture_output=True, text=True, timeout=10)
@@ -198,8 +241,21 @@ def remote_hub_id(hub: str, *, runner=subprocess.run, hubs_file: Path | None = N
         raise AddressError(
             f"hub {hub} ({address}) presents certificate {live[:16]} but termlink's TOFU pin "
             f"is {pinned[:16]} — refusing to address it (`termlink tofu verify {address}`)")
-    hid = live[:circuit.HUB_ID_LEN]
-    data["hubs"][hub] = {"hub_id": hid, "address": address,
+    if auth_id:
+        # The instance the authenticated call reached must be the certificate
+        # we were shown; a disagreement is never resolved by picking one.
+        inst = _fingerprint_hex(auth_inst) if auth_inst else None
+        if inst and inst != live:
+            raise AddressError(
+                f"hub {hub} ({address}): authenticated hub_instance_id {inst[:16]} does not "
+                f"match the certificate it presents ({live[:16]}) — refusing to address it")
+        hid, source = auth_id, "authenticated"
+    else:
+        hid, source = live[:circuit.HUB_ID_LEN], "fingerprint"
+        print(f"fw sidecar: WARNING: hub {hub} returned no authenticated hub_id (TermLink "
+              f"older than T-3345?); using its certificate fingerprint prefix {hid}",
+              file=sys.stderr)
+    data["hubs"][hub] = {"hub_id": hid, "address": address, "source": source,
                          "tofu_pinned": bool(pinned), "read_at": _now()}
     try:
         _save_peers(data)

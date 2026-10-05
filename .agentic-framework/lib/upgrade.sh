@@ -990,6 +990,49 @@ _fw_project_owned_region() {
     ' "$1"
 }
 
+# T-3884: the enforcement baseline is sha256(json.dumps(settings.hooks,
+# sort_keys=True)) — the same hash `fw enforcement baseline` writes.
+_ef_hooks_hash() {   # _ef_hooks_hash <settings.json>
+    python3 -c '
+import json, hashlib, sys
+with open(sys.argv[1]) as f:
+    data = json.load(f)
+print(hashlib.sha256(json.dumps(data.get("hooks", {}), sort_keys=True).encode()).hexdigest())
+' "$1" 2>/dev/null
+}
+
+# T-3882: step 3b's "run 'fw cron install' to deploy" is one mid-run line; 832
+# counted a dry run as the install. The closing next steps say it again, with
+# the job ids. Prints nothing when no job was added.
+_t3882_cron_next_step() {   # _t3882_cron_next_step <target> "<id id ...>"
+    local ids="$2" n
+    [ -n "$ids" ] || return 0
+    n=$(wc -w <<< "$ids" | tr -d ' ')
+    echo "  4. ${n} new cron job(s) (${ids}) are NOT running yet — deploy: cd $1 && fw cron install"
+}
+
+# _ef_baseline_state <project> → missing | nosettings | match | changed
+_ef_baseline_state() {
+    local b="$1/.context/project/enforcement-baseline.sha256" s="$1/.claude/settings.json" h
+    [ -f "$s" ] || { echo nosettings; return 0; }
+    [ -f "$b" ] || { echo missing; return 0; }
+    h=$(_ef_hooks_hash "$s")
+    if [ -n "$h" ] && [ "$h" = "$(tr -d '[:space:]' < "$b")" ]; then echo match; else echo changed; fi
+}
+
+# _ef_step10_action <pre-state> <post-state> → ok | refresh | create | warn-drift | skip
+# A baseline that matched before and differs now was changed by THIS upgrade
+# (step 5) and is refreshed; one that already differed before is a drift the
+# upgrade must not launder.
+_ef_step10_action() {
+    case "$2" in
+        nosettings) echo skip ;;
+        missing)    echo create ;;
+        match)      echo ok ;;
+        changed)    if [ "$1" = match ]; then echo refresh; else echo warn-drift; fi ;;
+    esac
+}
+
 do_upgrade() {
     local target_dir=""
     local dry_run=false
@@ -1407,12 +1450,17 @@ do_upgrade() {
                 # put in front of the reader. Naming the targeted bypass is L-399
                 # discipline — a block message that offers only a mechanism aimed at
                 # another failure is how agents end up routing around the gate.
-                echo -e "          Upgrading from it would overwrite the consumer's files with a" >&2
-                echo -e "          history that never held them." >&2
-                echo -e "          Likely cause: a stale global shim. Check which fw is running:" >&2
-                echo -e "            readlink -f \"\$(command -v fw)\"" >&2
-                echo -e "          Then re-run from the consumer's own vendored framework, or from an" >&2
-                echo -e "          upstream checkout that contains the consumer's commit." >&2
+                if fw_source_is_shallow "$FRAMEWORK_ROOT"; then
+                    # T-3714: truncated history, not a foreign one — one command fixes it.
+                    echo -e "          Remedy: ${BOLD}git -C $FRAMEWORK_ROOT fetch --unshallow${NC}, then re-run fw upgrade." >&2
+                else
+                    echo -e "          Upgrading from it would overwrite the consumer's files with a" >&2
+                    echo -e "          history that never held them." >&2
+                    echo -e "          Likely cause: a stale global shim. Check which fw is running:" >&2
+                    echo -e "            readlink -f \"\$(command -v fw)\"" >&2
+                    echo -e "          Then re-run from the consumer's own vendored framework, or from an" >&2
+                    echo -e "          upstream checkout that contains the consumer's commit." >&2
+                fi
                 echo -e "          To proceed anyway: ${BOLD}FW_ALLOW_FOREIGN_SOURCE=1${NC} (logged Tier-2)." >&2
             else
                 echo -e "          Running fw upgrade here would downgrade the runtime (.agentic-framework/)" >&2
@@ -1454,6 +1502,13 @@ do_upgrade() {
     fi
 
     # ── 1. CLAUDE.md — preserve project sections, update governance ──
+    # T-3884: did the enforcement baseline match BEFORE this upgrade touched
+    # settings.json? Step 10 refreshes it only then — never launders a drift.
+    local _ef_pre_state
+    _ef_pre_state=$(_ef_baseline_state "$target_dir")
+    # T-3882: cron jobs step 3b ADDED in this (real) run, for the closing next steps.
+    local _cron_added_ids=""
+
     echo -e "${YELLOW}[1/10] CLAUDE.md governance sections${NC}"
 
     local project_claude="$target_dir/CLAUDE.md"
@@ -1749,6 +1804,7 @@ CRONREGEOF
                         echo -e "  ${CYAN}WOULD ADD${NC}  cron job ${_cs_line#ADDED }"
                     else
                         echo -e "  ${GREEN}ADDED${NC}  cron job ${_cs_line#ADDED }"
+                        _cron_added_ids="${_cron_added_ids:+$_cron_added_ids }${_cs_line#ADDED }"   # T-3882
                     fi ;;
                 PRESENT\ *) echo -e "  ${GREEN}OK${NC}  cron job ${_cs_line#PRESENT } already present" ;;
             esac
@@ -2639,27 +2695,33 @@ EOF
 
     # ── 10. Enforcement baseline (T-884: auto-create if missing) ──
     echo -e "${YELLOW}[10/10] Enforcement baseline${NC}"
-    local ef_baseline="$target_dir/.context/project/enforcement-baseline.sha256"
-    local ef_settings="$target_dir/.claude/settings.json"
-    if [ -f "$ef_baseline" ]; then
-        echo -e "  ${GREEN}OK${NC}  Enforcement baseline exists"
-    elif [ -f "$ef_settings" ]; then
-        if [ "$dry_run" = true ]; then
-            echo -e "  ${CYAN}WOULD CREATE${NC}  Enforcement baseline"
-            changes=$((changes + 1))
-        else
-            if PROJECT_ROOT="$target_dir" "$FRAMEWORK_ROOT/bin/fw" enforcement baseline >/dev/null 2>&1; then
-                echo -e "  ${GREEN}CREATED${NC}  Enforcement baseline"
+    # T-3884: "exists" is not "matches" — step 5 may have rewritten the hooks.
+    local _ef_action
+    _ef_action=$(_ef_step10_action "${_ef_pre_state:-match}" "$(_ef_baseline_state "$target_dir")")
+    case "$_ef_action" in
+        ok)
+            echo -e "  ${GREEN}OK${NC}  Enforcement baseline matches settings.json" ;;
+        create|refresh)
+            local _ef_verb=CREATED _ef_would=CREATE _ef_why=""
+            [ "$_ef_action" = refresh ] && { _ef_verb=REFRESHED; _ef_would=REFRESH; _ef_why=" (settings.json hooks regenerated by this upgrade)"; }
+            if [ "$dry_run" = true ]; then
+                echo -e "  ${CYAN}WOULD ${_ef_would}${NC}  Enforcement baseline${_ef_why}"
+                changes=$((changes + 1))
+            elif PROJECT_ROOT="$target_dir" "$FRAMEWORK_ROOT/bin/fw" enforcement baseline >/dev/null 2>&1; then
+                echo -e "  ${GREEN}${_ef_verb}${NC}  Enforcement baseline${_ef_why}"
                 changes=$((changes + 1))
             else
-                echo -e "  ${YELLOW}SKIP${NC}  Could not create enforcement baseline"
+                echo -e "  ${YELLOW}SKIP${NC}  Could not write enforcement baseline — run: fw enforcement baseline"
                 skipped=$((skipped + 1))
-            fi
-        fi
-    else
-        echo -e "  ${YELLOW}SKIP${NC}  No settings.json — enforcement baseline not applicable"
-        skipped=$((skipped + 1))
-    fi
+            fi ;;
+        warn-drift)
+            echo -e "  ${YELLOW}WARN${NC}  Enforcement baseline was already CHANGED before this upgrade — not refreshed (it guards against hook tampering)."
+            echo -e "         Review the hooks: fw enforcement status; if they are right: fw enforcement baseline"
+            skipped=$((skipped + 1)) ;;
+        *)
+            echo -e "  ${YELLOW}SKIP${NC}  No settings.json — enforcement baseline not applicable"
+            skipped=$((skipped + 1)) ;;
+    esac
 
     # T-1323: Detect stale tracked __pycache__ files inside vendored framework.
     # do_vendor now ships a .gitignore that prevents future leaks; this advisory
@@ -2743,6 +2805,7 @@ EOF
             echo "  1. Review changes: cd $target_dir && git diff"
             echo "  2. Commit: fw git commit -m 'T-012: fw upgrade — sync framework improvements'"
             echo "  3. Run: fw doctor  # Verify health"
+            _t3882_cron_next_step "$target_dir" "$_cron_added_ids"
 
             # T-2094 F10 (T-2078 V1-C): post-upgrade fw doctor advisory.
             _t2094_emit_doctor_advisory "$target_dir"
