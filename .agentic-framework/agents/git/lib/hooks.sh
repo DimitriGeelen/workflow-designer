@@ -249,11 +249,7 @@ if [ -n "$TASK_REF" ]; then
                 echo ""
                 echo "Bypass: git commit --no-verify"
                 echo "  (In agent context, Tier 0 will prompt for approval on --no-verify.)"
-                # Key is case-sensitive and is READ as INCEPTION_COMMIT_LIMIT (see the
-                # fw_config call above). Emitting the lowercase form made this remediation a
-                # no-op: following it exactly left the gate reading the default and blocking
-                # with this same message (T-686).
-                echo "  Configure: $(_emit_user_command "config set INCEPTION_COMMIT_LIMIT N")"
+                echo "  Configure: $(_emit_user_command "config set inception_commit_limit N")"
                 exit 1
             else
                 echo ""
@@ -370,42 +366,6 @@ MASTER_GUARD="$FRAMEWORK_ROOT/agents/git/lib/master-guard.sh"
 if [ -f "$MASTER_GUARD" ]; then
     PROJECT_ROOT="$PROJECT_ROOT" bash "$MASTER_GUARD" check || exit 1
 fi
-
-# T-659: retention-sweep deletions are not the agent's to commit.
-#
-# A retention cron prunes .context/audits/cron/ and leaves the deletions pending in the
-# working tree indefinitely. Committing them is a housekeeping decision belonging to the
-# operator, not a side effect of whatever the agent was doing. Three sessions held this
-# line by staging explicit paths every time — until one `git add .context/` to pick up a
-# single episodic file swept 338 of them into the index. The rule lived in the agent's
-# head; the index does not consult it. Habit is what failed, so a habit is not the fix.
-#
-# Blocks only under agent control ($CLAUDECODE). The operator committing a retention
-# sweep deliberately is the intended path and is not obstructed.
-# 832 T-659 (re-applied on 1.7.740 by T-1005)
-if [ "${CLAUDECODE:-0}" = "1" ] && [ "${FW_ALLOW_RETENTION_SWEEP:-0}" != "1" ]; then
-    _rs_n=$(git diff --cached --name-only --diff-filter=D 2>/dev/null \
-            | grep -c '^\.context/audits/cron/' || true)
-    if [ "${_rs_n:-0}" -gt 0 ]; then
-        echo "" >&2
-        echo "ERROR: Commit blocked — $_rs_n retention-sweep deletion(s) staged (T-659)." >&2
-        echo "" >&2
-        echo "  .context/audits/cron/ is pruned by a retention cron. Those deletions are" >&2
-        echo "  the operator's to commit, not a byproduct of the current task." >&2
-        echo "" >&2
-        echo "  Almost always the cause: a directory-wide 'git add .context/' rather than" >&2
-        echo "  explicit paths. Unstage them and keep the rest of your work:" >&2
-        echo "" >&2
-        echo "    git reset HEAD .context/audits/" >&2
-        echo "" >&2
-        echo "  Then re-add only the files your task produced, by name." >&2
-        echo "" >&2
-        echo "  Operator, or a deliberate sweep: FW_ALLOW_RETENTION_SWEEP=1 git commit ..." >&2
-        echo "" >&2
-        exit 1
-    fi
-fi
-
 
 # FW-HOOK-BLOCK: t3110-corpus-guard
 # T-3110 (R7 leg L1, docs/design/task-corpus-concurrency-model.md): task-corpus
@@ -684,28 +644,45 @@ if [ -f "$EDIT_COUNTER" ]; then
 fi
 
 # --- Fabric blast-radius note (T-236) ---
+# T-3740: the location -> card map is built ONCE (one grep over all cards) and
+# each changed file is looked up in it. The old loop ran one grep per changed
+# file per card: a re-vendor commit (1561 files x 506 cards, 832 T-1004) sat in
+# post-commit for 10+ minutes.
 FABRIC_DIR="$PROJECT_ROOT/.fabric/components"
+declare -A _FAB_LOC=()
+if [ -d "$FABRIC_DIR" ]; then
+    while IFS= read -r _fl; do
+        _fcard="${_fl%%:location: *}"
+        _floc="${_fl#*:location: }"
+        _floc="${_floc%"${_floc##*[![:space:]]}"}"
+        [ -n "$_floc" ] && [ -z "${_FAB_LOC[$_floc]+x}" ] && _FAB_LOC["$_floc"]="$_fcard"
+    done < <(grep -H "^location: " "$FABRIC_DIR"/*.yaml 2>/dev/null)
+fi
+_FAB_DETAIL_MAX=200
 if [ -d "$FABRIC_DIR" ]; then
     CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null)
     COMP_COUNT=0
     DEP_COUNT=0
     COMP_NAMES=""
+    _changed_n=$(printf '%s\n' "$CHANGED_FILES" | grep -c . || true)
     while IFS= read -r file; do
         [ -z "$file" ] && continue
         case "$file" in .context/*|.fabric/*|.tasks/*|docs/*) continue ;; esac
-        for card in "$FABRIC_DIR"/*.yaml; do
-            [ -f "$card" ] || continue
-            if grep -q "^location: $file" "$card" 2>/dev/null; then
-                COMP_COUNT=$((COMP_COUNT + 1))
-                name=$({ grep "^name:" "$card" 2>/dev/null || true; } | head -1 | sed 's/^name: //')
-                COMP_NAMES="${COMP_NAMES:+$COMP_NAMES, }$name"
-                # Count dependents (depended_by entries)
-                deps=$(grep -c "target:" "$card" 2>/dev/null || true)
-                DEP_COUNT=$((DEP_COUNT + deps))
-                break
-            fi
-        done
+        card="${_FAB_LOC[$file]:-}"
+        [ -n "$card" ] || continue
+        COMP_COUNT=$((COMP_COUNT + 1))
+        [ "$_changed_n" -gt "$_FAB_DETAIL_MAX" ] && continue
+        name=$({ grep "^name:" "$card" 2>/dev/null || true; } | head -1 | sed 's/^name: //')
+        COMP_NAMES="${COMP_NAMES:+$COMP_NAMES, }$name"
+        # Count dependents (depended_by entries)
+        deps=$(grep -c "target:" "$card" 2>/dev/null || true)
+        DEP_COUNT=$((DEP_COUNT + deps))
     done <<< "$CHANGED_FILES"
+    if [ "$COMP_COUNT" -gt 0 ] && [ "$_changed_n" -gt "$_FAB_DETAIL_MAX" ]; then
+        echo ""
+        echo "FABRIC: $COMP_COUNT component(s) modified across $_changed_n changed files (detail skipped above $_FAB_DETAIL_MAX) — $(_fw_cmd 2>/dev/null || echo fw) fabric blast-radius HEAD"
+        COMP_COUNT=0
+    fi
     if [ "$COMP_COUNT" -gt 0 ]; then
         echo ""
         echo "FABRIC: $COMP_COUNT component(s) modified: $COMP_NAMES"
@@ -725,20 +702,15 @@ if [ -d "$FABRIC_DIR" ]; then
         case "$file" in
             .context/*|.fabric/*|.tasks/*|.claude/*|.git/*|docs/*|*.md|*.yaml|*.yml|*.json) continue ;;
         esac
-        FOUND=0
-        for card in "$FABRIC_DIR"/*.yaml; do
-            [ -f "$card" ] || continue
-            if grep -q "^location: $file" "$card" 2>/dev/null; then
-                FOUND=1
-                break
-            fi
-        done
-        if [ "$FOUND" -eq 0 ]; then
+        if [ -z "${_FAB_LOC[$file]:-}" ]; then
             UNREG_COUNT=$((UNREG_COUNT + 1))
             UNREG="${UNREG:+$UNREG, }$file"
         fi
     done <<< "$NEW_FILES"
-    if [ "$UNREG_COUNT" -gt 0 ]; then
+    if [ "$UNREG_COUNT" -gt 20 ]; then
+        echo ""
+        echo "FABRIC: $UNREG_COUNT new file(s) without component cards (list skipped above 20) — $(_fw_cmd 2>/dev/null || echo fw) fabric drift"
+    elif [ "$UNREG_COUNT" -gt 0 ]; then
         echo ""
         echo "FABRIC: $UNREG_COUNT new file(s) without component cards: $UNREG"
         echo "  Register: $(_fw_cmd 2>/dev/null || echo fw) fabric register <path>"
@@ -1276,7 +1248,19 @@ if [ -z "$AUDIT_SCRIPT" ]; then
 fi
 
 # Stamp VERSION file from git describe (T-648: git-derived versioning)
-_version=$(git describe --tags --match 'v[0-9]*' 2>/dev/null) || true
+#
+# T-3821: only an UNTRACKED (generated) VERSION is stamped. A tracked VERSION
+# has exactly one writer, `fw release` (tag-as-canonical, T-3242). Stamping it
+# here rewrote the working tree to <major.minor>.<commits> on every push, so
+# after any push it disagreed with the commit, the release's reconcile commit
+# went empty, and v1.8.0 attempt 2 refused. `fw version` does not need the
+# file in a git checkout — it derives the same string from git describe.
+_version=""
+if git -C "$PROJECT_ROOT" ls-files --error-unmatch VERSION >/dev/null 2>&1; then
+    echo "VERSION is tracked — not stamped (fw release is its only writer, T-3821)"
+else
+    _version=$(git describe --tags --match 'v[0-9]*' 2>/dev/null) || true
+fi
 if [ -n "$_version" ]; then
     _version="${_version#v}"
     if [[ "$_version" == *-*-* ]]; then

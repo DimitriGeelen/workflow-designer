@@ -315,11 +315,12 @@ PYINCEPTION
 tick_inception_decide_acs() {
     local task_file="$1"
     [ -f "$task_file" ] || return 0
-    python3 - "$task_file" << 'PYTICK'
+    python3 - "$task_file" "$FRAMEWORK_ROOT" "$PROJECT_ROOT" << 'PYTICK'
 import re
 import sys
 
 task_file = sys.argv[1]
+_human_ticked = []  # T-3695: provenance rows for lib/human_ac_ticks.py
 with open(task_file) as f:
     content = f.read()
 
@@ -382,6 +383,7 @@ for line in lines:
             has_marker = (TICK_MARKER in line) or (TICK_MARKER in prev_line)
             if has_marker or any(p.search(m.group(2)) for p in PATTERNS):
                 line = f'{m.group(1)}- [x]{m.group(2)}'
+                _human_ticked.append(m.group(2))
     elif in_agent and has_recommendation:
         m = re.match(r'^(\s*)- \[ \]\s*(.*)$', line)
         if m:
@@ -393,6 +395,22 @@ for line in lines:
 
 with open(task_file, 'w') as f:
     f.write('\n'.join(out))
+
+# T-3695: a ### Human tick written by the decision command is the human's decision
+# (decide is refused under agent control without --i-am-human / --from-watchtower), so
+# record its provenance — `fw audit` FAILs on Human ticks that have none.
+if _human_ticked and len(sys.argv) > 3 and sys.argv[2]:
+    try:
+        import os
+        from pathlib import Path
+        sys.path.insert(0, os.path.join(sys.argv[2], 'lib'))
+        import human_ac_ticks as _hat
+        _tid = re.search(r'T-\d+', os.path.basename(task_file))
+        _root = Path(sys.argv[3] or os.getcwd())
+        _hat.record_ticked(_root, _tid.group(0) if _tid else '?', '\n'.join(out), _human_ticked,
+                           'inception-decide', os.environ.get('USER') or 'operator')
+    except Exception as _e:  # never break a decision on telemetry; the audit will say so
+        print(f'WARN: Human-tick provenance not recorded ({_e})', file=sys.stderr)
 PYTICK
 }
 
@@ -509,27 +527,6 @@ do_inception_decide() {
 
     # Gate: require fw task review before accepting decision (T-973)
     local review_marker="$PROJECT_ROOT/.context/working/.reviewed-$task_id"
-    # 832 T-996: the marker is a side effect of the AGENT-side `fw task review`, and nothing
-    # makes the agent run it before handing the decision over, so the refusal landed on the
-    # HUMAN at the moment of deciding ("run another command, then re-run") — 15 hits in one
-    # project's transcripts. The gate's purpose (T-973) is that the human SEES the review
-    # before deciding. When the caller is a human at a terminal, satisfy that purpose here:
-    # render the same review (emit_review writes the marker) and ask for confirmation.
-    # Agents ($CLAUDECODE=1) never reach this line (T-1259 gate above); non-interactive
-    # callers keep the refusal.
-    if [ ! -f "$review_marker" ] && [ -r /dev/tty ] && [ -t 1 -o -t 0 ] && [ "${CLAUDECODE:-}" != "1" ] \
-       && [ -f "$FW_LIB_DIR/review.sh" ]; then
-        echo -e "${YELLOW}No review was emitted for $task_id yet — showing it now (T-973 requires you to see it).${NC}" >&2
-        source "$FW_LIB_DIR/review.sh"
-        if emit_review "$task_id" "$task_file" >&2 && [ -f "$review_marker" ]; then
-            local _seen=""
-            read -r -p "You have read the review above. Continue with the decision? [y/N] " _seen </dev/tty || _seen=""
-            if [ "$_seen" != "y" ] && [ "$_seen" != "Y" ]; then
-                echo -e "${YELLOW}Stopped before deciding. The review stays emitted; re-run the decide command when ready.${NC}" >&2
-                exit 1
-            fi
-        fi
-    fi
     if [ ! -f "$review_marker" ]; then
         echo -e "${RED}ERROR: Task review required before decision${NC}" >&2
         echo "" >&2
@@ -556,38 +553,6 @@ do_inception_decide() {
         echo "" >&2
         echo -e "Watchtower reads this section — without it, the human sees no recommendation." >&2
         echo -e "Write the recommendation outside the HTML comment, then re-run this command." >&2
-        exit 1
-    fi
-
-    # Gate: require a ## Hypothesis in the three-part form, with a success clause
-    # naming something checkable (T-866, arc-004). Fires on GO only — a NO-GO or
-    # DEFER takes on no claim, so demanding a measurable signal there is
-    # bureaucracy. Placed AFTER the Recommendation gate deliberately: the
-    # recommendation is what the human reads, the hypothesis is what the project
-    # will later be measured against, and failing the cheaper/closer one first
-    # keeps the refusals in the order an author can act on them.
-    # Fail CLOSED if the audit lib never loaded. Its sourcing above is inside an
-    # `if [ -f ... ]`, so a missing lib would otherwise reach this line as a bare
-    # "command not found" and — depending on shell settings — let the decision
-    # through. A gate whose absence is indistinguishable from a pass is the exact
-    # defect this arc is built around.
-    if ! command -v audit_inception_hypothesis >/dev/null 2>&1; then
-        echo -e "${RED}ERROR: hypothesis gate unavailable (lib/task-audit.sh did not load)${NC}" >&2
-        echo -e "Refusing the decision rather than recording one the gate never checked." >&2
-        exit 1
-    fi
-    if ! audit_inception_hypothesis "$task_file" "$decision"; then
-        echo "" >&2
-        echo -e "${RED}ERROR: ## Hypothesis required before a GO decision${NC}" >&2
-        echo "" >&2
-        echo -e "A GO is the moment this project takes on a claim. Every support score in" >&2
-        echo -e "this task's value-driver table is an argument about that claim — without it," >&2
-        echo -e "the scores can rank but cannot be wrong, because there is nothing for them" >&2
-        echo -e "to be wrong about." >&2
-        echo "" >&2
-        echo -e "The estimator can draft one from this task's own text; correct it and set" >&2
-        echo -e "  hypothesis_source: human" >&2
-        echo -e "in the frontmatter to make your wording permanent." >&2
         exit 1
     fi
 
@@ -658,7 +623,10 @@ do_inception_decide() {
 
         local _ac_section _agent_acs _agent_total _agent_checked _agent_unchecked
         # T-3148: anchored, FIRST-WINS extraction (lib/section-extract.sh).
-        _ac_section=$(extract_ac_section "$task_file" | sed '/<!--/,/-->/d')
+        # T-3696: structural strip (lib/comment_strip.py). `sed '/<!--/,/-->/d'`
+        # opened a range on a one-line comment and ran to the NEXT -->, deleting
+        # the real Agent ACs between and letting the unchecked-AC gate pass.
+        _ac_section=$(extract_ac_section "$task_file" | python3 "${FRAMEWORK_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/lib/comment_strip.py")
         if echo "$_ac_section" | grep -q '^### Agent'; then
             _agent_acs=$(echo "$_ac_section" | awk '/^### Agent/{f=1; next} /^### /{f=0} f')
             _agent_total=$(echo "$_agent_acs" | grep -cE '^\s*-\s*\[[ x]\]' || true)

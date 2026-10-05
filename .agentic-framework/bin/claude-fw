@@ -64,6 +64,25 @@ done
 # TermLink session management
 TERMLINK_SESSION=""
 
+# T-3693: `fw-project=<16 hex of sha256(realpath project root)>`. Project root:
+# PROJECT_ROOT, else the nearest ancestor holding .framework.yaml (or the
+# framework repo itself), else $PWD — the same walk lib/sidecar/receiver.py does.
+_fw_project_tag() {
+    local d="${PROJECT_ROOT:-}"
+    if [ -z "$d" ]; then
+        d="$PWD"
+        while [ "$d" != "/" ]; do
+            if [ -f "$d/.framework.yaml" ] || { [ -f "$d/FRAMEWORK.md" ] && [ -f "$d/bin/fw" ]; }; then
+                break
+            fi
+            d=$(dirname "$d")
+        done
+        [ "$d" = "/" ] && d="$PWD"
+    fi
+    d=$(cd "$d" 2>/dev/null && pwd -P) || return 0
+    printf 'fw-project=%s' "$(printf '%s' "$d" | sha256sum | cut -c1-16)"
+}
+
 termlink_start() {
     if [ "$TERMLINK_ENABLED" != "1" ]; then return; fi
     if ! command -v termlink >/dev/null 2>&1; then
@@ -75,9 +94,15 @@ termlink_start() {
     TERMLINK_SESSION="claude-master-$$"
     echo "claude-fw: Registering TermLink session: $TERMLINK_SESSION"
 
+    # T-3693: tag the session with this project, so the arc-011 receiver sidecar
+    # can find the ONE session to inject into (lib/sidecar/inject.py:project_tag
+    # computes the same value — keep the two in step).
+    local _fwp
+    _fwp=$(_fw_project_tag)
+
     # Spawn a persistent shell session that survives claude restarts
     termlink spawn --name "$TERMLINK_SESSION" \
-        --tags "master,claude,framework" \
+        --tags "master,claude,framework${_fwp:+,$_fwp}" \
         --backend auto --shell \
         --wait --wait-timeout 15 2>/dev/null || {
         echo "claude-fw: TermLink spawn failed. Falling back to direct mode."
@@ -581,6 +606,39 @@ PY
 # Start TermLink session if requested (before main loop)
 termlink_start
 
+# T-3684/T-3685 (arc-011, R14 "every agent runs a sidecar"): every claude-fw
+# session gets its always-on sidecar — the receiver plus the supervised watcher.
+# In a --termlink session the watcher injects peer messages into THIS session's
+# PTY (urgent at once, the rest when this session's own Stop hook says it is
+# idle). Without TermLink there is no PTY to type into: the sidecar still
+# receives, confirms RECEIVED, takes hub-topic consults and reports liveness,
+# and the message reaches the agent at its next prompt — inert for injection,
+# and the line below says so. Idempotent: a running sidecar is kept. It
+# outlives this wrapper on purpose (R15, always-on); `fw sidecar stop` ends it.
+# CLAUDE_FW_NO_SIDECAR=1 opts out.
+sidecar_start() {
+    [ "${CLAUDE_FW_NO_SIDECAR:-0}" = "1" ] && return 0
+    local _fw
+    _fw="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)/fw"
+    [ -x "$_fw" ] || return 0
+    local _out _tick
+    if _out=$("$_fw" sidecar start --quiet --json 2>&1); then
+        _tick=$(printf '%s' "$_out" | sed -n 's/.*"tick_s": \([0-9.]*\).*/\1/p' | tail -1)
+        if [ "$TERMLINK_ENABLED" = "1" ]; then
+            echo "claude-fw: sidecar watcher running (tick ${_tick:-?}s) — fw sidecar liveness"
+        elif [ "${_TERMLINK_REQUESTED:-0}" = "1" ]; then
+            echo "claude-fw: sidecar watcher running but INERT for injection — TermLink absent, peer messages reach the agent only at its next prompt. Install termlink."
+        else
+            echo "claude-fw: sidecar watcher running (tick ${_tick:-?}s), no --termlink: peer messages reach the agent at its next prompt (inject needs --termlink)"
+        fi
+    else
+        echo "claude-fw: WARNING sidecar start failed — peer messages will not be received here: ${_out: -300}" >&2
+    fi
+}
+_TERMLINK_REQUESTED=0
+for _a in "$@"; do [ "$_a" = "--termlink" ] && _TERMLINK_REQUESTED=1; done
+sidecar_start
+
 # T-2411: one-shot startup overview (before main loop — not re-emitted on restart).
 _print_startup_banner
 
@@ -625,7 +683,14 @@ while true; do
         # Inject claude command into TermLink PTY session. T-3346: the trailing
         # printf is the exit signal — see _tl_claude_exit_code. $? and quotes are
         # escaped so they reach the PTY shell literally.
-        termlink_inject "claude ${CLAUDE_ARGS[*]}; printf '__CLAUDE_FW_EXIT_%s__\n' \"\$?\""
+        # T-3782: each argument is shell-quoted (printf %q) — the PTY shell
+        # re-parses this line, so a multi-word argument (a first prompt, as
+        # `fw sidecar recover` passes) must arrive as ONE argument, and any
+        # quote, $ or newline in it must stay data. %q of an empty array is
+        # one '' — skipped so a bare relaunch stays `claude`.
+        _tl_args=""
+        [ "${#CLAUDE_ARGS[@]}" -gt 0 ] && _tl_args=$(printf ' %q' "${CLAUDE_ARGS[@]}")
+        termlink_inject "claude${_tl_args}; printf '__CLAUDE_FW_EXIT_%s__\n' \"\$?\""
         _TL_PING_FAILS=0 # T-3648: each run starts with a clean failure count
         # Wait for claude to exit by polling the PTY for shell prompt
         # We check if claude process is still running inside the session

@@ -13,10 +13,11 @@ Known settings registry (mirrors lib/config.sh FW_CONFIG_REGISTRY)
 4-tier resolution: explicit CLI flag > `FW_*` env var > `.framework.yaml` > hardcoded default. Persistent per-project config: `fw config set KEY VALUE` writes to `.framework.yaml`.
 
 Agent-relevant settings:
-- `FW_CONTEXT_WINDOW` (registry default 300000; **this project: 975000**) — budget enforcement ceiling. Every band in §Context Budget Management is a percentage of it.
+- `FW_CONTEXT_WINDOW` (300000) — budget enforcement ceiling
 - `FW_PORT` (3000) — Watchtower listen port (also resolved via triple-file; see Watchtower Port section)
 - `FW_SAFE_MODE` (0) — bypass task gate (escape hatch). **Must be set on the Claude
-  process itself, not as a command p
+  process itself, not as a command prefix (T-3179).** `check-active-task.sh` reads the
+  hook process's environment, never the command string, s
 
 *(truncated — see CLAUDE.md for full section)*
 

@@ -15,7 +15,11 @@ File shapes (Amendment 5):
     .context/sidecar/awaiting-ack.jsonl            — append-only ack ledger
 
 Ack states: STORED (non-terminal — the only state that can expire) ->
-INJECTED_NOW | INJECTED_LATER | UNKNOWN (all terminal).
+HUB_ACCEPTED | INJECTED_LATER | UNKNOWN (all terminal).
+
+Per T-3561 AC10: INJECTED_NOW renamed HUB_ACCEPTED. The hub accepted the
+message; this is NOT the same as "injected into the agent" (T-3397, AC5).
+See INJECTED_LATER for delivery after store-and-wait.
 """
 
 from __future__ import annotations
@@ -27,10 +31,17 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 STORED = "STORED"
-INJECTED_NOW = "INJECTED_NOW"
+HUB_ACCEPTED = "HUB_ACCEPTED"  # T-3561: renamed from INJECTED_NOW
+INJECTED_NOW = "HUB_ACCEPTED"  # Alias for backward compatibility during migration
+# T-3717: the alias above renames the Python NAME only. Ledger rows written
+# before T-3561 still carry the literal string "INJECTED_NOW" on disk, and the
+# ledger is append-only, so they never go away. `_read_ledger` maps this value
+# to HUB_ACCEPTED so every reader (status counts, retry eligibility) still sees
+# those rows as delivered rather than as an unknown, retryable state.
+LEGACY_INJECTED_NOW = "INJECTED_NOW"
 INJECTED_LATER = "INJECTED_LATER"
 UNKNOWN = "UNKNOWN"
-TERMINAL_STATES = frozenset({INJECTED_NOW, INJECTED_LATER, UNKNOWN})
+TERMINAL_STATES = frozenset({HUB_ACCEPTED, INJECTED_LATER, UNKNOWN})
 
 
 def _framework_root() -> Path:
@@ -82,7 +93,8 @@ def _now_iso() -> str:
 
 
 def write_message(from_id: str, to: str, body: str, conversation_id: str,
-                   urgent: bool = False, hub: str | None = None) -> str:
+                   urgent: bool = False, hub: str | None = None,
+                   in_reply_to: str | None = None) -> str:
     """Write a message file, then its flag file. Returns client_msg_id.
 
     Ordering is the whole point: the message file is written to a temp path
@@ -93,6 +105,11 @@ def write_message(from_id: str, to: str, body: str, conversation_id: str,
     """
     client_msg_id = str(uuid.uuid4())
     outbox = _outbox_dir()
+    # T-3782: the waiting register's outbound cut-off exists before any send.
+    # Fail-closed: no cut-off, no send (a message sent before a cut-off that
+    # is written later would be invisible forever — codex round 2).
+    from . import waiting
+    waiting.epoch()
     msg = {
         "client_msg_id": client_msg_id,
         "from": from_id,
@@ -103,6 +120,10 @@ def write_message(from_id: str, to: str, body: str, conversation_id: str,
         "body": body,
         "created_at": _now_iso(),
     }
+    if in_reply_to:
+        # T-3804: the id this answers, so the original sender's retry sweep
+        # can settle it by id (transport carries it as in_reply_to_msg_id).
+        msg["in_reply_to"] = in_reply_to
 
     msg_path = outbox / f"{client_msg_id}.json"
     tmp_path = outbox / f"{client_msg_id}.json.tmp"
@@ -176,9 +197,12 @@ def _read_ledger() -> list[dict]:
             if not line:
                 continue
             try:
-                rows.append(json.loads(line))
+                row = json.loads(line)
             except json.JSONDecodeError:
                 continue
+            if isinstance(row, dict) and row.get("state") == LEGACY_INJECTED_NOW:
+                row["state"] = HUB_ACCEPTED
+            rows.append(row)
     return rows
 
 

@@ -1016,10 +1016,14 @@ do_upgrade() {
     # hasn't yet wired `fw vendor self` into pre-push. Operators who have wired
     # pre-push (no inline redundancy needed) opt out via --no-self-vendor.
     local no_self_vendor=false
+    # T-3850: passed through to do_vendor, which otherwise refuses when local
+    # files under .agentic-framework/ would be deleted or overwritten.
+    local -a _vendor_extra=()
 
     while [[ $# -gt 0 ]]; do
         case $1 in
             --dry-run) dry_run=true; shift ;;
+            --allow-delete-locals) _vendor_extra+=(--allow-delete-locals); shift ;;
             --force) force=true; shift ;;
             --force-downgrade) force_downgrade=true; shift ;;
             --strict) strict=true; shift ;;
@@ -1044,6 +1048,9 @@ do_upgrade() {
                 echo "                          diagnostic (T-2093 V1-B, F4). Without this flag the"
                 echo "                          upgrade continues on step failure (current behaviour)"
                 echo "                          but a PARTIAL footer surfaces the count."
+                echo "  --allow-delete-locals   Let the vendor step delete/overwrite local files under"
+                echo "                          .agentic-framework/ not listed in .fwvendor-preserve.yaml"
+                echo "                          (T-3850; logged Tier-2, copies kept). Default: refuse."
                 echo "  --no-self-vendor        Skip the inline framework self-vendor refresh"
                 echo "                          (T-2095 V1-D, F2). Default: keep inline (T-1217"
                 echo "                          invariant). Opt-out for operators who fire"
@@ -1747,9 +1754,16 @@ CRONREGEOF
             esac
         done <<< "$_cs_out"
         if [ "$_cs_added" -gt 0 ] && [ "$dry_run" != true ]; then
-            (cd "$target_dir" && PROJECT_ROOT="$target_dir" "$FRAMEWORK_ROOT/bin/fw" cron generate >/dev/null 2>&1) \
-                && echo -e "  ${GREEN}OK${NC}  Cron source regenerated — run 'fw cron install' to deploy" \
-                || echo -e "  ${YELLOW}WARN${NC}  'fw cron generate' failed — run it manually, then 'fw cron install'"
+            # T-3835: $FRAMEWORK_ROOT may be the temp upstream clone; generate
+            # resolves the consumer's durable fw itself and refuses a temp one.
+            # Its refusal is shown, not swallowed.
+            local _cg_out
+            if _cg_out=$(cd "$target_dir" && PROJECT_ROOT="$target_dir" "$FRAMEWORK_ROOT/bin/fw" cron generate 2>&1); then
+                echo -e "  ${GREEN}OK${NC}  Cron source regenerated — run 'fw cron install' to deploy"
+            else
+                echo -e "  ${YELLOW}WARN${NC}  'fw cron generate' failed — run it manually, then 'fw cron install'"
+                printf '%s\n' "$_cg_out" | sed 's/^/        /'
+            fi
         fi
     fi
 
@@ -1844,7 +1858,7 @@ CRONREGEOF
             do_vendor --target "$target_dir" --source "$FRAMEWORK_ROOT" --dry-run 2>&1 | sed 's/^/  /'
             _vendor_rc=${PIPESTATUS[0]}
         else
-            do_vendor --target "$target_dir" --source "$FRAMEWORK_ROOT" 2>&1 | sed 's/^/  /'
+            do_vendor --target "$target_dir" --source "$FRAMEWORK_ROOT" ${_vendor_extra[@]+"${_vendor_extra[@]}"} 2>&1 | sed 's/^/  /'
             _vendor_rc=${PIPESTATUS[0]}
         fi
         if [ "$_vendor_rc" -ne 0 ]; then
@@ -1893,12 +1907,21 @@ CRONREGEOF
                     # printed "=== Upgrade Complete ===" and exited 0.
                     local _shim_link_dir
                     _shim_link_dir=$(dirname "$link_target" 2>/dev/null || echo "")
-                    if [ -n "$_shim_link_dir" ] && [ -f "$_shim_link_dir/../FRAMEWORK.md" ]; then
+                    # T-3831: FRAMEWORK.md alone does not mean "framework repo" —
+                    # every vendored copy ships it since T-2805. The vendor's
+                    # .upstream sentinel (T-2232) does: a vendored copy has it,
+                    # the framework repo never does. A link into a vendored copy
+                    # is a working (if old-style) entry point: leave it, go on.
+                    if [ -n "$_shim_link_dir" ] && [ -f "$_shim_link_dir/../FRAMEWORK.md" ] \
+                        && [ -f "$_shim_link_dir/../.upstream" ]; then
+                        echo -e "  ${CYAN}SKIP${NC}  $current_fw links into a vendored copy ($_shim_link_dir/..) — left as is"
+                        echo -e "         Not replacing it: writing the shim through it would overwrite that copy's bin/fw."
+                    elif [ -n "$_shim_link_dir" ] && [ -f "$_shim_link_dir/../FRAMEWORK.md" ]; then
                         echo -e "  ${RED}REFUSED${NC}  $current_fw resolves into a framework repo ($_shim_link_dir/..)"
                         echo -e "         Refusing to overwrite a framework repo's bin/fw with the shim."
                         echo -e "         Inspect: ls -la $current_fw && readlink -f $current_fw"
                         return 1
-                    fi
+                    else
                     # T-1278: remove symlink before copy. Plain `cp` follows the
                     # destination symlink and writes the shim *through* it into
                     # the framework repo's bin/fw, corrupting the real CLI into
@@ -1910,6 +1933,7 @@ CRONREGEOF
                     echo -e "  ${GREEN}MIGRATED${NC}  Replaced global symlink with project-detecting shim"
                     echo -e "  ${CYAN}INFO${NC}  Shim migration: fw now routes to the project you're standing in"
                     echo -e "  ${CYAN}INFO${NC}  Each project uses its own framework version (no global install dependency)"
+                    fi
                 fi
             fi
         elif [ -f "$current_fw" ] && ! grep -q 'find_fw' "$current_fw" 2>/dev/null; then
@@ -1932,6 +1956,11 @@ CRONREGEOF
     # residue is indistinguishable from a supported install, and bin/fw-router
     # no longer consults it at all. Detection stays in `fw doctor`, which
     # reports the directory and the rm -rf to run.
+
+    # T-3836: snapshot .mcp.json before step 5 — settings regeneration runs
+    # lib/init.sh code that has rewritten it before. Step 6 compares against this.
+    local _mcp_snapshot=""
+    [ -f "$target_dir/.mcp.json" ] && _mcp_snapshot=$(cat "$target_dir/.mcp.json" 2>/dev/null || true)
 
     # ── 5. .claude/settings.json (hooks config) ──
     echo -e "${YELLOW}[5/10] Claude Code hooks (.claude/settings.json)${NC}"
@@ -2067,7 +2096,12 @@ print(f'{len(fw_hooks)}|{len(consumer_hooks)}|{len(missing)}|{stale}|{missing_na
                 # set -e mid-function — a stuck-on force=true crosses governance
                 # (the flag is a sovereignty bypass). Subshell makes the override
                 # impossible to leak; the parent's `force` stays untouched.
-                ( force=true; generate_claude_code_config "$target_dir" ) >/dev/null
+                # T-3833: output is captured, not discarded — the merge's
+                # KEPT/CARRIED/REMOVED lines are how an operator learns what
+                # happened to hooks the template does not own.
+                local _regen_out
+                _regen_out=$( ( force=true; generate_claude_code_config "$target_dir" ) )
+                printf '%s\n' "$_regen_out" | grep -E '^ +(CARRIED|KEPT|REMOVED) ' || true
 
                 local hook_analysis_after missing_count_after missing_names_after stale_after nonportable_after
                 hook_analysis_after=$(_t2912_hook_gap "$settings_file")
@@ -2199,6 +2233,61 @@ print(sum(len(v) for v in data.get('hooks', {}).values()))
     # Framework-recommended MCP servers
     local recommended_servers='{"context7":1,"playwright":1,"termlink":1,"fw":1}'
 
+    if [ -f "$mcp_file" ] && [ -n "$_mcp_snapshot" ]; then
+        # T-3836: compare against the pre-step-5 snapshot. Any server, or any env
+        # key of a server, that existed before this upgrade and is gone now was
+        # dropped by the upgrade itself — restore it and name it. "OK" below is
+        # only printed when nothing had to be restored.
+        local _mcp_restored
+        _mcp_restored=$(MCP_FILE="$mcp_file" MCP_SNAPSHOT="$_mcp_snapshot" \
+            MCP_DRY="$([ "$dry_run" = true ] && echo 1)" python3 -c "
+import json, os
+def servers_of(raw):
+    if not isinstance(raw, dict):
+        return {}
+    s = raw.get('mcpServers') if isinstance(raw.get('mcpServers'), dict) else raw
+    return s if isinstance(s, dict) else {}
+try:
+    before = servers_of(json.loads(os.environ['MCP_SNAPSHOT']))
+except ValueError:
+    before = {}
+p = os.environ['MCP_FILE']
+with open(p) as f:
+    raw = json.load(f)
+now = servers_of(raw)
+restored = []
+for name, entry in before.items():
+    if name not in now:
+        now[name] = entry
+        restored.append(f'server {name}')
+        continue
+    if not isinstance(entry, dict) or not isinstance(now[name], dict):
+        continue
+    for field, val in entry.items():
+        if field == 'env' and isinstance(val, dict):
+            env_now = now[name].get('env') if isinstance(now[name].get('env'), dict) else {}
+            for k, v in val.items():
+                if k not in env_now:
+                    env_now[k] = v
+                    restored.append(f'{name}.env.{k}')
+            now[name]['env'] = env_now
+        elif field not in now[name]:
+            now[name][field] = val
+            restored.append(f'{name}.{field}')
+if restored and not os.environ.get('MCP_DRY'):
+    with open(p, 'w') as f:
+        json.dump({'mcpServers': now}, f, indent=2)
+        f.write('\n')
+print(', '.join(restored))
+" 2>/dev/null || echo "parse-error")
+        if [ "$_mcp_restored" = "parse-error" ]; then
+            echo -e "  ${YELLOW}WARN${NC}  .mcp.json could not be compared with its pre-upgrade copy (parse error)"
+        elif [ -n "$_mcp_restored" ]; then
+            changes=$((changes + 1))
+            echo -e "  ${YELLOW}RESTORED${NC}  dropped during this upgrade: $_mcp_restored"
+        fi
+    fi
+
     if [ -f "$mcp_file" ]; then
         # Check for missing recommended servers. T-1354: servers live under
         # top-level `mcpServers` key (Claude Code schema). If an older file
@@ -2253,8 +2342,10 @@ with open(mcp_file, 'w') as f:
 " 2>/dev/null
                 echo -e "  ${GREEN}UPDATED${NC}  Added missing MCP servers: $missing_mcp_names (preserved $existing_count existing)"
             fi
-        else
+        elif [ -z "${_mcp_restored:-}" ] || [ "${_mcp_restored:-}" = "parse-error" ]; then
             echo -e "  ${GREEN}OK${NC}  $existing_count MCP server(s) configured (all recommended present)"
+        else
+            echo -e "  ${GREEN}OK${NC}  $existing_count MCP server(s) configured after restore (all recommended present)"
         fi
     else
         changes=$((changes + 1))
@@ -2504,6 +2595,27 @@ MCPJSON
     else
         echo -e "  ${YELLOW}SKIP${NC}  No .framework.yaml found"
         skipped=$((skipped + 1))
+    fi
+
+    # ── 8a. Project identity back-fill (T-3750) ──
+    # fw init mints project_id (T-3534, lib/setup.sh) but a consumer initialised
+    # before T-3534 has none until someone runs `fw whoami --register`. Upgrade
+    # is the one verb every consumer runs, so it back-fills here. ensure()
+    # preserves an existing id unconditionally — never re-identify a project.
+    if [ -f "$yaml_file" ] && [ -f "$FRAMEWORK_ROOT/lib/project_identity.sh" ]; then
+        # shellcheck disable=SC1091
+        . "$FRAMEWORK_ROOT/lib/project_identity.sh"
+        local _pid_existing
+        _pid_existing=$(fw_project_id "$target_dir")
+        if [ -n "$_pid_existing" ]; then
+            echo -e "  ${GREEN}OK${NC}  Project identity $_pid_existing"
+        elif [ "$dry_run" = true ]; then
+            echo -e "  ${CYAN}WOULD MINT${NC}  project_id (none recorded; T-3534)"
+            changes=$((changes + 1))
+        else
+            echo -e "  ${GREEN}MINTED${NC}  project_id: $(fw_project_identity_ensure "$target_dir") (once; never changes)"
+            changes=$((changes + 1))
+        fi
     fi
 
     # ── 8b. Upgrade audit trail (.context/audits/upgrades.yaml) ──
@@ -2809,7 +2921,7 @@ _t3113_emit_worktree_advisory() {
     else
         echo ""
         echo -e "  $stale of $count linked worktree(s) run older enforcement than this project."
-        echo -e "  Land and remove:  fw integrate run master --push  (then fw worktree gc)"
+        echo -e "  Land and remove:  fw integrate run bleeding-edge --push  (then fw worktree gc)"
         echo -e "  Or refresh in place: fw upgrade <worktree-path>"
     fi
     return 0  # always 0 — advisory, never blocks the upgrade

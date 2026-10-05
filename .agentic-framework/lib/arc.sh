@@ -461,6 +461,9 @@ name: ${name_yaml}
 description: ${desc_yaml}
 status: ${initial_status}
 anchor_task: ${anchor}
+# close_task: T-XXX  # T-3843: the arc's close-out task. Its ## Recommendation (CLOSE|KEEP-OPEN,
+#                    # Rationale, Evidence) is the close recommendation on /arcs/<slug>/close and
+#                    # gates fw arc review; anchor_task is the fallback when unset.
 headline_mechanic: ${hm_yaml}
 demo_evidence: null
 created: ${now}
@@ -655,46 +658,6 @@ else:  # T-3577: an unquoted trailing ' # comment' is not part of the value
 print(v)
 PY
 )"
-    # T-679 (832-local, re-applied on 1.7.740 under T-1005): consult the SAME UNION
-    # the readers do. The check below reads only arc_id:, but lib/arc_membership.py
-    # unions arc_id: with the legacy `arc:<slug>` tag, so a task whose membership is
-    # recorded ONLY in the tag was invisible to the reassignment refusal -- measured:
-    # `fw arc tag designer-authoring-surface T-590` exited 0 on a task already in
-    # ewcr-governed-delivery. Runs BEFORE any write, so a refusal changes nothing.
-    # Only the frontmatter `tags:` line is scanned: `arc:` also appears in prose.
-    if [ -z "$existing_arc_id" ]; then
-        local legacy_rc=0
-        python3 - "$tf" "$id" "$tid" <<'PY' || legacy_rc=$?
-import re, sys
-fn, arc_id, tid = sys.argv[1], sys.argv[2], sys.argv[3]
-text = open(fn).read()
-try:
-    fm = text[:text.index("\n---", 4)]
-except ValueError:
-    fm = text
-tags_line = re.search(r'^tags:.*$', fm, re.MULTILINE)
-tagged = sorted(set(re.findall(r'arc:([A-Za-z0-9._-]+)', tags_line.group(0)))) if tags_line else []
-if len(tagged) > 1:
-    sys.stderr.write("%s carries %d arc tags (%s); arc_id: holds one\n" % (tid, len(tagged), ", ".join(tagged)))
-    sys.exit(12)
-if tagged and tagged[0] != arc_id:
-    sys.stderr.write("%s already belongs to %s via its legacy arc: tag\n" % (tid, tagged[0]))
-    sys.exit(11)
-# A legacy tag naming THIS arc falls through on purpose: writing arc_id: is the upgrade path.
-PY
-        case "$legacy_rc" in
-            0) ;;
-            11) echo "Error: refusing to tag $tid into '$id' -- its legacy arc: tag already places it in another arc." >&2
-                echo "  A task belongs to one arc at a time (T-1849); reassign deliberately by editing tags:/arc_id:." >&2
-                return 1 ;;
-            12) echo "Error: $tid carries multiple legacy arc: tags (see above)." >&2
-                echo "  arc_id: is single-valued -- collapsing them would drop a membership." >&2
-                echo "  Decide which arc owns it, then edit tags:/arc_id: deliberately." >&2
-                return 1 ;;
-            *) echo "Error: legacy-membership check failed (rc=$legacy_rc); not tagging $tid." >&2
-               return 1 ;;
-        esac
-    fi
     if [ -n "$existing_arc_id" ]; then
         local existing_norm
         existing_norm="$(_arc_normalize_input "$existing_arc_id")"
@@ -966,14 +929,21 @@ arc_close() {
     fi
 
     python3 - "$f" "$now" "$decision" "$demo" "$closed_via" <<'PY'
-import re, sys
+import json, re, sys
 fn, now, decision, demo, closed_via = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5]
 text = open(fn).read()
 text = re.sub(r'^status:.*$', 'status: closed', text, count=1, flags=re.MULTILINE)
 text = re.sub(r'^closed_at:.*$', f'closed_at: {now}', text, count=1, flags=re.MULTILINE)
 if decision:
-    safe = decision.replace('"', '\\"')
-    text = re.sub(r'^decision:.*$', f'decision: "{safe}"', text, count=1, flags=re.MULTILINE)
+    # T-3841: a JSON string is a valid YAML double-quoted scalar, so `"`, `\` and
+    # newlines round-trip; the lambda keeps re.sub from reading `\` in the value
+    # as a group reference; an arc without a `decision:` line gets one appended
+    # instead of the decision being dropped.
+    line = f'decision: {json.dumps(decision, ensure_ascii=False)}'
+    if re.search(r'^decision:', text, re.MULTILINE):
+        text = re.sub(r'^decision:.*$', lambda _m: line, text, count=1, flags=re.MULTILINE)
+    else:
+        text = text.rstrip("\n") + f'\n{line}\n'
 safe_demo = demo.replace('"', '\\"')
 if re.search(r'^demo_evidence:', text, re.MULTILINE):
     text = re.sub(r'^demo_evidence:.*$', f'demo_evidence: "{safe_demo}"', text, count=1, flags=re.MULTILINE)
@@ -1366,6 +1336,53 @@ arc_review() {
         return 1
     fi
 
+    # T-3843 (055 T-454): no close URL without the agent's close recommendation —
+    # the rule `fw task review` already has (T-2421). It is read from the arc's
+    # close-out task (`close_task:`), falling back to the anchor, which is usually
+    # the arc's first design task. Same parser as the task gate; same bypass.
+    local close_task rec_task rec_file="" _f
+    close_task=$(awk '/^close_task:[[:space:]]/ {print $2; exit}' "$arc_path" | tr -d ' "')
+    case "$close_task" in null|'~') close_task="" ;; esac
+    rec_task="${close_task:-$anchor}"
+    if [ -n "$rec_task" ]; then
+        # A glob loop, not `ls <glob> | head`: with no match that pipeline
+        # aborts fw under `set -euo pipefail` (055 T-454).
+        for _f in "$PROJECT_ROOT"/.tasks/active/"$rec_task"-*.md "$PROJECT_ROOT"/.tasks/completed/"$rec_task"-*.md; do
+            if [ -f "$_f" ]; then rec_file="$_f"; break; fi
+        done
+    fi
+    if ! declare -F audit_inception_recommendation >/dev/null 2>&1; then
+        # shellcheck source=lib/task-audit.sh
+        source "${FRAMEWORK_ROOT:-${PROJECT_ROOT:-.}}/lib/task-audit.sh" 2>/dev/null || true
+    fi
+    if [ -z "$rec_file" ] || ! audit_inception_recommendation "$rec_file" 2>/dev/null; then
+        if [ "${FW_ALLOW_EMPTY_RECOMMENDATION:-}" = "1" ]; then
+            if ! declare -F _log_empty_recommendation_bypass >/dev/null 2>&1; then
+                # shellcheck source=lib/review.sh
+                source "${FRAMEWORK_ROOT:-${PROJECT_ROOT:-.}}/lib/review.sh" 2>/dev/null || true
+            fi
+            if declare -F _log_empty_recommendation_bypass >/dev/null 2>&1; then
+                _log_empty_recommendation_bypass "${rec_task:-$id}" "arc_review" "${rec_file:-$arc_path}"
+            fi
+            echo "NOTE: arc '$id' has no close recommendation — emitting anyway (FW_ALLOW_EMPTY_RECOMMENDATION=1, logged)." >&2
+        else
+            echo "BLOCKED: arc '$id' has no close recommendation — no close URL emitted." >&2
+            if [ -n "$rec_task" ]; then
+                local _src="anchor_task"
+                [ -n "$close_task" ] && _src="close_task"
+                echo "  Write it in the ## Recommendation section of $rec_task ($_src):" >&2
+                [ -z "$close_task" ] && echo "  (or set close_task: T-XXX in $arc_path to name the arc's close-out task)" >&2
+            else
+                echo "  Set close_task: T-XXX in $arc_path (the close-out task) and write it there:" >&2
+            fi
+            echo "    **Recommendation:** CLOSE | KEEP-OPEN" >&2
+            echo "    **Rationale:** why — what shipped, what remains" >&2
+            echo "    **Evidence:** the demo (docs/reports/... or URL) and the checks behind it" >&2
+            echo "  Bypass (logged Tier-2): FW_ALLOW_EMPTY_RECOMMENDATION=1 fw arc review $id" >&2
+            return 1
+        fi
+    fi
+
     # Source Watchtower helper for URL resolution (per-project port, T-885/T-1287/T-1376).
     if ! declare -F _watchtower_url >/dev/null 2>&1; then
         # shellcheck source=lib/watchtower.sh
@@ -1384,6 +1401,7 @@ arc_review() {
     [ -n "$name" ]   && echo "  Name:   $name"
     [ -n "$status" ] && echo "  Status: $status"
     [ -n "$anchor" ] && echo "  Anchor: $anchor"
+    [ -n "$close_task" ] && echo "  Close-out: $close_task"
     echo ""
     echo "  $review_url"
     echo ""

@@ -241,7 +241,18 @@ do_init() {
             echo -e "  ${YELLOW}RECOVER${NC}  .agentic-framework/ exists but has no FRAMEWORK.md — re-vendoring over the partial copy"
         fi
         echo -e "${BOLD}Vendoring framework into project...${NC}"
-        do_vendor --target "$target_dir"
+        # T-3850 refuses a vendor that would delete files it did not write. With
+        # the marker present, everything under .agentic-framework/ came from the
+        # interrupted copy (the marker is written before vendoring and removed
+        # only on success) — including a killed copy's temp files, which the
+        # check reads as consumer locals. So that one case proceeds; the debris
+        # is still backed up and the bypass logged. Without the marker (no
+        # FRAMEWORK.md only) a consumer could own files there: keep the refusal.
+        local -a _vendor_args=(--target "$target_dir")
+        if [ "$_resuming_partial_init" = true ] && [ -d "$target_dir/.agentic-framework" ]; then
+            _vendor_args+=(--allow-delete-locals)
+        fi
+        do_vendor "${_vendor_args[@]}"
         echo ""
     else
         echo -e "  ${YELLOW}SKIP${NC}  .agentic-framework/ already exists (use --force to re-vendor)"
@@ -1032,6 +1043,10 @@ generate_claude_code_config() {
           {
             "type": "command",
             "command": "$fw_prefix hook post-compact-resume"
+          },
+          {
+            "type": "command",
+            "command": "$fw_prefix hook sidecar-autostart"
           }
         ]
       },
@@ -1041,6 +1056,10 @@ generate_claude_code_config() {
           {
             "type": "command",
             "command": "$fw_prefix hook post-compact-resume"
+          },
+          {
+            "type": "command",
+            "command": "$fw_prefix hook sidecar-autostart"
           }
         ]
       }
@@ -1103,6 +1122,10 @@ generate_claude_code_config() {
           {
             "type": "command",
             "command": "$fw_prefix hook check-tier0"
+          },
+          {
+            "type": "command",
+            "command": "$fw_prefix hook check-human-ac-tick"
           }
         ]
       },
@@ -1228,6 +1251,21 @@ generate_claude_code_config() {
           {
             "type": "command",
             "command": "$fw_prefix hook sidecar-inbox"
+          },
+          {
+            "type": "command",
+            "command": "$fw_prefix hook sidecar-receiver-adapter"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$fw_prefix hook sidecar-receiver-ready"
           }
         ]
       }
@@ -1286,7 +1324,40 @@ print(n)
     fi
 
     # --- .mcp.json (MCP server configuration for Claude Code) ---
-    if [ ! -f "$dir/.mcp.json" ] || [ "${force:-false}" = true ]; then
+    # T-3836: an existing .mcp.json is MERGED, never rewritten — even under
+    # force=true, which `fw upgrade` sets to regenerate settings.json. The old
+    # overwrite dropped every server's env (TERMLINK_RUNTIME_DIR, T-3424) and
+    # every project-added server. Only template servers that are absent are added.
+    if [ -f "$dir/.mcp.json" ] && [ "${force:-false}" = true ]; then
+        local _mcp_added
+        if _mcp_added=$(MCP_FILE="$dir/.mcp.json" python3 -c "
+import json, os
+p = os.environ['MCP_FILE']
+with open(p) as f:
+    raw = json.load(f)
+servers = raw.get('mcpServers') if isinstance(raw.get('mcpServers'), dict) else dict(raw)
+defaults = {
+    'context7': {'command': 'npx', 'args': ['-y', '@upstash/context7-mcp']},
+    'playwright': {'command': 'npx', 'args': ['@playwright/mcp@latest', '--no-sandbox']},
+    'termlink': {'command': 'termlink', 'args': ['mcp', 'serve']},
+    'fw': {'command': 'python3', 'args': ['.agentic-framework/agents/mcp/framework_mcp_server.py']},
+}
+added = [k for k in defaults if k not in servers]
+for k in added:
+    servers[k] = defaults[k]
+if added or not isinstance(raw.get('mcpServers'), dict):
+    out = dict(raw) if isinstance(raw.get('mcpServers'), dict) else {}
+    out['mcpServers'] = servers
+    with open(p, 'w') as f:
+        json.dump(out, f, indent=2)
+        f.write('\n')
+print(','.join(added))
+" 2>/dev/null); then
+            echo -e "  ${GREEN}OK${NC}  .mcp.json kept (existing servers and env untouched${_mcp_added:+; added $_mcp_added})"
+        else
+            echo -e "  ${YELLOW}WARN${NC}  .mcp.json exists but did not parse — left untouched"
+        fi
+    elif [ ! -f "$dir/.mcp.json" ]; then
         cat > "$dir/.mcp.json" << 'MCPJSON'
 {
   "mcpServers": {

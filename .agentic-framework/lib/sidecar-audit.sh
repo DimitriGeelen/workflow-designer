@@ -37,7 +37,11 @@ fw_sidecar_ledger_facts() {
     [ -f "$lib_dir/sidecar_cli.py" ] || return 2
 
     local snap
-    snap=$(FRAMEWORK_ROOT="$root" python3 "$lib_dir/sidecar_cli.py" status --json 2>/dev/null) || return 2
+    # T-3717: PROJECT_ROOT, not FRAMEWORK_ROOT. Since T-3671 the sidecar reads its
+    # state from the consumer PROJECT_ROOT (else the cwd's project); setting only
+    # FRAMEWORK_ROOT made <root> inert and the facts described whatever project
+    # the caller happened to be standing in.
+    snap=$(PROJECT_ROOT="$root" python3 "$lib_dir/sidecar_cli.py" status --json 2>/dev/null) || return 2
     [ -n "$snap" ] || return 2
 
     printf '%s' "$snap" | python3 -c '
@@ -45,7 +49,11 @@ import json, sys
 try:
     s = json.load(sys.stdin)
     l = s["ledger"]
-    delivered = int(l.get("INJECTED_NOW", 0)) + int(l.get("INJECTED_LATER", 0))
+    # T-3717: T-3561 renamed INJECTED_NOW to HUB_ACCEPTED; legacy rows are
+    # folded into HUB_ACCEPTED by outbox._read_ledger. The INJECTED_NOW key is
+    # still summed so an older status producer keeps counting.
+    delivered = (int(l.get("HUB_ACCEPTED", 0)) + int(l.get("INJECTED_NOW", 0))
+                 + int(l.get("INJECTED_LATER", 0)))
     print("\t".join(str(x) for x in (
         int(l.get("UNKNOWN", 0)), int(s.get("expired_unswept", 0)),
         int(l.get("STORED", 0)), delivered, int(s.get("messages_total", 0)),
@@ -86,7 +94,10 @@ fw_sidecar_dm_stale_facts() {
     [ -f "$lib_dir/sidecar_cli.py" ] || return 2
 
     local rows
-    rows=$(FRAMEWORK_ROOT="$root" timeout 30 python3 "$lib_dir/sidecar_cli.py" \
+    # T-3719: PROJECT_ROOT, not FRAMEWORK_ROOT — since T-3671 the sidecar
+    # resolves its state root from PROJECT_ROOT (else cwd), so FRAMEWORK_ROOT
+    # alone left <root> inert and the check read the caller's ambient project.
+    rows=$(PROJECT_ROOT="$root" timeout 30 python3 "$lib_dir/sidecar_cli.py" \
            dm-stale --threshold-hours "$threshold_hours" --json 2>/dev/null) || return 2
     [ -n "$rows" ] || return 2
 
@@ -139,7 +150,8 @@ fw_sidecar_inbox_stale_facts() {
     [ -f "$lib_dir/sidecar_cli.py" ] || return 2
 
     local rows
-    rows=$(FRAMEWORK_ROOT="$root" timeout 60 python3 "$lib_dir/sidecar_cli.py" \
+    # T-3719: PROJECT_ROOT, not FRAMEWORK_ROOT (see fw_sidecar_dm_stale_facts).
+    rows=$(PROJECT_ROOT="$root" timeout 60 python3 "$lib_dir/sidecar_cli.py" \
            inbox-stale --threshold-hours "$threshold_hours" --json 2>/dev/null) || return 2
     [ -n "$rows" ] || return 2
 
@@ -153,6 +165,42 @@ try:
             str(r["topic"]), str(r["unread"]),
             "unknown" if age is None else str(age),
             str(r.get("oldest_from") or "unknown"))))
+except Exception:
+    sys.exit(2)
+' || return 2
+    return 0
+}
+
+# T-3685 (arc-011 S-LIVE, R7/R14/R15). The watcher's liveness verdict, read by
+# fw doctor and fw audit. Reads .context/sidecar/liveness.yaml through
+# `fw sidecar liveness --json` — our own file, no hub call.
+#
+#   fw_sidecar_watcher_facts <project_root>
+#     stdout : STATE<TAB>SEQ<TAB>AGE_S<TAB>PROBE_LATENCY_MS<TAB>TERMLINK<TAB>REASONS ("; "-joined)<TAB>WAKE
+#              WAKE (T-3855) is `none` when this agent has a sidecar inbox and nothing
+#              would wake it on arrival (watcher not live), else `ok` / `no-inbox`.
+#              Appended last so a caller reading six fields keeps working.
+#              STATE is live | not-live | absent (see lib/sidecar/watcher.py:liveness_verdict)
+#     rc 0   : facts printed
+#     rc 2   : the verdict could not be read — the caller says so
+fw_sidecar_watcher_facts() {
+    local root="${1:?fw_sidecar_watcher_facts: project root required}"
+    local lib_dir
+    lib_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    [ -f "$lib_dir/sidecar_cli.py" ] || return 2
+    local out
+    out=$(PROJECT_ROOT="$root" timeout 60 python3 "$lib_dir/sidecar_cli.py" liveness --json 2>/dev/null)
+    [ -n "$out" ] || return 2
+    printf '%s' "$out" | python3 -c '
+import json, sys
+try:
+    v = json.load(sys.stdin)
+    live = v.get("liveness") or {}
+    w = v.get("wake") or {}
+    wake = "none" if w.get("nothing_wakes") else ("ok" if w.get("has_inbox") else "no-inbox")
+    print("\t".join((v["state"], str(live.get("seq")), str(v.get("age_s")),
+                     str(live.get("last_probe_latency_ms")), str(v.get("injection_transport")),
+                     "; ".join(v.get("reasons") or []) or "-", wake)))
 except Exception:
     sys.exit(2)
 ' || return 2

@@ -595,14 +595,27 @@ _DEMO_HINT_RE = re.compile(
 )
 
 
+# Mirrors the grep in audit_inception_recommendation (lib/task-audit.sh).
+_REC_LINE_RE = re.compile(
+    r"^[ \t]*[-*]?[ \t]*\*\*Recommendation:\*\*[ \t]*\*{0,2}[A-Za-z]", re.MULTILINE
+)
+
+
 def _anchor_recommendation(arc: dict[str, Any]) -> dict[str, Any]:
     """T-1960: read the arc's anchor-task `## Recommendation` block and return
     a structured dict for /arcs/<slug>/close.
 
     Returns keys: present (bool), verdict, rationale, evidence, raw,
     suggested_demo (first docs/reports/* path OR https?:// URL found in
-    evidence text, '' when none), anchor_id ('' when no anchor_task).
+    evidence text, '' when none), anchor_id (the task the recommendation was
+    read from, '' when none), source ('close_task' | 'anchor_task' | ''),
+    expected_task (where the agent should write one: close_task, else
+    anchor_task, else '').
     All keys always present.
+
+    T-3843 (055 T-454): the arc's close-out task (`close_task:`) is read first;
+    the anchor — usually the arc's first design task, written long before
+    closing — is only the fallback.
     """
     out = {
         "present": False,
@@ -614,25 +627,43 @@ def _anchor_recommendation(arc: dict[str, Any]) -> dict[str, Any]:
         "raw": "",
         "suggested_demo": "",
         "anchor_id": "",
+        "source": "",
+        "expected_task": "",
     }
-    anchor = str(arc.get("anchor_task") or "").strip()
-    if not anchor:
-        return out
-    out["anchor_id"] = anchor
-    body = None
-    for sub in ("active", "completed"):
-        candidates = sorted((PROJECT_ROOT / ".tasks" / sub).glob(f"{anchor}-*.md"))
-        if candidates:
-            try:
-                body = candidates[0].read_text(encoding="utf-8")
-            except OSError:
-                body = None
-            break
-    if not body:
-        return out
+
+    def _tid(key: str) -> str:
+        val = str(arc.get(key) or "").strip()
+        return "" if val in ("null", "~") else val
+
+    close_task = _tid("close_task")
+    anchor = _tid("anchor_task")
+    out["expected_task"] = close_task or anchor
     from web.shared import extract_recommendation, render_markdown_safe
-    rec = extract_recommendation(body)
-    if not rec.get("raw"):
+    rec = None
+    for source, tid in (("close_task", close_task), ("anchor_task", anchor)):
+        if not tid:
+            continue
+        body = None
+        for sub in ("active", "completed"):
+            candidates = sorted((PROJECT_ROOT / ".tasks" / sub).glob(f"{tid}-*.md"))
+            if candidates:
+                try:
+                    body = candidates[0].read_text(encoding="utf-8")
+                except OSError:
+                    body = None
+                break
+        if not body:
+            continue
+        r = extract_recommendation(body)
+        # Same substance test as the CLI gate (audit_inception_recommendation,
+        # lib/task-audit.sh): a `**Recommendation:** <word>` line, so the page
+        # and `fw arc review` never disagree about whether one exists.
+        if r.get("raw") and _REC_LINE_RE.search(r["raw"]):
+            rec = r
+            out["anchor_id"] = tid
+            out["source"] = source
+            break
+    if rec is None:
         return out
     out["present"] = True
     out["verdict"] = rec.get("verdict", "?")
@@ -645,6 +676,25 @@ def _anchor_recommendation(arc: dict[str, Any]) -> dict[str, Any]:
     if m:
         out["suggested_demo"] = m.group(1).rstrip(".,;:!?)")
     return out
+
+
+def _suggested_decision(rec: dict[str, Any]) -> str:
+    """T-3841: one-line decision text from a close recommendation, '' without one.
+
+    "CLOSE — <rationale> (agent recommendation, T-XXX)". Whitespace is collapsed
+    so the arc YAML gets a single-line `decision:` value.
+    """
+    if not rec.get("present"):
+        return ""
+    verdict = str(rec.get("verdict") or "").strip()
+    if verdict in ("", "?"):
+        verdict = ""
+    rationale = " ".join(str(rec.get("rationale") or "").split())
+    text = " — ".join(p for p in (verdict, rationale) if p)
+    if not text:
+        return ""
+    src = str(rec.get("anchor_id") or "").strip()
+    return f"{text} (agent recommendation{', ' + src if src else ''})"
 
 
 def _arc_reports(arc_id: str) -> list[dict[str, str]]:
@@ -1516,6 +1566,17 @@ def arc_close_surface(arc_id):
     if not prev_demo_value and recommendation.get("suggested_demo"):
         prev_demo_value = recommendation["suggested_demo"]
 
+    # T-3841 (055): pre-fill the decision with the recommendation shown above, the
+    # way the demo is. Left unchanged, the arc records the agent's verdict and
+    # rationale instead of `decision: null` ("Decision: unspecified"). A POST
+    # re-render keeps whatever the operator submitted, even an empty field.
+    decision_prefilled = False
+    if request.method == "POST":
+        prev_decision = request.form.get("decision", "")
+    else:
+        prev_decision = _suggested_decision(recommendation)
+        decision_prefilled = bool(prev_decision)
+
     return render_page(
         "arc_close.html",
         page_title=f"Close arc: {arc.get('name', arc_id)}",
@@ -1530,7 +1591,8 @@ def arc_close_surface(arc_id):
         error_msg=error_msg,
         prev_demo_mode=request.form.get("demo_mode", "") if request.method == "POST" else "",
         prev_demo_value=prev_demo_value,
-        prev_decision=request.form.get("decision", "") if request.method == "POST" else "",
+        prev_decision=prev_decision,
+        decision_prefilled=decision_prefilled,
         prev_justification=request.form.get("justification", "") if request.method == "POST" else "",
     )
 

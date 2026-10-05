@@ -155,6 +155,11 @@ def validate(backends: object) -> list[str]:
         bn = b.get("binary")
         if bn is not None and (not isinstance(bn, str) or not BINARY_RE.match(bn) or "/../" in bn):
             errs.append(f"{bid}: binary must be an absolute path matching {BINARY_RE.pattern}")
+        # T-3766: where the backend's credential lives (env var + files, or the CLI's own
+        # login) — a location, never a value. review_credential owns the rules.
+        if "credential" in b:
+            errs += _credential_mod().validate_credential(str(bid), b["credential"],
+                                                          b.get("approval_required") is True)
     kv: dict = {}
     for b in backends:
         if isinstance(b, dict) and b.get("worker_kind") and b.get("vendor"):
@@ -171,11 +176,21 @@ def validate(backends: object) -> list[str]:
     return errs
 
 
+def _credential_mod():
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import review_credential
+    return review_credential
+
+
 def load_registry(path: Path | None = None) -> list[dict]:
     path = path or policy_path()
     if not path.is_file():
         raise CostError(f"backend registry not found: {path}")
-    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as e:  # T-3766: never echo source text (it may hold a pasted credential)
+        mark = getattr(e, "problem_mark", None)
+        raise CostError(f"backend registry is not valid YAML{f' (line {mark.line + 1})' if mark else ''}: {path}")
     backends = data.get("backends") if isinstance(data, dict) else None
     errs = validate(backends)
     if errs:
@@ -374,6 +389,26 @@ def log_cost(*, task: str, backend: str, purpose: str, tokens: int | None, cost:
     if not purpose.strip():
         raise CostError("--purpose is required")
     b = get_backend(backend)
+    with _ledger_lock():  # T-3766: check-then-append is atomic, so one approval is one use
+        return _log_cost_locked(b, task=task, backend=backend, purpose=purpose, tokens=tokens,
+                                cost=cost, proposal_id=proposal_id, evidence=evidence)
+
+
+class _ledger_lock:
+    def __enter__(self):
+        import fcntl
+        path = ledger(".reviews.lock")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self.fh = path.open("a")
+        fcntl.flock(self.fh, fcntl.LOCK_EX)
+        return self
+
+    def __exit__(self, *exc):
+        self.fh.close()  # releases the flock
+
+
+def _log_cost_locked(b: dict, *, task: str, backend: str, purpose: str, tokens: int | None,
+                     cost: float | None, proposal_id: str | None, evidence: str | None) -> dict:
     if b["approval_required"]:
         p = proposals().get(proposal_id or "")
         if not proposal_id or p is None:
@@ -437,8 +472,12 @@ def audit_lines(weeks: int = 4) -> list[tuple[str, str]]:
     """(level, message) for `fw audit`. Levels: PASS WARN FAIL INFO."""
     out: list[tuple[str, str]] = []
     try:
-        load_registry()
+        regs = load_registry()
         out.append(("PASS", f"Review-backend registry valid ({policy_path().name})"))
+        nocred = [b["id"] for b in regs if not b.get("credential")]
+        if nocred:  # T-3766: a backend with no credential location sends agents to ask the operator
+            out.append(("WARN", f"Review backend(s) with no `credential:` block: {', '.join(nocred)} "
+                                f"— record where the credential lives (fw review credential)"))
     except CostError as e:
         out.append(("FAIL", str(e).splitlines()[0] + " — " + "; ".join(l.strip() for l in str(e).splitlines()[1:3])))
     recs, bad = read_jsonl(ledger("reviews.jsonl"))
@@ -510,6 +549,9 @@ def _bool(s: str) -> bool:
 
 
 def main(argv: list[str] | None = None) -> int:
+    argv = sys.argv[1:] if argv is None else argv
+    if argv[:1] == ["credential"]:  # T-3766: own parser (--exec takes a raw command tail)
+        return _credential_mod().main(argv[1:])
     ap = argparse.ArgumentParser(prog="fw review", description="Review/dispatch cost (T-3583, T-3586)")
     sub = ap.add_subparsers(dest="cmd")
 
@@ -546,6 +588,7 @@ def main(argv: list[str] | None = None) -> int:
     st.add_argument("--id", required=True); st.add_argument("--class", dest="cls", choices=CLASSES)
     st.add_argument("--approval-required", type=_bool); st.add_argument("--i-am-human", action="store_true")
 
+    sub.add_parser("credential", help="resolve a backend's credential (T-3766): <backend> [--check] [--exec -- cmd...]")
     sub.add_parser("audit")
     hk = sub.add_parser("check-command"); hk.add_argument("--task", default="")
 

@@ -10,7 +10,7 @@
 - **NOT installed**: `keyring`
 - **Git protection**: `.gitignore` exists but minimal (no `.env` rule currently)
 - **requirements.txt**: flask, gunicorn, pyyaml, ruamel.yaml, markdown2, bleach, ollama, sqlite-vec, tantivy
-- **machine-id available**: `/etc/machine-id` exists (tested: present, 32 hex chars — **value REDACTED, do not paste it back**. It is the PBKDF2 input for the Fernet key in `web/secrets_store.py`, so committing it makes every `api-keys.enc` in this repo decryptable by anyone holding both. It was committed here from `6b249629` until T-939; see OBS-448.)
+- **machine-id available**: `/etc/machine-id` exists (tested: `<host machine-id, redacted - T-3788>`)
 - **Fernet verified working**: encrypt/decrypt roundtrip confirmed with PBKDF2 key derivation from machine-id
 
 ---

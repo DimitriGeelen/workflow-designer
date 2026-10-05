@@ -263,6 +263,7 @@ FW_CONFIG_REGISTRY=(
     # reaches nothing — which is the state 832 measured (0 of 342) and asked us
     # to make visible.
     "SIDECAR_CONSULT_WARN_HOURS|4|Hours an inbound peer consult may sit unread on the sidecar inbox before fw audit and fw doctor WARN (agents/audit/audit.sh, bin/fw doctor, lib/sidecar-audit.sh:fw_sidecar_inbox_stale_facts). Deliberately far below the sibling dm:* rail's 24: a dm: rail carries incidental posts, a consult is a PEER BLOCKED ON AN ANSWER. Origin T-3544/OBS-567 — 832-Workflow-designer waited six days and 010-termlink found 49 of ours unread on their own inbox. Raise it if the WARN nags; do not raise it to silence a real backlog."
+    "SIDECAR_TICK|30|Seconds between ticks of the always-on sidecar watcher (lib/sidecar/watcher.py): each tick drains the agent's hub inbox topic(s) into the receiver, injects waiting peer messages (urgent at once, the rest only into a session whose own Stop hook reported it ready), escalates our own unconfirmed sends past their deadline, runs the loopback self-probe and writes .context/sidecar/liveness.yaml. Not live = no tick for 2 ticks. Values < 1 fall back to 30. T-3684/T-3685 (T-3397 design of record; operator 2026-10-02: 30 s)."
     "DELEGATION_SURFACE_WARN|50|Operator-only open-Human-criteria count above which fw audit and fw doctor WARN, but only while reviewer-closeable is 0 (agents/audit/audit.sh, lib/delegation.py:surface_verdict). T-3445 / D-626."
     "GITIGNORE_REGISTER_ADVISORY|1|Enable the audit WARN for .gitignore comment blocks that defer work without naming a T-/G-/OBS-/L- entry; 0 silences it (agents/audit/audit.sh, lib/gitignore-register.sh). T-2994."
     # T-3024 (T-3022 slice E'). Handovers are 68% of indexed corpus volume and 79%
@@ -279,6 +280,12 @@ FW_CONFIG_REGISTRY=(
     # than the one you are working in.
     "INDEX_STALE_DAYS|7|Days before fw doctor WARNs that the vector index is stale, measured from the corpus manifest's build time (web/embeddings.py:index_freshness). T-3013."
     "RECALL_USAGE_DAYS|7|Window fw doctor looks back over for semantic-recall queries. Zero rows in the window WARNs — the G-064 zero-consumer signal, distinct from the index being stale (web/recall_telemetry.py:usage_summary). T-3019."
+    # T-3783: the vector-index health check (lib/vector_index_health.py) FAILs in
+    # doctor/audit/handover when these are exceeded — the reindex runs hourly, so
+    # 24h is a full day of missed runs, not jitter.
+    "INDEX_MAX_AGE_HOURS|24|Hours since the vector index manifest was written before the vector-index health check FAILs (fw doctor, fw audit corpus-health, handover, operator push). The reindex cron runs hourly. T-3783."
+    "INDEX_MAX_LAG|50|Task ids or learning ids on disk that the vector index has never seen before the vector-index health check FAILs. T-3783."
+    "RECALL_FAIL_PCT_WARN|10|Percent of recall queries in 7 days that could not run (embed path failed mid-query) above which the vector-index health check WARNs. T-3783."
     # T-3028 (T-3025 GO, option 3). State dumps are 97.3% of a handover and the
     # three of them are byte-identical between consecutive sessions. Digesting
     # them to count + regenerating command + top-N is what stops handovers being

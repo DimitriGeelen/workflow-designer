@@ -214,6 +214,20 @@ _passwd_home_canon() {
     return 0
 }
 
+# T-3791: a PROJECT_ROOT that names a path which does not exist is refused, not
+# re-resolved. Cron lines carry `PROJECT_ROOT="<dir>" fw <verb>`; when <dir> is a
+# torn-down test temp dir, re-resolution fell back to the cwd walk / FRAMEWORK_ROOT
+# and ran the job (`fw docs --all`, `fw audit`, oe sections) against the wrong
+# project every day (T-3790: 26 ghost cron files, load 41). Exception: inside a
+# Claude Code hook context (valid CLAUDE_PROJECT_DIR), where a vanished inherited
+# root is still re-resolved (T-2390/T-2391) rather than failing every hook.
+if [ -n "${PROJECT_ROOT:-}" ] && [ ! -e "$PROJECT_ROOT" ] && \
+   ! { [ -n "${CLAUDE_PROJECT_DIR:-}" ] && \
+       { [ -f "$CLAUDE_PROJECT_DIR/.framework.yaml" ] || [ -d "$CLAUDE_PROJECT_DIR/.tasks" ]; }; }; then
+    echo "fw: PROJECT_ROOT does not exist: $PROJECT_ROOT — refusing to run (unset it or point it at a project)" >&2
+    exit 2
+fi
+
 # Resolve PROJECT_ROOT
 if [ -z "${PROJECT_ROOT:-}" ] || _project_root_is_stale "${PROJECT_ROOT:-}"; then
     # T-2390: prefer CLAUDE_PROJECT_DIR when set + valid. Claude Code exports it
@@ -514,12 +528,14 @@ do_vendor() {
     local dry_run=false
     local target="${PROJECT_ROOT:-.}"
     local source_override=""
+    local allow_delete_locals=false
 
     while [[ $# -gt 0 ]]; do
         case $1 in
             --dry-run) dry_run=true; shift ;;
             --target) target="$2"; shift 2 ;;
             --source) source_override="$2"; shift 2 ;;
+            --allow-delete-locals) allow_delete_locals=true; shift ;;
             -h|--help)
                 echo -e "${BOLD}fw vendor${NC} — Copy framework into project for full isolation"
                 echo ""
@@ -529,7 +545,14 @@ do_vendor() {
                 echo "  --dry-run   Show what would be copied without copying"
                 echo "  --target    Target project directory (default: current project)"
                 echo "  --source    Framework source directory (default: auto-resolved)"
+                echo "  --allow-delete-locals"
+                echo "              Proceed even though local files under .agentic-framework/"
+                echo "              would be deleted or overwritten (logged Tier-2, backed up)"
                 echo "  -h, --help  Show this help"
+                echo ""
+                echo "Local files (T-3850): list them in .fwvendor-preserve.yaml at the project"
+                echo "root — files: (kept as-is) and in_file: + marker (checked after the copy)."
+                echo "Anything else that would be lost is named and the vendor refuses."
                 echo ""
                 echo "Copies the complete framework (~7MB) into PROJECT/.agentic-framework/"
                 echo "After vendoring, the project is self-contained — no global install needed."
@@ -665,6 +688,53 @@ do_vendor() {
         # `draft-*` rather than adding a line back.
         ".context/designer/projects/draft-*"
     )
+
+    # T-3850: consumer-local protection. The copy below mirrors each include
+    # with rsync --delete (or rm -rf + cp), which deleted every file a consumer
+    # added under .agentic-framework/ and overwrote every in-place patch,
+    # silently — ring20-manager lost 7 blueprints, 6 templates, a lib module and
+    # ~40 patches on v1.8.0. lib/vendor_preserve.py runs BEFORE anything is
+    # written: it honours .fwvendor-preserve.yaml, names every uncovered local
+    # file that would be lost, and refuses (exit 3) unless --allow-delete-locals.
+    # Located beside this bin/fw first, then FRAMEWORK_ROOT, then the source:
+    # an upgrade hands off between copies, and a helper missing from one of
+    # them must not disable the check (the fail-safe branch below refuses).
+    local _vp_py="" _vp_cand
+    for _vp_cand in "${FW_BIN_DIR:-$FRAMEWORK_ROOT/bin}/../lib/vendor_preserve.py" \
+            "$FRAMEWORK_ROOT/lib/vendor_preserve.py" "$vendor_source/lib/vendor_preserve.py"; do
+        if [ -f "$_vp_cand" ]; then _vp_py="$_vp_cand"; break; fi
+    done
+    local _vp_dir=""
+    if [ -n "$_vp_py" ] && command -v python3 >/dev/null 2>&1; then
+        _vp_dir=$(mktemp -d "${TMPDIR:-/tmp}/fw-vendor-preserve-XXXXXX")
+        # Run from a private copy: the copy below may replace (or delete) the
+        # very lib/ the helper was found in when bin/fw runs from the target.
+        cp "$_vp_py" "$_vp_dir/vendor_preserve.py" && _vp_py="$_vp_dir/vendor_preserve.py"
+        printf '%s\n' "${includes[@]}" > "$_vp_dir/includes"
+        printf '%s\n' "${excludes[@]}" > "$_vp_dir/excludes"
+        local -a _vp_args=(--source "$vendor_source" --target "$target"
+            --includes "$_vp_dir/includes" --excludes "$_vp_dir/excludes" --plan "$_vp_dir/plan.json")
+        local _vp_rc=0
+        if [ "$dry_run" = true ]; then
+            python3 "$_vp_py" pre "${_vp_args[@]}" --dry-run || _vp_rc=$?
+            rm -rf "$_vp_dir"; _vp_dir=""
+        else
+            [ "$allow_delete_locals" = true ] && _vp_args+=(--allow)
+            python3 "$_vp_py" pre "${_vp_args[@]}" || _vp_rc=$?
+            if [ "$_vp_rc" -ne 0 ]; then
+                rm -rf "$_vp_dir"
+                echo -e "${RED}fw vendor refused — local files would be lost (T-3850).${NC}" >&2
+                return 1
+            fi
+        fi
+    elif [ -d "$dest" ] && [ -n "$(ls -A "$dest" 2>/dev/null)" ] && [ "$dry_run" != true ] \
+            && [ "$allow_delete_locals" != true ]; then
+        # Fail safe, not open: without the checker we cannot tell a consumer's
+        # files from ours, and the copy below would delete them unseen.
+        echo -e "${RED}ERROR${NC}  cannot check $dest for local files (python3 or lib/vendor_preserve.py missing)." >&2
+        echo -e "         Re-run with --allow-delete-locals to vendor anyway (local files there will be lost)." >&2
+        return 1
+    fi
 
     if [ "$dry_run" = true ]; then
         echo -e "${BOLD}fw vendor --dry-run${NC}"
@@ -933,6 +1003,24 @@ UPSTREAM
         return 1
     fi
 
+    # T-3850: restore preserved files, check in-file markers, write the stamp
+    # the next vendor compares local edits against. After FRAMEWORK.md so the
+    # stamp describes a complete vendor.
+    if [ -n "$_vp_dir" ]; then
+        {
+            printf '%s\n' VERSION .fw-not-a-project .gitignore FRAMEWORK.md
+            if [ -n "${_vendor_origin:-}" ]; then printf '%s\n' .upstream; fi
+            if [ -n "${_vd_rel:-}" ]; then printf '%s\n' "$_vd_rel"; fi
+        } > "$_vp_dir/written"
+        local _vp_post_rc=0
+        python3 "$_vp_py" post "${_vp_args[@]}" --written "$_vp_dir/written" || _vp_post_rc=$?
+        rm -rf "$_vp_dir"
+        if [ "$_vp_post_rc" -ne 0 ] && [ "$_vp_post_rc" -ne 4 ]; then
+            echo -e "${RED}ERROR${NC}  post-vendor preserve step failed (exit $_vp_post_rc)" >&2
+            return 1
+        fi
+    fi
+
     # T-3144: the target's git must be able to SEE what we just wrote. Runs
     # after FRAMEWORK.md — the sentinel — so the tree being checked is the tree
     # a consumer will actually have. See lib/vendor-visibility.sh for why a
@@ -940,8 +1028,34 @@ UPSTREAM
     if [ -f "$FRAMEWORK_ROOT/lib/vendor-visibility.sh" ]; then
         # shellcheck source=lib/vendor-visibility.sh
         source "$FRAMEWORK_ROOT/lib/vendor-visibility.sh"
+        # T-3832: judge what THIS run wrote, not what is on disk under $dest. A
+        # consumer's .agentic-framework/ can carry thousands of ignored files
+        # from older layouts (ring20-dashboard: 11,370) that also exist in the
+        # source; `find` counted them as vendored and failed the update. Each
+        # T-3851: enumerated from the SOURCE side of each include — the vendor's
+        # own copy list — not from $dest. Since T-3850 an include dir on disk
+        # can also hold consumer-local files the preserve manifest kept, and
+        # those are not ours to judge. The checker drops entries absent from
+        # $dest (excluded at copy time); single files are listed by name.
+        local _vis_manifest _vis_item
+        _vis_manifest=$(mktemp "${TMPDIR:-/tmp}/fw-vendor-manifest-XXXXXX")
+        {
+            for _vis_item in "${includes[@]}"; do
+                if [ -d "$vendor_source/$_vis_item" ] && [ -d "$dest/$_vis_item" ]; then
+                    (cd "$vendor_source" && find "$_vis_item" -type f \
+                        -not -path '*/__pycache__/*' -not -name '*.pyc' -not -name '.DS_Store')
+                elif [ -f "$vendor_source/$_vis_item" ]; then
+                    printf '%s\n' "$_vis_item"
+                fi
+            done
+            if [ -n "${_vd_rel:-}" ] && [ -f "$dest/$_vd_rel" ]; then printf '%s\n' "$_vd_rel"; fi
+            printf '%s\n' VERSION .fw-not-a-project .gitignore FRAMEWORK.md
+            if [ -n "${_vendor_origin:-}" ] && [ -f "$dest/.upstream" ]; then printf '%s\n' .upstream; fi
+            if [ -f "$dest/.fw-vendor-stamp.json" ]; then printf '%s\n' .fw-vendor-stamp.json; fi
+        } > "$_vis_manifest"
         local _vis_rc=0
-        fw_vendor_check_visibility "$dest" "$target" || _vis_rc=$?
+        fw_vendor_check_visibility "$dest" "$target" "$vendor_source" "$_vis_manifest" || _vis_rc=$?
+        rm -f "$_vis_manifest"
         if [ "$_vis_rc" -ne 0 ]; then
             if [ "${FW_ALLOW_INVISIBLE_VENDOR:-0}" = "1" ]; then
                 log_gate_bypass "FW_ALLOW_INVISIBLE_VENDOR" \
@@ -1246,6 +1360,7 @@ show_help() {
     echo -e "  ${GREEN}prompt${NC} <cmd>           Reusable agent prompts (create, list, show, copy)"
     echo -e "  ${GREEN}note${NC} [text]          Lightweight observation capture"
     echo -e "  ${GREEN}notify${NC} <cmd>          Push notifications (setup, test, enable, disable, status)"
+    echo -e "  ${GREEN}runme${NC} <cmd>           Operator handoff as one logged script line (new, watch, path)"
     echo -e "  ${GREEN}cron${NC} <cmd>            Cron registry management (generate, status)"
     echo -e "  ${GREEN}peer${NC} <cmd>            v2 peer-consult (subscribe to TermLink inbox.queued + spawn responders)"
     echo -e "  ${GREEN}sidecar${NC} <cmd>         Peer-consult sidecar: whoami, send, inbox, status, sweep, e2e (live end-to-end check)"
@@ -2299,7 +2414,7 @@ else:
         # shellcheck source=/dev/null
         source "$_bvp_scor_lib"
         local _bvp_rows _bvp_rc _bvp_n
-        _bvp_rows=$(fw_bvp_unscorable_drivers "$PROJECT_ROOT" 2>/dev/null); _bvp_rc=$?
+        _bvp_rows=$(fw_bvp_unscorable_drivers "$PROJECT_ROOT" 2>/dev/null) && _bvp_rc=0 || _bvp_rc=$?  # T-3837: set -e
         if [ "$_bvp_rc" -eq 2 ]; then
             echo -e "  ${YELLOW}WARN${NC}  BVP driver scorability scan did not run"
             echo -e "         Run: bin/fw bvp driver --validate-scoring <file>  (estimator unimportable or policy YAML broken)"
@@ -2398,6 +2513,25 @@ PY
                 echo -e "         Run: bin/fw fabric enrich --describe-only  (then: bin/fw fabric drift)"
                 warnings=$((warnings + 1))
             fi
+        fi
+    fi
+
+    # Check: design-conformance register (T-3691 item 3, T-3694)
+    # Mirrors agents/audit/audit.sh:check_register_requirements (audit FAILs; doctor
+    # WARNs). Same predicate, lib/design_register.py, so the two cannot disagree.
+    # Silent when the project has no register docs.
+    if [ -f "$FRAMEWORK_ROOT/lib/design_register.py" ]; then
+        local _reg_out _reg_rc=0
+        # `|| _reg_rc=$?`: doctor runs under errexit, and exit 1 is a finding here.
+        _reg_out=$(python3 "$FRAMEWORK_ROOT/lib/design_register.py" violations --root "$PROJECT_ROOT" 2>&1) || _reg_rc=$?
+        if [ "$_reg_rc" -eq 0 ]; then
+            [ "$_reg_out" = "no register docs" ] || \
+                echo -e "  ${GREEN}OK${NC}  Design-conformance register: every row has a valid owner"
+        else
+            echo -e "  ${YELLOW}WARN${NC}  Design-conformance register: row(s) without a valid owner"
+            printf '%s\n' "$_reg_out" | head -5 | sed 's/^/         /'
+            echo -e "         Point owner_task at the ACTIVE task that will build each row (fw audit FAILs on this)"
+            warnings=$((warnings + 1))
         fi
     fi
 
@@ -2557,25 +2691,33 @@ PY
     # without five full doctor runs per test suite. Embed-free: manifest read
     # plus a stat. The canary (which does embed) runs in
     # `fw audit --section corpus-health`, never here and never in pre-push.
-    source "$FRAMEWORK_ROOT/lib/index-health.sh"
-    _idx_line=$(index_freshness_verdict)
-    _idx_verdict="${_idx_line%%|*}"
-    _idx_rest="${_idx_line#*|}"
-    _idx_msg="${_idx_rest%%|*}"
-    _idx_hint="${_idx_rest#*|}"
-    case "$_idx_verdict" in
-        OK)
-            echo -e "  ${GREEN}OK${NC}  $_idx_msg"
-            ;;
-        WARN)
-            echo -e "  ${YELLOW}WARN${NC}  $_idx_msg"
-            [ -n "$_idx_hint" ] && echo -e "         $_idx_hint"
-            warnings=$((warnings + 1))
-            ;;
-        *)
-            echo -e "  ${CYAN}SKIP${NC}  $_idx_msg"
-            ;;
-    esac
+    # T-3783: replaced the age-only WARN above with ONE predicate shared with
+    # fw audit / handover / the reindex cron (lib/vector_index_health.py): index
+    # opens, manifest present, web.embeddings importable the way the reindex
+    # imports it, age + lag within limits, canary retrieved, cron job seeded.
+    # Any of those failing is a FAIL — two months of a frozen index in 47 of 49
+    # projects passed as "WARN, 9 days old" or as SKIP (unimportable).
+    # The canary embeds (~5-10s); FW_DOCTOR_INDEX_FAST=1 skips it.
+    source "$FRAMEWORK_ROOT/lib/vector-index-health.sh"
+    # T-3747: --quick skips the canary like the other network probes (it embeds
+    # through Ollama); the embed-free checks — index, manifest, age, lag, cron — run.
+    if [ "${FW_DOCTOR_INDEX_FAST:-0}" = "1" ] || [ "$quick_mode" = "1" ]; then
+        _idx_out=$(vector_index_health --no-canary) || true
+    else
+        _idx_out=$(FW_INDEX_CANARY_TIMEOUT="${FW_INDEX_CANARY_TIMEOUT:-30}" vector_index_health) || true
+    fi
+    while IFS='|' read -r _idx_verdict _idx_msg _idx_hint; do
+        case "$_idx_verdict" in
+            OK)   echo -e "  ${GREEN}OK${NC}  $_idx_msg" ;;
+            WARN) echo -e "  ${YELLOW}WARN${NC}  $_idx_msg"
+                  [ -n "$_idx_hint" ] && echo -e "         $_idx_hint"
+                  warnings=$((warnings + 1)) ;;
+            FAIL) echo -e "  ${RED}FAIL${NC}  $_idx_msg"
+                  [ -n "$_idx_hint" ] && echo -e "         $_idx_hint"
+                  issues=$((issues + 1)) ;;
+            SKIP) echo -e "  ${CYAN}SKIP${NC}  $_idx_msg" ;;
+        esac
+    done < <(printf '%s\n' "$_idx_out" | tail -n +2)
 
     # Check: recall usage — the "Used" signal (T-3019, T-3005 slice 6a)
     #
@@ -3342,7 +3484,7 @@ for e in d.get('errors',[])[:3]:
     # Check: TermLink (optional cross-terminal session communication)
     if command -v termlink >/dev/null 2>&1; then
         local tl_version
-        tl_version=$(termlink --version 2>/dev/null | head -1)
+        tl_version=$(termlink --version 2>/dev/null | head -1) || tl_version=""  # T-3837: pipefail
         echo -e "  ${GREEN}OK${NC}  TermLink ($tl_version)"
 
         # T-3040: a topic that does not exist on the LOCAL hub REJECTS posts
@@ -3357,7 +3499,9 @@ for e in d.get('errors',[])[:3]:
         if _doctor_quick_skip "TermLink topic existence check"; then :; else
         local _tl_expected_topics="framework:pickup broadcast:global broadcast-chat"
         local _tl_topic_list _tl_missing_topics=""
-        _tl_topic_list=$(termlink channel list --json 2>/dev/null)
+        # T-3837: a down hub makes `channel list` exit non-zero; under set -e the
+        # bare assignment aborted doctor here. Empty list = the check below skips.
+        _tl_topic_list=$(termlink channel list --json 2>/dev/null) || _tl_topic_list=""
         if [ -n "$_tl_topic_list" ]; then
             local _tl_topic
             for _tl_topic in $_tl_expected_topics; do
@@ -3393,7 +3537,7 @@ sys.exit(0 if '$_tl_topic' in names else 1)
             # shellcheck source=/dev/null
             source "$FRAMEWORK_ROOT/lib/sidecar-audit.sh"
             local _dm_rows _dm_rc
-            _dm_rows=$(fw_sidecar_dm_stale_facts "$PROJECT_ROOT" 24); _dm_rc=$?
+            _dm_rows=$(fw_sidecar_dm_stale_facts "$PROJECT_ROOT" 24) && _dm_rc=0 || _dm_rc=$?  # T-3837: set -e
             if [ "$_dm_rc" -eq 2 ]; then
                 _doctor_warn_host "DM-rail staleness check could not run (fw sidecar dm-stale --json produced no readable output)"
             elif [ "$_dm_rc" -eq 0 ] && [ -n "$_dm_rows" ]; then
@@ -3414,7 +3558,7 @@ sys.exit(0 if '$_tl_topic' in names else 1)
             # consumption "the gap, and it is ours". Same fact-function
             # contract, same WARN shape, deliberately not a second idiom.
             local _ib_rows _ib_rc
-            _ib_rows=$(fw_sidecar_inbox_stale_facts "$PROJECT_ROOT" "$(fw_config SIDECAR_CONSULT_WARN_HOURS)"); _ib_rc=$?
+            _ib_rows=$(fw_sidecar_inbox_stale_facts "$PROJECT_ROOT" "$(fw_config SIDECAR_CONSULT_WARN_HOURS)") && _ib_rc=0 || _ib_rc=$?  # T-3837: set -e
             if [ "$_ib_rc" -eq 2 ]; then
                 _doctor_warn_host "Consult-inbox backlog check could not run (fw sidecar inbox-stale --json produced no readable output)"
             elif [ "$_ib_rc" -eq 0 ] && [ -n "$_ib_rows" ]; then
@@ -3435,6 +3579,47 @@ sys.exit(0 if '$_tl_topic' in names else 1)
         fi  # T-2452/F6-style --quick guard
     else
         _doctor_warn_host "TermLink not installed (cargo install termlink)"
+    fi
+
+    # T-3685 (arc-011 S-LIVE, R7/R14/R15): the always-on sidecar watcher. NOT
+    # live (seq stalled 2 ticks, or the loopback self-probe failed) while it is
+    # enabled is a FAIL — an agent with a dead listener is deaf and does not
+    # know it. Never started here is a WARN (R14: every agent runs a sidecar).
+    # Same fact function as fw audit's check_sidecar_watcher.
+    if [ -f "$FRAMEWORK_ROOT/lib/sidecar-audit.sh" ]; then
+        # shellcheck source=/dev/null
+        source "$FRAMEWORK_ROOT/lib/sidecar-audit.sh"
+        local _sw _sw_rc _sw_state _sw_seq _sw_age _sw_ms _sw_tl _sw_why _sw_wake
+        _sw=$(fw_sidecar_watcher_facts "$PROJECT_ROOT") && _sw_rc=0 || _sw_rc=$?  # T-3837: set -e
+        if [ "$_sw_rc" -ne 0 ]; then
+            echo -e "  ${RED}FAIL${NC}  Sidecar watcher liveness could not be read (fw sidecar liveness --json)"
+            issues=$((issues + 1))
+        else
+            IFS=$'\t' read -r _sw_state _sw_seq _sw_age _sw_ms _sw_tl _sw_why _sw_wake <<< "$_sw"
+            case "$_sw_state" in
+                live)
+                    if [ "$_sw_tl" = "absent" ]; then
+                        echo -e "  ${YELLOW}WARN${NC}  Sidecar watcher live but INERT: TermLink absent — messages are stored and confirmed, never injected"
+                        warnings=$((warnings + 1))
+                    else
+                        echo -e "  ${GREEN}OK${NC}  Sidecar watcher live (seq $_sw_seq, last tick ${_sw_age}s ago, self-probe ${_sw_ms}ms)"
+                    fi ;;
+                not-live)
+                    echo -e "  ${RED}FAIL${NC}  Sidecar watcher NOT live: $_sw_why"
+                    echo "         Run: fw sidecar liveness; fw sidecar ensure (restarts the supervisor); logs in .context/sidecar/watcher/"
+                    issues=$((issues + 1)) ;;
+                *)
+                    # T-3855: an inbox that nothing would wake is a deaf agent — FAIL.
+                    if [ "$_sw_wake" = "none" ]; then
+                        echo -e "  ${RED}FAIL${NC}  Sidecar inbox with NOTHING to wake it: no watcher running ($_sw_why)"
+                        echo "         Run: fw sidecar start (plain sessions start it at SessionStart; claude-fw too)"
+                        issues=$((issues + 1))
+                    else
+                        echo -e "  ${YELLOW}WARN${NC}  No sidecar watcher in this project (R14: every agent runs one) — start: fw sidecar start"
+                        warnings=$((warnings + 1))
+                    fi ;;
+            esac
+        fi
     fi
 
     # Check: pi (Pi mono coding-agent — optional, ADR-0003 worker_kind=pi)
@@ -4546,7 +4731,9 @@ except Exception as e:
     # older audit.sh wrote.
     local _sts_days _sts_ts
     _sts_days=$(fw_config "AUDIT_STRUCTURE_TIMING_STALE_DAYS" 7)
-    _sts_ts=$(fw_audit_timing_last_measured_at "$PROJECT_ROOT" "structure" 2>/dev/null)
+    # T-3837: non-zero when never measured (any fresh consumer); under set -e a
+    # bare capture aborted doctor here, one check before its summary.
+    _sts_ts=$(fw_audit_timing_last_measured_at "$PROJECT_ROOT" "structure" 2>/dev/null) || _sts_ts=""
     if [ -z "$_sts_ts" ]; then
         echo -e "  ${CYAN}INFO${NC}  Structure-section timing not measured yet — run 'fw audit --section structure' (or push) once to populate it"
     elif fw_audit_timing_is_stale "$PROJECT_ROOT" "structure" "$_sts_days"; then
@@ -6305,12 +6492,43 @@ EOF
                     echo -e "${RED}ERROR:${NC} No cron registry found at $_cron_registry"
                     exit 1
                 fi
-                python3 -c "
-import yaml, os, re, sys
+                # T-3835: cron lines must name a fw that outlives this process.
+                # `fw upgrade` from a vendored consumer runs from a temp clone
+                # (/tmp/fw-upstream-XXXXXX/fw) that is deleted at exit, so
+                # $FRAMEWORK_ROOT is the wrong answer there. A consumer's own
+                # vendored copy is its durable fw; the framework repo itself
+                # (FRAMEWORK_ROOT == PROJECT_ROOT) keeps bin/fw.
+                _cron_fw="$FRAMEWORK_ROOT/bin/fw"
+                if [ "$(cd "$FRAMEWORK_ROOT" 2>/dev/null && pwd -P)" != "$(cd "$PROJECT_ROOT" && pwd -P)" ] \
+                    && [ -x "$PROJECT_ROOT/.agentic-framework/bin/fw" ]; then
+                    _cron_fw="$PROJECT_ROOT/.agentic-framework/bin/fw"
+                fi
+                FW_CRON_FW_PATH="$_cron_fw" python3 -c "
+import yaml, os, re, sys, tempfile
 
 project_root = '$PROJECT_ROOT'
-fw_path = '$FRAMEWORK_ROOT/bin/fw'
+fw_path = os.environ['FW_CRON_FW_PATH']
 registry_file = '$_cron_registry'
+
+# T-3835: refuse a fw path that will not exist when cron runs it — missing now,
+# or under a temp dir and outside the project (a temp clone, deleted on exit).
+# A project that itself lives under /tmp (tests) may use its own vendored fw.
+def _real(p):
+    return os.path.realpath(p)
+_temp_roots = {_real(t) for t in ('/tmp', '/var/tmp', tempfile.gettempdir(), os.environ.get('TMPDIR') or '/tmp')}
+_fw_real, _proj_real = _real(fw_path), _real(project_root)
+def _under(p, root):
+    return p == root or p.startswith(root.rstrip('/') + '/')
+_fw_problem = None
+if not (os.path.isfile(fw_path) and os.access(fw_path, os.X_OK)):
+    _fw_problem = 'does not exist or is not executable'
+elif any(_under(_fw_real, t) for t in _temp_roots) and not _under(_fw_real, _proj_real):
+    _fw_problem = 'is under a temp dir outside the project (deleted when its process ends)'
+if _fw_problem:
+    print(f'ERROR: refusing to generate cron lines — fw path {fw_path} {_fw_problem}.', file=sys.stderr)
+    print('Every job would run a missing binary once installed. Nothing written.', file=sys.stderr)
+    print(f'Run fw cron generate from the project with its durable fw: {project_root}/.agentic-framework/bin/fw cron generate', file=sys.stderr)
+    sys.exit(1)
 
 data = yaml.safe_load(open(registry_file))
 jobs = data.get('jobs', [])
@@ -6724,22 +6942,47 @@ print(f'  Run \"fw cron generate\" to update the crontab file')
                     echo "Run 'fw index --help' for the full description."
                     exit 0
                 fi
-                cd "$PROJECT_ROOT" && python3 -c '
+                # T-3783 (010 T-3336): web/ is FRAMEWORK-owned — in a vendored consumer it
+                # lives under .agentic-framework/, not PROJECT_ROOT, so put FRAMEWORK_ROOT on
+                # the import path (cwd stays PROJECT_ROOT: the index is the consumer's). And
+                # "unimportable" is a failure, not a quiet success: it exited 0 for months
+                # while the hourly cron indexed nothing.
+                _rx_rc=0
+                # T-3860: run the child in the background and forward TERM/INT to it, so
+                # a cron kill or Ctrl-C reaches python's cleanup (scratch removed/parked)
+                # instead of orphaning a full-size index copy behind a dead shell.
+                (cd "$PROJECT_ROOT" && PYTHONPATH="$FRAMEWORK_ROOT${PYTHONPATH:+:$PYTHONPATH}" exec python3 -c '
 import json, sys
 try:
     from web.embeddings import reindex_incremental
 except Exception as exc:
     print(json.dumps({"status": "unimportable",
                        "detail": f"{type(exc).__name__}: {str(exc)[:200]}"}))
-    sys.exit(0)
+    sys.exit(2)
 try:
     stats = reindex_incremental()
     stats["status"] = "ok"
     print(json.dumps(stats))
 except Exception as exc:
     print(json.dumps({"status": "error", "detail": str(exc)[:300]}))
+    print(f"fw index reindex: {exc}", file=sys.stderr)
     sys.exit(1)
-'
+') &
+                _rx_pid=$!
+                trap 'kill -TERM "$_rx_pid" 2>/dev/null' TERM INT
+                wait "$_rx_pid" || _rx_rc=$?
+                # A trapped signal interrupts wait; wait again until the child has cleaned up.
+                while kill -0 "$_rx_pid" 2>/dev/null; do wait "$_rx_pid" || _rx_rc=$?; done
+                trap - TERM INT
+                # T-3783: the hourly cron is the one periodic caller every consumer has,
+                # so it runs the health check too (stderr; stdout stays the JSON stats):
+                # the verdict is recorded and the operator is pushed once when it turns
+                # red — including when the reindex itself could not import or failed.
+                if [ "${FW_REINDEX_NO_HEALTH:-0}" != "1" ]; then
+                    source "$FRAMEWORK_ROOT/lib/vector-index-health.sh"
+                    vector_index_health >&2 || true
+                fi
+                exit "$_rx_rc"
                 ;;
             ""|-h|--help)
                 echo "Usage: fw index reindex"
@@ -7602,15 +7845,6 @@ EOF
         # Pairs with TermLink T-1636 (inbox.queued emitter, hub-side).
         exec python3 "$FW_LIB_DIR/peer.py" "$@"
         ;;
-    external)
-        # 832 T-887: external-consult — the UNCORRELATED counterpart to `peer`.
-        # `peer` and `sidecar` consult the TermLink mesh, where every responder
-        # is a Claude sharing one cohort identity, so a peer consult cannot
-        # catch a failure mode the lineage shares. This asks differently-trained
-        # models for the STRONGEST OBJECTION, and records it as a named,
-        # rescannable artifact. Local G-008 divergence pending upstream.
-        exec python3 "$FW_LIB_DIR/external_consult.py" "$@"
-        ;;
     sidecar)
         # T-3406 / arc-011 peer-consult sidecar: send a consult to a peer
         # agent and read consults addressed to this one. Wraps the outbox
@@ -8279,19 +8513,7 @@ from pathlib import Path
 from datetime import datetime
 
 # T-1533: shared helper. Robust to running from /opt/999-... where web/ is on the path.
-# T-643: ...which is exactly the layout it was tested in, and the only one. In a
-# VENDORED install the framework lives at <project>/.agentic-framework/, so web/ is
-# not under PROJECT_ROOT, the import below raises, and the `except ImportError`
-# substitutes the inline fallback — silently, every single time. Measured in
-# 832-Workflow-designer: `sys.path.insert(0, PROJECT_ROOT); import web.shared` ->
-# ModuleNotFoundError, so the shared predicate had never once executed in this CLI
-# while `/approvals` (which lives inside web/) used it. The two surfaces drifted in
-# precisely the manner count_unchecked_human_acs' docstring says sharing prevents.
-# FRAMEWORK_ROOT is exported unconditionally at the top of this file and is correct
-# in both modes, so try it first and keep PROJECT_ROOT for the framework-repo layout.
-for _root in (os.environ.get("FRAMEWORK_ROOT", ""), os.environ.get("PROJECT_ROOT", ".")):
-    if _root:
-        sys.path.insert(0, _root)
+sys.path.insert(0, os.environ.get("PROJECT_ROOT", "."))
 try:
     from web.shared import extract_recommendation_state, count_unchecked_human_acs
 except ImportError:
@@ -8308,14 +8530,8 @@ except ImportError:
         body2 = re.sub(r"<!--.*?-->", "", m.group(1), flags=re.DOTALL).strip()
         if not body2:
             return "NO-REC"
-        # T-643: vocabulary kept IDENTICAL to web/shared.py:791, alternation order
-        # included (longest-first, so NO-GO is not matched as GO). The shipped set was
-        # (NO-GO|GO|DEFER) — it rendered CLOSE (T-579) and KEEP-OPEN (T-609) as '?',
-        # i.e. as "the agent owes a verdict", when the agent had given one the library
-        # accepts. `_` form normalised to `-` per the T-1391 contract, as the library does.
-        v = re.search(r"\*\*Recommendation:\*\*\s*(KEEP-OPEN|NO[-_]GO|CLOSE|GO|DEFER)\b",
-                      body2, re.IGNORECASE)
-        return v.group(1).upper().replace("_", "-") if v else "?"
+        v = re.search(r"\*\*Recommendation:\*\*\s*(NO-GO|GO|DEFER)\b", body2, re.IGNORECASE)
+        return v.group(1).upper() if v else "?"
     # T-2075 (T-2064 GO) inline fallback — kept in sync with web.shared.count_unchecked_human_acs.
     # Same predicate the queue uses; consumer projects without web/ get equivalent behaviour.
     def count_unchecked_human_acs(body):
@@ -8425,17 +8641,7 @@ decision_rows = []
 decided_rows = []  # T-3178: decided but still open — one operator action left
 # T-1571 / F5: precompute pending-inception scan once, reuse below for both passes
 # Pattern matches the canonical block emitted by lib/inception.sh do_inception_decide.
-# T-739: DEFER deliberately NOT in this alternation. A MATCH here is used as an
-# EXCLUSION at the `not DECISION_RE.search(text)` test below, so every verb listed
-# means "this decision is settled, stop showing it". A DEFER is the explicit record
-# that the decision has NOT been made — it is the one state that most needs to stay
-# on a pending-decisions surface. With DEFER included, recording a deferral deleted
-# the task from this queue permanently: T-155 deferred 2026-07-29 and stayed invisible
-# through a full rewrite of its recommendation from DEFER to NO-GO.
-# Scope note: this regex has exactly one consumer (the DECISIONS predicate below).
-# extract_recommendation_state() reads **Recommendation:**, a different field, and is
-# untouched — that is why the rendered VERDICT column can still read DEFER.
-DECISION_RE = re.compile(r"^\*\*Decision\*\*:\s*(GO|NO-GO)\b", re.M)
+DECISION_RE = re.compile(r"^\*\*Decision\*\*:\s*(GO|NO-GO|DEFER)\b", re.M)
 for f in sorted(ACTIVE.glob("*.md")):
     text = f.read_text(errors="replace")
     # Frontmatter (used by both passes)
@@ -8581,13 +8787,7 @@ NAME_W = 60
 def _verdict_color(v):
     # T-1576: NO-REC in cyan (call-to-action — agent should write a recommendation),
     # distinct from grey '?' (deferred/unknown verdict in an existing block).
-    # T-643: CLOSE and KEEP-OPEN fell through to the default and rendered in the SAME
-    # grey as '?' — a stated verdict wearing the colour of "no readable verdict". Both
-    # are resolutions rather than call-to-action, so: magenta for CLOSE (terminal
-    # disposition), blue for KEEP-OPEN (stay-of-execution). Colour choice is taste and
-    # is the [REVIEW] Human AC on T-643.
     return {"GO": "\033[32m", "DEFER": "\033[33m", "NO-GO": "\033[31m",
-            "CLOSE": "\033[35m", "KEEP-OPEN": "\033[34m",
             "NO-REC": "\033[36m"}.get(v, "\033[90m")
 
 # T-1571 / F5: DECISIONS section — pending inception GO/NO-GO/DEFER decisions.
@@ -8648,21 +8848,18 @@ if rows:
         truncated = (name[:NAME_W] + "...") if len(name) > NAME_W else name
         col = _verdict_color(verdict)
         print(f"{col}{verdict:<7}\033[0m  {str(age_days)+'d':>4}  {tid_v:<8}  {truncated}")
-# T-643: the tally used to name its five buckets one at a time, so a verdict the
-# vocabulary accepts but this list forgot was counted NOWHERE — the parenthetical
-# silently summed to less than the total beside it. That is exactly what happened the
-# moment CLOSE and KEEP-OPEN started parsing: 53 awaiting review, 51 accounted for.
-# Count what is there instead of what was expected. VERDICT_ORDER fixes the reading
-# order for the verdicts we know; anything else appends alphabetically rather than
-# disappearing, so the next addition to the vocabulary (OBS-329's ABSTAIN, say) shows
-# up uncounted-but-visible rather than not at all.
-VERDICT_ORDER = ["GO", "DEFER", "NO-GO", "CLOSE", "KEEP-OPEN", "?", "NO-REC"]
-counts = {}
-for r in rows:
-    counts[r[0]] = counts.get(r[0], 0) + 1
-ordered = VERDICT_ORDER + sorted(k for k in counts if k not in VERDICT_ORDER)
-parts = [f"{_verdict_color(v)}{counts[v]} {v}\033[0m" for v in ordered if counts.get(v)]
-total = len(rows) + len(decision_rows) + len(paused_rows) + len(decided_rows) + len(um_rows)  # upstream's total, our tally (T-1005)
+go = sum(1 for r in rows if r[0] == "GO")
+defer = sum(1 for r in rows if r[0] == "DEFER")
+nogo = sum(1 for r in rows if r[0] == "NO-GO")
+unk = sum(1 for r in rows if r[0] == "?")
+no_rec = sum(1 for r in rows if r[0] == "NO-REC")
+parts = []
+if go: parts.append(f"\033[32m{go} GO\033[0m")
+if defer: parts.append(f"\033[33m{defer} DEFER\033[0m")
+if nogo: parts.append(f"\033[31m{nogo} NO-GO\033[0m")
+if unk: parts.append(f"\033[90m{unk} ?\033[0m")
+if no_rec: parts.append(f"\033[36m{no_rec} NO-REC\033[0m")
+total = len(rows) + len(decision_rows) + len(paused_rows) + len(decided_rows) + len(um_rows)
 verif_only = f"{len(rows)} task(s) awaiting human review" if rows else ""
 dec_only = f"{len(decision_rows)} pending decision(s)" if decision_rows else ""
 paused_only = f"{len(paused_rows)} paused dispatch(es)" if paused_rows else ""
