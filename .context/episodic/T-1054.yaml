@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1054: Adopt AEF fw runme for 832 operator commands (instead of the project-root runme.sh)?
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-05T19:06:27Z
+# ============================================================================
+
+task_id: T-1054
+task_name: "Adopt AEF fw runme for 832 operator commands (instead of the project-root runme.sh)?"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-05T18:02:45Z
+completed: 2026-10-05T19:06:19Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-05T20:08:39+02:00
+last_commit: 2026-10-05T21:05:29+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  external consult (5/5 non-Claude) — unanimous that keeping the hand-written root runme.sh is wrong: wrong-job risk (observed today), dry-run not bound to the live script, safety logic re-implemented per job; asking AEF to read our events is reverse coupling. Recommendation changed to a hybrid (one reviewed wrapper with the operator's safeguards, immutable named jobs, hash-bound dry-run). IW-1/IW-2 answered from the consult; Recommendation GO (hybrid) for the operator. options scored against directives and value drivers for the operator. runme.sh records the operator's GO for option 3 (hybrid runme); dry-run passes
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/consults/t1054-runme-path.json'
+  - '.context/working/.reviewed-T-1054'
+  - 'docs/reports/T-1054-runme-path-brief.md'
+  - 'runme.sh'
+  - '.tasks/active/T-1054-adopt-aef-fw-runme-for-832-operator-comm.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-05T20:08:39'
+    action: 'T-1054: external consult (5/5 non-Claude) — unanimous that keeping the hand-written root runme.sh is wrong: wrong-job risk (observed today), dry-run not bound to the live script, safety logic re-implemented per job; asking AEF to read our events is reverse coupling. Recommendation changed to a hybrid (one reviewed wrapper with the operator''s safeguards, immutable named jobs, hash-bound dry-run)'
+  - time: '2026-10-05T20:09:00'
+    action: 'T-1054: IW-1/IW-2 answered from the consult; Recommendation GO (hybrid) for the operator'
+  - time: '2026-10-05T20:43:12'
+    action: 'T-1054: options scored against directives and value drivers for the operator'
+  - time: '2026-10-05T21:05:29'
+    action: 'T-1054: runme.sh records the operator''s GO for option 3 (hybrid runme); dry-run passes'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 63 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 63
+  commits: 4
+  files_changed: 5
+  lines_added: 502
+  lines_removed: 45
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1054-adopt-aef-fw-runme-for-832-operator-comm.md
+generated_by: context-agent-hybrid

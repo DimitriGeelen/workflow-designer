@@ -5,17 +5,17 @@ description: >
   Inception: Adopt AEF fw runme for 832 operator commands (instead of the project-root
   runme.sh)?
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_3_start
+current_node: frw_11_task
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-10-05T18:02:45Z
-last_update: 2026-10-05T18:03:31Z
-date_finished:
+last_update: 2026-10-05T19:06:19Z
+date_finished: 2026-10-05T19:06:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -113,15 +113,15 @@ We will know that we are successful when we see the consult artifact (`fw extern
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-1054` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -184,7 +184,11 @@ converge on the shared runner; withdraw the request that AEF read our events fil
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-1054 go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Operator chose option 3 (2026-10-05) after an external consult (t1054-runme-path, 5/5 non-Claude, unanimous that the hand-written root runme.sh is wrong: wrong-job risk observed today, dry-run not bound to the live script, safety logic re-implemented per job). Hybrid: one reviewed launcher holds dry-run, y/N per step, preflight, logging and events; each job is an immutable named file under .context/runme/<name>/; the launcher shows job name + sha256 and refuses a job changed since its dry-run; operator command stays constant. Offered upstream to AEF fw runme. Scored 30 vs 16/23/24 (docs/reports/T-1054-runme-path-brief.md).
+
+**Date**: 2026-10-05T19:06:18Z
 
 ## Updates
 
@@ -193,3 +197,37 @@ converge on the shared runner; withdraw the request that AEF read our events fil
 
 ### 2026-10-05T18:03:31Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-10-05T19:06:18Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Operator chose option 3 (2026-10-05) after an external consult (t1054-runme-path, 5/5 non-Claude, unanimous that the hand-written root runme.sh is wrong: wrong-job risk observed today, dry-run not bound to the live script, safety logic re-implemented per job). Hybrid: one reviewed launcher holds dry-run, y/N per step, preflight, logging and events; each job is an immutable named file under .context/runme/<name>/; the launcher shows job name + sha256 and refuses a job changed since its dry-run; operator command stays constant. Offered upstream to AEF fw runme. Scored 30 vs 16/23/24 (docs/reports/T-1054-runme-path-brief.md).
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1aa03de7
+- **Timestamp:** 2026-10-05T19:06:20Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-e9df8a92
+- **Timestamp:** 2026-10-05T19:06:20Z
+- **Overall:** CONFIRMED
+- **Claims:** 1
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `T-1052` | task | ✓ pass |
+
+### 2026-10-05T19:06:19Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
