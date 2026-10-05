@@ -1,0 +1,313 @@
+runme  001-upgrade-aef-1.8.3   sha 7db74a7a5050   rehearsed 2026-10-05T21:14:59Z   log: /opt/832-Workflow-designer/.context/runme/001-upgrade-aef-1.8.3/run-20261005T231820.log
+Job:   001-upgrade-aef-1.8.3   (T-1057)
+What:  Upgrade the framework: AEF 1.8.2 -> 1.8.3, through the re-vendor protocol
+       AEF 1.8.3 (released today) carries most of our reports: the 3 hooks 1.8.2 left out,
+       claude-fw refusing a conversation that is already open, Watchtower started with every session,
+       fw runme pending / fw sidecar alerts, and a sidecar security fix (T-3880).
+       Step 1 uses --allow-delete-locals: 1.8.3 now SEES our 36 locally fixed framework files and would
+       otherwise refuse. That is intended: the vendor writes pristine 1.8.3 (backups kept), and the agent
+       re-applies every one of our fixes from the divergence register afterwards (as for 1.8.2).
+       Pinned to tag v1.8.3 = commit 542623a3. Nothing is pushed. Step 2 may sit several minutes in the
+       post-commit hook (T-1004); the commit has landed by then.
+Steps (each asks y/N first):
+  1. Upgrade to v1.8.3 (clone pinned commit, fw upgrade --allow-delete-locals, re-install the re-vendor gate)
+  2. Pristine commit: .agentic-framework/ exactly as the upgrade wrote it
+  3. Advance the divergence baseline to that commit (commit it alone)
+  4. Check the crontab still points at the vendored framework
+
+ok    on bleeding-edge
+ok    nothing staged
+ok    no uncommitted edits under .agentic-framework/
+ok    re-vendor gate installed (T-1000)
+ok    framework is 1.8.2 in HEAD and working tree
+ok    .fwvendor-preserve.yaml committed as-is
+
+Step 1/4: Upgrade to v1.8.3 (clone pinned commit, fw upgrade --allow-delete-locals, re-install the re-vendor gate)
+  runs: do_upgrade
+Run step 1/4? [y/N] [1mfw upgrade[0m - Syncing framework improvements
+
+  Project:   /opt/832-Workflow-designer (832-Workflow-designer)
+  Framework: /tmp/t1057-aef183.jCtYdR/fw (v1.8.3)
+  Pinned:    v1.8.2 [1;33m(behind v1.8.3)[0m
+
+[1;33m[1/10] CLAUDE.md governance sections[0m
+  [0;32mOK[0m  Already up to date
+[1;33m[2/10] Task templates[0m
+  [0;32mOK[0m  All templates current
+[1;33m[3/10] Seed files (universal governance)[0m
+  [1;33mSKIP[0m  decisions.yaml (has project-specific items — manual merge recommended)
+  [1;33mSKIP[0m  patterns.yaml (has project-specific items — manual merge recommended)
+  [0;32mOK[0m  cron job sidecar-sweep-5m already present
+  [0;32mOK[0m  cron job index-reindex-hourly already present
+[1;33m[4/10] Git hooks[0m
+  [0;32mUPDATED[0m  Git hooks reinstalled
+[1;33m[4b/9] Vendored framework scripts[0m
+    PRESERVE  agents/context/check-bare-import.sh  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/agents-context-check-paid-backend.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/lib-ac_placeholder.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/lib-arc_close_readiness.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/lib-bvp_judge.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/lib-bvp_judge_cli.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/lib-bvp_judge_dispatch_cli.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/lib-bvp_py.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/lib-bvp_sticky.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/lib-dispatch_tokens.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/lib-judge_verdict.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/lib-project_identity.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/lib-push-resolve.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/lib-research_preserved.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/lib-review_cost.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/lib-review_policy.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/lib-tier0_action.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/lib-verdict_ledger.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/lib-wm_tasks.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-git_fence.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-lint-bats-git-discovery-fence.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-playwright-test_tasks_board_lazy_selects.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-audit_ctl_arc_membership_python_import.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-t3526_bvp_judge_entrypoint.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-t3544_inbox_backlog_rail.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-t3545_branch_hygiene_header_parity.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-t3546_p011_reports_the_zero.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-t3549_inception_handoff_refusal.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-t3579_verdict_close_path.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-t3586_review_cost.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-t3586_skip_flag_policy.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-test_bvp_judge.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-test_bvp_judge_dispatch.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-test_research_preserved.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-test_sidecar_unread_summary.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-test_t3512_write_set_blast_radius.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-test_t3519_dispatch_tokens.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-test_t3523_bvp_sticky.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-test_t3525_judge_verdict.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-test_t3579_verdict_ledger.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-unit-test_t3587_file_refs.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-web-test_t3574_arc_page_perf.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tests-web-test_t3575_tasks_page_perf.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/tools-wait-dispatch.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  docs/generated/components/web-static-css-file-refs.md  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  lib/external_consult.py  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  lib/instance-position.sh  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  lib/task-ownership.sh  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  lib/verification-absence.sh  (local-only; .fwvendor-preserve.yaml)
+    PRESERVE  web/test_safe_commands.py  (local-only; .fwvendor-preserve.yaml)
+    36 file(s) under .agentic-framework/ are not the framework's and are not covered by .fwvendor-preserve.yaml:
+      LOCAL  agents/audit/active-task-scan.py  — edited locally — would be OVERWRITTEN
+      LOCAL  agents/audit/audit.sh  — edited locally — would be OVERWRITTEN
+      LOCAL  agents/audit/completed-task-scan.py  — edited locally — would be OVERWRITTEN
+      LOCAL  agents/context/check-active-task.sh  — edited locally — would be OVERWRITTEN
+      LOCAL  agents/context/checkpoint.sh  — edited locally — would be OVERWRITTEN
+      LOCAL  agents/context/lib/extract_decisions.py  — edited locally — would be OVERWRITTEN
+      LOCAL  agents/context/lib/safe-commands.sh  — edited locally — would be OVERWRITTEN
+      LOCAL  agents/fabric/lib/drift.sh  — edited locally — would be OVERWRITTEN
+      LOCAL  agents/fabric/lib/traverse.sh  — edited locally — would be OVERWRITTEN
+      LOCAL  agents/git/lib/hooks.sh  — edited locally — would be OVERWRITTEN
+      LOCAL  agents/handover/handover.sh  — edited locally — would be OVERWRITTEN
+      LOCAL  agents/observe/observe.sh  — edited locally — would be OVERWRITTEN
+      LOCAL  agents/task-create/create-task.sh  — edited locally — would be OVERWRITTEN
+      LOCAL  agents/task-create/update-task.sh  — edited locally — would be OVERWRITTEN
+      LOCAL  agents/termlink/bvp-estimator/estimator.py  — edited locally — would be OVERWRITTEN
+      LOCAL  bin/fw  — edited locally — would be OVERWRITTEN
+      LOCAL  lib/arc.sh  — edited locally — would be OVERWRITTEN
+      LOCAL  lib/bvp.sh  — edited locally — would be OVERWRITTEN
+      LOCAL  lib/delegation_cli.py  — edited locally — would be OVERWRITTEN
+      LOCAL  lib/inception.sh  — edited locally — would be OVERWRITTEN
+      LOCAL  lib/task-audit.sh  — edited locally — would be OVERWRITTEN
+      LOCAL  lib/ts/dist/loop-detect.js  — edited locally — would be OVERWRITTEN
+      LOCAL  lib/verification-port.sh  — edited locally — would be OVERWRITTEN
+      LOCAL  policy/designer-pin.yaml  — edited locally — would be OVERWRITTEN
+      LOCAL  web/app.py  — edited locally — would be OVERWRITTEN
+      LOCAL  web/blueprints/bvp.py  — edited locally — would be OVERWRITTEN
+      LOCAL  web/blueprints/designer.py  — edited locally — would be OVERWRITTEN
+      LOCAL  web/blueprints/fabric.py  — edited locally — would be OVERWRITTEN
+      LOCAL  web/blueprints/tasks.py  — edited locally — would be OVERWRITTEN
+      LOCAL  web/conftest.py  — edited locally — would be OVERWRITTEN
+      LOCAL  web/shared.py  — edited locally — would be OVERWRITTEN
+      LOCAL  web/templates/approvals.html  — edited locally — would be OVERWRITTEN
+      LOCAL  web/templates/designer_landing.html  — edited locally — would be OVERWRITTEN
+      LOCAL  web/templates/fabric_detail.html  — edited locally — would be OVERWRITTEN
+      LOCAL  web/test_app.py  — edited locally — would be OVERWRITTEN
+      LOCAL  web/test_costs.py  — edited locally — would be OVERWRITTEN
+    BYPASS  --allow-delete-locals: 36 local file(s) will be lost (logged Tier-2; copies in .context/working/vendor-backup/20261005T211901Z/)
+  [1mfw vendor[0m — vendoring framework into project
+  Source:  /tmp/t1057-aef183.jCtYdR/fw
+  Target:  /opt/832-Workflow-designer/.agentic-framework
+  
+    [0;32m✓[0m bin
+    [0;32m✓[0m lib
+    [0;32m✓[0m agents
+    [0;32m✓[0m web
+    [0;32m✓[0m docs
+    [0;32m✓[0m policy
+    [0;32m✓[0m .tasks/templates
+    [0;32m✓[0m metrics.sh
+    [0;32m✓[0m .secret-scan-patterns
+    [0;32m✓[0m .secret-scan-allowlist
+    [0;32m✓[0m status-transitions.yaml
+    [0;32m✓[0m tools
+    [0;32m✓[0m .context/designer/projects
+    [0;32m✓[0m vendor/designer/aef-workflow-designer-0.14.0.html (pinned designer build)
+    [0;32m✓[0m VERSION (1.8.3)
+    [0;32m✓[0m .fw-not-a-project (T-1841 sentinel)
+    [0;32m✓[0m .gitignore
+    [0;32m✓[0m .upstream (sentinel: https://github.com/DimitriGeelen/agentic-engineering-framework.git)
+    [0;32m✓[0m FRAMEWORK.md (written last — completeness sentinel)
+    KEPT-LOCAL  agents/context/check-bare-import.sh
+    KEPT-LOCAL  docs/generated/components/agents-context-check-paid-backend.md
+    KEPT-LOCAL  docs/generated/components/lib-ac_placeholder.md
+    KEPT-LOCAL  docs/generated/components/lib-arc_close_readiness.md
+    KEPT-LOCAL  docs/generated/components/lib-bvp_judge.md
+    KEPT-LOCAL  docs/generated/components/lib-bvp_judge_cli.md
+    KEPT-LOCAL  docs/generated/components/lib-bvp_judge_dispatch_cli.md
+    KEPT-LOCAL  docs/generated/components/lib-bvp_py.md
+    KEPT-LOCAL  docs/generated/components/lib-bvp_sticky.md
+    KEPT-LOCAL  docs/generated/components/lib-dispatch_tokens.md
+    KEPT-LOCAL  docs/generated/components/lib-judge_verdict.md
+    KEPT-LOCAL  docs/generated/components/lib-project_identity.md
+    KEPT-LOCAL  docs/generated/components/lib-push-resolve.md
+    KEPT-LOCAL  docs/generated/components/lib-research_preserved.md
+    KEPT-LOCAL  docs/generated/components/lib-review_cost.md
+    KEPT-LOCAL  docs/generated/components/lib-review_policy.md
+    KEPT-LOCAL  docs/generated/components/lib-tier0_action.md
+    KEPT-LOCAL  docs/generated/components/lib-verdict_ledger.md
+    KEPT-LOCAL  docs/generated/components/lib-wm_tasks.md
+    KEPT-LOCAL  docs/generated/components/tests-git_fence.md
+    KEPT-LOCAL  docs/generated/components/tests-lint-bats-git-discovery-fence.md
+    KEPT-LOCAL  docs/generated/components/tests-playwright-test_tasks_board_lazy_selects.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-audit_ctl_arc_membership_python_import.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-t3526_bvp_judge_entrypoint.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-t3544_inbox_backlog_rail.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-t3545_branch_hygiene_header_parity.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-t3546_p011_reports_the_zero.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-t3549_inception_handoff_refusal.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-t3579_verdict_close_path.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-t3586_review_cost.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-t3586_skip_flag_policy.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-test_bvp_judge.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-test_bvp_judge_dispatch.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-test_research_preserved.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-test_sidecar_unread_summary.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-test_t3512_write_set_blast_radius.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-test_t3519_dispatch_tokens.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-test_t3523_bvp_sticky.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-test_t3525_judge_verdict.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-test_t3579_verdict_ledger.md
+    KEPT-LOCAL  docs/generated/components/tests-unit-test_t3587_file_refs.md
+    KEPT-LOCAL  docs/generated/components/tests-web-test_t3574_arc_page_perf.md
+    KEPT-LOCAL  docs/generated/components/tests-web-test_t3575_tasks_page_perf.md
+    KEPT-LOCAL  docs/generated/components/tools-wait-dispatch.md
+    KEPT-LOCAL  docs/generated/components/web-static-css-file-refs.md
+    KEPT-LOCAL  lib/external_consult.py
+    KEPT-LOCAL  lib/instance-position.sh
+    KEPT-LOCAL  lib/task-ownership.sh
+    KEPT-LOCAL  lib/verification-absence.sh
+    KEPT-LOCAL  web/test_safe_commands.py
+    ✓ .fw-vendor-stamp.json (3484 files)
+  comm: file 1 is not in sorted order
+  comm: file 2 is not in sorted order
+  comm: input is not in sorted order
+  
+  NOTE: 73 file(s) under .agentic-framework were NOT written by the vendor (runtime leftovers,
+    or consumer-local files kept by .fwvendor-preserve.yaml — T-3850); not judged for git
+    visibility and never advised for un-ignoring. Runtime leftovers should move out:
+      .agentic-framework/.context/settings.yaml
+      .agentic-framework/.context/sidecar/hub-id
+      .agentic-framework/.context/working/.fleet-failure-state.json
+      .agentic-framework/.context/working/.fw-secret-key
+      .agentic-framework/.pytest_cache/.gitignore
+      .agentic-framework/.pytest_cache/CACHEDIR.TAG
+      .agentic-framework/.pytest_cache/README.md
+      .agentic-framework/.pytest_cache/v/cache/lastfailed
+      .agentic-framework/.pytest_cache/v/cache/nodeids
+      .agentic-framework/.vendor-divergence.yaml
+      ... and 63 more
+  
+  [0;32m[1mVendored successfully[0m (42M)
+  
+  The project now contains its own framework at .agentic-framework/
+  Hooks should reference: .agentic-framework/bin/fw hook <name>
+[1;33m[4c/9] Shim migration + global install sync[0m
+  [0;36mSKIP[0m  /root/.local/bin/fw exists but is not a symlink or shim
+[1;33m[5/10] Claude Code hooks (.claude/settings.json)[0m
+  CARRIED  PreToolUse  check-bare-import
+  CARRIED  (top-level)  permissions
+  KEPT  PreToolUse  /opt/832-Workflow-designer/tools/_t420-rail-attribution-gate.py  (matcher: mcp__termlink__.*)
+  KEPT  PostToolUse  /opt/832-Workflow-designer/tools/hooks/warn-uncontrolled-absence.sh  (matcher: Write|Edit)
+  [1;33mPARTIAL[0m  Hooks regenerated but gap remains: missing 0 hook(s): . Backup: settings.json.bak
+[1;33m[6/10] MCP server configuration (.mcp.json)[0m
+  [0;32mOK[0m  4 MCP server(s) configured (all recommended present)
+[1;33m[7/10] Claude Code commands[0m
+  [0;32mOK[0m  resume.md matches template
+[1;33m[7b/10] Doorbell+mail toolkit (T-1867)[0m
+  [0;32mOK[0m  doorbell+mail toolkit in sync (0 changes)
+[1;33m[8/10] Context subdirectories[0m
+  [0;32mOK[0m  All context subdirectories present
+[1;33m[9/10] Version tracking[0m
+  [0;32mUPDATED[0m  version: 1.8.2 → 1.8.3
+  [0;32mOK[0m  Project identity pid-6da630d5b53b170f
+  [0;32mLOGGED[0m  Upgrade trail → .context/audits/upgrades.yaml
+[1;33m[10/10] Enforcement baseline[0m
+  [1;33mWARN[0m  Enforcement baseline was already CHANGED before this upgrade — not refreshed (it guards against hook tampering).
+         Review the hooks: fw enforcement status; if they are right: fw enforcement baseline
+
+[1;33m=== Upgrade PARTIAL ===[0m
+  1 step(s) reported failure (non-strict mode — continue)
+  Re-run with \033[1m--strict\033[0m to fail-fast on the first per-step failure.
+
+  4 change(s) applied
+  3 item(s) skipped
+  1 step(s) failed
+
+[1mNext steps:[0m
+  1. Review changes: cd /opt/832-Workflow-designer && git diff
+  2. Commit: fw git commit -m 'T-012: fw upgrade — sync framework improvements'
+  3. Run: fw doctor  # Verify health
+
+  [1mPost-upgrade health check (advisory):[0m
+    [1mfw doctor[0m - Framework Health Check
+    
+      [0;32mOK[0m  Framework installation
+      [0;32mOK[0m  Active mode: vendored (/opt/832-Workflow-designer/.agentic-framework)
+      [0;32mOK[0m  .framework.yaml found
+      [0;32mOK[0m  Task directories
+      [0;32mOK[0m  Context directory
+      [0;32mOK[0m  Git commit-msg hook
+      [0;32mOK[0m  Git pre-push hook
+      [0;32mOK[0m  Exec-bit parity: all 292 indexed-100755 script(s) executable on disk
+      [1;33mWARN[0m  Large-file gate: 1 tracked file(s) above block threshold
+             Run: bin/fw doctor large-files   (or untrack + .gitignore)
+      [0;32mOK[0m  Repo root: no untracked binary files
+      [0;32mOK[0m  Handover LATEST.md resolves to S-2026-1005-1144.md
+      [0;32mOK[0m  Last auto-handover succeeded (pre-compact handover)
+      [0;32mOK[0m  Hook path validation: 39 hooks, all portable
+      [0;32mOK[0m  Hook exercise from /tmp: 29 PreToolUse/PostToolUse hook(s) resolve from foreign CWD
+      [0;32mOK[0m  All agent scripts executable
+      [0;32mOK[0m  Plugin task-awareness
+      [0;36mSKIP[0m  Test infrastructure (consumer project — tests live in framework repo)
+
+  [1;33mAdvisory:[0m doctor exited 2 — doctor exit code does not affect upgrade success.
+
+  [1mLinked worktrees (advisory):[0m
+  [0;36mSKIP[0m  examined 0 linked worktree(s) — none exist
+revendor gate: installed in /opt/832-Workflow-designer/.git/hooks/pre-commit
+ok    step 1/4
+
+Step 2/4: Pristine commit: .agentic-framework/ exactly as the upgrade wrote it
+  runs: do_pristine_commit
+Run step 2/4? [y/N] committing 59 vendored paths
+
+FABRIC: 4 new file(s) without component cards: .agentic-framework/lib/conversation-holder.sh, .agentic-framework/lib/sidecar/alerts.py, .agentic-framework/lib/termlink-runtime.sh, .agentic-framework/lib/watchtower-ensure.sh
+  Register: fw fabric register <path>
+ok    step 2/4
+
+Step 3/4: Advance the divergence baseline to that commit (commit it alone)
+  runs: do_baseline
+Run step 3/4? [y/N] ok    step 3/4
+
+Step 4/4: Check the crontab still points at the vendored framework
+  runs: do_cron_check
+Run step 4/4? [y/N] crontab ok: 7 framework job line(s), no /tmp/ paths
+ok    step 4/4
+
+DONE: 001-upgrade-aef-1.8.3 — all 4 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/001-upgrade-aef-1.8.3/run-20261005T231820.log)
