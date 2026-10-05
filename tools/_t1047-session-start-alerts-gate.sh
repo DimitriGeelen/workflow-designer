@@ -41,10 +41,10 @@ ADMIT=(
   "timeout 300 bash scripts/session-start-alerts.sh --limit 5"
 )
 BLOCK=(
-  "bash /tmp/x/scripts/session-start-alerts.sh"
-  "/tmp/x/scripts/session-start-alerts.sh"
+  "bash /opt/other-project/scripts/session-start-alerts.sh"
+  "/opt/other-project/scripts/session-start-alerts.sh"
   "bash scripts/other.sh"
-  "bash scripts/session-start-alerts.sh > /tmp/out"
+  "bash scripts/session-start-alerts.sh > alerts-copy.txt"
   "bash ../other/scripts/session-start-alerts.sh"
 )
 
@@ -86,7 +86,7 @@ hook() {  # $1 = expected rc (0 admit, 2 block), $2 = command
 hook 0 "bash scripts/session-start-alerts.sh --limit 10"
 hook 0 "bash scripts/session-start-alerts.sh --mark-seen"
 hook 2 "bash scripts/other.sh"
-hook 2 "bash scripts/session-start-alerts.sh > /tmp/o"
+hook 2 "bash scripts/session-start-alerts.sh > alerts-copy.txt"
 
 echo; echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]

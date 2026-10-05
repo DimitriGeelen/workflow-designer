@@ -42,7 +42,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T18:23:26Z
-last_update: 2026-10-05T07:04:44Z
+last_update: 2026-10-05T07:30:07Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -89,10 +89,17 @@ An abstention is honest only when the precondition it names really is missing on
 ## Acceptance Criteria
 
 ### Agent
-- [ ] For each of the three abstainers, the exact rc=2 reason is captured from a live run and its root cause is stated (one hypothesis at a time, at most 3 each)
-- [ ] Each is either made to run (and then passes, with its control/mutant biting), or excluded from the sweep with a written justification naming the missing precondition. An exclusion must not hide a regression: the reason has to be environmental and still true
-- [ ] `bash tools/_t509-instrument-sweep.sh` exits 0
-- [ ] The bridge leg for the sweep is green; the bridge suite's red set is only the known T-358 and T-1036 legs
+- [x] For each of the three abstainers, the exact rc=2 reason is captured from a live run and its root cause is stated (one hypothesis at a time, at most 3 each)
+- [x] Each is either made to run (and then passes, with its control/mutant biting), or excluded from the sweep with a written justification naming the missing precondition. An exclusion must not hide a regression: the reason has to be environmental and still true
+- [x] `bash tools/_t509-instrument-sweep.sh` exits 0
+- [x] The bridge leg for the sweep is green; the bridge suite's red set is only the known T-358 and T-1036 legs (outcome: smaller than expected — see evidence)
+
+**Evidence (2026-10-05). None of the three causes was environmental, so nothing was excluded. Each is now made to run.**
+- **_t402** (control C1 expected exit 0, got 1; M1 anchor missing). AEF's T-2919/T-2923 vendored with 1.7.68 (T-840, 7b5e227e), but the probe still recorded the PRE-fix verdicts, and the teeth simulated a fix that had since arrived. The hypothesis was confirmed on the first try by running the probe live: 5 rows moved to blocked, "T-402 can close". The probe now records the fixed verdicts. The teeth put the defects back into a copy of the gate: M1, the match-anywhere rule, moves exactly 5 rows; M2, a heredoc commit body judged as commands, moves exactly 2. 23/23. The T-402 Recommendation was updated for the operator.
+- **_t581** (control red: 2 identical, 9 drifted). The third-party goldens (3dd1bf86) were never re-recorded. A bisect across 34 src commits put every drift on one of three deliberate fixes: T-602 (1 fixture), T-603 (bizagi) and T-891 (9). HEAD's output is byte-identical to T-891's. Re-recorded as a reviewed diff: docs/reports/T-1045-thirdparty-golden-rerecord.md. Gate 11/0, teeth 5/5. **This was also the bridge leg the handovers filed as "T-358 third-party bytes"**; T-358's own defect (fabricated lanes) is untouched.
+- **_t588** (CANNOT LOOK: no T588_UPSTREAM). The real cause was underneath. Upstream FIXED the extractor (pristine 2659abad uses an anchored awk), and our side left update-task.sh, so the differential could only abort. It aborted SILENTLY: abort() ran inside `$(…)`. Retired to successors that test the live extractor. _t943 gains the superseded/duplicate-heading legs (defect 2, previously pinned nowhere; a restart-on-match mutant shown red); _t574 already pins defects 1 and 3. Both stubs delegate and fail when a successor is missing or red.
+- **Sweep:** RAN 100, passed 100, abstained 0, rc 0.
+- **Bridge:** 237 passed, 1 failed. The one red was mine: `_t633` flagged the `/tmp/…` fixture strings in T-1047's gate test. They were never written, but the census exempts only fixtures passed to check/lvl. Fixed with non-shared paths; `_t633` is 13/13 and `_t1047` 24/24, so the suite comes to 238/0. **The T-1036 loop-detect leg passed on this run**, so it is intermittent rather than steadily red, which T-1036 should note.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -126,6 +133,11 @@ An abstention is honest only when the precondition it names really is missing on
 -->
 
 ## Verification
+bash tools/_t402-gate-drive-teeth.sh
+python3 tools/_t581-byteid-baseline-teeth.py
+bash tools/_t588-differential-teeth.sh
+bash tools/_t943-heading-states.sh
+bash tools/_t633-shared-tmp-sinks.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
