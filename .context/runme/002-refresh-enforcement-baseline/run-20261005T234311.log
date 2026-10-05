@@ -1,0 +1,79 @@
+runme  002-refresh-enforcement-baseline   sha 300cc2364ab6   rehearsed 2026-10-05T21:38:45Z   log: /opt/832-Workflow-designer/.context/runme/002-refresh-enforcement-baseline/run-20261005T234311.log
+Job:   002-refresh-enforcement-baseline   (T-1057)
+What:  Refresh the hook-tamper baseline to today's reviewed .claude/settings.json
+       fw doctor FAILs 'Enforcement baseline CHANGED'. The baseline (set by you on 2026-09-26, T-857)
+       guards the hooks against tampering, so only you refresh it. Every hook change since then is accounted for:
+         T-1022  you enabled the bare-import gate (2026-10-04)
+         T-1013  you restored the two project hooks the 1.7.740 rewrite dropped (2026-10-04)
+         T-1049  the 1.8.2 upgrade added the sidecar hooks (reviewed, d698db49)
+         T-1057  the 1.8.3 upgrade added check-paid-backend, check-worktree-governance-write, stop-driver (2dee46ba)
+       Step 1 prints the current hook list for you to look at; step 2 records it as the new baseline.
+Steps (each asks y/N first):
+  1. Show the hooks the baseline will record
+  2. Record them as the new enforcement baseline, and commit it
+
+ok    .claude/settings.json is committed as reviewed (no uncommitted edits)
+ok    fw doctor currently reports the baseline CHANGED
+
+Step 1/2: Show the hooks the baseline will record
+  runs: .agentic-framework/bin/fw enforcement status
+Run step 1/2? [y/N] [1mfw enforcement status[0m
+
+Layer 1: Claude Code Hooks
+  PreCompact      [*                   ] → fw
+  SessionStart    [compact             ] → fw
+  SessionStart    [resume              ] → fw
+  SessionStart    [resume              ] → fw
+  SessionStart    [startup             ] → fw
+  SessionStart    [startup             ] → fw
+  PreToolUse      [EnterPlanMode       ] → fw
+  PreToolUse      [Write|Edit|Bash     ] → fw
+  PreToolUse      [Write|Edit          ] → fw
+  PreToolUse      [Write|Edit          ] → fw
+  PreToolUse      [Write|Edit          ] → fw
+  PreToolUse      [Write|Edit          ] → fw
+  PreToolUse      [Write|Edit          ] → fw
+  PreToolUse      [Write|Edit          ] → fw
+  PreToolUse      [Write|Edit          ] → fw
+  PreToolUse      [Write|Edit          ] → fw
+  PreToolUse      [Bash                ] → fw
+  PreToolUse      [Bash                ] → fw
+  PreToolUse      [Bash                ] → fw
+  PreToolUse      [Agent               ] → fw
+  PreToolUse      [Write|Edit|Bash     ] → fw
+  PreToolUse      [Write|Edit|Bash     ] → fw
+  PreToolUse      [TodoWrite|TaskCreate|TaskUpdate|TaskList|TaskGet] → fw
+  PreToolUse      [mcp__termlink__termlink_channel_post] → fw
+  PreToolUse      [Bash                ] → fw
+  PreToolUse      [mcp__termlink__.*   ] → _t420-rail-attribution-gate.py
+  PostToolUse     [*                   ] → fw
+  PostToolUse     [Bash                ] → fw
+  PostToolUse     [Task|TaskOutput     ] → fw
+  PostToolUse     [*                   ] → fw
+  PostToolUse     [Write               ] → fw
+  PostToolUse     [Write|Edit          ] → fw
+  PostToolUse     [Write|Edit          ] → fw
+  PostToolUse     [*                   ] → fw
+  PostToolUse     [Write|Edit          ] → warn-uncontrolled-absence.sh
+  UserPromptSubmit [*                   ] → fw
+  UserPromptSubmit [*                   ] → fw
+  Stop            [*                   ] → fw
+  Stop            [*                   ] → fw
+
+Layer 2: Git Hooks
+  [0;32m✓[0m commit-msg
+  [0;32m✓[0m post-commit
+  [0;32m✓[0m pre-push
+
+Layer 3: Enforcement Baseline
+  [0;32m✓[0m Baseline set (3e5c81c2245cb7f5...)
+ok    step 1/2
+
+Step 2/2: Record them as the new enforcement baseline, and commit it
+  runs: do_refresh
+Run step 2/2? [y/N] [0;32mEnforcement baseline saved[0m
+  Hash: f72ab655e521a375...
+  File: /opt/832-Workflow-designer/.context/project/enforcement-baseline.sha256
+ok    step 2/2
+
+DONE: 002-refresh-enforcement-baseline — all 2 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/002-refresh-enforcement-baseline/run-20261005T234311.log)
