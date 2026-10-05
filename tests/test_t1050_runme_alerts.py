@@ -42,12 +42,14 @@ def alerts(tmp, events, watch=None, own="111", running="0"):
     else:
         with open(wf, "w") as fh:
             fh.write(watch)
-    mail = os.path.join(tmp, "mail.json")
-    with open(mail, "w") as fh:
-        fh.write("{}")
+    # mail is delegated to `fw sidecar alerts` since T-1059; a stub answers "nothing unseen"
+    fw = os.path.join(tmp, "fw-stub")
+    with open(fw, "w") as fh:
+        fh.write('#!/usr/bin/env bash\necho "peer mail: nothing unseen"\n')
+    os.chmod(fw, 0o755)
     env = dict(os.environ, ALERTS_RUNME_EVENTS=ev, ALERTS_RUNME_WATCH=wf, ALERTS_OWN_CLAUDE=own,
-               ALERTS_RUNME_RUNNING=running, ALERTS_NO_PROCS="1", ALERTS_MARKER=os.path.join(tmp, "m.json"))
-    r = subprocess.run(["bash", ALERTS, "--from-json", mail], capture_output=True, text=True, env=env, timeout=60)
+               ALERTS_RUNME_RUNNING=running, ALERTS_NO_PROCS="1", ALERTS_FW=fw)
+    r = subprocess.run(["bash", ALERTS], capture_output=True, text=True, env=env, timeout=60)
     return r.returncode, r.stdout
 
 
@@ -92,9 +94,9 @@ def main():
         rc, out = alerts(tmp, ENDED)
         leg("nothing pending" in out and "RUN " not in out and "WATCH LOST" not in out,
             "B5 CONTROL: no record, last run ended -> nothing pending")
-        # B6: the section is printed even when the mail check fails (hub path, broken project lib)
+        # B6: the section is printed even when the mail check fails (the verb cannot be run)
         env = dict(os.environ, ALERTS_RUNME_EVENTS=os.path.join(tmp, "events"), ALERTS_RUNME_WATCH=os.path.join(tmp, "nowatch"),
-                   ALERTS_OWN_CLAUDE="111", ALERTS_NO_PROCS="1", ALERTS_MARKER=os.path.join(tmp, "m.json"), PATH="/nonexistent")
+                   ALERTS_OWN_CLAUDE="111", ALERTS_NO_PROCS="1", ALERTS_FW=os.path.join(tmp, "no-such-fw"))
         r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "session-start-alerts.py")],
                            capture_output=True, text=True, env=env, timeout=60)
         leg(r.returncode == 2 and "Runme / live agents:" in r.stdout and "MAIL CHECK FAILED" in r.stdout,
