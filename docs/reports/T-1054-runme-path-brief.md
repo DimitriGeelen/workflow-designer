@@ -86,3 +86,19 @@ them, instead of asking AEF to read our events.
 **Recommendation changed: from NO-GO (keep A) to GO on a hybrid** — one reviewed wrapper with the
 operator's safeguards, immutable named jobs, hash-bound dry-run; offer the safeguards to AEF's
 `fw runme` so 832 can converge on it. The operator decides.
+
+## Options scored (agent's judgment, 0-5; written for the operator, 2026-10-05)
+
+Criteria: the four directives in priority order (D1 antifragility, D2 reliability, D3 usability,
+D4 portability) and the value drivers this decision touches: F-AUTONOMY (replace human gates with
+at-least-as-safe mechanical ones), F-RECALL (durable, retrievable record), F1 (context fabric /
+cross-session memory). F2/F3 are not touched. Effort and fit with the operator rule shown apart.
+
+| | D1 | D2 | D3 | D4 | F-AUT | F-REC | F1 | **sum** | effort (5=none) | operator rule |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 Keep A as is | 2 | 2 | 4 | 2 | 2 | 2 | 2 | **16** | 5 | 5 |
+| 2 Adopt AEF `fw runme` as is | 3 | 3 | 2 | 5 | 2 | 4 | 4 | **23** | 4 | 1 |
+| 3 Hybrid, built locally, offered upstream | 5 | 5 | 4 | 3 | 4 | 5 | 4 | **30** | 2 | 5 |
+| 4 Upstream first; A + quick mitigations meanwhile | 3 | 3 | 4 | 5 | 3 | 3 | 3 | **24** | 4 | 4 |
+
+Recommendation: 3, shaped like `fw runme` (`.context/runme/<name>/`) so it can fold into AEF's runner.
