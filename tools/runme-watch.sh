@@ -26,17 +26,31 @@ o=[x for x in o if isinstance(x,int)]
 print(max(o)+1 if o else int(sys.argv[1]))' "${1:-0}" 2>/dev/null || echo "${1:-0}"
 }
 
+# T-1050: the watch lives only as long as the Claude session that armed it (a background task dies
+# with its session, silently: 2026-10-05). Record who armed it, so scripts/session-start-alerts.sh
+# can tell a NEW session that a handed-over runme.sh has nothing listening and the watch must be
+# re-armed. Removed when an event is reported (the agent then re-arms, writing a fresh one); left
+# in place on timeout or when killed, which is exactly the state the next session must see.
+WATCH="${RUNME_WATCH_FILE:-$ROOT/.context/working/runme.watch}"
+armer=""; p=$$
+while [ -n "$p" ] && [ "$p" -gt 1 ]; do
+    [ "$(cat /proc/"$p"/comm 2>/dev/null)" = claude ] && { armer=$p; break; }
+    p=$(awk '{print $4}' /proc/"$p"/stat 2>/dev/null)
+done
+mkdir -p "$(dirname "$WATCH")" 2>/dev/null
+printf 'watch_pid=%s claude_pid=%s armed=%s\n' "$$" "${armer:-none}" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$WATCH" 2>/dev/null
+
 f0=$(lines)
 t0=0; command -v termlink >/dev/null 2>&1 && { t=$(topic_next 0); while [ "$t" != "$t0" ]; do t0=$t; t=$(topic_next "$t0"); done; }
 start=$(date +%s)
 while [ $(( $(date +%s) - start )) -lt "$LIMIT" ]; do
     f=$(lines)
     if [ "$f" -gt "$f0" ]; then
-        echo "runme event (file):"; tail -n +"$((f0 + 1))" "$FILE"; exit 0
+        echo "runme event (file):"; tail -n +"$((f0 + 1))" "$FILE"; rm -f "$WATCH"; exit 0
     fi
     if command -v termlink >/dev/null 2>&1; then
         new=$(timeout 20 termlink channel subscribe "$TOPIC" --cursor "$t0" --limit 50 2>/dev/null | grep -E '^\[[0-9]+\]' | grep -F " $LABEL ")
-        [ -n "$new" ] && { echo "runme event (topic $TOPIC):"; echo "$new" | cut -c1-400; exit 0; }
+        [ -n "$new" ] && { echo "runme event (topic $TOPIC):"; echo "$new" | cut -c1-400; rm -f "$WATCH"; exit 0; }
     fi
     sleep 3
 done

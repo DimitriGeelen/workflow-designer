@@ -41,7 +41,10 @@ an EXIT/INT/TERM/HUP trap) to `.context/working/runme.events` and posts it to Te
 `runme-832` (detached, never slows or breaks the script). When handing a runme.sh to the operator,
 the agent arms `bash tools/runme-watch.sh` as a BACKGROUND task: it exits on the first new event,
 which wakes the agent; read the log, act, re-arm. A sidecar message alone does not wake the agent
-(the inbox is read at the next prompt) — that is why the watcher exists.
+(the inbox is read at the next prompt) — that is why the watcher exists. The watch dies with the
+session that armed it (T-1050): it records who armed it in `.context/working/runme.watch`, and the
+session-start check (`scripts/session-start-alerts.sh`) prints **WATCH LOST** when that session is
+gone — re-arm it in the background before anything else.
 
 **This rule wins over the framework's own "Operator Commands Ship as ONE `runme.sh` Line"
 section (AEF T-3675, `fw runme new`, added by the 1.8.2 upgrade, T-1049):** in 832 the operator

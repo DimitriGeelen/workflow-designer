@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""session-start-alerts.py — peer mail this agent has not been shown yet (832 T-1046).
+"""session-start-alerts.py — peer mail this agent has not been shown yet (832 T-1046), plus runme
+hand-overs nobody is watching and other live agents in this project (T-1050).
 
 The user-level /resume skill (step 7, AEF T-3327) runs `scripts/session-start-alerts.sh --limit 10`
 and skips SILENTLY when the script is absent. AEF 1.7.740 does not vendor one, so until AEF ships
@@ -105,12 +106,111 @@ def save_marker(m):
     os.replace(tmp, MARKER)
 
 
+RUNME_EVENTS = os.environ.get("ALERTS_RUNME_EVENTS", os.path.join(ROOT, ".context", "working", "runme.events"))
+RUNME_WATCH = os.environ.get("ALERTS_RUNME_WATCH", os.path.join(ROOT, ".context", "working", "runme.watch"))
+
+
+def _comm(pid):
+    try:
+        with open("/proc/%d/comm" % pid) as fh:
+            return fh.read().strip()
+    except OSError:
+        return None
+
+
+def _ppid(pid):
+    try:
+        with open("/proc/%d/stat" % pid) as fh:
+            return int(fh.read().rsplit(")", 1)[1].split()[1])
+    except (OSError, ValueError, IndexError):
+        return 0
+
+
+def own_claude():
+    """The claude process this check runs under (walk up the parent chain), or None.
+    ALERTS_OWN_CLAUDE overrides it (tests)."""
+    if os.environ.get("ALERTS_OWN_CLAUDE"):
+        return int(os.environ["ALERTS_OWN_CLAUDE"])
+    p = os.getpid()
+    while p > 1:
+        if _comm(p) == "claude":
+            return p
+        p = _ppid(p)
+    return None
+
+
+def runme_lines():
+    """T-1050: what a NEW session must know about runme.sh hand-overs and other live agents here.
+
+    - WATCH LOST: tools/runme-watch.sh was armed by a claude session that is not this one. A
+      background watch dies with its session, silently, so a handed-over runme.sh would run with
+      nothing listening (2026-10-05, the 1.8.2 upgrade).
+    - RUN IN FLIGHT / RUN ENDED WITHOUT RECORD: the last run's `started` has no `done`/`STOPPED`.
+    - OTHER LIVE CLAUDE: another claude process has this project as its cwd (T-1052: two live
+      copies of one conversation both acted on the same runme event).
+    """
+    out, me = [], own_claude()
+    try:
+        with open(RUNME_WATCH) as fh:
+            rec = dict(kv.split("=", 1) for kv in fh.read().split() if "=" in kv)
+        armer = rec.get("claude_pid", "none")
+        if not (armer.isdigit() and me is not None and int(armer) == me):
+            alive = armer.isdigit() and _comm(int(armer)) == "claude"
+            out.append("WATCH LOST: runme-watch was armed %s by claude pid %s, %s. A handed-over runme.sh would "
+                       "run with nothing listening. Re-arm: bash tools/runme-watch.sh (as a BACKGROUND task)"
+                       % (rec.get("armed", "?"), armer, "a different live session" if alive else "which is gone"))
+    except OSError:
+        pass
+    try:
+        with open(RUNME_EVENTS) as fh:
+            ev = [ln.split(None, 3) for ln in fh if ln.strip()]
+        started = [e for e in ev if len(e) >= 3 and e[2] == "started"]
+        if started:
+            last = started[-1]
+            if not any(e[1] == last[1] and e[2] in ("done", "STOPPED") for e in ev):
+                if os.environ.get("ALERTS_RUNME_RUNNING") in ("0", "1"):
+                    running = os.environ["ALERTS_RUNME_RUNNING"] == "1"
+                else:
+                    running = subprocess.run(["pgrep", "-f", "bash .*runme\\.sh"], capture_output=True).returncode == 0
+                what = last[3].strip() if len(last) > 3 else ""
+                out.append(("RUN IN FLIGHT: %s (%s) started %s — keep the watch armed" if running else
+                            "RUN ENDED WITHOUT RECORD: %s (%s) started %s has no done/STOPPED and no runme.sh is "
+                            "running (killed, or the host rebooted) — read its log") % (last[1], what[:120], last[0]))
+    except OSError:
+        pass
+    if os.environ.get("ALERTS_NO_PROCS") != "1":
+        for d in os.listdir("/proc"):
+            if not d.isdigit() or int(d) == me or _comm(int(d)) != "claude":
+                continue
+            try:
+                if os.readlink("/proc/%s/cwd" % d) != ROOT:
+                    continue
+                with open("/proc/%s/cmdline" % d, "rb") as fh:
+                    cmd = fh.read().replace(b"\0", b" ").decode("utf-8", "replace").strip()
+            except OSError:
+                continue
+            out.append("OTHER LIVE CLAUDE in this project: pid %s `%s` — two agents here both act on the same "
+                       "events (T-1052); close one" % (d, cmd[:100]))
+    return out
+
+
+def print_runme():
+    try:
+        lines = runme_lines()
+    except Exception as e:  # noqa: BLE001 — this section must never hide the mail check
+        lines = ["RUNME CHECK FAILED: %s" % e]
+    print("Runme / live agents:")
+    for ln in lines or ["nothing pending"]:
+        print("  " + ln)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=10)
     ap.add_argument("--mark-seen", action="store_true")
     ap.add_argument("--from-json", help="offline: a JSON object {topic: [envelope, ...]} instead of the hub")
     a = ap.parse_args(argv)
+    print_runme()  # first, so a failed mail check below cannot hide it
 
     marker = load_marker()
     try:
