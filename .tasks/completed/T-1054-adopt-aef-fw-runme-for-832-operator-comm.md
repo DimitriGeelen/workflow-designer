@@ -12,7 +12,11 @@ owner: human
 horizon: null
 tags: []
 components: []
-related_tasks: []
+related_tasks: [T-1055]
+inception_decisions:
+  - id: runme-launcher-hybrid
+    text: "Option 3: one reviewed launcher holds the operator safeguards; jobs are immutable, named, hash-bound to their dry-run"
+    ships_in: T-1055
 created: 2026-10-05T18:02:45Z
 last_update: 2026-10-05T19:06:19Z
 date_finished: 2026-10-05T19:06:19Z

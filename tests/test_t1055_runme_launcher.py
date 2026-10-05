@@ -14,6 +14,8 @@ import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RUNME = os.path.join(ROOT, "runme.sh")
+# runme.sh execs this; named here so a broken stub fails as itself (leg 0), not as missing output.
+LAUNCHER = os.path.join(ROOT, "tools", "runme-launcher.sh")
 NEW = os.path.join(ROOT, "tools", "runme-new.sh")
 fails = []
 
@@ -70,6 +72,12 @@ steps() {
 
 
 def main():
+    # 0 the operator's command is the stub, and the stub runs the tested launcher
+    with open(RUNME) as fh:
+        stub = fh.read()
+    leg(os.access(LAUNCHER, os.X_OK) and "tools/runme-launcher.sh" in stub and stub.count("\n") < 30,
+        "0 runme.sh is a short fixed stub that execs tools/runme-launcher.sh")
+
     with tempfile.TemporaryDirectory() as tmp:
         # 1 a job that runs a command when loaded is refused, and the command never runs
         b = Box(tmp, "l1")

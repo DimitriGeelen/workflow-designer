@@ -10,14 +10,15 @@ description: >
   a done job. Same layout as AEF fw runme; offer the safeguards upstream. Design:
   docs/reports/T-1054-runme-path-brief.md
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
-related_tasks: []
+components: [tests/run-bridge-tests.sh]
+related_tasks: [T-1054]
+unlocks_inception_decision: ["T-1054:runme-launcher-hybrid"]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
 #                                 # at CAPTURE, unlike components: which the framework
@@ -45,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-05T19:06:35Z
-last_update: 2026-10-05T19:07:13Z
-date_finished:
+last_update: 2026-10-05T19:27:59Z
+date_finished: 2026-10-05T19:27:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -90,11 +91,11 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `runme.sh` is a fixed launcher (logic in `tools/runme-launcher.sh`); jobs are `.context/runme/<NNN>-<name>/job.sh` that only DEFINE (title, why, task, `preflight`/`steps` via `check`/`step`); a job that runs commands at load time is refused
-- [ ] `--dry-run [name]` runs the job's checks, prints the plan, writes `dryrun.ok` (sha256 of job.sh) and makes job.sh read-only; the real run shows job name + sha + dry-run time and REFUSES a job with no dry-run or whose sha changed since it
-- [ ] Real run: re-runs preflight, asks y/N per step (typeahead discarded, answers from the terminal only), logs to the job dir, emits started/step/done/STOPPED events (T-1003/T-1050 watcher unchanged), writes `done` on success; a done job is not run again; several pending jobs → numbered choice
-- [ ] Test (scratch job dir, no real project writes) covers: load-time command refused; no dry-run refused; edited-after-dry-run refused; happy path with y answers; N stops with nothing after; done job not re-run; two pending → choice; wired in the bridge suite
-- [ ] `tools/runme-new.sh <name>` scaffolds the next numbered job; CLAUDE.md runme rule rewritten for the new shape; safeguards offered to AEF for `fw runme`
+- [x] `runme.sh` is a fixed launcher (logic in `tools/runme-launcher.sh`); jobs are `.context/runme/<NNN>-<name>/job.sh` that only DEFINE (title, why, task, `preflight`/`steps` via `check`/`step`); a job that runs commands at load time is refused
+- [x] `--dry-run [name]` runs the job's checks, prints the plan, writes `dryrun.ok` (sha256 of job.sh) and makes job.sh read-only; the real run shows job name + sha + dry-run time and REFUSES a job with no dry-run or whose sha changed since it
+- [x] Real run: re-runs preflight, asks y/N per step (typeahead discarded, answers from the terminal only), logs to the job dir, emits started/step/done/STOPPED events (T-1003/T-1050 watcher unchanged), writes `done` on success; a done job is not run again; several pending jobs → numbered choice
+- [x] Test (scratch job dir, no real project writes) covers: load-time command refused; no dry-run refused; edited-after-dry-run refused; happy path with y answers; N stops with nothing after; done job not re-run; two pending → choice; wired in the bridge suite
+- [x] `tools/runme-new.sh <name>` scaffolds the next numbered job; CLAUDE.md runme rule rewritten for the new shape; safeguards offered to AEF for `fw runme`
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -128,6 +129,12 @@ bvp_scores_proposed:
 -->
 
 ## Verification
+
+python3 tests/test_t1055_runme_launcher.py > /tmp/.t1055 2>&1 && grep -q 'all legs passed' /tmp/.t1055
+python3 tests/test_t1050_runme_alerts.py > /tmp/.t1055b 2>&1 && grep -q 'all legs passed' /tmp/.t1055b
+grep -q 'tools/runme-launcher.sh' runme.sh
+grep -q 'test_t1055_runme_launcher.py' tests/run-bridge-tests.sh
+grep -q 'the agent writes jobs, never runme.sh' CLAUDE.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -354,3 +361,20 @@ bvp_scores_proposed:
 
 ### 2026-10-05T19:07:13Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b5d6db93
+- **Timestamp:** 2026-10-05T19:28:08Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#5 (Agent)** — `tools/runme-new.sh <name>` scaffolds the next numbered job; CLAUDE.md runme rule rewritten for the new shape; safeguards offered to AEF for `fw runme`
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/runme-new.sh in: `tools/runme-new.sh <name>` scaffolds the next numbered job; CLAUDE.md runme rule rewritten for the new shape; safeguards offered to AEF for `fw runme`
+
+### 2026-10-05T19:27:59Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
