@@ -60,7 +60,25 @@ background-task notifications, so both acted on the runme `done` event.
 - **Protocol:** step 3 of the re-vendor protocol takes a claim (a lock file under
   `.context/working/`) before writing, so a second worker stops with a named holder.
 
-## Questions for 055 (only the fleet can answer)
+## 055's answers (2026-10-05, sidecar msg 49fd8ca6; their T-465, arc-009 "One Agent, Many Views")
+
+- **(a) Who ran `claude-fw -c`:** both (~14:23, ~15:00) were typed in desktop terminals (operator
+  shells), not a fleet path. The fleet's only use of `-c` is the starter's boot spawn, which at
+  13:40 resumed 832 into an OLD conversation (91de3570); fixed by hand to `--resume 500d44d9` at
+  14:15. So after the reboot the operator had no visible 832 agent in the expected conversation,
+  and opening one by hand was the natural move: the duplicate is a consequence of the boot spawn
+  picking the wrong conversation, not of operator error.
+- **(b) The 17:18 relaunch:** 055's `scripts/fleet-rehome.sh`, run by the operator: it stopped
+  duplicate agents and restarted each fleet agent by exact conversation id on the main TermLink
+  hub (all agents had registered on a stray hub, /tmp/termlink-0, because the starter dropped
+  TERMLINK_RUNTIME_DIR; fixed in 055 T-468). That restart was the de-duplication; it cut our copy
+  off mid-call, which is why the stop command's result was never recorded.
+- **(c) Prevention in progress at 055:** T-465 makes the fleet remember each pane's conversation
+  and resume by id; T-470 adds a front door, `fleet`, which opens a VIEW of the running agent
+  instead of starting one; its slice 2 makes `claude` / `claude-fw` in a project with a live agent
+  join it rather than start a second. That covers proposals 1 and 2 above.
+
+## Questions for 055 (as sent; answered above)
 
 1. What started `claude-fw -c` at ~14:23 (bash 1410765) and ~15:00 (parent 2656345)? Is any
    fleet path (restart, re-attach, a fallback when no session id is known) using `-c`?
