@@ -1,0 +1,57 @@
+# .fwvendor-preserve.yaml — 832's own files under .agentic-framework/ (AEF T-3850, v1.8.x).
+# `fw vendor` / `fw upgrade` keeps every path listed here instead of deleting it.
+# Written under T-1049 from the 1.8.2 dry-run list of local-only files; each one is also
+# declared in .agentic-framework/.vendor-divergence.yaml (code) or generated for it (docs).
+# In-place patches to upstream files are NOT listed: those are re-applied from the
+# divergence register after the pristine commit (re-vendor protocol, T-1000).
+files:
+  - agents/context/check-bare-import.sh
+  - docs/generated/components/agents-context-check-paid-backend.md
+  - docs/generated/components/lib-ac_placeholder.md
+  - docs/generated/components/lib-arc_close_readiness.md
+  - docs/generated/components/lib-bvp_judge.md
+  - docs/generated/components/lib-bvp_judge_cli.md
+  - docs/generated/components/lib-bvp_judge_dispatch_cli.md
+  - docs/generated/components/lib-bvp_py.md
+  - docs/generated/components/lib-bvp_sticky.md
+  - docs/generated/components/lib-dispatch_tokens.md
+  - docs/generated/components/lib-judge_verdict.md
+  - docs/generated/components/lib-project_identity.md
+  - docs/generated/components/lib-push-resolve.md
+  - docs/generated/components/lib-research_preserved.md
+  - docs/generated/components/lib-review_cost.md
+  - docs/generated/components/lib-review_policy.md
+  - docs/generated/components/lib-tier0_action.md
+  - docs/generated/components/lib-verdict_ledger.md
+  - docs/generated/components/lib-wm_tasks.md
+  - docs/generated/components/tests-git_fence.md
+  - docs/generated/components/tests-lint-bats-git-discovery-fence.md
+  - docs/generated/components/tests-playwright-test_tasks_board_lazy_selects.md
+  - docs/generated/components/tests-unit-audit_ctl_arc_membership_python_import.md
+  - docs/generated/components/tests-unit-t3526_bvp_judge_entrypoint.md
+  - docs/generated/components/tests-unit-t3544_inbox_backlog_rail.md
+  - docs/generated/components/tests-unit-t3545_branch_hygiene_header_parity.md
+  - docs/generated/components/tests-unit-t3546_p011_reports_the_zero.md
+  - docs/generated/components/tests-unit-t3549_inception_handoff_refusal.md
+  - docs/generated/components/tests-unit-t3579_verdict_close_path.md
+  - docs/generated/components/tests-unit-t3586_review_cost.md
+  - docs/generated/components/tests-unit-t3586_skip_flag_policy.md
+  - docs/generated/components/tests-unit-test_bvp_judge.md
+  - docs/generated/components/tests-unit-test_bvp_judge_dispatch.md
+  - docs/generated/components/tests-unit-test_research_preserved.md
+  - docs/generated/components/tests-unit-test_sidecar_unread_summary.md
+  - docs/generated/components/tests-unit-test_t3512_write_set_blast_radius.md
+  - docs/generated/components/tests-unit-test_t3519_dispatch_tokens.md
+  - docs/generated/components/tests-unit-test_t3523_bvp_sticky.md
+  - docs/generated/components/tests-unit-test_t3525_judge_verdict.md
+  - docs/generated/components/tests-unit-test_t3579_verdict_ledger.md
+  - docs/generated/components/tests-unit-test_t3587_file_refs.md
+  - docs/generated/components/tests-web-test_t3574_arc_page_perf.md
+  - docs/generated/components/tests-web-test_t3575_tasks_page_perf.md
+  - docs/generated/components/tools-wait-dispatch.md
+  - docs/generated/components/web-static-css-file-refs.md
+  - lib/external_consult.py
+  - lib/instance-position.sh
+  - lib/task-ownership.sh
+  - lib/verification-absence.sh
+  - web/test_safe_commands.py
