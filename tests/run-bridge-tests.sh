@@ -558,6 +558,7 @@ orphan_legs=(
   "tests/test_gallery_instances_api.py|the /api/instances endpoint's own contract broke (T-884)"
   "tests/test_boundary_inventory_unclassified.py|the boundary inventory's unclassified-route check stopped biting, or the real route set went unclassified (T-941)"
   "tests/test_session_start_alerts.py|the /resume mail check (scripts/session-start-alerts.sh) shows our own posts or receipts as mail, drops peer mail, or ignores its marker (T-1046)"
+  "tests/test_t1055_runme_launcher.py|the runme launcher no longer enforces the operator's safeguards itself: a job that runs at load time, has no dry-run, changed since its dry-run, or is already done can run, or a step runs without its y/N (T-1055)"
   "tests/test_t1050_runme_alerts.py|the session-start check no longer tells a new session that a handed-over runme.sh has nothing watching it (WATCH LOST), or misreports an in-flight / unrecorded run (T-1050)"
 )
 for leg in "${orphan_legs[@]}"; do

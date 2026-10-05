@@ -171,7 +171,9 @@ def runme_lines():
                 if os.environ.get("ALERTS_RUNME_RUNNING") in ("0", "1"):
                     running = os.environ["ALERTS_RUNME_RUNNING"] == "1"
                 else:
-                    running = subprocess.run(["pgrep", "-f", "bash .*runme\\.sh"], capture_output=True).returncode == 0
+                    # runme.sh execs tools/runme-launcher.sh (T-1055), so the live process is the launcher
+                    running = subprocess.run(["pgrep", "-f", "bash .*runme(-launcher)?\\.sh"],
+                                             capture_output=True).returncode == 0
                 what = last[3].strip() if len(last) > 3 else ""
                 out.append(("RUN IN FLIGHT: %s (%s) started %s — keep the watch armed" if running else
                             "RUN ENDED WITHOUT RECORD: %s (%s) started %s has no done/STOPPED and no runme.sh is "

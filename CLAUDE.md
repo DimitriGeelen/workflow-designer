@@ -24,21 +24,28 @@ plus Claude Code-specific integration notes.
 
 Never hand the operator a command to copy from chat — not even a one-liner. Every command the
 operator must run (releases, `fw inception decide`, Tier-0 approvals, anything operator-only)
-is written into `/opt/832-Workflow-designer/runme.sh`, and the operator runs exactly:
+becomes a JOB, and the operator always runs exactly:
 
     bash /opt/832-Workflow-designer/runme.sh
 
-The script states what it will do, checks preconditions before writing anything, asks y/N before
-each step that changes state, logs to `.context/working/runme-<ts>.log`, and supports
-`--dry-run`. The agent reads it, runs only `--dry-run`, and never runs it for real. Overwriting
-runme.sh is fine once its previous job is done (check the log/outcome first) — and NEVER while it
-is running (`pgrep -af runme.sh`): bash reads a running script as it goes, so an edit corrupts it.
+**Since T-1055 (operator's T-1054 decision, option 3) the agent writes jobs, never runme.sh.**
+`runme.sh` is a fixed stub for `tools/runme-launcher.sh`, which holds every safeguard once, tested
+(`tests/test_t1055_runme_launcher.py`). The agent's part:
+1. `bash tools/runme-new.sh <name>` → `.context/runme/<NNN>-<name>/job.sh`. A job only DEFINES:
+   `JOB_TITLE`, `JOB_TASK`, `JOB_WHY`, `preflight()` with `check "<what>" '<cmd>'`, `steps()` with
+   `step "<what>" '<cmd>'`, and helper functions. Anything run at load time is refused.
+2. `bash runme.sh --dry-run <NNN>-<name>`: runs the checks, prints the plan, records the job's
+   sha256 in `dryrun.ok`, makes `job.sh` read-only. The agent runs only this, never a real run.
+3. Commit the job dir, hand over the one command, arm the watcher (below).
+The launcher shows the operator the job name, sha and rehearsal time; refuses a job with no
+dry-run or changed since it; re-runs the checks; asks y/N before every step (terminal only);
+logs to `run-<ts>.log` in the job dir; writes `done`; never runs a done job again; asks which
+job when several are pending. A changed job needs a new dry-run, never an edit after hand-over.
 
-**It signals the agent (T-1003).** Every runme.sh sources `tools/runme-signal.sh` right after its
-log is set up and calls `runme_signal_init "<what it does>" "$LOG"`, plus `runme_signal step "…"`
-at each step. That writes one line per event (started / step / done / STOPPED, the last two from
-an EXIT/INT/TERM/HUP trap) to `.context/working/runme.events` and posts it to TermLink topic
-`runme-832` (detached, never slows or breaks the script). When handing a runme.sh to the operator,
+**It signals the agent (T-1003).** The launcher sources `tools/runme-signal.sh`: one line per
+event (started / step / done / STOPPED, the last two from an EXIT/INT/TERM/HUP trap) to
+`.context/working/runme.events`, posted to TermLink topic `runme-832` (detached, never slows or
+breaks the run); a refusal is a STOPPED event too. When handing a job to the operator,
 the agent arms `bash tools/runme-watch.sh` as a BACKGROUND task: it exits on the first new event,
 which wakes the agent; read the log, act, re-arm. A sidecar message alone does not wake the agent
 (the inbox is read at the next prompt) — that is why the watcher exists. The watch dies with the

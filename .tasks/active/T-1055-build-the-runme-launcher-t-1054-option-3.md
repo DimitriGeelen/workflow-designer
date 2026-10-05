@@ -90,8 +90,11 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] `runme.sh` is a fixed launcher (logic in `tools/runme-launcher.sh`); jobs are `.context/runme/<NNN>-<name>/job.sh` that only DEFINE (title, why, task, `preflight`/`steps` via `check`/`step`); a job that runs commands at load time is refused
+- [ ] `--dry-run [name]` runs the job's checks, prints the plan, writes `dryrun.ok` (sha256 of job.sh) and makes job.sh read-only; the real run shows job name + sha + dry-run time and REFUSES a job with no dry-run or whose sha changed since it
+- [ ] Real run: re-runs preflight, asks y/N per step (typeahead discarded, answers from the terminal only), logs to the job dir, emits started/step/done/STOPPED events (T-1003/T-1050 watcher unchanged), writes `done` on success; a done job is not run again; several pending jobs → numbered choice
+- [ ] Test (scratch job dir, no real project writes) covers: load-time command refused; no dry-run refused; edited-after-dry-run refused; happy path with y answers; N stops with nothing after; done job not re-run; two pending → choice; wired in the bridge suite
+- [ ] `tools/runme-new.sh <name>` scaffolds the next numbered job; CLAUDE.md runme rule rewritten for the new shape; safeguards offered to AEF for `fw runme`
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
