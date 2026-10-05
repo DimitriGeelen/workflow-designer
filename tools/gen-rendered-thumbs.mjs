@@ -27,7 +27,10 @@ import { pageWsUrl } from './_cdp-attach.mjs';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
 const SERVER = join(HERE, 'gallery-serve.py');
-const CORPUS = join(REPO, 'examples', 'aef-processes', 'rendered');
+// T-1048: both corpora the gallery lists (serve-gallery.sh copies aef-processes AND app-processes),
+// so every card on the overview page can have a tile. An id is the basename; first corpus wins.
+const CORPORA = [join(REPO, 'examples', 'aef-processes', 'rendered'), join(REPO, 'examples', 'app-processes', 'rendered')];
+function corpusIndex() { const m = new Map(); for (const d of CORPORA) { if (!existsSync(d)) continue; for (const f of readdirSync(d)) if (f.endsWith('.bpmn') && !m.has(f.slice(0, -5))) m.set(f.slice(0, -5), join(d, f)); } return m; }
 const OUT = join(REPO, '.editor-versions', '_rendered');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -57,14 +60,17 @@ async function waitLoaded(cmd, id) {
 
 async function main() {
   let ids = process.argv.slice(2).filter(a => !a.startsWith('-'));
-  if (!ids.length) ids = readdirSync(CORPUS).filter(f => f.endsWith('.bpmn')).map(f => f.slice(0, -5)).sort();
-  if (!ids.length) throw new Error('no corpus maps found in ' + CORPUS);
+  const index = corpusIndex();
+  if (!ids.length) ids = [...index.keys()].sort();
+  if (!ids.length) throw new Error('no corpus maps found in ' + CORPORA.join(', '));
+  const unknown = ids.filter(id => !index.has(id));
+  if (unknown.length) throw new Error('not in any corpus: ' + unknown.join(', '));
 
   const doc = mkdtempSync(join(tmpdir(), 'thumb-doc-'));
   const repo = mkdtempSync(join(tmpdir(), 'thumb-repo-'));
   copyFileSync(join(REPO, 'src/aef-workflow-designer.html'), join(doc, 'designer.html'));
   mkdirSync(join(doc, 'rendered'), { recursive: true });
-  for (const id of ids) copyFileSync(join(CORPUS, id + '.bpmn'), join(doc, 'rendered', id + '.bpmn'));
+  for (const id of ids) copyFileSync(index.get(id), join(doc, 'rendered', id + '.bpmn'));
 
   const port = await freePort();
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });

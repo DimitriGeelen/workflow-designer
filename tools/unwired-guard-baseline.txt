@@ -213,7 +213,6 @@ _undo-verify-cdp.mjs
 _versions-verify-cdp.mjs
 bpmn-cli.py
 concerns-schema.py
-gen-rendered-thumbs.mjs
 memory-application-census.py
 rail-sweep.py
 t404-gate-e2e.sh

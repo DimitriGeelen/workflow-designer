@@ -64,6 +64,31 @@ for f in "$ROOT"/examples/app-processes/rendered/*.bpmn; do
   [ -e "$f" ] && cp "$f" "$OUT/rendered/"
 done
 
+# Preview tiles for the index (T-1048). The rendered maps carry no DI, so a tile can only come
+# from the designer itself: tools/gen-rendered-thumbs.mjs (T-153) renders each map headlessly and
+# caches <id>.png under .editor-versions/_rendered/. Refresh only what is missing or older than
+# its map, so a rebuild after a corpus change gets current tiles without a manual step. Never
+# fatal: without node/chromium the cached tiles are used and the gap is said out loud, and a map
+# with no tile still lists (with a "no preview" box, never a broken image).
+THUMBS="${GALLERY_THUMBS_DIR:-$ROOT/.editor-versions/_rendered}"   # override: tests only
+stale=()
+for f in "$ROOT"/examples/aef-processes/rendered/*.bpmn "$ROOT"/examples/app-processes/rendered/*.bpmn; do
+  [ -e "$f" ] || continue
+  b=$(basename "$f" .bpmn)
+  [ -s "$THUMBS/$b.png" ] && [ ! "$f" -nt "$THUMBS/$b.png" ] || stale+=("$b")
+done
+if [ "${#stale[@]}" -gt 0 ] && [ "${GALLERY_SKIP_THUMBS:-0}" != 1 ]; then
+  echo "serve-gallery: refreshing ${#stale[@]} preview tile(s): ${stale[*]}" >&2
+  if ! command -v node >/dev/null 2>&1 || ! timeout 900 node "$ROOT/tools/gen-rendered-thumbs.mjs" "${stale[@]}" >&2; then
+    echo "serve-gallery: WARNING — tile refresh failed or node is unavailable; listing with the cached/missing tiles" >&2
+  fi
+fi
+mkdir -p "$OUT/thumbs"
+for f in "$OUT"/rendered/*.bpmn; do
+  b=$(basename "$f" .bpmn)
+  [ -s "$THUMBS/$b.png" ] && cp "$THUMBS/$b.png" "$OUT/thumbs/$b.png"
+done
+
 {
   cat <<'HTML'
 <!doctype html><html lang="en"><head><meta charset="utf-8">
@@ -75,6 +100,13 @@ done
  a{color:#7ab8ff;text-decoration:none} a:hover{text-decoration:underline}
  li{margin:.35rem 0}
  .n{color:#6b7280;font-size:.85em}
+ ol{padding-left:1.6rem}
+ li{display:flex;align-items:center;gap:.8rem;margin:.6rem 0}
+ li>a.t{flex:0 0 auto;display:block;width:160px;max-width:40vw;border:1px solid #2a2f3a;border-radius:6px;overflow:hidden;background:#151821;line-height:0}
+ li>a.t:hover{border-color:#7ab8ff}
+ li>a.t img{display:block;width:100%;height:auto}
+ li>a.t .ph{display:flex;align-items:center;justify-content:center;height:60px;color:#6b7280;font-size:.75em;line-height:1.2}
+ li>a.l{overflow-wrap:anywhere}
 </style></head><body>
 <h1>AEF Workflow Corpus &mdash; rendered maps</h1>
 <p class="n">Generated from examples/aef-processes/*.workflow.yaml and examples/app-processes/*.workflow.yaml
@@ -84,7 +116,12 @@ Click a map to open it in the designer (editable; changes stay in your browser).
 HTML
   for f in "$OUT"/rendered/*.bpmn; do
     b=$(basename "$f" .bpmn)
-    printf '<li><a href="designer.html?load=rendered/%s.bpmn">%s</a></li>\n' "$b" "$b"
+    if [ -s "$OUT/thumbs/$b.png" ]; then
+      tile=$(printf '<img src="thumbs/%s.png" alt="%s preview" loading="lazy">' "$b" "$b")
+    else
+      tile='<span class="ph">no preview</span>'
+    fi
+    printf '<li><a class="t" href="designer.html?load=rendered/%s.bpmn" aria-hidden="true" tabindex="-1">%s</a><a class="l" href="designer.html?load=rendered/%s.bpmn">%s</a></li>\n' "$b" "$tile" "$b" "$b"
   done
   cat <<'HTML'
 </ol>

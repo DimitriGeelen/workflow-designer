@@ -2652,6 +2652,15 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1048: every design on the gallery overview page has a preview tile ──
+if python3 "$ROOT/tools/_t1048-gallery-thumbs.py" > "$TMP/leg-_t1048-thumbs.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a design on the gallery overview page has no preview tile, an <img> points at a missing file, or the 'no preview' fallback broke (run 'python3 tools/_t1048-gallery-thumbs.py'; refresh tiles with 'node tools/gen-rendered-thumbs.mjs')"
+  show_output "$TMP/leg-_t1048-thumbs.out" "_t1048-gallery-thumbs.py"
+  fail=$((fail + 1))
+fi
+
 # ── T-1047: the no-task gate admits /resume's mail check, and only this project's copy of it ──
 if bash "$ROOT/tools/_t1047-session-start-alerts-gate.sh" > "$TMP/leg-_t1047-ssa-gate.out" 2>&1; then
   pass=$((pass + 1))
