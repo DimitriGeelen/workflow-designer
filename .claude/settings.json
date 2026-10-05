@@ -27,6 +27,10 @@
           {
             "type": "command",
             "command": "${CLAUDE_PROJECT_DIR}/.agentic-framework/bin/fw hook post-compact-resume"
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.agentic-framework/bin/fw hook sidecar-autostart"
           }
         ]
       },
@@ -36,6 +40,10 @@
           {
             "type": "command",
             "command": "${CLAUDE_PROJECT_DIR}/.agentic-framework/bin/fw hook post-compact-resume"
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.agentic-framework/bin/fw hook sidecar-autostart"
           }
         ]
       }
@@ -101,7 +109,7 @@
           },
           {
             "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/.agentic-framework/bin/fw hook check-bare-import"
+            "command": "${CLAUDE_PROJECT_DIR}/.agentic-framework/bin/fw hook check-human-ac-tick"
           }
         ]
       },
@@ -147,6 +155,15 @@
           {
             "type": "command",
             "command": "${CLAUDE_PROJECT_DIR}/.agentic-framework/bin/fw hook check-rail-mcp-label"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.agentic-framework/bin/fw hook check-bare-import"
           }
         ]
       },
@@ -216,10 +233,6 @@
           {
             "type": "command",
             "command": "${CLAUDE_PROJECT_DIR}/.agentic-framework/bin/fw hook check-settings-edit"
-          },
-          {
-            "type": "command",
-            "command": "/opt/832-Workflow-designer/tools/hooks/warn-uncontrolled-absence.sh"
           }
         ]
       },
@@ -231,6 +244,15 @@
             "command": "${CLAUDE_PROJECT_DIR}/.agentic-framework/bin/fw hook audit-task-tools"
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/tools/hooks/warn-uncontrolled-absence.sh"
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -240,6 +262,21 @@
           {
             "type": "command",
             "command": "${CLAUDE_PROJECT_DIR}/.agentic-framework/bin/fw hook sidecar-inbox"
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.agentic-framework/bin/fw hook sidecar-receiver-adapter"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.agentic-framework/bin/fw hook sidecar-receiver-ready"
           }
         ]
       }

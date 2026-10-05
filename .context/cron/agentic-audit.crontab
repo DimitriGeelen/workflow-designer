@@ -31,3 +31,6 @@ PATH=/usr/local/bin:/usr/bin:/bin
 
 # Sidecar ack-ledger sweep (5 min)
 3,8,13,18,23,28,33,38,43,48,53,58 * * * * root cd "/opt/832-Workflow-designer" && PROJECT_ROOT="/opt/832-Workflow-designer" flock -n /var/lock/agentic-cron-sidecar-sweep-5m-832-workflow-designer.lock -c '"/opt/832-Workflow-designer/.agentic-framework/bin/fw" sidecar sweep' 2>&1 | logger -t agentic-cron
+
+# Vector index incremental reindex (hourly)
+20 * * * * root cd "/opt/832-Workflow-designer" && PROJECT_ROOT="/opt/832-Workflow-designer" flock -n /var/lock/agentic-cron-index-reindex-hourly-832-workflow-designer.lock -c '"/opt/832-Workflow-designer/.agentic-framework/bin/fw" index reindex' 2>&1 | logger -t agentic-cron
