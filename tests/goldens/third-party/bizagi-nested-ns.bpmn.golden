@@ -4,17 +4,17 @@
                   xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
                   xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
                   xmlns:aef="http://anchorpoint.framework/aef/extensions"
-                  id="Definitions_id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6"
+                  id="Definitions_id_1f46c2af-002d-4b63-b1d1-7f181acc6065"
                   exporter="aef-workflow-designer"
                   targetNamespace="https://aef.anchorpoint.dev/workflows">
 
-  <bpmn:collaboration id="Collaboration_id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6">
-    <bpmn:participant id="Id_c13bd51d-300b-4a9b-9ed9-96a0415f9c76" name="Hauptprozess" processRef="Process_id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6"/>
+  <bpmn:collaboration id="Collaboration_id_1f46c2af-002d-4b63-b1d1-7f181acc6065">
+    <bpmn:participant id="Id_c13bd51d-300b-4a9b-9ed9-96a0415f9c76" name="Hauptprozess" processRef="Process_id_1f46c2af-002d-4b63-b1d1-7f181acc6065"/>
   </bpmn:collaboration>
 
-  <bpmn:process id="Process_id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6" isExecutable="true">
+  <bpmn:process id="Process_id_1f46c2af-002d-4b63-b1d1-7f181acc6065" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6" version="1" schemaVersion="2" title="Hauptprozess" tier_default="2"/>
+      <aef:workflowMeta id="id_1f46c2af-002d-4b63-b1d1-7f181acc6065" version="1" schemaVersion="2" title="Id_1f46c2af-002d-4b63-b1d1-7f181acc6065" tier_default="2"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="human" name="Human · Sovereignty">
@@ -33,10 +33,66 @@
         </bpmn:extensionElements>
       </bpmn:lane>
     </bpmn:laneSet>
+
+    <bpmn:startEvent id="lan_1_id" name="Id_8582749e-b374-4721-b307-743d473e76db">
+      <bpmn:documentation></bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="u1"/>
+        <aef:position x="136.0" y="115.0"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:endEvent id="lan_3_id" name="Id_e673ec36-e00a-4857-b74d-bcd82c4eeff5">
+      <bpmn:extensionElements>
+        <aef:uid value="u2"/>
+        <aef:position x="392.0" y="115.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:task id="lan_2_aufgabe" name="Aufgabe 1">
+      <bpmn:documentation></bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="u3"/>
+        <aef:position x="220.0" y="90.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="lan_1_id" targetRef="lan_2_aufgabe">
+      <bpmn:extensionElements>
+        <aef:uid value="u4"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_2" sourceRef="lan_2_aufgabe" targetRef="lan_3_id">
+      <bpmn:extensionElements>
+        <aef:uid value="u5"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
   </bpmn:process>
 
-  <bpmndi:BPMNDiagram id="BPMNDiagram_id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6">
-    <bpmndi:BPMNPlane id="BPMNPlane_id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6" bpmnElement="Process_id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6">
+  <bpmndi:BPMNDiagram id="BPMNDiagram_id_1f46c2af-002d-4b63-b1d1-7f181acc6065">
+    <bpmndi:BPMNPlane id="BPMNPlane_id_1f46c2af-002d-4b63-b1d1-7f181acc6065" bpmnElement="Process_id_1f46c2af-002d-4b63-b1d1-7f181acc6065">
+      <bpmndi:BPMNShape id="BPMNShape_lan_1_id" bpmnElement="lan_1_id">
+        <dc:Bounds x="136.0" y="115.0" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_lan_3_id" bpmnElement="lan_3_id">
+        <dc:Bounds x="392.0" y="115.0" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_lan_2_aufgabe" bpmnElement="lan_2_aufgabe">
+        <dc:Bounds x="220.0" y="90.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1">
+        <di:waypoint x="171.1" y="127.5"/>
+        <di:waypoint x="220.0" y="127.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_2" bpmnElement="flow_2">
+        <di:waypoint x="330.0" y="127.5"/>
+        <di:waypoint x="392.9" y="127.5"/>
+      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

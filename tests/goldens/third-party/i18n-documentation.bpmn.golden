@@ -21,9 +21,6 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="hum" authority="sovereignty" height="130"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>hum_1_startevent</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>hum_3_ended</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>hum_2_activity</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
@@ -37,7 +34,8 @@
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="hum_1_startevent" name="StartEvent_1">
+    <bpmn:startEvent id="lan_1_startevent" name="StartEvent_1">
+      <bpmn:documentation>A start event.</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="u1"/>
         <aef:position x="179.0" y="99.0"/>
@@ -45,7 +43,7 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="hum_3_ended" name="Ended">
+    <bpmn:endEvent id="lan_3_ended" name="Ended">
       <bpmn:extensionElements>
         <aef:uid value="u2"/>
         <aef:position x="432.0" y="99.0"/>
@@ -53,7 +51,7 @@
       <bpmn:incoming>flow_2</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:task id="hum_2_activity" name="Activity_0eb4n4l">
+    <bpmn:task id="lan_2_activity" name="Activity_0eb4n4l">
       <bpmn:extensionElements>
         <aef:uid value="u3"/>
         <aef:position x="270.0" y="77.0"/>
@@ -62,13 +60,13 @@
       <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:task>
 
-    <bpmn:sequenceFlow id="flow_1" sourceRef="hum_1_startevent" targetRef="hum_2_activity">
+    <bpmn:sequenceFlow id="flow_1" sourceRef="lan_1_startevent" targetRef="lan_2_activity">
       <bpmn:extensionElements>
         <aef:uid value="u4"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_2" sourceRef="hum_2_activity" targetRef="hum_3_ended">
+    <bpmn:sequenceFlow id="flow_2" sourceRef="lan_2_activity" targetRef="lan_3_ended">
       <bpmn:extensionElements>
         <aef:uid value="u5"/>
       </bpmn:extensionElements>
@@ -77,13 +75,13 @@
 
   <bpmndi:BPMNDiagram id="BPMNDiagram_process_0dp8lmr">
     <bpmndi:BPMNPlane id="BPMNPlane_process_0dp8lmr" bpmnElement="Process_process_0dp8lmr">
-      <bpmndi:BPMNShape id="BPMNShape_hum_1_startevent" bpmnElement="hum_1_startevent">
+      <bpmndi:BPMNShape id="BPMNShape_lan_1_startevent" bpmnElement="lan_1_startevent">
         <dc:Bounds x="179.0" y="99.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_hum_3_ended" bpmnElement="hum_3_ended">
+      <bpmndi:BPMNShape id="BPMNShape_lan_3_ended" bpmnElement="lan_3_ended">
         <dc:Bounds x="432.0" y="99.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_hum_2_activity" bpmnElement="hum_2_activity">
+      <bpmndi:BPMNShape id="BPMNShape_lan_2_activity" bpmnElement="lan_2_activity">
         <dc:Bounds x="270.0" y="77.0" width="110" height="64"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1">

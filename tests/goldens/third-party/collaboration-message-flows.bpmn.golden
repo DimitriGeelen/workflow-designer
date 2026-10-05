@@ -21,9 +21,6 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="hum" authority="sovereignty" height="130"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>hum_3_endevent</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>hum_1_task</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>hum_2_task</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
@@ -37,21 +34,21 @@
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:endEvent id="hum_3_endevent" name="EndEvent_1">
+    <bpmn:endEvent id="lan_3_endevent" name="EndEvent_1">
       <bpmn:extensionElements>
         <aef:uid value="u1"/>
-        <aef:position x="653.0" y="109.0"/>
+        <aef:position x="653.0" y="178.0"/>
       </bpmn:extensionElements>
     </bpmn:endEvent>
 
-    <bpmn:task id="hum_1_task" name="Task_1">
+    <bpmn:task id="lan_1_task" name="Task_1">
       <bpmn:extensionElements>
         <aef:uid value="u2"/>
         <aef:position x="360.0" y="134.0"/>
       </bpmn:extensionElements>
     </bpmn:task>
 
-    <bpmn:task id="hum_2_task" name="Task_2">
+    <bpmn:task id="lan_2_task" name="Task_2">
       <bpmn:extensionElements>
         <aef:uid value="u3"/>
         <aef:position x="516.0" y="134.0"/>
@@ -61,13 +58,13 @@
 
   <bpmndi:BPMNDiagram id="BPMNDiagram_process_1">
     <bpmndi:BPMNPlane id="BPMNPlane_process_1" bpmnElement="Process_process_1">
-      <bpmndi:BPMNShape id="BPMNShape_hum_3_endevent" bpmnElement="hum_3_endevent">
-        <dc:Bounds x="653.0" y="109.0" width="36" height="36"/>
+      <bpmndi:BPMNShape id="BPMNShape_lan_3_endevent" bpmnElement="lan_3_endevent">
+        <dc:Bounds x="653.0" y="178.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_hum_1_task" bpmnElement="hum_1_task">
+      <bpmndi:BPMNShape id="BPMNShape_lan_1_task" bpmnElement="lan_1_task">
         <dc:Bounds x="360.0" y="134.0" width="110" height="64"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_hum_2_task" bpmnElement="hum_2_task">
+      <bpmndi:BPMNShape id="BPMNShape_lan_2_task" bpmnElement="lan_2_task">
         <dc:Bounds x="516.0" y="134.0" width="110" height="64"/>
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>

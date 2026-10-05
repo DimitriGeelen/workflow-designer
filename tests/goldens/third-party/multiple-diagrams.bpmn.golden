@@ -21,7 +21,6 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="hum" authority="sovereignty" height="130"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>hum_1_node</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
@@ -35,7 +34,7 @@
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:task id="hum_1_node" name="A">
+    <bpmn:task id="lan_1_node" name="A">
       <bpmn:extensionElements>
         <aef:uid value="u1"/>
         <aef:position x="156.0" y="81.0"/>
@@ -45,7 +44,7 @@
 
   <bpmndi:BPMNDiagram id="BPMNDiagram_process_1">
     <bpmndi:BPMNPlane id="BPMNPlane_process_1" bpmnElement="Process_process_1">
-      <bpmndi:BPMNShape id="BPMNShape_hum_1_node" bpmnElement="hum_1_node">
+      <bpmndi:BPMNShape id="BPMNShape_lan_1_node" bpmnElement="lan_1_node">
         <dc:Bounds x="156.0" y="81.0" width="110" height="64"/>
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
