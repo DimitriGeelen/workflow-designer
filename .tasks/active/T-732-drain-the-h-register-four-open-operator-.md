@@ -280,6 +280,24 @@ grep -qi "supersed" docs/reports/T-732-h-register-dossier.md
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Recommendation
+
+**Recommendation:** GO: tick the H1 criterion now, because it is already satisfied by your own ruling. On clause 3: ratify its definition when you are ready, but know that **ratifying it does not exit Arc-0**.
+
+**Rationale and evidence (re-checked 2026-10-05, T-1033):**
+- **H1 is ruled.** `operator-decisions.yaml` H1 has `status: resolved`, `decided_by: operator`, `decided_at: 2026-09-21`, `chosen: "The DEFERs (T-279/280/281/282) and AEF's T-2669 NO-GO STAND"`, and a `source_of_truth`. It was committed in 22014fea. That is exactly this criterion's Expected. **H3** is ruled too (D, 2026-09-22, 403502ea), and so are **H2 and H4**.
+- **What remains open:** H5 (reconcile the §9 governance deviations) and H6 (route R6/R7 to AEF). The dossier marks the H5 recommendation "RATIFIABLE AS WRITTEN". H6's recommendation is ratifiable but does not close H6 until AEF answers.
+- **The Arc-0 gate today** (`bash tools/_t596-arc0-exit-gate.sh`): clause-1 BLOCKED (AEF answered and did NOT attest), clause-2 BLOCKED (awaiting AEF's attestation), clause-3 BLOCKED (open H-register decisions). So 0 of 3, and two of the three are AEF's to move.
+- **T-596's Human AC is overtaken.** It asks you to confirm the register read H1 and H3 as *open*. That was correct when written, and both have since been ruled by you. Ticking it records that the reading was right at the time. Clause 3's `ratification_pending` text names that tick as the trigger.
+
+**Suggested order:**
+1. Tick this task's H1 criterion.
+2. Rule H5, which is ratifiable as written.
+3. Rule H6.
+4. Then tick T-596 and ratify clause 3 together.
+
+Arc-0 exit additionally needs AEF's attestation on clauses 1 and 2. No Designer-side work moves those.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.

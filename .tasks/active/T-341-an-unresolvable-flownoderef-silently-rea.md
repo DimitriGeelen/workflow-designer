@@ -182,6 +182,18 @@ measurement moves it from *the wrong lane* to *no lane policy at all*.
 
 ## Recommendation
 
+**Recommendation:** ABSTAIN on where an orphaned node lands. That decides which authority acquires a step, and it is yours. The other half, ANNOUNCE, has meanwhile **shipped**.
+
+**Rationale (re-checked 2026-10-05, T-1033).** Two changes landed after the 2026-09-05 analysis below:
+- **T-891 (3cb17878) removed the positional guess.** An orphan now gets `laneId = null` in the editor (`src/aef-workflow-designer.html`, the `let laneId = null` block). Option (1) is therefore no longer the status quo; nothing is placed.
+- **T-891 (8ec05d31) made it loud.** `W-XML-NODE-UNASSIGNED` became the error `E-XML-NODE-UNASSIGNED` ("flow node … is in no lane … an owner cannot be derived and must not be invented"). That is the announce half recommended below, delivered as an error rather than a warning.
+
+What is left for you is one question: **keep "no lane plus a validator error"** (closest to option 3, refuse-to-place, except that the document still imports), **or install a placement** (1 or 2). Its cost is the T-358 evidence: real third-party files often arrive structurally thin, and since T-891 their imported nodes sit in no lane (the re-recorded third-party goldens, T-1045, show this on 9 of 11 fixtures).
+
+**Evidence:**
+- `grep -n 'let laneId = null' src/aef-workflow-designer.html`, and `grep -n E-XML-NODE-UNASSIGNED tools/validate-workflow.py`.
+- `docs/reports/T-1045-thirdparty-golden-rerecord.md`, the T-891 row: orphans renamed `hum_…` → `lan_…`, and the fabricated lanes left empty.
+
 ### 2026-09-05 — SPLIT. One half is recommendable now; the other stays yours
 
 This ruling has two halves and the task itself says so: *"Announcing is orthogonal to

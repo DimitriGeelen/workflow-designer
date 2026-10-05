@@ -4,10 +4,11 @@ name: "8 tasks awaiting Human review have no Recommendation (_norec-verify findi
 description: >
   Found by T-1013 running tools/_norec-verify.py on the live corpus.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T14:04:18Z
-last_update: 2026-10-04T14:04:18Z
-date_finished: null
+last_update: 2026-10-05T07:43:47Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +51,46 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-05T07:37:28Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1033: 8 tasks awaiting Human review have no Recommendation (_norec-verify finding)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+`tools/_norec-verify.py` (wired by T-1013) found tasks in the operator's review queue whose
+`## Recommendation` is empty, so the review card shows the operator a blank where the agent's
+evidence-backed advice should be (the T-2421 / T-2945 shape). Each needs its own Recommendation,
+written from that task's evidence. Batch-closing and boilerplate are both off the table (Human Task
+Completion Rule).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] The current list is re-derived live with `tools/_norec-verify.py`, not taken from the original count of 8
+- [ ] Each listed task gets a `**Recommendation:** GO / NO-GO / DEFER` block with Rationale and Evidence drawn from its own ACs, commits and artifacts. DEFER only for a real evidence gap, which must be named
+- [ ] No Human AC is ticked and no task is closed by this work
+- [ ] `tools/_norec-verify.py` reports no task awaiting review without a Recommendation
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,3 +347,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1033-8-tasks-awaiting-human-review-have-no-re.md
 - **Context:** Initial task creation
+
+### 2026-10-05T07:37:28Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

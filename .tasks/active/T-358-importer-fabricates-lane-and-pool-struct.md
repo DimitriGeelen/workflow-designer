@@ -565,6 +565,17 @@ green 24/24 here says nothing about the population this repair is aimed at — u
 
 ## Recommendation
 
+**Recommendation:** GO on **AB**: stop fabricating lanes in BOTH the importer and the emitter, and write an inert provenance marker that records "the input declared no lanes". If the marker cannot be made inert to third parties, fall back to **A** (drop only).
+
+**Rationale (re-checked 2026-10-05, T-1033):**
+- **Unchanged since 2026-09-05.** "No repair", B and C fall to the rule already ruled four times (T-674/675/677/678: a value must distinguish "nothing was there" from "nobody looked"). AB beats A because A records the fact only by absence. Details and the two blocking conditions are below.
+- **One interaction is new since T-891.** Orphan nodes now get no lane, and the validator raises `E-XML-NODE-UNASSIGNED` on them. Under A/AB, every node of a lane-less third-party document will therefore be in no lane and fail validation loudly, instead of sitting in an invented lane. That is consistent with the announce posture, but it is a visible behaviour change for such files.
+- **Order:** rule **T-341** (where an orphan lands) first, or together with this. The brief files this as Q2b following from it.
+
+**Evidence:** the candidate table below; T-891 commits 3cb17878 and 8ec05d31; `docs/reports/T-1045-thirdparty-golden-rerecord.md` (the fabricated lanes are now visibly empty on 9 of 11 fixtures).
+
+**Not recommended, and still yours:** whether already-saved documents are migrated (separate task, after this ruling).
+
 ### 2026-09-05 — NARROWED. Five candidates to two, without crossing the sovereignty line
 
 The operator's challenge was fair: an abstention handed over as a five-option menu is not

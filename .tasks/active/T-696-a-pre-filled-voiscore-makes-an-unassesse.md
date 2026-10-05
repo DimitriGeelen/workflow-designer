@@ -379,6 +379,23 @@ python3 -c 'import json,sys,os; p=".context/audits/t696-voi-recurrence.jsonl"; r
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Recommendation
+
+**Recommendation:** GO on **D, with A as its precondition, raised upstream**:
+- an inception whose `voi_score` nobody set is reported as **unscored**, outside the quadrant grid;
+- the template stops pre-filling `0.5`, so "unset" can be told apart from "set".
+
+**Rationale (written 2026-10-05, T-1033):**
+- **This is the information-integrity rule you have ruled four times** (T-674/675/677/678): a value must distinguish "nothing was there" from "nobody looked". `voi_score: 0.5` shipped pre-filled in `.tasks/templates/inception.md:22` cannot.
+- **D is the only option that neither buries nor promotes.** B ranks unassessed work last, which buries urgent inceptions. "No repair" ranks it mid, which is what let this run's Q1-first rule select on a field nobody set. D ranks nothing on an unset field.
+- **D puts no number on your field.** C would let the estimator propose a `voi_score`, which widens what it may touch: the sovereignty concern this AC raises. D needs no estimator change. A is required because D cannot detect "unset" while the template writes 0.5.
+- **It is AEF's code and template** (`lib/bvp*`, `estimator.py`, `templates/inception.md`), and AEF is mid-revamp of BVP (`lib/bvp_degenerate.py`, T-3489: they measured inception scores as degenerate across 497 tasks). So this goes to them as input to that revamp, not as a local fork.
+- **The withheld-recommendation concern is respected.** The agent proposes how an UNSET value is displayed, never what any value should be.
+
+**Evidence:** `tools/_t694-bvp-distinguishability.py` re-run today: 14 inception tasks, `voi_score` still the template default on 12, `target_blast_radius` still default on 12. `docs/reports/T-694-bvp-distinguishability.md` §2–§3.
+
+**If you agree:** reply D. The agent sends AEF the measurement plus the D+A proposal. Nothing changes locally.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.

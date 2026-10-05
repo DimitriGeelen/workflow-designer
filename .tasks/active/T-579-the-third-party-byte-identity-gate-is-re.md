@@ -330,8 +330,20 @@ bash tools/_t509-instrument-sweep.sh
 
 ## Recommendation
 
-**Recommendation:** close it. All five Agent ACs are ticked on measurement, the gate this
-task was filed about is green and wired, and its teeth bite.
+**Recommendation:** GO: close it. The Human criterion asks you to choose a new `BASELINE_REF`, and that
+choice no longer exists. T-581 replaced the pinned ref with recorded goldens (`tests/goldens/third-party/`),
+and `grep -n BASELINE_REF tools/_t358-byteid-thirdparty.mjs` finds nothing (checked 2026-10-05).
+What replaced the decision is the gate's own rule: "an accepted change is a reviewed diff".
+
+**Re-checked 2026-10-05 (T-1033).** The gate went red again on 2026-10-04: 9 goldens had drifted
+under three deliberate fixes (T-602, T-603, T-891). It was re-recorded as a reviewed, bisected diff
+under T-1045 (`docs/reports/T-1045-thirdparty-golden-rerecord.md`). Today:
+`node tools/_t358-byteid-thirdparty.mjs` → 11 identical, 0 drifted, rc 0;
+`python3 tools/_t581-byteid-baseline-teeth.py` → 5/5;
+`bash tools/_t509-instrument-sweep.sh` → RAN 100, passed 100, abstained 0.
+
+**Original note (still accurate):** close it. All five Agent ACs are ticked on measurement, the
+gate this task was filed about is green and wired, and its teeth bite.
 
 **Evidence:** `node tools/_t358-byteid-thirdparty.mjs` → 11 identical, 0 drifted, rc 0.
 `python3 tools/_t581-byteid-baseline-teeth.py` → 5/5, control green plus four mutations each

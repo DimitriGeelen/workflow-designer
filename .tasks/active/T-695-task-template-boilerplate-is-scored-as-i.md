@@ -264,6 +264,22 @@ cost_estimate_proposed:
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Recommendation
+
+**Recommendation:** GO on **A, done upstream**: AEF's estimator should score only authored text, stripping HTML comments and the template's instructional blocks before matching. We would take the fix when we re-vendor, and carry no local fork.
+
+**Rationale (written 2026-10-05, T-1033):**
+- The Human AC withheld a recommendation because "every candidate re-ranks the whole backlog, and this run selected its own work from that ranking". That conflict is real **if I change the ranking here**. It disappears if the change is made by the estimator's owner. The estimator is vendored AEF code (`.agentic-framework/agents/termlink/bvp-estimator/estimator.py`), and AEF does not select our work.
+- The defect is **still live** on 1.7.740: `parse_task()` returns everything after the frontmatter, comments included. The default template is 18 KB, mostly instructional comments.
+- **A** fixes it where it occurs and needs no template churn.
+- **B** (move the guidance out of the task file) removes it from where authors read it.
+- **C** (subtract a pinned floor) goes stale whenever the template changes, which it did on 2026-10-03.
+- **No repair** stays defensible for *comparisons*, since the floor is uniform, but every absolute score is still wrong. The composite reads absolute scores, so that cost is not zero.
+
+**Evidence:** `estimator.py` `parse_task()` (no comment stripping); `docs/reports/T-694-bvp-distinguishability.md` §1; `tools/_t694-bvp-distinguishability.py` re-run today (the inception inputs are still template defaults: 12 of 14).
+
+**If you agree:** reply A. The agent then sends AEF the T-694 measurement and asks for A. Nothing changes locally.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.

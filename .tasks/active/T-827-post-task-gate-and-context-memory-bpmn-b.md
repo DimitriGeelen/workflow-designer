@@ -197,6 +197,18 @@ bvp_scores_proposed:
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Recommendation
+
+**Recommendation:** GO: close it. The posting this criterion asks you to authorise has already happened, and its bytes are verifiably the current files.
+
+**Evidence (checked 2026-10-05, T-1033):**
+- `termlink channel subscribe xfer-832-bpmn` shows offsets 0–2 `task-gate.bpmn` (3 parts, 12507 bytes, sha256 `713396a0a790…`) and offsets 3–5 `context-memory.bpmn` (3 parts, 11565 bytes, sha256 `9cc281d0ac0c…`), first posted 2026-10-01 15:54Z.
+- Both hashes equal today's `examples/aef-processes/rendered/task-gate.bpmn` and `…/context-memory.bpmn`.
+- AEF has since acted on them: @505 says round 1 (T-1041/T-3774) starts with "the task-gate.bpmn compile check".
+- The posting route these went through, post-bytes on an xfer topic with the sha256 in metadata, is the one used for every upstream bundle since (T-969 tooling, bundles A–F).
+
+**What ticking means here:** you are confirming the posting after the fact, not authorising a new one. If you would rather such transfers came to you first in future, say so and it becomes a standing rule.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
