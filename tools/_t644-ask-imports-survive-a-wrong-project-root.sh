@@ -101,7 +101,9 @@ python3 - "$ASKPY" "$MUT" <<'PY'
 import sys, re
 src = open(sys.argv[1]).read()
 # Replace the whole T-644 block with the shipped one-liner pair.
-start = src.index("FRAMEWORK_ROOT = os.path.dirname")
+# Anchor on the assignment's line start, not its right-hand side: since 1.8.2 the block is
+# upstream's own fix (AEF T-3783, `FRAMEWORK_ROOT = os.environ.get(...) or ...`), not ours (T-1049).
+start = src.index("\nFRAMEWORK_ROOT = ") + 1
 end = src.index("\nfrom web.", start)
 shipped = (
     'PROJECT_ROOT = os.environ.get("PROJECT_ROOT", '

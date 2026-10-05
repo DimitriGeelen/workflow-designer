@@ -35,6 +35,7 @@ Exit codes are three-valued on purpose:
 and "I could not look" are different facts and an instrument that renders both as green is the
 PL-205 failure this repo keeps re-finding.
 """
+import json
 import os
 import subprocess
 import sys
@@ -169,6 +170,26 @@ def main():
     for e in manifest.get("entries") or []:
         if isinstance(e, dict) and e.get("path"):
             declared[e["path"]] = e.get("kind", "content")
+
+    # T-1049: a pristine commit snapshots the whole vendored tree, so a consumer-local file that
+    # `fw vendor` KEPT (.fwvendor-preserve.yaml, AEF T-3850) is inside the baseline and diffs as
+    # nothing -- every preserved local file read STALE ("fix lost") right after the 1.8.2
+    # upgrade, while all six were intact. The vendor stamp in the baseline lists every file the
+    # vendor wrote; a declared `added` path that exists on disk and is NOT in it is local by the
+    # vendor's own record, so it still diverges. No stamp in the baseline: the old rule stands.
+    st = git("show", "%s:%s/.fw-vendor-stamp.json" % (baseline, VENDOR_PATH))
+    if st.returncode == 0:
+        try:
+            written = set((json.loads(st.stdout).get("files") or {}).keys())
+        except ValueError:
+            return refuse("the vendor stamp in baseline %s does not parse" % baseline[:12])
+        if not written:
+            return refuse("the vendor stamp in baseline %s lists no files" % baseline[:12])
+        prefix = VENDOR_PATH + "/"
+        for p, k in declared.items():
+            if (k == "added" and p not in actual and p.startswith(prefix)
+                    and p[len(prefix):] not in written and os.path.isfile(os.path.join(ROOT, p))):
+                actual[p] = "added"
 
     # T-519: the `upstream:` taxonomy was documented in this file's own header and enforced
     # NOWHERE, so a typo or an invented value read as a valid classification and the entry

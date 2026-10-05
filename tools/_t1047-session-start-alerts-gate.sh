@@ -53,6 +53,14 @@ for c in "${BLOCK[@]}"; do check BLOCK "$c"; done
 check ADMIT "bash -n tools/runme-watch.sh"
 
 # The arm is what changed the verdict: every ADMIT case is BLOCKED by the pre-fix library.
+# T-1049: the pristine vendor commit (the divergence baseline) IS upstream without our arm, by
+# construction. The history search below found the commit that last changed the helper's count,
+# which after a re-vendor is the pristine commit that REMOVED it, so its parent held the fix.
+if [ -z "$BEFORE_REF" ]; then
+    BEFORE_REF=$(sed -n 's/^baseline_commit: *//p' "$ROOT/.agentic-framework/.vendor-divergence.yaml" 2>/dev/null)
+    git -C "$ROOT" show "$BEFORE_REF:.agentic-framework/agents/context/lib/safe-commands.sh" 2>/dev/null \
+        | grep -q '_fw_is_session_start_alerts' && BEFORE_REF=""
+fi
 if [ -z "$BEFORE_REF" ]; then
     BEFORE_REF=$(git -C "$ROOT" log --format=%H -n1 -S'_fw_is_session_start_alerts' -- \
         .agentic-framework/agents/context/lib/safe-commands.sh 2>/dev/null)

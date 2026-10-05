@@ -323,13 +323,20 @@ else
     # null"), which covers the archive path T-654 fixed and every other path at once. So the
     # mutation removes that invariant, and BOTH paths must regress — that is what proves the
     # behaviour legs above still depend on it.
+    # T-1049: 1.8.2 added a null AT each of the two archive moves (AEF T-3744, a caller timeout
+    # killed the script before the invariant ran) on top of the invariant. Reverting only the
+    # invariant left both moves nulling, so the mutant could not fail. Revert every null site;
+    # the invariant must be among them, so a renamed invariant still reads as a stale anchor.
     python3 - "$UPDATE" "$MUT" <<'PY'
-import sys
+import re, sys
 src = open(sys.argv[1]).read()
-needle = '    _sed_i "s/^horizon:.*/horizon: null/" "$TASK_FILE"\nfi\n'
-if src.count(needle) != 1:
-    sys.stderr.write("upstream invariant anchor matches %d sites\n" % src.count(needle)); sys.exit(1)
-open(sys.argv[2], "w").write(src.replace(needle, '    : # invariant reverted\nfi\n', 1))
+inv = '    _sed_i "s/^horizon:.*/horizon: null/" "$TASK_FILE"\nfi\n'
+if src.count(inv) != 1:
+    sys.stderr.write("upstream invariant anchor matches %d sites\n" % src.count(inv)); sys.exit(1)
+pat = re.compile(r'^([ \t]*)_sed_i "s/\^horizon:\.\*/horizon: null/" "\$TASK_FILE"$', re.M)
+out, n = pat.subn(r'\1: # horizon null reverted', src)
+sys.stderr.write("reverted %d horizon-null site(s)\n" % n)
+open(sys.argv[2], "w").write(out)
 PY
     if [ $? -ne 0 ] || cmp -s "$UPDATE" "$MUT"; then
         bad "STALE ANCHOR — neither the T-654 marker nor upstream's completed/ invariant found; the mutant is unmodified"

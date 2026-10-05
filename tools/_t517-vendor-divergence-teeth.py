@@ -18,6 +18,7 @@ Legs deliberately include the two shapes that would otherwise hide:
 
 Exit 0 all passed, 1 a leg failed, 2 the subject is missing.
 """
+import json
 import os
 import shutil
 import subprocess
@@ -204,6 +205,40 @@ def main():
         leg("a VALID `upstream:` value (superseded) still passes -> rc 0, so the check "
             "discriminates rather than rejecting everything",
             rc == 0, "rc=%d" % rc)
+
+        # ── legs 10-11: a PRESERVED local file inside a pristine baseline (T-1049) ─────────
+        # 1.8.x keeps consumer-local files (.fwvendor-preserve.yaml), so the pristine commit
+        # holds them and they diff as nothing. The vendor stamp in the baseline is the record of
+        # what the vendor wrote: a declared `added` file absent from it is still ours (leg 10).
+        # Leg 11 is the control that makes leg 10 mean something: the SAME tree, but the stamp
+        # says the vendor wrote that file, so the declaration really is stale and must go red.
+        def stamped_repo(name, stamp_has_local):
+            repo, _, _ = make_repo(tmp, name)
+            local = ".agentic-framework/lib/local_only.py"
+            os.makedirs(os.path.join(repo, ".agentic-framework", "lib"))
+            with open(os.path.join(repo, local), "w") as f:
+                f.write("# ours, kept by .fwvendor-preserve.yaml\n")
+            files = {"agents/f%03d.sh" % i: "0" * 64 for i in range(120)}
+            if stamp_has_local:
+                files["lib/local_only.py"] = "0" * 64
+            with open(os.path.join(repo, ".agentic-framework", ".fw-vendor-stamp.json"), "w") as f:
+                json.dump({"schema": 1, "files": files}, f)
+            git(repo, "add", "-A")
+            git(repo, "commit", "-qm", "pristine (holds the preserved local file)")
+            pristine = git(repo, "rev-parse", "HEAD").stdout.strip()
+            write_manifest(repo, pristine, [(local, "added")])
+            return repo, local
+
+        repo, local = stamped_repo("preserved", stamp_has_local=False)
+        rc, out = run_tool(repo)
+        leg("preserved local file inside the pristine baseline, absent from the vendor stamp "
+            "-> still declared-and-diverged, rc 0 (not a false STALE)",
+            rc == 0 and "STALE" not in out, "rc=%d" % rc)
+
+        repo, local = stamped_repo("stamped", stamp_has_local=True)
+        rc, out = run_tool(repo)
+        leg("CONTROL: same tree but the stamp lists the file as vendor-written -> STALE, rc 1",
+            rc == 1 and "STALE" in out and local in out, "rc=%d" % rc)
 
     failed = [n for n, ok in results if not ok]
     print("\nTEETH %s — %d passed, %d failed"
