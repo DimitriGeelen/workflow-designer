@@ -8,11 +8,11 @@ description: >
   (T-1005), so nothing reported it. Advance the pin (version, sha256, bytes) as T-743
   did, and verify /designer serves 0.15.2.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-02T22:38:21Z
-last_update: 2026-10-02T23:14:50Z
-date_finished:
+last_update: 2026-10-02T23:15:07Z
+date_finished: 2026-10-02T23:15:07Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -85,9 +85,9 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] policy/designer-pin.yaml names 0.15.2 with the sha256 and bytes of designer-v0.15.2's MANIFEST (68454742…, 1063551)
-- [ ] `fw designer sync --from-tag` (the canonical intake, T-2616) installs it, verifying the sha against both the pin and the MANIFEST at the tag
-- [ ] Watchtower's /designer/app serves bytes whose sha256 is 68454742…
+- [x] policy/designer-pin.yaml names 0.15.2 with the sha256 and bytes of designer-v0.15.2's MANIFEST (68454742…, 1063551)
+- [x] `fw designer sync --from-tag` (the canonical intake, T-2616) installs it, verifying the sha against both the pin and the MANIFEST at the tag
+- [x] Watchtower's /designer/app serves bytes whose sha256 is 68454742…
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -350,3 +350,15 @@ grep -q '68454742196d2a53da2c6fed7dc7cb945c60995690d9224e6ab5e4f72d2f4394' .agen
 ### 2026-10-02T23:14:14Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-93b2e15c
+- **Timestamp:** 2026-10-02T23:15:09Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-02T23:15:07Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

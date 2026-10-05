@@ -9,10 +9,10 @@ description: >
   before handing the decision over. Operator asked 2026-10-02: RCA, fix in our vendored
   framework, and send to AEF for structural remediation.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [bug]
 components: []
 related_tasks: []
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-02T15:35:40Z
-last_update: 2026-10-02T15:38:06Z
-date_finished:
+last_update: 2026-10-02T15:38:37Z
+date_finished: 2026-10-02T15:38:37Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -91,7 +91,7 @@ for structural remediation in the framework."
 - [x] Vendored fix: a human running decide at a terminal with no marker sees the review (emit_review) and confirms y/N instead of being refused; agents ($CLAUDECODE=1) and non-interactive callers keep the refusal; verified in a harness built from the exact block (n stops, y proceeds, agent refused)
 - [x] The local patch is declared in .agentic-framework/.vendor-divergence.yaml (upstream: fix) so the next re-vendor cannot erase it silently (T-995 F5)
 - [x] Committed without any of the uncommitted T-988 upgrade hunks (staged as HEAD + this change only)
-- [ ] Structural remediation sent to AEF on the sidecar, with the RCA and the proposed upstream fix
+- [x] Structural remediation sent to AEF on the sidecar, with the RCA and the proposed upstream fix (conversation inception-decide-review-marker, client_msg_id 669719d5)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -377,3 +377,20 @@ next actor's.
 
 ### 2026-10-02T15:37:37Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4d5bc8ab
+- **Timestamp:** 2026-10-02T15:38:38Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — RCA written (section below) with the gate's location (lib/inception.sh, T-973 marker gate), the marker's only writer (lib/review.sh emit_review), and the measured recurrence (15 transcript hits, 2 run
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=lib/inception.sh in: RCA written (section below) with the gate's location (lib/inception.sh, T-973 marker gate), the marker's only writer (lib/review.sh emit_review), and `
+
+### 2026-10-02T15:38:37Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

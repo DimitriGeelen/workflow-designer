@@ -8,11 +8,11 @@ description: >
   acted on the T-1049 runme done event. No work lost; RCA for the operator and the
   055 fleet cockpit.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: [rca, bug]
 components: []
 related_tasks: []
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-05T15:46:43Z
-last_update: 2026-10-05T15:46:52Z
-date_finished:
+last_update: 2026-10-05T15:50:19Z
+date_finished: 2026-10-05T15:50:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -90,8 +90,8 @@ fleet cockpit." Full report: `docs/reports/T-1052-duplicate-conversation-rca.md`
 ### Agent
 - [x] Loss check: every change the other copy made is committed (444d090b, d698db49, 142c4183, 318d515c), `_t517` clean, no duplicate tasks or duplicate outgoing messages
 - [x] The duplicate is stopped: no `claude -c` / `claude-fw -c` process remains; exactly one process runs conversation 500d44d9
-- [ ] RCA report written with timeline, root cause, why it was allowed, and prevention; committed
-- [ ] RCA sent to the 055 fleet cockpit agent (sidecar), with the questions only 055 can answer
+- [x] RCA report written with timeline, root cause, why it was allowed, and prevention; committed (5928df7c)
+- [x] RCA sent to the 055 fleet cockpit agent (sidecar, conversation duplicate-conversation-rca, delivered RECEIVED), with the questions only 055 can answer
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -368,3 +368,15 @@ docs/reports/T-1052-duplicate-conversation-rca.md.
 
 ### 2026-10-05T15:46:52Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-06759547
+- **Timestamp:** 2026-10-05T15:50:21Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-05T15:50:19Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

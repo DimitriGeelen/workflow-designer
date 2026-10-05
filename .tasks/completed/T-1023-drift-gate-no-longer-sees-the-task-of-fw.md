@@ -4,10 +4,11 @@ name: "Drift gate no longer sees the task of 'fw git commit -m \"T-N: ...\"' —
 description: >
   Found by T-1020's spike B checking T-607. 37865ec7 (T-1005 bridge triage) matched fw clauses on the _fw_strip_quoted view so fw note prose is not read as an update; that also strips the quoted -m message, so pattern 3 never sees 'T-N:' in 'fw git commit -m "T-N: x"' (and the .agentic-framework/bin/fw path form). Fix: an fw git commit clause keeps the raw view, like git. Add the two forms to the drift probes.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T00:21:06Z
-last_update: 2026-10-04T00:22:46Z
-date_finished: null
+last_update: 2026-10-04T00:22:47Z
+date_finished: 2026-10-04T00:22:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -322,3 +323,15 @@ bash tools/_t921-drift-extraction-teeth.sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1023-drift-gate-no-longer-sees-the-task-of-fw.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e0103a7f
+- **Timestamp:** 2026-10-04T00:22:49Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-04T00:22:47Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

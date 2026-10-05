@@ -8,13 +8,13 @@ description: >
   add a probe that fails if the value reappears in any tracked file (comparison only,
   never printing it) (T-1020 GO, 2026-10-04)
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T07:54:35Z
-last_update: 2026-10-04T07:57:04Z
-date_finished:
+last_update: 2026-10-04T07:57:05Z
+date_finished: 2026-10-04T07:57:05Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -353,3 +353,15 @@ python3 tools/_t517-vendor-divergence.py
 ### 2026-10-04T07:55:03Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0ac20634
+- **Timestamp:** 2026-10-04T07:57:08Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-04T07:57:05Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

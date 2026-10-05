@@ -636,8 +636,8 @@ repo-relative paths), not evidence about the artifacts. Full block: **18 of 18 g
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-7588ec49
-- **Timestamp:** 2026-08-26T12:30:17Z
+- **Scan ID:** R-7a29932d
+- **Timestamp:** 2026-10-02T06:04:42Z
 - **Catalogue:** v1.3-seed
 - **Overall:** CONCERN
 - **Needs Human:** no
@@ -647,7 +647,6 @@ repo-relative paths), not evidence about the artifacts. Full block: **18 of 18 g
 
   1. **mock-only-integration** (partial, heuristic) @ AC vs Verification cross-check
      - evidence: `python3 tests/test_mapping_standard_conformance.py`
-
 ### 2026-08-26T12:30:15Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
 

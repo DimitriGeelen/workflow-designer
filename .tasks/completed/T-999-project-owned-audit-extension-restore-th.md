@@ -6,13 +6,13 @@ description: >
   F5: both rails lived inside vendored audit.sh and were erased by re-vendors (T-840,
   T-988). From inception T-995 (GO 2026-10-02), docs/reports/T-995-bridge-suite-slide.md.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/project-audit.sh, tools/_t856-auto-approval-teeth.sh, tools/_t952-audit-rail-teeth.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -41,8 +41,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-02T16:38:17Z
-last_update: 2026-10-02T23:19:16Z
-date_finished:
+last_update: 2026-10-02T23:19:29Z
+date_finished: 2026-10-02T23:19:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -85,11 +85,11 @@ project-owned script that no re-vendor can touch, and propose the extension poin
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `tools/project-audit.sh` runs the 8 rails (T-382 release lag + gap closure keys, T-660 Human AC actionability, T-931 stale ownership, T-936 stray captures, T-941 boundary inventory, T-945 vendor divergence, T-952 bridge-suite ratchet, T-938/T-939 secret paths incl. history), each carried over from its last committed form, with audit.sh-compatible PASS/WARN/FAIL lines
-- [ ] It writes `.context/audits/project/LATEST.yaml` (counts + findings) and exits 0 pass / 1 warn / 2 fail
-- [ ] It has a schedule (cron registry) so the rails run without anyone remembering to
-- [ ] The rails' teeth scripts that extracted from audit.sh read project-audit.sh instead, and pass
-- [ ] The extension-point ask is on record with AEF (sidecar)
+- [x] `tools/project-audit.sh` runs the 8 rails (T-382 release lag + gap closure keys, T-660 Human AC actionability, T-931 stale ownership, T-936 stray captures, T-941 boundary inventory, T-945 vendor divergence, T-952 bridge-suite ratchet, T-938/T-939 secret paths incl. history), each carried over from its last committed form, with audit.sh-compatible PASS/WARN/FAIL lines
+- [x] It writes `.context/audits/project/LATEST.yaml` (counts + findings) and exits 0 pass / 1 warn / 2 fail
+- [x] It has a schedule (cron registry) so the rails run without anyone remembering to
+- [x] The rails' teeth scripts that extracted from audit.sh read project-audit.sh instead, and pass
+- [x] The extension-point ask is on record with AEF (sidecar)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -349,3 +349,22 @@ project-owned script that no re-vendor can touch, and propose the extension poin
 
 ### 2026-10-02T23:17:34Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4b0f7b63
+- **Timestamp:** 2026-10-02T23:19:31Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — `tools/project-audit.sh` runs the 8 rails (T-382 release lag + gap closure keys, T-660 Human AC actionability, T-931 stale ownership, T-936 stray captures, T-941 boundary inventory, T-945 vendor diver
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/project-audit.sh in: `tools/project-audit.sh` runs the 8 rails (T-382 release lag + gap closure keys, T-660 Human AC actionability, T-931 stale ownership, T-936 stray capt`
+- **AC#2 (Agent)** — It writes `.context/audits/project/LATEST.yaml` (counts + findings) and exits 0 pass / 1 warn / 2 fail
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=context/audits/project/LATEST.yaml in: It writes `.context/audits/project/LATEST.yaml` (counts + findings) and exits 0 pass / 1 warn / 2 fail`
+
+### 2026-10-02T23:19:29Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

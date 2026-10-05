@@ -14,12 +14,13 @@ description: >
   (P-011 gate T-574/T-943, bridge legs), audit.sh (T-657, T-952 rails — or move them
   out per T-999), observe.sh, safe-commands.sh.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t343-write-equivalence.py, tools/_t391-p011-multiline-guard.sh, tools/_t436-inbox-route-probe.sh, tools/_t445-partial-state-mutation.sh, tools/_t467-arc-tag-source-of-truth.py, tools/_t516-episodic-decisions-teeth.py, tools/_t524-fabric-validate-teeth.py, tools/_t525-fabric-coverage-teeth.py, tools/_t541-bvp-driver-handler-teeth.py, tools/_t542-cost-blast-radius-teeth.py, tools/_t574-p011-block-locator-teeth.py, tools/_t585-human-ac-visibility-census.py, tools/_t630-p011-stdin-swallow.sh, tools/_t654-archiving-a-partial-complete-task-must-null-its-horizon.sh, tools/_t657-vendor-divergence-must-reach-an-audit-line.sh, tools/_t658-p011-must-distinguish-killed-from-failed.sh, tools/_t675-budget-read-fence.py, tools/_t774-create-task-substitution-probe.sh, tools/_t856-auto-approval-teeth.sh, tools/_t867-hypothesis-draft-teeth.sh, tools/_t919-c001-content-teeth.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -49,7 +50,7 @@ related_tasks: []
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-02T17:25:40Z
 last_update: 2026-10-03T22:16:51Z
-date_finished:
+date_finished: 2026-10-03T22:16:51Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -354,3 +355,15 @@ python3 tools/_t517-vendor-divergence.py
 
 ### 2026-10-02T17:34:11Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d4ee8b5a
+- **Timestamp:** 2026-10-03T22:16:52Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-03T22:16:51Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

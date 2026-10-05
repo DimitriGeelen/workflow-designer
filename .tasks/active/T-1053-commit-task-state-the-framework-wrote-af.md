@@ -1,15 +1,18 @@
 ---
-id: T-993
-name: "Authoring kit 0.15.2: Evergreen trial round-0 findings K1-K8 (ledger L7-L14) + L5/L6/L15 promotions"
+id: T-1053
+name: "Commit task-state the framework wrote after earlier sessions' commits (35 files)"
 description: >
-  Authoring kit 0.15.2: Evergreen trial round-0 findings K1-K8 (ledger L7-L14) + L5/L6/L15 promotions
+  Status/verdict/Updates writes from task closes on 2026-10-04/05 and the 1.8.2 template
+  refresh, left uncommitted. T-593 excluded: an unattributed tick on an operator-facing
+  [REVIEWER] line.
 
-status: work-completed
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: null
+horizon: now
 tags: []
-components: [src/aef-workflow-designer.html, tests/test_finding_anchorability.py, tests/test_harness_cross_form_agreement.py, tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tests/test_t312_lane_geometry.py, tests/test_t313_lane_capacity.py, tests/test_t983_review_loop_kit.py, tools/_t989-measure-evergreen.py, tools/validate-workflow.py]
+components: []
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -33,13 +36,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-XXX` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1053` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-02T13:36:08Z
-last_update: 2026-10-02T14:16:05Z
-date_finished: 2026-10-02T14:16:05Z
+created: 2026-10-05T16:08:09Z
+last_update: 2026-10-05T16:08:30Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,26 +53,41 @@ date_finished: 2026-10-02T14:16:05Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-05T16:08:30Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
-# T-993: Authoring kit 0.15.2: Evergreen trial round-0 findings K1-K8 (ledger L7-L14) + L5/L6/L15 promotions
+# T-1053: Commit task-state the framework wrote after earlier sessions' commits (35 files)
 
 ## Context
 
-Evergreen trial round 0 (T-989 iteration 1, docs/reports/T-989-evergreen-trial.md) found eight kit
-defects K1-K8 (ledger L7-L14); with L5, L6 (T-991) and L15 (our harness) the operator confirmed all
-2026-10-02: "confirm L5 to L15, go ahead with 0.15.2". This task builds them into the kit; the
-release itself is cut by the operator via runme.sh.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] L7/K1 validator: a process with flow nodes and no startEvent (no catch entry) draws ONE W-XML-NO-START-EVENT carrying the count of nodes not assessed; no endEvent (no throw terminus) draws ONE W-XML-NO-END-EVENT; YAML form has the same pair (W-NO-START-EVENT / W-NO-END-EVENT); forward fixtures + classification tables (dialect axis, form parity, anchorability) updated; bridge suite adds no failure (38 before = 38 after, 124 -> 128 passed; the ratchet floor of 32 was already exceeded before T-993, not moved here)
-- [x] L8-L12 guide: AUTHORING.md answers K2 (one step precedes two, relation unstated), K3 (none start/end around a stated chain), K4 (hand-over to another map: link throw/catch), K5 (records a step creates), K6 (system supports, performer unstated -> none + note) and corrects the §5 table for event-less maps
-- [x] L13/L14 tooling: loop.sh documents/supports running outside an agent harness and prints the review prompt size with a stated minimum reviewer context; AUTHORING §1b says the same
-- [x] L5, L6, L15 promoted in the ledger with markers present in their files; L7-L14 promoted after their changes land; `learning-ledger.py check` exits 0
-- [x] Kit builds (`build-authoring-kit.py --check` clean), kit tests (t974, t983, t984) green, VERSION/APP_VERSION 0.15.2, RELEASE-NOTES-0.15.2.md written, runme.sh prepared for 0.15.2 and dry-run only
-- [x] Real sandboxed calibration (opencode GLM, L5) of the 0.15.2 kit's loop.sh run before handing runme.sh to the operator; result recorded
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [x] Checked before committing: the only newly ticked boxes are Agent criteria of closed tasks, plus one unattributed tick on an operator-facing [REVIEWER] line (T-593), which is held back
+- [x] The other 35 task files are committed; T-593 alone remains uncommitted, for the operator
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -95,11 +113,11 @@ release itself is cut by the operator via runme.sh.
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
+         1. Run `bin/fw reviewer T-1053`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1053 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -229,12 +247,6 @@ release itself is cut by the operator via runme.sh.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
-python3 tools/learning-ledger.py check
-# exit code is the verdict (each test exits 1 if any leg fails); leg NAMES contain "FAIL"
-# ("--calibrate FAILS with a blind reviewer"), so grepping for it was wrong
-python3 tests/test_t974_authoring_kit.py > /tmp/.t993a 2>&1 && grep -q "passed" /tmp/.t993a
-python3 tests/test_t983_review_loop_kit.py > /tmp/.t993b 2>&1 && grep -q "passed" /tmp/.t993b
-grep -q "W-XML-NO-START-EVENT" tools/validate-workflow.py
 
 ## RCA
 
@@ -316,15 +328,10 @@ grep -q "W-XML-NO-START-EVENT" tools/validate-workflow.py
      - **Rejected:** [alternatives and why not]
 -->
 
-### 2026-10-02 — K1: how to make a missing start/end visible
-- **Chose:** one finding per process per missing event kind, carrying the count of nodes whose reachability was not assessed
-- **Why:** same shape T-972 chose for a lane with no laneMeta (the defect is the map's; the count keeps it from being quieter); per-node UNREACHABLE on an event-less map would misreport a fully stated chain as unreachable steps and push generators toward adding events
-- **Rejected:** per-node UNREACHABLE/DEADEND when no events (misleading on a stated chain); leaving it silent (the gradient toward omission K1 reported)
-
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-XXX go|no-go|defer --rationale "..."
+     fw inception decide T-1053 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -333,19 +340,10 @@ grep -q "W-XML-NO-START-EVENT" tools/validate-workflow.py
 
 ## Updates
 
-### 2026-10-02T13:36:08Z — task-created [task-create-agent]
+### 2026-10-05T16:08:09Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-993-authoring-kit-0152-evergreen-trial-round.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1053-commit-task-state-the-framework-wrote-af.md
 - **Context:** Initial task creation
 
-## Reviewer Verdict (v1.5)
-
-- **Scan ID:** R-bac83f30
-- **Timestamp:** 2026-10-02T14:16:10Z
-- **Catalogue:** v1.3-seed
-- **Overall:** PASS
-- **Needs Human:** no
-- **Findings:** none
-
-### 2026-10-02T14:16:05Z — status-update [task-update-agent]
-- **Change:** status: started-work → work-completed
+### 2026-10-05T16:08:30Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

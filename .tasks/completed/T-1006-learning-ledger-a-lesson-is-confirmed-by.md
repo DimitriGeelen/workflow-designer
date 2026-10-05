@@ -4,12 +4,13 @@ name: "Learning ledger: a lesson is confirmed by re-run evidence plus a cross-ve
 description: >
   Learning ledger: a lesson is confirmed by re-run evidence plus a cross-vendor reviewer quorum, not by operator assent
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/learning-ledger.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-02T22:12:34Z
-last_update: 2026-10-02T23:24:48Z
-date_finished: null
+last_update: 2026-10-02T23:25:09Z
+date_finished: 2026-10-02T23:25:09Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -68,11 +69,11 @@ priority rulings, recorded as such, never for correctness.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `learning-ledger.py review <id> --reviewer-cmd CMD --vendor V` sends the lesson, its evidence and its proposed change to one reviewer and records a verdict (agree / disagree / refine, with a reason) on the entry; an unparseable reply is recorded as `no-verdict`, never as agree
-- [ ] `learning-ledger.py confirm <id>` takes no `--by`: it runs the entry's `evidence_cmd` and confirms only when that exits 0 AND agreeing verdicts come from >= 2 distinct vendors, none of them the author's vendor, with no standing disagree; otherwise it prints why and, on disagreement, marks the entry `escalated`
-- [ ] An operator ruling is recorded separately (`rule <id> --kind value|priority --decision ...`) and cannot be of kind `correctness`
-- [ ] `check` flags a confirmed/promoted entry made after this change that lacks the evidence result or the vendor quorum; L1-L15 stay valid as `legacy-operator`
-- [ ] A test with stub reviewers covers: quorum met, same-vendor agree does not count, author vendor does not count, disagree escalates, failing evidence refuses, garbage reply = no-verdict, operator `correctness` ruling refused
+- [x] `learning-ledger.py review <id> --reviewer-cmd CMD --vendor V` sends the lesson, its evidence and its proposed change to one reviewer and records a verdict (agree / disagree / refine, with a reason) on the entry; an unparseable reply is recorded as `no-verdict`, never as agree
+- [x] `learning-ledger.py confirm <id>` takes no `--by`: it runs the entry's `evidence_cmd` and confirms only when that exits 0 AND agreeing verdicts come from >= 2 distinct vendors, none of them the author's vendor, with no standing disagree; otherwise it prints why and, on disagreement, marks the entry `escalated`
+- [x] An operator ruling is recorded separately (`rule <id> --kind value|priority --decision ...`) and cannot be of kind `correctness`
+- [x] `check` flags a confirmed/promoted entry made after this change that lacks the evidence result or the vendor quorum; L1-L15 stay valid as `legacy-operator`
+- [x] A test with stub reviewers covers: quorum met, same-vendor agree does not count, author vendor does not count, disagree escalates, failing evidence refuses, garbage reply = no-verdict, operator `correctness` ruling refused
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -331,3 +332,15 @@ python3 tools/learning-ledger.py check
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1006-learning-ledger-a-lesson-is-confirmed-by.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3d7f57cc
+- **Timestamp:** 2026-10-02T23:25:22Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-02T23:25:09Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

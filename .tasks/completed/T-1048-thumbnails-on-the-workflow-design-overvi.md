@@ -4,12 +4,13 @@ name: "Thumbnails on the workflow-design overview page: a small preview image pe
 description: >
   Thumbnails on the workflow-design overview page: a small preview image per design
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/gen-rendered-thumbs.mjs, tools/serve-gallery.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-05T07:43:55Z
-last_update: 2026-10-05T07:57:39Z
-date_finished: null
+last_update: 2026-10-05T07:58:22Z
+date_finished: 2026-10-05T07:58:22Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -89,37 +90,6 @@ rendered maps", `build/gallery/index.html`), which today is a plain numbered lis
 
 - `docs/reports/T-1048/gallery-desktop-1280.png`: read. A 160 px tile per design, left of its name, in the existing dark theme.
 - `docs/reports/T-1048/gallery-phone-390.png`: read. Tiles and names wrap within 390 px with no horizontal scroll; long names wrap at the hyphen.
-
-### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-1048`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1048 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
 
 ## Verification
 python3 tools/_t1048-gallery-thumbs.py
@@ -348,3 +318,15 @@ node --check tools/gen-rendered-thumbs.mjs
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1048-thumbnails-on-the-workflow-design-overvi.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-23444208
+- **Timestamp:** 2026-10-05T07:58:25Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-05T07:58:22Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

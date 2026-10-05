@@ -4,12 +4,13 @@ name: "Upgrade vendored AEF 1.7.740 -> 1.8.2 (T-1000 protocol)"
 description: >
   Upgrade vendored AEF 1.7.740 -> 1.8.2 (T-1000 protocol)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t517-vendor-divergence.py, tools/_t517-vendor-divergence-teeth.py, tools/_t644-ask-imports-survive-a-wrong-project-root.sh, tools/_t654-archiving-a-partial-complete-task-must-null-its-horizon.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-05T12:25:45Z
-last_update: 2026-10-05T12:25:45Z
-date_finished: null
+last_update: 2026-10-05T15:56:25Z
+date_finished: 2026-10-05T15:56:25Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -103,10 +104,10 @@ divergence register, then the baseline advance.
 ## Verification
 
 grep -qx '1.8.2' .agentic-framework/VERSION
-test -z "$(git show --name-only --format= b37861b5 | grep -v '^\.agentic-framework/')"
+test "$(git show --name-only --format= b37861b5 | grep -c .)" -gt 0 && test "$(git show --name-only --format= b37861b5 | grep -c .)" -eq "$(git show --name-only --format= b37861b5 | grep -c '^\.agentic-framework/')"
 python3 tools/_t517-vendor-divergence.py > /tmp/.t1049-t517 2>&1 && grep -q '^OK' /tmp/.t1049-t517
 python3 tools/_t517-vendor-divergence-teeth.py > /tmp/.t1049-teeth 2>&1 && grep -q 'TEETH PASS' /tmp/.t1049-teeth
-! grep -q '/tmp/' /etc/cron.d/agentic-audit-832-workflow-designer
+test "$(grep -c '^[0-9*]' /etc/cron.d/agentic-audit-832-workflow-designer)" -gt 0 && test "$(grep -c '^[0-9*]' /etc/cron.d/agentic-audit-832-workflow-designer)" -eq "$(grep -c '^[0-9*].* root cd "/opt/832-Workflow-designer" ' /etc/cron.d/agentic-audit-832-workflow-designer)" && test "$(grep -c '"/opt/832-Workflow-designer/.agentic-framework/bin/fw"' /etc/cron.d/agentic-audit-832-workflow-designer)" -ge 7
 test "$(grep -c '_t420-rail-attribution-gate\|warn-uncontrolled-absence\|check-bare-import' .claude/settings.json)" -ge 3
 
 # Shell commands that MUST pass before work-completed. One per line.
@@ -331,3 +332,15 @@ test "$(grep -c '_t420-rail-attribution-gate\|warn-uncontrolled-absence\|check-b
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1049-upgrade-vendored-aef-17740---182-t-1000-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-49cfd484
+- **Timestamp:** 2026-10-05T15:56:29Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-05T15:56:25Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

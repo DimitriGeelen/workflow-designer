@@ -7,13 +7,13 @@ description: >
   0, abstained 3; the bridge leg treats rc=3 (incomplete) as red. The three abstentions
   predate today (masked behind the earlier rc=1).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t402-gate-drive-probe.py, tools/_t402-gate-drive-teeth.sh, tools/_t588-differential-teeth.sh, tools/_t588-verification-extractor-differential.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T18:23:26Z
-last_update: 2026-10-05T07:30:07Z
-date_finished:
+last_update: 2026-10-05T07:30:09Z
+date_finished: 2026-10-05T07:30:09Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -364,3 +364,20 @@ bash tools/_t633-shared-tmp-sinks.sh
 
 ### 2026-10-05T06:44:52Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d912892c
+- **Timestamp:** 2026-10-05T07:30:45Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — `bash tools/_t509-instrument-sweep.sh` exits 0
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t509-instrument-sweep.sh in: `bash tools/_t509-instrument-sweep.sh` exits 0`
+
+### 2026-10-05T07:30:09Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

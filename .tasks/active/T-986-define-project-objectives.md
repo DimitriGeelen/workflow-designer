@@ -5,17 +5,17 @@ description: >
   Seeded once by fw upgrade (T-3636): this project has no .context/project/objectives.yaml.
   Author it once, from this project's own material: a headline, a few objectives each
   with a measure, and what is out of scope. Progress is derived from the work afterwards.
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
-owner: agent
+current_node: frw_8_partial
+owner: human
 horizon: now
 tags: [objectives-authoring]
 components: []
 related_tasks: []
 created: 2026-10-01T21:11:29Z
-last_update: 2026-10-05T08:23:50Z
-date_finished:
+last_update: 2026-10-05T08:23:51Z
+date_finished: 2026-10-05T08:23:51Z
 bvp_scores_proposed:
   - ts: '2026-10-05T08:21:17Z'
     estimator: bvp-estimator-v1-heuristic
@@ -151,3 +151,15 @@ grep -qi 'authored intent; progress is derived' .context/project/objectives.yaml
 ### 2026-10-05T08:21:16Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a1a0bc6d
+- **Timestamp:** 2026-10-05T08:23:53Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-05T08:23:51Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
