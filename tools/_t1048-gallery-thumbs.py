@@ -95,13 +95,52 @@ def main():
             "4 CONTROL: with no tiles, every entry shows the 'no preview' box and no <img> is emitted",
             "%d placeholders over %d entries" % (html2.count('class="ph">no preview'), len(lis2)))
 
+    # ── Watchtower's /designer corpus page (vendored AEF template + blueprint, T-1048) ──
+    try:
+        import jinja2
+        tpl_dir = os.path.join(ROOT, ".agentic-framework", "web", "templates")
+        env = jinja2.Environment(loader=jinja2.FileSystemLoader(tpl_dir), autoescape=True)
+        env.globals["csrf_token"] = lambda: "x"
+        cards = [dict(id="with", title="with", latest_v=2, version_count=2, saved_h="t", open_url="/designer/app?load=%2Fapi%2Fversion%3Fid%3Dwith%26v%3D2",
+                      is_draft=False, has_overlay=False, thumb_url="/api/thumb?id=with&v=2"),
+                 dict(id="without", title="without", latest_v=1, version_count=1, saved_h="t", open_url="/designer/app?load=%2Fapi%2Fversion%3Fid%3Dwithout%26v%3D1",
+                      is_draft=False, has_overlay=False, thumb_url=None)]
+        out_html = env.get_template("designer_landing.html").render(projects=cards, ghost_count=0)
+        ok = (out_html.count('<img src="/api/thumb?id=with&amp;v=2"') == 1 and out_html.count('class="corpus-thumb no-thumb"') == 1
+              and out_html.count("/api/thumb?id=without") == 0 and out_html.count("onclick=\"this.href=") == 2)
+        leg(ok, "5 Watchtower card template: a tile when the PNG exists, 'no preview' (no <img>) when not, one nonce-minting editor link per card (T-2596)")
+    except Exception as e:  # noqa: BLE001 — a template that cannot render is a failure, said as one
+        leg(False, "5 Watchtower card template renders", "%s: %s" % (type(e).__name__, e))
+
+    import urllib.request
+    try:
+        base = open(os.path.join(ROOT, ".context", "working", "watchtower.url")).read().strip()
+        page = urllib.request.urlopen(base + "/designer", timeout=10).read().decode("utf-8", "replace")
+    except Exception as e:  # noqa: BLE001
+        print("NOT CHECKED  6 live /designer page — Watchtower not reachable (%s). Leg 5 still covers the template." % type(e).__name__)
+    else:
+        n_cards = page.count('class="corpus-card')
+        srcs = re.findall(r'<img src="(/api/thumb\?[^"]+)"', page)
+        bad = []
+        for s in srcs:
+            try:
+                r = urllib.request.urlopen(base + s.replace("&amp;", "&"), timeout=10)
+                if r.headers.get_content_type() != "image/png" or r.read(8) != PNG:
+                    bad.append(s)
+            except Exception:  # noqa: BLE001
+                bad.append(s)
+        leg(n_cards > 0 and page.count('class="corpus-thumb') == n_cards and not bad
+            and page.count("onclick=\"this.href=") == n_cards,
+            "6 live /designer: every card has a tile, every tile is a real PNG, one nonce link per card",
+            "%d cards, %d img tiles, %d bad%s" % (n_cards, len(srcs), len(bad), (": %s" % bad) if bad else ""))
+
     stale = [m for m in maps for d in CORPORA
              if os.path.isfile(os.path.join(d, m + ".bpmn")) and os.path.isfile(os.path.join(CACHE, m + ".png"))
              and os.path.getmtime(os.path.join(d, m + ".bpmn")) > os.path.getmtime(os.path.join(CACHE, m + ".png"))]
     print("INFO  %d stale tile(s)%s (refreshed by the next real serve-gallery.sh build)"
           % (len(stale), (": " + ", ".join(stale)) if stale else ""))
 
-    print("\n%d/4 legs passed" % (4 - len(fails)))
+    print("\n%d failed leg(s)" % len(fails) if fails else "\nall legs passed")
     return 1 if fails else 0
 
 

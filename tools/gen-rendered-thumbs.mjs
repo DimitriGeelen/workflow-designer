@@ -15,6 +15,9 @@
 //
 // Usage:  node tools/gen-rendered-thumbs.mjs          # all corpus maps
 //         node tools/gen-rendered-thumbs.mjs id1 id2  # only the named ids
+//         node tools/gen-rendered-thumbs.mjs --store DIR   # T-1048: saved projects whose LATEST
+//             version has no <vN>.png get one, written as the data-url text the editor stores
+//             (DIR/<id>/v<N>.png, read by /api/thumb). Existing tiles are never overwritten.
 // Exit 0 = every requested map produced a non-empty PNG.
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
@@ -60,17 +63,34 @@ async function waitLoaded(cmd, id) {
 
 async function main() {
   let ids = process.argv.slice(2).filter(a => !a.startsWith('-'));
-  const index = corpusIndex();
-  if (!ids.length) ids = [...index.keys()].sort();
-  if (!ids.length) throw new Error('no corpus maps found in ' + CORPORA.join(', '));
-  const unknown = ids.filter(id => !index.has(id));
-  if (unknown.length) throw new Error('not in any corpus: ' + unknown.join(', '));
+  // A job: render `src` and write the PNG to `out` (raw bytes, or the editor's data-url text).
+  const si = process.argv.indexOf('--store');
+  let jobs;
+  if (si !== -1) {
+    const store = process.argv[si + 1];
+    if (!store || !existsSync(store)) throw new Error('--store needs an existing directory');
+    jobs = [];
+    for (const id of readdirSync(store).sort()) {
+      let meta; try { meta = JSON.parse(readFileSync(join(store, id, 'meta.json'), 'utf8')); } catch (_) { continue; }
+      const v = parseInt(meta.latest || 0, 10); if (v < 1) continue;
+      const src = join(store, id, `v${v}.bpmn`), out = join(store, id, `v${v}.png`);
+      if (existsSync(src) && !existsSync(out)) jobs.push({ id, src, out, dataUrl: true });
+    }
+    if (!jobs.length) { console.log('every saved project already has a tile for its latest version'); process.exit(0); }
+  } else {
+    const index = corpusIndex();
+    if (!ids.length) ids = [...index.keys()].sort();
+    if (!ids.length) throw new Error('no corpus maps found in ' + CORPORA.join(', '));
+    const unknown = ids.filter(id => !index.has(id));
+    if (unknown.length) throw new Error('not in any corpus: ' + unknown.join(', '));
+    jobs = ids.map(id => ({ id, src: index.get(id), out: join(OUT, id + '.png'), dataUrl: false }));
+  }
 
   const doc = mkdtempSync(join(tmpdir(), 'thumb-doc-'));
   const repo = mkdtempSync(join(tmpdir(), 'thumb-repo-'));
   copyFileSync(join(REPO, 'src/aef-workflow-designer.html'), join(doc, 'designer.html'));
   mkdirSync(join(doc, 'rendered'), { recursive: true });
-  for (const id of ids) copyFileSync(index.get(id), join(doc, 'rendered', id + '.bpmn'));
+  for (const j of jobs) copyFileSync(j.src, join(doc, 'rendered', j.id + '.bpmn'));
 
   const port = await freePort();
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
@@ -90,7 +110,7 @@ async function main() {
     await cmd('Page.enable'); await cmd('Runtime.enable');
     await cmd('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
 
-    for (const id of ids) {
+    for (const { id, out, dataUrl: asDataUrl } of jobs) {
       let ok = false, bytes = 0, note = '';
       try {
         await cmd('Page.navigate', { url: `${BASE}/designer.html?load=rendered/${id}.bpmn` });
@@ -102,7 +122,7 @@ async function main() {
         if (!dataUrl) { await sleep(600); dataUrl = await ev(cmd, `captureThumbnail()`); } // one retry
         if (dataUrl && dataUrl.startsWith('data:image/png')) {
           const raw = Buffer.from(dataUrl.split(',', 2)[1], 'base64');
-          if (raw.length > 0) { writeFileSync(join(OUT, id + '.png'), raw); ok = true; bytes = raw.length; }
+          if (raw.length > 0) { writeFileSync(out, asDataUrl ? dataUrl : raw); ok = true; bytes = raw.length; }
           else note = 'empty png';
         } else note = 'captureThumbnail returned null';
         if (ok) note = `${bytes}B  bbox ${Math.round(st.w)}x${Math.round(st.h)} nodes ${st.n}`;
@@ -118,7 +138,7 @@ async function main() {
   }
 
   const good = results.filter(r => r.ok).length;
-  console.log(`\n${good}/${results.length} thumbnails generated → ${OUT}`);
+  console.log(`\n${good}/${results.length} thumbnails generated`);
   process.exit(good === results.length ? 0 : 1);
 }
 main().catch(e => { console.error('FATAL', e); process.exit(2); });

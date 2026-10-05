@@ -245,6 +245,28 @@ entries:
       duplicate. Carrier mandatory and validated (a task file or an existing path) before the inbox
       is touched; only the target entry changes. Probe tools/_t1028-note-resolve-teeth.sh 7/7 (the
       verb is absent on the 1.7.740 file), bridge leg.
+  - path: .agentic-framework/web/blueprints/designer.py
+    kind: content
+    task: T-1048
+    upstream: fix
+    delivered: reported
+    delivered_ref: "AEF inbox @348, conversation designer-corpus-thumbnails, client_msg_id 6a6a76ef"
+    reason: >-
+      Operator request: preview thumbnails on the /designer corpus page. Each project gains
+      `thumb_url` (/api/thumb?id=&v=<latest>) only when <store>/<id>/v<latest>.png exists, so the
+      template can show a placeholder instead of a broken image. Guard: tools/_t1048-gallery-thumbs.py
+      legs 5-6 (bridge-wired).
+  - path: .agentic-framework/web/templates/designer_landing.html
+    kind: content
+    task: T-1048
+    upstream: fix
+    delivered: reported
+    delivered_ref: "AEF inbox @348, conversation designer-corpus-thumbnails, client_msg_id 6a6a76ef"
+    reason: >-
+      The card shows a 120px preview tile above its title, or a dashed "no preview" box. It is a
+      plain <img>, deliberately not a link: the card's one editor link must keep minting its
+      click-time nonce (AEF T-2596). Guard: tools/_t1048-gallery-thumbs.py legs 5-6, with a mutant
+      (fallback to an empty <img>) shown red.
   - path: .agentic-framework/lib/ts/dist/loop-detect.js
     kind: content
     task: T-1036

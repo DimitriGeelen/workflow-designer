@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-05T07:43:55Z
-last_update: 2026-10-05T07:51:00Z
+last_update: 2026-10-05T07:57:39Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -77,7 +77,15 @@ rendered maps", `build/gallery/index.html`), which today is a plain numbered lis
 - **Phone:** with mobile emulation, scrollWidth equals the viewport at 390 and 360, and 25/25 images load. The first, clipped phone screenshot came from desktop Chrome's minimum window width, not the page.
 - **Census:** `gen-rendered-thumbs.mjs` now has a live caller, so it left the unwired baseline (89 → 88).
 
+**Second overview page: Watchtower `/designer` ("Workflow Designer — Corpus").** This is the page the operator most likely meant. It shows cards for the server-saved workflows, and none had a picture.
+- `/api/thumb?id=&v=` already served the PNG the editor stores per version, but only 1 of 6 saved projects had one: the other 5 were saved via the API. `gen-rendered-thumbs.mjs --store` backfilled them in the editor's own data-url format, and never overwrites. A rerun is a no-op.
+- Vendored `web/blueprints/designer.py` now offers `thumb_url` only when the PNG exists. `designer_landing.html` shows a 120 px tile, or a dashed "no preview" box. It is a plain image, not a link, so the card's one editor link keeps minting its T-2596 nonce.
+- Watchtower restarted on 3013 to load the blueprint.
+- Check legs: **5** renders the real template offline (tile / fallback / one nonce link per card), and a mutant fallback to an empty `<img>` turns it red. **6** checks the live page: 6 cards, 6 tiles, all `image/png`, 6 nonce links.
+- Register: two entries (`upstream: fix`, delivered: reported, AEF @348). `_t517` OK, drain holds at 41.
+
 ## Visual Verification
+- `docs/reports/T-1048/watchtower-designer-light.png`, `…-dark.png`, `…-phone-390.png`: read. A diagram tile above each title in both themes, no overflow at 390 px, and the "Open in editor" buttons unchanged.
 
 - `docs/reports/T-1048/gallery-desktop-1280.png`: read. A 160 px tile per design, left of its name, in the existing dark theme.
 - `docs/reports/T-1048/gallery-phone-390.png`: read. Tiles and names wrap within 390 px with no horizontal scroll; long names wrap at the hyphen.
