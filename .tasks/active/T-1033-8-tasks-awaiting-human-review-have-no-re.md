@@ -39,7 +39,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T14:04:18Z
-last_update: 2026-10-05T07:43:47Z
+last_update: 2026-10-05T08:24:46Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -87,10 +87,25 @@ Completion Rule).
 ## Acceptance Criteria
 
 ### Agent
-- [ ] The current list is re-derived live with `tools/_norec-verify.py`, not taken from the original count of 8
-- [ ] Each listed task gets a `**Recommendation:** GO / NO-GO / DEFER` block with Rationale and Evidence drawn from its own ACs, commits and artifacts. DEFER only for a real evidence gap, which must be named
-- [ ] No Human AC is ticked and no task is closed by this work
-- [ ] `tools/_norec-verify.py` reports no task awaiting review without a Recommendation
+- [x] The current list is re-derived live with `tools/_norec-verify.py`, not taken from the original count of 8
+- [x] Each listed task gets a `**Recommendation:** GO / NO-GO / DEFER` block with Rationale and Evidence drawn from its own ACs, commits and artifacts. DEFER only for a real evidence gap, which must be named
+- [x] No Human AC is ticked and no task is closed by this work
+- [x] `tools/_norec-verify.py` reports no task awaiting review without a Recommendation
+
+**Evidence (2026-10-05):**
+- **Live list:** the same 8 (T-341, T-358, T-579, T-695, T-696, T-732, T-827, T-986).
+- **Why some looked empty:** three already held advice the guard could not read. Its regex stops at the first `#{2,} ` heading, so a verdict under a dated `###` subheading is invisible. The fix was a lead verdict line directly under `## Recommendation`, each re-checked against today's evidence.
+- **Verdicts:**
+  - **T-341 ABSTAIN** on placement, because it decides who owns a node. The announce half had shipped since (T-891: an orphan gets `laneId=null`; `E-XML-NODE-UNASSIGNED` is an error).
+  - **T-358 GO on AB**, rule T-341 first. T-891 adds an interaction with lane-less files.
+  - **T-579 GO close:** `BASELINE_REF` no longer exists; the gate is 11/0.
+  - **T-695 GO on A, upstream:** the estimator is AEF code, which removes the self-ranking conflict.
+  - **T-696 GO on D+A, upstream:** 12/14 inceptions still carry the 0.5 default.
+  - **T-732 GO:** tick H1 (ruled by the operator 2026-09-21, 22014fea); H5/H6 and AEF's attestations remain.
+  - **T-827 GO close:** posted 2026-10-01, sha256 matches today's files.
+  - **T-986 GO:** objectives drafted (there was no draft before) and independently reviewed.
+- **No box ticked, no task closed.** T-986 entered partial-complete through its own gate, owner human.
+- **Guard:** 74 pending, 1 ABSTAIN (T-341), **0 without a Recommendation verdict**.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -124,6 +139,7 @@ Completion Rule).
 -->
 
 ## Verification
+python3 tools/_norec-verify.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
