@@ -88,6 +88,21 @@ def verdict(prev: dict | None, fires: int, newest_ts: int,
     )
 
 
+def advance_baseline(prev: dict | None, fires: int, newest_ts: int,
+                     threshold: int = THRESHOLD) -> bool:
+    """T-1036: may this run move the baseline? Only when there is none yet, or when the state was
+    SEEN to advance over enough fires. Before this, every run rewrote it: a STARVED run reset the
+    fire count, so the next run read "inconclusive, holding" and the red cleared itself; an
+    inconclusive run also reset it, so a slow hook could stay inconclusive forever. The baseline
+    is the last point at which the hook was KNOWN to work — it may only move to a newer such point."""
+    if fires < 0:
+        return False
+    if prev is None:
+        return True
+    elapsed = fires - int(prev.get("fires", 0))
+    return elapsed >= threshold and newest_ts > int(prev.get("newest_ts", -1))
+
+
 def self_test() -> int:
     """Both verdicts must be reachable. A control with one reachable outcome is not a control."""
     failures = []
@@ -124,6 +139,24 @@ def self_test() -> int:
         if code != GREY:
             failures.append("absent counter did not degrade to GREY")
 
+        # --- T-1036: a STARVED verdict must survive a rerun. Simulate two consecutive runs with
+        # main()'s baseline rule: the first is RED, and the second (more fires, state still
+        # frozen) must be RED again, not "inconclusive". ---
+        base = {"fires": 300, "newest_ts": 1000}
+        fires1, frozen = read_fires(tmp / "counter"), read_newest_ts(tmp / "state")
+        code1, _ = verdict(base, fires1, frozen)
+        if advance_baseline(base, fires1, frozen):
+            base = {"fires": fires1, "newest_ts": frozen}
+        code2, msg2 = verdict(base, fires1 + 5, frozen)
+        if (code1, code2) != (RED, RED):
+            failures.append(f"a STARVED verdict cleared itself on rerun (got {code1} then {code2}: {msg2})")
+        # an inconclusive run must hold the baseline too, or a slow hook stays inconclusive forever
+        if advance_baseline({"fires": 300, "newest_ts": 1000}, 310, 1000):
+            failures.append("an inconclusive run advanced the baseline")
+        # a healthy run must advance it, or a later starvation is measured from a stale point
+        if not advance_baseline({"fires": 300, "newest_ts": 1000}, 400, 9999):
+            failures.append("a healthy run did not advance the baseline")
+
     if failures:
         for f in failures:
             print(f"SELF-TEST FAIL: {f}", file=sys.stderr)
@@ -155,7 +188,7 @@ def main() -> int:
     label = {RED: "RED", GREEN: "OK"}.get(code, "OK")
     print(f"[{label}] {msg}")
 
-    if not args.no_update and fires >= 0:
+    if not args.no_update and advance_baseline(prev, fires, newest_ts, args.threshold):
         BASELINE.parent.mkdir(parents=True, exist_ok=True)
         BASELINE.write_text(json.dumps({"fires": fires, "newest_ts": newest_ts}))
     return code

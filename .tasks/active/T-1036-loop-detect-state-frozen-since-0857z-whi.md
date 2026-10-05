@@ -1,11 +1,21 @@
 ---
 id: T-1036
-name: "loop-detect state frozen since 08:57Z while the hook fires (T-687 STARVED, G-050); and _t687 clears its own red on rerun"
+name: "loop-detect state frozen since 08:57Z while the hook fires (T-687 STARVED,
+  G-050); and _t687 clears its own red on rerun"
 description: >
-  Found by the newly wired _t687 guard (T-1013) in the 2026-10-04 bridge run: loop-detect fired 107 times since baseline and .context/working/.loop-detect.json did not advance (newest entry 08:57:25Z = this session's post-compaction resume). Direct invocation (fw hook loop-detect with a JSON payload) DOES write the state, so the live path differs. Hypotheses: (1) stdin arrives empty on the live path (the JS exits 0 silently on empty/unparseable stdin), (2) fw hook resolves PROJECT_ROOT from the hook's cwd and the state lands elsewhere (scratch AEF clones I worked in got .loop-detect.json writes today). Second defect: running _t687 rewrites its baseline, so a rerun reports 'inconclusive' and the red disappears. Check against v1.8.0 before fixing locally.
+  Found by the newly wired _t687 guard (T-1013) in the 2026-10-04 bridge run: loop-detect
+  fired 107 times since baseline and .context/working/.loop-detect.json did not advance
+  (newest entry 08:57:25Z = this session's post-compaction resume). Direct invocation
+  (fw hook loop-detect with a JSON payload) DOES write the state, so the live path
+  differs. Hypotheses: (1) stdin arrives empty on the live path (the JS exits 0 silently
+  on empty/unparseable stdin), (2) fw hook resolves PROJECT_ROOT from the hook's cwd
+  and the state lands elsewhere (scratch AEF clones I worked in got .loop-detect.json
+  writes today). Second defect: running _t687 rewrites its baseline, so a rerun reports
+  'inconclusive' and the red disappears. Check against v1.8.0 before fixing locally.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +48,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-04T14:30:57Z
-last_update: 2026-10-04T17:58:33Z
-date_finished: null
+last_update: 2026-10-05T07:36:05Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +60,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-05T07:31:56Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1036: loop-detect state frozen since 08:57Z while the hook fires (T-687 STARVED, G-050); and _t687 clears its own red on rerun
@@ -69,9 +100,19 @@ date_finished: null
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The early exit the LIVE hook takes is identified from evidence: a temporary diagnostic in the vendored loop-detect.js logs which exit path ran plus the stdin/env facts (type, length, PROJECT_ROOT/FRAMEWORK_ROOT/cwd), captured over real tool calls, then removed
+- [x] Root cause stated and fixed so live tool calls advance `.context/working/.loop-detect.json` (shown: hook counter and state both move across consecutive real tool calls)
+- [x] A vendored-file change is declared in the divergence register and offered to AEF (a silent rc-0 fail-open is G-050's class)
+- [x] `_t687` no longer clears its own red on rerun (its baseline must not advance on a STARVED verdict), shown by running it twice against a starved state
+- [x] `_t687` passes on the fixed tree
+
+**Evidence (2026-10-05):**
+- **Diagnostic, first live call:** `{"tag":"exit:read-failed","stdin":"socket",…,"err":"ENXIO"}`. PROJECT_ROOT, FRAMEWORK_ROOT, cwd and the state path were all correct, which rules out the paths hypothesis.
+- **Fix:** `readFileSync(0, "utf8")`. The first live call after it logged `"tag":"saved","stdin":"socket"`. With the diagnostic removed, the state recorded consecutive real `Bash` entries: hook counter 1405 → 1407, state 181 → 343 bytes.
+- **`_t687` self-clearing:** the baseline was rewritten on every run, whatever the verdict. Now `advance_baseline()` moves it only when there is no baseline yet, or when the state was seen to advance. The self-test simulates two consecutive starved runs and must see RED twice. A mutant with the old always-advance rule fails it ("got 2 then 0 … inconclusive, holding").
+- **Live:** `[OK] 31 fires and the state advanced — hook is functioning`.
+- **Register:** loop-detect.js entry, delivered: reported (AEF @338). `_t517` OK, drain holds at 41, census holds at 89.
+- **Why the bridge leg passed on the T-1045 run:** that was the self-clearing defect, not a fix. The state file had not moved since yesterday.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -105,6 +146,9 @@ date_finished: null
 -->
 
 ## Verification
+python3 tools/_t687-hook-function-check.py --self-test
+grep -q 'readFileSync)(0, "utf8")' .agentic-framework/lib/ts/dist/loop-detect.js
+python3 tools/_t517-vendor-divergence.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -247,6 +291,19 @@ date_finished: null
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+**Symptom:** loop-detect fired on every tool call (1400+ counted), but `.loop-detect.json` never recorded one, so loop detection was silently off in every live session.
+
+**Root cause:** Claude Code gives PostToolUse hooks a unix socket as stdin. `readFileSync('/dev/stdin')` reopens `/proc/self/fd/0`, which Linux refuses for a socket (ENXIO). The read-failure branch exited 0 and printed nothing.
+
+**Why structurally allowed:**
+- Every reproduction ran from a shell, where stdin is a pipe and the hook works, so the test path and the live path differed in the one property that mattered.
+- The fail-open left no trace: no stderr, no crash-log entry, rc 0.
+- The guard built to catch this (`_t687`) rewrote its own baseline on every run, so its red cleared itself on the next run (this task's second defect).
+
+**Prevention:**
+- `_t687` (bridge-wired) can no longer clear its own red, and the self-test pins that rule with a mutant shown failing.
+- The lesson is recorded as a learning: diagnose a hook by instrumenting the LIVE path, because a shell reproduction changes stdin's type.
+- AEF was asked (@338) to make the read-failure branch leave a trace, and to sweep for other `/dev/stdin` readers. Ours has none left.
 
 ## Evolution
 
@@ -328,3 +385,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1036-loop-detect-state-frozen-since-0857z-whi.md
 - **Context:** Initial task creation
+
+### 2026-10-05T07:31:55Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

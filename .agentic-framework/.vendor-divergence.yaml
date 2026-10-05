@@ -245,6 +245,19 @@ entries:
       duplicate. Carrier mandatory and validated (a task file or an existing path) before the inbox
       is touched; only the target entry changes. Probe tools/_t1028-note-resolve-teeth.sh 7/7 (the
       verb is absent on the 1.7.740 file), bridge leg.
+  - path: .agentic-framework/lib/ts/dist/loop-detect.js
+    kind: content
+    task: T-1036
+    upstream: fix
+    delivered: reported
+    delivered_ref: "AEF inbox @338, conversation loop-detect-socket-stdin, client_msg_id 08571353"
+    reason: >-
+      loop-detect was dead in every live session. Claude Code gives PostToolUse hooks a unix SOCKET
+      as stdin; readFileSync('/dev/stdin') reopens /proc/self/fd/0, which Linux refuses for a socket
+      (ENXIO), and main() exited 0 silently, so the state never advanced (G-050 class). Shell tests
+      use a pipe and passed. Fix: readFileSync(0). Found with a temporary exit-path diagnostic over
+      real tool calls (removed). Guard: tools/_t687-hook-function-check.py (bridge-wired), whose own
+      baseline-reset defect (a STARVED verdict cleared itself on rerun) is fixed in the same task.
   - path: .agentic-framework/agents/context/lib/safe-commands.sh
     kind: content
     task: T-1047

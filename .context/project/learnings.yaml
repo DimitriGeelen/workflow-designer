@@ -2675,3 +2675,9 @@ learnings:
   task: T-1039
   date: 2026-10-04
   context: Added via context agent
+- id: PL-382
+  learning: "A hook that works from a shell can be dead live: Claude Code gives hooks a unix SOCKET as stdin, and readFileSync('/dev/stdin') / open('/dev/stdin') fail ENXIO on a socket (a shell pipe works). Read fd 0 directly, and diagnose a hook by instrumenting the LIVE path — a shell reproduction changes stdin's type and cannot reproduce it"
+  source: P-001
+  task: T-1036
+  date: 2026-10-05
+  context: Added via context agent
