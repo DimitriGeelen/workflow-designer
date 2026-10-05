@@ -82,13 +82,13 @@ We will know that we are successful when we see the consult artifact (`fw extern
 -->
 
 - **IW-1: Does keeping the project-root runme.sh (A) carry a failure mode that AEF's fw runme (B) avoids, strong enough to switch?**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: answered
+  rationale: yes — consult t1054-runme-path 5/5: wrong-job risk (observed today, 142c4183 written by the duplicate copy), dry-run not hash-bound to the live script, safety logic re-implemented per job; docs/reports/T-1054-runme-path-brief.md §Findings
 - **IW-2: Is asking AEF to read 832's events file in `fw runme pending` a reasonable request, or a divergence that will bite?**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: answered
+  rationale: no — reverse coupling (4 of 5 panelists); propose the safeguards to fw runme upstream instead; brief §Findings #6
 
 ## Exploration Plan
 
@@ -153,13 +153,19 @@ We will know that we are successful when we see the consult artifact (`fw extern
 
 ## Recommendation
 
-**Recommendation:** NO-GO
+**Recommendation:** GO (hybrid, changed from NO-GO by the external consult)
 
 **Rationale:**
 
-Pending the external consult. The operator rule (2026-10-02) wants one command with y/N per step and a dry-run preflight, which our runme.sh gives and fw runme new does not; AEF offered to make fw runme pending read our events file instead
+Keep the operator's safeguards (one constant command, y/N per step, dry-run, preflight) but stop
+hand-writing them per job: one reviewed wrapper does them; each job is an immutable, named artifact
+under `.context/runme/<name>/`; the wrapper names the job and its sha256 before asking, and refuses a
+job whose hash differs from its dry-run. Propose the same safeguards to AEF's `fw runme` so 832 can
+converge on the shared runner; withdraw the request that AEF read our events file.
 
 **Evidence:**
+- External consult t1054-runme-path (2026-10-05): 5/5 non-Claude models (gpt-4o, gemini-2.5-pro, grok-4.7, deepseek-chat, qwen-2.5-72b) against keeping A as is; findings table in docs/reports/T-1054-runme-path-brief.md
+- Wrong-job risk observed today: the duplicate copy (T-1052) rewrote runme.sh (142c4183) while the operator had been told a different job was waiting
 
 <!-- Add evidence bullets as exploration progresses (file paths,
      commit hashes, test results). The filing-time recommendation
