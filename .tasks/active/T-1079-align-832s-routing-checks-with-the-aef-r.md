@@ -1,13 +1,13 @@
 ---
-id: T-1077
-name: "Standing directive: review routing defers to the current AEF ruleset (operator, 2026-10-06)"
+id: T-1079
+name: "Align 832's routing checks with the AEF ruleset (PD-357): _t1066 Why-you vocabulary to AEF's carve-outs, _t770 predicate replaced by fw task delegate --dry-run --json"
 description: >
-  Standing directive: review routing defers to the current AEF ruleset (operator, 2026-10-06)
+  Follow-up of T-1077. tools/_t1066-why-you-check.py accepts five 832 reasons (incl. direction, large-ux); AEF has three carve-outs (act-in-the-world, the Tier-0/bypass class, sovereignty-field), direction/large-ux proposed to AEF and pending. tools/_t770-delegation-boundary.py re-implements the predicate and treats [REVIEW]/taste as operator-only, where AEF routes taste to REVIEWER-JUDGES. AEF (msg 75983708) asks consumers to call fw task delegate --dry-run --json instead.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
-horizon: now
+horizon: next
 tags: []
 components: []
 related_tasks: []
@@ -33,12 +33,12 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1077` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1079` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-06T19:32:36Z
-last_update: 2026-10-06T20:02:42Z
+created: 2026-10-06T20:02:14Z
+last_update: 2026-10-06T20:02:14Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -52,23 +52,18 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-1077: Standing directive: review routing defers to the current AEF ruleset (operator, 2026-10-06)
+# T-1079: Align 832's routing checks with the AEF ruleset (PD-357): _t1066 Why-you vocabulary to AEF's carve-outs, _t770 predicate replaced by fw task delegate --dry-run --json
 
 ## Context
 
-Operator, 2026-10-06, in session (choosing option 2 of 3): every check is routed by the CURRENT AEF review
-rules — "that's our ruleset, the AEF ruleset, our guidance which we should refer to and that can change" —
-and 832's own routing (the T-1066 "Why you" rule, PD-302, PD-355) defers to AEF's ruleset where they differ.
-A general standing directive, not specific to one task.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] The canonical AEF source(s) of the review-routing rules are identified with file references, and 832's own routing rules (T-1066 "Why you", PD-302, PD-355) are listed with where each overlaps or conflicts
-- [x] CLAUDE.md's Project-Specific Rules state the directive: the current AEF ruleset is the reference (pointed to, not copied, because it changes), and 832's rules apply only where AEF is silent; on a conflict AEF wins
-- [x] Any 832 rule or check that now contradicts AEF is named, with what changes (amended here, or a follow-up task); nothing 832-specific is silently dropped
-- [x] The decision is recorded (`fw context add-decision`) with the operator's words
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -94,11 +89,11 @@ A general standing directive, not specific to one task.
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1077`
+         1. Run `bin/fw reviewer T-1079`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1077 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1079 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -312,7 +307,7 @@ A general standing directive, not specific to one task.
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1077 go|no-go|defer --rationale "..."
+     fw inception decide T-1079 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -321,50 +316,7 @@ A general standing directive, not specific to one task.
 
 ## Updates
 
-### 2026-10-06T19:32:36Z — task-created [task-create-agent]
+### 2026-10-06T20:02:14Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1077-standing-directive-review-routing-defers.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1079-align-832s-routing-checks-with-the-aef-r.md
 - **Context:** Initial task creation
-
-### 2026-10-06T20:15Z — decision recorded; sources found; AEF asked [agent]
-Decision PD-357 recorded with the operator's words. The operator said "maybe just ask AEF": asked 999 on
-conversation `aef-review-routing-ruleset` (canonical entry point, a verb to classify one AC, project
-carve-outs). The first send was refused by the T0 text gate because the body quoted the T-1066 carve-out
-name verbatim; rephrased and delivered (RECEIVED).
-Local survey (vendored AEF 1.8.3), for the record until AEF answers:
-- AEF routing: `.agentic-framework/lib/delegation.py` (CLASS_TO_DELEGATION :96-106 — deterministic →
-  reviewer-closeable; taste / inception-decision / render-surface / unclassified → reviewer-judges;
-  act-in-the-world / tier0-or-bypass / sovereignty-field → operator-only; CARVE_OUTS :110),
-  `lib/review_policy.py` (IW-7 rungs 1/3/5 by impact), `.tasks/templates/default.md:69-95` (T-1811/T-1878
-  prefix routing), rationale `docs/reports/T-3557-agent-reviewer-default.md`.
-- 832's layer: CLAUDE.md T-1066 rule ("Why you": five carve-outs), `tools/_t1066-why-you-check.py`,
-  `tools/_t770-delegation-boundary.py` (own predicate; treats [REVIEW] as operator-only "never convertible"),
-  PD-302, PD-355.
-- Conflicts: (a) "AC Classification Guidance", cited by AEF's own template, is not in the vendored copy;
-  (b) [REVIEW]/taste: AEF → reviewer judges, 832's _t770 → operator only; (c) carve-outs: 832 has
-  direction and large-ux, which AEF has no class for, and AEF treats "irreversible" as a rung raiser, not
-  an operator route; (d) the T-325 text in CLAUDE.md is a template copy without [REVIEWER].
-
-### 2026-10-06T20:35Z — AEF answered; operator chose to propose the two carve-outs [agent]
-AEF (msg 75983708): (1) canonical source is `lib/delegation.py` (CLASS_TO_DELEGATION, "THE one encoding");
-the "AC Classification Guidance" section is only in AEF's own CLAUDE.md and never reaches consumers —
-their gap, AEF T-3963; until then point at `.agentic-framework/lib/delegation.py`. (2) Verb:
-`fw task delegate T-XXX --dry-run --json` classifies a task's open Human criteria; a per-AC text entry
-comes with T-3963; call it instead of `tools/_t770-delegation-boundary.py`. (3) No project carve-outs:
-CARVE_OUTS is fixed by their operator (T-3557); direction / large-ux land as taste/unclassified →
-REVIEWER-JUDGES (the reviewer may escalate); a proposal with examples goes to their operator.
-Operator (asked: drop, or propose): **2 — propose**. Sent (conversation aef-review-routing-ruleset,
-RECEIVED): both as OPERATOR-ONLY classes or a project extension point, origin PD-302 ("except high
-risk, Tier 0 and genuine UX judgement"), examples T-986/T-1071, T-685/T-956, the T-601/T-1068 trade
-(direction) and editor interaction model / layout / onboarding vs PD-355 small checks (large-ux).
-Until AEF's operator rules, 832 follows AEF: such criteria go to REVIEWER-JUDGES.
-
-### 2026-10-06T20:55Z — CLAUDE.md rewritten; checks handed to T-1079 [agent]
-CLAUDE.md's T-1066 section is replaced by "Review routing follows the CURRENT AEF ruleset (PD-357)": source
-of truth `lib/delegation.py` + `lib/review_policy.py` (until AEF T-3963), classify with `fw task delegate
---dry-run --json`, AEF's three carve-outs, direction/large-ux proposed and routed to the reviewer meanwhile,
-PD-302 / T-1066 / PD-355 kept as origin and superseded where AEF differs. Nothing greps the old heading.
-Named and handed on (AC 3): `tools/_t1066-why-you-check.py` (five 832 reasons vs AEF's three) and
-`tools/_t770-delegation-boundary.py` (own predicate; taste → operator-only) → **T-1079**.
-Side note: the T0 text gate refused two commands today only because their message text spelled AEF's
-Tier-0 carve-out class name; worth reporting to AEF as a false positive.

@@ -58,14 +58,25 @@ section (AEF T-3675, `fw runme new`, added by the 1.8.2 upgrade, T-1049):** in 8
 runs `bash /opt/832-Workflow-designer/runme.sh`, signalled through `tools/runme-signal.sh`, not a
 generated `.context/runme/<name>/runme.sh`.
 
-### Human checks go to the reviewer unless they name why they need the operator (T-1066)
+### Review routing follows the CURRENT AEF ruleset (operator, 2026-10-06, PD-357)
 
-The operator's standing order (PD-302, 2026-09-21): Human-AC verification goes to the independent
-reviewer (`fw reviewer judge T-XXX --criterion N`), except high risk, Tier 0 and large UX reviews.
-A `[REVIEW]` label is therefore never a default. Every `### Human` `[REVIEW]` criterion in a new task
-carries `**Why you:** <tier0|irreversible|sovereignty|direction|large-ux> — <reason>`; anything that
-cannot name one is written for the reviewer instead. `tools/_t1066-why-you-check.py` enforces it in
-the bridge suite. Small visual checks ("reads well", "feels right") are the reviewer's (PD-355).
+The operator's standing directive: who checks what (operator or independent reviewer, the
+`[REVIEW]`/`[REVIEWER]`/`[RUBBER-STAMP]` prefixes, reviewer rungs, escalation) follows the AEF ruleset
+*as it stands now* ("our guidance which we should refer to and that can change"). It is referenced,
+never copied here. 832's own routing rules apply only where AEF is silent; on a conflict AEF wins.
+- **Source of truth:** `.agentic-framework/lib/delegation.py` (`CLASS_TO_DELEGATION`, `CARVE_OUTS`) and
+  `.agentic-framework/lib/review_policy.py` (IW-7 rungs). AEF's prose "AC Classification Guidance" does not
+  reach consumers yet (AEF T-3963); until it does, the code is the reference.
+- **Classify, don't re-implement:** `.agentic-framework/bin/fw task delegate T-XXX --dry-run --json` gives
+  each open Human criterion its class and bucket.
+- **Stays with the operator (AEF carve-outs):** act-in-the-world, tier0-or-bypass, sovereignty-field.
+  Everything else, taste included, goes to the reviewer (`fw reviewer judge T-XXX --criterion N`), who may
+  escalate. 832 proposed `direction` and `large-ux` as further carve-outs (T-1077, operator chose to
+  propose); until AEF's operator rules, those go to the reviewer too.
+- **Origin, superseded where AEF differs:** PD-302 (2026-09-21, "except high risk, Tier 0 and genuine UX
+  judgement"), the T-1066 `**Why you:**` line, PD-355 (small visual checks are the reviewer's).
+  `tools/_t1066-why-you-check.py` and `tools/_t770-delegation-boundary.py` still encode the old 832 set;
+  aligning them with AEF is T-1079.
 
 ## Core Principle
 
