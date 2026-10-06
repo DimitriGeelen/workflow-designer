@@ -33,7 +33,7 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:17Z
-last_update: 2026-09-28T23:25:45Z
+last_update: 2026-10-06T21:38:32Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -107,7 +107,18 @@ Corpus census (all `*.bpmn`): 155 `initiative`, 132 `authority`, 112 `sovereignt
 ## Acceptance Criteria
 
 ### Agent
-- [ ] **`authority` is a first-class editor meta-key, not T-570 carriage.** `metaKeys` goes 20 → 21.
+- [x] **AC 1a (operator ruling 2026-10-06, split of AC 1): the editor AUTHORS element-level
+      authority on a document that carried none.** `tools/_t889-authority-first-class-cdp.mjs`
+      5/5 (re-run 2026-10-06 on today's editor): panel `<select>` → export carries
+      `authority="external"` on `agt_2_prepare`; the same document with no interaction exports 0.
+- [x] **AC 1b (operator ruling 2026-10-06, split of AC 1): `authority` is first-class, not T-570
+      carriage** — proven in the DERIVED DENOMINATOR, where the discrimination actually lives:
+      deleting `'authority'` from `metaKeys` makes `tools/_roundtrip-serialization-cdp.mjs` exit 2
+      ("KEYSPEC contains key(s) the emitter does not project: authority"); roundtrip pass=True on
+      today's editor.
+- [x] ~~**`authority` is a first-class editor meta-key, not T-570 carriage.**~~ SPLIT into 1a/1b above by
+      the operator's ruling (2026-10-06, option 1 of the sovereign question in `## Decisions`): the proof
+      this AC named cannot exist once the editor has a writer. Original text kept below. `metaKeys` goes 20 → 21.
       The discriminator matters: carriage can only re-emit a key the *source document* already
       carried, so subset-parity with the bridge would pass either way. The proof is therefore an
       export that emits `aef:meta authority=` for a node whose source document carried **no**
@@ -339,6 +350,17 @@ test "$(grep -c "^const AUTHORITIES = \[" src/aef-workflow-designer.html)" = "1"
   plumbing". The plumbing was never the blocker — the harness already serves a COPY of the
   designer from a temp docroot, so a standalone driver overrides nothing. The blocker was a
   false premise nobody had tested.
+
+### 2026-10-06 — RULED by the operator: option 1, split AC 1 and close
+- **Chose:** split AC 1 into 1a (the editor authors element-level authority on a document that carried
+  none — `_t889-authority-first-class-cdp.mjs`) and 1b (first-class, not carriage — the derived-denominator
+  mutant killed by `_roundtrip-serialization-cdp.mjs`), and close T-889.
+- **Operator, in session:** after the background (and after asking the agent to read back the T-685 →
+  T-835 → consults → T-888 design trail, which confirmed the design itself is not in question), answered
+  "yes" to "split the criterion and close T-889".
+- **Why:** the proof AC 1 named cannot exist once the editor has a writer; both claims it bundled are
+  separately proven. All three proofs re-run 2026-10-06 on today's editor: 5/5, roundtrip pass, teeth all legs.
+- **Rejected:** leaving AC 1 open as a standing defect in the criterion (option 2).
 
 ## Decision
 
