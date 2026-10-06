@@ -4082,7 +4082,13 @@ concerns:
     `prevention_needed` field, the G-027 shape the concerns schema flags.)'
 - id: G-083
   type: gap
-  status: watching
+  status: resolved
+  resolved: 2026-10-06
+  resolution: 'Closed on its own closure condition, read in the vendored code (T-1076, re-vendor of AEF 1.8.5).
+    Upstream T-3942 (reported by 832 T-1075): checkpoint.sh:289-305 judges the auto-handover by whether a
+    handover COMMIT landed (fw_handover_landed) when the timed run fails, logs it as generated with a
+    "push did not finish" note, and writes .restart-requested. Not yet observed live: the next budget-critical
+    handover is the first real exercise.'
   severity: high
   title: Budget-critical auto-handover is killed by checkpoint.sh's 60s total timeout while handover.sh still pushes under a 180s timeout, so a successful handover is logged FAILED and no restart signal is written
   detected: '2026-10-06'

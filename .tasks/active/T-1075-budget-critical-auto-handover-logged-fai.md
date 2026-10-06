@@ -46,7 +46,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T11:58:23Z
-last_update: 2026-10-06T12:00:11Z
+last_update: 2026-10-06T19:55:41Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -99,7 +99,7 @@ The code is vendored AEF (`.agentic-framework/agents/context/checkpoint.sh`); th
 ### Agent
 - [x] The defect is reported to AEF (999) with the evidence above: sidecar message sent, delivery receipt recorded under Updates
 - [x] The defect is registered in `.context/project/concerns.yaml`, so it stays visible after this task closes
-- [ ] After a vendored AEF release that carries the fix: `checkpoint.sh`'s total timeout is no longer smaller than the push timeout that `handover.sh` derives (grep evidence under Updates)
+- [x] After a vendored AEF release that carries the fix: `checkpoint.sh`'s total timeout is no longer smaller than the push timeout that `handover.sh` derives, OR success is judged by whether the handover commit landed (G-083's closure condition; wording widened 2026-10-06 when AEF shipped the second form, see Updates) (grep evidence under Updates)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -364,3 +364,13 @@ The code is vendored AEF (`.agentic-framework/agents/context/checkpoint.sh`); th
 Reported to 999-Agentic-Engineering-Framework on conversation `aef-checkpoint-handover-timeout`
 (`delivered: RECEIVED -> 999 receiver http://127.0.0.1:44191`). Registered as G-083 in
 `.context/project/concerns.yaml`. Waiting on the AEF release that carries the fix (AC 3).
+
+### 2026-10-06T20:20Z — fixed upstream (AEF T-3942, v1.8.5), vendored by T-1076 [agent]
+AEF chose the second form of G-083's closure condition: the 60 s outer timeout stays, but the run is
+judged by whether a handover COMMIT landed. Evidence in the vendored 1.8.5 code
+(`.agentic-framework/agents/context/checkpoint.sh:289-305`): on a failed timed run it calls
+`fw_handover_landed`; if a commit landed it logs "Handover generated … (commit <sha> landed; push did not
+finish within 60s — run 'fw push')" and writes `.restart-requested`. AC 3's wording was widened to G-083's
+own either/or condition (it had named only the first form). G-083 resolved. Not yet seen live: the next
+budget-critical handover is the first real exercise. `fw doctor` still shows this morning's FAILED line
+until a new handover is written.
