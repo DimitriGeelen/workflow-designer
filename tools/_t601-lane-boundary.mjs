@@ -20,10 +20,14 @@
 //
 // Legs:
 //   L1  no label rect overlaps the lane header strip        (scenario: left edge)
-//   L2  no label rect straddles a lane divider              (scenario: lane bottom)
+//   L2  every label rect stays inside its OWN node's lane     (scenario: lane bottom)
+//       (T-1068: was 'spans <= 1 band', which a label sitting wholly in the NEXT lane passed —
+//        the independent reviewer showed L2 survived the poison arm, F3 on T-601)
 //   L3  no label rect leaves the pool interior              (scenario: left edge)
 //   L4  an uncontested label KEEPS its default below placement, still centred on
 //       its shape — the T-105 contract, and the reason the corpus does not reflow
+//   L6  the DEFAULT map, untouched: no label rect starts on the lane header strip
+//       (T-1068, reviewer F1: 'Investigation requested' sat 5-9px on the strip)
 //   L5  integrity: the document really has >= 2 lanes and a positive pool width,
 //       otherwise hasPool is false and L1-L3 assert nothing at all
 //
@@ -99,6 +103,12 @@ const probeExpr = (name, where) => `(function(){ try{
   } else if(${JSON.stringify(where)}==='bottom'){
     n.x = POOL_X + LANE_HEADER + 240;            // clear of the header, low in the band
     n.y = b0.y2 - d.h - 6;
+    // T-1068: ISOLATE the node. With its own edges and neighbours the default below placement
+    // was already contested by segments, so the label moved aside with or without the lane term
+    // and L2 passed under the poison arm (the reviewer's F3). Alone, ONLY the lane term can stop
+    // the below label hanging into the next lane — which is the claim L2 makes.
+    state.edges = [];
+    state.nodes = [n];
   } else {                                        // 'clean' — genuinely uncontested
     // Empty space in the tallest band AND no edges at all. Without dropping the
     // edges the node's own connectors run under its label, the placement is
@@ -213,7 +223,16 @@ async function probe(editorPath) {
       if (Date.now() - t0 > 40000) throw new Error('editor load timeout');
       await sleep(150);
     }
+    const deflt = await evalJson(cmd, `(function(){ try{
+      renderAll();
+      var isB=function(n){ return n.type==='startEvent'||n.type==='endEvent'||/Gateway$/.test(n.type)||/^linkEvent/.test(n.type)||/^event/.test(n.type); };
+      var rects=[]; state.nodes.filter(isB).forEach(function(n){
+        Array.prototype.slice.call(document.querySelectorAll('text[data-nl="'+n.uid+'"]')).forEach(function(t){
+          var b=t.getBBox(); if(b.width) rects.push({uid:n.uid,name:n.name,x1:b.x}); }); });
+      return {ok:true, rects:rects, px:POOL_X, laneHeader:LANE_HEADER, lanes:getLanes().length};
+    }catch(e){ return {ok:false,error:String(e)}; } })()`);
     return {
+      deflt,
       left: await evalJson(cmd, probeExpr(LONG, 'left')),
       poolbottom: await evalJson(cmd, probeExpr(LONG, 'poolbottom')),
       bottom: await evalJson(cmd, probeExpr(LONG, 'bottom')),
@@ -239,9 +258,11 @@ function legs(res) {
   L.push({ id: 'L1', ok: minX1 >= headerEdge - EPS,
            detail: `left-edge node: leftmost label x=${minX1.toFixed(1)} vs lane-header edge ${headerEdge}` });
 
-  const worst = Math.max(...bottom.rects.map(r => bandsTouched(r, bottom.furniture.bands)));
-  L.push({ id: 'L2', ok: worst <= 1,
-           detail: `lane-bottom node: worst label spans ${worst} lane band(s) of ${bottom.furniture.bands.length}` });
+  const cy = (bottom.shape.y1 + bottom.shape.y2) / 2;
+  const own = bottom.furniture.bands.find(b => cy >= b.y1 && cy < b.y2);
+  const outside = own ? bottom.rects.filter(r => r.y1 < own.y1 - EPS || r.y2 > own.y2 + EPS) : bottom.rects;
+  L.push({ id: 'L2', ok: !!own && outside.length === 0,
+           detail: `lane-bottom node: ${outside.length} label rect(s) outside its own lane ${own ? '[' + own.y1 + ',' + own.y2 + ']' : '(no own band)'}` });
 
   const rf = res.poolbottom.furniture;
   const out = res.poolbottom.rects.filter(r =>
@@ -258,6 +279,10 @@ function legs(res) {
 
   L.push({ id: 'L5', ok: f.bands.length >= 2 && f.pw > 0,
            detail: `furniture: ${f.bands.length} lane band(s), pool width ${f.pw.toFixed(0)}` });
+  const dm = res.deflt, edgeD = dm.px + dm.laneHeader;
+  const onStrip = dm.rects.filter(r => r.x1 < edgeD - EPS);
+  L.push({ id: 'L6', ok: dm.lanes >= 2 && dm.rects.length > 0 && onStrip.length === 0,
+           detail: `default map: ${onStrip.length} of ${dm.rects.length} label rect(s) start left of the header edge ${edgeD}${onStrip.length ? ' — ' + onStrip.map(r => r.name + '@' + r.x1.toFixed(1)).join(', ') : ''}` });
   return L;
 }
 
@@ -268,15 +293,17 @@ async function main() {
   if (process.argv.includes('--shots')) {
     const dir = process.argv[process.argv.indexOf('--shots') + 1];
     const src = readFileSync(EDITOR, 'utf8');
-    const A = 'sc += segCrossings(r) + nodeOverlaps(r, self) + poolPenalty(r);';
+    const A = 'sc += segCrossings(r) + nodeOverlaps(r, self) + poolPenalty(r, own);';
     const B = `      if (band) {
         const lo = band.y1 + ASC, hi = band.y2 - DESC - (total - 1) * LH;
         if (hi >= lo) b0 = Math.max(lo, Math.min(b0, hi));   // slide into the lane, never squash
       }\n`;
-    const C = `    if (scLeft < scDefault && scLeft < scRight) continue;             // already placed left
+    const C = `    if (scLeft < scDefault && scLeft < scRight) { place(n.x - 8, 'end'); continue; }   // left wins
     if (scRight < scDefault && scRight <= scLeft) { RIGHT(); continue; }\n`;
+  //   D  the header-strip nudge (T-1068) — a pre-T-601 editor had none
+  const D = src.slice(src.indexOf('  // T-1068 (reviewer F1 on T-601)'), src.indexOf('\n}\n\n// Post-pass over freshly rendered EDGE labels') + 1);
     const p = join(mkdtempSync(join(tmpdir(), 't601-shotpoison-')), 'pre-t601.html');
-    writeFileSync(p, src.replace(A, 'sc += segCrossings(r) + nodeOverlaps(r, self);').replace(B, '').replace(C, ''));
+    writeFileSync(p, src.replace(A, 'sc += segCrossings(r) + nodeOverlaps(r, self);').replace(B, '').replace(C, '').replace(D, '\n'));
     await shoot(p, join(dir, 't601-before.png'));
     await shoot(EDITOR, join(dir, 't601-after.png'));
     process.exit(0);
@@ -302,22 +329,25 @@ async function main() {
   // about the parts it leaves behind:
   //   A  the pool term in the score          B  the in-band clamp in place()
   //   C  the keep-the-best-candidate fallback
-  const A = 'sc += segCrossings(r) + nodeOverlaps(r, self) + poolPenalty(r);';
+  const A = 'sc += segCrossings(r) + nodeOverlaps(r, self) + poolPenalty(r, own);';
   const B = `      if (band) {
         const lo = band.y1 + ASC, hi = band.y2 - DESC - (total - 1) * LH;
         if (hi >= lo) b0 = Math.max(lo, Math.min(b0, hi));   // slide into the lane, never squash
       }\n`;
-  const C = `    if (scLeft < scDefault && scLeft < scRight) continue;             // already placed left
+  const C = `    if (scLeft < scDefault && scLeft < scRight) { place(n.x - 8, 'end'); continue; }   // left wins
     if (scRight < scDefault && scRight <= scLeft) { RIGHT(); continue; }\n`;
+  //   D  the header-strip nudge (T-1068) — a pre-T-601 editor had none
+  const D = src.slice(src.indexOf('  // T-1068 (reviewer F1 on T-601)'), src.indexOf('\n}\n\n// Post-pass over freshly rendered EDGE labels') + 1);
+  if (!D.includes('const edge = px + LANE_HEADER + 1')) { console.log('SELF-TEST INTEGRITY FAIL — poison target D missing'); process.exit(2); }
   for (const [nm, t] of [['A', A], ['B', B], ['C', C]])
     if (!src.includes(t)) { console.log(`SELF-TEST INTEGRITY FAIL — poison target ${nm} missing`); process.exit(2); }
   const f = join(mkdtempSync(join(tmpdir(), 't601-poison-')), 'poisoned-editor.html');
   writeFileSync(f, src.replace(A, 'sc += segCrossings(r) + nodeOverlaps(r, self);')
-                      .replace(B, '').replace(C, ''));
+                      .replace(B, '').replace(C, '').replace(D, '\n'));
   console.log('\npoison arm — pre-T-601 scorer restored (no pool term); L1-L3 must FAIL');
   const pl = legs(await probe(f));
   report(pl);
-  const mustFail = ['L1', 'L2', 'L3'];
+  const mustFail = ['L1', 'L2', 'L3', 'L6'];
   const survivors = pl.filter(l => mustFail.includes(l.id) && l.ok).map(l => l.id);
   const control = pl.filter(l => ['L4', 'L5'].includes(l.id) && !l.ok).map(l => l.id);
   if (failed.length) { console.log(`\nFAIL — ${failed.length} live leg(s)`); process.exit(1); }

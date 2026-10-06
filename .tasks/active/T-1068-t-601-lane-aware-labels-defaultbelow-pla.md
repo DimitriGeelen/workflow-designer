@@ -1,13 +1,20 @@
 ---
 id: T-1068
-name: "T-601 lane-aware labels: default/below placement still lands on the lane header strip, and the L2 divider leg does not fail under its own poison arm"
+name: "T-601 lane-aware labels: default/below placement still lands on the lane header
+  strip, and the L2 divider leg does not fail under its own poison arm"
 description: >
-  Independent reviewer RED (fw reviewer judge T-601; .context/reviews/evidence/T-601/AC1-judge-t-601-r1-25b7ca42497b.md). Needed: clear POOL_X + LANE_HEADER for below/default placement (or stop a tie restoring an on-header placement); a leg on the DEFAULT map asserting no event/gateway label line has x1 < POOL_X + LANE_HEADER; repair the L2 divider leg so it fails under the poison arm (score the block against the node's band); then re-review the readability trade on a real corpus map.
+  Independent reviewer RED (fw reviewer judge T-601; .context/reviews/evidence/T-601/AC1-judge-t-601-r1-25b7ca42497b.md).
+  Needed: clear POOL_X + LANE_HEADER for below/default placement (or stop a tie restoring
+  an on-header placement); a leg on the DEFAULT map asserting no event/gateway label
+  line has x1 < POOL_X + LANE_HEADER; repair the L2 divider leg so it fails under
+  the poison arm (score the block against the node's band); then re-review the readability
+  trade on a real corpus map.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T09:49:30Z
-last_update: 2026-10-06T09:49:30Z
-date_finished: null
+last_update: 2026-10-06T11:57:57Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +57,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-06T11:15:06Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1068: T-601 lane-aware labels: default/below placement still lands on the lane header strip, and the L2 divider leg does not fail under its own poison arm
@@ -62,8 +90,9 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] F1: no event/gateway label line in the DEFAULT map starts left of POOL_X + LANE_HEADER (the "Investigation requested" block is nudged clear of the header strip); a leg asserts it on the default map, with a control showing the pre-fix editor fails it
+- [ ] F3: the divider term scores the label BLOCK, not line by line (a block split across or sitting in the next lane is penalised); `_t601 --self-test` passes again, i.e. L2 goes red when the pool term is removed
+- [ ] T-600/T-601/T-1067 legs still pass; screenshots of the default map's left edge and the T-601 case read; re-judged by the independent reviewer
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,3 +349,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1068-t-601-lane-aware-labels-defaultbelow-pla.md
 - **Context:** Initial task creation
+
+### 2026-10-06T11:15:06Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

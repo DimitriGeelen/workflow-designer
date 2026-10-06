@@ -835,6 +835,19 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1068: the label-placement guards for T-600 (wrap) and T-601 (pool/lane containment) were never
+# wired — T-601's self-test went red unnoticed (its poison target drifted, and L2 could not fail).
+# Run both in --self-test mode: the live legs AND the poison arms that prove each leg can fail.
+for _lg in _t600-label-wrap.mjs _t601-lane-boundary.mjs; do
+  if node "$ROOT/tools/$_lg" --self-test > "$TMP/leg-$_lg.out" 2>&1; then
+    pass=$((pass + 1))
+  else
+    report FAIL "label-placement guard $_lg failed or its self-test no longer proves its legs can fail (run 'node tools/$_lg --self-test'; T-600/T-601/T-1068)"
+    show_output "$TMP/leg-$_lg.out" "$_lg"
+    fail=$((fail + 1))
+  fi
+done
+
 # T-1066: a [REVIEW] Human criterion must name the operator exception that keeps it from the reviewer
 # (PD-302). Self-test first (the rule bites), then the live tree (new tasks comply).
 if python3 "$ROOT/tools/_t1066-why-you-check.py" --self-test > "$TMP/leg-_t1066s.out" 2>&1 \

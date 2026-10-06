@@ -4071,27 +4071,39 @@ function adjustLabelPlacements() {
   // No lanes means no furniture to respect — score exactly as before rather than
   // calling every label out-of-bounds against a pool that isn't there.
   const hasPool = laneBands.length > 0 && pw > 0 && ph > 0;
-  const poolPenalty = (r) => {
+  const poolPenalty = (r, own) => {
     if (!hasPool) return 0;
     let c = 0;
     if (r.x1 < px || r.x2 > px + pw || r.y1 < bandTop || r.y2 > py + ph) c++;  // left the pool interior
     if (r.x1 < px + LANE_HEADER) c++;                                          // on the lane header strip
-    let touched = 0;
-    for (const b of laneBands) if (r.y2 > b.y1 && r.y1 < b.y2) touched++;
-    if (touched > 1) c++;                                                      // straddles a divider
+    // T-1068 (reviewer F3 on T-601): judge the line against the node's OWN lane. Counting the
+    // bands a line touches only caught a line straddling a divider; a line sitting wholly in the
+    // NEXT lane touched one band and scored 0, which is the worst case — it attributes the step
+    // to the wrong actor. r is padded by 1px, hence the tolerance.
+    if (own) { if (r.y1 < own.y1 - 1 || r.y2 > own.y2 + 1) c++; }              // outside its own lane
+    else {
+      let touched = 0;
+      for (const b of laneBands) if (r.y2 > b.y1 && r.y1 < b.y2) touched++;
+      if (touched > 1) c++;                                                    // straddles a divider
+    }
     return c;
   };
   // Score a placement by MEASURING the rendered text (getBBox) against the
   // stashed polylines and neighbouring node boxes. Estimated char widths
   // diverged enough from real metrics to move labels onto other edges —
   // measuring the actual result is the only honest check.
+  const ownBand = (self) => {
+    const cy = self.y + NODE_DEFAULTS[self.type].h / 2;
+    return laneBands.find(b => cy >= b.y1 && cy < b.y2) || null;
+  };
   const bboxScore = (els, self) => {
     let sc = 0;
+    const own = ownBand(self);
     for (const t of els) {
       const bb = t.getBBox();
       if (bb.width === 0) continue;
       const r = { x1: bb.x - 1, x2: bb.x + bb.width + 1, y1: bb.y - 1, y2: bb.y + bb.height + 1 };
-      sc += segCrossings(r) + nodeOverlaps(r, self) + poolPenalty(r);
+      sc += segCrossings(r) + nodeOverlaps(r, self) + poolPenalty(r, own);
     }
     return sc;
   };
@@ -4189,6 +4201,22 @@ function adjustLabelPlacements() {
     if (scLeft < scDefault && scLeft < scRight) { place(n.x - 8, 'end'); continue; }   // left wins
     if (scRight < scDefault && scRight <= scLeft) { RIGHT(); continue; }
     els.forEach((t, i) => { t.setAttribute('x', orig[i].x); t.setAttribute('y', orig[i].y); t.setAttribute('text-anchor', orig[i].a); });
+  }
+  // T-1068 (reviewer F1 on T-601): whatever placement won, a label block must not START on the
+  // lane header strip. A tie restores the default below placement, and that placement is never
+  // clamped, so on the default map "Investigation requested" sat 5-9px on the header strip. Nudge
+  // the whole block (name lines + id) right by exactly the overrun; a block already clear is untouched.
+  if (hasPool) {
+    const edge = px + LANE_HEADER + 1;
+    for (const n of state.nodes) {
+      if (!isLabelBelow(n)) continue;
+      const els = Array.from(gNodes.querySelectorAll(`text[data-nl="${n.uid}"]`));
+      let x1 = Infinity;
+      for (const t of els) { const bb = t.getBBox(); if (bb.width) x1 = Math.min(x1, bb.x); }
+      if (!(x1 < edge)) continue;
+      const dx = edge - x1;
+      for (const t of els) t.setAttribute('x', (+t.getAttribute('x') + dx).toFixed(1));
+    }
   }
 }
 
