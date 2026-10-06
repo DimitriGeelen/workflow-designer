@@ -45,7 +45,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T09:49:30Z
-last_update: 2026-10-06T12:35:41Z
+last_update: 2026-10-06T13:16:23Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -130,6 +130,7 @@ bvp_scores_proposed:
 node tools/_t601-lane-boundary.mjs --self-test
 node tools/_t600-label-wrap.mjs --self-test
 node tools/_t1067-side-label-wrap-cdp.mjs
+node tools/_t1068-corpus-labels.mjs --self-test
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -390,3 +391,27 @@ A large improvement, but RED on single labels:
 Next (this task): weight occlusion under a node box at least as heavily as the header; score the wrapped
 candidate against the node's own band (no divider crossing); score candidates after the x-nudge; add the
 reviewer's corpus probe (or an equivalent) as a leg so these four labels are pinned.
+
+### 2026-10-06T14:10Z — scorer reweighted against the reviewer's findings [agent]
+Changes in `adjustLabelPlacements()`:
+- every candidate is scored where it will be drawn: nudged off the header strip, unless the nudge
+  HIDES more lines under a shape (then the un-nudged position is kept);
+- per-line costs: edge 1, outside pool 1, header strip 2, outside own lane 2 (was 1), loose zone
+  around a neighbour 1, UNDER a shape 6 (was 1), the node's own shape now counts (6);
+- weights chosen by sweeping (occlusion 2-8, lane 2-4, header 1-3, nudge conditional or not) and
+  comparing every label with its pre-T-601 placement, as the reviewer judged.
+Corpus, reviewer's probe, 141 labels (pre-T-601 → 403d2449 → now):
+under a shape 4 → 4 → **0**; header 13 → 0 → 1; lane 26 → 9 → 7; pool 18 → 0 → 3; edge crossings
+93 → 68 → 79. New problems vs pre-T-601: 1 (git-commit-flow n_start hangs below into the next lane,
+the trade the reviewer accepted for n_send). Sizes S and L: under 0 (was 3 and 4).
+Stress (every label the 73-char sentence): under 26 → 13, lane 16 → 9, header 0 → 2.
+The four named labels: session-capture n_start back left of the event (its pre-T-601 legible spot,
+on the header and outside the pool: nothing else in that corner is readable); g_found one line in
+its lane; git-commit-flow n_start and arc-lifecycle n_req wrapped below, legible, hanging past the
+pool floor as arc n_req did before T-601. Screenshots read: docs/screenshots/T-1068/corpus/*.png.
+Cost, stated: 1 label on the header again (the criterion asks for none) and 11 more edge crossings
+than 403d2449. Both are the price of no hidden text; the reviewer re-judges the trade.
+New leg `tools/_t1068-corpus-labels.mjs` (wired into the bridge): C1 nothing under a shape, C2 the
+four named labels, C3 at most 1 header label; self-test reverts the occlusion weights and C1/C2 FAIL.
+Note: placement depends on the viewport (the canvas width feeds contentRightEdge()); the leg uses
+the reviewer's 1600x1000 viewport. T-601's poison D now targets the nudge inside bboxScore.

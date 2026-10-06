@@ -300,10 +300,10 @@ async function main() {
       }\n`;
     const C = `    if (scLeft < scDefault && scLeft < scRight) { place(n.x - 8, 'end'); continue; }   // left wins
     if (scRight < scDefault && scRight <= scLeft) { RIGHT(); continue; }\n`;
-  //   D  the header-strip nudge (T-1068) — a pre-T-601 editor had none
-  const D = src.slice(src.indexOf('  // T-1068 (reviewer F1 on T-601)'), src.indexOf('\n}\n\n// Post-pass over freshly rendered EDGE labels') + 1);
+    //   D  the header-strip nudge (T-1068) — a pre-T-601 editor had none
+    const D = '    if (!(x1 < headerEdge)) return s0;\n';
     const p = join(mkdtempSync(join(tmpdir(), 't601-shotpoison-')), 'pre-t601.html');
-    writeFileSync(p, src.replace(A, 'sc += segCrossings(r) + nodeOverlaps(r, self);').replace(B, '').replace(C, '').replace(D, '\n'));
+    writeFileSync(p, src.replace(A, 'sc += segCrossings(r) + nodeOverlaps(r, self);').replace(B, '').replace(C, '').replace(D, '    return s0;\n'));
     await shoot(p, join(dir, 't601-before.png'));
     await shoot(EDITOR, join(dir, 't601-after.png'));
     process.exit(0);
@@ -336,14 +336,14 @@ async function main() {
       }\n`;
   const C = `    if (scLeft < scDefault && scLeft < scRight) { place(n.x - 8, 'end'); continue; }   // left wins
     if (scRight < scDefault && scRight <= scLeft) { RIGHT(); continue; }\n`;
-  //   D  the header-strip nudge (T-1068) — a pre-T-601 editor had none
-  const D = src.slice(src.indexOf('  // T-1068 (reviewer F1 on T-601)'), src.indexOf('\n}\n\n// Post-pass over freshly rendered EDGE labels') + 1);
-  if (!D.includes('const edge = px + LANE_HEADER + 1')) { console.log('SELF-TEST INTEGRITY FAIL — poison target D missing'); process.exit(2); }
-  for (const [nm, t] of [['A', A], ['B', B], ['C', C]])
+  //   D  the header-strip nudge (T-1068) — a pre-T-601 editor had none. It lives inside bboxScore
+  //      (every candidate is judged nudged), so the poison makes bboxScore return the un-nudged score.
+  const D = '    if (!(x1 < headerEdge)) return s0;\n';
+  for (const [nm, t] of [['A', A], ['B', B], ['C', C], ['D', D]])
     if (!src.includes(t)) { console.log(`SELF-TEST INTEGRITY FAIL — poison target ${nm} missing`); process.exit(2); }
   const f = join(mkdtempSync(join(tmpdir(), 't601-poison-')), 'poisoned-editor.html');
   writeFileSync(f, src.replace(A, 'sc += segCrossings(r) + nodeOverlaps(r, self);')
-                      .replace(B, '').replace(C, '').replace(D, '\n'));
+                      .replace(B, '').replace(C, '').replace(D, '    return s0;\n'));
   console.log('\npoison arm — pre-T-601 scorer restored (no pool term); L1-L3 must FAIL');
   const pl = legs(await probe(f));
   report(pl);
