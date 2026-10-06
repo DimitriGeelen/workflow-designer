@@ -98,7 +98,7 @@ confirmed_at: '2026-09-28T23:40:53Z'
       **Steps:**
       1. `cd /opt/832-Workflow-designer && node tools/_t893-authority-marker-shots.mjs` (isolated headless Chromium; writes 9 PNGs to `docs/reports/t893-shots/`)
       2. Open `docs/reports/t893-shots/differs-m.png`, `missing-m.png`, `none-m.png` side by side.
-      **Expected:** `none-m` shows no marker; `differs-m` shows a faint mono "◆ ini" above the node that reads as an annotation, not an alarm; `missing-m` shows an orange "⚠ no authority" that reads as a defect. The agent's reading of the nine shots is in `## Visual Verification` below; the judgment this AC asks for is whether the subtle/loud contrast is RIGHT, which is taste, not geometry.
+      **Expected:** `none-m` shows no marker; `differs-m` shows a faint mono "◆ ini" above the node that reads as an annotation, not an alarm; `missing-m` shows an orange "⚠ no auth" that reads as a defect (T-1069: the longest form that fits left of the shape's top-centre — "⚠ no authority" / "⚠ no auth" / "⚠" — with the full text on hover). The agent's reading of the nine shots is in `## Visual Verification` below; the judgment this AC asks for is whether the subtle/loud contrast is RIGHT, which is taste, not geometry.
       **If not:** name which of the two markers is mis-pitched (too loud / too quiet) and whether the marker's position (top-left, above the shape) collides with incoming edge labels on your maps — `missing-m.png` shows an edge label sitting just above it on task-lifecycle.
 
 ## Visual Verification
@@ -115,6 +115,19 @@ own CDP plumbing was used instead), on a task-lifecycle fixture with the agent l
 | missing | `missing-s.png` | `missing-m.png` | `missing-l.png` | orange "⚠ no authority" above the top-left corner, clearly louder than the differs marker; on this fixture an incoming edge label ("resume after healing…") sits just above it — close but not overlapping, flagged for the Human AC |
 
 No regression seen on the nodes themselves in any mode: labels, I/O badge (`1→0`) and id badges render as before.
+
+**Re-shot and re-read 2026-10-07 at the T-1069 revision** (reviewer AMBER on this AC: the incoming flow's
+line and arrowhead crossed "⚠ no authority" at all three sizes; T-1069 fixed it by form):
+
+| state | what I saw at s / m / l |
+|---|---|
+| none | no marker at any size. `none-s.png` changed bytes only because an edge label near the node moved with the T-1068 placement work; the node itself is as before |
+| differs | faint mono "◆ ini" above the top-left corner, unchanged (it already fit left of top-centre) |
+| missing | orange **"⚠ no auth"** above the top-left corner, ending left of the arrowhead that enters at top-centre — no overlap at any size (checked at 4x on `missing-m`); still clearly louder than "◆ ini". The full text is the marker's `<title>`, and the markers now receive pointer events so the tooltip really shows (reviewer point (b)). The lane separator still runs just above the marker (minor, unchanged) |
+
+Measured, not only seen: `tools/_t1069-authority-marker-clearance-cdp.mjs` forces both states on every node of
+the 24 corpus maps — 0 markers cross their node's own edges (104 / 44 before), and all 600 carry a hoverable
+full-text title (bridge leg, with a poison arm).
 
 ## Verification
 

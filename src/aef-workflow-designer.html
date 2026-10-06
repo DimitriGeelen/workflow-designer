@@ -640,8 +640,12 @@ font-family: 'Outfit';
      must read DIFFERENTLY — a differing authority is a choice (faint, like the id badge), a
      missing one is a hole (the orange token, the same one AUTHORITY_LABEL_COLOR uses for
      external). Tokens, never literals, so the marker follows the theme. */
-  .node-authority-badge   { fill: var(--text-faint); font-family: var(--mono); font-size: 8px; pointer-events: none; letter-spacing: 0.02em; }
-  .node-authority-missing { fill: var(--orange);     font-family: var(--mono); font-size: 8px; pointer-events: none; font-weight: 600; }
+  /* T-1069: hit-testable on purpose — the marker's full text is its <title>, and a tooltip only
+     shows on an element that receives pointer events (reviewer AMBER on T-893: with
+     pointer-events:none the "hover shows the full text" claim was false). The marker sits inside
+     the node's <g>, whose listeners select/drag the node, so a click on it behaves as a node click. */
+  .node-authority-badge   { fill: var(--text-faint); font-family: var(--mono); font-size: 8px; cursor: help; letter-spacing: 0.02em; }
+  .node-authority-missing { fill: var(--orange);     font-family: var(--mono); font-size: 8px; cursor: help; font-weight: 600; }
   /* T-884 (arc-005 S4): instance overlay — where a governed entity IS on this template. Four
      states drawn on the element, none written to the model: current (accent halo + "● T-XXX"),
      done (faint halo + "✓", a DERIVED path — see the picker's title), refused (red halo +

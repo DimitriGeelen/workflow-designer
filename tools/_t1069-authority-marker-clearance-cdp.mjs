@@ -13,7 +13,8 @@
 //   M1  'missing' markers (every element and lane stripped of authority): 0 crossings
 //   M2  'differs' markers (every element given an authority unlike its lane default): 0 crossings
 //   M3  setup control: both states actually rendered markers (else M1/M2 assert nothing)
-//   M4  no information lost: every marker carries a <title> with its full text
+//   M4  no information lost: every marker carries a <title> with its full text AND receives pointer
+//       events, so the title actually shows on hover
 //
 // --self-test reruns on a poisoned copy that always draws the full-length text (the pre-T-1069
 // form): M1 must FAIL.
@@ -59,7 +60,10 @@ const FORCE = (mode) => `(function(){
     var g = m.closest('[data-id]'); if (!g) return;
     var id = g.getAttribute('data-id');
     var b = m.getBBox(); var r = { x1: b.x, x2: b.x + b.width, y1: b.y, y2: b.y + b.height };
-    var t = m.querySelector('title'); if (!t || !t.textContent) out.untitled++;
+    // a <title> only shows as a tooltip on an element that receives pointer events (reviewer
+    // AMBER on T-893: pointer-events:none made the hover claim false while a <title> was present)
+    var t = m.querySelector('title');
+    if (!t || !t.textContent || getComputedStyle(m).pointerEvents === 'none') out.untitled++;
     state.edges.forEach(function(e){
       if (e.source !== id && e.target !== id) return;
       var pl = e._renderedPolyline || [];
@@ -126,7 +130,7 @@ function legs(a) {
     { id: 'M1', ok: a.missing.crossings.length === 0, detail: `'missing' markers crossing their node's own edges: ${a.missing.crossings.length} — ${show(a.missing.crossings)}` },
     { id: 'M2', ok: a.differs.crossings.length === 0, detail: `'differs' markers crossing their node's own edges: ${a.differs.crossings.length} — ${show(a.differs.crossings)}` },
     { id: 'M3', ok: a.missing.markers > 0 && a.differs.markers > 0, detail: `markers rendered: missing ${a.missing.markers}, differs ${a.differs.markers}` },
-    { id: 'M4', ok: a.missing.untitled === 0 && a.differs.untitled === 0, detail: `markers without a full-text <title>: ${a.missing.untitled + a.differs.untitled}` },
+    { id: 'M4', ok: a.missing.untitled === 0 && a.differs.untitled === 0, detail: `markers without a hoverable full-text <title>: ${a.missing.untitled + a.differs.untitled}` },
   ];
 }
 const report = L => { for (const l of L) console.log(`  ${l.ok ? 'PASS' : 'FAIL'}  ${l.id}  ${l.detail}`); };
