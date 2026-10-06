@@ -45,7 +45,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T09:49:30Z
-last_update: 2026-10-06T12:05:10Z
+last_update: 2026-10-06T12:35:41Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -375,3 +375,18 @@ F1 control: the pre-fix editor (c44bd201) FAILS the new L6 ("Investigation reque
 `_t1067` 6/6. Screenshots read: default-left-after clears the header strip; t601-after moves the
 long label off the header and divider to the right of the start event, where the outgoing edge
 runs through the block. That trade is the reviewer's call (AC 3), not ticked here.
+
+### 2026-10-06T13:05Z — independent reviewer: RED on T-601 AC1 (verdict 7d9d6f4e) [agent]
+Evidence: `.context/reviews/evidence/T-601/AC1-judge-t-601-r1-b0c0fde028d9.md` (revision 403d2449).
+Corpus probe over all 24 rendered maps (141 event/gateway labels; furniture read from the DOM),
+pre-T-601 → HEAD: on header 13→0, outside pool 18→0, past own lane 26→9, label∩edge 93→68.
+A large improvement, but RED on single labels:
+- occluded by a task box where it used to be legible: session-capture n_start, git-commit-flow n_start,
+  arc-lifecycle n_req (also crossed by its connector);
+- NEW divider crossing: session-capture g_found. The T-1067 wrapped-block candidate is accepted when
+  STRICTLY better and leaves the lane (id badge on the divider);
+- cause named by the reviewer: node-box overlap costs 1 per line while header/out-of-pool costs 2, so an
+  occluded placement beats a legible misplaced one; the T-1068 x-nudge is never scored.
+Next (this task): weight occlusion under a node box at least as heavily as the header; score the wrapped
+candidate against the node's own band (no divider crossing); score candidates after the x-nudge; add the
+reviewer's corpus probe (or an equivalent) as a leg so these four labels are pinned.
