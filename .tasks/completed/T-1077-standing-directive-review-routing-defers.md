@@ -4,10 +4,11 @@ name: "Standing directive: review routing defers to the current AEF ruleset (ope
 description: >
   Standing directive: review routing defers to the current AEF ruleset (operator, 2026-10-06)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T19:32:36Z
-last_update: 2026-10-06T20:02:42Z
-date_finished: null
+last_update: 2026-10-06T20:02:48Z
+date_finished: 2026-10-06T20:02:48Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -368,3 +369,15 @@ Named and handed on (AC 3): `tools/_t1066-why-you-check.py` (five 832 reasons vs
 `tools/_t770-delegation-boundary.py` (own predicate; taste → operator-only) → **T-1079**.
 Side note: the T0 text gate refused two commands today only because their message text spelled AEF's
 Tier-0 carve-out class name; worth reporting to AEF as a false positive.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7e7e5f45
+- **Timestamp:** 2026-10-06T20:02:50Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-06T20:02:48Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

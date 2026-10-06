@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1077: Standing directive: review routing defers to the current AEF ruleset (operator, 2026-10-06)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-06T20:02:57Z
+# ============================================================================
+
+task_id: T-1077
+task_name: "Standing directive: review routing defers to the current AEF ruleset (operator, 2026-10-06)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-06T19:32:36Z
+completed: 2026-10-06T20:02:48Z
+duration_days: 0
+updates_count: 4
+first_commit: 2026-10-06T21:34:59+02:00
+last_commit: 2026-10-06T22:02:42+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  operator directive recorded (PD-357) — review routing follows the current AEF ruleset, 832's rules only where AEF is silent; local survey of both layers and 4 conflicts; AEF asked for the canonical entry point. CLAUDE.md now points review routing at the current AEF ruleset (lib/delegation.py, review_policy.py, fw task delegate) per PD-357; 832's T-1066/PD-302/PD-355 kept as origin, superseded where AEF differs; check alignment handed to T-1079
+
+# Key outcomes
+outcomes:
+  - 'The canonical AEF source(s) of the review-routing rules are identified with file references, and 832''s own routing rules (T-1066 "Why you", PD-302, PD-355) are listed with where each overlaps or conflicts'
+  - 'CLAUDE.md''s Project-Specific Rules state the directive: the current AEF ruleset is the reference (pointed to, not copied, because it changes), and 832''s rules apply only where AEF is silent; on a conflict AEF wins'
+  - 'Any 832 rule or check that now contradicts AEF is named, with what changes (amended here, or a follow-up task); nothing 832-specific is silently dropped'
+  - 'The decision is recorded (`fw context add-decision`) with the operator''s words'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'CLAUDE.md'
+  - '.context/project/decisions.yaml'
+  - '.tasks/active/T-1077-standing-directive-review-routing-defers.md'
+  - '.tasks/active/T-1079-align-832s-routing-checks-with-the-aef-r.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-06T21:34:59'
+    action: 'T-1077: operator directive recorded (PD-357) — review routing follows the current AEF ruleset, 832''s rules only where AEF is silent; local survey of both layers and 4 conflicts; AEF asked for the canonical entry point'
+  - time: '2026-10-06T22:02:42'
+    action: 'T-1077: CLAUDE.md now points review routing at the current AEF ruleset (lib/delegation.py, review_policy.py, fw task delegate) per PD-357; 832''s T-1066/PD-302/PD-355 kept as origin, superseded where AEF differs; check alignment handed to T-1079'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 30 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 30
+  commits: 2
+  files_changed: 4
+  lines_added: 730
+  lines_removed: 13
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1077-standing-directive-review-routing-defers.md
+generated_by: context-agent-hybrid
