@@ -1,0 +1,67 @@
+import { spawn } from 'node:child_process';
+import { mkdtempSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { tmpdir } from 'node:os'; import { join } from 'node:path';
+const URL_ = process.argv[2], FIX = process.argv[3], OUT = process.argv[4];
+const CHROME = '/root/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome';
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const prof = mkdtempSync(join(tmpdir(), 't308rev-'));
+const ch = spawn(existsSync(CHROME)?CHROME:'/usr/bin/chromium', ['--headless=new','--no-sandbox','--disable-gpu','--remote-debugging-port=0','--user-data-dir='+prof,'--window-size=1600,1000','about:blank'], { stdio:'ignore' });
+let port; for (let i=0;i<150;i++){ const f=join(prof,'DevToolsActivePort'); if(existsSync(f)){ port=readFileSync(f,'utf8').split('\n')[0].trim(); if(port) break;} await sleep(100); }
+const tabs = await (await fetch(`http://127.0.0.1:${port}/json`)).json();
+const ws = new WebSocket(tabs.find(t=>t.type==='page').webSocketDebuggerUrl);
+let id=0; const pend=new Map(); ws.onmessage = e => { const m=JSON.parse(e.data); if(m.id&&pend.has(m.id)){pend.get(m.id)(m);pend.delete(m.id);} };
+await new Promise(r=>ws.onopen=r);
+const cmd=(method,params={})=>new Promise((res,rej)=>{const i=++id;pend.set(i,m=>m.error?rej(new Error(method+JSON.stringify(m.error))):res(m.result));ws.send(JSON.stringify({id:i,method,params}));});
+const ev=async e=>{const r=await cmd('Runtime.evaluate',{expression:e,returnByValue:true,awaitPromise:true}); if(r.exceptionDetails) throw new Error(JSON.stringify(r.exceptionDetails).slice(0,500)); return r.result.value;};
+const ready=async()=>{for(let i=0;i<200;i++){ if(await ev(`typeof _appReady!=='undefined'&&_appReady===true&&window._deepLinkSettled!==null`).catch(()=>false)) return; await sleep(150);} throw new Error('not ready');};
+const shot=async(name, sel, pad=40)=>{ const r=await ev(`(()=>{const el=${sel}; if(!el) return null; const b=el.getBoundingClientRect(); return {x:b.x,y:b.y,w:b.width,h:b.height};})()`); if(!r) return 'MISSING '+name; const c={x:Math.max(0,r.x-pad),y:Math.max(0,r.y-pad),width:r.w+2*pad,height:r.h+2*pad,scale:2}; const s=await cmd('Page.captureScreenshot',{format:'png',clip:c}); writeFileSync(join(OUT,name),Buffer.from(s.data,'base64')); return name; };
+const full=async name=>{const s=await cmd('Page.captureScreenshot',{format:'png'}); writeFileSync(join(OUT,name),Buffer.from(s.data,'base64'));};
+await cmd('Page.enable'); await cmd('Emulation.setDeviceMetricsOverride',{width:1600,height:1000,deviceScaleFactor:1,mobile:false});
+await cmd('Page.navigate',{url:URL_+'/designer/app'}); await ready(); await sleep(800);
+const log={};
+// ---- AC1: import fixture through the same function the Load file-picker calls
+await ev(`adoptImportedXml(${JSON.stringify(readFileSync(FIX,'utf8'))},{userImport:true}); renderAll(); 'ok'`); await sleep(600);
+await ev(`(()=>{const b=document.getElementById('clean-nudge'); if(b) b.style.display='none'; const t=document.getElementById('app-toast'); if(t) t.remove();})()`);
+log.ac1_nodes = await ev(`state.nodes.map(n=>({uid:n.uid,type:n.type,name:n.name,bare:isBareCatchEvent(n), circles:document.querySelectorAll('g.node[data-id="'+n.uid+'"] circle').length, paths:document.querySelectorAll('g.node[data-id="'+n.uid+'"] path').length, fill:[...document.querySelectorAll('g.node[data-id="'+n.uid+'"] circle')].map(c=>getComputedStyle(c).stroke+'|'+getComputedStyle(c).fill+'|'+getComputedStyle(c).strokeDasharray), label:(document.querySelector('g.node[data-id="'+n.uid+'"]')||{}).textContent}))`);
+// row of all four event nodes
+log.row = await shot('ac1-row-bare-bound-slug-typed.png', `(()=>{const ids=['n_bare','n_bound','n_slug','n_typed'].map(u=>document.querySelector('g.node[data-id="'+u+'"]')); const bs=ids.filter(Boolean).map(e=>e.getBoundingClientRect()); const x=Math.min(...bs.map(b=>b.x)), y=Math.min(...bs.map(b=>b.y)), r=Math.max(...bs.map(b=>b.right)), bo=Math.max(...bs.map(b=>b.bottom)); return {getBoundingClientRect:()=>({x,y,width:r-x,height:bo-y})};})()`, 60);
+await full('ac1-full-canvas.png');
+for (const u of ['n_bare','n_bound','n_typed']) { await ev(`selection={kind:'node',id:'${u}'}; renderAll(); renderProperties(); 'ok'`); await sleep(200); log['panel_'+u]=await ev(`(document.getElementById('properties')||{}).innerText`); await shot('ac1-panel-'+u+'.png',`document.getElementById('properties')`,4); }
+await ev(`selection=null; renderAll(); renderProperties(); 'ok'`);
+log.css_faint = await ev(`getComputedStyle(document.documentElement).getPropertyValue('--text-faint')+' / accent '+getComputedStyle(document.documentElement).getPropertyValue('--accent')+' / err '+getComputedStyle(document.documentElement).getPropertyValue('--danger')+getComputedStyle(document.documentElement).getPropertyValue('--error')`);
+// ---- AC2: real HTML5 drop event from the palette item onto the canvas
+log.palette = await ev(`[...document.querySelectorAll('.palette-item')].map(e=>e.dataset.create+'='+e.textContent.trim().replace(/\\s+/g,' '))`);
+const before = await ev(`state.nodes.map(n=>n.uid)`);
+await ev(`(()=>{const it=document.querySelector('.palette-item[data-create="linkEventCatch"]'); const dt=new DataTransfer(); it.dispatchEvent(new DragEvent('dragstart',{bubbles:true,dataTransfer:dt})); const svg=document.querySelector('svg#canvas')||document.querySelector('svg'); const bare=document.querySelector('g.node[data-id="n_bare"]').getBoundingClientRect(); const x=bare.x+bare.width/2, y=bare.bottom+130; svg.dispatchEvent(new DragEvent('dragover',{bubbles:true,cancelable:true,dataTransfer:dt,clientX:x,clientY:y})); svg.dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:dt,clientX:x,clientY:y})); return 'ok';})()`);
+await sleep(400);
+const fresh = await ev(`(()=>{const b=${JSON.stringify(before)}; const n=state.nodes.find(n=>!b.includes(n.uid)); return n?{uid:n.uid,type:n.type,name:n.name,bare:isBareCatchEvent(n),aef:n.aef}:null;})()`);
+log.ac2_fresh = fresh;
+if (fresh) {
+  const sel = `document.querySelector('g.node[data-id="${fresh.uid}"]')`;
+  log.ac2_live_glyph = await ev(`({circles:${sel}.querySelectorAll('circle').length,paths:${sel}.querySelectorAll('path').length,label:${sel}.textContent})`);
+  await ev(`selection={kind:'node',id:'${fresh.uid}'}; renderAll(); renderProperties(); 'ok'`); await sleep(200);
+  log.ac2_live_panel = await ev(`document.getElementById('properties').innerText`);
+  await ev(`selection=null; renderAll(); 'ok'`);
+  await shot('ac2-live-node-with-neighbours.png', `(()=>{const a=[${sel}, document.querySelector('g.node[data-id="n_bare"]'), document.querySelector('g.node[data-id="n_bound"]')].map(e=>e.getBoundingClientRect()); const x=Math.min(...a.map(b=>b.x)),y=Math.min(...a.map(b=>b.y)),r=Math.max(...a.map(b=>b.right)),bo=Math.max(...a.map(b=>b.bottom)); return {getBoundingClientRect:()=>({x,y,width:r-x,height:bo-y})};})()`, 50);
+  await ev(`selection={kind:'node',id:'${fresh.uid}'}; renderAll(); renderProperties(); 'ok'`); await sleep(200);
+  await shot('ac2-live-panel.png', `document.getElementById('properties')`, 4);
+  await ev(`selection=null; renderAll(); 'ok'`);
+  log.export_links_live = await ev(`(buildBpmnXml(state).replace(/<!--[\\s\\S]*?-->/g,'').match(/<aef:link /g)||[]).length`);
+  // let autosave land, then a REAL page reload
+  await ev(`autosaveNow(); 'ok'`); await sleep(1200);
+  await cmd('Page.reload',{ignoreCache:true}); await sleep(500); await ready(); await sleep(1200);
+  await ev(`(()=>{const t=document.getElementById('app-toast'); if(t) t.remove(); const b=document.getElementById('clean-nudge'); if(b) b.style.display='none';})()`);
+  log.after_reload = await ev(`(()=>{const n=state.nodes.find(n=>n.uid==='${fresh.uid}'); if(!n) return {found:false, uids:state.nodes.map(n=>n.uid)}; const g=${sel}; return {found:true,type:n.type,name:n.name,bare:isBareCatchEvent(n),sessionSize:sessionAuthoredLinks.size,circles:g&&g.querySelectorAll('circle').length,paths:g&&g.querySelectorAll('path').length,label:g&&g.textContent};})()`);
+  await shot('ac2-after-reload-node-with-neighbours.png', `(()=>{const a=[${sel}, document.querySelector('g.node[data-id="n_bare"]'), document.querySelector('g.node[data-id="n_bound"]')].filter(Boolean).map(e=>e.getBoundingClientRect()); const x=Math.min(...a.map(b=>b.x)),y=Math.min(...a.map(b=>b.y)),r=Math.max(...a.map(b=>b.right)),bo=Math.max(...a.map(b=>b.bottom)); return {getBoundingClientRect:()=>({x,y,width:r-x,height:bo-y})};})()`, 50);
+  await ev(`selection={kind:'node',id:'${fresh.uid}'}; renderAll(); renderProperties(); 'ok'`); await sleep(200);
+  log.after_reload_panel = await ev(`document.getElementById('properties').innerText`);
+  await shot('ac2-after-reload-panel.png', `document.getElementById('properties')`, 4);
+  // the escape hatch: click "Make this a handoff"
+  log.affordance = await ev(`(()=>{const b=[...document.querySelectorAll('#properties button, #properties a')].find(b=>/Make this a handoff/.test(b.textContent)); if(!b) return 'no button'; b.click(); return 'clicked';})()`); await sleep(300);
+  log.after_affordance_panel = await ev(`document.getElementById('properties').innerText`);
+  log.after_affordance_glyph = await ev(`({circles:${sel}.querySelectorAll('circle').length,paths:${sel}.querySelectorAll('path').length})`);
+  await shot('ac2-after-affordance-panel.png', `document.getElementById('properties')`, 4);
+}
+await full('ac2-full-after.png');
+writeFileSync(join(OUT,'log.json'), JSON.stringify(log,null,2));
+ch.kill(); process.exit(0);

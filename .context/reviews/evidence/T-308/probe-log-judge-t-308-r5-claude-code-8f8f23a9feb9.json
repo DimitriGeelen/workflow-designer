@@ -1,0 +1,129 @@
+{
+  "ac1_nodes": [
+    {
+      "uid": "n_start",
+      "type": "startEvent",
+      "name": "begin",
+      "bare": false,
+      "circles": 1,
+      "paths": 0,
+      "fill": [
+        "rgb(87, 199, 133)|rgba(87, 199, 133, 0.14)|none"
+      ],
+      "label": "begin"
+    },
+    {
+      "uid": "n_end",
+      "type": "endEvent",
+      "name": "done",
+      "bare": false,
+      "circles": 1,
+      "paths": 0,
+      "fill": [
+        "rgb(240, 111, 111)|rgba(240, 111, 111, 0.14)|none"
+      ],
+      "label": "done⚠ no authority"
+    },
+    {
+      "uid": "n_bare",
+      "type": "linkEventCatch",
+      "name": "awaiting upstream signal",
+      "bare": true,
+      "circles": 2,
+      "paths": 0,
+      "fill": [
+        "rgb(90, 97, 115)|rgb(29, 34, 48)|none",
+        "rgb(90, 97, 115)|none|none"
+      ],
+      "label": "awaiting upstream signal⚠ no authority"
+    },
+    {
+      "uid": "n_bound",
+      "type": "linkEventCatch",
+      "name": "← task-lifecycle (uuid)",
+      "bare": false,
+      "circles": 1,
+      "paths": 1,
+      "fill": [
+        "rgb(196, 238, 84)|rgb(29, 34, 48)|none"
+      ],
+      "label": "← task-lifecycle (uuid)⚠ no authority"
+    },
+    {
+      "uid": "n_slug",
+      "type": "linkEventCatch",
+      "name": "← review-map (legacy slug)",
+      "bare": false,
+      "circles": 1,
+      "paths": 1,
+      "fill": [
+        "rgb(196, 238, 84)|rgb(29, 34, 48)|none"
+      ],
+      "label": "← review-map (legacy slug)⚠ no authority"
+    },
+    {
+      "uid": "n_typed",
+      "type": "eventMessage",
+      "name": "bus message",
+      "bare": false,
+      "circles": 1,
+      "paths": 1,
+      "fill": [
+        "rgb(87, 199, 133)|rgb(29, 34, 48)|none"
+      ],
+      "label": "bus message⚠ no authority"
+    }
+  ],
+  "row": "ac1-row-bare-bound-slug-typed.png",
+  "panel_n_bare": "intermediateEvent\nlan_1_awaiting\n× delete\nBPMN\nName\nSlug\n· short id descriptor · derived from name unless overridden\nDisplay ID\n· computed · <lane>_<seq>_<slug>\nlan_1_awaiting\nUID\n· immutable internal id\nn_bare\nLane\nagent\nEVENT KIND\nThis event carries no kind and no handoff target — the source says only that something is awaited here. It is valid as it stands and exports unchanged.\n← Make this a handoff\nI/O CONTRACT\nAEF:\noutputs\n· name · type\n(no outputs)\n+ add output",
+  "panel_n_bound": "linkEventCatch\nlan_2_task\n× delete\nBPMN\nName\nSlug\n· short id descriptor · derived from name unless overridden\nDisplay ID\n· computed · <lane>_<seq>_<slug>\nlan_2_task\nUID\n· immutable internal id\nn_bound\nLane\nagent\nEXTENSIONS\nAEF:\nWorkflow ref (uuid)\n· uuid of the target workflow (rename-stable)\nRef display name\n· display label for the referenced workflow\nTarget workflow\n— none —\n📂 Choose from project…\nTarget workflow (or type an id)\n· for a workflow not yet in the project\n↗ Open target workflow\nLink ID\n· identifier shared with matching catch/throw\nNote\n· free notes · multi-line\nI/O CONTRACT\nAEF:\noutputs\n· name · type\n(no outputs)\n+ add output",
+  "panel_n_typed": "eventMessage\nlan_4_bus\n× delete\nBPMN\nName\nSlug\n· short id descriptor · derived from name unless overridden\nDisplay ID\n· computed · <lane>_<seq>_<slug>\nlan_4_bus\nUID\n· immutable internal id\nn_typed\nLane\nagent\nEXTENSIONS\nAEF:\nBus topic\n· termlink bus topic to listen on\nAttached to (host)\n· uid of the host node — set to make this a boundary event\nBoundary position\n· perimeter fraction 0..1 (clockwise from top-left)\nInterrupting\n· cancel the host on fire?\ntrue\nfalse\nNote\n· free notes · multi-line",
+  "css_faint": "#5a6173 / accent #c4ee54 / err ",
+  "palette": [
+    "startEvent=Start startEvent",
+    "endEvent=End endEvent",
+    "serviceTask=Service Task agent · Initiative",
+    "userTask=User Task human · Sovereignty",
+    "scriptTask=Script Task fw · Authority",
+    "subProcess=Sub-process collapsed composite",
+    "exclusiveGateway=Exclusive (XOR) decision",
+    "parallelGateway=Parallel (AND) fork / join",
+    "linkEventThrow=Handoff → to another workflow",
+    "linkEventCatch=← Handoff from another workflow",
+    "eventError=Error on status:issues",
+    "eventTimer=Timer cron / horizon",
+    "eventMessage=Message on bus topic",
+    "undefined=+ Add Lane swimlane · authority"
+  ],
+  "ac2_fresh": {
+    "uid": "n_c8b58558",
+    "type": "linkEventCatch",
+    "name": "← Handoff",
+    "bare": false,
+    "aef": {}
+  },
+  "ac2_live_glyph": {
+    "circles": 1,
+    "paths": 1,
+    "label": "← Handoff"
+  },
+  "ac2_live_panel": "linkEventCatch\nagt_2_handoff\n× delete\nBPMN\nName\nSlug\n· short id descriptor · derived from name unless overridden\nDisplay ID\n· computed · <lane>_<seq>_<slug>\nagt_2_handoff\nUID\n· immutable internal id\nn_c8b58558\nLane\nagent\nEXTENSIONS\nAEF:\nWorkflow ref (uuid)\n· uuid of the target workflow (rename-stable)\nRef display name\n· display label for the referenced workflow\nTarget workflow\n— none —\n📂 Choose from project…\nTarget workflow (or type an id)\n· for a workflow not yet in the project\n↗ Open target workflow\nLink ID\n· identifier shared with matching catch/throw\nNote\n· free notes · multi-line\nI/O CONTRACT\nAEF:\noutputs\n· name · type\n(no outputs)\n+ add output",
+  "export_links_live": 2,
+  "after_reload": {
+    "found": true,
+    "type": "linkEventCatch",
+    "name": "← Handoff",
+    "bare": true,
+    "sessionSize": 0,
+    "circles": 2,
+    "paths": 0,
+    "label": "← Handoff"
+  },
+  "after_reload_panel": "intermediateEvent\nagt_2_handoff\n× delete\nBPMN\nName\nSlug\n· short id descriptor · derived from name unless overridden\nDisplay ID\n· computed · <lane>_<seq>_<slug>\nagt_2_handoff\nUID\n· immutable internal id\nn_c8b58558\nLane\nagent\nEVENT KIND\nThis event carries no kind and no handoff target — the source says only that something is awaited here. It is valid as it stands and exports unchanged.\n← Make this a handoff\nI/O CONTRACT\nAEF:\noutputs\n· name · type\n(no outputs)\n+ add output",
+  "affordance": "clicked",
+  "after_affordance_panel": "linkEventCatch\nagt_2_handoff\n× delete\nBPMN\nName\nSlug\n· short id descriptor · derived from name unless overridden\nDisplay ID\n· computed · <lane>_<seq>_<slug>\nagt_2_handoff\nUID\n· immutable internal id\nn_c8b58558\nLane\nagent\nEXTENSIONS\nAEF:\nWorkflow ref (uuid)\n· uuid of the target workflow (rename-stable)\nRef display name\n· display label for the referenced workflow\nTarget workflow\n— none —\n📂 Choose from project…\nTarget workflow (or type an id)\n· for a workflow not yet in the project\n↗ Open target workflow\nLink ID\n· identifier shared with matching catch/throw\nNote\n· free notes · multi-line\nI/O CONTRACT\nAEF:\noutputs\n· name · type\n(no outputs)\n+ add output",
+  "after_affordance_glyph": {
+    "circles": 1,
+    "paths": 1
+  }
+}
