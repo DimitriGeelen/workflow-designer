@@ -7,7 +7,7 @@ description: >
 
 status: started-work
 workflow_type: build
-owner: human
+owner: agent
 horizon: later
 tags: []
 components: []
@@ -151,7 +151,7 @@ state-derived nodeVisualBottom, not badge DOM — no cross-render consumers brea
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-286 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-- [ ] [REVIEW] Arrow-over-badge default + selected-badge-forward feels right; endpoint drag handles now grabbable near badges
+- [x] [REVIEW] Arrow-over-badge default + selected-badge-forward feels right; endpoint drag handles now grabbable near badges
   **Steps:**
   1. Open http://192.168.10.107:3000/designer and click the **t293-retest-harvest** card
      (:3000 serves the 0.8.0 bundle with this change; :8834 is LAN-blocked — no ufw rule, T-253 class)
@@ -160,6 +160,7 @@ state-derived nodeVisualBottom, not badge DOM — no cross-render consumers brea
   4. Select the incoming edge and drag its endpoint handle where the badge overlaps it
   **Expected:** arrowhead never hidden by a badge when nothing is selected; selected node's badge fully legible; endpoint handle grabbable through the badge area
   **If not:** screenshot the spot and note which map/node — reopen T-286
+  **Reviewer verdict:** green V-20261006-3031a771 — reviewer-judge-t-286-r1-e084d35fa31d:reviewer (rung rung-1-same-vendor-independent), digest b9f67b091b3b; dispatch judge-t-286-r1-e084d35fa31d; evidence: .context/reviews/evidence/T-286/AC1-judge-t-286-r1-e084d35fa31d.md, .context/reviews/evidence/T-286/AC1-default-judge-t-286-r1-e084d35fa31d.png, .context/reviews/evidence/T-286/AC1-selected-judge-t-286-r1-e084d35fa31d.png, .context/reviews/evidence/T-286/AC1-deselected-judge-t-286-r1-e084d35fa31d.png, .context/reviews/evidence/T-286/AC1-edge-selected-judge-t-286-r1-e084d35fa31d.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 

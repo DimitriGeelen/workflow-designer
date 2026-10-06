@@ -4,10 +4,11 @@ name: "Upgrade vendored AEF 1.8.2 -> 1.8.3 (T-1000 protocol; first job through t
 description: >
   Upgrade vendored AEF 1.8.2 -> 1.8.3 (T-1000 protocol; first job through the T-1055 launcher)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-05T21:12:35Z
-last_update: 2026-10-05T21:12:35Z
-date_finished: null
+last_update: 2026-10-05T22:34:47Z
+date_finished: 2026-10-05T22:34:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -62,10 +63,10 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The upgrade is a launcher job (`.context/runme/<NNN>-upgrade-aef-1.8.3/`), dry-run passed (preflight + upstream dry-run: nothing local deleted), committed; the agent never runs it for real
-- [ ] After the operator's run: VERSION 1.8.3, pristine commit touches only `.agentic-framework/`, baseline advanced
-- [ ] Overwritten local fixes re-applied or retired as superseded by 1.8.3; `_t517` clean
-- [ ] Post-upgrade: project hooks intact (incl. the three 1.8.2 left out), new cron jobs installed, bridge suite re-run and recorded
+- [x] The upgrade is a launcher job (`.context/runme/001-upgrade-aef-1.8.3/`), dry-run passed (preflight; upstream dry-run: no local-only file deleted, the 36 locally edited files overwritten by design with --allow-delete-locals), committed; the agent never ran it for real
+- [x] After the operator's run: VERSION 1.8.3, pristine commit 0e542b61 touches only `.agentic-framework/`, baseline advanced 47256bd1
+- [x] Overwritten local fixes re-applied (36/36 clean, ac08e1b6); `_t517` clean
+- [x] Post-upgrade: project hooks intact incl. the three 1.8.2 left out (2dee46ba); no new cron jobs in 1.8.3 (crontab checked, 7 framework lines); enforcement baseline refreshed by the operator (job 002, 872dbb2f); bridge suite 241/0 (2026-10-06, run alone)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -99,6 +100,12 @@ date_finished: null
 -->
 
 ## Verification
+
+grep -qx '1.8.3' .agentic-framework/VERSION
+test "$(git show --name-only --format= 0e542b61 | grep -c .)" -gt 0 && test "$(git show --name-only --format= 0e542b61 | grep -c .)" -eq "$(git show --name-only --format= 0e542b61 | grep -c '^\.agentic-framework/')"
+python3 tools/_t517-vendor-divergence.py > /tmp/.t1057-t517 2>&1 && grep -q '^OK' /tmp/.t1057-t517
+test "$(grep -c 'check-paid-backend\|check-worktree-governance-write\|stop-driver\|_t420-rail-attribution-gate\|warn-uncontrolled-absence' .claude/settings.json)" -ge 5
+test -f .context/runme/001-upgrade-aef-1.8.3/done && test -f .context/runme/002-refresh-enforcement-baseline/done
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -322,3 +329,15 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1057-upgrade-vendored-aef-182---183-t-1000-pr.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-fd4b0692
+- **Timestamp:** 2026-10-05T22:34:50Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-05T22:34:47Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

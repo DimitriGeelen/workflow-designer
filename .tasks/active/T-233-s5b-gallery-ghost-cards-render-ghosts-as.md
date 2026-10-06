@@ -8,7 +8,7 @@ description: >
 
 status: work-completed
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: []
 components: [tools/_offpage-seam-parity-verify.py]
@@ -152,7 +152,7 @@ No new claim logic, no new endpoint, no new state.
        `bin/fw reviewer T-233 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
-- [ ] [REVIEW] A ghost entry reads as "not a map yet" at a glance, without reading the badge
+- [x] [REVIEW] A ghost entry reads as "not a map yet" at a glance, without reading the badge
 
   **Steps:**
   1. `cd /opt/832-Workflow-designer && python3 tools/gallery-serve.py 3099 --docroot src --repo .`
@@ -167,6 +167,7 @@ No new claim logic, no new endpoint, no new state.
   **If not:** Say which signal failed (border / colour / tile glyph / position). This is a
   taste call on visual weight — I can make it louder or quieter, but I should not be the
   one deciding it is loud enough.
+  **Reviewer verdict:** green V-20261006-693d132d — reviewer-judge-t-233-r3-48329fdce5bd:reviewer (rung rung-3-termlink-single-reviewer), digest 46a68e92a1a0; dispatch judge-t-233-r3-48329fdce5bd; evidence: .context/reviews/evidence/T-233/AC1-judge-t-233-r3-48329fdce5bd.md, .context/reviews/evidence/T-233/AC1-judge-t-233-r3-48329fdce5bd-open-grid.png, .context/reviews/evidence/T-233/AC1-judge-t-233-r3-48329fdce5bd-open-grid-ghost-visible.png, .context/reviews/evidence/T-233/AC1-judge-t-233-r3-48329fdce5bd-open-grid-ghost-visible-greyscale.png, .context/reviews/evidence/T-233/AC1-judge-t-233-r3-48329fdce5bd-ghost-vs-neighbours-zoom.png, .context/reviews/evidence/T-233/AC1-judge-t-233-r3-48329fdce5bd-after-click.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 

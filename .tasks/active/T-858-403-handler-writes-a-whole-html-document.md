@@ -6,7 +6,7 @@ description: >
 
 status: work-completed
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: [bug]
 components: []
@@ -63,7 +63,7 @@ date_finished: 2026-09-25T22:19:38Z
 
 ### Human
 
-- [ ] [REVIEW] The toast a real 403 produces reads as a sentence, and the full-page recovery UI is untouched
+- [x] [REVIEW] The toast a real 403 produces reads as a sentence, and the full-page recovery UI is untouched
 
   This exists because the defect was **what a person saw**, and the machine evidence stops one step
   short of that. The teeth prove the response body is 79 bytes and that the shipped toast
@@ -120,6 +120,7 @@ date_finished: 2026-09-25T22:19:38Z
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+  **Reviewer verdict:** green V-20261006-bcedda60 — reviewer-judge-t-858-r3-ba66fe7713ea:reviewer (rung rung-3-termlink-single-reviewer), digest a52b8d2b64ab; dispatch judge-t-858-r3-ba66fe7713ea; evidence: .context/reviews/evidence/T-858/AC1-judge-t-858-r3-ba66fe7713ea.md, .context/reviews/evidence/T-858/AC1-toast-full-judge-t-858-r3-ba66fe7713ea.png, .context/reviews/evidence/T-858/AC1-toast-closeup-judge-t-858-r3-ba66fe7713ea.png, .context/reviews/evidence/T-858/AC1-toast-closeup-dark-judge-t-858-r3-ba66fe7713ea.png, .context/reviews/evidence/T-858/AC1-navigation-403-page-judge-t-858-r3-ba66fe7713ea.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 

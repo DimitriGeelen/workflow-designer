@@ -219,7 +219,7 @@ that seam is the operator's call. Filed as evidence, not as scope.
        `bin/fw reviewer T-589 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
-- [ ] [REVIEW] Each URL appearing twice — once in the editable box, once as the rendered
+- [x] [REVIEW] Each URL appearing twice — once in the editable box, once as the rendered
       anchor below it — is acceptable, or you want a different shape
   **Steps:**
   1. `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw serve-src` is NOT the route —
@@ -233,6 +233,7 @@ that seam is the operator's call. Filed as evidence, not as scope.
   **If not / if you dislike it:** say which you'd rather have — anchors only when the field
   is not focused, a collapsed "N links" summary, or leave as is. It is a one-branch change
   in the `linkList` renderer; I did not pick a shape for you.
+  **Reviewer verdict:** green V-20261006-bcedfc30 — reviewer-judge-t-589-r1-3a6379fe2659:reviewer (rung rung-1-same-vendor-independent), digest 43782b9b572a; dispatch judge-t-589-r1-3a6379fe2659; evidence: .context/reviews/evidence/T-589/AC1-judge-t-589-r1-3a6379fe2659.md, .context/reviews/evidence/T-589/AC1-links-panel-judge-t-589-r1-3a6379fe2659.png; ledger .context/reviews/verdicts.jsonl
 
 - [ ] [REVIEW] `Fabric component` is the right field name and the right target
   **Steps:**

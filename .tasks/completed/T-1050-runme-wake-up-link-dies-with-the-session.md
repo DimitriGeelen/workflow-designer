@@ -11,13 +11,13 @@ description: >
   (or a handed-over script not yet run), re-arms the watcher and says so in session-start-alerts.
   Operator asked (2026-10-05) to build after the upgrade and share with AEF.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-05T13:07:28Z
-last_update: 2026-10-05T16:09:16Z
-date_finished:
+last_update: 2026-10-05T17:05:02Z
+date_finished: 2026-10-05T17:05:02Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -360,3 +360,22 @@ bash -n tools/runme-watch.sh
 ### 2026-10-05T16:09:16Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1f001515
+- **Timestamp:** 2026-10-05T17:05:13Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — `tools/runme-watch.sh` records who armed it (`.context/working/runme.watch`: watch pid, the arming claude pid, time); the record is removed when an event is reported and kept on timeout or kill
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=context/working/runme.watch in: `tools/runme-watch.sh` records who armed it (`.context/working/runme.watch`: watch pid, the arming claude pid, time); the record is removed when an ev`
+- **AC#2 (Agent)** — `scripts/session-start-alerts.sh` prints a "Runme / live agents" section: WATCH LOST when the arming claude is not this session; RUN IN FLIGHT / RUN ENDED WITHOUT RECORD from runme.events; OTHER LIVE 
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=scripts/session-start-alerts.sh in: `scripts/session-start-alerts.sh` prints a "Runme / live agents" section: WATCH LOST when the arming claude is not this session; RUN IN FLIGHT / RUN E`
+
+### 2026-10-05T17:05:02Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
