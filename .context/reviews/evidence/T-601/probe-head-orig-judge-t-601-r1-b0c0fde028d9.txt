@@ -1,0 +1,15 @@
+editor=/tmp/rev601/head.html mode=orig maps=24
+{"under":4,"labels":141,"header":0,"lane":9,"pool":0,"cross":68,"side":66}
+  arc-lifecycle.bpmn  n_req  [right] "Arc proposed (headline mechanic identifi"  UNDER_NODE(1)  cross=1 rect=[198,414,361,452]
+  cross-host-dispatch.bpmn  n_send  [below] "Agent runs `fw dispatch send`"  LANE(y 131-169 vs 62-158)  cross=0 rect=[103,131,174,169]
+  cross-host-dispatch.bpmn  n_conn_gate  [right] "SSH reachable? (BatchMode, ConnectTimeou"  UNDER_NODE(1)  cross=1 rect=[853,187,994,225]
+  git-commit-flow.bpmn  n_start  [below] "git.sh commit -m "T-XXX: …""  UNDER_NODE(1)  cross=0 rect=[91,441,231,467]
+  healing-loop.bpmn  n_trigger  [below] "Auto-trigger — task entered issues/block"  LANE(y 347-384 vs 278-374)  cross=3 rect=[91,347,230,384]
+  inception-review.bpmn  n_request  [below] "Agent runs `fw task review`"  LANE(y 131-168 vs 62-158)  cross=0 rect=[103,131,174,168]
+  inception-review.bpmn  n_end_defer  [below] "Inception parked — revisit scheduled"  LANE(y 419-456 vs 158-446)  cross=0 rect=[1815,419,1942,456]
+  session-capture.bpmn  n_start  [below] "session end / context transition"  UNDER_NODE(1)  cross=0 rect=[91,137,241,163]
+  session-capture.bpmn  g_found  [below] "uncaptured items found?"  LANE(y 143-181 vs 62-170)  cross=0 rect=[319,143,409,181]
+  session-handover.bpmn  n_end  [below] "Handover published (next session can res"  LANE(y 326-363 vs 142-358)  cross=0 rect=[1658,326,1819,363]
+  session-handover.bpmn  n_episodic_gate  [below] "All completed tasks have enriched episod"  LANE(y 332-369 vs 142-358)  cross=0 rect=[462,332,627,369]
+  task-lifecycle.bpmn  n_partial_check  [below] "Human-owned with unchecked Human ACs?"  LANE(y 339-376 vs 150-366)  cross=0 rect=[1669,339,1819,376]
+  verification-gate.bpmn  n_partial  [below] "Partial-complete: stays active/, owner -"  LANE(y 344-382 vs 150-380)  cross=0 rect=[456,344,609,382]
