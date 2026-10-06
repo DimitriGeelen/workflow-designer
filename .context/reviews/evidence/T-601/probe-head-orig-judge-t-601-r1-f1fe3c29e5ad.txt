@@ -1,0 +1,10 @@
+editor=/tmp/rv601/head.html mode=orig maps=24
+{"under":0,"labels":141,"header":1,"lane":7,"pool":3,"cross":79,"side":71}
+  arc-lifecycle.bpmn  n_req  [below] "Arc proposed (headline mechanic identifi"  LANE(y 454-492 vs 386-482) POOL  cross=0 rect=[91,454,254,492]
+  git-commit-flow.bpmn  n_start  [below] "git.sh commit -m "T-XXX: …""  LANE(y 441-479 vs 366-474) POOL  cross=0 rect=[120,441,202,479]
+  inception-review.bpmn  n_end_defer  [below] "Inception parked — revisit scheduled"  LANE(y 419-456 vs 158-446)  cross=0 rect=[1815,419,1942,456]
+  session-capture.bpmn  n_start  [left] "session end / context transition"  HEADER(158.0px) POOL  cross=0 rect=[-68,103,82,129]
+  session-handover.bpmn  n_end  [below] "Handover published (next session can res"  LANE(y 326-363 vs 142-358)  cross=0 rect=[1658,326,1819,363]
+  session-handover.bpmn  n_episodic_gate  [below] "All completed tasks have enriched episod"  LANE(y 332-369 vs 142-358)  cross=0 rect=[462,332,627,369]
+  task-lifecycle.bpmn  n_partial_check  [below] "Human-owned with unchecked Human ACs?"  LANE(y 339-376 vs 150-366)  cross=0 rect=[1669,339,1819,376]
+  verification-gate.bpmn  n_partial  [below] "Partial-complete: stays active/, owner -"  LANE(y 344-382 vs 150-380)  cross=0 rect=[456,344,609,382]
