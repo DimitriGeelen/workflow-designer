@@ -45,7 +45,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T09:49:30Z
-last_update: 2026-10-06T11:57:57Z
+last_update: 2026-10-06T12:05:10Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -90,8 +90,8 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] F1: no event/gateway label line in the DEFAULT map starts left of POOL_X + LANE_HEADER (the "Investigation requested" block is nudged clear of the header strip); a leg asserts it on the default map, with a control showing the pre-fix editor fails it
-- [ ] F3: the divider term scores the label BLOCK, not line by line (a block split across or sitting in the next lane is penalised); `_t601 --self-test` passes again, i.e. L2 goes red when the pool term is removed
+- [x] F1: no event/gateway label line in the DEFAULT map starts left of POOL_X + LANE_HEADER (the "Investigation requested" block is nudged clear of the header strip); a leg asserts it on the default map, with a control showing the pre-fix editor fails it
+- [x] F3: the divider term scores the label BLOCK, not line by line (a block split across or sitting in the next lane is penalised); `_t601 --self-test` passes again, i.e. L2 goes red when the pool term is removed
 - [ ] T-600/T-601/T-1067 legs still pass; screenshots of the default map's left edge and the T-601 case read; re-judged by the independent reviewer
 
 ### Human
@@ -126,6 +126,10 @@ bvp_scores_proposed:
 -->
 
 ## Verification
+
+node tools/_t601-lane-boundary.mjs --self-test
+node tools/_t600-label-wrap.mjs --self-test
+node tools/_t1067-side-label-wrap-cdp.mjs
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -353,3 +357,21 @@ bvp_scores_proposed:
 ### 2026-10-06T11:15:06Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-06T12:30Z — T-600 self-test repaired; F1/F3 met [agent]
+The previous session stopped at its 95% context cap with `_t600-label-wrap.mjs --self-test` red
+("L3 passed under poison"). Code search: red since T-601 itself (a51e6235, found by a binary
+search over the 32 editor commits from T-600 on; 1d383648 green, adcd5af1 green, a51e6235 red).
+Cause: L3 measured the first below-node of the default document, which sits at the pool's left
+edge; once T-601 penalised the lane header it stays BELOW its shape, where the wrap pass sets y
+explicitly and document order cannot show. The order matters only beside the shape
+(adjustLabelPlacements stacks in document order). Fix: L3 now walks the below-nodes and measures
+the first whose long name lands beside its shape; poison B now patches all 3 insert sites
+(T-1067 added the third). Not reached by the bridge suite until this task wired it, which is why
+it went unnoticed for six weeks.
+Evidence: `_t600 --self-test` PASS (7 live, 4 proven failable; arm B L3 badge y=474 < 498);
+`_t601 --self-test` PASS (6 live, 4 proven failable; poison L2 4 rects outside lane);
+F1 control: the pre-fix editor (c44bd201) FAILS the new L6 ("Investigation requested@85.3" < 90);
+`_t1067` 6/6. Screenshots read: default-left-after clears the header strip; t601-after moves the
+long label off the header and divider to the right of the start event, where the outgoing edge
+runs through the block. That trade is the reviewer's call (AC 3), not ticked here.

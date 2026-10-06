@@ -8,7 +8,8 @@
 // Legs (all must pass):
 //   L1  a long event/gateway name wraps onto >= 2 lines with wrapNames on
 //   L2  every wrapped line MEASURES at or under the size-scaled cap
-//   L3  the id badge sits below the wrapped block, not on top of it
+//   L3  the id badge sits below the wrapped block, not on top of it, measured on a block
+//       placed BESIDE its shape, where document order decides the stacking (T-1068)
 //   L4  a short name stays on exactly ONE line (T-105's contract is preserved)
 //   L5  with wrapNames off the same long name is ONE line wider than the cap
 //       (the option really switches, and the measurement can produce a failing value)
@@ -101,6 +102,37 @@ const probeExpr = (name, wrap) => `(function(){ try{
           afterPlacement:after, beforePlacement:before};
 }catch(e){ return {ok:false,error:String(e&&e.stack||e)}; } })()`;
 
+// L3's probe (T-1068). The insert order only shows once adjustLabelPlacements() moves the
+// block BESIDE the shape: it stacks the node's texts in DOCUMENT ORDER, while the below
+// block gets explicit y values from the wrap pass whatever the order. Since T-601 penalises
+// the lane header, the first below-node of the default document (at the pool's left edge)
+// keeps its below placement, so measuring it could no longer fail. Walk the below-nodes,
+// give each the long name, and measure the first whose name lands beside its shape.
+const sideProbeExpr = (name) => `(function(){ try{
+  labelPrefs.wrapNames = true;
+  var isBelow=function(n){ return n.type==='startEvent'||n.type==='endEvent'||
+    /Gateway$/.test(n.type)||/^linkEvent/.test(n.type)||/^event/.test(n.type); };
+  var nodes=state.nodes.filter(isBelow), tried=[];
+  for (var k=0;k<nodes.length;k++){
+    var n=nodes[k], was=n.name;
+    n.name=${JSON.stringify(name)};
+    renderAll();
+    var all=Array.prototype.slice.call(document.querySelectorAll('text[data-nl="'+n.uid+'"]'));
+    var lines=all.filter(function(t){return t.getAttribute('class')==='node-label';});
+    var idEl=all.filter(function(t){return t.getAttribute('class')==='node-id-badge';})[0];
+    var anchor=lines.length?lines[0].getAttribute('text-anchor'):null;
+    var out=null;
+    if (idEl && lines.length && anchor!=='middle')
+      out={ok:true, found:true, uid:n.uid, anchor:anchor, nLines:lines.length,
+           maxY:Math.max.apply(null,lines.map(function(t){return +t.getAttribute('y');})),
+           idY:+idEl.getAttribute('y')};
+    tried.push(n.uid);
+    n.name=was; renderAll();
+    if (out) return out;
+  }
+  return {ok:true, found:false, tried:tried};
+}catch(e){ return {ok:false,error:String(e&&e.stack||e)}; } })()`;
+
 async function runProbes(editorPath) {
   const chrome = findChrome();
   const udd = mkdtempSync(join(tmpdir(), 't600-chrome-'));
@@ -124,6 +156,7 @@ async function runProbes(editorPath) {
       long: await evalJson(cmd, probeExpr(LONG, true)),
       short: await evalJson(cmd, probeExpr(SHORT, true)),
       off: await evalJson(cmd, probeExpr(LONG, false)),
+      side: await evalJson(cmd, sideProbeExpr(LONG)),
     };
   } finally {
     try { client && client.close(); } catch (_) {}
@@ -134,12 +167,15 @@ async function runProbes(editorPath) {
 // Legs that the poisoned build must break. Returns [{id, ok, detail}].
 function measuredLegs(r) {
   const L = [];
-  const long = r.long, short = r.short, off = r.off;
+  const long = r.long, short = r.short, off = r.off, side = r.side;
   for (const [k, v] of Object.entries(r))
     if (!v || !v.ok) return [{ id: 'probe:' + k, ok: false, detail: (v && v.error) || 'probe returned nothing' }];
   L.push({ id: 'L1', ok: long.nLines >= 2, detail: `long name rendered ${long.nLines} line(s)` });
   L.push({ id: 'L2', ok: long.widths.every(w => w <= long.cap), detail: `line widths ${long.widths.join(',')} vs cap ${long.cap}` });
-  L.push({ id: 'L3', ok: long.idY !== null && long.idY > long.maxY, detail: `id badge y=${long.idY}, last name line y=${long.maxY}` });
+  L.push(side.found
+    ? { id: 'L3', ok: side.nLines >= 2 && side.idY > side.maxY,
+        detail: `side-placed (${side.anchor}) ${side.uid}: ${side.nLines} line(s), id badge y=${side.idY}, last name line y=${side.maxY}` }
+    : { id: 'L3', ok: false, detail: `NOT EVALUATED — no below-node's long name lands beside its shape (tried ${side.tried.join(',')})` });
   L.push({ id: 'L7', ok: long.afterPlacement === long.beforePlacement && long.beforePlacement >= 2,
            detail: `lines ${long.beforePlacement} -> ${long.afterPlacement} across adjustLabelPlacements()` });
   L.push({ id: 'L4', ok: short.nLines === 1, detail: `short name rendered ${short.nLines} line(s)` });
@@ -186,7 +222,10 @@ async function main() {
   }
   const arms = [
     { name: 'A — wrap pass never invoked', patched: src.replace(CALL, '  /* T-600 poison A */'), mustFail: ['L1', 'L2', 'L7'] },
-    { name: 'B — wrapped lines appended AFTER the id badge', patched: src.replace(ORDER, 'g.appendChild(t);'), mustFail: ['L3'] },
+    // T-1068: replaceAll — T-1067 added a third writer (adjustLabelPlacements) that runs after
+    // the wrap pass and re-inserts the lines in order, so poisoning only the first copy was
+    // repaired before L3 measured anything. The order is an invariant of every writer.
+    { name: `B — wrapped lines appended AFTER the id badge (all ${src.split(ORDER).length - 1} writers)`, patched: src.replaceAll(ORDER, 'g.appendChild(t);'), mustFail: ['L3'] },
   ];
   const dir = mkdtempSync(join(tmpdir(), 't600-poison-'));
   let armed = 0;
