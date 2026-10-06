@@ -2635,3 +2635,17 @@ decisions:
     date: 2026-10-06
     task: T-1063
     rationale: "Executes the standing instruction of 2026-09-21 (PD-302): Human-AC verification goes to the external reviewer except high risk, Tier 0 and large UX. T-1063 measured 83/84 open Human ACs labelled [REVIEW] by default, so the delegation predicate (tools/_t770) routed nothing to the reviewer."
+
+  - id: PD-356
+    decision: "A: keep the five XSDs, add OMG's copyright and permission notice beside them, and the"
+    scope: project
+    date: 2026-10-06
+    task: T-1074
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-357
+    decision: "Review routing follows the CURRENT AEF ruleset; 832's own routing rules (T-1066 Why-you, PD-302, PD-355) apply only where AEF is silent, and AEF wins on a conflict. Referenced, not copied, because the AEF ruleset changes."
+    scope: project
+    date: 2026-10-06
+    task: T-1077
+    rationale: "Operator, 2026-10-06, in session, chose option 2: 'use the reviewer for the review routes. That's our ruleset, the AEF ruleset, our guidance which we should refer to and that can change. So that's the general standard directive.'"
