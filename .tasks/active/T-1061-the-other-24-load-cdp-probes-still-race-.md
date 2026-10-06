@@ -1,13 +1,24 @@
 ---
 id: T-1061
-name: "The other 24 ?load= CDP probes still race the deep-link fetch; give the editor one honest 'deep link settled' signal and wait on it"
+name: "The other 24 ?load= CDP probes still race the deep-link fetch; give the editor
+  one honest 'deep link settled' signal and wait on it"
 description: >
-  From T-1060. 24 probes load a map via ?load= and wait on _appReady + fixed sleeps (10 run in the bridge suite: _saveproject, _selection-align, _endpoint-overlap, _horizontal-spacing, gen-rendered-thumbs, _edge-straighten, _t911, _t821, _t892, plus the T-1013 guards). A blanket switch to waiting on _loadSrcKey is NOT safe: probes that test a FAILING deep link (_t821) or autosave suppression (_autoload) never set it and would time out. Proposed: the editor sets one signal in the ?load IIFE's every exit (adopted / suppressed / failed), e.g. window._deepLinkSettled = 'adopted'|'suppressed'|'failed'|'none'; probes wait on it, then assert the state they expect. Designer change (release), then the probes; prove each with the T-1060 slow-load stimulus.
+  From T-1060. 24 probes load a map via ?load= and wait on _appReady + fixed sleeps
+  (10 run in the bridge suite: _saveproject, _selection-align, _endpoint-overlap,
+  _horizontal-spacing, gen-rendered-thumbs, _edge-straighten, _t911, _t821, _t892,
+  plus the T-1013 guards). A blanket switch to waiting on _loadSrcKey is NOT safe:
+  probes that test a FAILING deep link (_t821) or autosave suppression (_autoload)
+  never set it and would time out. Proposed: the editor sets one signal in the ?load
+  IIFE's every exit (adopted / suppressed / failed), e.g. window._deepLinkSettled
+  = 'adopted'|'suppressed'|'failed'|'none'; probes wait on it, then assert the state
+  they expect. Designer change (release), then the probes; prove each with the T-1060
+  slow-load stimulus.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +49,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T06:26:52Z
-last_update: 2026-10-06T06:26:52Z
-date_finished: null
+last_update: 2026-10-06T07:39:40Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +61,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-06T07:39:40Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=editor)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1061: The other 24 ?load= CDP probes still race the deep-link fetch; give the editor one honest 'deep link settled' signal and wait on it
@@ -62,8 +94,10 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] The editor (`src/aef-workflow-designer.html`) sets one signal on EVERY exit of its `?load=` handler: `_deepLinkSettled` = 'none' (no ?load) | 'adopted' | 'suppressed' (autosave kept) | 'failed'; null until then. Exports unchanged (no byte change to saved BPMN)
+- [ ] Every CDP probe that waits on `_appReady===true` also waits for `_deepLinkSettled` (treating an older editor without the variable as settled); `_t570`/`_t573` switch from `_loadSrcKey` to it
+- [ ] The probes the bridge suite runs pass against the normal editor AND the T-1060 slow-load editor, including the failure-path (`_t821`) and suppression-path ones; the T-1060 teeth cover the signal (adopted + failed paths)
+- [ ] Bridge suite green apart from known, named causes; designer release is NOT cut here (the change ships with the next release)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,3 +354,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1061-the-other-24-load-cdp-probes-still-race-.md
 - **Context:** Initial task creation
+
+### 2026-10-06T07:39:40Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

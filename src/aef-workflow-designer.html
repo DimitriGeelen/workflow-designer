@@ -10651,25 +10651,35 @@ $('btn-load').onclick = () => {
 };
 // ?load=<same-origin path> — gallery deep-link: fetch a rendered .bpmn and open it.
 // Only useful when served over HTTP (fetch of file:// paths is blocked by browsers).
+// T-1061: one honest signal that the deep link has SETTLED, set on every exit of the handler below:
+// 'none' (no ?load) | 'adopted' | 'suppressed' (B1 kept newer autosaved edits) | 'failed'; null until
+// then. _appReady flips at the end of Init, before this async fetch lands, so anything that drives
+// the editor (the CDP probes) must wait for this, not for _appReady plus a sleep. A window property,
+// not a `let`: this handler starts running before the script's later `let` bindings exist.
+window._deepLinkSettled = null;
 (async () => {
   const src = new URLSearchParams(location.search).get('load');
   // T-884: ?instance=T-XXX pre-selects an instance once the map (and its snapshot) is in.
   instanceView.pending = new URLSearchParams(location.search).get('instance');
-  if (!src) { loadInstanceSnapshot(); return; }
+  if (!src) { loadInstanceSnapshot(); window._deepLinkSettled = 'none'; return; }
+  let settled = 'failed';
   try {
     const res = await fetch(src);
     if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${src}`);
     // B1: if autoLoadStored() already restored newer autosaved edits for THIS same
     // deep-link, don't let the fetched file overwrite them. The synchronous Init tail
     // (which runs autoLoadStored) always completes before this await resolves.
-    if (typeof _suppressDeepLink !== 'undefined' && _suppressDeepLink) { loadInstanceSnapshot(); return; }
+    if (typeof _suppressDeepLink !== 'undefined' && _suppressDeepLink) { loadInstanceSnapshot(); settled = 'suppressed'; return; }
     adoptImportedXml(await res.text(), { userImport: true });
     _loadSrcKey = activeKey;   // T-234: remember which map identity this ?load adopted
     loadInstanceSnapshot();    // T-884: the overlay follows the loaded template
+    settled = 'adopted';
   } catch (e) {
     aefRecordFault('deeplink-load', e);
     console.error('Deep-link load failed:', e);
     alert('Could not load workflow from URL:\n' + e.message);
+  } finally {
+    window._deepLinkSettled = settled;
   }
 })();
 $('btn-new-workflow').onclick = () => { createNewWorkflow(); };

@@ -40,7 +40,7 @@ OLDP="$ROOT/tools/.t1060-control-$$.mjs"
 python3 - "$T573" "$OLDP" <<'PY' || { echo "CANNOT RUN: could not build the control probe"; exit 2; }
 import sys
 s = open(sys.argv[1]).read()
-new = "&&(!new URLSearchParams(location.search).get('load')||_loadSrcKey!=null))"
+new = "&&(typeof _deepLinkSettled==='undefined'||_deepLinkSettled!==null))"
 if s.count(new) != 1:
     sys.exit(1)
 open(sys.argv[2], "w").write(s.replace(new, ")"))

@@ -59,7 +59,7 @@ async function main() {
     cl = cdp(await pageWsUrl(dp)); await cl.ready; const { cmd } = cl;
     await cmd('Page.enable'); await cmd('Runtime.enable');
     await cmd('Page.navigate', { url: BASE + '/designer.html?load=' + encodeURIComponent('rendered/' + MAP) });
-    { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof renderAll==='function'&&_appReady===true)`).catch(() => false); if (ok) break; if (Date.now() - t0 > 20000) throw new Error('not ready'); await sleep(150); } }
+    { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof renderAll==='function'&&_appReady===true&&(typeof _deepLinkSettled==='undefined'||_deepLinkSettled!==null))`).catch(() => false); if (ok) break; if (Date.now() - t0 > 20000) throw new Error('not ready'); await sleep(150); } }
     await sleep(400);
 
     // 1: whole canvas at rest — baseline before widen

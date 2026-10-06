@@ -59,7 +59,7 @@ async function evalJson(cmd, expression) {
 async function waitReady(cmd) {
   const t0 = Date.now();
   for (;;) {
-    const ok = await evalJson(cmd, `(typeof state==='object' && !!state && typeof buildBpmnXml==='function' && typeof _appReady!=='undefined' && _appReady===true)`).catch(() => false);
+    const ok = await evalJson(cmd, `(typeof state==='object' && !!state && typeof buildBpmnXml==='function' && typeof _appReady!=='undefined' && _appReady===true&&(typeof _deepLinkSettled==='undefined'||_deepLinkSettled!==null))`).catch(() => false);
     if (ok) return;
     if (Date.now() - t0 > 20000) throw new Error('editor did not finish loading');
     await sleep(150);

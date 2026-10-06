@@ -816,6 +816,15 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1061: the editor's own "deep link settled" signal, which every CDP probe now waits on.
+if node "$ROOT/tools/_t1061-deeplink-settled-cdp.mjs" > "$TMP/leg-_t1061.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the editor's _deepLinkSettled signal is wrong in some state (none / adopted / failed / null-until-settled) — every CDP probe waits on it (run 'node tools/_t1061-deeplink-settled-cdp.mjs'; T-1061)"
+  show_output "$TMP/leg-_t1061.out" "_t1061-deeplink-settled-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 echo
 echo "== every key our bridge can emit survives an editor round trip (T-572) =="
 # The ⊆ guard (test_editor_bridge_meta_parity.py, run above) asserts one direction and its

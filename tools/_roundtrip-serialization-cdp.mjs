@@ -933,7 +933,7 @@ const LM_PREFLIGHT_EXPR = `(function(){
   }catch(e){ return {perturbable:false,reason:'exception: '+(e&&e.message||e)}; }
 })()`;
 
-async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof parseBpmnXml==='function'&&typeof buildBpmnXml==='function'&&typeof refreshDisplayIds==='function'&&_appReady===true)`).catch(() => false); if (ok) return; if (Date.now() - t0 > 20000) throw new Error('editor not ready'); await sleep(150); } }
+async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof parseBpmnXml==='function'&&typeof buildBpmnXml==='function'&&typeof refreshDisplayIds==='function'&&_appReady===true&&(typeof _deepLinkSettled==='undefined'||_deepLinkSettled!==null))`).catch(() => false); if (ok) return; if (Date.now() - t0 > 20000) throw new Error('editor not ready'); await sleep(150); } }
 
 // The round-trip, executed inside the editor for one fixture (text pre-set as window.__FIXTURE__).
 const ROUNDTRIP_EXPR = `(function(){

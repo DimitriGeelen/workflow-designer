@@ -167,7 +167,7 @@ try {
   await cmd('Page.navigate', { url: BASE + '/designer.html?load=' + encodeURIComponent('rendered/t.bpmn') });
   const t0 = Date.now();
   for (; ;) {
-    const ok = await ev(cmd, `(typeof buildBpmnXml==='function'&&typeof parseBpmnXml==='function'&&_appReady===true)`).catch(() => false);
+    const ok = await ev(cmd, `(typeof buildBpmnXml==='function'&&typeof parseBpmnXml==='function'&&_appReady===true&&(typeof _deepLinkSettled==='undefined'||_deepLinkSettled!==null))`).catch(() => false);
     if (ok) break;
     if (Date.now() - t0 > 25000) die('editor never became ready');
     await sleep(150);
