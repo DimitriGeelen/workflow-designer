@@ -12,13 +12,18 @@ task created on or after CUTOFF, needs a line
 
     **Why you:** <exception> — <one-line reason>
 
-where <exception> is one of the operator's own carve-outs:
-    tier0        a Tier 0 / consequential action
-    irreversible publishing, deploying, paying, credentials, anything that cannot be undone
-    sovereignty  a ruling or decision only the operator may make (project rules, approvals)
-    direction    what the project is for / what to build next
-    large-ux     a large UX review (not a single "reads well" check — those go to the reviewer)
+where <exception> is one of AEF's carve-outs (T-1079: the operator's directive PD-357 makes the
+CURRENT AEF ruleset normative; AEF's list is CARVE_OUTS in .agentic-framework/lib/delegation.py):
+    act-in-the-world   publishing, deploying, paying, credentials — outside this repo (832's old
+                       name `irreversible` is accepted as an alias)
+    tier0-or-bypass    a Tier 0 / consequential action or a gate bypass (alias: `tier0`)
+    sovereignty-field  a ruling or field only the operator may set (alias: `sovereignty`)
+or one of the two 832 proposed to AEF and still PENDING there (T-1077) — accepted, and reported:
+    direction          what the project is for / what to build next
+    large-ux           a large UX review (not a single "reads well" check — those go to the reviewer)
 Anything else is written for the reviewer instead: `fw reviewer judge T-XXX --criterion N`.
+The routing itself is AEF's (tools/_t770 asks lib/delegation.py); this check only makes the author
+argue a [REVIEW] label, a rule AEF is silent on.
 
 Older tasks are out of scope (the backlog was triaged by T-1064/T-1065, not by this check).
 
@@ -34,7 +39,22 @@ import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CUTOFF = "2026-10-06"
-EXCEPTIONS = ("tier0", "irreversible", "sovereignty", "direction", "large-ux")
+AEF_CARVE_OUTS = ("act-in-the-world", "tier0-or-bypass", "sovereignty-field")
+ALIASES = {"irreversible": "act-in-the-world", "tier0": "tier0-or-bypass", "sovereignty": "sovereignty-field"}
+PENDING_AEF = ("direction", "large-ux")     # proposed to AEF by T-1077; routed to the reviewer meanwhile
+EXCEPTIONS = AEF_CARVE_OUTS + tuple(ALIASES) + PENDING_AEF
+
+
+def _carve_outs_match_aef():
+    """True if AEF_CARVE_OUTS equals the vendored lib/delegation.CARVE_OUTS, None if unreadable."""
+    lib = os.path.join(ROOT, ".agentic-framework", "lib")
+    try:
+        if lib not in sys.path:
+            sys.path.insert(0, lib)
+        import delegation  # noqa: E402 — the vendored AEF module
+        return tuple(sorted(delegation.CARVE_OUTS)) == tuple(sorted(AEF_CARVE_OUTS))
+    except Exception:
+        return None
 WHY = re.compile(r"\*\*Why you:\*\*\s*`?([a-z0-9-]+)`?", re.I)
 
 
@@ -69,6 +89,9 @@ def check_file(path):
             out.append((tid.group(1), first[:90], "no '**Why you:**' line"))
         elif w.group(1).lower() not in EXCEPTIONS:
             out.append((tid.group(1), first[:90], "'Why you: %s' is not one of %s" % (w.group(1), "/".join(EXCEPTIONS))))
+        elif w.group(1).lower() in PENDING_AEF:
+            print("NOTE  %s: %s — 'Why you: %s' is pending at AEF (T-1077); until AEF rules, AEF routes it "
+                  "to the reviewer, who may escalate" % (tid.group(1), first[:70], w.group(1).lower()))
     return out
 
 
@@ -93,8 +116,17 @@ def self_test():
         ("commented template example ignored -> green", task("2026-10-07", "<!--\n- [ ] [REVIEW] Dashboard renders\n-->"), 0),
         ("Why you in the NEXT criterion does not cover this one -> red",
          task("2026-10-07", "- [ ] [REVIEW] A\n- [ ] [REVIEW] B\n  **Why you:** direction — scope"), 1),
+        ("AEF carve-out name -> green", task("2026-10-07", "- [ ] [REVIEW] Ship it\n  **Why you:** act-in-the-world — publishes"), 0),
+        ("832 alias of an AEF carve-out -> green", task("2026-10-07", "- [ ] [REVIEW] Ship it\n  **Why you:** irreversible — publishes"), 0),
+        ("pending-at-AEF name -> green (reported)", task("2026-10-07", "- [ ] [REVIEW] Pick the arc\n  **Why you:** large-ux — whole editor"), 0),
     ]
     fails = 0
+    # Pinned to AEF: if AEF changes CARVE_OUTS, this leg goes red so the list here is revisited.
+    m = _carve_outs_match_aef()
+    ok = m is True
+    fails += not ok
+    print("%s  AEF_CARVE_OUTS equals the vendored lib/delegation.CARVE_OUTS (%s)"
+          % ("PASS" if ok else "FAIL", {True: "match", False: "AEF changed its list", None: "could not import AEF"}[m]))
     with tempfile.TemporaryDirectory() as d:
         for name, body, want in cases:
             p = os.path.join(d, "T-9999-x.md")
@@ -103,7 +135,7 @@ def self_test():
             ok = got == want
             fails += not ok
             print("%s  %s (violations %d, want %d)" % ("PASS" if ok else "FAIL", name, got, want))
-    print("\n%d/%d self-test legs passed" % (len(cases) - fails, len(cases)))
+    print("\n%d/%d self-test legs passed" % (len(cases) + 1 - fails, len(cases) + 1))
     return 1 if fails else 0
 
 

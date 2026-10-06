@@ -248,19 +248,17 @@ kit-publish.py
 mcp-designer-server.py
 operator-actions.sh
 
-# WIRE candidates that FAIL today (16). NOT an amnesty: each line names the open task that owns
+# WIRE candidates that FAIL today (15). NOT an amnesty: each line names the open task that owns
 # the failure; wire it when that task closes. Wiring them now would only repaint known red.
 # owner: T-1033 (8 tasks awaiting Human review lack a Recommendation)
 _norec-verify.py
-# owner: T-932 (G-052: the two encodings of the delegation boundary disagree)
-_t932-boundary-agreement.sh
+# (_t932-boundary-agreement.sh removed by T-1079: green since PD-357 made AEF normative, now a bridge leg)
 
-# UNSURE (5): reached by paths the census cannot follow, or a hook. One note each.
+# UNSURE (4): reached by paths the census cannot follow, or a hook. One note each.
 # live via tools/_t596-arc0-exit-gate.sh (variable-held path); census blind spot
 _t596_arc0_check.py
 # live via tools/_t596-arc0-exit-gate.sh (variable-held path); census blind spot
 _t597_arc0_clauses.py
 # library nothing imports although its header requires it; self-test green 11/11; likely the consumer was the dropped warn-uncontrolled-absence hook
 _t734_absence_guard.py
-# imported by live tools (_t931-ownership.py, _t932, _t872); census misses module imports
-_t770-delegation-boundary.py
+# (_t770-delegation-boundary.py removed by T-1079: now a bridge leg of its own, --self-test)

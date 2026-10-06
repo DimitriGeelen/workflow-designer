@@ -1,13 +1,20 @@
 ---
 id: T-1079
-name: "Align 832's routing checks with the AEF ruleset (PD-357): _t1066 Why-you vocabulary to AEF's carve-outs, _t770 predicate replaced by fw task delegate --dry-run --json"
+name: "Align 832's routing checks with the AEF ruleset (PD-357): _t1066 Why-you vocabulary
+  to AEF's carve-outs, _t770 predicate replaced by fw task delegate --dry-run --json"
 description: >
-  Follow-up of T-1077. tools/_t1066-why-you-check.py accepts five 832 reasons (incl. direction, large-ux); AEF has three carve-outs (act-in-the-world, the Tier-0/bypass class, sovereignty-field), direction/large-ux proposed to AEF and pending. tools/_t770-delegation-boundary.py re-implements the predicate and treats [REVIEW]/taste as operator-only, where AEF routes taste to REVIEWER-JUDGES. AEF (msg 75983708) asks consumers to call fw task delegate --dry-run --json instead.
+  Follow-up of T-1077. tools/_t1066-why-you-check.py accepts five 832 reasons (incl.
+  direction, large-ux); AEF has three carve-outs (act-in-the-world, the Tier-0/bypass
+  class, sovereignty-field), direction/large-ux proposed to AEF and pending. tools/_t770-delegation-boundary.py
+  re-implements the predicate and treats [REVIEW]/taste as operator-only, where AEF
+  routes taste to REVIEWER-JUDGES. AEF (msg 75983708) asks consumers to call fw task
+  delegate --dry-run --json instead.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T20:02:14Z
-last_update: 2026-10-06T20:02:14Z
-date_finished: null
+last_update: 2026-10-06T20:24:20Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +57,48 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-06T20:13:48Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 2
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=2 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L2:keyword=routing); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1079: Align 832's routing checks with the AEF ruleset (PD-357): _t1066 Why-you vocabulary to AEF's carve-outs, _t770 predicate replaced by fw task delegate --dry-run --json
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Follow-up of T-1077. Operator directive PD-357 (2026-10-06): review routing follows the CURRENT AEF ruleset;
+832's rules only where AEF is silent. That also answers the policy question G-052 left to AEF ("which encoding
+of the delegation boundary is right"): AEF's. `tools/_t932-boundary-agreement.sh` measures the two encodings
+disagreeing (A = fw reviewer surface / AEF, B = `tools/_t770-delegation-boundary.py`). Callers of B:
+`tools/_t931-ownership.py`, `tools/_t872-decision-docket.py`, `tools/_t932-boundary-agreement.sh`,
+`tests/run-bridge-tests.sh`. AEF (msg 75983708): call `fw task delegate T-XXX --dry-run --json` instead.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] `tools/_t770-delegation-boundary.py` no longer carries its own routing rules: it takes each criterion's class and bucket from AEF (`fw task delegate --dry-run --json`, or `lib/delegation.py` imported from the vendored framework), so taste/unclassified land in REVIEWER-JUDGES as in AEF; its callers (_t931, _t872, the bridge suite) still run and their outputs are stated before/after
+- [ ] `tools/_t1066-why-you-check.py` accepts AEF's carve-outs (act-in-the-world, the Tier-0/bypass class, sovereignty-field) and the two proposed to AEF (direction, large-ux) only as "pending AEF" with a pointer to T-1077, so a [REVIEW] that names neither is still sent to the reviewer; its self-test still bites
+- [ ] `tools/_t932-boundary-agreement.sh` is green (the two encodings agree), and G-052 is resolved on its own closure condition with the evidence
+- [ ] Bridge suite green after the change
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +132,11 @@ date_finished: null
 -->
 
 ## Verification
+
+python3 tools/_t770-delegation-boundary.py --self-test
+python3 tools/_t1066-why-you-check.py --self-test
+python3 tools/_t1066-why-you-check.py
+bash tools/_t932-boundary-agreement.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -320,3 +360,25 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1079-align-832s-routing-checks-with-the-aef-r.md
 - **Context:** Initial task creation
+
+### 2026-10-06T20:13:48Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-06T21:25Z — both checks aligned with AEF; G-052's two encodings agree [agent]
+- `tools/_t770-delegation-boundary.py`: `### Human` criteria are now routed by AEF (`lib/delegation.py`
+  `classify_task`, imported from the vendored framework); fails CLOSED to the operator (`aef-unavailable`,
+  `aef-unmatched`). `### Agent` rows keep 832's rules (AEF does not examine them). New bucket
+  REVIEWER-JUDGES. Self-test 15/15 (was 12): Human legs now assert deferral, taste → REVIEWER-JUDGES,
+  RUBBER-STAMP publish → OPERATOR-ONLY act-in-the-world, two fail-closed legs.
+  Corpus before → after: OPERATOR-ONLY 135 → 76 (taste 77 → 0); Human criteria for the operator 19, all
+  AEF carve-outs; 56 to the reviewer; 0 aef-unmatched.
+- `tools/_t1066-why-you-check.py`: valid reasons are AEF's three carve-outs (832's tier0 / irreversible /
+  sovereignty kept as aliases); direction / large-ux accepted and reported as PENDING AEF (T-1077). A leg
+  pins the list to the vendored CARVE_OUTS. Self-test 12/12; live tree clean.
+- `tools/_t932-boundary-agreement.sh`: counts REVIEWER-JUDGES on both sides; **AGREE** — A (fw reviewer
+  surface) and B (_t770) both 1 / 56 / 2 / 19 = 78. The note now records that PD-357 made AEF normative.
+- Callers: `_t931-ownership.py --facts` runs (uses only `parse_task`); `_t872-decision-docket.py` now
+  reads "Both encodings agree".
+- Bridge suite: a run on 1.8.5 started before these edits; edits to `run-bridge-tests.sh` (the _t1066 fail
+  message still names the old five, and a _t932 leg) wait until it finishes, then a fresh run.

@@ -838,15 +838,22 @@ fi
 # T-1068: the label-placement guards for T-600 (wrap) and T-601 (pool/lane containment) were never
 # wired — T-601's self-test went red unnoticed (its poison target drifted, and L2 could not fail).
 # Run both in --self-test mode: the live legs AND the poison arms that prove each leg can fail.
-for _lg in _t600-label-wrap.mjs _t601-lane-boundary.mjs _t1068-corpus-labels.mjs; do
-  if node "$ROOT/tools/$_lg" --self-test > "$TMP/leg-$_lg.out" 2>&1; then
+# Each guard is named on its own line (T-1079): the unwired-guard census reads `tools/<name>` in
+# executable code, and a `for` loop over bare names is invisible to it — once T-1068 closed, two of
+# these read as "no live caller" although this suite runs them.
+_label_guard() {
+  local _lg; _lg="$(basename "$1")"
+  if node "$1" --self-test > "$TMP/leg-$_lg.out" 2>&1; then
     pass=$((pass + 1))
   else
     report FAIL "label-placement guard $_lg failed or its self-test no longer proves its legs can fail (run 'node tools/$_lg --self-test'; T-600/T-601/T-1068)"
     show_output "$TMP/leg-$_lg.out" "$_lg"
     fail=$((fail + 1))
   fi
-done
+}
+_label_guard "$ROOT/tools/_t600-label-wrap.mjs"
+_label_guard "$ROOT/tools/_t601-lane-boundary.mjs"
+_label_guard "$ROOT/tools/_t1068-corpus-labels.mjs"
 
 # T-1066: a [REVIEW] Human criterion must name the operator exception that keeps it from the reviewer
 # (PD-302). Self-test first (the rule bites), then the live tree (new tasks comply).
@@ -854,9 +861,22 @@ if python3 "$ROOT/tools/_t1066-why-you-check.py" --self-test > "$TMP/leg-_t1066s
    && python3 "$ROOT/tools/_t1066-why-you-check.py" > "$TMP/leg-_t1066.out" 2>&1; then
   pass=$((pass + 1))
 else
-  report FAIL "a new [REVIEW] Human criterion does not say why it needs the operator (**Why you:** tier0|irreversible|sovereignty|direction|large-ux), or the check stopped biting — rubber-stamp work is drifting back to the operator (run 'python3 tools/_t1066-why-you-check.py'; T-1066, PD-302)"
+  report FAIL "a new [REVIEW] Human criterion does not say why it needs the operator (**Why you:** one of AEF's carve-outs — act-in-the-world | the Tier-0/bypass class | sovereignty-field — or direction/large-ux, pending at AEF), the check stopped biting, or AEF changed CARVE_OUTS (run 'python3 tools/_t1066-why-you-check.py --self-test'; T-1066, T-1079, PD-357)"
   cat "$TMP/leg-_t1066s.out" >> "$TMP/leg-_t1066.out" 2>/dev/null
   show_output "$TMP/leg-_t1066.out" "_t1066-why-you-check.py"
+  fail=$((fail + 1))
+fi
+
+# T-1079 (PD-357): 832's delegation predicate takes every `### Human` criterion's bucket from AEF's
+# lib/delegation.py, so the two encodings of the boundary (G-052) must agree. Self-test first (the
+# deferral and the fail-closed legs bite), then the agreement over the live tree.
+if python3 "$ROOT/tools/_t770-delegation-boundary.py" --self-test > "$TMP/leg-_t770s.out" 2>&1 \
+   && bash "$ROOT/tools/_t932-boundary-agreement.sh" > "$TMP/leg-_t932.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "832's delegation predicate (_t770) and AEF's (fw reviewer surface) no longer agree, or _t770's deferral to AEF stopped biting — fix _t770, AEF is normative (run 'bash tools/_t932-boundary-agreement.sh'; T-1079, G-052, PD-357)"
+  cat "$TMP/leg-_t770s.out" >> "$TMP/leg-_t932.out" 2>/dev/null
+  show_output "$TMP/leg-_t932.out" "_t932-boundary-agreement.sh"
   fail=$((fail + 1))
 fi
 

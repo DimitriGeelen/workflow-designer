@@ -42,12 +42,13 @@ echo
 # ── ENCODING A: the enforcing path ────────────────────────────────────────────────────────────
 A_RAW="$("$FW" reviewer surface 2>&1)" || true
 A_RC="$(printf '%s' "$A_RAW" | grep -oE 'REVIEWER-CLOSEABLE +[0-9]+' | grep -oE '[0-9]+$' | head -1)"
+A_RJ="$(printf '%s' "$A_RAW" | grep -oE 'REVIEWER-JUDGES +[0-9]+'    | grep -oE '[0-9]+$' | head -1)"
 A_AS="$(printf '%s' "$A_RAW" | grep -oE 'AGENT-SELF +[0-9]+'         | grep -oE '[0-9]+$' | head -1)"
 A_OO="$(printf '%s' "$A_RAW" | grep -oE 'OPERATOR-ONLY +[0-9]+'      | grep -oE '[0-9]+$' | head -1)"
 
 # A missing number is setup broken, not a zero. Reading an unparsed field as 0 would make the two
 # encodings agree by coincidence whenever the parse rotted — the exact false green this guards.
-for v in A_RC A_AS A_OO; do
+for v in A_RC A_RJ A_AS A_OO; do
     [ -n "${!v}" ] || { echo "SETUP BROKEN: could not parse $v from 'fw reviewer surface'"; \
                         printf '%s\n' "$A_RAW" | head -6 | sed 's/^/  | /'; exit 2; }
 done
@@ -60,7 +61,7 @@ done
 # that overstates its finding is no more use than one that misses it, and this one exists to be
 # quoted to AEF.
 B_JSON="$(python3 "$T770" --json 2>/dev/null)" || { echo "SETUP BROKEN: $T770 --json failed"; exit 2; }
-read -r B_RC B_AS B_OO B_ALL <<<"$(printf '%s' "$B_JSON" | python3 -c '
+read -r B_RC B_RJ B_AS B_OO B_ALL <<<"$(printf '%s' "$B_JSON" | python3 -c '
 import sys, json
 from collections import Counter
 rows = json.load(sys.stdin)
@@ -68,16 +69,17 @@ if not rows:
     raise SystemExit("EMPTY")
 human = [r for r in rows if r.get("section") == "Human"]
 c = Counter(r["bucket"] for r in human)
-print(c["REVIEWER-CLOSEABLE"], c["AGENT-SELF"], c["OPERATOR-ONLY"], len(rows))
+print(c["REVIEWER-CLOSEABLE"], c["REVIEWER-JUDGES"], c["AGENT-SELF"], c["OPERATOR-ONLY"], len(rows))
 ')" || { echo "SETUP BROKEN: could not count buckets from $T770 (empty corpus reads as broken, not as agreement)"; exit 2; }
 [ -n "${B_OO:-}" ] || { echo "SETUP BROKEN: no bucket counts from $T770"; exit 2; }
 
-A_TOT=$(( A_RC + A_AS + A_OO ))
-B_TOT=$(( B_RC + B_AS + B_OO ))
+A_TOT=$(( A_RC + A_RJ + A_AS + A_OO ))
+B_TOT=$(( B_RC + B_RJ + B_AS + B_OO ))
 
 printf '  %-22s %10s %10s %10s\n' "bucket" "A:enforce" "B:report" "delta"
 printf '  %-22s %10s %10s %10s\n' "----------------------" "---------" "--------" "-----"
 printf '  %-22s %10d %10d %10d\n' "REVIEWER-CLOSEABLE" "$A_RC" "$B_RC" "$(( B_RC - A_RC ))"
+printf '  %-22s %10d %10d %10d\n' "REVIEWER-JUDGES"    "$A_RJ" "$B_RJ" "$(( B_RJ - A_RJ ))"
 printf '  %-22s %10d %10d %10d\n' "AGENT-SELF"         "$A_AS" "$B_AS" "$(( B_AS - A_AS ))"
 printf '  %-22s %10d %10d %10d\n' "OPERATOR-ONLY"      "$A_OO" "$B_OO" "$(( B_OO - A_OO ))"
 printf '  %-22s %10d %10d %10d\n' "TOTAL (denominator)" "$A_TOT" "$B_TOT" "$(( B_TOT - A_TOT ))"
@@ -90,11 +92,14 @@ echo
 
 DIVERGE=0
 [ "$A_RC" -eq "$B_RC" ] || DIVERGE=1
+[ "$A_RJ" -eq "$B_RJ" ] || DIVERGE=1
 [ "$A_AS" -eq "$B_AS" ] || DIVERGE=1
 [ "$A_OO" -eq "$B_OO" ] || DIVERGE=1
 
 if [ "$DIVERGE" -eq 0 ]; then
     echo "AGREE — both encodings return the same buckets over the same tree."
+    echo "  (T-1079, PD-357: B takes every Human criterion's bucket from AEF's lib/delegation.py, so A is"
+    echo "  normative by the operator's directive and this line keeps the two reconciled.)"
     exit 0
 fi
 
@@ -114,8 +119,8 @@ was B's Agent-section rows, which A never examines. The `unclassified 37` vs `0`
 likewise mostly a VOCABULARY difference — A reports a class taxonomy that includes "unclassified",
 B reports rule names and has no such rule — not, on this evidence, 37 misclassified criteria.
 
-WHICH ONE IS RIGHT IS NOT THE AGENT'S CALL. AEF owns PD-302 and T-1443, so AEF owns which encoding
-is normative. What this instrument establishes is narrower than it first appeared and is worth
-stating precisely: they agree on what to look at, and differ on a few verdicts.
+WHICH ONE IS RIGHT IS SETTLED: the operator's directive PD-357 (2026-10-06) makes AEF's encoding (A)
+normative, and since T-1079 B asks AEF for every Human criterion's bucket. A divergence now means B's
+deferral broke (an `aef-unavailable` / `aef-unmatched` row, or a parser drift) — fix B, not A.
 NOTE
 exit 1

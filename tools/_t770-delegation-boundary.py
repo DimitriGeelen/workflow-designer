@@ -52,8 +52,51 @@ ACTIVE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))
                       ".tasks", "active")
 
 REVIEWER_CLOSEABLE = "REVIEWER-CLOSEABLE"
+REVIEWER_JUDGES = "REVIEWER-JUDGES"
 AGENT_SELF = "AGENT-SELF"
 OPERATOR_ONLY = "OPERATOR-ONLY"
+
+# ── `### Human` criteria: AEF decides (T-1079, operator directive PD-357, 2026-10-06) ──────
+# "Review routing follows the CURRENT AEF ruleset; 832's own rules only where AEF is silent; on a
+# conflict AEF wins." AEF classifies Human criteria in lib/delegation.py (CLASS_TO_DELEGATION, "THE
+# one encoding"; T-3557 sends taste and unclassified to REVIEWER-JUDGES). So this file no longer
+# routes a Human criterion itself: it asks the vendored module. That also settles G-052 (two
+# encodings of one boundary). AEF does not examine `### Agent` rows, so the 832 rules below still
+# route those. If AEF's module cannot be loaded, Human rows fail CLOSED to the operator.
+_FW_LIB = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                       ".agentic-framework", "lib")
+_AEF = None
+
+
+def _aef():
+    """The vendored lib/delegation module, or None if it cannot be imported."""
+    global _AEF
+    if _AEF is None:
+        try:
+            if _FW_LIB not in sys.path:
+                sys.path.insert(0, _FW_LIB)
+            import delegation as _d  # noqa: E402 — the vendored AEF module
+            _AEF = _d
+        except Exception:  # missing, or a vendored copy that no longer imports
+            _AEF = False
+    return _AEF or None
+
+
+def _norm(title):
+    return re.sub(r"\s+", " ", title or "").strip()[:100]
+
+
+def aef_human_classes(path):
+    """{normalised criterion title: (delegation_class, class, reason)} from AEF, or None."""
+    d = _aef()
+    if d is None:
+        return None
+    from pathlib import Path
+    try:
+        tc = d.classify_task(Path(path), open_only=False)
+    except Exception:
+        return None
+    return {_norm(c.title): (cl.delegation_class, cl.cls, cl.reason) for c, cl in tc.rows}
 
 # ── Carve-outs ────────────────────────────────────────────────────────────────────────
 # The operator's three exceptions — high risk, Tier 0, real UX judgement — expressed so
@@ -121,19 +164,24 @@ def _carve_out(task, ac):
     return None
 
 
-def classify(task, ac):
-    """The predicate. Returns (bucket, rule, detail, misfiled)."""
+def classify(task, ac, aef=None):
+    """The predicate. Returns (bucket, rule, detail, misfiled).
+
+    `aef` is aef_human_classes(path) for the task file: a `### Human` criterion is routed by AEF
+    (PD-357). No entry for it, or no AEF at all, fails closed to the operator."""
     if ac["section"] == "Human":
-        carve = _carve_out(task, ac)
-        misfiled = ac["prefix"] == "REVIEWER"
-        if misfiled:
-            return (OPERATOR_ONLY, "human-section",
-                    "AEF decision 113 — the reviewer NEVER ticks a `### Human` AC; original "
-                    "classification is inviolable. [REVIEWER] prefix means the Expected clause "
-                    "is deterministic: eligible for T-1811/T-1878 conversion on the operator's "
-                    "word, per item. Not today.", True)
-        rule, detail = carve if carve else ("human-section", "filed under `### Human`")
-        return (OPERATOR_ONLY, rule, detail, False)
+        misfiled = ac["prefix"] == "REVIEWER"   # [REVIEWER] filed under Human: still worth naming
+        if aef is None:
+            return (OPERATOR_ONLY, "aef-unavailable",
+                    "AEF's lib/delegation.py could not be loaded — Human criteria fail closed to the "
+                    "operator (T-1079)", misfiled)
+        hit = aef.get(_norm(ac.get("text") or ac.get("body", "").split("\n")[0]))
+        if hit is None:
+            return (OPERATOR_ONLY, "aef-unmatched",
+                    "AEF's parser does not list this Human criterion — fails closed to the operator "
+                    "(T-1079)", misfiled)
+        bucket, cls, reason = hit
+        return (bucket, "aef:" + cls, reason, misfiled)
 
     carve = _carve_out(task, ac)
     if carve:
@@ -218,8 +266,9 @@ def scan(paths):
     rows = []
     for path in sorted(paths):
         task, acs = parse_task(path)
+        aef = aef_human_classes(path) if any(a["section"] == "Human" for a in acs) else {}
         for ac in acs:
-            bucket, rule, detail, misfiled = classify(task, ac)
+            bucket, rule, detail, misfiled = classify(task, ac, aef)
             rows.append({"task": task["id"], "ticked": ac["ticked"], "section": ac["section"],
                          "prefix": ac["prefix"], "bucket": bucket, "rule": rule,
                          "detail": detail, "misfiled": misfiled,
@@ -284,14 +333,32 @@ def self_test():
     check("sovereignty field beats [REVIEWER]", (b[2], rules[2]), (OPERATOR_ONLY, "sovereignty-field"))
     check("release surface beats [REVIEWER]", (b[3], rules[3]), (OPERATOR_ONLY, "release-surface"))
     check("bypass token beats [REVIEWER]", (b[4], rules[4]), (OPERATOR_ONLY, "tier0-or-bypass"))
-    # Leg 6 — decision 113: section wins over prefix, and the mis-filing is named not fixed.
-    check("human + [REVIEWER] -> OPERATOR-ONLY, flagged misfiled",
-          (b[5], rows[5]["misfiled"]), (OPERATOR_ONLY, True))
-    # Leg 7 — negative control for leg 6: [REVIEW] is NOT flagged misfiled, ever.
-    check("human + [REVIEW] -> OPERATOR-ONLY, NOT misfiled",
-          (b[6], rows[6]["misfiled"], rules[6]), (OPERATOR_ONLY, False, "taste"))
-    check("human + [RUBBER-STAMP] -> OPERATOR-ONLY act-in-the-world",
-          (b[7], rules[7]), (OPERATOR_ONLY, "act-in-the-world"))
+    # Legs 6-8 — `### Human` criteria are routed by AEF (T-1079, PD-357), never by this file.
+    # Leg 6: a [REVIEWER] filed under Human is still NAMED misfiled, and its bucket is AEF's.
+    path = _fixture()
+    aef = aef_human_classes(path)
+    os.unlink(path)
+    check("AEF's lib/delegation.py loads and classifies the fixture's Human criteria",
+          aef is not None and len(aef) == 3, True)
+    aef = aef or {}
+    want6 = aef.get(_norm(rows[5]["text"]), (None,))[0]
+    check("human + [REVIEWER] -> AEF's bucket, flagged misfiled",
+          (b[5], rows[5]["misfiled"], rules[5].startswith("aef:")), (want6, True, True))
+    # Leg 7 — the PD-357 change itself: taste goes to the reviewer, as in AEF (T-3557).
+    check("human + [REVIEW] taste -> REVIEWER-JUDGES (AEF), NOT misfiled",
+          (b[6], rows[6]["misfiled"], rules[6]), (REVIEWER_JUDGES, False, "aef:taste"))
+    # Leg 8 — negative control for leg 7: an AEF carve-out still returns to the operator.
+    check("human + [RUBBER-STAMP] publish -> OPERATOR-ONLY act-in-the-world (AEF carve-out)",
+          (b[7], rules[7]), (OPERATOR_ONLY, "aef:act-in-the-world"))
+    # Leg 8b — fail closed: with no AEF classification a Human criterion goes to the operator.
+    ac_h = {"section": "Human", "prefix": "REVIEW", "text": "[REVIEW] The dialogue feels unhurried",
+            "body": "[REVIEW] The dialogue feels unhurried"}
+    check("no AEF module -> Human criterion fails closed to OPERATOR-ONLY",
+          classify({"owner": "agent", "workflow_type": "build"}, ac_h, None)[:2],
+          (OPERATOR_ONLY, "aef-unavailable"))
+    check("AEF lists no such criterion -> fails closed to OPERATOR-ONLY",
+          classify({"owner": "agent", "workflow_type": "build"}, ac_h, {})[:2],
+          (OPERATOR_ONLY, "aef-unmatched"))
 
     # Leg 9 — owner:human demotes the delegated shape. Negative control is leg 1 above,
     # which is the identical file with owner:agent.
@@ -325,7 +392,7 @@ def self_test():
         for f in failures:
             print("  " + f)
         return 1
-    print("SELF-TEST PASSED — 12 legs, each with a negative control in the set")
+    print("SELF-TEST PASSED — 15 legs, each with a negative control in the set")
     return 0
 
 
@@ -376,7 +443,7 @@ def main():
 
     print("Open acceptance criteria in .tasks/active/: %d" % len(rows))
     print()
-    for bucket in (REVIEWER_CLOSEABLE, AGENT_SELF, OPERATOR_ONLY):
+    for bucket in (REVIEWER_CLOSEABLE, REVIEWER_JUDGES, AGENT_SELF, OPERATOR_ONLY):
         print("  %-20s %5d" % (bucket, counts.get(bucket, 0)))
     print()
     print("  OPERATOR-ONLY by rule:")
