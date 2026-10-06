@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T19:06:03Z
-last_update: 2026-10-06T19:54:36Z
+last_update: 2026-10-06T20:54:32Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -66,11 +66,11 @@ dry-runs and follows up.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A runme job is prepared for the operator (preconditions, y/N per step, log, runme-signal), `bash runme.sh --dry-run <job>` passes and the watcher is armed; the agent never runs it for real
-- [ ] After the operator's run: `.agentic-framework/VERSION` reads 1.8.5 and the pristine commit touches only `.agentic-framework/` (T-1000 G1)
-- [ ] Every register entry in `.vendor-divergence.yaml` is re-applied, retired as superseded by 1.8.4/1.8.5, or recorded; `_t517` reports no STALE local fix
-- [ ] Post-upgrade checks recorded: project hooks in `.claude/settings.json` intact, cron registry intact, any `<file>.upstream` written by the T-3955 upgrade step listed and compared, bridge suite re-run
-- [ ] Follow-ups enabled by the release are done or handed on: T-1075 / G-083 checked against 1.8.5's T-3942 fix, T-310 AC#1 and AC#3 re-judged (T-3949)
+- [x] A runme job is prepared for the operator (preconditions, y/N per step, log, runme-signal), `bash runme.sh --dry-run <job>` passes and the watcher is armed; the agent never runs it for real
+- [x] After the operator's run: `.agentic-framework/VERSION` reads 1.8.5 and the pristine commit touches only `.agentic-framework/` (T-1000 G1)
+- [x] Every register entry in `.vendor-divergence.yaml` is re-applied, retired as superseded by 1.8.4/1.8.5, or recorded; `_t517` reports no STALE local fix
+- [x] Post-upgrade checks recorded: project hooks in `.claude/settings.json` intact, cron registry intact, any `<file>.upstream` written by the T-3955 upgrade step listed and compared, bridge suite re-run
+- [x] Follow-ups enabled by the release are done or handed on: T-1075 / G-083 checked against 1.8.5's T-3942 fix, T-310 AC#1 and AC#3 re-judged (T-3949)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -104,6 +104,13 @@ dry-runs and follows up.
 -->
 
 ## Verification
+
+grep -qx '1.8.5' .agentic-framework/VERSION
+test "$(git show --name-only --format= 3453b87c | grep -c .)" -gt 0 && test "$(git show --name-only --format= 3453b87c | grep -c .)" -eq "$(git show --name-only --format= 3453b87c | grep -c '^\.agentic-framework/')"
+python3 tools/_t517-vendor-divergence.py > /tmp/.t1076-t517 2>&1 && grep -q '^OK' /tmp/.t1076-t517
+python3 tools/_t517-vendor-divergence-teeth.py > /tmp/.t1076-teeth 2>&1 && grep -q 'TEETH PASS' /tmp/.t1076-teeth
+test -f .context/runme/003-upgrade-aef-1.8.5/done
+test "$(grep -c '_t420-rail-attribution-gate\|warn-uncontrolled-absence\|check-bare-import' .claude/settings.json)" -ge 3
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -327,3 +334,22 @@ dry-runs and follows up.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1076-upgrade-vendored-aef-183---185-t-1000-pr.md
 - **Context:** Initial task creation
+
+### 2026-10-06T21:00Z — upgrade done and followed up [agent]
+- Job `003-upgrade-aef-1.8.5` (pinned v1.8.5 = a06dc1f6), dry-run passed (sha da1a35462958); the operator
+  ran it 19:39-19:52Z, all 4 steps, rc=0 (run log in the job dir, committed with this update).
+- Pristine commit 3453b87c: 89 paths, all under `.agentic-framework/`; baseline advanced ec03176d;
+  crontab ok (7 framework job lines, no /tmp/). VERSION 1.8.5.
+- 36 STALE local fixes (as after 1.8.3): all 36 patches from `tools/_t1000-revendor-worklist.py` applied
+  cleanly, none adopted upstream; checkpoint.sh (T-849) and delegation_cli.py (T-931) checked against
+  1.8.5's T-3942 / T-3949 changes — no overlap. Commit f3ea847b; `_t517` OK, teeth 11/11, syntax checked.
+  Runtime state (`.agentic-framework/.context/settings.yaml`, `sidecar/hub-id`) kept out of the commit.
+- Project files: `.framework.yaml` version bookkeeping only (e3b66118); `.claude/settings.json` untouched
+  (3 project hooks present); no `<file>.upstream` written beside a customised file (the
+  `.agentic-framework/.upstream` file is AEF's upstream-URL sentinel, tracked since T-840).
+- Bridge: 247/1 on 1.8.5 — the 1 was the census ratchet moved by T-1079's own changes, fixed there;
+  249/0 on e3c195ee.
+- Follow-ups: T-1075 / G-083 closed (T-3942 read in the vendored checkpoint.sh:289-305). T-310 AC#1 and
+  AC#3 re-judged with T-3949's fix (a rung-5 panel): AC#1 green (claude) / amber (codex: read-only seat could
+  not run the editor), AC#3 amber; both ambers ask for one follow-up, registered as T-1078; `verdict
+  apply` ticked nothing (panel not unanimous), so T-310 stays open and is handed on to a re-judge.
