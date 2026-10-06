@@ -10,3 +10,4 @@
 {"ac":1,"outcome":"amber","task":"T-310","ts":"2026-10-06T09:35:55Z","verdict_id":"V-20261006-ea4dfa31"}
 {"ac":1,"outcome":"green","task":"T-589","ts":"2026-10-06T09:38:10Z","verdict_id":"V-20261006-bcedfc30"}
 {"ac":2,"outcome":"amber","task":"T-589","ts":"2026-10-06T09:38:11Z","verdict_id":"V-20261006-0f9482d7"}
+{"ac":1,"outcome":"red","task":"T-601","ts":"2026-10-06T09:40:57Z","verdict_id":"V-20261006-481a6411"}
