@@ -10,13 +10,13 @@ description: >
   to look at. Options named by the reviewer: canvas top padding while advisories are
   visible, or dock the advisories outside the canvas.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -45,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T20:00:45Z
-last_update: 2026-10-06T22:26:48Z
-date_finished:
+last_update: 2026-10-06T23:29:29Z
+date_finished: 2026-10-06T23:29:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -382,3 +382,15 @@ timeout 300 node tools/_t603-multiprocess-import.mjs
   the self-test caught it.
 - Existing legs still pass: `_t310`, `_t315`, `_t603`. Screenshots read: docs/screenshots/T-1078/
   (after at both widths: banners above the pool, nothing covered; poison A: the nudge over the agent task).
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-444ee409
+- **Timestamp:** 2026-10-06T23:29:40Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-06T23:29:29Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

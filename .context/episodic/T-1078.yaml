@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1078: Advisory banners overlay the canvas: with both T-310's lane-repair notice and the Clean layout notice visible, the banner hides the top-lane node the notice points at
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-06T23:29:48Z
+# ============================================================================
+
+task_id: T-1078
+task_name: "Advisory banners overlay the canvas: with both T-310's lane-repair notice and the Clean layout notice visible, the banner hides the top-lane node the notice points at"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-06T20:00:45Z
+completed: 2026-10-06T23:29:29Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-10-06T22:01:27+02:00
+last_commit: 2026-10-07T00:26:48+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  follow-up the reviewer panel asked for on T-310 (advisory banners hide the top-lane node the lane-fix notice points at; lane-fix message nowrap overflow); ACs written. advisory banners never cover the diagram — canvas top padding under the visible advisories, stacked by measured height, long lane-fix message wraps; new CDP leg (1280/1720, combined message) with two poison arms, wired into the bridge
+
+# Key outcomes
+outcomes:
+  - 'With both the lane-fix notice and the Clean layout notice visible on T-310''s fixture, no node shape or label is covered by an advisory (measured rects: advisory boxes against node boxes and label bboxes), by canvas top padding while advisories show or by docking them outside the canvas'
+  - 'The combined lane-fix message no longer overflows on one line (nowrap) at narrow widths (1280 and 1720 px measured)'
+  - 'A leg with a poison arm (the pre-fix layout) pins both, wired into the bridge suite; screenshots of the fixture at both widths read'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'advisory banners never cover the diagram — canvas top padding under the visible advisories, stacked by measured height, long lane-fix message wraps; new CDP leg (1280/1720, combined message) with two poison arms, wired into the bridge'
+    source: git-mined
+  - description: 'follow-up the reviewer panel asked for on T-310 (advisory banners hide the top-lane node the lane-fix notice points at; lane-fix message nowrap overflow); ACs written'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/screenshots/T-1078/t1078-after-1280.png'
+  - 'docs/screenshots/T-1078/t1078-after-1720.png'
+  - 'docs/screenshots/T-1078/t1078-poison-A-1280.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1078-advisory-banners-overlay-the-canvas-with.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1078-advisory-overlap-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-06T22:01:27'
+    action: 'T-1078: follow-up the reviewer panel asked for on T-310 (advisory banners hide the top-lane node the lane-fix notice points at; lane-fix message nowrap overflow); ACs written'
+  - time: '2026-10-07T00:26:48'
+    action: 'T-1078: advisory banners never cover the diagram — canvas top padding under the visible advisories, stacked by measured height, long lane-fix message wraps; new CDP leg (1280/1720, combined message) with two poison arms, wired into the bridge'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 208 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 208
+  commits: 2
+  files_changed: 7
+  lines_added: 619
+  lines_removed: 11
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1078-advisory-banners-overlay-the-canvas-with.md
+generated_by: context-agent-hybrid
