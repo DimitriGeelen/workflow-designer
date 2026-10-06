@@ -12,13 +12,13 @@ description: >
   width) and add the operator's exact sentence as a leg. Side finding: #set-wrap-labels
   shows unchecked on load until the settings panel opens (src:7176).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -47,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T09:20:40Z
-last_update: 2026-10-06T10:31:39Z
-date_finished:
+last_update: 2026-10-06T11:12:23Z
+date_finished: 2026-10-06T11:12:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -97,14 +97,6 @@ bvp_scores_proposed:
 - [x] The `#set-wrap-labels` checkbox reflects the stored preference on load, not only after the settings panel opens (reviewer side finding) — syncSettingsUI() at the end of Init; L6
 - [x] Visual verification: element screenshots before/after at label sizes S/M/L, wrap on and off, read; existing label legs (T-105, T-600, T-601) still pass; then re-judged by the independent reviewer — screenshots taken and read (see ## Visual Verification); _t600 7/7, _t601 5/5; bridge 244/1 (the 1 = a misworded T-1072 AC, fixed); re-judged GREEN (judge-t-600-r1-2ac512b3b51f, verdict V-20261006-3bfe6151, applied to T-600)
 
-## Visual Verification
-
-docs/screenshots/T-1067/t1067-{before,after}-{s,m,l}-wrap{ON,OFF}.png (12 shots, element region, scale 2), read:
-before-m-wrapON: one line under the end event, crossing the "dispatch" edge into the "Human review & route" box.
-after-m/s/l-wrapON: a 3-line block right of the event, clear of edges and boxes, id badge below the block.
-after-m-wrapOFF: unchanged single line (the preference is respected). Pre-existing, out of scope: the
-"dispatch" edge label is clipped to "spatch" against the task box in both before and after.
-
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
@@ -135,6 +127,14 @@ after-m-wrapOFF: unchanged single line (the preference is respected). Pre-existi
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1067 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+
+## Visual Verification
+
+docs/screenshots/T-1067/t1067-{before,after}-{s,m,l}-wrap{ON,OFF}.png (12 shots, element region, scale 2), read:
+before-m-wrapON: one line under the end event, crossing the "dispatch" edge into the "Human review & route" box.
+after-m/s/l-wrapON: a 3-line block right of the event, clear of edges and boxes, id badge below the block.
+after-m-wrapOFF: unchanged single line (the preference is respected). Pre-existing, out of scope: the
+"dispatch" edge label is clipped to "spatch" against the task box in both before and after.
 
 ## Verification
 
@@ -369,3 +369,15 @@ grep -q '_t1067-side-label-wrap-cdp.mjs' tests/run-bridge-tests.sh
 ### 2026-10-06T09:59:30Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-029d0419
+- **Timestamp:** 2026-10-06T11:12:29Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-06T11:12:23Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
