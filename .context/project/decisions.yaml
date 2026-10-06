@@ -2607,3 +2607,31 @@ decisions:
     date: 2026-09-30
     task: T-925
     rationale: "Operator ruling on whether tools/yaml-to-bpmn.py should emit <aef:workflowMeta>. Priced in docs/reports/T-925-workflowmeta-bridge-seam.md: the bridge produced 1 of 25 served renders (not the 24 the original deferral assumed), customer-refund is in no pin manifest, 10 bridge tests contain no golden-byte comparison, and test_harness_cross_form_agreement.py holds a KNOWN disagreement citing T-925 that a fix would retire."
+
+  - id: PD-352
+    decision: "one finding per process per missing event kind, carrying the count of nodes whose reachability was not assessed"
+    scope: project
+    date: 2026-10-02
+    task: T-993
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-353
+    decision: "Accept AEF's bleeding-edge upgrade invitation, but only after T-1005 finishes re-applying the 1.7.740 losses, so the next upgrade starts from a clean baseline and every new difference is attributable to the new build; prepared as runme.sh through the T-1000 re-vendor protocol, operator runs it"
+    scope: project
+    date: 2026-10-03
+    task: T-1005
+    rationale: "Operator chose (a), 2026-10-03"
+
+  - id: PD-354
+    decision: "832 may use the estate's internal reviewer subscriptions — Z.ai (GLM via opencode), OpenAI Codex and Google Antigravity — in their approved forms (agy: plan mode, sandboxed; each use logged with fw review cost log). These subscriptions belong to the operator's estate: any agent in the estate may use them easily; projects outside the estate that use AEF must bring their own. A fourth subscription will be added."
+    scope: project
+    date: 2026-10-03
+    task: T-1006
+    rationale: "Operator ruling, 2026-10-03, verbatim gist: 'yes, 832 you can use our internal subscriptions, also Z.ai and Codex ... only if they are part of our estate ... AF might be used by other estates and then they need to have their own subscriptions.'"
+
+  - id: PD-355
+    decision: "Operator authorises (2026-10-06, 'Proceed as suggested') the Human->Agent [REVIEWER] conversion for SMALL visual/readability checks (e.g. 'reads well', 'feels right', 'no less readable') so the independent reviewer judges them with screenshot evidence; a red/amber/escalate verdict returns the item to the operator. Not covered: rulings/decisions, inception go/no-go, Tier 0 / governance-settings changes, large UX reviews, and the project objectives."
+    scope: project
+    date: 2026-10-06
+    task: T-1063
+    rationale: "Executes the standing instruction of 2026-09-21 (PD-302): Human-AC verification goes to the external reviewer except high risk, Tier 0 and large UX. T-1063 measured 83/84 open Human ACs labelled [REVIEW] by default, so the delegation predicate (tools/_t770) routed nothing to the reviewer."
