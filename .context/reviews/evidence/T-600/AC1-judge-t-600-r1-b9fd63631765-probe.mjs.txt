@@ -1,0 +1,65 @@
+import { spawn } from 'node:child_process';
+import { readFileSync, writeFileSync, mkdtempSync, existsSync, readdirSync } from 'node:fs';
+import { tmpdir, homedir } from 'node:os';
+import { join } from 'node:path';
+import { pageWsUrl } from '/opt/832-Workflow-designer/tools/_cdp-attach.mjs';
+const [EDITOR, OUT, TARGET] = process.argv.slice(2);   // TARGET: node id to rename
+const NAME = 'run halted - operator kill switch';
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const cache = join(homedir(), '.cache', 'ms-playwright');
+const chrome = readdirSync(cache).filter(d=>d.startsWith('chromium-')).sort().reverse().map(d=>join(cache,d,'chrome-linux64','chrome')).find(existsSync);
+const udd = mkdtempSync(join(tmpdir(), 'rev600-'));
+const proc = spawn(chrome, ['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--remote-debugging-port=0',`--user-data-dir=${udd}`,'about:blank'],{stdio:'ignore'});
+let port; for(let i=0;i<200;i++){ const f=join(udd,'DevToolsActivePort'); if(existsSync(f)){const s=readFileSync(f,'utf8').split('\n')[0]; if(s){port=+s;break;}} await sleep(100);}
+const ws = new WebSocket(await pageWsUrl(port)); let id=0; const pend=new Map();
+ws.addEventListener('message',ev=>{const m=JSON.parse(ev.data); if(m.id&&pend.has(m.id)){pend.get(m.id)(m);pend.delete(m.id);}});
+await new Promise(r=>ws.addEventListener('open',r));
+const cmd=(method,params={})=>new Promise((res,rej)=>{const k=++id;pend.set(k,m=>m.error?rej(new Error(method+JSON.stringify(m.error))):res(m.result));ws.send(JSON.stringify({id:k,method,params}));});
+const ev=async e=>{const r=await cmd('Runtime.evaluate',{expression:e,returnByValue:true,awaitPromise:true}); if(r.exceptionDetails) throw new Error(JSON.stringify(r.exceptionDetails).slice(0,600)); return r.result.value;};
+await cmd('Page.enable'); await cmd('Runtime.enable');
+await cmd('Emulation.setDeviceMetricsOverride',{width:1700,height:1000,deviceScaleFactor:3,mobile:false});
+await cmd('Page.navigate',{url:'file://'+EDITOR});
+for(let i=0;i<200;i++){ if(await ev(`typeof renderAll==='function'&&typeof state==='object'&&!!state&&!!state.nodes`)) break; await sleep(150);}
+await sleep(1000);
+const NID = await ev(`(function(){var n=state.nodes.find(function(n){return n.name===${JSON.stringify(TARGET)}}); n.name=${JSON.stringify(NAME)}; renderAll(); return n.id;})()`);
+const measure = `(function(){
+  var n=state.nodes.find(function(n){return n.id==='${NID}'});
+  var svg=document.querySelector('svg');
+  var all=[].slice.call(document.querySelectorAll('text[data-nl="'+n.uid+'"]'));
+  var lab=all.filter(function(t){return t.getAttribute('class')==='node-label'});
+  var idb=all.filter(function(t){return t.getAttribute('class')==='node-id-badge'})[0];
+  var R=function(e){var r=e.getBoundingClientRect();return {x:Math.round(r.left),y:Math.round(r.top),r:Math.round(r.right),b:Math.round(r.bottom)}};
+  var lines=lab.map(function(t){return {t:t.textContent,w:Math.round(t.getComputedTextLength()),rect:R(t)}});
+  var lb=lines.reduce(function(a,l){return {x:Math.min(a.x,l.rect.x),y:Math.min(a.y,l.rect.y),r:Math.max(a.r,l.rect.r),b:Math.max(a.b,l.rect.b)}},{x:1e9,y:1e9,r:-1e9,b:-1e9});
+  var shape=document.querySelector('[data-id="'+n.id+'"]')||document.querySelector('[data-uid="'+n.uid+'"]');
+  var lanes=[].slice.call(document.querySelectorAll('.lane-bg')).map(function(e){var r=R(e);r.id=e.getAttribute('data-lane-id');return r});
+  var hdr=[].slice.call(document.querySelectorAll('.lane-header')).map(R);
+  var divs=[].slice.call(document.querySelectorAll('.lane-divider')).map(function(e){return Math.round(e.getBoundingClientRect().top)});
+  var pool=document.querySelector('.pool-border'); 
+  var myLane=lanes.find(function(l){return l.id===n.lane});
+  var crossesDivider=divs.some(function(y){return y>lb.y && y<lb.b});
+  var hdrRight=Math.max.apply(null,hdr.map(function(h){return h.r}));
+  return {pref:{wrap:labelPrefs.wrapNames,size:labelPrefs.size}, checkbox:document.getElementById('set-wrap-labels').checked,
+    nodeBadge:idb&&idb.textContent, lines:lines, labelBox:lb, idBox:idb&&R(idb), shape:shape?R(shape):null, lane:myLane,
+    dividersY:divs, crossesLaneDivider:crossesDivider, outsideOwnLane: myLane? (lb.y<myLane.y||lb.b>myLane.b||lb.x<myLane.x||lb.r>myLane.r):null,
+    overLaneHeader: lb.x < hdrRight, laneHeaderRight:hdrRight, pool:pool&&R(pool)};
+})()`;
+async function shot(name){
+  const m = await ev(measure);
+  const u = [m.labelBox, m.shape, m.idBox].filter(Boolean);
+  const x0=Math.min(...u.map(b=>b.x))-90, y0=Math.min(...u.map(b=>b.y))-60, x1=Math.max(...u.map(b=>b.r))+90, y1=Math.max(...u.map(b=>b.b))+60;
+  const p = await cmd('Page.captureScreenshot',{format:'png',clip:{x:Math.max(0,x0),y:Math.max(0,y0),width:x1-Math.max(0,x0),height:y1-Math.max(0,y0),scale:1}});
+  writeFileSync(join(OUT,name+'.png'),Buffer.from(p.data,'base64'));
+  console.log('=== '+name); console.log(JSON.stringify(m));
+}
+// toggle via the real Settings control
+const click = `(function(){var c=document.getElementById('set-wrap-labels'); c.click(); return c.checked;})()`;
+const setSize = s => `(function(){var e=document.getElementById('set-label-size'); e.value='${s}'; e.dispatchEvent(new Event('change',{bubbles:true})); return labelPrefs.size;})()`;
+await shot(`${TARGET.split(' ')[0].toLowerCase()}-default-on-m`);
+console.log('click->', await ev(click)); await sleep(300); await shot(`${TARGET.split(' ')[0].toLowerCase()}-off-m`);
+console.log('click->', await ev(click)); await sleep(300); await shot(`${TARGET.split(' ')[0].toLowerCase()}-on-again-m`);
+await ev(`setLabelPref('wrapNames', true)`); for (const s of ['s','l']) { await ev(setSize(s)); await sleep(300); await shot(`${TARGET.split(' ')[0].toLowerCase()}-wrapON-${s}`); }
+await ev(setSize('m'));
+// persistence check
+console.log('localStorage', await ev(`JSON.stringify(Object.keys(localStorage).filter(function(k){return /label/i.test(k)}).map(function(k){return [k,localStorage.getItem(k)]}))`));
+ws.close(); proc.kill('SIGKILL');
