@@ -66,6 +66,16 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT" || { echo "REFUSING: cannot cd to $ROOT" >&2; exit 2; }
 
 TIMEOUT="${T509_TIMEOUT:-90}"
+# T-1051: per-instrument caps, each with the MEASUREMENT that justifies it. Everything not listed keeps
+# $TIMEOUT. An entry here is a debt with a stated way out, not a relaxation: remove it when the cause
+# is gone, and never add one without numbers.
+declare -A SLOW_CAP=(
+  # _t549 drives _t525 four times (control + 3 mutations); each _t525 run is a full
+  # `fw audit --sections structure`, which grew with AEF 1.8.x (sidecar, cron, branch, vendor checks):
+  # 22.1 s per run on 1.8.3 (docstring: ~8 s on 1.7.x), 90.9-99.6 s total measured 2026-10-06.
+  # Way out: an audit selector for one check (asked of AEF), bringing a run back to seconds.
+  [_t549-fabric-coverage-mutation-teeth.py]=180
+)
 
 # ── SUBSET SELECTION (T-850) ──────────────────────────────────────────────────────────
 # WHY THIS EXISTS. The full sweep costs ~11 minutes and had no way to run a part of
@@ -317,12 +327,13 @@ for f in "${ALL[@]}"; do
   cap="$CAPDIR/$f.out"
   CAPFILE["$f"]="$cap"
   started=$SECONDS
-  timeout "$TIMEOUT" "$runner" "tools/$f" > "$cap" 2>&1
+  limit="${SLOW_CAP[$f]:-$TIMEOUT}"
+  timeout "$limit" "$runner" "tools/$f" > "$cap" 2>&1
   rc=$?
   elapsed=$((SECONDS - started))
   case "$rc" in
     0)   pass=$((pass + 1)); rm -f "$cap";;
-    124) TIMEDOUT+=("$f (did not finish within ${TIMEOUT}s)");;
+    124) TIMEDOUT+=("$f (did not finish within ${limit}s)");;
     2)   ABSTAINED+=("$f (rc=2, declined to certify)");;
     4)   DEAD+=("$f (rc=4, its own control leg failed)");;
     # T-861: before calling a non-zero exit a regression in the SUBJECT, ask whether the
@@ -339,8 +350,8 @@ for f in "${ALL[@]}"; do
   # regression in fabric coverage. A budget that is nearly spent is visible in advance or
   # it is not visible at all; this is the leading indicator the old loop threw away by
   # never measuring elapsed time.
-  if [ "$rc" -eq 0 ] && [ $((elapsed * 100)) -ge $((TIMEOUT * 75)) ]; then
-    TIGHT+=("$f (${elapsed}s of ${TIMEOUT}s budget)")
+  if [ "$rc" -eq 0 ] && [ $((elapsed * 100)) -ge $((limit * 75)) ]; then
+    TIGHT+=("$f (${elapsed}s of ${limit}s budget)")
   fi
 done
 
@@ -359,7 +370,7 @@ fi
 
 if [ "${#TIGHT[@]}" -ne 0 ]; then
   echo
-  echo "HEADROOM WARNING — passed, but close to the ${TIMEOUT}s cap. These will start"
+  echo "HEADROOM WARNING — passed, but close to their cap (${TIMEOUT}s unless listed in SLOW_CAP). These will start"
   echo "reporting as did-not-finish under load before they report anything else:"
   for x in "${TIGHT[@]}"; do echo "  - $x"; done
 fi

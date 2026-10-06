@@ -1,13 +1,19 @@
 ---
 id: T-1051
-name: "_t549 fabric-coverage teeth exceed the 90s sweep cap on AEF 1.8.2: measure where the cost went"
+name: "_t549 fabric-coverage teeth exceed the 90s sweep cap on AEF 1.8.2: measure
+  where the cost went"
 description: >
-  After the 1.8.2 upgrade (T-1049) the T-509 instrument sweep reports DID NOT FINISH for _t549-fabric-coverage-mutation-teeth.py: 129s alone (5/5 green) against the 90s cap; it fit on 1.7.740. The only red leg in the final bridge run (238/1). Measure which phase grew (fabric tooling, 35 new uncarded vendored files) before touching the cap.
+  After the 1.8.2 upgrade (T-1049) the T-509 instrument sweep reports DID NOT FINISH
+  for _t549-fabric-coverage-mutation-teeth.py: 129s alone (5/5 green) against the
+  90s cap; it fit on 1.7.740. The only red leg in the final bridge run (238/1). Measure
+  which phase grew (fabric tooling, 35 new uncarded vendored files) before touching
+  the cap.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-05T15:09:44Z
-last_update: 2026-10-05T15:09:44Z
-date_finished: null
+last_update: 2026-10-06T06:28:23Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-06T06:28:23Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1051: _t549 fabric-coverage teeth exceed the 90s sweep cap on AEF 1.8.2: measure where the cost went
@@ -62,8 +89,8 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `_t549`'s duration measured over several runs on 1.8.3 (alone and inside the sweep), against the 90 s cap; the result recorded — standalone 95.9 / 99.6 / 90.9 s (with a suite running alongside), in the sweep 87 s (alone); over or at the cap
+- [x] If it still exceeds the cap: the cost located (which leg, which framework call) and either reduced or the cap justified with numbers — located: the framework copy is 0.9 s; each of the 4 `_t525` runs (control + 3 mutations) is one full `fw audit --sections structure`, 22.1 s on 1.8.3 vs ~8 s on 1.7.x (the section grew: sidecar, cron, branch, vendor checks; 33 s on 832 itself). Cap justified per script: `SLOW_CAP[_t549]=180` in the sweep with the numbers and the way out written beside it, headroom warning now per-script; way out asked of AEF (single-check audit selector)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +124,10 @@ date_finished: null
 -->
 
 ## Verification
+
+bash -n tools/_t509-instrument-sweep.sh
+grep -q 'SLOW_CAP\[\$f\]' tools/_t509-instrument-sweep.sh && grep -q '\[_t549-fabric-coverage-mutation-teeth.py\]=180' tools/_t509-instrument-sweep.sh
+grep -q 'of \${limit}s budget' tools/_t509-instrument-sweep.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -320,3 +351,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1051-t549-fabric-coverage-teeth-exceed-the-90.md
 - **Context:** Initial task creation
+
+### 2026-10-06T06:28:23Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

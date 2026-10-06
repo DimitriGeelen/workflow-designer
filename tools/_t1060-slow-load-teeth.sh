@@ -15,7 +15,7 @@ ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 SRC="$ROOT/src/aef-workflow-designer.html"
 T573="$ROOT/tools/_t573-emits-panel-shape-cdp.mjs"
 T570="$ROOT/tools/_t570-meta-carriage-cdp.mjs"
-W=$(mktemp -d /tmp/t1060-teeth.XXXXXX); trap 'rm -rf "$W"' EXIT
+W=$(mktemp -d -t t1060-teeth.XXXXXX); trap 'rm -rf "$W"' EXIT
 fails=0
 leg() { if [ "$1" = 0 ]; then echo "PASS  $2"; else echo "FAIL  $2${3:+ — $3}"; fails=$((fails + 1)); fi; }
 
