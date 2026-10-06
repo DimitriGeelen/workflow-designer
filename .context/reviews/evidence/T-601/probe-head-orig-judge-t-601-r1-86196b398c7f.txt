@@ -1,0 +1,9 @@
+editor=/tmp/tmp.EyJCnzl8cb/head.html mode=orig maps=24
+{"under":0,"labels":141,"header":0,"lane":7,"pool":2,"cross":76,"side":71}
+  arc-lifecycle.bpmn  n_req  [below] "Arc proposed (headline mechanic identifi"  LANE(y 454-492 vs 386-482) POOL  cross=0 rect=[91,454,254,492]
+  cross-host-dispatch.bpmn  n_send  [below] "Agent runs `fw dispatch send`"  LANE(y 131-169 vs 62-158)  cross=0 rect=[103,131,174,169]
+  git-commit-flow.bpmn  n_start  [below] "git.sh commit -m "T-XXX: …""  LANE(y 441-479 vs 366-474) POOL  cross=0 rect=[119,441,201,479]
+  session-capture.bpmn  n_start  [below] "session end / context transition"  LANE(y 137-175 vs 62-170)  cross=0 rect=[91,137,177,175]
+  session-handover.bpmn  n_episodic_gate  [below] "All completed tasks have enriched episod"  LANE(y 331-368 vs 142-358)  cross=0 rect=[462,331,627,368]
+  task-lifecycle.bpmn  n_partial_check  [below] "Human-owned with unchecked Human ACs?"  LANE(y 339-376 vs 150-366)  cross=0 rect=[1669,339,1819,376]
+  verification-gate.bpmn  n_partial  [below] "Partial-complete: stays active/, owner -"  LANE(y 344-382 vs 150-380)  cross=0 rect=[456,344,609,382]
