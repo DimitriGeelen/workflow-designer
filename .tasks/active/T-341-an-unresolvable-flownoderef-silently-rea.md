@@ -21,7 +21,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T10:39:07Z
-last_update: '2026-09-26T09:06:21Z'
+last_update: 2026-10-06T21:09:58Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -182,7 +182,18 @@ measurement moves it from *the wrong lane* to *no lane policy at all*.
 
 ## Recommendation
 
-**Recommendation:** ABSTAIN on where an orphaned node lands. That decides which authority acquires a step, and it is yours. The other half, ANNOUNCE, has meanwhile **shipped**.
+**Recommendation (2026-10-06, supersedes the ABSTAIN below): close as SUPERSEDED by the operator's
+T-888 ruling (2026-09-27).** The operator pointed back to it in session ("we would change authority to
+the elements and optionally set authority on the lane"). T-888 clause 2: *the element carries its
+authority; the compiler never reads lane membership*. Its report (`docs/reports/T-888-authority-ruling.md`,
+"Downstream") names this task: *"the authority half dissolves … no orphan inherits anything. The surviving
+half is the placement question … which is layout, not governance."* So the sovereignty ruling this task
+asks for no longer exists: no lane an orphan lands in can give it authority. The layout half keeps what
+shipped (T-891): no lane, plus `E-XML-NODE-UNASSIGNED` telling the author to assign one. Remaining work on
+authority is T-888's chain (T-889, T-893, T-895, T-896, T-901). Only the operator may tick the Human AC
+below; this recommendation is the evidence for doing so.
+
+**Earlier recommendation (2026-10-05):** ABSTAIN on where an orphaned node lands. That decides which authority acquires a step, and it is yours. The other half, ANNOUNCE, has meanwhile **shipped**.
 
 **Rationale (re-checked 2026-10-05, T-1033).** Two changes landed after the 2026-09-05 analysis below:
 - **T-891 (3cb17878) removed the positional guess.** An orphan now gets `laneId = null` in the editor (`src/aef-workflow-designer.html`, the `let laneId = null` block). Option (1) is therefore no longer the status quo; nothing is placed.
