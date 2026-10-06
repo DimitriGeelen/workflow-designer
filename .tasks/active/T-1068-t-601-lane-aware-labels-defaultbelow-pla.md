@@ -45,7 +45,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T09:49:30Z
-last_update: 2026-10-06T14:00:12Z
+last_update: 2026-10-06T14:40:37Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -435,3 +435,23 @@ Legs: `_t1068-corpus-labels` C3 tightened to 0 header labels; 3 poison arms (occ
 nudged rebuild, nudge removed). `_t600` arm A now removes both wrap paths (the T-1067 fallback wraps
 a long name on its own now that its block is placed right). Screenshots re-read:
 docs/screenshots/T-1068/corpus/*-after.png, t601-after.png.
+
+### 2026-10-06T16:40Z — reviewer RED (cd3da166, third round) acted on: long names at the left edge [agent]
+Verdict `.context/reviews/evidence/T-601/AC1-judge-t-601-r1-86196b398c7f.md`: real-name corpus clean
+(0 header, 0 hidden), but Step 1 of the criterion is a LONG name at the pool's left edge. With the
+operator's 73-char sentence on n_start, session-capture, context-memory and git-commit-flow hid words
+under the next task box; no gate exercised that.
+Cause: the T-1067 wrapped candidates ran only for single-line names; a long name is already wrapped
+at the fixed width cap by wrapOverlongBelowLabels(), so that cap-wide block was never narrowed.
+Fix: re-wrap candidates also for already-wrapped names, 2 to 7 lines, restoring the lines the label
+came with when none wins; hidden text now costs 30 per line, so any lane overhang ranks below it.
+Results, all sizes S/M/L (pre-T-601 → cd3da166 → now):
+- real names: hidden 4 → 0 → 0; header 13 → 0 → 0; lane 26 → 7 → 2 (S 1, L 1); pool 18 → 2 → 0;
+  crossings 93 → 76 → 67. New problems vs pre-T-601: 2 (n_send, session-capture n_start, both below
+  blocks overhanging the next lane — accepted in rounds 1 and 2).
+- long name on n_start: hidden 3 → 0, header 0.
+- every label long (stress): hidden 14 (pre) → 15 → **0**, header 0.
+Screenshots read: docs/screenshots/T-1068/longname/*.png — all three readable; the cost is a tall
+block into the next lane (session-capture n_start 5 lines into FRAMEWORK AUTHORITY).
+Corpus leg: C4 (every start event long) and C5 (every label long), no hidden, no header; 4 poison
+arms, the 4th restores the single-line guard and fails C4.

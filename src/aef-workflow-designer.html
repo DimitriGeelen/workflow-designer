@@ -4043,7 +4043,7 @@ function adjustLabelPlacements() {
     }
     return count;
   };
-  // T-1068: a line drawn UNDER a node's shape is hidden, and costs 10, more than any misplacement of
+  // T-1068: a line drawn UNDER a node's shape is hidden, and costs 30, more than any misplacement of
   // a whole block (reviewer on T-601: three labels moved under a task box). The looser zone around a
   // neighbour (4px margin, down to the bottom of its own label and badge) keeps its old cost of 1:
   // at weight 4 that zone alone kept "Investigation requested" on the header strip, though the
@@ -4054,10 +4054,10 @@ function adjustLabelPlacements() {
     let cost = 0;
     for (const n of state.nodes) {
       const d = NODE_DEFAULTS[n.type];
-      if (n === self) { if (onShape(r, n, d)) cost += 10; continue; }
+      if (n === self) { if (onShape(r, n, d)) cost += 30; continue; }
       if (n.x + d.w + 4 < r.x1 || n.x - 4 > r.x2) continue;
       if (nodeVisualBottom(n) < r.y1 || n.y - 4 > r.y2) continue;
-      cost += onShape(r, n, d) ? 10 : 1;
+      cost += onShape(r, n, d) ? 30 : 1;
     }
     return cost;
   };
@@ -4091,7 +4091,7 @@ function adjustLabelPlacements() {
     // block whose id badge sat on the divider beat a single in-lane line crossing one edge.
     // Weights per line (T-1068, chosen on the 24-map corpus at label sizes S/M/L against the pre-T-601
     // placement of every label): edge crossing 1, outside the pool 1, header strip 2 (rarely reached:
-    // bboxScore nudges first), outside its own lane 3, under a shape 10. Hidden text is the worst; a
+    // bboxScore nudges first), outside its own lane 3, under a shape 30. Hidden text is the worst; a
     // below block hanging into the next lane is the fallback the reviewer accepted.
     if (own) { if (r.y1 < own.y1 - 1 || r.y2 > own.y2 + 1) c += 3; }           // outside its own lane
     else {
@@ -4209,10 +4209,17 @@ function adjustLabelPlacements() {
     };
     const bestSingle = Math.min(scDefault, scRight, scLeft);
     let wrapped = null;   // { lines, side, score } of the best wrapped candidate, if any
-    if (labelPrefs.wrapNames && els.filter(isName).length === 1 && n.name.length > 12) {
-      for (const parts of [2, 3]) {
+    // T-1068 (reviewer on T-601, third round): also when the name is ALREADY wrapped. A long name is
+    // wrapped by wrapOverlongBelowLabels() at a fixed width cap, so the single-line guard skipped it,
+    // and at the pool's left edge that cap-wide block, nudged off the header, ran under the next task
+    // box (the operator's 73-char name on session-capture, context-memory and git-commit-flow n_start).
+    // Narrower blocks (up to 7 lines) can clear the neighbour; a block that hangs into the next lane
+    // costs less than one hidden line.
+    const origLines = els.filter(isName).map(t => t.textContent);
+    if (labelPrefs.wrapNames && n.name.length > 12) {
+      for (const parts of [2, 3, 4, 5, 6, 7]) {
         const lines = wrapText(n.name, Math.max(8, Math.ceil(n.name.length / parts) + 2));
-        if (lines.length < 2) continue;
+        if (lines.length < 2 || lines.length < parts - 1) continue;
         rebuildName(lines);
         const cands = [['default', bboxScore(els, n)]];
         RIGHT(); cands.push(['right', bboxScore(els, n)]);
@@ -4220,7 +4227,7 @@ function adjustLabelPlacements() {
         for (const [side, sc] of cands)
           if (sc < bestSingle && (!wrapped || sc < wrapped.score)) wrapped = { lines, side, score: sc };
       }
-      rebuildName(wrapped ? wrapped.lines : [n.name]);   // the chosen block, or the original single line
+      rebuildName(wrapped ? wrapped.lines : origLines);  // the chosen block, or the lines it came with
       if (wrapped) {
         if (wrapped.side === 'right') RIGHT();
         else if (wrapped.side === 'left') place(n.x - 8, 'end');

@@ -11,6 +11,8 @@
 //   C2  the four labels the reviewer named stay fixed:
 //         session-capture n_start, git-commit-flow n_start, arc-lifecycle n_req  — not under a shape
 //         session-capture g_found                                               — inside its own lane
+//   C4  every start event given the operator's 73-char name: none hidden, none on the header
+//   C5  every event/gateway given that name: none hidden, none on the header
 //   C3  no label touches the lane header strip (reviewer on T-601, AMBER: a label with nowhere
 //       clean to go falls back to BELOW, wrapped and nudged, never to the header)
 //
@@ -18,6 +20,7 @@
 //   1  the T-1068 occlusion weights reverted to a flat 1 per node, no own-shape term — C1, C2 must FAIL
 //   2  wrapped blocks rebuilt on the single line's NUDGED x again — C1, C2 must FAIL
 //   3  the header-strip nudge removed — C3 must FAIL
+//   4  already-wrapped names not re-wrapped (the old single-line guard) — C4 must FAIL
 //
 // Usage:  node tools/_t1068-corpus-labels.mjs [--self-test]
 // Exit:   0 pass · 1 leg failed · 2 driver/integrity error
@@ -40,9 +43,14 @@ function chrome() {
     .map(d => join(c, d, 'chrome-linux64', 'chrome')).find(existsSync) || null;
 }
 
-const measure = `(function(){
+const LONG = 'run halted because the operator pressed the kill switch during settlement';
+// mode: 'orig' real names · 'start' every startEvent renamed to LONG · 'all' every event/gateway renamed
+const measure = (mode) => `(function(){
   labelPrefs.wrapNames = true;
   var isB=function(n){ return n.type==='startEvent'||n.type==='endEvent'||/Gateway$/.test(n.type)||/^linkEvent/.test(n.type)||/^event/.test(n.type); };
+  var mode=${JSON.stringify(mode)};
+  if (mode!=='orig') state.nodes.filter(isB).filter(function(n){ return mode==='all' || n.type==='startEvent'; })
+    .forEach(function(n){ n.name=${JSON.stringify(LONG)}; n.__long=true; });
   renderAll();
   var hdr=Array.prototype.slice.call(document.querySelectorAll('g.lane-header > rect')).map(function(r){
     return {x1:+r.getAttribute('x'), x2:+r.getAttribute('x')+(+r.getAttribute('width')), y1:+r.getAttribute('y'), y2:+r.getAttribute('y')+(+r.getAttribute('height'))}; });
@@ -57,12 +65,13 @@ const measure = `(function(){
     var y1=Math.min.apply(null,rs.map(function(b){return b.y;})), y2=Math.max.apply(null,rs.map(function(b){return b.y+b.height;}));
     var under=0; state.nodes.forEach(function(m){ if(m===n) return; var dm=NODE_DEFAULTS[m.type];
       rs.forEach(function(b){ if(b.x+b.width>m.x+1&&b.x<m.x+dm.w-1&&b.y+b.height>m.y+1&&b.y<m.y+dm.h-1) under++; }); });
+    if (mode!=='orig' && !n.__long) return;
     out.push({uid:n.uid, under:under, header:(x1<hx2&&y2>top&&y1<bot), lane:!!(own&&(y1<own.y1-1||y2>own.y2+1))});
   });
   return {out:out};
 })()`;
 
-async function probe(editorPath) {
+async function probe(editorPath, modes = ['orig', 'start', 'all']) {
   const exe = chrome();
   if (!exe) throw new Error('no Playwright chromium under ~/.cache/ms-playwright');
   const udd = mkdtempSync(join(tmpdir(), 't1068-corpus-'));
@@ -91,7 +100,7 @@ async function probe(editorPath) {
     await cmd('Page.enable'); await cmd('Runtime.enable');
     // Same viewport as the reviewer's probe: the canvas width feeds contentRightEdge() and so the pool.
     await cmd('Emulation.setDeviceMetricsOverride', { width: 1600, height: 1000, deviceScaleFactor: 2, mobile: false });
-    const rows = {};
+    const rows = Object.fromEntries(modes.map(md => [md, {}]));
     for (const m of readdirSync(MAPDIR).filter(f => f.endsWith('.bpmn')).sort()) {
       await cmd('Page.navigate', { url: 'file://' + editorPath });
       for (let t0 = Date.now(); ; ) {
@@ -99,8 +108,10 @@ async function probe(editorPath) {
         if (Date.now() - t0 > 40000) throw new Error('editor load timeout'); await sleep(150);
       }
       const xml = readFileSync(join(MAPDIR, m), 'utf8');
-      await ev(`(function(){ try{ localStorage.clear(); }catch(e){} adoptImportedXml(${JSON.stringify(xml)}, {userImport:true}); return 1; })()`);
-      for (const o of (await ev(measure)).out) rows[m.replace('.bpmn', '') + '/' + o.uid] = o;
+      for (const md of modes) {
+        await ev(`(function(){ try{ localStorage.clear(); }catch(e){} adoptImportedXml(${JSON.stringify(xml)}, {userImport:true}); return 1; })()`);
+        for (const o of (await ev(measure(md))).out) rows[md][m.replace('.bpmn', '') + '/' + o.uid] = o;
+      }
     }
     return rows;
   } finally {
@@ -112,7 +123,8 @@ async function probe(editorPath) {
 const NAMED_UNDER = ['session-capture/n_start', 'git-commit-flow/n_start', 'arc-lifecycle/n_req'];
 const NAMED_LANE = ['session-capture/g_found'];
 
-function legs(rows) {
+function legs(byMode) {
+  const rows = byMode.orig;
   const keys = Object.keys(rows);
   const under = keys.filter(k => rows[k].under > 0);
   const header = keys.filter(k => rows[k].header);
@@ -123,7 +135,17 @@ function legs(rows) {
     { id: 'C1', ok: keys.length > 0 && under.length === 0, detail: `${keys.length} labels; under a shape: ${under.length ? under.join(', ') : 'none'}` },
     { id: 'C2', ok: !missing.length && !named.length, detail: missing.length ? `named label(s) not found: ${missing.join(', ')}` : `named labels regressed: ${named.length ? named.join(', ') : 'none'}` },
     { id: 'C3', ok: header.length === 0, detail: `on the header strip: ${header.length} (${header.join(', ') || 'none'})` },
+    longLeg('C4', 'every start event named the operator\'s 73-char sentence', byMode.start),
+    longLeg('C5', 'every event/gateway named the operator\'s 73-char sentence', byMode.all),
   ];
+}
+// The renamed labels only: none hidden under a shape, none on the header strip (reviewer on T-601,
+// third round: Step 1 of the criterion is a LONG name at the pool's left edge, which real names never
+// exercised; three start events hid words under the next task box).
+function longLeg(id, what, rows) {
+  const keys = Object.keys(rows);
+  const bad = keys.filter(k => rows[k].under > 0 || rows[k].header).map(k => `${k}${rows[k].under ? ' under' : ''}${rows[k].header ? ' header' : ''}`);
+  return { id, ok: keys.length > 0 && !bad.length, detail: `${what}: ${keys.length} labels; hidden or on the header: ${bad.length ? bad.join(', ') : 'none'}` };
 }
 const report = ls => { for (const l of ls) console.log(`  ${l.ok ? 'PASS' : 'FAIL'}  ${l.id}  ${l.detail}`); };
 
@@ -138,11 +160,13 @@ async function main() {
     process.exit(failed.length ? 1 : 0);
   }
   const src = readFileSync(EDITOR, 'utf8');
-  const OWN = '      if (n === self) { if (onShape(r, n, d)) cost += 10; continue; }\n';
-  const OTHER = '      cost += onShape(r, n, d) ? 10 : 1;\n';
+  const OWN = '      if (n === self) { if (onShape(r, n, d)) cost += 30; continue; }\n';
+  const OTHER = '      cost += onShape(r, n, d) ? 30 : 1;\n';
   if (!src.includes(OWN) || !src.includes(OTHER)) { console.log('SELF-TEST INTEGRITY FAIL — a poison target is missing from the editor source'); process.exit(2); }
   const CX = '        const t = el(\'text\', { x: cx, y: +orig[0].y + i * LHW, class: \'node-label\',\n';
   const NUDGE = "      if (x1 < headerEdge) for (const t of els) t.setAttribute('x', (+t.getAttribute('x') + headerEdge - x1).toFixed(1));\n";
+  const GUARD = '    if (labelPrefs.wrapNames && n.name.length > 12) {\n';
+  if (!src.includes(GUARD)) { console.log('SELF-TEST INTEGRITY FAIL — poison target GUARD missing from the editor source'); process.exit(2); }
   if (!src.includes(NUDGE)) { console.log('SELF-TEST INTEGRITY FAIL — poison target NUDGE missing from the editor source'); process.exit(2); }
   if (!src.includes(CX)) { console.log('SELF-TEST INTEGRITY FAIL — poison target CX missing from the editor source'); process.exit(2); }
   const arms = [
@@ -151,6 +175,8 @@ async function main() {
     { name: 'wrapped blocks rebuilt on the nudged single-line x', mustFail: ['C1', 'C2'],
       patched: src.replace(CX, CX.replace('x: cx,', 'x: orig[0].x,')) },
     { name: 'header-strip nudge removed', mustFail: ['C3'], patched: src.replace(NUDGE, '') },
+    { name: 'already-wrapped names not re-wrapped (the pre-T-1068 single-line guard)', mustFail: ['C4'],
+      patched: src.replace(GUARD, '    if (labelPrefs.wrapNames && els.filter(isName).length === 1 && n.name.length > 12) {\n') },
   ];
   const dir = mkdtempSync(join(tmpdir(), 't1068-poison-'));
   for (const [i, arm] of arms.entries()) {
@@ -163,6 +189,6 @@ async function main() {
     const survivors = pl.filter(l => arm.mustFail.includes(l.id) && l.ok).map(l => l.id);
     if (survivors.length) { console.log(`\nSELF-TEST FAIL — ${survivors.join(',')} passed under poison; they assert nothing`); process.exit(2); }
   }
-  console.log(`\nPASS — ${live.length} live leg(s); 3 proven failable across ${arms.length} poison arms`);
+  console.log(`\nPASS — ${live.length} live leg(s); 6 proven failable across ${arms.length} poison arms`);
 }
 main().catch(e => { console.error('DRIVER ERROR: ' + (e && e.stack || e)); process.exit(2); });

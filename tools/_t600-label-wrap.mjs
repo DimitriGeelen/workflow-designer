@@ -216,7 +216,7 @@ async function main() {
   const src = readFileSync(EDITOR, 'utf8');
   const CALL = '  wrapOverlongBelowLabels();';
   const ORDER = 'if (idEl && idEl.parentNode === g) g.insertBefore(t, idEl); else g.appendChild(t);';
-  const FALLBACK = '    if (labelPrefs.wrapNames && els.filter(isName).length === 1 && n.name.length > 12) {\n';
+  const FALLBACK = '    if (labelPrefs.wrapNames && n.name.length > 12) {\n';
   if (!src.includes(CALL) || !src.includes(ORDER) || !src.includes(FALLBACK)) {
     console.log('SELF-TEST INTEGRITY FAIL — a poison target is missing from the editor source');
     process.exit(2);
