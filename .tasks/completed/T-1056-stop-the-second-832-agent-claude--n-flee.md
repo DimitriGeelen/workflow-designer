@@ -4,11 +4,11 @@ name: "Stop the second 832 agent (claude -n fleet-832-Workflow-designer, pid 330
 description: >
   Stop the second 832 agent (claude -n fleet-832-Workflow-designer, pid 3306415) found by the T-1050 check; operator chose 1
 
-status: issues
+status: work-completed
 workflow_type: build
-current_node: frw_4_enter
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -39,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-05T20:55:57Z
-last_update: 2026-10-06T19:05:39Z
-date_finished: null
+last_update: 2026-10-06T19:05:40Z
+date_finished: 2026-10-06T19:05:40Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -335,3 +335,15 @@ date_finished: null
   OTHER LIVE CLAUDE line. The old pid has been gone for hours and has not come back.
 - Seen in passing, not this task: two leftover tmux windows from today's reviewer/triage runs
   (`tl-judge-t-233-r3-48329fdce5bd`, `tl-t3922-triage-832-010`).
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-eaae7519
+- **Timestamp:** 2026-10-06T19:05:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-06T19:05:40Z — status-update [task-update-agent]
+- **Change:** status: issues → work-completed

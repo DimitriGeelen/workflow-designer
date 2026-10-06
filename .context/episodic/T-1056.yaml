@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1056: Stop the second 832 agent (claude -n fleet-832-Workflow-designer, pid 3306415) found by the T-1050 check; operator chose 1
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-06T19:05:49Z
+# ============================================================================
+
+task_id: T-1056
+task_name: "Stop the second 832 agent (claude -n fleet-832-Workflow-designer, pid 3306415) found by the T-1050 check; operator chose 1"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-05T20:55:57Z
+completed: 2026-10-06T19:05:40Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-10-06T21:05:39+02:00
+last_commit: 2026-10-06T21:05:39+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  resolved by 055 (fleet-832 hold + T-477 launcher refuses beside a live session) and verified — pid gone, no fleet-832 process or session, no other live Claude
+
+# Key outcomes
+outcomes:
+  - 'pid 3306415 (`claude -n fleet-832-Workflow-designer`) is stopped, and nothing relaunches it within a minute'
+  - 'The session-start check shows no OTHER LIVE CLAUDE in this project afterwards; 055 is told, since it is a fleet session'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1056-stop-the-second-832-agent-claude--n-flee.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-06T21:05:39'
+    action: 'T-1056: resolved by 055 (fleet-832 hold + T-477 launcher refuses beside a live session) and verified — pid gone, no fleet-832 process or session, no other live Claude'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1329 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1329
+  commits: 1
+  files_changed: 1
+  lines_added: 337
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1056-stop-the-second-832-agent-claude--n-flee.md
+generated_by: context-agent-hybrid
