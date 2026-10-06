@@ -825,6 +825,18 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1066: a [REVIEW] Human criterion must name the operator exception that keeps it from the reviewer
+# (PD-302). Self-test first (the rule bites), then the live tree (new tasks comply).
+if python3 "$ROOT/tools/_t1066-why-you-check.py" --self-test > "$TMP/leg-_t1066s.out" 2>&1 \
+   && python3 "$ROOT/tools/_t1066-why-you-check.py" > "$TMP/leg-_t1066.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a new [REVIEW] Human criterion does not say why it needs the operator (**Why you:** tier0|irreversible|sovereignty|direction|large-ux), or the check stopped biting — rubber-stamp work is drifting back to the operator (run 'python3 tools/_t1066-why-you-check.py'; T-1066, PD-302)"
+  cat "$TMP/leg-_t1066s.out" >> "$TMP/leg-_t1066.out" 2>/dev/null
+  show_output "$TMP/leg-_t1066.out" "_t1066-why-you-check.py"
+  fail=$((fail + 1))
+fi
+
 echo
 echo "== every key our bridge can emit survives an editor round trip (T-572) =="
 # The ⊆ guard (test_editor_bridge_meta_parity.py, run above) asserts one direction and its

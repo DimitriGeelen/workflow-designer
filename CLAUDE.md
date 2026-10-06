@@ -58,6 +58,15 @@ section (AEF T-3675, `fw runme new`, added by the 1.8.2 upgrade, T-1049):** in 8
 runs `bash /opt/832-Workflow-designer/runme.sh`, signalled through `tools/runme-signal.sh`, not a
 generated `.context/runme/<name>/runme.sh`.
 
+### Human checks go to the reviewer unless they name why they need the operator (T-1066)
+
+The operator's standing order (PD-302, 2026-09-21): Human-AC verification goes to the independent
+reviewer (`fw reviewer judge T-XXX --criterion N`), except high risk, Tier 0 and large UX reviews.
+A `[REVIEW]` label is therefore never a default. Every `### Human` `[REVIEW]` criterion in a new task
+carries `**Why you:** <tier0|irreversible|sovereignty|direction|large-ux> — <reason>`; anything that
+cannot name one is written for the reviewer instead. `tools/_t1066-why-you-check.py` enforces it in
+the bridge suite. Small visual checks ("reads well", "feels right") are the reviewer's (PD-355).
+
 ## Core Principle
 
 **Nothing gets done without a task.** This is enforced structurally by the framework, not by agent discipline.

@@ -1,13 +1,21 @@
 ---
 id: T-1066
-name: "A new [REVIEW] Human AC must say why it needs the operator ('Why you:' naming a PD-302 exception), else it goes to the reviewer"
+name: "A new [REVIEW] Human AC must say why it needs the operator ('Why you:' naming
+  a PD-302 exception), else it goes to the reviewer"
 description: >
-  Part 3 of T-1063. The label costs the author nothing, so 83/84 open Human ACs defaulted to [REVIEW] and the PD-302 delegation never fired. Build: a check (bridge leg + CLAUDE.md project rule) that every [REVIEW] Human AC created after 2026-10-06 carries a 'Why you:' line naming Tier 0 / irreversible / sovereignty-direction / large UX; anything else is written for the reviewer (fw reviewer judge). Backlog untouched (T-1064, T-1065 handle it). Teeth: a fixture task with a bare [REVIEW] goes red, one with a reason stays green.
+  Part 3 of T-1063. The label costs the author nothing, so 83/84 open Human ACs defaulted
+  to [REVIEW] and the PD-302 delegation never fired. Build: a check (bridge leg +
+  CLAUDE.md project rule) that every [REVIEW] Human AC created after 2026-10-06 carries
+  a 'Why you:' line naming Tier 0 / irreversible / sovereignty-direction / large UX;
+  anything else is written for the reviewer (fw reviewer judge). Backlog untouched
+  (T-1064, T-1065 handle it). Teeth: a fixture task with a bare [REVIEW] goes red,
+  one with a reason stays green.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T09:12:41Z
-last_update: 2026-10-06T09:12:41Z
-date_finished: null
+last_update: 2026-10-06T09:57:02Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-06T09:57:02Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1066: A new [REVIEW] Human AC must say why it needs the operator ('Why you:' naming a PD-302 exception), else it goes to the reviewer
@@ -62,8 +91,9 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `tools/_t1066-why-you-check.py`: every unticked `### Human` `[REVIEW]` criterion in a task created on/after 2026-10-06 carries a `**Why you:**` line naming one PD-302 exception (tier0 / irreversible / sovereignty / direction / large-ux); anything else fails with the task, the criterion and the fix ("write it for the reviewer: fw reviewer judge")
+- [x] Teeth: `--self-test` fixtures — a bare [REVIEW] goes red, one with a valid reason is green, an invalid reason (e.g. "Why you: please look") is red, an older task is out of scope, a ticked one is ignored; wired in the bridge suite
+- [x] CLAUDE.md project rule states it; the live tree passes (any of today's own tasks that violate it are fixed, not exempted)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +127,11 @@ date_finished: null
 -->
 
 ## Verification
+
+python3 tools/_t1066-why-you-check.py --self-test > /tmp/.t1066a 2>&1 && grep -q '8/8 self-test legs passed' /tmp/.t1066a
+python3 tools/_t1066-why-you-check.py > /tmp/.t1066b 2>&1 && grep -q '^OK' /tmp/.t1066b
+grep -q '_t1066-why-you-check.py' tests/run-bridge-tests.sh
+grep -q 'Human checks go to the reviewer unless they name why they need the operator' CLAUDE.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -320,3 +355,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1066-a-new-review-human-ac-must-say-why-it-ne.md
 - **Context:** Initial task creation
+
+### 2026-10-06T09:57:02Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
