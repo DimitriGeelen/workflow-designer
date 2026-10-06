@@ -4080,3 +4080,20 @@ concerns:
     run again" (reported to AEF; vendored code).'
   containment: 'After any drain, check `fw sidecar inbox-stale` is 0. (T-1044: these two fields replace an unread
     `prevention_needed` field, the G-027 shape the concerns schema flags.)'
+- id: G-083
+  type: gap
+  status: watching
+  severity: high
+  title: Budget-critical auto-handover is killed by checkpoint.sh's 60s total timeout while handover.sh still pushes under a 180s timeout, so a successful handover is logged FAILED and no restart signal is written
+  detected: '2026-10-06'
+  origin_task: T-1075
+  context: 'Measured 2026-10-06 11:18Z. checkpoint.sh:275 runs `timeout ${FW_HANDOVER_TOTAL_TIMEOUT:-60} bash
+    handover.sh --commit`. handover.sh committed c44bd201 at 11:19:19, then ran the pre-push audit and push
+    (push timeout 180s derived from full-audit-timing.yaml); the capture file was still written at 11:20. The outer
+    timeout fired, .compact-log recorded "Handover FAILED", and .restart-requested was never written, so the
+    session ended at 95% without auto-restart. The operator read the outcome as a crash. Vendored AEF code.'
+  decision_trigger: 'Close when the vendored checkpoint.sh total timeout covers handover.sh''s own push timeout, or
+    success is judged by the handover commit rather than the wrapper exit code (reported to AEF).'
+  containment: 'On a FAILED auto-handover line, check `git log -1` for a "Session handover" commit before treating
+    it as lost; write the restart signal by hand if the commit is there.'
+  related_tasks: ['T-1075', 'T-737']
