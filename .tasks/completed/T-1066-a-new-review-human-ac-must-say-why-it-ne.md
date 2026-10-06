@@ -11,13 +11,13 @@ description: >
   (T-1064, T-1065 handle it). Teeth: a fixture task with a bare [REVIEW] goes red,
   one with a reason stays green.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T09:12:41Z
-last_update: 2026-10-06T09:57:02Z
-date_finished:
+last_update: 2026-10-06T09:59:11Z
+date_finished: 2026-10-06T09:59:11Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -359,3 +359,15 @@ grep -q 'Human checks go to the reviewer unless they name why they need the oper
 ### 2026-10-06T09:57:02Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-330d3bb2
+- **Timestamp:** 2026-10-06T09:59:14Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-06T09:59:11Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
