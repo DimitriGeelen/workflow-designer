@@ -11,11 +11,11 @@ description: >
   never written (no auto-restart). Vendored AEF code (agents/context/checkpoint.sh:275);
   fix belongs upstream; 832 reports it.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T11:58:23Z
-last_update: 2026-10-06T19:55:41Z
-date_finished:
+last_update: 2026-10-06T19:55:46Z
+date_finished: 2026-10-06T19:55:46Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -374,3 +374,20 @@ finish within 60s — run 'fw push')" and writes `.restart-requested`. AC 3's wo
 own either/or condition (it had named only the first form). G-083 resolved. Not yet seen live: the next
 budget-critical handover is the first real exercise. `fw doctor` still shows this morning's FAILED line
 until a new handover is written.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-864675e3
+- **Timestamp:** 2026-10-06T19:55:48Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — The defect is registered in `.context/project/concerns.yaml`, so it stays visible after this task closes
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=context/project/concerns.yaml in: The defect is registered in `.context/project/concerns.yaml`, so it stays visible after this task closes`
+
+### 2026-10-06T19:55:46Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
