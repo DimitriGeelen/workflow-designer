@@ -10,13 +10,13 @@ description: >
   routes taste to REVIEWER-JUDGES. AEF (msg 75983708) asks consumers to call fw task
   delegate --dry-run --json instead.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t770-delegation-boundary.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -45,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T20:02:14Z
-last_update: 2026-10-06T20:53:29Z
-date_finished:
+last_update: 2026-10-06T20:53:30Z
+date_finished: 2026-10-06T20:53:30Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -395,3 +395,20 @@ bash tools/_t932-boundary-agreement.sh
   832's rule applies where AEF is silent (PD-357). Every `### Human` row is routed by AEF.
 - G-052 resolved in `.context/project/concerns.yaml` on its closure condition (`_t932` agrees and runs
   under this task's Verification and in the bridge).
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-f67cd66a
+- **Timestamp:** 2026-10-06T20:53:34Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — `tools/_t770-delegation-boundary.py` no longer carries its own routing rules: it takes each criterion's class and bucket from AEF (`fw task delegate --dry-run --json`, or `lib/delegation.py` imported 
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=lib/delegation.py in: `tools/_t770-delegation-boundary.py` no longer carries its own routing rules: it takes each criterion's class and bucket from AEF (`fw task delegate -`
+
+### 2026-10-06T20:53:30Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

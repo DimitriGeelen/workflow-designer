@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1079: Align 832's routing checks with the AEF ruleset (PD-357): _t1066 Why-you vocabulary to AEF's carve-outs, _t770 predicate replaced by fw task delegate --dry-run --json
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-06T20:53:41Z
+# ============================================================================
+
+task_id: T-1079
+task_name: "Align 832's routing checks with the AEF ruleset (PD-357): _t1066 Why-you vocabulary to AEF's carve-outs, _t770 predicate replaced by fw task delegate --dry-run --json"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-06T20:02:14Z
+completed: 2026-10-06T20:53:30Z
+duration_days: 0
+updates_count: 4
+first_commit: 2026-10-06T22:24:20+02:00
+last_commit: 2026-10-06T22:53:29+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  832's routing checks follow the AEF ruleset (PD-357) — _t770 takes every Human criterion's bucket from AEF's lib/delegation.py (fails closed; OPERATOR-ONLY 135 -> 76, taste 77 -> 0), _t1066 accepts AEF's carve-outs (old names as aliases, direction/large-ux pending AEF, pinned to CARVE_OUTS), _t932 counts REVIEWER-JUDGES and AGREES (1/56/2/19); bridge: label guards named explicitly (census blind to the loop), new _t770+_t932 leg; census baseline -2. bridge 249/0 on e3c195ee; G-052 resolved on its closure condition (_t932 agrees 1/56/2/19, runs under T-1079 Verification and in the bridge)
+
+# Key outcomes
+outcomes:
+  - '`tools/_t770-delegation-boundary.py` no longer carries its own routing rules: it takes each criterion''s class and bucket from AEF (`fw task delegate --dry-run --json`, or `lib/delegation.py` imported from the vendored framework), so taste/unclassified land in REVIEWER-JUDGES as in AEF; its callers (_t931, _t872, the bridge suite) still run and their outputs are stated before/after'
+  - '`tools/_t1066-why-you-check.py` accepts AEF''s carve-outs (act-in-the-world, the Tier-0/bypass class, sovereignty-field) and the two proposed to AEF (direction, large-ux) only as "pending AEF" with a pointer to T-1077, so a [REVIEW] that names neither is still sent to the reviewer; its self-test still bites'
+  - '`tools/_t932-boundary-agreement.sh` is green (the two encodings agree), and G-052 is resolved on its own closure condition with the evidence'
+  - 'Bridge suite green after the change'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.tasks/active/T-1079-align-832s-routing-checks-with-the-aef-r.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1066-why-you-check.py'
+  - 'tools/_t770-delegation-boundary.py'
+  - 'tools/_t932-boundary-agreement.sh'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-06T22:24:20'
+    action: 'T-1079: 832''s routing checks follow the AEF ruleset (PD-357) — _t770 takes every Human criterion''s bucket from AEF''s lib/delegation.py (fails closed; OPERATOR-ONLY 135 -> 76, taste 77 -> 0), _t1066 accepts AEF''s carve-outs (old names as aliases, direction/large-ux pending AEF, pinned to CARVE_OUTS), _t932 counts REVIEWER-JUDGES and AGREES (1/56/2/19); bridge: label guards named explicitly (census blind to the loop), new _t770+_t932 leg; census baseline -2'
+  - time: '2026-10-06T22:53:29'
+    action: 'T-1079: bridge 249/0 on e3c195ee; G-052 resolved on its closure condition (_t932 agrees 1/56/2/19, runs under T-1079 Verification and in the bridge)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 51 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 51
+  commits: 2
+  files_changed: 7
+  lines_added: 271
+  lines_removed: 65
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1079-align-832s-routing-checks-with-the-aef-r.md
+generated_by: context-agent-hybrid
