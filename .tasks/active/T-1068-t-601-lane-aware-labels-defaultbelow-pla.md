@@ -1,13 +1,13 @@
 ---
-id: T-1064
-name: "Send the ~15 small visual checks in the operator's queue to the independent reviewer (fw reviewer judge), apply green verdicts, return the rest"
+id: T-1068
+name: "T-601 lane-aware labels: default/below placement still lands on the lane header strip, and the L2 divider leg does not fail under its own poison arm"
 description: >
-  Send the ~15 small visual checks in the operator's queue to the independent reviewer (fw reviewer judge), apply green verdicts, return the rest
+  Independent reviewer RED (fw reviewer judge T-601; .context/reviews/evidence/T-601/AC1-judge-t-601-r1-25b7ca42497b.md). Needed: clear POOL_X + LANE_HEADER for below/default placement (or stop a tie restoring an on-header placement); a leg on the DEFAULT map asserting no event/gateway label line has x1 < POOL_X + LANE_HEADER; repair the L2 divider leg so it fails under the poison arm (score the block against the node's band); then re-review the readability trade on a real corpus map.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
-horizon: now
+horizon: next
 tags: []
 components: []
 related_tasks: []
@@ -33,12 +33,12 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1064` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1068` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-06T09:11:13Z
-last_update: 2026-10-06T09:11:13Z
+created: 2026-10-06T09:49:30Z
+last_update: 2026-10-06T09:49:30Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -52,7 +52,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-1064: Send the ~15 small visual checks in the operator's queue to the independent reviewer (fw reviewer judge), apply green verdicts, return the rest
+# T-1068: T-601 lane-aware labels: default/below placement still lands on the lane header strip, and the L2 divider leg does not fail under its own poison arm
 
 ## Context
 
@@ -62,9 +62,8 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] Under PD-355 (operator authorisation, 2026-10-06) the small visual/readability checks are each dispatched to the independent reviewer (`fw reviewer judge T-XXX --criterion N`); a pilot on one item first proves the loop (evidence report, ledger row bound to a revision) — pilot T-600 RED with screenshots and measurements; 11 more dispatched
-- [ ] Every dispatched check has a verdict row; green ones are applied (`fw reviewer verdict apply`), amber/red/escalate stay with the operator with the reviewer's guidance; nothing is ticked by this agent — GREEN applied: T-233, T-286, T-858, T-589#1 (706021eb). OPEN: T-310#3 has NO correct row — AEF bug: `--criterion 3` briefs it as "Criterion 1 (Human AC#3)" and the reviewer recorded its AC#3 judgement as `--ac 1` (amber, dispatch 387c42141a26), reported to AEF; T-310 must NOT be applied until resolved. T-893's second panel seat (codex) is never dispatched. Codex-seat ambers on T-308/T-310#1 are sandbox could-not-check, reported to AEF
-- [x] The operator gets the result as one table: item, verdict, evidence path; queue 84 -> 80 open Human ACs. Defects found by the reviewer filed: T-1067 (T-600), T-1068 (T-601), T-1069 (T-893), T-1070 (T-643); T-589#2 re-judge after the next designer release reaches Watchtower
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -90,11 +89,11 @@ date_finished: null
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1064`
+         1. Run `bin/fw reviewer T-1068`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1064 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1068 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -308,7 +307,7 @@ date_finished: null
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1064 go|no-go|defer --rationale "..."
+     fw inception decide T-1068 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -317,7 +316,7 @@ date_finished: null
 
 ## Updates
 
-### 2026-10-06T09:11:13Z — task-created [task-create-agent]
+### 2026-10-06T09:49:30Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1064-send-the-15-small-visual-checks-in-the-o.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1068-t-601-lane-aware-labels-defaultbelow-pla.md
 - **Context:** Initial task creation
