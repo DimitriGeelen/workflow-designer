@@ -13,7 +13,7 @@ description: >
 
 status: work-completed
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: []
 components: []
@@ -86,13 +86,14 @@ module scope, and lane bands stack from `POOL_Y + POOL_HEADER` by `lane.height`.
 - [x] `node tools/_t601-lane-boundary.mjs --self-test` passes, with a poison arm FAITHFUL to the pre-T-601 scorer (the whole pool term removed, not merely one clause disabled) failing the pool legs
 
 ### Human
-- [ ] [REVIEW] Labels stay inside the lane they belong to, and the map is no less readable for it
+- [x] [REVIEW] Labels stay inside the lane they belong to, and the map is no less readable for it
   **Steps:**
   1. Open the designer and load a map with a node near the pool's left edge carrying a long name
   2. Look at whether any event/gateway label sits on the grey lane header strip or crosses a lane divider
   3. Compare against the T-600 screenshots in `.context/working/`
   **Expected:** No label overlaps the lane header strip or extends into a neighbouring lane; labels with nowhere clean to go sit below their shape as before, rather than in a worse position
   **If not:** Screenshot the offending label, note which lane it belongs to and which one it overlaps
+  **Reviewer verdict:** green V-20261006-d0449f7c — reviewer-judge-t-601-r1-c120c4a13422:reviewer (rung rung-1-same-vendor-independent), digest f943f93f64d0; dispatch judge-t-601-r1-c120c4a13422; evidence: .context/reviews/evidence/T-601/AC1-judge-t-601-r1-c120c4a13422.md, .context/reviews/evidence/T-601/longname-session-capture-n_start-head-judge-t-601-r1-c120c4a13422.png, .context/reviews/evidence/T-601/longname-context-memory-n_start-head-judge-t-601-r1-c120c4a13422.png, .context/reviews/evidence/T-601/longname-git-commit-flow-n_start-head-judge-t-601-r1-c120c4a13422.png, .context/reviews/evidence/T-601/corpus-session-capture-n_start-head-judge-t-601-r1-c120c4a13422.png, .context/reviews/evidence/T-601/corpus-cross-host-dispatch-n_send-head-judge-t-601-r1-c120c4a13422.png; ledger .context/reviews/verdicts.jsonl
 
 ## Visual Verification
 

@@ -1,0 +1,109 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1068: T-601 lane-aware labels: default/below placement still lands on the lane header strip, and the L2 divider leg does not fail under its own poison arm
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-06T18:42:59Z
+# ============================================================================
+
+task_id: T-1068
+task_name: "T-601 lane-aware labels: default/below placement still lands on the lane header strip, and the L2 divider leg does not fail under its own poison arm"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-06T09:49:30Z
+completed: 2026-10-06T18:41:47Z
+duration_days: 0
+updates_count: 8
+first_commit: 2026-10-06T13:57:57+02:00
+last_commit: 2026-10-06T16:40:37+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  WIP checkpoint after the previous session hit its 95% context cap (11:21Z) — lane-aware placement change, T-601 test legs, bridge wiring of the T-600/T-601 self-tests, before/after screenshots. NOT DONE: the self-test is still red (L3 passes under its poison arm). T-600's L3 could not fail since T-601 (a51e6235, found by searching the commits) — it measured a label that now stays below its shape, where document order never shows; L3 now measures a side-placed block and poison B patches all 3 insert sites. _t600 and _t601 self-tests green, F1 control red on the pre-fix editor, _t1067 6/6; AC 3 (reviewer re-judge) open. reviewer RED on T-601 AC1 recorded — corpus probe shows a large improvement (header 13→0, pool 18→0, lane 26→9) but 3 labels are now hidden under task boxes and session-capture g_found newly crosses a divider; scorer weights named as the cause, next steps listed. label scorer reweighted after the reviewer's RED — no label hidden under a shape on the 24-map corpus (4 → 0, also at sizes S/L), g_found back in its lane, nudge kept unless it hides text; new corpus leg pins the four named labels (self-test proves it can fail). Cost: 1 header label, +11 edge crossings. reviewer AMBER acted on — wrapped label blocks were built on the single line's nudged x and landed on the next task box; built on the node's centre, the header nudge is unconditional again: 0 labels on the header and 0 under a shape on the corpus at sizes S/M/L; corpus leg C3 tightened to 0 with 3 poison arms. reviewer RED (third round) acted on — long names at the left edge hid words under the next task: already-wrapped names are now re-wrapped narrower (2-7 lines) and hidden text costs 30/line; 0 hidden and 0 on the header at S/M/L with real names, a long n_start, and every label long (was 15 hidden); corpus leg C4/C5 + 4th poison arm
+
+# Key outcomes
+outcomes:
+  - 'F1: no event/gateway label line in the DEFAULT map starts left of POOL_X + LANE_HEADER (the "Investigation requested" block is nudged clear of the header strip); a leg asserts it on the default map, with a control showing the pre-fix editor fails it'
+  - 'F3: the divider term scores the label BLOCK, not line by line (a block split across or sitting in the next lane is penalised); `_t601 --self-test` passes again, i.e. L2 goes red when the pool term is removed'
+  - 'T-600/T-601/T-1067 legs still pass; screenshots of the default map''s left edge and the T-601 case read; re-judged by the independent reviewer'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'T-600''s L3 could not fail since T-601 (a51e6235, found by searching the commits) — it measured a label that now stays below its shape, where document order never shows; L3 now measures a side-placed block and poison B patches all 3 insert sites. _t600 and _t601 self-tests green, F1 control red on the pre-fix editor, _t1067 6/6; AC 3 (reviewer re-judge) open'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/screenshots/T-1068/corpus/arc-lifecycle-n_req-after.png'
+  - 'docs/screenshots/T-1068/corpus/arc-lifecycle-n_req-before.png'
+  - 'docs/screenshots/T-1068/corpus/git-commit-flow-n_start-after.png'
+  - 'docs/screenshots/T-1068/corpus/git-commit-flow-n_start-before.png'
+  - 'docs/screenshots/T-1068/corpus/session-capture-g_found-after.png'
+  - 'docs/screenshots/T-1068/corpus/session-capture-g_found-before.png'
+  - 'docs/screenshots/T-1068/corpus/session-capture-n_start-after.png'
+  - 'docs/screenshots/T-1068/corpus/session-capture-n_start-before.png'
+  - 'docs/screenshots/T-1068/default-left-after.png'
+  - 'docs/screenshots/T-1068/default-left-before.png'
+  - 'docs/screenshots/T-1068/longname/context-memory-n_start-long.png'
+  - 'docs/screenshots/T-1068/longname/git-commit-flow-n_start-long.png'
+  - 'docs/screenshots/T-1068/longname/session-capture-n_start-long.png'
+  - 'docs/screenshots/T-1068/t601-after.png'
+  - 'docs/screenshots/T-1068/t601-before.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1068-t-601-lane-aware-labels-defaultbelow-pla.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1068-corpus-labels.mjs'
+  - 'tools/_t600-label-wrap.mjs'
+  - 'tools/_t601-lane-boundary.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-06T13:57:57'
+    action: 'T-1068: WIP checkpoint after the previous session hit its 95% context cap (11:21Z) — lane-aware placement change, T-601 test legs, bridge wiring of the T-600/T-601 self-tests, before/after screenshots. NOT DONE: the self-test is still red (L3 passes under its poison arm)'
+  - time: '2026-10-06T14:05:10'
+    action: 'T-1068: T-600''s L3 could not fail since T-601 (a51e6235, found by searching the commits) — it measured a label that now stays below its shape, where document order never shows; L3 now measures a side-placed block and poison B patches all 3 insert sites. _t600 and _t601 self-tests green, F1 control red on the pre-fix editor, _t1067 6/6; AC 3 (reviewer re-judge) open'
+  - time: '2026-10-06T14:35:41'
+    action: 'T-1068: reviewer RED on T-601 AC1 recorded — corpus probe shows a large improvement (header 13→0, pool 18→0, lane 26→9) but 3 labels are now hidden under task boxes and session-capture g_found newly crosses a divider; scorer weights named as the cause, next steps listed'
+  - time: '2026-10-06T15:16:23'
+    action: 'T-1068: label scorer reweighted after the reviewer''s RED — no label hidden under a shape on the 24-map corpus (4 → 0, also at sizes S/L), g_found back in its lane, nudge kept unless it hides text; new corpus leg pins the four named labels (self-test proves it can fail). Cost: 1 header label, +11 edge crossings'
+  - time: '2026-10-06T16:00:12'
+    action: 'T-1068: reviewer AMBER acted on — wrapped label blocks were built on the single line''s nudged x and landed on the next task box; built on the node''s centre, the header nudge is unconditional again: 0 labels on the header and 0 under a shape on the corpus at sizes S/M/L; corpus leg C3 tightened to 0 with 3 poison arms'
+  - time: '2026-10-06T16:40:37'
+    action: 'T-1068: reviewer RED (third round) acted on — long names at the left edge hid words under the next task: already-wrapped names are now re-wrapped narrower (2-7 lines) and hidden text costs 30/line; 0 hidden and 0 on the header at S/M/L with real names, a long n_start, and every label long (was 15 hidden); corpus leg C4/C5 + 4th poison arm'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 532 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 532
+  commits: 7
+  files_changed: 22
+  lines_added: 622
+  lines_removed: 155
+  footprint_refreshed_at: '2026-10-06T18:43:10Z'
+  footprint_refreshed_by_commit: dded6919
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1068-t-601-lane-aware-labels-defaultbelow-pla.md
+generated_by: context-agent-hybrid

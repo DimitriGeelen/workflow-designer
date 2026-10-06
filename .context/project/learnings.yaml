@@ -2681,3 +2681,15 @@ learnings:
   task: T-1036
   date: 2026-10-05
   context: Added via context agent
+- id: PL-383
+  learning: "A conversation can be live in two Claude processes at once (fleet resume by id + claude -c by directory); both receive the same background-task events and both act. When files change under you with no known writer, check for a second live process on your own conversation id first (pgrep -af '<conversation-id>' plus any 'claude -c' with this cwd)."
+  source: P-001
+  task: T-1052
+  date: 2026-10-05
+  context: Added via context agent
+- id: PL-384
+  learning: "A placement gate measured on real corpus names misses the criterion's own scenario: write the AC's Steps as a gate leg (here: the operator's long name on every left-edge start event) before claiming green. And a candidate built from a position captured AFTER a nudge inherits that nudge; rebuild from the node's own geometry."
+  source: P-001
+  task: T-1068
+  date: 2026-10-06
+  context: Added via context agent

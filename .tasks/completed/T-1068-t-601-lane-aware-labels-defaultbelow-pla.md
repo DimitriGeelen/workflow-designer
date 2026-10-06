@@ -10,13 +10,13 @@ description: >
   the poison arm (score the block against the node's band); then re-review the readability
   trade on a real corpus map.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t600-label-wrap.mjs, tools/_t601-lane-boundary.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -45,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T09:49:30Z
-last_update: 2026-10-06T14:40:37Z
-date_finished:
+last_update: 2026-10-06T18:41:47Z
+date_finished: 2026-10-06T18:41:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -92,7 +92,7 @@ bvp_scores_proposed:
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] F1: no event/gateway label line in the DEFAULT map starts left of POOL_X + LANE_HEADER (the "Investigation requested" block is nudged clear of the header strip); a leg asserts it on the default map, with a control showing the pre-fix editor fails it
 - [x] F3: the divider term scores the label BLOCK, not line by line (a block split across or sitting in the next lane is penalised); `_t601 --self-test` passes again, i.e. L2 goes red when the pool term is removed
-- [ ] T-600/T-601/T-1067 legs still pass; screenshots of the default map's left edge and the T-601 case read; re-judged by the independent reviewer
+- [x] T-600/T-601/T-1067 legs still pass; screenshots of the default map's left edge and the T-601 case read; re-judged by the independent reviewer
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -455,3 +455,24 @@ Screenshots read: docs/screenshots/T-1068/longname/*.png — all three readable;
 block into the next lane (session-capture n_start 5 lines into FRAMEWORK AUTHORITY).
 Corpus leg: C4 (every start event long) and C5 (every label long), no hidden, no header; 4 poison
 arms, the 4th restores the single-line guard and fails C4.
+
+### 2026-10-06T17:30Z — reviewer GREEN on T-601 AC1 (fourth round, 536e52d7) [agent]
+Verdict V-20261006-d0449f7c, evidence `.context/reviews/evidence/T-601/AC1-judge-t-601-r1-c120c4a13422.md`;
+applied to T-601 (`fw reviewer verdict apply`, owner human → agent). Bridge 248/0 on 536e52d7 (a first
+run had 5 audit-reading teeth red that all passed alone and on the rerun; overlap with the 16:45/17:00
+cron audits suspected, noted with fw note).
+Residual, not blocking (reviewer): in the long-name fallback the last line of a wrapped block can sit in
+the lane below (session-capture "during settlement" in FRAMEWORK AUTHORITY); an above-the-event or
+wider-but-shorter candidate could be preferred before a line crosses a divider.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a24fa6a8
+- **Timestamp:** 2026-10-06T18:42:52Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-06T18:41:47Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
