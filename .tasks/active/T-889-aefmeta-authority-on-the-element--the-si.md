@@ -12,6 +12,7 @@ description: >
 
 status: started-work
 workflow_type: build
+current_node: agt_2_perform
 owner: agent
 horizon: now
 tags: [arc:designer-authoring-surface]
@@ -33,7 +34,7 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:17Z
-last_update: 2026-10-06T21:38:32Z
+last_update: 2026-10-06T21:39:01Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -222,7 +223,9 @@ timeout 300 node tools/_t889-authority-first-class-cdp.mjs > /tmp/.t889ac1.out 2
 # task's debt and would rot the moment that debt is paid.
 grep -q '"E-XML-META-AUTHORITY":     (("aef:meta/@authority",), CONSTRAINS)' tests/test_rule_dialect_axis.py
 grep -q '"aef:meta/@authority":      SEMANTIC_MUST' tests/test_rule_dialect_axis.py
-grep -q '"E-XML-META-AUTHORITY": (GAP,' tests/test_rule_form_parity.py
+# Was `(GAP,` when T-889 shipped; T-902 built the YAML twin E-META-AUTHORITY, so the gap closed
+# (test_rule_form_parity.py:342). Updated 2026-10-06 to assert the stronger, current state.
+grep -q '"E-XML-META-AUTHORITY": (PAIRED, "E-META-AUTHORITY")' tests/test_rule_form_parity.py
 # The vocabulary is reused, not re-listed: exactly one AUTHORITIES literal in each form.
 test "$(grep -c "^AUTHORITIES = {" tools/validate-workflow.py)" = "1"
 test "$(grep -c "^const AUTHORITIES = \[" src/aef-workflow-designer.html)" = "1"
