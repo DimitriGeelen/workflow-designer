@@ -1,13 +1,23 @@
 ---
 id: T-896
-name: "Put the authority ruling to AEF: one semantic attribute, one presentational attribute, and a §3 that is theirs"
+name: "Put the authority ruling to AEF: one semantic attribute, one presentational
+  attribute, and a §3 that is theirs"
 description: >
-  T-888 ruling. The frozen standard's §3 ('the Lane is the sole authority-of-record') is the universal claim this ruling retires, and it belongs to the counterparty. Two asks, of very different size: add 'authority' to the §2 semantic meta-keys (real change), and add 'authoringDefault' to the §1 PRESENTATIONAL list (small — that class is already defined as compiler-ignored). Carry the evidence: 60 of 67 corpus lanes are the actor triple because all 24 diagrams are one tenant self-modelling, so §3 hardened one convention into a MUST; plus the four consults, including the two rounds that defended THEIR original decision better than we questioned it. Part I is not edited by us under any circumstance. Note offset 195 is still unanswered.
+  T-888 ruling. The frozen standard's §3 ('the Lane is the sole authority-of-record')
+  is the universal claim this ruling retires, and it belongs to the counterparty.
+  Two asks, of very different size: add 'authority' to the §2 semantic meta-keys (real
+  change), and add 'authoringDefault' to the §1 PRESENTATIONAL list (small — that
+  class is already defined as compiler-ignored). Carry the evidence: 60 of 67 corpus
+  lanes are the actor triple because all 24 diagrams are one tenant self-modelling,
+  so §3 hardened one convention into a MUST; plus the four consults, including the
+  two rounds that defended THEIR original decision better than we questioned it. Part
+  I is not edited by us under any circumstance. Note offset 195 is still unanswered.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: later
+horizon: now
 tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
@@ -22,8 +32,8 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:42:11Z
-last_update: 2026-09-27T10:42:11Z
-date_finished: null
+last_update: 2026-10-06T21:41:47Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,20 +44,50 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-06T21:41:12Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 3
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=3 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L1:keyword=counterparty);
+      F1=3 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L3:keyword=compile)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-896: Put the authority ruling to AEF: one semantic attribute, one presentational attribute, and a §3 that is theirs
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The operator's T-888 ruling (2026-09-27, `docs/reports/T-888-authority-ruling.md`) retires the frozen
+standard's §3 universal claim ("the Lane is the sole authority-of-record"), which belongs to AEF. Since
+PD-357 (2026-10-06) the current AEF ruleset is our reference, so this disagreement must be put to AEF rather
+than worked around. T-895 (migrating the 67 lane values onto elements) waits for their answer, because the
+rendered corpus is byte-pinned by AEF.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The proposal is sent to AEF (sidecar, delivery receipt recorded): the two asks (§2 semantic meta-key
+      `authority` on the element; §1 presentational `aef:laneMeta/@authoringDefault`), the §3 change as theirs to
+      make, the evidence (60 of 67 corpus lanes are the actor triple; the four consults, with paths; what 832
+      already built: T-889, T-892, T-893), and what waits on their answer (T-895)
+- [x] Part I of the frozen standard is not edited by 832 (`git diff` of `docs/standards/` empty for this task)
+- [ ] AEF's answer is recorded here and acted on: on agreement T-895 is promoted to `horizon: now`; on
+      refusal or counter-proposal it goes to the operator
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -304,3 +344,18 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-896-put-the-authority-ruling-to-aef-one-sema.md
 - **Context:** Initial task creation
+
+### 2026-10-06T21:41:12Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
+
+### 2026-10-06T21:50Z — proposal sent to AEF [agent]
+Sent on sidecar conversation `aef-element-authority` (`delivered: RECEIVED -> 999 receiver
+http://127.0.0.1:35965`): the T-888 ruling's four clauses; asks (a) `authority` as a §2 semantic meta-key on
+the element, (b) `aef:laneMeta/@authoringDefault` on the §1 presentational list, (c) §3 "the Lane is the sole
+authority-of-record" amended — theirs to make; the evidence (60/67 actor-triple lanes, context-memory's
+`none` filler and 12 ownerless nodes, the four consults by path, T-685/T-835); what 832 already built
+(T-889, T-892, T-893); and that T-895 waits for them. `docs/standards/` untouched. The earlier note "offset
+195 still unanswered" could not be traced to this topic (the 2026-10-03 triage lists @195 as an unrelated
+receipt) and is not chased further. T-895 put back to captured / horizon next: it was started by mistake
+before this answer.
