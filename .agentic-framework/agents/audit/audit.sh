@@ -21,7 +21,10 @@ source "$FRAMEWORK_ROOT/lib/config.sh"
 source "$FRAMEWORK_ROOT/lib/watchtower.sh"
 source "$FRAMEWORK_ROOT/lib/traceability.sh"
 source "$FRAMEWORK_ROOT/lib/audit-anchor-task.sh"   # T-3356: T-1856 anchor_task detection
-AUDITS_DIR="$CONTEXT_DIR/audits"
+# 832 T-535 (re-applied by T-1005): env-overridable, matching the TASKS_DIR idiom in lib/paths.sh. This
+# is the seam the trend-analysis teeth drive — a controlled corpus of audit records can be supplied
+# without touching the real .context/audits, and the run's own output lands in the same sandbox.
+AUDITS_DIR="${AUDITS_DIR:-$CONTEXT_DIR/audits}"
 
 # --- Schedule Subcommand (dispatch before heavy init) ---
 if [ "${1:-}" = "schedule" ]; then
@@ -2689,8 +2692,55 @@ DRIFTEOF
              "expand_patterns.py returned: ${drift_result:-<no output>}" \
              "Run: python3 agents/fabric/lib/expand_patterns.py .fabric/watch-patterns.yaml ."
     elif [ "$drift_unreg" -gt 0 ] 2>/dev/null; then
-        warn "Fabric drift: $drift_unreg source file(s) have no fabric card" \
-             "$drift_unreg unregistered files matching watch-patterns.yaml" \
+        # T-525 (832-local, redesigned onto the T-2735 drift block under T-1005): the raw
+        # unregistered count is a DIFFERENCE of two independently moving quantities --
+        # watched grows with the tree, registered only when someone writes a card -- so
+        # "twenty files added, not carded" and "twenty cards DELETED" printed the same line.
+        # State the ratio and compare registered with the most recent prior daily report,
+        # naming a FALL; with no comparable prior, ABSTAIN rather than print a zero delta.
+        # Severity deliberately unchanged (still WARN, still gated on unregistered > 0).
+        # Cron reports are excluded: they run a reduced section set without this line.
+        fabric_registered=$drift_total   # registered card count (T-525 naming; T-549 mutates these lines)
+        fabric_prev=$({ python3 - "${FABRIC_HISTORY_DIR:-$CONTEXT_DIR/audits}" <<'PYEOF' 2>/dev/null || true
+import glob, os, re, sys
+best = None
+for path in sorted(glob.glob(os.path.join(sys.argv[1], "????-??-??.yaml"))):
+    day = os.path.basename(path)[:-5]
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+        continue
+    try:
+        with open(path) as fh:
+            m = re.search(r"Fabric:\s*(\d+)\s+registered", fh.read())
+    except Exception:
+        continue
+    if m:
+        best = (day, m.group(1))      # sorted() => last match is the most recent day
+if best:
+    print("%s %s" % best)
+PYEOF
+        } || true)
+        fabric_prev_day=$(echo "$fabric_prev" | awk '{print $1}')
+        fabric_prev_reg=$(echo "$fabric_prev" | awk '{print $2}')
+        if [ -n "$fabric_prev_day" ] && [ "$fabric_prev_day" = "$(date +%Y-%m-%d)" ]; then
+            fabric_prev_day="earlier today"
+        fi
+        fabric_pct=0
+        [ "${drift_watched:-0}" -gt 0 ] && fabric_pct=$(( fabric_registered * 100 / drift_watched ))
+        if [ -z "$fabric_prev_reg" ]; then
+            fabric_dir_note="direction not evaluated — no prior audit report carries a Fabric line"
+            fabric_dir_evidence="first comparable run on this install"
+        elif [ "$fabric_registered" -lt "$fabric_prev_reg" ]; then
+            fabric_dir_note="CARD LOSS: $(( fabric_prev_reg - fabric_registered )) fewer cards than $fabric_prev_day ($fabric_prev_reg -> $fabric_registered)"
+            fabric_dir_evidence="registered cards FELL — this is not the accepted growth case; a deleted or malformed card stops participating in component resolution and its own file then reports as unregistered"
+        elif [ "$fabric_registered" -eq "$fabric_prev_reg" ]; then
+            fabric_dir_note="cards flat since $fabric_prev_day ($fabric_registered)"
+            fabric_dir_evidence="registered is unchanged while the watch set moves, so any change in the unregistered count is tree growth, not carding activity"
+        else
+            fabric_dir_note="+$(( fabric_registered - fabric_prev_reg )) cards since $fabric_prev_day"
+            fabric_dir_evidence="registered GREW; a rising unregistered count alongside this is tree growth outpacing carding, not regression"
+        fi
+        warn "Fabric: $fabric_registered registered, $drift_unreg unregistered (of $drift_watched watched — ${fabric_pct}% covered, ${fabric_dir_note})" \
+             "$drift_unreg file(s) matching watch-patterns.yaml have no component card; $fabric_dir_evidence" \
              "Run: fw fabric scan"
     else
         # T-2737: state the size of the set that was actually measured. The old
@@ -2889,6 +2939,54 @@ _audit_review_step_downs() {
          "Inspect: python3 lib/verdict_ledger.py audit — raise REVIEWER_JUDGE_WEEKLY_SPEND_CEILING to withdraw a step-down"
 }
 _audit_review_step_downs
+
+# 832: re-applied by T-1005 on 1.7.740.
+# T-873 (G-055/PL-124 sibling): `fw upgrade` step [1/10] replaces CLAUDE.md's
+# governance tail wholesale from the framework template. Project-specific text
+# written INLINE inside a governance section cannot survive that merge, and
+# upgrade.sh knows it: it copies the old file to CLAUDE.md.bak first, diffs the
+# two, and prints a lost-line warning whose own remedy ends "remove
+# CLAUDE.md.bak to clear". That last clause is what makes the .bak an
+# acknowledgement token — durable, and clearable by one command.
+#
+# NOTHING READ IT. Before this check, the only reference to CLAUDE.md.bak
+# anywhere under agents/ or lib/ was the line in upgrade.sh that writes it, so
+# the warning lived exactly as long as the terminal that carried it. Measured
+# 2026-09-25 in this project: a real upgrade dropped 25 lines including the
+# entire T-675 budget-cache passage ("`unknown` is not `ok`"). The degraded file
+# was still uncommitted and still being loaded as the agent's own instructions a
+# day later, and the loss was found by accident while reading something else.
+#
+# THE PREDICATE IS EXISTENCE, NOT CONTENT — deliberately, and it is the whole
+# design. A line-level diff cannot tell a rewording from a deletion: after
+# T-873's fix was correct and complete, 6 lines still read as "absent" whose
+# substance was present and improved. A check gated on that count would have
+# gone red on the finished repair and stayed red with nothing that clears it,
+# which is OBS-293 (a permanently red check trains readers to ignore it). So
+# the count is reported as context and what is ASSERTED is whether a human
+# acknowledged the rewrite. The honest limit: this cannot tell whether the
+# review was done WELL, only whether it was done at all — still strictly more
+# than the zero readers it had.
+# ── T-873 claude-bak-signal: begin (extracted verbatim by tools/_t873-claude-bak-teeth.sh) ──
+_t873_claude="$PROJECT_ROOT/CLAUDE.md"
+_t873_bak="${_t873_claude}.bak"
+if [ -f "$_t873_claude" ] && [ -f "$_t873_bak" ]; then
+    _t873_lost=$( { grep -Fxv -f "$_t873_claude" "$_t873_bak" 2>/dev/null || true; } \
+                  | grep -cvE '^[[:space:]]*$' || true )
+    case "$_t873_lost" in ''|*[!0-9]*) _t873_lost=0 ;; esac
+    if [ "$_t873_lost" -gt 0 ]; then
+        warn "CLAUDE.md governance rewrite unreviewed: $_t873_lost line(s) in CLAUDE.md.bak are absent from CLAUDE.md" \
+             "fw upgrade replaced the governance tail from the framework template and kept the old file as CLAUDE.md.bak. Some of the $_t873_lost may be reworded rather than lost — the diff cannot tell them apart, which is exactly why a human clears this and not a count" \
+             "Review: diff CLAUDE.md.bak CLAUDE.md — re-apply what is still wanted, then clear the signal: rm CLAUDE.md.bak"
+    else
+        warn "CLAUDE.md.bak present with no differing lines — the review is done or was a no-op, but the signal was never cleared" \
+             "Nothing is currently lost, so this is bookkeeping with a deadline: the next fw upgrade overwrites CLAUDE.md.bak with its own backup and takes this evidence with it" \
+             "Clear it: rm CLAUDE.md.bak"
+    fi
+elif [ -f "$_t873_claude" ]; then
+    pass "CLAUDE.md: no pending governance-rewrite review — examined 1 CLAUDE.md, no CLAUDE.md.bak alongside it"
+fi
+# ── T-873 claude-bak-signal: end ──
 
 # T-3282 (G-104): the RUNNING Watchtower is a deployment surface of its own —
 # source can be fixed, tested, and closed green while the process serves the
@@ -3165,6 +3263,62 @@ fi
 
 # T-3062: the T-1845 whole-tree scanners used to live here, inside `structure`.
 # They now live in SECTION 1b below. See that block for why.
+
+# 832: re-applied by T-1005 on 1.7.740.
+# T-651: zero-byte untracked files at the repo ROOT are redirect debris.
+#
+# Provenance, because the shape is not obvious: markdown EXECUTED by a shell turns every
+# blockquote line into a redirect. `> Supersedes the note` is not text at that point, it
+# is "truncate a file named Supersedes". 832 accumulated 23 such files over two incidents
+# (2026-08-26, 2026-08-27) named `DEFER`, `rail`, `risk,`, `**their**`, `scope*,` — the
+# first word of each blockquote line.
+#
+# The 0-byte part is diagnostic, not incidental, and it is the reason this comment says
+# EXECUTED rather than the vaguer "unquoted expansion". Argument position (`sh -c "echo
+# $BODY"`) leaves the first file holding echo's remaining words. Command position
+# (`sh -c "$BODY"`, `eval "$BODY"`) leaves every file empty, because a bare redirect has
+# no command to write anything. All 23 were empty. So the markdown reached the shell as a
+# SCRIPT — meaning any line in it that did not begin with `>` was executed. Nothing in the
+# debris tells us whether such a line existed. Established by sandbox reproduction of both
+# forms (tools/_t651-stray-root-files-are-caught.sh leg 1), not by inspection.
+#
+# Why AUDIT and not a pre-commit hook: they are untracked, so no commit hook ever sees
+# them, and `git status` shows them in the noisy `??` block that gets filtered past. They
+# sat for five days in a repo audited twelve times. Nothing was looking at the root.
+#
+# WARN not FAIL: the debris is inert. The reason to surface it is that the SAME accident
+# aimed at an existing path truncates it silently — the files are the visible residue of a
+# mechanism whose invisible case is data loss. Zero-byte is the discriminator that keeps
+# this quiet about legitimate untracked artifacts (screenshots, scratch output).
+if git -C "$PROJECT_ROOT" rev-parse --git-dir >/dev/null 2>&1; then
+    _stray=$(git -C "$PROJECT_ROOT" status --porcelain --untracked-files=all -z 2>/dev/null \
+             | tr '\0' '\n' | grep '^??' | sed 's/^?? //' | grep -v '/' \
+             | while IFS= read -r _f; do
+                   [ -n "$_f" ] && [ -f "$PROJECT_ROOT/$_f" ] && [ ! -s "$PROJECT_ROOT/$_f" ] && printf '%s\n' "$_f"
+               done)
+    if [ -n "$_stray" ]; then
+        _stray_n=$(printf '%s\n' "$_stray" | grep -c .)
+        warn "Stray root files: $_stray_n zero-byte untracked file(s) in repo root (T-651)" \
+             "$(printf '%s\n' "$_stray" | head -5)" \
+             "Shell-redirect debris from unquoted markdown. Verify none collide with a tracked path, then remove by explicit name (never a glob — such names can contain *)"
+    else
+        pass "Stray root files: no zero-byte untracked files in repo root"
+    fi
+fi
+
+LARGE_FILE_SCANNER="$FRAMEWORK_ROOT/agents/git/lib/large-file-scan.sh"
+if [ -x "$LARGE_FILE_SCANNER" ]; then
+    _lf_out=$(PROJECT_ROOT="$PROJECT_ROOT" "$LARGE_FILE_SCANNER" scan-tree 2>&1)
+    _lf_rc=$?
+    if [ "$_lf_rc" -ne 0 ]; then
+        _lf_count=$(echo "$_lf_out" | grep -c "\[BLOCK\]" || true)
+        warn "Large-file gate: $_lf_count tracked file(s) above block threshold (T-1845)" \
+             "$(echo "$_lf_out" | head -5)" \
+             "Untrack + add to .gitignore, or allowlist if deliberate: git rm --cached <path> && echo <path> >> .gitignore"
+    else
+        pass "Large-file gate: tracked tree clean"
+    fi
+fi
 
 # T-2244: Self-vendor drift FAIL (F2 N×M daily-cron backstop). Mirrors
 # `bin/fw doctor` Check 2b (T-1434 + T-2243) and the pre-push gate
@@ -3568,6 +3722,16 @@ _audit_is_prepush_scope() {
 check_unit_suite_report() {
     local _report="${FW_UNIT_SUITE_REPORT:-$CONTEXT_DIR/audits/unit-suite/LATEST.yaml}"
     local _baseline="${FW_UNIT_SUITE_BASELINE:-$CONTEXT_DIR/audits/unit-suite/baseline.yaml}"
+
+    # 832 T-934 (re-applied by T-1005 on 1.7.740): skip where there is nothing to run. A vendored
+    # consumer has no tests/unit, so the report can NEVER be produced and this WARN can never clear
+    # (its mitigation, "run agents/audit/unit-suite.sh", does nothing there). The predicate is "is
+    # there a suite", not "am I the framework repo": a present suite with no report still WARNs.
+    local _suite_dir="${FW_UNIT_SUITE_DIR:-$FRAMEWORK_ROOT/tests/unit}"
+    if [ ! -d "$_suite_dir" ] && [ ! -f "$_report" ]; then
+        info "Unit suite (tests/unit) skipped — no suite at $_suite_dir to run (832 T-934)"
+        return 0
+    fi
     if [ ! -f "$_report" ]; then
         warn "Unit suite NOT CHECKED — no report at .context/audits/unit-suite/LATEST.yaml (T-3302)" \
              "The nightly unit-suite runner has not produced a report; unit-suite reds are invisible until it does" \
@@ -5703,11 +5867,26 @@ else
 fi
 
 # C-002 OE: Check commit-msg hook has research artifact check installed
-if grep -q "inception-research-warnings" "$PROJECT_ROOT/.git/hooks/commit-msg" 2>/dev/null; then
+#
+# T-371: this was `grep -q PATTERN "$hook" 2>/dev/null` with a single else-branch.
+# A MISSING file and a PRESENT file WITHOUT the pattern both make grep exit
+# non-zero, so both collapsed into one warning whose text — "commit-msg hook
+# missing research artifact check" — asserts the hook exists and lacks a sub-check.
+# When this repo was re-cloned after the T-350 incident and lost every hook, that
+# warning fired 270 times across six days while describing the wrong defect: it
+# reported one absent sub-gate when in fact NO commit-msg gate existed at all,
+# including P-002 task-reference enforcement. A warning that misnames the defect is
+# worse than silence, because it answers the question that would otherwise be asked.
+# Partition is now total and explicit: absent / present-without / present-with.
+if [ ! -f "$PROJECT_ROOT/.git/hooks/commit-msg" ]; then
+    warn "C-002: commit-msg hook ABSENT — no gate at all, not merely missing C-002" \
+         ".git/hooks/commit-msg does not exist, so P-002 task-reference enforcement and the C-002 inception gate are BOTH inactive. Hooks live outside version control, so a clone/re-clone/restore silently drops them." \
+         "Install hooks: fw git install-hooks"
+elif grep -q "inception-research-warnings" "$PROJECT_ROOT/.git/hooks/commit-msg" 2>/dev/null; then
     pass "C-002: commit-msg hook has research artifact check"
 else
-    warn "C-002: commit-msg hook missing research artifact check" \
-         "Hook at .git/hooks/commit-msg doesn't contain C-002 gate" \
+    warn "C-002: commit-msg hook present but missing research artifact check" \
+         "Hook at .git/hooks/commit-msg exists (P-002 enforcement active) but doesn't contain the C-002 gate" \
          "Reinstall hooks: fw git install-hooks (or manually add C-002)"
 fi
 
@@ -6664,19 +6843,53 @@ fi
 
 # D2: Human Review Queue Aging (Score 20) (T-955: uses single-pass scan)
 # T-373: Tasks awaiting human review are NORMAL. Only escalate when forgotten (>30 days).
+# T-534: details are accumulated PER TIER. They were previously appended to one shared
+# `d2_details` from both the >=720h and >=336h branches, while the fail message printed the
+# fail-tier COUNT against that shared list — so the line read
+#   "2 task(s) waiting >30d: T-093(41d) T-178(36d) T-308(17d) T-310(17d) T-325(14d)"
+# naming three tasks that do not satisfy the threshold it states. PL-159: a bar stated in a
+# message string is not a bar the instrument holds. The defect is invisible unless BOTH tiers
+# are populated, which is why it survived — with only one tier live the shared list happens to
+# equal that tier's list.
+# T-656: the queue is split by WHAT IT IS WAITING FOR, not only by how long.
+# Until now D2 was built from age alone, so a task the human had fully signed off counted
+# identically to one they had not opened. Measured 2026-08-31: T-093 (57d, 7/7 ticked) and
+# T-178 (51d, 6/6 ticked) were half of the >30d FAIL and neither was waiting on judgement.
+# Both groups stay in the message — dropping the signed-off ones would quiet the control by
+# losing the work it found. What changes is that they are named as a different KIND of
+# outstanding, with the command that actually clears them.
 d2_info=0
 d2_warn=0
 d2_fail=0
-d2_details=""
+d2_fail_details=""
+d2_warn_details=""
+d2_fail_flip=0
+d2_warn_flip=0
+d2_fail_flip_details=""
+d2_warn_flip_details=""
 if [ -n "$ACTIVE_SCAN" ]; then
-    while IFS='|' read -r t_id age_hours age_days; do
+    while IFS='|' read -r t_id age_hours age_days unticked; do
         [ -z "$t_id" ] && continue
+        # `unticked` is absent on a scan predating T-656; treat that as "unknown", which
+        # sorts into the judgement group — the conservative side, because over-reporting a
+        # decision as pending costs a glance and under-reporting one costs the decision.
+        [ -z "$unticked" ] && unticked=1
         if [ "$age_hours" -ge 720 ]; then
-            d2_fail=$((d2_fail + 1))
-            d2_details="$d2_details $t_id(${age_days}d)"
+            if [ "$unticked" -eq 0 ]; then
+                d2_fail_flip=$((d2_fail_flip + 1))
+                d2_fail_flip_details="$d2_fail_flip_details $t_id(${age_days}d)"
+            else
+                d2_fail=$((d2_fail + 1))
+                d2_fail_details="$d2_fail_details $t_id(${age_days}d)"
+            fi
         elif [ "$age_hours" -ge 336 ]; then
-            d2_warn=$((d2_warn + 1))
-            d2_details="$d2_details $t_id(${age_days}d)"
+            if [ "$unticked" -eq 0 ]; then
+                d2_warn_flip=$((d2_warn_flip + 1))
+                d2_warn_flip_details="$d2_warn_flip_details $t_id(${age_days}d)"
+            else
+                d2_warn=$((d2_warn + 1))
+                d2_warn_details="$d2_warn_details $t_id(${age_days}d)"
+            fi
         else
             d2_info=$((d2_info + 1))
         fi
@@ -6684,20 +6897,44 @@ if [ -n "$ACTIVE_SCAN" ]; then
 import sys, json
 data = json.load(sys.stdin)
 for item in data['review_queue']['tasks']:
-    print(f\"{item['id']}|{item['age_hours']}|{item['age_days']}\")
+    print(f\"{item['id']}|{item['age_hours']}|{item['age_days']}|{item.get('unticked', '')}\")
 " 2>/dev/null)
 fi
 
 # shellcheck disable=SC2034 # d2_total available for debug/summary
-d2_total=$((d2_info + d2_warn + d2_fail))
-if [ "$d2_fail" -gt 0 ]; then
-    fail "D2: Human review queue — $d2_fail task(s) waiting >30d:$d2_details" \
+d2_total=$((d2_info + d2_warn + d2_fail + d2_warn_flip + d2_fail_flip))
+# T-656: the remediation differs per group, so it is composed rather than fixed. Sending
+# someone to `fw task verify` about a task with nothing unchecked is what the old line did
+# — it lists unchecked Human ACs, of which those tasks have none — and it is a large part
+# of why two of them sat for 51 and 57 days looking like they needed something.
+d2_remedy="Review with: fw task verify (lists unchecked Human ACs)"
+if [ "$((d2_fail_flip + d2_warn_flip))" -gt 0 ]; then
+    d2_remedy="$d2_remedy. The signed-off ones need no review at all — close them: fw task update T-XXX --status work-completed (or fw task archive-eligible for all of them)"
+fi
+if [ "$d2_fail" -gt 0 ] || [ "$d2_fail_flip" -gt 0 ]; then
+    # T-534: the >14d tier is appended with its OWN count and label rather than merged into
+    # the >30d list. Dropping it would "fix" the count/list mismatch by hiding a real queue,
+    # so the aging tier stays visible — just under the predicate it actually satisfies.
+    # T-656: same principle one axis over — the signed-off group is named, not merged and
+    # not dropped.
+    d2_msg="D2: Human review queue — $((d2_fail + d2_fail_flip)) task(s) waiting >30d"
+    [ "$d2_fail" -gt 0 ] && d2_msg="$d2_msg: $d2_fail awaiting judgement:$d2_fail_details"
+    [ "$d2_fail_flip" -gt 0 ] && d2_msg="$d2_msg; $d2_fail_flip signed off, awaiting only the status flip:$d2_fail_flip_details"
+    if [ "$((d2_warn + d2_warn_flip))" -gt 0 ]; then
+        d2_msg="$d2_msg; $((d2_warn + d2_warn_flip)) waiting >14d"
+        [ "$d2_warn" -gt 0 ] && d2_msg="$d2_msg:$d2_warn_details"
+        [ "$d2_warn_flip" -gt 0 ] && d2_msg="$d2_msg (of which $d2_warn_flip signed off:$d2_warn_flip_details)"
+    fi
+    fail "$d2_msg" \
          "Tasks may be forgotten" \
-         "Review with: fw task verify (lists unchecked Human ACs)"
-elif [ "$d2_warn" -gt 0 ]; then
-    warn "D2: Human review queue — $d2_warn task(s) waiting >14d:$d2_details" \
+         "$d2_remedy"
+elif [ "$((d2_warn + d2_warn_flip))" -gt 0 ]; then
+    d2_msg="D2: Human review queue — $((d2_warn + d2_warn_flip)) task(s) waiting >14d"
+    [ "$d2_warn" -gt 0 ] && d2_msg="$d2_msg: $d2_warn awaiting judgement:$d2_warn_details"
+    [ "$d2_warn_flip" -gt 0 ] && d2_msg="$d2_msg; $d2_warn_flip signed off, awaiting only the status flip:$d2_warn_flip_details"
+    warn "$d2_msg" \
          "Aging review items" \
-         "Review with: fw task verify"
+         "$d2_remedy"
 elif [ "$d2_info" -gt 0 ]; then
     pass "D2: Human review queue — $d2_info task(s) awaiting human action (normal)"
 else
@@ -8275,11 +8512,73 @@ else
     AUDIT_FILE="$EFFECTIVE_OUTPUT_DIR/$AUDIT_DATE.yaml"
 fi
 
+# T-677: A PARTIAL RUN MUST NOT CLOBBER A FULLER RECORD FOR THE SAME DAY.
+#
+# Both the pre-push hook (`--section structure`) and a full `fw audit` wrote
+# $AUDITS_DIR/<date>.yaml, so whichever ran last won. Measured on this project:
+# 08-23..08-29 = 23 findings each, 09-01..09-03 = 26 each, a hand-run full audit =
+# 192. Thirteen of fourteen days of "audit history" held ONLY the structure section.
+#
+# The damage is not the lost file, it is the TREND CORPUS. Trend analysis reads these
+# records, so it could only ever surface structure-section items — which is precisely
+# what it surfaced (fabric, gaps, release lag) and precisely what it never surfaced:
+# CTL-012 fired for 13 consecutive days and was never once promoted as a repeated
+# issue, because it was never in the corpus at all.
+#
+# The evidence needed to prevent this was ALREADY IN EVERY RECORD as `sections:
+# "structure"`, for fourteen days, and nothing read it.
+AUDIT_SECTIONS_LABEL="${SECTIONS:-all}"
+if [ -z "$OUTPUT_DIR" ]; then
+    AUDIT_FILE=$(python3 - "$AUDIT_FILE" "$AUDIT_SECTIONS_LABEL" <<'SECTION_GUARD_EOF'
+import os, re, sys
+
+path, incoming = sys.argv[1], sys.argv[2]
+
+
+def parse(label):
+    """None means 'all sections' — a full run, superset of every partial."""
+    if label == "all":
+        return None
+    return set(x for x in label.split(",") if x)
+
+
+new = parse(incoming)
+if new is not None and os.path.exists(path):
+    old = None
+    with open(path) as fh:
+        for line in fh:
+            m = re.match(r'^sections:\s*"?([^"\n]*)"?\s*$', line)
+            if m:
+                old = parse(m.group(1))
+                break
+            # `sections:` is emitted before these; reaching one means the record
+            # has no key, which (pre-T-677) is how a full run recorded itself.
+            if line.startswith(("summary:", "findings:")):
+                break
+    # Demote when the existing record covers strictly more than this run does.
+    if old is None or new < old:
+        slug = re.sub(r"[^a-z0-9]+", "-", incoming.lower()).strip("-")
+        path = "%s-%s.yaml" % (path[:-5], slug)
+print(path)
+SECTION_GUARD_EOF
+)
+    case "$AUDIT_FILE" in
+        *"$AUDIT_DATE-"*)
+            echo "Note: $AUDIT_DATE already holds a record covering more sections than" >&2
+            echo "      this run; writing alongside it rather than replacing it (T-677)." >&2
+            ;;
+    esac
+fi
+
 # Build YAML content
 {
     echo "# Audit Results - $AUDIT_DATETIME"
     echo "timestamp: $AUDIT_TIMESTAMP"
-    [ -n "$SECTIONS" ] && echo "sections: \"$SECTIONS\""
+    # T-677: emitted ALWAYS, "all" for a full run. Encoding full coverage as the
+    # ABSENCE of the key made a record unable to distinguish "covered everything"
+    # from "didn't say" — the same absence-as-meaning defect as T-675's unmeasured
+    # `ok`. A record that cannot state its own scope cannot be trended honestly.
+    echo "sections: \"$AUDIT_SECTIONS_LABEL\""
     echo "summary:"
     echo "  pass: $PASS_COUNT"
     echo "  warn: $WARN_COUNT"
@@ -8389,25 +8688,83 @@ else
     # Count how many times each warning/failure has appeared (temp file, POSIX-safe — no declare -A)
     ISSUE_COUNTS_FILE=$(mktemp)
 
+    # T-677: count each check at most once per DATE, not once per FILE.
+    #
+    # A date may now hold more than one record (a full audit plus a partial that was
+    # written alongside it rather than clobbering it). Without this, a check present
+    # in both would count twice for one day — the recurrence counter would be
+    # inflated by the very fix that stopped the records being destroyed, and "3+
+    # times" would stop meaning "3+ days".
+    _DATE_KEYED=$(mktemp)
     for audit_file in "${past_audits[@]}"; do
+        _adate=$(basename "$audit_file" .yaml)
+        _adate="${_adate:0:10}"
         while IFS= read -r line; do
             if [[ "$line" =~ ^[[:space:]]+check:[[:space:]]* ]]; then
                 check_name=$(echo "$line" | sed 's/.*check: "//' | sed 's/"$//')
-                echo "$check_name" >> "$ISSUE_COUNTS_FILE"
+                printf '%s\t%s\n' "$_adate" "$check_name" >> "$_DATE_KEYED"
             fi
         done < <(grep -A1 "level: WARN\|level: FAIL" "$audit_file" 2>/dev/null)
     done
+    # sort -u collapses (date, check) duplicates; the date is then dropped so the
+    # downstream counter still counts occurrences — now one per day at most.
+    sort -u "$_DATE_KEYED" 2>/dev/null | cut -f2- >> "$ISSUE_COUNTS_FILE"
+    rm -f "$_DATE_KEYED"
 
     # Find repeated issues (appeared 3+ times)
+    #
+    # T-535: the aggregation KEY is separated from the RENDERED reading. Previously both were the
+    # verbatim check string, so any check embedding its own measurement minted a fresh key every
+    # run and could never aggregate. Measured on this project's real 9-audit window: the fabric
+    # edges warn was present in 9 of 9 audits and the coverage warn in 7 of 9, yet only ONE line
+    # was ever promoted — "Fabric: 36/40 cards have no edges" — and only because that reading
+    # held still on 08-12/13/14. The detector fired on STASIS while labelled recurrence, and was
+    # least sensitive exactly when a problem was progressing. Same family as PL-222/G-015: there a
+    # moving quantity is baked into a metric, here into an IDENTITY KEY.
+    #
+    # Normalisation preserves identifier tokens ([A-Za-z]{1,6}-[0-9]+) and folds only free-standing
+    # numbers. That distinction is load-bearing, not decorative: a naive s/[0-9]+/N/ collapses
+    # "CTL-028: ..." and "CTL-029: ..." — two different controls — into one key, which would
+    # manufacture a recurrence across unrelated checks. Verified against the 703-file cron corpus:
+    # under this rule CTL-028 and CTL-029 stay distinct, and every collapse that does occur is one
+    # check varying only in its own reading.
+    #
+    # The rendered line shows the MOST RECENT concrete reading, not the normalised key — an
+    # operator is better served by "Fabric: 37/56 cards have no edges" than by "Fabric: N/N".
     repeated_issues=()
     if [ -s "$ISSUE_COUNTS_FILE" ]; then
-        while IFS= read -r count_line; do
-            count=$(echo "$count_line" | awk '{print $1}')
-            check=$(echo "$count_line" | cut -d' ' -f2-)
-            if [ "$count" -ge 3 ] 2>/dev/null; then
-                repeated_issues+=("$check ($count times)")
-            fi
-        done < <(sort "$ISSUE_COUNTS_FILE" | uniq -c | sort -rn)
+        while IFS=$'\t' read -r count check; do
+            [ -z "$count" ] && continue
+            repeated_issues+=("$check ($count times)")
+        done < <(python3 - "$ISSUE_COUNTS_FILE" <<'TRENDPY'
+import re, sys, collections
+
+# Identifier tokens are protected via a DIGIT-FREE placeholder. A placeholder containing digits
+# is itself eaten by the digit pass below — that bug produced a key of " N :  N " during
+# development and made the conservative rule look like the over-merge it exists to prevent.
+IDENT = re.compile(r'\b[A-Za-z]{1,6}-\d+\b')
+
+def key(s):
+    holes = []
+    t = IDENT.sub(lambda m: (holes.append(m.group(0)), '\x00')[1], s)
+    t = re.sub(r'\d+', 'N', t)
+    it = iter(holes)
+    return re.sub('\x00', lambda m: next(it), t)
+
+counts, latest = collections.Counter(), {}
+with open(sys.argv[1], encoding='utf-8', errors='replace') as fh:
+    for line in fh:                      # file order is glob order, i.e. chronological
+        line = line.rstrip('\n')
+        if not line:
+            continue
+        k = key(line)
+        counts[k] += 1
+        latest[k] = line                 # last write wins => most recent reading
+for k, n in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])):
+    if n >= 3:
+        print("%d\t%s" % (n, latest[k]))
+TRENDPY
+        )
     fi
     rm -f "$ISSUE_COUNTS_FILE"
 
@@ -8425,7 +8782,24 @@ else
 
     # Show trend summary
     echo ""
-    echo "Audit history: ${#past_audits[@]} audit(s) in last ${TREND_WINDOW_DAYS} days + today"
+    # T-677: state the corpus composition. "13 audit(s) in last 14 days" was true and
+    # misleading at the same time — 12 of those 13 were structure-only, so no
+    # compliance check could ever appear in a trend. A count of records is not a
+    # statement of coverage, and this line was read as one.
+    _full=0; _partial=0
+    for _af in "${past_audits[@]}"; do
+        if grep -q '^sections: "all"' "$_af" 2>/dev/null || ! grep -q '^sections:' "$_af" 2>/dev/null; then
+            _full=$((_full + 1))
+        else
+            _partial=$((_partial + 1))
+        fi
+    done
+    _dates=$(for _af in "${past_audits[@]}"; do basename "$_af" .yaml | cut -c1-10; done | sort -u | wc -l)
+    echo "Audit history: ${#past_audits[@]} audit(s) across ${_dates} day(s) in last ${TREND_WINDOW_DAYS} days + today"
+    if [ "$_partial" -gt 0 ]; then
+        echo "  Coverage: ${_full} full, ${_partial} partial (section-scoped). Trends can only"
+        echo "  surface a check that was actually RUN in the records above (T-677)."
+    fi
 fi
 
 echo ""
