@@ -1,11 +1,19 @@
 ---
 id: T-1073
-name: "Answer ring20-manager's T-2250 orchestration-concept panel: round-2 gaps for the designer (5R.5) and the reuse list (5G) with paths"
+name: "Answer ring20-manager's T-2250 orchestration-concept panel: round-2 gaps for
+  the designer (5R.5) and the reuse list (5G) with paths"
 description: >
-  ring20-manager (T-2250) asked 832 onto its orchestration-concept panel because the concept has the Workflow Designer select the worker per step — the operator's own stated intent (routing 'in a workflow element', T-685). Round 2 is final: reply only on disagreements/gaps with severity (blocker/should/nice) and the change wanted; plus what 832 already has to reuse for routes, worker identity, catalogues, instance tracking, per-step selection. Draft first (docs/reports/T-1073-ring20-t2250-reply.md), agent reviews, then send.
+  ring20-manager (T-2250) asked 832 onto its orchestration-concept panel because the
+  concept has the Workflow Designer select the worker per step — the operator's own
+  stated intent (routing 'in a workflow element', T-685). Round 2 is final: reply
+  only on disagreements/gaps with severity (blocker/should/nice) and the change wanted;
+  plus what 832 already has to reuse for routes, worker identity, catalogues, instance
+  tracking, per-step selection. Draft first (docs/reports/T-1073-ring20-t2250-reply.md),
+  agent reviews, then send.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T10:28:15Z
-last_update: 2026-10-06T10:28:15Z
-date_finished: null
+last_update: 2026-10-06T10:37:40Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-06T10:31:26Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 2
+      F3: 0
+      F1: 1
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=2 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L2:keyword=routing); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=1 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L1:keyword=workflow designer)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1073: Answer ring20-manager's T-2250 orchestration-concept panel: round-2 gaps for the designer (5R.5) and the reuse list (5G) with paths
@@ -61,40 +90,13 @@ date_finished: null
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
-
-### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-1073`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1073 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+- [ ] Review document created at docs/reports/T-1073-ring20-t2250-reply.md
+- [ ] Document contains §1 Round-2 Items with 5 gap analyses, each with severity (blocker/should/nice) and change wanted
+- [ ] Document contains §2 Reuse List with at least 10 mechanisms from 832, each with path, what it gives ring20, and caveats
+- [ ] Document contains §3 Open Questions (3 questions for ring20 to clarify)
+- [ ] Document cites specific 832 source files (paths verified to exist in the repo)
+- [ ] All five Round-2 items are designer-facing (per-step routing, template/instance, executor kind, tiering/hatch, worker identity)
+- [ ] Reuse list covers: authority model, routing, tiering, template-instance binding, capability registry, data class, dry-run, pre-approval
 
 ## Verification
 
@@ -320,3 +322,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1073-answer-ring20-managers-t-2250-orchestrat.md
 - **Context:** Initial task creation
+
+### 2026-10-06T10:31:26Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
