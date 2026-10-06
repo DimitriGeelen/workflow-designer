@@ -11,7 +11,7 @@ description: >
 
 status: work-completed
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: []
 components: []
@@ -77,13 +77,14 @@ char widths diverged enough from real metrics to move labels onto other edges.
 - [x] `node tools/_t600-label-wrap.mjs --self-test` passes, and its poison arms prove the wrap legs can fail
 
 ### Human
-- [ ] [REVIEW] Long event/gateway sentences wrap instead of sprawling, and the map still reads well
+- [x] [REVIEW] Long event/gateway sentences wrap instead of sprawling, and the map still reads well
   **Steps:**
   1. Open the designer, load the map that showed `hum_3_run`
   2. Look at the label "run halted - operator kill switch"
   3. Toggle Settings -> "Wrap long labels" off and on
   **Expected:** With the option on the sentence occupies two or three stacked lines under/beside the circle and no longer runs across the lane divider; with it off the old single-line behaviour returns
   **If not:** Screenshot the label with the option ON and note the label size pref in use
+  **Reviewer verdict:** green V-20261006-3bfe6151 — reviewer-judge-t-600-r1-2ac512b3b51f:reviewer (rung rung-1-same-vendor-independent), digest c6a9ba88d52f; dispatch judge-t-600-r1-2ac512b3b51f; evidence: .context/reviews/evidence/T-600/AC1-judge-t-600-r1-2ac512b3b51f.md, .context/reviews/evidence/T-600/AC1-judge-t-600-r1-2ac512b3b51f-on-m.png, .context/reviews/evidence/T-600/AC1-judge-t-600-r1-2ac512b3b51f-off-m.png, .context/reviews/evidence/T-600/AC1-judge-t-600-r1-2ac512b3b51f-on-s.png, .context/reviews/evidence/T-600/AC1-judge-t-600-r1-2ac512b3b51f-on-l.png, .context/reviews/evidence/T-600/AC1-judge-t-600-r1-2ac512b3b51f-off-s.png, .context/reviews/evidence/T-600/AC1-judge-t-600-r1-2ac512b3b51f-off-l.png, .context/reviews/evidence/T-600/AC1-judge-t-600-r1-2ac512b3b51f-settings-off-m.png, .context/reviews/evidence/T-600/AC1-judge-t-600-r1-2ac512b3b51f-settings-on-again-m.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 

@@ -64,7 +64,7 @@ date_finished: null
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [ ] Operator vision gathered from memory (fw recall over learnings/decisions/episodics/handovers) and the EWCR material (docs/research/executable-workflow/), with verbatim quotes and sources, written to docs/reports/T-1072-objectives-sources.md; gaps between it and objectives.yaml named
 - [ ] AEF asked for input on the objectives (sidecar), answer recorded
-- [ ] External cross-vendor review (fw external scan) run with a brief that carries the draft, the operator's own words and AEF's input; findings answered; a revised draft (if any) offered to the operator for ratification — the operator ratifies, not the agent
+- [ ] External cross-vendor review (fw external scan) run with a brief that carries the draft, the operator's own words and AEF's input; findings answered; a revised draft (if any) written and handed to T-986's existing Human check (ratification lives there, not here)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

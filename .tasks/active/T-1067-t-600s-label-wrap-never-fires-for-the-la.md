@@ -95,7 +95,7 @@ bvp_scores_proposed:
 - [x] A leg reproduces the reviewer's finding first: the operator's exact sentence "run halted - operator kill switch" on a side-placed event next to a task stays one line and overlaps the neighbour (red before the fix) — L1 runs the pre-T-1067 editor from git: 1 line, collision score 1
 - [x] Fix: when even the best label placement still collides, the label is tried as a narrower wrapped block and the cleaner result kept (trigger = a measured collision, not a fixed width); uncontested short labels stay single-line (T-105 contract), exports byte-identical (render-only, PD-044) — now 3 lines right of the event, score 0 (L2/L3); wrap OFF keeps one line (L4); "Ready" untouched (L5); only DOM text nodes change, state.nodes untouched
 - [x] The `#set-wrap-labels` checkbox reflects the stored preference on load, not only after the settings panel opens (reviewer side finding) — syncSettingsUI() at the end of Init; L6
-- [ ] Visual verification: element screenshots before/after at label sizes S/M/L, wrap on and off, read; existing label legs (T-105, T-600, T-601) still pass; then re-judged by the independent reviewer — screenshots taken and read (see ## Visual Verification); _t600 7/7, _t601 5/5; re-judge pending
+- [x] Visual verification: element screenshots before/after at label sizes S/M/L, wrap on and off, read; existing label legs (T-105, T-600, T-601) still pass; then re-judged by the independent reviewer — screenshots taken and read (see ## Visual Verification); _t600 7/7, _t601 5/5; bridge 244/1 (the 1 = a misworded T-1072 AC, fixed); re-judged GREEN (judge-t-600-r1-2ac512b3b51f, verdict V-20261006-3bfe6151, applied to T-600)
 
 ## Visual Verification
 
