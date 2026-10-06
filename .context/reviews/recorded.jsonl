@@ -3,3 +3,5 @@
 {"ac":1,"outcome":"green","task":"T-286","ts":"2026-10-06T09:26:15Z","verdict_id":"V-20261006-3031a771"}
 {"ac":1,"outcome":"green","task":"T-308","ts":"2026-10-06T09:31:23Z","verdict_id":"V-20261006-b05c8d9d"}
 {"ac":2,"outcome":"green","task":"T-308","ts":"2026-10-06T09:31:26Z","verdict_id":"V-20261006-d4b89d0b"}
+{"ac":1,"outcome":"amber","task":"T-308","ts":"2026-10-06T09:32:31Z","verdict_id":"V-20261006-8a75979d"}
+{"ac":2,"outcome":"amber","task":"T-308","ts":"2026-10-06T09:32:31Z","verdict_id":"V-20261006-98969162"}
