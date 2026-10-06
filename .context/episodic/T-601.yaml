@@ -1,0 +1,150 @@
+# ============================================================================
+# EPISODIC MEMORY - T-601: Side-placed labels have no pool or lane boundary awareness
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-06T19:03:54Z
+# ============================================================================
+
+task_id: T-601
+task_name: "Side-placed labels have no pool or lane boundary awareness"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-26T17:38:45Z
+completed: 2026-09-21T20:24:52Z
+duration_days: 26
+updates_count: 3
+first_commit: 2026-08-26T21:37:13+02:00
+last_commit: 2026-10-06T17:50:37+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a label can no longer be placed on the lane header, over a divider, or outside the pool — the scorer could not see the furniture it was overrunning.. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - '`bboxScore()` counts a placement overlapping the LANE HEADER strip as contested'
+  - 'It counts a placement straddling a lane divider — a rect spanning two lane bands — as contested, because a label over the next lane attributes the step to the wrong actor'
+  - 'It counts a placement leaving the pool (left of `POOL_X`, right of the content edge, below the pool, or up into the pool header band) as contested'
+  - 'A label lying wholly inside its own lane body still scores ZERO from the new term, so the T-105 contract that uncontested labels keep their default placement holds and the existing corpus does not reflow'
+  - 'The operator''s reported case is measured, not argued: a below-label on a node at the pool''s left edge no longer overlaps the lane header after the pass runs'
+  - 'The new legs assert GEOMETRY (measured rects against measured furniture), not counts of how many labels moved'
+  - '`node tools/_t601-lane-boundary.mjs --self-test` passes, with a poison arm FAITHFUL to the pre-T-601 scorer (the whole pool term removed, not merely one clause disabled) failing the pool legs'
+  - '[REVIEW] Labels stay inside the lane they belong to, and the map is no less readable for it'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.context/reviews/evidence/T-601/AC1-judge-t-601-r1-25b7ca42497b.md'
+  - '.context/reviews/evidence/T-601/AC1-judge-t-601-r1-86196b398c7f.md'
+  - '.context/reviews/evidence/T-601/AC1-judge-t-601-r1-b0c0fde028d9.md'
+  - '.context/reviews/evidence/T-601/AC1-judge-t-601-r1-c120c4a13422.md'
+  - '.context/reviews/evidence/T-601/AC1-judge-t-601-r1-f1fe3c29e5ad.md'
+  - '.context/reviews/evidence/T-601/arc-lifecycle-n_req-head-judge-t-601-r1-f1fe3c29e5ad.png'
+  - '.context/reviews/evidence/T-601/corpus-cross-host-dispatch-n_send-head-judge-t-601-r1-86196b398c7f.png'
+  - '.context/reviews/evidence/T-601/corpus-cross-host-dispatch-n_send-head-judge-t-601-r1-c120c4a13422.png'
+  - '.context/reviews/evidence/T-601/corpus-session-capture-n_start-head-judge-t-601-r1-86196b398c7f.png'
+  - '.context/reviews/evidence/T-601/corpus-session-capture-n_start-head-judge-t-601-r1-c120c4a13422.png'
+  - '.context/reviews/evidence/T-601/git-commit-flow-n_start-head-judge-t-601-r1-f1fe3c29e5ad.png'
+  - '.context/reviews/evidence/T-601/longname-context-memory-n_start-head-judge-t-601-r1-86196b398c7f.png'
+  - '.context/reviews/evidence/T-601/longname-context-memory-n_start-head-judge-t-601-r1-c120c4a13422.png'
+  - '.context/reviews/evidence/T-601/longname-context-memory-n_start-pre601-judge-t-601-r1-86196b398c7f.png'
+  - '.context/reviews/evidence/T-601/longname-git-commit-flow-n_start-head-judge-t-601-r1-86196b398c7f.png'
+  - '.context/reviews/evidence/T-601/longname-git-commit-flow-n_start-head-judge-t-601-r1-c120c4a13422.png'
+  - '.context/reviews/evidence/T-601/longname-git-commit-flow-n_start-pre601-judge-t-601-r1-86196b398c7f.png'
+  - '.context/reviews/evidence/T-601/longname-session-capture-n_start-head-judge-t-601-r1-86196b398c7f.png'
+  - '.context/reviews/evidence/T-601/longname-session-capture-n_start-head-judge-t-601-r1-c120c4a13422.png'
+  - '.context/reviews/evidence/T-601/longname-session-capture-n_start-pre601-judge-t-601-r1-86196b398c7f.png'
+  - '.context/reviews/evidence/T-601/probe-head-longall-judge-t-601-r1-86196b398c7f.txt'
+  - '.context/reviews/evidence/T-601/probe-head-longall-judge-t-601-r1-c120c4a13422.txt'
+  - '.context/reviews/evidence/T-601/probe-head-long-nstart-judge-t-601-r1-86196b398c7f.txt'
+  - '.context/reviews/evidence/T-601/probe-head-long-nstart-judge-t-601-r1-c120c4a13422.txt'
+  - '.context/reviews/evidence/T-601/probe-head-orig-judge-t-601-r1-86196b398c7f.txt'
+  - '.context/reviews/evidence/T-601/probe-head-orig-judge-t-601-r1-b0c0fde028d9.txt'
+  - '.context/reviews/evidence/T-601/probe-head-orig-judge-t-601-r1-c120c4a13422.txt'
+  - '.context/reviews/evidence/T-601/probe-head-orig-judge-t-601-r1-f1fe3c29e5ad.txt'
+  - '.context/reviews/evidence/T-601/probe-pre601-longall-judge-t-601-r1-86196b398c7f.txt'
+  - '.context/reviews/evidence/T-601/probe-pre601-long-nstart-judge-t-601-r1-86196b398c7f.txt'
+  - '.context/reviews/evidence/T-601/probe-pre601-orig-judge-t-601-r1-86196b398c7f.txt'
+  - '.context/reviews/evidence/T-601/probe-pre601-orig-judge-t-601-r1-b0c0fde028d9.txt'
+  - '.context/reviews/evidence/T-601/probe-pre601-orig-judge-t-601-r1-f1fe3c29e5ad.txt'
+  - '.context/reviews/evidence/T-601/rev2-arc-lifecycle-n_req-after-judge-t-601-r1-b0c0fde028d9.png'
+  - '.context/reviews/evidence/T-601/rev2-git-commit-flow-n_start-after-judge-t-601-r1-b0c0fde028d9.png'
+  - '.context/reviews/evidence/T-601/rev2-healing-loop-n_trigger-after-judge-t-601-r1-b0c0fde028d9.png'
+  - '.context/reviews/evidence/T-601/rev2-session-capture-g_found-after-judge-t-601-r1-b0c0fde028d9.png'
+  - '.context/reviews/evidence/T-601/rev2-session-capture-n_start-after-judge-t-601-r1-b0c0fde028d9.png'
+  - '.context/reviews/evidence/T-601/rev2-session-capture-n_start-before-judge-t-601-r1-b0c0fde028d9.png'
+  - '.context/reviews/evidence/T-601/rev-default-map.png'
+  - '.context/reviews/evidence/T-601/rev-lane-bottom.png'
+  - '.context/reviews/evidence/T-601/rev-probe-judge-t-601-r1-25b7ca42497b.mjs'
+  - '.context/reviews/evidence/T-601/rev-probe-judge-t-601-r1-86196b398c7f.mjs'
+  - '.context/reviews/evidence/T-601/rev-probe-judge-t-601-r1-b0c0fde028d9.mjs'
+  - '.context/reviews/evidence/T-601/rev-probe-judge-t-601-r1-c120c4a13422.mjs'
+  - '.context/reviews/evidence/T-601/session-capture-n_start-head-judge-t-601-r1-f1fe3c29e5ad.png'
+  - '.context/reviews/evidence/T-601/t601-after.png'
+  - '.context/reviews/evidence/T-601/t601-before.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.context/working/t601-after.png'
+  - '.context/working/t601-before.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-601-side-placed-labels-have-no-pool-or-lane-.md'
+  - 'tools/_t601-lane-boundary.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-08-26T21:37:13'
+    action: 'T-601: a label can no longer be placed on the lane header, over a divider, or outside the pool — the scorer could not see the furniture it was overrunning.'
+  - time: '2026-10-06T11:41:00'
+    action: 'T-601: reviewer verdict'
+  - time: '2026-10-06T14:34:52'
+    action: 'T-601: reviewer verdict'
+  - time: '2026-10-06T15:48:39'
+    action: 'T-601: reviewer verdict'
+  - time: '2026-10-06T16:33:02'
+    action: 'T-601: reviewer verdict'
+  - time: '2026-10-06T17:50:37'
+    action: 'T-601: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 37606 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 37606
+  commits: 7
+  files_changed: 66
+  lines_added: 2112
+  lines_removed: 191
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-601-side-placed-labels-have-no-pool-or-lane-.md
+generated_by: context-agent-hybrid
