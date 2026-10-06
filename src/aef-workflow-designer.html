@@ -3786,13 +3786,28 @@ function renderNodes() {
     // T-893: authority marker on the element (clause 4). Top-left of the bounding box, above
     // the shape so it is clear of the I/O badge (top-right) and the constituent badge
     // (bottom-left). Reads n.aef.authority and the lane's authoringDefault; writes nothing.
+    // T-1069 (reviewer AMBER on T-893): the marker must stay LEFT of the shape's top-centre, which
+    // is where top-entering flows land — "⚠ no authority" (~67px) started at n.x+2 and ran under
+    // them on every standard task (104 crossings on the corpus). The longest form that fits the
+    // gap left of top-centre is drawn (8px mono, so width is chars × MARKER_CH, known before
+    // render); the full text is always the <title>, so a short form loses nothing on hover.
     {
       const lane = findLane(n.lane);
       const mstate = authorityMarkerState(n.aef?.authority, effectiveLaneDefault(lane));
+      const MARKER_CH = 4.9;                       // 8px monospace advance, rounded up
+      const avail = def.w / 2 - 2 - 7;             // from n.x+2 to top-centre, minus an arrowhead half-width
+      const fitMarker = (forms) => forms.find(t => t.length * MARKER_CH <= avail) || forms[forms.length - 1];
+      const marker = (cls, kind, full, forms) => {
+        const t = el('text', { x: n.x + 2, y: n.y - 3, class: cls, 'data-authority-marker': kind }, [text(fitMarker(forms))]);
+        t.appendChild(el('title', {}, [text(full)]));
+        g.appendChild(t);
+      };
       if (mstate === 'differs') {
-        g.appendChild(el('text', { x: n.x + 2, y: n.y - 3, class: 'node-authority-badge', 'data-authority-marker': 'differs' }, [text('◆ ' + (AUTHORITY_ABBR[n.aef.authority] || n.aef.authority))]));
+        const v = n.aef.authority, ab = AUTHORITY_ABBR[v] || v;
+        marker('node-authority-badge', 'differs', `authority: ${v} (differs from the lane default)`, ['◆ ' + ab, '◆']);
       } else if (mstate === 'missing') {
-        g.appendChild(el('text', { x: n.x + 2, y: n.y - 3, class: 'node-authority-missing', 'data-authority-marker': 'missing' }, [text('⚠ no authority')]));
+        marker('node-authority-missing', 'missing', 'no authority — this element has none and its lane offers no default',
+               ['⚠ no authority', '⚠ no auth', '⚠']);
       }
     }
     // T-884: instance overlay. A halo around the bounding box and a badge above its top-RIGHT

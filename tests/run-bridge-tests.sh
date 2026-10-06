@@ -855,6 +855,29 @@ _label_guard "$ROOT/tools/_t600-label-wrap.mjs"
 _label_guard "$ROOT/tools/_t601-lane-boundary.mjs"
 _label_guard "$ROOT/tools/_t1068-corpus-labels.mjs"
 
+# T-1069 (reviewer AMBER on T-893): the authority marker stays left of the shape's top-centre, so no
+# marker sits under its node's own flows (forced 'missing' and 'differs' on every corpus node), and
+# every marker keeps its full text as a <title>. Self-test: the full-length form always drawn -> M1 fails.
+if node "$ROOT/tools/_t1069-authority-marker-clearance-cdp.mjs" --self-test > "$TMP/leg-_t1069.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "an authority marker sits under its node's own edges, lost its full-text title, or the guard stopped biting (run 'node tools/_t1069-authority-marker-clearance-cdp.mjs --self-test'; T-1069, T-893)"
+  show_output "$TMP/leg-_t1069.out" "_t1069-authority-marker-clearance-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
+# T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
+# aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
+# guard since T-889 closed (the census showed it had lost its only caller, T-889's Verification).
+if node "$ROOT/tools/_t889-authority-first-class-cdp.mjs" > "$TMP/leg-_t889fc.out" 2>&1 \
+   && grep -q "5/5 legs passed" "$TMP/leg-_t889fc.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "the editor no longer authors element-level authority from the properties panel (run 'node tools/_t889-authority-first-class-cdp.mjs'; T-889, T-888)"
+  show_output "$TMP/leg-_t889fc.out" "_t889-authority-first-class-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-1078 (reviewer follow-up on T-310): an advisory banner never covers a node, the combined
 # lane-fix message wraps inside the canvas, and dismissing gives the canvas back. Self-test mode:
 # the live legs plus two poison arms (no padding -> O1 fails; nowrap -> O2 fails).

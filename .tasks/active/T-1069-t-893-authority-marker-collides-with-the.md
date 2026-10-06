@@ -1,13 +1,18 @@
 ---
 id: T-1069
-name: "T-893 authority marker collides with the incoming edge label: '⚠ no authority' (~67 px) has no room in the reported position"
+name: "T-893 authority marker collides with the incoming edge label: '⚠ no authority'
+  (~67 px) has no room in the reported position"
 description: >
-  Independent reviewer AMBER (fw reviewer judge T-893; .context/reviews/evidence/T-893/AC1-judge-t-893-r5-claude-code-35c20ca47ef9.md): the Visual Verification's 'close to' placement collides with the incoming edge label; the cause is structural (marker width vs available gap), not fixture-specific. Fix placement or form, add a leg with an edge label present, re-judge.
+  Independent reviewer AMBER (fw reviewer judge T-893; .context/reviews/evidence/T-893/AC1-judge-t-893-r5-claude-code-35c20ca47ef9.md):
+  the Visual Verification's 'close to' placement collides with the incoming edge label;
+  the cause is structural (marker width vs available gap), not fixture-specific. Fix
+  placement or form, add a leg with an edge label present, re-judge.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T09:49:37Z
-last_update: 2026-10-06T09:49:37Z
-date_finished: null
+last_update: 2026-10-06T23:00:02Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +55,48 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-06T22:59:44Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1069: T-893 authority marker collides with the incoming edge label: '⚠ no authority' (~67 px) has no room in the reported position
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The reviewer's AMBER on T-893 (`.context/reviews/evidence/T-893/AC1-judge-t-893-r5-claude-code-35c20ca47ef9.md`):
+"⚠ no authority" is ~67px of 8px mono from n.x+2, so it spans the top-centre of a standard task, where
+top-entering flows land; the line and arrowhead cross it at every size. Structural, not one fixture.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Forced on every node of all 24 corpus maps, no 'missing' and no 'differs' marker crosses an edge
+      incident to its own node (measured bbox vs rendered segments); before the fix 104 and 44 did
+- [x] No information is lost: every marker carries its full text as an SVG `<title>`
+- [x] A leg with a poison arm (the full-length marker always drawn → M1 fails), wired into the bridge;
+      `t893-authority-marker-state.test.mjs`, `_t892-lane-default-cdp.mjs` and T-893's shots tool still pass;
+      screenshots read
+- [ ] T-893's Human criterion is re-judged by the independent reviewer after this change
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +130,9 @@ date_finished: null
 -->
 
 ## Verification
+
+timeout 900 node tools/_t1069-authority-marker-clearance-cdp.mjs --self-test
+node tests/t893-authority-marker-state.test.mjs
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -320,3 +356,27 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1069-t-893-authority-marker-collides-with-the.md
 - **Context:** Initial task creation
+
+### 2026-10-07 — fixed by FORM, not placement [agent]
+- The marker stays where T-893 put it (above the shape's top-left), but draws the longest form that fits
+  between n.x+2 and the top-centre minus an arrowhead half-width: missing '⚠ no authority' → '⚠ no auth'
+  → '⚠'; differs '◆ ini' → '◆'. 8px monospace, so the width is known before render (4.9px per char).
+  The full text is always the marker's `<title>` (hover), so a short form hides nothing. Placement
+  elsewhere was rejected: top-right belongs to the T-884 instance badge, inside the box to the type icon,
+  left of the box to the previous node's label.
+- New leg `tools/_t1069-authority-marker-clearance-cdp.mjs` (all 24 corpus maps, every node forced to
+  'missing' then 'differs', marker bbox vs the node's own edge segments): before 104 / 44 crossings, after
+  0 / 0; 306 + 294 markers rendered; 0 without a title. Poison (full form always) → 104 again. Wired into
+  the bridge, together with `_t889-authority-first-class-cdp.mjs`, which had lost its only caller when
+  T-889 closed (census ratchet back to no movement; `_t578` clean).
+- Unchanged and passing: `tests/t893-authority-marker-state.test.mjs` 13/13, `_t892-lane-default-cdp.mjs`
+  5/5, T-893's shots tool (run as a temp copy writing to scratch, so T-893's committed evidence is not
+  overwritten while its Human check is open).
+- Screenshots read (missing / differs at S/M/L, missing-m at 4x): '⚠ no auth' ends left of the arrowhead
+  entering top-centre; nothing overlaps. Still true, minor, as the reviewer noted: the lane separator runs
+  just above the marker.
+- Remaining: re-judge T-893's Human criterion (AC 4).
+
+### 2026-10-06T22:59:43Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
