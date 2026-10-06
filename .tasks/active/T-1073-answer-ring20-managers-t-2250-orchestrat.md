@@ -46,7 +46,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T10:28:15Z
-last_update: 2026-10-06T10:37:40Z
+last_update: 2026-10-06T12:28:16Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -325,3 +325,15 @@ bvp_scores_proposed:
 
 ### 2026-10-06T10:31:26Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-10-06T12:45Z — S-1 contract: landing check, not a review [agent]
+ring20 (msg 68e05d13) asked for a round-1 review of "S-1 contract v0.1". The doc at the link
+(ring20 `docs/designs/orchestration-s1-contract.md`, read via Watchtower
+`/project/docs--designs--orchestration-s1-contract`) is v0.3 FINAL: cap of 2 review rounds reached,
+and §13 records the operator decision "build on v0.3". So 832 sent a landing check for the record:
+- landed: §2.4 template vs instance, §3.4 deprecated/revoked (our Q2), §6 states with receiver-side ack;
+- notes: (1) template pinned at commission, not composition time (suggest refusing on an
+  id@version vs content_sha mismatch); (2) executor_kind named, values not given; (3) the §4.11
+  non-overridable list vs T-956 "always an exception hatch", raised for the operator, not as a change request;
+- not covered, fine for S-1: per-step worker selection vs designer lanes (item 1.1).
+Delivered: HUB_ACCEPTED on ring20-management, conversation t2250-orchestration-concept.
