@@ -25,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-29T20:38:03Z
-last_update: '2026-08-16T14:33:01Z'
+last_update: 2026-10-06T21:10:30Z
 date_finished: 2026-07-29T21:10:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -261,7 +261,7 @@ the reconciliation is surfaced with a one-shot notice rather than performed invi
   **If not:** say so — the reconciliation is one `if` in the parse tail and the opposite policy
   (flag, don't move) is a small change from here.
 
-- [ ] [REVIEW] Cosmetic: the stacked Clean nudge overlaps top-lane content
+- [x] [REVIEW] Cosmetic: the stacked Clean nudge overlaps top-lane content
   **Steps:**
   1. In `docs/screenshots/t310-both-after.png`, look at the second banner ("This map could use
      Clean layout") sitting below the lane-fix notice.
@@ -272,6 +272,7 @@ the reconciliation is surfaced with a one-shot notice rather than performed invi
   and it is your call whether it needs solving.
   **If not:** the fix is either a canvas top-padding when advisories are visible, or docking them
   outside the canvas entirely — both are follow-up tasks, not this one.
+  **Reviewer verdict:** green V-20261006-9f238692 — reviewer-judge-t-310-r5-opencode-d2f43a33ded8:opencode (rung rung-5-panel:opencode), digest 1556cc6dd94e; dispatch judge-t-310-r5-opencode-d2f43a33ded8; evidence: .context/reviews/evidence/T-310/AC3-judge-t-310-r5-opencode-d2f43a33ded8.md; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
