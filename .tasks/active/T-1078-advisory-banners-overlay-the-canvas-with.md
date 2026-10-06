@@ -56,6 +56,7 @@ date_finished: null
 
 ## Context
 
+Filed by T-1076 (the 1.8.5 upgrade, which re-judged T-310 with the reviewer-numbering fix).
 Follow-up the independent reviewer asked for on T-310 (verdicts V-20261006-3697ded5 AC#3,
 V-20261006-dc982d86 / V-20261006-ea4dfa31 AC#1, codex V-20261006-3b288358): on a malformed map both
 advisories fire, and the stacked "Clean layout" nudge fully hides agt_2_agent, the node in the top lane

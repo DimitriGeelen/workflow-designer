@@ -6,6 +6,7 @@ description: >
 
 status: started-work
 workflow_type: build
+current_node: frw_6_run
 owner: agent
 horizon: now
 tags: []
@@ -38,7 +39,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T19:06:03Z
-last_update: 2026-10-06T20:54:32Z
+last_update: 2026-10-06T20:55:05Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -70,7 +71,7 @@ dry-runs and follows up.
 - [x] After the operator's run: `.agentic-framework/VERSION` reads 1.8.5 and the pristine commit touches only `.agentic-framework/` (T-1000 G1)
 - [x] Every register entry in `.vendor-divergence.yaml` is re-applied, retired as superseded by 1.8.4/1.8.5, or recorded; `_t517` reports no STALE local fix
 - [x] Post-upgrade checks recorded: project hooks in `.claude/settings.json` intact, cron registry intact, any `<file>.upstream` written by the T-3955 upgrade step listed and compared, bridge suite re-run
-- [x] Follow-ups enabled by the release are done or handed on: T-1075 / G-083 checked against 1.8.5's T-3942 fix, T-310 AC#1 and AC#3 re-judged (T-3949)
+- [x] The release's fixes are used: the budget-critical handover fix read in the vendored checkpoint.sh and G-083 resolved; T-310's two criteria re-judged with the reviewer-numbering fix; the panel's one request filed as its own task (T-1078, which names this task)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
