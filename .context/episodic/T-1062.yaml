@@ -1,0 +1,73 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1062: Approvals page shows only DEFER items; GO tasks with open Human ACs are not offered to the operator
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-06T08:38:58Z
+# ============================================================================
+
+task_id: T-1062
+task_name: "Approvals page shows only DEFER items; GO tasks with open Human ACs are not offered to the operator"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-06T08:36:44Z
+completed: 2026-10-06T08:38:48Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Approvals page shows only DEFER items; GO tasks with open Human ACs are not offered to the operator
+
+# Key outcomes
+outcomes:
+  - 'What /approvals renders is fetched and counted, and compared with the 69 human-owned tasks that have open Human ACs: ALL 69 are on the page, in the lower group "Verifications — Human Acceptance Criteria (84 across 74 tasks)"; the top group "Decisions — Inception Decisions" holds 11 pending inceptions (the DEFER items the operator saw)'
+  - 'The cause established from the rendered page, not inferred: nothing drops the GO tasks — the Verifications group renders collapsed behind "Expand all 74 ↓" and sits below the Decisions group, so a reader of the top of the page sees only inception decisions. No code defect. The working view is /approvals?expand=verifications (fetched: 78 cards, 59 GO badges); each task''s /review/T-XXX answers 200'
+  - 'The operator gets a working route for every task waiting on them: http://192.168.10.107:3013/approvals?expand=verifications#section-verifications (no vendored change needed). Agent error recorded: I pointed the operator at /approvals without fetching it first — the PL-260 class again'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1062-approvals-page-shows-only-defer-items-go.md
+generated_by: context-agent-hybrid
