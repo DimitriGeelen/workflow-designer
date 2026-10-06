@@ -1,0 +1,103 @@
+import { spawn } from 'node:child_process';
+import { readFileSync, writeFileSync, mkdtempSync, existsSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { pageWsUrl } from '/opt/832-Workflow-designer/tools/_cdp-attach.mjs';
+const CHROME = process.env.HOME + '/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome';
+const BASE = 'http://192.168.10.107:3000';
+const MAP = '/opt/832-Workflow-designer/.context/designer/projects/t293-retest-harvest/v1.bpmn';
+const OUT = process.argv[2];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function cdp(u){const ws=new WebSocket(u);let id=0;const p=new Map();ws.addEventListener('message',e=>{const m=JSON.parse(e.data);if(m.id&&p.has(m.id)){p.get(m.id)(m);p.delete(m.id);}});
+ const ready=new Promise((r,j)=>{ws.addEventListener('open',r);ws.addEventListener('error',()=>j(new Error('ws')));});
+ const cmd=(method,params={})=>new Promise((r,j)=>{const i=++id;p.set(i,m=>m.error?j(new Error(method+JSON.stringify(m.error))):r(m.result));ws.send(JSON.stringify({id:i,method,params}));});
+ return {ready,cmd,close:()=>ws.close()};}
+let cmd; const ev=async e=>{const r=await cmd('Runtime.evaluate',{expression:e,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw new Error(JSON.stringify(r.exceptionDetails).slice(0,400));return r.result.value;};
+const mouse=(type,x,y,cc=1)=>cmd('Input.dispatchMouseEvent',{type,x,y,button:'left',clickCount:cc});
+const click=async(x,y)=>{await mouse('mouseMoved',x,y);await mouse('mousePressed',x,y);await sleep(40);await mouse('mouseReleased',x,y);await sleep(150);};
+let fails=0; const leg=(n,ok,d='')=>{console.log(`  [${ok?'PASS':'FAIL'}] ${n}${d?' — '+d:''}`);if(!ok)fails++;};
+const shot=async(name,clip)=>{const r=await cmd('Page.captureScreenshot',clip?{format:'png',clip:{...clip,scale:3}}:{format:'png'});writeFileSync(join(OUT,name),Buffer.from(r.data,'base64'));console.log('  shot',name);};
+const udd=mkdtempSync(join(tmpdir(),'t286r-'));
+const proc=spawn(CHROME,['--headless=new','--no-sandbox','--disable-gpu','--remote-debugging-port=0',`--user-data-dir=${udd}`,'--window-size=1600,1000','about:blank'],{stdio:'ignore'});
+try{
+ for(let i=0;i<150&&!existsSync(join(udd,'DevToolsActivePort'));i++)await sleep(100);
+ const port=parseInt(readFileSync(join(udd,'DevToolsActivePort'),'utf8').split('\n')[0]);
+ const c=cdp(await pageWsUrl(port));await c.ready;cmd=c.cmd;
+ await cmd('Page.enable');await cmd('Runtime.enable');
+ await cmd('Emulation.setDeviceMetricsOverride',{width:1600,height:1000,deviceScaleFactor:1,mobile:false});
+ // Step 1: operator path
+ await cmd('Page.navigate',{url:BASE+'/designer'});await sleep(2500);
+ const card=await ev(`(()=>{const a=[...document.querySelectorAll('a')].filter(a=>/t293-retest-harvest/.test(a.href+a.textContent));return {n:a.length, total:[...document.querySelectorAll('a[href*="/designer/app?load"]')].length};})()`);
+ leg('step1: t293-retest-harvest card present on :3000/designer',card.n>0,`matching=${card.n}, cards total=${card.total}`);
+ // Fallback: same map adopted into the served :3000 app
+ await cmd('Page.navigate',{url:BASE+'/designer/app'});
+ for(let t=0;;t+=150){if(await ev(`typeof adoptImportedXml==='function'&&typeof state==='object'&&!!state`))break;if(t>20000)throw new Error('load timeout');await sleep(150);}
+ await sleep(800);
+ await ev(`(window.alert=window.confirm=window.prompt=function(){return true;},true)`);
+ await ev(`(adoptImportedXml(${JSON.stringify(readFileSync(MAP,'utf8'))}),true)`);await sleep(600);
+ const ver=await ev(`(typeof DESIGNER_VERSION!=='undefined'?DESIGNER_VERSION:(document.querySelector('meta[name=designer-version]')||{}).content||null)`);
+ console.log('  served designer version:',ver);
+ const order=await ev(`(()=>{const ids=['g-badges','g-edges','g-nodes','g-badges-top'];const e=ids.map(i=>document.getElementById(i));if(e.some(x=>!x))return 'missing';for(let i=0;i<3;i++)if(!(e[i].compareDocumentPosition(e[i+1])&4))return ids[i]+' !< '+ids[i+1];return ['g-badges','g-badges-top'].map(i=>getComputedStyle(document.getElementById(i)).pointerEvents).join(',');})()`);
+ leg('layer order g-badges < g-edges < g-nodes < g-badges-top; both badge layers pointer-events none',order==='none,none',order);
+ // Find badge/arrowhead overlaps: for each edge's path end point (target), find badges within bbox
+ const cand=await ev(`(()=>{selection=null;multiSelect.clear();renderEdges();renderNodes();
+  const inB=gBadges.querySelectorAll('text.node-id-badge').length, inN=gNodes.querySelectorAll('text.node-id-badge').length, inT=gBadgesTop.querySelectorAll('text.node-id-badge').length;
+  const badges=[...gBadges.querySelectorAll('text.node-id-badge')].map(t=>{const r=t.getBoundingClientRect();return {txt:t.textContent,x:r.x,y:r.y,w:r.width,h:r.height};});
+  const out=[];
+  for(const e of state.edges){const p=gEdges.querySelector('path[data-id="'+e.uid+'"]')||[...gEdges.querySelectorAll('path')].find(q=>q.closest('[data-id]')&&q.closest('[data-id]').getAttribute('data-id')===e.uid);
+   if(!p||!p.getTotalLength)continue;const L=p.getTotalLength();const m=p.getScreenCTM();
+   for(const s of [0,4,8]){const pt=p.getPointAtLength(Math.max(0,L-s));const x=m.a*pt.x+m.c*pt.y+m.e,y=m.b*pt.x+m.d*pt.y+m.f;
+    for(const b of badges){if(x>=b.x-6&&x<=b.x+b.w+6&&y>=b.y-6&&y<=b.y+b.h+6){out.push({edge:e.uid,src:e.source,tgt:e.target,badge:b.txt,x,y,b});break;}}
+    if(out.length&&out[out.length-1].edge===e.uid)break;}}
+  return {inB,inN,inT,out};})()`);
+ leg('default (nothing selected): every id badge lives in #g-badges (below edges)',cand.inN===0&&cand.inT===0&&cand.inB>0,`g-badges=${cand.inB} g-nodes=${cand.inN} g-badges-top=${cand.inT}`);
+ console.log('  arrowheads near a badge:',JSON.stringify(cand.out.map(o=>`${o.edge}(${o.src}->${o.tgt}) @ ${o.badge}`)));
+ leg('found >=1 arrowhead within 6px of an id badge to exercise',cand.out.length>0,`${cand.out.length}`);
+ if(!cand.out.length) throw new Error('no candidate');
+ // pick candidate whose badge belongs to target node if possible
+ const C=cand.out[0];
+ const clip={x:C.x-90,y:C.y-60,width:180,height:120};
+ await shot('AC1-default.png',clip);
+ // paint check: is arrow path painted above badge? compute via elementsFromPoint ordering w/ pointer-events forced
+ const paint=await ev(`(()=>{const L=[document.getElementById('g-badges'),document.getElementById('g-badges-top')];L.forEach(g=>g.setAttribute('pointer-events','all'));gBadges.querySelectorAll('*').forEach(n=>n.style.pointerEvents='all');
+  const st=document.elementsFromPoint(${C.x},${C.y});L.forEach(g=>g.setAttribute('pointer-events','none'));gBadges.querySelectorAll('*').forEach(n=>n.style.pointerEvents='');
+  const iE=st.findIndex(n=>n.closest&&n.closest('#g-edges')),iB=st.findIndex(n=>n.closest&&n.closest('#g-badges'));return {iE,iB,stack:st.slice(0,6).map(n=>n.tagName+'.'+(n.getAttribute('class')||'')+(n.closest('[id^=g-]')?'@'+n.closest('[id^=g-]').id:''))};})()`);
+ leg('arrowhead paints above the overlapping badge (edge before badge in paint stack)',paint.iE>=0&&(paint.iB<0||paint.iE<paint.iB),JSON.stringify(paint));
+ // Step 3: click the node owning the badge with a real mouse
+ const own=await ev(`(()=>{const t=[...gBadges.querySelectorAll('text.node-id-badge')].find(t=>t.textContent===${JSON.stringify(C.badge)});const n=state.nodes.find(n=>gNodes.querySelector('g[data-id="'+n.id+'"]')&&n.id&&(t&&t.textContent.includes(n.id)||false));
+  // owner uid recorded during layering? find node whose group bbox is nearest badge
+  let best=null,bd=1e9;for(const g of gNodes.querySelectorAll('g[data-id]')){const s=(g.querySelector('rect,ellipse,circle,polygon,path')||g).getBoundingClientRect();const tb=t.getBoundingClientRect();const d=Math.hypot(s.x+s.width/2-(tb.x+tb.width/2),s.y+s.height/2-(tb.y+tb.height/2));if(d<bd){bd=d;best={id:g.getAttribute('data-id'),cx:s.x+s.width/2,cy:s.y+s.height/2};}}return best;})()`);
+ await click(own.cx,own.cy);
+ const sel=await ev(`({sel:selection&&selection.kind+':'+selection.id, top:[...gBadgesTop.querySelectorAll('text.node-id-badge')].map(t=>t.textContent), halo:gBadgesTop.querySelectorAll('.badge-halo').length})`);
+ leg(`click node ${own.id}: its badge raises to #g-badges-top`,sel.top.includes(C.badge),JSON.stringify(sel));
+ await shot('AC1-selected.png',clip);
+ // click empty canvas
+ const empty=await ev(`(()=>{const r=document.getElementById('canvas').getBoundingClientRect();for(let y=r.y+20;y<r.bottom-20;y+=17)for(let x=r.x+20;x<r.right-20;x+=17){const e=document.elementFromPoint(x,y);if(e&&e.id==='canvas')return {x,y,id:e.id};}return null;})()`);
+ await click(empty.x,empty.y);
+ const back=await ev(`({sel:selection?selection.kind+':'+selection.id:null, top:gBadgesTop.querySelectorAll('text.node-id-badge').length, inB:gBadges.querySelectorAll('text.node-id-badge').length})`);
+ leg('click empty canvas: badge drops back under (g-badges-top empty)',back.top===0&&!back.sel,JSON.stringify({...back,at:empty}));
+ await shot('AC1-deselected.png',clip);
+ // Step 4: sweep EVERY edge's endpoint handles, find those whose circle truly overlaps an id badge bbox
+ const sweep=await ev(`(()=>{const res=[];for(const e of state.edges){selection={kind:'edge',id:e.uid};multiSelect.clear();renderEdges();renderNodes();
+   const badges=[...document.querySelectorAll('text.node-id-badge')].map(t=>{const r=t.getBoundingClientRect();return {txt:t.textContent,r};});
+   for(const h of gHandles.querySelectorAll('.edge-handle-endpoint-hit')){const r=h.getBoundingClientRect();const cx=r.x+r.width/2,cy=r.y+r.height/2,R=r.width/2;
+    for(const b of badges){const nx=Math.max(b.r.x,Math.min(cx,b.r.right)),ny=Math.max(b.r.y,Math.min(cy,b.r.bottom));const d=Math.hypot(nx-cx,ny-cy);if(d<R-0.5){
+      // point inside both: move from centre toward nearest badge point, stop at 60% of the way within circle
+      const px=cx+(nx-cx)*0.5,py=cy+(ny-cy)*0.5; const hc=document.elementFromPoint(cx,cy),hp=document.elementFromPoint(px,py);
+      res.push({edge:e.uid,role:h.getAttribute('data-role'),badge:b.txt,cx,cy,px,py,R,centreHit:hc===h,overlapHit:hp===h,hp:hp&&hp.tagName+'.'+(hp.getAttribute('class')||'')});}}}}
+   selection=null;renderEdges();renderNodes();return res;})()`);
+ console.log('  handle/badge overlaps:',JSON.stringify(sweep));
+ leg('>=1 endpoint handle geometrically overlapping an id badge exists in this map',sweep.length>0,`${sweep.length}`);
+ for(const o of sweep){
+  leg(`${o.edge}:${o.role} (over badge ${o.badge}) overlap point hit-tests to the handle`,o.overlapHit,o.hp);
+  // real mouse: click edge to select is done programmatically here; then press at overlap point
+  await ev(`(selection={kind:'edge',id:${JSON.stringify(o.edge)}},multiSelect.clear(),renderEdges(),renderNodes(),true)`);
+  if(o===sweep[0]) await shot('AC1-edge-selected.png',{x:o.cx-90,y:o.cy-60,width:180,height:120});
+  await mouse('mouseMoved',o.px,o.py);await mouse('mousePressed',o.px,o.py);await sleep(50);await mouse('mouseMoved',o.px+40,o.py+25);await sleep(60);
+  const dr=await ev(`({edgeDrag:(typeof edgeDrag!=='undefined'&&edgeDrag)?edgeDrag.kind:null,nodeDrag:(typeof drag!=='undefined'&&!!drag)})`);
+  await mouse('mouseReleased',o.px+40,o.py+25);await sleep(100);await ev(`(typeof undo==='function'?(undo(),true):true)`);
+  leg(`${o.edge}:${o.role} real press+move inside the badge area starts an endpoint drag`,dr.edgeDrag==='endpoint'&&!dr.nodeDrag,JSON.stringify(dr));
+ }
+ c.close();
+}catch(e){console.log('FATAL',e.message);fails++;}finally{proc.kill('SIGKILL');}
+console.log(fails?`${fails} FAILED`:'ALL PASS');process.exit(fails?1:0);

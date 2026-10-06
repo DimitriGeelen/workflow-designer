@@ -1,0 +1,24 @@
+  [FAIL] step1: t293-retest-harvest card present on :3000/designer — matching=0, cards total=16
+  served designer version: null
+  [PASS] layer order g-badges < g-edges < g-nodes < g-badges-top; both badge layers pointer-events none — none,none
+  [PASS] default (nothing selected): every id badge lives in #g-badges (below edges) — g-badges=24 g-nodes=0 g-badges-top=0
+  arrowheads near a badge: ["e_23(n_join->n_summary) @ frw_17_join"]
+  [PASS] found >=1 arrowhead within 6px of an id badge to exercise — 1
+  shot AC1-default.png
+  [PASS] arrowhead paints above the overlapping badge (edge before badge in paint stack) — {"iE":1,"iB":-1,"stack":["rect.node-shape@g-nodes","path.edge-path@g-edges","path.edge-hit@g-edges","rect.lane-bg@g-pool","svg.","DIV.canvas-wrap"]}
+  [PASS] click node n_join: its badge raises to #g-badges-top — {"sel":"node:n_join","top":["frw_17_join"],"halo":1}
+  shot AC1-selected.png
+  [PASS] click empty canvas: badge drops back under (g-badges-top empty) — {"sel":null,"top":0,"inB":24,"at":{"x":240,"y":442,"id":"canvas"}}
+  shot AC1-deselected.png
+  handle/badge overlaps: [{"edge":"e_10","role":"src","badge":"frw_9_read","cx":638.9378356933594,"cy":209.46562957763672,"px":638.9378356933594,"py":210.08398818969727,"R":4.800323486328125,"centreHit":true,"overlapHit":true,"hp":"circle.edge-handle edge-handle-endpoint-hit"},{"edge":"e_11","role":"tgt","badge":"frw_15_harvest","cx":793.6829833984375,"cy":163.90613555908203,"px":793.6829833984375,"py":164.52449417114258,"R":4.80035400390625,"centreHit":true,"overlapHit":true,"hp":"circle.edge-handle edge-handle-endpoint-hit"},{"edge":"e_16","role":"tgt","badge":"frw_16_harvest","cx":793.6829833984375,"cy":310.53436279296875,"px":793.6829833984375,"py":310.16156005859375,"R":4.80035400390625,"centreHit":true,"overlapHit":true,"hp":"circle.edge-handle edge-handle-endpoint-hit"},{"edge":"e_23","role":"src","badge":"frw_17_join","cx":893.7916870117188,"cy":240.01317596435547,"px":895.5372619628906,"py":240.19514846801758,"R":4.80035400390625,"centreHit":true,"overlapHit":true,"hp":"circle.edge-handle edge-handle-endpoint-hit"}]
+  [PASS] >=1 endpoint handle geometrically overlapping an id badge exists in this map — 4
+  [PASS] e_10:src (over badge frw_9_read) overlap point hit-tests to the handle — circle.edge-handle edge-handle-endpoint-hit
+  shot AC1-edge-selected.png
+  [PASS] e_10:src real press+move inside the badge area starts an endpoint drag — {"edgeDrag":"endpoint","nodeDrag":false}
+  [PASS] e_11:tgt (over badge frw_15_harvest) overlap point hit-tests to the handle — circle.edge-handle edge-handle-endpoint-hit
+  [PASS] e_11:tgt real press+move inside the badge area starts an endpoint drag — {"edgeDrag":"endpoint","nodeDrag":false}
+  [PASS] e_16:tgt (over badge frw_16_harvest) overlap point hit-tests to the handle — circle.edge-handle edge-handle-endpoint-hit
+  [PASS] e_16:tgt real press+move inside the badge area starts an endpoint drag — {"edgeDrag":"endpoint","nodeDrag":false}
+  [PASS] e_23:src (over badge frw_17_join) overlap point hit-tests to the handle — circle.edge-handle edge-handle-endpoint-hit
+  [PASS] e_23:src real press+move inside the badge area starts an endpoint drag — {"edgeDrag":"endpoint","nodeDrag":false}
+1 FAILED
