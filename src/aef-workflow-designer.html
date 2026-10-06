@@ -4097,7 +4097,7 @@ function adjustLabelPlacements() {
   };
   for (const n of state.nodes) {
     if (!isLabelBelow(n)) continue;
-    const els = Array.from(gNodes.querySelectorAll(`text[data-nl="${n.uid}"]`));
+    let els = Array.from(gNodes.querySelectorAll(`text[data-nl="${n.uid}"]`));
     if (els.length < 2) continue;
     const scDefault = bboxScore(els, n);
     if (scDefault === 0) continue; // uncontested — keep the default placement
@@ -4138,7 +4138,55 @@ function adjustLabelPlacements() {
     // over a divider into the next lane, is worse than crossing an edge, because
     // the lane says WHO acts. So keep the STRICTLY best candidate, and let ties
     // keep the default so an unimproved label never moves for nothing.
-    if (scLeft < scDefault && scLeft < scRight) continue;             // already placed left
+    //
+    // T-1067: before settling for a colliding single line, try the NAME as a narrower block.
+    // wrapOverlongBelowLabels() wraps only past a fixed width cap, and a sentence under the cap
+    // (the operator's "run halted - operator kill switch", 151 px vs 165 at size M) stayed one
+    // line beside its shape, over the neighbouring task's badge and edges, with "Wrap long
+    // labels" on or off alike. The trigger here is a MEASURED collision on every side, judged by
+    // the same bboxScore as the single-line candidates; a wrapped block is kept only when it is
+    // STRICTLY better, so labels that were fine are never touched (T-105) and a wrap that does
+    // not help is undone. Render-only (PD-044): state.nodes is never modified.
+    const isName = t => t.getAttribute('class') === 'node-label';
+    const LHW = { s: 11, m: 12, l: 14 }[labelPrefs.size];
+    const rebuildName = (lines) => {
+      const names = els.filter(isName), idEl = els.find(t => !isName(t));
+      const g = names[0].parentNode;
+      names.forEach(t => t.remove());
+      const made = lines.map((line, i) => {
+        const t = el('text', { x: orig[0].x, y: +orig[0].y + i * LHW, class: 'node-label',
+                               'text-anchor': 'middle', 'data-nl': n.uid }, [text(line)]);
+        if (idEl && idEl.parentNode === g) g.insertBefore(t, idEl); else g.appendChild(t);
+        return t;
+      });
+      if (idEl) {
+        idEl.setAttribute('x', orig[orig.length - 1].x);
+        idEl.setAttribute('y', +orig[0].y + lines.length * LHW);
+        idEl.setAttribute('text-anchor', orig[orig.length - 1].a);
+      }
+      els = made.concat(idEl ? [idEl] : []);
+    };
+    const bestSingle = Math.min(scDefault, scRight, scLeft);
+    let wrapped = null;   // { lines, side, score } of the best wrapped candidate, if any
+    if (labelPrefs.wrapNames && els.filter(isName).length === 1 && n.name.length > 12) {
+      for (const parts of [2, 3]) {
+        const lines = wrapText(n.name, Math.max(8, Math.ceil(n.name.length / parts) + 2));
+        if (lines.length < 2) continue;
+        rebuildName(lines);
+        const cands = [['default', bboxScore(els, n)]];
+        RIGHT(); cands.push(['right', bboxScore(els, n)]);
+        place(n.x - 8, 'end'); cands.push(['left', bboxScore(els, n)]);
+        for (const [side, sc] of cands)
+          if (sc < bestSingle && (!wrapped || sc < wrapped.score)) wrapped = { lines, side, score: sc };
+      }
+      rebuildName(wrapped ? wrapped.lines : [n.name]);   // the chosen block, or the original single line
+      if (wrapped) {
+        if (wrapped.side === 'right') RIGHT();
+        else if (wrapped.side === 'left') place(n.x - 8, 'end');
+        continue;                                         // 'default' = the rebuilt below position
+      }
+    }
+    if (scLeft < scDefault && scLeft < scRight) { place(n.x - 8, 'end'); continue; }   // left wins
     if (scRight < scDefault && scRight <= scLeft) { RIGHT(); continue; }
     els.forEach((t, i) => { t.setAttribute('x', orig[i].x); t.setAttribute('y', orig[i].y); t.setAttribute('text-anchor', orig[i].a); });
   }
@@ -12295,6 +12343,7 @@ const _seedBpmn = buildBpmnXml(state);
 _appReady = true;            // from here on, edits autosave to localStorage
 autoLoadStored();            // B1: if a prior session left unsaved work, bring it back automatically
 detectSaveApi();             // B3: reveal "Save to project" when the write-capable server is present
+syncSettingsUI();            // T-1067: the settings controls show the stored prefs from load, not only once the panel opens
 
 // T-808 (F-10): state which build is on screen. The ONLY write of APP_VERSION into the
 // DOM — one constant, one render site, so there is nothing that can drift from anything.

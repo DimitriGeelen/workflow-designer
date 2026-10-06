@@ -825,6 +825,16 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1067: a side-placed event label that collides on every side is tried as a wrapped block
+# (reviewer RED on T-600: the operator's own sentence never wrapped). Control = the pre-T-1067 editor.
+if node "$ROOT/tools/_t1067-side-label-wrap-cdp.mjs" > "$TMP/leg-_t1067.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a colliding event label is no longer tried as a wrapped block, the wrap preference or a short label is disturbed, or the settings controls lag the stored prefs (run 'node tools/_t1067-side-label-wrap-cdp.mjs'; T-1067)"
+  show_output "$TMP/leg-_t1067.out" "_t1067-side-label-wrap-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-1066: a [REVIEW] Human criterion must name the operator exception that keeps it from the reviewer
 # (PD-302). Self-test first (the rule bites), then the live tree (new tasks comply).
 if python3 "$ROOT/tools/_t1066-why-you-check.py" --self-test > "$TMP/leg-_t1066s.out" 2>&1 \

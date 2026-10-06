@@ -1,13 +1,22 @@
 ---
 id: T-1067
-name: "T-600's label wrap never fires for the label that motivated it: the cap (150/165/180 px) is wider than 'run halted - operator kill switch' (138/151/172 px)"
+name: "T-600's label wrap never fires for the label that motivated it: the cap (150/165/180
+  px) is wider than 'run halted - operator kill switch' (138/151/172 px)"
 description: >
-  Found by the independent reviewer (fw reviewer judge T-600, verdict RED, evidence .context/reviews/evidence/T-600/AC1-judge-t-600-r1-b9fd63631765.md): wrapOverlongBelowLabels() returns early when width <= CAP; the operator's sentence is under the cap at S/M/L, so toggling 'Wrap long labels' changes nothing and the label still runs into the neighbouring badge area. The producer's verifier passed because it tests a longer string. Fix the trigger (a cap tied to the event's footprint / lane gap, not a fixed width) and add the operator's exact sentence as a leg. Side finding: #set-wrap-labels shows unchecked on load until the settings panel opens (src:7176).
+  Found by the independent reviewer (fw reviewer judge T-600, verdict RED, evidence
+  .context/reviews/evidence/T-600/AC1-judge-t-600-r1-b9fd63631765.md): wrapOverlongBelowLabels()
+  returns early when width <= CAP; the operator's sentence is under the cap at S/M/L,
+  so toggling 'Wrap long labels' changes nothing and the label still runs into the
+  neighbouring badge area. The producer's verifier passed because it tests a longer
+  string. Fix the trigger (a cap tied to the event's footprint / lane gap, not a fixed
+  width) and add the operator's exact sentence as a leg. Side finding: #set-wrap-labels
+  shows unchecked on load until the settings panel opens (src:7176).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T09:20:40Z
-last_update: 2026-10-06T09:20:40Z
-date_finished: null
+last_update: 2026-10-06T10:31:39Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +59,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-06T09:59:30Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1067: T-600's label wrap never fires for the label that motivated it: the cap (150/165/180 px) is wider than 'run halted - operator kill switch' (138/151/172 px)
@@ -62,8 +92,18 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A leg reproduces the reviewer's finding first: the operator's exact sentence "run halted - operator kill switch" on a side-placed event next to a task stays one line and overlaps the neighbour (red before the fix) — L1 runs the pre-T-1067 editor from git: 1 line, collision score 1
+- [x] Fix: when even the best label placement still collides, the label is tried as a narrower wrapped block and the cleaner result kept (trigger = a measured collision, not a fixed width); uncontested short labels stay single-line (T-105 contract), exports byte-identical (render-only, PD-044) — now 3 lines right of the event, score 0 (L2/L3); wrap OFF keeps one line (L4); "Ready" untouched (L5); only DOM text nodes change, state.nodes untouched
+- [x] The `#set-wrap-labels` checkbox reflects the stored preference on load, not only after the settings panel opens (reviewer side finding) — syncSettingsUI() at the end of Init; L6
+- [ ] Visual verification: element screenshots before/after at label sizes S/M/L, wrap on and off, read; existing label legs (T-105, T-600, T-601) still pass; then re-judged by the independent reviewer — screenshots taken and read (see ## Visual Verification); _t600 7/7, _t601 5/5; re-judge pending
+
+## Visual Verification
+
+docs/screenshots/T-1067/t1067-{before,after}-{s,m,l}-wrap{ON,OFF}.png (12 shots, element region, scale 2), read:
+before-m-wrapON: one line under the end event, crossing the "dispatch" edge into the "Human review & route" box.
+after-m/s/l-wrapON: a 3-line block right of the event, clear of edges and boxes, id badge below the block.
+after-m-wrapOFF: unchanged single line (the preference is respected). Pre-existing, out of scope: the
+"dispatch" edge label is clipped to "spatch" against the task box in both before and after.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +137,11 @@ date_finished: null
 -->
 
 ## Verification
+
+node tools/_t1067-side-label-wrap-cdp.mjs > /tmp/.t1067 2>&1 && grep -q '6/6 T-1067 legs passed' /tmp/.t1067
+node tools/_t600-label-wrap.mjs > /tmp/.t1067b 2>&1 && grep -q 'PASS — 7 leg' /tmp/.t1067b
+node tools/_t601-lane-boundary.mjs > /tmp/.t1067c 2>&1 && grep -q 'PASS — 5 leg' /tmp/.t1067c
+grep -q '_t1067-side-label-wrap-cdp.mjs' tests/run-bridge-tests.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -320,3 +365,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1067-t-600s-label-wrap-never-fires-for-the-la.md
 - **Context:** Initial task creation
+
+### 2026-10-06T09:59:30Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
