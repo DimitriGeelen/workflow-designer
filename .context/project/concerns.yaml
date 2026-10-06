@@ -3422,7 +3422,16 @@ concerns:
   - T-642
 - id: G-052
   type: gap
-  status: watching
+  status: resolved
+  resolved: 2026-10-06
+  resolution: 'Closed on its own closure condition, measured (T-1079). The normative question it left to AEF
+    was answered by the operator''s directive PD-357 (2026-10-06): the CURRENT AEF ruleset is normative.
+    tools/_t770-delegation-boundary.py now takes every `### Human` criterion''s bucket from AEF''s
+    lib/delegation.py (fails closed to the operator), so the two encodings no longer diverge by rule.
+    tools/_t932-boundary-agreement.sh runs both over the same live tree and asserts they agree: AGREE,
+    1 / 56 / 2 / 19 = 78 (reviewer-closeable / reviewer-judges / agent-self / operator-only). It is in
+    T-1079''s `## Verification` (the P-011 gate runs it) and is a bridge-suite leg, so the agreement stays
+    watched after T-1079 closes.'
   severity: medium
   title: The reviewer delegation boundary is encoded twice — in the scanner that enforces it
     and in the predicate that reports it — and nothing checks the two against each other

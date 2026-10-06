@@ -45,7 +45,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T20:02:14Z
-last_update: 2026-10-06T20:24:20Z
+last_update: 2026-10-06T20:53:29Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -95,10 +95,10 @@ disagreeing (A = fw reviewer surface / AEF, B = `tools/_t770-delegation-boundary
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `tools/_t770-delegation-boundary.py` no longer carries its own routing rules: it takes each criterion's class and bucket from AEF (`fw task delegate --dry-run --json`, or `lib/delegation.py` imported from the vendored framework), so taste/unclassified land in REVIEWER-JUDGES as in AEF; its callers (_t931, _t872, the bridge suite) still run and their outputs are stated before/after
-- [ ] `tools/_t1066-why-you-check.py` accepts AEF's carve-outs (act-in-the-world, the Tier-0/bypass class, sovereignty-field) and the two proposed to AEF (direction, large-ux) only as "pending AEF" with a pointer to T-1077, so a [REVIEW] that names neither is still sent to the reviewer; its self-test still bites
-- [ ] `tools/_t932-boundary-agreement.sh` is green (the two encodings agree), and G-052 is resolved on its own closure condition with the evidence
-- [ ] Bridge suite green after the change
+- [x] `tools/_t770-delegation-boundary.py` no longer carries its own routing rules: it takes each criterion's class and bucket from AEF (`fw task delegate --dry-run --json`, or `lib/delegation.py` imported from the vendored framework), so taste/unclassified land in REVIEWER-JUDGES as in AEF; its callers (_t931, _t872, the bridge suite) still run and their outputs are stated before/after
+- [x] `tools/_t1066-why-you-check.py` accepts AEF's carve-outs (act-in-the-world, the Tier-0/bypass class, sovereignty-field) and the two proposed to AEF (direction, large-ux) only as "pending AEF" with a pointer to T-1077, so a [REVIEW] that names neither is still sent to the reviewer; its self-test still bites
+- [x] `tools/_t932-boundary-agreement.sh` is green (the two encodings agree), and G-052 is resolved on its own closure condition with the evidence
+- [x] Bridge suite green after the change
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -382,3 +382,16 @@ bash tools/_t932-boundary-agreement.sh
   reads "Both encodings agree".
 - Bridge suite: a run on 1.8.5 started before these edits; edits to `run-bridge-tests.sh` (the _t1066 fail
   message still names the old five, and a _t932 leg) wait until it finishes, then a fresh run.
+
+### 2026-10-06T20:55Z — bridge green, G-052 resolved [agent]
+- The 1.8.5 run (29c50ec3, before the edits) had 1 red: the unwired-guard census ratchet. It shrank by 2
+  (`_t770`, `_t932` now wired by this task) and "grew" by 2 (`_t601-lane-boundary.mjs`,
+  `_t1068-corpus-labels.mjs`): the bridge ran the label guards in a `for` loop over bare names, which the
+  census cannot read, and T-1068's Verification had hidden that until it closed. Fixed in e3c195ee: each
+  guard named on its own line, the two wired entries removed from `tools/unwired-guard-baseline.txt`;
+  ratchet "no movement" (86/86).
+- Fresh run on e3c195ee: **249 passed, 0 failed** (the new _t770 + _t932 leg included).
+- AC 1 note: `_t770` keeps 832's rules for `### Agent` rows on purpose — AEF does not examine them, so
+  832's rule applies where AEF is silent (PD-357). Every `### Human` row is routed by AEF.
+- G-052 resolved in `.context/project/concerns.yaml` on its closure condition (`_t932` agrees and runs
+  under this task's Verification and in the bridge).
