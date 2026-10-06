@@ -4043,7 +4043,8 @@ function adjustLabelPlacements() {
     }
     return count;
   };
-  // T-1068: a line drawn UNDER a node's shape is hidden, and costs 4. The looser zone around a
+  // T-1068: a line drawn UNDER a node's shape is hidden, and costs 10, more than any misplacement of
+  // a whole block (reviewer on T-601: three labels moved under a task box). The looser zone around a
   // neighbour (4px margin, down to the bottom of its own label and badge) keeps its old cost of 1:
   // at weight 4 that zone alone kept "Investigation requested" on the header strip, though the
   // nudged block read clean. The node's own shape counts too (its own label area does not); the
@@ -4053,10 +4054,10 @@ function adjustLabelPlacements() {
     let cost = 0;
     for (const n of state.nodes) {
       const d = NODE_DEFAULTS[n.type];
-      if (n === self) { if (onShape(r, n, d)) cost += 6; continue; }
+      if (n === self) { if (onShape(r, n, d)) cost += 10; continue; }
       if (n.x + d.w + 4 < r.x1 || n.x - 4 > r.x2) continue;
       if (nodeVisualBottom(n) < r.y1 || n.y - 4 > r.y2) continue;
-      cost += onShape(r, n, d) ? 6 : 1;
+      cost += onShape(r, n, d) ? 10 : 1;
     }
     return cost;
   };
@@ -4086,13 +4087,13 @@ function adjustLabelPlacements() {
     // bands a line touches only caught a line straddling a divider; a line sitting wholly in the
     // NEXT lane touched one band and scored 0, which is the worst case — it attributes the step
     // to the wrong actor. r is padded by 1px, hence the tolerance.
-    // T-1068 (reviewer on T-601, session-capture g_found): weighted 2, not 1. At 1 a wrapped
+    // T-1068 (reviewer on T-601, session-capture g_found): weighted 3, not 1. At 1 a wrapped
     // block whose id badge sat on the divider beat a single in-lane line crossing one edge.
-    // Weights per line (T-1068, chosen on the 24-map corpus against the pre-T-601 placement of every
-    // label): edge crossing 1, outside the pool 1, header strip 2, outside its own lane 2, under
-    // another node's shape 4. Hidden text is the worst; a below block hanging into the next lane is
-    // a trade the reviewer accepted; the header only where nothing else is legible.
-    if (own) { if (r.y1 < own.y1 - 1 || r.y2 > own.y2 + 1) c += 2; }           // outside its own lane
+    // Weights per line (T-1068, chosen on the 24-map corpus at label sizes S/M/L against the pre-T-601
+    // placement of every label): edge crossing 1, outside the pool 1, header strip 2 (rarely reached:
+    // bboxScore nudges first), outside its own lane 3, under a shape 10. Hidden text is the worst; a
+    // below block hanging into the next lane is the fallback the reviewer accepted.
+    if (own) { if (r.y1 < own.y1 - 1 || r.y2 > own.y2 + 1) c += 3; }           // outside its own lane
     else {
       let touched = 0;
       for (const b of laneBands) if (r.y2 > b.y1 && r.y1 < b.y2) touched++;
@@ -4108,16 +4109,18 @@ function adjustLabelPlacements() {
     const cy = self.y + NODE_DEFAULTS[self.type].h / 2;
     return laneBands.find(b => cy >= b.y1 && cy < b.y2) || null;
   };
-  // T-1068 (reviewer F1 on T-601): a label block should not START on the lane header strip. Each
-  // candidate is nudged right by exactly the overrun, and the nudge is kept unless it HIDES more
-  // lines under a shape. Reviewer on T-601: unconditionally the nudge pushed blocks under the
-  // neighbouring task box or onto the node's own shape (session-capture n_start, a start event at
-  // the header edge with no clean spot at all), and the header strip was the legible spot. Any
-  // lesser cost of the nudge (an edge, a neighbour's label zone) is accepted to clear the header.
+  // T-1068 (reviewer F1 on T-601): a label block never STARTS on the lane header strip. Every
+  // candidate is nudged right by exactly its overrun BEFORE it is scored, so it is judged where it
+  // will be drawn. A label with nowhere clean to go therefore falls back to a wrapped block below
+  // its shape, hanging into the next lane if it must, never to the header (reviewer on T-601,
+  // AMBER: session-capture n_start sat on the header although that block was legible).
   const headerEdge = px + LANE_HEADER + 1;
-  // nodeOverlaps carries its own weights: under a shape 4 (reviewer on T-601: at 1 it lost to the
-  // header and out-of-pool, and three labels legible on the header strip moved under a task box).
-  const rawScore = (els, self) => {
+  const bboxScore = (els, self) => {
+    if (hasPool) {
+      let x1 = Infinity;
+      for (const t of els) { const bb = t.getBBox(); if (bb.width) x1 = Math.min(x1, bb.x); }
+      if (x1 < headerEdge) for (const t of els) t.setAttribute('x', (+t.getAttribute('x') + headerEdge - x1).toFixed(1));
+    }
     let sc = 0;
     const own = ownBand(self);
     for (const t of els) {
@@ -4127,31 +4130,6 @@ function adjustLabelPlacements() {
       sc += segCrossings(r) + nodeOverlaps(r, self) + poolPenalty(r, own);
     }
     return sc;
-  };
-  const hiddenLines = (els, self) => {
-    let h = 0;
-    for (const t of els) {
-      const bb = t.getBBox();
-      if (bb.width === 0) continue;
-      const r = { x1: bb.x - 1, x2: bb.x + bb.width + 1, y1: bb.y - 1, y2: bb.y + bb.height + 1 };
-      if (state.nodes.some(n => onShape(r, n, NODE_DEFAULTS[n.type]))) h++;
-    }
-    return h;
-  };
-  const shift = (els, dx) => { for (const t of els) t.setAttribute('x', (+t.getAttribute('x') + dx).toFixed(1)); };
-  // Leaves els at the better of the two positions and returns its score.
-  const bboxScore = (els, self) => {
-    const s0 = rawScore(els, self);
-    if (!hasPool) return s0;
-    let x1 = Infinity;
-    for (const t of els) { const bb = t.getBBox(); if (bb.width) x1 = Math.min(x1, bb.x); }
-    if (!(x1 < headerEdge)) return s0;
-    const h0 = hiddenLines(els, self);
-    shift(els, headerEdge - x1);
-    const s1 = rawScore(els, self);
-    if (hiddenLines(els, self) <= h0) return s1;
-    shift(els, x1 - headerEdge);
-    return s0;
   };
   for (const n of state.nodes) {
     if (!isLabelBelow(n)) continue;
@@ -4207,20 +4185,25 @@ function adjustLabelPlacements() {
     // not help is undone. Render-only (PD-044): state.nodes is never modified.
     const isName = t => t.getAttribute('class') === 'node-label';
     const LHW = { s: 11, m: 12, l: 14 }[labelPrefs.size];
+    // T-1068 (reviewer on T-601, session-capture n_start): build the block on the node's centre, not
+    // on orig[0].x. orig is the single line AFTER its header nudge (58px for a 150px line), so every
+    // wrapped block inherited that nudge and landed on the next task box; bboxScore gives each block
+    // only the nudge it needs itself.
+    const cx = n.x + d.w / 2;
     const rebuildName = (lines) => {
       const names = els.filter(isName), idEl = els.find(t => !isName(t));
       const g = names[0].parentNode;
       names.forEach(t => t.remove());
       const made = lines.map((line, i) => {
-        const t = el('text', { x: orig[0].x, y: +orig[0].y + i * LHW, class: 'node-label',
+        const t = el('text', { x: cx, y: +orig[0].y + i * LHW, class: 'node-label',
                                'text-anchor': 'middle', 'data-nl': n.uid }, [text(line)]);
         if (idEl && idEl.parentNode === g) g.insertBefore(t, idEl); else g.appendChild(t);
         return t;
       });
       if (idEl) {
-        idEl.setAttribute('x', orig[orig.length - 1].x);
+        idEl.setAttribute('x', cx);
         idEl.setAttribute('y', +orig[0].y + lines.length * LHW);
-        idEl.setAttribute('text-anchor', orig[orig.length - 1].a);
+        idEl.setAttribute('text-anchor', 'middle');
       }
       els = made.concat(idEl ? [idEl] : []);
     };
@@ -4248,7 +4231,7 @@ function adjustLabelPlacements() {
     if (scRight < scDefault && scRight <= scLeft) { RIGHT(); continue; }
     els.forEach((t, i) => { t.setAttribute('x', orig[i].x); t.setAttribute('y', orig[i].y); t.setAttribute('text-anchor', orig[i].a); });
   }
-  // The winner is applied by restoring attributes, so judge the nudge once more on the final block:
+  // The winner is applied by restoring attributes, so nudge once more on the final block:
   // "Investigation requested" on the default map sat 5-9px on the header strip that way (T-1068 F1).
   for (const n of state.nodes)
     if (isLabelBelow(n)) bboxScore(Array.from(gNodes.querySelectorAll(`text[data-nl="${n.uid}"]`)), n);

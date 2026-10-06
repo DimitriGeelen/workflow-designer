@@ -301,9 +301,9 @@ async function main() {
     const C = `    if (scLeft < scDefault && scLeft < scRight) { place(n.x - 8, 'end'); continue; }   // left wins
     if (scRight < scDefault && scRight <= scLeft) { RIGHT(); continue; }\n`;
     //   D  the header-strip nudge (T-1068) — a pre-T-601 editor had none
-    const D = '    if (!(x1 < headerEdge)) return s0;\n';
+    const D = '      if (x1 < headerEdge) for (const t of els) t.setAttribute(\'x\', (+t.getAttribute(\'x\') + headerEdge - x1).toFixed(1));\n';
     const p = join(mkdtempSync(join(tmpdir(), 't601-shotpoison-')), 'pre-t601.html');
-    writeFileSync(p, src.replace(A, 'sc += segCrossings(r) + nodeOverlaps(r, self);').replace(B, '').replace(C, '').replace(D, '    return s0;\n'));
+    writeFileSync(p, src.replace(A, 'sc += segCrossings(r) + nodeOverlaps(r, self);').replace(B, '').replace(C, '').replace(D, ''));
     await shoot(p, join(dir, 't601-before.png'));
     await shoot(EDITOR, join(dir, 't601-after.png'));
     process.exit(0);
@@ -337,13 +337,13 @@ async function main() {
   const C = `    if (scLeft < scDefault && scLeft < scRight) { place(n.x - 8, 'end'); continue; }   // left wins
     if (scRight < scDefault && scRight <= scLeft) { RIGHT(); continue; }\n`;
   //   D  the header-strip nudge (T-1068) — a pre-T-601 editor had none. It lives inside bboxScore
-  //      (every candidate is judged nudged), so the poison makes bboxScore return the un-nudged score.
-  const D = '    if (!(x1 < headerEdge)) return s0;\n';
+  //      (every candidate is judged nudged), so the poison removes that one line.
+  const D = '      if (x1 < headerEdge) for (const t of els) t.setAttribute(\'x\', (+t.getAttribute(\'x\') + headerEdge - x1).toFixed(1));\n';
   for (const [nm, t] of [['A', A], ['B', B], ['C', C], ['D', D]])
     if (!src.includes(t)) { console.log(`SELF-TEST INTEGRITY FAIL — poison target ${nm} missing`); process.exit(2); }
   const f = join(mkdtempSync(join(tmpdir(), 't601-poison-')), 'poisoned-editor.html');
   writeFileSync(f, src.replace(A, 'sc += segCrossings(r) + nodeOverlaps(r, self);')
-                      .replace(B, '').replace(C, '').replace(D, '    return s0;\n'));
+                      .replace(B, '').replace(C, '').replace(D, ''));
   console.log('\npoison arm — pre-T-601 scorer restored (no pool term); L1-L3 must FAIL');
   const pl = legs(await probe(f));
   report(pl);

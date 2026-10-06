@@ -11,10 +11,13 @@
 //   C2  the four labels the reviewer named stay fixed:
 //         session-capture n_start, git-commit-flow n_start, arc-lifecycle n_req  — not under a shape
 //         session-capture g_found                                               — inside its own lane
-//   C3  at most 1 label touches the lane header strip (only where nothing else is legible)
+//   C3  no label touches the lane header strip (reviewer on T-601, AMBER: a label with nowhere
+//       clean to go falls back to BELOW, wrapped and nudged, never to the header)
 //
-// --self-test reruns on a poisoned editor: the T-1068 occlusion weights reverted to a flat 1 per
-// node and no own-shape term. C1 and C2 must FAIL there, or they assert nothing (T-592).
+// --self-test reruns on two poisoned editors, or the legs assert nothing (T-592):
+//   1  the T-1068 occlusion weights reverted to a flat 1 per node, no own-shape term — C1, C2 must FAIL
+//   2  wrapped blocks rebuilt on the single line's NUDGED x again — C1, C2 must FAIL
+//   3  the header-strip nudge removed — C3 must FAIL
 //
 // Usage:  node tools/_t1068-corpus-labels.mjs [--self-test]
 // Exit:   0 pass · 1 leg failed · 2 driver/integrity error
@@ -119,7 +122,7 @@ function legs(rows) {
   return [
     { id: 'C1', ok: keys.length > 0 && under.length === 0, detail: `${keys.length} labels; under a shape: ${under.length ? under.join(', ') : 'none'}` },
     { id: 'C2', ok: !missing.length && !named.length, detail: missing.length ? `named label(s) not found: ${missing.join(', ')}` : `named labels regressed: ${named.length ? named.join(', ') : 'none'}` },
-    { id: 'C3', ok: header.length <= 1, detail: `on the header strip: ${header.length} (${header.join(', ') || 'none'}), limit 1` },
+    { id: 'C3', ok: header.length === 0, detail: `on the header strip: ${header.length} (${header.join(', ') || 'none'})` },
   ];
 }
 const report = ls => { for (const l of ls) console.log(`  ${l.ok ? 'PASS' : 'FAIL'}  ${l.id}  ${l.detail}`); };
@@ -135,17 +138,31 @@ async function main() {
     process.exit(failed.length ? 1 : 0);
   }
   const src = readFileSync(EDITOR, 'utf8');
-  const OWN = '      if (n === self) { if (onShape(r, n, d)) cost += 6; continue; }\n';
-  const OTHER = '      cost += onShape(r, n, d) ? 6 : 1;\n';
+  const OWN = '      if (n === self) { if (onShape(r, n, d)) cost += 10; continue; }\n';
+  const OTHER = '      cost += onShape(r, n, d) ? 10 : 1;\n';
   if (!src.includes(OWN) || !src.includes(OTHER)) { console.log('SELF-TEST INTEGRITY FAIL — a poison target is missing from the editor source'); process.exit(2); }
-  const f = join(mkdtempSync(join(tmpdir(), 't1068-poison-')), 'poisoned-editor.html');
-  writeFileSync(f, src.replace(OWN, '      if (n === self) continue;\n').replace(OTHER, '      cost += 1;\n'));
-  console.log('\npoison arm — occlusion weights reverted to a flat 1, no own-shape term; C1, C2 must FAIL');
-  const pl = legs(await probe(f));
-  report(pl);
-  if (failed.length) { console.log(`\nFAIL — ${failed.length} live leg(s)`); process.exit(1); }
-  const survivors = pl.filter(l => ['C1', 'C2'].includes(l.id) && l.ok).map(l => l.id);
-  if (survivors.length) { console.log(`\nSELF-TEST FAIL — ${survivors.join(',')} passed under poison; they assert nothing`); process.exit(2); }
-  console.log(`\nPASS — ${live.length} live leg(s); 2 proven failable`);
+  const CX = '        const t = el(\'text\', { x: cx, y: +orig[0].y + i * LHW, class: \'node-label\',\n';
+  const NUDGE = "      if (x1 < headerEdge) for (const t of els) t.setAttribute('x', (+t.getAttribute('x') + headerEdge - x1).toFixed(1));\n";
+  if (!src.includes(NUDGE)) { console.log('SELF-TEST INTEGRITY FAIL — poison target NUDGE missing from the editor source'); process.exit(2); }
+  if (!src.includes(CX)) { console.log('SELF-TEST INTEGRITY FAIL — poison target CX missing from the editor source'); process.exit(2); }
+  const arms = [
+    { name: 'occlusion weights reverted to a flat 1, no own-shape term', mustFail: ['C1', 'C2'],
+      patched: src.replace(OWN, '      if (n === self) continue;\n').replace(OTHER, '      cost += 1;\n') },
+    { name: 'wrapped blocks rebuilt on the nudged single-line x', mustFail: ['C1', 'C2'],
+      patched: src.replace(CX, CX.replace('x: cx,', 'x: orig[0].x,')) },
+    { name: 'header-strip nudge removed', mustFail: ['C3'], patched: src.replace(NUDGE, '') },
+  ];
+  const dir = mkdtempSync(join(tmpdir(), 't1068-poison-'));
+  for (const [i, arm] of arms.entries()) {
+    const f = join(dir, `poison-${i}.html`);
+    writeFileSync(f, arm.patched);
+    console.log(`\npoison arm ${i + 1} — ${arm.name}; ${arm.mustFail.join(', ')} must FAIL`);
+    const pl = legs(await probe(f));
+    report(pl);
+    if (failed.length) { console.log(`\nFAIL — ${failed.length} live leg(s)`); process.exit(1); }
+    const survivors = pl.filter(l => arm.mustFail.includes(l.id) && l.ok).map(l => l.id);
+    if (survivors.length) { console.log(`\nSELF-TEST FAIL — ${survivors.join(',')} passed under poison; they assert nothing`); process.exit(2); }
+  }
+  console.log(`\nPASS — ${live.length} live leg(s); 3 proven failable across ${arms.length} poison arms`);
 }
 main().catch(e => { console.error('DRIVER ERROR: ' + (e && e.stack || e)); process.exit(2); });

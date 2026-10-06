@@ -216,12 +216,16 @@ async function main() {
   const src = readFileSync(EDITOR, 'utf8');
   const CALL = '  wrapOverlongBelowLabels();';
   const ORDER = 'if (idEl && idEl.parentNode === g) g.insertBefore(t, idEl); else g.appendChild(t);';
-  if (!src.includes(CALL) || !src.includes(ORDER)) {
+  const FALLBACK = '    if (labelPrefs.wrapNames && els.filter(isName).length === 1 && n.name.length > 12) {\n';
+  if (!src.includes(CALL) || !src.includes(ORDER) || !src.includes(FALLBACK)) {
     console.log('SELF-TEST INTEGRITY FAIL — a poison target is missing from the editor source');
     process.exit(2);
   }
   const arms = [
-    { name: 'A — wrap pass never invoked', patched: src.replace(CALL, '  /* T-600 poison A */'), mustFail: ['L1', 'L2', 'L7'] },
+    // T-1068: T-1067's collision fallback in adjustLabelPlacements() wraps a long name too. Since its
+    // block is built on the node's centre it wins on the probe map, so with only the T-600 pass gone
+    // L1/L2/L7 still passed. Arm A removes BOTH wrap paths.
+    { name: 'A — no wrap at all (T-600 pass and T-1067 fallback)', patched: src.replace(CALL, '  /* T-600 poison A */').replace(FALLBACK, '    if (false) {\n'), mustFail: ['L1', 'L2', 'L7'] },
     // T-1068: replaceAll — T-1067 added a third writer (adjustLabelPlacements) that runs after
     // the wrap pass and re-inserts the lines in order, so poisoning only the first copy was
     // repaired before L3 measured anything. The order is an invariant of every writer.

@@ -45,7 +45,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T09:49:30Z
-last_update: 2026-10-06T13:16:23Z
+last_update: 2026-10-06T14:00:12Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -415,3 +415,23 @@ New leg `tools/_t1068-corpus-labels.mjs` (wired into the bridge): C1 nothing und
 four named labels, C3 at most 1 header label; self-test reverts the occlusion weights and C1/C2 FAIL.
 Note: placement depends on the viewport (the canvas width feeds contentRightEdge()); the leg uses
 the reviewer's 1600x1000 viewport. T-601's poison D now targets the nudge inside bboxScore.
+
+### 2026-10-06T15:30Z — reviewer AMBER (e21a395a) acted on: no label on the header [agent]
+Verdict `.context/reviews/evidence/T-601/AC1-judge-t-601-r1-f1fe3c29e5ad.md`: everything from the RED
+fixed, nothing regressed vs pre-T-601; one label (session-capture n_start) still on the header strip,
+which the Expected rules out, and a legible wrapped-below block was available (my "nothing else is
+readable" was wrong).
+Cause found: the T-1067 wrapped candidates were built on `orig[0].x`, the single line's position
+AFTER its 58px header nudge, so every wrapped block landed on the next task box. Fix: build on the
+node's centre. With that, the conditional nudge (keep the header unless the nudge hides text) was no
+longer needed and produced the remaining header labels at size L; the nudge is unconditional again.
+Final weights per line: edge 1, pool 1, header 2, outside own lane 3, under a shape 10.
+Corpus (141 labels, pre-T-601 → e21a395a → now): under 4 → 0 → 0; header 13 → 1 → **0**; lane
+26 → 7 → 7; pool 18 → 3 → 2; crossings 93 → 79 → 76. Sizes S and L: under 0, header 0.
+New problems vs pre-T-601: 3, all below blocks hanging into the next lane (n_send, accepted in the
+first review; git-commit-flow n_start, accepted in the AMBER; session-capture n_start, the fallback
+the AMBER prescribed). Stress run (73-char names): under 15 (pre-T-601 14, e21a395a 13), header 0.
+Legs: `_t1068-corpus-labels` C3 tightened to 0 header labels; 3 poison arms (occlusion weights,
+nudged rebuild, nudge removed). `_t600` arm A now removes both wrap paths (the T-1067 fallback wraps
+a long name on its own now that its block is placed right). Screenshots re-read:
+docs/screenshots/T-1068/corpus/*-after.png, t601-after.png.
