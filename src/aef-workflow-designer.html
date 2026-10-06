@@ -526,10 +526,15 @@ font-family: 'Outfit';
     box-shadow: 0 2px 8px rgba(0,0,0,0.35);
     z-index: 5;
   }
-  .clean-nudge .clean-nudge-msg { white-space: nowrap; }
+  /* T-1078: a long lane-fix message wraps inside the canvas instead of running off it on
+     one line (it was nowrap). */
+  .clean-nudge { max-width: calc(100% - 24px); }
+  .clean-nudge .clean-nudge-msg { white-space: normal; }
   /* T-310: a malformed map can trigger BOTH advisories at once — the lane-fix
      notice takes the top slot (it reports a change already made to the document's
-     appearance) and pushes the Clean nudge (an offer) below it. */
+     appearance) and pushes the Clean nudge (an offer) below it. The fallback offset
+     below is overridden by syncAdvisoryDock() (T-1078), which stacks the visible
+     advisories by their MEASURED heights, since a wrapped message is taller. */
   .clean-nudge.stacked { top: 52px; }
   .clean-nudge-x {
     background: transparent;
@@ -8453,6 +8458,28 @@ function maybeShowLaneFixNotice() {
   if (nudge) nudge.classList.toggle('stacked', show);
 }
 
+// T-1078 (reviewer follow-up on T-310): an advisory must never sit ON the diagram. With both
+// advisories showing, the stacked Clean nudge covered agt_2_agent — the very top-lane node the
+// lane-fix notice says it moved back. The advisories stay floating chrome, but while any is
+// visible the canvas wrap gets top padding below the last one, so the SVG (height 100% of the
+// content box, border-box sizing) shrinks into the space under them and no node can be covered.
+// Positions are MEASURED, not fixed: a wrapped message is taller than one line. Writes only on a
+// change, because the observer below watches the same style attributes this function sets.
+function syncAdvisoryDock() {
+  const wrap = document.querySelector('.canvas-wrap');
+  if (!wrap) return;
+  const shown = [$('lane-fix-notice'), $('clean-nudge')]
+    .filter(e => e && e.style.display !== 'none');
+  let y = 12;
+  for (const e of shown) {
+    const top = y + 'px';
+    if (e.style.top !== top) e.style.top = top;
+    y += e.offsetHeight + 8;
+  }
+  const pad = shown.length ? y + 'px' : '';
+  if (wrap.style.paddingTop !== pad) wrap.style.paddingTop = pad;
+}
+
 // ── Align rows (T-094) ──────────────────────────────────────────────────────
 // Explicit one-shot action: snap each cluster of near-aligned row-mates (chains
 // of centre-y neighbours <=14px apart — the T-092 near-miss metric) to the
@@ -9334,6 +9361,16 @@ $('lane-fix-dismiss').onclick = () => {
   $('lane-fix-notice').style.display = 'none';
   const nudge = $('clean-nudge'); if (nudge) nudge.classList.remove('stacked');
 };
+// T-1078: every show/hide path (import, dismiss, Clean, reset, file switch) re-syncs the dock —
+// observed rather than called from each site, so a new path cannot forget it.
+{
+  const mo = new MutationObserver(() => syncAdvisoryDock());
+  for (const id of ['lane-fix-notice', 'clean-nudge', 'lane-fix-msg']) {
+    const e = $(id);
+    if (e) mo.observe(e, { attributes: true, attributeFilter: ['style', 'class'], childList: true, characterData: true, subtree: true });
+  }
+  window.addEventListener('resize', syncAdvisoryDock);
+}
 $('btn-reset').onclick = () => {
   // Reset: blow away library and start over with seed
   library.clear();

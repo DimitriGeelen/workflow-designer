@@ -1,13 +1,20 @@
 ---
 id: T-1078
-name: "Advisory banners overlay the canvas: with both T-310's lane-repair notice and the Clean layout notice visible, the banner hides the top-lane node the notice points at"
+name: "Advisory banners overlay the canvas: with both T-310's lane-repair notice and
+  the Clean layout notice visible, the banner hides the top-lane node the notice points
+  at"
 description: >
-  Reviewer follow-up from T-310 AC#3 (judge-t-310-r5-claude-code-19d512f8792a, amber) and AC#1 (codex seat, amber): on a malformed map both advisories fire and the Clean layout notice covers the node in the top lane that the repair notice tells the user to look at. Options named by the reviewer: canvas top padding while advisories are visible, or dock the advisories outside the canvas.
+  Reviewer follow-up from T-310 AC#3 (judge-t-310-r5-claude-code-19d512f8792a, amber)
+  and AC#1 (codex seat, amber): on a malformed map both advisories fire and the Clean
+  layout notice covers the node in the top lane that the repair notice tells the user
+  to look at. Options named by the reviewer: canvas top padding while advisories are
+  visible, or dock the advisories outside the canvas.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T20:00:45Z
-last_update: 2026-10-06T20:01:27Z
-date_finished: null
+last_update: 2026-10-06T22:26:48Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +57,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-06T20:56:02Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 2
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=2 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=2 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L2:keyword=canvas)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1078: Advisory banners overlay the canvas: with both T-310's lane-repair notice and the Clean layout notice visible, the banner hides the top-lane node the notice points at
@@ -67,9 +95,9 @@ maps only); tracked here so it is not just prose.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] With both the lane-fix notice and the Clean layout notice visible on T-310's fixture, no node shape or label is covered by an advisory (measured rects: advisory boxes against node boxes and label bboxes), by canvas top padding while advisories show or by docking them outside the canvas
-- [ ] The combined lane-fix message no longer overflows on one line (nowrap) at narrow widths (1280 and 1720 px measured)
-- [ ] A leg with a poison arm (the pre-fix layout) pins both, wired into the bridge suite; screenshots of the fixture at both widths read
+- [x] With both the lane-fix notice and the Clean layout notice visible on T-310's fixture, no node shape or label is covered by an advisory (measured rects: advisory boxes against node boxes and label bboxes), by canvas top padding while advisories show or by docking them outside the canvas
+- [x] The combined lane-fix message no longer overflows on one line (nowrap) at narrow widths (1280 and 1720 px measured)
+- [x] A leg with a poison arm (the pre-fix layout) pins both, wired into the bridge suite; screenshots of the fixture at both widths read
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -103,6 +131,10 @@ maps only); tracked here so it is not just prose.
 -->
 
 ## Verification
+
+timeout 600 node tools/_t1078-advisory-overlap-cdp.mjs --self-test
+timeout 300 node tools/_t310-lane-position-conflict-cdp.mjs
+timeout 300 node tools/_t603-multiprocess-import.mjs
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -326,3 +358,27 @@ maps only); tracked here so it is not just prose.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1078-advisory-banners-overlay-the-canvas-with.md
 - **Context:** Initial task creation
+
+### 2026-10-06T20:56:01Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-07 — fixed: canvas top padding under the advisories, measured stacking, wrapping [agent]
+- Chose the reviewer's first option (canvas top padding while advisories show) over docking: the
+  `.canvas-wrap` is a grid cell and the scroll container when zoomed (T-251), so a flex-column dock
+  risked the zoom/pan layout. With `box-sizing: border-box` the SVG (height 100%) shrinks into the space
+  under the banners, so no node can sit beneath one.
+- `syncAdvisoryDock()` stacks the visible advisories by MEASURED height (the fixed `.stacked { top: 52px }`
+  broke as soon as the first one wrapped) and sets the padding; it writes only on change, because a
+  MutationObserver on both advisories (and the message) calls it on every show/hide/text path, and a
+  `resize` listener re-measures. The `stacked` class stays (`_t310` reads it).
+- Message: `white-space: normal` and `max-width: calc(100% - 24px)` (was nowrap).
+- New leg `tools/_t1078-advisory-overlap-cdp.mjs`, T-310's fixture with both advisories and the COMBINED
+  lane-fix message (moves + grown bands + skipped process), at 1280 and 1720 px: O1 no advisory over any
+  node shape/label, O2 message inside the canvas, O3 setup control (4/4 node shapes found), O4 padding
+  released after both dismissed. Poison A (no padding) → O1 fails (`clean-nudge over n_act`, i.e.
+  agt_2_agent); poison B (nowrap) → O2 fails (notice box x -279..1681 against wrap 220..1183). The first
+  version passed under poison A: the node selector used a wrong attribute and measured only below-labels;
+  the self-test caught it.
+- Existing legs still pass: `_t310`, `_t315`, `_t603`. Screenshots read: docs/screenshots/T-1078/
+  (after at both widths: banners above the pool, nothing covered; poison A: the nudge over the agent task).

@@ -855,6 +855,17 @@ _label_guard "$ROOT/tools/_t600-label-wrap.mjs"
 _label_guard "$ROOT/tools/_t601-lane-boundary.mjs"
 _label_guard "$ROOT/tools/_t1068-corpus-labels.mjs"
 
+# T-1078 (reviewer follow-up on T-310): an advisory banner never covers a node, the combined
+# lane-fix message wraps inside the canvas, and dismissing gives the canvas back. Self-test mode:
+# the live legs plus two poison arms (no padding -> O1 fails; nowrap -> O2 fails).
+if node "$ROOT/tools/_t1078-advisory-overlap-cdp.mjs" --self-test > "$TMP/leg-_t1078.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "an advisory banner covers the diagram, or the lane-fix message runs off the canvas, or the guard stopped biting (run 'node tools/_t1078-advisory-overlap-cdp.mjs --self-test'; T-1078, T-310)"
+  show_output "$TMP/leg-_t1078.out" "_t1078-advisory-overlap-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-1066: a [REVIEW] Human criterion must name the operator exception that keeps it from the reviewer
 # (PD-302). Self-test first (the rule bites), then the live tree (new tasks comply).
 if python3 "$ROOT/tools/_t1066-why-you-check.py" --self-test > "$TMP/leg-_t1066s.out" 2>&1 \
