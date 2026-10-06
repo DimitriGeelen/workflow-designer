@@ -10,18 +10,13 @@ description: >
   — reuse it, do not re-list it. Ruling: docs/reports/T-888-authority-ruling.md. Evidence:
   four external consults in .context/consults/.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: agt_2_perform
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface]
-components:
-  - src/aef-workflow-designer.html
-  - tools/validate-workflow.py
-  - tools/_roundtrip-serialization-cdp.mjs
-  - tests/test_rule_dialect_axis.py
-  - tests/test_rule_form_parity.py
+components: [src/aef-workflow-designer.html, tests/fixtures/invalid/E-XML-WORKFLOW-KIND.bpmn, tests/test_finding_anchorability.py, tests/test_harness_cross_form_agreement.py, tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/_roundtrip-serialization-cdp.mjs, tools/_t570-meta-carriage-teeth.py, tools/_t572-bridge-vocabulary-teeth.py, tools/_t820-rule-axes.sh, tools/_t826-kind-rule-axes-teeth.sh, tools/_t886-writer-mutation.py, tools/_t889-authority-first-class-cdp.mjs, tools/_t889-authority-on-the-element-teeth.sh, tools/_t902-yaml-meta-authority-teeth.sh, tools/_t904-denominator-comment-blindness-teeth.sh, tools/validate-workflow.py]
 related_tasks: []
 arc_id: designer-authoring-surface
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -34,8 +29,8 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:17Z
-last_update: 2026-10-06T21:39:01Z
-date_finished:
+last_update: 2026-10-06T21:39:02Z
+date_finished: 2026-10-06T21:39:02Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -390,3 +385,15 @@ test "$(grep -c "^const AUTHORITIES = \[" src/aef-workflow-designer.html)" = "1"
 Basis: **measured from its own commits (a906f337, 71d4943b, f0c84765) via git show --name-only**
 
 Populated so `fw bvp` can compute a `blast_radius` and therefore a quadrant. Empty `components:` made `estimate-cost` refuse the radius — correctly, since unmeasured is not zero — while printing `[wrote]` and exiting 0, so the refusal read as a success and two procAsFit rounds concluded the cost axis did not exist.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b52662b1
+- **Timestamp:** 2026-10-06T21:39:14Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-06T21:39:02Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
