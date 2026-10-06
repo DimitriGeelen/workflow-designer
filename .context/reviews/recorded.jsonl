@@ -8,3 +8,5 @@
 {"ac":1,"outcome":"green","task":"T-310","ts":"2026-10-06T09:34:04Z","verdict_id":"V-20261006-4dd2871b"}
 {"ac":1,"outcome":"amber","task":"T-310","ts":"2026-10-06T09:34:59Z","verdict_id":"V-20261006-3e67bfe0"}
 {"ac":1,"outcome":"amber","task":"T-310","ts":"2026-10-06T09:35:55Z","verdict_id":"V-20261006-ea4dfa31"}
+{"ac":1,"outcome":"green","task":"T-589","ts":"2026-10-06T09:38:10Z","verdict_id":"V-20261006-bcedfc30"}
+{"ac":2,"outcome":"amber","task":"T-589","ts":"2026-10-06T09:38:11Z","verdict_id":"V-20261006-0f9482d7"}
