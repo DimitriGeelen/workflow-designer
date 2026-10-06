@@ -1159,3 +1159,9 @@ grep -q 'UNEXERCISED' tools/_t423-additive-export-guard.py
 
 ### 2026-09-09T07:40:00Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+### 2026-10-06T19:20Z — licence of the vendored OMG XSDs ruled (T-1074) [agent]
+The five BPMN 2.0 XSDs this task vendored (811bbed7) were committed without a recorded authorisation
+and without OMG's copyright/permission notice. Operator ruling A (T-1074): keep them, with the notice
+now in `tools/schemas/bpmn20/NOTICE.md` (verbatim from formal/2011-01-03), and the repository stays
+internal; before any public mirror, switch to fetch-on-use (`docs/reports/T-1074-omg-schema-licence.md`).

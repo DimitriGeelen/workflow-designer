@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1074: Licence check of the five OMG BPMN 2.0 schema files vendored under tools/schemas/bpmn20 (input for the operator's T-423 ruling)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-06T19:00:52Z
+# ============================================================================
+
+task_id: T-1074
+task_name: "Licence check of the five OMG BPMN 2.0 schema files vendored under tools/schemas/bpmn20 (input for the operator's T-423 ruling)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-06T10:29:09Z
+completed: 2026-10-06T19:00:27Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-06T12:31:17+02:00
+last_commit: 2026-10-06T12:31:17+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  licence check for the vendored OMG BPMN 2.0 XSDs (T-423 input) — use for our validator fits the OMG grant; copies lack the required copyright/permission notice; repo internal only; options A keep+add notice (recommended) / B fetch-on-use cache / C remove — operator rules
+
+# Key outcomes
+outcomes:
+  - 'The OMG BPMN 2.0 licence terms are read from a cited source (not memory) and applied to the facts: what the files are, whether our copies carry the required notice, where the repo is published, what uses them'
+  - 'Options for the operator''s T-423 ruling are written in docs/reports/T-1074-omg-schema-licence.md with a recommendation; nothing is removed or changed without the operator''s ruling (this is an input, not the ruling)'
+  - 'The operator''s ruling (A, 2026-10-06) is carried out: `tools/schemas/bpmn20/NOTICE.md` holds OMG''s copyright and permission notice verbatim from the specification''s front matter (source URL and sha256 recorded), PROVENANCE.md points to it and records "repo stays internal", and the XSDs are unchanged (`--verify-schemas` passes)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-06 — keeping the OMG BPMN 2.0 XSDs (operator ruling)'
+    chose: 'A: keep the five XSDs, add OMG''s copyright and permission notice beside them, and the repository stays internal (operator, in session, after the background in the report: "A").'
+    rationale: 'the licence''s grant covers our use (validating our own exports); the gap was only the missing notice on the copies; validation stays offline and pinned.'
+    alternatives_rejected: ['B, fetch-on-use (first run needs the network; kept as the switch if the repo is ever mirrored publicly); C, remove (loses real schema validation of exports).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-1074-omg-schema-licence.md'
+  - '.tasks/active/T-1073-answer-ring20-managers-t-2250-orchestrat.md'
+  - '.tasks/active/T-1074-licence-check-of-the-five-omg-bpmn-20-sc.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-06T12:31:17'
+    action: 'T-1074: licence check for the vendored OMG BPMN 2.0 XSDs (T-423 input) — use for our validator fits the OMG grant; copies lack the required copyright/permission notice; repo internal only; options A keep+add notice (recommended) / B fetch-on-use cache / C remove — operator rules'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 511 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 511
+  commits: 2
+  files_changed: 4
+  lines_added: 687
+  lines_removed: 0
+  footprint_refreshed_at: '2026-10-06T19:01:04Z'
+  footprint_refreshed_by_commit: 9867281a
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1074-licence-check-of-the-five-omg-bpmn-20-sc.md
+generated_by: context-agent-hybrid

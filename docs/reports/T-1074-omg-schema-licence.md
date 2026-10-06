@@ -41,3 +41,13 @@ https://scancode-licensedb.aboutcode.org/omg-bpmn-2.0.html)
 
 Recommendation: **A**, with a standing note that if this repository is ever mirrored publicly, switch to **B**
 first. The verbatim notice text is copied from the specification's front matter when A is carried out.
+
+## Ruling (2026-10-06)
+
+The operator asked for more background in session, then ruled **A**. Carried out:
+- `tools/schemas/bpmn20/NOTICE.md`: the specification's copyright lines and its full "USE OF SPECIFICATION -
+  TERMS, CONDITIONS & NOTICES" section, verbatim from https://www.omg.org/spec/BPMN/2.0/PDF (formal/2011-01-03,
+  front matter), with the PDF's sha256. Two words split across lines in the PDF were rejoined as printed.
+- `tools/schemas/bpmn20/PROVENANCE.md`: a "Licence and notice" section pointing to it, and the standing rule
+  that this repository stays internal (switch to B before any public mirror).
+- The XSDs are untouched: `tools/_t423-di-schema-validate.py --verify-schemas` still verifies all five digests.

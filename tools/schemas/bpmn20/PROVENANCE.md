@@ -33,3 +33,12 @@ run downstream — fails rather than passes.
 A validation gate that reaches the network fails when the network does, and reports that as a
 schema violation. It would also mean the thing being validated against could change without a
 commit. These bytes are pinned so a red result means the document changed.
+
+## Licence and notice (T-1074, operator ruling A, 2026-10-06)
+
+The OMG licence lets us use the specification to build software, and copy it only with OMG's
+copyright and permission notice on every copy. That notice is in `NOTICE.md` in this directory,
+verbatim from the specification's front matter (formal/2011-01-03). The XSDs themselves stay
+byte-identical, so the notice sits beside them rather than inside them. Ruled with it: this
+repository stays internal; before any public mirror, switch to fetch-on-use into a git-ignored
+cache pinned by the digests above. Background: `docs/reports/T-1074-omg-schema-licence.md`.

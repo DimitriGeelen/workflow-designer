@@ -4,10 +4,11 @@ name: "Licence check of the five OMG BPMN 2.0 schema files vendored under tools/
 description: >
   Licence check of the five OMG BPMN 2.0 schema files vendored under tools/schemas/bpmn20 (input for the operator's T-423 ruling)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T10:29:09Z
-last_update: 2026-10-06T10:29:09Z
-date_finished: null
+last_update: 2026-10-06T19:00:27Z
+date_finished: 2026-10-06T19:00:27Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -62,8 +63,9 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The OMG BPMN 2.0 licence terms are read from a cited source (not memory) and applied to the facts: what the files are, whether our copies carry the required notice, where the repo is published, what uses them
-- [ ] Options for the operator's T-423 ruling are written in docs/reports/T-1074-omg-schema-licence.md with a recommendation; nothing is removed or changed without the operator's ruling (this is an input, not the ruling)
+- [x] The OMG BPMN 2.0 licence terms are read from a cited source (not memory) and applied to the facts: what the files are, whether our copies carry the required notice, where the repo is published, what uses them
+- [x] Options for the operator's T-423 ruling are written in docs/reports/T-1074-omg-schema-licence.md with a recommendation; nothing is removed or changed without the operator's ruling (this is an input, not the ruling)
+- [x] The operator's ruling (A, 2026-10-06) is carried out: `tools/schemas/bpmn20/NOTICE.md` holds OMG's copyright and permission notice verbatim from the specification's front matter (source URL and sha256 recorded), PROVENANCE.md points to it and records "repo stays internal", and the XSDs are unchanged (`--verify-schemas` passes)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +99,12 @@ date_finished: null
 -->
 
 ## Verification
+
+test -s docs/reports/T-1074-omg-schema-licence.md
+grep -q "USE OF SPECIFICATION - TERMS, CONDITIONS & NOTICES" tools/schemas/bpmn20/NOTICE.md
+grep -q "both the" tools/schemas/bpmn20/NOTICE.md
+grep -q "NOTICE.md" tools/schemas/bpmn20/PROVENANCE.md
+python3 tools/_t423-di-schema-validate.py --verify-schemas
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -304,6 +312,14 @@ date_finished: null
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-10-06 — keeping the OMG BPMN 2.0 XSDs (operator ruling)
+- **Chose:** A: keep the five XSDs, add OMG's copyright and permission notice beside them, and the
+  repository stays internal (operator, in session, after the background in the report: "A").
+- **Why:** the licence's grant covers our use (validating our own exports); the gap was only the missing
+  notice on the copies; validation stays offline and pinned.
+- **Rejected:** B, fetch-on-use (first run needs the network; kept as the switch if the repo is ever
+  mirrored publicly); C, remove (loses real schema validation of exports).
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -320,3 +336,15 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1074-licence-check-of-the-five-omg-bpmn-20-sc.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2ca57621
+- **Timestamp:** 2026-10-06T19:00:41Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-06T19:00:27Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
