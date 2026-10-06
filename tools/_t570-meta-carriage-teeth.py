@@ -62,10 +62,25 @@ CARRIED_LINE = ("  const carriedKeys = aefKeys.filter(k => !scalarHandled.has(k)
 ENDPOINT_LINE = "    'endpoint', 'contextReads', 'artifactsWrites', 'decisionInput', 'decisionOutputs',"
 
 
+class CouldNotMeasure(Exception):
+    """The probe did not run (no browser, editor not ready, fixture never loaded). That is not a
+    verdict on the source — reporting it as a failed control or an over-killing mutant is how a
+    busy host turned into a 'regression' in the bridge suite (T-1060)."""
+
+
 def run_probe(src_path):
-    r = subprocess.run(["node", PROBE, "--src", src_path],
-                       capture_output=True, text=True, timeout=600, cwd=ROOT)
-    return r.returncode, r.stdout + r.stderr
+    try:
+        r = subprocess.run(["node", PROBE, "--src", src_path],
+                           capture_output=True, text=True, timeout=600, cwd=ROOT)
+    except subprocess.TimeoutExpired:
+        raise CouldNotMeasure("probe timed out after 600s on %s" % os.path.basename(src_path))
+    except OSError as e:
+        raise CouldNotMeasure("cannot start the probe (node): %s" % e)
+    out = r.stdout + r.stderr
+    if "CANNOT RUN" in out:
+        line = next(ln for ln in out.splitlines() if "CANNOT RUN" in ln)
+        raise CouldNotMeasure("%s: %s" % (os.path.basename(src_path), line.strip()[:200]))
+    return r.returncode, out
 
 
 def verdicts(out):
@@ -162,6 +177,10 @@ def main():
         if nfail == 0:
             print("%d/%d teeth legs passed" % (npass, npass))
         return 0 if nfail == 0 else 1
+    except CouldNotMeasure as e:
+        # exit 3 is the T-509 sweep's COULD-NOT-MEASURE: named, never read as a pass or a regression
+        print("COULD NOT MEASURE: %s (%d leg(s) decided before it)" % (e, npass + nfail))
+        return 3
     finally:
         shutil.rmtree(scratch, ignore_errors=True)
 

@@ -795,9 +795,24 @@ echo "== the editor does not destroy aef:meta keys it does not name (T-570) =="
 # this leg is what tells them apart. Wired here in the same commit that adds it (T-568).
 if python3 "$ROOT/tools/_t570-meta-carriage-teeth.py" > "$TMP/leg-_t570-carriage.out" 2>&1; then
   pass=$((pass + 1))
+elif grep -q '^COULD NOT MEASURE' "$TMP/leg-_t570-carriage.out"; then
+  # T-1060: still red, but not a verdict on the editor — the probe never ran
+  report FAIL "T-570 meta-carriage teeth COULD NOT MEASURE (the probe did not run — environment, not the editor): $(grep -m1 '^COULD NOT MEASURE' "$TMP/leg-_t570-carriage.out" | cut -c1-140)"
+  show_output "$TMP/leg-_t570-carriage.out" "_t570-meta-carriage-teeth.py"
+  fail=$((fail + 1))
 else
   report FAIL "the editor started dropping aef:meta keys it does not name, or grew a second carrier for one that has an emitter (T-570 — run 'python3 tools/_t570-meta-carriage-teeth.py'; a mutant that reddens MORE than its own legs is not discriminating, and CANNOT RUN is not a pass)"
   show_output "$TMP/leg-_t570-carriage.out" "_t570-meta-carriage-teeth.py"
+  fail=$((fail + 1))
+fi
+
+# T-1060: the CDP probes wait for the ?load= map itself, not a fixed 400 ms after _appReady. On a busy
+# host the old wait lost the race and two guards reported CANNOT RUN, read here as regressions.
+if bash "$ROOT/tools/_t1060-slow-load-teeth.sh" > "$TMP/leg-_t1060.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a CDP probe again races the editor's ?load= fetch (a slow-loading editor makes it report CANNOT RUN), or the control no longer reaches the race (run 'bash tools/_t1060-slow-load-teeth.sh'; T-1060)"
+  show_output "$TMP/leg-_t1060.out" "_t1060-slow-load-teeth.sh"
   fail=$((fail + 1))
 fi
 
@@ -2732,6 +2747,12 @@ for _entry in "${T1013_GUARDS[@]}"; do
   esac
   if (cd "$ROOT" && timeout 600 "${_cmd[@]}") > "$TMP/leg-t1013-$_tool.out" 2>&1; then
     pass=$((pass + 1))
+  elif grep -qE '^(CANNOT RUN|COULD NOT MEASURE)' "$TMP/leg-t1013-$_tool.out"; then
+    # T-1060: still red (nothing was verified), but named for what it is — the guard never got to
+    # look, which is an environment/harness problem, not a regression in what it guards.
+    report FAIL "standing guard $_tool COULD NOT RUN (not a verdict on the code — $(grep -m1 -E '^(CANNOT RUN|COULD NOT MEASURE)' "$TMP/leg-t1013-$_tool.out" | cut -c1-120)): $_why (run '${_cmd[0]} tools/$_tool'; wired by T-1013)"
+    show_output "$TMP/leg-t1013-$_tool.out" "$_tool"
+    fail=$((fail + 1))
   else
     report FAIL "standing guard $_tool failed: $_why (run '${_cmd[0]} tools/$_tool'; wired by T-1013)"
     show_output "$TMP/leg-t1013-$_tool.out" "$_tool"
