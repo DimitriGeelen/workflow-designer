@@ -1,0 +1,5 @@
+editor=/opt/832-Workflow-designer/src/aef-workflow-designer.html mode=long maps=24
+{"under":0,"labels":141,"header":0,"lane":3,"pool":1,"cross":99,"side":100}
+  context-memory.bpmn  n_start  [below] "run halted because the operator pressed "  LANE(y 131-181 vs 62-158)  cross=0 rect=[91,131,210,181]
+  git-commit-flow.bpmn  n_start  [below] "run halted because the operator pressed "  LANE(y 441-491 vs 366-474) POOL  cross=0 rect=[101,441,220,491]
+  session-capture.bpmn  n_start  [below] "run halted because the operator pressed "  LANE(y 137-211 vs 62-170)  cross=0 rect=[91,137,177,211]

@@ -1,0 +1,4 @@
+editor=/opt/832-Workflow-designer/src/aef-workflow-designer.html mode=orig maps=24
+{"under":0,"labels":141,"header":0,"lane":2,"pool":0,"cross":67,"side":81}
+  cross-host-dispatch.bpmn  n_send  [below] "Agent runs `fw dispatch send`"  LANE(y 131-169 vs 62-158)  cross=0 rect=[103,131,174,169]
+  session-capture.bpmn  n_start  [below] "session end / context transition"  LANE(y 137-175 vs 62-170)  cross=0 rect=[91,137,177,175]
