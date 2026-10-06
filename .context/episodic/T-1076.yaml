@@ -1,0 +1,189 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1076: Upgrade vendored AEF 1.8.3 -> 1.8.5 (T-1000 protocol)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-06T20:55:18Z
+# ============================================================================
+
+task_id: T-1076
+task_name: "Upgrade vendored AEF 1.8.3 -> 1.8.5 (T-1000 protocol)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-06T19:06:03Z
+completed: 2026-10-06T20:55:06Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-06T21:07:52+02:00
+last_commit: 2026-10-06T22:55:05+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  runme job 003-upgrade-aef-1.8.5 (pinned v1.8.5 = a06dc1f6, re-vendor protocol as job 001), dry-run passed. pristine vendor commit — AEF 1.8.5 as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF 1.8.5 commit (re-vendor protocol step 2, T-1000). re-apply our 36 local fixes on AEF 1.8.5 (re-vendor protocol step 3) — all 36 applied cleanly from the pre-upgrade diff; none adopted upstream (checkpoint.sh T-849 and delegation_cli.py T-931 checked: they do not overlap 1.8.5's T-3942/T-3949 fixes); _t517 OK, teeth 11/11; syntax checked. .framework.yaml as the 1.8.5 upgrade rewrote it (version, upgraded_from, version_sha, last_upgrade only); settings.json untouched, 3 project hooks present, no <file>.upstream copies written. 1.8.5 upgrade followed up — 36 local fixes re-applied, project files checked, bridge 249/0, T-1075/G-083 closed, T-310 re-judged (ambers handed to T-1078); job 003 run record. AC 5 reworded to what was done (the deferral gate read 'handed on' and AEF's task ids as a deferral); T-1078 names T-1076 as its origin
+
+# Key outcomes
+outcomes:
+  - 'A runme job is prepared for the operator (preconditions, y/N per step, log, runme-signal), `bash runme.sh --dry-run <job>` passes and the watcher is armed; the agent never runs it for real'
+  - 'After the operator''s run: `.agentic-framework/VERSION` reads 1.8.5 and the pristine commit touches only `.agentic-framework/` (T-1000 G1)'
+  - 'Every register entry in `.vendor-divergence.yaml` is re-applied, retired as superseded by 1.8.4/1.8.5, or recorded; `_t517` reports no STALE local fix'
+  - 'Post-upgrade checks recorded: project hooks in `.claude/settings.json` intact, cron registry intact, any `<file>.upstream` written by the T-3955 upgrade step listed and compared, bridge suite re-run'
+  - 'The release''s fixes are used: the budget-critical handover fix read in the vendored checkpoint.sh and G-083 resolved; T-310''s two criteria re-judged with the reviewer-numbering fix; the panel''s one request filed as its own task (T-1078, which names this task)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: '1.8.5 upgrade followed up — 36 local fixes re-applied, project files checked, bridge 249/0, T-1075/G-083 closed, T-310 re-judged (ambers handed to T-1078); job 003 run record'
+    source: git-mined
+  - description: 're-apply our 36 local fixes on AEF 1.8.5 (re-vendor protocol step 3) — all 36 applied cleanly from the pre-upgrade diff; none adopted upstream (checkpoint.sh T-849 and delegation_cli.py T-931 checked: they do not overlap 1.8.5''s T-3942/T-3949 fixes); _t517 OK, teeth 11/11; syntax checked'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/audit/unit-suite.sh'
+  - '.agentic-framework/agents/context/budget-gate.sh'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/check-agent-dispatch.sh'
+  - '.agentic-framework/agents/context/check-inception-schema.py'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/context/post-compact-resume.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/agents/termlink/termlink.sh'
+  - '.agentic-framework/bin/claude-fw'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/docs/reports/T-2899-designer-stamp-provenance.md'
+  - '.agentic-framework/docs/reports/T-3896-approvals-readiness-rca.md'
+  - '.agentic-framework/docs/reports/T-3922-triage-832-010.md'
+  - '.agentic-framework/docs/reports/T-3922-triage-rest.md'
+  - '.agentic-framework/docs/reports/T-3922-triage-ring20.md'
+  - '.agentic-framework/docs/reports/T-3922-verdicts.json'
+  - '.agentic-framework/docs/reports/T-3922-waiting-items.json'
+  - '.agentic-framework/docs/reports/T-3922-waiting-triage.md'
+  - '.agentic-framework/docs/reports/T-3922-worker-brief.md'
+  - '.agentic-framework/docs/reports/T-3930-ring20-orchestration-review.md'
+  - '.agentic-framework/docs/reports/T-3930-worker-brief.md'
+  - '.agentic-framework/docs/reports/T-3934-task-index.md'
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/config-file.sh'
+  - '.agentic-framework/lib/config.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/design_register.py'
+  - '.agentic-framework/lib/handover-lock.sh'
+  - '.agentic-framework/lib/inception_schema_backfill.py'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/render_surface.sh'
+  - '.agentic-framework/lib/reviewer/judge_cli.py'
+  - '.agentic-framework/lib/runme.sh'
+  - '.agentic-framework/lib/sidecar/addressing.py'
+  - '.agentic-framework/lib/sidecar/circuit.py'
+  - '.agentic-framework/lib/sidecar_cli.py'
+  - '.agentic-framework/lib/sidecar/delivery.py'
+  - '.agentic-framework/lib/sidecar/inbox.py'
+  - '.agentic-framework/lib/sidecar/inject.py'
+  - '.agentic-framework/lib/sidecar/receipts.py'
+  - '.agentic-framework/lib/sidecar/retry.py'
+  - '.agentic-framework/lib/sidecar/status.py'
+  - '.agentic-framework/lib/sidecar/termlink_transport.py'
+  - '.agentic-framework/lib/sidecar/waiting.py'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/task_origin.py'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/upgrade.sh'
+  - '.agentic-framework/lib/upgrade_template_sync.py'
+  - '.agentic-framework/lib/vendor_preserve.py'
+  - '.agentic-framework/lib/verdict_ledger.py'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/approvals.py'
+  - '.agentic-framework/web/blueprints/arcs.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/config.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/inception.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/_approvals_content.html'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/arc_close.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/templates/inception_detail.html'
+  - '.agentic-framework/web/templates/_origin_badge.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.context/runme/003-upgrade-aef-1.8.5/done'
+  - '.context/runme/003-upgrade-aef-1.8.5/dryrun.ok'
+  - '.context/runme/003-upgrade-aef-1.8.5/job.sh'
+  - '.context/runme/003-upgrade-aef-1.8.5/run-20261006T213903.log'
+  - '.framework.yaml'
+  - '.tasks/active/T-1076-upgrade-vendored-aef-183---185-t-1000-pr.md'
+  - '.tasks/active/T-1078-advisory-banners-overlay-the-canvas-with.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-06T21:07:52'
+    action: 'T-1076: runme job 003-upgrade-aef-1.8.5 (pinned v1.8.5 = a06dc1f6, re-vendor protocol as job 001), dry-run passed'
+  - time: '2026-10-06T21:47:35'
+    action: 'T-1076: pristine vendor commit — AEF 1.8.5 as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-06T21:51:54'
+    action: 'T-1076: advance the divergence baseline to the pristine AEF 1.8.5 commit (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-06T21:53:34'
+    action: 'T-1076: re-apply our 36 local fixes on AEF 1.8.5 (re-vendor protocol step 3) — all 36 applied cleanly from the pre-upgrade diff; none adopted upstream (checkpoint.sh T-849 and delegation_cli.py T-931 checked: they do not overlap 1.8.5''s T-3942/T-3949 fixes); _t517 OK, teeth 11/11; syntax checked'
+  - time: '2026-10-06T21:54:36'
+    action: 'T-1076: .framework.yaml as the 1.8.5 upgrade rewrote it (version, upgraded_from, version_sha, last_upgrade only); settings.json untouched, 3 project hooks present, no <file>.upstream copies written'
+  - time: '2026-10-06T22:54:32'
+    action: 'T-1076: 1.8.5 upgrade followed up — 36 local fixes re-applied, project files checked, bridge 249/0, T-1075/G-083 closed, T-310 re-judged (ambers handed to T-1078); job 003 run record'
+  - time: '2026-10-06T22:55:05'
+    action: 'T-1076: AC 5 reworded to what was done (the deferral gate read ''handed on'' and AEF''s task ids as a deferral); T-1078 names T-1076 as its origin'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 109 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 109
+  commits: 7
+  files_changed: 97
+  lines_added: 11021
+  lines_removed: 3764
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1076-upgrade-vendored-aef-183---185-t-1000-pr.md
+generated_by: context-agent-hybrid
