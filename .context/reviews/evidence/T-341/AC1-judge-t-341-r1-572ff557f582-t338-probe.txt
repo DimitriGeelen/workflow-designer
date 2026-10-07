@@ -1,0 +1,41 @@
+input fidelity: 24 corpus maps round-tripped; 10 out-of-vocabulary tags, 8 malformed shapes, 4 unresolvable-ref shapes, 1 unknown sub-tree, 7 accepted-element content shapes, 3 competing-carrier questions probed.
+  corpus loss:  none — every map preserves node/flow/lane counts
+  lossy tags:   0/10 — (none)
+  malformed:    no silent partial acceptance — every case refuses visibly or preserves
+      not-wellformed-unclosed    REFUSED            (applied to 24/24)
+      not-wellformed-badentity   REFUSED            (applied to 24/24)
+      not-wellformed-mismatch    REFUSED            (applied to 24/24)
+      no-process-element         REFUSED            (applied to 24/24)
+      node-without-id            PRESERVED          (applied to 15/24)
+      wrong-root                 PRESERVED          (applied to 24/24)
+      empty-document             REFUSED            (applied to 24/24)
+      truncated-midway           REFUSED            (applied to 24/24)
+  refs:         no identity lost — every aef:uid survives an unresolvable reference
+      flow-sourceRef-dangling    UID-KEPT               (applied 24/24; lane re-homed on 0)
+      flow-targetRef-dangling    UID-KEPT               (applied 24/24; lane re-homed on 0)
+      flowNodeRef-dangling       LANE-CLEARED+UID-KEPT  (applied 24/24; lane re-homed on 24 — agent→(none), framework→(none), human→(none), working→(none))
+      attachedToRef-dangling     UID-KEPT               (applied 24/24; lane re-homed on 0)
+  sub-tree:     DI-PRESERVED — standard BPMN DI injected on 24/24 maps, survived on 24
+  content:      4 shape(s) SILENTLY DROPPED from elements the importer accepted
+      documentation          CONTENT-PRESERVED   (applied 15/24)
+      ext-foreign-child      CONTENT-DROPPED     (applied 15/24)
+      property               CONTENT-DROPPED     (applied 15/24)
+      multiInstanceLoop      CONTENT-DROPPED     (applied 15/24)
+      unknown-attribute      CONTENT-DROPPED     (applied 15/24)
+      incoming-ref           CONTENT-DROPPED     (applied 15/24)  [derivable — dropping is correct]
+      conditionExpression    CONTENT-PRESERVED   (applied 24/24)
+  root siblings: 7 shape(s) SILENTLY DROPPED from definitions/collaboration
+      pool-identity          ROOT-PRESERVED      (applied 24/24)  [POSITIVE CONTROL — must survive]
+      second-process         ROOT-DROPPED        (applied 24/24)
+      root-message           ROOT-DROPPED        (applied 24/24)
+      root-signal            ROOT-DROPPED        (applied 24/24)
+      root-error             ROOT-DROPPED        (applied 24/24)
+      root-datastore         ROOT-DROPPED        (applied 24/24)
+      second-participant     ROOT-DROPPED        (applied 24/24)
+      message-flow           ROOT-DROPPED        (applied 24/24)
+  dangling refs: none introduced — output stays SELF-CONSISTENT (baseline clean); the loss is lossy-but-valid, not invalid
+  carriers:     the competing-carrier table still describes the code — PL-114 holds as measured
+      geometry               CARRIER-GENERATED:aef:position   (applied 24/24; node position)
+      foreign-flownode       CARRIER-NONE                     (applied 24/24; an out-of-vocabulary flow node)
+      element-content        CARRIER-NONE                     (applied 15/24; author documentation on a task)
+OK: every measured fidelity verdict matches expectation — corpus lossless, vocabulary gap set unchanged, no silent partial acceptance, no identity destroyed
