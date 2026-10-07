@@ -320,3 +320,10 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1081-t628-g020-remedy-reachablesh-fails-insid.md
 - **Context:** Initial task creation
+
+### 2026-10-07 — third occurrence, now on AEF 1.8.6 [agent]
+Bridge on the 1.8.6 upgrade (T-1082): 251/1, the 1 again `_t628` ("a G-020 block names a remedy that works
+from the blocked state"); run alone right after: 13/13. Occurrences: 2026-10-06 ~15:16Z (1.8.3/1.8.5 era,
+with four audit teeth), 2026-10-07 on f6a6c957 (1.8.5), 2026-10-07 after T-1082 (1.8.6). The in-suite log
+shows only the one-line FAIL, no captured output — first step is to make the bridge leg capture `_t628`'s
+output (show_output) so the next red says WHICH of its 13 legs failed.

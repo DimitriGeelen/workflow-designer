@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-07T10:44:03Z
-last_update: 2026-10-07T12:42:40Z
+last_update: 2026-10-07T13:21:06Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -64,10 +64,10 @@ consumer "AC Classification Guidance" section, asked for by 832 T-1077; adoption
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A runme job is prepared (pinned v1.8.6 = 1ea10441), `bash runme.sh --dry-run <job>` passes, the watcher is armed; the agent never runs it for real
-- [ ] After the operator's run: VERSION reads 1.8.6 and the pristine commit touches only `.agentic-framework/`
-- [ ] Every `.vendor-divergence.yaml` entry re-applied, retired as superseded, or recorded; `_t517` OK
-- [ ] Post-upgrade checks recorded: settings.json hooks intact, cron intact, any `.upstream` files listed and compared, bridge suite re-run
+- [x] A runme job is prepared (pinned v1.8.6 = 1ea10441), `bash runme.sh --dry-run <job>` passes, the watcher is armed; the agent never runs it for real
+- [x] After the operator's run: VERSION reads 1.8.6 and the pristine commit touches only `.agentic-framework/`
+- [x] Every `.vendor-divergence.yaml` entry re-applied, retired as superseded, or recorded; `_t517` OK
+- [x] Post-upgrade checks recorded: settings.json hooks intact, cron intact, any `.upstream` files listed and compared, bridge suite re-run
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -101,6 +101,12 @@ consumer "AC Classification Guidance" section, asked for by 832 T-1077; adoption
 -->
 
 ## Verification
+
+grep -qx '1.8.6' .agentic-framework/VERSION
+test "$(git show --name-only --format= fef66c7d | grep -c .)" -gt 0 && test "$(git show --name-only --format= fef66c7d | grep -c .)" -eq "$(git show --name-only --format= fef66c7d | grep -c '^\.agentic-framework/')"
+python3 tools/_t517-vendor-divergence.py > /tmp/.t1082-t517 2>&1 && grep -q '^OK' /tmp/.t1082-t517
+test -f .context/runme/004-upgrade-aef-1.8.6/done
+test "$(grep -c '_t420-rail-attribution-gate\|warn-uncontrolled-absence\|check-bare-import' .claude/settings.json)" -ge 3
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -324,3 +330,15 @@ consumer "AC Classification Guidance" section, asked for by 832 T-1077; adoption
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1082-upgrade-vendored-aef-185---186-t-1000-pr.md
 - **Context:** Initial task creation
+
+### 2026-10-07 — upgrade done and followed up [agent]
+- Job 004 (pinned v1.8.6 = 1ea10441), dry-run sha 5c05002020eb; the operator ran it 12:01-12:35Z, 4/4, rc=0.
+  Pristine commit fef66c7d: 62 paths, all under `.agentic-framework/`; baseline advanced; crontab ok.
+- 36 STALE local fixes: all re-applied cleanly from the worklist patches, none adopted upstream (5436a322);
+  `_t517` OK, teeth 11/11, syntax checked; runtime state kept out of the commit.
+- Project files: CLAUDE.md gained AEF's "AC Classification Guidance" (T-3963) — accepted; our PD-357 section
+  now points at it and names `classify-ac`; the upgrade dropped one blank line, restored. `.framework.yaml`
+  bookkeeping only. settings.json untouched (3 project hooks present). No `.upstream` copy written beside a
+  customised file (`.agentic-framework/.upstream` is the tracked URL sentinel).
+- Bridge on 1.8.6: 251/1 — the 1 is `_t628` again (passes alone 13/13; third such transient, evidence added
+  to T-1081). Follow-up enabled by this release: T-1080 (switch `_t770` to `classify-ac`).
