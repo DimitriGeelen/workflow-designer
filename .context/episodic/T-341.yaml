@@ -1,0 +1,138 @@
+# ============================================================================
+# EPISODIC MEMORY - T-341: An unresolvable flowNodeRef silently reassigns the orphaned node to the human (sovereignty) lane
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-07T07:23:31Z
+# ============================================================================
+
+task_id: T-341
+task_name: "An unresolvable flowNodeRef silently reassigns the orphaned node to the human (sovereignty) lane"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-02T10:39:07Z
+completed: 2026-10-07T07:23:11Z
+duration_days: 66
+updates_count: 2
+first_commit: 2026-08-03T13:50:47+02:00
+last_commit: 2026-10-07T09:23:11+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  carries T-337's completion artifacts (T-337 is terminal, so the focus-drift gate correctly refuses its label) — T-337 closed work-completed, P-011 4/4 green (bridge suite, t308 vs pinned 8ee29344, t338 input fidelity, finding anchorability), reviewer static-scan PASS/no findings, episodic generated, decision PD-132 captured. No T-341 work yet; focus set here because the import-loss trio is where the arc continues.. the orphan-lane default is POSITIONAL, not sovereignty — the task's own title is wrong, and the ruling it asks for is the wrong ruling. session bookkeeping — learnings captured (accidental-controls: emptying an expectation set deletes protection nobody wrote; checks-that-discriminate-nothing extended with the non-trivial-number case, where a real reproducible 5-of-24 separated nothing), RAIL-411/412 posted to AEF. No further T-341 work; it stays blocked on the operator ruling.. recommendations replace two bare abstentions — announce is recommendable now, five lane-repair candidates narrow to two, and neither move crosses the sovereignty line.. carry T-676's partial-complete state and instance 9 — a task cannot commit its own completion under its own id, and the regress does not terminate. recommend closing as superseded by the operator's T-888 ruling (element carries authority; lane placement is layout) — the Human AC is the operator's to tick; T-310 AC#3 green by the full panel and applied, AC#1 held by a read-only codex seat. Human criterion reworded with the operator's OK into the checkable claim (superseded by T-888; orphan gets no lane + E-XML-NODE-UNASSIGNED) — AEF now routes it to REVIEWER-JUDGES; old ruling text kept as superseded prose. reviewer verdict. reviewer GREEN (superseded by T-888) applied; _t338 lane verdict split — dangling flowNodeRef now expects LANE-CLEARED (24/24 maps -> no lane), LANE-REHOMED would mean the silent reassignment returned. closing notes — reviewer GREEN applied, three Agent ACs met, bridge 251/1 (the 1 unrelated _t628 transient, filed as T-1081). retire the orphan-lane probe from Verification (its two hypotheses both assume a lane; since T-891 orphans land in none, 24/24) — _t338's LANE-CLEARED expectation pins the behaviour. re-judged GREEN at the current revision (V-20261007-b19b045b) after the first verdict was correctly withdrawn as stale (work changed after review); applied, owner back to agent
+
+# Key outcomes
+outcomes:
+  - '**The question the operator is being asked is the right one.** The filed question ("should'
+  - '~~BLOCKED on the Human AC below~~ (unblocked 2026-10-07: the Human AC was superseded by T-888 and'
+  - '~~BLOCKED~~ — `EXPECTED_REFS` in `tools/_t338-input-fidelity-cdp.mjs` updated to record the change:'
+  - '~~BLOCKED~~ — bridge suite green with the changed expectation'
+  - '[REVIEW] **T-341 is superseded: an orphaned node''s lane no longer decides its authority, and the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-08-03-1330.yaml'
+  - '.context/audits/cron/2026-08-03-1345.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/episodic/T-337.yaml'
+  - '.context/locks/T-341.lock'
+  - '.context/project/decisions.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-341/AC1-judge-t-341-r1-572ff557f582.md'
+  - '.context/reviews/evidence/T-341/AC1-judge-t-341-r1-572ff557f582-t338-probe.txt'
+  - '.context/reviews/evidence/T-341/AC1-judge-t-341-r1-a8d9ef65a36e.md'
+  - '.context/reviews/evidence/T-341/dangling-flownoderef-judge-t-341-r1-a8d9ef65a36e.xml'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-337.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.tasks/active/T-1081-t628-g020-remedy-reachablesh-fails-insid.md'
+  - '.tasks/active/T-341-an-unresolvable-flownoderef-silently-rea.md'
+  - '.tasks/active/T-358-importer-fabricates-lane-and-pool-struct.md'
+  - '.tasks/active/T-676-p-002-blocks-resume-itself-a-session-tha.md'
+  - '.tasks/completed/T-337-import-silently-drops-flow-nodes-whose-b.md'
+  - 'tools/_t338-input-fidelity-cdp.mjs'
+  - 'tools/_t341-orphan-lane-probe.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-08-03T13:50:47'
+    action: 'T-341: carries T-337''s completion artifacts (T-337 is terminal, so the focus-drift gate correctly refuses its label) — T-337 closed work-completed, P-011 4/4 green (bridge suite, t308 vs pinned 8ee29344, t338 input fidelity, finding anchorability), reviewer static-scan PASS/no findings, episodic generated, decision PD-132 captured. No T-341 work yet; focus set here because the import-loss trio is where the arc continues.'
+  - time: '2026-08-03T13:55:57'
+    action: 'T-341: the orphan-lane default is POSITIONAL, not sovereignty — the task''s own title is wrong, and the ruling it asks for is the wrong ruling'
+  - time: '2026-08-03T13:57:22'
+    action: 'T-341: session bookkeeping — learnings captured (accidental-controls: emptying an expectation set deletes protection nobody wrote; checks-that-discriminate-nothing extended with the non-trivial-number case, where a real reproducible 5-of-24 separated nothing), RAIL-411/412 posted to AEF. No further T-341 work; it stays blocked on the operator ruling.'
+  - time: '2026-09-05T18:38:17'
+    action: 'T-341: recommendations replace two bare abstentions — announce is recommendable now, five lane-repair candidates narrow to two, and neither move crosses the sovereignty line.'
+  - time: '2026-09-09T09:48:19'
+    action: 'T-341: carry T-676''s partial-complete state and instance 9 — a task cannot commit its own completion under its own id, and the regress does not terminate'
+  - time: '2026-10-06T23:09:58'
+    action: 'T-341: recommend closing as superseded by the operator''s T-888 ruling (element carries authority; lane placement is layout) — the Human AC is the operator''s to tick; T-310 AC#3 green by the full panel and applied, AC#1 held by a read-only codex seat'
+  - time: '2026-10-07T08:35:24'
+    action: 'T-341: Human criterion reworded with the operator''s OK into the checkable claim (superseded by T-888; orphan gets no lane + E-XML-NODE-UNASSIGNED) — AEF now routes it to REVIEWER-JUDGES; old ruling text kept as superseded prose'
+  - time: '2026-10-07T08:36:27'
+    action: 'T-341: reviewer verdict'
+  - time: '2026-10-07T08:37:51'
+    action: 'T-341: reviewer GREEN (superseded by T-888) applied; _t338 lane verdict split — dangling flowNodeRef now expects LANE-CLEARED (24/24 maps -> no lane), LANE-REHOMED would mean the silent reassignment returned'
+  - time: '2026-10-07T09:19:14'
+    action: 'T-341: closing notes — reviewer GREEN applied, three Agent ACs met, bridge 251/1 (the 1 unrelated _t628 transient, filed as T-1081)'
+  - time: '2026-10-07T09:20:24'
+    action: 'T-341: retire the orphan-lane probe from Verification (its two hypotheses both assume a lane; since T-891 orphans land in none, 24/24) — _t338''s LANE-CLEARED expectation pins the behaviour'
+  - time: '2026-10-07T09:22:30'
+    action: 'T-341: reviewer verdict'
+  - time: '2026-10-07T09:23:11'
+    action: 'T-341: re-judged GREEN at the current revision (V-20261007-b19b045b) after the first verdict was correctly withdrawn as stale (work changed after review); applied, owner back to agent'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 16 commit(s), 94844 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 94844
+  commits: 16
+  files_changed: 43
+  lines_added: 1909
+  lines_removed: 145
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-341-an-unresolvable-flownoderef-silently-rea.md
+generated_by: context-agent-hybrid

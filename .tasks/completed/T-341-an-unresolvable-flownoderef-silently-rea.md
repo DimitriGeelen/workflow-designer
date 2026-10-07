@@ -9,13 +9,13 @@ description: >
   reference silently promotes a step into the sovereignty lane and renumbers its siblings
   display ids. Found by T-339.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_6_run
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_norec-verify.py, tools/_t338-input-fidelity-cdp.mjs, tools/_t341-orphan-lane-probe.mjs, tools/_t352-member-scan.py, tools/_t358-lane-provenance-cdp.mjs, tools/_t358-teeth.py, tools/_t777-selection-eligibility-census.py, tools/_t783-human-ac-queue-extract.py, tools/_t872-decision-docket.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -23,7 +23,7 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T10:39:07Z
 last_update: 2026-10-07T07:23:11Z
-date_finished:
+date_finished: 2026-10-07T07:23:11Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -608,3 +608,15 @@ close it; it makes it answerable.
   split, `flowNodeRef-dangling` now expects LANE-CLEARED+UID-KEPT (24/24 maps → no lane) and LANE-REHOMED
   would fail; bridge 251/1 on f6a6c957, the 1 being `_t628` (unrelated, passes alone 13/13, the second
   such transient in two days → filed as T-1081).
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d0527f80
+- **Timestamp:** 2026-10-07T07:23:22Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-07T07:23:11Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
