@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1081: _t628-g020-remedy-reachable.sh fails inside the bridge suite but passes alone — twice in two days (2026-10-06 15:16Z with 4 other audit teeth; 2026-10-07 on f6a6c957, alone)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-07T21:57:08Z
+# ============================================================================
+
+task_id: T-1081
+task_name: "_t628-g020-remedy-reachable.sh fails inside the bridge suite but passes alone — twice in two days (2026-10-06 15:16Z with 4 other audit teeth; 2026-10-07 on f6a6c957, alone)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-07T07:18:35Z
+completed: 2026-10-07T21:56:54Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-10-07T23:28:57+02:00
+last_commit: 2026-10-07T23:56:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  _t628 in-suite red was a 600 s stdin hang — backticks in an unquoted fixture heredoc ran a fileless sed; escaped, and the bridge suite now runs with stdin from /dev/null. in-suite proof — full bridge with an open stdin pipe 252/0 in 1642 s
+
+# Key outcomes
+outcomes:
+  - 'The failing `_t628` leg is named from captured in-suite output (which of its legs, which message), and the shared state that makes it fail in-suite is identified with a reproduction, written up under ## RCA'
+  - '`_t628` is made hermetic against that shared state (or the interfering leg is), with no weakening of what it asserts: its own mutation/negative control still bites'
+  - 'The reproduction that failed before the fix passes after it, repeated (≥3 runs)'
+  - 'A full bridge run with an open stdin pipe is green on `_t628` (in-suite proof, not only the reproduction) — 2026-10-07T21:56:42Z, `bash tests/run-bridge-tests.sh < <(sleep 3600)`: 252 passed, 0 failed, 1642 s (no timeout''s worth of extra time), commit 9fc56e5d'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: '_t628 in-suite red was a 600 s stdin hang — backticks in an unquoted fixture heredoc ran a fileless sed; escaped, and the bridge suite now runs with stdin from /dev/null'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1081-t628-g020-remedy-reachablesh-fails-insid.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t628-g020-remedy-reachable.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-07T23:28:57'
+    action: 'T-1081: _t628 in-suite red was a 600 s stdin hang — backticks in an unquoted fixture heredoc ran a fileless sed; escaped, and the bridge suite now runs with stdin from /dev/null'
+  - time: '2026-10-07T23:56:53'
+    action: 'T-1081: in-suite proof — full bridge with an open stdin pipe 252/0 in 1642 s'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 878 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 878
+  commits: 2
+  files_changed: 3
+  lines_added: 82
+  lines_removed: 11
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1081-t628-g020-remedy-reachablesh-fails-insid.md
+generated_by: context-agent-hybrid
