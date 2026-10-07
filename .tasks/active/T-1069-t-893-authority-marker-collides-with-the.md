@@ -43,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T09:49:37Z
-last_update: 2026-10-06T23:33:52Z
+last_update: 2026-10-07T00:03:59Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -96,7 +96,7 @@ top-entering flows land; the line and arrowhead cross it at every size. Structur
 - [x] A leg with a poison arm (the full-length marker always drawn → M1 fails), wired into the bridge;
       `t893-authority-marker-state.test.mjs`, `_t892-lane-default-cdp.mjs` and T-893's shots tool still pass;
       screenshots read
-- [ ] T-893's Human criterion is re-judged by the independent reviewer after this change
+- [x] T-893's Human criterion is re-judged by the independent reviewer after this change
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -380,3 +380,14 @@ node tests/t893-authority-marker-state.test.mjs
 ### 2026-10-06T22:59:43Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-07 — T-893 re-judged twice; panel split only by a read-only seat [agent]
+- First re-judge (judge-t-893-r5-claude-code-324f6c086824): AMBER — design met, but (a) T-893's Expected
+  text and Visual Verification still said "⚠ no authority", (b) the markers had `pointer-events: none`, so
+  the `<title>` tooltip could never show. Both fixed in 51a680ca: markers hit-testable (`cursor: help`; a
+  click on one is a node click, the listeners are on the node `<g>`), M4 now checks hoverability (red on
+  the previous commit, 600/600), T-893 text updated, nine shots re-taken and read.
+- Second re-judge after bridge 252/0: claude-code **green**; codex **amber** with "No visual adjustment is
+  indicated by the saved images" — its read-only seat could not run the screenshot script or hover. Same
+  seat limitation as T-310 AC#1 (reported to AEF earlier; they track it). `verdict apply` ticked nothing
+  (a rung-5 panel must be unanimous), so T-893's Human AC waits for a browser-capable seat or the operator.
