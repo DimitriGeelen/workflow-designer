@@ -24,14 +24,17 @@ import json
 import re
 import subprocess
 from pathlib import Path
-from urllib.parse import unquote
 
 import yaml
 from flask import Blueprint, render_template, request
 
 from web.shared import mtime_cached_get
 
-from web.shared import PROJECT_ROOT
+from web.shared import FRAMEWORK_ROOT, PROJECT_ROOT
+# T-3952: fw from the FRAMEWORK root, never cwd-relative "bin/fw" — these calls run with
+# cwd=PROJECT_ROOT, and a consumer project has no bin/fw at its root (.agentic-framework/bin/fw).
+_FW = str(FRAMEWORK_ROOT / "bin" / "fw")
+
 
 bp = Blueprint("bvp", __name__)
 
@@ -41,35 +44,6 @@ bp = Blueprint("bvp", __name__)
 POLICY_PATH = PROJECT_ROOT / "policy" / "value-drivers.yaml"
 PROPOSALS_PATH = PROJECT_ROOT / ".context" / "bvp-driver-proposals.jsonl"
 TSHIRT = {"S": 2, "M": 4, "L": 6, "XL": 8}
-
-
-def _hx_prompt() -> str:
-    """T-547: the operator's `hx-prompt` answer, decoded if htmx had to encode it.
-
-    XHR forbids non-ASCII header values, so htmx (htmx.min.js, `Cn`) retries a
-    rejected setRequestHeader with `encodeURIComponent` AND sets a companion
-    `<header>-URI-AutoEncoded: true` declaring that it did. htmx behaves
-    correctly; reading `HX-Prompt` raw is what stores `%E2%80%94` as the
-    operator's words. One em-dash, curly apostrophe or accented letter in a
-    rationale is enough — which is why pure-ASCII rationales hid this.
-
-    The decode is CONDITIONAL on the companion header, deliberately. An
-    unconditional `unquote()` would corrupt a rationale a human typed as
-    "covers 50%20 of cases": that string is pure ASCII, so htmx sends it
-    unencoded with no companion header, and decoding it anyway silently turns
-    it into "covers 50  of cases". Trusting htmx's own declaration is the only
-    way to tell an encoding from a percent sign.
-
-    Returns "" when the header is absent, so existing
-    `_hx_prompt() or request.form.get(...)` fallbacks for CLI/API callers
-    (which send the rationale as a form field) keep working unchanged.
-    """
-    raw = request.headers.get("HX-Prompt")
-    if not raw:
-        return ""
-    if (request.headers.get("HX-Prompt-URI-AutoEncoded") or "").lower() == "true":
-        return unquote(raw)
-    return raw
 
 
 def _load_proposals(state_filter: str | None = "pending") -> list[dict]:
@@ -742,7 +716,7 @@ def bvp_commit_weights():
         if not 0 <= weight <= 9:
             return f"Driver {driver}: weight {weight} out of range (0-9)", 400
         cmd = [
-            "bin/fw", "bvp", "weight",
+            _FW, "bvp", "weight",
             "--set", f"{driver}={weight}",
             "--rationale", rationale,
             "--from-watchtower",
@@ -804,7 +778,7 @@ def bvp_driver_add():
         return f"Cannot drop protected driver {drop_id} (D1-D4 are immutable in identity).", 400
 
     cmd = [
-        "bin/fw", "bvp", "driver",
+        _FW, "bvp", "driver",
         "--add", name,
         "--weight", str(weight),
         "--rationale", rationale,
@@ -865,7 +839,7 @@ def bvp_driver_remove():
         or ""
     ).strip()
     rationale = (
-        _hx_prompt()                      # T-547: decoded when htmx encoded it
+        request.headers.get("HX-Prompt")
         or request.form.get("rationale")
         or ""
     ).strip()
@@ -878,7 +852,7 @@ def bvp_driver_remove():
         return "Rationale must be ≥30 characters (R6).", 400
 
     cmd = [
-        "bin/fw", "bvp", "driver",
+        _FW, "bvp", "driver",
         "--remove", driver_id,
         "--rationale", rationale,
         "--from-watchtower",
@@ -934,7 +908,7 @@ def bvp_driver_propose():
         return "Rationale must be ≥30 characters (R6).", 400
 
     cmd = [
-        "bin/fw", "bvp", "driver",
+        _FW, "bvp", "driver",
         "--propose", name,
         "--weight", str(weight),
         "--rationale", rationale,
@@ -983,7 +957,7 @@ def bvp_driver_approve():
         return f"Proposal {proposal_id} not in pending state (already decided or missing).", 404
 
     cmd = [
-        "bin/fw", "bvp", "driver",
+        _FW, "bvp", "driver",
         "--add", proposal["name"],
         "--weight", str(proposal["weight"]),
         "--rationale", proposal["rationale"],
@@ -1039,7 +1013,7 @@ def bvp_driver_reject():
     """
     proposal_id = (request.args.get("id") or request.form.get("id") or "").strip()
     rationale_decision = (
-        _hx_prompt()                      # T-547: decoded when htmx encoded it
+        request.headers.get("HX-Prompt")
         or request.form.get("rationale_decision")
         or ""
     ).strip()

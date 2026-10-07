@@ -32,10 +32,7 @@
     </header>
 
     <p><code>{{ component.location }}</code></p>
-    {# T-569: no wrapping <p> — markdown2 emits its own block-level <p>, and nesting them
-       is invalid HTML. purpose_html is escaped by render_markdown_safe (safe_mode="escape"),
-       including on its ImportError path, so `| safe` here marks sanitised output. #}
-    {% if purpose_html %}{{ purpose_html | safe }}{% else %}<p>No purpose documented</p>{% endif %}
+    <p>{{ component.purpose | default('No purpose documented') }}</p>
 
     {% if component.tags %}
     <p>

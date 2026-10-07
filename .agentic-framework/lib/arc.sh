@@ -658,46 +658,6 @@ else:  # T-3577: an unquoted trailing ' # comment' is not part of the value
 print(v)
 PY
 )"
-    # T-679 (832-local, re-applied on 1.7.740 under T-1005): consult the SAME UNION
-    # the readers do. The check below reads only arc_id:, but lib/arc_membership.py
-    # unions arc_id: with the legacy `arc:<slug>` tag, so a task whose membership is
-    # recorded ONLY in the tag was invisible to the reassignment refusal -- measured:
-    # `fw arc tag designer-authoring-surface T-590` exited 0 on a task already in
-    # ewcr-governed-delivery. Runs BEFORE any write, so a refusal changes nothing.
-    # Only the frontmatter `tags:` line is scanned: `arc:` also appears in prose.
-    if [ -z "$existing_arc_id" ]; then
-        local legacy_rc=0
-        python3 - "$tf" "$id" "$tid" <<'PY' || legacy_rc=$?
-import re, sys
-fn, arc_id, tid = sys.argv[1], sys.argv[2], sys.argv[3]
-text = open(fn).read()
-try:
-    fm = text[:text.index("\n---", 4)]
-except ValueError:
-    fm = text
-tags_line = re.search(r'^tags:.*$', fm, re.MULTILINE)
-tagged = sorted(set(re.findall(r'arc:([A-Za-z0-9._-]+)', tags_line.group(0)))) if tags_line else []
-if len(tagged) > 1:
-    sys.stderr.write("%s carries %d arc tags (%s); arc_id: holds one\n" % (tid, len(tagged), ", ".join(tagged)))
-    sys.exit(12)
-if tagged and tagged[0] != arc_id:
-    sys.stderr.write("%s already belongs to %s via its legacy arc: tag\n" % (tid, tagged[0]))
-    sys.exit(11)
-# A legacy tag naming THIS arc falls through on purpose: writing arc_id: is the upgrade path.
-PY
-        case "$legacy_rc" in
-            0) ;;
-            11) echo "Error: refusing to tag $tid into '$id' -- its legacy arc: tag already places it in another arc." >&2
-                echo "  A task belongs to one arc at a time (T-1849); reassign deliberately by editing tags:/arc_id:." >&2
-                return 1 ;;
-            12) echo "Error: $tid carries multiple legacy arc: tags (see above)." >&2
-                echo "  arc_id: is single-valued -- collapsing them would drop a membership." >&2
-                echo "  Decide which arc owns it, then edit tags:/arc_id: deliberately." >&2
-                return 1 ;;
-            *) echo "Error: legacy-membership check failed (rc=$legacy_rc); not tagging $tid." >&2
-               return 1 ;;
-        esac
-    fi
     if [ -n "$existing_arc_id" ]; then
         local existing_norm
         existing_norm="$(_arc_normalize_input "$existing_arc_id")"
@@ -894,7 +854,7 @@ arc_close() {
             wt_url="$(fw_config WATCHTOWER_URL "" 2>/dev/null || true)"
         fi
         if [ -z "$wt_url" ]; then
-            wt_url="$(bin/fw watchtower url 2>/dev/null || true)"
+            wt_url="$("${FRAMEWORK_ROOT:-$PROJECT_ROOT}/bin/fw" watchtower url 2>/dev/null || true)"
         fi
         [ -z "$wt_url" ] && wt_url="http://localhost:3000"
         echo "Error: agents must not invoke 'fw arc close' directly (§ACD/G-062, T-1671)." >&2
@@ -1043,7 +1003,7 @@ arc_abandon() {
             wt_url="$(fw_config WATCHTOWER_URL "" 2>/dev/null || true)"
         fi
         if [ -z "$wt_url" ]; then
-            wt_url="$(bin/fw watchtower url 2>/dev/null || true)"
+            wt_url="$("${FRAMEWORK_ROOT:-$PROJECT_ROOT}/bin/fw" watchtower url 2>/dev/null || true)"
         fi
         [ -z "$wt_url" ] && wt_url="http://localhost:3000"
         echo "Error: agents must not invoke 'fw arc abandon' directly (§ACD/G-062, T-1671)." >&2
@@ -2345,16 +2305,20 @@ arc_rescore() {
         return 0
     fi
 
-    local count=0 failed=0
+    local count=0 failed=0 est_err
+    # T-3964: fw comes from the framework root. A consumer has no PROJECT_ROOT/bin/fw
+    # (it is .agentic-framework/bin/fw), so the old fallback failed every estimate.
+    local fw_bin="${FW_BIN:-${FRAMEWORK_ROOT:-$PROJECT_ROOT}/bin/fw}"
     echo "  Rescoring member tasks of arc '$input'..."
     while IFS= read -r tid; do
         [ -n "$tid" ] || continue
-        # fw bvp estimate writes to stderr on errors; we want a tidy summary.
-        if "${FW_BIN:-${PROJECT_ROOT}/bin/fw}" bvp estimate "$tid" >/dev/null 2>&1; then
+        # Tidy summary, but keep the estimator's last error line: a bare "failed"
+        # is what hid the missing binary from 010.
+        if est_err=$("$fw_bin" bvp estimate "$tid" 2>&1 >/dev/null); then
             count=$((count + 1))
         else
             failed=$((failed + 1))
-            echo "    WARN: estimator failed on $tid" >&2
+            echo "    WARN: estimator failed on $tid: $(printf '%s\n' "$est_err" | grep -v '^[[:space:]]*$' | tail -1)" >&2
         fi
     done <<< "$active_members"
 

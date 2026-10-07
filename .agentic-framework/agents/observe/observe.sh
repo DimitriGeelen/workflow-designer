@@ -126,9 +126,6 @@ do_capture() {
     # note will use a word nobody thought to list.
     if [ ${#strays[@]} -gt 0 ]; then
         echo -e "${RED}ERROR: fw note received ${#strays[@]} argument(s) it cannot use.${NC}" >&2
-        # 832 T-557 (re-applied on 1.7.740 by T-1005, minimal form): say it outright. "Captured as
-        # the note text" below can be read as "it was captured"; it was not.
-        echo "  Nothing was written — the inbox is unchanged. Re-run in the form shown below." >&2
         echo "" >&2
         echo "  Captured as the note text : \"$text\"" >&2
         echo "  Would have been DISCARDED : $(printf '"%s" ' "${strays[@]}")" >&2
@@ -174,19 +171,46 @@ do_capture() {
     text_yaml=${text//\\/\\\\}        # \  -> \\
     text_yaml=${text_yaml//\"/\\\"}   # "  -> \"
 
+    # T-3969: append at the indentation the existing entries use. A hand-edited or
+    # re-serialised inbox nests the list under `observations:` ("  - id: ..."); a
+    # column-0 append into that list is a YAML parse error, and the pre-push audit
+    # then blocks every push (ring20, twice). The first existing entry decides.
+    local ind=""
+    ind=$(grep -m1 -oE '^[[:space:]]*- id:' "$INBOX_FILE" 2>/dev/null | sed 's/- id://' || true)
+    [ -n "$urgent_field" ] && urgent_field="${ind}${urgent_field}"
+
+    local backup
+    backup=$(mktemp)
+    cp "$INBOX_FILE" "$backup"
+    # A file without a trailing newline would glue the new entry onto its last line.
+    if [ -s "$INBOX_FILE" ] && [ -n "$(tail -c1 "$INBOX_FILE")" ]; then
+        echo >> "$INBOX_FILE"
+    fi
+
     cat >> "$INBOX_FILE" << EOF
-- id: $id
-  text: "$text_yaml"
-  captured: $ts
-  context_task: ${task:-null}
-  tags: [${tags}]
-  status: pending
-  promoted_to: null
+${ind}- id: $id
+${ind}  text: "$text_yaml"
+${ind}  captured: $ts
+${ind}  context_task: ${task:-null}
+${ind}  tags: [${tags}]
+${ind}  status: pending
+${ind}  promoted_to: null
 EOF
 
     if [ -n "$urgent_field" ]; then
         echo "$urgent_field" >> "$INBOX_FILE"
     fi
+
+    # Never leave the inbox unparseable: if the append broke it, whatever shape it
+    # had, put the old bytes back and say so.
+    if ! python3 -c 'import sys, yaml; yaml.safe_load(open(sys.argv[1]))' "$INBOX_FILE" 2>/dev/null; then
+        cp "$backup" "$INBOX_FILE"
+        rm -f "$backup"
+        echo -e "${RED}ERROR: $id NOT captured: appending it would leave $INBOX_FILE unparseable.${NC}" >&2
+        echo "  The inbox is unchanged. Check that it parses as YAML before retrying." >&2
+        exit 1
+    fi
+    rm -f "$backup"
 
     if [ "$urgent" = true ]; then
         echo -e "${GREEN}$id${NC} ${RED}[URGENT]${NC} captured: \"$text\""
@@ -314,24 +338,16 @@ do_promote() {
     local obs_id=""
     local task_type="build"
     local allow_duplicate=false
-    # 832 T-912 (re-applied by T-1027 on 1.7.740): owner defaults to agent. A promoted observation
-    # is "this needs doing", not "only the operator can close this"; hard-coding human made every
-    # promotion an operator-only decision on the delegation surface, and on 1.7.740 it made promote
-    # FAIL outright, because create-task.sh now refuses --owner human without --human-ac (T-767).
-    local task_owner="agent" human_ac=""
     while [ $# -gt 0 ]; do
         case "$1" in
             --type|-t) task_type="$2"; shift 2 ;;
-            --owner|-o) task_owner="$2"; shift 2 ;;
-            --human-ac) human_ac="$2"; shift 2 ;;
             --allow-duplicate) allow_duplicate=true; shift ;;
             -h|--help)
-                echo "Usage: fw note promote OBS-NNN [--type <build|inception|...>] [--owner <agent|human> [--human-ac \"<what the human verifies>\"]] [--allow-duplicate]"
-                echo "  --owner defaults to agent. A human-owned task must say what the human verifies (--human-ac)."
+                echo "Usage: fw note promote OBS-NNN [--type <build|inception|...>] [--allow-duplicate]"
                 return 0 ;;
             -*)
                 echo -e "${RED}Unknown flag: $1${NC}" >&2
-                echo "Usage: fw note promote OBS-NNN [--type <build|inception|...>] [--owner <agent|human>] [--human-ac \"...\"]" >&2
+                echo "Usage: fw note promote OBS-NNN [--type <build|inception|...>]" >&2
                 return 1 ;;
             *)
                 if [ -z "$obs_id" ]; then obs_id="$1"; else
@@ -379,181 +395,18 @@ do_promote() {
     echo -e "${YELLOW}Promoting $obs_id to task (type: $task_type)...${NC}"
     echo ""
 
-    # Create task. Output is CAPTURED so the created id can be read back, then re-printed in full.
-    local create_out create_rc=0
-    local -a create_args=(--name "$text" --description "Promoted from observation $obs_id"
-                          --type "$task_type" --owner "$task_owner")
-    [ -n "$human_ac" ] && create_args+=(--human-ac "$human_ac")
-    create_out=$(PROJECT_ROOT="$PROJECT_ROOT" "$FRAMEWORK_ROOT/agents/task-create/create-task.sh" \
-        "${create_args[@]}" 2>&1) || create_rc=$?
-    printf '%s\n' "$create_out"
-    if [ "$create_rc" -ne 0 ]; then
-        echo -e "${RED}promote: task creation failed (rc=$create_rc)${NC}" >&2
-        echo "  $obs_id is left PENDING — an observation marked promoted with no task behind it" >&2
-        echo "  is worse than one still in the queue." >&2
-        return 1
-    fi
+    # Create task
+    PROJECT_ROOT="$PROJECT_ROOT" "$FRAMEWORK_ROOT/agents/task-create/create-task.sh" \
+        --name "$text" \
+        --description "Promoted from observation $obs_id" \
+        --type "$task_type" \
+        --owner human
 
-    # T-912: record the REAL task id. 1.7.740 wrote the literal 'task' into promoted_to, so the field
-    # was filled with a constant and nothing linked an observation to the task it turned into.
-    local new_id
-    new_id=$(printf '%s\n' "$create_out" | sed -n 's/^ID:[[:space:]]*\(T-[0-9][0-9]*\).*/\1/p' | head -1)
-    if [ -z "$new_id" ]; then
-        echo -e "${RED}promote: could not read the created task id from create-task.sh output${NC}" >&2
-        echo "  $obs_id is left PENDING rather than marked with a placeholder." >&2
-        return 1
-    fi
-
-    # The REVERSE link, in a field a query can read (the description's prose is not an index).
-    local task_file
-    task_file=$(printf '%s\n' "$create_out" | sed -n 's/^File:[[:space:]]*\(.*[^[:space:]]\)[[:space:]]*$/\1/p' | head -1)
-    if [ -n "$task_file" ] && [ -f "$task_file" ]; then
-        OBS_ID="$obs_id" TASK_FILE="$task_file" python3 -c '
-import os, sys
-f, obs = os.environ["TASK_FILE"], os.environ["OBS_ID"]
-lines = open(f, encoding="utf-8").read().split("\n")
-if any(ln.startswith("observation:") for ln in lines):
-    sys.exit(0)
-for i, ln in enumerate(lines):
-    if ln.startswith("id: "):
-        lines.insert(i + 1, "observation: %s" % obs)
-        break
-else:
-    sys.exit(1)
-open(f, "w", encoding="utf-8").write("\n".join(lines))
-' || echo "  (warning: could not add the observation backlink to $task_file)" >&2
-    fi
-
-    # Mark as promoted, with the id rather than a constant.
-    _sed_i "/id: $obs_id/,/promoted_to:/{s/status: pending/status: promoted/;s/promoted_to: null/promoted_to: $new_id/}" "$INBOX_FILE"
+    # Mark as promoted
+    _sed_i "/id: $obs_id/,/promoted_to:/{s/status: pending/status: promoted/;s/promoted_to: null/promoted_to: task/}" "$INBOX_FILE"
 
     echo ""
-    echo -e "${GREEN}$obs_id promoted to $new_id${NC} (owner: $task_owner)"
-    echo "  $obs_id.promoted_to → $new_id, and $new_id.observation → $obs_id"
-}
-
-# 832 T-914, re-applied by T-1028 on 1.7.740 (erased silently by the re-vendor; T-1020 census).
-# T-914: the disposition that had no verb.
-#
-# `fw note` could promote (this needs a task), dismiss (this is not worth doing) and nothing else.
-# But the largest class in the inbox is neither: measured 2026-09-28 by
-# tools/_t703-inbox-residue.py --check, 85 of 118 items over 7 days old are carried-by-completed-
-# task — the work was DONE, by a task that has since closed, and the thread lives in
-# .context/episodic/T-NNN.yaml. That census names the blocker on all 85 rows: "closure blocked:
-# dismiss verb cannot record where the content lives".
-#
-# Dismissing them would record a decision nobody made ("not worth doing" about work already
-# finished) and lose the pointer. Promoting them would file a task for work that already has one.
-# So the only honest disposition was unrepresentable, and the items stayed pending — not through
-# neglect but because the queue had no exit for them. That is why it grows monotonically, and why
-# 39% of it is flagged urgent, which is the point at which the flag stops carrying information.
-#
-# The state was already wanted before it was buildable: OBS-313, OBS-318 and OBS-331 carry
-# `status: resolved` today, set by hand, with no field recording the carrier.
-#
-# THE CARRIER IS MANDATORY AND VALIDATED. An observation marked resolved with no pointer, or with
-# a pointer that does not resolve, is the same defect T-912 just removed from promote — a field
-# that exists and says nothing. A task id must name a real task file; any other carrier must be a
-# path that exists.
-do_resolve() {
-    local obs_id="${1:-}"
-    if [ -z "$obs_id" ]; then
-        echo -e "${RED}Usage: fw note resolve OBS-NNN --carrier <T-NNN|path> [--reason \"...\"]${NC}" >&2
-        echo "  --carrier is REQUIRED: where the content lives now (the task that did the work," >&2
-        echo "  or the file that holds the thread). Resolved with no carrier is not resolved." >&2
-        return 1
-    fi
-    shift
-
-    local carrier="" reason=""
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            --carrier|-c) carrier="$2"; shift 2 ;;
-            --reason) reason="$2"; shift 2 ;;
-            -h|--help)
-                echo "Usage: fw note resolve OBS-NNN --carrier <T-NNN|path> [--reason \"...\"]"
-                return 0 ;;
-            *) shift ;;
-        esac
-    done
-
-    if [ -z "$carrier" ]; then
-        echo -e "${RED}resolve: --carrier is required${NC}" >&2
-        echo "  Resolving without saying where the content went produces a record that cannot" >&2
-        echo "  answer the only question anyone asks of it. Use 'fw note dismiss' if the" >&2
-        echo "  observation is genuinely not actionable." >&2
-        return 1
-    fi
-
-    # Validate the carrier BEFORE touching the inbox. A refusal that has already written is worse
-    # than no refusal.
-    local carrier_kind=""
-    if printf '%s' "$carrier" | grep -qE '^T-[0-9]+$'; then
-        carrier_kind="task"
-        # nullglob-free: the glob is tested by -e on the first expansion result
-        local found=""
-        for f in "$PROJECT_ROOT"/.tasks/active/"$carrier"-*.md "$PROJECT_ROOT"/.tasks/completed/"$carrier"-*.md; do
-            [ -f "$f" ] && { found="$f"; break; }
-        done
-        if [ -z "$found" ]; then
-            echo -e "${RED}resolve: carrier $carrier does not resolve to a task file${NC}" >&2
-            echo "  Looked in .tasks/active/ and .tasks/completed/. $obs_id left pending." >&2
-            return 1
-        fi
-    else
-        carrier_kind="path"
-        if [ ! -e "$PROJECT_ROOT/$carrier" ] && [ ! -e "$carrier" ]; then
-            echo -e "${RED}resolve: carrier path '$carrier' does not exist${NC}" >&2
-            echo "  A pointer that does not resolve is a decoration. $obs_id left pending." >&2
-            return 1
-        fi
-    fi
-
-    ensure_inbox
-
-    # Python for the same reason do_dismiss uses it: the reason is free text and can contain ':',
-    # quotes and newlines, all of which a sed substitution mangles. Only the target entry's lines
-    # are touched, so the rest of the file stays byte-identical.
-    if ! OBS_ID="$obs_id" OBS_CARRIER="$carrier" OBS_KIND="$carrier_kind" OBS_REASON="$reason" INBOX="$INBOX_FILE" python3 -c '
-import json, os, sys, datetime
-
-obs_id  = os.environ["OBS_ID"]
-carrier = os.environ["OBS_CARRIER"]
-kind    = os.environ["OBS_KIND"]
-reason  = os.environ["OBS_REASON"]
-path    = os.environ["INBOX"]
-lines = open(path).read().split("\n")
-
-start = next((i for i, l in enumerate(lines) if l.startswith("- id: %s" % obs_id)), None)
-if start is None:
-    print("observation %s not found in %s" % (obs_id, path), file=sys.stderr)
-    sys.exit(1)
-
-end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("- ")), len(lines))
-
-status_idx = next((i for i in range(start, end) if lines[i].strip() == "status: pending"), None)
-if status_idx is None:
-    cur = next((lines[i].strip() for i in range(start, end) if lines[i].strip().startswith("status:")), "unknown")
-    print("%s is not pending (%s) — not resolving" % (obs_id, cur), file=sys.stderr)
-    sys.exit(2)
-
-lines[status_idx] = "  status: resolved"
-ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-ins = [
-    "  resolved_carrier: " + json.dumps(carrier),
-    "  resolved_carrier_kind: " + json.dumps(kind),
-    "  resolved_at: " + ts,
-]
-if reason.strip():
-    ins.insert(2, "  resolved_reason: " + json.dumps(reason))
-lines[status_idx + 1:status_idx + 1] = ins
-open(path, "w").write("\n".join(lines))
-'; then
-        echo -e "${RED}$obs_id NOT resolved — the inbox was not modified${NC}" >&2
-        return 1
-    fi
-
-    echo -e "${GREEN}$obs_id resolved${NC} → carrier $carrier ($carrier_kind)"
+    echo -e "${GREEN}$obs_id promoted to task${NC}"
 }
 
 do_dismiss() {
@@ -601,12 +454,20 @@ import json, os, sys, datetime
 obs_id, reason, path = os.environ["OBS_ID"], os.environ["OBS_REASON"], os.environ["INBOX"]
 lines = open(path).read().split("\n")
 
-start = next((i for i, l in enumerate(lines) if l.startswith("- id: %s" % obs_id)), None)
+# T-3969: the list may be indented under `observations:`; match at any indent.
+head = "- id: %s" % obs_id
+start = next((i for i, l in enumerate(lines) if l.strip() == head), None)
 if start is None:
     print("observation %s not found in %s" % (obs_id, path), file=sys.stderr)
     sys.exit(1)
+ind = lines[start][:len(lines[start]) - len(lines[start].lstrip())]
 
-end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("- ")), len(lines))
+def _ends(l):
+    if not l.strip():
+        return False
+    return l.startswith(ind + "- ") or len(l) - len(l.lstrip()) < len(ind)
+
+end = next((i for i in range(start + 1, len(lines)) if _ends(lines[i])), len(lines))
 
 status_idx = next((i for i in range(start, end) if lines[i].strip() == "status: pending"), None)
 if status_idx is None:
@@ -614,11 +475,12 @@ if status_idx is None:
     print("%s is not pending (%s) — not dismissing" % (obs_id, cur), file=sys.stderr)
     sys.exit(2)
 
-lines[status_idx] = "  status: dismissed"
+fld = lines[status_idx][:len(lines[status_idx]) - len(lines[status_idx].lstrip())]
+lines[status_idx] = fld + "status: dismissed"
 ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 lines[status_idx + 1:status_idx + 1] = [
-    "  dismissed_reason: " + json.dumps(reason),
-    "  dismissed_at: " + ts,
+    fld + "dismissed_reason: " + json.dumps(reason),
+    fld + "dismissed_at: " + ts,
 ]
 open(path, "w").write("\n".join(lines))
 '; then
@@ -673,7 +535,6 @@ show_help() {
     echo "  fw note count                            Pending count (for prompts)"
     echo "  fw note triage                           Review pending observations"
     echo "  fw note promote OBS-NNN [--type T]       Promote to task (default type: build)"
-    echo "  fw note resolve OBS-NNN --carrier <T-NNN|path>   Resolved: say where the content lives now"
     echo "  fw note dismiss OBS-NNN --reason \"...\"   Dismiss with reason"
     echo ""
     echo "The inbox lives at: .context/inbox.yaml"
@@ -686,7 +547,6 @@ case "${1:-}" in
     count)      do_count ;;
     triage)     do_triage ;;
     promote)    shift; do_promote "$@" ;;
-    resolve)    shift; do_resolve "$@" ;;
     dismiss)    shift; do_dismiss "$@" ;;
     -h|--help|help)  show_help ;;
     "")         show_help; exit 1 ;;
