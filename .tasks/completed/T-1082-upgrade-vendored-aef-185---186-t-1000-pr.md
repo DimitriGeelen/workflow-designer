@@ -4,10 +4,11 @@ name: "Upgrade vendored AEF 1.8.5 -> 1.8.6 (T-1000 protocol)"
 description: >
   Upgrade vendored AEF 1.8.5 -> 1.8.6 (T-1000 protocol)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-07T10:44:03Z
-last_update: 2026-10-07T13:21:06Z
-date_finished: null
+last_update: 2026-10-07T13:21:07Z
+date_finished: 2026-10-07T13:21:07Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -342,3 +343,15 @@ test "$(grep -c '_t420-rail-attribution-gate\|warn-uncontrolled-absence\|check-b
   customised file (`.agentic-framework/.upstream` is the tracked URL sentinel).
 - Bridge on 1.8.6: 251/1 — the 1 is `_t628` again (passes alone 13/13; third such transient, evidence added
   to T-1081). Follow-up enabled by this release: T-1080 (switch `_t770` to `classify-ac`).
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2d12afd1
+- **Timestamp:** 2026-10-07T13:21:09Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-07T13:21:07Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1,0 +1,160 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1082: Upgrade vendored AEF 1.8.5 -> 1.8.6 (T-1000 protocol)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-07T13:21:16Z
+# ============================================================================
+
+task_id: T-1082
+task_name: "Upgrade vendored AEF 1.8.5 -> 1.8.6 (T-1000 protocol)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-07T10:44:03Z
+completed: 2026-10-07T13:21:07Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-07T12:45:11+02:00
+last_commit: 2026-10-07T15:21:06+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  runme job 004-upgrade-aef-1.8.6 (pinned v1.8.6 = 1ea10441, same protocol as job 003), dry-run passed. pristine vendor commit — AEF 1.8.6 as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF 1.8.6 commit (re-vendor protocol step 2, T-1000). re-apply our 36 local fixes on AEF 1.8.6 (re-vendor protocol step 3) — all applied cleanly, none adopted upstream; _t517 OK, teeth 11/11, syntax checked. project files after the 1.8.6 upgrade — CLAUDE.md gains AEF's 'AC Classification Guidance' (T-3963); our PD-357 section now points at it and names classify-ac (T-1079 done, T-1080 pending); blank line restored; .framework.yaml bookkeeping; job 004 run record. 1.8.6 upgrade followed up (36 fixes re-applied, project files checked, bridge 251/1 — the 1 the known _t628 transient, evidence added to T-1081)
+
+# Key outcomes
+outcomes:
+  - 'A runme job is prepared (pinned v1.8.6 = 1ea10441), `bash runme.sh --dry-run <job>` passes, the watcher is armed; the agent never runs it for real'
+  - 'After the operator''s run: VERSION reads 1.8.6 and the pristine commit touches only `.agentic-framework/`'
+  - 'Every `.vendor-divergence.yaml` entry re-applied, retired as superseded, or recorded; `_t517` OK'
+  - 'Post-upgrade checks recorded: settings.json hooks intact, cron intact, any `.upstream` files listed and compared, bridge suite re-run'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: '1.8.6 upgrade followed up (36 fixes re-applied, project files checked, bridge 251/1 — the 1 the known _t628 transient, evidence added to T-1081)'
+    source: git-mined
+  - description: 're-apply our 36 local fixes on AEF 1.8.6 (re-vendor protocol step 3) — all applied cleanly, none adopted upstream; _t517 OK, teeth 11/11, syntax checked'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/designer/designer.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/git/lib/secret-scan.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/agents/termlink/termlink.sh'
+  - '.agentic-framework/agents/ux-review/ux-review.py'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/docs/reports/T-3960-ring20-s1-contract-check.md'
+  - '.agentic-framework/docs/reports/T-3960-worker-brief.md'
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/init.sh'
+  - '.agentic-framework/lib/peer.py'
+  - '.agentic-framework/lib/sidecar_cli.py'
+  - '.agentic-framework/lib/sidecar/http_server.py'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/templates/claude-project.md'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/upgrade.sh'
+  - '.agentic-framework/lib/upgrade_template_shipped.py'
+  - '.agentic-framework/lib/upgrade_template_sync.py'
+  - '.agentic-framework/lib/vendor-visibility.sh'
+  - '.agentic-framework/lib/verdict_ledger.py'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/lib/watchtower-ensure.sh'
+  - '.agentic-framework/lib/wm_tasks.sh'
+  - '.agentic-framework/lib/worktree.sh'
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/.tasks/workflow/WM-001-selection-and-discovery.md'
+  - '.agentic-framework/.tasks/workflow/WM-002-close-out-and-trailing-work.md'
+  - '.agentic-framework/.tasks/workflow/WM-003-session-lifecycle.md'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/arcs.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/embeddings.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - 'CLAUDE.md'
+  - '.context/runme/004-upgrade-aef-1.8.6/done'
+  - '.context/runme/004-upgrade-aef-1.8.6/dryrun.ok'
+  - '.context/runme/004-upgrade-aef-1.8.6/job.sh'
+  - '.context/runme/004-upgrade-aef-1.8.6/run-20261007T140156.log'
+  - '.framework.yaml'
+  - '.tasks/active/T-1081-t628-g020-remedy-reachablesh-fails-insid.md'
+  - '.tasks/active/T-1082-upgrade-vendored-aef-185---186-t-1000-pr.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-07T12:45:11'
+    action: 'T-1082: runme job 004-upgrade-aef-1.8.6 (pinned v1.8.6 = 1ea10441, same protocol as job 003), dry-run passed'
+  - time: '2026-10-07T14:23:46'
+    action: 'T-1082: pristine vendor commit — AEF 1.8.6 as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-07T14:35:22'
+    action: 'T-1082: advance the divergence baseline to the pristine AEF 1.8.6 commit (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-07T14:41:37'
+    action: 'T-1082: re-apply our 36 local fixes on AEF 1.8.6 (re-vendor protocol step 3) — all applied cleanly, none adopted upstream; _t517 OK, teeth 11/11, syntax checked'
+  - time: '2026-10-07T14:42:40'
+    action: 'T-1082: project files after the 1.8.6 upgrade — CLAUDE.md gains AEF''s ''AC Classification Guidance'' (T-3963); our PD-357 section now points at it and names classify-ac (T-1079 done, T-1080 pending); blank line restored; .framework.yaml bookkeeping; job 004 run record'
+  - time: '2026-10-07T15:21:06'
+    action: 'T-1082: 1.8.6 upgrade followed up (36 fixes re-applied, project files checked, bridge 251/1 — the 1 the known _t628 transient, evidence added to T-1081)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 157 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 157
+  commits: 6
+  files_changed: 71
+  lines_added: 5069
+  lines_removed: 3632
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1082-upgrade-vendored-aef-185---186-t-1000-pr.md
+generated_by: context-agent-hybrid
