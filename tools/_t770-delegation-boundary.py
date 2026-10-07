@@ -45,6 +45,7 @@ import glob
 import json
 import os
 import re
+import subprocess
 import sys
 import tempfile
 
@@ -60,43 +61,65 @@ OPERATOR_ONLY = "OPERATOR-ONLY"
 # "Review routing follows the CURRENT AEF ruleset; 832's own rules only where AEF is silent; on a
 # conflict AEF wins." AEF classifies Human criteria in lib/delegation.py (CLASS_TO_DELEGATION, "THE
 # one encoding"; T-3557 sends taste and unclassified to REVIEWER-JUDGES). So this file no longer
-# routes a Human criterion itself: it asks the vendored module. That also settles G-052 (two
-# encodings of one boundary). AEF does not examine `### Agent` rows, so the 832 rules below still
-# route those. If AEF's module cannot be loaded, Human rows fail CLOSED to the operator.
-_FW_LIB = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                       ".agentic-framework", "lib")
-_AEF = None
-
-
-def _aef():
-    """The vendored lib/delegation module, or None if it cannot be imported."""
-    global _AEF
-    if _AEF is None:
-        try:
-            if _FW_LIB not in sys.path:
-                sys.path.insert(0, _FW_LIB)
-            import delegation as _d  # noqa: E402 — the vendored AEF module
-            _AEF = _d
-        except Exception:  # missing, or a vendored copy that no longer imports
-            _AEF = False
-    return _AEF or None
+# routes a Human criterion itself: it asks AEF. That also settles G-052 (two encodings of one
+# boundary). AEF does not examine `### Agent` rows, so the 832 rules below still route those.
+#
+# T-1080: AEF's published interface is the verb `fw task classify-ac` (T-3963, v1.8.6), not an
+# import of lib/delegation — the verb is the contract, the module is AEF's to rearrange. Anything
+# short of a clean answer (verb missing, non-zero exit, unparsable JSON) fails CLOSED to the operator.
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_FW = os.path.join(_ROOT, ".agentic-framework", "bin", "fw")
+_RENDER_LIB = os.path.join(_ROOT, ".agentic-framework", "lib", "render_surface.sh")
+# The classes `--render-surface` can still change. AEF's precedence puts tier0/sovereignty/
+# act-in-the-world BEFORE render-surface, and every other class already routes to REVIEWER-JUDGES,
+# same as render-surface — so only these two can move. The self-test pins that precedence.
+_RENDER_MOVABLE = ("REVIEWER-CLOSEABLE", "AGENT-SELF")
 
 
 def _norm(title):
     return re.sub(r"\s+", " ", title or "").strip()[:100]
 
 
-def aef_human_classes(path):
-    """{normalised criterion title: (delegation_class, class, reason)} from AEF, or None."""
-    d = _aef()
-    if d is None:
-        return None
-    from pathlib import Path
+def _classify_ac(path, workflow_type, render_surface):
+    """Rows from `fw task classify-ac --file PATH --json`, or None if AEF gave no clean answer."""
+    cmd = [_FW, "task", "classify-ac", "--file", path, "--json"]
+    if workflow_type:
+        cmd += ["--workflow-type", workflow_type]
+    if render_surface:
+        cmd.append("--render-surface")
     try:
-        tc = d.classify_task(Path(path), open_only=False)
-    except Exception:
+        out = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        rows = json.loads(out.stdout) if out.returncode == 0 else None
+    except (OSError, subprocess.SubprocessError, ValueError):
         return None
-    return {_norm(c.title): (cl.delegation_class, cl.cls, cl.reason) for c, cl in tc.rows}
+    if not isinstance(rows, list):
+        return None
+    return rows
+
+
+def _touches_render_surface(path):
+    """AEF's own predicate (lib/render_surface.sh) — the one `fw task delegate` and the close gate use."""
+    try:
+        return subprocess.run(["bash", "-c", 'source "$1" && task_touches_render_surface "$2"', "_",
+                               _RENDER_LIB, path], capture_output=True, timeout=120).returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        return True   # unknown: the flag can only move a criterion toward the reviewer, never away
+
+
+def aef_human_classes(path, workflow_type=""):
+    """{normalised criterion title: (delegation_class, class, reason)} from AEF, or None."""
+    rows = _classify_ac(path, workflow_type, False)
+    # The render-surface check is a `git log` per task, so it runs only when it could change a route.
+    if rows and any(r.get("subhead") == "Human" and r.get("delegation_class") in _RENDER_MOVABLE
+                    for r in rows) and _touches_render_surface(path):
+        rows = _classify_ac(path, workflow_type, True)
+    if rows is None:
+        return None
+    try:
+        return {_norm(r["title"]): (r["delegation_class"], r["class"], r["reason"])
+                for r in rows if r.get("subhead") == "Human"}
+    except (KeyError, TypeError):
+        return None
 
 # ── Carve-outs ────────────────────────────────────────────────────────────────────────
 # The operator's three exceptions — high risk, Tier 0, real UX judgement — expressed so
@@ -173,8 +196,8 @@ def classify(task, ac, aef=None):
         misfiled = ac["prefix"] == "REVIEWER"   # [REVIEWER] filed under Human: still worth naming
         if aef is None:
             return (OPERATOR_ONLY, "aef-unavailable",
-                    "AEF's lib/delegation.py could not be loaded — Human criteria fail closed to the "
-                    "operator (T-1079)", misfiled)
+                    "AEF's `fw task classify-ac` gave no clean answer — Human criteria fail closed to "
+                    "the operator (T-1079, T-1080)", misfiled)
         hit = aef.get(_norm(ac.get("text") or ac.get("body", "").split("\n")[0]))
         if hit is None:
             return (OPERATOR_ONLY, "aef-unmatched",
@@ -266,7 +289,8 @@ def scan(paths):
     rows = []
     for path in sorted(paths):
         task, acs = parse_task(path)
-        aef = aef_human_classes(path) if any(a["section"] == "Human" for a in acs) else {}
+        aef = (aef_human_classes(path, task.get("workflow_type") or "")
+               if any(a["section"] == "Human" for a in acs) else {})
         for ac in acs:
             bucket, rule, detail, misfiled = classify(task, ac, aef)
             rows.append({"task": task["id"], "ticked": ac["ticked"], "section": ac["section"],
@@ -314,7 +338,10 @@ def _fixture(owner="agent", wtype="build"):
 def self_test():
     failures = []
 
+    ran = []
+
     def check(label, got, want):
+        ran.append(label)
         if got != want:
             failures.append("%s: got %r want %r" % (label, got, want))
         print("%-4s %s" % ("FAIL" if got != want else "ok", label))
@@ -338,7 +365,7 @@ def self_test():
     path = _fixture()
     aef = aef_human_classes(path)
     os.unlink(path)
-    check("AEF's lib/delegation.py loads and classifies the fixture's Human criteria",
+    check("AEF's `fw task classify-ac` answers for the fixture's Human criteria",
           aef is not None and len(aef) == 3, True)
     aef = aef or {}
     want6 = aef.get(_norm(rows[5]["text"]), (None,))[0]
@@ -359,6 +386,57 @@ def self_test():
     check("AEF lists no such criterion -> fails closed to OPERATOR-ONLY",
           classify({"owner": "agent", "workflow_type": "build"}, ac_h, {})[:2],
           (OPERATOR_ONLY, "aef-unmatched"))
+    # Leg 8c (T-1080) — anything short of a clean answer from the verb is "no AEF": verb missing,
+    # non-zero exit, output that is not a JSON list. Each must yield None, i.e. leg 8b's fail-closed.
+    global _FW
+    real_fw = _FW
+    path = _fixture()
+    fake_dir = tempfile.mkdtemp(prefix="t770-fakefw-")
+    fakes = {"verb missing": os.path.join(fake_dir, "absent"),
+             "non-zero exit": os.path.join(fake_dir, "fails"),
+             "not JSON": os.path.join(fake_dir, "garbage"),
+             "JSON but not a list": os.path.join(fake_dir, "dict")}
+    for name, body in (("fails", "echo '[]'; exit 3"), ("garbage", "echo 'classify-ac: unknown verb'"),
+                       ("dict", "echo '{\"rows\": []}'")):
+        with open(os.path.join(fake_dir, name), "w") as fh:
+            fh.write("#!/bin/sh\n%s\n" % body)
+        os.chmod(os.path.join(fake_dir, name), 0o755)
+    try:
+        for label, fake in fakes.items():
+            _FW = fake
+            check("classify-ac %s -> no AEF answer (fails closed)" % label, aef_human_classes(path, "build"), None)
+    finally:
+        _FW = real_fw
+        os.unlink(path)
+        for name in os.listdir(fake_dir):
+            os.unlink(os.path.join(fake_dir, name))
+        os.rmdir(fake_dir)
+    # Leg 8d (T-1080) — pins the AEF precedence that lets aef_human_classes skip the render-surface
+    # check unless a row is REVIEWER-CLOSEABLE or AGENT-SELF: with --render-surface, an act-in-the-world
+    # criterion stays OPERATOR-ONLY and a taste one stays REVIEWER-JUDGES (neither can move), while a
+    # deterministic one moves to REVIEWER-JUDGES. If AEF reorders its classes this goes red.
+    pin_dir = tempfile.mkdtemp(prefix="t770-pin-")
+    pin = os.path.join(pin_dir, "criteria.md")
+    with open(pin, "w") as fh:
+        fh.write("### Human\n- [ ] [RUBBER-STAMP] Publish the release to npm\n"
+                 "- [ ] [REVIEW] The dialogue feels unhurried\n"
+                 "- [ ] [REVIEWER] The audit section renders not-applicable\n"
+                 "      **Expected:** the row reads N/A\n")
+    try:
+        plain = _classify_ac(pin, "build", False) or []
+        flag = _classify_ac(pin, "build", True) or []
+    finally:
+        os.unlink(pin)
+        os.rmdir(pin_dir)
+    check("precedence pin: classify-ac answers both ways", (len(plain), len(flag)), (3, 3))
+    if len(plain) == 3 and len(flag) == 3:
+        check("precedence pin: act-in-the-world is not moved by --render-surface",
+              (plain[0]["delegation_class"], flag[0]["delegation_class"]), (OPERATOR_ONLY, OPERATOR_ONLY))
+        check("precedence pin: taste routes like render-surface",
+              (plain[1]["delegation_class"], flag[1]["delegation_class"]), (REVIEWER_JUDGES, REVIEWER_JUDGES))
+        check("precedence pin: a movable class is moved by --render-surface",
+              (plain[2]["delegation_class"] in _RENDER_MOVABLE, flag[2]["delegation_class"]),
+              (True, REVIEWER_JUDGES))
 
     # Leg 9 — owner:human demotes the delegated shape. Negative control is leg 1 above,
     # which is the identical file with owner:agent.
@@ -392,7 +470,7 @@ def self_test():
         for f in failures:
             print("  " + f)
         return 1
-    print("SELF-TEST PASSED — 15 legs, each with a negative control in the set")
+    print("SELF-TEST PASSED — %d checks, each with a negative control in the set" % len(ran))
     return 0
 
 

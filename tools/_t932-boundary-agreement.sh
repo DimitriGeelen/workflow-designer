@@ -98,7 +98,7 @@ DIVERGE=0
 
 if [ "$DIVERGE" -eq 0 ]; then
     echo "AGREE — both encodings return the same buckets over the same tree."
-    echo "  (T-1079, PD-357: B takes every Human criterion's bucket from AEF's lib/delegation.py, so A is"
+    echo "  (T-1079/T-1080, PD-357: B takes every Human criterion's bucket from AEF's fw task classify-ac, so A is"
     echo "  normative by the operator's directive and this line keeps the two reconciled.)"
     exit 0
 fi

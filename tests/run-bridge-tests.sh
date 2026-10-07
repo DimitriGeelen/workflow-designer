@@ -902,7 +902,7 @@ else
 fi
 
 # T-1079 (PD-357): 832's delegation predicate takes every `### Human` criterion's bucket from AEF's
-# lib/delegation.py, so the two encodings of the boundary (G-052) must agree. Self-test first (the
+# `fw task classify-ac` (T-1080), so the two encodings of the boundary (G-052) must agree. Self-test first (the
 # deferral and the fail-closed legs bite), then the agreement over the live tree.
 if python3 "$ROOT/tools/_t770-delegation-boundary.py" --self-test > "$TMP/leg-_t770s.out" 2>&1 \
    && bash "$ROOT/tools/_t932-boundary-agreement.sh" > "$TMP/leg-_t932.out" 2>&1; then

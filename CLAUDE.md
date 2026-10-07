@@ -77,7 +77,8 @@ never copied here. 832's own routing rules apply only where AEF is silent; on a 
 - **Origin, superseded where AEF differs:** PD-302 (2026-09-21, "except high risk, Tier 0 and genuine UX
   judgement"), the T-1066 `**Why you:**` line, PD-355 (small visual checks are the reviewer's).
   `tools/_t1066-why-you-check.py` and `tools/_t770-delegation-boundary.py` were aligned with AEF by T-1079
-  (`_t770` routes every Human criterion through `lib/delegation.py`; switching it to `classify-ac` is T-1080).
+  (`_t770` routes every Human criterion through `fw task classify-ac`, T-1080, and fails closed to the
+  operator when the verb gives no clean answer).
 
 ## Core Principle
 
