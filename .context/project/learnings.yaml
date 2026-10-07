@@ -2693,3 +2693,15 @@ learnings:
   task: T-1068
   date: 2026-10-06
   context: Added via context agent
+- id: PL-385
+  learning: "Closing a task moves its file to .tasks/completed/; a later git add that names the OLD .tasks/active/ path fails the whole add, and 2>/dev/null hides it — the closing commit then carries only the rename. Name the completed/ path, and never silence git add."
+  source: P-001
+  task: T-1074
+  date: 2026-10-07
+  context: Added via context agent
+- id: PL-386
+  learning: "The unwired-guard census (_t451) cannot read a tool named only through a shell loop variable (for x in a.mjs b.mjs; node tools/$x): it reads as 'no live caller' once the last task Verification naming it closes. Call each standing guard on its own line with its tools/<name> path."
+  source: P-001
+  task: T-1079
+  date: 2026-10-07
+  context: Added via context agent
