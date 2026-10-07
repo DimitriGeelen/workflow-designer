@@ -57,6 +57,10 @@ mk_task() {  # <id> <placeholder|real>
     mkdir -p "$SANDBOX/.tasks/active"
     local ac
     if [ "$2" = "placeholder" ]; then ac='- [ ] [First criterion]'; else ac='- [ ] a real, scoped criterion'; fi
+    # The heredoc is UNQUOTED (it needs $1, $2, $ac), so a backtick in its prose is a command
+    # substitution, not text. An unescaped `sed ...` below ran sed with no file: it read stdin,
+    # and in the bridge suite stdin is a pipe that never closes — a 600 s hang, killed by the
+    # suite's timeout, reported as a red with only the header captured (T-1081). Escape them.
     cat > "$SANDBOX/.tasks/active/$1-t628-fixture.md" <<YAML
 ---
 id: $1
@@ -78,7 +82,7 @@ $ac
 
 ## Verification
 # A trailing section is not decoration. The gate reads the AC block with
-# `sed -n '/^## Acceptance Criteria/,/^## [^A]/p'` piped to a delete-last-line sed, so
+# \`sed -n '/^## Acceptance Criteria/,/^## [^A]/p'\` piped to a delete-last-line sed, so
 # with no following heading the range runs to EOF and that delete removes the
 # only AC. A fixture ending at its ACs therefore reads as UNSCOPED no matter what it
 # says, and the "scoped" control silently stops being a control. Caught by that leg

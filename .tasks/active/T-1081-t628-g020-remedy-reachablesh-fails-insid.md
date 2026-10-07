@@ -1,13 +1,19 @@
 ---
 id: T-1081
-name: "_t628-g020-remedy-reachable.sh fails inside the bridge suite but passes alone — twice in two days (2026-10-06 15:16Z with 4 other audit teeth; 2026-10-07 on f6a6c957, alone)"
+name: "_t628-g020-remedy-reachable.sh fails inside the bridge suite but passes alone
+  — twice in two days (2026-10-06 15:16Z with 4 other audit teeth; 2026-10-07 on f6a6c957,
+  alone)"
 description: >
-  Same class as T-1060 (bridge reds that pass alone). _t628 mutates live source to prove its teeth; suspected interaction with a concurrent cron audit or another leg touching the same hook/source. Find the shared state, make the leg hermetic (temp copy) or serialise it, and prove with repeated bridge runs.
+  Same class as T-1060 (bridge reds that pass alone). _t628 mutates live source to
+  prove its teeth; suspected interaction with a concurrent cron audit or another leg
+  touching the same hook/source. Find the shared state, make the leg hermetic (temp
+  copy) or serialise it, and prove with repeated bridge runs.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-07T07:18:35Z
-last_update: 2026-10-07T07:18:35Z
-date_finished: null
+last_update: 2026-10-07T21:28:57Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-07T20:34:57Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1081: _t628-g020-remedy-reachable.sh fails inside the bridge suite but passes alone — twice in two days (2026-10-06 15:16Z with 4 other audit teeth; 2026-10-07 on f6a6c957, alone)
@@ -62,8 +89,10 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The failing `_t628` leg is named from captured in-suite output (which of its legs, which message), and the shared state that makes it fail in-suite is identified with a reproduction, written up under ## RCA
+- [x] `_t628` is made hermetic against that shared state (or the interfering leg is), with no weakening of what it asserts: its own mutation/negative control still bites
+- [x] The reproduction that failed before the fix passes after it, repeated (≥3 runs)
+- [ ] A full bridge run with an open stdin pipe is green on `_t628` (in-suite proof, not only the reproduction)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +126,8 @@ date_finished: null
 -->
 
 ## Verification
+timeout 120 bash tools/_t628-g020-remedy-reachable.sh < <(sleep 150) > /tmp/.t1081-pipe.out 2>&1 && grep -qE "=== [0-9]+ passed, 0 failed ===" /tmp/.t1081-pipe.out
+grep -qx 'exec </dev/null' tests/run-bridge-tests.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -240,6 +271,31 @@ date_finished: null
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** `_t628` red in the bridge suite 3 times (2026-10-06 15:16Z, 2026-10-07 07:18Z and 13:19Z), green
+when run alone. Captured in-suite output: only the header line `=== T-628 G-020 remedy reachability ===`.
+
+**Root cause:** the fixture heredoc in `mk_task` is unquoted (`<<YAML`, it expands `$1 $2 $ac`), and its prose
+contained `` `sed -n '/^## Acceptance Criteria/,/^## [^A]/p'` `` in backticks — a command substitution, not text.
+That `sed` has no file operand, so it reads stdin. Run alone (terminal or /dev/null) stdin ends at once and the
+substitution is empty; inside the bridge, stdin is the suite's — a pipe nobody closes when an agent runs it — so
+`sed` blocks until the leg's `timeout 600` kills it. Evidence: the 3 red runs took 2172/2416/2235 s against
+1645–1723 s for green ones (`tests/.run-history.tsv`), i.e. one 600 s timeout each. Not cron: 412 consecutive
+standalone runs across two :15/:45 sweeps, the :20 project-audit and reindex, and the :30 audits were all green
+in 6–8 s.
+
+**Reproduction:** `sleep 90 | timeout 60 bash tools/_t628-g020-remedy-reachable.sh` → rc 124, header only, 3/3
+(on the unfixed file). `bash -x` stops at `cat` → `++ sed -n '/^## Acceptance Criteria/,...'`.
+
+**Why structurally allowed:** the suite handed its own stdin to every leg, so a leg's behaviour depended on how
+the suite was invoked — the in-suite/standalone split that also hid T-1060. And the red carried no cause: a
+timeout kill reads the same as an assertion failure.
+
+**Fix + prevention:** (1) the backticks in the heredoc are escaped, with a comment at the heredoc saying why.
+(2) `tests/run-bridge-tests.sh` does `exec </dev/null` at the top, so every leg sees end-of-input exactly as it
+does standalone; proven separately — the OLD `_t628` behind that redirect passes 13/13 with the open pipe, and
+without it (control) times out. A scan of `tools/` and `tests/` for backticks in unquoted heredoc bodies found no
+other real case (2 false positives: `<<EOF` inside single-quoted strings in `_t391`, `_t632`).
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -327,3 +383,7 @@ from the blocked state"); run alone right after: 13/13. Occurrences: 2026-10-06 
 with four audit teeth), 2026-10-07 on f6a6c957 (1.8.5), 2026-10-07 after T-1082 (1.8.6). The in-suite log
 shows only the one-line FAIL, no captured output — first step is to make the bridge leg capture `_t628`'s
 output (show_output) so the next red says WHICH of its 13 legs failed.
+
+### 2026-10-07T20:34:57Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

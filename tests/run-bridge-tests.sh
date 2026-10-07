@@ -17,6 +17,13 @@ VALIDATOR="$ROOT/tools/validate-workflow.py"
 CORPUS="$ROOT/examples/aef-processes"
 TMP="$(mktemp -d)"
 
+# T-1081: no leg reads the suite's stdin. When the suite runs under an agent or a pipe, that stdin
+# is a pipe nobody closes, and any stray reader (a fileless `sed`, an accidental command
+# substitution in heredoc prose) blocks until the leg's timeout — a 600 s hang reported as a red
+# with nothing captured, which passes when the leg is run alone. /dev/null makes every leg see
+# what it sees standalone: end of input.
+exec </dev/null
+
 pass=0
 fail=0
 
