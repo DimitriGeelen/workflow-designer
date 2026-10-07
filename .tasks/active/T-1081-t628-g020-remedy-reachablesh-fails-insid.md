@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-07T07:18:35Z
-last_update: 2026-10-07T21:28:57Z
+last_update: 2026-10-07T21:56:53Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -92,7 +92,7 @@ bvp_scores_proposed:
 - [x] The failing `_t628` leg is named from captured in-suite output (which of its legs, which message), and the shared state that makes it fail in-suite is identified with a reproduction, written up under ## RCA
 - [x] `_t628` is made hermetic against that shared state (or the interfering leg is), with no weakening of what it asserts: its own mutation/negative control still bites
 - [x] The reproduction that failed before the fix passes after it, repeated (≥3 runs)
-- [ ] A full bridge run with an open stdin pipe is green on `_t628` (in-suite proof, not only the reproduction)
+- [x] A full bridge run with an open stdin pipe is green on `_t628` (in-suite proof, not only the reproduction) — 2026-10-07T21:56:42Z, `bash tests/run-bridge-tests.sh < <(sleep 3600)`: 252 passed, 0 failed, 1642 s (no timeout's worth of extra time), commit 9fc56e5d
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
