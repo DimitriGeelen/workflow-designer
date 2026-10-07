@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1080: At the next framework upgrade (v1.8.6+): call fw task classify-ac instead of importing lib/delegation in _t770, and adopt the template's AC Classification Guidance section
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-07T18:47:58Z
+# ============================================================================
+
+task_id: T-1080
+task_name: "At the next framework upgrade (v1.8.6+): call fw task classify-ac instead of importing lib/delegation in _t770, and adopt the template's AC Classification Guidance section"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-06T23:30:22Z
+completed: 2026-10-07T18:47:27Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-10-07T20:47:01+02:00
+last_commit: 2026-10-07T20:47:01+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  _t770 asks AEF's fw task classify-ac instead of importing lib/delegation; fail-closed legs for verb missing/non-zero/not-JSON, precedence pin for the render-surface shortcut; _t932 AGREE 76/76
+
+# Key outcomes
+outcomes:
+  - 'Before switching, a parity sweep over every active task compares the import path with `fw task classify-ac --file <task> --workflow-type <wt> --json`; every difference is explained in Decisions'
+  - '`tools/_t770-delegation-boundary.py` gets Human-criterion classes from `fw task classify-ac` (subprocess), no `import delegation` left'
+  - 'Fail-closed kept: verb missing, non-zero exit, unparsable JSON, or a criterion the verb does not list → OPERATOR-ONLY; self-test covers each'
+  - '`_t770 --self-test` passes and `tools/_t932-boundary-agreement.sh` still reports AGREE'
+  - 'CLAUDE.md PD-357 section no longer says the switch is pending'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-07 — which render-surface predicate feeds `classify-ac --render-surface`'
+    chose: 'AEF''s authoritative bash predicate, run only when a task has a Human row the verb rates REVIEWER-CLOSEABLE or AGENT-SELF (the only classes `--render-surface` can move, by AEF''s precedence; pinned by self-test leg 8d). Live `_t932`: 20 s, AGREE 76/76.'
+    alternatives_rejected: ['predicate on every task (≈100 s per sweep, same answers); re-implementing the cheap scan in 832 (the re-implementation this task exists to remove).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'CLAUDE.md'
+  - '.tasks/active/T-1080-at-the-next-framework-upgrade-v186-call-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t770-delegation-boundary.py'
+  - 'tools/_t932-boundary-agreement.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-07T20:47:01'
+    action: 'T-1080: _t770 asks AEF''s fw task classify-ac instead of importing lib/delegation; fail-closed legs for verb missing/non-zero/not-JSON, precedence pin for the render-surface shortcut; _t932 AGREE 76/76'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1157 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1157
+  commits: 1
+  files_changed: 5
+  lines_added: 492
+  lines_removed: 35
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1080-at-the-next-framework-upgrade-v186-call-.md
+generated_by: context-agent-hybrid

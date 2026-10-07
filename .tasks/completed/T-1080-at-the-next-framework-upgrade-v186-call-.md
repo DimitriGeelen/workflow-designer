@@ -10,13 +10,13 @@ description: >
   directly; switch to the verb when 832 vendors a release carrying v1.8.6, and point
   CLAUDE.md (PD-357 section) at the new template section.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t770-delegation-boundary.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -45,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T23:30:22Z
-last_update: 2026-10-07T18:47:01Z
-date_finished:
+last_update: 2026-10-07T18:47:27Z
+date_finished: 2026-10-07T18:47:27Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -258,6 +258,7 @@ bvp_scores_proposed:
 
 python3 tools/_t770-delegation-boundary.py --self-test > /tmp/.t1080-s.out 2>&1 && grep -q "SELF-TEST PASSED" /tmp/.t1080-s.out
 bash tools/_t932-boundary-agreement.sh > /tmp/.t1080-a.out 2>&1 && grep -q "^AGREE" /tmp/.t1080-a.out
+grep -qE "import delegation|classify_task" .agentic-framework/lib/delegation.py
 ! grep -qE "import delegation|classify_task" tools/_t770-delegation-boundary.py
 grep -q "classify-ac" tools/_t770-delegation-boundary.py
 
@@ -376,3 +377,15 @@ grep -q "classify-ac" tools/_t770-delegation-boundary.py
 
 ### 2026-10-07T18:41:21Z — status-update [task-update-agent]
 - **Change:** horizon: now → now
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-71924718
+- **Timestamp:** 2026-10-07T18:47:51Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-07T18:47:27Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
