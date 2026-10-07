@@ -21,7 +21,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T10:39:07Z
-last_update: 2026-10-07T06:37:51Z
+last_update: 2026-10-07T07:19:14Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -592,3 +592,14 @@ than a lane inheritance. That fix is correct under every variant of the ruling.
 
 **This task's open `[REVIEW]` criterion is the operator's and is untouched.** The ruling does not
 close it; it makes it answerable.
+
+### 2026-10-07 — answered: superseded by T-888, judged by the reviewer, closed [agent]
+- The operator, walked through it, said it "can be reviewed and tested"; with that OK the Human criterion
+  was reworded from the ruling (no longer exists under T-888 clause 2) into the checkable claim, the old
+  text kept as superseded prose. AEF's classifier then routed it REVIEWER-JUDGES (the old text had been
+  routed operator-only only because it quoted a `--force`).
+- Independent reviewer GREEN (judge-t-341-r1-a8d9ef65a36e), applied: V-20261007-4aade139.
+- The three Agent ACs it blocked: surfaced repair = T-891's E-XML-NODE-UNASSIGNED; `_t338` lane verdict
+  split, `flowNodeRef-dangling` now expects LANE-CLEARED+UID-KEPT (24/24 maps → no lane) and LANE-REHOMED
+  would fail; bridge 251/1 on f6a6c957, the 1 being `_t628` (unrelated, passes alone 13/13, the second
+  such transient in two days → filed as T-1081).
