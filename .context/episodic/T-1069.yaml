@@ -1,0 +1,94 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1069: T-893 authority marker collides with the incoming edge label: '⚠ no authority' (~67 px) has no room in the reported position
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-07T00:04:37Z
+# ============================================================================
+
+task_id: T-1069
+task_name: "T-893 authority marker collides with the incoming edge label: '⚠ no authority' (~67 px) has no room in the reported position"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-06T09:49:37Z
+completed: 2026-10-07T00:04:00Z
+duration_days: 1
+updates_count: 4
+first_commit: 2026-10-07T01:00:02+02:00
+last_commit: 2026-10-07T02:03:59+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the authority marker no longer sits under its node's own flows — longest form that fits left of top-centre, full text as <title>; corpus leg 104/44 -> 0/0 crossings with a poison arm; bridge wires it and _t889-authority-first-class-cdp (lost its caller when T-889 closed). reviewer AMBER on T-893 acted on — markers receive pointer events so the full-text <title> really shows (M4 now checks hoverability; red on the previous commit), T-893's Expected text and Visual Verification updated to '⚠ no auth', nine shots re-taken and read. reviewer dispatch records for the T-893 re-judge (amber, acted on in 51a680ca). T-893 re-judged — claude green, codex amber only for its read-only seat (no visual change indicated); verdict records
+
+# Key outcomes
+outcomes:
+  - 'Forced on every node of all 24 corpus maps, no ''missing'' and no ''differs'' marker crosses an edge'
+  - 'No information is lost: every marker carries its full text as an SVG `<title>`'
+  - 'A leg with a poison arm (the full-length marker always drawn → M1 fails), wired into the bridge;'
+  - 'T-893''s Human criterion is re-judged by the independent reviewer after this change'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - 'docs/reports/t893-shots/missing-l.png'
+  - 'docs/reports/t893-shots/missing-m.png'
+  - 'docs/reports/t893-shots/missing-s.png'
+  - 'docs/reports/t893-shots/none-s.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1069-t-893-authority-marker-collides-with-the.md'
+  - '.tasks/active/T-893-render-authority-on-the-element-and-indi.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1069-authority-marker-clearance-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-07T01:00:02'
+    action: 'T-1069: the authority marker no longer sits under its node''s own flows — longest form that fits left of top-centre, full text as <title>; corpus leg 104/44 -> 0/0 crossings with a poison arm; bridge wires it and _t889-authority-first-class-cdp (lost its caller when T-889 closed)'
+  - time: '2026-10-07T01:33:46'
+    action: 'T-1069: reviewer AMBER on T-893 acted on — markers receive pointer events so the full-text <title> really shows (M4 now checks hoverability; red on the previous commit), T-893''s Expected text and Visual Verification updated to ''⚠ no auth'', nine shots re-taken and read'
+  - time: '2026-10-07T01:33:53'
+    action: 'T-1069: reviewer dispatch records for the T-893 re-judge (amber, acted on in 51a680ca)'
+  - time: '2026-10-07T02:03:59'
+    action: 'T-1069: T-893 re-judged — claude green, codex amber only for its read-only seat (no visual change indicated); verdict records'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 854 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 854
+  commits: 4
+  files_changed: 12
+  lines_added: 316
+  lines_removed: 21
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1069-t-893-authority-marker-collides-with-the.md
+generated_by: context-agent-hybrid

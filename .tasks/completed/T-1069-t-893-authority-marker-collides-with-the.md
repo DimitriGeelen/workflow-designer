@@ -8,13 +8,13 @@ description: >
   the cause is structural (marker width vs available gap), not fixture-specific. Fix
   placement or form, add a leg with an edge label present, re-judge.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T09:49:37Z
-last_update: 2026-10-07T00:03:59Z
-date_finished:
+last_update: 2026-10-07T00:04:00Z
+date_finished: 2026-10-07T00:04:00Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -391,3 +391,15 @@ node tests/t893-authority-marker-state.test.mjs
   indicated by the saved images" — its read-only seat could not run the screenshot script or hover. Same
   seat limitation as T-310 AC#1 (reported to AEF earlier; they track it). `verdict apply` ticked nothing
   (a rung-5 panel must be unanimous), so T-893's Human AC waits for a browser-capable seat or the operator.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-804aab28
+- **Timestamp:** 2026-10-07T00:04:30Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-07T00:04:00Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
