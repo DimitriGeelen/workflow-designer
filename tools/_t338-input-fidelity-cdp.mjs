@@ -171,18 +171,21 @@ const REF_CASES = [
 
 // Verdict vocabulary: UID-LOST (an aef:uid present in the input is absent from
 // the output -- identity destroyed, data loss), UID-KEPT (every identity
-// survives), LANE-REHOMED (some node's lane assignment changed).
+// survives), LANE-REHOMED (some node was moved into a DIFFERENT real lane),
+// LANE-CLEARED (some node left its lane for no lane at all).
 //
-// LANE-REHOMED is gated even though it is not loss. Lane is not decoration in
-// this project -- it is WHO (IW-9: "Lane = who"), and an unresolvable
-// flowNodeRef silently reassigns the orphaned node to the `human` lane, i.e. to
-// sovereignty. Measured 2026-08-02: framework→human on every corpus map whose
-// mutated node was not already there. Gating the VERDICT rather than the count
-// keeps this corpus-size independent.
+// The lane verdicts are gated even though neither is loss. History: on 2026-08-02
+// an unresolvable flowNodeRef silently reassigned the orphan to the first declared
+// lane (positional — T-341's CORRECTION), measured as LANE-REHOMED. T-891 removed
+// that guess: the orphan now gets NO lane and E-XML-NODE-UNASSIGNED reports it, and
+// the operator's T-888 ruling made authority element-level, so lane placement is
+// layout. T-341 (closed on that basis) split the verdict so the expectation records
+// the change: LANE-CLEARED is the shipped behaviour; LANE-REHOMED here would mean the
+// silent reassignment came back. Gating the VERDICT keeps this corpus-size independent.
 const EXPECTED_REFS = {
   'flow-sourceRef-dangling': 'UID-KEPT',
   'flow-targetRef-dangling': 'UID-KEPT',
-  'flowNodeRef-dangling':    'LANE-REHOMED+UID-KEPT',
+  'flowNodeRef-dangling':    'LANE-CLEARED+UID-KEPT',
   'attachedToRef-dangling':  'UID-KEPT',
 };
 
@@ -727,12 +730,19 @@ async function main() {
             + `flowNodeRef(s) could not be resolved to a uid — the lane figure would be unsound, so it is not reported`);
           continue;
         }
-        let movedHere = false;
+        // T-341: a node that LEAVES its lane for no lane at all is LANE-CLEARED (T-891's shipped
+        // handling, reported by E-XML-NODE-UNASSIGNED); one that lands in a DIFFERENT real lane is
+        // LANE-REHOMED — the silent reassignment T-341 was opened for, which must not come back.
+        let movedHere = false, clearedHere = false;
         for (const u of Object.keys(O.lanes)) {
           const to = B.lanes[u] ?? '(none)';
-          if (to !== O.lanes[u]) { movedHere = true; rehomedTo.add(`${O.lanes[u]}→${to}`); }
+          if (to === O.lanes[u]) continue;
+          rehomedTo.add(`${O.lanes[u]}→${to}`);
+          if (to === '(none)') clearedHere = true; else movedHere = true;
         }
-        if (movedHere) { rehomed++; verdicts.add('LANE-REHOMED'); }
+        if (movedHere || clearedHere) rehomed++;
+        if (movedHere) verdicts.add('LANE-REHOMED');
+        if (clearedHere) verdicts.add('LANE-CLEARED');
       }
       if (applied === 0) problems.push(`ref case '${c.id}' applied to 0 of ${maps.length} maps — nothing was measured`);
       refRows.push({ id: c.id, applied, rehomed, lost, moves: [...rehomedTo].sort(), verdict: setStr(verdicts) });

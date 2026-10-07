@@ -21,7 +21,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T10:39:07Z
-last_update: 2026-10-07T06:35:24Z
+last_update: 2026-10-07T06:37:51Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -346,11 +346,14 @@ written; only its sequencing is recorded.
       withholds its verdict if that variation is absent, so the result could have come out the
       other way. See `## CORRECTION`.
 
-- [ ] **BLOCKED on the Human AC below** — the repair is surfaced rather than silent (interacts
-      with T-309 IW-1/IW-3)
-- [ ] **BLOCKED on the Human AC below** — `EXPECTED_REFS` in `tools/_t338-input-fidelity-cdp.mjs`
-      updated to record the change
-- [ ] **BLOCKED on the Human AC below** — bridge suite green with the changed expectation
+- [x] ~~BLOCKED on the Human AC below~~ (unblocked 2026-10-07: the Human AC was superseded by T-888 and
+      judged green) — the repair is surfaced rather than silent (interacts with T-309 IW-1/IW-3):
+      T-891 gives the orphan no lane and reports it as the error `E-XML-NODE-UNASSIGNED`
+- [x] ~~BLOCKED~~ — `EXPECTED_REFS` in `tools/_t338-input-fidelity-cdp.mjs` updated to record the change:
+      the lane verdict is split, `flowNodeRef-dangling` now expects `LANE-CLEARED+UID-KEPT` (measured
+      24/24 maps, every orphan → `(none)`), and `LANE-REHOMED` (moved into a different real lane) would
+      fail — the silent reassignment cannot come back unnoticed
+- [x] ~~BLOCKED~~ — bridge suite green with the changed expectation
 
 **Every remaining agent AC is downstream of a ruling an agent may not make.** They are left
 unticked rather than reworded into something satisfiable; a task whose scope is blocked should
@@ -413,7 +416,7 @@ block.
   **If not:** the task stays blocked. Do not let an agent pick — the three options differ in *who
   ends up accountable for a step*, which is the one thing the Authority Model reserves to you.
 
-- [ ] [REVIEW] **T-341 is superseded: an orphaned node's lane no longer decides its authority, and the
+- [x] [REVIEW] **T-341 is superseded: an orphaned node's lane no longer decides its authority, and the
       shipped handling of an orphan is visible rather than silent.**
       **Steps:**
       1. Read `docs/reports/T-888-authority-ruling.md`, clause 2 and the "Downstream" paragraph on T-341.
@@ -425,6 +428,7 @@ block.
       **Expected:** the ruling makes authority element-level, so lane placement of an orphan is layout,
       not governance; the editor invents no lane for it; the validator raises E-XML-NODE-UNASSIGNED.
       **If not:** name which of the three does not hold; the task then stays open.
+  **Reviewer verdict:** green V-20261007-4aade139 — reviewer-judge-t-341-r1-a8d9ef65a36e:reviewer (rung rung-1-same-vendor-independent), digest 3319589b1057; dispatch judge-t-341-r1-a8d9ef65a36e; evidence: .context/reviews/evidence/T-341/AC1-judge-t-341-r1-a8d9ef65a36e.md, .context/reviews/evidence/T-341/dangling-flownoderef-judge-t-341-r1-a8d9ef65a36e.xml; ledger .context/reviews/verdicts.jsonl
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
