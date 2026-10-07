@@ -194,6 +194,11 @@ def designer():
                 "is_draft": m["id"].startswith("draft-"),
                 # T-2630: live-overlay wrapper exists only for profiled maps.
                 "has_overlay": m["id"] in overlay_ids,
+                # 832 T-1048: the card's preview tile — the PNG the editor stored with the
+                # latest version, served by /api/thumb. Only offered when the file exists,
+                # so a card without one shows a placeholder instead of a broken image.
+                "thumb_url": (f"/api/thumb?id={quote(m['id'], safe='')}&v={latest_v}"
+                              if (d / f"v{latest_v}.png").is_file() else None),
             })
     if not projects:
         return _serve_bundle()
