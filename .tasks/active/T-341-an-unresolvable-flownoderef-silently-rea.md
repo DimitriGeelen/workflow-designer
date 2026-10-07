@@ -21,7 +21,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T10:39:07Z
-last_update: 2026-10-06T21:09:58Z
+last_update: 2026-10-07T06:35:24Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -358,7 +358,11 @@ look blocked.
 
 ### Human
 
-- [ ] [REVIEW] **Rule on the default-lane policy for an orphaned flow node.**
+**SUPERSEDED criterion, kept for the record (operator, 2026-10-07: "this can be reviewed and tested",
+after the agent showed that the operator's T-888 ruling answers it).** It was: *[REVIEW] Rule on the
+default-lane policy for an orphaned flow node.* The ruling it asked for no longer exists: under T-888
+clause 2 a lane no longer decides authority. The replacement criterion, a checkable claim, follows this
+block.
 
   > **Consolidated view: `docs/reports/T-397-import-repair-semantics-brief.md`.** One of four
   > open rulings. The brief classifies this one as **Q2 (fabrication)** and holds it apart from
@@ -408,6 +412,19 @@ look blocked.
 
   **If not:** the task stays blocked. Do not let an agent pick — the three options differ in *who
   ends up accountable for a step*, which is the one thing the Authority Model reserves to you.
+
+- [ ] [REVIEW] **T-341 is superseded: an orphaned node's lane no longer decides its authority, and the
+      shipped handling of an orphan is visible rather than silent.**
+      **Steps:**
+      1. Read `docs/reports/T-888-authority-ruling.md`, clause 2 and the "Downstream" paragraph on T-341.
+      2. In `src/aef-workflow-designer.html`, find where an unresolvable `flowNodeRef` is handled
+         (`let laneId = null` block, T-891): the orphan is placed in no lane.
+      3. In `tools/validate-workflow.py`, find `E-XML-NODE-UNASSIGNED`: an orphan is reported as an error.
+      4. Optionally import a map with a dangling `flowNodeRef` in the editor and confirm the node sits in
+         no lane and the validator reports it.
+      **Expected:** the ruling makes authority element-level, so lane placement of an orphan is layout,
+      not governance; the editor invents no lane for it; the validator raises E-XML-NODE-UNASSIGNED.
+      **If not:** name which of the three does not hold; the task then stays open.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
