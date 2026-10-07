@@ -11,7 +11,8 @@ description: >
 
 status: started-work
 workflow_type: build
-owner: agent
+current_node: frw_6_run
+owner: human
 horizon: now
 tags: []
 components: []
@@ -21,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T10:39:07Z
-last_update: 2026-10-07T07:19:14Z
+last_update: 2026-10-07T07:20:24Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -416,7 +417,7 @@ block.
   **If not:** the task stays blocked. Do not let an agent pick — the three options differ in *who
   ends up accountable for a step*, which is the one thing the Authority Model reserves to you.
 
-- [x] [REVIEW] **T-341 is superseded: an orphaned node's lane no longer decides its authority, and the
+- [ ] [REVIEW] **T-341 is superseded: an orphaned node's lane no longer decides its authority, and the
       shipped handling of an orphan is visible rather than silent.**
       **Steps:**
       1. Read `docs/reports/T-888-authority-ruling.md`, clause 2 and the "Downstream" paragraph on T-341.
@@ -428,7 +429,6 @@ block.
       **Expected:** the ruling makes authority element-level, so lane placement of an orphan is layout,
       not governance; the editor invents no lane for it; the validator raises E-XML-NODE-UNASSIGNED.
       **If not:** name which of the three does not hold; the task then stays open.
-  **Reviewer verdict:** green V-20261007-4aade139 — reviewer-judge-t-341-r1-a8d9ef65a36e:reviewer (rung rung-1-same-vendor-independent), digest 3319589b1057; dispatch judge-t-341-r1-a8d9ef65a36e; evidence: .context/reviews/evidence/T-341/AC1-judge-t-341-r1-a8d9ef65a36e.md, .context/reviews/evidence/T-341/dangling-flownoderef-judge-t-341-r1-a8d9ef65a36e.xml; ledger .context/reviews/verdicts.jsonl
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -501,7 +501,11 @@ block.
 # holds `flowNodeRef-dangling: LANE-REHOMED+UID-KEPT`, which fails in either
 # direction if the re-homing changes. This block keeps the probe from becoming a
 # tool nobody runs.
-node tools/_t341-orphan-lane-probe.mjs
+# 2026-10-07 (T-341 closed): the probe is RETIRED from this block. It discriminates two
+# hypotheses that both assume the orphan lands in SOME lane (positional vs sovereignty);
+# since T-891 it lands in none (measured 24/24 landed=null), so it can only answer
+# INDETERMINATE. The behaviour is pinned by _t338 instead, whose verdict was split for
+# exactly this: `flowNodeRef-dangling: LANE-CLEARED+UID-KEPT`, and LANE-REHOMED fails.
 node tools/_t338-input-fidelity-cdp.mjs
 
 ## RCA
