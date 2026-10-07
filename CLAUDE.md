@@ -65,18 +65,19 @@ The operator's standing directive: who checks what (operator or independent revi
 *as it stands now* ("our guidance which we should refer to and that can change"). It is referenced,
 never copied here. 832's own routing rules apply only where AEF is silent; on a conflict AEF wins.
 - **Source of truth:** `.agentic-framework/lib/delegation.py` (`CLASS_TO_DELEGATION`, `CARVE_OUTS`) and
-  `.agentic-framework/lib/review_policy.py` (IW-7 rungs). AEF's prose "AC Classification Guidance" does not
-  reach consumers yet (AEF T-3963); until it does, the code is the reference.
-- **Classify, don't re-implement:** `.agentic-framework/bin/fw task delegate T-XXX --dry-run --json` gives
-  each open Human criterion its class and bucket.
+  `.agentic-framework/lib/review_policy.py` (IW-7 rungs). AEF's own prose is the **"AC Classification
+  Guidance"** section further down this file (added by the AEF 1.8.6 upgrade, T-3963) — that section is
+  AEF's and wins over this one wherever they differ.
+- **Classify, don't re-implement:** `.agentic-framework/bin/fw task classify-ac --text '…'` (before a task
+  exists) and `.agentic-framework/bin/fw task delegate T-XXX --dry-run --json` (a task's open Human criteria).
 - **Stays with the operator (AEF carve-outs):** act-in-the-world, tier0-or-bypass, sovereignty-field.
   Everything else, taste included, goes to the reviewer (`fw reviewer judge T-XXX --criterion N`), who may
   escalate. 832 proposed `direction` and `large-ux` as further carve-outs (T-1077, operator chose to
   propose); until AEF's operator rules, those go to the reviewer too.
 - **Origin, superseded where AEF differs:** PD-302 (2026-09-21, "except high risk, Tier 0 and genuine UX
   judgement"), the T-1066 `**Why you:**` line, PD-355 (small visual checks are the reviewer's).
-  `tools/_t1066-why-you-check.py` and `tools/_t770-delegation-boundary.py` still encode the old 832 set;
-  aligning them with AEF is T-1079.
+  `tools/_t1066-why-you-check.py` and `tools/_t770-delegation-boundary.py` were aligned with AEF by T-1079
+  (`_t770` routes every Human criterion through `lib/delegation.py`; switching it to `classify-ac` is T-1080).
 
 ## Core Principle
 
@@ -730,6 +731,27 @@ Tasks may have `### Agent` and `### Human` sections under `## Acceptance Criteri
 - **NEVER check a `### Human` AC.** Only the human may verify and check these boxes.
 - When agent ACs pass but human ACs remain unchecked, the task enters **partial-complete**: stays in `active/` with `owner: human`.
 - The human finalizes by checking their ACs and running `fw task update T-XXX --status work-completed`.
+
+### AC Classification Guidance (T-954, T-3557, T-3963)
+Who closes a criterion is decided by ONE ruleset, `lib/delegation.py` in the framework
+(`classify()`, `CLASS_TO_DELEGATION`, `CARVE_OUTS`). Do not re-implement it; ask it:
+
+- `fw task classify-ac --text '- [ ] [REVIEW] ...'` (or `--file F`, or stdin; `--json`,
+  `--workflow-type`, `--render-surface`) — classifies criteria before a task exists.
+- `fw task delegate T-XXX --dry-run [--json]` — classifies a task's open Human criteria.
+
+The three classes that stay **operator-only**: tier-0 or bypass approval, acts in the world
+(outside the repo / the operator's machine), and sovereignty fields. Render-surface, taste,
+inception-decision and unclassified criteria are **reviewer-judged** (an independent reviewer
+may escalate to the operator); deterministic ones are **reviewer-closeable**. A criterion
+whose audience is agents (stderr wording, gate messages) belongs under `### Agent`.
+
+When writing a criterion: if its Expected clause is a shell check, make it an Agent
+criterion with the command in `## Verification`; keep `[REVIEW]` for genuine judgement.
+
+Project-specific operator-only classes are not configurable yet; a project-declared
+extension point is proposed in framework inception T-3968. Until it is ruled on, such
+criteria are reviewer-judged and the reviewer may escalate.
 
 ### Human AC Format Requirements (T-325)
 When writing `### Human` acceptance criteria, each criterion MUST include:
