@@ -2004,7 +2004,13 @@ function deriveLaneAbbr(laneName) {
 // Ensure a candidate abbreviation is unique among existing lanes (excluding the
 // lane being renamed). If it collides, append/swap characters until unique.
 function ensureUniqueAbbr(lane, candidate) {
-  const others = state.lanes.filter(l => l !== lane);
+  return uniqueAbbrAmong(state.lanes.filter(l => l !== lane), candidate);
+}
+
+// The variant scheme itself, against an explicit list of lanes. BPMN import uses it
+// before state.lanes exists (T-1088: two imported lanes both derived 'tac', so their
+// nodes got duplicate ids and the saved XML was invalid).
+function uniqueAbbrAmong(others, candidate) {
   if (!others.some(l => l.abbr === candidate)) return candidate;
   // try variations: first 2 chars + digit
   const base = candidate.slice(0, 2);
@@ -11782,6 +11788,11 @@ function parseBpmnXml(text) {
       });
     }
   }
+  // T-1088: abbreviations must be unique across lanes — they prefix every node id. Import
+  // derived (or read) each lane's abbr on its own, so "Tacton CPQ" and "TactonConnector"
+  // both became 'tac'. First lane in file order keeps its abbr; a later clash gets the
+  // same variant ensureUniqueAbbr gives on rename. Covers duplicate laneMeta abbrs too.
+  lanes.forEach((lane, i) => { lane.abbr = uniqueAbbrAmong(lanes.slice(0, i), lane.abbr); });
   // T-358: make the DEFAULTING PARTITION TOTAL, before anyone chooses a default.
   //
   // Three distinct causes reach `!lanes.length` and currently produce byte-identical

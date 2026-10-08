@@ -1,19 +1,13 @@
 ---
-id: T-1088
-name: "Greenfield T-172 #2: lane abbreviations unique on BPMN import (Tacton CPQ /
-  TactonConnector both 'tac' -> duplicate ids, invalid XML); gateways must not take
-  a step number"
+id: T-1102
+name: "Duplicate node ids within one lane: start events inside (event) subprocesses rank separately and reuse <lane>_<rank>_<slug> ids of top-level nodes (kitchen-sink: lan_3_event x2, lan_5_event x2, lan_6_event x2, lan_8_event = startEvent + subProcess)"
 description: >
-  aef-greenfield-test T-172 item 2 (package build/evergreen-intake/resend-20261008/unpacked/T-172-designer-requests).
-  ensureUniqueAbbr not applied to lanes from import; parallel gateway sal_3_tegelijk
-  makes task numbers 1,2,4,5; verkoper start+first task shown unnumbered. Evidence:
-  after-owner-straightened.bpmn.
+  Found by T-1088 while reviewing the re-recorded third-party golden tests/goldens/third-party/kitchen-sink.bpmn.golden: after the lane-abbr fix 8 duplicate id attributes remain (4 node ids + their BPMNShape ids), all in lane 1. Duplicate ids make the saved BPMN invalid. Separate cause from T-1088 (lane prefix clash). Check computeDisplayId's ranking for nested nodes and whether a slug like 'event' from 'Event-Subprocess' can collide with an event node.
 
-status: started-work
+status: captured
 workflow_type: build
-current_node: frw_3_start
 owner: agent
-horizon: now
+horizon: next
 tags: []
 components: []
 related_tasks: []
@@ -39,13 +33,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1088` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1102` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-08T08:37:56Z
-last_update: 2026-10-08T09:14:53Z
-date_finished:
+created: 2026-10-08T09:14:37Z
+last_update: 2026-10-08T09:14:37Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -56,45 +50,20 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-10-08T08:39:28Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 1
-      F3: 0
-      F1: 2
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
-      task body — no hypothesis, so this score has no claim to be wrong about,L0:
-      no signal); F1=2 (basis: task body — no hypothesis, so this score has no claim
-      to be wrong about,L2:keyword=import)'
-    rubric_sha: e4a00f38e801
 ---
 
-# T-1088: Greenfield T-172 #2: lane abbreviations unique on BPMN import (Tacton CPQ / TactonConnector both 'tac' -> duplicate ids, invalid XML); gateways must not take a step number
+# T-1102: Duplicate node ids within one lane: start events inside (event) subprocesses rank separately and reuse <lane>_<rank>_<slug> ids of top-level nodes (kitchen-sink: lan_3_event x2, lan_5_event x2, lan_6_event x2, lan_8_event = startEvent + subProcess)
 
 ## Context
 
-Scope: the DUPLICATE LANE ABBREVIATION only. The gateway/event step-numbering half of Greenfield's item 2 is
-T-1094 (one bug per task). Cause: BPMN import (`src/aef-workflow-designer.html`, lane loop in the importer) sets
-`abbr` from `aef:laneMeta` or `deriveLaneAbbr(name)` per lane and never checks it against the other lanes; only
-the rename path (`ensureUniqueAbbr`) and addLane do. "Tacton CPQ" and "TactonConnector" both derive `tac`.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Import makes lane abbreviations unique in file order (first keeps its abbr, later clashes get the same variant scheme as `ensureUniqueAbbr`), for derived AND for duplicate `aef:laneMeta abbr` values; one shared helper, no second copy of the scheme
-- [ ] A headless test on a SYNTHETIC fixture (Greenfield's map is their client's process — not committed) with lanes "Tacton CPQ" / "TactonConnector" / a third `tac` lane, plus two lanes with the same explicit `aef:laneMeta abbr`, and same-named steps at the same rank, asserts: lane abbrs all distinct, every node displayId distinct, the saved XML has no duplicate `id`; the same test fails on the unfixed designer (shown). Also run (not committed) against Greenfield's two files: distinct abbrs. Note: their saved file has NO exact duplicate id (verified) — the defect there is a shared lane prefix (`tac_1_trampoline` / `tac_1_order` in different lanes); exact duplicates need a same-named step at the same rank, which the fixture forces
-- [ ] Existing label/lane tests and the bridge suite still pass
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -120,18 +89,14 @@ the rename path (`ensureUniqueAbbr`) and addLane do. "Tacton CPQ" and "TactonCon
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1088`
+         1. Run `bin/fw reviewer T-1102`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1088 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1102 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
-node tools/_t1088-lane-abbr-unique-cdp.mjs > /tmp/.t1088.out 2>&1 && grep -q '"ok": true' /tmp/.t1088.out
-timeout 300 node tools/_t358-byteid-thirdparty.mjs > /tmp/.t1088-t358.out 2>&1
-timeout 400 node tools/_roundtrip-serialization-cdp.mjs > /tmp/.t1088-rt.out 2>&1
-grep -q "uniqueAbbrAmong(lanes.slice(0, i)" src/aef-workflow-designer.html
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -342,7 +307,7 @@ grep -q "uniqueAbbrAmong(lanes.slice(0, i)" src/aef-workflow-designer.html
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1088 go|no-go|defer --rationale "..."
+     fw inception decide T-1102 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -351,10 +316,7 @@ grep -q "uniqueAbbrAmong(lanes.slice(0, i)" src/aef-workflow-designer.html
 
 ## Updates
 
-### 2026-10-08T08:37:56Z — task-created [task-create-agent]
+### 2026-10-08T09:14:37Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1088-greenfield-t-172-2-lane-abbreviations-un.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1102-duplicate-node-ids-within-one-lane-start.md
 - **Context:** Initial task creation
-
-### 2026-10-08T08:39:27Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work

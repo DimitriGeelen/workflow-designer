@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_t1088"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <!-- T-1088 fixture (synthetic; shape of aef-greenfield-test's T-172 report, item 2).
+
+       Lanes 1-3 carry NO aef:laneMeta, so the designer derives each abbreviation from the
+       lane name: "Tacton CPQ", "TactonConnector" and "Tactical desk" all derive 'tac'.
+       Lanes 4-5 carry the SAME explicit laneMeta abbr 'sal' (a file saved by a designer
+       that already had the bug). Every lane holds one step named "Check order" at the same
+       rank, so on the unfixed designer the node ids collide EXACTLY (tac_1_check-order x3,
+       sal_1_check-order x2) and the saved XML carries duplicate ids. -->
+
+  <bpmn:process id="Process_t1088" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="lane_tacton" name="Tacton CPQ">
+        <bpmn:flowNodeRef>a_check</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_tc" name="TactonConnector">
+        <bpmn:flowNodeRef>b_check</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_tactical" name="Tactical desk">
+        <bpmn:flowNodeRef>c_check</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_sales_a" name="Sales A">
+        <bpmn:extensionElements><aef:laneMeta abbr="sal" authority="none" height="130"/></bpmn:extensionElements>
+        <bpmn:flowNodeRef>d_check</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_sales_b" name="Sales B">
+        <bpmn:extensionElements><aef:laneMeta abbr="sal" authority="none" height="130"/></bpmn:extensionElements>
+        <bpmn:flowNodeRef>e_check</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <!-- aef:uid on each step: the corpus round-trip guard (_roundtrip-serialization-cdp) requires
+         declared uids on every fixture; they do not touch the abbreviation clash under test. -->
+    <bpmn:task id="a_check" name="Check order"><bpmn:extensionElements><aef:uid value="n_a"/></bpmn:extensionElements></bpmn:task>
+    <bpmn:task id="b_check" name="Check order"><bpmn:extensionElements><aef:uid value="n_b"/></bpmn:extensionElements></bpmn:task>
+    <bpmn:task id="c_check" name="Check order"><bpmn:extensionElements><aef:uid value="n_c"/></bpmn:extensionElements></bpmn:task>
+    <bpmn:task id="d_check" name="Check order"><bpmn:extensionElements><aef:uid value="n_d"/></bpmn:extensionElements></bpmn:task>
+    <bpmn:task id="e_check" name="Check order"><bpmn:extensionElements><aef:uid value="n_e"/></bpmn:extensionElements></bpmn:task>
+  </bpmn:process>
+</bpmn:definitions>

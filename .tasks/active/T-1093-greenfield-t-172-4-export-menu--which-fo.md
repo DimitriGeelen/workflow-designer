@@ -81,6 +81,7 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 ### Human
 <!-- @auto-tick-on-decide -->
 - [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+  **Why you:** direction — which export formats the designer offers, and in what order, is product direction; and `fw inception decide` is operator-only
   **Steps:**
   1. Run: `fw task review T-1093` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation

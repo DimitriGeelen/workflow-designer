@@ -873,6 +873,17 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1088 (aef-greenfield-test T-172 #2): BPMN import makes lane abbreviations unique — three lanes
+# deriving 'tac' and two with the same laneMeta abbr get distinct prefixes, node ids stay distinct,
+# and the saved XML has no duplicate id (it had: tac_1_check x3, sal_1_check x2, plus their shapes).
+if node "$ROOT/tools/_t1088-lane-abbr-unique-cdp.mjs" > "$TMP/leg-_t1088.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "imported lanes share an abbreviation again, so node ids collide and the saved BPMN has duplicate ids (run 'node tools/_t1088-lane-abbr-unique-cdp.mjs'; T-1088)"
+  show_output "$TMP/leg-_t1088.out" "_t1088-lane-abbr-unique-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
 # aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
 # guard since T-889 closed (the census showed it had lost its only caller, T-889's Verification).
