@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1088: Greenfield T-172 #2: lane abbreviations unique on BPMN import (Tacton CPQ / TactonConnector both 'tac' -> duplicate ids, invalid XML); gateways must not take a step number
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-08T10:02:30Z
+# ============================================================================
+
+task_id: T-1088
+task_name: "Greenfield T-172 #2: lane abbreviations unique on BPMN import (Tacton CPQ / TactonConnector both 'tac' -> duplicate ids, invalid XML); gateways must not take a step number"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-08T08:37:56Z
+completed: 2026-10-08T10:02:02Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-08T11:14:53+02:00
+last_commit: 2026-10-08T11:14:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  BPMN import makes lane abbreviations unique (shared uniqueAbbrAmong with rename); test passes on fix, fails on old code (duplicate ids incl. DI shapes); kitchen-sink golden re-recorded — reviewed diff is lan->la2 only, duplicate ids 14->8 (rest is T-1102, nested subprocess ranking); T-1093 why-you line
+
+# Key outcomes
+outcomes:
+  - 'Import makes lane abbreviations unique in file order (first keeps its abbr, later clashes get the same variant scheme as `ensureUniqueAbbr`), for derived AND for duplicate `aef:laneMeta abbr` values; one shared helper, no second copy of the scheme'
+  - 'A headless test on a SYNTHETIC fixture (Greenfield''s map is their client''s process — not committed) with lanes "Tacton CPQ" / "TactonConnector" / a third `tac` lane, plus two lanes with the same explicit `aef:laneMeta abbr`, and same-named steps at the same rank, asserts: lane abbrs all distinct, every node displayId distinct, the saved XML has no duplicate `id`; the same test fails on the unfixed designer (shown). Also run (not committed) against Greenfield''s two files: distinct abbrs. Note: their saved file has NO exact duplicate id (verified) — the defect there is a shared lane prefix (`tac_1_trampoline` / `tac_1_order` in different lanes); exact duplicates need a same-named step at the same rank, which the fixture forces'
+  - 'Existing label/lane tests and the bridge suite still pass — test passes on the fix and fails on the pre-fix designer (duplicate ids incl. BPMNShape); Greenfield''s two files load with TactonConnector=ta2; bridge 2026-10-08 ~09:50Z 253/1: the 1 is the T-509 sweep where _t535/_t536 abstained in-suite (audit output missing), unrelated to this change — both pass alone (7/7, 5/5) and the sweep alone is 101/101; filed as T-1103. The kitchen-sink third-party golden was re-recorded as a reviewed diff (lan->la2 only; duplicate ids 14->8, rest is T-1102)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'BPMN import makes lane abbreviations unique (shared uniqueAbbrAmong with rename); test passes on fix, fails on old code (duplicate ids incl. DI shapes); kitchen-sink golden re-recorded — reviewed diff is lan->la2 only, duplicate ids 14->8 (rest is T-1102, nested subprocess ranking); T-1093 why-you line'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1088-greenfield-t-172-2-lane-abbreviations-un.md'
+  - '.tasks/active/T-1093-greenfield-t-172-4-export-menu--which-fo.md'
+  - '.tasks/active/T-1102-duplicate-node-ids-within-one-lane-start.md'
+  - 'tests/fixtures/aef-bpmn/t1088-lane-abbr-clash.bpmn'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1088-lane-abbr-unique-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-08T11:14:53'
+    action: 'T-1088: BPMN import makes lane abbreviations unique (shared uniqueAbbrAmong with rename); test passes on fix, fails on old code (duplicate ids incl. DI shapes); kitchen-sink golden re-recorded — reviewed diff is lan->la2 only, duplicate ids 14->8 (rest is T-1102, nested subprocess ranking); T-1093 why-you line'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 84 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 84
+  commits: 1
+  files_changed: 8
+  lines_added: 594
+  lines_removed: 55
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1088-greenfield-t-172-2-lane-abbreviations-un.md
+generated_by: context-agent-hybrid

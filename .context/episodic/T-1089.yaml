@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1089: Greenfield T-172 #5: Save of a loaded map without aef:workflowMeta creates project process_<id> v1 instead of <loaded id> v2; also keep process name and element ids
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-08T10:02:42Z
+# ============================================================================
+
+task_id: T-1089
+task_name: "Greenfield T-172 #5: Save of a loaded map without aef:workflowMeta creates project process_<id> v1 instead of <loaded id> v2; also keep process name and element ids"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-08T08:38:01Z
+completed: 2026-10-08T10:02:30Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-08T11:18:25+02:00
+last_commit: 2026-10-08T11:18:25+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a map opened from a project saves as that project's next version — file without aef:workflowMeta takes the project id; declared id kept (T-263) and Save asks before writing elsewhere; test 7/7, pre-fix designer reproduces the report (process_* v1); T-1099 unblocked (recheck prompt received)
+
+# Key outcomes
+outcomes:
+  - 'Within the T-263 ruling (workflowMeta id = the document''s identity; no second identity authority): `adoptImportedXml` learns the project id from all three project load paths. File WITHOUT `aef:workflowMeta` (declares no identity — the process-id fallback is a guess) → the project id becomes its workflow id, so Save writes the next version of the loaded project. File WITH a workflowMeta id that differs → id kept, and Save asks first ("Loaded from project X but will save as Y"), extending the T-264 guard from ?load links to project loads'
+  - 'A headless test against the gallery sidecar with a temp project store: a file without workflowMeta stored as project P v1, opened through the project path → editor workflow id = P, Save lands as P v2; the same test fails on the unfixed designer (shown) — `tools/_t1089-save-loaded-as-version-cdp.mjs` 7/7; on the pre-fix designer 6/7 FAIL, reproducing the report exactly (id process_walkthrough-sales, a stray process_* project v1)'
+  - 'Negative controls in the same test: a user import of the same file (not from a project) keeps the id derived from the file; a project file whose workflowMeta declares another id keeps that id and triggers the confirm — legs B, C1-C3 (declining writes nothing anywhere)'
+  - 'Bridge suite green — 2026-10-08 ~09:50Z 253/1 with the T-1089 leg passing; the 1 is the T-509 sweep where _t535/_t536 abstained in-suite, unrelated (both pass alone 7/7, 5/5; sweep alone 101/101); filed as T-1103'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'a map opened from a project saves as that project''s next version — file without aef:workflowMeta takes the project id; declared id kept (T-263) and Save asks before writing elsewhere; test 7/7, pre-fix designer reproduces the report (process_* v1); T-1099 unblocked (recheck prompt received)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1089-greenfield-t-172-5-save-of-a-loaded-map-.md'
+  - '.tasks/active/T-1099-kit-opt-in-recheck-step-re-check-previou.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1089-save-loaded-as-version-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-08T11:18:25'
+    action: 'T-1089: a map opened from a project saves as that project''s next version — file without aef:workflowMeta takes the project id; declared id kept (T-263) and Save asks before writing elsewhere; test 7/7, pre-fix designer reproduces the report (process_* v1); T-1099 unblocked (recheck prompt received)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 84 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 84
+  commits: 2
+  files_changed: 8
+  lines_added: 577
+  lines_removed: 24
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1089-greenfield-t-172-5-save-of-a-loaded-map-.md
+generated_by: context-agent-hybrid

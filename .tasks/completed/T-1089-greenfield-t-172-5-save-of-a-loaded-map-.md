@@ -1,21 +1,22 @@
 ---
-id: T-1088
-name: "Greenfield T-172 #2: lane abbreviations unique on BPMN import (Tacton CPQ /
-  TactonConnector both 'tac' -> duplicate ids, invalid XML); gateways must not take
-  a step number"
+id: T-1089
+name: "Greenfield T-172 #5: Save of a loaded map without aef:workflowMeta creates
+  project process_<id> v1 instead of <loaded id> v2; also keep process name and element
+  ids"
 description: >
-  aef-greenfield-test T-172 item 2 (package build/evergreen-intake/resend-20261008/unpacked/T-172-designer-requests).
-  ensureUniqueAbbr not applied to lanes from import; parallel gateway sal_3_tegelijk
-  makes task numbers 1,2,4,5; verkoper start+first task shown unnumbered. Evidence:
-  after-owner-straightened.bpmn.
+  aef-greenfield-test T-172 item 5. Loaded via /api/version?id=tobe-walkthrough-verkoop;
+  workflow id derived from process id Process_... instead of the loaded project id.
+  Process name dropped on save; element ids renumbered (Flow_1 -> flow_1, v_lead ->
+  ver_2_lead) breaks id comparison between versions. Fix: use loaded project id (or
+  ask new project/new version on Save).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -39,13 +40,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1088` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1089` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-08T08:37:56Z
-last_update: 2026-10-08T10:02:01Z
-date_finished:
+created: 2026-10-08T08:38:01Z
+last_update: 2026-10-08T10:02:30Z
+date_finished: 2026-10-08T10:02:30Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -57,7 +58,7 @@ date_finished:
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 bvp_scores_proposed:
-  - ts: '2026-10-08T08:39:28Z'
+  - ts: '2026-10-08T09:18:07Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 4
@@ -79,22 +80,30 @@ bvp_scores_proposed:
     rubric_sha: e4a00f38e801
 ---
 
-# T-1088: Greenfield T-172 #2: lane abbreviations unique on BPMN import (Tacton CPQ / TactonConnector both 'tac' -> duplicate ids, invalid XML); gateways must not take a step number
+# T-1089: Greenfield T-172 #5: Save of a loaded map without aef:workflowMeta creates project process_<id> v1 instead of <loaded id> v2; also keep process name and element ids
 
 ## Context
 
-Scope: the DUPLICATE LANE ABBREVIATION only. The gateway/event step-numbering half of Greenfield's item 2 is
-T-1094 (one bug per task). Cause: BPMN import (`src/aef-workflow-designer.html`, lane loop in the importer) sets
-`abbr` from `aef:laneMeta` or `deriveLaneAbbr(name)` per lane and never checks it against the other lanes; only
-the rename path (`ensureUniqueAbbr`) and addLane do. "Tacton CPQ" and "TactonConnector" both derive `tac`.
+Cause: the three project load paths (`revertToVersion`, `openVersionInPlace`, `openProjectMap`) fetch
+`/api/version?id=<project>` and call `adoptImportedXml(text, …)` without the project id. The importer takes the
+workflow id from `aef:workflowMeta`, else the process id (`Process_tobe-…` → `process_tobe-…`), so a file with no
+workflowMeta lands under a different id and the next Save creates a new project v1.
+
+Scope decisions (with reasons, reported to Greenfield):
+- Element ids: NOT changed. The designer's ids are its own scheme (`<lane>_<rank>_<slug>`) by design; identity is
+  `aef:uid`, which for a file without one is derived deterministically from the original element id
+  (`n_<hash32(id)>`) and written on save — compare versions on aef:uid.
+- Process `name`: not lost — kept as workflow title and pool name; only `<bpmn:process name=…>` is not emitted.
+  Emitting it would move the bytes of every saved map and the fixed-point fixtures; not in this bug.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] Import makes lane abbreviations unique in file order (first keeps its abbr, later clashes get the same variant scheme as `ensureUniqueAbbr`), for derived AND for duplicate `aef:laneMeta abbr` values; one shared helper, no second copy of the scheme
-- [x] A headless test on a SYNTHETIC fixture (Greenfield's map is their client's process — not committed) with lanes "Tacton CPQ" / "TactonConnector" / a third `tac` lane, plus two lanes with the same explicit `aef:laneMeta abbr`, and same-named steps at the same rank, asserts: lane abbrs all distinct, every node displayId distinct, the saved XML has no duplicate `id`; the same test fails on the unfixed designer (shown). Also run (not committed) against Greenfield's two files: distinct abbrs. Note: their saved file has NO exact duplicate id (verified) — the defect there is a shared lane prefix (`tac_1_trampoline` / `tac_1_order` in different lanes); exact duplicates need a same-named step at the same rank, which the fixture forces
-- [x] Existing label/lane tests and the bridge suite still pass — test passes on the fix and fails on the pre-fix designer (duplicate ids incl. BPMNShape); Greenfield's two files load with TactonConnector=ta2; bridge 2026-10-08 ~09:50Z 253/1: the 1 is the T-509 sweep where _t535/_t536 abstained in-suite (audit output missing), unrelated to this change — both pass alone (7/7, 5/5) and the sweep alone is 101/101; filed as T-1103. The kitchen-sink third-party golden was re-recorded as a reviewed diff (lan->la2 only; duplicate ids 14->8, rest is T-1102)
+- [x] Within the T-263 ruling (workflowMeta id = the document's identity; no second identity authority): `adoptImportedXml` learns the project id from all three project load paths. File WITHOUT `aef:workflowMeta` (declares no identity — the process-id fallback is a guess) → the project id becomes its workflow id, so Save writes the next version of the loaded project. File WITH a workflowMeta id that differs → id kept, and Save asks first ("Loaded from project X but will save as Y"), extending the T-264 guard from ?load links to project loads
+- [x] A headless test against the gallery sidecar with a temp project store: a file without workflowMeta stored as project P v1, opened through the project path → editor workflow id = P, Save lands as P v2; the same test fails on the unfixed designer (shown) — `tools/_t1089-save-loaded-as-version-cdp.mjs` 7/7; on the pre-fix designer 6/7 FAIL, reproducing the report exactly (id process_walkthrough-sales, a stray process_* project v1)
+- [x] Negative controls in the same test: a user import of the same file (not from a project) keeps the id derived from the file; a project file whose workflowMeta declares another id keeps that id and triggers the confirm — legs B, C1-C3 (declining writes nothing anywhere)
+- [x] Bridge suite green — 2026-10-08 ~09:50Z 253/1 with the T-1089 leg passing; the 1 is the T-509 sweep where _t535/_t536 abstained in-suite, unrelated (both pass alone 7/7, 5/5; sweep alone 101/101); filed as T-1103
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -120,18 +129,16 @@ the rename path (`ensureUniqueAbbr`) and addLane do. "Tacton CPQ" and "TactonCon
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1088`
+         1. Run `bin/fw reviewer T-1089`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1088 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1089 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
-node tools/_t1088-lane-abbr-unique-cdp.mjs > /tmp/.t1088.out 2>&1 && grep -q '"ok": true' /tmp/.t1088.out
-timeout 300 node tools/_t358-byteid-thirdparty.mjs > /tmp/.t1088-t358.out 2>&1
-timeout 400 node tools/_roundtrip-serialization-cdp.mjs > /tmp/.t1088-rt.out 2>&1
-grep -q "uniqueAbbrAmong(lanes.slice(0, i)" src/aef-workflow-designer.html
+node tools/_t1089-save-loaded-as-version-cdp.mjs > /tmp/.t1089.out 2>&1 && grep -q "7/7 legs passed" /tmp/.t1089.out
+grep -q "projectId: m.id" src/aef-workflow-designer.html
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -342,7 +349,7 @@ grep -q "uniqueAbbrAmong(lanes.slice(0, i)" src/aef-workflow-designer.html
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1088 go|no-go|defer --rationale "..."
+     fw inception decide T-1089 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -351,10 +358,22 @@ grep -q "uniqueAbbrAmong(lanes.slice(0, i)" src/aef-workflow-designer.html
 
 ## Updates
 
-### 2026-10-08T08:37:56Z — task-created [task-create-agent]
+### 2026-10-08T08:38:01Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1088-greenfield-t-172-2-lane-abbreviations-un.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1089-greenfield-t-172-5-save-of-a-loaded-map-.md
 - **Context:** Initial task creation
 
-### 2026-10-08T08:39:27Z — status-update [task-update-agent]
+### 2026-10-08T09:18:07Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-aabfd0c2
+- **Timestamp:** 2026-10-08T10:02:34Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-08T10:02:30Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
