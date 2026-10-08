@@ -1,0 +1,328 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1049: Upgrade vendored AEF 1.7.740 -> 1.8.2 (T-1000 protocol)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-05T15:56:38Z
+# ============================================================================
+
+task_id: T-1049
+task_name: "Upgrade vendored AEF 1.7.740 -> 1.8.2 (T-1000 protocol)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-05T12:25:45Z
+completed: 2026-10-05T15:56:25Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-05T14:29:49+02:00
+last_commit: 2026-10-05T17:10:00+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  .fwvendor-preserve.yaml — keep our 50 local-only files under .agentic-framework/ across the 1.8.2 vendor (1.8.x refuses the upgrade otherwise, AEF T-3850); list taken from the 1.8.2 dry-run, re-run shows 50 PRESERVE / 0 DELETED. runme.sh upgrades AEF 1.7.740 -> 1.8.2 under the re-vendor protocol (upgrade from the pinned v1.8.2 commit, gate re-install, pristine commit, baseline advance, crontab check); dry-run passes and writes nothing; baseline rewrite tested on a copy of the register. pristine vendor commit — AEF 1.8.2 as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF 1.8.2 commit (re-vendor protocol step 2, T-1000). re-apply our local fixes on AEF 1.8.2 (re-vendor protocol step 3) — _t517 clean. project files the 1.8.2 upgrade rewrote, reviewed. runme.sh installs the one cron job 1.8.2 added (index-reindex-hourly) — preflight checks the pending change adds only that job and removes nothing; dry-run passes. final bridge run 238/1 (only red: _t549 over the 90s sweep cap, 5/5 alone — follow-up T-1051); Agent ACs and Verification recorded
+
+# Key outcomes
+outcomes:
+  - 'runme.sh prepared for the operator (preconditions, y/N per step, log, runme-signal), `--dry-run` passes; the agent never runs it for real'
+  - 'After the operator''s run: `.agentic-framework/VERSION` reads 1.8.2 and the pristine commit touches only `.agentic-framework/`'
+  - 'Every register entry in `.vendor-divergence.yaml` is re-applied, retired as superseded by 1.8.2, or recorded; `_t517` reports no STALE local fix'
+  - 'Post-upgrade checks: project hooks in `.claude/settings.json` intact, crontab has no `/tmp/fw-upstream` path, `index-reindex-hourly` state recorded, bridge suite and `_t509` sweep re-run with results recorded'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 're-apply our local fixes on AEF 1.8.2 (re-vendor protocol step 3) — _t517 clean'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/audit/orchestrator-mcp-scan.sh'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/check-human-ac-tick.py'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/check-project-boundary.sh'
+  - '.agentic-framework/agents/context/check-worktree-governance-write.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/focus.sh'
+  - '.agentic-framework/agents/context/lib/memory-recall.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/context/sidecar-autostart.sh'
+  - '.agentic-framework/agents/context/sidecar-inbox.sh'
+  - '.agentic-framework/agents/context/sidecar-receiver-adapter.sh'
+  - '.agentic-framework/agents/context/sidecar-receiver-ready.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/git/lib/worktree-corpus-guard.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/AGENT.md'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/agents/termlink/termlink.sh'
+  - '.agentic-framework/bin/claude-fw'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/.context/working/.fleet-failure-state.json'
+  - '.agentic-framework/docs/architecture/sidecar-target-architecture.md'
+  - '.agentic-framework/docs/generated/components/lib-branch-hygiene.md'
+  - '.agentic-framework/docs/generated/components/lib-config.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-sidecar_inbox_hook.md'
+  - '.agentic-framework/docs/generated/components/web-blueprints-config.md'
+  - '.agentic-framework/docs/generated/components/web-config.md'
+  - '.agentic-framework/docs/generated/components/web-templates-config.md'
+  - '.agentic-framework/docs/reports/T-1549-escalation-scan-v0.md'
+  - '.agentic-framework/docs/reports/T-3335-aef-consult-answer.md'
+  - '.agentic-framework/docs/reports/T-3580-round4-review.md'
+  - '.agentic-framework/docs/reports/T-3678-consult-triage.md'
+  - '.agentic-framework/docs/reports/T-3678-peer-backlog-triage-2026-10-04.md'
+  - '.agentic-framework/docs/reports/T-3682-sidecar-design-conformance-audit.md'
+  - '.agentic-framework/docs/reports/T-3684-e2e-1-idle.json'
+  - '.agentic-framework/docs/reports/T-3684-e2e-2b-replied.json'
+  - '.agentic-framework/docs/reports/T-3684-e2e-2c-peek-hook.json'
+  - '.agentic-framework/docs/reports/T-3684-e2e-2-legacy-topic.json'
+  - '.agentic-framework/docs/reports/T-3684-e2e-3-busy-urgent.json'
+  - '.agentic-framework/docs/reports/T-3684-e2e-4-kill.json'
+  - '.agentic-framework/docs/reports/T-3684-e2e-5-negative-control.json'
+  - '.agentic-framework/docs/reports/T-3684-e2e-6-two-sessions.json'
+  - '.agentic-framework/docs/reports/T-3684-e2e-run10.log'
+  - '.agentic-framework/docs/reports/T-3684-e2e-run7.log'
+  - '.agentic-framework/docs/reports/T-3684-e2e-run8.log'
+  - '.agentic-framework/docs/reports/T-3684-e2e-run9.log'
+  - '.agentic-framework/docs/reports/T-3684-e2e-run.log'
+  - '.agentic-framework/docs/reports/T-3684-latency-A.txt'
+  - '.agentic-framework/docs/reports/T-3684-latency-B.json'
+  - '.agentic-framework/docs/reports/T-3684-review-brief.md'
+  - '.agentic-framework/docs/reports/T-3684-review-codex.md'
+  - '.agentic-framework/docs/reports/T-3684-review-codex-round1.md'
+  - '.agentic-framework/docs/reports/T-3684-review-codex-round3.md'
+  - '.agentic-framework/docs/reports/T-3684-review-codex-round4-aborted.log'
+  - '.agentic-framework/docs/reports/T-3684-review-zai-round4.md'
+  - '.agentic-framework/docs/reports/T-3693-e2e-failed-run-hook-timeout.json'
+  - '.agentic-framework/docs/reports/T-3693-e2e-negative-evidence.json'
+  - '.agentic-framework/docs/reports/T-3693-e2e-positive-evidence.json'
+  - '.agentic-framework/docs/reports/T-3693-e2e-run.log'
+  - '.agentic-framework/docs/reports/T-3693-e2e-transcript-excerpts.txt'
+  - '.agentic-framework/docs/reports/T-3693-review-brief.md'
+  - '.agentic-framework/docs/reports/T-3693-review-codex.md'
+  - '.agentic-framework/docs/reports/T-3693-review-codex-round1.md'
+  - '.agentic-framework/docs/reports/T-3693-review-codex-round2.md'
+  - '.agentic-framework/docs/reports/T-3693-review-codex-round3.md'
+  - '.agentic-framework/docs/reports/T-3694-review-brief.md'
+  - '.agentic-framework/docs/reports/T-3694-review-codex.md'
+  - '.agentic-framework/docs/reports/T-3694-review-codex-r2.md'
+  - '.agentic-framework/docs/reports/T-3694-review-codex-r3.md'
+  - '.agentic-framework/docs/reports/T-3694-review-codex-round3.md'
+  - '.agentic-framework/docs/reports/T-3694-test-evidence.txt'
+  - '.agentic-framework/docs/reports/T-3695-review-brief.md'
+  - '.agentic-framework/docs/reports/T-3695-review-codex.md'
+  - '.agentic-framework/docs/reports/T-3723-standing-warm-reviewers.md'
+  - '.agentic-framework/docs/reports/T-3726-inception-process-rca.md'
+  - '.agentic-framework/docs/reports/T-3726-review-google.md'
+  - '.agentic-framework/docs/reports/T-3726-review-openai.md'
+  - '.agentic-framework/docs/reports/T-3726-review-zai.md'
+  - '.agentic-framework/docs/reports/T-3726-synthesis.md'
+  - '.agentic-framework/docs/reports/T-3747-red-triage-round2.md'
+  - '.agentic-framework/docs/reports/T-3747-red-triage-round3.md'
+  - '.agentic-framework/docs/reports/T-3747-red-triage-round4.md'
+  - '.agentic-framework/docs/reports/T-3747-red-triage-round5.md'
+  - '.agentic-framework/docs/reports/T-3749-review-brief.md'
+  - '.agentic-framework/docs/reports/T-3749-review-codex.md'
+  - '.agentic-framework/docs/reports/T-3749-review-codex-r1.md'
+  - '.agentic-framework/docs/reports/T-3749-review-codex-r2.md'
+  - '.agentic-framework/docs/reports/T-3749-review-codex-r3.md'
+  - '.agentic-framework/docs/reports/T-3749-review-google-round4.md'
+  - '.agentic-framework/docs/reports/T-3751-2a-review-brief.md'
+  - '.agentic-framework/docs/reports/T-3751-2a-review-deepseek.md'
+  - '.agentic-framework/docs/reports/T-3751-2a-review-google.md'
+  - '.agentic-framework/docs/reports/T-3751-2a-review-mistralai.md'
+  - '.agentic-framework/docs/reports/T-3751-2a-review-openai.md'
+  - '.agentic-framework/docs/reports/T-3751-2a-review-qwen.md'
+  - '.agentic-framework/docs/reports/T-3751-2a-review-x-ai.md'
+  - '.agentic-framework/docs/reports/T-3751-2a-review-zai.md'
+  - '.agentic-framework/docs/reports/T-3751-project-id-circuit.md'
+  - '.agentic-framework/docs/reports/T-3751-review-brief.md'
+  - '.agentic-framework/docs/reports/T-3751-review-deepseek.md'
+  - '.agentic-framework/docs/reports/T-3751-review-google.md'
+  - '.agentic-framework/docs/reports/T-3751-review-mistralai.md'
+  - '.agentic-framework/docs/reports/T-3751-review-openai.md'
+  - '.agentic-framework/docs/reports/T-3751-review-qwen.md'
+  - '.agentic-framework/docs/reports/T-3751-review-synthesis.md'
+  - '.agentic-framework/docs/reports/T-3751-review-x-ai.md'
+  - '.agentic-framework/docs/reports/T-3751-review-zai.md'
+  - '.agentic-framework/docs/reports/T-3752-vendor-divergence.md'
+  - '.agentic-framework/docs/reports/T-375-agent-3-key-storage.md'
+  - '.agentic-framework/docs/reports/T-3766-review-brief.md'
+  - '.agentic-framework/docs/reports/T-3766-review-codex-r1.md'
+  - '.agentic-framework/docs/reports/T-3766-review-codex-r2.md'
+  - '.agentic-framework/docs/reports/T-3766-review-codex-r3.md'
+  - '.agentic-framework/docs/reports/T-3766-review-codex-r4.md'
+  - '.agentic-framework/docs/reports/T-3782-e2e/T-3782-e2e-7y0peo.json'
+  - '.agentic-framework/docs/reports/T-3782-e2e/T-3782-e2e-s5hbge.json'
+  - '.agentic-framework/docs/reports/T-3782-review-brief.md'
+  - '.agentic-framework/docs/reports/T-3782-review-codex.md'
+  - '.agentic-framework/docs/reports/T-3782-review-codex-round1.md'
+  - '.agentic-framework/docs/reports/T-3782-review-codex-round2.md'
+  - '.agentic-framework/docs/reports/T-3782-review-codex-round3.md'
+  - '.agentic-framework/docs/reports/T-3782-review-zai-final.md'
+  - '.agentic-framework/docs/reports/T-3783-review-brief.md'
+  - '.agentic-framework/docs/reports/T-3783-review-codex-final.md'
+  - '.agentic-framework/docs/reports/T-3783-review-codex.md'
+  - '.agentic-framework/docs/reports/T-3783-review-codex-r1.md'
+  - '.agentic-framework/docs/reports/T-3783-review-codex-r2.md'
+  - '.agentic-framework/docs/reports/T-3783-review-codex-r3.md'
+  - '.agentic-framework/docs/reports/T-3783-review-codex-r4.md'
+  - '.agentic-framework/docs/reports/T-3785-v1.8.0-release-rca.md'
+  - '.agentic-framework/docs/reports/T-3806-cross-hub-send.md'
+  - '.agentic-framework/docs/reports/T-3855-cross-hub-sidecar.md'
+  - '.agentic-framework/FRAMEWORK.md'
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/ask.py'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/config.sh'
+  - '.agentic-framework/lib/cron-seed.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/design_register.py'
+  - '.agentic-framework/lib/human_ac_ticks.py'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/init.sh'
+  - '.agentic-framework/lib/release.sh'
+  - '.agentic-framework/lib/review_cost.py'
+  - '.agentic-framework/lib/review_credential.py'
+  - '.agentic-framework/lib/runme.sh'
+  - '.agentic-framework/lib/settings_merge.py'
+  - '.agentic-framework/lib/shell_write_scan.py'
+  - '.agentic-framework/lib/sidecar/adapter.py'
+  - '.agentic-framework/lib/sidecar/addressing.py'
+  - '.agentic-framework/lib/sidecar-audit.sh'
+  - '.agentic-framework/lib/sidecar_cli.py'
+  - '.agentic-framework/lib/sidecar/direct.py'
+  - '.agentic-framework/lib/sidecar/hooks.py'
+  - '.agentic-framework/lib/sidecar/http_server.py'
+  - '.agentic-framework/lib/sidecar/inbox.py'
+  - '.agentic-framework/lib/sidecar/inject.py'
+  - '.agentic-framework/lib/sidecar/latency.py'
+  - '.agentic-framework/lib/sidecar/lifecycle.py'
+  - '.agentic-framework/lib/sidecar/outbox.py'
+  - '.agentic-framework/lib/sidecar/receipts.py'
+  - '.agentic-framework/lib/sidecar/receiver.py'
+  - '.agentic-framework/lib/sidecar/retry.py'
+  - '.agentic-framework/lib/sidecar/seen.py'
+  - '.agentic-framework/lib/sidecar/termlink_transport.py'
+  - '.agentic-framework/lib/sidecar/waiting.py'
+  - '.agentic-framework/lib/sidecar/watcher.py'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/templates/claude-project.md'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/update.sh'
+  - '.agentic-framework/lib/upgrade.sh'
+  - '.agentic-framework/lib/vector_index_health.py'
+  - '.agentic-framework/lib/vector-index-health.sh'
+  - '.agentic-framework/lib/vendor_preserve.py'
+  - '.agentic-framework/lib/vendor-visibility.sh'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/lib/verify-acs.sh'
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/policy/review-backends.yaml'
+  - '.agentic-framework/tools/bats-cron-env-lint.py'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/api.py'
+  - '.agentic-framework/web/blueprints/approvals.py'
+  - '.agentic-framework/web/blueprints/arcs.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/config.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/discovery.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/inception.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/decide_runner.py'
+  - '.agentic-framework/web/embeddings.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/_approvals_content.html'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/arc_close.html'
+  - '.agentic-framework/web/templates/arc_review.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/templates/inception_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - 'CLAUDE.md'
+  - '.claude/settings.json'
+  - '.context/cron/agentic-audit.crontab'
+  - '.context/cron-registry.yaml'
+  - 'docs/reports/T-1049-aef-182-upgrade.md'
+  - '.framework.yaml'
+  - '.fwvendor-preserve.yaml'
+  - '.mcp.json'
+  - 'runme.sh'
+  - '.tasks/active/T-1049-upgrade-vendored-aef-17740---182-t-1000-.md'
+  - '.tasks/active/T-1051-t549-fabric-coverage-teeth-exceed-the-90.md'
+  - 'tools/_t1047-session-start-alerts-gate.sh'
+  - 'tools/_t517-vendor-divergence.py'
+  - 'tools/_t517-vendor-divergence-teeth.py'
+  - 'tools/_t644-ask-imports-survive-a-wrong-project-root.sh'
+  - 'tools/_t654-archiving-a-partial-complete-task-must-null-its-horizon.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-05T14:29:49'
+    action: 'T-1049: .fwvendor-preserve.yaml — keep our 50 local-only files under .agentic-framework/ across the 1.8.2 vendor (1.8.x refuses the upgrade otherwise, AEF T-3850); list taken from the 1.8.2 dry-run, re-run shows 50 PRESERVE / 0 DELETED'
+  - time: '2026-10-05T14:31:46'
+    action: 'T-1049: runme.sh upgrades AEF 1.7.740 -> 1.8.2 under the re-vendor protocol (upgrade from the pinned v1.8.2 commit, gate re-install, pristine commit, baseline advance, crontab check); dry-run passes and writes nothing; baseline rewrite tested on a copy of the register'
+  - time: '2026-10-05T15:35:10'
+    action: 'T-1049: pristine vendor commit — AEF 1.8.2 as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-05T15:43:56'
+    action: 'T-1049: advance the divergence baseline to the pristine AEF 1.8.2 commit (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-05T16:17:30'
+    action: 'T-1049: re-apply our local fixes on AEF 1.8.2 (re-vendor protocol step 3) — _t517 clean'
+  - time: '2026-10-05T16:18:37'
+    action: 'T-1049: project files the 1.8.2 upgrade rewrote, reviewed'
+  - time: '2026-10-05T16:19:11'
+    action: 'T-1049: runme.sh installs the one cron job 1.8.2 added (index-reindex-hourly) — preflight checks the pending change adds only that job and removes nothing; dry-run passes'
+  - time: '2026-10-05T17:10:00'
+    action: 'T-1049: final bridge run 238/1 (only red: _t549 over the 90s sweep cap, 5/5 alone — follow-up T-1051); Agent ACs and Verification recorded'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 210 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 210
+  commits: 9
+  files_changed: 236
+  lines_added: 29791
+  lines_removed: 4298
+  footprint_refreshed_at: '2026-10-05T15:56:44Z'
+  footprint_refreshed_by_commit: aa7acf3a
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1049-upgrade-vendored-aef-17740---182-t-1000-.md
+generated_by: context-agent-hybrid

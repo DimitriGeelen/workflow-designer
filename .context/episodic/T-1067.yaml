@@ -89,10 +89,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 111
-  commits: 2
-  files_changed: 20
-  lines_added: 263
-  lines_removed: 15
+  commits: 3
+  files_changed: 22
+  lines_added: 388
+  lines_removed: 29
+  footprint_refreshed_at: '2026-10-06T11:12:38Z'
+  footprint_refreshed_by_commit: a382962f
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1067-t-600s-label-wrap-never-fires-for-the-la.md

@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1027: Restore fw note promote recording the created task id in promoted_to (T-912 lost)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T08:48:02Z
+# ============================================================================
+
+task_id: T-1027
+task_name: "Restore fw note promote recording the created task id in promoted_to (T-912 lost)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T07:54:47Z
+completed: 2026-10-04T08:47:50Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-04T10:47:45+02:00
+last_commit: 2026-10-04T10:47:45+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  fw note promote works again and links observation <-> task — T-912 ported onto 1.7.740
+
+# Key outcomes
+outcomes:
+  - '`fw note promote OBS-N` records the created task''s id in the observation (`promoted_to: T-XXXX`, not the literal `task`), the task carries a back-reference to the observation, and when task creation fails the observation stays PENDING (nothing marked promoted with no task behind it) — also found: on 1.7.740 promote FAILED every time (hard-coded --owner human, refused by create-task without --human-ac); owner now defaults to agent, --owner human --human-ac honoured'
+  - 'tools/_t1027-note-promote-teeth.sh proves all three on a scratch project (red on HEAD for the id leg); bridge leg; observe.sh change declared in .vendor-divergence.yaml — 6/6 on the fix, 2/6 on HEAD'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.tasks/active/T-1027-restore-fw-note-promote-recording-the-cr.md'
+  - '.tasks/completed/T-1026-restore-the-observable-hypothesis-requir.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1027-note-promote-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T10:47:45'
+    action: 'T-1027: fw note promote works again and links observation <-> task — T-912 ported onto 1.7.740'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 53 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 53
+  commits: 1
+  files_changed: 6
+  lines_added: 510
+  lines_removed: 11
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1027-restore-fw-note-promote-recording-the-cr.md
+generated_by: context-agent-hybrid

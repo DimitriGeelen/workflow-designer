@@ -12,13 +12,13 @@ description: >
   which the T-509 sweep already understands) from a real red; record the cause. Evidence:
   scratchpad bridge3/bridge5 outputs, standalone reruns 5/5 and 8/8.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t570-meta-carriage-cdp.mjs, tools/_t570-meta-carriage-teeth.py, tools/_t573-emits-panel-shape-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -47,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-05T23:52:30Z
-last_update: 2026-10-06T06:21:46Z
-date_finished:
+last_update: 2026-10-06T06:27:31Z
+date_finished: 2026-10-06T06:27:31Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -362,3 +362,20 @@ bash -n tests/run-bridge-tests.sh
 ### 2026-10-06T06:21:46Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-47c45685
+- **Timestamp:** 2026-10-06T06:28:03Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 3
+     - evidence: `out=$(env PATH=/nonexistent /usr/bin/python3 tools/_t570-meta-carriage-teeth.py 2>&1); test $? -eq 3 && echo "$out" | grep -q 'COULD NOT MEASURE'`
+
+### 2026-10-06T06:27:31Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

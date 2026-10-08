@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1051: _t549 fabric-coverage teeth exceed the 90s sweep cap on AEF 1.8.2: measure where the cost went
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-06T07:12:50Z
+# ============================================================================
+
+task_id: T-1051
+task_name: "_t549 fabric-coverage teeth exceed the 90s sweep cap on AEF 1.8.2: measure where the cost went"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-05T15:09:44Z
+completed: 2026-10-06T07:12:40Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-06T09:12:38+02:00
+last_commit: 2026-10-06T09:12:38+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  _t549 over the sweep cap explained and capped per script — its 4 _t525 runs are each a full 'fw audit --sections structure', 22.1 s on 1.8.3 (~8 s on 1.7.x); SLOW_CAP[_t549]=180 with the numbers and the way out (single-check audit selector, asked of AEF); headroom warning per script. Sweep alone: 101/101, nothing timed out. Also: _t1060 teeth use the system temp dir (_t633 flagged /tmp), and the sweep REFUSE in the last suite run was my mid-run edit of the sweep script
+
+# Key outcomes
+outcomes:
+  - '`_t549`''s duration measured over several runs on 1.8.3 (alone and inside the sweep), against the 90 s cap; the result recorded — standalone 95.9 / 99.6 / 90.9 s (with a suite running alongside), in the sweep 87 s (alone); over or at the cap'
+  - 'If it still exceeds the cap: the cost located (which leg, which framework call) and either reduced or the cap justified with numbers — located: the framework copy is 0.9 s; each of the 4 `_t525` runs (control + 3 mutations) is one full `fw audit --sections structure`, 22.1 s on 1.8.3 vs ~8 s on 1.7.x (the section grew: sidecar, cron, branch, vendor checks; 33 s on 832 itself). Cap justified per script: `SLOW_CAP[_t549]=180` in the sweep with the numbers and the way out written beside it, headroom warning now per-script; way out asked of AEF (single-check audit selector)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1051-t549-fabric-coverage-teeth-exceed-the-90.md'
+  - 'tools/_t1060-slow-load-teeth.sh'
+  - 'tools/_t509-instrument-sweep.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-06T09:12:38'
+    action: 'T-1051: _t549 over the sweep cap explained and capped per script — its 4 _t525 runs are each a full ''fw audit --sections structure'', 22.1 s on 1.8.3 (~8 s on 1.7.x); SLOW_CAP[_t549]=180 with the numbers and the way out (single-check audit selector, asked of AEF); headroom warning per script. Sweep alone: 101/101, nothing timed out. Also: _t1060 teeth use the system temp dir (_t633 flagged /tmp), and the sweep REFUSE in the last suite run was my mid-run edit of the sweep script'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 962 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 962
+  commits: 2
+  files_changed: 4
+  lines_added: 60
+  lines_removed: 14
+  footprint_refreshed_at: '2026-10-06T07:12:51Z'
+  footprint_refreshed_by_commit: e8a320f9
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1051-t549-fabric-coverage-teeth-exceed-the-90.md
+generated_by: context-agent-hybrid

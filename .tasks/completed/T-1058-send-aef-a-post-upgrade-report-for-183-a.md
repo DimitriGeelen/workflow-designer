@@ -4,10 +4,11 @@ name: "Send AEF a post-upgrade report for 1.8.3 and propose a report step in the
 description: >
   Send AEF a post-upgrade report for 1.8.3 and propose a report step in the upgrade protocol
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-05T23:19:18Z
-last_update: 2026-10-05T23:19:18Z
-date_finished: null
+last_update: 2026-10-05T23:21:08Z
+date_finished: 2026-10-05T23:21:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -62,8 +63,8 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Post-upgrade report for 1.8.2 -> 1.8.3 written to docs/reports/T-1058-upgrade-report-1.8.3.md: environment (OS, kernel, harness + version, TermLink, toolchain), path and method, outcome per upgrade step, what failed or surprised, local-fix carry-over numbers, time taken; short (one screen)
-- [ ] Sent to AEF (sidecar, conversation aef-release-v1.8.3), with a proposal: the upgrade protocol ends with "send this report", plus the template of fields and why each helps AEF
+- [x] Post-upgrade report for 1.8.2 -> 1.8.3 written to docs/reports/T-1058-upgrade-report-1.8.3.md: environment (OS, kernel, harness + version, TermLink, toolchain), path and method, outcome per upgrade step, what failed or surprised, local-fix carry-over numbers, time taken; short (one screen)
+- [x] Sent to AEF (sidecar, conversation aef-release-v1.8.3), with a proposal: the upgrade protocol ends with "send this report", plus the template of fields and why each helps AEF
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,3 +321,15 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1058-send-aef-a-post-upgrade-report-for-183-a.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ec07731d
+- **Timestamp:** 2026-10-05T23:21:10Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-05T23:21:08Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

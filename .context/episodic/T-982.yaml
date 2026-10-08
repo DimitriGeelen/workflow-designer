@@ -79,10 +79,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 73
-  commits: 6
-  files_changed: 3
-  lines_added: 601
-  lines_removed: 44
+  commits: 8
+  files_changed: 8
+  lines_added: 1659
+  lines_removed: 54
+  footprint_refreshed_at: '2026-10-01T20:52:42Z'
+  footprint_refreshed_by_commit: 3940062c
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-982-agent-led-map-generation-with-an-iterati.md

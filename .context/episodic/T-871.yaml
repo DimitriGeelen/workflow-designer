@@ -92,9 +92,11 @@ metrics:
   git_mining: ok
   wall_clock_minutes: 23
   commits: 3
-  files_changed: 19
+  files_changed: 20
   lines_added: 971
   lines_removed: 144
+  footprint_refreshed_at: '2026-10-02T17:38:19Z'
+  footprint_refreshed_by_commit: 0b441c6e
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-871-use-the-ratified-delegation-mechanism-in.md

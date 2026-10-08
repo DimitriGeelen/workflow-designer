@@ -1,0 +1,178 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1057: Upgrade vendored AEF 1.8.2 -> 1.8.3 (T-1000 protocol; first job through the T-1055 launcher)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-05T22:34:58Z
+# ============================================================================
+
+task_id: T-1057
+task_name: "Upgrade vendored AEF 1.8.2 -> 1.8.3 (T-1000 protocol; first job through the T-1055 launcher)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-05T21:12:35Z
+completed: 2026-10-05T22:34:47Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-05T23:15:12+02:00
+last_commit: 2026-10-06T00:07:59+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  AEF 1.8.3 upgrade as the first launcher job (001-upgrade-aef-1.8.3, sha 7db74a7a5050): pinned v1.8.3 (542623a3), --allow-delete-locals because 1.8.3 now sees our 36 re-applied fixes (re-applied again in step 3), pristine commit, baseline advance, crontab check; dry-run passed, baseline rewrite tested on a copy. pristine vendor commit — AEF 1.8.3 as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF 1.8.3 commit (re-vendor protocol step 2, T-1000). re-apply our 36 local fixes on AEF 1.8.3 (re-vendor protocol step 3) — all 36 applied cleanly from the pre-upgrade diff against pristine 1.8.2; _t517 clean; syntax checked. project files the 1.8.3 upgrade rewrote, reviewed (settings.json adds exactly the 3 hooks 1.8.2 left out; .framework.yaml 1.8.3); launcher job 001 run record (done, run log). job 002 — operator refreshes the hook-tamper baseline (every change since 2026-09-26 accounted for); dry-run passed. job 002 fixed (fw doctor | grep -q SIGPIPE under pipefail, L-387 — caught by the launcher's dry-run) and rehearsed (sha 300cc2364ab6). operator refreshed the enforcement baseline after reviewing the hooks (T-1022, T-1013, T-1049, T-1057 changes). launcher job 002 run record (done, run log). two bridge reds from today's own work, fixed — the launcher had no live caller in the unwired census (test now names it and asserts the stub execs it, leg 0); T-1054's GO had no declared build link (T-1054 inception_decisions runme-launcher-hybrid ships_in T-1055; T-1055 unlocks it). Third red (_t570 sweep) passes 5/5 standalone: run concurrently with job 002 and a Watchtower restart
+
+# Key outcomes
+outcomes:
+  - 'The upgrade is a launcher job (`.context/runme/001-upgrade-aef-1.8.3/`), dry-run passed (preflight; upstream dry-run: no local-only file deleted, the 36 locally edited files overwritten by design with --allow-delete-locals), committed; the agent never ran it for real'
+  - 'After the operator''s run: VERSION 1.8.3, pristine commit 0e542b61 touches only `.agentic-framework/`, baseline advanced 47256bd1'
+  - 'Overwritten local fixes re-applied (36/36 clean, ac08e1b6); `_t517` clean'
+  - 'Post-upgrade: project hooks intact incl. the three 1.8.2 left out (2dee46ba); no new cron jobs in 1.8.3 (crontab checked, 7 framework lines); enforcement baseline refreshed by the operator (job 002, 872dbb2f); bridge suite 241/0 (2026-10-06, run alone)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'two bridge reds from today''s own work, fixed — the launcher had no live caller in the unwired census (test now names it and asserts the stub execs it, leg 0); T-1054''s GO had no declared build link (T-1054 inception_decisions runme-launcher-hybrid ships_in T-1055; T-1055 unlocks it). Third red (_t570 sweep) passes 5/5 standalone: run concurrently with job 002 and a Watchtower restart'
+    source: git-mined
+  - description: 'job 002 fixed (fw doctor | grep -q SIGPIPE under pipefail, L-387 — caught by the launcher''s dry-run) and rehearsed (sha 300cc2364ab6)'
+    source: git-mined
+  - description: 're-apply our 36 local fixes on AEF 1.8.3 (re-vendor protocol step 3) — all 36 applied cleanly from the pre-upgrade diff against pristine 1.8.2; _t517 clean; syntax checked'
+    source: git-mined
+  - description: 'AEF 1.8.3 upgrade as the first launcher job (001-upgrade-aef-1.8.3, sha 7db74a7a5050): pinned v1.8.3 (542623a3), --allow-delete-locals because 1.8.3 now sees our 36 re-applied fixes (re-applied again in step 3), pristine commit, baseline advance, crontab check; dry-run passed, baseline rewrite tested on a copy'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/context/post-compact-resume.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/bin/claude-fw'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/bin/watchtower.sh'
+  - '.agentic-framework/docs/reports/T-3879-1409-pickup-t1676-verbatim.md'
+  - '.agentic-framework/docs/reports/T-3879-1409-upstream-patches-verbatim.md'
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/conversation-holder.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/hook_parity.py'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/init.sh'
+  - '.agentic-framework/lib/runme.sh'
+  - '.agentic-framework/lib/settings_merge.py'
+  - '.agentic-framework/lib/sidecar/addressing.py'
+  - '.agentic-framework/lib/sidecar/alerts.py'
+  - '.agentic-framework/lib/sidecar_cli.py'
+  - '.agentic-framework/lib/sidecar/delivery.py'
+  - '.agentic-framework/lib/sidecar/hooks.py'
+  - '.agentic-framework/lib/sidecar/inject.py'
+  - '.agentic-framework/lib/sidecar/seen.py'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/termlink-runtime.sh'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/upgrade.sh'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/lib/version-relation.sh'
+  - '.agentic-framework/lib/watchtower-ensure.sh'
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.claude/settings.json'
+  - '.context/project/enforcement-baseline.sha256'
+  - '.context/runme/001-upgrade-aef-1.8.3/done'
+  - '.context/runme/001-upgrade-aef-1.8.3/dryrun.ok'
+  - '.context/runme/001-upgrade-aef-1.8.3/job.sh'
+  - '.context/runme/001-upgrade-aef-1.8.3/run-20261005T231820.log'
+  - '.context/runme/002-refresh-enforcement-baseline/done'
+  - '.context/runme/002-refresh-enforcement-baseline/dryrun.ok'
+  - '.context/runme/002-refresh-enforcement-baseline/job.sh'
+  - '.context/runme/002-refresh-enforcement-baseline/run-20261005T234311.log'
+  - '.framework.yaml'
+  - '.tasks/active/T-1057-upgrade-vendored-aef-182---183-t-1000-pr.md'
+  - '.tasks/completed/T-1054-adopt-aef-fw-runme-for-832-operator-comm.md'
+  - '.tasks/completed/T-1055-build-the-runme-launcher-t-1054-option-3.md'
+  - 'tests/test_t1055_runme_launcher.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-05T23:15:12'
+    action: 'T-1057: AEF 1.8.3 upgrade as the first launcher job (001-upgrade-aef-1.8.3, sha 7db74a7a5050): pinned v1.8.3 (542623a3), --allow-delete-locals because 1.8.3 now sees our 36 re-applied fixes (re-applied again in step 3), pristine commit, baseline advance, crontab check; dry-run passed, baseline rewrite tested on a copy'
+  - time: '2026-10-05T23:21:05'
+    action: 'T-1057: pristine vendor commit — AEF 1.8.3 as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-05T23:32:32'
+    action: 'T-1057: advance the divergence baseline to the pristine AEF 1.8.3 commit (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-05T23:33:32'
+    action: 'T-1057: re-apply our 36 local fixes on AEF 1.8.3 (re-vendor protocol step 3) — all 36 applied cleanly from the pre-upgrade diff against pristine 1.8.2; _t517 clean; syntax checked'
+  - time: '2026-10-05T23:34:28'
+    action: 'T-1057: project files the 1.8.3 upgrade rewrote, reviewed (settings.json adds exactly the 3 hooks 1.8.2 left out; .framework.yaml 1.8.3); launcher job 001 run record (done, run log)'
+  - time: '2026-10-05T23:37:19'
+    action: 'T-1057: job 002 — operator refreshes the hook-tamper baseline (every change since 2026-09-26 accounted for); dry-run passed'
+  - time: '2026-10-05T23:38:52'
+    action: 'T-1057: job 002 fixed (fw doctor | grep -q SIGPIPE under pipefail, L-387 — caught by the launcher''s dry-run) and rehearsed (sha 300cc2364ab6)'
+  - time: '2026-10-05T23:48:05'
+    action: 'T-1057: operator refreshed the enforcement baseline after reviewing the hooks (T-1022, T-1013, T-1049, T-1057 changes)'
+  - time: '2026-10-05T23:49:32'
+    action: 'T-1057: launcher job 002 run record (done, run log)'
+  - time: '2026-10-06T00:07:59'
+    action: 'T-1057: two bridge reds from today''s own work, fixed — the launcher had no live caller in the unwired census (test now names it and asserts the stub execs it, leg 0); T-1054''s GO had no declared build link (T-1054 inception_decisions runme-launcher-hybrid ships_in T-1055; T-1055 unlocks it). Third red (_t570 sweep) passes 5/5 standalone: run concurrently with job 002 and a Watchtower restart'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 10 commit(s), 82 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 82
+  commits: 11
+  files_changed: 76
+  lines_added: 5601
+  lines_removed: 3622
+  footprint_refreshed_at: '2026-10-05T22:34:59Z'
+  footprint_refreshed_by_commit: 5eb2b2d8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1057-upgrade-vendored-aef-182---183-t-1000-pr.md
+generated_by: context-agent-hybrid

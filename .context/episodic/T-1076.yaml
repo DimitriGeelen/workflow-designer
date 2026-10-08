@@ -179,10 +179,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 109
-  commits: 7
-  files_changed: 97
-  lines_added: 11021
-  lines_removed: 3764
+  commits: 8
+  files_changed: 99
+  lines_added: 11227
+  lines_removed: 3769
+  footprint_refreshed_at: '2026-10-06T20:55:28Z'
+  footprint_refreshed_by_commit: c7b6414b
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1076-upgrade-vendored-aef-183---185-t-1000-pr.md

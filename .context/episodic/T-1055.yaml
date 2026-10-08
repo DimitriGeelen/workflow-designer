@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1055: Build the runme launcher (T-1054 option 3): one reviewed runme.sh, immutable named jobs, hash-bound dry-run
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-05T19:28:15Z
+# ============================================================================
+
+task_id: T-1055
+task_name: "Build the runme launcher (T-1054 option 3): one reviewed runme.sh, immutable named jobs, hash-bound dry-run"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-05T19:06:35Z
+completed: 2026-10-05T19:27:59Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-05T21:27:21+02:00
+last_commit: 2026-10-05T21:27:21+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  runme.sh is now a fixed launcher (tools/runme-launcher.sh) holding every operator safeguard once: definitions-only jobs under .context/runme/<NNN>-<name>/, hash-bound dry-run, name+sha shown, y/N per step from the terminal only, refusal on no/changed rehearsal, done jobs never re-run, choice when several pending; tools/runme-new.sh scaffolds jobs; 12-leg test (found and fixed: RUNME_TTY guard bypass on a fresh project, runme-new silent exit) wired in the bridge suite; CLAUDE.md rule rewritten
+
+# Key outcomes
+outcomes:
+  - '`runme.sh` is a fixed launcher (logic in `tools/runme-launcher.sh`); jobs are `.context/runme/<NNN>-<name>/job.sh` that only DEFINE (title, why, task, `preflight`/`steps` via `check`/`step`); a job that runs commands at load time is refused'
+  - '`--dry-run [name]` runs the job''s checks, prints the plan, writes `dryrun.ok` (sha256 of job.sh) and makes job.sh read-only; the real run shows job name + sha + dry-run time and REFUSES a job with no dry-run or whose sha changed since it'
+  - 'Real run: re-runs preflight, asks y/N per step (typeahead discarded, answers from the terminal only), logs to the job dir, emits started/step/done/STOPPED events (T-1003/T-1050 watcher unchanged), writes `done` on success; a done job is not run again; several pending jobs → numbered choice'
+  - 'Test (scratch job dir, no real project writes) covers: load-time command refused; no dry-run refused; edited-after-dry-run refused; happy path with y answers; N stops with nothing after; done job not re-run; two pending → choice; wired in the bridge suite'
+  - '`tools/runme-new.sh <name>` scaffolds the next numbered job; CLAUDE.md runme rule rewritten for the new shape; safeguards offered to AEF for `fw runme`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'runme.sh is now a fixed launcher (tools/runme-launcher.sh) holding every operator safeguard once: definitions-only jobs under .context/runme/<NNN>-<name>/, hash-bound dry-run, name+sha shown, y/N per step from the terminal only, refusal on no/changed rehearsal, done jobs never re-run, choice when several pending; tools/runme-new.sh scaffolds jobs; 12-leg test (found and fixed: RUNME_TTY guard bypass on a fresh project, runme-new silent exit) wired in the bridge suite; CLAUDE.md rule rewritten'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'CLAUDE.md'
+  - 'runme.sh'
+  - '.tasks/active/T-1055-build-the-runme-launcher-t-1054-option-3.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t1055_runme_launcher.py'
+  - 'tools/runme-launcher.sh'
+  - 'tools/runme-new.sh'
+  - 'tools/session-start-alerts.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-05T21:27:21'
+    action: 'T-1055: runme.sh is now a fixed launcher (tools/runme-launcher.sh) holding every operator safeguard once: definitions-only jobs under .context/runme/<NNN>-<name>/, hash-bound dry-run, name+sha shown, y/N per step from the terminal only, refusal on no/changed rehearsal, done jobs never re-run, choice when several pending; tools/runme-new.sh scaffolds jobs; 12-leg test (found and fixed: RUNME_TTY guard bypass on a fresh project, runme-new silent exit) wired in the bridge suite; CLAUDE.md rule rewritten'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 21 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 21
+  commits: 2
+  files_changed: 9
+  lines_added: 452
+  lines_removed: 62
+  footprint_refreshed_at: '2026-10-05T19:28:20Z'
+  footprint_refreshed_by_commit: cf067ab0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1055-build-the-runme-launcher-t-1054-option-3.md
+generated_by: context-agent-hybrid

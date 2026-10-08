@@ -83,10 +83,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 760
-  commits: 3
-  files_changed: 15
-  lines_added: 4936
-  lines_removed: 16
+  commits: 4
+  files_changed: 17
+  lines_added: 5046
+  lines_removed: 21
+  footprint_refreshed_at: '2026-10-04T12:36:04Z'
+  footprint_refreshed_by_commit: 063899ab
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1021-upstream-bundle-e-for-aef-the-5-generic-.md

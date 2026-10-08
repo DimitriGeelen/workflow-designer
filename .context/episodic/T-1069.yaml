@@ -84,10 +84,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 854
-  commits: 4
-  files_changed: 12
-  lines_added: 316
-  lines_removed: 21
+  commits: 5
+  files_changed: 14
+  lines_added: 428
+  lines_removed: 27
+  footprint_refreshed_at: '2026-10-07T00:04:43Z'
+  footprint_refreshed_by_commit: aff37be4
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1069-t-893-authority-marker-collides-with-the.md

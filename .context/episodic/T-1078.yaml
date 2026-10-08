@@ -77,10 +77,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 208
-  commits: 2
-  files_changed: 7
-  lines_added: 619
-  lines_removed: 11
+  commits: 3
+  files_changed: 9
+  lines_added: 724
+  lines_removed: 17
+  footprint_refreshed_at: '2026-10-06T23:29:54Z'
+  footprint_refreshed_by_commit: 872816fc
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1078-advisory-banners-overlay-the-canvas-with.md

@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1030: Correct T-1029: the rotation question was already closed by the operator (T-938, 09-30) — record that, retire the options
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T08:32:09Z
+# ============================================================================
+
+task_id: T-1030
+task_name: "Correct T-1029: the rotation question was already closed by the operator (T-938, 09-30) — record that, retire the options"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T08:30:49Z
+completed: 2026-10-04T08:32:01Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-04T10:31:59+02:00
+last_commit: 2026-10-04T10:31:59+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the rotation question was already closed by the operator (T-938) — T-1029 corrected, its options retired, and the miss recorded as a learning
+
+# Key outcomes
+outcomes:
+  - 'docs/reports/T-1029-machine-id-rotation-facts.md states that the question was CLOSED by the operator (T-938, 2026-09-30: purged; nobody downloaded it apart from automated access) and that the re-published machine-id does not reopen it (no ciphertext copy exists outside the host); the numbered options are retired, not left as an open decision'
+  - 'The agent''s error (re-raising a closed operator decision because the closing record was not read) is recorded as a learning with the check that prevents it'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - 'docs/reports/T-1029-machine-id-rotation-facts.md'
+  - '.tasks/active/T-1030-correct-t-1029-the-rotation-question-was.md'
+  - '.tasks/completed/T-1029-facts-for-the-operators-rotation-decisio.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T10:31:59'
+    action: 'T-1030: the rotation question was already closed by the operator (T-938) — T-1029 corrected, its options retired, and the miss recorded as a learning'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1
+  commits: 1
+  files_changed: 4
+  lines_added: 363
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1030-correct-t-1029-the-rotation-question-was.md
+generated_by: context-agent-hybrid

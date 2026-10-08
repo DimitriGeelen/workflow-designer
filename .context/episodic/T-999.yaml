@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-999: Project-owned audit extension: restore the T-952 ratchet rail and the T-657 divergence rail outside vendored audit.sh
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-02T23:19:38Z
+# ============================================================================
+
+task_id: T-999
+task_name: "Project-owned audit extension: restore the T-952 ratchet rail and the T-657 divergence rail outside vendored audit.sh"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-02T16:38:17Z
+completed: 2026-10-02T23:19:29Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-03T01:19:16+02:00
+last_commit: 2026-10-03T01:19:16+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  tools/project-audit.sh — 832's 8 audit rails out of vendored audit.sh (upgrades deleted T-382/T-660 on 09-25 and the rest on 10-01), carried verbatim, own report .context/audits/project/LATEST.yaml, hourly cron; first run 5 pass / 4 warn (G-080 has no closure key, 1 unactionable Human AC, 14 stale register entries, a secret path in git history); _t952 teeth retargeted 7/7, _t931 16/16
+
+# Key outcomes
+outcomes:
+  - '`tools/project-audit.sh` runs the 8 rails (T-382 release lag + gap closure keys, T-660 Human AC actionability, T-931 stale ownership, T-936 stray captures, T-941 boundary inventory, T-945 vendor divergence, T-952 bridge-suite ratchet, T-938/T-939 secret paths incl. history), each carried over from its last committed form, with audit.sh-compatible PASS/WARN/FAIL lines'
+  - 'It writes `.context/audits/project/LATEST.yaml` (counts + findings) and exits 0 pass / 1 warn / 2 fail'
+  - 'It has a schedule (cron registry) so the rails run without anyone remembering to'
+  - 'The rails'' teeth scripts that extracted from audit.sh read project-audit.sh instead, and pass'
+  - 'The extension-point ask is on record with AEF (sidecar)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/cron/agentic-audit.crontab'
+  - '.context/cron-registry.yaml'
+  - '.fabric/components/tools-project-audit.yaml'
+  - '.tasks/active/T-999-project-owned-audit-extension-restore-th.md'
+  - 'tools/project-audit.sh'
+  - 'tools/_t952-audit-rail-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-03T01:19:16'
+    action: 'T-999: tools/project-audit.sh — 832''s 8 audit rails out of vendored audit.sh (upgrades deleted T-382/T-660 on 09-25 and the rest on 10-01), carried verbatim, own report .context/audits/project/LATEST.yaml, hourly cron; first run 5 pass / 4 warn (G-080 has no closure key, 1 unactionable Human AC, 14 stale register entries, a secret path in git history); _t952 teeth retargeted 7/7, _t931 16/16'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 401 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 401
+  commits: 2
+  files_changed: 7
+  lines_added: 914
+  lines_removed: 2
+  footprint_refreshed_at: '2026-10-02T23:19:46Z'
+  footprint_refreshed_by_commit: 98111333
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-999-project-owned-audit-extension-restore-th.md
+generated_by: context-agent-hybrid

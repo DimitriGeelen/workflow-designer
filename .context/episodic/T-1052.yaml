@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1052: RCA: two live Claude processes ran the same 832 conversation and both executed the upgrade's step 3
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-05T15:50:28Z
+# ============================================================================
+
+task_id: T-1052
+task_name: "RCA: two live Claude processes ran the same 832 conversation and both executed the upgrade's step 3"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-05T15:46:43Z
+completed: 2026-10-05T15:50:19Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-05T17:47:34+02:00
+last_commit: 2026-10-05T17:50:13+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  RCA — two live Claude processes ran conversation 500d44d9 (fleet resume by id + claude-fw -c); both did the upgrade's step 3; no work lost, duplicate stopped. record 055's answers — the -c sessions were opened by hand after the boot spawn resumed 832 into an old conversation; the 17:18 relaunch was 055's de-duplication (fleet-rehome.sh); prevention in 055 T-465/T-470
+
+# Key outcomes
+outcomes:
+  - 'Loss check: every change the other copy made is committed (444d090b, d698db49, 142c4183, 318d515c), `_t517` clean, no duplicate tasks or duplicate outgoing messages'
+  - 'The duplicate is stopped: no `claude -c` / `claude-fw -c` process remains; exactly one process runs conversation 500d44d9'
+  - 'RCA report written with timeline, root cause, why it was allowed, and prevention; committed (5928df7c)'
+  - 'RCA sent to the 055 fleet cockpit agent (sidecar, conversation duplicate-conversation-rca, delivered RECEIVED), with the questions only 055 can answer'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-1052-duplicate-conversation-rca.md'
+  - '.tasks/active/T-1052-rca-two-live-claude-processes-ran-the-sa.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-05T17:47:34'
+    action: 'T-1052: RCA — two live Claude processes ran conversation 500d44d9 (fleet resume by id + claude-fw -c); both did the upgrade''s step 3; no work lost, duplicate stopped'
+  - time: '2026-10-05T17:50:13'
+    action: 'T-1052: record 055''s answers — the -c sessions were opened by hand after the boot spawn resumed 832 into an old conversation; the 17:18 relaunch was 055''s de-duplication (fleet-rehome.sh); prevention in 055 T-465/T-470'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [rca, bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 3
+  commits: 3
+  files_changed: 3
+  lines_added: 458
+  lines_removed: 1
+  footprint_refreshed_at: '2026-10-05T15:50:35Z'
+  footprint_refreshed_by_commit: d4d87aab
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1052-rca-two-live-claude-processes-ran-the-sa.md
+generated_by: context-agent-hybrid

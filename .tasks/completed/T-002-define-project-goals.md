@@ -7,6 +7,8 @@ description: >
   architecture. This is the foundational decision — everything else follows from here.
 status: work-completed
 workflow_type: inception
+target_blast_radius: 3
+voi_score: 0.5
 owner: human
 horizon:
 tags: [onboarding, inception]

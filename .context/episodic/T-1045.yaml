@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1045: Instrument sweep exits 3 (incomplete): _t402, _t581, _t588 decline to certify (rc=2) — find why each abstains and make it run or document the exclusion
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-05T07:30:57Z
+# ============================================================================
+
+task_id: T-1045
+task_name: "Instrument sweep exits 3 (incomplete): _t402, _t581, _t588 decline to certify (rc=2) — find why each abstains and make it run or document the exclusion"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T18:23:26Z
+completed: 2026-10-05T07:30:09Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-05T09:04:44+02:00
+last_commit: 2026-10-05T09:30:07+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-402 Recommendation updated with today's measurement — T-2919/T-2923 vendored since 1.7.68, all 5 bypasses blocked, controls and both wrap-up sentinels hold; revised to GO on A and close (Human AC left for the operator). _t1047's fixture command strings no longer name /tmp paths (_t633's shared-sink census flagged them; never written, but the census exempts only check/lvl fixtures) — bridge 238/0 with this; evidence recorded
+
+# Key outcomes
+outcomes:
+  - 'For each of the three abstainers, the exact rc=2 reason is captured from a live run and its root cause is stated (one hypothesis at a time, at most 3 each)'
+  - 'Each is either made to run (and then passes, with its control/mutant biting), or excluded from the sweep with a written justification naming the missing precondition. An exclusion must not hide a regression: the reason has to be environmental and still true'
+  - '`bash tools/_t509-instrument-sweep.sh` exits 0'
+  - 'The bridge leg for the sweep is green; the bridge suite''s red set is only the known T-358 and T-1036 legs (outcome: smaller than expected — see evidence)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: '_t1047''s fixture command strings no longer name /tmp paths (_t633''s shared-sink census flagged them; never written, but the census exempts only check/lvl fixtures) — bridge 238/0 with this; evidence recorded'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1045-instrument-sweep-exits-3-incomplete-t402.md'
+  - '.tasks/active/T-402-budget-gate-allow-regex-matches-anywhere.md'
+  - 'tools/_t1047-session-start-alerts-gate.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-05T09:04:44'
+    action: 'T-1045: T-402 Recommendation updated with today''s measurement — T-2919/T-2923 vendored since 1.7.68, all 5 bypasses blocked, controls and both wrap-up sentinels hold; revised to GO on A and close (Human AC left for the operator)'
+  - time: '2026-10-05T09:30:07'
+    action: 'T-1045: _t1047''s fixture command strings no longer name /tmp paths (_t633''s shared-sink census flagged them; never written, but the census exempts only check/lvl fixtures) — bridge 238/0 with this; evidence recorded'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 786 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 786
+  commits: 3
+  files_changed: 4
+  lines_added: 45
+  lines_removed: 10
+  footprint_refreshed_at: '2026-10-05T07:31:04Z'
+  footprint_refreshed_by_commit: ec1c6946
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1045-instrument-sweep-exits-3-incomplete-t402.md
+generated_by: context-agent-hybrid

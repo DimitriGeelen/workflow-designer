@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1036: loop-detect state frozen since 08:57Z while the hook fires (T-687 STARVED, G-050); and _t687 clears its own red on rerun
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-05T07:36:32Z
+# ============================================================================
+
+task_id: T-1036
+task_name: "loop-detect state frozen since 08:57Z while the hook fires (T-687 STARVED, G-050); and _t687 clears its own red on rerun"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T14:30:57Z
+completed: 2026-10-05T07:36:18Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-04T19:58:33+02:00
+last_commit: 2026-10-05T09:36:05+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  investigation recorded — loop-detect reproduced live (fires counted, state never written, rc 0); three hypotheses disproved (stdin consumed by dispatcher, node off PATH, large payload); next: instrument the JS's silent early exits, ideally on v1.8.1. loop-detect was dead in every live session — Claude Code hands hooks a SOCKET as stdin and readFileSync('/dev/stdin') fails ENXIO there, caught as a silent exit 0 (found with a temporary live diagnostic; shell tests use a pipe, which is why 3 hypotheses failed). Fix readFileSync(0); state now advances on real calls. _t687 no longer clears its own red: the baseline moves only on proof the hook worked (self-test + mutant). Register entry; reported to AEF @338; learning recorded
+
+# Key outcomes
+outcomes:
+  - 'The early exit the LIVE hook takes is identified from evidence: a temporary diagnostic in the vendored loop-detect.js logs which exit path ran plus the stdin/env facts (type, length, PROJECT_ROOT/FRAMEWORK_ROOT/cwd), captured over real tool calls, then removed'
+  - 'Root cause stated and fixed so live tool calls advance `.context/working/.loop-detect.json` (shown: hook counter and state both move across consecutive real tool calls)'
+  - 'A vendored-file change is declared in the divergence register and offered to AEF (a silent rc-0 fail-open is G-050''s class)'
+  - '`_t687` no longer clears its own red on rerun (its baseline must not advance on a STARVED verdict), shown by running it twice against a starved state'
+  - '`_t687` passes on the fixed tree'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'loop-detect was dead in every live session — Claude Code hands hooks a SOCKET as stdin and readFileSync(''/dev/stdin'') fails ENXIO there, caught as a silent exit 0 (found with a temporary live diagnostic; shell tests use a pipe, which is why 3 hypotheses failed). Fix readFileSync(0); state now advances on real calls. _t687 no longer clears its own red: the baseline moves only on proof the hook worked (self-test + mutant). Register entry; reported to AEF @338; learning recorded'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-1036-loop-detect-state-frozen-since-0857z-whi.md'
+  - 'tools/_t687-hook-function-check.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T19:58:33'
+    action: 'T-1036: investigation recorded — loop-detect reproduced live (fires counted, state never written, rc 0); three hypotheses disproved (stdin consumed by dispatcher, node off PATH, large payload); next: instrument the JS''s silent early exits, ideally on v1.8.1'
+  - time: '2026-10-05T09:36:05'
+    action: 'T-1036: loop-detect was dead in every live session — Claude Code hands hooks a SOCKET as stdin and readFileSync(''/dev/stdin'') fails ENXIO there, caught as a silent exit 0 (found with a temporary live diagnostic; shell tests use a pipe, which is why 3 hypotheses failed). Fix readFileSync(0); state now advances on real calls. _t687 no longer clears its own red: the baseline moves only on proof the hook worked (self-test + mutant). Register entry; reported to AEF @338; learning recorded'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 1025 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1025
+  commits: 3
+  files_changed: 6
+  lines_added: 135
+  lines_removed: 12
+  footprint_refreshed_at: '2026-10-05T07:36:33Z'
+  footprint_refreshed_by_commit: 40928733
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1036-loop-detect-state-frozen-since-0857z-whi.md
+generated_by: context-agent-hybrid

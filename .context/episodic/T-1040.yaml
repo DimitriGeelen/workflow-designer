@@ -70,10 +70,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 11
-  commits: 1
-  files_changed: 6
-  lines_added: 1014
-  lines_removed: 2
+  commits: 2
+  files_changed: 8
+  lines_added: 1111
+  lines_removed: 7
+  footprint_refreshed_at: '2026-10-04T16:06:50Z'
+  footprint_refreshed_by_commit: d1bf0074
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1040-bundle-f-for-aef-t-3814-t-1037-alias-adm.md

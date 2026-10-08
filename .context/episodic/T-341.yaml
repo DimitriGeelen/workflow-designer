@@ -128,10 +128,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 94844
-  commits: 16
-  files_changed: 43
-  lines_added: 1909
-  lines_removed: 145
+  commits: 17
+  files_changed: 45
+  lines_added: 2064
+  lines_removed: 150
+  footprint_refreshed_at: '2026-10-07T07:23:37Z'
+  footprint_refreshed_by_commit: 1fb57995
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-341-an-unresolvable-flownoderef-silently-rea.md

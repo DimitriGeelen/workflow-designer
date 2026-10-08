@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-995: Why did the bridge suite slide from 7 to 38 failures in 10 days without being stopped
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-02T16:36:55Z
+# ============================================================================
+
+task_id: T-995
+task_name: "Why did the bridge suite slide from 7 to 38 failures in 10 days without being stopped"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-02T15:13:59Z
+completed: 2026-10-02T16:36:42Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-02T17:15:36+02:00
+last_commit: 2026-10-02T17:30:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception opened — why the bridge suite slid 7 -> 38 failures in 10 days unstopped; research artifact (evidence, 3 leads, IW-1..IW-4, 4 spikes, none run). spike 3 — IW-4 answered: SIGPIPE from agents piping the suite into head records a partial sweep as rc 0, and the T-952 ratchet would accept it as an improvement; learnings F1-F3. spikes 1 and 4 — IW-1 dissolved (the 'same commit' jump was a SIGPIPE partial run), IW-2 ~24/38 vendored-framework reverts by re-vendoring, IW-3 no consumer can say no and the audit rail was erased by the uncommitted T-988 re-vendor; recommendation GO (B1-B5, U1). operator rule — commands for the operator always go in runme.sh (CLAUDE.md); runme.sh now records the T-995 decision (g/n/d, confirmed), dry-run passes
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'spikes 1 and 4 — IW-1 dissolved (the ''same commit'' jump was a SIGPIPE partial run), IW-2 ~24/38 vendored-framework reverts by re-vendoring, IW-3 no consumer can say no and the audit rail was erased by the uncommitted T-988 re-vendor; recommendation GO (B1-B5, U1)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'CLAUDE.md'
+  - 'docs/reports/T-995-bridge-suite-slide.md'
+  - 'runme.sh'
+  - '.tasks/active/T-995-why-did-the-bridge-suite-slide-from-7-to.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-02T17:15:36'
+    action: 'T-995: inception opened — why the bridge suite slid 7 -> 38 failures in 10 days unstopped; research artifact (evidence, 3 leads, IW-1..IW-4, 4 spikes, none run)'
+  - time: '2026-10-02T17:19:36'
+    action: 'T-995: spike 3 — IW-4 answered: SIGPIPE from agents piping the suite into head records a partial sweep as rc 0, and the T-952 ratchet would accept it as an improvement; learnings F1-F3'
+  - time: '2026-10-02T17:22:06'
+    action: 'T-995: spikes 1 and 4 — IW-1 dissolved (the ''same commit'' jump was a SIGPIPE partial run), IW-2 ~24/38 vendored-framework reverts by re-vendoring, IW-3 no consumer can say no and the audit rail was erased by the uncommitted T-988 re-vendor; recommendation GO (B1-B5, U1)'
+  - time: '2026-10-02T17:30:53'
+    action: 'T-995: operator rule — commands for the operator always go in runme.sh (CLAUDE.md); runme.sh now records the T-995 decision (g/n/d, confirmed), dry-run passes'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 82 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 82
+  commits: 4
+  files_changed: 4
+  lines_added: 500
+  lines_removed: 247
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-995-why-did-the-bridge-suite-slide-from-7-to.md
+generated_by: context-agent-hybrid

@@ -76,10 +76,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 59
-  commits: 1
-  files_changed: 9
-  lines_added: 429
-  lines_removed: 11
+  commits: 2
+  files_changed: 11
+  lines_added: 537
+  lines_removed: 16
+  footprint_refreshed_at: '2026-10-01T21:52:15Z'
+  footprint_refreshed_by_commit: dabbc1de
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-984-b2-t-982-learning-ledger-with-a-human-pr.md

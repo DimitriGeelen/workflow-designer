@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1028: Restore fw note resolve for observations that were fixed (T-914 lost)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T08:50:26Z
+# ============================================================================
+
+task_id: T-1028
+task_name: "Restore fw note resolve for observations that were fixed (T-914 lost)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T07:54:52Z
+completed: 2026-10-04T08:50:15Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-04T10:50:09+02:00
+last_commit: 2026-10-04T10:50:09+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  fw note resolve is back — the inbox's largest class (already fixed, content elsewhere) has an exit again (T-914 re-applied)
+
+# Key outcomes
+outcomes:
+  - '`fw note resolve OBS-N --carrier <T-NNN|path> [--reason "..."]` marks a PENDING observation `status: resolved` with resolved_carrier, resolved_carrier_kind, resolved_at (and resolved_reason when given); refuses — writing nothing — when the carrier is missing, names no real task file / no existing path, or the observation is not pending'
+  - 'tools/_t1028-note-resolve-teeth.sh proves the success path and each refusal on a scratch project (red on HEAD: the verb does not exist); the rest of the inbox is byte-identical after a resolve; bridge leg; declared in .vendor-divergence.yaml — 7/7 on the fix; on HEAD both success legs red (the 4 refusal legs pass trivially there because the verb does not exist, stated rather than counted as teeth)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'fw note resolve is back — the inbox''s largest class (already fixed, content elsewhere) has an exit again (T-914 re-applied)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.tasks/active/T-1028-restore-fw-note-resolve-for-observations.md'
+  - '.tasks/completed/T-1027-restore-fw-note-promote-recording-the-cr.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1028-note-resolve-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T10:50:09'
+    action: 'T-1028: fw note resolve is back — the inbox''s largest class (already fixed, content elsewhere) has an exit again (T-914 re-applied)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 55 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 55
+  commits: 1
+  files_changed: 6
+  lines_added: 584
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1028-restore-fw-note-resolve-for-observations.md
+generated_by: context-agent-hybrid

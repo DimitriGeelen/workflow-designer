@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1060: Bridge reds that pass alone: a probe that cannot run (browser launch/timeout under load) is reported as a FAILED check instead of COULD-NOT-MEASURE
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-06T06:28:10Z
+# ============================================================================
+
+task_id: T-1060
+task_name: "Bridge reds that pass alone: a probe that cannot run (browser launch/timeout under load) is reported as a FAILED check instead of COULD-NOT-MEASURE"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-05T23:52:30Z
+completed: 2026-10-06T06:27:31Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-06T08:27:21+02:00
+last_commit: 2026-10-06T08:27:21+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  suite-only reds explained and fixed — two CDP probes raced the editor's async ?load= fetch (fixed 400 ms after _appReady; on a busy host the map arrived later -> 'CANNOT RUN: fixture node absent', counted as a regression). They now wait for _loadSrcKey (the map adopted). A probe that cannot run reports COULD NOT MEASURE (rc 3) and the suite labels it 'could not run', still red. Proof: deterministic slow-load stimulus (fetch delayed 1.5 s) — unfixed probes fail exactly as in the suite, fixed ones pass, control with the old wait loses the race (tools/_t1060-slow-load-teeth.sh, wired). 24 other ?load probes counted; not mechanical (failure/suppression paths) -> T-1061
+
+# Key outcomes
+outcomes:
+  - 'Cause shown, not assumed: the suite-run outputs say `_t573` "CANNOT RUN: fixture node absent" and `_t570`''s CONTROL failed rc=2 on every leg; the race (`_appReady` flips at the end of Init, the `?load=` fetch is async and lands later, a fixed 400 ms sleep in between) is reproduced on demand with an editor copy whose fetch starts 1.5 s late — the unfixed probes print exactly the suite''s CANNOT RUN'
+  - '`_t573` and the `_t570` probe wait for the loaded map itself (`_loadSrcKey` set, within the existing 25 s bound) instead of a fixed sleep; against the slow editor they now pass 8/8 and 8/8, and the T-570 teeth stay 5/5. Proof is a deterministic slow-load stimulus rather than CPU load (kinder to a shared host, and it cannot pass by luck): tools/_t1060-slow-load-teeth.sh, 3 legs incl. a control with the old wait, wired in the bridge suite'
+  - 'A probe that cannot run is reported as such, never as a regression: `_t570`''s teeth returns 3 (COULD NOT MEASURE) on CANNOT RUN, timeout or no node (shown with PATH stripped: rc=3); the bridge suite labels it, and any standing guard that printed CANNOT RUN, as "COULD NOT RUN (not a verdict on the code)" — still counted red'
+  - 'The other probes counted: 24 load a map by `?load=` without the new wait (10 in the bridge suite). NOT mechanical — probes testing a failing (_t821) or suppressed (_autoload) deep link never set `_loadSrcKey` and would time out — so follow-up T-1061: one editor-side "deep link settled" signal covering adopted/suppressed/failed, then each probe'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'suite-only reds explained and fixed — two CDP probes raced the editor''s async ?load= fetch (fixed 400 ms after _appReady; on a busy host the map arrived later -> ''CANNOT RUN: fixture node absent'', counted as a regression). They now wait for _loadSrcKey (the map adopted). A probe that cannot run reports COULD NOT MEASURE (rc 3) and the suite labels it ''could not run'', still red. Proof: deterministic slow-load stimulus (fetch delayed 1.5 s) — unfixed probes fail exactly as in the suite, fixed ones pass, control with the old wait loses the race (tools/_t1060-slow-load-teeth.sh, wired). 24 other ?load probes counted; not mechanical (failure/suppression paths) -> T-1061'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1060-bridge-reds-that-pass-alone-a-probe-that.md'
+  - '.tasks/active/T-1061-the-other-24-load-cdp-probes-still-race-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1060-slow-load-teeth.sh'
+  - 'tools/_t570-meta-carriage-cdp.mjs'
+  - 'tools/_t570-meta-carriage-teeth.py'
+  - 'tools/_t573-emits-panel-shape-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-06T08:27:21'
+    action: 'T-1060: suite-only reds explained and fixed — two CDP probes raced the editor''s async ?load= fetch (fixed 400 ms after _appReady; on a busy host the map arrived later -> ''CANNOT RUN: fixture node absent'', counted as a regression). They now wait for _loadSrcKey (the map adopted). A probe that cannot run reports COULD NOT MEASURE (rc 3) and the suite labels it ''could not run'', still red. Proof: deterministic slow-load stimulus (fetch delayed 1.5 s) — unfixed probes fail exactly as in the suite, fixed ones pass, control with the old wait loses the race (tools/_t1060-slow-load-teeth.sh, wired). 24 other ?load probes counted; not mechanical (failure/suppression paths) -> T-1061'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 395 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 395
+  commits: 2
+  files_changed: 8
+  lines_added: 792
+  lines_removed: 5
+  footprint_refreshed_at: '2026-10-06T06:28:18Z'
+  footprint_refreshed_by_commit: 5a442035
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1060-bridge-reds-that-pass-alone-a-probe-that.md
+generated_by: context-agent-hybrid

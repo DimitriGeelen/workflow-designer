@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1024: Re-redact this host's machine-id in the vendored T-375 key-storage report (T-939 lost by the 1.7.740 re-vendor)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T07:57:15Z
+# ============================================================================
+
+task_id: T-1024
+task_name: "Re-redact this host's machine-id in the vendored T-375 key-storage report (T-939 lost by the 1.7.740 re-vendor)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T07:54:35Z
+completed: 2026-10-04T07:57:05Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-04T09:56:33+02:00
+last_commit: 2026-10-04T09:57:04+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  this host's machine-id re-redacted from the vendored T-375 report (T-939, lost silently by the 1.7.740 re-vendor) — declared, and now guarded. ACs ticked with evidence
+
+# Key outcomes
+outcomes:
+  - 'The vendored T-375 key-storage report no longer contains this host''s machine-id (redacted with a readable placeholder); the change is declared in .vendor-divergence.yaml so the next re-vendor shows it STALE instead of silently restoring the value — T-939''s own redacted line restored (d34abb9f)'
+  - 'tools/_t1024-machine-id-not-tracked.py fails if this host''s /etc/machine-id appears in ANY tracked file at HEAD (comparison only, it prints paths, never the value), with a control proving it can find a planted copy; red before the redaction, green after; wired as a bridge leg — FAIL (1 file) before, PASS (10219 files) after'
+  - 'Git history and key rotation are NOT touched (operator''s call), and the task says so — commit message and register entry say so; AEF''s public mirror still carries the value (AEF told, e28a469a)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/docs/reports/T-375-agent-3-key-storage.md'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.tasks/active/T-1024-re-redact-this-hosts-machine-id-in-the-v.md'
+  - '.tasks/completed/T-1020-census-local-fixes-to-vendored-files-tha.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1024-machine-id-not-tracked.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T09:56:33'
+    action: 'T-1024: this host''s machine-id re-redacted from the vendored T-375 report (T-939, lost silently by the 1.7.740 re-vendor) — declared, and now guarded'
+  - time: '2026-10-04T09:57:04'
+    action: 'T-1024: ACs ticked with evidence'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2
+  commits: 2
+  files_changed: 6
+  lines_added: 476
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1024-re-redact-this-hosts-machine-id-in-the-v.md
+generated_by: context-agent-hybrid

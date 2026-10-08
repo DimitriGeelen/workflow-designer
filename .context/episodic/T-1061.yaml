@@ -1,0 +1,155 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1061: The other 24 ?load= CDP probes still race the deep-link fetch; give the editor one honest 'deep link settled' signal and wait on it
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-06T08:14:51Z
+# ============================================================================
+
+task_id: T-1061
+task_name: "The other 24 ?load= CDP probes still race the deep-link fetch; give the editor one honest 'deep link settled' signal and wait on it"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-06T06:26:52Z
+completed: 2026-10-06T08:14:38Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-06T09:43:32+02:00
+last_commit: 2026-10-06T09:43:32+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the editor sets window._deepLinkSettled on every exit of its ?load handler (none / adopted / suppressed / failed; null until then); all 71 CDP probes wait for it instead of _appReady + a fixed sleep (older editors without it count as settled); _t570/_t573 move from _loadSrcKey to it; new probe _t1061-deeplink-settled-cdp.mjs 4/4 (none, adopted with node, failed with the alert dismissed, null while the fetch is held back) wired in the bridge suite; T-1060 teeth 3/3 against the new condition. Designer release not cut here
+
+# Key outcomes
+outcomes:
+  - 'The editor (`src/aef-workflow-designer.html`) sets one signal on EVERY exit of its `?load=` handler: `_deepLinkSettled` = ''none'' (no ?load) | ''adopted'' | ''suppressed'' (autosave kept) | ''failed''; null until then (a window property: the handler runs before the script''s later `let` bindings exist). Exports unchanged: the byte-identity and round-trip probes are in the 243/0 run'
+  - 'Every CDP probe that waits on `_appReady===true` also waits for `_deepLinkSettled` (treating an older editor without the variable as settled): 71 probes, one occurrence each, all `node --check` clean; `_t570`/`_t573` switched from `_loadSrcKey` to it'
+  - 'As proven, not as hoped: every probe the bridge suite runs passes against the normal editor (243/0); against a slow-loading editor the SIGNAL itself is proven (new `_t1061-deeplink-settled-cdp.mjs`: none / adopted with node / failed with the alert dismissed / null while the fetch is held back, 4/4) and two probes end-to-end (`_t570`, `_t573`, T-1060 teeth 3/3 incl. the old-wait control). Not covered: the ''suppressed'' state (needs an autosave fixture) and a slow-load run of every other probe — they rely on the same proven signal. No probe exercises the failure path (`_t821` loads a valid map), so the blocking alert there does not bite any probe'
+  - 'Bridge suite green: 243 passed, 0 failed (2026-10-06). Designer release NOT cut here; the signal ships with the next release'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the editor sets window._deepLinkSettled on every exit of its ?load handler (none / adopted / suppressed / failed; null until then); all 71 CDP probes wait for it instead of _appReady + a fixed sleep (older editors without it count as settled); _t570/_t573 move from _loadSrcKey to it; new probe _t1061-deeplink-settled-cdp.mjs 4/4 (none, adopted with node, failed with the alert dismissed, null while the fetch is held back) wired in the bridge suite; T-1060 teeth 3/3 against the new condition. Designer release not cut here'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1061-the-other-24-load-cdp-probes-still-race-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_align-distribute-diag.mjs'
+  - 'tools/_autoload-verify-cdp.mjs'
+  - 'tools/_bridge-seam-roundtrip-cdp.mjs'
+  - 'tools/_edge-straighten-verify-cdp.mjs'
+  - 'tools/_editor-behavior-verify-cdp.mjs'
+  - 'tools/_endpoint-hover-verify-cdp.mjs'
+  - 'tools/_endpoint-overlap-verify-cdp.mjs'
+  - 'tools/gen-rendered-thumbs.mjs'
+  - 'tools/_horizontal-spacing-verify-cdp.mjs'
+  - 'tools/_roundtrip-serialization-cdp.mjs'
+  - 'tools/_saveproject-verify-cdp.mjs'
+  - 'tools/_selection-align-verify-cdp.mjs'
+  - 'tools/_t1060-slow-load-teeth.sh'
+  - 'tools/_t1061-deeplink-settled-cdp.mjs'
+  - 'tools/_t249-spike-zoom-cdp.mjs'
+  - 'tools/_t251-visual-shots.mjs'
+  - 'tools/_t255-visual-shots.mjs'
+  - 'tools/_t259-eventdef-preservation-cdp.mjs'
+  - 'tools/_t263-save-target-cdp.mjs'
+  - 'tools/_t264-save-target-guards-cdp.mjs'
+  - 'tools/_t308-bare-catch-render-cdp.mjs'
+  - 'tools/_t308-export-byte-identity-cdp.mjs'
+  - 'tools/_t310-lane-position-conflict-cdp.mjs'
+  - 'tools/_t311-doc-comment-roundtrip-cdp.mjs'
+  - 'tools/_t315-lane-grow-on-import-cdp.mjs'
+  - 'tools/_t338-input-fidelity-cdp.mjs'
+  - 'tools/_t341-orphan-lane-probe.mjs'
+  - 'tools/_t347-accepted-element-content-cdp.mjs'
+  - 'tools/_t356-third-party-fidelity-cdp.mjs'
+  - 'tools/_t358-byteid-thirdparty.mjs'
+  - 'tools/_t358-empty-lanes-blast-radius.mjs'
+  - 'tools/_t358-export-determinism.mjs'
+  - 'tools/_t358-lane-provenance-cdp.mjs'
+  - 'tools/_t358-repair-options-cdp.mjs'
+  - 'tools/_t364-aef-ext-roundtrip.mjs'
+  - 'tools/_t364-tie-permutes-ids.mjs'
+  - 'tools/_t366-uid-shape-agnostic.mjs'
+  - 'tools/_t367-aef-injection-footprint.mjs'
+  - 'tools/_t372-aef-cycle-roundtrip.mjs'
+  - 'tools/_t406-doc-comment-provenance-cdp.mjs'
+  - 'tools/_t407-exporter-passthrough-cdp.mjs'
+  - 'tools/_t423-additive-export-cdp.mjs'
+  - 'tools/_t423-carrier-agreement-cdp.mjs'
+  - 'tools/_t423-di-roundtrip-idempotence-cdp.mjs'
+  - 'tools/_t479-endpoint-roundtrip-cdp.mjs'
+  - 'tools/_t482-scalar-projection-falsify.mjs'
+  - 'tools/_t483-structured-projection-falsify.mjs'
+  - 'tools/_t485-unknown-extension-survival.mjs'
+  - 'tools/_t511-unwired-node-roundtrip.mjs'
+  - 'tools/_t513-thirdparty-identity-roundtrip.mjs'
+  - 'tools/_t515-external-uid-conformance.mjs'
+  - 'tools/_t518-uid-collision.mjs'
+  - 'tools/_t520-uid-xml-safety.mjs'
+  - 'tools/_t523-subprocess-nesting.mjs'
+  - 'tools/_t562-workflow-id-helpers-cdp.mjs'
+  - 'tools/_t563-fallback-id-derivation-cdp.mjs'
+  - 'tools/_t565-workflowmeta-emission-census.mjs'
+  - 'tools/_t566-note-field-cdp.mjs'
+  - 'tools/_t570-meta-carriage-cdp.mjs'
+  - 'tools/_t572-bridge-vocabulary-roundtrip-cdp.mjs'
+  - 'tools/_t573-emits-panel-shape-cdp.mjs'
+  - 'tools/_t589-panel-links-cdp.mjs'
+  - 'tools/_t618-determinism-roundtrip-cdp.mjs'
+  - 'tools/_t821-fault-surface-cdp.mjs'
+  - 'tools/_t884-instance-overlay-cdp.mjs'
+  - 'tools/_t884-live-proof-cdp.mjs'
+  - 'tools/_t889-authority-first-class-cdp.mjs'
+  - 'tools/_t892-lane-default-cdp.mjs'
+  - 'tools/_t893-authority-marker-shots.mjs'
+  - 'tools/_t911-kind-badge-verify-cdp.mjs'
+  - 'tools/_typed-events-cdp.mjs'
+  - 'tools/_undo-verify-cdp.mjs'
+  - 'tools/_versions-verify-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-06T09:43:32'
+    action: 'T-1061: the editor sets window._deepLinkSettled on every exit of its ?load handler (none / adopted / suppressed / failed; null until then); all 71 CDP probes wait for it instead of _appReady + a fixed sleep (older editors without it count as settled); _t570/_t573 move from _loadSrcKey to it; new probe _t1061-deeplink-settled-cdp.mjs 4/4 (none, adopted with node, failed with the alert dismissed, null while the fetch is held back) wired in the bridge suite; T-1060 teeth 3/3 against the new condition. Designer release not cut here'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 107 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 107
+  commits: 2
+  files_changed: 77
+  lines_added: 239
+  lines_removed: 85
+  footprint_refreshed_at: '2026-10-06T08:14:52Z'
+  footprint_refreshed_by_commit: 1ab73371
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1061-the-other-24-load-cdp-probes-still-race-.md
+generated_by: context-agent-hybrid

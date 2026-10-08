@@ -77,10 +77,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 20
-  commits: 1
-  files_changed: 10
-  lines_added: 664
-  lines_removed: 14
+  commits: 2
+  files_changed: 12
+  lines_added: 769
+  lines_removed: 19
+  footprint_refreshed_at: '2026-10-01T17:57:12Z'
+  footprint_refreshed_by_commit: 03abfe4c
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-973-apisave-returns-validator-findings-advis.md

@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1059: Retire 832 stopgaps superseded by AEF 1.8.3 (session-start mail check -> fw sidecar alerts; T-1047 safe-commands patch)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-05T23:53:02Z
+# ============================================================================
+
+task_id: T-1059
+task_name: "Retire 832 stopgaps superseded by AEF 1.8.3 (session-start mail check -> fw sidecar alerts; T-1047 safe-commands patch)"
+workflow_type: refactor
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-05T23:21:38Z
+completed: 2026-10-05T23:52:43Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-06T01:25:34+02:00
+last_commit: 2026-10-06T01:25:34+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  session-start mail check delegates to AEF's fw sidecar alerts (1.8.3, AEF T-3856 built from our stopgap); 832's own topic reader and marker retired; failures and NOT CHECKED stay exit 2, runme section still first; T-1047 gate patch kept (the script still carries the T-1050 runme section; fw runme pending cannot see job.sh dirs; convergence = AEF T-3901); tests rewritten for the delegation (9 legs) and T-1050 legs moved to a stub
+
+# Key outcomes
+outcomes:
+  - 'Mail part of `scripts/session-start-alerts.sh` delegates to `fw sidecar alerts` (shown first-class, NOT CHECKED surfaced, exit 3 kept as a failure); the T-1050 runme section stays (fw runme pending does not cover 832''s launcher)'
+  - 'T-1047 safe-commands patch: KEPT, with the reason recorded — the script still carries the T-1050 runme section, `fw runme pending` skips job dirs without a runme.sh (ours hold job.sh), and convergence waits on AEF T-3901 (reviewing our launcher); `_t517` stays clean'
+  - 'Tests updated (mail legs move to the delegation; T-1050 legs unchanged), the T-1047 gate test adjusted or retired, bridge suite green — as run: 238/3; the 3 reds are editor probes T-1059 does not touch (_t570 twice, _t573) and pass standalone (5/5, 8/8); the suite-only failure class is filed as T-1060; every leg this task touched passes in the suite'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1059-retire-832-stopgaps-superseded-by-aef-18.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_session_start_alerts.py'
+  - 'tests/test_t1050_runme_alerts.py'
+  - 'tools/session-start-alerts.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-06T01:25:34'
+    action: 'T-1059: session-start mail check delegates to AEF''s fw sidecar alerts (1.8.3, AEF T-3856 built from our stopgap); 832''s own topic reader and marker retired; failures and NOT CHECKED stay exit 2, runme section still first; T-1047 gate patch kept (the script still carries the T-1050 runme section; fw runme pending cannot see job.sh dirs; convergence = AEF T-3901); tests rewritten for the delegation (9 legs) and T-1050 legs moved to a stub'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 31 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 31
+  commits: 2
+  files_changed: 6
+  lines_added: 428
+  lines_removed: 223
+  footprint_refreshed_at: '2026-10-05T23:53:03Z'
+  footprint_refreshed_by_commit: e6168fb1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1059-retire-832-stopgaps-superseded-by-aef-18.md
+generated_by: context-agent-hybrid

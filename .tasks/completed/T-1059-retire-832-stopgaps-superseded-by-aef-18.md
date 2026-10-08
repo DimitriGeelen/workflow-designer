@@ -4,12 +4,13 @@ name: "Retire 832 stopgaps superseded by AEF 1.8.3 (session-start mail check -> 
 description: >
   Retire 832 stopgaps superseded by AEF 1.8.3 (session-start mail check -> fw sidecar alerts; T-1047 safe-commands patch)
 
-status: started-work
+status: work-completed
 workflow_type: refactor
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-05T23:21:38Z
-last_update: 2026-10-05T23:21:38Z
-date_finished: null
+last_update: 2026-10-05T23:52:43Z
+date_finished: 2026-10-05T23:52:43Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -62,9 +63,9 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Mail part of `scripts/session-start-alerts.sh` delegates to `fw sidecar alerts` (shown first-class, NOT CHECKED surfaced, exit 3 kept as a failure); the T-1050 runme section stays (fw runme pending does not cover 832's launcher)
-- [ ] T-1047 safe-commands patch: KEPT, with the reason recorded — the script still carries the T-1050 runme section, `fw runme pending` skips job dirs without a runme.sh (ours hold job.sh), and convergence waits on AEF T-3901 (reviewing our launcher); `_t517` stays clean
-- [ ] Tests updated (mail legs move to the delegation; T-1050 legs unchanged), the T-1047 gate test adjusted or retired, bridge suite green
+- [x] Mail part of `scripts/session-start-alerts.sh` delegates to `fw sidecar alerts` (shown first-class, NOT CHECKED surfaced, exit 3 kept as a failure); the T-1050 runme section stays (fw runme pending does not cover 832's launcher)
+- [x] T-1047 safe-commands patch: KEPT, with the reason recorded — the script still carries the T-1050 runme section, `fw runme pending` skips job dirs without a runme.sh (ours hold job.sh), and convergence waits on AEF T-3901 (reviewing our launcher); `_t517` stays clean
+- [x] Tests updated (mail legs move to the delegation; T-1050 legs unchanged), the T-1047 gate test adjusted or retired, bridge suite green — as run: 238/3; the 3 reds are editor probes T-1059 does not touch (_t570 twice, _t573) and pass standalone (5/5, 8/8); the suite-only failure class is filed as T-1060; every leg this task touched passes in the suite
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -98,6 +99,12 @@ date_finished: null
 -->
 
 ## Verification
+
+python3 tests/test_session_start_alerts.py > /tmp/.t1059a 2>&1 && grep -q '^OK' /tmp/.t1059a
+python3 tests/test_t1050_runme_alerts.py > /tmp/.t1059b 2>&1 && grep -q 'all legs passed' /tmp/.t1059b
+bash tools/_t1047-session-start-alerts-gate.sh > /tmp/.t1059c 2>&1 && grep -q '0 failed' /tmp/.t1059c
+python3 tools/_t517-vendor-divergence.py > /tmp/.t1059d 2>&1 && grep -q '^OK' /tmp/.t1059d
+grep -q 'sidecar", "alerts"' tools/session-start-alerts.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -321,3 +328,20 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1059-retire-832-stopgaps-superseded-by-aef-18.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3771bfd2
+- **Timestamp:** 2026-10-05T23:52:55Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — Mail part of `scripts/session-start-alerts.sh` delegates to `fw sidecar alerts` (shown first-class, NOT CHECKED surfaced, exit 3 kept as a failure); the T-1050 runme section stays (fw runme pending do
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=scripts/session-start-alerts.sh in: Mail part of `scripts/session-start-alerts.sh` delegates to `fw sidecar alerts` (shown first-class, NOT CHECKED surfaced, exit 3 kept as a failure); t`
+
+### 2026-10-05T23:52:43Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

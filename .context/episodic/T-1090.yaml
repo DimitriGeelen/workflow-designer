@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1090: Greenfield T-172 #1: routing rule from the owner's hand-straightened map — cross-lane flows as L (1 bend), not Z (2 bends); default routing and Clean layout
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-08T21:30:39Z
+# ============================================================================
+
+task_id: T-1090
+task_name: "Greenfield T-172 #1: routing rule from the owner's hand-straightened map — cross-lane flows as L (1 bend), not Z (2 bends); default routing and Clean layout"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-08T08:38:06Z
+completed: 2026-10-08T21:30:26Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-08T12:12:52+02:00
+last_commit: 2026-10-08T22:43:01+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  cross-lane flows routed as a one-bend L (owner's rule from Greenfield's hand-straightened map) — lShapePorts in canvas+DI geometry and edge groups, Settings toggle, id caption moves beside a bottom flow; test 12/12 (pre-fix 7/12); Greenfield map 91 -> 24 bends (= owner's 24); caseagile golden re-recorded (waypoints only); screenshots. lShapePorts router catch now records aefRecordFault('route:l-shape') — T-821 census 0 findings (was 1), controls 5/5, T-1090 test 12/12
+
+# Key outcomes
+outcomes:
+  - 'The owner''s rule is checked against both of Greenfield''s files flow by flow (all 29: the 22 changed are cross-lane Z->L with one end on E/W and the other on the N/S side facing the other lane; the 7 unchanged stay E->W), result written under ## Decisions with any exception named'
+  - 'Auto-routed cross-lane flows (no pinned ports, no manual waypoints) prefer an L with one bend — leave E and enter on the side facing the source lane, or leave on the side facing the target lane and enter W — whichever is clear of boxes; the 2-bend Z only when neither L is clear. Same-lane flows unchanged. Pinned ports, waypoints and routing hints win as before. Applies to default routing and Clean layout — `lShapePorts()` used by computeEdgeGeometry (canvas AND DI export) and buildEdgeGroups; Clean layout routes through the same path; Settings toggle "Cross-lane flows as an L" (routingPrefs.crossLane, default L)'
+  - 'Headless test on a SYNTHETIC multi-lane fixture (Greenfield''s map is client data — not committed): every cross-lane flow whose L is clear has 1 bend, same-lane flows 0, no flow crosses a node box, total bends below the old router''s; the test fails on the unfixed designer (shown). Also run (not committed) on Greenfield''s before-generated.bpmn: total bends <= the owner''s 24, 0 node crossings — 12/12 (pre-fix designer 7/12 FAIL); Greenfield''s map: 24 bends with L (the owner''s own 24), 91 with the old router, 0 box cuts'
+  - 'Element screenshots before/after of a multi-lane map in light and dark theme, read and checked (CLAUDE.md visual verification); existing routing/edge tests and the bridge suite pass — the designer has ONE (dark) theme, no light mode exists; screenshots task-lifecycle and tier0-escalation, Z vs L, read: zigzags became Ls, no box cut, labels re-placed; one systematic overlap found and FIXED (an L leaving a task at the bottom ran through the centred id caption -> caption moves right of the line). Label/marker/round-trip/third-party tests pass; kitchen-sink untouched, caseagile third-party golden re-recorded as a reviewed diff (waypoints only: 16 removed, 7 added). Bridge: see Updates'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'cross-lane flows routed as a one-bend L (owner''s rule from Greenfield''s hand-straightened map) — lShapePorts in canvas+DI geometry and edge groups, Settings toggle, id caption moves beside a bottom flow; test 12/12 (pre-fix 7/12); Greenfield map 91 -> 24 bends (= owner''s 24); caseagile golden re-recorded (waypoints only); screenshots'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-08 — the owner''s rule, measured on both files (all 29 flows)'
+    chose: 'a Settings toggle (routingPrefs.crossLane, default L) rather than an unconditional change, following the existing routing-preference pattern; the owner asked for it as default AND for Clean layout, both covered.'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/screenshots/T-1090/gen-shots.mjs'
+  - 'docs/screenshots/T-1090/task-lifecycle-L.png'
+  - 'docs/screenshots/T-1090/task-lifecycle-Z.png'
+  - 'docs/screenshots/T-1090/tier0-escalation-L.png'
+  - 'docs/screenshots/T-1090/tier0-escalation-Z.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1090-greenfield-t-172-1-routing-rule-from-the.md'
+  - 'tests/goldens/third-party/caseagile-local-ns.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1090-cross-lane-l-routing-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-08T12:12:52'
+    action: 'T-1090: cross-lane flows routed as a one-bend L (owner''s rule from Greenfield''s hand-straightened map) — lShapePorts in canvas+DI geometry and edge groups, Settings toggle, id caption moves beside a bottom flow; test 12/12 (pre-fix 7/12); Greenfield map 91 -> 24 bends (= owner''s 24); caseagile golden re-recorded (waypoints only); screenshots'
+  - time: '2026-10-08T22:43:01'
+    action: 'T-1090: lShapePorts router catch now records aefRecordFault(''route:l-shape'') — T-821 census 0 findings (was 1), controls 5/5, T-1090 test 12/12'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 772 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 772
+  commits: 2
+  files_changed: 10
+  lines_added: 362
+  lines_removed: 35
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1090-greenfield-t-172-1-routing-rule-from-the.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1058: Send AEF a post-upgrade report for 1.8.3 and propose a report step in the upgrade protocol
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-05T23:21:18Z
+# ============================================================================
+
+task_id: T-1058
+task_name: "Send AEF a post-upgrade report for 1.8.3 and propose a report step in the upgrade protocol"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-05T23:19:18Z
+completed: 2026-10-05T23:21:08Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-06T01:21:00+02:00
+last_commit: 2026-10-06T01:21:00+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  post-upgrade report for 1.8.3 sent to AEF (env, consumer shape, per-step outcome, 36/36 carry-over, 4 surprises) with a proposal to make the report the last step of every consumer upgrade; added as step 5 of 832's own re-vendor protocol
+
+# Key outcomes
+outcomes:
+  - 'Post-upgrade report for 1.8.2 -> 1.8.3 written to docs/reports/T-1058-upgrade-report-1.8.3.md: environment (OS, kernel, harness + version, TermLink, toolchain), path and method, outcome per upgrade step, what failed or surprised, local-fix carry-over numbers, time taken; short (one screen)'
+  - 'Sent to AEF (sidecar, conversation aef-release-v1.8.3), with a proposal: the upgrade protocol ends with "send this report", plus the template of fields and why each helps AEF'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-1000-revendor-gate.md'
+  - 'docs/reports/T-1058-upgrade-report-1.8.3.md'
+  - '.tasks/active/T-1058-send-aef-a-post-upgrade-report-for-183-a.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-06T01:21:00'
+    action: 'T-1058: post-upgrade report for 1.8.3 sent to AEF (env, consumer shape, per-step outcome, 36/36 carry-over, 4 surprises) with a proposal to make the report the last step of every consumer upgrade; added as step 5 of 832''s own re-vendor protocol'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1
+  commits: 2
+  files_changed: 4
+  lines_added: 377
+  lines_removed: 0
+  footprint_refreshed_at: '2026-10-05T23:21:19Z'
+  footprint_refreshed_by_commit: c9c0d2be
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1058-send-aef-a-post-upgrade-report-for-183-a.md
+generated_by: context-agent-hybrid

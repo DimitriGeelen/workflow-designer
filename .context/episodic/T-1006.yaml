@@ -1,0 +1,112 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1006: Learning ledger: a lesson is confirmed by re-run evidence plus a cross-vendor reviewer quorum, not by operator assent
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-02T23:25:30Z
+# ============================================================================
+
+task_id: T-1006
+task_name: "Learning ledger: a lesson is confirmed by re-run evidence plus a cross-vendor reviewer quorum, not by operator assent"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-02T22:12:34Z
+completed: 2026-10-02T23:25:09Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-03T00:18:22+02:00
+last_commit: 2026-10-03T01:24:48+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  ledger confirmation = green evidence re-run + agree from 2 vendors other than the author; disagree escalates; operator rules value/priority only. Evidence probe for L16-L25 (all reproduce on kit 0.15.2); 10/10 quorum tests, 3/3 mutants caught. review re-reads the ledger under a lock before appending — two parallel real reviews lost one verdict (codex's refine on L20); test 11 + mutant. revise = new revision, earlier verdicts stop counting (test 12 + mutant); prompt forbids tool use (GLM tried to run commands: 3 no-verdicts); evidence for L18/L21 now shows both branches, the full K3 rule and the source; L26/L27 evidence cases (both raised by codex in round 1). L16/L21 evidence now shows what codex asked for (drafted vs corrected rubric line; the end event's 'source: unstated' citation); reviewer-calibration controls: two planted-false lessons, run against both vendors. round 4 evidence — L17 carries Evergreen's field observation, L24 the K2 rule verbatim and L27's wording, L27 that one map is one bpmn:process. reviewer calibration — an agree counts only from a reviewer that answered a planted-false control and agreed with none; 'stats' shows each reviewer's verdict mix and control results (glm 28/29 agree, codex disagreed with both plants); pre-calibration confirmations flagged by check, re-check demotes; tests 13-14, mutant caught. test 14 restores the pristine controls file (test 13 had rewritten it); 66fae48b was committed with 14 red because the commit was not gated on the test — now 14/14. four panel rounds recorded — codex caught a wrong 0.15.2 guide sentence (L26), an undeclared non-BPMN convention (L27) and reversed L21; GLM agreed 31/32 and timed out on both planted-false controls, so its agrees no longer count and the 7 two-vendor confirmations were demoted: 0 confirmed until a second calibrated reviewer exists. GLM re-run at 1800 s rejects both planted-false lessons (5.3 and 5.2) -> calibrated; 10 of 12 lessons confirmed (evidence green + two calibrated vendors); L17/L19 open with precise gaps; review takes {prompt} placement + closed stdin for agy (harnesses.md form), test 15. round 5 — L17 scoped to claude's variadic --allowedTools (what the evidence shows); L19 evidence prints the kit's entry convention and the no-start behaviour. a disagree/refine that arrives after confirmation is flagged by check and a re-check escalates (test 16); Antigravity (google, agy per harnesses.md) rejected both planted-false lessons -> third calibrated vendor. Antigravity (third calibrated vendor) agrees with 10 of 12; round 6 revisions — L16 destination tooling, no vendor-count scope creep; L19 implicit completion; L21 calibrated reviewers split 2-1, so K3 is ambiguous: fix right under both readings + one K3 sentence. round 6 — 10 of 12 lessons confirmed by all three calibrated vendors (OpenAI, Z.AI, Google); L19/L21 open on a lone codex dissent, reasons recorded; kit 0.15.3 can be built from the confirmed 10
+
+# Key outcomes
+outcomes:
+  - '`learning-ledger.py review <id> --reviewer-cmd CMD --vendor V` sends the lesson, its evidence and its proposed change to one reviewer and records a verdict (agree / disagree / refine, with a reason) on the entry; an unparseable reply is recorded as `no-verdict`, never as agree'
+  - '`learning-ledger.py confirm <id>` takes no `--by`: it runs the entry''s `evidence_cmd` and confirms only when that exits 0 AND agreeing verdicts come from >= 2 distinct vendors, none of them the author''s vendor, with no standing disagree; otherwise it prints why and, on disagreement, marks the entry `escalated`'
+  - 'An operator ruling is recorded separately (`rule <id> --kind value|priority --decision ...`) and cannot be of kind `correctness`'
+  - '`check` flags a confirmed/promoted entry made after this change that lacks the evidence result or the vendor quorum; L1-L15 stay valid as `legacy-operator`'
+  - 'A test with stub reviewers covers: quorum met, same-vendor agree does not count, author vendor does not count, disagree escalates, failing evidence refuses, garbage reply = no-verdict, operator `correctness` ruling refused'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Antigravity (third calibrated vendor) agrees with 10 of 12; round 6 revisions — L16 destination tooling, no vendor-count scope creep; L19 implicit completion; L21 calibrated reviewers split 2-1, so K3 is ambiguous: fix right under both readings + one K3 sentence'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/learning-ledger-controls.yaml'
+  - 'docs/learning-ledger.yaml'
+  - 'docs/reports/T-1006-lesson-validation.md'
+  - '.gitignore'
+  - '.tasks/active/T-1006-learning-ledger-a-lesson-is-confirmed-by.md'
+  - 'tests/test_t1006_ledger_quorum.sh'
+  - 'tools/learning-ledger.py'
+  - 'tools/_t1006-lesson-evidence.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-03T00:18:22'
+    action: 'T-1006: ledger confirmation = green evidence re-run + agree from 2 vendors other than the author; disagree escalates; operator rules value/priority only. Evidence probe for L16-L25 (all reproduce on kit 0.15.2); 10/10 quorum tests, 3/3 mutants caught'
+  - time: '2026-10-03T00:20:18'
+    action: 'T-1006: review re-reads the ledger under a lock before appending — two parallel real reviews lost one verdict (codex''s refine on L20); test 11 + mutant'
+  - time: '2026-10-03T00:31:15'
+    action: 'T-1006: revise = new revision, earlier verdicts stop counting (test 12 + mutant); prompt forbids tool use (GLM tried to run commands: 3 no-verdicts); evidence for L18/L21 now shows both branches, the full K3 rule and the source; L26/L27 evidence cases (both raised by codex in round 1)'
+  - time: '2026-10-03T00:50:21'
+    action: 'T-1006: L16/L21 evidence now shows what codex asked for (drafted vs corrected rubric line; the end event''s ''source: unstated'' citation); reviewer-calibration controls: two planted-false lessons, run against both vendors'
+  - time: '2026-10-03T01:01:50'
+    action: 'T-1006: round 4 evidence — L17 carries Evergreen''s field observation, L24 the K2 rule verbatim and L27''s wording, L27 that one map is one bpmn:process'
+  - time: '2026-10-03T01:04:38'
+    action: 'T-1006: reviewer calibration — an agree counts only from a reviewer that answered a planted-false control and agreed with none; ''stats'' shows each reviewer''s verdict mix and control results (glm 28/29 agree, codex disagreed with both plants); pre-calibration confirmations flagged by check, re-check demotes; tests 13-14, mutant caught'
+  - time: '2026-10-03T01:05:14'
+    action: 'T-1006: test 14 restores the pristine controls file (test 13 had rewritten it); 66fae48b was committed with 14 red because the commit was not gated on the test — now 14/14'
+  - time: '2026-10-03T01:10:00'
+    action: 'T-1006: four panel rounds recorded — codex caught a wrong 0.15.2 guide sentence (L26), an undeclared non-BPMN convention (L27) and reversed L21; GLM agreed 31/32 and timed out on both planted-false controls, so its agrees no longer count and the 7 two-vendor confirmations were demoted: 0 confirmed until a second calibrated reviewer exists'
+  - time: '2026-10-03T01:11:24'
+    action: 'T-1006: GLM re-run at 1800 s rejects both planted-false lessons (5.3 and 5.2) -> calibrated; 10 of 12 lessons confirmed (evidence green + two calibrated vendors); L17/L19 open with precise gaps; review takes {prompt} placement + closed stdin for agy (harnesses.md form), test 15'
+  - time: '2026-10-03T01:12:04'
+    action: 'T-1006: round 5 — L17 scoped to claude''s variadic --allowedTools (what the evidence shows); L19 evidence prints the kit''s entry convention and the no-start behaviour'
+  - time: '2026-10-03T01:13:30'
+    action: 'T-1006: a disagree/refine that arrives after confirmation is flagged by check and a re-check escalates (test 16); Antigravity (google, agy per harnesses.md) rejected both planted-false lessons -> third calibrated vendor'
+  - time: '2026-10-03T01:20:54'
+    action: 'T-1006: Antigravity (third calibrated vendor) agrees with 10 of 12; round 6 revisions — L16 destination tooling, no vendor-count scope creep; L19 implicit completion; L21 calibrated reviewers split 2-1, so K3 is ambiguous: fix right under both readings + one K3 sentence'
+  - time: '2026-10-03T01:24:48'
+    action: 'T-1006: round 6 — 10 of 12 lessons confirmed by all three calibrated vendors (OpenAI, Z.AI, Google); L19/L21 open on a lone codex dissent, reasons recorded; kit 0.15.3 can be built from the confirmed 10'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 13 commit(s), 72 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 72
+  commits: 14
+  files_changed: 9
+  lines_added: 3017
+  lines_removed: 167
+  footprint_refreshed_at: '2026-10-02T23:25:42Z'
+  footprint_refreshed_by_commit: 9bdf5ec6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1006-learning-ledger-a-lesson-is-confirmed-by.md
+generated_by: context-agent-hybrid

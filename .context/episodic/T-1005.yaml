@@ -1,0 +1,258 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1005: Re-vendor step 3 for 1.7.740: re-apply or reclassify the remaining 47 STALE local fixes, file by file with each file's probes
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-03T22:16:57Z
+# ============================================================================
+
+task_id: T-1005
+task_name: "Re-vendor step 3 for 1.7.740: re-apply or reclassify the remaining 47 STALE local fixes, file by file with each file's probes"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-02T17:25:40Z
+completed: 2026-10-03T22:16:51Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-02T19:38:17+02:00
+last_commit: 2026-10-04T00:16:51+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  update-task.sh on 1.7.740 — re-apply T-391/T-394/T-871 (clean) and port T-522 by hand (completion watchdog, one composed EXIT trap keeping 1.7.740's bounded keylock, phase markers, the guarded fabric greps whose bug had returned); _t522 5/5. re-apply T-943's malformed-heading refusal (rc=3) in the 1.7.740 extractor and P-011 gate; T-943's say-the-zero half and T-561 are superseded upstream (T-3546, T-2734); verification-port.sh declared — it never was, so the protocol could not see it; _t943 7/7, _t574 13/13 (probe accepts upstream's zero wording). T-391 is partly superseded (upstream T-2991 refuses the torn form; ours still owns the heredoc case — removing it let the heredoc body run); probe accepts upstream wording, teeth retargeted to heredoc (15/15); per-commit record started. T-658 re-applied on 1.7.740 (a killed verification command is DID NOT FINISH, not FAIL; split summary) — _t658 11/11; T-630 superseded upstream — _t630 11/11; all P-011 probes green (_t391 15, _t574 13, _t943 7, _t522 5). restore + T-649 + T-654. record T-649/T-654/T-575 outcomes and the undeclared-additions finding. T-843 re-wired on 1.7.740 (uncontrolled absence assertions refused in P-011; lib restored in 24a25850) — _t843 tests 12/12, integration 16/16. T-880, T-923, T-883 re-wired on 1.7.740 (task-lifecycle node hint, instance-position walks at every transition, refusal audit for R-033/P-010/P-011) — _t880 16/16, _t923 14/14, _t883 18/18; full update-task.sh probe sweep green (13 probes). T-913 re-applied on 1.7.740 (a bypass without a reason is recorded UNEXPLAINED, explained: false; reason passed explicitly by the two callers) — _t913 17/17; update-task.sh complete. record update-task.sh complete (14 probes green); 45 stale left. 11 stale entries resolved as superseded (8 exec bits shipped upstream, 2 files shipped identical, T-516 extractor replaced by upstream's extract_decisions.py) and removed from the manifest; upstream extractor's multi-word-label fold fixed and declared; _t516 retargeted to the live extractor (8/8). observe.sh (T-557) — upstream's refusal adopted; re-applied in minimal form (one line: nothing was written), since 'Captured as the note text' reads as a capture; fw note test 6/6 legs. create-task.sh on 1.7.740 — T-660/T-767 re-applied clean; T-774/T-775/T-776 ported (frontmatter-scoped substitution, line-break names refused, T-XXX substituted before operator text) — probes 13/13, 6/6, 5/5, 4/4 (_t774 reader widened: 1.7.740 template puts created: on line 39). hooks.sh on 1.7.740 — T-686 re-applied clean, T-659 ported (agent commits may not carry retention-sweep deletions of .context/audits/cron) — _t659 6/6. record superseded entries, observe.sh, create-task.sh, hooks.sh. safe-commands/check-active-task merge plan recorded (pre-T-840 source; 78/54 oracle baseline; uncaught 2>/&> writes noted). bridge suite 38 -> 29 failures (137 passed) after the re-applies so far. safe-commands.sh — close three unguarded writes on ALLOWLISTED verbs in 1.7.740 (2>/&> to a file, sed w flag, sort -o/--output): grep x f 2> err.log passed the no-task gate; 2>&1 and /dev/null still reads; test_safe_commands.py restored (oracle 54 -> 48 failing; the rest are false-positive reads and structural legs, next). safe-commands.sh — redirects, rm and tee judged on quote-stripped text (upstream _fw_strip_quoted; raw fallback on substitutions/unbalanced quotes): quoted operators and verbs named in prose arguments are reads again; real writes still caught; oracle 54 -> 38. safe-commands.sh — rm/tee judged on the quote-stripped view too (T-636: verbs named in prose arguments, e.g. fw note "tee writes a copy", are not writes); oracle 41 -> 38. the refused commits were -qm, which fw git commit does not parse (message lost, uppercase ERROR missed by my filter). safe-commands.sh — T-636 prose-verb helper re-applied: only fw note / fw context add-* / fw task create / fw git commit may have verbs inside their quotes ignored; bash -c "rm -rf x" and fw noteworthy "rm -rf" stay writes; oracle 38 -> 32. safe-commands.sh — awk (print >, print |, system()) and uniq IN OUT are writes: 1.7.740 allowlists both, and the quote-aware scan had made awk's in-program redirect invisible; awk '{print $1}', uniq -c, | uniq stay reads; oracle 32 -> 30. focus-drift target is clause-scoped again (T-639 on 1.7.740): heredoc bodies dropped, clauses split on unquoted ; && || | via upstream _fw_chain_split, only clauses that ARE fw/git are matched, a path to fw counts as fw; it had blocked commands that merely quoted a task id; probe tools/_t1005-drift-target-clause-scoped.py 14/14; hook harness unchanged (12 block / 3 allow). record the allowlist restoration (behaviour-first; end-to-end verified; 54 -> 30, rest structural/usability). resume point for the next session (budget/checkpoint next; context at 80% of cap). re-vendor step 1 — checkpoint.sh keeps only the T-849 zero-token block (14/14, mutation OK); T-401/T-402/T-675 superseded by 1.7.740 (gate drive: 5 misclassifications now blocked; _t675 retargeted to upstream's refusal shape, 10/10); _t517 27 -> 25 stale. re-vendor step 2 — handover.sh re-applies T-626 (revisit scan before render; file was 10 days stale) and T-862 (SFA carry, teeth 11/11 + both mutations); T-373/T-436 superseded upstream; _t436/_t445 retargeted (3/3 arms); G-032 resolved at 124/124; _t517 25 -> 24. fabric — fw fabric validate restored a third time (1.7.740 shipped the stub again; teeth 10/10, 2/10 on stub); T-343 superseded by AEF T-2736 (_t343 retargeted, PASS); _t524 leg 9 scoped to the Unregistered section; _t517 24 -> 22. 8 small entries superseded on 1.7.740 (every probe green on upstream) and removed; audit.sh classified (5 superseded / 9 project rails / 10 framework fixes; no upstream extension point); _t517 22 -> 14; T-1007 filed (Watchtower serves designer 0.15.0, release-lag rail dropped). audit.sh — T-934 re-applied on 1.7.740: the unit-suite check skips (INFO) where no suite exists, instead of a WARN no vendored consumer can ever clear; verified: audit prints the skip. audit.sh — T-677 re-applied by 3-way merge onto 1.7.740 (clean): a partial --section run no longer clobbers the day's fuller record, sections: always written, trend counts once per date; _t677 fence PASSED, structure audit runs. audit.sh + active-task-scan.py — T-534 (D2 names only tasks that meet the bar it states) and T-656 (signed-off tasks no longer count as awaiting judgement) re-applied by 3-way merge, in historical order (T-656 conflicts alone, applies clean on T-534); _t534 8/8, _t656 8/8. audit.sh — T-371 re-applied by 3-way merge (clean): the C-002 check no longer reports a missing commit-msg hook as a missing research-artifact check; _t371 partition + hook teeth PASS. register — the six audit.sh entries consolidated into one true one: re-applied (T-371/534/656/677/934), pending (T-525/535/651/873), superseded (T-344/345/374/654/833), moved to project-audit (8 rails); _t517 14 -> 12 stale. AEF inbox triaged (79 consults, 10 days unread: 53 retry nudges; 4 answered, 3 obsolete, 4 owed) and replied on all four owed conversations; T-1009 filed for the T-931/T-3572 upstream bundles; inbox drained. G-082 registered — fw sidecar inbox returns one 100-envelope page with no 'more pending', so 85 AEF consults (incl. their replies to five of our proposals) stayed invisible after a drain. audit.sh — T-535 re-applied (3-way, one conflict resolved by hand: kept upstream's two new sources, took our env-overridable AUDITS_DIR); trend key aggregates moving numbers, keeps distinct checks apart; _t535 7/7. audit.sh — T-651 re-applied (3-way; upstream had moved the secret-scan block to section 1b, kept theirs, inserted only the stray-root-files check); _t651 5/5. audit.sh — T-873 re-applied (3-way; upstream had added T-3581's verdict-ledger check at the same spot, kept both); an unreviewed CLAUDE.md.bak from fw upgrade is now read; _t873 7/7. audit.sh register entry updated — 8 of the 10 generic fixes re-applied (T-371/534/535/651/656/677/873/934); T-525 backed out of its merge: upstream moved coverage into the drift check, it needs a redesign there. completed-task-scan.py — T-674 + T-678 re-applied (clean 3-way; CTL-012 comment fence PASSED); T-919 superseded by AEF T-3569 (their adoption of our 'the task file counts'), both conflicts resolved to upstream; _t919 retargeted to upstream's names, 10/10. bin/fw + lib/ask.py + web/test_app.py — T-643/T-644 (T-645 commit) re-applied: review-queue reaches the shared predicate in a vendored install, tally counts what is present (conflict: kept upstream's wider total, took our tally), fw ask survives a wrong PROJECT_ROOT; T-739 (DEFER is not a decision) and T-887 (fw external) re-applied clean. Probes: _t643 17/17, _t644 5/5, _t739 PASS; test_app 131 pass, the same 23 fail as on upstream's own file. web — T-545 then T-858 (403 written for the client that asked: htmx/API get a fragment, boosted posts included; conflict resolved to T-858, T-545's now-unused helpers removed as in our pre-upgrade tree), T-547 (hx-prompt decode), T-648 (conftest/test fixtures), T-772 (approvals.html) re-applied; T-544 superseded (green on upstream). _t545, _t547, _t544 all green; web tests 155 pass, the same 23 fail as upstream's own. resume point — 27 -> 3 stale (all BVP); method, per-file outcomes and the open BVP question recorded; context at 79% of cap, stopping at a clean point. last 3 stale BVP/arc files and T-525 resolved on 1.7.740 — _t517 0 stale. bridge triage — 4 vendored-framework legs back to green, one real gate regression fixed. T-423 schema leg guard tests existence with find, not ls 2>null-sink — _t527 capture invariant read it as a discarded probe (since T-690, 09-09). closing record — bridge 38 -> 16, remaining legs pre-existing (tasks T-1013..T-1019 filed) or CDP flakes
+
+# Key outcomes
+outcomes:
+  - 'Every STALE entry the worklist names is resolved one of three ways — re-applied (its own commit, with the file''s probe(s) run), reclassified `superseded` in .vendor-divergence.yaml with the evidence that upstream has it, or dropped with a reason'
+  - 'update-task.sh is re-applied commit by commit (not a bulk 3-way merge); for each local commit the outcome (applied / adopted upstream / conflict resolved how) is recorded in docs/reports/T-1005-revendor-reapply.md'
+  - '`tools/_t517-vendor-divergence.py` reports 0 stale and 0 unrecorded at the end'
+  - 'The bridge suite is re-run afterwards and its failure count compared with 38 (expected to fall, since ~24 of the 38 were these reverts) — 38 -> 16 (153 passed). No vendored-framework leg is red in its own right; the 16 are the pre-existing designer/project-tooling legs (T-1013..T-1019, T-358, T-579, T-994) plus CDP-launch flakes that pass standalone (T-566, T-513, T-568 re-run green)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'bridge triage — 4 vendored-framework legs back to green, one real gate regression fixed'
+    source: git-mined
+  - description: 'web — T-545 then T-858 (403 written for the client that asked: htmx/API get a fragment, boosted posts included; conflict resolved to T-858, T-545''s now-unused helpers removed as in our pre-upgrade tree), T-547 (hx-prompt decode), T-648 (conftest/test fixtures), T-772 (approvals.html) re-applied; T-544 superseded (green on upstream). _t545, _t547, _t544 all green; web tests 155 pass, the same 23 fail as upstream''s own'
+    source: git-mined
+  - description: 'audit.sh register entry updated — 8 of the 10 generic fixes re-applied (T-371/534/535/651/656/677/873/934); T-525 backed out of its merge: upstream moved coverage into the drift check, it needs a redesign there'
+    source: git-mined
+  - description: '8 small entries superseded on 1.7.740 (every probe green on upstream) and removed; audit.sh classified (5 superseded / 9 project rails / 10 framework fixes; no upstream extension point); _t517 22 -> 14; T-1007 filed (Watchtower serves designer 0.15.0, release-lag rail dropped)'
+    source: git-mined
+  - description: 'the refused commits were -qm, which fw git commit does not parse (message lost, uppercase ERROR missed by my filter)'
+    source: git-mined
+  - description: '11 stale entries resolved as superseded (8 exec bits shipped upstream, 2 files shipped identical, T-516 extractor replaced by upstream''s extract_decisions.py) and removed from the manifest; upstream extractor''s multi-word-label fold fixed and declared; _t516 retargeted to the live extractor (8/8)'
+    source: git-mined
+  - description: 'update-task.sh on 1.7.740 — re-apply T-391/T-394/T-871 (clean) and port T-522 by hand (completion watchdog, one composed EXIT trap keeping 1.7.740''s bounded keylock, phase markers, the guarded fabric greps whose bug had returned); _t522 5/5'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/check-bare-import.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/ask.py'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/external_consult.py'
+  - '.agentic-framework/lib/instance-position.sh'
+  - '.agentic-framework/lib/task-ownership.sh'
+  - '.agentic-framework/lib/verification-absence.sh'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.agentic-framework/web/test_safe_commands.py'
+  - '.context/project/concerns.yaml'
+  - 'docs/reports/T-1005-aef-inbox-triage-2026-10-03.md'
+  - 'docs/reports/T-1005-audit-sh-classification.md'
+  - 'docs/reports/T-1005-revendor-reapply.md'
+  - '.tasks/active/T-1005-re-vendor-step-3-for-17740-re-apply-or-r.md'
+  - '.tasks/active/T-1007-consumer-intake-our-watchtower-serves-de.md'
+  - '.tasks/active/T-1009-upstream-pickup-bundles-for-aef-t-931-st.md'
+  - '.tasks/active/T-1013-bridge-leg-red-unwired-guard-ratchet-dri.md'
+  - '.tasks/active/T-1014-bridge-leg-red-absence-assertion-census-.md'
+  - '.tasks/active/T-1015-bridge-leg-red-a-new-g-015-carrier-in-a-.md'
+  - '.tasks/active/T-1016-bridge-leg-red-swallowed-failure-census-.md'
+  - '.tasks/active/T-1017-bridge-leg-red-round-trip-serialization-.md'
+  - '.tasks/active/T-1018-bridge-leg-red-editor-bridge-semantic-fi.md'
+  - '.tasks/active/T-1019-bridge-leg-red-aefmeta-carriage-and-brid.md'
+  - '.tasks/active/T-981-verify-the-sidecar-works-here-after-the-.md'
+  - '.tasks/completed/T-1012-f1-vsdlcenablement-scoring-spec-fires-on.md'
+  - '.tasks/completed/T-983-b1-t-982-the-review-loop-ships-in-the-au.md'
+  - '.tasks/completed/T-995-why-did-the-bridge-suite-slide-from-7-to.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1005-drift-target-clause-scoped.py'
+  - 'tools/_t343-write-equivalence.py'
+  - 'tools/_t391-p011-multiline-guard.sh'
+  - 'tools/_t436-inbox-route-probe.sh'
+  - 'tools/_t445-partial-state-mutation.sh'
+  - 'tools/_t467-arc-tag-source-of-truth.py'
+  - 'tools/_t516-episodic-decisions-teeth.py'
+  - 'tools/_t524-fabric-validate-teeth.py'
+  - 'tools/_t525-fabric-coverage-teeth.py'
+  - 'tools/_t542-cost-blast-radius-teeth.py'
+  - 'tools/_t574-p011-block-locator-teeth.py'
+  - 'tools/_t585-human-ac-visibility-census.py'
+  - 'tools/_t630-p011-stdin-swallow.sh'
+  - 'tools/_t654-archiving-a-partial-complete-task-must-null-its-horizon.sh'
+  - 'tools/_t657-vendor-divergence-must-reach-an-audit-line.sh'
+  - 'tools/_t658-p011-must-distinguish-killed-from-failed.sh'
+  - 'tools/_t675-budget-read-fence.py'
+  - 'tools/_t774-create-task-substitution-probe.sh'
+  - 'tools/_t856-auto-approval-teeth.sh'
+  - 'tools/_t867-hypothesis-draft-teeth.sh'
+  - 'tools/_t919-c001-content-teeth.sh'
+  - 'tools/_t921-drift-extraction-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-02T19:38:17'
+    action: 'T-1005: update-task.sh on 1.7.740 — re-apply T-391/T-394/T-871 (clean) and port T-522 by hand (completion watchdog, one composed EXIT trap keeping 1.7.740''s bounded keylock, phase markers, the guarded fabric greps whose bug had returned); _t522 5/5'
+  - time: '2026-10-02T19:40:26'
+    action: 'T-1005: re-apply T-943''s malformed-heading refusal (rc=3) in the 1.7.740 extractor and P-011 gate; T-943''s say-the-zero half and T-561 are superseded upstream (T-3546, T-2734); verification-port.sh declared — it never was, so the protocol could not see it; _t943 7/7, _t574 13/13 (probe accepts upstream''s zero wording)'
+  - time: '2026-10-02T19:44:34'
+    action: 'T-1005: T-391 is partly superseded (upstream T-2991 refuses the torn form; ours still owns the heredoc case — removing it let the heredoc body run); probe accepts upstream wording, teeth retargeted to heredoc (15/15); per-commit record started'
+  - time: '2026-10-02T19:48:46'
+    action: 'T-1005: T-658 re-applied on 1.7.740 (a killed verification command is DID NOT FINISH, not FAIL; split summary) — _t658 11/11; T-630 superseded upstream — _t630 11/11; all P-011 probes green (_t391 15, _t574 13, _t943 7, _t522 5)'
+  - time: '2026-10-02T19:52:01'
+    action: 'T-1005: restore + T-649 + T-654'
+  - time: '2026-10-02T19:52:49'
+    action: 'T-1005: record T-649/T-654/T-575 outcomes and the undeclared-additions finding'
+  - time: '2026-10-02T19:58:14'
+    action: 'T-1005: T-843 re-wired on 1.7.740 (uncontrolled absence assertions refused in P-011; lib restored in 24a25850) — _t843 tests 12/12, integration 16/16'
+  - time: '2026-10-02T20:02:40'
+    action: 'T-1005: T-880, T-923, T-883 re-wired on 1.7.740 (task-lifecycle node hint, instance-position walks at every transition, refusal audit for R-033/P-010/P-011) — _t880 16/16, _t923 14/14, _t883 18/18; full update-task.sh probe sweep green (13 probes)'
+  - time: '2026-10-02T20:03:42'
+    action: 'T-1005: T-913 re-applied on 1.7.740 (a bypass without a reason is recorded UNEXPLAINED, explained: false; reason passed explicitly by the two callers) — _t913 17/17; update-task.sh complete'
+  - time: '2026-10-02T20:04:00'
+    action: 'T-1005: record update-task.sh complete (14 probes green); 45 stale left'
+  - time: '2026-10-02T20:06:40'
+    action: 'T-1005: 11 stale entries resolved as superseded (8 exec bits shipped upstream, 2 files shipped identical, T-516 extractor replaced by upstream''s extract_decisions.py) and removed from the manifest; upstream extractor''s multi-word-label fold fixed and declared; _t516 retargeted to the live extractor (8/8)'
+  - time: '2026-10-02T20:07:40'
+    action: 'T-1005: observe.sh (T-557) — upstream''s refusal adopted; re-applied in minimal form (one line: nothing was written), since ''Captured as the note text'' reads as a capture; fw note test 6/6 legs'
+  - time: '2026-10-02T20:17:28'
+    action: 'T-1005: create-task.sh on 1.7.740 — T-660/T-767 re-applied clean; T-774/T-775/T-776 ported (frontmatter-scoped substitution, line-break names refused, T-XXX substituted before operator text) — probes 13/13, 6/6, 5/5, 4/4 (_t774 reader widened: 1.7.740 template puts created: on line 39)'
+  - time: '2026-10-02T20:19:05'
+    action: 'T-1005: hooks.sh on 1.7.740 — T-686 re-applied clean, T-659 ported (agent commits may not carry retention-sweep deletions of .context/audits/cron) — _t659 6/6'
+  - time: '2026-10-02T20:19:27'
+    action: 'T-1005: record superseded entries, observe.sh, create-task.sh, hooks.sh'
+  - time: '2026-10-02T20:22:06'
+    action: 'T-1005: safe-commands/check-active-task merge plan recorded (pre-T-840 source; 78/54 oracle baseline; uncaught 2>/&> writes noted)'
+  - time: '2026-10-02T20:37:51'
+    action: 'T-1005: bridge suite 38 -> 29 failures (137 passed) after the re-applies so far'
+  - time: '2026-10-02T20:56:49'
+    action: 'T-1005: safe-commands.sh — close three unguarded writes on ALLOWLISTED verbs in 1.7.740 (2>/&> to a file, sed w flag, sort -o/--output): grep x f 2> err.log passed the no-task gate; 2>&1 and /dev/null still reads; test_safe_commands.py restored (oracle 54 -> 48 failing; the rest are false-positive reads and structural legs, next)'
+  - time: '2026-10-02T20:58:21'
+    action: 'T-1005: safe-commands.sh — redirects, rm and tee judged on quote-stripped text (upstream _fw_strip_quoted; raw fallback on substitutions/unbalanced quotes): quoted operators and verbs named in prose arguments are reads again; real writes still caught; oracle 54 -> 38'
+  - time: '2026-10-02T20:58:31'
+    action: 'T-1005: safe-commands.sh — rm/tee judged on the quote-stripped view too (T-636: verbs named in prose arguments, e.g. fw note "tee writes a copy", are not writes); oracle 41 -> 38'
+  - time: '2026-10-02T20:58:53'
+    action: 'T-1005: the refused commits were -qm, which fw git commit does not parse (message lost, uppercase ERROR missed by my filter)'
+  - time: '2026-10-02T20:59:51'
+    action: 'T-1005: safe-commands.sh — T-636 prose-verb helper re-applied: only fw note / fw context add-* / fw task create / fw git commit may have verbs inside their quotes ignored; bash -c "rm -rf x" and fw noteworthy "rm -rf" stay writes; oracle 38 -> 32'
+  - time: '2026-10-02T21:01:04'
+    action: 'T-1005: safe-commands.sh — awk (print >, print |, system()) and uniq IN OUT are writes: 1.7.740 allowlists both, and the quote-aware scan had made awk''s in-program redirect invisible; awk ''{print $1}'', uniq -c, | uniq stay reads; oracle 32 -> 30'
+  - time: '2026-10-02T21:06:22'
+    action: 'T-1005: focus-drift target is clause-scoped again (T-639 on 1.7.740): heredoc bodies dropped, clauses split on unquoted ; && || | via upstream _fw_chain_split, only clauses that ARE fw/git are matched, a path to fw counts as fw; it had blocked commands that merely quoted a task id; probe tools/_t1005-drift-target-clause-scoped.py 14/14; hook harness unchanged (12 block / 3 allow)'
+  - time: '2026-10-02T21:06:48'
+    action: 'T-1005: record the allowlist restoration (behaviour-first; end-to-end verified; 54 -> 30, rest structural/usability)'
+  - time: '2026-10-02T21:07:24'
+    action: 'T-1005: resume point for the next session (budget/checkpoint next; context at 80% of cap)'
+  - time: '2026-10-03T00:23:54'
+    action: 'T-1005: re-vendor step 1 — checkpoint.sh keeps only the T-849 zero-token block (14/14, mutation OK); T-401/T-402/T-675 superseded by 1.7.740 (gate drive: 5 misclassifications now blocked; _t675 retargeted to upstream''s refusal shape, 10/10); _t517 27 -> 25 stale'
+  - time: '2026-10-03T00:27:47'
+    action: 'T-1005: re-vendor step 2 — handover.sh re-applies T-626 (revisit scan before render; file was 10 days stale) and T-862 (SFA carry, teeth 11/11 + both mutations); T-373/T-436 superseded upstream; _t436/_t445 retargeted (3/3 arms); G-032 resolved at 124/124; _t517 25 -> 24'
+  - time: '2026-10-03T00:35:00'
+    action: 'T-1005: fabric — fw fabric validate restored a third time (1.7.740 shipped the stub again; teeth 10/10, 2/10 on stub); T-343 superseded by AEF T-2736 (_t343 retargeted, PASS); _t524 leg 9 scoped to the Unregistered section; _t517 24 -> 22'
+  - time: '2026-10-03T00:38:32'
+    action: 'T-1005: 8 small entries superseded on 1.7.740 (every probe green on upstream) and removed; audit.sh classified (5 superseded / 9 project rails / 10 framework fixes; no upstream extension point); _t517 22 -> 14; T-1007 filed (Watchtower serves designer 0.15.0, release-lag rail dropped)'
+  - time: '2026-10-03T13:40:30'
+    action: 'T-1005: audit.sh — T-934 re-applied on 1.7.740: the unit-suite check skips (INFO) where no suite exists, instead of a WARN no vendored consumer can ever clear; verified: audit prints the skip'
+  - time: '2026-10-03T13:41:19'
+    action: 'T-1005: audit.sh — T-677 re-applied by 3-way merge onto 1.7.740 (clean): a partial --section run no longer clobbers the day''s fuller record, sections: always written, trend counts once per date; _t677 fence PASSED, structure audit runs'
+  - time: '2026-10-03T13:42:30'
+    action: 'T-1005: audit.sh + active-task-scan.py — T-534 (D2 names only tasks that meet the bar it states) and T-656 (signed-off tasks no longer count as awaiting judgement) re-applied by 3-way merge, in historical order (T-656 conflicts alone, applies clean on T-534); _t534 8/8, _t656 8/8'
+  - time: '2026-10-03T13:42:51'
+    action: 'T-1005: audit.sh — T-371 re-applied by 3-way merge (clean): the C-002 check no longer reports a missing commit-msg hook as a missing research-artifact check; _t371 partition + hook teeth PASS'
+  - time: '2026-10-03T13:43:40'
+    action: 'T-1005: register — the six audit.sh entries consolidated into one true one: re-applied (T-371/534/656/677/934), pending (T-525/535/651/873), superseded (T-344/345/374/654/833), moved to project-audit (8 rails); _t517 14 -> 12 stale'
+  - time: '2026-10-03T13:45:07'
+    action: 'T-1005: AEF inbox triaged (79 consults, 10 days unread: 53 retry nudges; 4 answered, 3 obsolete, 4 owed) and replied on all four owed conversations; T-1009 filed for the T-931/T-3572 upstream bundles; inbox drained'
+  - time: '2026-10-03T13:51:09'
+    action: 'T-1005: G-082 registered — fw sidecar inbox returns one 100-envelope page with no ''more pending'', so 85 AEF consults (incl. their replies to five of our proposals) stayed invisible after a drain'
+  - time: '2026-10-03T18:02:05'
+    action: 'T-1005: audit.sh — T-535 re-applied (3-way, one conflict resolved by hand: kept upstream''s two new sources, took our env-overridable AUDITS_DIR); trend key aggregates moving numbers, keeps distinct checks apart; _t535 7/7'
+  - time: '2026-10-03T18:02:33'
+    action: 'T-1005: audit.sh — T-651 re-applied (3-way; upstream had moved the secret-scan block to section 1b, kept theirs, inserted only the stray-root-files check); _t651 5/5'
+  - time: '2026-10-03T18:03:01'
+    action: 'T-1005: audit.sh — T-873 re-applied (3-way; upstream had added T-3581''s verdict-ledger check at the same spot, kept both); an unreviewed CLAUDE.md.bak from fw upgrade is now read; _t873 7/7'
+  - time: '2026-10-03T18:03:19'
+    action: 'T-1005: audit.sh register entry updated — 8 of the 10 generic fixes re-applied (T-371/534/535/651/656/677/873/934); T-525 backed out of its merge: upstream moved coverage into the drift check, it needs a redesign there'
+  - time: '2026-10-03T18:05:58'
+    action: 'T-1005: completed-task-scan.py — T-674 + T-678 re-applied (clean 3-way; CTL-012 comment fence PASSED); T-919 superseded by AEF T-3569 (their adoption of our ''the task file counts''), both conflicts resolved to upstream; _t919 retargeted to upstream''s names, 10/10'
+  - time: '2026-10-03T18:23:45'
+    action: 'T-1005: bin/fw + lib/ask.py + web/test_app.py — T-643/T-644 (T-645 commit) re-applied: review-queue reaches the shared predicate in a vendored install, tally counts what is present (conflict: kept upstream''s wider total, took our tally), fw ask survives a wrong PROJECT_ROOT; T-739 (DEFER is not a decision) and T-887 (fw external) re-applied clean. Probes: _t643 17/17, _t644 5/5, _t739 PASS; test_app 131 pass, the same 23 fail as on upstream''s own file'
+  - time: '2026-10-03T18:25:00'
+    action: 'T-1005: web — T-545 then T-858 (403 written for the client that asked: htmx/API get a fragment, boosted posts included; conflict resolved to T-858, T-545''s now-unused helpers removed as in our pre-upgrade tree), T-547 (hx-prompt decode), T-648 (conftest/test fixtures), T-772 (approvals.html) re-applied; T-544 superseded (green on upstream). _t545, _t547, _t544 all green; web tests 155 pass, the same 23 fail as upstream''s own'
+  - time: '2026-10-03T18:25:40'
+    action: 'T-1005: resume point — 27 -> 3 stale (all BVP); method, per-file outcomes and the open BVP question recorded; context at 79% of cap, stopping at a clean point'
+  - time: '2026-10-03T23:07:01'
+    action: 'T-1005: last 3 stale BVP/arc files and T-525 resolved on 1.7.740 — _t517 0 stale'
+  - time: '2026-10-03T23:49:03'
+    action: 'T-1005: bridge triage — 4 vendored-framework legs back to green, one real gate regression fixed'
+  - time: '2026-10-03T23:51:35'
+    action: 'T-1005: T-423 schema leg guard tests existence with find, not ls 2>null-sink — _t527 capture invariant read it as a discarded probe (since T-690, 09-09)'
+  - time: '2026-10-04T00:16:51'
+    action: 'T-1005: closing record — bridge 38 -> 16, remaining legs pre-existing (tasks T-1013..T-1019 filed) or CDP flakes'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 50 commit(s), 1731 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1731
+  commits: 50
+  files_changed: 76
+  lines_added: 7852
+  lines_removed: 968
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1005-re-vendor-step-3-for-17740-re-apply-or-r.md
+generated_by: context-agent-hybrid

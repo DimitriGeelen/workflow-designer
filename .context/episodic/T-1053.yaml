@@ -1,0 +1,112 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1053: Commit task-state the framework wrote after earlier sessions' commits (35 files)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-05T16:08:54Z
+# ============================================================================
+
+task_id: T-1053
+task_name: "Commit task-state the framework wrote after earlier sessions' commits (35 files)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-05T16:08:09Z
+completed: 2026-10-05T16:08:45Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-05T18:08:39+02:00
+last_commit: 2026-10-05T18:08:39+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  commit task-state left uncommitted by earlier sessions (closes' status/verdict/Updates writes, the 1.8.2 task templates); T-593 held back for the operator (unattributed tick on a [REVIEWER] line)
+
+# Key outcomes
+outcomes:
+  - 'Checked before committing: the only newly ticked boxes are Agent criteria of closed tasks, plus one unattributed tick on an operator-facing [REVIEWER] line (T-593), which is held back'
+  - 'The other 35 task files are committed; T-593 alone remains uncommitted, for the operator'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1053-commit-task-state-the-framework-wrote-af.md'
+  - '.tasks/active/T-590-ewcr-arc-0-designer-contract-inventory-a.md'
+  - '.tasks/active/T-737-handoversh-reports-3-urgent-observations.md'
+  - '.tasks/active/T-963-runmesh-does-not-start-on-the-operators-.md'
+  - '.tasks/active/T-967-w-xml-disconnected-a-process-drawn-as-tw.md'
+  - '.tasks/active/T-968-establish-the-termlink-link-to-the-everg.md'
+  - '.tasks/active/T-970-our-validator-rejects-plain-bpmn-task-as.md'
+  - '.tasks/active/T-971-evergreen-corpus-taxonomy-what-our-produ.md'
+  - '.tasks/active/T-972-the-boundary-cannot-state-its-own-requir.md'
+  - '.tasks/active/T-979-complete-the-external-review-panel-with-.md'
+  - '.tasks/active/T-986-define-project-objectives.md'
+  - '.tasks/completed/T-1005-re-vendor-step-3-for-17740-re-apply-or-r.md'
+  - '.tasks/completed/T-1006-learning-ledger-a-lesson-is-confirmed-by.md'
+  - '.tasks/completed/T-1007-consumer-intake-our-watchtower-serves-de.md'
+  - '.tasks/completed/T-1012-f1-vsdlcenablement-scoring-spec-fires-on.md'
+  - '.tasks/completed/T-1022-hand-the-operator-the-bare-import-gate-e.md'
+  - '.tasks/completed/T-1023-drift-gate-no-longer-sees-the-task-of-fw.md'
+  - '.tasks/completed/T-1024-re-redact-this-hosts-machine-id-in-the-v.md'
+  - '.tasks/completed/T-1025-restore-fw-fabric-impact-on-string-depen.md'
+  - '.tasks/completed/T-1026-restore-the-observable-hypothesis-requir.md'
+  - '.tasks/completed/T-1027-restore-fw-note-promote-recording-the-cr.md'
+  - '.tasks/completed/T-1028-restore-fw-note-resolve-for-observations.md'
+  - '.tasks/completed/T-1029-facts-for-the-operators-rotation-decisio.md'
+  - '.tasks/completed/T-1030-correct-t-1029-the-rotation-question-was.md'
+  - '.tasks/completed/T-1033-8-tasks-awaiting-human-review-have-no-re.md'
+  - '.tasks/completed/T-1036-loop-detect-state-frozen-since-0857z-whi.md'
+  - '.tasks/completed/T-1045-instrument-sweep-exits-3-incomplete-t402.md'
+  - '.tasks/completed/T-1047-task-gate-blocks-scriptssession-start-al.md'
+  - '.tasks/completed/T-1048-thumbnails-on-the-workflow-design-overvi.md'
+  - '.tasks/completed/T-1049-upgrade-vendored-aef-17740---182-t-1000-.md'
+  - '.tasks/completed/T-1052-rca-two-live-claude-processes-ran-the-sa.md'
+  - '.tasks/completed/T-993-authoring-kit-0152-evergreen-trial-round.md'
+  - '.tasks/completed/T-996-fw-inception-decide-refuses-at-the-human.md'
+  - '.tasks/completed/T-999-project-owned-audit-extension-restore-th.md'
+  - '.tasks/templates/default.md'
+  - '.tasks/templates/inception.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-05T18:08:39'
+    action: 'T-1053: commit task-state left uncommitted by earlier sessions (closes'' status/verdict/Updates writes, the 1.8.2 task templates); T-593 held back for the operator (unattributed tick on a [REVIEWER] line)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 0 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 0
+  commits: 2
+  files_changed: 37
+  lines_added: 855
+  lines_removed: 260
+  footprint_refreshed_at: '2026-10-05T16:08:55Z'
+  footprint_refreshed_by_commit: df7dfef8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1053-commit-task-state-the-framework-wrote-af.md
+generated_by: context-agent-hybrid

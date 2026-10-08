@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1023: Drift gate no longer sees the task of 'fw git commit -m \"T-N: ...\"' — quote-stripping of fw clauses (my 37865ec7) hides the -m message
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T00:22:58Z
+# ============================================================================
+
+task_id: T-1023
+task_name: "Drift gate no longer sees the task of 'fw git commit -m \"T-N: ...\"' — quote-stripping of fw clauses (my 37865ec7) hides the -m message"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T00:21:06Z
+completed: 2026-10-04T00:22:47Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-04T02:22:26+02:00
+last_commit: 2026-10-04T02:22:46+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the drift gate sees 'fw git commit -m "T-N: ..."' again — my 37865ec7 quote-stripping of fw clauses had hidden the -m message. ACs ticked with evidence
+
+# Key outcomes
+outcomes:
+  - '`_fw_extract_drift_target` returns T-12 for `fw git commit -m "T-12: x"` and for `.agentic-framework/bin/fw git commit -m "T-12: x"`, while `fw note "... fw task update T-9 ..."` still returns nothing'
+  - 'Both commit forms are rows in tools/_t1005-drift-target-clause-scoped.py (red before the fix), and _t921 stays 21/21 — 15/18 -> 18/18 (commit 0b9a3ec7)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.tasks/active/T-1023-drift-gate-no-longer-sees-the-task-of-fw.md'
+  - '.tasks/completed/T-1022-hand-the-operator-the-bare-import-gate-e.md'
+  - 'tools/_t1005-drift-target-clause-scoped.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T02:22:26'
+    action: 'T-1023: the drift gate sees ''fw git commit -m "T-N: ..."'' again — my 37865ec7 quote-stripping of fw clauses had hidden the -m message'
+  - time: '2026-10-04T02:22:46'
+    action: 'T-1023: ACs ticked with evidence'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1
+  commits: 2
+  files_changed: 5
+  lines_added: 346
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1023-drift-gate-no-longer-sees-the-task-of-fw.md
+generated_by: context-agent-hybrid

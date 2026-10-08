@@ -74,10 +74,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 3
-  commits: 1
-  files_changed: 8
-  lines_added: 460
-  lines_removed: 3
+  commits: 2
+  files_changed: 10
+  lines_added: 561
+  lines_removed: 8
+  footprint_refreshed_at: '2026-10-01T21:56:32Z'
+  footprint_refreshed_by_commit: 40abdd39
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-990-clear-the-three-red-validator-guards-fro.md

@@ -70,10 +70,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 24
-  commits: 1
-  files_changed: 3
-  lines_added: 93
-  lines_removed: 28
+  commits: 2
+  files_changed: 5
+  lines_added: 191
+  lines_removed: 34
+  footprint_refreshed_at: '2026-10-01T18:37:38Z'
+  footprint_refreshed_by_commit: 2baee998
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-978-w-xml-disconnected-and-w-xml-deadend-mes.md

@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-996: fw inception decide refuses at the human's moment: 'Task review required before decision' (marker only fw task review writes)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-02T15:38:45Z
+# ============================================================================
+
+task_id: T-996
+task_name: "fw inception decide refuses at the human's moment: 'Task review required before decision' (marker only fw task review writes)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-02T15:35:40Z
+completed: 2026-10-02T15:38:37Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-02T17:38:06+02:00
+last_commit: 2026-10-02T17:38:06+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  fw inception decide no longer refuses the human for a missing review marker — at a terminal it renders the review (emit_review) and asks y/N; agents and non-interactive callers keep the refusal; declared in .vendor-divergence.yaml (upstream: fix); RCA in task
+
+# Key outcomes
+outcomes:
+  - 'RCA written (section below) with the gate''s location (lib/inception.sh, T-973 marker gate), the marker''s only writer (lib/review.sh emit_review), and the measured recurrence (15 transcript hits, 2 runme logs)'
+  - 'Vendored fix: a human running decide at a terminal with no marker sees the review (emit_review) and confirms y/N instead of being refused; agents ($CLAUDECODE=1) and non-interactive callers keep the refusal; verified in a harness built from the exact block (n stops, y proceeds, agent refused)'
+  - 'The local patch is declared in .agentic-framework/.vendor-divergence.yaml (upstream: fix) so the next re-vendor cannot erase it silently (T-995 F5)'
+  - 'Committed without any of the uncommitted T-988 upgrade hunks (staged as HEAD + this change only)'
+  - 'Structural remediation sent to AEF on the sidecar, with the RCA and the proposed upstream fix (conversation inception-decide-review-marker, client_msg_id 669719d5)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'fw inception decide no longer refuses the human for a missing review marker — at a terminal it renders the review (emit_review) and asks y/N; agents and non-interactive callers keep the refusal; declared in .vendor-divergence.yaml (upstream: fix); RCA in task'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.tasks/active/T-996-fw-inception-decide-refuses-at-the-human.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-02T17:38:06'
+    action: 'T-996: fw inception decide no longer refuses the human for a missing review marker — at a terminal it renders the review (emit_review) and asks y/N; agents and non-interactive callers keep the refusal; declared in .vendor-divergence.yaml (upstream: fix); RCA in task'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2
+  commits: 2
+  files_changed: 4
+  lines_added: 412
+  lines_removed: 0
+  footprint_refreshed_at: '2026-10-02T15:38:45Z'
+  footprint_refreshed_by_commit: d38a3923
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-996-fw-inception-decide-refuses-at-the-human.md
+generated_by: context-agent-hybrid

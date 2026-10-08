@@ -1,19 +1,13 @@
 ---
-id: T-1090
-name: "Greenfield T-172 #1: routing rule from the owner's hand-straightened map —
-  cross-lane flows as L (1 bend), not Z (2 bends); default routing and Clean layout"
+id: T-1001
+name: "Re-anchor the bridge ratchet floor to a measured full run, with the known-good 7 (2026-09-22) recorded as target"
 description: >
-  aef-greenfield-test T-172 item 1. before-generated.bpmn vs after-owner-straightened.bpmn
-  + routing-comparison.md: 22/29 flows changed, bends 46 -> 24; every cross-lane E->W
-  Z became an L: leave on the side facing the target lane and enter W, or leave E
-  and enter on the side facing the source lane; Z only when an L would cross a box.
-  Validate the rule against both files.
+  L-c: the floor was set at the decayed 32. Do after B1, B3, B4. From inception T-995 (GO 2026-10-02), docs/reports/T-995-bridge-suite-slide.md.
 
-status: started-work
+status: captured
 workflow_type: build
-current_node: frw_3_start
 owner: agent
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -39,13 +33,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1090` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-XXX` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-08T08:38:06Z
-last_update: 2026-10-08T20:43:01Z
-date_finished:
+created: 2026-10-02T16:38:27Z
+last_update: 2026-10-02T16:38:27Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -56,30 +50,9 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-10-08T09:58:34Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 2
-      F3: 0
-      F1: 0
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=2 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
-      task body — no hypothesis, so this score has no claim to be wrong about,L0:
-      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
-      to be wrong about,L0: no signal)'
-    rubric_sha: e4a00f38e801
 ---
 
-# T-1090: Greenfield T-172 #1: routing rule from the owner's hand-straightened map — cross-lane flows as L (1 bend), not Z (2 bends); default routing and Clean layout
+# T-1001: Re-anchor the bridge ratchet floor to a measured full run, with the known-good 7 (2026-09-22) recorded as target
 
 ## Context
 
@@ -89,10 +62,8 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] The owner's rule is checked against both of Greenfield's files flow by flow (all 29: the 22 changed are cross-lane Z->L with one end on E/W and the other on the N/S side facing the other lane; the 7 unchanged stay E->W), result written under ## Decisions with any exception named
-- [x] Auto-routed cross-lane flows (no pinned ports, no manual waypoints) prefer an L with one bend — leave E and enter on the side facing the source lane, or leave on the side facing the target lane and enter W — whichever is clear of boxes; the 2-bend Z only when neither L is clear. Same-lane flows unchanged. Pinned ports, waypoints and routing hints win as before. Applies to default routing and Clean layout — `lShapePorts()` used by computeEdgeGeometry (canvas AND DI export) and buildEdgeGroups; Clean layout routes through the same path; Settings toggle "Cross-lane flows as an L" (routingPrefs.crossLane, default L)
-- [x] Headless test on a SYNTHETIC multi-lane fixture (Greenfield's map is client data — not committed): every cross-lane flow whose L is clear has 1 bend, same-lane flows 0, no flow crosses a node box, total bends below the old router's; the test fails on the unfixed designer (shown). Also run (not committed) on Greenfield's before-generated.bpmn: total bends <= the owner's 24, 0 node crossings — 12/12 (pre-fix designer 7/12 FAIL); Greenfield's map: 24 bends with L (the owner's own 24), 91 with the old router, 0 box cuts
-- [x] Element screenshots before/after of a multi-lane map in light and dark theme, read and checked (CLAUDE.md visual verification); existing routing/edge tests and the bridge suite pass — the designer has ONE (dark) theme, no light mode exists; screenshots task-lifecycle and tier0-escalation, Z vs L, read: zigzags became Ls, no box cut, labels re-placed; one systematic overlap found and FIXED (an L leaving a task at the bottom ran through the centred id caption -> caption moves right of the line). Label/marker/round-trip/third-party tests pass; kitchen-sink untouched, caseagile third-party golden re-recorded as a reviewed diff (waypoints only: 16 removed, 7 added). Bridge: see Updates
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -118,26 +89,14 @@ bvp_scores_proposed:
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1090`
+         1. Run `bin/fw reviewer T-XXX`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1090 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
-## Visual Verification
-- docs/screenshots/T-1090/task-lifecycle-Z.png / task-lifecycle-L.png (old route vs L; 10 cross-lane flows)
-- docs/screenshots/T-1090/tier0-escalation-Z.png / tier0-escalation-L.png
-- Regenerate: `node docs/screenshots/T-1090/gen-shots.mjs task-lifecycle tier0-escalation`
-- Read 2026-10-08: Start work->Perform, Outcome->Request, Request->Run gates, Partial->Human checks, Command->Executed
-  became one-bend Ls; backward and same-lane flows unchanged; no box cut. Noted, not fixed here: on tier0-escalation an
-  arriving and a leaving flow now share the top of "Command executes" ~9px apart; a straight vertical flow into a task's
-  bottom (start event -> PreToolUse) crosses that task's id caption in BOTH versions (pre-existing).
-
 ## Verification
-node tools/_t1090-cross-lane-l-routing-cdp.mjs > /tmp/.t1090.out 2>&1 && grep -q "12/12 legs passed" /tmp/.t1090.out
-timeout 300 node tools/_t358-byteid-thirdparty.mjs > /tmp/.t1090-t358.out 2>&1
-grep -q "function lShapePorts" src/aef-workflow-designer.html
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -345,23 +304,10 @@ grep -q "function lShapePorts" src/aef-workflow-designer.html
      - **Rejected:** [alternatives and why not]
 -->
 
-### 2026-10-08 — the owner's rule, measured on both files (all 29 flows)
-- 20 cross-lane flows that were E->W with 2 bends became 1-bend Ls; 5 same-lane flows stayed E->W/0; the 2 flows
-  already leaving a gateway with 1 bend (S->W, N->W) were left alone; flows 21 and 26 cross Tacton CPQ <->
-  TactonConnector (the T-1088 shared prefix made them look same-lane). Total bends 46 -> 24.
-- Which L: "leave facing the target lane, enter W" 13x vs "leave E, enter facing the source lane" 9x on IDENTICAL
-  geometry (dx 200, dy +-130/260, gap 90) — no geometric rule separates them. **Chose:** the first as default (always
-  enters from the left, reading direction; the majority), the second as fallback when the first's corner hits a box,
-  the old route only when both do. **Rejected:** alternating/random (not reproducible); always E-exit (minority form).
-- Precondition dropped: "only replace an E->W Z". At our box aspect (110x64) the independent auto ends often give a
-  4-bend S->N staircase instead (midSideAnchor weighs by aspect) — the L is the rule either way.
-- **Chose:** a Settings toggle (routingPrefs.crossLane, default L) rather than an unconditional change, following the
-  existing routing-preference pattern; the owner asked for it as default AND for Clean layout, both covered.
-
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1090 go|no-go|defer --rationale "..."
+     fw inception decide T-XXX go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -370,10 +316,7 @@ grep -q "function lShapePorts" src/aef-workflow-designer.html
 
 ## Updates
 
-### 2026-10-08T08:38:06Z — task-created [task-create-agent]
+### 2026-10-02T16:38:27Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1090-greenfield-t-172-1-routing-rule-from-the.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1001-re-anchor-the-bridge-ratchet-floor-to-a-.md
 - **Context:** Initial task creation
-
-### 2026-10-08T09:58:34Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work

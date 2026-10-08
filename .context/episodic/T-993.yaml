@@ -1,0 +1,127 @@
+# ============================================================================
+# EPISODIC MEMORY - T-993: Authoring kit 0.15.2: Evergreen trial round-0 findings K1-K8 (ledger L7-L14) + L5/L6/L15 promotions
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-02T14:16:17Z
+# ============================================================================
+
+task_id: T-993
+task_name: "Authoring kit 0.15.2: Evergreen trial round-0 findings K1-K8 (ledger L7-L14) + L5/L6/L15 promotions"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-02T13:36:08Z
+completed: 2026-10-02T14:16:05Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-02T15:48:00+02:00
+last_commit: 2026-10-02T16:12:27+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  0.15.2 inputs — Evergreen trial K1-K8: validator W-(XML-)NO-START/END-EVENT (K1), guide answers K2-K6 + §5 row, rubric v4 'Not invented', loop.sh --review-only (K7) and reviewer-context check (K8); ledger L5-L15 confirmed by the operator and promoted; guards updated (incl. two stale T-990 cross-form entries); VERSION/APP_VERSION 0.15.2; runme.sh prepared. real calibration caught a wrong rule — parallel fork/join after one step is NOT invented (it means what plain flows mean); corrected in guide + rubric; recalibrated GLM-5.2 sandboxed: PASS 3/3, 0 false; L16 proposed; release notes final. agent ACs met — bridge 38 before = 38 after (124 -> 128 passed), real calibration PASS 3/3 0 false, kit tests green; release handed to the operator. release designer 0.15.2 — authoring kit revised from the Evergreen trial (K1-K8, ledger L5-L15)
+
+# Key outcomes
+outcomes:
+  - 'L7/K1 validator: a process with flow nodes and no startEvent (no catch entry) draws ONE W-XML-NO-START-EVENT carrying the count of nodes not assessed; no endEvent (no throw terminus) draws ONE W-XML-NO-END-EVENT; YAML form has the same pair (W-NO-START-EVENT / W-NO-END-EVENT); forward fixtures + classification tables (dialect axis, form parity, anchorability) updated; bridge suite adds no failure (38 before = 38 after, 124 -> 128 passed; the ratchet floor of 32 was already exceeded before T-993, not moved here)'
+  - 'L8-L12 guide: AUTHORING.md answers K2 (one step precedes two, relation unstated), K3 (none start/end around a stated chain), K4 (hand-over to another map: link throw/catch), K5 (records a step creates), K6 (system supports, performer unstated -> none + note) and corrects the §5 table for event-less maps'
+  - 'L13/L14 tooling: loop.sh documents/supports running outside an agent harness and prints the review prompt size with a stated minimum reviewer context; AUTHORING §1b says the same'
+  - 'L5, L6, L15 promoted in the ledger with markers present in their files; L7-L14 promoted after their changes land; `learning-ledger.py check` exits 0'
+  - 'Kit builds (`build-authoring-kit.py --check` clean), kit tests (t974, t983, t984) green, VERSION/APP_VERSION 0.15.2, RELEASE-NOTES-0.15.2.md written, runme.sh prepared for 0.15.2 and dry-run only'
+  - 'Real sandboxed calibration (opencode GLM, L5) of the 0.15.2 kit''s loop.sh run before handing runme.sh to the operator; result recorded'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-02 — K1: how to make a missing start/end visible'
+    chose: 'one finding per process per missing event kind, carrying the count of nodes whose reachability was not assessed'
+    rationale: 'same shape T-972 chose for a lane with no laneMeta (the defect is the map''s; the count keeps it from being quieter); per-node UNREACHABLE on an event-less map would misreport a fully stated chain as unreachable steps and push generators toward adding events'
+    alternatives_rejected: ['per-node UNREACHABLE/DEADEND when no events (misleading on a stated chain); leaving it silent (the gradient toward omission K1 reported)']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'dist/aef-authoring-kit-0.15.2/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.15.2/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.15.2/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.15.2/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.15.2/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.15.2/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.15.2/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.15.2/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.15.2/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.15.2/loop.sh'
+  - 'dist/aef-authoring-kit-0.15.2/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.15.2/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.15.2/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.15.2/validate-workflow.py'
+  - 'dist/aef-workflow-designer-0.15.2.html'
+  - 'dist/MANIFEST.yaml'
+  - 'docs/authoring-kit/AUTHORING.md'
+  - 'docs/authoring-kit/loop.sh'
+  - 'docs/authoring-kit/RUBRIC.md'
+  - 'docs/learning-ledger.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.15.2.md'
+  - 'runme.sh'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-993-authoring-kit-0152-evergreen-trial-round.md'
+  - 'tests/fixtures/warn/W-NO-END-EVENT.yaml'
+  - 'tests/fixtures/warn/W-NO-START-EVENT.yaml'
+  - 'tests/fixtures/warn/W-XML-NO-END-EVENT.xml'
+  - 'tests/fixtures/warn/W-XML-NO-START-EVENT.xml'
+  - 'tests/test_finding_anchorability.py'
+  - 'tests/test_harness_cross_form_agreement.py'
+  - 'tests/test_rule_dialect_axis.py'
+  - 'tests/test_rule_form_parity.py'
+  - 'tests/test_t312_lane_geometry.py'
+  - 'tests/test_t313_lane_capacity.py'
+  - 'tests/test_t983_review_loop_kit.py'
+  - 'tools/_t989-measure-evergreen.py'
+  - 'tools/validate-workflow.py'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-02T15:48:00'
+    action: 'T-993: 0.15.2 inputs — Evergreen trial K1-K8: validator W-(XML-)NO-START/END-EVENT (K1), guide answers K2-K6 + §5 row, rubric v4 ''Not invented'', loop.sh --review-only (K7) and reviewer-context check (K8); ledger L5-L15 confirmed by the operator and promoted; guards updated (incl. two stale T-990 cross-form entries); VERSION/APP_VERSION 0.15.2; runme.sh prepared'
+  - time: '2026-10-02T16:04:20'
+    action: 'T-993: real calibration caught a wrong rule — parallel fork/join after one step is NOT invented (it means what plain flows mean); corrected in guide + rubric; recalibrated GLM-5.2 sandboxed: PASS 3/3, 0 false; L16 proposed; release notes final'
+  - time: '2026-10-02T16:09:07'
+    action: 'T-993: agent ACs met — bridge 38 before = 38 after (124 -> 128 passed), real calibration PASS 3/3 0 false, kit tests green; release handed to the operator'
+  - time: '2026-10-02T16:12:27'
+    action: 'T-993: release designer 0.15.2 — authoring kit revised from the Evergreen trial (K1-K8, ledger L5-L15)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 39 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 39
+  commits: 5
+  files_changed: 39
+  lines_added: 16980
+  lines_removed: 58
+  footprint_refreshed_at: '2026-10-02T14:16:27Z'
+  footprint_refreshed_by_commit: 50fd9de5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-993-authoring-kit-0152-evergreen-trial-round.md
+generated_by: context-agent-hybrid

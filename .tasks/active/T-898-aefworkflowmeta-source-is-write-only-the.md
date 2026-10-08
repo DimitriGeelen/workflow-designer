@@ -6,6 +6,8 @@ description: >
 
 status: captured
 workflow_type: inception
+target_blast_radius: 3
+voi_score: 0.5
 owner: agent
 horizon: later
 tags: [designer, seam]

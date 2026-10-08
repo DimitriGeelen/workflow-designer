@@ -1,0 +1,125 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1048: Thumbnails on the workflow-design overview page: a small preview image per design
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-05T07:58:32Z
+# ============================================================================
+
+task_id: T-1048
+task_name: "Thumbnails on the workflow-design overview page: a small preview image per design"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-05T07:43:55Z
+completed: 2026-10-05T07:58:22Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-05T09:51:00+02:00
+last_commit: 2026-10-05T09:57:39+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  preview tiles on the gallery overview page — one per design, from the editor's own captureThumbnail (T-153 pipeline, now covering both corpora); serve-gallery.sh refreshes missing/stale tiles on build and falls back to a 'no preview' box, never a broken image; all 25 tiles regenerated (24 were from 2026-08-02, customer-refund had none); bridge-wired check 4/4 with a control; desktop and 390px screenshots read. preview tiles on Watchtower's /designer corpus page too — blueprint offers thumb_url only when the stored PNG exists, template shows a tile or a 'no preview' box (plain img, so the T-2596 nonce link is untouched); 5 of 6 saved projects had no PNG and were backfilled via gen-rendered-thumbs --store; check legs 5-6 (template + live) with a mutant; register entries, offered to AEF @348; light/dark/phone screenshots read
+
+# Key outcomes
+outcomes:
+  - 'Every design listed on the overview page shows a small preview image of its diagram next to its link, and clicking the preview opens the design just as the link does'
+  - 'Previews are produced by the same pipeline that produces the page, so a regenerated corpus gets fresh previews with no manual step. A design whose preview cannot be produced still lists, with a visible "no preview" placeholder, never a broken image'
+  - 'The page still works at phone width (no horizontal scroll) and the existing links, order and wording are unchanged'
+  - 'Visually verified: a screenshot of the rendered overview page, read, showing the thumbnails'
+  - 'Whatever generates or serves the page has a check that fails if a listed design has no preview entry'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.context/designer/projects/t101-review-audit-process/v2.png'
+  - '.context/designer/projects/t101-review-harvest-pipeline/v2.png'
+  - '.context/designer/projects/t101-review-task-lifecycle/v2.png'
+  - '.context/designer/projects/t101-review-verification-gate/v2.png'
+  - '.context/designer/projects/t293-retest-harvest/v1.png'
+  - 'docs/reports/T-1048/gallery-desktop-1280.png'
+  - 'docs/reports/T-1048/gallery-phone-390.png'
+  - 'docs/reports/T-1048/watchtower-designer-dark.png'
+  - 'docs/reports/T-1048/watchtower-designer-light.png'
+  - 'docs/reports/T-1048/watchtower-designer-phone-390.png'
+  - '.editor-versions/_rendered/arc-lifecycle.png'
+  - '.editor-versions/_rendered/assumption-validation.png'
+  - '.editor-versions/_rendered/audit-process.png'
+  - '.editor-versions/_rendered/context-memory.png'
+  - '.editor-versions/_rendered/cross-host-dispatch.png'
+  - '.editor-versions/_rendered/customer-refund.png'
+  - '.editor-versions/_rendered/error-escalation-ladder.png'
+  - '.editor-versions/_rendered/fabric-blast-radius.png'
+  - '.editor-versions/_rendered/git-commit-flow.png'
+  - '.editor-versions/_rendered/harvest-pipeline.png'
+  - '.editor-versions/_rendered/healing-loop.png'
+  - '.editor-versions/_rendered/inception-lifecycle.png'
+  - '.editor-versions/_rendered/inception-review.png'
+  - '.editor-versions/_rendered/promotion-pipeline.png'
+  - '.editor-versions/_rendered/release-pipeline.png'
+  - '.editor-versions/_rendered/resume-status.png'
+  - '.editor-versions/_rendered/review-emission.png'
+  - '.editor-versions/_rendered/revisit-due-scan.png'
+  - '.editor-versions/_rendered/session-capture.png'
+  - '.editor-versions/_rendered/session-handover.png'
+  - '.editor-versions/_rendered/task-gate.png'
+  - '.editor-versions/_rendered/task-lifecycle.png'
+  - '.editor-versions/_rendered/tier0-escalation.png'
+  - '.editor-versions/_rendered/upgrade-process.png'
+  - '.editor-versions/_rendered/verification-gate.png'
+  - '.tasks/active/T-1048-thumbnails-on-the-workflow-design-overvi.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/gen-rendered-thumbs.mjs'
+  - 'tools/serve-gallery.sh'
+  - 'tools/_t1048-gallery-thumbs.py'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-05T09:51:00'
+    action: 'T-1048: preview tiles on the gallery overview page — one per design, from the editor''s own captureThumbnail (T-153 pipeline, now covering both corpora); serve-gallery.sh refreshes missing/stale tiles on build and falls back to a ''no preview'' box, never a broken image; all 25 tiles regenerated (24 were from 2026-08-02, customer-refund had none); bridge-wired check 4/4 with a control; desktop and 390px screenshots read'
+  - time: '2026-10-05T09:57:39'
+    action: 'T-1048: preview tiles on Watchtower''s /designer corpus page too — blueprint offers thumb_url only when the stored PNG exists, template shows a tile or a ''no preview'' box (plain img, so the T-2596 nonce link is untouched); 5 of 6 saved projects had no PNG and were backfilled via gen-rendered-thumbs --store; check legs 5-6 (template + live) with a mutant; register entries, offered to AEF @348; light/dark/phone screenshots read'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 14 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 14
+  commits: 3
+  files_changed: 45
+  lines_added: 639
+  lines_removed: 17
+  footprint_refreshed_at: '2026-10-05T07:58:33Z'
+  footprint_refreshed_by_commit: 22dcbe0d
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1048-thumbnails-on-the-workflow-design-overvi.md
+generated_by: context-agent-hybrid

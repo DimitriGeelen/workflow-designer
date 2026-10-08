@@ -62,10 +62,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 955
-  commits: 0
-  files_changed: 0
-  lines_added: 0
-  lines_removed: 0
+  commits: 1
+  files_changed: 4
+  lines_added: 232
+  lines_removed: 15
+  footprint_refreshed_at: '2026-10-04T13:48:39Z'
+  footprint_refreshed_by_commit: f0684533
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1018-bridge-leg-red-editor-bridge-semantic-fi.md

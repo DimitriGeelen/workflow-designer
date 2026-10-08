@@ -80,10 +80,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 15
-  commits: 4
-  files_changed: 6
-  lines_added: 721
-  lines_removed: 72
+  commits: 5
+  files_changed: 14
+  lines_added: 1950
+  lines_removed: 89
+  footprint_refreshed_at: '2026-10-01T18:20:31Z'
+  footprint_refreshed_by_commit: 0045e334
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-975-external-review-of-the-authoring-kit-by-.md

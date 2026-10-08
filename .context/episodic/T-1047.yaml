@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1047: Task gate blocks scripts/session-start-alerts.sh with no focus — /resume step 7 cannot run at session start
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T22:28:43Z
+# ============================================================================
+
+task_id: T-1047
+task_name: "Task gate blocks scripts/session-start-alerts.sh with no focus — /resume step 7 cannot run at session start"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T22:12:15Z
+completed: 2026-10-04T22:28:24Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-05T00:28:08+02:00
+last_commit: 2026-10-05T00:28:08+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the no-task gate admits /resume's mail check (scripts/session-start-alerts.sh), this project's copy only — operator-authorized edit to the vendored safe-commands.sh; helper shared by a direct-spelling arm and the existing bash|sh arm (no shadowing of bash -n); 24/24 teeth incl. pre-fix library and the real hook in a null-focus project; bridge-wired; register entry delivered: reported (AEF @312)
+
+# Key outcomes
+outcomes:
+  - 'Allowlist arm: `[bash|sh] [./]scripts/session-start-alerts.sh …` and the direct'
+  - 'Only THIS project''s script is admitted: a relative `scripts/` path, or `$PROJECT_ROOT/scripts/`.'
+  - 'A redirect on the line (`… > f`) stays blocked: the write scanner still judges the whole line.'
+  - 'Regression test through the REAL gate predicate (`is_bash_safe_command`), with the blocked'
+  - 'Divergence register updated with its own entry for T-1047 (delivered: reported, so it counts as drained); the drain ratchet holds at 41.'
+  - 'Offered upstream: AEF''s skill calls this path in every consumer, so their allowlist needs the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the no-task gate admits /resume''s mail check (scripts/session-start-alerts.sh), this project''s copy only — operator-authorized edit to the vendored safe-commands.sh; helper shared by a direct-spelling arm and the existing bash|sh arm (no shadowing of bash -n); 24/24 teeth incl. pre-fix library and the real hook in a null-focus project; bridge-wired; register entry delivered: reported (AEF @312)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.tasks/active/T-1047-task-gate-blocks-scriptssession-start-al.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_session_start_alerts.py'
+  - 'tools/_t1047-session-start-alerts-gate.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-05T00:28:08'
+    action: 'T-1047: the no-task gate admits /resume''s mail check (scripts/session-start-alerts.sh), this project''s copy only — operator-authorized edit to the vendored safe-commands.sh; helper shared by a direct-spelling arm and the existing bash|sh arm (no shadowing of bash -n); 24/24 teeth incl. pre-fix library and the real hook in a null-focus project; bridge-wired; register entry delivered: reported (AEF @312)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 16 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 16
+  commits: 2
+  files_changed: 7
+  lines_added: 497
+  lines_removed: 0
+  footprint_refreshed_at: '2026-10-04T22:28:44Z'
+  footprint_refreshed_by_commit: ed29f341
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1047-task-gate-blocks-scriptssession-start-al.md
+generated_by: context-agent-hybrid

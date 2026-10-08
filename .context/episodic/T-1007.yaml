@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1007: Consumer intake: our Watchtower serves designer 0.15.0, two releases behind 0.15.2
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-02T23:15:17Z
+# ============================================================================
+
+task_id: T-1007
+task_name: "Consumer intake: our Watchtower serves designer 0.15.0, two releases behind 0.15.2"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-02T22:38:21Z
+completed: 2026-10-02T23:15:07Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-03T01:14:50+02:00
+last_commit: 2026-10-03T01:14:50+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  consumer intake 0.15.0 -> 0.15.2 — pin advanced, fw designer sync --from-tag verified sha against pin and tag MANIFEST, Watchtower /designer/app serves sha 68454742 (0.15.2); register entry restored as local-config
+
+# Key outcomes
+outcomes:
+  - 'policy/designer-pin.yaml names 0.15.2 with the sha256 and bytes of designer-v0.15.2''s MANIFEST (68454742…, 1063551)'
+  - '`fw designer sync --from-tag` (the canonical intake, T-2616) installs it, verifying the sha against both the pin and the MANIFEST at the tag'
+  - 'Watchtower''s /designer/app serves bytes whose sha256 is 68454742…'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.tasks/active/T-1007-consumer-intake-our-watchtower-serves-de.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-03T01:14:50'
+    action: 'T-1007: consumer intake 0.15.0 -> 0.15.2 — pin advanced, fw designer sync --from-tag verified sha against pin and tag MANIFEST, Watchtower /designer/app serves sha 68454742 (0.15.2); register entry restored as local-config'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 36 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 36
+  commits: 2
+  files_changed: 4
+  lines_added: 55
+  lines_removed: 13
+  footprint_refreshed_at: '2026-10-02T23:15:23Z'
+  footprint_refreshed_by_commit: 52b18d61
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1007-consumer-intake-our-watchtower-serves-de.md
+generated_by: context-agent-hybrid

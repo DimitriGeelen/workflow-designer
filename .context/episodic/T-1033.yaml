@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1033: 8 tasks awaiting Human review have no Recommendation (_norec-verify finding)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-05T08:24:56Z
+# ============================================================================
+
+task_id: T-1033
+task_name: "8 tasks awaiting Human review have no Recommendation (_norec-verify finding)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T14:04:18Z
+completed: 2026-10-05T08:24:47Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-05T10:24:46+02:00
+last_commit: 2026-10-05T10:24:46+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  all 8 review-queue tasks carry a parseable verdict (7 GO, 1 deliberate ABSTAIN); _norec-verify 0 without a Recommendation
+
+# Key outcomes
+outcomes:
+  - 'The current list is re-derived live with `tools/_norec-verify.py`, not taken from the original count of 8'
+  - 'Each listed task gets a `**Recommendation:** GO / NO-GO / DEFER` block with Rationale and Evidence drawn from its own ACs, commits and artifacts. DEFER only for a real evidence gap, which must be named'
+  - 'No Human AC is ticked and no task is closed by this work'
+  - '`tools/_norec-verify.py` reports no task awaiting review without a Recommendation'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1033-8-tasks-awaiting-human-review-have-no-re.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-05T10:24:46'
+    action: 'T-1033: all 8 review-queue tasks carry a parseable verdict (7 GO, 1 deliberate ABSTAIN); _norec-verify 0 without a Recommendation'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1100 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1100
+  commits: 2
+  files_changed: 2
+  lines_added: 21
+  lines_removed: 5
+  footprint_refreshed_at: '2026-10-05T08:24:57Z'
+  footprint_refreshed_by_commit: ca552a7c
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1033-8-tasks-awaiting-human-review-have-no-re.md
+generated_by: context-agent-hybrid

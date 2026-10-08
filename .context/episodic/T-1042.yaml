@@ -68,10 +68,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 4
-  commits: 1
-  files_changed: 2
-  lines_added: 388
-  lines_removed: 4
+  commits: 3
+  files_changed: 6
+  lines_added: 812
+  lines_removed: 10
+  footprint_refreshed_at: '2026-10-04T17:13:39Z'
+  footprint_refreshed_by_commit: 2cc0f598
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1042-release-immutability-test-g-007-is-red-r.md

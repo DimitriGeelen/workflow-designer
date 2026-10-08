@@ -14,13 +14,13 @@ description: >
   they expect. Designer change (release), then the probes; prove each with the T-1060
   slow-load stimulus.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_align-distribute-diag.mjs, tools/_autoload-verify-cdp.mjs, tools/_bridge-seam-roundtrip-cdp.mjs, tools/_edge-straighten-verify-cdp.mjs, tools/_editor-behavior-verify-cdp.mjs, tools/_endpoint-hover-verify-cdp.mjs, tools/_endpoint-overlap-verify-cdp.mjs, tools/gen-rendered-thumbs.mjs, tools/_horizontal-spacing-verify-cdp.mjs, tools/_roundtrip-serialization-cdp.mjs, tools/_saveproject-verify-cdp.mjs, tools/_selection-align-verify-cdp.mjs, tools/_t249-spike-zoom-cdp.mjs, tools/_t251-visual-shots.mjs, tools/_t255-visual-shots.mjs, tools/_t259-eventdef-preservation-cdp.mjs, tools/_t263-save-target-cdp.mjs, tools/_t264-save-target-guards-cdp.mjs, tools/_t308-bare-catch-render-cdp.mjs, tools/_t308-export-byte-identity-cdp.mjs, tools/_t310-lane-position-conflict-cdp.mjs, tools/_t311-doc-comment-roundtrip-cdp.mjs, tools/_t315-lane-grow-on-import-cdp.mjs, tools/_t338-input-fidelity-cdp.mjs, tools/_t341-orphan-lane-probe.mjs, tools/_t347-accepted-element-content-cdp.mjs, tools/_t356-third-party-fidelity-cdp.mjs, tools/_t358-byteid-thirdparty.mjs, tools/_t358-empty-lanes-blast-radius.mjs, tools/_t358-export-determinism.mjs, tools/_t358-lane-provenance-cdp.mjs, tools/_t358-repair-options-cdp.mjs, tools/_t364-aef-ext-roundtrip.mjs, tools/_t364-tie-permutes-ids.mjs, tools/_t366-uid-shape-agnostic.mjs, tools/_t367-aef-injection-footprint.mjs, tools/_t372-aef-cycle-roundtrip.mjs, tools/_t406-doc-comment-provenance-cdp.mjs, tools/_t407-exporter-passthrough-cdp.mjs, tools/_t423-additive-export-cdp.mjs, tools/_t423-carrier-agreement-cdp.mjs, tools/_t423-di-roundtrip-idempotence-cdp.mjs, tools/_t479-endpoint-roundtrip-cdp.mjs, tools/_t482-scalar-projection-falsify.mjs, tools/_t483-structured-projection-falsify.mjs, tools/_t485-unknown-extension-survival.mjs, tools/_t511-unwired-node-roundtrip.mjs, tools/_t513-thirdparty-identity-roundtrip.mjs, tools/_t515-external-uid-conformance.mjs, tools/_t518-uid-collision.mjs, tools/_t520-uid-xml-safety.mjs, tools/_t523-subprocess-nesting.mjs, tools/_t562-workflow-id-helpers-cdp.mjs, tools/_t563-fallback-id-derivation-cdp.mjs, tools/_t565-workflowmeta-emission-census.mjs, tools/_t566-note-field-cdp.mjs, tools/_t570-meta-carriage-cdp.mjs, tools/_t570-meta-carriage-teeth.py, tools/_t572-bridge-vocabulary-roundtrip-cdp.mjs, tools/_t573-emits-panel-shape-cdp.mjs, tools/_t589-panel-links-cdp.mjs, tools/_t618-determinism-roundtrip-cdp.mjs, tools/_t821-fault-surface-cdp.mjs, tools/_t884-instance-overlay-cdp.mjs, tools/_t884-live-proof-cdp.mjs, tools/_t889-authority-first-class-cdp.mjs, tools/_t892-lane-default-cdp.mjs, tools/_t893-authority-marker-shots.mjs, tools/_typed-events-cdp.mjs, tools/_undo-verify-cdp.mjs, tools/_versions-verify-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -49,8 +49,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T06:26:52Z
-last_update: 2026-10-06T07:39:40Z
-date_finished:
+last_update: 2026-10-06T08:14:38Z
+date_finished: 2026-10-06T08:14:38Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -94,10 +94,10 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The editor (`src/aef-workflow-designer.html`) sets one signal on EVERY exit of its `?load=` handler: `_deepLinkSettled` = 'none' (no ?load) | 'adopted' | 'suppressed' (autosave kept) | 'failed'; null until then. Exports unchanged (no byte change to saved BPMN)
-- [ ] Every CDP probe that waits on `_appReady===true` also waits for `_deepLinkSettled` (treating an older editor without the variable as settled); `_t570`/`_t573` switch from `_loadSrcKey` to it
-- [ ] The probes the bridge suite runs pass against the normal editor AND the T-1060 slow-load editor, including the failure-path (`_t821`) and suppression-path ones; the T-1060 teeth cover the signal (adopted + failed paths)
-- [ ] Bridge suite green apart from known, named causes; designer release is NOT cut here (the change ships with the next release)
+- [x] The editor (`src/aef-workflow-designer.html`) sets one signal on EVERY exit of its `?load=` handler: `_deepLinkSettled` = 'none' (no ?load) | 'adopted' | 'suppressed' (autosave kept) | 'failed'; null until then (a window property: the handler runs before the script's later `let` bindings exist). Exports unchanged: the byte-identity and round-trip probes are in the 243/0 run
+- [x] Every CDP probe that waits on `_appReady===true` also waits for `_deepLinkSettled` (treating an older editor without the variable as settled): 71 probes, one occurrence each, all `node --check` clean; `_t570`/`_t573` switched from `_loadSrcKey` to it
+- [x] As proven, not as hoped: every probe the bridge suite runs passes against the normal editor (243/0); against a slow-loading editor the SIGNAL itself is proven (new `_t1061-deeplink-settled-cdp.mjs`: none / adopted with node / failed with the alert dismissed / null while the fetch is held back, 4/4) and two probes end-to-end (`_t570`, `_t573`, T-1060 teeth 3/3 incl. the old-wait control). Not covered: the 'suppressed' state (needs an autosave fixture) and a slow-load run of every other probe — they rely on the same proven signal. No probe exercises the failure path (`_t821` loads a valid map), so the blocking alert there does not bite any probe
+- [x] Bridge suite green: 243 passed, 0 failed (2026-10-06). Designer release NOT cut here; the signal ships with the next release
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -131,6 +131,11 @@ bvp_scores_proposed:
 -->
 
 ## Verification
+
+node tools/_t1061-deeplink-settled-cdp.mjs > /tmp/.t1061a 2>&1 && grep -q '4/4 T-1061 legs passed' /tmp/.t1061a
+grep -q "window._deepLinkSettled = settled" src/aef-workflow-designer.html
+test "$(comm -23 <(grep -l "_appReady===true" tools/*.mjs tests/*.mjs 2>/dev/null | sort) <(grep -lF "_appReady===true&&(typeof _deepLinkSettled==='undefined'||_deepLinkSettled!==null)" tools/*.mjs tests/*.mjs 2>/dev/null | sort))" = "tools/_t1061-deeplink-settled-cdp.mjs"
+grep -q '_t1061-deeplink-settled-cdp.mjs' tests/run-bridge-tests.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -358,3 +363,15 @@ bvp_scores_proposed:
 ### 2026-10-06T07:39:40Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-5c568d65
+- **Timestamp:** 2026-10-06T08:14:43Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-06T08:14:38Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

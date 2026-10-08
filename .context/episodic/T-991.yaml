@@ -81,10 +81,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 12
-  commits: 4
-  files_changed: 8
-  lines_added: 491
-  lines_removed: 87
+  commits: 5
+  files_changed: 10
+  lines_added: 599
+  lines_removed: 92
+  footprint_refreshed_at: '2026-10-01T22:15:51Z'
+  footprint_refreshed_by_commit: 8bf7fafd
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-991-bug-0150-loopsh-points-agents-at-the-kit.md

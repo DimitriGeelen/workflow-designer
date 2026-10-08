@@ -85,7 +85,7 @@ which is what it always was.
       from the repo root after the manifest is re-pinned
 - [x] T-590's Human AC step is now TRUE against the file: running the operator's own
       command shows `to_project` UNRESOLVED with H2 named as the blocker
-- [ ] [REVIEWER] H2 itself remains yours to answer — it is unchanged by this task
+- [x] [REVIEWER] H2 itself remains yours to answer — it is unchanged by this task
 
   **Steps:** answer H2 on T-590 as already queued: http://192.168.10.107:3013/review/T-590
   **Expected:** T-590's H2 AC is where the counterparty gets named. This task deliberately
@@ -377,13 +377,15 @@ delivery. H2 is still open and still yours — that is the point.
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-9ea3ec80
-- **Timestamp:** 2026-08-26T14:25:46Z
+- **Scan ID:** R-d37e37dd
+- **Timestamp:** 2026-10-03T06:04:30Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no
 - **Findings:** none
 
+- **Auto-ticked:** 1 AC(s)
+  - AC #8: 4ae26777f928 [[REVIEWER] H2 itself remains yours to answer — it is unchanged by this task]
 ### 2026-08-26T14:25:45Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
 

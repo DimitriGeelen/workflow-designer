@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1026: Restore the observable-hypothesis requirement on inception GO (T-866 lost)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-04T08:44:41Z
+# ============================================================================
+
+task_id: T-1026
+task_name: "Restore the observable-hypothesis requirement on inception GO (T-866 lost)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-04T07:54:43Z
+completed: 2026-10-04T08:44:32Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-04T10:44:15+02:00
+last_commit: 2026-10-04T10:44:31+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  an inception GO again requires a hypothesis someone could go and look at — T-866 (erased silently by the 1.7.740 re-vendor) re-applied, declared, guarded. ACs ticked
+
+# Key outcomes
+outcomes:
+  - '`fw inception decide T-X go` refuses an inception whose ## Hypothesis success clause names nothing observable (placeholder, empty, or no count/threshold/check/state), with a message that says what to write; NO-GO and DEFER are not blocked; research-kind inceptions keep T-866''s declared exemption — teeth legs empty/missing/vague refused, refusal names what is missing, checkable accepted, nogo/defer pass, research exempt'
+  - 'tools/_t866-hypothesis-form-teeth.sh runs against the restored audit_inception_hypothesis and passes (it reports TEETH BROKEN on HEAD); the change to lib/inception.sh and lib/task-audit.sh is declared in .vendor-divergence.yaml; the teeth are a bridge leg — 10/10 (f532479b)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.tasks/active/T-1026-restore-the-observable-hypothesis-requir.md'
+  - 'tests/run-bridge-tests.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-04T10:44:15'
+    action: 'T-1026: an inception GO again requires a hypothesis someone could go and look at — T-866 (erased silently by the 1.7.740 re-vendor) re-applied, declared, guarded'
+  - time: '2026-10-04T10:44:31'
+    action: 'T-1026: ACs ticked'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 49 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 49
+  commits: 2
+  files_changed: 5
+  lines_added: 544
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1026-restore-the-observable-hypothesis-requir.md
+generated_by: context-agent-hybrid
