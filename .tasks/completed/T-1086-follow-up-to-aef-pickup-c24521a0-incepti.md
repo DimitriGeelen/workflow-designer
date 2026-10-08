@@ -4,10 +4,11 @@ name: "Follow-up to AEF pickup c24521a0: inception decision brief offered on eve
 description: >
   Follow-up to AEF pickup c24521a0: inception decision brief offered on every route (terminal, Watchtower link, QR, Signal/Mattermost), one record, first answer wins
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -39,7 +40,7 @@ related_tasks: []
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T08:15:13Z
 last_update: 2026-10-08T08:16:13Z
-date_finished: null
+date_finished: 2026-10-08T08:16:13Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -320,3 +321,15 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1086-follow-up-to-aef-pickup-c24521a0-incepti.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e7b5907a
+- **Timestamp:** 2026-10-08T08:16:15Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-08T08:16:13Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

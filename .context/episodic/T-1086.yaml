@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1086: Follow-up to AEF pickup c24521a0: inception decision brief offered on every route (terminal, Watchtower link, QR, Signal/Mattermost), one record, first answer wins
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-08T08:16:22Z
+# ============================================================================
+
+task_id: T-1086
+task_name: "Follow-up to AEF pickup c24521a0: inception decision brief offered on every route (terminal, Watchtower link, QR, Signal/Mattermost), one record, first answer wins"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-08T08:15:13Z
+completed: 2026-10-08T08:16:13Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-08T10:16:13+02:00
+last_commit: 2026-10-08T10:16:13+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  follow-up to AEF (fae6adee, RECEIVED): inception decision offered on every route, one record, first answer wins
+
+# Key outcomes
+outcomes:
+  - 'Follow-up written as a proposal (operator idea + the four conditions: one record/first answer wins, terminal prompt notices an outside decision, out-of-band routes authenticate the operator, one brief on every route) and the question how Signal/Mattermost would hook in'
+  - 'Sent on conversation runme-launcher as a reply to c24521a0, delivery confirmed and recorded here — client_msg_id fae6adee-1269-4cc6-8d30-4831134af4e2, state RECEIVED, direct path, 2026-10-08'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1086-follow-up-to-aef-pickup-c24521a0-incepti.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-08T10:16:13'
+    action: 'T-1086: follow-up to AEF (fae6adee, RECEIVED): inception decision offered on every route, one record, first answer wins'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1
+  commits: 1
+  files_changed: 1
+  lines_added: 322
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1086-follow-up-to-aef-pickup-c24521a0-incepti.md
+generated_by: context-agent-hybrid
