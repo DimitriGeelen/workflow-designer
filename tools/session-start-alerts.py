@@ -8,6 +8,8 @@ Two sections, runme first so a failing mail check can never hide it:
   2. Peer mail: since AEF 1.8.3 this DELEGATES to `fw sidecar alerts` (AEF T-3856, built from our
      stopgap): both routes, receipts and answered nudges excluded, NOT CHECKED instead of silence.
      832's own topic reader and its marker file retired here (T-1059).
+  3. Watched peer topics (T-1087): peers that post on shared hub topics instead of the sidecar
+     (Greenfield). Listed by name above a per-topic last-seen offset; --mark-seen advances it.
 
 The user-level /resume skill (step 7) runs `scripts/session-start-alerts.sh --limit 10`; the
 script may run with no task in focus (T-1047 allowlist).
@@ -16,6 +18,9 @@ script may run with no task in focus (T-1047 allowlist).
   exit 0 = checked (mail or not); 2 = MAIL CHECK FAILED / NOT CHECKED, never a silent "nothing"
 """
 import argparse
+import base64
+import datetime
+import json
 import os
 import subprocess
 import sys
@@ -27,6 +32,20 @@ FW = os.environ.get("ALERTS_FW", os.path.join(ROOT, ".agentic-framework", "bin",
 
 RUNME_EVENTS = os.environ.get("ALERTS_RUNME_EVENTS", os.path.join(ROOT, ".context", "working", "runme.events"))
 RUNME_WATCH = os.environ.get("ALERTS_RUNME_WATCH", os.path.join(ROOT, ".context", "working", "runme.watch"))
+
+# ── Watched peer topics (T-1087) ──────────────────────────────────────────────────────────────
+# Some peers do not use the sidecar: Greenfield (aef-greenfield-test, the evergreen trial) posts on
+# shared hub topics, which `fw sidecar alerts` does not read. Its urgent T-172 request sat ~14 h
+# unseen on 2026-10-07 until the operator relayed it. Each entry: topic, the peer's sender id, a
+# label, and the offset we had already read when this was wired (used until --mark-seen writes a
+# marker). Retire an entry once that peer is on a sidecar conversation with us.
+WATCHED = [
+    ("xfer-evergreen-corpus", "90d4553895d5a9a6", "Greenfield", 36),
+    ("xfer-evergreen-kit", "90d4553895d5a9a6", "Greenfield", 38),
+]
+TERMLINK = os.environ.get("ALERTS_TERMLINK", "termlink")
+SEEN_FILE = os.environ.get("ALERTS_TOPICS_SEEN",
+                           os.path.join(ROOT, ".context", "working", "watched-topics.seen.json"))
 
 
 def _comm(pid):
@@ -144,13 +163,92 @@ def mail(limit, mark_seen):
     return 0 if out else 2
 
 
+def _watched():
+    """WATCHED, or the JSON list in ALERTS_WATCHED (tests; '[]' turns the section off)."""
+    raw = os.environ.get("ALERTS_WATCHED")
+    return [tuple(w) for w in json.loads(raw)] if raw is not None else WATCHED
+
+
+def _topic_posts(topic, after):
+    """Envelopes on `topic` with offset > after, or raise. One `termlink channel subscribe` call."""
+    r = subprocess.run([TERMLINK, "channel", "subscribe", topic, "--cursor", str(after + 1),
+                        "--limit", "500", "--json"], capture_output=True, text=True, timeout=60)
+    if r.returncode != 0:
+        raise RuntimeError("termlink exit %d: %s" % (r.returncode, (r.stderr or r.stdout).strip()[:160]))
+    posts = []
+    for line in r.stdout.splitlines():
+        line = line.strip()
+        if line.startswith("{"):
+            e = json.loads(line)
+            if isinstance(e.get("offset"), int) and e["offset"] > after:
+                posts.append(e)
+    return posts
+
+
+def _summary(e):
+    meta = e.get("metadata") or {}
+    if meta.get("description") or meta.get("file"):
+        text = "%s %s" % (meta.get("file", ""), meta.get("description", ""))
+    else:
+        try:
+            text = base64.b64decode(e.get("payload_b64") or "").decode("utf-8", "replace")
+        except ValueError:
+            text = "(undecodable payload)"
+    text = " ".join(text.split())
+    return text[:110] + ("…" if len(text) > 110 else "")
+
+
+def watched_topics(mark_seen):
+    """Section 3. Returns 0 if every watched topic was read, 2 if any could not be (NOT CHECKED)."""
+    watched = _watched()
+    if not watched:
+        return 0
+    try:
+        seen = json.load(open(SEEN_FILE)) if os.path.exists(SEEN_FILE) else {}
+    except (OSError, ValueError) as e:
+        print("Watched peer topics:\n  NOT CHECKED: marker %s unreadable: %s" % (SEEN_FILE, e))
+        return 2
+    rc, lines, new_seen = 0, [], dict(seen)
+    for topic, sender, label, baseline in watched:
+        after = int(seen.get(topic, baseline))
+        try:
+            posts = _topic_posts(topic, after)
+        except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired) as e:
+            lines.append("NOT CHECKED: %s — %s" % (topic, e))
+            rc = 2
+            continue
+        for e in posts:
+            if e.get("sender_id") == sender:
+                ts = datetime.datetime.fromtimestamp(e.get("ts", 0) / 1000, datetime.timezone.utc)
+                lines.append("%s [%s@%d] %s %s: %s" % (label, topic, e["offset"], ts.strftime("%m-%d %H:%MZ"),
+                                                      e.get("msg_type", "?"), _summary(e)))
+        if posts:
+            new_seen[topic] = max(p["offset"] for p in posts)
+    failed = sum(1 for ln in lines if ln.startswith("NOT CHECKED"))
+    unseen = len(lines) - failed
+    head = "%d unseen" % unseen if unseen else "nothing unseen"
+    if failed:  # never let an unread topic sit under a heading that reads as all-clear
+        head = "%s, %d topic(s) NOT CHECKED" % ("%d unseen" % unseen if unseen else "none unseen in what was read",
+                                               failed)
+    print("Watched peer topics: %s" % head)
+    for ln in lines:
+        print("  " + ln)
+    if mark_seen and rc == 0:
+        os.makedirs(os.path.dirname(SEEN_FILE), exist_ok=True)
+        with open(SEEN_FILE, "w") as fh:
+            json.dump(new_seen, fh, indent=1, sort_keys=True)
+    return rc
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=10)
     ap.add_argument("--mark-seen", action="store_true")
     a = ap.parse_args(argv)
     print_runme()  # first, so a failed mail check below cannot hide it
-    return mail(a.limit, a.mark_seen)
+    rc_mail = mail(a.limit, a.mark_seen)
+    rc_topics = watched_topics(a.mark_seen)
+    return max(rc_mail, rc_topics)
 
 
 if __name__ == "__main__":

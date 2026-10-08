@@ -1,8 +1,8 @@
 ---
-id: T-1083
-name: "Greenfield messages: read and answer; check the two ~2.9 MB blobs on the hub"
+id: T-1087
+name: "Session-start mail check also reads Greenfield's xfer-evergreen topics; ask Greenfield for a sidecar link"
 description: >
-  Greenfield messages: read and answer; check the two ~2.9 MB blobs on the hub
+  Session-start mail check also reads Greenfield's xfer-evergreen topics; ask Greenfield for a sidecar link
 
 status: started-work
 workflow_type: build
@@ -33,12 +33,12 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1083` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1087` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-08T07:35:49Z
-last_update: 2026-10-08T07:40:37Z
+created: 2026-10-08T08:29:41Z
+last_update: 2026-10-08T08:35:37Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -52,7 +52,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-1083: Greenfield messages: read and answer; check the two ~2.9 MB blobs on the hub
+# T-1087: Session-start mail check also reads Greenfield's xfer-evergreen topics; ask Greenfield for a sidecar link
 
 ## Context
 
@@ -62,9 +62,10 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] Greenfield's messages to 832 located (topic, offset, sender), read, and each acknowledged or answered on its channel — `xfer-evergreen-corpus` 28-35 from `90d4553895d5a9a6` (aef-greenfield-test); answered at topic offset 36 (reply to 32) and DM `dm:90d4553895d5a9a6:d1993c2c3ec44c94` offset 13
-- [x] The two large blobs located by size, without loading them into context; hub health checked after them (hub responds, topic readable); finding reported to the operator and to the sender — offsets 33/34 are 29,374 and 42,052 bytes (not 2.9 MB); hub running, topic read back in full
-- [x] `bpmn-fetch-832` receiver back on the hub; the resent packages (T-172, iter2, iter3, iter4-8) received with sha256 verified into `build/evergreen-intake/` — iter9 kit points already recovered from the hub spool `inbox:bpmn-fetch-832` (sha b750a175…ef60f matches). 2026-10-08: permanent receiver (T-1084) got all resends + evergreen-iter9-12.tgz; reassembled from `termlink events bpmn-fetch-832` (`file receive --replay` only takes the first transfer), all 6 shas match Greenfield's notes 28-32/37/38, unpacked under `build/evergreen-intake/resend-20261008/unpacked/`; receipt confirmed at topic offset 39 / DM 15
+- [x] `scripts/session-start-alerts.sh` gets a third section "Watched peer topics": for `xfer-evergreen-corpus` and `xfer-evergreen-kit` it lists every post by Greenfield's sender id (90d4553895d5a9a6) above the last-seen offset, by name (topic@offset, time, type, first words / file description); our own posts and other senders are not listed
+- [x] `--mark-seen` advances the per-topic marker; without it nothing moves. A topic that cannot be read prints NOT CHECKED and the script exits 2 — never a silent "nothing"; the runme section still comes first
+- [x] Tests cover new post shown, other sender hidden, already-seen hidden, mark-seen advances, unreadable topic -> NOT CHECKED exit 2; existing alerts tests still pass; live run against the hub shows nothing unseen after marking today's read (28-35) — tests 7-14 added (14/14 pass, test_t1050 still passes); first live run surfaced 2 real unseen Greenfield posts (37 resend notice, 38 round 3) — exactly the class this fixes; after reading and --mark-seen: nothing unseen
+- [x] Greenfield asked (topic + DM) whether they run the AEF sidecar and for their agent address, so a sidecar conversation can replace topic-watching — topic offset 39, DM offset 15
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -90,14 +91,17 @@ date_finished: null
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1083`
+         1. Run `bin/fw reviewer T-1087`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1083 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1087 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
+python3 tests/test_session_start_alerts.py > /tmp/.t1087-ssa.out 2>&1 && grep -q "^OK: session-start-alerts" /tmp/.t1087-ssa.out
+python3 tests/test_t1050_runme_alerts.py > /tmp/.t1087-runme.out 2>&1 && grep -q "all legs passed" /tmp/.t1087-runme.out
+grep -q "xfer-evergreen-corpus" tools/session-start-alerts.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -308,7 +312,7 @@ date_finished: null
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1083 go|no-go|defer --rationale "..."
+     fw inception decide T-1087 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -317,7 +321,7 @@ date_finished: null
 
 ## Updates
 
-### 2026-10-08T07:35:49Z — task-created [task-create-agent]
+### 2026-10-08T08:29:41Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1083-greenfield-messages-read-and-answer-chec.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1087-session-start-mail-check-also-reads-gree.md
 - **Context:** Initial task creation
