@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T08:05:48Z
-last_update: 2026-10-08T08:07:57Z
+last_update: 2026-10-08T08:11:18Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -62,9 +62,9 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Git-tracked unit `deploy/systemd/termlink-bpmn-fetch-832.service`: event-only (`--self`, no `--shell`/`--allowed-commands`), `Restart=always`, after/wants `termlink-hub.service`, same hardening as the CashWeb unit; `systemd-analyze verify` passes
-- [ ] Runme job installs it (copy, daemon-reload, enable --now) and checks the session is listed on the hub; dry-run passes; job committed and handed to the operator with the watcher armed
-- [ ] After the operator's run: `termlink list` shows `bpmn-fetch-832` with `respawn=systemd`, the interim session from T-1083 is stopped, and a kill of the service's process is followed by a restart (proves Restart=always)
+- [x] Git-tracked unit `deploy/systemd/termlink-bpmn-fetch-832.service`: event-only (`--self`, no `--shell`/`--allowed-commands`), `Restart=always`, after/wants `termlink-hub.service`, same hardening as the CashWeb unit; `systemd-analyze verify` passes
+- [x] Runme job installs it (copy, daemon-reload, enable --now) and checks the session is listed on the hub; dry-run passes; job committed and handed to the operator with the watcher armed
+- [x] After the operator's run: `termlink list` shows `bpmn-fetch-832` with `respawn=systemd`, the interim session from T-1083 is stopped, and a kill of the service's process is followed by a restart (proves Restart=always) — operator ran job 005 2026-10-08T08:10Z, rc=0, 3/3 steps; `kill -9` of pid 3179818 → systemd restarted it as pid 3183645 (NRestarts=1), re-listed as tl-ops2slqh, no stale duplicate
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -98,6 +98,11 @@ date_finished: null
 -->
 
 ## Verification
+systemd-analyze verify deploy/systemd/termlink-bpmn-fetch-832.service
+cmp -s deploy/systemd/termlink-bpmn-fetch-832.service /etc/systemd/system/termlink-bpmn-fetch-832.service
+systemctl is-enabled --quiet termlink-bpmn-fetch-832.service
+systemctl is-active --quiet termlink-bpmn-fetch-832.service
+timeout 20 termlink list > /tmp/.t1084-list.out 2>&1 && grep -w bpmn-fetch-832 /tmp/.t1084-list.out | grep -q respawn=systemd
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.

@@ -1,0 +1,36 @@
+runme  005-install-bpmn-fetch-receiver   sha 8299186eb216   rehearsed 2026-10-08T08:07:53Z   log: /opt/832-Workflow-designer/.context/runme/005-install-bpmn-fetch-receiver/run-20261008T101039.log
+Job:   005-install-bpmn-fetch-receiver   (T-1084)
+What:  Make the bpmn-fetch-832 file receiver permanent (systemd, restarts itself)
+       Peers (aef-greenfield-test) send files to 832 at the TermLink session bpmn-fetch-832. It ran
+       only inside a Claude session, so it died with it: iterations 2-8 and the T-172 designer requests
+       never arrived (T-1083). This installs deploy/systemd/termlink-bpmn-fetch-832.service, a copy of the
+       CashWeb receiver's pattern: event-only (no shell for peers), Restart=always. Changes /etc/systemd/system
+       and enables one service; nothing else. Undo: systemctl disable --now termlink-bpmn-fetch-832 && rm
+       /etc/systemd/system/termlink-bpmn-fetch-832.service && systemctl daemon-reload.
+Steps (each asks y/N first):
+  1. Install the unit file to /etc/systemd/system/termlink-bpmn-fetch-832.service and reload systemd
+  2. Enable and start termlink-bpmn-fetch-832.service (starts now and at every boot)
+  3. Check: the service is active and bpmn-fetch-832 is on the hub as respawn=systemd
+
+ok    on bleeding-edge
+ok    unit file committed as-is
+ok    unit file passes systemd-analyze verify
+ok    TermLink hub is running
+ok    no other bpmn-fetch-832 session on the hub (two would split deliveries)
+ok    service not installed yet, or installed from this same file
+
+Step 1/3: Install the unit file to /etc/systemd/system/termlink-bpmn-fetch-832.service and reload systemd
+  runs: install -m 0644 "$SRC" "$DST" && systemctl daemon-reload
+Run step 1/3? [y/N] ok    step 1/3
+
+Step 2/3: Enable and start termlink-bpmn-fetch-832.service (starts now and at every boot)
+  runs: systemctl enable --now "$UNIT"
+Run step 2/3? [y/N] Created symlink /etc/systemd/system/multi-user.target.wants/termlink-bpmn-fetch-832.service → /etc/systemd/system/termlink-bpmn-fetch-832.service.
+ok    step 2/3
+
+Step 3/3: Check: the service is active and bpmn-fetch-832 is on the hub as respawn=systemd
+  runs: wait_listed
+Run step 3/3? [y/N] tl-kpwom4hn    bpmn-fetch-832   ready 1s     3179818  host=107,project=832-Workflow-designer,role=file-intake,respawn=systemd
+ok    step 3/3
+
+DONE: 005-install-bpmn-fetch-receiver — all 3 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/005-install-bpmn-fetch-receiver/run-20261008T101039.log)
