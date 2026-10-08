@@ -1,11 +1,18 @@
 ---
-id: T-1089
-name: "Greenfield T-172 #5: Save of a loaded map without aef:workflowMeta creates project process_<id> v1 instead of <loaded id> v2; also keep process name and element ids"
+id: T-1095
+name: "Read Greenfield's iterations 4-8 (evergreen-iter4-8.tgz) and reply: what 832
+  takes as kit/designer work, what we answer, what we ask"
 description: >
-  aef-greenfield-test T-172 item 5. Loaded via /api/version?id=tobe-walkthrough-verkoop; workflow id derived from process id Process_... instead of the loaded project id. Process name dropped on save; element ids renumbered (Flow_1 -> flow_1, v_lead -> ver_2_lead) breaks id comparison between versions. Fix: use loaded project id (or ask new project/new version on Save).
+  Owed since 2026-10-04 (their note 30). Package received 2026-10-08, sha cbf4354a…efae1,
+  unpacked at build/evergreen-intake/resend-20261008/unpacked/evergreen-iter4-8. Their
+  learnings: clean rubric != convergence, findings mostly owner questions/kit points,
+  stated structure beats notes, BPMN collaboration via kit addendum (designer 0.14.0
+  drops all but aef:io on save), kit writes no DI (layouter proposal). Output: docs/reports/T-XXXX
+  read + reply posted.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
@@ -33,13 +40,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1089` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1095` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-08T08:38:01Z
-last_update: 2026-10-08T08:38:01Z
-date_finished: null
+created: 2026-10-08T09:06:33Z
+last_update: 2026-10-08T09:12:11Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,32 +57,42 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-08T09:07:43Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
-# T-1089: Greenfield T-172 #5: Save of a loaded map without aef:workflowMeta creates project process_<id> v1 instead of <loaded id> v2; also keep process name and element ids
+# T-1095: Read Greenfield's iterations 4-8 (evergreen-iter4-8.tgz) and reply: what 832 takes as kit/designer work, what we answer, what we ask
 
 ## Context
 
-Cause: the three project load paths (`revertToVersion`, `openVersionInPlace`, `openProjectMap`) fetch
-`/api/version?id=<project>` and call `adoptImportedXml(text, …)` without the project id. The importer takes the
-workflow id from `aef:workflowMeta`, else the process id (`Process_tobe-…` → `process_tobe-…`), so a file with no
-workflowMeta lands under a different id and the next Save creates a new project v1.
-
-Scope decisions (with reasons, reported to Greenfield):
-- Element ids: NOT changed. The designer's ids are its own scheme (`<lane>_<rank>_<slug>`) by design; identity is
-  `aef:uid`, which for a file without one is derived deterministically from the original element id
-  (`n_<hash32(id)>`) and written on save — compare versions on aef:uid.
-- Process `name`: not lost — kept as workflow title and pool name; only `<bpmn:process name=…>` is not emitted.
-  Emitting it would move the bytes of every saved map and the fixed-point fixtures; not in this bug.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Within the T-263 ruling (workflowMeta id = the document's identity; no second identity authority): `adoptImportedXml` learns the project id from all three project load paths. File WITHOUT `aef:workflowMeta` (declares no identity — the process-id fallback is a guess) → the project id becomes its workflow id, so Save writes the next version of the loaded project. File WITH a workflowMeta id that differs → id kept, and Save asks first ("Loaded from project X but will save as Y"), extending the T-264 guard from ?load links to project loads
-- [ ] A headless test against the gallery sidecar with a temp project store: a file without workflowMeta stored as project P v1, opened through the project path → editor workflow id = P, Save lands as P v2; the same test fails on the unfixed designer (shown)
-- [ ] Negative controls in the same test: a user import of the same file (not from a project) keeps the id derived from the file; a project file whose workflowMeta declares another id keeps that id and triggers the confirm
-- [ ] Bridge suite green
+- [x] `docs/reports/T-1095-evergreen-iter4-8-read.md`: NOTES.md and the three proposal files read in full; per learning/proposal: what it is, our position (adopt / adapt / decline / ask), and the 832 follow-up (existing task id or a new one); every "designer drops X on save" claim checked against the current designer source — written by TermLink worker t1095-iter48-read; save loss confirmed by a live round trip on 0.15.3 (only aef:io survives)
+- [x] Reply posted to Greenfield (topic + DM) from that report: what we take, what we answer, what we ask; offsets recorded here — topic 41 + DM 23 (reply), topic 42 + DM 27 (task ids)
+- [x] New 832 tasks filed for each adopted item (one per deliverable), ids in the report — T-1096..T-1101 (report §6)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -101,11 +118,11 @@ Scope decisions (with reasons, reported to Greenfield):
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1089`
+         1. Run `bin/fw reviewer T-1095`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1089 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1095 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -319,7 +336,7 @@ Scope decisions (with reasons, reported to Greenfield):
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1089 go|no-go|defer --rationale "..."
+     fw inception decide T-1095 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -328,7 +345,10 @@ Scope decisions (with reasons, reported to Greenfield):
 
 ## Updates
 
-### 2026-10-08T08:38:01Z — task-created [task-create-agent]
+### 2026-10-08T09:06:33Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1089-greenfield-t-172-5-save-of-a-loaded-map-.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1095-read-greenfields-iterations-4-8-evergree.md
 - **Context:** Initial task creation
+
+### 2026-10-08T09:07:43Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
