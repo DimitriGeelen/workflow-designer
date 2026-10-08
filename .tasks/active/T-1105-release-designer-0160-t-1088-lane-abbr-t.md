@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T20:55:51Z
-last_update: 2026-10-08T22:07:52Z
+last_update: 2026-10-08T22:09:15Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -89,8 +89,8 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] VERSION and APP_VERSION read 0.16.0 (T-808 parity) and docs/releases/RELEASE-NOTES-0.16.0.md lists T-1088, T-1089, T-1090 and the default-routing change
-- [ ] The 0.16.0 kit carries a PASS calibration of its exact bytes: `tools/kit-calibration-gate.py check --version 0.16.0` passes (ledger L16)
+- [x] VERSION and APP_VERSION read 0.16.0 (T-808 parity) and docs/releases/RELEASE-NOTES-0.16.0.md lists T-1088, T-1089, T-1090 and the default-routing change
+- [x] The 0.16.0 kit carries a PASS calibration of its exact bytes: `tools/kit-calibration-gate.py check --version 0.16.0` passes (ledger L16)
 - [ ] Bridge suite green apart from the known T-1103 load abstentions, run after the version bump
 - [ ] A runme job (release, commit, tag designer-v0.16.0, push) is prepared, `bash runme.sh --dry-run <job>` passes, the watcher is armed; the agent never runs it for real
 - [ ] After the operator's run: Greenfield is told by DM what 0.16.0 carries for them and how to re-test T-1088..T-1090
