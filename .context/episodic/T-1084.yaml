@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1084: Make the bpmn-fetch-832 file receiver permanent: systemd unit (event-only, Restart=always), installed by a runme job
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-08T08:11:28Z
+# ============================================================================
+
+task_id: T-1084
+task_name: "Make the bpmn-fetch-832 file receiver permanent: systemd unit (event-only, Restart=always), installed by a runme job"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-08T08:05:48Z
+completed: 2026-10-08T08:11:19Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-08T10:07:35+02:00
+last_commit: 2026-10-08T10:11:18+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  systemd unit for the bpmn-fetch-832 receiver (event-only, Restart=always, CashWeb pattern); --self receive verified with a 50 KB probe. runme job 005 — install the bpmn-fetch-832 receiver unit (dry-run passed, sha 8299186eb216). operator ran job 005 (rc=0); restart proven (kill -9 -> systemd restart, re-listed, no duplicate)
+
+# Key outcomes
+outcomes:
+  - 'Git-tracked unit `deploy/systemd/termlink-bpmn-fetch-832.service`: event-only (`--self`, no `--shell`/`--allowed-commands`), `Restart=always`, after/wants `termlink-hub.service`, same hardening as the CashWeb unit; `systemd-analyze verify` passes'
+  - 'Runme job installs it (copy, daemon-reload, enable --now) and checks the session is listed on the hub; dry-run passes; job committed and handed to the operator with the watcher armed'
+  - 'After the operator''s run: `termlink list` shows `bpmn-fetch-832` with `respawn=systemd`, the interim session from T-1083 is stopped, and a kill of the service''s process is followed by a restart (proves Restart=always) — operator ran job 005 2026-10-08T08:10Z, rc=0, 3/3 steps; `kill -9` of pid 3179818 → systemd restarted it as pid 3183645 (NRestarts=1), re-listed as tl-ops2slqh, no stale duplicate'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/005-install-bpmn-fetch-receiver/done'
+  - '.context/runme/005-install-bpmn-fetch-receiver/dryrun.ok'
+  - '.context/runme/005-install-bpmn-fetch-receiver/job.sh'
+  - '.context/runme/005-install-bpmn-fetch-receiver/run-20261008T101039.log'
+  - 'deploy/systemd/termlink-bpmn-fetch-832.service'
+  - '.tasks/active/T-1084-make-the-bpmn-fetch-832-file-receiver-pe.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-08T10:07:35'
+    action: 'T-1084: systemd unit for the bpmn-fetch-832 receiver (event-only, Restart=always, CashWeb pattern); --self receive verified with a 50 KB probe'
+  - time: '2026-10-08T10:07:57'
+    action: 'T-1084: runme job 005 — install the bpmn-fetch-832 receiver unit (dry-run passed, sha 8299186eb216)'
+  - time: '2026-10-08T10:11:18'
+    action: 'T-1084: operator ran job 005 (rc=0); restart proven (kill -9 -> systemd restart, re-listed, no duplicate)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5
+  commits: 3
+  files_changed: 6
+  lines_added: 470
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1084-make-the-bpmn-fetch-832-file-receiver-pe.md
+generated_by: context-agent-hybrid
