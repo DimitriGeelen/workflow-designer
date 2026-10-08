@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1095: Read Greenfield's iterations 4-8 (evergreen-iter4-8.tgz) and reply: what 832 takes as kit/designer work, what we answer, what we ask
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-08T09:12:21Z
+# ============================================================================
+
+task_id: T-1095
+task_name: "Read Greenfield's iterations 4-8 (evergreen-iter4-8.tgz) and reply: what 832 takes as kit/designer work, what we answer, what we ask"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-08T09:06:33Z
+completed: 2026-10-08T09:12:12Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-08T11:12:11+02:00
+last_commit: 2026-10-08T11:12:11+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Greenfield iter4-8 read (report), reply sent (topic 41/42, DM 23/27), follow-ups T-1096..T-1101 filed; T-1094 split from T-1088; T-1089 scoped within the T-263 ruling
+
+# Key outcomes
+outcomes:
+  - '`docs/reports/T-1095-evergreen-iter4-8-read.md`: NOTES.md and the three proposal files read in full; per learning/proposal: what it is, our position (adopt / adapt / decline / ask), and the 832 follow-up (existing task id or a new one); every "designer drops X on save" claim checked against the current designer source — written by TermLink worker t1095-iter48-read; save loss confirmed by a live round trip on 0.15.3 (only aef:io survives)'
+  - 'Reply posted to Greenfield (topic + DM) from that report: what we take, what we answer, what we ask; offsets recorded here — topic 41 + DM 23 (reply), topic 42 + DM 27 (task ids)'
+  - 'New 832 tasks filed for each adopted item (one per deliverable), ids in the report — T-1096..T-1101 (report §6)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-1095-evergreen-iter4-8-read.md'
+  - '.tasks/active/T-1089-greenfield-t-172-5-save-of-a-loaded-map-.md'
+  - '.tasks/active/T-1094-greenfield-t-172-2b-step-numbers-in-node.md'
+  - '.tasks/active/T-1095-read-greenfields-iterations-4-8-evergree.md'
+  - '.tasks/active/T-1096-designer-keeps-bpmn-collaboration-conten.md'
+  - '.tasks/active/T-1097-kit-optional-interfaces-section-black-bo.md'
+  - '.tasks/active/T-1098-validator-optional-layout-check-as-a-war.md'
+  - '.tasks/active/T-1099-kit-opt-in-recheck-step-re-check-previou.md'
+  - '.tasks/active/T-1100-kit-authoring-4-model-stated-branches-an.md'
+  - '.tasks/active/T-1101-aefio-optional-channel-attribute-per-int.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-08T11:12:11'
+    action: 'T-1095: Greenfield iter4-8 read (report), reply sent (topic 41/42, DM 23/27), follow-ups T-1096..T-1101 filed; T-1094 split from T-1088; T-1089 scoped within the T-263 ruling'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 10
+  lines_added: 2728
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1095-read-greenfields-iterations-4-8-evergree.md
+generated_by: context-agent-hybrid
