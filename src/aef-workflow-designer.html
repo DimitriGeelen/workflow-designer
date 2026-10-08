@@ -4908,7 +4908,7 @@ function lShapePorts(e, src, tgt) {
   for (const c of [{ s: toward, t: 'W' }, { s: 'E', t: back }]) {
     const A = portPointAt(src, c.s), B = portPointAt(tgt, c.t);
     let poly;
-    try { poly = routeOrthogonalSegment(A, B, c.s, c.t, src, tgt, {}).polyline; } catch (_) { continue; }
+    try { poly = routeOrthogonalSegment(A, B, c.s, c.t, src, tgt, {}).polyline; } catch (err) { aefRecordFault('route:l-shape', err); continue; }   // T-821: falls back to auto routing, but a router throw is a bug worth a record
     if (!poly || polylineCrossesNodes(poly, src, tgt)) continue;
     if (polylineBends(poly) === 1) return c;
   }
