@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T08:37:56Z
-last_update: 2026-10-08T09:14:53Z
+last_update: 2026-10-08T10:02:01Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -92,9 +92,9 @@ the rename path (`ensureUniqueAbbr`) and addLane do. "Tacton CPQ" and "TactonCon
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Import makes lane abbreviations unique in file order (first keeps its abbr, later clashes get the same variant scheme as `ensureUniqueAbbr`), for derived AND for duplicate `aef:laneMeta abbr` values; one shared helper, no second copy of the scheme
-- [ ] A headless test on a SYNTHETIC fixture (Greenfield's map is their client's process — not committed) with lanes "Tacton CPQ" / "TactonConnector" / a third `tac` lane, plus two lanes with the same explicit `aef:laneMeta abbr`, and same-named steps at the same rank, asserts: lane abbrs all distinct, every node displayId distinct, the saved XML has no duplicate `id`; the same test fails on the unfixed designer (shown). Also run (not committed) against Greenfield's two files: distinct abbrs. Note: their saved file has NO exact duplicate id (verified) — the defect there is a shared lane prefix (`tac_1_trampoline` / `tac_1_order` in different lanes); exact duplicates need a same-named step at the same rank, which the fixture forces
-- [ ] Existing label/lane tests and the bridge suite still pass
+- [x] Import makes lane abbreviations unique in file order (first keeps its abbr, later clashes get the same variant scheme as `ensureUniqueAbbr`), for derived AND for duplicate `aef:laneMeta abbr` values; one shared helper, no second copy of the scheme
+- [x] A headless test on a SYNTHETIC fixture (Greenfield's map is their client's process — not committed) with lanes "Tacton CPQ" / "TactonConnector" / a third `tac` lane, plus two lanes with the same explicit `aef:laneMeta abbr`, and same-named steps at the same rank, asserts: lane abbrs all distinct, every node displayId distinct, the saved XML has no duplicate `id`; the same test fails on the unfixed designer (shown). Also run (not committed) against Greenfield's two files: distinct abbrs. Note: their saved file has NO exact duplicate id (verified) — the defect there is a shared lane prefix (`tac_1_trampoline` / `tac_1_order` in different lanes); exact duplicates need a same-named step at the same rank, which the fixture forces
+- [x] Existing label/lane tests and the bridge suite still pass — test passes on the fix and fails on the pre-fix designer (duplicate ids incl. BPMNShape); Greenfield's two files load with TactonConnector=ta2; bridge 2026-10-08 ~09:50Z 253/1: the 1 is the T-509 sweep where _t535/_t536 abstained in-suite (audit output missing), unrelated to this change — both pass alone (7/7, 5/5) and the sweep alone is 101/101; filed as T-1103. The kitchen-sink third-party golden was re-recorded as a reviewed diff (lan->la2 only; duplicate ids 14->8, rest is T-1102)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

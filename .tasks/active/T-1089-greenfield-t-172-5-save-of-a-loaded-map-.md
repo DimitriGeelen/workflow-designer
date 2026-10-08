@@ -103,7 +103,7 @@ Scope decisions (with reasons, reported to Greenfield):
 - [x] Within the T-263 ruling (workflowMeta id = the document's identity; no second identity authority): `adoptImportedXml` learns the project id from all three project load paths. File WITHOUT `aef:workflowMeta` (declares no identity — the process-id fallback is a guess) → the project id becomes its workflow id, so Save writes the next version of the loaded project. File WITH a workflowMeta id that differs → id kept, and Save asks first ("Loaded from project X but will save as Y"), extending the T-264 guard from ?load links to project loads
 - [x] A headless test against the gallery sidecar with a temp project store: a file without workflowMeta stored as project P v1, opened through the project path → editor workflow id = P, Save lands as P v2; the same test fails on the unfixed designer (shown) — `tools/_t1089-save-loaded-as-version-cdp.mjs` 7/7; on the pre-fix designer 6/7 FAIL, reproducing the report exactly (id process_walkthrough-sales, a stray process_* project v1)
 - [x] Negative controls in the same test: a user import of the same file (not from a project) keeps the id derived from the file; a project file whose workflowMeta declares another id keeps that id and triggers the confirm — legs B, C1-C3 (declining writes nothing anywhere)
-- [ ] Bridge suite green
+- [x] Bridge suite green — 2026-10-08 ~09:50Z 253/1 with the T-1089 leg passing; the 1 is the T-509 sweep where _t535/_t536 abstained in-suite, unrelated (both pass alone 7/7, 5/5; sweep alone 101/101); filed as T-1103
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

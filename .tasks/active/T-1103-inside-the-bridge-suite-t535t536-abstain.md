@@ -1,19 +1,13 @@
 ---
-id: T-1090
-name: "Greenfield T-172 #1: routing rule from the owner's hand-straightened map —
-  cross-lane flows as L (1 bend), not Z (2 bends); default routing and Clean layout"
+id: T-1103
+name: "Inside the bridge suite, _t535/_t536 abstain (fw audit printed no TREND ANALYSIS / no CTL-028 line) while both pass alone and the sweep alone is 101/101"
 description: >
-  aef-greenfield-test T-172 item 1. before-generated.bpmn vs after-owner-straightened.bpmn
-  + routing-comparison.md: 22/29 flows changed, bends 46 -> 24; every cross-lane E->W
-  Z became an L: leave on the side facing the target lane and enter W, or leave E
-  and enter on the side facing the source lane; Z only when an L would cross a box.
-  Validate the rule against both files.
+  Bridge run 2026-10-08 ~09:20-09:50Z (253/1): _t509 sweep INCOMPLETE, ABSTAINED _t535-trend-key-teeth.py ('audit produced no TREND ANALYSIS section') and _t536-status-desync-teeth.py ('audit --section compliance emitted no CTL-028 line'). Alone: 7/7 and 5/5; sweep alone 101/101. Same family as T-1081 (in-suite vs standalone). Hypotheses to test one at a time: concurrent cron audit (structural :30 / oe-fast :45) holding a lock or writing the same audit file; stdin (now /dev/null since T-1081) changing audit's output mode; suite environment (TERM/columns) dropping sections.
 
-status: started-work
+status: captured
 workflow_type: build
-current_node: frw_3_start
 owner: agent
-horizon: now
+horizon: next
 tags: []
 components: []
 related_tasks: []
@@ -39,13 +33,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1090` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1103` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-08T08:38:06Z
-last_update: 2026-10-08T09:58:34Z
-date_finished:
+created: 2026-10-08T10:01:37Z
+last_update: 2026-10-08T10:01:37Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -56,30 +50,9 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-10-08T09:58:34Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 2
-      F3: 0
-      F1: 0
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=2 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
-      task body — no hypothesis, so this score has no claim to be wrong about,L0:
-      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
-      to be wrong about,L0: no signal)'
-    rubric_sha: e4a00f38e801
 ---
 
-# T-1090: Greenfield T-172 #1: routing rule from the owner's hand-straightened map — cross-lane flows as L (1 bend), not Z (2 bends); default routing and Clean layout
+# T-1103: Inside the bridge suite, _t535/_t536 abstain (fw audit printed no TREND ANALYSIS / no CTL-028 line) while both pass alone and the sweep alone is 101/101
 
 ## Context
 
@@ -89,10 +62,8 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The owner's rule is checked against both of Greenfield's files flow by flow (all 29: the 22 changed are cross-lane Z->L with one end on E/W and the other on the N/S side facing the other lane; the 7 unchanged stay E->W), result written under ## Decisions with any exception named
-- [ ] Auto-routed cross-lane flows (no pinned ports, no manual waypoints) prefer an L with one bend — leave E and enter on the side facing the source lane, or leave on the side facing the target lane and enter W — whichever is clear of boxes; the 2-bend Z only when neither L is clear. Same-lane flows unchanged. Pinned ports, waypoints and routing hints win as before. Applies to default routing and Clean layout
-- [ ] Headless test on a SYNTHETIC multi-lane fixture (Greenfield's map is client data — not committed): every cross-lane flow whose L is clear has 1 bend, same-lane flows 0, no flow crosses a node box, total bends below the old router's; the test fails on the unfixed designer (shown). Also run (not committed) on Greenfield's before-generated.bpmn: total bends <= the owner's 24, 0 node crossings
-- [ ] Element screenshots before/after of a multi-lane map in light and dark theme, read and checked (CLAUDE.md visual verification); existing routing/edge tests and the bridge suite pass
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -118,11 +89,11 @@ bvp_scores_proposed:
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1090`
+         1. Run `bin/fw reviewer T-1103`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1090 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1103 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -336,7 +307,7 @@ bvp_scores_proposed:
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1090 go|no-go|defer --rationale "..."
+     fw inception decide T-1103 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -345,10 +316,7 @@ bvp_scores_proposed:
 
 ## Updates
 
-### 2026-10-08T08:38:06Z — task-created [task-create-agent]
+### 2026-10-08T10:01:37Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1090-greenfield-t-172-1-routing-rule-from-the.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1103-inside-the-bridge-suite-t535t536-abstain.md
 - **Context:** Initial task creation
-
-### 2026-10-08T09:58:34Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
