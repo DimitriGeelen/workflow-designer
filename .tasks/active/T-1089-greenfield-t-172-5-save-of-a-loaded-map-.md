@@ -1,10 +1,10 @@
 ---
-id: T-1083
-name: "Greenfield messages: read and answer; check the two ~2.9 MB blobs on the hub"
+id: T-1089
+name: "Greenfield T-172 #5: Save of a loaded map without aef:workflowMeta creates project process_<id> v1 instead of <loaded id> v2; also keep process name and element ids"
 description: >
-  Greenfield messages: read and answer; check the two ~2.9 MB blobs on the hub
+  aef-greenfield-test T-172 item 5. Loaded via /api/version?id=tobe-walkthrough-verkoop; workflow id derived from process id Process_... instead of the loaded project id. Process name dropped on save; element ids renumbered (Flow_1 -> flow_1, v_lead -> ver_2_lead) breaks id comparison between versions. Fix: use loaded project id (or ask new project/new version on Save).
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
 horizon: now
@@ -33,12 +33,12 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1083` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1089` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-08T07:35:49Z
-last_update: 2026-10-08T08:39:08Z
+created: 2026-10-08T08:38:01Z
+last_update: 2026-10-08T08:38:01Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -52,7 +52,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-1083: Greenfield messages: read and answer; check the two ~2.9 MB blobs on the hub
+# T-1089: Greenfield T-172 #5: Save of a loaded map without aef:workflowMeta creates project process_<id> v1 instead of <loaded id> v2; also keep process name and element ids
 
 ## Context
 
@@ -62,9 +62,8 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] Greenfield's messages to 832 located (topic, offset, sender), read, and each acknowledged or answered on its channel — `xfer-evergreen-corpus` 28-35 from `90d4553895d5a9a6` (aef-greenfield-test); answered at topic offset 36 (reply to 32) and DM `dm:90d4553895d5a9a6:d1993c2c3ec44c94` offset 13
-- [x] The two large blobs located by size, without loading them into context; hub health checked after them (hub responds, topic readable); finding reported to the operator and to the sender — offsets 33/34 are 29,374 and 42,052 bytes (not 2.9 MB); hub running, topic read back in full
-- [x] `bpmn-fetch-832` receiver back on the hub; the resent packages (T-172, iter2, iter3, iter4-8) received with sha256 verified into `build/evergreen-intake/` — iter9 kit points already recovered from the hub spool `inbox:bpmn-fetch-832` (sha b750a175…ef60f matches). 2026-10-08: permanent receiver (T-1084) got all resends + evergreen-iter9-12.tgz; reassembled from `termlink events bpmn-fetch-832` (`file receive --replay` only takes the first transfer), all 6 shas match Greenfield's notes 28-32/37/38, unpacked under `build/evergreen-intake/resend-20261008/unpacked/`; receipt confirmed at topic offset 39 / DM 15
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -90,11 +89,11 @@ date_finished: null
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1083`
+         1. Run `bin/fw reviewer T-1089`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1083 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1089 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -308,7 +307,7 @@ date_finished: null
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1083 go|no-go|defer --rationale "..."
+     fw inception decide T-1089 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -317,7 +316,7 @@ date_finished: null
 
 ## Updates
 
-### 2026-10-08T07:35:49Z — task-created [task-create-agent]
+### 2026-10-08T08:38:01Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1083-greenfield-messages-read-and-answer-chec.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1089-greenfield-t-172-5-save-of-a-loaded-map-.md
 - **Context:** Initial task creation
