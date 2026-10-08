@@ -896,6 +896,18 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1090 (aef-greenfield-test T-172 #1): auto-routed cross-lane flows take ONE bend — an L leaving
+# N/S and entering W, or leaving E when that corner is blocked; the Z only when both are; same-lane
+# flows stay straight; no flow cuts a box; the Settings toggle restores the old route; DI agrees.
+if node "$ROOT/tools/_t1090-cross-lane-l-routing-cdp.mjs" > "$TMP/leg-_t1090.out" 2>&1 \
+   && grep -q "12/12 legs passed" "$TMP/leg-_t1090.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "cross-lane flows are no longer routed as a one-bend L (or an L cuts a box, the fallback/Z choice broke, the toggle no longer restores the old route, or the exported DI disagrees with the canvas) (run 'node tools/_t1090-cross-lane-l-routing-cdp.mjs'; T-1090)"
+  show_output "$TMP/leg-_t1090.out" "_t1090-cross-lane-l-routing-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
 # aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
 # guard since T-889 closed (the census showed it had lost its only caller, T-889's Verification).

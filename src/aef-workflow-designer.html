@@ -1638,6 +1638,10 @@ font-family: 'Outfit';
             <span>Attach: <b>spread</b> — sibling arrows fan out along the side</span>
           </label>
           <label class="settings-row">
+            <input type="checkbox" id="set-cross-lane-l">
+            <span>Cross-lane flows as an <b>L</b> — one bend instead of a zigzag (off = leave east, enter west)</span>
+          </label>
+          <label class="settings-row">
             <span>Straightening tolerance</span>
             <input type="number" id="set-straighten-tol" min="0" max="40" step="1" class="settings-num">
             <span class="settings-hint">px — near-aligned connections render as one straight line; 0 = off</span>
@@ -2781,10 +2785,13 @@ let selection = null; // { kind: 'node'|'edge'|'lane', id } — primary; drives 
 // attach: 'middle' = unpinned edge ends snap to the middle of the facing side
 // (arrows converge on one point — calm default); 'spread' = fan sibling edges
 // out along the side (previous behaviour). Explicit port pins override both.
-let routingPrefs = { attach: 'middle', straightenTol: 16, channelSep: 8, routingMargin: 8 };
+// crossLane (T-1090): 'L' = an auto-routed flow between lanes takes one bend (owner-straightened
+// rule, aef-greenfield-test T-172 #1); 'Z' = the previous E->W two-bend route.
+let routingPrefs = { attach: 'middle', straightenTol: 16, channelSep: 8, routingMargin: 8, crossLane: 'L' };
 try {
   const _storedRouting = JSON.parse(localStorage.getItem('aefRoutingPrefs') || '{}');
   if (_storedRouting.attach === 'middle' || _storedRouting.attach === 'spread') routingPrefs.attach = _storedRouting.attach;
+  if (_storedRouting.crossLane === 'L' || _storedRouting.crossLane === 'Z') routingPrefs.crossLane = _storedRouting.crossLane;
   if (Number.isFinite(_storedRouting.straightenTol) && _storedRouting.straightenTol >= 0) routingPrefs.straightenTol = _storedRouting.straightenTol;
   if ([0, 4, 8].includes(_storedRouting.channelSep)) routingPrefs.channelSep = _storedRouting.channelSep;
   if ([0, 8, 16].includes(_storedRouting.routingMargin)) routingPrefs.routingMargin = _storedRouting.routingMargin;
@@ -2792,6 +2799,12 @@ try {
 function setRoutingAttach(mode) {
   routingPrefs.attach = mode;
   try { localStorage.setItem('aefRoutingPrefs', JSON.stringify(routingPrefs)); } catch (e) { aefRecordFault('prefs-persist:routing', e); }
+  renderEdges();
+}
+function setCrossLaneRouting(mode) {
+  routingPrefs.crossLane = mode === 'Z' ? 'Z' : 'L';
+  try { localStorage.setItem('aefRoutingPrefs', JSON.stringify(routingPrefs)); } catch (e) { aefRecordFault('prefs-persist:routing', e); }
+  _edgeGroupCache = null;   // side groups depend on it
   renderEdges();
 }
 function setStraightenTol(px) {
@@ -3609,6 +3622,18 @@ function renderNodes() {
   // Idempotent, so the extra call under renderAll (which syncs ahead of renderEdges)
   // is a harmless no-op the second time.
   syncBoundaryPositions();
+  // T-1090: tasks whose bottom-centre carries a flow (an L leaving or entering on S, or an
+  // explicit S port). Their id caption is centred under the box, so that flow would run
+  // straight through it; those captions move just right of the line instead.
+  const bottomFlow = new Set();
+  if (labelPrefs.showIds) {
+    for (const e of state.edges) {
+      const s = findNode(e.source), t = findNode(e.target);
+      const lp = lShapePorts(e, s, t);
+      if ((lp && lp.s === 'S') || e.sourcePort === 'S') bottomFlow.add(e.source);
+      if ((lp && lp.t === 'S') || e.targetPort === 'S') bottomFlow.add(e.target);
+    }
+  }
   for (const n of state.nodes) {
     const def = NODE_DEFAULTS[n.type];
     const isPrimary = selection?.kind === 'node' && selection.id === n.id;
@@ -3771,8 +3796,10 @@ function renderNodes() {
         g.appendChild(el('rect', { x: n.x + def.w - bw - 4, y: n.y + 4, width: bw, height: 12, rx: 2, fill: 'var(--surface-3)', stroke: 'var(--border)', 'stroke-width': '0.5' }));
         g.appendChild(el('text', { x: n.x + def.w - bw / 2 - 4, y: n.y + 12, class: 'node-io-badge', 'text-anchor': 'middle' }, [text(badge)]));
       }
-      // ID below the rectangle, centered
-      if (labelPrefs.showIds) g.appendChild(el('text', { x: lx, y: n.y + def.h + 12, class: 'node-id-badge', 'text-anchor': 'middle' }, [text(displayIdOf(n))]));
+      // ID below the rectangle, centered — or just right of a bottom-centre flow (T-1090)
+      if (labelPrefs.showIds) g.appendChild(el('text', bottomFlow.has(n.id)
+        ? { x: lx + 6, y: n.y + def.h + 12, class: 'node-id-badge', 'text-anchor': 'start' }
+        : { x: lx, y: n.y + def.h + 12, class: 'node-id-badge', 'text-anchor': 'middle' }, [text(displayIdOf(n))]));
     } else {
       // Gateways/events carry their name on a single line below the shape. Long names
       // that would collide with a neighbouring below-label are wrapped later, and ONLY
@@ -4841,6 +4868,53 @@ function portPointTowards(from, towardPt) {
 // kept for backward callers in case anything still calls it
 function portPoint(from, to) { return portPointTowards(from, centerOf(to)); }
 
+// Corners of an orthogonal polyline: orientation changes between consecutive non-zero
+// segments (a zero-length segment — a stub that collapsed — is not a bend).
+function polylineBends(poly) {
+  const segs = [];
+  for (let i = 0; i < poly.length - 1; i++) {
+    const dx = poly[i + 1].x - poly[i].x, dy = poly[i + 1].y - poly[i].y;
+    if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) continue;
+    segs.push(Math.abs(dx) >= Math.abs(dy) ? 'H' : 'V');
+  }
+  let n = 0;
+  for (let i = 1; i < segs.length; i++) if (segs[i] !== segs[i - 1]) n++;
+  return n;
+}
+
+// T-1090 (aef-greenfield-test T-172 #1): cross-lane flows as an L with ONE bend.
+// The owner straightened a generated map by hand; every cross-lane flow the router had drawn
+// as a Z (leave E, enter W, two bends) became an L: leave on the side facing the target lane
+// and enter W (13 of 22), or leave E and enter on the side facing the source lane (9 of 22) —
+// same geometry for both, so the first is the default and the second the fallback. The two
+// auto ends used to pick their sides independently, which cannot produce an L.
+// Returns {s, t} explicit sides, or null to keep the normal auto routing. Only for flows
+// the router owns: both ends auto, no waypoints / hints / detour / straighten request, not out
+// of a boundary event, different lanes, target to the right and not level with the source.
+// A candidate is taken only if its routed line has exactly one bend and cuts no node box.
+function lShapePorts(e, src, tgt) {
+  if (routingPrefs.crossLane !== 'L' || !src || !tgt || src.lane === tgt.lane) return null;
+  if ((e.sourcePort && e.sourcePort !== 'auto') || (e.targetPort && e.targetPort !== 'auto')) return null;
+  if ((e.waypoints && e.waypoints.length) || (e.routingHints && Object.keys(e.routingHints).length) ||
+      typeof e.detourY === 'number' || e.forceStraight || boundaryHostOf(src)) return null;
+  const sd = NODE_DEFAULTS[src.type], td = NODE_DEFAULTS[tgt.type];
+  if (!sd || !td || tgt.x < src.x + sd.w + 2 * STUB) return null;
+  const dy = centerOf(tgt).y - centerOf(src).y;
+  if (Math.abs(dy) <= routingPrefs.straightenTol) return null;
+  // Not conditioned on what auto would pick: depending on box aspect and spacing the
+  // independent choice gives the E->W Z (two bends) or an S->N staircase (four) — the L is
+  // the rule either way. A route that already has one bend gets the same L shape.
+  const toward = dy > 0 ? 'S' : 'N', back = dy > 0 ? 'N' : 'S';
+  for (const c of [{ s: toward, t: 'W' }, { s: 'E', t: back }]) {
+    const A = portPointAt(src, c.s), B = portPointAt(tgt, c.t);
+    let poly;
+    try { poly = routeOrthogonalSegment(A, B, c.s, c.t, src, tgt, {}).polyline; } catch (_) { continue; }
+    if (!poly || polylineCrossesNodes(poly, src, tgt)) continue;
+    if (polylineBends(poly) === 1) return c;
+  }
+  return null;
+}
+
 // ============================================================================
 //  Straightening tolerance (T-073)
 // ============================================================================
@@ -4974,10 +5048,12 @@ function buildEdgeGroups() {
     if (!src || !tgt) continue;
 
     // Determine each end's side by computing where the anchor would naturally be.
-    const sAnchor = anchorPoint(src, e.sourcePort, centerOf(tgt));
-    const tAnchor = anchorPoint(tgt, e.targetPort, centerOf(src));
-    const sDir = exitDirection(src, sAnchor, e.sourcePort || 'auto');
-    const tDir = exitDirection(tgt, tAnchor, e.targetPort || 'auto');
+    // T-1090: the same L sides computeEdgeGeometry uses, so spread groups match the drawing.
+    const lp = lShapePorts(e, src, tgt);
+    const sAnchor = lp ? portPointAt(src, lp.s) : anchorPoint(src, e.sourcePort, centerOf(tgt));
+    const tAnchor = lp ? portPointAt(tgt, lp.t) : anchorPoint(tgt, e.targetPort, centerOf(src));
+    const sDir = lp ? lp.s : exitDirection(src, sAnchor, e.sourcePort || 'auto');
+    const tDir = lp ? lp.t : exitDirection(tgt, tAnchor, e.targetPort || 'auto');
 
     // For sort key: when spreading along an E/W side we order by Y (target's Y for source-side, source's Y for target-side).
     // When spreading along N/S side, we order by X.
@@ -6021,13 +6097,16 @@ function computeEdgeGeometry(e, src, tgt) {
   const srcPortEff = (srcBoundaryHost && (!e.sourcePort || e.sourcePort === 'auto'))
     ? boundaryOutwardPort(src, srcBoundaryHost)
     : e.sourcePort;
+  // T-1090: a cross-lane auto flow takes its L sides; the ports stay 'auto' on the edge
+  // (nothing is written to the document) — only the anchors move.
+  const lp = lShapePorts(e, src, tgt);
 
-  let sp = anchorPoint(src, srcPortEff, firstWp ? firstWp : centerOf(tgt));
-  let tp = anchorPoint(tgt, e.targetPort, lastWp ? lastWp : centerOf(src));
+  let sp = lp ? portPointAt(src, lp.s) : anchorPoint(src, srcPortEff, firstWp ? firstWp : centerOf(tgt));
+  let tp = lp ? portPointAt(tgt, lp.t) : anchorPoint(tgt, e.targetPort, lastWp ? lastWp : centerOf(src));
 
   // Multi-edge spread (A1 + B3), corridor channels (T-097), straightening (T-073).
-  const sDir = exitDirection(src, sp, srcPortEff || 'auto');
-  const tDir = exitDirection(tgt, tp, e.targetPort || 'auto');
+  const sDir = lp ? lp.s : exitDirection(src, sp, srcPortEff || 'auto');
+  const tDir = lp ? lp.t : exitDirection(tgt, tp, e.targetPort || 'auto');
   const sOff = spreadOffset(e, 'source', sDir, src);
   const tOff = spreadOffset(e, 'target', tDir, tgt);
   sp = applySpread(sp, sDir, sOff);
@@ -6037,7 +6116,7 @@ function computeEdgeGeometry(e, src, tgt) {
     typeof e.detourY === 'number';
   e._chanS = hasRouteOverride ? 0 : channelExtra(e, 'source', sDir, src);
   e._chanT = hasRouteOverride ? 0 : channelExtra(e, 'target', tDir, tgt);
-  if (sOff === 0 && tOff === 0 && wps.length === 0 &&
+  if (!lp && sOff === 0 && tOff === 0 && wps.length === 0 &&
       (!srcPortEff || srcPortEff === 'auto') &&
       (!e.targetPort || e.targetPort === 'auto') &&
       !(e.routingHints && Object.keys(e.routingHints).length > 0) &&
@@ -7296,6 +7375,7 @@ svg.addEventListener('drop', e => {
 function syncSettingsUI() {
   $('set-attach-middle').checked = routingPrefs.attach === 'middle';
   $('set-attach-spread').checked = routingPrefs.attach === 'spread';
+  $('set-cross-lane-l').checked = routingPrefs.crossLane === 'L';
   $('set-straighten-tol').value = routingPrefs.straightenTol;
   $('set-channel-sep').value = String(routingPrefs.channelSep);
   $('set-routing-margin').value = String(routingPrefs.routingMargin);
@@ -7336,6 +7416,7 @@ document.addEventListener('keydown', e => {
 }, true);
 $('set-attach-middle').addEventListener('change', () => setRoutingAttach('middle'));
 $('set-attach-spread').addEventListener('change', () => setRoutingAttach('spread'));
+$('set-cross-lane-l').addEventListener('change', e => setCrossLaneRouting(e.target.checked ? 'L' : 'Z'));
 $('set-straighten-tol').addEventListener('change', e => { setStraightenTol(parseFloat(e.target.value)); e.target.value = routingPrefs.straightenTol; });
 $('set-channel-sep').addEventListener('change', e => setChannelSep(parseInt(e.target.value, 10)));
 $('set-routing-margin').addEventListener('change', e => setRoutingMargin(parseInt(e.target.value, 10)));

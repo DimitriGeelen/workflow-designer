@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T08:38:06Z
-last_update: 2026-10-08T09:58:34Z
+last_update: 2026-10-08T10:12:52Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -89,10 +89,10 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The owner's rule is checked against both of Greenfield's files flow by flow (all 29: the 22 changed are cross-lane Z->L with one end on E/W and the other on the N/S side facing the other lane; the 7 unchanged stay E->W), result written under ## Decisions with any exception named
-- [ ] Auto-routed cross-lane flows (no pinned ports, no manual waypoints) prefer an L with one bend — leave E and enter on the side facing the source lane, or leave on the side facing the target lane and enter W — whichever is clear of boxes; the 2-bend Z only when neither L is clear. Same-lane flows unchanged. Pinned ports, waypoints and routing hints win as before. Applies to default routing and Clean layout
-- [ ] Headless test on a SYNTHETIC multi-lane fixture (Greenfield's map is client data — not committed): every cross-lane flow whose L is clear has 1 bend, same-lane flows 0, no flow crosses a node box, total bends below the old router's; the test fails on the unfixed designer (shown). Also run (not committed) on Greenfield's before-generated.bpmn: total bends <= the owner's 24, 0 node crossings
-- [ ] Element screenshots before/after of a multi-lane map in light and dark theme, read and checked (CLAUDE.md visual verification); existing routing/edge tests and the bridge suite pass
+- [x] The owner's rule is checked against both of Greenfield's files flow by flow (all 29: the 22 changed are cross-lane Z->L with one end on E/W and the other on the N/S side facing the other lane; the 7 unchanged stay E->W), result written under ## Decisions with any exception named
+- [x] Auto-routed cross-lane flows (no pinned ports, no manual waypoints) prefer an L with one bend — leave E and enter on the side facing the source lane, or leave on the side facing the target lane and enter W — whichever is clear of boxes; the 2-bend Z only when neither L is clear. Same-lane flows unchanged. Pinned ports, waypoints and routing hints win as before. Applies to default routing and Clean layout — `lShapePorts()` used by computeEdgeGeometry (canvas AND DI export) and buildEdgeGroups; Clean layout routes through the same path; Settings toggle "Cross-lane flows as an L" (routingPrefs.crossLane, default L)
+- [x] Headless test on a SYNTHETIC multi-lane fixture (Greenfield's map is client data — not committed): every cross-lane flow whose L is clear has 1 bend, same-lane flows 0, no flow crosses a node box, total bends below the old router's; the test fails on the unfixed designer (shown). Also run (not committed) on Greenfield's before-generated.bpmn: total bends <= the owner's 24, 0 node crossings — 12/12 (pre-fix designer 7/12 FAIL); Greenfield's map: 24 bends with L (the owner's own 24), 91 with the old router, 0 box cuts
+- [x] Element screenshots before/after of a multi-lane map in light and dark theme, read and checked (CLAUDE.md visual verification); existing routing/edge tests and the bridge suite pass — the designer has ONE (dark) theme, no light mode exists; screenshots task-lifecycle and tier0-escalation, Z vs L, read: zigzags became Ls, no box cut, labels re-placed; one systematic overlap found and FIXED (an L leaving a task at the bottom ran through the centred id caption -> caption moves right of the line). Label/marker/round-trip/third-party tests pass; kitchen-sink untouched, caseagile third-party golden re-recorded as a reviewed diff (waypoints only: 16 removed, 7 added). Bridge: see Updates
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -125,7 +125,19 @@ bvp_scores_proposed:
        `bin/fw reviewer T-1090 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Visual Verification
+- docs/screenshots/T-1090/task-lifecycle-Z.png / task-lifecycle-L.png (old route vs L; 10 cross-lane flows)
+- docs/screenshots/T-1090/tier0-escalation-Z.png / tier0-escalation-L.png
+- Regenerate: `node docs/screenshots/T-1090/gen-shots.mjs task-lifecycle tier0-escalation`
+- Read 2026-10-08: Start work->Perform, Outcome->Request, Request->Run gates, Partial->Human checks, Command->Executed
+  became one-bend Ls; backward and same-lane flows unchanged; no box cut. Noted, not fixed here: on tier0-escalation an
+  arriving and a leaving flow now share the top of "Command executes" ~9px apart; a straight vertical flow into a task's
+  bottom (start event -> PreToolUse) crosses that task's id caption in BOTH versions (pre-existing).
+
 ## Verification
+node tools/_t1090-cross-lane-l-routing-cdp.mjs > /tmp/.t1090.out 2>&1 && grep -q "12/12 legs passed" /tmp/.t1090.out
+timeout 300 node tools/_t358-byteid-thirdparty.mjs > /tmp/.t1090-t358.out 2>&1
+grep -q "function lShapePorts" src/aef-workflow-designer.html
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -332,6 +344,19 @@ bvp_scores_proposed:
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-10-08 — the owner's rule, measured on both files (all 29 flows)
+- 20 cross-lane flows that were E->W with 2 bends became 1-bend Ls; 5 same-lane flows stayed E->W/0; the 2 flows
+  already leaving a gateway with 1 bend (S->W, N->W) were left alone; flows 21 and 26 cross Tacton CPQ <->
+  TactonConnector (the T-1088 shared prefix made them look same-lane). Total bends 46 -> 24.
+- Which L: "leave facing the target lane, enter W" 13x vs "leave E, enter facing the source lane" 9x on IDENTICAL
+  geometry (dx 200, dy +-130/260, gap 90) — no geometric rule separates them. **Chose:** the first as default (always
+  enters from the left, reading direction; the majority), the second as fallback when the first's corner hits a box,
+  the old route only when both do. **Rejected:** alternating/random (not reproducible); always E-exit (minority form).
+- Precondition dropped: "only replace an E->W Z". At our box aspect (110x64) the independent auto ends often give a
+  4-bend S->N staircase instead (midSideAnchor weighs by aspect) — the L is the rule either way.
+- **Chose:** a Settings toggle (routingPrefs.crossLane, default L) rather than an unconditional change, following the
+  existing routing-preference pattern; the owner asked for it as default AND for Clean layout, both covered.
 
 ## Decision
 
