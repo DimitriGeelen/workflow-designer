@@ -200,8 +200,8 @@ generates and sends the invoice automatically."</bpmn:documentation>
       <bpmn:incoming>collect-parcel--generate-and-send-invoice</bpmn:incoming>
       <bpmn:outgoing>generate-and-send-invoice--accepted-order-fulfilled</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:endEvent id="accepted-order-fulfilled" name="Accepted order delivered and invoiced">
-      <bpmn:documentation>source: unstated - Marks the accepted-order outcome after the stated delivery and invoicing activities; no additional operational step is asserted.</bpmn:documentation>
+    <bpmn:endEvent id="accepted-order-fulfilled">
+      <bpmn:documentation>source: unstated - marks where the stated order ends; the source names no result</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="accepted-order-fulfilled" />
       </bpmn:extensionElements>
@@ -318,5 +318,9 @@ say whether those happen before or after packing, or in which order relative to 
     <bpmn:textAnnotation id="Note_returns">
       <bpmn:text>Returns are handled by a separate process that is not described here. Returns are outside this map.</bpmn:text>
     </bpmn:textAnnotation>
+    <bpmn:textAnnotation id="Note_accepted-order-fulfilled">
+      <bpmn:text>Outcome not recorded in the source: this end is left unnamed until the source owner states one.</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_accepted-order-fulfilled" sourceRef="Note_accepted-order-fulfilled" targetRef="accepted-order-fulfilled" />
   </bpmn:process>
 </bpmn:definitions>

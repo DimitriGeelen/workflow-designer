@@ -1340,6 +1340,15 @@ learnings:
       that is right under BOTH readings, plus a K3 sentence that settles it'
     at: '2026-10-02T23:20:54Z'
   revision: 3
+  rulings:
+  - kind: value
+    decision: 'operator 2026-10-08 (T-1105): fix the calibration fixture now rather than ship around it;
+      the end event loses its name and the gap is declared explicitly (K3 canonical ''source: unstated
+      - marks where the stated order ends; the source names no result'' + a visible annotation ''Outcome
+      not recorded in the source: this end is left unnamed until the source owner states one''). Not a
+      ruling on correctness: the 0.16.0 recalibration (codex, GLM, Antigravity) is the evidence. Related:
+      L29 (codex, same element, synchronisation angle).'
+    at: '2026-10-08T21:59:58Z'
 - id: L22
   learning: 'no rule for a step the source says "is detailed in process X": subProcess, callActivity (calledElement)
     or a cited note (K14)'
@@ -2015,3 +2024,20 @@ learnings:
   destination: validator
   status: proposed
   occurrences: 1
+- id: L29
+  learning: 'a NAME can assert what a gateway would: an end event or step named as if several branches
+    have all finished ("Accepted order delivered and invoiced") while those branches reach it by plain,
+    unsynchronised flows claims the synchronisation that L26 forbids drawing as a join. When a join is
+    removed, or never drawn, name the element for what the source states about it, not for the combination
+    of branches.'
+  evidence: 'T-1105: codex (openai) 0.16.0 kit calibration, 2 runs, same clean-map finding on accepted-order-fulfilled;
+    leftover of the T-1008 fixture fix 34e07e87 (join removed, label kept)'
+  source: reviewer
+  destination: guide
+  status: proposed
+  occurrences: 1
+  rulings:
+  - kind: value
+    decision: 'operator 2026-10-08 (T-1105): addressed together with L21 by the same fixture change; the
+      guide rule itself (a name can assert a synchronisation) still goes to the panel.'
+    at: '2026-10-08T21:59:58Z'

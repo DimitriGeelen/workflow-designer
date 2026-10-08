@@ -39,9 +39,33 @@ now route as an L by default (see "Behaviour change" below). Saved files are unc
 
 ## Authoring kit
 
-Content unchanged from 0.15.3. It is re-issued as 0.16.0 beside the artifact (the version is
-stamped into it) and carries its own calibration record of these exact bytes
+Guide, rubric and validator unchanged from 0.15.3. One correction to the calibration maps (below).
+Re-issued as 0.16.0 beside the artifact, with its own calibration record of these exact bytes
 (`docs/authoring-kit/calibration-records/0.16.0.yaml`, ledger L16).
+
+### Corrected: a deficiency in the calibration maps, addressed
+
+**What was wrong.** The "clean" calibration map, the reference that is supposed to contain no
+defects, ended in an end event named "Accepted order delivered and invoiced". The source states no
+such outcome, and the two branches (delivery, invoicing) reach that end separately, with no join:
+so the name asserted a result the source never gives AND a synchronisation the kit's own rule L26
+forbids drawing. **0.15.3 shipped with this flaw.** It passed calibration only because the
+reviewers did not flag it on those runs.
+
+**How it was found.** An earlier fix (0.15.3, `34e07e87`) removed the unsupported join but kept the
+name, which carried the same claim. The reviewer panel had already raised the name (ledger L21,
+left open on a 2-1 split). Calibrating the 0.16.0 kit, codex (OpenAI) flagged it twice in a row with
+the same finding (ledger L29). Both codex runs are recorded as FAIL; they were not re-run until they
+passed.
+
+**What changed.** The end event has no name. It carries the kit's standard citation for an end the
+source does not name (`source: unstated - marks where the stated order ends; the source names no
+result`) and a visible note: *"Outcome not recorded in the source: this end is left unnamed until
+the source owner states one."* The gap is declared, not hidden. Same change in the planted map, so
+the two maps still differ only by the planted defects.
+
+**Lesson (L29, proposed for the guide; goes through the reviewer panel):** a name can assert what a
+gateway would. When a join is removed, or never drawn, check the labels for the same claim.
 
 ## Re-test (Greenfield)
 
