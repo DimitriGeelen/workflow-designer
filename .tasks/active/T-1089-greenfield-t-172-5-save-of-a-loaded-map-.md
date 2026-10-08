@@ -1,11 +1,18 @@
 ---
 id: T-1089
-name: "Greenfield T-172 #5: Save of a loaded map without aef:workflowMeta creates project process_<id> v1 instead of <loaded id> v2; also keep process name and element ids"
+name: "Greenfield T-172 #5: Save of a loaded map without aef:workflowMeta creates
+  project process_<id> v1 instead of <loaded id> v2; also keep process name and element
+  ids"
 description: >
-  aef-greenfield-test T-172 item 5. Loaded via /api/version?id=tobe-walkthrough-verkoop; workflow id derived from process id Process_... instead of the loaded project id. Process name dropped on save; element ids renumbered (Flow_1 -> flow_1, v_lead -> ver_2_lead) breaks id comparison between versions. Fix: use loaded project id (or ask new project/new version on Save).
+  aef-greenfield-test T-172 item 5. Loaded via /api/version?id=tobe-walkthrough-verkoop;
+  workflow id derived from process id Process_... instead of the loaded project id.
+  Process name dropped on save; element ids renumbered (Flow_1 -> flow_1, v_lead ->
+  ver_2_lead) breaks id comparison between versions. Fix: use loaded project id (or
+  ask new project/new version on Save).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T08:38:01Z
-last_update: 2026-10-08T08:38:01Z
-date_finished: null
+last_update: 2026-10-08T09:18:25Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +57,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-08T09:18:07Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=2 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1089: Greenfield T-172 #5: Save of a loaded map without aef:workflowMeta creates project process_<id> v1 instead of <loaded id> v2; also keep process name and element ids
@@ -72,9 +100,9 @@ Scope decisions (with reasons, reported to Greenfield):
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Within the T-263 ruling (workflowMeta id = the document's identity; no second identity authority): `adoptImportedXml` learns the project id from all three project load paths. File WITHOUT `aef:workflowMeta` (declares no identity — the process-id fallback is a guess) → the project id becomes its workflow id, so Save writes the next version of the loaded project. File WITH a workflowMeta id that differs → id kept, and Save asks first ("Loaded from project X but will save as Y"), extending the T-264 guard from ?load links to project loads
-- [ ] A headless test against the gallery sidecar with a temp project store: a file without workflowMeta stored as project P v1, opened through the project path → editor workflow id = P, Save lands as P v2; the same test fails on the unfixed designer (shown)
-- [ ] Negative controls in the same test: a user import of the same file (not from a project) keeps the id derived from the file; a project file whose workflowMeta declares another id keeps that id and triggers the confirm
+- [x] Within the T-263 ruling (workflowMeta id = the document's identity; no second identity authority): `adoptImportedXml` learns the project id from all three project load paths. File WITHOUT `aef:workflowMeta` (declares no identity — the process-id fallback is a guess) → the project id becomes its workflow id, so Save writes the next version of the loaded project. File WITH a workflowMeta id that differs → id kept, and Save asks first ("Loaded from project X but will save as Y"), extending the T-264 guard from ?load links to project loads
+- [x] A headless test against the gallery sidecar with a temp project store: a file without workflowMeta stored as project P v1, opened through the project path → editor workflow id = P, Save lands as P v2; the same test fails on the unfixed designer (shown) — `tools/_t1089-save-loaded-as-version-cdp.mjs` 7/7; on the pre-fix designer 6/7 FAIL, reproducing the report exactly (id process_walkthrough-sales, a stray process_* project v1)
+- [x] Negative controls in the same test: a user import of the same file (not from a project) keeps the id derived from the file; a project file whose workflowMeta declares another id keeps that id and triggers the confirm — legs B, C1-C3 (declining writes nothing anywhere)
 - [ ] Bridge suite green
 
 ### Human
@@ -109,6 +137,8 @@ Scope decisions (with reasons, reported to Greenfield):
 -->
 
 ## Verification
+node tools/_t1089-save-loaded-as-version-cdp.mjs > /tmp/.t1089.out 2>&1 && grep -q "7/7 legs passed" /tmp/.t1089.out
+grep -q "projectId: m.id" src/aef-workflow-designer.html
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -332,3 +362,6 @@ Scope decisions (with reasons, reported to Greenfield):
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1089-greenfield-t-172-5-save-of-a-loaded-map-.md
 - **Context:** Initial task creation
+
+### 2026-10-08T09:18:07Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

@@ -884,6 +884,18 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1089 (aef-greenfield-test T-172 #5): a map opened from a project saves as that project's next
+# version. A file without aef:workflowMeta takes the project id (it saved as a NEW project process_x
+# v1); a declared id is kept (T-263) and Save asks before writing elsewhere; a user import is unchanged.
+if node "$ROOT/tools/_t1089-save-loaded-as-version-cdp.mjs" > "$TMP/leg-_t1089.out" 2>&1 \
+   && grep -q "7/7 legs passed" "$TMP/leg-_t1089.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "Save of a map opened from a project no longer lands as that project's next version, a declared id is overridden, or the different-project confirm is gone (run 'node tools/_t1089-save-loaded-as-version-cdp.mjs'; T-1089)"
+  show_output "$TMP/leg-_t1089.out" "_t1089-save-loaded-as-version-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
 # aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
 # guard since T-889 closed (the census showed it had lost its only caller, T-889's Verification).

@@ -56,7 +56,9 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+UNBLOCKED 2026-10-08: Greenfield sent their recheck prompt (DM 31) — `build/evergreen-intake/recheck-20261008/evergreen-recheck.md`,
+1341 bytes, sha256 8ea2a7ea…82df verified. Filled outputs are in evergreen-iter9-12.tgz under
+`evergreen-iter12/recheck/<scenario>/<process>/RECHECK.json` (e.g. as-is/primary). Calibrate against our planted/clean pair.
 
 ## Acceptance Criteria
 

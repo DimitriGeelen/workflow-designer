@@ -9975,6 +9975,15 @@ async function saveToProject() {
       if (btn) btn.textContent = label || '⤓ Save to project';
       return;
     }
+    // T-1089: the same guard for a map opened from a project — its declared id (or a renamed
+    // one) differs from the project it came from, so this Save starts or targets ANOTHER project.
+    const _projMismatch = (_projectLoad && activeKey === _projectLoad.key && _projectLoad.projectId !== id)
+      ? _projectLoad.projectId : null;
+    if (_projMismatch &&
+        !confirm(`Opened from project "${_projMismatch}" but will save as "${id}" (a different project) — proceed?`)) {
+      if (btn) btn.textContent = label || '⤓ Save to project';
+      return;
+    }
     const bpmn = buildBpmnXml(state);
     // T-141: guard an accidental save of the pristine, unedited starter seed. `_seedBpmn`
     // is the processed seed captured at the end of Init. If the bytes we are about to POST
@@ -10030,7 +10039,7 @@ async function revertToVersion(id, v) {
     if (!res.ok) { alert('Could not load version ' + v); return; }
     const bpmn = await res.text();
     closeVersionsModal();
-    adoptImportedXml(bpmn, { userImport: false, replace: true });
+    adoptImportedXml(bpmn, { userImport: false, replace: true, projectId: id });   // T-1089
     setLoadedSavedVersion(v);   // T-157: now viewing snapshot vN
     // Accurate, action-free confirmation (T-148) — NOT the autosave-restore banner.
     if (typeof showToast === 'function') showToast(`↩ Reverted to ${id} v${v}.`);
@@ -10045,7 +10054,7 @@ async function openVersionInPlace(id, v) {
     if (!res.ok) { alert('Could not load version ' + v); return; }
     const bpmn = await res.text();
     closeVersionsModal();
-    adoptImportedXml(bpmn, { userImport: false, replace: true });
+    adoptImportedXml(bpmn, { userImport: false, replace: true, projectId: id });   // T-1089
     setLoadedSavedVersion(v);   // reflect that we're now viewing snapshot vN
     if (typeof showToast === 'function') showToast(`⤢ Opened ${id} v${v}.`);
   } catch (e) { aefRecordFault('open', e); alert('Open failed: ' + (e && e.message || e)); }
@@ -10299,7 +10308,7 @@ async function openProjectMap(m) {
     closeProjectModal();
     // replace: overwrite the in-memory entry for this id (no _v2). userImport: apply the
     // same clean-on-import/nudge behaviour a gallery ?load open has.
-    adoptImportedXml(text, { replace: true, userImport: true });
+    adoptImportedXml(text, { replace: true, userImport: true, projectId: m.id });   // T-1089
     // T-157: reflect the loaded snapshot (or clear for a rendered baseline).
     setLoadedSavedVersion(ot.kind === 'version' ? ot.v : null);
     loadInstanceSnapshot();   // T-884: the overlay follows the loaded template
@@ -10734,6 +10743,18 @@ function adoptImportedXml(text, opts) {
   // adopt does not autosave and there is no beforeunload/isDirty nag, so opening a legacy map stays
   // clean (PL-022 trap #2); the uuid persists on the next deliberate save.
   if (!loaded.workflowMeta.uuid) loaded.workflowMeta.uuid = mintUuid();
+  // T-1089: a map opened FROM A PROJECT (opts.projectId) that declares no aef:workflowMeta id
+  // carries no identity of its own — the importer's id is a guess from the process id
+  // (Process_x -> process_x), and Save then started a NEW project v1 instead of the loaded
+  // project's next version (aef-greenfield-test T-172 #5). The project it came from supplies the
+  // id. A DECLARED id is never overridden (T-263: workflowMeta id is the document identity, no
+  // second authority); Save asks first when it differs from the project (see saveToProject).
+  _projectLoad = null;
+  if (opts && opts.projectId) {
+    const declared = /<aef:workflowMeta\b[^>]*\sid="/.test(String(text).replace(/<!--[\s\S]*?-->/g, ''));
+    if (!declared) loaded.workflowMeta.id = opts.projectId;
+    _projectLoad = { projectId: opts.projectId };
+  }
   let key = loaded.workflowMeta.id;
   if (opts && opts.replace) {
     // Restore/replace (B1): overwrite any existing entry with this id — no _v2 suffix.
@@ -10748,6 +10769,7 @@ function adoptImportedXml(text, opts) {
   }
   state = loaded;
   activeKey = key;
+  if (_projectLoad) _projectLoad.key = key;
   selection = null;
   multiSelect.clear();
   refreshDisplayIds();
@@ -12290,6 +12312,9 @@ let _suppressDeepLink = false;         // B1: set when a same-map restore should
 // original deep-link} and the next entry via the same ?load silently rendered the
 // wrong map (AEF T-2596). null = this session's document didn't come from ?load.
 let _loadSrcKey = null;
+// T-1089: the project the active map was opened from ({projectId, key}), set by adoptImportedXml
+// when a project load path passes opts.projectId; null for user imports and ?load links.
+let _projectLoad = null;
 try { _autosaveRestore = JSON.parse(localStorage.getItem(AUTOSAVE_KEY) || 'null'); } catch (e) { aefRecordFault('autosave-restore', e); }
 
 // The ?load deep-link src this session was opened with (stable — we never rewrite
