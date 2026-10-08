@@ -58,6 +58,11 @@ date_finished: null
 
 <!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
+2026-10-09 (T-1105 bridge run, 249/6): _t525/_t534/_t535/_t536 red inside the suite, all green alone
+(8/8, 8/8, 7/7, 5/5). Measured ALONE at load ~6: _t525-fabric-coverage-teeth.py 117s, _t535-trend-key-teeth.py
+93s — both now over the 90s sweep cap even with no suite around them (the 2026-10-08 headroom warning had
+_t525 at 68-73s). Cost tracks the tree; measure before moving the cap (the sweep's own advice).
+
 ## Acceptance Criteria
 
 ### Agent
