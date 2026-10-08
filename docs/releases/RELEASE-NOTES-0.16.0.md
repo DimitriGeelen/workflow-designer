@@ -64,6 +64,11 @@ result`) and a visible note: *"Outcome not recorded in the source: this end is l
 the source owner states one."* The gap is declared, not hidden. Same change in the planted map, so
 the two maps still differ only by the planted defects.
 
+**Recalibrated.** The corrected kit passed with three vendors, one run each: codex (OpenAI),
+GLM-5.3 (Z.AI) and Antigravity (Google), each 3/3 planted defects caught and 0 false findings.
+The runs on the uncorrected maps (both codex FAILs, and GLM's pass) stay on file in the same record
+under `voided_runs`.
+
 **Lesson (L29, proposed for the guide; goes through the reviewer panel):** a name can assert what a
 gateway would. When a join is removed, or never drawn, check the labels for the same claim.
 
