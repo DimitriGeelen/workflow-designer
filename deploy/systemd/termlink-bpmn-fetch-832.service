@@ -1,0 +1,52 @@
+# TermLink bpmn-fetch-832 — persistent EVENT-ONLY file receiver for 832-Workflow-designer
+#
+# Source of truth: deploy/systemd/termlink-bpmn-fetch-832.service (git-tracked)
+# Installed to:    /etc/systemd/system/termlink-bpmn-fetch-832.service
+# Installed by:    runme job (T-1084) — the operator runs `bash /opt/832-Workflow-designer/runme.sh`
+#
+# T-1084. Peers deliver files to 832 with `termlink remote send-file ... bpmn-fetch-832 <file>`
+# (evergreen trial, T-989). Until now that session was registered by hand inside a Claude
+# session and died with it. aef-greenfield-test sent iterations 2-8 and the T-172 designer
+# requests to it while it was down: none arrived, and the peer waited days for a reply we
+# could not give (found 2026-10-08, T-1083). The address must stop dying.
+#
+# Pattern copied from termlink-cashweb-integration.service on this host:
+# - --self, NOT --shell / --allowed-commands: a file receiver needs events only. A PTY-backed
+#   registration would hand any peer on the hub a shell in this repository.
+# - Restart=always, NOT on-failure: a clean exit must not leave peers sending into nothing.
+# - ProtectSystem=full, NOT strict: strict remounts /var/lib read-only on this host, the
+#   heartbeat fails and the session never appears on the hub while the unit reports active
+#   (measured by the CashWeb unit's T-2230).
+#
+# Receiving is unchanged: `termlink file receive bpmn-fetch-832 --replay --output-dir
+# build/evergreen-intake/<label> --expected-sha256 <sha>` (docs/reports/T-989-evergreen-trial.md).
+
+[Unit]
+Description=TermLink bpmn-fetch-832 — persistent event-only file receiver for 832-Workflow-designer (no PTY)
+After=termlink-hub.service
+Wants=termlink-hub.service
+
+[Service]
+Type=exec
+User=root
+Group=root
+WorkingDirectory=/opt/832-Workflow-designer
+
+Environment=TERMLINK_RUNTIME_DIR=/var/lib/termlink
+Environment=PROJECT_ROOT=/opt/832-Workflow-designer
+
+ExecStart=/root/.cargo/bin/termlink register \
+  --name bpmn-fetch-832 \
+  --roles file-intake \
+  --tags host=107,project=832-Workflow-designer,role=file-intake,respawn=systemd \
+  --self
+
+Restart=always
+RestartSec=5
+
+NoNewPrivileges=yes
+ProtectSystem=full
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target
