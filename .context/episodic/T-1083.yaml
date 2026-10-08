@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1083: Greenfield messages: read and answer; check the two ~2.9 MB blobs on the hub
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-08T08:39:22Z
+# ============================================================================
+
+task_id: T-1083
+task_name: "Greenfield messages: read and answer; check the two ~2.9 MB blobs on the hub"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-08T07:35:49Z
+completed: 2026-10-08T08:39:13Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-08T09:40:37+02:00
+last_commit: 2026-10-08T10:39:08+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Greenfield messages 28-35 read and answered; blobs are 29/42 KB, hub fine; bpmn-fetch-832 re-registered; iter9 kit points recovered from hub spool (sha verified); resend of T-172 + iter2-8 requested. Greenfield T-172 triaged into six tasks (T-1088 lane abbr, T-1089 save-as-version, T-1090 L-routing, T-1091 sticky labels, T-1093 export inception, T-1092 authority patch review); order sent (topic 40, DM 17)
+
+# Key outcomes
+outcomes:
+  - 'Greenfield''s messages to 832 located (topic, offset, sender), read, and each acknowledged or answered on its channel — `xfer-evergreen-corpus` 28-35 from `90d4553895d5a9a6` (aef-greenfield-test); answered at topic offset 36 (reply to 32) and DM `dm:90d4553895d5a9a6:d1993c2c3ec44c94` offset 13'
+  - 'The two large blobs located by size, without loading them into context; hub health checked after them (hub responds, topic readable); finding reported to the operator and to the sender — offsets 33/34 are 29,374 and 42,052 bytes (not 2.9 MB); hub running, topic read back in full'
+  - '`bpmn-fetch-832` receiver back on the hub; the resent packages (T-172, iter2, iter3, iter4-8) received with sha256 verified into `build/evergreen-intake/` — iter9 kit points already recovered from the hub spool `inbox:bpmn-fetch-832` (sha b750a175…ef60f matches). 2026-10-08: permanent receiver (T-1084) got all resends + evergreen-iter9-12.tgz; reassembled from `termlink events bpmn-fetch-832` (`file receive --replay` only takes the first transfer), all 6 shas match Greenfield''s notes 28-32/37/38, unpacked under `build/evergreen-intake/resend-20261008/unpacked/`; receipt confirmed at topic offset 39 / DM 15'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1083-greenfield-messages-read-and-answer-chec.md'
+  - '.tasks/active/T-1088-greenfield-t-172-2-lane-abbreviations-un.md'
+  - '.tasks/active/T-1089-greenfield-t-172-5-save-of-a-loaded-map-.md'
+  - '.tasks/active/T-1090-greenfield-t-172-1-routing-rule-from-the.md'
+  - '.tasks/active/T-1091-greenfield-t-172-3-settings-option-stick.md'
+  - '.tasks/active/T-1092-greenfield-t-172-6-review-their-patch-sh.md'
+  - '.tasks/active/T-1093-greenfield-t-172-4-export-menu--which-fo.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-08T09:40:37'
+    action: 'T-1083: Greenfield messages 28-35 read and answered; blobs are 29/42 KB, hub fine; bpmn-fetch-832 re-registered; iter9 kit points recovered from hub spool (sha verified); resend of T-172 + iter2-8 requested'
+  - time: '2026-10-08T10:39:08'
+    action: 'T-1083: Greenfield T-172 triaged into six tasks (T-1088 lane abbr, T-1089 save-as-version, T-1090 L-routing, T-1091 sticky labels, T-1093 export inception, T-1092 authority patch review); order sent (topic 40, DM 17)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 63 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 63
+  commits: 2
+  files_changed: 7
+  lines_added: 2071
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1083-greenfield-messages-read-and-answer-chec.md
+generated_by: context-agent-hybrid
