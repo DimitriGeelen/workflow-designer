@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1085: Pickup to AEF: offer 832's runme launcher (hash-bound dry-run, per-step y/N, signal + watcher that wakes the agent) and inception decisions as runme jobs, for the framework
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-08T08:14:11Z
+# ============================================================================
+
+task_id: T-1085
+task_name: "Pickup to AEF: offer 832's runme launcher (hash-bound dry-run, per-step y/N, signal + watcher that wakes the agent) and inception decisions as runme jobs, for the framework"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-08T08:11:58Z
+completed: 2026-10-08T08:14:02Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-08T10:14:02+02:00
+last_commit: 2026-10-08T10:14:02+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  runme launcher pickup sent to AEF (c24521a0, RECEIVED) — safeguards not yet upstream + inception decisions as jobs; asks T-3742/T-3755 status
+
+# Key outcomes
+outcomes:
+  - 'Prior offer (T-1055, cf067ab0) and any AEF answer found and cited, so the pickup builds on it instead of repeating it — earlier sends: runme-signal e34a40fc + defect a7840f96 (AEF T-3741, shipped in 1.8.6), runme-wake-link 3f3af9e3 (AEF T-3878, shipped), approval-in-terminal b7a845c5 (AEF T-3742/T-3755, status asked). T-1055''s "safeguards offered" had no send behind it — the launcher itself was never offered until now'
+  - 'Pickup written as a PROPOSAL to the AEF framework agent: what 832''s launcher adds over `fw runme` (definitions-only jobs, hash-bound dry-run, preflight re-check, per-step y/N from the terminal, done-never-rerun, start/step/done/STOPPED signal + background watcher that wakes the agent, WATCH LOST at session start) and inception decisions as runme jobs; with file paths, the test, and real-use evidence (jobs 001-005, inception decisions T-1020/T-1035/T-1054)'
+  - 'Sent on AEF''s intake channel, delivery confirmed (offset/ack), recorded here — `fw sidecar send` 2026-10-08T08:2xZ, conversation runme-launcher, client_msg_id c24521a0-7c45-4fa6-83ec-8d943c39b5ef, state RECEIVED, delivered via direct path'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1085-pickup-to-aef-offer-832s-runme-launcher-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-08T10:14:02'
+    action: 'T-1085: runme launcher pickup sent to AEF (c24521a0, RECEIVED) — safeguards not yet upstream + inception decisions as jobs; asks T-3742/T-3755 status'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 1
+  lines_added: 323
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1085-pickup-to-aef-offer-832s-runme-launcher-.md
+generated_by: context-agent-hybrid
