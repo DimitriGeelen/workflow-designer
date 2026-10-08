@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1087: Session-start mail check also reads Greenfield's xfer-evergreen topics; ask Greenfield for a sidecar link
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-08T08:35:57Z
+# ============================================================================
+
+task_id: T-1087
+task_name: "Session-start mail check also reads Greenfield's xfer-evergreen topics; ask Greenfield for a sidecar link"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-08T08:29:41Z
+completed: 2026-10-08T08:35:40Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-08T10:35:37+02:00
+last_commit: 2026-10-08T10:35:37+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  session-start check lists Greenfield's posts on xfer-evergreen topics (by name, mark-seen marker, NOT CHECKED on failure, 8 new test legs); first live run surfaced their resend + round 3; all 6 packages received and sha-verified (T-1083); sidecar link asked
+
+# Key outcomes
+outcomes:
+  - '`scripts/session-start-alerts.sh` gets a third section "Watched peer topics": for `xfer-evergreen-corpus` and `xfer-evergreen-kit` it lists every post by Greenfield''s sender id (90d4553895d5a9a6) above the last-seen offset, by name (topic@offset, time, type, first words / file description); our own posts and other senders are not listed'
+  - '`--mark-seen` advances the per-topic marker; without it nothing moves. A topic that cannot be read prints NOT CHECKED and the script exits 2 — never a silent "nothing"; the runme section still comes first'
+  - 'Tests cover new post shown, other sender hidden, already-seen hidden, mark-seen advances, unreadable topic -> NOT CHECKED exit 2; existing alerts tests still pass; live run against the hub shows nothing unseen after marking today''s read (28-35) — tests 7-14 added (14/14 pass, test_t1050 still passes); first live run surfaced 2 real unseen Greenfield posts (37 resend notice, 38 round 3) — exactly the class this fixes; after reading and --mark-seen: nothing unseen'
+  - 'Greenfield asked (topic + DM) whether they run the AEF sidecar and for their agent address, so a sidecar conversation can replace topic-watching — topic offset 39, DM offset 15'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1083-greenfield-messages-read-and-answer-chec.md'
+  - '.tasks/active/T-1087-session-start-mail-check-also-reads-gree.md'
+  - 'tests/test_session_start_alerts.py'
+  - 'tools/session-start-alerts.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-08T10:35:37'
+    action: 'T-1087: session-start check lists Greenfield''s posts on xfer-evergreen topics (by name, mark-seen marker, NOT CHECKED on failure, 8 new test legs); first live run surfaced their resend + round 3; all 6 packages received and sha-verified (T-1083); sidecar link asked'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 4
+  lines_added: 498
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1087-session-start-mail-check-also-reads-gree.md
+generated_by: context-agent-hybrid

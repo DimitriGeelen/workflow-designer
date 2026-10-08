@@ -4,10 +4,11 @@ name: "Session-start mail check also reads Greenfield's xfer-evergreen topics; a
 description: >
   Session-start mail check also reads Greenfield's xfer-evergreen topics; ask Greenfield for a sidecar link
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T08:29:41Z
-last_update: 2026-10-08T08:35:37Z
-date_finished: null
+last_update: 2026-10-08T08:35:40Z
+date_finished: 2026-10-08T08:35:40Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -325,3 +326,20 @@ grep -q "xfer-evergreen-corpus" tools/session-start-alerts.py
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1087-session-start-mail-check-also-reads-gree.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b99f057c
+- **Timestamp:** 2026-10-08T08:35:50Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — `scripts/session-start-alerts.sh` gets a third section "Watched peer topics": for `xfer-evergreen-corpus` and `xfer-evergreen-kit` it lists every post by Greenfield's sender id (90d4553895d5a9a6) abov
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=scripts/session-start-alerts.sh in: `scripts/session-start-alerts.sh` gets a third section "Watched peer topics": for `xfer-evergreen-corpus` and `xfer-evergreen-kit` it lists every post`
+
+### 2026-10-08T08:35:40Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
