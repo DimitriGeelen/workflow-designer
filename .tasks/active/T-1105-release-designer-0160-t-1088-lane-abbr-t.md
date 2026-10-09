@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T20:55:51Z
-last_update: 2026-10-09T08:58:52Z
+last_update: 2026-10-09T09:00:00Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -95,8 +95,11 @@ bvp_scores_proposed:
   (2026-10-09: 249/6. Render-check red only because dist/aef-workflow-designer-0.16.0.html does not exist until
   step 1 cuts it, same as 0.15.3. _t525/_t534/_t535/_t536 all pass alone (8/8, 8/8, 7/7, 5/5); _t525 117s and
   _t535 93s alone exceed the 90s sweep cap — recorded on T-1103.)
-- [ ] A runme job (release, commit, tag designer-v0.16.0, push) is prepared, `bash runme.sh --dry-run <job>` passes, the watcher is armed; the agent never runs it for real
-- [ ] After the operator's run: Greenfield is told by DM what 0.16.0 carries for them and how to re-test T-1088..T-1090
+- [x] A runme job (release, commit, tag designer-v0.16.0, push) is prepared, `bash runme.sh --dry-run <job>` passes, the watcher is armed; the agent never runs it for real
+  (job 007; the operator ran it 2026-10-09 08:13-08:19Z, 4/4 steps, rc=0; release commit 84237849, tag on origin.
+  The agent's END watcher was a tail|grep -m1 pipeline that never exits — the operator noticed first; learning recorded.)
+- [x] After the operator's run: Greenfield is told by DM what 0.16.0 carries for them and how to re-test T-1088..T-1090
+  (DM offset 49: sha/bytes/tag, #1 #2 #5 #6, four re-test steps, delivery options asked; our Watchtower re-pinned to 0.16.0)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -131,6 +134,12 @@ bvp_scores_proposed:
 
 ## Verification
 
+grep -qx '0.16.0' VERSION
+test -f .context/runme/007-release-designer-0.16.0/done
+git rev-parse -q --verify refs/tags/designer-v0.16.0
+cmp -s src/aef-workflow-designer.html dist/aef-workflow-designer-0.16.0.html || git diff --quiet designer-v0.16.0 -- dist/aef-workflow-designer-0.16.0.html
+python3 tools/kit-calibration-gate.py check --version 0.16.0
+.agentic-framework/bin/fw designer status > /tmp/.t1105-designer 2>&1 && grep -q "0.16.0" /tmp/.t1105-designer && grep -q "PRESENT" /tmp/.t1105-designer
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
