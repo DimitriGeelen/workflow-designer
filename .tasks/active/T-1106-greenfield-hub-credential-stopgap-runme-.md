@@ -1,11 +1,17 @@
 ---
 id: T-1106
-name: "Greenfield hub credential (stopgap): runme job adds profile greenfield-132 from an out-of-band secret file"
+name: "Greenfield hub credential (stopgap): runme job adds profile greenfield-132
+  from an out-of-band secret file"
 description: >
-  Operator chose option 1 (2026-10-09): two-way sidecar with Greenfield. Operator obtains Greenfield's hub secret out of band and places it in a file; a runme job adds the TermLink profile (secret into the 0600 store), removes the drop file, pins the hub (TOFU), and sends a sidecar test. Stopgap until the permanent measure (research task) is decided.
+  Operator chose option 1 (2026-10-09): two-way sidecar with Greenfield. Operator
+  obtains Greenfield's hub secret out of band and places it in a file; a runme job
+  adds the TermLink profile (secret into the 0600 store), removes the drop file, pins
+  the hub (TOFU), and sends a sidecar test. Stopgap until the permanent measure (research
+  task) is decided.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-09T05:36:39Z
-last_update: 2026-10-09T05:36:39Z
-date_finished: null
+last_update: 2026-10-09T05:41:08Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-09T05:40:11Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 2
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=2 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L2:keyword=termlink);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1106: Greenfield hub credential (stopgap): runme job adds profile greenfield-132 from an out-of-band secret file
@@ -62,8 +89,9 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] A runme job is prepared (validates the operator-placed secret file without printing it, stores it 0600 in TermLink's secrets store, adds profile greenfield-132, shreds the drop file, pins and shows the hub fingerprint, sends a sidecar test, audits the store); `bash runme.sh --dry-run` passes; the watcher is armed; the agent never runs it for real
+- [ ] After the operator's run: our sidecar -> Greenfield is delivered (not REFUSED), and Greenfield acks on `evergreen-trial`
+- [ ] `termlink fleet secrets-audit` shows the new secret file 0600 and referenced by profile greenfield-132; no drop file left at /root/greenfield-hub.secret
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,3 +348,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1106-greenfield-hub-credential-stopgap-runme-.md
 - **Context:** Initial task creation
+
+### 2026-10-09T05:40:11Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
