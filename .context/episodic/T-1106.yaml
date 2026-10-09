@@ -1,0 +1,99 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1106: Greenfield hub credential (stopgap): runme job adds profile greenfield-132 from an out-of-band secret file
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-09T23:43:02Z
+# ============================================================================
+
+task_id: T-1106
+task_name: "Greenfield hub credential (stopgap): runme job adds profile greenfield-132 from an out-of-band secret file"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-09T05:36:39Z
+completed: 2026-10-09T23:42:02Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-09T07:41:57+02:00
+last_commit: 2026-10-10T01:42:01+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  runme job 008-greenfield-hub-credential (validate operator-placed secret without printing, store 0600, profile greenfield-132, shred drop file, pin+show fingerprint, sidecar test, secrets audit), dry-run passed (sha 6b71faff). hand-over parked by Greenfield's owner (DM 51); job 008 stays pending, DMs meanwhile. job 009 fetches Greenfield's hub key AS dimitri-mint-dev over ssh straight into root's 0600 TermLink store (probe step first; never printed, never a shared or temp file); dry-run passed (sha 5286e1f4). Job 008 retired (done marker states: superseded, never completed; 3 runs stopped at step 1, nothing installed). job 009 gains a first step — show Greenfield's ssh host-key fingerprint and record it in dimitri-mint-dev's known_hosts (first run stopped on 'Host key verification failed': that account had never connected); dry-run passed (sha 2d58ced8). request to the dimitri-mint-dev agent (operator's suggestion) — which remote user/key it uses on 192.168.10.132 and whether that user can sudo -n read the hub secret; answers in the file, never the secret itself. Greenfield credential provisioned by dimitri-mint-dev (shared profile greenfield, pinned, firewall .107 only); our first sidecar send to aef-greenfield-test HUB_ACCEPTED (ac704e99), was REFUSED before; job 009 retired unused (marker states why); awaiting Greenfield's ack. sidecar round trip with Greenfield proven both ways (our send HUB_ACCEPTED ac704e99, their ACK 355eadee; their T-175 closed)
+
+# Key outcomes
+outcomes:
+  - 'A runme job is prepared (validates the operator-placed secret file without printing it, stores it 0600 in TermLink''s secrets store, adds profile greenfield-132, shreds the drop file, pins and shows the hub fingerprint, sends a sidecar test, audits the store); `bash runme.sh --dry-run` passes; the watcher is armed; the agent never runs it for real'
+  - 'After the operator''s run: our sidecar -> Greenfield is delivered (not REFUSED), and Greenfield acks on `evergreen-trial`'
+  - '`termlink fleet secrets-audit` shows the new secret file 0600 and referenced by profile greenfield-132; no drop file left at /root/greenfield-hub.secret'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/008-greenfield-hub-credential/done'
+  - '.context/runme/008-greenfield-hub-credential/dryrun.ok'
+  - '.context/runme/008-greenfield-hub-credential/job.sh'
+  - '.context/runme/008-greenfield-hub-credential/run-20261009T162536.log'
+  - '.context/runme/008-greenfield-hub-credential/run-20261009T204746.log'
+  - '.context/runme/008-greenfield-hub-credential/run-20261009T204756.log'
+  - '.context/runme/009-greenfield-hub-credential-via-mint-dev/dryrun.ok'
+  - '.context/runme/009-greenfield-hub-credential-via-mint-dev/job.sh'
+  - '.context/runme/009-greenfield-hub-credential-via-mint-dev/retired'
+  - '.context/runme/009-greenfield-hub-credential-via-mint-dev/run-20261009T214224.log'
+  - 'docs/handoffs/T-1106-request-to-mint-dev-agent.md'
+  - '.tasks/active/T-1106-greenfield-hub-credential-stopgap-runme-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-09T07:41:57'
+    action: 'T-1106: runme job 008-greenfield-hub-credential (validate operator-placed secret without printing, store 0600, profile greenfield-132, shred drop file, pin+show fingerprint, sidecar test, secrets audit), dry-run passed (sha 6b71faff)'
+  - time: '2026-10-09T11:04:47'
+    action: 'T-1106: hand-over parked by Greenfield''s owner (DM 51); job 008 stays pending, DMs meanwhile'
+  - time: '2026-10-09T21:30:56'
+    action: 'T-1106: job 009 fetches Greenfield''s hub key AS dimitri-mint-dev over ssh straight into root''s 0600 TermLink store (probe step first; never printed, never a shared or temp file); dry-run passed (sha 5286e1f4). Job 008 retired (done marker states: superseded, never completed; 3 runs stopped at step 1, nothing installed)'
+  - time: '2026-10-09T21:44:01'
+    action: 'T-1106: job 009 gains a first step — show Greenfield''s ssh host-key fingerprint and record it in dimitri-mint-dev''s known_hosts (first run stopped on ''Host key verification failed'': that account had never connected); dry-run passed (sha 2d58ced8)'
+  - time: '2026-10-09T23:01:19'
+    action: 'T-1106: request to the dimitri-mint-dev agent (operator''s suggestion) — which remote user/key it uses on 192.168.10.132 and whether that user can sudo -n read the hub secret; answers in the file, never the secret itself'
+  - time: '2026-10-10T01:38:53'
+    action: 'T-1106: Greenfield credential provisioned by dimitri-mint-dev (shared profile greenfield, pinned, firewall .107 only); our first sidecar send to aef-greenfield-test HUB_ACCEPTED (ac704e99), was REFUSED before; job 009 retired unused (marker states why); awaiting Greenfield''s ack'
+  - time: '2026-10-10T01:42:01'
+    action: 'T-1106: sidecar round trip with Greenfield proven both ways (our send HUB_ACCEPTED ac704e99, their ACK 355eadee; their T-175 closed)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 1085 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1085
+  commits: 7
+  files_changed: 12
+  lines_added: 373
+  lines_removed: 20
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1106-greenfield-hub-credential-stopgap-runme-.md
+generated_by: context-agent-hybrid
