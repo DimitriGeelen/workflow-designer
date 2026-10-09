@@ -58,6 +58,13 @@ section (AEF T-3675, `fw runme new`, added by the 1.8.2 upgrade, T-1049):** in 8
 runs `bash /opt/832-Workflow-designer/runme.sh`, signalled through `tools/runme-signal.sh`, not a
 generated `.context/runme/<name>/runme.sh`.
 
+### Backups an upgrade leaves behind are checked, then removed (operator, 2026-10-09)
+
+After every framework upgrade, diff each `*.bak` it left (`CLAUDE.md.bak`, `.claude/settings.json.bak`, …)
+against the live file. If every backup-only line is superseded by the live file, delete the backup and
+summarise the diff in the upgrade task. If any line would be lost, report it to the operator and keep
+the backup. Never delete a backup unread.
+
 ### Review routing follows the CURRENT AEF ruleset (operator, 2026-10-06, PD-357)
 
 The operator's standing directive: who checks what (operator or independent reviewer, the

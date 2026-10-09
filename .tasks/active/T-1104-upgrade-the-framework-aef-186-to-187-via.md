@@ -42,7 +42,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T20:43:31Z
-last_update: 2026-10-09T07:24:43Z
+last_update: 2026-10-09T08:04:50Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -91,6 +91,7 @@ bvp_scores_proposed:
 - [ ] After the operator's run: VERSION reads 1.8.8 and the pristine commit touches only `.agentic-framework/`
 - [ ] Every `.vendor-divergence.yaml` entry re-applied, retired as superseded, or recorded; `_t517` OK
 - [ ] Post-upgrade checks recorded: settings.json hooks intact, cron intact, any `.upstream` files listed and compared, bridge suite re-run
+- [ ] Any `*.bak` the upgrade left (e.g. `CLAUDE.md.bak`) diffed against the live file: if every backup-only line is superseded, the backup is deleted and the diff summarised here; if any line would be lost, it is reported to the operator and the backup kept (operator, 2026-10-09, question 4 option 2)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
