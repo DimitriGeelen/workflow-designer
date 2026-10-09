@@ -1,0 +1,32 @@
+runme  009-greenfield-hub-credential-via-mint-dev   sha 5286e1f47fbc   rehearsed 2026-10-09T19:29:45Z   log: /opt/832-Workflow-designer/.context/runme/009-greenfield-hub-credential-via-mint-dev/run-20261009T214224.log
+Job:   009-greenfield-hub-credential-via-mint-dev   (T-1106)
+What:  Greenfield hub credential: fetch it AS dimitri-mint-dev over ssh, straight into TermLink's store
+       Replaces job 008, which needed a key file you place by hand. Your direction (2026-10-09): use the
+       local account dimitri-mint-dev. Step 1 checks, without fetching anything, that dimitri-mint-dev can ssh to
+       Greenfield's machine (192.168.10.132) with no password prompt and run sudo there without one; if not, the
+       job stops and nothing has changed. Step 2 reads /var/lib/termlink/hub.secret over that ssh and writes it
+       directly into root's TermLink secrets store (0600): never printed, never in a shared or temporary file,
+       never through TermLink. Then: add profile greenfield-132, connect (pins and shows their hub certificate
+       fingerprint: ask Greenfield to confirm it), send a sidecar test, audit the store.
+       What it grants: full access to Greenfield's hub, the same kind they already hold for ours. Greenfield's
+       owner said the hand-over was parked: run this only if that owner agrees (or is you).
+       Undo: termlink remote profile remove greenfield-132 and delete /root/.termlink/secrets/greenfield-132.hex.
+Steps (each asks y/N first):
+  1. Check (fetch nothing): dimitri-mint-dev can ssh to 192.168.10.132 without a password and read /var/lib/termlink/hub.secret there with sudo -n
+  2. Fetch the key as dimitri-mint-dev over ssh, validate it (64 hex chars) and write it straight to /root/.termlink/secrets/greenfield-132.hex (0600)
+  3. Add profile greenfield-132 -> 192.168.10.132:9100 using /root/.termlink/secrets/greenfield-132.hex
+  4. Connect to greenfield-132 (first use pins its certificate) and show the fingerprint to compare with Greenfield
+  5. Send a sidecar test message to Greenfield on conversation evergreen-trial
+  6. Audit the secrets store (perms, size, referenced by a profile)
+
+ok    local account dimitri-mint-dev exists
+ok    no TermLink profile named greenfield-132 yet
+ok    nothing stored for greenfield-132 yet
+ok    Greenfield hub 192.168.10.132:9100 answers on TCP
+ok    the TermLink secrets store exists
+
+Step 1/6: Check (fetch nothing): dimitri-mint-dev can ssh to 192.168.10.132 without a password and read /var/lib/termlink/hub.secret there with sudo -n
+  runs: do_probe
+Run step 1/6? [y/N] Host key verification failed.
+dimitri-mint-dev cannot ssh to 192.168.10.132 without a password (BatchMode). Nothing fetched.
+STOPPED: step 1/6 failed (rc=1); later steps not run
