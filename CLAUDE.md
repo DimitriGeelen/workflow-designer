@@ -53,6 +53,14 @@ session that armed it (T-1050): it records who armed it in `.context/working/run
 session-start check (`scripts/session-start-alerts.sh`) prints **WATCH LOST** when that session is
 gone — re-arm it in the background before anything else.
 
+**Sidecar mail needs its own watcher when the session is not injectable (T-1108).** A background session
+owns no tmux pane and no TermLink session, so the receiver cannot type mail into it (`fw sidecar receiver
+status` shows `ready=False termlink=None`; each message is logged WAITING_NO_RECIPIENT) and mail waits for
+the operator's next prompt. Arm `bash tools/sidecar-mail-watch.sh` in the BACKGROUND beside the runme
+watcher; it exits when a consult waits that it has not reported yet; read it, answer, re-arm. To reach an
+agent, address its **sidecar id** (`fw sidecar send --to <agent>`); `termlink list` shows sessions, not
+sidecar agents. A hook line "inbox check timed out" means NOT CHECKED: run `fw sidecar inbox --peek`.
+
 **This rule wins over the framework's own "Operator Commands Ship as ONE `runme.sh` Line"
 section (AEF T-3675, `fw runme new`, added by the 1.8.2 upgrade, T-1049):** in 832 the operator
 runs `bash /opt/832-Workflow-designer/runme.sh`, signalled through `tools/runme-signal.sh`, not a
