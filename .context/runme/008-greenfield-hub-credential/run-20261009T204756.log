@@ -1,0 +1,27 @@
+runme  008-greenfield-hub-credential   sha 6b71faff4669   rehearsed 2026-10-09T05:41:01Z   log: /opt/832-Workflow-designer/.context/runme/008-greenfield-hub-credential/run-20261009T204756.log
+Job:   008-greenfield-hub-credential   (T-1106)
+What:  Greenfield hub credential: add TermLink profile greenfield-132 from the secret file you placed
+       Your decision (option 1): two-way sidecar with Greenfield. Their messages already reach us; ours
+       are refused for lack of their hub secret. This is the stopgap; the permanent measure is being researched
+       (T-1107). BEFORE running: get Greenfield's hub secret from their operator by a route OUTSIDE TermLink
+       (Signal, in person, or ssh to their host: sudo cat /var/lib/termlink/hub.secret), and write it to
+       /root/greenfield-hub.secret (one line, 64 hex chars), then: chmod 600 /root/greenfield-hub.secret.
+       The secret is never printed. Step 1 refuses unless that file is valid. What it grants: full access to
+       Greenfield's hub (the same kind of access they already hold for ours). Remove later with:
+       termlink remote profile remove greenfield-132 (and delete its secrets file).
+Steps (each asks y/N first):
+  1. Check /root/greenfield-hub.secret (exists, root-owned, mode 600, exactly 64 hex chars) and copy it into /root/.termlink/secrets/greenfield-132.hex (0600)
+  2. Add profile greenfield-132 -> 192.168.10.132:9100 using /root/.termlink/secrets/greenfield-132.hex
+  3. Delete the drop file /root/greenfield-hub.secret (shred)
+  4. Connect to greenfield-132 (first use pins its certificate) and show the pinned fingerprint to compare with Greenfield
+  5. Send a sidecar test message to Greenfield on conversation evergreen-trial
+  6. Audit the secrets store (perms, size, referenced by a profile)
+
+ok    no TermLink profile named greenfield-132 yet
+ok    Greenfield hub 192.168.10.132:9100 answers on TCP
+ok    the TermLink secrets store exists (files in it are 0600 each)
+
+Step 1/6: Check /root/greenfield-hub.secret (exists, root-owned, mode 600, exactly 64 hex chars) and copy it into /root/.termlink/secrets/greenfield-132.hex (0600)
+  runs: do_install_secret
+Run step 1/6? [y/N] no /root/greenfield-hub.secret — place the secret first (see the job description)
+STOPPED: step 1/6 failed (rc=1); later steps not run
