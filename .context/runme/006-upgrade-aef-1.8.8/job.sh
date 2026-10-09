@@ -1,15 +1,17 @@
 # Operator job for tools/runme-launcher.sh (T-1055). DEFINITIONS ONLY.
-JOB_TITLE="Upgrade the framework: AEF 1.8.6 -> 1.8.7, through the re-vendor protocol"
+JOB_TITLE="Upgrade the framework: AEF 1.8.6 -> 1.8.8, through the re-vendor protocol"
 JOB_TASK="T-1104"
-JOB_WHY="AEF 1.8.7 (released today) carries a security fix (T-3984: claude-fw no longer resolves the
-framework from the current directory), the budget-critical auto-handover fix (T-3989/T-3997), and
-T-3991/T-3983/T-3978. Same protocol as the 1.8.6 upgrade (job 004): step 1 uses --allow-delete-locals so
-the vendor writes pristine 1.8.7 (backups kept), and the agent re-applies our local framework fixes from
-the divergence register afterwards. Pinned to tag v1.8.7 = commit 30d16704. Nothing is pushed. Step 2 may
-sit several minutes in the post-commit hook; the commit has landed by then."
+JOB_WHY="AEF 1.8.8 (released 2026-10-09; supersedes 1.8.7, which this job targeted before it ran) carries
+the 1.8.7 security fix (T-3984: claude-fw no longer resolves the framework from the current directory),
+the budget-critical auto-handover fixes (T-3989/T-3997/T-4004), T-3986 (reviewer seats may answer
+not-evaluated; lets us re-judge the AMBER rows on T-1082/T-310/T-893), T-3998 (hooks redeployed when their
+content changes) and T-4008. Same protocol as the 1.8.6 upgrade (job 004): step 1 uses
+--allow-delete-locals so the vendor writes pristine 1.8.8 (backups kept), and the agent re-applies our
+local framework fixes from the divergence register afterwards. Pinned to tag v1.8.8 = commit f0fc5839.
+Nothing is pushed. Step 2 may sit several minutes in the post-commit hook; the commit has landed by then."
 
-TAG=v1.8.7
-TAG_SHA=30d16704669348cf967f62c7da92df6be1ec0f88
+TAG=v1.8.8
+TAG_SHA=f0fc5839396060b7ea447e7a933e794c4866716d
 UPSTREAM=https://github.com/DimitriGeelen/agentic-engineering-framework.git
 DIV=.agentic-framework/.vendor-divergence.yaml
 CRON=/etc/cron.d/agentic-audit-832-workflow-designer
@@ -32,7 +34,7 @@ steps() {
 
 do_upgrade() {
     local src
-    src=$(mktemp -d /tmp/t1104-aef187.XXXXXX) || return 1
+    src=$(mktemp -d /tmp/t1104-aef188.XXXXXX) || return 1
     git -c advice.detachedHead=false clone -q --branch "$TAG" "$UPSTREAM" "$src/fw" || { rm -rf "$src"; return 1; }
     [ "$(git -C "$src/fw" rev-parse HEAD)" = "$TAG_SHA" ] || { echo "$TAG moved: now $(git -C "$src/fw" rev-parse HEAD), expected $TAG_SHA"; rm -rf "$src"; return 1; }
     git -C "$src/fw" cat-file -e "$(sed -n 's/^version_sha: *//p' .framework.yaml)^{commit}" || { echo "clone lacks our version_sha"; rm -rf "$src"; return 1; }
@@ -40,7 +42,7 @@ do_upgrade() {
     local rc=$?
     rm -rf "$src"
     [ "$rc" = 0 ] || { echo "fw upgrade exited $rc"; return 1; }
-    [ "$(tr -d '[:space:]' < .agentic-framework/VERSION)" = 1.8.7 ] || { echo "VERSION is not 1.8.7 after the upgrade"; return 1; }
+    [ "$(tr -d '[:space:]' < .agentic-framework/VERSION)" = 1.8.8 ] || { echo "VERSION is not 1.8.8 after the upgrade"; return 1; }
     bash tools/_t1000-install-hook.sh >/dev/null && bash tools/_t1000-install-hook.sh --check
 }
 
@@ -51,7 +53,7 @@ do_pristine_commit() {
         echo "something outside .agentic-framework/ got staged; nothing committed"; return 1
     fi
     echo "committing $(git diff --cached --name-only | wc -l) vendored paths"
-    git commit -q -m "T-1104: pristine vendor commit — AEF 1.8.7 as fw upgrade wrote it (re-vendor protocol step 1, T-1000)" \
+    git commit -q -m "T-1104: pristine vendor commit — AEF 1.8.8 as fw upgrade wrote it (re-vendor protocol step 1, T-1000)" \
         -m "Vendored paths only, from tag $TAG ($TAG_SHA), --allow-delete-locals (our local fixes re-applied in step 3). Excluded: .vendor-divergence.yaml and runtime state."
 }
 
@@ -75,11 +77,11 @@ s, n = re.subn(r'^baseline_commit:.*$', 'baseline_commit: %s' % sha, s, count=1,
 if n != 1: sys.exit(1)
 s, n = re.subn(r'^baseline_note:', 'baseline_note_previous:', s, count=1, flags=re.M)
 if n != 1: sys.exit(1)
-s = s.replace('baseline_commit: %s' % sha, 'baseline_commit: %s\nbaseline_note: "T-1104/T-1000 — pristine vendor commit of AEF 1.8.7 (re-vendor protocol step 1). Every declared local fix the upgrade overwrote now shows STALE in tools/_t517; resolve each via tools/_t1000-revendor-worklist.py."' % sha, 1)
+s = s.replace('baseline_commit: %s' % sha, 'baseline_commit: %s\nbaseline_note: "T-1104/T-1000 — pristine vendor commit of AEF 1.8.8 (re-vendor protocol step 1). Every declared local fix the upgrade overwrote now shows STALE in tools/_t517; resolve each via tools/_t1000-revendor-worklist.py."' % sha, 1)
 yaml.safe_load(s)
 open(path, "w").write(s)
 PY
-    git add -- "$DIV" && git commit -q -m "T-1104: advance the divergence baseline to the pristine AEF 1.8.7 commit (re-vendor protocol step 2, T-1000)"
+    git add -- "$DIV" && git commit -q -m "T-1104: advance the divergence baseline to the pristine AEF 1.8.8 commit (re-vendor protocol step 2, T-1000)"
 }
 
 do_cron_check() {
