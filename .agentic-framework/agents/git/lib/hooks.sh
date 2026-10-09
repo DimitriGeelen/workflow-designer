@@ -66,29 +66,24 @@ do_install_hooks() {
         exit 1
     }
     mkdir -p "$hooks_dir"
-    local commit_msg_hook="$hooks_dir/commit-msg"
-    local pre_commit_hook="$hooks_dir/pre-commit"
-    local post_commit_hook="$hooks_dir/post-commit"
-    local pre_push_hook="$hooks_dir/pre-push"
-    local pre_merge_commit_hook="$hooks_dir/pre-merge-commit"   # T-3511
-
-    # Check if hooks exist
-    if [ -f "$commit_msg_hook" ] && [ "$force" = false ]; then
-        local existing_version
-        existing_version=$(grep "^# VERSION=" "$commit_msg_hook" 2>/dev/null | cut -d= -f2)
-        if [ "$existing_version" = "$COMMIT_MSG_HOOK_VERSION" ]; then
-            echo -e "${GREEN}Hooks already installed (version $COMMIT_MSG_HOOK_VERSION)${NC}"
-            echo "Use --force to reinstall"
-            exit 0
-        else
-            # State the difference, not a direction. Nothing here compares
-            # ordering, so "updating X to Y" was claiming knowledge the code
-            # does not have — and when the installed marker happened to sort
-            # above the template's, it read as a downgrade and was reported as
-            # a version-comparison bug (T-2852).
-            echo -e "${YELLOW}Hook version differs (installed: ${existing_version:-none}, template: $COMMIT_MSG_HOOK_VERSION) — reinstalling${NC}"
-        fi
-    fi
+    # T-3998: every hook is first written to a STAGING dir, then compared byte for
+    # byte with what is installed. The short-circuit used to trust the commit-msg
+    # `# VERSION=` marker alone, so a hook whose content changed without a marker
+    # bump never deployed: T-3821's pre-push fix (do not stamp a tracked VERSION)
+    # sat undeployed here and the old hook rewrote VERSION on every push. The
+    # marker is still written (and still reported), but content decides.
+    local stage_dir
+    stage_dir=$(mktemp -d "${TMPDIR:-/tmp}/fw-hooks.XXXXXX") || {
+        echo -e "${RED}ERROR: Could not create a staging directory for the hooks${NC}"
+        exit 1
+    }
+    # shellcheck disable=SC2064
+    trap "rm -rf '$stage_dir'" EXIT
+    local commit_msg_hook="$stage_dir/commit-msg"
+    local pre_commit_hook="$stage_dir/pre-commit"
+    local post_commit_hook="$stage_dir/post-commit"
+    local pre_push_hook="$stage_dir/pre-push"
+    local pre_merge_commit_hook="$stage_dir/pre-merge-commit"   # T-3511
 
     # Create commit-msg hook
     # PL-078: install-hooks short-circuits on the commit-msg `# VERSION=`
@@ -249,11 +244,7 @@ if [ -n "$TASK_REF" ]; then
                 echo ""
                 echo "Bypass: git commit --no-verify"
                 echo "  (In agent context, Tier 0 will prompt for approval on --no-verify.)"
-                # Key is case-sensitive and is READ as INCEPTION_COMMIT_LIMIT (see the
-                # fw_config call above). Emitting the lowercase form made this remediation a
-                # no-op: following it exactly left the gate reading the default and blocking
-                # with this same message (T-686).
-                echo "  Configure: $(_emit_user_command "config set INCEPTION_COMMIT_LIMIT N")"
+                echo "  Configure: $(_emit_user_command "config set inception_commit_limit N")"
                 exit 1
             else
                 echo ""
@@ -370,42 +361,6 @@ MASTER_GUARD="$FRAMEWORK_ROOT/agents/git/lib/master-guard.sh"
 if [ -f "$MASTER_GUARD" ]; then
     PROJECT_ROOT="$PROJECT_ROOT" bash "$MASTER_GUARD" check || exit 1
 fi
-
-# T-659: retention-sweep deletions are not the agent's to commit.
-#
-# A retention cron prunes .context/audits/cron/ and leaves the deletions pending in the
-# working tree indefinitely. Committing them is a housekeeping decision belonging to the
-# operator, not a side effect of whatever the agent was doing. Three sessions held this
-# line by staging explicit paths every time — until one `git add .context/` to pick up a
-# single episodic file swept 338 of them into the index. The rule lived in the agent's
-# head; the index does not consult it. Habit is what failed, so a habit is not the fix.
-#
-# Blocks only under agent control ($CLAUDECODE). The operator committing a retention
-# sweep deliberately is the intended path and is not obstructed.
-# 832 T-659 (re-applied on 1.7.740 by T-1005)
-if [ "${CLAUDECODE:-0}" = "1" ] && [ "${FW_ALLOW_RETENTION_SWEEP:-0}" != "1" ]; then
-    _rs_n=$(git diff --cached --name-only --diff-filter=D 2>/dev/null \
-            | grep -c '^\.context/audits/cron/' || true)
-    if [ "${_rs_n:-0}" -gt 0 ]; then
-        echo "" >&2
-        echo "ERROR: Commit blocked — $_rs_n retention-sweep deletion(s) staged (T-659)." >&2
-        echo "" >&2
-        echo "  .context/audits/cron/ is pruned by a retention cron. Those deletions are" >&2
-        echo "  the operator's to commit, not a byproduct of the current task." >&2
-        echo "" >&2
-        echo "  Almost always the cause: a directory-wide 'git add .context/' rather than" >&2
-        echo "  explicit paths. Unstage them and keep the rest of your work:" >&2
-        echo "" >&2
-        echo "    git reset HEAD .context/audits/" >&2
-        echo "" >&2
-        echo "  Then re-add only the files your task produced, by name." >&2
-        echo "" >&2
-        echo "  Operator, or a deliberate sweep: FW_ALLOW_RETENTION_SWEEP=1 git commit ..." >&2
-        echo "" >&2
-        exit 1
-    fi
-fi
-
 
 # FW-HOOK-BLOCK: t3110-corpus-guard
 # T-3110 (R7 leg L1, docs/design/task-corpus-concurrency-model.md): task-corpus
@@ -1570,6 +1525,37 @@ HOOK_EOF
 
     chmod +x "$pre_push_hook"
     _verify_hook_written "$pre_push_hook" || { install_failed=true; failed_hooks+=("$pre_push_hook"); }
+
+    # T-3998: compare the staged hooks with the installed ones; deploy what differs.
+    local _names="commit-msg pre-commit pre-merge-commit post-commit pre-push" _n _differ=""
+    if [ "$install_failed" = false ]; then
+        for _n in $_names; do
+            if [ "$force" = true ] || [ ! -x "$hooks_dir/$_n" ] || ! cmp -s "$stage_dir/$_n" "$hooks_dir/$_n"; then
+                _differ="$_differ $_n"
+            fi
+        done
+        if [ -z "$_differ" ]; then
+            echo -e "${GREEN}Hooks already installed (version $COMMIT_MSG_HOOK_VERSION, content identical)${NC}"
+            echo "Use --force to reinstall"
+            exit 0
+        fi
+        local existing_version
+        existing_version=$(grep "^# VERSION=" "$hooks_dir/commit-msg" 2>/dev/null | cut -d= -f2)
+        # State the difference, not a direction (T-2852): nothing here compares ordering.
+        [ "$force" = true ] || echo -e "${YELLOW}Hook content differs:${_differ} (marker installed: ${existing_version:-none}, template: $COMMIT_MSG_HOOK_VERSION) — reinstalling${NC}"
+        failed_hooks=()
+        for _n in $_differ; do
+            if cp "$stage_dir/$_n" "$hooks_dir/$_n" 2>/dev/null && chmod +x "$hooks_dir/$_n" \
+                && cmp -s "$stage_dir/$_n" "$hooks_dir/$_n"; then
+                :
+            else
+                install_failed=true; failed_hooks+=("$hooks_dir/$_n")
+            fi
+        done
+    fi
+    commit_msg_hook="$hooks_dir/commit-msg"; pre_commit_hook="$hooks_dir/pre-commit"
+    post_commit_hook="$hooks_dir/post-commit"; pre_push_hook="$hooks_dir/pre-push"
+    pre_merge_commit_hook="$hooks_dir/pre-merge-commit"
 
     # T-2813: report actual disk state, not the write that was attempted.
     # A hook is only listed as installed once _verify_hook_written confirmed

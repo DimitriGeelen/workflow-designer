@@ -16,20 +16,6 @@
         gap: 0.4rem;
     }
     .corpus-card h4 { margin: 0; }
-    /* 832 T-1048: preview tile of the latest saved version (the editor's own capture) */
-    .corpus-thumb {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 120px;
-        margin: -0.25rem -0.5rem 0.3rem;
-        border: 1px solid var(--pico-muted-border-color);
-        border-radius: 6px;
-        background: #151821;
-        overflow: hidden;
-    }
-    .corpus-thumb img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
-    .corpus-thumb.no-thumb { background: transparent; border-style: dashed; color: var(--pico-muted-color); font-size: 0.75rem; }
     .corpus-meta {
         font-size: 0.8rem;
         color: var(--pico-muted-color);
@@ -117,13 +103,6 @@
 <div class="corpus-grid">
     {% for p in projects %}
     <div class="corpus-card{% if p.is_draft %} is-draft{% endif %}">
-        {# 832 T-1048: a plain image, deliberately NOT a link — the card's one editor link
-           must keep minting its click-time nonce (T-2596, test_card_links_mint_clicktime_nonce). #}
-        {% if p.thumb_url %}
-        <div class="corpus-thumb"><img src="{{ p.thumb_url }}" alt="{{ p.title }} preview" loading="lazy"></div>
-        {% else %}
-        <div class="corpus-thumb no-thumb">no preview</div>
-        {% endif %}
         <h4>{{ p.title }}{% if p.is_draft %}<span class="draft-badge">DRAFT</span>{% endif %}</h4>
         <span class="corpus-id">{{ p.id }}</span>
         <span class="corpus-meta">v{{ p.latest_v }} · {{ p.version_count }} version{{ '' if p.version_count == 1 else 's' }} · saved {{ p.saved_h }}</span>
