@@ -63,6 +63,11 @@ date_finished: null
 93s — both now over the 90s sweep cap even with no suite around them (the 2026-10-08 headroom warning had
 _t525 at 68-73s). Cost tracks the tree; measure before moving the cap (the sweep's own advice).
 
+2026-10-09 evening, on AEF 1.8.8 (T-1104): bridge 255/1, the 1 the sweep. Sweep ALONE: 101 ran, 0 regressed,
+3 did-not-finish — _t525, _t535 and now _t550-audit-parse-anchor-teeth.py (alone, uncapped: 5/5 in 112s). Inside
+the suite the leg printed its "regressed" message, alone it reports INCOMPLETE (rc=3): the in-suite run named no
+regressed script in its captured tail; not reproducible alone. Three scripts now exceed the cap with no load.
+
 ## Acceptance Criteria
 
 ### Agent

@@ -42,7 +42,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T20:43:31Z
-last_update: 2026-10-09T18:52:38Z
+last_update: 2026-10-09T19:57:24Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -93,7 +93,10 @@ bvp_scores_proposed:
   (pristine commit c421d964: 58 paths, 0 outside `.agentic-framework/`; baseline advanced 50b1b72d)
 - [x] Every `.vendor-divergence.yaml` entry re-applied, retired as superseded, or recorded; `_t517` OK
   (0e3e245b: all 36 re-applied by a 3-way apply of diff(fef66c7d -> 14e6f5e3), all clean, none adopted upstream; re-vendor gate 12/12)
-- [ ] Post-upgrade checks recorded: settings.json hooks intact, cron intact, any `.upstream` files listed and compared, bridge suite re-run
+- [x] Post-upgrade checks recorded: settings.json hooks intact, cron intact, any `.upstream` files listed and compared, bridge suite re-run
+  (832 hooks intact (3/3 markers); crontab 7 framework lines, no /tmp/; no `.upstream` task templates written; only
+  `.agentic-framework/.upstream` sentinel; fw doctor: 0 FAIL, Watchtower smoke /gaps 15s = slow not broken; bridge on 1.8.8
+  255/1, the 1 the instrument sweep: alone 0 regressed, 3 did-not-finish (_t525/_t535/_t550, each passes uncapped) -> T-1103)
 - [x] Any `*.bak` the upgrade left (e.g. `CLAUDE.md.bak`) diffed against the live file: if every backup-only line is superseded, the backup is deleted and the diff summarised here; if any line would be lost, it is reported to the operator and the backup kept (operator, 2026-10-09, question 4 option 2)
   (the 1.8.8 upgrade left NO `*.bak`: find for `*.bak*` newer than the job's dry-run found none; CLAUDE.md, .claude/ and .tasks/templates/ untouched — only .framework.yaml bookkeeping changed)
 
@@ -130,6 +133,11 @@ bvp_scores_proposed:
 
 ## Verification
 
+grep -qx '1.8.8' .agentic-framework/VERSION
+test "$(git show --name-only --format= c421d964 | grep -c .)" -gt 0 && test "$(git show --name-only --format= c421d964 | grep -c .)" -eq "$(git show --name-only --format= c421d964 | grep -c '^\.agentic-framework/')"
+python3 tools/_t517-vendor-divergence.py > /tmp/.t1104-t517 2>&1 && grep -q '^OK' /tmp/.t1104-t517
+test -f .context/runme/006-upgrade-aef-1.8.8/done
+test "$(grep -c '_t420-rail-attribution-gate\|warn-uncontrolled-absence\|check-bare-import' .claude/settings.json)" -ge 3
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
