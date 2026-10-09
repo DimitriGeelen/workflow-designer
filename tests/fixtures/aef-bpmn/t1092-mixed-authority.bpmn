@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_t1092_mixed"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <!-- T-1092 fixture (synthetic): the no-authority map with ONE element given an authority
+       (Configure product: initiative). The map now DECLARES authority, so a missing one is a gap
+       among declared ones: the other three tasks keep their per-element "⚠ no authority" marker
+       exactly as before T-1092 (T-893 / T-1069), and no summary is shown. -->
+
+  <bpmn:process id="Process_t1092_mixed" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="lane_sales" name="Sales">
+        <bpmn:extensionElements><aef:laneMeta abbr="sal" authority="none" height="130"/></bpmn:extensionElements>
+        <bpmn:flowNodeRef>t_quote</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>t_order</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_cpq" name="Configurator">
+        <bpmn:flowNodeRef>t_configure</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>t_price</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:task id="t_quote" name="Request quote"><bpmn:extensionElements><aef:uid value="n_quote"/></bpmn:extensionElements></bpmn:task>
+    <bpmn:task id="t_configure" name="Configure product"><bpmn:extensionElements><aef:uid value="n_configure"/><aef:meta authority="initiative"/></bpmn:extensionElements></bpmn:task>
+    <bpmn:task id="t_price" name="Calculate price"><bpmn:extensionElements><aef:uid value="n_price"/></bpmn:extensionElements></bpmn:task>
+    <bpmn:task id="t_order" name="Place order"><bpmn:extensionElements><aef:uid value="n_order"/></bpmn:extensionElements></bpmn:task>
+    <bpmn:sequenceFlow id="f1" sourceRef="t_quote" targetRef="t_configure"><bpmn:extensionElements><aef:uid value="f_1"/></bpmn:extensionElements></bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f2" sourceRef="t_configure" targetRef="t_price"><bpmn:extensionElements><aef:uid value="f_2"/></bpmn:extensionElements></bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f3" sourceRef="t_price" targetRef="t_order"><bpmn:extensionElements><aef:uid value="f_3"/></bpmn:extensionElements></bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>

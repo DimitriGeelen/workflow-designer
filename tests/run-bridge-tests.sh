@@ -908,6 +908,18 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1092 (aef-greenfield-test T-172 #6, operator option 3): authority markers are a Setting, default
+# ON (T-888 clause 4); a map that declares no authority anywhere shows ONE summary in the advisory
+# dock instead of a marker per element; a map that declares any authority keeps per-element markers.
+if node "$ROOT/tools/_t1092-authority-summary-cdp.mjs" > "$TMP/leg-_t1092.out" 2>&1 \
+   && grep -q "11/11 legs passed" "$TMP/leg-_t1092.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "authority markers: the default is no longer ON, a no-authority map draws per-element markers instead of one summary (or the summary covers the canvas / ignores dismiss), a map with declared authority lost its markers, or the Settings toggle stopped working or persisting (run 'node tools/_t1092-authority-summary-cdp.mjs'; T-1092)"
+  show_output "$TMP/leg-_t1092.out" "_t1092-authority-summary-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
 # aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
 # guard since T-889 closed (the census showed it had lost its only caller, T-889's Verification).

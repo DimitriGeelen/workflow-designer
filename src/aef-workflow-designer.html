@@ -1588,6 +1588,13 @@ font-family: 'Outfit';
         <button class="btn" id="clean-nudge-apply" type="button">Clean layout</button>
         <button class="clean-nudge-x" id="clean-nudge-dismiss" type="button" title="Dismiss">✕</button>
       </div>
+      <!-- T-1092: a map that declares no authority at all gets ONE statement of that fact
+           instead of a "⚠ no authority" marker on every element (T-888 clause 4 keeps the hole
+           visible; it is just said once). Same dock, same house style as the two above. -->
+      <div class="clean-nudge" id="authority-summary" style="display:none">
+        <span class="clean-nudge-msg" id="authority-summary-msg"></span>
+        <button class="clean-nudge-x" id="authority-summary-dismiss" type="button" title="Dismiss">✕</button>
+      </div>
     </div>
 
     <!-- ============ Properties panel ============ -->
@@ -1747,6 +1754,10 @@ font-family: 'Outfit';
             <input type="checkbox" id="set-show-pool">
             <span>Show pool header title</span>
           </label>
+          <label class="settings-row"><!-- T-1092: from aef-greenfield-test's patch (T-172 #6); default ON per the T-888 ruling -->
+            <input type="checkbox" id="set-show-authority">
+            <span>Show authority markers</span>
+          </label>
         </div>
         <div class="settings-footer">
           <span class="settings-hint">Stored in this browser only — never in the workflow file.</span>
@@ -1838,6 +1849,31 @@ const AUTHORITY_ABBR = { sovereignty: 'sov', authority: 'aut', initiative: 'ini'
 // today it is where the fact lives on all 24 corpus maps), and nothing for the retired 'none'
 // sentinel — which is exactly the lane whose elements carry no authority anywhere, so their
 // marker reads 'missing' truthfully. Decision recorded on T-893.
+// T-1092 (operator, option 3 on Greenfield's T-172 #6): a map where no element carries an
+// authority and no lane offers a default is not "N holes", it is one fact about the map — typical
+// of an import from another tool. Its markers are summarised once (syncAuthoritySummary) instead
+// of drawn on every element. As soon as ANY authority is declared, per-element markers return,
+// because then a missing one is a gap among declared ones, which is what clause 4 must show.
+function mapDeclaresAuthority() {
+  const has = v => v != null && v !== '';
+  return state.nodes.some(n => has(n.aef?.authority)) || state.lanes.some(l => has(effectiveLaneDefault(l)));
+}
+// Keyed by the pool id, which an import takes from the file's own process id. Not the workflow id:
+// re-importing the same file gets a fresh one (process_x -> process_x_v2), which would re-show it.
+let _authSummaryDismissed = null;   // map identity the summary was dismissed for; another map shows it again
+const authSummaryKey = () => state.pool?.id || '';
+function syncAuthoritySummary(count) {
+  const box = $('authority-summary'), msg = $('authority-summary-msg');
+  if (!box || !msg) return;
+  const show = count.missing > 0 && _authSummaryDismissed !== authSummaryKey();
+  if (show) {
+    const t = `⚠ This map declares no authority: none of its ${count.missing} element${count.missing === 1 ? '' : 's'} ` +
+              `carries one and no lane offers a default (markers summarised here, not drawn per element)`;
+    if (msg.textContent !== t) msg.textContent = t;
+  }
+  const d = show ? '' : 'none';
+  if (box.style.display !== d) box.style.display = d;
+}
 function effectiveLaneDefault(lane) {
   if (!lane) return null;
   if (lane.authoringDefault) return lane.authoringDefault;
@@ -2848,11 +2884,11 @@ function setSnapPref(key, value) {
 
 // Lane-label fit ladder (T-084) — editor-local (localStorage), same seam
 // discipline as routingPrefs/snapPrefs: render-only, never in the document.
-let labelPrefs = { laneFit: true, wrapNames: true, showLane: true, showIds: true, showEdge: true, showPool: true, size: 'm' };
+let labelPrefs = { laneFit: true, wrapNames: true, showLane: true, showIds: true, showEdge: true, showPool: true, showAuthority: true, size: 'm' };
 try {
   const _storedLabel = JSON.parse(localStorage.getItem('aefLabelPrefs') || '{}');
   if (typeof _storedLabel.laneFit === 'boolean') labelPrefs.laneFit = _storedLabel.laneFit;
-  for (const k of ['wrapNames', 'showLane', 'showIds', 'showEdge', 'showPool'])
+  for (const k of ['wrapNames', 'showLane', 'showIds', 'showEdge', 'showPool', 'showAuthority'])
     if (typeof _storedLabel[k] === 'boolean') labelPrefs[k] = _storedLabel[k];
   if (['s', 'm', 'l'].includes(_storedLabel.size)) labelPrefs.size = _storedLabel.size;
 } catch (e) { aefRecordFault('prefs-restore:label', e); }
@@ -3039,7 +3075,7 @@ function syncOverlayPin() {
   const dx = canvasWrap.scrollLeft, dy = canvasWrap.scrollTop;
   const o = document.querySelector('.canvas-overlay');
   if (o) o.style.transform = (dx || dy) ? `translate(${dx}px, ${dy}px)` : '';
-  for (const id of ['clean-nudge', 'lane-fix-notice']) {   // T-310: both advisories pin
+  for (const id of ['clean-nudge', 'lane-fix-notice', 'authority-summary']) {   // T-310: advisories pin (T-1092: three)
     const n = $(id);
     if (n) n.style.transform = (dx || dy) ? `translate(calc(-50% + ${dx}px), ${dy}px)` : '';
   }
@@ -3634,6 +3670,8 @@ function renderNodes() {
       if ((lp && lp.t === 'S') || e.targetPort === 'S') bottomFlow.add(e.target);
     }
   }
+  const authDeclared = mapDeclaresAuthority();      // T-1092
+  const authCount = { missing: 0, total: 0 };
   for (const n of state.nodes) {
     const def = NODE_DEFAULTS[n.type];
     const isPrimary = selection?.kind === 'node' && selection.id === n.id;
@@ -3828,9 +3866,13 @@ function renderNodes() {
     // them on every standard task (104 crossings on the corpus). The longest form that fits the
     // gap left of top-centre is drawn (8px mono, so width is chars × MARKER_CH, known before
     // render); the full text is always the <title>, so a short form loses nothing on hover.
-    {
+    // T-1092: Settings can hide all markers (default ON); on a map that declares no authority
+    // anywhere, a 'missing' marker is not drawn per element but counted for the one summary.
+    if (labelPrefs.showAuthority) {
       const lane = findLane(n.lane);
-      const mstate = authorityMarkerState(n.aef?.authority, effectiveLaneDefault(lane));
+      let mstate = authorityMarkerState(n.aef?.authority, effectiveLaneDefault(lane));
+      authCount.total++;
+      if (mstate === 'missing' && !authDeclared) { authCount.missing++; mstate = 'none'; }
       const MARKER_CH = 4.9;                       // 8px monospace advance, rounded up
       const avail = def.w / 2 - 2 - 7;             // from n.x+2 to top-centre, minus an arrowhead half-width
       const fitMarker = (forms) => forms.find(t => t.length * MARKER_CH <= avail) || forms[forms.length - 1];
@@ -3898,6 +3940,7 @@ function renderNodes() {
     }
     gNodes.appendChild(g);
   }
+  syncAuthoritySummary(authCount);
   fitNodeLabels();
   wrapOverlongBelowLabels();
   deCollideBelowLabels();
@@ -7393,6 +7436,7 @@ function syncSettingsUI() {
   $('set-show-ids').checked = labelPrefs.showIds;
   $('set-show-edge').checked = labelPrefs.showEdge;
   $('set-show-pool').checked = labelPrefs.showPool;
+  $('set-show-authority').checked = labelPrefs.showAuthority;
 }
 function openSettings() { syncSettingsUI(); $('view-apply-row').style.display = 'none'; $('settings-modal').classList.add('visible'); }
 function closeSettings() { $('settings-modal').classList.remove('visible'); }
@@ -7460,6 +7504,7 @@ $('set-show-lane').addEventListener('change', e => setLabelPref('showLane', e.ta
 $('set-show-ids').addEventListener('change', e => setLabelPref('showIds', e.target.checked));
 $('set-show-edge').addEventListener('change', e => setLabelPref('showEdge', e.target.checked));
 $('set-show-pool').addEventListener('change', e => setLabelPref('showPool', e.target.checked));
+$('set-show-authority').addEventListener('change', e => setLabelPref('showAuthority', e.target.checked));
 $('set-grid-size').addEventListener('change', e => {
   const v = Math.max(4, Math.min(100, Math.round(parseFloat(e.target.value)) || 20));
   setSnapPref('gridSize', v);
@@ -7483,6 +7528,7 @@ $('btn-settings-reset').onclick = () => {
   setLabelPref('showIds', true);
   setLabelPref('showEdge', true);
   setLabelPref('showPool', true);
+  setLabelPref('showAuthority', true);
   syncSettingsUI();
 };
 
@@ -8574,7 +8620,7 @@ function maybeShowLaneFixNotice() {
 function syncAdvisoryDock() {
   const wrap = document.querySelector('.canvas-wrap');
   if (!wrap) return;
-  const shown = [$('lane-fix-notice'), $('clean-nudge')]
+  const shown = [$('lane-fix-notice'), $('clean-nudge'), $('authority-summary')]
     .filter(e => e && e.style.display !== 'none');
   let y = 12;
   for (const e of shown) {
@@ -9462,6 +9508,8 @@ $('clean-nudge-apply').onclick = () => {
   $('clean-nudge').style.display = 'none';
 };
 $('clean-nudge-dismiss').onclick = () => { $('clean-nudge').style.display = 'none'; };
+// T-1092: dismissed for THIS map only (keyed by its identity); loading another map shows it again.
+$('authority-summary-dismiss').onclick = () => { _authSummaryDismissed = authSummaryKey(); $('authority-summary').style.display = 'none'; };
 // T-310: dismissing the lane-fix notice returns the Clean nudge to the top slot.
 $('lane-fix-dismiss').onclick = () => {
   $('lane-fix-notice').style.display = 'none';
@@ -9471,7 +9519,7 @@ $('lane-fix-dismiss').onclick = () => {
 // observed rather than called from each site, so a new path cannot forget it.
 {
   const mo = new MutationObserver(() => syncAdvisoryDock());
-  for (const id of ['lane-fix-notice', 'clean-nudge', 'lane-fix-msg']) {
+  for (const id of ['lane-fix-notice', 'clean-nudge', 'lane-fix-msg', 'authority-summary', 'authority-summary-msg']) {
     const e = $(id);
     if (e) mo.observe(e, { attributes: true, attributeFilter: ['style', 'class'], childList: true, characterData: true, subtree: true });
   }
