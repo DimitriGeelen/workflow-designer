@@ -42,7 +42,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T20:43:31Z
-last_update: 2026-10-09T18:47:21Z
+last_update: 2026-10-09T18:52:38Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -87,11 +87,15 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A runme job is prepared (pinned v1.8.8 = f0fc5839; retargeted 2026-10-09 from v1.8.7 = 30d16704, which AEF superseded before the job ran), `bash runme.sh --dry-run <job>` passes, the watcher is armed; the agent never runs it for real
-- [ ] After the operator's run: VERSION reads 1.8.8 and the pristine commit touches only `.agentic-framework/`
-- [ ] Every `.vendor-divergence.yaml` entry re-applied, retired as superseded, or recorded; `_t517` OK
+- [x] A runme job is prepared (pinned v1.8.8 = f0fc5839; retargeted 2026-10-09 from v1.8.7 = 30d16704, which AEF superseded before the job ran), `bash runme.sh --dry-run <job>` passes, the watcher is armed; the agent never runs it for real
+  (operator ran job 006 2026-10-09 18:22-18:37Z, 4/4 steps, rc=0)
+- [x] After the operator's run: VERSION reads 1.8.8 and the pristine commit touches only `.agentic-framework/`
+  (pristine commit c421d964: 58 paths, 0 outside `.agentic-framework/`; baseline advanced 50b1b72d)
+- [x] Every `.vendor-divergence.yaml` entry re-applied, retired as superseded, or recorded; `_t517` OK
+  (0e3e245b: all 36 re-applied by a 3-way apply of diff(fef66c7d -> 14e6f5e3), all clean, none adopted upstream; re-vendor gate 12/12)
 - [ ] Post-upgrade checks recorded: settings.json hooks intact, cron intact, any `.upstream` files listed and compared, bridge suite re-run
-- [ ] Any `*.bak` the upgrade left (e.g. `CLAUDE.md.bak`) diffed against the live file: if every backup-only line is superseded, the backup is deleted and the diff summarised here; if any line would be lost, it is reported to the operator and the backup kept (operator, 2026-10-09, question 4 option 2)
+- [x] Any `*.bak` the upgrade left (e.g. `CLAUDE.md.bak`) diffed against the live file: if every backup-only line is superseded, the backup is deleted and the diff summarised here; if any line would be lost, it is reported to the operator and the backup kept (operator, 2026-10-09, question 4 option 2)
+  (the 1.8.8 upgrade left NO `*.bak`: find for `*.bak*` newer than the job's dry-run found none; CLAUDE.md, .claude/ and .tasks/templates/ untouched — only .framework.yaml bookkeeping changed)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
