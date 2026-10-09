@@ -10098,7 +10098,9 @@ async function saveToProject() {
     // (the rail-225 scratch-copy overwrite). One confirm; same-stem and non-deep-link
     // documents never see it.
     const _mismatchSrc = (_loadSrcKey != null && activeKey === _loadSrcKey) ? currentLoadSrc() : null;
-    const _mismatchStem = _loadSrcStem(_mismatchSrc);
+    // T-1109: a project deep link (?load=/api/version?id=X) is guarded by the T-1089 check below, which
+    // knows the project; its file stem ("version") would make this one fire on every such Save.
+    const _mismatchStem = projectIdFromLoadSrc(_mismatchSrc) ? '' : _loadSrcStem(_mismatchSrc);
     if (_mismatchStem && _mismatchStem !== id.toLowerCase() &&
         !confirm(`Loaded from "${_mismatchSrc}" but will save as "${id}" — proceed?`)) {
       if (btn) btn.textContent = label || '⤓ Save to project';
@@ -10970,6 +10972,18 @@ $('btn-load').onclick = () => {
 // the editor (the CDP probes) must wait for this, not for _appReady plus a sleep. A window property,
 // not a `let`: this handler starts running before the script's later `let` bindings exist.
 window._deepLinkSettled = null;
+// T-1109 (aef-greenfield-test's 0.16.0 re-test): a portal that opens a project's map through the
+// project API — ?load=/api/version?id=X[&v=N] — is opening project X, exactly like Versions -> open,
+// so it gets the same T-1089 treatment (a file that declares no workflow id takes X; a declared id
+// still wins, T-263). Same origin only, and only that endpoint: any other ?load stays a plain import.
+function projectIdFromLoadSrc(src) {
+  try {
+    const u = new URL(src, location.href);
+    if (u.origin !== location.origin || !/(^|\/)api\/version$/.test(u.pathname)) return null;
+    const id = u.searchParams.get('id');
+    return id && id.trim() ? id.trim() : null;
+  } catch (_) { return null; }   // not a URL at all: not a project load (a plain import follows)
+}
 (async () => {
   const src = new URLSearchParams(location.search).get('load');
   // T-884: ?instance=T-XXX pre-selects an instance once the map (and its snapshot) is in.
@@ -10983,7 +10997,8 @@ window._deepLinkSettled = null;
     // deep-link, don't let the fetched file overwrite them. The synchronous Init tail
     // (which runs autoLoadStored) always completes before this await resolves.
     if (typeof _suppressDeepLink !== 'undefined' && _suppressDeepLink) { loadInstanceSnapshot(); settled = 'suppressed'; return; }
-    adoptImportedXml(await res.text(), { userImport: true });
+    const projectId = projectIdFromLoadSrc(src);   // T-1109
+    adoptImportedXml(await res.text(), projectId ? { userImport: true, projectId } : { userImport: true });
     _loadSrcKey = activeKey;   // T-234: remember which map identity this ?load adopted
     loadInstanceSnapshot();    // T-884: the overlay follows the loaded template
     settled = 'adopted';
@@ -12442,7 +12457,8 @@ let _suppressDeepLink = false;         // B1: set when a same-map restore should
 // wrong map (AEF T-2596). null = this session's document didn't come from ?load.
 let _loadSrcKey = null;
 // T-1089: the project the active map was opened from ({projectId, key}), set by adoptImportedXml
-// when a project load path passes opts.projectId; null for user imports and ?load links.
+// when a project load path passes opts.projectId (T-1109: also a ?load=/api/version?id=X link);
+// null for user imports and other ?load links.
 let _projectLoad = null;
 try { _autosaveRestore = JSON.parse(localStorage.getItem(AUTOSAVE_KEY) || 'null'); } catch (e) { aefRecordFault('autosave-restore', e); }
 

@@ -1,11 +1,17 @@
 ---
 id: T-1109
-name: "Greenfield 0.16.0 re-test: a same-origin ?load=/api/version?id=X[&v=N] deep link opens as project X (T-1089 gap)"
+name: "Greenfield 0.16.0 re-test: a same-origin ?load=/api/version?id=X[&v=N] deep
+  link opens as project X (T-1089 gap)"
 description: >
-  aef-greenfield-test re-test of 0.16.0 (DM 55): T-1089 passes via Versions -> open, but their portal opens maps via ?load=/api/version?id=<project>; _projectLoad stays null, the id is guessed process_<x>, Save shows the T-264 confirm. Request: treat a same-origin ?load of that form as a project load (opts.projectId=X); a declared aef:workflowMeta id still wins (T-263).
+  aef-greenfield-test re-test of 0.16.0 (DM 55): T-1089 passes via Versions -> open,
+  but their portal opens maps via ?load=/api/version?id=<project>; _projectLoad stays
+  null, the id is guessed process_<x>, Save shows the T-264 confirm. Request: treat
+  a same-origin ?load of that form as a project load (opts.projectId=X); a declared
+  aef:workflowMeta id still wins (T-263).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-09T21:47:39Z
-last_update: 2026-10-09T21:47:39Z
-date_finished: null
+last_update: 2026-10-09T21:59:35Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-09T21:51:31Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1109: Greenfield 0.16.0 re-test: a same-origin ?load=/api/version?id=X[&v=N] deep link opens as project X (T-1089 gap)
@@ -62,8 +89,12 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A same-origin `?load=/api/version?id=X[&v=N]` deep link (relative or absolute same-origin URL) is adopted as a load of project X: a file without a declared `aef:workflowMeta` id takes X (T-1089 rule), `_projectLoad = {projectId: X, …}`, and Save writes X's next version with no confirm
+  (also needed: T-264's load-source guard reduced the link to the stem "version" and asked "Loaded from … but will save as X" on every Save — the confirm Greenfield saw; project links now skip it, the T-1089 guard covers them)
+- [x] A file that DECLARES its own id keeps it (T-263) even when opened by such a link; Save then asks before writing elsewhere (T-1089 behaviour, unchanged)
+- [x] A cross-origin `?load` or any other path (not `/api/version`) is NOT treated as a project load (no projectId inferred)
+- [x] CDP test `tools/_t1109-deeplink-project-load-cdp.mjs`: the three cases above against gallery-serve.py; FAILS on the 0.16.0 designer for the first case; wired in the bridge suite; T-1089's test still 7/7
+  (8/8; on dist 0.16.0 7 of 8 FAIL, the plain-file control passes on both; T-264 guards 8/8; census 0. The harness stubs alert() before page scripts: a failed ?load alert blocked every CDP call)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -98,6 +129,10 @@ date_finished: null
 
 ## Verification
 
+node tools/_t1109-deeplink-project-load-cdp.mjs > /tmp/.t1109-out 2>&1 && grep -q "8/8 legs passed" /tmp/.t1109-out
+node tools/_t1089-save-loaded-as-version-cdp.mjs > /tmp/.t1109-t1089 2>&1 && grep -q "7/7 legs passed" /tmp/.t1109-t1089
+grep -q "_t1109-deeplink-project-load-cdp.mjs" tests/run-bridge-tests.sh
+python3 tools/_t821-swallowed-failure-census.py > /tmp/.t1109-census 2>&1 && grep -q "FINDINGS                  0" /tmp/.t1109-census
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -320,3 +355,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1109-greenfield-0160-re-test-a-same-origin-lo.md
 - **Context:** Initial task creation
+
+### 2026-10-09T21:51:31Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

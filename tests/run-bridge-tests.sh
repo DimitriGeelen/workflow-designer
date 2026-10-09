@@ -920,6 +920,18 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1109 (aef-greenfield-test's 0.16.0 re-test): a same-origin ?load=/api/version?id=X deep link opens as
+# project X — a file without a workflow id takes X, Save writes X's next version with no confirm; a declared
+# id is kept and Save asks naming X; a plain-file ?load and cross-origin sources are not project loads.
+if node "$ROOT/tools/_t1109-deeplink-project-load-cdp.mjs" > "$TMP/leg-_t1109.out" 2>&1 \
+   && grep -q "8/8 legs passed" "$TMP/leg-_t1109.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "a project deep link (?load=/api/version?id=X) no longer opens as project X: the id is guessed from the file, Save asks a false 'Loaded from' confirm or writes a process_* project, or a non-project ?load is now treated as one (run 'node tools/_t1109-deeplink-project-load-cdp.mjs'; T-1109)"
+  show_output "$TMP/leg-_t1109.out" "_t1109-deeplink-project-load-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
 # aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
 # guard since T-889 closed (the census showed it had lost its only caller, T-889's Verification).
