@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-09T05:36:39Z
-last_update: 2026-10-09T23:38:00Z
+last_update: 2026-10-09T23:41:10Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -94,7 +94,8 @@ replying by DM. The permanent model is T-1107.
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] A runme job is prepared (validates the operator-placed secret file without printing it, stores it 0600 in TermLink's secrets store, adds profile greenfield-132, shreds the drop file, pins and shows the hub fingerprint, sends a sidecar test, audits the store); `bash runme.sh --dry-run` passes; the watcher is armed; the agent never runs it for real
-- [ ] After the operator's run: our sidecar -> Greenfield is delivered (not REFUSED), and Greenfield acks on `evergreen-trial`
+- [x] After the operator's run: our sidecar -> Greenfield is delivered (not REFUSED), and Greenfield acks on `evergreen-trial`
+  (2026-10-10: `--hub greenfield` send HUB_ACCEPTED, msg ac704e99; Greenfield's ACK 355eadee "round trip proven both ways", their T-175 closed)
 - [x] `termlink fleet secrets-audit` shows the new secret file 0600 and referenced by profile greenfield-132; no drop file left at /root/greenfield-hub.secret
   (as provisioned by dimitri-mint-dev instead of our job: profile `greenfield` -> 192.168.10.132:9100, secret
   /root/.termlink/secrets/greenfield.hex 0600, audit status ok; no drop file was ever created — jobs 008/009 never fetched)
@@ -132,6 +133,8 @@ replying by DM. The permanent model is T-1107.
 
 ## Verification
 
+termlink remote profile list > /tmp/.t1106-prof 2>&1 && grep -q "^greenfield " /tmp/.t1106-prof
+test -f .context/runme/008-greenfield-hub-credential/retired && test -f .context/runme/009-greenfield-hub-credential-via-mint-dev/retired
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
