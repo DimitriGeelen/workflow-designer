@@ -1,0 +1,163 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1104: Upgrade the framework AEF 1.8.6 to 1.8.7 via re-vendor protocol
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-09T19:59:18Z
+# ============================================================================
+
+task_id: T-1104
+task_name: "Upgrade the framework AEF 1.8.6 to 1.8.7 via re-vendor protocol"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-08T20:43:31Z
+completed: 2026-10-09T19:58:18Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-08T22:44:24+02:00
+last_commit: 2026-10-09T21:58:17+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  runme job 006-upgrade-aef-1.8.7 (pinned v1.8.7 = 30d16704, same protocol as job 004), dry-run passed. job 006 retargeted to AEF v1.8.8 (= f0fc5839; 1.8.7 superseded before the operator ran it), folder renamed 006-upgrade-aef-1.8.8. job 006 (v1.8.8) dry-run passed. standing rule (operator, question 4 option 2) — backups an upgrade leaves are diffed against the live file and removed only when every backup-only line is superseded; applied now: CLAUDE.md.bak (6 backup-only lines, all superseded by T-1079/T-1080/1.8.6 wording), .claude/settings.json.bak and settings.json.bak-20261004T161227 (no hook or key missing from live) — all three untracked, removed; T-1104 AC added for the 1.8.8 run. pristine vendor commit — AEF 1.8.8 as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF 1.8.8 commit (re-vendor protocol step 2, T-1000). re-apply our 36 local fixes on AEF 1.8.8 (re-vendor protocol step 3) — 3-way apply of diff(pristine 1.8.6 fef66c7d -> pre-upgrade 14e6f5e3) onto pristine 1.8.8, all clean, no conflict markers, none adopted upstream; _t517 OK, re-vendor gate 12/12, syntax checked; designer pin stays 0.16.0. 1.8.8 follow-up evidence — pristine commit framework-only (58 paths), 36 local fixes re-applied, no *.bak left, .framework.yaml bookkeeping (1.8.8, f0fc5839); bridge run pending. post-upgrade checks complete on 1.8.8 (hooks, cron, no .upstream templates, doctor 0 FAIL, bridge 255/1 — the sweep's 3 timeouts, 0 regressed alone); T-1103 gets _t550 as the third over-cap script
+
+# Key outcomes
+outcomes:
+  - 'A runme job is prepared (pinned v1.8.8 = f0fc5839; retargeted 2026-10-09 from v1.8.7 = 30d16704, which AEF superseded before the job ran), `bash runme.sh --dry-run <job>` passes, the watcher is armed; the agent never runs it for real'
+  - 'After the operator''s run: VERSION reads 1.8.8 and the pristine commit touches only `.agentic-framework/`'
+  - 'Every `.vendor-divergence.yaml` entry re-applied, retired as superseded, or recorded; `_t517` OK'
+  - 'Post-upgrade checks recorded: settings.json hooks intact, cron intact, any `.upstream` files listed and compared, bridge suite re-run'
+  - 'Any `*.bak` the upgrade left (e.g. `CLAUDE.md.bak`) diffed against the live file: if every backup-only line is superseded, the backup is deleted and the diff summarised here; if any line would be lost, it is reported to the operator and the backup kept (operator, 2026-10-09, question 4 option 2)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: '1.8.8 follow-up evidence — pristine commit framework-only (58 paths), 36 local fixes re-applied, no *.bak left, .framework.yaml bookkeeping (1.8.8, f0fc5839); bridge run pending'
+    source: git-mined
+  - description: 're-apply our 36 local fixes on AEF 1.8.8 (re-vendor protocol step 3) — 3-way apply of diff(pristine 1.8.6 fef66c7d -> pre-upgrade 14e6f5e3) onto pristine 1.8.8, all clean, no conflict markers, none adopted upstream; _t517 OK, re-vendor gate 12/12, syntax checked; designer pin stays 0.16.0'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/budget-gate.sh'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/check-inception-schema.py'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/git/lib/secret-scan.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/agents/termlink/termlink.sh'
+  - '.agentic-framework/bin/claude-fw'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/docs/context-compaction.md'
+  - '.agentic-framework/docs/reports/T-3977-arc009-map-review.md'
+  - '.agentic-framework/docs/reports/T-3977-worker-brief.md'
+  - '.agentic-framework/docs/reports/T-3980-git-in-worker-trees.md'
+  - '.agentic-framework/docs/reports/T-4008-discarded/recorded.lines.jsonl'
+  - '.agentic-framework/docs/reports/T-4008-discarded/refusals-interim.lines.jsonl'
+  - '.agentic-framework/docs/reports/T-4008-discarded/verdicts.lines.jsonl'
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/reviewer/judge_cli.py'
+  - '.agentic-framework/lib/runme.sh'
+  - '.agentic-framework/lib/seeds/decisions.yaml'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/vendor-visibility.sh'
+  - '.agentic-framework/lib/verdict_ledger.py'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/arcs.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/arc_detail.html'
+  - '.agentic-framework/web/templates/arcs_index.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - 'CLAUDE.md'
+  - '.context/runme/006-upgrade-aef-1.8.7/dryrun.ok'
+  - '.context/runme/006-upgrade-aef-1.8.7/job.sh'
+  - '.context/runme/006-upgrade-aef-1.8.8/dryrun.ok'
+  - '.context/runme/006-upgrade-aef-1.8.8/job.sh'
+  - '.framework.yaml'
+  - '.tasks/active/T-1103-inside-the-bridge-suite-t535t536-abstain.md'
+  - '.tasks/active/T-1104-upgrade-the-framework-aef-186-to-187-via.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-08T22:44:24'
+    action: 'T-1104: runme job 006-upgrade-aef-1.8.7 (pinned v1.8.7 = 30d16704, same protocol as job 004), dry-run passed'
+  - time: '2026-10-09T09:24:42'
+    action: 'T-1104: job 006 retargeted to AEF v1.8.8 (= f0fc5839; 1.8.7 superseded before the operator ran it), folder renamed 006-upgrade-aef-1.8.8'
+  - time: '2026-10-09T09:25:35'
+    action: 'T-1104: job 006 (v1.8.8) dry-run passed'
+  - time: '2026-10-09T10:05:43'
+    action: 'T-1104: standing rule (operator, question 4 option 2) — backups an upgrade leaves are diffed against the live file and removed only when every backup-only line is superseded; applied now: CLAUDE.md.bak (6 backup-only lines, all superseded by T-1079/T-1080/1.8.6 wording), .claude/settings.json.bak and settings.json.bak-20261004T161227 (no hook or key missing from live) — all three untracked, removed; T-1104 AC added for the 1.8.8 run'
+  - time: '2026-10-09T20:33:46'
+    action: 'T-1104: pristine vendor commit — AEF 1.8.8 as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-09T20:35:20'
+    action: 'T-1104: advance the divergence baseline to the pristine AEF 1.8.8 commit (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-09T20:48:11'
+    action: 'T-1104: re-apply our 36 local fixes on AEF 1.8.8 (re-vendor protocol step 3) — 3-way apply of diff(pristine 1.8.6 fef66c7d -> pre-upgrade 14e6f5e3) onto pristine 1.8.8, all clean, no conflict markers, none adopted upstream; _t517 OK, re-vendor gate 12/12, syntax checked; designer pin stays 0.16.0'
+  - time: '2026-10-09T20:53:28'
+    action: 'T-1104: 1.8.8 follow-up evidence — pristine commit framework-only (58 paths), 36 local fixes re-applied, no *.bak left, .framework.yaml bookkeeping (1.8.8, f0fc5839); bridge run pending'
+  - time: '2026-10-09T21:58:17'
+    action: 'T-1104: post-upgrade checks complete on 1.8.8 (hooks, cron, no .upstream templates, doctor 0 FAIL, bridge 255/1 — the sweep''s 3 timeouts, 0 regressed alone); T-1103 gets _t550 as the third over-cap script'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 9 commit(s), 1394 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1394
+  commits: 9
+  files_changed: 67
+  lines_added: 4940
+  lines_removed: 3756
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1104-upgrade-the-framework-aef-186-to-187-via.md
+generated_by: context-agent-hybrid
