@@ -1,0 +1,326 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:aef="http://anchorpoint.framework/aef/extensions" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Definitions_order-fulfilment" targetNamespace="https://aef.anchorpoint.dev/workflows">
+  <bpmn:process id="Process_order-fulfilment" name="Bicycle wholesaler order fulfilment" isExecutable="false">
+    <bpmn:documentation>source: "Returns are handled by a separate process that is not described here."</bpmn:documentation>
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="bicycle-wholesaler-order-fulfilment" version="1" schemaVersion="2" title="Bicycle wholesaler order fulfilment" />
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="Lanes_order-fulfilment">
+      <bpmn:lane id="Lane_sales" name="Sales employee">
+        <bpmn:documentation>source: "A sales employee enters the order into the ERP."</bpmn:documentation>
+        <bpmn:extensionElements>
+          <aef:laneMeta authority="sovereignty" />
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>order-arrives-by-email</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>enter-order-into-erp</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_credit" name="Credit control">
+        <bpmn:documentation>source: "Credit control checks the customer's credit limit."</bpmn:documentation>
+        <bpmn:extensionElements>
+          <aef:laneMeta authority="sovereignty" />
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>check-customer-credit-limit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>credit-limit-exceeded</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_manager" name="Sales manager">
+        <bpmn:documentation>source: "If the limit is exceeded, the sales
+manager decides whether to accept the order anyway; a rejected order is closed and the
+customer is told."</bpmn:documentation>
+        <bpmn:extensionElements>
+          <aef:laneMeta authority="sovereignty" />
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>decide-whether-to-accept-order-anyway</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>accept-order-anyway</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_unknown" name="Unspecified performer">
+        <bpmn:documentation>source: unstated - The source names no performer for closing a rejected order or telling the customer.</bpmn:documentation>
+        <bpmn:extensionElements>
+          <aef:laneMeta authority="none" />
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>close-rejected-order</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>tell-customer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>order-rejected</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_warehouse" name="Warehouse">
+        <bpmn:documentation>source: "For accepted orders the warehouse picks the parts, packs the order and books a carrier."</bpmn:documentation>
+        <bpmn:extensionElements>
+          <aef:laneMeta authority="sovereignty" />
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>pick-parts</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>pack-order</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>book-carrier</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>quality-inspection</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>labelling</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_carrier" name="Carrier">
+        <bpmn:documentation>source: "The carrier collects the parcel and delivers it to the customer."</bpmn:documentation>
+        <bpmn:extensionElements>
+          <aef:laneMeta authority="external" />
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>collect-parcel</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>deliver-parcel-to-customer</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_erp" name="ERP">
+        <bpmn:documentation>source: "After shipment the ERP
+generates and sends the invoice automatically."</bpmn:documentation>
+        <bpmn:extensionElements>
+          <aef:laneMeta authority="authority" />
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>generate-and-send-invoice</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>accepted-order-fulfilled</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="order-arrives-by-email" name="Customer order arrives by email">
+      <bpmn:documentation>source: "A customer order arrives by email."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="order-arrives-by-email" />
+      </bpmn:extensionElements>
+      <bpmn:outgoing>order-arrives-by-email--enter-order-into-erp</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="enter-order-into-erp" name="Enter order into ERP">
+      <bpmn:documentation>source: "A sales employee enters the order into the ERP."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="enter-order-into-erp" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>order-arrives-by-email--enter-order-into-erp</bpmn:incoming>
+      <bpmn:outgoing>enter-order-into-erp--check-customer-credit-limit</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="check-customer-credit-limit" name="Check customer credit limit">
+      <bpmn:documentation>source: "Credit control checks the customer's credit limit."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="check-customer-credit-limit" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>enter-order-into-erp--check-customer-credit-limit</bpmn:incoming>
+      <bpmn:outgoing>check-customer-credit-limit--credit-limit-exceeded</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="credit-limit-exceeded" name="Credit limit exceeded?" default="credit-limit-exceeded--pick-parts">
+      <bpmn:documentation>source: "If the limit is exceeded, the sales
+manager decides whether to accept the order anyway; a rejected order is closed and the
+customer is told."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="credit-limit-exceeded" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>check-customer-credit-limit--credit-limit-exceeded</bpmn:incoming>
+      <bpmn:outgoing>credit-limit-exceeded--decide-whether-to-accept-order-anyway</bpmn:outgoing>
+      <bpmn:outgoing>credit-limit-exceeded--pick-parts</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="decide-whether-to-accept-order-anyway" name="Decide whether to accept order anyway">
+      <bpmn:documentation>source: "If the limit is exceeded, the sales
+manager decides whether to accept the order anyway; a rejected order is closed and the
+customer is told."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="decide-whether-to-accept-order-anyway" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>credit-limit-exceeded--decide-whether-to-accept-order-anyway</bpmn:incoming>
+      <bpmn:outgoing>decide-whether-to-accept-order-anyway--accept-order-anyway</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="accept-order-anyway" name="Accept order anyway?">
+      <bpmn:documentation>source: "If the limit is exceeded, the sales
+manager decides whether to accept the order anyway; a rejected order is closed and the
+customer is told."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="accept-order-anyway" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>decide-whether-to-accept-order-anyway--accept-order-anyway</bpmn:incoming>
+      <bpmn:outgoing>accept-order-anyway--close-rejected-order</bpmn:outgoing>
+      <bpmn:outgoing>accept-order-anyway--pick-parts</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="close-rejected-order" name="Close rejected order">
+      <bpmn:documentation>source: "a rejected order is closed"</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="close-rejected-order" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>accept-order-anyway--close-rejected-order</bpmn:incoming>
+      <bpmn:outgoing>close-rejected-order--tell-customer</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="tell-customer" name="Tell customer">
+      <bpmn:documentation>source: "customer is told."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="tell-customer" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>close-rejected-order--tell-customer</bpmn:incoming>
+      <bpmn:outgoing>tell-customer--order-rejected</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="order-rejected" name="Order rejected; customer told">
+      <bpmn:documentation>source: "a rejected order is closed and the
+customer is told."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="order-rejected" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>tell-customer--order-rejected</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="pick-parts" name="Pick parts">
+      <bpmn:documentation>source: "For accepted orders the warehouse picks the parts, packs the order and books a carrier."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="pick-parts" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>credit-limit-exceeded--pick-parts</bpmn:incoming>
+      <bpmn:incoming>accept-order-anyway--pick-parts</bpmn:incoming>
+      <bpmn:outgoing>pick-parts--pack-order</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="pack-order" name="Pack order">
+      <bpmn:documentation>source: "For accepted orders the warehouse picks the parts, packs the order and books a carrier."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="pack-order" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>pick-parts--pack-order</bpmn:incoming>
+      <bpmn:outgoing>pack-order--book-carrier</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="book-carrier" name="Book carrier">
+      <bpmn:documentation>source: "For accepted orders the warehouse picks the parts, packs the order and books a carrier."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="book-carrier" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>pack-order--book-carrier</bpmn:incoming>
+      <bpmn:outgoing>book-carrier--collect-parcel</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="collect-parcel" name="Collect parcel">
+      <bpmn:documentation>source: "The carrier collects the parcel and delivers it to the customer."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="collect-parcel" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>book-carrier--collect-parcel</bpmn:incoming>
+      <bpmn:outgoing>collect-parcel--deliver-parcel-to-customer</bpmn:outgoing>
+      <bpmn:outgoing>collect-parcel--generate-and-send-invoice</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="deliver-parcel-to-customer" name="Deliver parcel to customer">
+      <bpmn:documentation>source: "The carrier collects the parcel and delivers it to the customer."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="deliver-parcel-to-customer" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>collect-parcel--deliver-parcel-to-customer</bpmn:incoming>
+      <bpmn:outgoing>deliver-parcel-to-customer--accepted-order-fulfilled</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:serviceTask id="generate-and-send-invoice" name="Generate and send invoice automatically">
+      <bpmn:documentation>source: "After shipment the ERP
+generates and sends the invoice automatically."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="generate-and-send-invoice" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>collect-parcel--generate-and-send-invoice</bpmn:incoming>
+      <bpmn:outgoing>generate-and-send-invoice--accepted-order-fulfilled</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="accepted-order-fulfilled">
+      <bpmn:documentation>source: unstated - marks where the stated order ends; the source names no result</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="accepted-order-fulfilled" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>deliver-parcel-to-customer--accepted-order-fulfilled</bpmn:incoming>
+      <bpmn:incoming>generate-and-send-invoice--accepted-order-fulfilled</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="quality-inspection" name="Quality inspection">
+      <bpmn:documentation>source: "The warehouse also does quality inspection and labelling for each order, but nobody could
+say whether those happen before or after packing, or in which order relative to each other."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="quality-inspection" />
+      </bpmn:extensionElements>
+    </bpmn:task>
+    <bpmn:task id="labelling" name="Labelling">
+      <bpmn:documentation>source: "The warehouse also does quality inspection and labelling for each order, but nobody could
+say whether those happen before or after packing, or in which order relative to each other."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="labelling" />
+      </bpmn:extensionElements>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="order-arrives-by-email--enter-order-into-erp" sourceRef="order-arrives-by-email" targetRef="enter-order-into-erp">
+      <bpmn:extensionElements>
+        <aef:uid value="order-arrives-by-email--enter-order-into-erp" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="enter-order-into-erp--check-customer-credit-limit" sourceRef="enter-order-into-erp" targetRef="check-customer-credit-limit">
+      <bpmn:extensionElements>
+        <aef:uid value="enter-order-into-erp--check-customer-credit-limit" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="check-customer-credit-limit--credit-limit-exceeded" sourceRef="check-customer-credit-limit" targetRef="credit-limit-exceeded">
+      <bpmn:extensionElements>
+        <aef:uid value="check-customer-credit-limit--credit-limit-exceeded" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="credit-limit-exceeded--decide-whether-to-accept-order-anyway" sourceRef="credit-limit-exceeded" targetRef="decide-whether-to-accept-order-anyway" name="limit is exceeded">
+      <bpmn:extensionElements>
+        <aef:uid value="credit-limit-exceeded--decide-whether-to-accept-order-anyway" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="credit-limit-exceeded--pick-parts" sourceRef="credit-limit-exceeded" targetRef="pick-parts">
+      <bpmn:extensionElements>
+        <aef:uid value="credit-limit-exceeded--pick-parts" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="decide-whether-to-accept-order-anyway--accept-order-anyway" sourceRef="decide-whether-to-accept-order-anyway" targetRef="accept-order-anyway">
+      <bpmn:extensionElements>
+        <aef:uid value="decide-whether-to-accept-order-anyway--accept-order-anyway" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="accept-order-anyway--close-rejected-order" sourceRef="accept-order-anyway" targetRef="close-rejected-order" name="a rejected order">
+      <bpmn:extensionElements>
+        <aef:uid value="accept-order-anyway--close-rejected-order" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="accept-order-anyway--pick-parts" sourceRef="accept-order-anyway" targetRef="pick-parts" name="accept the order anyway">
+      <bpmn:extensionElements>
+        <aef:uid value="accept-order-anyway--pick-parts" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="close-rejected-order--tell-customer" sourceRef="close-rejected-order" targetRef="tell-customer">
+      <bpmn:extensionElements>
+        <aef:uid value="close-rejected-order--tell-customer" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="tell-customer--order-rejected" sourceRef="tell-customer" targetRef="order-rejected">
+      <bpmn:extensionElements>
+        <aef:uid value="tell-customer--order-rejected" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="pick-parts--pack-order" sourceRef="pick-parts" targetRef="pack-order">
+      <bpmn:extensionElements>
+        <aef:uid value="pick-parts--pack-order" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="pack-order--book-carrier" sourceRef="pack-order" targetRef="book-carrier">
+      <bpmn:extensionElements>
+        <aef:uid value="pack-order--book-carrier" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="book-carrier--collect-parcel" sourceRef="book-carrier" targetRef="collect-parcel">
+      <bpmn:extensionElements>
+        <aef:uid value="book-carrier--collect-parcel" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="collect-parcel--deliver-parcel-to-customer" sourceRef="collect-parcel" targetRef="deliver-parcel-to-customer">
+      <bpmn:extensionElements>
+        <aef:uid value="collect-parcel--deliver-parcel-to-customer" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="collect-parcel--generate-and-send-invoice" sourceRef="collect-parcel" targetRef="generate-and-send-invoice">
+      <bpmn:extensionElements>
+        <aef:uid value="collect-parcel--generate-and-send-invoice" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="deliver-parcel-to-customer--accepted-order-fulfilled" sourceRef="deliver-parcel-to-customer" targetRef="accepted-order-fulfilled">
+      <bpmn:extensionElements>
+        <aef:uid value="deliver-parcel-to-customer--accepted-order-fulfilled" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="generate-and-send-invoice--accepted-order-fulfilled" sourceRef="generate-and-send-invoice" targetRef="accepted-order-fulfilled">
+      <bpmn:extensionElements>
+        <aef:uid value="generate-and-send-invoice--accepted-order-fulfilled" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:textAnnotation id="Note_quality-inspection">
+      <bpmn:text>Required for each order. Order relative to packing and to the other inspection/labelling step is not recorded in the source; intentionally unconnected.</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_quality-inspection" sourceRef="Note_quality-inspection" targetRef="quality-inspection" />
+    <bpmn:textAnnotation id="Note_labelling">
+      <bpmn:text>Required for each order. Order relative to packing and to the other inspection/labelling step is not recorded in the source; intentionally unconnected.</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_labelling" sourceRef="Note_labelling" targetRef="labelling" />
+    <bpmn:textAnnotation id="Note_returns">
+      <bpmn:text>Returns are handled by a separate process that is not described here. Returns are outside this map.</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:textAnnotation id="Note_accepted-order-fulfilled">
+      <bpmn:text>Outcome not recorded in the source: this end is left unnamed until the source owner states one.</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_accepted-order-fulfilled" sourceRef="Note_accepted-order-fulfilled" targetRef="accepted-order-fulfilled" />
+  </bpmn:process>
+</bpmn:definitions>
