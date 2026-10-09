@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-09T21:40:09Z
-last_update: 2026-10-09T21:48:03Z
+last_update: 2026-10-09T23:59:06Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -127,6 +127,10 @@ bvp_scores_proposed:
 
 ## Verification
 
+bash -n tools/sidecar-mail-watch.sh
+grep -q "tools/sidecar-mail-watch.sh" CLAUDE.md
+# --once must answer (0 = mail waiting, 1 = none); 2 would mean the receiver state is unreadable
+bash -c 'bash tools/sidecar-mail-watch.sh --once >/dev/null 2>&1; rc=$?; [ $rc = 0 ] || [ $rc = 1 ]'
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
