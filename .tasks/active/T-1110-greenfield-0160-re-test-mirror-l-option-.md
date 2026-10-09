@@ -1,20 +1,14 @@
 ---
-id: T-1108
-name: "Sidecar mail sat 7 min unseen: this background session is not injectable and
-  no mail watcher was armed"
+id: T-1110
+name: "Greenfield 0.16.0 re-test: mirror-L option for cross-lane flows (exit E, enter N/S) — 9 of 29 differ from the owner's choice"
 description: >
-  RCA requested by the operator 2026-10-09: dimitri-mint-dev's consult (21:31:25Z)
-  reached the agent only at the operator's next prompt (21:38:34Z). Receiver: INJECT_BLOCKED
-  / WAITING_NO_RECIPIENT, terminal /dev/pts/31 owned by no TermLink session or tmux
-  pane. Fix: a sidecar-mail watcher armed in the background like runme-watch, plus
-  a session-start check that flags a non-injectable session without one.
+  aef-greenfield-test re-test (DM 55): T-1090's L routing matches the owner's bend count exactly (46 -> 24) and 20/29 flows identically; the other 9 are the mirror L (we exit S/N + enter W, the owner exited E + entered N/S). They suggest it as an option. Capture: decide whether a preference (Settings) or a heuristic picks between the two L forms.
 
-status: started-work
+status: captured
 workflow_type: build
-current_node: frw_3_start
 owner: agent
-horizon: now
-tags: [bug]
+horizon: next
+tags: []
 components: []
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
@@ -39,13 +33,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1108` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1110` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-09T21:40:09Z
-last_update: 2026-10-09T21:48:03Z
-date_finished:
+created: 2026-10-09T21:47:44Z
+last_update: 2026-10-09T21:47:44Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -56,30 +50,9 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-10-09T21:40:43Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
-      F2: 0
-      F4: 0
-      F3: 2
-      F1: 0
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L0: no signal); F3=2 (basis: task
-      body — no hypothesis, so this score has no claim to be wrong about,L2:keyword=termlink);
-      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
-      about,L0: no signal)'
-    rubric_sha: e4a00f38e801
 ---
 
-# T-1108: Sidecar mail sat 7 min unseen: this background session is not injectable and no mail watcher was armed
+# T-1110: Greenfield 0.16.0 re-test: mirror-L option for cross-lane flows (exit E, enter N/S) — 9 of 29 differ from the owner's choice
 
 ## Context
 
@@ -89,10 +62,8 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] RCA written from the receiver's own event log (timeline, root cause, why allowed, prevention)
-- [x] `tools/sidecar-mail-watch.sh` exits 0 and names the message when a consult for this agent is waiting and unshown; stays armed when there is none; test `tests/test_t1108_sidecar_mail_watch.sh` covers both (positive: a self-sent consult; negative control: no new mail within the window) — 4/4 against the real receiver, incl. report-once
-- [x] The watcher is armed in this session, and CLAUDE.md's watcher rule says a non-injectable session arms it beside runme-watch
-- [x] Learning recorded; upstream proposal to AEF sent (receiver/session-start flags a non-injectable session without a mail watcher) — conversation aef-noninjectable-session-mail
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -118,11 +89,11 @@ bvp_scores_proposed:
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1108`
+         1. Run `bin/fw reviewer T-1110`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1108 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1110 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -269,48 +240,6 @@ bvp_scores_proposed:
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
-**Symptom:** a consult from `dimitri-mint-dev` (msg 47afce8e) was STORED by our receiver at 21:31:25Z and
-reached the agent only when the operator sent a prompt at 21:38:34Z — 7 min 9 s unseen while the agent was
-idle-waiting on other watchers. The re-ping (38543987, 21:38:28Z) was ESCALATED_TO_OPERATOR before the agent
-saw either. The operator noticed first ("why don't you monitor your sidecar?").
-
-**Timeline (receiver event log, `lib/sidecar/receiver.read_events`):**
-STORED 21:31:25.33 → INJECT_BLOCKED + WAITING_NO_RECIPIENT 21:31:25.46 ("terminal not injectable (/dev/pts/31):
-no TermLink session and no tmux pane owns it; mail waits for the agent's next prompt") → RECEIPT_SENT →
-(nothing for 7 min) → HANDED_OVER 21:38:34.75 by the UserPromptSubmit hook.
-
-**Root cause:** two facts together.
-1. *Delivery cannot reach this session.* It runs as a Claude Code **background job** on /dev/pts/31; no tmux
-   pane and no TermLink session owns that terminal, so the receiver's only push path (inject keystrokes) is
-   closed (`fw sidecar receiver status`: `session baf1a4f9 ready=False termlink=None`; "last delivery
-   2026-10-07"). Mail falls back to "the agent's next prompt", i.e. it waits for a human.
-2. *Nothing else wakes the agent.* A background agent wakes only when one of its own background tasks exits.
-   The agent had armed watchers for runme events, Greenfield's DM and a handoff file — none for its own
-   sidecar inbox. CLAUDE.md states the mechanism ("a sidecar message alone does not wake the agent… that is
-   why the watcher exists") but applies it to runme only.
-
-**Contributing:**
-- *Wrong discovery path.* Looking for `dimitri-mint-dev`, the agent searched TermLink **sessions**
-  (`termlink list`, fleet hubs) and concluded "not reachable", instead of addressing the **sidecar agent id**
-  (`fw sidecar send --to dimitri-mint-dev` works on the same hub). So it did not expect sidecar mail at all.
-- *Prompt-time check also flaky today.* Twice the UserPromptSubmit hook said "sidecar-inbox: inbox check timed
-  out; consults may be pending"; the agent peeked once and moved on. A timed-out check is NOT CHECKED, not empty.
-
-**Why structurally allowed:** the framework and 832 assume one of two things holds: the session is
-injectable (tmux/TermLink), or a human prompts soon. A background session has neither, and nothing checks
-for it. `scripts/session-start-alerts.sh` prints WATCH LOST only for the **runme** watcher; no check says
-"this session is not injectable and no mail watcher is armed". The receiver *knows* (it records
-WAITING_NO_RECIPIENT on every message) but that fact reaches no one who can act.
-
-**Prevention:**
-- `tools/sidecar-mail-watch.sh`: exits (waking the agent) when a consult for this agent is waiting and not
-  already shown; armed in the background beside runme-watch, re-armed after each wake. Tested with a self-sent
-  consult (positive) and with no mail (stays armed: negative control).
-- CLAUDE.md runme/watcher rule extended: a non-injectable session arms BOTH watchers.
-- Learning recorded (discovery: sidecar agent id, not TermLink sessions; a timed-out inbox check is NOT CHECKED).
-- Proposed upstream to AEF: the session-start check / receiver should flag "non-injectable session, no mail
-  watcher" (the receiver already has the fact).
-
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -378,7 +307,7 @@ WAITING_NO_RECIPIENT on every message) but that fact reaches no one who can act.
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1108 go|no-go|defer --rationale "..."
+     fw inception decide T-1110 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -387,10 +316,7 @@ WAITING_NO_RECIPIENT on every message) but that fact reaches no one who can act.
 
 ## Updates
 
-### 2026-10-09T21:40:09Z — task-created [task-create-agent]
+### 2026-10-09T21:47:44Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1108-sidecar-mail-sat-7-min-unseen-this-backg.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1110-greenfield-0160-re-test-mirror-l-option-.md
 - **Context:** Initial task creation
-
-### 2026-10-09T21:40:43Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
