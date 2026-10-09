@@ -13,7 +13,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-10-09T05:36:53Z
-last_update: 2026-10-09T05:42:50Z
+last_update: 2026-10-09T07:53:48Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -128,6 +128,7 @@ We will know that we are successful when we see [NEEDS YOU: name something a per
 ### Human
 <!-- @auto-tick-on-decide -->
 - [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+  **Why you:** act-in-the-world — the outcome is a feature request filed with another project (TermLink) and a change to how credentials are exchanged with a partner operator (Greenfield), both outside this repo; and `fw inception decide` is the operator's
   **Steps:**
   1. Run: `fw task review T-1107` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
