@@ -567,7 +567,8 @@ entries:
       Our own Watchtower's designer pin. 0.15.0 -> 0.15.2 by the canonical intake
       (fw designer sync --from-tag: sha verified against the pin AND designer-v0.15.2's MANIFEST;
       /designer/app now serves sha 68454742). 0.15.2 -> 0.15.3 the same way on 2026-10-03 (served sha
-      209d37bb). AEF pins its own version; this one is ours.
+      209d37bb), and 0.15.3 -> 0.16.0 on 2026-10-09 (T-1105, served sha 9cc12bfe). AEF pins its own
+      version; this one is ours.
 
   - path: .agentic-framework/.vendor-divergence.yaml
     kind: content  # T-1005: the 1.7.740 pristine baseline (2659abad) already contains it
