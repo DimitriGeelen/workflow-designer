@@ -2,7 +2,7 @@
 
 **Since:** `designer-v0.15.3` (2026-10-03) · **Greenfield's map review, answered.** Greenfield
 (Evergreen trial, T-172) opened a real client map in the designer, straightened it by hand, and
-reported what the designer got wrong. Three of those reports are fixed here. This is a minor
+reported what the designer got wrong. Four of those reports are answered here. This is a minor
 release rather than a patch because one fix changes how existing maps are DRAWN: cross-lane flows
 now route as an L by default (see "Behaviour change" below). Saved files are unchanged in format.
 
@@ -17,6 +17,17 @@ now route as an L by default (see "Behaviour change" below). Saved files are unc
   Flows you routed yourself (ports, waypoints, hints) are not touched. **To keep the old drawing:**
   Settings → untick "Cross-lane flows as an L"; the choice is remembered. Where a flow runs
   along the bottom of a task, the task id caption moves beside it so the two do not overlap.
+
+## Authority markers: one summary on maps that declare none
+
+- **Settings → "Show authority markers"** (T-1092, Greenfield T-172 #6, from their patch). Default
+  **on**: missing authority stays visible (T-888 clause 4). Off hides every authority marker; the
+  choice is remembered.
+- **A map that declares no authority anywhere** (no element carries one, no lane offers a default:
+  typical of a map imported from another tool) no longer draws "⚠ no authority" on every element. It
+  shows ONE notice above the canvas instead: "This map declares no authority: none of its N elements
+  carries one…". Dismissible for that map. As soon as any element or lane declares an authority,
+  per-element markers return, because a missing one is then a gap among declared ones.
 
 ## Fixes
 
@@ -78,3 +89,5 @@ gateway would. When a join is removed, or never drawn, check the labels for the 
    `process_*` project appears (T-1089).
 2. Look at the lane prefixes in the task ids: no two lanes share one (T-1088).
 3. Compare cross-lane flows with the owner's hand-straightened map (T-1090).
+4. Open the client map: no "⚠ no authority" on the elements, one notice above the canvas instead;
+   your local authority-badge patch can be dropped (T-1092).
