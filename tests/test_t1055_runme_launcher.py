@@ -168,6 +168,31 @@ def main():
         leg(p1.endswith("001-first/job.sh") and p2.endswith("002-second/job.sh") and rc == 0
             and "dry-run passed" in out, "12 runme-new scaffolds 001, 002; the scaffold rehearses cleanly")
 
+        # 13 (T-1112) the menu names each job's title, state and LAST OUTCOME, so a job that stopped for a
+        #    reason says so before the operator picks it again (008 was picked 3x while waiting on a file)
+        b = Box(tmp, "l13")
+        b.job("001-needs-file", TWO_STEPS.replace('"Two steps"', '"Needs a file first"')
+              .replace("'touch @OUT@/s1'", "'echo \"no /root/x.secret - place it first\"; false'"))
+        b.job("002-other", TWO_STEPS.replace("s1", "o1").replace("s2", "o2"))
+        b.run("--dry-run")
+        b.run(answers="1\ny\n")                       # run 001: step 1 fails with its reason
+        rc, out = b.run(answers="nothing\n")          # menu again; answer nothing -> no job run
+        menu = [l for l in out.splitlines() if l.strip().startswith("1. ")]
+        leg(menu and "Needs a file first" in menu[0] and "[ready; last: STOPPED" in menu[0]
+            and "no /root/x.secret" in menu[0] and "never run" in out and not b.made("o1"),
+            "13 menu line: title, state and last outcome with the step's own reason", menu[0] if menu else out[-300:])
+
+        # 14 (T-1112) a retired job is never offered and never runs; --list --all names it with its reason
+        b = Box(tmp, "l14")
+        d = b.job("001-old", TWO_STEPS)
+        b.run("--dry-run")
+        with open(os.path.join(d, "retired"), "w") as fh:
+            fh.write("superseded by 002-new\n")
+        rc, out = b.run(answers="y\ny\n")
+        _, out2 = b.run("--list", "--all")
+        leg(rc == 0 and "Nothing to run" in out and not b.made("s1") and not os.path.exists(os.path.join(d, "done"))
+            and "RETIRED: superseded by 002-new" in out2, "14 retired: not offered, not run, no done written; --list --all names it")
+
     print("\n%d failed leg(s)" % len(fails) if fails else "\nall legs passed")
     return 1 if fails else 0
 

@@ -27,8 +27,12 @@
 #                     asks y/N (from the terminal only, typeahead discarded) before EVERY step,
 #                     logs to the job dir, signals the agent (runme-signal.sh: events + topic, so
 #                     tools/runme-watch.sh wakes it), and writes `done`. A done job never runs again.
+#   retired           (T-1112) a `retired` file in the job dir (its text = the reason) takes a superseded
+#                     job out of the queue without claiming it completed: never offered, never run.
+#   menu / --list     (T-1112) one line per job: name, title, state (ready / CHANGED since dry-run /
+#                     NOT REHEARSED) and last outcome (never run / completed / STOPPED: <reason>, when).
 #
-#   bash runme.sh [--dry-run [name]] [--list]
+#   bash runme.sh [--dry-run [name]] [--list [--all]]
 #   exit 0 = done / nothing to do; 1 = stopped or refused (the reason is printed and logged)
 [ -z "${BASH_VERSION:-}" ] && exec bash "$0" "$@"
 set -uo pipefail
@@ -101,13 +105,35 @@ show_plan() {
     for i in "${!STEP_T[@]}"; do say "  $((i + 1)). ${STEP_T[$i]}"; done
 }
 
-pending() {  # job dirs with a job.sh and no done marker, in number order
+pending() {  # job dirs with a job.sh and no done or retired marker, in number order
     local d
     for d in "$JOBS"/*/; do
         d=${d%/}
-        [ -f "$d/job.sh" ] && [ ! -f "$d/done" ] && echo "$d"
+        [ -f "$d/job.sh" ] && [ ! -f "$d/done" ] && [ ! -f "$d/retired" ] && echo "$d"
     done 2>/dev/null | sort
 }
+
+# T-1112: what the operator needs to choose well, read WITHOUT running the job (sed, never source).
+job_state() {
+    local d=$1
+    [ -f "$d/dryrun.ok" ] || { echo "NOT REHEARSED"; return; }
+    [ "$(sed -n 's/^sha=//p' "$d/dryrun.ok")" = "$(job_sha "$d")" ] && echo "ready" || echo "CHANGED since dry-run"
+}
+job_title() { sed -n 's/^JOB_TITLE="\(.*\)"$/\1/p' "$1/job.sh" | head -1; }
+last_outcome() {  # never run | completed <when> | STOPPED <when>: <reason>
+    local d=$1 log ts when line why
+    log=$(ls -1 "$d"/run-*.log 2>/dev/null | sort | tail -1)
+    [ -n "$log" ] || { echo "never run"; return; }
+    ts=${log##*/run-}; ts=${ts%.log}
+    when="${ts:4:2}-${ts:6:2} ${ts:9:2}:${ts:11:2}"
+    if grep -q '^DONE: ' "$log"; then echo "completed $when"; return; fi
+    line=$(grep '^STOPPED: ' "$log" | tail -1); line=${line#STOPPED: }
+    # a failed step prints its own reason on the line above (after the y/N prompt)
+    why=$(grep -B1 '^STOPPED: ' "$log" | tail -2 | head -1 | sed 's/^Run step [0-9]*\/[0-9]*? \[y\/N\] //')
+    case "$line" in step*failed*) [ -n "$why" ] && line="$line — $why" ;; esac
+    echo "STOPPED $when: ${line:-no outcome recorded (run interrupted?)}"
+}
+job_line() { local d=$1 t; t=$(job_title "$d"); echo "$(basename "$d")${t:+ — $t}  [$(job_state "$d"); last: $(last_outcome "$d")]"; }
 
 # ---------------------------------------------------------------- terminal answers
 open_tty() { exec 3<"$TTY" || fail "cannot read answers from $TTY (run this in a terminal)"; }
@@ -126,21 +152,28 @@ confirm() { ask "$1 [y/N]"; [ "$REPLY" = y ] || [ "$REPLY" = Y ]; }
 mode=run; name=""
 case "${1:-}" in
     --dry-run) mode=dry; name=${2:-} ;;
-    --list)    mode=list ;;
+    --list)    mode=list; [ "${2:-}" = --all ] && mode=listall ;;
     "")        ;;
     -h|--help) sed -n '2,32p' "${BASH_SOURCE[0]}"; exit 0 ;;
-    *)         fail "unknown argument: $1 (use --dry-run [name], --list, or nothing)" ;;
+    *)         fail "unknown argument: $1 (use --dry-run [name], --list [--all], or nothing)" ;;
 esac
 
 if [ "$mode" = list ]; then
     found=0
     while read -r d; do
         [ -n "$d" ] || continue; found=1
-        st="NOT REHEARSED"
-        [ -f "$d/dryrun.ok" ] && { [ "$(sed -n 's/^sha=//p' "$d/dryrun.ok")" = "$(job_sha "$d")" ] && st="ready" || st="CHANGED since dry-run"; }
-        say "$(basename "$d")  [$st]"
+        say "$(job_line "$d")"
     done < <(pending)
     [ "$found" = 1 ] || say "no pending jobs"
+    exit 0
+fi
+if [ "$mode" = listall ]; then   # every job, with done / retired named
+    for d in $(ls -d "$JOBS"/*/ 2>/dev/null | sort); do
+        d=${d%/}; [ -f "$d/job.sh" ] || continue
+        if [ -f "$d/retired" ]; then say "$(basename "$d")  [RETIRED: $(head -1 "$d/retired")]"
+        elif [ -f "$d/done" ]; then say "$(basename "$d")  [done]"
+        else say "$(job_line "$d")"; fi
+    done
     exit 0
 fi
 
@@ -174,7 +207,7 @@ if [ "${#todo[@]}" -eq 1 ]; then
     d=${todo[0]}
 else
     say "Pending jobs:"
-    for i in "${!todo[@]}"; do say "  $((i + 1)). $(basename "${todo[$i]}")"; done
+    for i in "${!todo[@]}"; do say "  $((i + 1)). $(job_line "${todo[$i]}")"; done
     ask "Which job? [1-${#todo[@]}, anything else = stop]"
     [[ "$REPLY" =~ ^[0-9]+$ ]] && [ "$REPLY" -ge 1 ] && [ "$REPLY" -le "${#todo[@]}" ] || fail "no job chosen; nothing run"
     d=${todo[$((REPLY - 1))]}

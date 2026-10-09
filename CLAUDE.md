@@ -40,7 +40,9 @@ becomes a JOB, and the operator always runs exactly:
 The launcher shows the operator the job name, sha and rehearsal time; refuses a job with no
 dry-run or changed since it; re-runs the checks; asks y/N before every step (terminal only);
 logs to `run-<ts>.log` in the job dir; writes `done`; never runs a done job again; asks which
-job when several are pending. A changed job needs a new dry-run, never an edit after hand-over.
+job when several are pending, each menu line showing title, state and last outcome (T-1112). A changed job
+needs a new dry-run, never an edit after hand-over. A superseded job gets a `retired` file (its text = the
+reason), never a `done`: it leaves the queue without claiming it completed (`--list --all` shows it).
 
 **It signals the agent (T-1003).** The launcher sources `tools/runme-signal.sh`: one line per
 event (started / step / done / STOPPED, the last two from an EXIT/INT/TERM/HUP trap) to
