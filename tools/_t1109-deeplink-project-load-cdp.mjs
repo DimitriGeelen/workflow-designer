@@ -111,8 +111,8 @@ async function main() {
     leg(c.id === 'process_walkthrough-sales' && c.pl === null, 'C ?load of a plain file: id from the file, no project', JSON.stringify(c));
 
     // D — the helper itself: only same-origin /api/version is a project load
-    const d = await ev(cmd, `typeof projectIdFromLoadSrc === 'function' ? [projectIdFromLoadSrc('http://evil.example/api/version?id=x'), projectIdFromLoadSrc('/api/versions?id=x'), projectIdFromLoadSrc('/api/version?v=1'), projectIdFromLoadSrc(location.origin + '/api/version?id=x&v=2')] : null`);
-    leg(Array.isArray(d) && d[0] === null && d[1] === null && d[2] === null && d[3] === 'x', 'D cross-origin, other endpoints and a missing id are not project loads; same-origin absolute is', JSON.stringify(d));
+    const d = await ev(cmd, `typeof projectIdFromLoadSrc === 'function' ? [projectIdFromLoadSrc('http://evil.example/api/version?id=x'), projectIdFromLoadSrc('/api/versions?id=x'), projectIdFromLoadSrc('/api/version?v=1'), projectIdFromLoadSrc(location.origin + '/api/version?id=x&v=2'), projectIdFromLoadSrc('/api/version?id=latest-p')] : null`);
+    leg(Array.isArray(d) && d[0] === null && d[1] === null && d[2] === null && d[3] === 'x' && d[4] === 'latest-p', 'D cross-origin, other endpoints and a missing id are not project loads; same-origin absolute is, and so is a link WITHOUT &v (a server that serves the latest version, as Greenfield\'s Watchtower does)', JSON.stringify(d));
   } catch (e) {
     leg(false, 'harness', String(e && e.stack || e));
   } finally {
