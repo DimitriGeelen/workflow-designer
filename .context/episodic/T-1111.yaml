@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1111: Pickup to AEF: 832's runme job queue (several pending jobs, numbered selection) — building on c24521a0
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-09T23:25:34Z
+# ============================================================================
+
+task_id: T-1111
+task_name: "Pickup to AEF: 832's runme job queue (several pending jobs, numbered selection) — building on c24521a0"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-09T23:22:21Z
+completed: 2026-10-09T23:24:35Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-10T01:24:34+02:00
+last_commit: 2026-10-10T01:24:34+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  pickup G to AEF — runme job queue (one fixed command, numbered folders, numbered choice among pending jobs, per-job re-verification, STOPPED stays pending); real use jobs 005-009; two gaps it exposed (menu shows bare names — add title/state/last outcome; no retired state). Sent bf0e9eb3, RECEIVED
+
+# Key outcomes
+outcomes:
+  - 'Pickup note written at `docs/upstream-pickups/G-t1111-runme-job-queue/MANIFEST.md` (named MANIFEST.md like bundles A-F): what the queue does (code-cited), real use 2026-10-08/09, the two gaps it exposed, and what AEF would need; builds on c24521a0, does not repeat it'
+  - 'Sent to AEF on the sidecar, delivery confirmed (RECEIVED), msg id recorded here; README index of upstream pickups updated — 2026-10-10, conversation runme-job-queue, client_msg_id bf0e9eb3-a587-45c7-a9f5-324ca5739a1f, RECEIVED'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'pickup G to AEF — runme job queue (one fixed command, numbered folders, numbered choice among pending jobs, per-job re-verification, STOPPED stays pending); real use jobs 005-009; two gaps it exposed (menu shows bare names — add title/state/last outcome; no retired state). Sent bf0e9eb3, RECEIVED'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/upstream-pickups/G-t1111-runme-job-queue/MANIFEST.md'
+  - 'docs/upstream-pickups/README.md'
+  - '.tasks/active/T-1111-pickup-to-aef-832s-runme-job-queue-sever.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-10T01:24:34'
+    action: 'T-1111: pickup G to AEF — runme job queue (one fixed command, numbered folders, numbered choice among pending jobs, per-job re-verification, STOPPED stays pending); real use jobs 005-009; two gaps it exposed (menu shows bare names — add title/state/last outcome; no retired state). Sent bf0e9eb3, RECEIVED'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 3
+  lines_added: 423
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1111-pickup-to-aef-832s-runme-job-queue-sever.md
+generated_by: context-agent-hybrid
