@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-09T05:36:39Z
-last_update: 2026-10-09T21:00:22Z
+last_update: 2026-10-09T23:38:00Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -93,9 +93,11 @@ replying by DM. The permanent model is T-1107.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A runme job is prepared (validates the operator-placed secret file without printing it, stores it 0600 in TermLink's secrets store, adds profile greenfield-132, shreds the drop file, pins and shows the hub fingerprint, sends a sidecar test, audits the store); `bash runme.sh --dry-run` passes; the watcher is armed; the agent never runs it for real
+- [x] A runme job is prepared (validates the operator-placed secret file without printing it, stores it 0600 in TermLink's secrets store, adds profile greenfield-132, shreds the drop file, pins and shows the hub fingerprint, sends a sidecar test, audits the store); `bash runme.sh --dry-run` passes; the watcher is armed; the agent never runs it for real
 - [ ] After the operator's run: our sidecar -> Greenfield is delivered (not REFUSED), and Greenfield acks on `evergreen-trial`
-- [ ] `termlink fleet secrets-audit` shows the new secret file 0600 and referenced by profile greenfield-132; no drop file left at /root/greenfield-hub.secret
+- [x] `termlink fleet secrets-audit` shows the new secret file 0600 and referenced by profile greenfield-132; no drop file left at /root/greenfield-hub.secret
+  (as provisioned by dimitri-mint-dev instead of our job: profile `greenfield` -> 192.168.10.132:9100, secret
+  /root/.termlink/secrets/greenfield.hex 0600, audit status ok; no drop file was ever created — jobs 008/009 never fetched)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

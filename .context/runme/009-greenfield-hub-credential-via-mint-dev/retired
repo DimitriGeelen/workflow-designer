@@ -1,0 +1,1 @@
+superseded: dimitri-mint-dev provisioned the shared TermLink profile "greenfield" (2026-10-10, hub export-secret after a fingerprint match, firewall .107 only). Never completed: runs stopped at step 1 (unknown host) and step 2 (no ssh access); no secret was fetched by this job.
