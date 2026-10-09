@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1109: Greenfield 0.16.0 re-test: a same-origin ?load=/api/version?id=X[&v=N] deep link opens as project X (T-1089 gap)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-09T22:01:42Z
+# ============================================================================
+
+task_id: T-1109
+task_name: "Greenfield 0.16.0 re-test: a same-origin ?load=/api/version?id=X[&v=N] deep link opens as project X (T-1089 gap)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-09T21:47:39Z
+completed: 2026-10-09T22:00:32Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-10T00:00:30+02:00
+last_commit: 2026-10-10T00:00:30+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a same-origin ?load=/api/version?id=X deep link opens as project X (Greenfield's portal path, 0.16.0 re-test) — projectIdFromLoadSrc passes opts.projectId (T-1089 rule; a declared id still wins), and T-264's load-source guard skips project links (it reduced them to the stem 'version' and asked 'Loaded from… but will save as X' on every Save). Test 8/8 (0.16.0: 7/8 FAIL, plain-file control passes on both), wired; T-1089 7/7, T-264 8/8, census 0
+
+# Key outcomes
+outcomes:
+  - 'A same-origin `?load=/api/version?id=X[&v=N]` deep link (relative or absolute same-origin URL) is adopted as a load of project X: a file without a declared `aef:workflowMeta` id takes X (T-1089 rule), `_projectLoad = {projectId: X, …}`, and Save writes X''s next version with no confirm'
+  - 'A file that DECLARES its own id keeps it (T-263) even when opened by such a link; Save then asks before writing elsewhere (T-1089 behaviour, unchanged)'
+  - 'A cross-origin `?load` or any other path (not `/api/version`) is NOT treated as a project load (no projectId inferred)'
+  - 'CDP test `tools/_t1109-deeplink-project-load-cdp.mjs`: the three cases above against gallery-serve.py; FAILS on the 0.16.0 designer for the first case; wired in the bridge suite; T-1089''s test still 7/7'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1109-greenfield-0160-re-test-a-same-origin-lo.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1109-deeplink-project-load-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-10T00:00:30'
+    action: 'T-1109: a same-origin ?load=/api/version?id=X deep link opens as project X (Greenfield''s portal path, 0.16.0 re-test) — projectIdFromLoadSrc passes opts.projectId (T-1089 rule; a declared id still wins), and T-264''s load-source guard skips project links (it reduced them to the stem ''version'' and asked ''Loaded from… but will save as X'' on every Save). Test 8/8 (0.16.0: 7/8 FAIL, plain-file control passes on both), wired; T-1089 7/7, T-264 8/8, census 0'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 12 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 12
+  commits: 1
+  files_changed: 4
+  lines_added: 205
+  lines_removed: 10
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1109-greenfield-0160-re-test-a-same-origin-lo.md
+generated_by: context-agent-hybrid
