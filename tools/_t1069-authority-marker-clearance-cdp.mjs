@@ -45,6 +45,11 @@ const FORCE = (mode) => `(function(){
   if (mode === 'missing') {
     getLanes().forEach(function(l){ l.authority = 'none'; delete l.authoringDefault; });
     state.nodes.forEach(function(n){ if (n.aef) delete n.aef.authority; });
+    // T-1092: a map that declares no authority anywhere now shows ONE summary instead of a marker
+    // per element, so stripping everything would draw no 'missing' marker to measure (M3 catches
+    // that). This leg measures marker GEOMETRY, so it tells the editor the map declares authority
+    // elsewhere: every node still gets its 'missing' marker. No-op on an editor without T-1092.
+    if (typeof mapDeclaresAuthority === 'function') { mapDeclaresAuthority = function(){ return true; }; }
   } else {
     state.nodes.forEach(function(n){
       var d = effectiveLaneDefault(findLane(n.lane));
