@@ -1,0 +1,132 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1105: Release designer 0.16.0 (T-1088 lane abbr, T-1089 project save, T-1090 L routing default)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-09T09:02:04Z
+# ============================================================================
+
+task_id: T-1105
+task_name: "Release designer 0.16.0 (T-1088 lane abbr, T-1089 project save, T-1090 L routing default)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-08T20:55:51Z
+completed: 2026-10-09T09:00:59Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-08T23:30:09+02:00
+last_commit: 2026-10-09T11:00:58+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release 0.16.0 prep — draft release notes; codex calibration of the 0.16.0 kit FAILED twice with the same clean-map finding (end event named as if both unsynchronised branches finished, L26); per the pre-declared rule, option 2 (fix the fixture first). calibration-map deficiency addressed — the clean map's end event 'Accepted order delivered and invoiced' asserted an outcome the source never states (L21) and a synchronisation of two unjoined branches (L29, codex x2 on the 0.16.0 kit); left over from the half-fix 34e07e87 (join removed, name kept). Now unnamed, K3 canonical citation, visible note 'Outcome not recorded in the source: this end is left unnamed until the source owner states one'; planted map mirrors it. Ledger: L29 proposed (guide), operator value rulings on L21/L29. Release notes: Corrected section. Kit tests 18/18 + 16/16, validator counts unchanged (clean 9 warn, planted 7). 0.16.0 ready for the release job — VERSION/APP_VERSION 0.16.0 (parity ok); corrected kit (62ad885b) calibrated PASS by codex (OpenAI), GLM-5.3 (Z.AI) and Antigravity (Google), 3/3 and 0 false each, one run each; runs on the uncorrected maps (codex FAIL x2, GLM PASS) disclosed under voided_runs; release notes updated. runme job 007-release-designer-0.16.0 (cut, commit, tag designer-v0.16.0, push), dry-run passed (sha 72b8dfb0). bridge after the 0.16.0 bump 249/6 — render-check waits on the cut (dist artifact), the four teeth reds pass alone; T-1103 gets the alone-timings (_t525 117s, _t535 93s over the 90s cap). 0.16.0 now carries T-1092 too (operator, option a) — release notes and job 007 description updated. job 007 re-rehearsed with T-1092 in its description (sha ca326cf5). release designer 0.16.0 — Greenfield T-172 fixes (T-1088 lane abbreviations, T-1089 project save, T-1090 cross-lane L routing default, T-1092 authority summary) and four visual fixes; kit re-issued with its own calibration. our Watchtower serves 0.16.0 (pin 0.15.3 -> 0.16.0 from the designer-v0.16.0 tag, fw designer sync --from-tag: MANIFEST and pin anchors match, /designer/app serves sha 9cc12bfe); divergence register updated, _t517 OK. all agent ACs met — release run evidence, Greenfield DM 49, Watchtower re-pin; verification commands added
+
+# Key outcomes
+outcomes:
+  - 'VERSION and APP_VERSION read 0.16.0 (T-808 parity) and docs/releases/RELEASE-NOTES-0.16.0.md lists T-1088, T-1089, T-1090 and the default-routing change'
+  - 'The 0.16.0 kit carries a PASS calibration of its exact bytes: `tools/kit-calibration-gate.py check --version 0.16.0` passes (ledger L16)'
+  - 'Bridge suite green apart from the known T-1103 load abstentions, run after the version bump'
+  - 'A runme job (release, commit, tag designer-v0.16.0, push) is prepared, `bash runme.sh --dry-run <job>` passes, the watcher is armed; the agent never runs it for real'
+  - 'After the operator''s run: Greenfield is told by DM what 0.16.0 carries for them and how to re-test T-1088..T-1090'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'release designer 0.16.0 — Greenfield T-172 fixes (T-1088 lane abbreviations, T-1089 project save, T-1090 cross-lane L routing default, T-1092 authority summary) and four visual fixes; kit re-issued with its own calibration'
+    source: git-mined
+  - description: 'calibration-map deficiency addressed — the clean map''s end event ''Accepted order delivered and invoiced'' asserted an outcome the source never states (L21) and a synchronisation of two unjoined branches (L29, codex x2 on the 0.16.0 kit); left over from the half-fix 34e07e87 (join removed, name kept). Now unnamed, K3 canonical citation, visible note ''Outcome not recorded in the source: this end is left unnamed until the source owner states one''; planted map mirrors it. Ledger: L29 proposed (guide), operator value rulings on L21/L29. Release notes: Corrected section. Kit tests 18/18 + 16/16, validator counts unchanged (clean 9 warn, planted 7)'
+    source: git-mined
+  - description: 'release 0.16.0 prep — draft release notes; codex calibration of the 0.16.0 kit FAILED twice with the same clean-map finding (end event named as if both unsynchronised branches finished, L26); per the pre-declared rule, option 2 (fix the fixture first)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-08 — codex calibration FAIL on the 0.16.0 kit: one declared re-run, everything disclosed'
+    chose: 'option 1 (operator, 2026-10-08): re-run codex ONCE; if it passes, record the pass in the gate and disclose the first run''s FAIL (with its finding) in the calibration record and the release notes; open a task to examine the clean fixture''s end-event name. Rule fixed BEFORE the re-run: if the re-run fails, stop and go to option 2 (record the FAIL, fix the fixture through the ledger, recalibrate).'
+    rationale: 'run 1 caught 3/3 planted but flagged the clean map''s end event "Accepted order delivered and invoiced" (two unsynchronised branches reach it, so the name implies both are done) — arguably consistent with the kit''s own L26 "fork is not join", i.e. a fixture weakness, not a reviewer error. Kit content is unchanged from the calibrated 0.15.3. GLM-5.3 run 1: PASS 3/3, 0 false.'
+    alternatives_rejected: ['swapping in a third vendor instead of codex (hides the FAIL); an uncalibrated free model as a third vote (looks like evidence, is not). - **Amended (operator, same day): option a** — the codex re-run PLUS Antigravity (`agy`, operator-approved headless form of 2026-09-30, via a wrapper that prints REVIEW.json because plan mode cannot write).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/runme/007-release-designer-0.16.0/dryrun.ok'
+  - '.context/runme/007-release-designer-0.16.0/job.sh'
+  - 'dist/aef-authoring-kit-0.16.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.16.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.16.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.16.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.16.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.16.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.16.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.16.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.16.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.16.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.16.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.16.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.16.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.16.0/validate-workflow.py'
+  - 'dist/aef-workflow-designer-0.16.0.html'
+  - 'dist/MANIFEST.yaml'
+  - 'docs/authoring-kit/calibration/clean.bpmn'
+  - 'docs/authoring-kit/calibration/planted.bpmn'
+  - 'docs/authoring-kit/calibration-records/0.16.0.yaml'
+  - 'docs/learning-ledger.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.16.0.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1103-inside-the-bridge-suite-t535t536-abstain.md'
+  - '.tasks/active/T-1105-release-designer-0160-t-1088-lane-abbr-t.md'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-08T23:30:09'
+    action: 'T-1105: release 0.16.0 prep — draft release notes; codex calibration of the 0.16.0 kit FAILED twice with the same clean-map finding (end event named as if both unsynchronised branches finished, L26); per the pre-declared rule, option 2 (fix the fixture first)'
+  - time: '2026-10-09T00:01:15'
+    action: 'T-1105: calibration-map deficiency addressed — the clean map''s end event ''Accepted order delivered and invoiced'' asserted an outcome the source never states (L21) and a synchronisation of two unjoined branches (L29, codex x2 on the 0.16.0 kit); left over from the half-fix 34e07e87 (join removed, name kept). Now unnamed, K3 canonical citation, visible note ''Outcome not recorded in the source: this end is left unnamed until the source owner states one''; planted map mirrors it. Ledger: L29 proposed (guide), operator value rulings on L21/L29. Release notes: Corrected section. Kit tests 18/18 + 16/16, validator counts unchanged (clean 9 warn, planted 7)'
+  - time: '2026-10-09T00:08:41'
+    action: 'T-1105: 0.16.0 ready for the release job — VERSION/APP_VERSION 0.16.0 (parity ok); corrected kit (62ad885b) calibrated PASS by codex (OpenAI), GLM-5.3 (Z.AI) and Antigravity (Google), 3/3 and 0 false each, one run each; runs on the uncorrected maps (codex FAIL x2, GLM PASS) disclosed under voided_runs; release notes updated'
+  - time: '2026-10-09T00:10:04'
+    action: 'T-1105: runme job 007-release-designer-0.16.0 (cut, commit, tag designer-v0.16.0, push), dry-run passed (sha 72b8dfb0)'
+  - time: '2026-10-09T00:43:24'
+    action: 'T-1105: bridge after the 0.16.0 bump 249/6 — render-check waits on the cut (dist artifact), the four teeth reds pass alone; T-1103 gets the alone-timings (_t525 117s, _t535 93s over the 90s cap)'
+  - time: '2026-10-09T09:22:08'
+    action: 'T-1105: 0.16.0 now carries T-1092 too (operator, option a) — release notes and job 007 description updated'
+  - time: '2026-10-09T09:23:04'
+    action: 'T-1105: job 007 re-rehearsed with T-1092 in its description (sha ca326cf5)'
+  - time: '2026-10-09T10:14:57'
+    action: 'T-1105: release designer 0.16.0 — Greenfield T-172 fixes (T-1088 lane abbreviations, T-1089 project save, T-1090 cross-lane L routing default, T-1092 authority summary) and four visual fixes; kit re-issued with its own calibration'
+  - time: '2026-10-09T10:59:42'
+    action: 'T-1105: our Watchtower serves 0.16.0 (pin 0.15.3 -> 0.16.0 from the designer-v0.16.0 tag, fw designer sync --from-tag: MANIFEST and pin anchors match, /designer/app serves sha 9cc12bfe); divergence register updated, _t517 OK'
+  - time: '2026-10-09T11:00:58'
+    action: 'T-1105: all agent ACs met — release run evidence, Greenfield DM 49, Watchtower re-pin; verification commands added'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 10 commit(s), 725 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 725
+  commits: 10
+  files_changed: 29
+  lines_added: 17253
+  lines_removed: 45
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1105-release-designer-0160-t-1088-lane-abbr-t.md
+generated_by: context-agent-hybrid
