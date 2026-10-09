@@ -2,8 +2,9 @@
 JOB_TITLE="Release designer 0.16.0: cut, commit, tag designer-v0.16.0, push"
 JOB_TASK="T-1105"
 JOB_WHY="Your decision today (option 1): release now so Greenfield re-tests the released build.
-0.16.0 carries Greenfield's three fixes (T-1088 unique lane abbreviations, T-1089 a map opened from a
-project saves as its next version, T-1090 cross-lane flows as a one-bend L) plus four visual fixes.
+0.16.0 carries Greenfield's four requests (T-1088 unique lane abbreviations, T-1089 a map opened from a
+project saves as its next version, T-1090 cross-lane flows as a one-bend L, T-1092 authority markers:
+Settings switch default ON, one summary on a map that declares no authority) plus four visual fixes.
 Minor bump because T-1090 changes how existing maps are DRAWN by default (Settings toggle restores the
 old routing). Authoring kit: guide/rubric/validator unchanged; one correction to the calibration maps
 (the clean map's end event claimed an outcome the source never states; now unnamed with a declared-gap
@@ -46,7 +47,7 @@ do_cut() {
 
 do_commit() {
     git add "$ART" "$KIT" dist/MANIFEST.yaml || return 1
-    git commit -q -m "T-1105: release designer $V — Greenfield T-172 fixes (T-1088 lane abbreviations, T-1089 project save, T-1090 cross-lane L routing default) and four visual fixes; kit re-issued with its own calibration" \
+    git commit -q -m "T-1105: release designer $V — Greenfield T-172 fixes (T-1088 lane abbreviations, T-1089 project save, T-1090 cross-lane L routing default, T-1092 authority summary) and four visual fixes; kit re-issued with its own calibration" \
         -m "Notes: docs/releases/RELEASE-NOTES-$V.md" || return 1
     echo "ok  release commit $(git rev-parse --short HEAD)"
 }
