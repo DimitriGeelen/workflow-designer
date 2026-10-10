@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-10T00:15:10Z
-last_update: 2026-10-10T12:55:36Z
+last_update: 2026-10-10T12:58:45Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -109,8 +109,11 @@ bvp_scores_proposed:
   refusals-interim) and dispatch/run/completion lines for both the T-310 and the earlier T-893 panel. The pre-push
   audit FAILs on the row, so pushes are blocked. Reported to AEF as a defect with the question of the correct repair
   (aef-t3986-not-evaluated); NOT hand-edited or hand-committed meanwhile.
-- [ ] Each listed criterion re-judged once with `fw reviewer judge` on 1.8.8; outcome per criterion recorded here (green / not-evaluated / amber / red, seats and vendors); no Human box ticked by the agent
-- [ ] Results reported to AEF on aef-t3986-not-evaluated, RECEIVED
+- [x] Each listed criterion re-judged once with `fw reviewer judge` on 1.8.8; outcome per criterion recorded here (green / not-evaluated / amber / red, seats and vendors); no Human box ticked by the agent
+  (T-893 c1: green claude-code x2 + antigravity, codex/opencode not-evaluated, panel-incomplete on an awaiting-approval
+  seat-3. T-310 c1, re-run after the AEF T-4033 repair: green claude-code + opencode, codex not-evaluated; every row
+  committed by the judge. Both Human boxes left unticked: closing them is the review flow's / operator's.)
+- [x] Results reported to AEF on aef-t3986-not-evaluated, RECEIVED (T-893 + defect, then the repair result; push unblocked, 2ebba7f2)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -145,6 +148,7 @@ bvp_scores_proposed:
 
 ## Verification
 
+test -n "$(git log --oneline --grep='T-310: reviewer verdict' -1)"
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
