@@ -944,6 +944,18 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1120 (P2): the kept pools are drawn read-only below ours and the message flows run between them (dashed,
+# open circle at the source, open arrowhead at the target); a flow follows a dragged node; the exported DI
+# equals the canvas (one layout); flows between the same two ends are drawn apart.
+if node "$ROOT/tools/_t1120-collab-pools-drawn-cdp.mjs" > "$TMP/leg-_t1120.out" 2>&1 \
+   && grep -q "7/7 legs passed" "$TMP/leg-_t1120.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "the other pools of a collaboration are no longer drawn, a message flow lost its BPMN look, no longer follows a dragged node, lies on top of another, or the exported DI differs from the canvas (run 'node tools/_t1120-collab-pools-drawn-cdp.mjs'; T-1120)"
+  show_output "$TMP/leg-_t1120.out" "_t1120-collab-pools-drawn-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
 # aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
 # guard since T-889 closed (the census showed it had lost its only caller, T-889's Verification).

@@ -81,47 +81,12 @@
       <bpmndi:BPMNShape id="BPMNShape_lan_2_task" bpmnElement="lan_2_task">
         <dc:Bounds x="516.0" y="134.0" width="110" height="64"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="_BPMNShape_Participant_3" bpmnElement="Participant_1" isHorizontal="true">
-        <dc:Bounds height="100.0" width="600.0" x="222.0" y="415.0"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_3" bpmnElement="StartEvent_1">
-        <dc:Bounds height="36.0" width="36.0" x="300.0" y="448.0"/>
-        <bpmndi:BPMNLabel>
-          <dc:Bounds height="0.0" width="0.0" x="318.0" y="489.0"/>
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="BPMNEdge_MessageFlow_1" bpmnElement="MessageFlow_1" sourceElement="_BPMNShape_Task_4" targetElement="_BPMNShape_Participant_3">
-        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="590.0" y="214.0"/>
-        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="590.0" y="415.0"/>
-        <bpmndi:BPMNLabel>
-          <dc:Bounds height="6.0" width="6.0" x="522.0" y="314.0"/>
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="BPMNEdge_MessageFlow_2" bpmnElement="MessageFlow_2" sourceElement="_BPMNShape_Participant_3" targetElement="_BPMNShape_Participant_2">
-        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="506.0" y="415.0"/>
-        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="506.0" y="386.0"/>
-        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="506.0" y="386.0"/>
-        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="506.0" y="300.0"/>
-        <bpmndi:BPMNLabel>
-          <dc:Bounds height="6.0" width="6.0" x="504.0" y="386.0"/>
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="BPMNEdge_MessageFlow_4" bpmnElement="MessageFlow_4" sourceElement="_BPMNShape_Task_3" targetElement="_BPMNShape_StartEvent_3">
-        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="390.0" y="214.0"/>
-        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="390.0" y="387.0"/>
-        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="318.0" y="387.0"/>
-        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="318.0" y="448.0"/>
-        <bpmndi:BPMNLabel>
-          <dc:Bounds height="6.0" width="6.0" x="427.0" y="321.0"/>
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="BPMNEdge_MessageFlow_5" bpmnElement="MessageFlow_5" sourceElement="_BPMNShape_EndEvent_2" targetElement="_BPMNShape_Participant_3">
-        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="671.0" y="214.0"/>
-        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="671.0" y="415.0"/>
-        <bpmndi:BPMNLabel>
-          <dc:Bounds height="6.0" width="6.0" x="630.0" y="332.0"/>
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_Participant_3" bpmnElement="Participant_1" isHorizontal="true"><dc:Bounds x="30" y="682" width="1540" height="100"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_3" bpmnElement="StartEvent_1"><dc:Bounds x="108" y="715" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_MessageFlow_1" bpmnElement="MessageFlow_1"><di:waypoint x="571" y="198"/><di:waypoint x="571" y="682"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_MessageFlow_2" bpmnElement="MessageFlow_2"><di:waypoint x="800" y="682"/><di:waypoint x="800" y="642"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_MessageFlow_4" bpmnElement="MessageFlow_4"><di:waypoint x="415" y="198"/><di:waypoint x="415" y="457"/><di:waypoint x="126" y="457"/><di:waypoint x="126" y="715"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_MessageFlow_5" bpmnElement="MessageFlow_5"><di:waypoint x="671" y="214"/><di:waypoint x="671" y="682"/></bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

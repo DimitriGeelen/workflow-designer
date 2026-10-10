@@ -941,18 +941,9 @@
         <di:waypoint x="1138.0" y="1279.5"/>
         <di:waypoint x="1160.0" y="1279.5"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Participant_0q26pjx_di" bpmnElement="Participant_0tuweou" isHorizontal="true">
-        <dc:Bounds x="140" y="1640" width="1280" height="60"/>
-        <bpmndi:BPMNLabel/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_0mefziq_di" bpmnElement="Flow_0mefziq">
-        <di:waypoint x="276" y="1560"/>
-        <di:waypoint x="276" y="1640"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_14s7yr5_di" bpmnElement="Flow_14s7yr5">
-        <di:waypoint x="400" y="1640"/>
-        <di:waypoint x="400" y="1560"/>
-      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_0q26pjx_di" bpmnElement="Participant_0tuweou" isHorizontal="true"><dc:Bounds x="30" y="1477" width="1540" height="60"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0mefziq_di" bpmnElement="Flow_0mefziq"><di:waypoint x="782" y="1437"/><di:waypoint x="782" y="1477"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14s7yr5_di" bpmnElement="Flow_14s7yr5"><di:waypoint x="818" y="1477"/><di:waypoint x="818" y="1437"/></bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

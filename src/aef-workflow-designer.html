@@ -1553,8 +1553,17 @@ font-family: 'Outfit';
           <marker id="arrow-source-selected" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="5" markerHeight="5" orient="auto">
             <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)" />
           </marker>
+          <!-- T-1120: BPMN message flow — open circle at the source, open arrowhead at the target -->
+          <marker id="mf-start" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <circle cx="5" cy="5" r="3.5" fill="var(--bg)" stroke="var(--text-dim)" stroke-width="1.2" />
+          </marker>
+          <marker id="mf-end" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--bg)" stroke="var(--text-dim)" stroke-width="1.1" />
+          </marker>
         </defs>
         <g id="g-pool"></g>
+        <!-- T-1120: the other pools of a collaboration and the message flows, read-only (no pointer events) -->
+        <g id="g-collab" pointer-events="none"></g>
         <!-- T-286: id badges paint BELOW edges by default (arrows carry flow semantics;
              badges are secondary metadata) — the selected element's badge raises into
              g-badges-top. Both layers are pointer-events:none so badges never swallow
@@ -4549,6 +4558,7 @@ function wrapText(s, max) {
 }
 
 function renderEdges() {
+  renderCollab();   // T-1120: kept pools + message flows; on every edge redraw, so a flow follows a dragged node
   gEdges.innerHTML = '';
   gHandles.innerHTML = '';
   for (const e of state.edges) {
@@ -8620,18 +8630,14 @@ function maybeShowLaneFixNotice() {
   // THIS CANVAS. It is stated last because it is the one the reader must not miss, and
   // it names the element ids so the operator can go and look at what was left behind.
   const sk = _processSkipReport || [];
-  // T-1119: a collaboration's other pools, processes and message flows are now KEPT and saved back; say
-  // what is not shown (yet — T-1120 draws them) instead of the T-603 "NOT saved back" line.
+  // T-1119: a collaboration's other pools, processes and message flows are KEPT and saved back. T-1120 draws
+  // the other POOLS (read-only bands), so they need no notice; only processes that no pool owns are still
+  // kept without being shown, and that is said instead of the T-603 "NOT saved back" line.
   const kc = (typeof state === 'object' && state && state.collab) || null;
   if (kc) {
-    const names = (kc.participants || []).map(p => `"${p.name || p.id}"${p.blackBox ? ' (black box)' : ''}`);
     const nf = (kc.messageFlows || []).length;
     const np = (kc.processes || []).length;
-    if (names.length) {
-      parts.push(`this file has ${names.length + 1} pools — the designer shows "${state.pool.name || state.pool.id}"; ` +
-                 `${names.join(', ')}` + (nf ? ` and ${nf} message flow${nf === 1 ? '' : 's'}` : '') +
-                 ` are kept unchanged and saved back, not shown yet`);
-    } else if (np || nf) {   // several processes without pools (or flows only): no pool names to give
+    if (!(kc.participants || []).length && (np || nf)) {
       parts.push(`this file has ${np + 1} processes — the designer shows one; ` +
                  [np ? `${np} other process${np === 1 ? '' : 'es'}` : '', nf ? `${nf} message flow${nf === 1 ? '' : 's'}` : '']
                    .filter(Boolean).join(' and ') + ` kept unchanged and saved back, not shown yet`);
@@ -11817,7 +11823,14 @@ function buildBpmnXml(s) {
   // publish a value the model does not hold and cannot round-trip. Stated here because
   // "we emitted no labels" and "this model has no label positions" look identical in the
   // output, and only the second one is a fact about the document.
-  if (s.collab) for (const d of s.collab.di || []) lines.push(`      ${d}`);   // T-1119: kept pools / flows, as drawn
+  if (s.collab) {   // T-1119 kept DI; T-1120: replaced by what the canvas draws, element by element
+    const comp = collabDiXml(s), done = new Set();
+    for (const d of s.collab.di || []) {
+      const ref = (d.match(/\bbpmnElement="([^"]*)"/) || [])[1];
+      if (comp && ref && comp.has(ref)) { lines.push(`      ${comp.get(ref)}`); done.add(ref); } else lines.push(`      ${d}`);
+    }
+    if (comp) for (const [ref, x] of comp) if (!done.has(ref)) lines.push(`      ${x}`);
+  }
   lines.push(`    </bpmndi:BPMNPlane>`);
   lines.push(`  </bpmndi:BPMNDiagram>`);
   lines.push(`</bpmn:definitions>`);
@@ -11881,6 +11894,140 @@ function captureCollaboration(doc, proc, ourPart, displayIdToUid) {
     messages: messages.map(ser),
     di,
   };
+}
+
+// T-1120 (P2): draw the kept pools, read-only, and route the message flows — ONE layout for the canvas and
+// the exported DI (the T-1090 principle: what is drawn is what is written). Each kept pool becomes a band
+// below ours, as wide as ours; its elements keep their source-DI positions relative to their pool, moved
+// into the band; a message flow runs from/to our LIVE node (it follows a drag), a kept element, or a pool
+// band's edge. Returns null for a one-pool map, so nothing changes there.
+const _collabParsed = new WeakMap();
+function collabParsed(c) {
+  if (_collabParsed.has(c)) return _collabParsed.get(c);
+  const M = 'http://www.omg.org/spec/BPMN/20100524/MODEL';
+  const root = `<r xmlns:bpmn="${M}" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:aef="http://anchorpoint.framework/aef/extensions">`;
+  const parse = xs => { const d = new DOMParser().parseFromString(root + xs.join('') + '</r>', 'application/xml');
+                        return d.getElementsByTagName('parsererror').length ? null : d; };
+  const md = parse([...(c.participants || []).map(p => p.xml), ...(c.processes || [])]);
+  const dd = parse(c.di || []);
+  if (!md || !dd) { _collabParsed.set(c, null); return null; }
+  const shape = {}, edge = {};
+  for (const e of dd.getElementsByTagName('*')) {
+    const ref = e.getAttribute && e.getAttribute('bpmnElement'); if (!ref) continue;
+    if (e.localName === 'BPMNShape') {
+      const b = Array.from(e.children).find(x => x.localName === 'Bounds');
+      if (b) shape[ref] = { id: e.getAttribute('id'), b: { x: +b.getAttribute('x'), y: +b.getAttribute('y'), w: +b.getAttribute('width'), h: +b.getAttribute('height') } };
+    } else if (e.localName === 'BPMNEdge') {
+      edge[ref] = { id: e.getAttribute('id'), pts: Array.from(e.children).filter(x => x.localName === 'waypoint').map(w => ({ x: +w.getAttribute('x'), y: +w.getAttribute('y') })) };
+    }
+  }
+  const procRef = {}, kids = {}, seq = {};
+  for (const p of md.getElementsByTagNameNS(M, 'participant')) if (p.getAttribute('processRef')) procRef[p.getAttribute('id')] = p.getAttribute('processRef');
+  const SKIP = new Set(['laneSet', 'lane', 'sequenceFlow', 'documentation', 'extensionElements', 'incoming', 'outgoing', 'flowNodeRef']);
+  for (const pr of md.getElementsByTagNameNS(M, 'process')) {
+    const pid = pr.getAttribute('id'); kids[pid] = []; seq[pid] = [];
+    for (const e of pr.getElementsByTagName('*')) {
+      const id = e.getAttribute && e.getAttribute('id'); if (!id) continue;
+      if (e.localName === 'sequenceFlow') seq[pid].push({ id });
+      else if (!SKIP.has(e.localName) && shape[id]) kids[pid].push({ id, name: e.getAttribute('name') || '', type: e.localName });
+    }
+  }
+  const P = { shape, edge, procRef, kids, seq };
+  _collabParsed.set(c, P);
+  return P;
+}
+function collabLayout(s) {
+  const c = s && s.collab;
+  if (!c || !(c.participants || []).length) return null;
+  const P = collabParsed(c); if (!P) return null;
+  const ourW = Math.round(contentRightEdge() - POOL_X), GAP = 40;
+  const bands = [], elems = {}, seqs = [], flows = [];
+  let top = POOL_Y + poolHeight() + GAP;
+  for (const p of c.participants) {
+    const pd = P.shape[p.id], pid = P.procRef[p.id], kids = pid ? (P.kids[pid] || []) : [];
+    let frame = pd ? pd.b : null;
+    if (!frame && kids.length) {   // no pool DI: frame the contents
+      const bs = kids.map(k => P.shape[k.id].b);
+      const x0 = Math.min(...bs.map(b => b.x)) - 40, y0 = Math.min(...bs.map(b => b.y)) - 30;
+      frame = { x: x0, y: y0, w: Math.max(...bs.map(b => b.x + b.w)) - x0 + 40, h: Math.max(...bs.map(b => b.y + b.h)) - y0 + 30 };
+    }
+    const h = Math.round(Math.max(frame ? frame.h : 0, kids.length ? 100 : 60));
+    const w = Math.round(Math.max(ourW, frame ? frame.w : 0));
+    bands.push({ id: p.id, name: p.name || p.id, blackBox: !pid, x: POOL_X, y: top, w, h, diId: pd ? pd.id : null });
+    const dx = frame ? POOL_X - frame.x : 0, dy = frame ? top - frame.y : 0;
+    for (const k of kids) { const b = P.shape[k.id].b; elems[k.id] = { id: k.id, name: k.name, type: k.type, x: b.x + dx, y: b.y + dy, w: b.w, h: b.h, diId: P.shape[k.id].id }; }
+    for (const f of (pid ? P.seq[pid] || [] : [])) { const e = P.edge[f.id]; if (e) seqs.push({ id: f.id, diId: e.id, pts: e.pts.map(q => ({ x: q.x + dx, y: q.y + dy })) }); }
+    top += h + 30;
+  }
+  const ourPool = { x: POOL_X, y: POOL_Y, w: ourW, h: poolHeight(), band: true };
+  const boxOf = ref => {
+    if (c.idMap && Object.prototype.hasOwnProperty.call(c.idMap, ref)) {
+      const n = s.nodes.find(x => x.uid === c.idMap[ref]);
+      if (n) { const d = NODE_DEFAULTS[n.type] || NODE_DEFAULTS.serviceTask; return { x: n.x, y: n.y, w: d.w, h: d.h }; }
+    }
+    if (elems[ref]) return elems[ref];
+    const b = bands.find(x => x.id === ref); if (b) return { ...b, band: true };
+    if (ref === c.ourParticipantId || ref === c.ourProcessId) return ourPool;
+    return null;
+  };
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  // Several flows between the same two ends (e.g. a request down and an answer up between two pools) would
+  // be drawn on top of each other, hiding one: spread them side by side, 36 px apart, around the shared x.
+  const ends = f => [(f.xml.match(/\bsourceRef="([^"]*)"/) || [])[1], (f.xml.match(/\btargetRef="([^"]*)"/) || [])[1]];
+  const pairKey = f => ends(f).slice().sort().join('|');
+  const pairN = {}, pairI = {};
+  for (const f of c.messageFlows || []) pairN[pairKey(f)] = (pairN[pairKey(f)] || 0) + 1;
+  for (const f of c.messageFlows || []) {
+    const [sr, tr] = ends(f), key = pairKey(f);
+    const k = pairI[key] = (pairI[key] === undefined ? 0 : pairI[key] + 1), off = (k - (pairN[key] - 1) / 2) * 36;
+    const A = boxOf(sr), B = boxOf(tr); if (!A || !B) continue;
+    const acx = A.x + A.w / 2 + (A.band ? off : 0), bcx = B.x + B.w / 2 + (B.band ? off : 0), down = (A.y + A.h / 2) < (B.y + B.h / 2);
+    let sx = A.band ? clamp(bcx, A.x + 24, A.x + A.w - 24) : acx;
+    let tx = B.band ? clamp(sx, B.x + 24, B.x + B.w - 24) : bcx;
+    if (A.band && !B.band) sx = clamp(tx, A.x + 24, A.x + A.w - 24);
+    const sy = down ? A.y + A.h : A.y, ty = down ? B.y : B.y + B.h;
+    const midY = Math.round((sy + ty) / 2);
+    const pts = Math.abs(sx - tx) < 1 ? [{ x: sx, y: sy }, { x: tx, y: ty }]
+      : [{ x: sx, y: sy }, { x: sx, y: midY }, { x: tx, y: midY }, { x: tx, y: ty }];
+    flows.push({ id: f.id, name: f.name || '', diId: P.edge[f.id] ? P.edge[f.id].id : null, pts: pts.map(q => ({ x: Math.round(q.x), y: Math.round(q.y) })) });
+  }
+  return { bands, elems, seqs, flows };
+}
+function renderCollab() {
+  const g = $('g-collab'); if (!g) return;
+  g.innerHTML = '';
+  const L = collabLayout(state); if (!L) return;
+  const dpath = pts => pts.map((q, i) => (i ? 'L' : 'M') + q.x + ',' + q.y).join(' ');
+  for (const b of L.bands) {
+    g.appendChild(el('rect', { x: b.x, y: b.y, width: b.w, height: b.h, rx: 4, fill: 'var(--surface)', 'fill-opacity': '0.35',
+      stroke: 'var(--border)', 'stroke-width': '1', 'data-collab-pool': b.id }));
+    g.appendChild(el('text', { x: b.x + 14, y: b.y + 18, class: 'pool-label' }, [text(b.name + (b.blackBox ? '  ·  black box (read-only)' : '  ·  read-only'))]));
+  }
+  for (const s2 of L.seqs) g.appendChild(el('path', { d: dpath(s2.pts), fill: 'none', stroke: 'var(--text-dim)', 'stroke-width': '1.2', 'marker-end': 'url(#arrow)', 'data-collab-flow': s2.id }));
+  for (const e of Object.values(L.elems)) {
+    const round = /event/i.test(e.type) ? Math.min(e.w, e.h) / 2 : 6;
+    g.appendChild(el('rect', { x: e.x, y: e.y, width: e.w, height: e.h, rx: round, fill: 'var(--surface)', stroke: 'var(--text-dim)', 'stroke-width': '1', 'data-collab-node': e.id }));
+    if (e.name) g.appendChild(el('text', { x: e.x + e.w / 2, y: e.y + e.h / 2 + 4, 'text-anchor': 'middle', class: 'node-label' }, [text(e.name.length > 28 ? e.name.slice(0, 27) + '…' : e.name)]));
+  }
+  for (const f of L.flows) {
+    g.appendChild(el('path', { d: dpath(f.pts), fill: 'none', stroke: 'var(--text-dim)', 'stroke-width': '1.2', 'stroke-dasharray': '6 4',
+      'marker-start': 'url(#mf-start)', 'marker-end': 'url(#mf-end)', 'data-message-flow': f.id }));
+    if (f.name) { const m = f.pts[Math.floor((f.pts.length - 1) / 2)], n2 = f.pts[Math.floor((f.pts.length - 1) / 2) + 1] || m;
+      g.appendChild(el('text', { x: (m.x + n2.x) / 2 + 6, y: (m.y + n2.y) / 2 - 4, class: 'edge-label' }, [text(f.name)])); }
+  }
+}
+// T-1120: the DI the export writes for the kept pools — computed by collabLayout, so it equals the canvas.
+// bpmnElement -> serialized shape/edge (keeping the source DI element id where there was one).
+function collabDiXml(s) {
+  const L = collabLayout(s); if (!L) return null;
+  const out = new Map(), r = Math.round;
+  const shape = (ref, id, b, horiz) => out.set(ref, `<bpmndi:BPMNShape id="${escAttr(id || ref + '_di')}" bpmnElement="${escAttr(ref)}"${horiz ? ' isHorizontal="true"' : ''}><dc:Bounds x="${r(b.x)}" y="${r(b.y)}" width="${r(b.w)}" height="${r(b.h)}"/></bpmndi:BPMNShape>`);
+  const edge = (ref, id, pts) => out.set(ref, `<bpmndi:BPMNEdge id="${escAttr(id || ref + '_di')}" bpmnElement="${escAttr(ref)}">${pts.map(q => `<di:waypoint x="${r(q.x)}" y="${r(q.y)}"/>`).join('')}</bpmndi:BPMNEdge>`);
+  for (const b of L.bands) shape(b.id, b.diId, b, true);
+  for (const e of Object.values(L.elems)) shape(e.id, e.diId, e, false);
+  for (const q of L.seqs) edge(q.id, q.diId, q.pts);
+  for (const f of L.flows) edge(f.id, f.diId, f.pts);
+  return out;
 }
 
 function parseBpmnXml(text) {

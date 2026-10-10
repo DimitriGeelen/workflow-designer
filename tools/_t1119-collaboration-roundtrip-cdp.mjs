@@ -11,7 +11,7 @@
 //   C  every messageFlow joins two DIFFERENT pools (BPMN 2.0.2)
 //   D  the saved file is well-formed XML
 //   E  our pool is the one whose processRef is the opened process (synthetic: "Sales", although CPQ comes first)
-//   F  the notice names the kept pool ("Tacton CPQ") and says it is kept
+//   F  no "not shown yet" notice for pools (T-1120 draws them; P1 had the notice)
 //   node tools/_t1119-collaboration-roundtrip-cdp.mjs [--designer PATH]   (0.16.0 must FAIL A)
 // Exit 0 = pass; 1 = assertion failed; 2 = misconfig.
 import { spawn } from 'node:child_process';
@@ -107,7 +107,8 @@ async function main() {
     }
     const syn = res[0];
     leg(syn.pool === 'Sales', 'E synthetic: our pool is "Sales" (by processRef), although "Tacton CPQ" is listed first', 'pool=' + syn.pool);
-    leg(/Tacton CPQ/.test(syn.notice) && /kept unchanged/.test(syn.notice), 'F synthetic: the notice names the kept pool and says it is kept', JSON.stringify(syn.notice));
+    // T-1120 draws the kept pools, so P1's "kept, not shown yet" notice must be gone for them (no claim of hidden pools)
+    leg(!/not shown yet/.test(syn.notice), 'F synthetic: no "not shown yet" notice for pools (T-1120 draws them)', JSON.stringify(syn.notice));
   } catch (e) {
     leg(false, 'harness', String(e && e.stack || e));
   } finally {

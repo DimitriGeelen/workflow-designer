@@ -1,11 +1,18 @@
 ---
 id: T-1120
-name: "P2: show every pool on the canvas read-only — other pools stacked below ours (black-box pools as named bands), message flows drawn dashed between pools, exported in DI"
+name: "P2: show every pool on the canvas read-only — other pools stacked below ours
+  (black-box pools as named bands), message flows drawn dashed between pools, exported
+  in DI"
 description: >
-  Operator 2026-10-10 (with P1): the designer shows multiple pools, BPMN 2.0.2: participants stacked as horizontal pools, a participant without processRef as a black-box band, messageFlow as dashed arrows with an open circle at the source and an open arrowhead at the target, only between different pools. Read-only in P2; editing other pools is P3 / T-1118. Removes P1's notice.
+  Operator 2026-10-10 (with P1): the designer shows multiple pools, BPMN 2.0.2: participants
+  stacked as horizontal pools, a participant without processRef as a black-box band,
+  messageFlow as dashed arrows with an open circle at the source and an open arrowhead
+  at the target, only between different pools. Read-only in P2; editing other pools
+  is P3 / T-1118. Removes P1's notice.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-10T12:52:03Z
-last_update: 2026-10-10T12:52:03Z
-date_finished: null
+last_update: 2026-10-10T13:27:51Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +57,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-10T13:19:24Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=pool); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=2 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L2:keyword=export)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1120: P2: show every pool on the canvas read-only — other pools stacked below ours (black-box pools as named bands), message flows drawn dashed between pools, exported in DI
@@ -62,8 +90,18 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Every kept pool (T-1119 `state.collab.participants`) is drawn below ours as a horizontal band with its name, same width as ours: a black-box pool as an empty band, a pool with a process with its elements (boxes with names, at their DI positions moved into the band) and its sequence flows
+- [x] Every message flow is drawn BPMN-style (dashed line, open circle at the source, open arrowhead at the target) between the pools: from/to our live nodes (it follows a node you drag), kept elements, or a black-box band's edge
+  (also: flows between the same two ends are spread 36 px apart — found in the kitchen-sink screenshot, where two
+  opposite flows between the pools lay exactly on top of each other)
+- [x] ONE layout function serves canvas and export: the exported DI for kept pools, their elements and the message flows equals what the canvas draws (pool bounds, element bounds, flow waypoints); kept pools are read-only (not selectable, not draggable); P1's "not shown yet" notice is gone when they are drawn
+  (`collabLayout` -> `renderCollab` + `collabDiXml`; layer pointer-events none. Known loss: a kept shape's
+  `<bpmndi:BPMNLabel>` child is not re-emitted — empty in kitchen-sink; label bounds on a kept element would be lost)
+- [x] Canvas height includes the kept bands (scrollable, Fit includes them); a one-pool map renders and exports exactly as before (goldens of single-pool files unchanged)
+  (viewBox comes from getBBox, which includes the layer; 8 third-party goldens identical, 3 multi-pool re-recorded: DI only)
+- [x] CDP test: bands, element boxes and dashed message flows present with the right counts on the synthetic Sales+CPQ fixture and kitchen-sink; drag a Sales node -> its message flow end moves; exported DI == canvas geometry; 0.16.0/P1-only designer FAILS the drawing legs; wired; screenshots read
+  (7/7; P1-only and 0.16.0: 7 of 7 FAIL; `docs/screenshots/T-1120/{sales-cpq,kitchen-sink}.png` read. Cosmetic, not
+  fixed: the flows cross the "+ Add another lane" strip between our pool and the first band)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -98,6 +136,11 @@ date_finished: null
 
 ## Verification
 
+node tools/_t1120-collab-pools-drawn-cdp.mjs > /tmp/.t1120-out 2>&1 && grep -q "7/7 legs passed" /tmp/.t1120-out
+node tools/_t1119-collaboration-roundtrip-cdp.mjs > /tmp/.t1120-p1 2>&1 && grep -q "18/18 legs passed" /tmp/.t1120-p1
+grep -q "_t1120-collab-pools-drawn-cdp.mjs" tests/run-bridge-tests.sh
+python3 tools/_t821-swallowed-failure-census.py > /tmp/.t1120-census 2>&1 && grep -q "FINDINGS                  0" /tmp/.t1120-census
+test -s docs/screenshots/T-1120/sales-cpq.png && test -s docs/screenshots/T-1120/kitchen-sink.png
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -320,3 +363,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1120-p2-show-every-pool-on-the-canvas-read-on.md
 - **Context:** Initial task creation
+
+### 2026-10-10T13:19:23Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
