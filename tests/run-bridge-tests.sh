@@ -932,6 +932,18 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1119 (P1 of the operator's T-347 ruling): open + save of a BPMN collaboration keeps every pool (incl.
+# black-box), every process not opened and every message flow with its DI; message-flow ends are re-pointed
+# to the ids written on save; our pool is the participant whose processRef is the opened process.
+if node "$ROOT/tools/_t1119-collaboration-roundtrip-cdp.mjs" > "$TMP/leg-_t1119.out" 2>&1 \
+   && grep -q "18/18 legs passed" "$TMP/leg-_t1119.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "a BPMN collaboration loses pools or message flows on save again, a kept message flow points at an id the save no longer writes, a flow joins one pool to itself, or the wrong participant is taken as our pool (run 'node tools/_t1119-collaboration-roundtrip-cdp.mjs'; T-1119)"
+  show_output "$TMP/leg-_t1119.out" "_t1119-collaboration-roundtrip-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
 # aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
 # guard since T-889 closed (the census showed it had lost its only caller, T-889's Verification).

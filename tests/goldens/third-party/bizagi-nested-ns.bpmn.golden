@@ -9,7 +9,19 @@
                   targetNamespace="https://aef.anchorpoint.dev/workflows">
 
   <bpmn:collaboration id="Collaboration_id_1f46c2af-002d-4b63-b1d1-7f181acc6065">
-    <bpmn:participant id="Id_c13bd51d-300b-4a9b-9ed9-96a0415f9c76" name="Hauptprozess" processRef="Process_id_1f46c2af-002d-4b63-b1d1-7f181acc6065"/>
+    <bpmn:participant id="Id_f5303751-594f-4be3-bfba-9ed026dbb78c" name="Prozess 1" processRef="Process_id_1f46c2af-002d-4b63-b1d1-7f181acc6065"/>
+    <participant xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Id_c13bd51d-300b-4a9b-9ed9-96a0415f9c76" name="Hauptprozess" processRef="Id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6">
+      <documentation/>
+      <extensionElements>
+        <bizagi:BizagiExtensions xmlns:bizagi="http://www.bizagi.com/bpmn20">
+          <bizagi:BizagiProperties>
+            <bizagi:BizagiProperty name="bgColor" value="#FFFFFF"/>
+            <bizagi:BizagiProperty name="borderColor" value="#000000"/>
+            <bizagi:BizagiProperty name="isMainParticipant"/>
+          </bizagi:BizagiProperties>
+        </bizagi:BizagiExtensions>
+      </extensionElements>
+    </participant>
   </bpmn:collaboration>
 
   <bpmn:process id="Process_id_1f46c2af-002d-4b63-b1d1-7f181acc6065" isExecutable="true">
@@ -74,8 +86,16 @@
     </bpmn:sequenceFlow>
   </bpmn:process>
 
+  <process xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6" name="Hauptprozess">
+    <documentation/>
+    <laneSet id="Id_cdcf5196-d55e-4ef2-b3f2-f96899f58402"/>
+  </process>
+
   <bpmndi:BPMNDiagram id="BPMNDiagram_id_1f46c2af-002d-4b63-b1d1-7f181acc6065">
-    <bpmndi:BPMNPlane id="BPMNPlane_id_1f46c2af-002d-4b63-b1d1-7f181acc6065" bpmnElement="Process_id_1f46c2af-002d-4b63-b1d1-7f181acc6065">
+    <bpmndi:BPMNPlane id="BPMNPlane_id_1f46c2af-002d-4b63-b1d1-7f181acc6065" bpmnElement="Collaboration_id_1f46c2af-002d-4b63-b1d1-7f181acc6065">
+      <bpmndi:BPMNShape id="BPMNShape_Id_f5303751-594f-4be3-bfba-9ed026dbb78c" bpmnElement="Id_f5303751-594f-4be3-bfba-9ed026dbb78c" isHorizontal="true">
+        <dc:Bounds x="30" y="30" width="1540" height="612"/>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_lan_1_id" bpmnElement="lan_1_id">
         <dc:Bounds x="136.0" y="115.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
@@ -93,6 +113,14 @@
         <di:waypoint x="330.0" y="127.5"/>
         <di:waypoint x="392.9" y="127.5"/>
       </bpmndi:BPMNEdge>
+      <BPMNShape xmlns="http://www.omg.org/spec/BPMN/20100524/DI" id="DiagramElement_9cb178c5-b0cd-4e85-9f1b-d5b1c9607d47" bpmnElement="Id_c13bd51d-300b-4a9b-9ed9-96a0415f9c76" isHorizontal="true">
+        <extension xmlns="http://www.omg.org/spec/DD/20100524/DI"/>
+        <Bounds xmlns="http://www.omg.org/spec/DD/20100524/DC" x="30" y="30" width="0" height="0"/>
+        <BPMNLabel id="DiagramElement_404d1200-cc25-43b0-8768-96bd0461dd42" labelStyle="Style_4db7d0c2-0291-417c-ba5a-99272a7bdc1a">
+          <extension xmlns="http://www.omg.org/spec/DD/20100524/DI"/>
+          <Bounds xmlns="http://www.omg.org/spec/DD/20100524/DC" x="0" y="0" width="0" height="0"/>
+        </BPMNLabel>
+      </BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

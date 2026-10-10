@@ -52,6 +52,27 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
 
+- **IW-1: How does the designer notice a new kind of content, and how does it phrase the suggestion to make it a field?**
+  confidence: 0
+  disposition:
+  rationale:
+- **IW-2: How does the operator approve a suggested field (the "tier 0, with operator" path), and where is the approval recorded?**
+  confidence: 0
+  disposition:
+  rationale:
+- **IW-3: Where does field visibility live — per project, per workflow, per element type — and which wins when they differ?**
+  confidence: 0
+  disposition:
+  rationale:
+- **IW-4: Show only what is used: can the properties panel hide empty / unused fields by default (less clutter) without hiding anything that carries a value, and how does a user reveal a hidden field to fill it?**
+  confidence: 0
+  disposition:
+  rationale:
+- **IW-5: Which kinds come first — Greenfield's pools and message flows (T-1096)?**
+  confidence: 0
+  disposition:
+  rationale:
+
 ## Exploration Plan
 
 <!-- How will we validate assumptions? Spikes, prototypes, research? Time-box each. -->

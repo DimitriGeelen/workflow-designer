@@ -8620,7 +8620,23 @@ function maybeShowLaneFixNotice() {
   // THIS CANVAS. It is stated last because it is the one the reader must not miss, and
   // it names the element ids so the operator can go and look at what was left behind.
   const sk = _processSkipReport || [];
-  if (sk.length) {
+  // T-1119: a collaboration's other pools, processes and message flows are now KEPT and saved back; say
+  // what is not shown (yet — T-1120 draws them) instead of the T-603 "NOT saved back" line.
+  const kc = (typeof state === 'object' && state && state.collab) || null;
+  if (kc) {
+    const names = (kc.participants || []).map(p => `"${p.name || p.id}"${p.blackBox ? ' (black box)' : ''}`);
+    const nf = (kc.messageFlows || []).length;
+    const np = (kc.processes || []).length;
+    if (names.length) {
+      parts.push(`this file has ${names.length + 1} pools — the designer shows "${state.pool.name || state.pool.id}"; ` +
+                 `${names.join(', ')}` + (nf ? ` and ${nf} message flow${nf === 1 ? '' : 's'}` : '') +
+                 ` are kept unchanged and saved back, not shown yet`);
+    } else if (np || nf) {   // several processes without pools (or flows only): no pool names to give
+      parts.push(`this file has ${np + 1} processes — the designer shows one; ` +
+                 [np ? `${np} other process${np === 1 ? '' : 'es'}` : '', nf ? `${nf} message flow${nf === 1 ? '' : 's'}` : '']
+                   .filter(Boolean).join(' and ') + ` kept unchanged and saved back, not shown yet`);
+    }
+  } else if (sk.length) {
     const which = sk.map(x => `${x.id}${x.name ? ` "${x.name}"` : ''} (${x.n} element${x.n === 1 ? '' : 's'})`).join(', ');
     parts.push(`this file declares ${sk.length + 1} processes and only one can be opened — ` +
                `NOT imported, and NOT saved back: ${which}`);
@@ -11545,6 +11561,25 @@ function buildBpmnXml(s) {
   }
   lines.push(`  <bpmn:collaboration id="Collaboration_${escAttr(s.workflowMeta.id)}">`);
   lines.push(`    <bpmn:participant id="${escAttr(s.pool.id)}" name="${escAttr(s.pool.name)}" processRef="Process_${escAttr(s.workflowMeta.id)}"/>`);
+  // T-1119: the other pools and the messageFlows, verbatim; a flow's end that named an element of OUR
+  // process is re-pointed at the id written below (ids are re-derived on save), and our process / pool
+  // ids at the ones this export uses. Ends naming another pool or process are left exactly as read.
+  const collab = s.collab || null;
+  if (collab) {
+    const repoint = ref => {
+      if (collab.idMap && Object.prototype.hasOwnProperty.call(collab.idMap, ref)) {
+        const n = s.nodes.find(x => x.uid === collab.idMap[ref]);
+        if (n) return displayIdOf(n);
+      }
+      if (ref === collab.ourProcessId) return `Process_${s.workflowMeta.id}`;
+      if (ref === collab.ourParticipantId) return s.pool.id;
+      return ref;
+    };
+    for (const p of collab.participants || []) lines.push(`    ${p.xml}`);
+    for (const f of collab.messageFlows || []) {
+      lines.push(`    ${f.xml.replace(/\b(sourceRef|targetRef)="([^"]*)"/g, (m, k, v) => `${k}="${escAttr(repoint(v))}"`)}`);
+    }
+  }
   lines.push(`  </bpmn:collaboration>`);
   lines.push(``);
   lines.push(`  <bpmn:process id="Process_${escAttr(s.workflowMeta.id)}" isExecutable="true">`);
@@ -11690,6 +11725,8 @@ function buildBpmnXml(s) {
   }
 
   lines.push(`  </bpmn:process>`);
+  // T-1119: the processes behind the other pools and the messages the kept flows name, verbatim.
+  if (s.collab) for (const x of [...(s.collab.processes || []), ...(s.collab.messages || [])]) { lines.push(``); lines.push(`  ${x}`); }
   lines.push(``);
   // SUPERSEDED 2026-08-23 (T-423). This block previously read:
   //
@@ -11733,7 +11770,16 @@ function buildBpmnXml(s) {
   // nothing — DI_TRAILER_PREFIX is still what our own readDocComment matches on.
   const wfId = escAttr(s.workflowMeta.id);
   lines.push(`  <bpmndi:BPMNDiagram id="BPMNDiagram_${wfId}">`);
-  lines.push(`    <bpmndi:BPMNPlane id="BPMNPlane_${wfId}" bpmnElement="Process_${wfId}">`);
+  // T-1119: with several pools the plane draws the COLLABORATION (BPMN DI), and our pool needs its own
+  // shape; a one-pool map keeps the plane on the process, byte-identical to before.
+  if (s.collab) {
+    lines.push(`    <bpmndi:BPMNPlane id="BPMNPlane_${wfId}" bpmnElement="Collaboration_${wfId}">`);
+    lines.push(`      <bpmndi:BPMNShape id="BPMNShape_${escAttr(s.pool.id)}" bpmnElement="${escAttr(s.pool.id)}" isHorizontal="true">`);
+    lines.push(`        <dc:Bounds x="${POOL_X}" y="${POOL_Y}" width="${Math.round(contentRightEdge() - POOL_X)}" height="${Math.round(poolHeight())}"/>`);
+    lines.push(`      </bpmndi:BPMNShape>`);
+  } else {
+    lines.push(`    <bpmndi:BPMNPlane id="BPMNPlane_${wfId}" bpmnElement="Process_${wfId}">`);
+  }
   for (const n of s.nodes) {
     const def = NODE_DEFAULTS[n.type] || { w: 120, h: 48 };
     if (typeof n.x !== 'number' || typeof n.y !== 'number') continue;
@@ -11771,6 +11817,7 @@ function buildBpmnXml(s) {
   // publish a value the model does not hold and cannot round-trip. Stated here because
   // "we emitted no labels" and "this model has no label positions" look identical in the
   // output, and only the second one is a fact about the document.
+  if (s.collab) for (const d of s.collab.di || []) lines.push(`      ${d}`);   // T-1119: kept pools / flows, as drawn
   lines.push(`    </bpmndi:BPMNPlane>`);
   lines.push(`  </bpmndi:BPMNDiagram>`);
   lines.push(`</bpmn:definitions>`);
@@ -11788,6 +11835,54 @@ function buildBpmnXml(s) {
 //
 // Returns the workflow state object, or null on parse failure. Throws on
 // malformed XML (caller handles).
+// T-1119 (P1 of the operator's 2026-10-10 ruling on T-347, R1): a BPMN collaboration — several pools
+// (participants, a black-box one has no processRef), the processes behind them and the messageFlows
+// between them — used to lose everything but the opened process on save (T-348: ROOT-DROPPED 24/24).
+// The designer still SHOWS one pool (P2, T-1120, draws the rest), but it now KEEPS the rest: each
+// element verbatim, and the DI that draws them. Returns null for a single-pool document, which keeps
+// every such document's export byte-identical. idMap maps an original element id of the OPENED process
+// to the node uid, so the exporter can point a kept messageFlow at the id it writes on save.
+function captureCollaboration(doc, proc, ourPart, displayIdToUid) {
+  // Serialised verbatim, minus a namespace declaration that only repeats one our export's root already
+  // makes (same prefix, same URI: bpmn, bpmndi, dc, di, aef). A foreign prefix (e.g. bpmn2:) keeps its own.
+  const ROOT_NS = { bpmn: 'http://www.omg.org/spec/BPMN/20100524/MODEL', bpmndi: 'http://www.omg.org/spec/BPMN/20100524/DI',
+                    dc: 'http://www.omg.org/spec/DD/20100524/DC', di: 'http://www.omg.org/spec/DD/20100524/DI',
+                    aef: 'http://anchorpoint.framework/aef/extensions' };
+  const ser = el => new XMLSerializer().serializeToString(el)
+    .replace(/ xmlns:([A-Za-z][\w.-]*)="([^"]*)"/g, (m, pfx, uri) => (ROOT_NS[pfx] === uri ? '' : m));
+  // parseBpmnXml's byBpmn is local to it; the same namespace-aware lookup, BPMN 2.0 model namespace
+  const byBpmn = (root, tag) => Array.from(root.getElementsByTagNameNS('http://www.omg.org/spec/BPMN/20100524/MODEL', tag));
+  const parts = byBpmn(doc, 'participant');
+  const others = parts.filter(p => p !== ourPart);
+  const flows = byBpmn(doc, 'messageFlow');
+  const procs = byBpmn(doc, 'process').filter(p => p !== proc && p.parentNode === doc.documentElement);
+  if (!others.length && !flows.length && !procs.length) return null;
+  const keepIds = new Set();
+  for (const el of [...others, ...flows, ...procs]) {
+    if (el.getAttribute('id')) keepIds.add(el.getAttribute('id'));
+    for (const d of el.getElementsByTagName('*')) if (d.getAttribute && d.getAttribute('id')) keepIds.add(d.getAttribute('id'));
+  }
+  // root-level messages a kept flow names (messageRef) — otherwise its reference would dangle
+  const msgRefs = new Set(flows.map(f => f.getAttribute('messageRef')).filter(Boolean));
+  const messages = byBpmn(doc, 'message').filter(m => m.parentNode === doc.documentElement && msgRefs.has(m.getAttribute('id')));
+  const di = [];
+  for (const el of doc.getElementsByTagNameNS('http://www.omg.org/spec/BPMN/20100524/DI', '*')) {
+    if ((el.localName === 'BPMNShape' || el.localName === 'BPMNEdge') && keepIds.has(el.getAttribute('bpmnElement'))) di.push(ser(el));
+  }
+  const idMap = {};
+  for (const [orig, uid] of displayIdToUid) idMap[orig] = uid;
+  return {
+    ourProcessId: proc.getAttribute('id') || '',
+    ourParticipantId: ourPart ? ourPart.getAttribute('id') || '' : '',
+    idMap,
+    participants: others.map(p => ({ id: p.getAttribute('id') || '', name: p.getAttribute('name') || '', blackBox: !p.getAttribute('processRef'), xml: ser(p) })),
+    messageFlows: flows.map(f => ({ id: f.getAttribute('id') || '', name: f.getAttribute('name') || '', xml: ser(f) })),
+    processes: procs.map(ser),
+    messages: messages.map(ser),
+    di,
+  };
+}
+
 function parseBpmnXml(text) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(text, 'application/xml');
@@ -12382,7 +12477,11 @@ function parseBpmnXml(text) {
   // Pool identity lives on bpmn:participant in the editor's own exports;
   // bridge files carry it on the process element and have no participant —
   // fall back there so both import paths keep their identity (T-080).
-  const partEl = byBpmn(doc, 'participant')[0];
+  // T-1119: OUR pool is the participant whose processRef is the opened process, not participant[0]
+  // (Greenfield: the system pools may come first).
+  const _parts = byBpmn(doc, 'participant');
+  const partEl = _parts.find(p => p.getAttribute('processRef') === proc.getAttribute('id')) || _parts[0];
+  const collab = captureCollaboration(doc, proc, partEl, displayIdToUid);   // T-1119
 
   // Snap y-coords to lane centers for nodes that lacked explicit positions
   const result = {
@@ -12408,6 +12507,9 @@ function parseBpmnXml(text) {
     // it, so it belongs on state. Carried verbatim; buildBpmnXml re-emits it as the
     // leading child. null for maps that never had one, which keeps their bytes exact.
     docComment: readDocComment(doc.documentElement),
+    // T-1119: the other pools, processes and messageFlows, kept verbatim (null for a one-pool file,
+    // which keeps every such export byte-identical). Must reach buildBpmnXml, like docComment.
+    ...(collab ? { collab } : {}),
   };
   // Use a temporary state so laneCenterY() resolves correctly during patching
   const prev = state;

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_t1119"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <!-- T-1119 fixture (synthetic; the SHAPE of aef-greenfield-test's maps, no client data): a BPMN 2.0.2
+       collaboration. Pool "Tacton CPQ" is a BLACK BOX (no processRef) and is listed FIRST, so the importer
+       must pick "Sales" as our pool by its processRef, not participant[0]. Two message flows run between
+       the pools, one names a message. Before T-1119 a save kept 1 participant and 0 message flows. -->
+
+  <bpmn:message id="Msg_configuration" name="configuration"/>
+
+  <bpmn:collaboration id="Collab_t1119">
+    <bpmn:participant id="P_cpq" name="Tacton CPQ"/>
+    <bpmn:participant id="P_sales" name="Sales" processRef="Process_sales"/>
+    <bpmn:messageFlow id="MF_config" name="configuration" sourceRef="t_ask" targetRef="P_cpq" messageRef="Msg_configuration">
+      <bpmn:documentation>The seller's configuration goes to CPQ.</bpmn:documentation>
+    </bpmn:messageFlow>
+    <bpmn:messageFlow id="MF_price" name="price" sourceRef="P_cpq" targetRef="t_quote"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_sales" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_sales">
+      <bpmn:lane id="lane_seller" name="Seller">
+        <!-- laneMeta: the corpus round-trip guard mutates lane metadata and needs some to mutate -->
+        <bpmn:extensionElements><aef:laneMeta abbr="sel" authority="initiative" height="130"/></bpmn:extensionElements>
+        <bpmn:flowNodeRef>t_receive</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>t_ask</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>t_quote</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:task id="t_receive" name="Receive request"><bpmn:extensionElements><aef:uid value="n_receive"/></bpmn:extensionElements></bpmn:task>
+    <bpmn:task id="t_ask" name="Ask CPQ for price"><bpmn:extensionElements><aef:uid value="n_ask"/></bpmn:extensionElements></bpmn:task>
+    <bpmn:task id="t_quote" name="Send quote"><bpmn:extensionElements><aef:uid value="n_quote"/></bpmn:extensionElements></bpmn:task>
+    <bpmn:sequenceFlow id="f1" sourceRef="t_receive" targetRef="t_ask"><bpmn:extensionElements><aef:uid value="f_1"/></bpmn:extensionElements></bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f2" sourceRef="t_ask" targetRef="t_quote"><bpmn:extensionElements><aef:uid value="f_2"/></bpmn:extensionElements></bpmn:sequenceFlow>
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="Diagram_t1119">
+    <bpmndi:BPMNPlane id="Plane_t1119" bpmnElement="Collab_t1119">
+      <bpmndi:BPMNShape id="P_sales_di" bpmnElement="P_sales" isHorizontal="true"><dc:Bounds x="30" y="30" width="700" height="160"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="t_receive_di" bpmnElement="t_receive"><dc:Bounds x="120" y="70" width="110" height="64"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="t_ask_di" bpmnElement="t_ask"><dc:Bounds x="320" y="70" width="110" height="64"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="t_quote_di" bpmnElement="t_quote"><dc:Bounds x="520" y="70" width="110" height="64"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="P_cpq_di" bpmnElement="P_cpq" isHorizontal="true"><dc:Bounds x="30" y="260" width="700" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="MF_config_di" bpmnElement="MF_config"><di:waypoint x="375" y="134"/><di:waypoint x="375" y="260"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_price_di" bpmnElement="MF_price"><di:waypoint x="575" y="260"/><di:waypoint x="575" y="134"/></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

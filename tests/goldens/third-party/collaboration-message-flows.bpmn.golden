@@ -10,6 +10,11 @@
 
   <bpmn:collaboration id="Collaboration_process_1">
     <bpmn:participant id="Participant_2" name="Pool" processRef="Process_process_1"/>
+    <bpmn2:participant xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Participant_1" name="Pool" processRef="Process_2"/>
+    <bpmn2:messageFlow xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" id="MessageFlow_1" name="" sourceRef="lan_2_task" targetRef="Participant_1"/>
+    <bpmn2:messageFlow xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" id="MessageFlow_2" name="" sourceRef="Participant_1" targetRef="Participant_2"/>
+    <bpmn2:messageFlow xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" id="MessageFlow_4" name="" sourceRef="lan_1_task" targetRef="StartEvent_1"/>
+    <bpmn2:messageFlow xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" id="MessageFlow_5" name="" sourceRef="lan_3_endevent" targetRef="Participant_1"/>
   </bpmn:collaboration>
 
   <bpmn:process id="Process_process_1" isExecutable="true">
@@ -56,8 +61,17 @@
     </bpmn:task>
   </bpmn:process>
 
+  <bpmn2:process xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Process_2" isExecutable="false">
+    <bpmn2:startEvent id="StartEvent_1">
+      <bpmn2:messageEventDefinition id="MessageEventDefinition_1"/>
+    </bpmn2:startEvent>
+  </bpmn2:process>
+
   <bpmndi:BPMNDiagram id="BPMNDiagram_process_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_process_1" bpmnElement="Process_process_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_process_1" bpmnElement="Collaboration_process_1">
+      <bpmndi:BPMNShape id="BPMNShape_Participant_2" bpmnElement="Participant_2" isHorizontal="true">
+        <dc:Bounds x="30" y="30" width="1540" height="612"/>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_lan_3_endevent" bpmnElement="lan_3_endevent">
         <dc:Bounds x="653.0" y="178.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
@@ -67,6 +81,47 @@
       <bpmndi:BPMNShape id="BPMNShape_lan_2_task" bpmnElement="lan_2_task">
         <dc:Bounds x="516.0" y="134.0" width="110" height="64"/>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_Participant_3" bpmnElement="Participant_1" isHorizontal="true">
+        <dc:Bounds height="100.0" width="600.0" x="222.0" y="415.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_3" bpmnElement="StartEvent_1">
+        <dc:Bounds height="36.0" width="36.0" x="300.0" y="448.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="0.0" width="0.0" x="318.0" y="489.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_MessageFlow_1" bpmnElement="MessageFlow_1" sourceElement="_BPMNShape_Task_4" targetElement="_BPMNShape_Participant_3">
+        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="590.0" y="214.0"/>
+        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="590.0" y="415.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="6.0" width="6.0" x="522.0" y="314.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_MessageFlow_2" bpmnElement="MessageFlow_2" sourceElement="_BPMNShape_Participant_3" targetElement="_BPMNShape_Participant_2">
+        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="506.0" y="415.0"/>
+        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="506.0" y="386.0"/>
+        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="506.0" y="386.0"/>
+        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="506.0" y="300.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="6.0" width="6.0" x="504.0" y="386.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_MessageFlow_4" bpmnElement="MessageFlow_4" sourceElement="_BPMNShape_Task_3" targetElement="_BPMNShape_StartEvent_3">
+        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="390.0" y="214.0"/>
+        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="390.0" y="387.0"/>
+        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="318.0" y="387.0"/>
+        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="318.0" y="448.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="6.0" width="6.0" x="427.0" y="321.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_MessageFlow_5" bpmnElement="MessageFlow_5" sourceElement="_BPMNShape_EndEvent_2" targetElement="_BPMNShape_Participant_3">
+        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="671.0" y="214.0"/>
+        <di:waypoint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dc:Point" x="671.0" y="415.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="6.0" width="6.0" x="630.0" y="332.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

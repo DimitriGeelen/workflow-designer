@@ -10,6 +10,11 @@
 
   <bpmn:collaboration id="Collaboration_process_0k3ryf8">
     <bpmn:participant id="Participant_1pudv9f" name="Participant" processRef="Process_process_0k3ryf8"/>
+    <bpmn:participant id="Participant_0tuweou" name="Participant">
+      <bpmn:participantMultiplicity/>
+    </bpmn:participant>
+    <bpmn:messageFlow id="Flow_0mefziq" sourceRef="Participant_1pudv9f" targetRef="Participant_0tuweou" messageRef="Message_1"/>
+    <bpmn:messageFlow id="Flow_14s7yr5" sourceRef="Participant_0tuweou" targetRef="Participant_1pudv9f"/>
   </bpmn:collaboration>
 
   <bpmn:process id="Process_process_0k3ryf8" isExecutable="true">
@@ -679,8 +684,13 @@
     </bpmn:sequenceFlow>
   </bpmn:process>
 
+  <bpmn:message id="Message_1" name="Message"/>
+
   <bpmndi:BPMNDiagram id="BPMNDiagram_process_0k3ryf8">
-    <bpmndi:BPMNPlane id="BPMNPlane_process_0k3ryf8" bpmnElement="Process_process_0k3ryf8">
+    <bpmndi:BPMNPlane id="BPMNPlane_process_0k3ryf8" bpmnElement="Collaboration_process_0k3ryf8">
+      <bpmndi:BPMNShape id="BPMNShape_Participant_1pudv9f" bpmnElement="Participant_1pudv9f" isHorizontal="true">
+        <dc:Bounds x="30" y="30" width="1540" height="1407"/>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_lan_1_event" bpmnElement="lan_1_event">
         <dc:Bounds x="402.0" y="472.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
@@ -930,6 +940,18 @@
         <di:waypoint x="1138.0" y="1341.5"/>
         <di:waypoint x="1138.0" y="1279.5"/>
         <di:waypoint x="1160.0" y="1279.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_0q26pjx_di" bpmnElement="Participant_0tuweou" isHorizontal="true">
+        <dc:Bounds x="140" y="1640" width="1280" height="60"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0mefziq_di" bpmnElement="Flow_0mefziq">
+        <di:waypoint x="276" y="1560"/>
+        <di:waypoint x="276" y="1640"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14s7yr5_di" bpmnElement="Flow_14s7yr5">
+        <di:waypoint x="400" y="1640"/>
+        <di:waypoint x="400" y="1560"/>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
