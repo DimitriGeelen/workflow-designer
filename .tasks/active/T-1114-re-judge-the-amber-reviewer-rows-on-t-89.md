@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-10T00:15:10Z
-last_update: 2026-10-10T00:16:09Z
+last_update: 2026-10-10T00:45:37Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -89,7 +89,19 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Every T-893 (and T-310) Human criterion whose latest reviewer row is AMBER from a seat that could not evaluate is listed, with the page it should be judged on named in the criterion where it was missing
+- [x] Every T-893 (and T-310) Human criterion whose latest reviewer row is AMBER from a seat that could not evaluate is listed, with the page it should be judged on named in the criterion where it was missing
+  - T-893 criterion 1 (marker pitch): last AMBER (r5, 2026-10-07) was the arrowhead crossing, fixed by T-1069; criterion names
+    its pages already (`docs/reports/t893-shots/{differs,missing,none}-m.png`), shots re-taken today on the current designer.
+  - T-310 criterion 1 (repair reads as a repair): codex AMBER x3 (10-06), each "run the fixture import in a browser-enabled
+    review environment" = could not evaluate; its other point (Clean nudge covers the agent task) fixed by T-1078.
+    claude-code green on the last two rounds.
+  - T-310 criterion 3: green from claude-code, codex, opencode (10-06 23:0x) — nothing to re-judge.
+- **T-893 criterion 1 re-judged 2026-10-10 (1.8.8):** claude-code green x2, antigravity (google) green, codex
+  not-evaluated, opencode not-evaluated (both: no browser/screenshot, as T-3986 intends — no longer AMBER). The panel
+  then stalled: a third required seat "seat-3" sat [awaiting-approval]; the reassignment excluding codex/opencode found
+  no verdict for it, so the final reads "unknown — OPERATOR: panel-incomplete". Two evaluating greens of distinct vendors
+  exist (anthropic, google), which AEF's rung-5 rule says should close it; the seat-3 approval wait blocked that.
+  To report to AEF. T-310 criterion 1 NOT yet re-judged (session ended by the operator).
 - [ ] Each listed criterion re-judged once with `fw reviewer judge` on 1.8.8; outcome per criterion recorded here (green / not-evaluated / amber / red, seats and vendors); no Human box ticked by the agent
 - [ ] Results reported to AEF on aef-t3986-not-evaluated, RECEIVED
 
