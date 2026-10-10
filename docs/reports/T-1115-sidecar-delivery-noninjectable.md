@@ -53,8 +53,20 @@ Step 5 applies to every message: it waits for the operator's next prompt. The de
   **Consequence for route A:** launching 832's agent under `claude-fw` (tmux, c2) or `--termlink` (c1) would make
   PTY injection work once T-4003 ships; a background session never can, so route B (the mail watch) is needed
   for as long as the agent runs in the background.
-- TermLink (`termlink`, /opt/termlink): sent 2026-10-10, same conversation, HUB_ACCEPTED in
-  inbox:cacc73ea32b121dd/termlink; answer pending
+- TermLink (agent id **`010-termlink`**; sent first to `termlink`, HUB_ACCEPTED, no receipt; then a Claude Code
+  cross-session nudge). **Answered (6574d5e3):**
+  1. AEF is right: no TermLink change needed for either route.
+  2. A blocking wait exists today: `termlink channel subscribe <inbox-topic> --follow` (1 s poll floor; WebSocket
+     push on a TCP hub) and `termlink wait --topic <t>` (blocks until a matching event, then exits) — a background
+     session can run either as its mail watch. (832 note: direct-path consults land in our receiver, and the hub
+     inbox topic carries only their receipts, so a topic wait would wake on the receipt, not the message; to check
+     before switching.)
+  3. The ready check is AEF's, not TermLink's: the harness self-reports readiness (Stop hook sets it,
+     UserPromptSubmit clears it); it governs only the typing path. A session without a PTY gets mail via hooks or
+     a mail watch (their R-47/R-48 split).
+  4. **CR-21 (ruled today by TermLink's operator):** all delegation and agent-to-agent work goes through TermLink;
+     vendor peer channels (Claude Code SendMessage / cross-session messages) are not used for governed work. 832's
+     nudge used that channel; rely on the sidecar consult alone.
 
 ## Dialogue Log
 
