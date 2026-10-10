@@ -6,7 +6,10 @@
 # anything new appears in either. Its exit is what wakes the agent; the agent reads the log, acts,
 # and re-arms it for the next event.
 #
-#   bash tools/runme-watch.sh [timeout-seconds]      default 28800 (8 h); exit 0 = event, 3 = timeout
+#   bash tools/runme-watch.sh [timeout-seconds]      default 0 = no limit; exit 0 = event, 3 = timeout
+#   T-1117: there is no default limit. A background watch already dies with its session (T-1050), so an 8 h
+#   cap (copied in T-1003 without a reason) only ended the watch while a run could still come. Pass a limit
+#   for tests.
 set -u
 ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 FILE="${RUNME_EVENTS_FILE:-$ROOT/.context/working/runme.events}"
@@ -15,7 +18,7 @@ TOPIC="${RUNME_SIGNAL_TOPIC:-runme-832}"
 # runme-832, a copy of this script with the topic name baked in, and woke us for a run that was not
 # ours). TermLink labels each post with the poster's project, e.g. "(832-Workflow-designer)".
 LABEL="(${RUNME_WATCH_PROJECT:-$(basename "$ROOT")})"
-LIMIT="${1:-28800}"
+LIMIT="${1:-0}"
 
 lines() { [ -f "$FILE" ] && wc -l < "$FILE" || echo 0; }
 topic_next() {  # next offset on the topic (0 when the topic does not exist / hub unreachable)
@@ -43,7 +46,7 @@ printf 'watch_pid=%s claude_pid=%s armed=%s\n' "$$" "${armer:-none}" "$(date -u 
 f0=$(lines)
 t0=0; command -v termlink >/dev/null 2>&1 && { t=$(topic_next 0); while [ "$t" != "$t0" ]; do t0=$t; t=$(topic_next "$t0"); done; }
 start=$(date +%s)
-while [ $(( $(date +%s) - start )) -lt "$LIMIT" ]; do
+while [ "$LIMIT" -eq 0 ] || [ $(( $(date +%s) - start )) -lt "$LIMIT" ]; do
     f=$(lines)
     if [ "$f" -gt "$f0" ]; then
         echo "runme event (file):"; tail -n +"$((f0 + 1))" "$FILE"; rm -f "$WATCH"; exit 0

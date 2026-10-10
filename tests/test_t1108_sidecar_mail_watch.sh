@@ -13,7 +13,7 @@ ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 W="$ROOT/tools/sidecar-mail-watch.sh"
 FW="$ROOT/.agentic-framework/bin/fw"
 TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
-export SIDECAR_WATCH_SEEN="$TMP/seen" SIDECAR_WATCH_POLL=1
+export SIDECAR_WATCH_SEEN="$TMP/seen" SIDECAR_WATCH_POLL=1 SIDECAR_MAIL_WATCH_FILE="$TMP/rec"
 pass=0; fail=0
 leg() { if [ "$1" = 0 ]; then pass=$((pass+1)); echo "PASS $2"; else fail=$((fail+1)); echo "FAIL $2 — $3"; fi; }
 
@@ -24,13 +24,13 @@ from sidecar import receiver
 print('\n'.join(receiver.awaiting_handover()))") > "$TMP/seen"
 
 SIDECAR_WATCH_MAX=3 bash "$W" > "$TMP/o1" 2>&1; rc=$?
-leg $([ $rc = 3 ] && echo 0 || echo 1) "1 no new mail -> stays armed until MAX (rc 3)" "rc=$rc $(head -c 200 "$TMP/o1")"
+leg $([ $rc = 3 ] && [ -f "$TMP/rec" ] && echo 0 || echo 1) "1 no new mail -> stays armed until MAX (rc 3); its armed-by record stays (T-1117)" "rc=$rc rec=$(cat "$TMP/rec" 2>/dev/null)"
 
 tag="t1108-selftest-$(date +%s)"
 (cd "$ROOT" && "$FW" sidecar send --to 832-Workflow-designer --conversation "$tag" \
    --body "T-1108 watcher self-test ($tag): ignore; the test marks it seen.") > "$TMP/send" 2>&1
 SIDECAR_WATCH_MAX=60 bash "$W" > "$TMP/o2" 2>&1; rc=$?
-leg $([ $rc = 0 ] && grep -q "conversation $tag" "$TMP/o2" && echo 0 || echo 1) "2 a fresh consult wakes it and names it" "rc=$rc $(head -c 300 "$TMP/o2") send: $(head -c 200 "$TMP/send")"
+leg $([ $rc = 0 ] && grep -q "conversation $tag" "$TMP/o2" && [ ! -f "$TMP/rec" ] && echo 0 || echo 1) "2 a fresh consult wakes it and names it; the armed-by record is removed (T-1117)" "rc=$rc $(head -c 300 "$TMP/o2") send: $(head -c 200 "$TMP/send")"
 
 SIDECAR_WATCH_MAX=3 bash "$W" > "$TMP/o3" 2>&1; rc=$?
 leg $([ $rc = 3 ] && echo 0 || echo 1) "3 re-armed, the same consult does not fire again" "rc=$rc $(head -c 200 "$TMP/o3")"

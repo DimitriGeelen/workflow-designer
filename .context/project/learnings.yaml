@@ -2705,3 +2705,33 @@ learnings:
   task: T-1079
   date: 2026-10-07
   context: Added via context agent
+- id: PL-387
+  learning: "A test that passes alone but goes red in a suite with only its first line captured is probably a hang killed by the suite timeout, not a failed assertion: compare the suite's run duration with green runs (one timeout's worth longer). Check stdin first — an unquoted heredoc (<<EOF) runs backticks in its prose as commands, and a fileless sed/cat/grep reads stdin, which under an agent is a pipe that never closes. Suites should run legs with stdin from /dev/null."
+  source: unknown
+  task: T-1081
+  date: 2026-10-07
+  context: Added via context agent
+- id: PL-388
+  learning: "A background watcher built as tail -F file piped to grep -m1 never exits on a match: grep stops but tail lives until its next write hits SIGPIPE, so with no further lines the task never completes and the agent is never woken (T-1105: release 0.16.0 finished unnoticed). Use tools/runme-watch.sh (exits on the first event, re-armed per event) or a polling loop that exits itself."
+  source: unknown
+  task: T-1105
+  date: 2026-10-09
+  context: Added via context agent
+- id: PL-389
+  learning: "A background agent session is not injectable (no tmux pane, no TermLink session): sidecar mail is logged WAITING_NO_RECIPIENT and waits for the operator's next prompt. Arm tools/sidecar-mail-watch.sh in the background beside runme-watch. Reach another agent by its sidecar id (fw sidecar send --to <id>), not by searching termlink list. A hook 'inbox check timed out' is NOT CHECKED, not empty (T-1108: dimitri-mint-dev's consult sat 7 min unseen, a second one arrived during the RCA)."
+  source: unknown
+  task: T-1108
+  date: 2026-10-09
+  context: Added via context agent
+- id: PL-390
+  learning: "Agent-to-agent work goes through the TermLink sidecar only (TermLink CR-21, 2026-10-10): never Claude Code SendMessage / cross-session messages for governed work. TermLink's sidecar id is 010-termlink (not 'termlink'). If a peer does not answer, wait or tell the operator; do not switch channels."
+  source: unknown
+  task: T-1115
+  date: 2026-10-10
+  context: Added via context agent
+- id: PL-391
+  learning: "A copied default needs its own reason: the 8 h watcher cap was copied from runme-watch.sh (no recorded reason) into the mail watch; a background task already dies with its session, so the cap only ended the watch and left the agent deaf (T-1117). When reusing a constant, write down why it holds in the new place, or drop it."
+  source: unknown
+  task: T-1117
+  date: 2026-10-10
+  context: Added via context agent

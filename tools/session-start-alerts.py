@@ -32,6 +32,7 @@ FW = os.environ.get("ALERTS_FW", os.path.join(ROOT, ".agentic-framework", "bin",
 
 RUNME_EVENTS = os.environ.get("ALERTS_RUNME_EVENTS", os.path.join(ROOT, ".context", "working", "runme.events"))
 RUNME_WATCH = os.environ.get("ALERTS_RUNME_WATCH", os.path.join(ROOT, ".context", "working", "runme.watch"))
+MAIL_WATCH = os.environ.get("ALERTS_MAIL_WATCH", os.path.join(ROOT, ".context", "working", "sidecar-mail.watch"))
 
 # ── Watched peer topics (T-1087) ──────────────────────────────────────────────────────────────
 # Some peers do not use the sidecar: Greenfield (aef-greenfield-test, the evergreen trial) posts on
@@ -118,6 +119,7 @@ def runme_lines():
                             "running (killed, or the host rebooted) — read its log") % (last[1], what[:120], last[0]))
     except OSError:
         pass
+    out.extend(mail_watch_lines(me))
     if os.environ.get("ALERTS_NO_PROCS") != "1":
         for d in os.listdir("/proc"):
             if not d.isdigit() or int(d) == me or _comm(int(d)) != "claude":
@@ -132,6 +134,30 @@ def runme_lines():
             out.append("OTHER LIVE CLAUDE in this project: pid %s `%s` — two agents here both act on the same "
                        "events (T-1052); close one" % (d, cmd[:100]))
     return out
+
+
+def mail_watch_lines(me):
+    """T-1117: MAIL WATCH MISSING — this session cannot be typed into and no mail watch of its own is armed.
+
+    A session outside tmux and TermLink cannot be injected (AEF inject.py c3, 832 T-1108/T-1115): peer mail waits
+    for the operator's next prompt unless tools/sidecar-mail-watch.sh runs in the background and wakes the agent.
+    Inside tmux the sidecar can inject (AEF T-4003), so nothing is said there.
+    """
+    if os.environ.get("TMUX"):
+        return []
+    fix = "Arm: bash tools/sidecar-mail-watch.sh (as a BACKGROUND task)"
+    try:
+        with open(MAIL_WATCH) as fh:
+            rec = dict(kv.split("=", 1) for kv in fh.read().split() if "=" in kv)
+    except OSError:
+        return ["MAIL WATCH MISSING: no sidecar mail watch is armed; this session cannot be typed into, so peer "
+                "mail waits for the next prompt. " + fix]
+    armer = rec.get("claude_pid", "none")
+    if armer.isdigit() and me is not None and int(armer) == me:
+        return []
+    alive = armer.isdigit() and _comm(int(armer)) == "claude"
+    return ["MAIL WATCH MISSING: the sidecar mail watch was armed %s by claude pid %s, %s. " % (
+        rec.get("armed", "?"), armer, "a different live session" if alive else "which is gone") + fix]
 
 
 def print_runme():

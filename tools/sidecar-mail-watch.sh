@@ -12,13 +12,14 @@
 # operator prompted; a second one arrived while the RCA was being written, unseen the same way.
 #
 #   bash tools/sidecar-mail-watch.sh            # run in the BACKGROUND; exits 0 on mail
-#   SIDECAR_WATCH_POLL=15 SIDECAR_WATCH_MAX=28800  (seconds; exit 3 when MAX passes with no mail)
+#   SIDECAR_WATCH_POLL=15 SIDECAR_WATCH_MAX=0  (seconds; 0 = no limit, the default since T-1117; a positive MAX
+#   exits 3 when it passes with no mail — for tests. The old 8 h default only ended the watch.)
 #   --once      check once: exit 0 if mail waits, 1 if not (for tests / session-start)
 # Exit: 0 mail waiting · 1 (--once) none · 2 cannot read the receiver state (NOT CHECKED) · 3 timed out
 set -u
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 POLL=${SIDECAR_WATCH_POLL:-15}
-MAX=${SIDECAR_WATCH_MAX:-28800}
+MAX=${SIDECAR_WATCH_MAX:-0}
 ONCE=0; [ "${1:-}" = "--once" ] && ONCE=1
 # Each consult is reported ONCE: it stays "waiting" until the next prompt hands it over, so without this a
 # re-armed watcher would fire on the same message forever. Ids reported go here (one per line).
@@ -46,6 +47,19 @@ PY
     )
 }
 
+# T-1117: record who armed this watch (as runme-watch.sh does, T-1050), so the session-start check can say
+# MAIL WATCH MISSING when the session that armed it is gone. Removed when mail is reported (the agent re-arms).
+WATCH_REC=${SIDECAR_MAIL_WATCH_FILE:-$ROOT/.context/working/sidecar-mail.watch}
+if [ "$ONCE" = 0 ]; then
+    armer=""; p=$$
+    while [ -n "$p" ] && [ "$p" -gt 1 ]; do
+        [ "$(cat /proc/"$p"/comm 2>/dev/null)" = claude ] && { armer=$p; break; }
+        p=$(awk '{print $4}' /proc/"$p"/stat 2>/dev/null)
+    done
+    mkdir -p "$(dirname "$WATCH_REC")" 2>/dev/null
+    printf 'watch_pid=%s claude_pid=%s armed=%s\n' "$$" "${armer:-none}" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$WATCH_REC" 2>/dev/null
+fi
+
 t0=$(date +%s)
 while :; do
     out=$(check); rc=$?
@@ -55,9 +69,10 @@ while :; do
         [ "$ONCE" = 1 ] || printf '%s\n' "$out" | awk '{print $3}' >> "$SEEN"
         echo "sidecar-mail-watch: mail waiting (read it: .agentic-framework/bin/fw sidecar inbox --peek, or the receiver message):"
         printf '  %s\n' "$out" | sed 's/^  \([^ ]*\) \([^ ]*\) /  from \1  conversation \2  msg /'
+        [ "$ONCE" = 1 ] || rm -f "$WATCH_REC"
         exit 0
     fi
     [ "$ONCE" = 1 ] && exit 1
-    [ $(( $(date +%s) - t0 )) -ge "$MAX" ] && { echo "sidecar-mail-watch: no mail in ${MAX}s"; exit 3; }
+    [ "$MAX" -gt 0 ] && [ $(( $(date +%s) - t0 )) -ge "$MAX" ] && { echo "sidecar-mail-watch: no mail in ${MAX}s"; exit 3; }
     sleep "$POLL"
 done

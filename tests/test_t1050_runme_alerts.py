@@ -31,7 +31,7 @@ def leg(ok, name, detail=""):
         fails.append(name)
 
 
-def alerts(tmp, events, watch=None, own="111", running="0"):
+def alerts(tmp, events, watch=None, own="111", running="0", mail="own", tmux=None):
     ev = os.path.join(tmp, "events")
     with open(ev, "w") as fh:
         fh.write(events)
@@ -47,8 +47,19 @@ def alerts(tmp, events, watch=None, own="111", running="0"):
     with open(fw, "w") as fh:
         fh.write('#!/usr/bin/env bash\necho "peer mail: nothing unseen"\n')
     os.chmod(fw, 0o755)
+    # T-1117: the mail-watch record ("own" = armed by this session, None = absent, else its text)
+    mw = os.path.join(tmp, "mailwatch")
+    if mail is None:
+        if os.path.exists(mw):
+            os.remove(mw)
+    else:
+        with open(mw, "w") as fh:
+            fh.write("watch_pid=6 claude_pid=%s armed=2026-10-10T10:00:00Z\n" % own if mail == "own" else mail)
     env = dict(os.environ, ALERTS_RUNME_EVENTS=ev, ALERTS_RUNME_WATCH=wf, ALERTS_OWN_CLAUDE=own,
-               ALERTS_RUNME_RUNNING=running, ALERTS_NO_PROCS="1", ALERTS_FW=fw)
+               ALERTS_RUNME_RUNNING=running, ALERTS_NO_PROCS="1", ALERTS_FW=fw, ALERTS_MAIL_WATCH=mw)
+    env.pop("TMUX", None)
+    if tmux:
+        env["TMUX"] = tmux
     r = subprocess.run(["bash", ALERTS], capture_output=True, text=True, env=env, timeout=60)
     return r.returncode, r.stdout
 
@@ -94,9 +105,22 @@ def main():
         rc, out = alerts(tmp, ENDED)
         leg("nothing pending" in out and "RUN " not in out and "WATCH LOST" not in out,
             "B5 CONTROL: no record, last run ended -> nothing pending")
+        # ── C. T-1117: MAIL WATCH MISSING ──
+        rc, out = alerts(tmp, ENDED, mail=None)
+        leg("MAIL WATCH MISSING: no sidecar mail watch is armed" in out and "sidecar-mail-watch.sh" in out,
+            "C1 no mail watch armed -> MAIL WATCH MISSING with the arm command")
+        rc, out = alerts(tmp, ENDED, mail="watch_pid=6 claude_pid=999999 armed=2026-10-10T10:00:00Z\n")
+        leg("MAIL WATCH MISSING: the sidecar mail watch was armed" in out and "which is gone" in out,
+            "C2 mail watch armed by a gone session -> MAIL WATCH MISSING")
+        rc, out = alerts(tmp, ENDED)
+        leg("MAIL WATCH MISSING" not in out and "nothing pending" in out, "C3 CONTROL: armed by THIS session -> nothing")
+        rc, out = alerts(tmp, ENDED, mail=None, tmux="/tmp/tmux-0/fw-agents,1,0")
+        leg("MAIL WATCH MISSING" not in out, "C4 inside tmux (the sidecar can inject) -> nothing")
+
         # B6: the section is printed even when the mail check fails (the verb cannot be run)
         env = dict(os.environ, ALERTS_RUNME_EVENTS=os.path.join(tmp, "events"), ALERTS_RUNME_WATCH=os.path.join(tmp, "nowatch"),
-                   ALERTS_OWN_CLAUDE="111", ALERTS_NO_PROCS="1", ALERTS_FW=os.path.join(tmp, "no-such-fw"))
+                   ALERTS_OWN_CLAUDE="111", ALERTS_NO_PROCS="1", ALERTS_FW=os.path.join(tmp, "no-such-fw"),
+                   ALERTS_MAIL_WATCH=os.path.join(tmp, "mailwatch"))
         r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "session-start-alerts.py")],
                            capture_output=True, text=True, env=env, timeout=60)
         leg(r.returncode == 2 and "Runme / live agents:" in r.stdout and "MAIL CHECK FAILED" in r.stdout,
