@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1119: P1: keep every pool, its process and the message flows on save (BPMN collaboration, R1 of the T-347 ruling) — with a notice until P2 shows them
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-10T13:11:02Z
+# ============================================================================
+
+task_id: T-1119
+task_name: "P1: keep every pool, its process and the message flows on save (BPMN collaboration, R1 of the T-347 ruling) — with a notice until P2 shows them"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-10T12:51:58Z
+completed: 2026-10-10T13:09:39Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-10T15:09:38+02:00
+last_commit: 2026-10-10T15:09:38+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  P1 — the designer keeps every pool, process and message flow on save (BPMN 2.0.2 collaboration): other participants (incl. black-box), processes not opened, messageFlows and the messages they name, with their DI; flow ends re-pointed to the ids written on save; our pool = the participant whose processRef is the opened process; plane on the collaboration when several pools; a notice names what is kept but not shown yet. Test 18/18 (0.16.0: pools 2->1, flows ->0, wrong pool); 4 multi-pool goldens re-recorded (additions only), single-pool files byte-identical; T-1118 scope incl. 'hide unused fields'
+
+# Key outcomes
+outcomes:
+  - 'Open + save of a collaboration file keeps every `participant` (incl. black-box ones without `processRef`), every `process` not opened, every `messageFlow` (id, name, documentation, extensions) and the DI shapes/edges of all of them; our pool is the participant whose `processRef` is the opened process (not `participant[0]`)'
+  - 'A kept `messageFlow` whose `sourceRef`/`targetRef` names an element of the opened process is rewritten to that element''s id as the designer writes it on save (ids are re-derived on save); refs to participants or other processes are left unchanged; no dangling ref after save (checked)'
+  - 'On import, a notice names the pools and message flows that are kept but not shown ("This file has 3 pools (Sales, Tacton CPQ, ERP)…; the designer shows Sales, the others are kept unchanged"); a single-pool file shows no notice and saves byte-identically to today (corpus goldens unchanged)'
+  - 'Measured on the third-party fixtures (`collaboration-message-flows`, `kitchen-sink`, `bizagi-nested-ns`) and a synthetic Sales + Tacton CPQ fixture: participants and messageFlows before == after save (today: dropped); the result validates as BPMN (refs resolve, message flows only between different pools); test FAILS on 0.16.0; wired in the bridge suite'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-1118-fields-on-approval-and-visibility.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1118-unknown-content-kinds-become-designer-fi.md'
+  - '.tasks/active/T-1119-p1-keep-every-pool-its-process-and-the-m.md'
+  - '.tasks/active/T-1120-p2-show-every-pool-on-the-canvas-read-on.md'
+  - 'tests/fixtures/aef-bpmn/t1119-sales-cpq-collaboration.bpmn'
+  - 'tests/goldens/third-party/bizagi-nested-ns.bpmn.golden'
+  - 'tests/goldens/third-party/collaboration-message-flows.bpmn.golden'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/goldens/third-party/multiple-diagrams.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1119-collaboration-roundtrip-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-10T15:09:38'
+    action: 'T-1119: P1 — the designer keeps every pool, process and message flow on save (BPMN 2.0.2 collaboration): other participants (incl. black-box), processes not opened, messageFlows and the messages they name, with their DI; flow ends re-pointed to the ids written on save; our pool = the participant whose processRef is the opened process; plane on the collaboration when several pools; a notice names what is kept but not shown yet. Test 18/18 (0.16.0: pools 2->1, flows ->0, wrong pool); 4 multi-pool goldens re-recorded (additions only), single-pool files byte-identical; T-1118 scope incl. ''hide unused fields'''
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 17 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 17
+  commits: 1
+  files_changed: 12
+  lines_added: 1163
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1119-p1-keep-every-pool-its-process-and-the-m.md
+generated_by: context-agent-hybrid

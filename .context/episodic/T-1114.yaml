@@ -89,10 +89,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 764
-  commits: 6
-  files_changed: 13
-  lines_added: 418
+  commits: 7
+  files_changed: 15
+  lines_added: 517
   lines_removed: 8
+  footprint_refreshed_at: '2026-10-10T13:01:46Z'
+  footprint_refreshed_by_commit: f70492cf
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1114-re-judge-the-amber-reviewer-rows-on-t-89.md
