@@ -1,0 +1,73 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1117: Watchers run until they have something to report: drop the 8 h default cap (mail + runme), and session start warns MAIL WATCH MISSING
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-10T11:43:27Z
+# ============================================================================
+
+task_id: T-1117
+task_name: "Watchers run until they have something to report: drop the 8 h default cap (mail + runme), and session start warns MAIL WATCH MISSING"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-10T11:38:58Z
+completed: 2026-10-10T11:42:12Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Operator 2026-10-10 asked why the mail watcher has an 8 h limit; it was copied from runme-watch.sh (T-1003) without a reason. A background task already dies with its session (T-1050), so the cap only ends the watch, shows as 'failed, exit code 3', and leaves mail unwatched until re-armed. Drop the default cap in both (keep an optional limit for tests); add a MAIL WATCH MISSING line to the session-start check like WATCH LOST (T-1050).
+
+# Key outcomes
+outcomes:
+  - '`tools/runme-watch.sh` and `tools/sidecar-mail-watch.sh` have NO default time limit (0 = run until something to report); a limit stays available as an explicit argument / `SIDECAR_WATCH_MAX` for tests'
+  - 'The mail watch records who armed it (`.context/working/sidecar-mail.watch`, same format as runme.watch) and removes the record when it reports mail; the session-start check prints `MAIL WATCH MISSING` when no live mail watch belongs to this session (skipped inside tmux, where the sidecar can inject)'
+  - 'Tests: `tests/test_session_start_alerts.py` gains legs (missing / armed by another session -> MAIL WATCH MISSING; armed by this session -> silent; inside tmux -> silent); `tests/test_t1108_sidecar_mail_watch.sh` still 4/4; the launcher/runme-watch tests unchanged'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 3
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1117-watchers-run-until-they-have-something-t.md
+generated_by: context-agent-hybrid
