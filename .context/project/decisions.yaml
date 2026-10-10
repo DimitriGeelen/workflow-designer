@@ -2649,3 +2649,45 @@ decisions:
     date: 2026-10-06
     task: T-1077
     rationale: "Operator, 2026-10-06, in session, chose option 2: 'use the reviewer for the review routes. That's our ruleset, the AEF ruleset, our guidance which we should refer to and that can change. So that's the general standard directive.'"
+
+  - id: PD-358
+    decision: "split AC 1 into 1a (the editor authors element-level authority on a document that carried"
+    scope: project
+    date: 2026-10-06
+    task: T-889
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-359
+    decision: "AEF's authoritative bash predicate, run only when a task has a Human row the verb rates"
+    scope: project
+    date: 2026-10-07
+    task: T-1080
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-360
+    decision: "the first as default (always"
+    scope: project
+    date: 2026-10-08
+    task: T-1090
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-361
+    decision: "a Settings toggle (routingPrefs.crossLane, default L) rather than an unconditional change, following the"
+    scope: project
+    date: 2026-10-08
+    task: T-1090
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-362
+    decision: "option 1 (operator, 2026-10-08): re-run codex ONCE; if it passes, record the pass in the gate and"
+    scope: project
+    date: 2026-10-09
+    task: T-1105
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-363
+    decision: "832 runs AEF bleeding-edge pre-releases (-be) as a testbed (AEF T-4023 question D)"
+    scope: project
+    date: 2026-10-10
+    task: T-1115
+    rationale: "Operator 2026-10-10: yes. First use: T-4003 (plain claude-fw delivers sidecar mail into a private tmux pane), which serves the operator's own launch mode; 832 supplies the field evidence AEF requires before master. Safeguards proposed by 832 in T-1113: pin each -be release to an immutable tag+sha, keep the re-vendor protocol (pristine commit + baseline), a rehearsed rollback runme job, never during a designer release window."
