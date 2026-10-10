@@ -12,10 +12,11 @@ description: >
   are dropped correctly since they are derivable. Node/flow/lane counts are unchanged
   throughout, which is why every existing instrument is green.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: human
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -24,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:34:19Z
-last_update: '2026-09-26T09:06:21Z'
+last_update: 2026-10-10T12:38:57Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -567,6 +568,21 @@ bash tests/run-bridge-tests.sh
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-10-10 — what the designer does with content it does not understand (operator ruling, recorded by the agent)
+- **Chose (operator, in chat 2026-10-10):** "certainly one" — **(a) preserve and re-emit** (R1): content inside an
+  accepted element that the designer does not consume is kept and written back unchanged. R2 **as a suggestion, not
+  automatic**: when the designer meets an unknown kind it *suggests* turning it into a real, editable field, and the
+  **operator approves** each one ("tier 0, with operator… it can be really valuable… we're also missing"). Plus: "an
+  option to show or not in certain projects — we can extend, but not everything is desirable", and "maybe even per
+  workflow you want to show or hide certain fields for elements".
+- **Why:** nothing is lost silently (all five shapes were lost to zero on 100% of carrying third-party files); the
+  suggestions double as evidence of which fields real files use.
+- **Rejected:** (c) refuse — Greenfield's maps could not be opened; (b) as an automatic mapping — every kind in, wanted
+  or not.
+- **Open:** R1a (a second pool kept unchanged, with a notice on import) — taken as part of R1, awaiting the operator's
+  confirmation. R2 + per-project/per-workflow visibility goes to its own inception.
+- The Human AC above stays unticked: ticking is the operator's.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -590,3 +606,7 @@ bash tests/run-bridge-tests.sh
 ### 2026-08-23T10:24:10Z — status-update [task-update-agent]
 - **Change:** horizon: now → later
 - **Change:** status: started-work → captured (auto-sync)
+
+### 2026-10-10T12:38:34Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
