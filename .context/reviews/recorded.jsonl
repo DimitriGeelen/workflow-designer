@@ -35,3 +35,4 @@
 {"ac":1,"outcome":"green","task":"T-341","ts":"2026-10-07T06:36:27Z","verdict_id":"V-20261007-4aade139"}
 {"ac":1,"outcome":"green","task":"T-341","ts":"2026-10-07T07:22:30Z","verdict_id":"V-20261007-b19b045b"}
 {"ac":1,"outcome":"green","task":"T-893","ts":"2026-10-10T00:19:55Z","verdict_id":"V-20261010-104d267a"}
+{"ac":1,"outcome":"not-evaluated","task":"T-893","ts":"2026-10-10T00:23:02Z","verdict_id":"V-20261010-6f56c400"}
