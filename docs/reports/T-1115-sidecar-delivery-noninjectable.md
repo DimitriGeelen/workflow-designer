@@ -68,6 +68,26 @@ Step 5 applies to every message: it waits for the operator's next prompt. The de
      vendor peer channels (Claude Code SendMessage / cross-session messages) are not used for governed work. 832's
      nudge used that channel; rely on the sidecar consult alone.
 
+## AEF on plain `claude-fw` (f0ebf815, 2026-10-10)
+
+1. T-4003 is on AEF bleeding-edge only, in no release. Under AEF's rule T-4020 it reaches master only after the
+   field confirms it; it will be in the **first `-be` pre-release for the testbed** (T-4023 — whether 832 is a
+   testbed is our operator's open decision D).
+2. End to end, no `--termlink`, no other setup: plain `claude-fw` started in a terminal re-execs itself inside a
+   private tmux server (`tmux -L fw-agents`, no user config, status bar off); the sidecar finds the pane owning
+   Claude's tty and send-keys the line when the prompt is free and nobody is typing; the hook surfaces it.
+   Verified on a real tmux pane; AEF's live check with a real Claude session is still pending.
+3. Survives the auto-restart: the whole wrapper, restart loop included, runs inside tmux
+   (`bin/claude-fw:104 exec tmux … -- claude-fw "$@"`), so `claude -c` stays in the same pane.
+4. Nothing to type differently; the terminal shows the tmux session (Ctrl-B and Esc go to Claude). Caveats:
+   skipped inside an existing tmux (your own pane is used), for `--termlink`, headless and workers;
+   `FW_CLAUDE_FW_NO_TMUX=1` opts out; closing the terminal ends the session (destroy-unattached). A Claude Code
+   background session is still not covered (T-4018).
+
+**For 832:** the operator's way of starting (plain `claude-fw` in a terminal) is exactly what T-4003 serves. It
+reaches 832 either through the first `-be` pre-release (if the operator says yes to being a testbed) or at the
+next release after field confirmation. Until then, and for background sessions always, the mail watch.
+
 ## Dialogue Log
 
 - 2026-10-10, operator: "our principle design is just failed or incomplete. Our principle design says inject into
