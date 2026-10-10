@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1110: Greenfield 0.16.0 re-test: mirror-L option for cross-lane flows (exit E, enter N/S) — 9 of 29 differ from the owner's choice
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-10T12:24:59Z
+# ============================================================================
+
+task_id: T-1110
+task_name: "Greenfield 0.16.0 re-test: mirror-L option for cross-lane flows (exit E, enter N/S) — 9 of 29 differ from the owner's choice"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-09T21:47:44Z
+completed: 2026-10-10T12:23:53Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-10T14:23:51+02:00
+last_commit: 2026-10-10T14:23:51+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  mirror-L preference — Settings '…the L leaves sideways' (routingPrefs.crossLaneFirst, persisted, default unchanged) tries exit-E/enter-N/S first; the other form still serves when blocked. The owner's 15/9 split follows no rule (identical geometry, no neighbours, both forms crossing-free for every flow), so a preference. Settings Reset now restores cross-lane routing (T-1090 gap). T-1090 test 14/14 (0.16.0 fails exactly the mirror leg); screenshots read; census 0
+
+# Key outcomes
+outcomes:
+  - 'The owner''s choice between the two L forms is analysed on their hand-straightened map (geometry, neighbouring flows at source and target) and the finding recorded here: a rule that reproduces it, or the evidence that none does'
+  - 'Implemented accordingly: if a rule reproduces it, the router applies it (and matches at least as many of the owner''s 24 cross-lane flows as 0.16.0''s 15); if not, a Settings choice "Cross-lane L: leave vertically / leave horizontally" (persisted, default unchanged). Either way no flow cuts a box and bends stay one per cross-lane flow'
+  - '`tools/_t1090-cross-lane-l-routing-cdp.mjs` still 12/12 (or extended), plus legs for the new behaviour; wired; screenshots of both forms read'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/screenshots/T-1090/gen-shots.mjs'
+  - 'docs/screenshots/T-1090/task-lifecycle-H.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1110-greenfield-0160-re-test-mirror-l-option-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1090-cross-lane-l-routing-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-10T14:23:51'
+    action: 'T-1110: mirror-L preference — Settings ''…the L leaves sideways'' (routingPrefs.crossLaneFirst, persisted, default unchanged) tries exit-E/enter-N/S first; the other form still serves when blocked. The owner''s 15/9 split follows no rule (identical geometry, no neighbours, both forms crossing-free for every flow), so a preference. Settings Reset now restores cross-lane routing (T-1090 gap). T-1090 test 14/14 (0.16.0 fails exactly the mirror leg); screenshots read; census 0'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 876 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 876
+  commits: 1
+  files_changed: 6
+  lines_added: 92
+  lines_removed: 15
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1110-greenfield-0160-re-test-mirror-l-option-.md
+generated_by: context-agent-hybrid
