@@ -13,6 +13,8 @@ These are `git format-patch` series, each verified on 2026-10-04 to `git am` cle
 | [F: null-focus aliases and a block that says why](F-t3814-null-focus-aliases/MANIFEST.md) (832 T-1037/T-1038, delivered 2026-10-04, built on **v1.8.0**) | T-3814 | 2 (apply after D) | alias 16/16 with D (15/16 without); null-focus 9/9; your gate suites unchanged |
 | [G: runme job queue — several pending jobs, one command, a numbered choice](G-t1111-runme-job-queue/MANIFEST.md) (832 T-1111, sent 2026-10-10; builds on c24521a0) | — | proposal, no patch | real use: jobs 005-009, 2026-10-08/09; two gaps it exposed |
 
+| [H: sidecar mail watch — wake an agent that cannot be injected](H-t1116-sidecar-mail-watch/MANIFEST.md) (832 T-1116, sent 2026-10-10, asked for by AEF for T-4018) | T-4018 | 1 (contrib/ only) | test 4/4 against the real receiver; `git am` checked on an empty tree |
+
 **Apply one bundle:** `git am <dir>/*.patch` from your repository root.
 
 **Defects in 832's own code found while building these** (all fixed here and in the bundles):

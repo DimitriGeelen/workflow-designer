@@ -1,0 +1,136 @@
+From 25e65fa1af367cb07a8ca637b9d5419d0933c622 Mon Sep 17 00:00:00 2001
+From: Dimitri Geelen <dimitri@geelenandcompany.com>
+Date: Sat, 10 Oct 2026 12:59:35 +0200
+Subject: [PATCH] contrib: 832's sidecar mail watch (reference input for AEF
+ T-4018)
+
+Wakes an agent session that cannot be injected (no PTY: a Claude Code background session) when sidecar mail waits for it: a background task that exits when awaiting_handover() minus seen.withheld() is non-empty, reporting each consult once. From 832 T-1108 (RCA: a consult sat 7 min unseen). Reference input, not wired: paths are 832's (.agentic-framework/lib), adapt to lib/. Known defect: the 8 h default cap (SIDECAR_WATCH_MAX) should go; see the MANIFEST.
+---
+ .../sidecar-mail-watch.sh                     | 63 +++++++++++++++++++
+ .../test_t1108_sidecar_mail_watch.sh          | 44 +++++++++++++
+ 2 files changed, 107 insertions(+)
+ create mode 100755 contrib/832-sidecar-mail-watch/sidecar-mail-watch.sh
+ create mode 100644 contrib/832-sidecar-mail-watch/test_t1108_sidecar_mail_watch.sh
+
+diff --git a/contrib/832-sidecar-mail-watch/sidecar-mail-watch.sh b/contrib/832-sidecar-mail-watch/sidecar-mail-watch.sh
+new file mode 100755
+index 0000000..cf5bedc
+--- /dev/null
++++ b/contrib/832-sidecar-mail-watch/sidecar-mail-watch.sh
+@@ -0,0 +1,63 @@
++#!/usr/bin/env bash
++# sidecar-mail-watch.sh — wake a NON-INJECTABLE agent session when sidecar mail waits for it (T-1108).
++#
++# A Claude Code background session owns no tmux pane and no TermLink session, so the sidecar receiver
++# cannot type mail into it: every consult is recorded INJECT_BLOCKED / WAITING_NO_RECIPIENT and "waits for
++# the agent's next prompt" — i.e. for a human. A background agent is woken only by one of its own background
++# tasks exiting. This is that task: armed like tools/runme-watch.sh, it exits as soon as a consult for this
++# agent is waiting and has not already been shown (the receiver's own view: awaiting_handover() minus
++# seen.withheld()), printing who sent it and the msg id. Re-arm after each wake.
++#
++# Origin: 2026-10-09, a consult from dimitri-mint-dev sat 7 min unseen (21:31:25Z -> 21:38:34Z) until the
++# operator prompted; a second one arrived while the RCA was being written, unseen the same way.
++#
++#   bash tools/sidecar-mail-watch.sh            # run in the BACKGROUND; exits 0 on mail
++#   SIDECAR_WATCH_POLL=15 SIDECAR_WATCH_MAX=28800  (seconds; exit 3 when MAX passes with no mail)
++#   --once      check once: exit 0 if mail waits, 1 if not (for tests / session-start)
++# Exit: 0 mail waiting · 1 (--once) none · 2 cannot read the receiver state (NOT CHECKED) · 3 timed out
++set -u
++ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
++POLL=${SIDECAR_WATCH_POLL:-15}
++MAX=${SIDECAR_WATCH_MAX:-28800}
++ONCE=0; [ "${1:-}" = "--once" ] && ONCE=1
++# Each consult is reported ONCE: it stays "waiting" until the next prompt hands it over, so without this a
++# re-armed watcher would fire on the same message forever. Ids reported go here (one per line).
++SEEN=${SIDECAR_WATCH_SEEN:-$ROOT/.context/working/sidecar-mail-watch.seen}
++
++check() {  # prints "<from> <conversation> <msg_id>" per unseen waiting consult; rc 2 = could not read
++    (cd "$ROOT" && python3 - <<'PY'
++import json, sys
++sys.path.insert(0, '.agentic-framework/lib')
++try:
++    from sidecar import receiver, seen
++    waiting = receiver.awaiting_handover()
++    held = seen.withheld(waiting)
++except Exception as e:
++    print('NOT CHECKED: %s' % e, file=sys.stderr); sys.exit(2)
++for m in waiting:
++    if m in held:
++        continue
++    try:
++        d = json.load(open(receiver._messages_dir() / (m + '.json')))
++    except Exception:
++        d = {}
++    print('%s %s %s' % (d.get('from') or '?', d.get('conversation_id') or '-', m))
++PY
++    )
++}
++
++t0=$(date +%s)
++while :; do
++    out=$(check); rc=$?
++    if [ "$rc" = 2 ]; then echo "sidecar-mail-watch: NOT CHECKED (receiver state unreadable)"; exit 2; fi
++    [ -n "$out" ] && [ -f "$SEEN" ] && out=$(printf '%s\n' "$out" | grep -vF -f "$SEEN" || true)
++    if [ -n "$out" ]; then
++        [ "$ONCE" = 1 ] || printf '%s\n' "$out" | awk '{print $3}' >> "$SEEN"
++        echo "sidecar-mail-watch: mail waiting (read it: .agentic-framework/bin/fw sidecar inbox --peek, or the receiver message):"
++        printf '  %s\n' "$out" | sed 's/^  \([^ ]*\) \([^ ]*\) /  from \1  conversation \2  msg /'
++        exit 0
++    fi
++    [ "$ONCE" = 1 ] && exit 1
++    [ $(( $(date +%s) - t0 )) -ge "$MAX" ] && { echo "sidecar-mail-watch: no mail in ${MAX}s"; exit 3; }
++    sleep "$POLL"
++done
+diff --git a/contrib/832-sidecar-mail-watch/test_t1108_sidecar_mail_watch.sh b/contrib/832-sidecar-mail-watch/test_t1108_sidecar_mail_watch.sh
+new file mode 100644
+index 0000000..724db04
+--- /dev/null
++++ b/contrib/832-sidecar-mail-watch/test_t1108_sidecar_mail_watch.sh
+@@ -0,0 +1,44 @@
++#!/usr/bin/env bash
++# test_t1108_sidecar_mail_watch.sh — tools/sidecar-mail-watch.sh wakes a non-injectable session on mail (T-1108).
++#
++# Uses the REAL receiver: sends one consult from this agent to itself, so it is stored and waits exactly as
++# dimitri-mint-dev's did. Isolated seen-file per run, so the live watcher's memory is untouched.
++#   1  negative control: with every currently-waiting id marked seen, the watcher stays armed (rc 3 at MAX)
++#   2  positive: a fresh self-sent consult wakes it (rc 0) and names the msg id
++#   3  report-once: re-armed, it does NOT fire again on the same consult (rc 3 at MAX)
++#   4  --once on that state reports nothing new (rc 1)
++# Exit 0 = all legs pass.
++set -u
++ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
++W="$ROOT/tools/sidecar-mail-watch.sh"
++FW="$ROOT/.agentic-framework/bin/fw"
++TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
++export SIDECAR_WATCH_SEEN="$TMP/seen" SIDECAR_WATCH_POLL=1
++pass=0; fail=0
++leg() { if [ "$1" = 0 ]; then pass=$((pass+1)); echo "PASS $2"; else fail=$((fail+1)); echo "FAIL $2 — $3"; fi; }
++
++# seed: everything already waiting counts as seen (so leg 1 measures only NEW mail)
++(cd "$ROOT" && python3 -c "
++import sys; sys.path.insert(0,'.agentic-framework/lib')
++from sidecar import receiver
++print('\n'.join(receiver.awaiting_handover()))") > "$TMP/seen"
++
++SIDECAR_WATCH_MAX=3 bash "$W" > "$TMP/o1" 2>&1; rc=$?
++leg $([ $rc = 3 ] && echo 0 || echo 1) "1 no new mail -> stays armed until MAX (rc 3)" "rc=$rc $(head -c 200 "$TMP/o1")"
++
++tag="t1108-selftest-$(date +%s)"
++(cd "$ROOT" && "$FW" sidecar send --to 832-Workflow-designer --conversation "$tag" \
++   --body "T-1108 watcher self-test ($tag): ignore; the test marks it seen.") > "$TMP/send" 2>&1
++SIDECAR_WATCH_MAX=60 bash "$W" > "$TMP/o2" 2>&1; rc=$?
++leg $([ $rc = 0 ] && grep -q "conversation $tag" "$TMP/o2" && echo 0 || echo 1) "2 a fresh consult wakes it and names it" "rc=$rc $(head -c 300 "$TMP/o2") send: $(head -c 200 "$TMP/send")"
++
++SIDECAR_WATCH_MAX=3 bash "$W" > "$TMP/o3" 2>&1; rc=$?
++leg $([ $rc = 3 ] && echo 0 || echo 1) "3 re-armed, the same consult does not fire again" "rc=$rc $(head -c 200 "$TMP/o3")"
++
++bash "$W" --once > "$TMP/o4" 2>&1; rc=$?
++leg $([ $rc = 1 ] && echo 0 || echo 1) "4 --once: nothing new (rc 1)" "rc=$rc"
++
++# the self-test consult must not wake the LIVE watcher either: mark it seen there too
++grep -oE '[0-9a-f-]{36}' "$TMP/o2" | head -1 >> "$ROOT/.context/working/sidecar-mail-watch.seen"
++echo "T-1108 sidecar mail watch: $pass passed, $fail failed"
++[ "$fail" = 0 ]
+-- 
+2.43.0
+
