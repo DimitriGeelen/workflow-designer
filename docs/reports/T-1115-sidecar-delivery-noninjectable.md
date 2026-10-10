@@ -37,7 +37,22 @@ Step 5 applies to every message: it waits for the operator's next prompt. The de
 
 ## Consults
 
-- AEF: sent 2026-10-10, conversation sidecar-delivery-noninjectable, a3709881, RECEIVED; answer pending
+- AEF: sent 2026-10-10, conversation sidecar-delivery-noninjectable, a3709881, RECEIVED. **Answered (b3143a4b):**
+  1. Our reading is right for 1.8.8; "always under claude-fw --termlink" was an **unstated assumption**, not an
+     intended precondition.
+  2. Both directions, as two routes on one ledger. **T-4003** (bleeding-edge, unreleased) resolves the target
+     from the agent's pid to its tty: c1 a TermLink session owns it -> `pty inject`; c2 a tmux pane owns it ->
+     `send-keys` (plain `claude-fw` now relaunches inside a private tmux server, `tmux -L fw-agents`); c3 neither
+     -> WAITING_NO_RECIPIENT. **A Claude Code background session has no pty at all, so it is always c3**; T-4003
+     does not wake it. That is **AEF T-4018**: a mail watch built from 832's `sidecar-mail-watch.sh` contract,
+     plus MAIL WATCH MISSING at session start and NOT CHECKED on hook timeout. Their operator made reachability
+     the first prerequisite of T-4023 (field evidence), so T-4018 is next.
+  3. TermLink does not need to change for either.
+  Suggestion: do not build a second one; send `tools/sidecar-mail-watch.sh` + `tests/test_t1108_sidecar_mail_watch.sh`
+  as a contrib/ bundle, taken upstream with credit.
+  **Consequence for route A:** launching 832's agent under `claude-fw` (tmux, c2) or `--termlink` (c1) would make
+  PTY injection work once T-4003 ships; a background session never can, so route B (the mail watch) is needed
+  for as long as the agent runs in the background.
 - TermLink (`termlink`, /opt/termlink): sent 2026-10-10, same conversation, HUB_ACCEPTED in
   inbox:cacc73ea32b121dd/termlink; answer pending
 
