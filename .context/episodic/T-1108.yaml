@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1108: Sidecar mail sat 7 min unseen: this background session is not injectable and no mail watcher was armed
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-10T00:01:07Z
+# ============================================================================
+
+task_id: T-1108
+task_name: "Sidecar mail sat 7 min unseen: this background session is not injectable and no mail watcher was armed"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-09T21:40:09Z
+completed: 2026-10-09T23:59:58Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-09T23:43:47+02:00
+last_commit: 2026-10-10T01:59:57+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  RCA — sidecar mail sat 7 min unseen: this background session is not injectable (receiver: WAITING_NO_RECIPIENT, ready=False termlink=None) and no mail watcher was armed; plus discovery searched TermLink sessions instead of the sidecar id. Fix: tools/sidecar-mail-watch.sh (exits on unshown waiting mail, report-once), test 4/4 against the real receiver, armed; CLAUDE.md watcher rule extended; learning; proposal to AEF. Greenfield's 0.16.0 re-test (DM 55) filed — T-1109 deep-link project load (?load=/api/version?id=X), T-1110 mirror-L option. verification added (watcher syntax, CLAUDE.md rule, --once reads the receiver state); the e2e test is not in Verification because it sends a consult on every run
+
+# Key outcomes
+outcomes:
+  - 'RCA written from the receiver''s own event log (timeline, root cause, why allowed, prevention)'
+  - '`tools/sidecar-mail-watch.sh` exits 0 and names the message when a consult for this agent is waiting and unshown; stays armed when there is none; test `tests/test_t1108_sidecar_mail_watch.sh` covers both (positive: a self-sent consult; negative control: no new mail within the window) — 4/4 against the real receiver, incl. report-once'
+  - 'The watcher is armed in this session, and CLAUDE.md''s watcher rule says a non-injectable session arms it beside runme-watch'
+  - 'Learning recorded; upstream proposal to AEF sent (receiver/session-start flags a non-injectable session without a mail watcher) — conversation aef-noninjectable-session-mail'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'RCA — sidecar mail sat 7 min unseen: this background session is not injectable (receiver: WAITING_NO_RECIPIENT, ready=False termlink=None) and no mail watcher was armed; plus discovery searched TermLink sessions instead of the sidecar id. Fix: tools/sidecar-mail-watch.sh (exits on unshown waiting mail, report-once), test 4/4 against the real receiver, armed; CLAUDE.md watcher rule extended; learning; proposal to AEF'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'CLAUDE.md'
+  - '.tasks/active/T-1108-sidecar-mail-sat-7-min-unseen-this-backg.md'
+  - '.tasks/active/T-1109-greenfield-0160-re-test-a-same-origin-lo.md'
+  - '.tasks/active/T-1110-greenfield-0160-re-test-mirror-l-option-.md'
+  - 'tests/test_t1108_sidecar_mail_watch.sh'
+  - 'tools/sidecar-mail-watch.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-09T23:43:47'
+    action: 'T-1108: RCA — sidecar mail sat 7 min unseen: this background session is not injectable (receiver: WAITING_NO_RECIPIENT, ready=False termlink=None) and no mail watcher was armed; plus discovery searched TermLink sessions instead of the sidecar id. Fix: tools/sidecar-mail-watch.sh (exits on unshown waiting mail, report-once), test 4/4 against the real receiver, armed; CLAUDE.md watcher rule extended; learning; proposal to AEF'
+  - time: '2026-10-09T23:48:57'
+    action: 'T-1108: Greenfield''s 0.16.0 re-test (DM 55) filed — T-1109 deep-link project load (?load=/api/version?id=X), T-1110 mirror-L option'
+  - time: '2026-10-10T01:59:57'
+    action: 'T-1108: verification added (watcher syntax, CLAUDE.md rule, --once reads the receiver state); the e2e test is not in Verification because it sends a consult on every run'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 139 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 139
+  commits: 3
+  files_changed: 6
+  lines_added: 1161
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1108-sidecar-mail-sat-7-min-unseen-this-backg.md
+generated_by: context-agent-hybrid
