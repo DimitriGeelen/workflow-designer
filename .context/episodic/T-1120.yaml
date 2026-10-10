@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1120: P2: show every pool on the canvas read-only — other pools stacked below ours (black-box pools as named bands), message flows drawn dashed between pools, exported in DI
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-10T13:30:22Z
+# ============================================================================
+
+task_id: T-1120
+task_name: "P2: show every pool on the canvas read-only — other pools stacked below ours (black-box pools as named bands), message flows drawn dashed between pools, exported in DI"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-10T12:52:03Z
+completed: 2026-10-10T13:28:57Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-10T15:28:56+02:00
+last_commit: 2026-10-10T15:28:56+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  P2 — the other pools are drawn read-only below ours (black-box bands; a pool with a process shows its elements and sequence flows) and message flows run between them BPMN-style (dashed, open circle at source, open arrowhead at target), following a dragged node; one layout (collabLayout) for canvas and exported DI; parallel flows spread apart; the P1 'not shown yet' notice is gone. Test 7/7 (P1-only and 0.16.0: 7/7 fail), P1 test updated 18/18; 3 multi-pool goldens re-recorded (DI only); screenshots read
+
+# Key outcomes
+outcomes:
+  - 'Every kept pool (T-1119 `state.collab.participants`) is drawn below ours as a horizontal band with its name, same width as ours: a black-box pool as an empty band, a pool with a process with its elements (boxes with names, at their DI positions moved into the band) and its sequence flows'
+  - 'Every message flow is drawn BPMN-style (dashed line, open circle at the source, open arrowhead at the target) between the pools: from/to our live nodes (it follows a node you drag), kept elements, or a black-box band''s edge'
+  - 'ONE layout function serves canvas and export: the exported DI for kept pools, their elements and the message flows equals what the canvas draws (pool bounds, element bounds, flow waypoints); kept pools are read-only (not selectable, not draggable); P1''s "not shown yet" notice is gone when they are drawn'
+  - 'Canvas height includes the kept bands (scrollable, Fit includes them); a one-pool map renders and exports exactly as before (goldens of single-pool files unchanged)'
+  - 'CDP test: bands, element boxes and dashed message flows present with the right counts on the synthetic Sales+CPQ fixture and kitchen-sink; drag a Sales node -> its message flow end moves; exported DI == canvas geometry; 0.16.0/P1-only designer FAILS the drawing legs; wired; screenshots read'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/screenshots/T-1120/kitchen-sink.png'
+  - 'docs/screenshots/T-1120/sales-cpq.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1120-p2-show-every-pool-on-the-canvas-read-on.md'
+  - 'tests/goldens/third-party/bizagi-nested-ns.bpmn.golden'
+  - 'tests/goldens/third-party/collaboration-message-flows.bpmn.golden'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1119-collaboration-roundtrip-cdp.mjs'
+  - 'tools/_t1120-collab-pools-drawn-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-10T15:28:56'
+    action: 'T-1120: P2 — the other pools are drawn read-only below ours (black-box bands; a pool with a process shows its elements and sequence flows) and message flows run between them BPMN-style (dashed, open circle at source, open arrowhead at target), following a dragged node; one layout (collabLayout) for canvas and exported DI; parallel flows spread apart; the P1 ''not shown yet'' notice is gone. Test 7/7 (P1-only and 0.16.0: 7/7 fail), P1 test updated 18/18; 3 multi-pool goldens re-recorded (DI only); screenshots read'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 36 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 36
+  commits: 1
+  files_changed: 10
+  lines_added: 364
+  lines_removed: 79
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1120-p2-show-every-pool-on-the-canvas-read-on.md
+generated_by: context-agent-hybrid
