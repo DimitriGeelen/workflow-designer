@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1116: Pickup H to AEF: sidecar-mail-watch.sh + its test as a contrib/ format-patch bundle (for AEF T-4018)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-10T11:02:29Z
+# ============================================================================
+
+task_id: T-1116
+task_name: "Pickup H to AEF: sidecar-mail-watch.sh + its test as a contrib/ format-patch bundle (for AEF T-4018)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-10T10:58:57Z
+completed: 2026-10-10T11:01:28Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-10T13:01:27+02:00
+last_commit: 2026-10-10T13:01:27+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  pickup H to AEF — sidecar mail watch (script + test) as a contrib/ format-patch for their T-4018, MANIFEST with contract, adaptations, the 8 h cap as a known defect and TermLink's blocking-wait pointer; sent 41d03c46 RECEIVED, with the claude-fw question re-asked
+
+# Key outcomes
+outcomes:
+  - 'Bundle at `docs/upstream-pickups/H-t1116-sidecar-mail-watch/`: a `git format-patch` adding the script and its test under `contrib/832-sidecar-mail-watch/` (applies with `git am` to an empty tree check), plus a MANIFEST: the contract, the paths AEF adapts (`.agentic-framework/lib` -> `lib`), what is 832-specific, the evidence (RCA T-1108, 4/4), the 8 h cap as a known defect'
+  - 'Sent to AEF on sidecar-delivery-noninjectable, RECEIVED, msg id recorded; README index updated; the open claude-fw question re-asked in the same message — 2026-10-10, client_msg_id 41d03c46-41af-4fc5-b6f5-64c3fc839c0d, RECEIVED'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/upstream-pickups/H-t1116-sidecar-mail-watch/0001-contrib-832-s-sidecar-mail-watch-reference-input-for.patch'
+  - 'docs/upstream-pickups/H-t1116-sidecar-mail-watch/MANIFEST.md'
+  - 'docs/upstream-pickups/README.md'
+  - '.tasks/active/T-1116-pickup-h-to-aef-sidecar-mail-watchsh--it.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-10T13:01:27'
+    action: 'T-1116: pickup H to AEF — sidecar mail watch (script + test) as a contrib/ format-patch for their T-4018, MANIFEST with contract, adaptations, the 8 h cap as a known defect and TermLink''s blocking-wait pointer; sent 41d03c46 RECEIVED, with the claude-fw question re-asked'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 4
+  lines_added: 543
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1116-pickup-h-to-aef-sidecar-mail-watchsh--it.md
+generated_by: context-agent-hybrid
