@@ -1,0 +1,99 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1114: Re-judge the AMBER reviewer rows on T-893 (and check T-310) under AEF 1.8.8's not-evaluated outcome (T-3986)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-10T13:00:46Z
+# ============================================================================
+
+task_id: T-1114
+task_name: "Re-judge the AMBER reviewer rows on T-893 (and check T-310) under AEF 1.8.8's not-evaluated outcome (T-3986)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-10T00:15:10Z
+completed: 2026-10-10T12:59:38Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-10T02:17:00+02:00
+last_commit: 2026-10-10T14:59:37+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-893 screenshots re-taken on the current designer before the re-judge (L-routing moved the flows; markers unchanged: 3 missing, 1 differs per size; T-1092 summary not triggered, the fixture declares authority). T-893 c1 re-judged on 1.8.8 — green claude-code x2 + antigravity, codex/opencode not-evaluated (no longer AMBER); panel ended panel-incomplete on an awaiting-approval seat-3; T-310 c1 still to re-judge. T-310 c1 re-judged — claude-code green, codex not-evaluated (correct) but its row stranded uncommitted by a commit race; results + defect reported to AEF, ledgers left untouched pending their repair advice; push blocked by the audit until then. AEF T-4033 repair, step (a) — commit the signed review-dispatch/run/completion records of the T-893 and T-310 panels byte-unchanged; step (b) done before this: the stranded, never-counted verdict row V-20261010-08c85aa1 removed from verdicts/recorded/refusals-interim (git diff of the three now empty), its evidence file deleted (cited by nothing committed). T-310 c1 re-judged after the AEF T-4033 repair — claude-code green, opencode green, codex not-evaluated (no browser); verdict rows committed by the judge itself; its signed registry records committed byte-unchanged. re-judge results recorded and reported (T-893 c1, T-310 c1 after the T-4033 repair)
+
+# Key outcomes
+outcomes:
+  - 'Every T-893 (and T-310) Human criterion whose latest reviewer row is AMBER from a seat that could not evaluate is listed, with the page it should be judged on named in the criterion where it was missing'
+  - 'Each listed criterion re-judged once with `fw reviewer judge` on 1.8.8; outcome per criterion recorded here (green / not-evaluated / amber / red, seats and vendors); no Human box ticked by the agent'
+  - 'Results reported to AEF on aef-t3986-not-evaluated, RECEIVED (T-893 + defect, then the repair result; push unblocked, 2ebba7f2)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'T-893 screenshots re-taken on the current designer before the re-judge (L-routing moved the flows; markers unchanged: 3 missing, 1 differs per size; T-1092 summary not triggered, the fixture declares authority)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - 'docs/reports/t893-shots/differs-l.png'
+  - 'docs/reports/t893-shots/differs-m.png'
+  - 'docs/reports/t893-shots/differs-s.png'
+  - 'docs/reports/t893-shots/missing-l.png'
+  - 'docs/reports/t893-shots/missing-m.png'
+  - 'docs/reports/t893-shots/missing-s.png'
+  - 'docs/reports/t893-shots/none-l.png'
+  - 'docs/reports/t893-shots/none-m.png'
+  - 'docs/reports/t893-shots/none-s.png'
+  - '.tasks/active/T-1114-re-judge-the-amber-reviewer-rows-on-t-89.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-10T02:17:00'
+    action: 'T-1114: T-893 screenshots re-taken on the current designer before the re-judge (L-routing moved the flows; markers unchanged: 3 missing, 1 differs per size; T-1092 summary not triggered, the fixture declares authority)'
+  - time: '2026-10-10T02:46:28'
+    action: 'T-1114: T-893 c1 re-judged on 1.8.8 — green claude-code x2 + antigravity, codex/opencode not-evaluated (no longer AMBER); panel ended panel-incomplete on an awaiting-approval seat-3; T-310 c1 still to re-judge'
+  - time: '2026-10-10T13:54:33'
+    action: 'T-1114: T-310 c1 re-judged — claude-code green, codex not-evaluated (correct) but its row stranded uncommitted by a commit race; results + defect reported to AEF, ledgers left untouched pending their repair advice; push blocked by the audit until then'
+  - time: '2026-10-10T14:41:23'
+    action: 'T-1114: AEF T-4033 repair, step (a) — commit the signed review-dispatch/run/completion records of the T-893 and T-310 panels byte-unchanged; step (b) done before this: the stranded, never-counted verdict row V-20261010-08c85aa1 removed from verdicts/recorded/refusals-interim (git diff of the three now empty), its evidence file deleted (cited by nothing committed)'
+  - time: '2026-10-10T14:56:27'
+    action: 'T-1114: T-310 c1 re-judged after the AEF T-4033 repair — claude-code green, opencode green, codex not-evaluated (no browser); verdict rows committed by the judge itself; its signed registry records committed byte-unchanged'
+  - time: '2026-10-10T14:59:37'
+    action: 'T-1114: re-judge results recorded and reported (T-893 c1, T-310 c1 after the T-4033 repair)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 764 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 764
+  commits: 6
+  files_changed: 13
+  lines_added: 418
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1114-re-judge-the-amber-reviewer-rows-on-t-89.md
+generated_by: context-agent-hybrid
