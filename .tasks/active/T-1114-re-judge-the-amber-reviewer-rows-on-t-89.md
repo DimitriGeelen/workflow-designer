@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-10T00:15:10Z
-last_update: 2026-10-10T00:45:37Z
+last_update: 2026-10-10T11:53:40Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -102,6 +102,13 @@ bvp_scores_proposed:
   no verdict for it, so the final reads "unknown — OPERATOR: panel-incomplete". Two evaluating greens of distinct vendors
   exist (anthropic, google), which AEF's rung-5 rule says should close it; the seat-3 approval wait blocked that.
   To report to AEF. T-310 criterion 1 NOT yet re-judged (session ended by the operator).
+- **T-310 criterion 1 re-judged 2026-10-10 (1.8.8):** claude-code green; codex not-evaluated (Chromium exit 133 in its
+  sandbox) — correct, but its row V-20261010-08c85aa1 was never committed: the judge's commit raced with a commit in
+  this session (index.lock), committed part of its records (9e5ace40) and left the rest uncommitted without saying so.
+  Final: "unknown — uncommitted". Leftovers in the working tree: the T-310 verdict row (verdicts/recorded/
+  refusals-interim) and dispatch/run/completion lines for both the T-310 and the earlier T-893 panel. The pre-push
+  audit FAILs on the row, so pushes are blocked. Reported to AEF as a defect with the question of the correct repair
+  (aef-t3986-not-evaluated); NOT hand-edited or hand-committed meanwhile.
 - [ ] Each listed criterion re-judged once with `fw reviewer judge` on 1.8.8; outcome per criterion recorded here (green / not-evaluated / amber / red, seats and vendors); no Human box ticked by the agent
 - [ ] Results reported to AEF on aef-t3986-not-evaluated, RECEIVED
 
