@@ -120,6 +120,7 @@ We will know that we are successful when we see [NEEDS YOU: name something a per
 ### Human
 <!-- @auto-tick-on-decide -->
 - [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+  **Why you:** direction — whether 832 builds its own delivery route or leaves it to AEF (T-4003/T-4018), and how the operator launches the agent, are the operator's calls; and `fw inception decide` is the operator's
   **Steps:**
   1. Run: `fw task review T-1115` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation

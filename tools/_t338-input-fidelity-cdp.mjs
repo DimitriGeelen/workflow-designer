@@ -327,13 +327,13 @@ const ROOT_CASES = [
 
 const EXPECTED_ROOT = {
   'pool-identity':      'ROOT-PRESERVED',
-  'second-process':     'ROOT-DROPPED',
+  'second-process':     'ROOT-PRESERVED',   // T-1119: kept and saved back (was ROOT-DROPPED)
   'root-message':       'ROOT-DROPPED',
   'root-signal':        'ROOT-DROPPED',
   'root-error':         'ROOT-DROPPED',
   'root-datastore':     'ROOT-DROPPED',
-  'second-participant': 'ROOT-DROPPED',
-  'message-flow':       'ROOT-DROPPED',
+  'second-participant': 'ROOT-PRESERVED',   // T-1119: kept and saved back (was ROOT-DROPPED)
+  'message-flow':       'ROOT-PRESERVED',   // T-1119: kept and saved back (was ROOT-DROPPED)
 };
 
 // --- population 7: do we GENERATE a competing carrier? (T-419) --------------

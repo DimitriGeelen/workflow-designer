@@ -16,8 +16,8 @@
 // Legs:
 //   L1  the content-bearing process is the one imported (bizagi: nodes > 0)
 //   L2  its flow content is complete (3 nodes — the second process's full membership)
-//   L3  the skipped process is REPORTED, not dropped in silence
-//   L4  the report names the skipped element's id, so the operator can go look
+//   L3  the skipped process is REPORTED or (since T-1119) KEPT — never dropped in silence
+//   L4  the operator can find it: the report names its id, or (T-1120) its pool is drawn
 //   L5  a single-process document reports nothing (no false alarm on the whole corpus)
 //   L6  ties keep the earliest process — a document whose first process is richest
 //       behaves exactly as before, so the corpus moves no bytes
@@ -81,7 +81,10 @@ const importExpr = text => `(function(){ try{
   return {ok:true, nodes: state.nodes.length,
           names: state.nodes.map(function(n){return n.name;}),
           notice: (banner && banner.style.display !== 'none' && msg) ? msg.textContent : '',
-          skipped: (typeof _processSkipReport !== 'undefined') ? _processSkipReport : null};
+          skipped: (typeof _processSkipReport !== 'undefined') ? _processSkipReport : null,
+          // T-1119/T-1120: the other processes are KEPT (state.collab) and their pools DRAWN — report or keep, never drop
+          kept: (state.collab && state.collab.processes || []).map(function(x){ var m = x.match(/ id="([^"]*)"/); return m ? m[1] : ''; }),
+          bands: (function(){ try { renderAll(); } catch(_){} return document.querySelectorAll('#g-collab [data-collab-pool]').length; })()};
 }catch(e){ return {ok:false, error:String(e && e.stack || e)}; } })()`;
 
 async function probe(editorPath) {
@@ -134,8 +137,12 @@ function legs(r) {
   return [
     { id: 'L1', ok: b.nodes > 0, detail: `bizagi imported ${b.nodes} node(s)` },
     { id: 'L2', ok: b.nodes === 3, detail: `bizagi nodes [${b.names.join(', ')}]` },
-    { id: 'L3', ok: sk.length === 1 && /process/i.test(b.notice), detail: `${sk.length} skip record(s), notice ${JSON.stringify(b.notice.slice(0, 70))}` },
-    { id: 'L4', ok: b.notice.includes(SKIPPED_ID), detail: `notice names the skipped id: ${b.notice.includes(SKIPPED_ID)}` },
+    // T-1119/T-1120 changed what "not dropped in silence" looks like: the other process is now KEPT (and saved back)
+    // and its pool DRAWN, which beats a notice; either outcome passes, silent loss does not.
+    { id: 'L3', ok: (sk.length === 1 && /process/i.test(b.notice)) || (b.kept || []).includes(SKIPPED_ID),
+      detail: `${sk.length} skip record(s), notice ${JSON.stringify(b.notice.slice(0, 70))}, kept ${JSON.stringify(b.kept)}` },
+    { id: 'L4', ok: b.notice.includes(SKIPPED_ID) || ((b.kept || []).includes(SKIPPED_ID) && b.bands > 0),
+      detail: `notice names it: ${b.notice.includes(SKIPPED_ID)}; kept and its pool drawn: ${(b.kept || []).includes(SKIPPED_ID)} / ${b.bands} band(s)` },
     { id: 'L5', ok: (s.skipped || []).length === 0 && !/process/i.test(s.notice), detail: `simple.bpmn notice ${JSON.stringify(s.notice.slice(0, 50))}` },
     { id: 'L6', ok: f.nodes === 2 && f.names.includes('Alpha'), detail: `first-richest imported [${f.names.join(', ')}]` },
   ];

@@ -50,10 +50,16 @@ if pair not in s:
 else:
     print("PASS  marker-start and marker-end switch together on selection")
 
-if s.count("marker-start") != 1:
-    print(f"FAIL  expected exactly one marker-start application, found {s.count('marker-start')}"); fail = 1
+# T-1120: message flows carry their OWN start marker (#mf-start, BPMN's open circle) — a different notation, not this
+# cue. What must stay unique is where the sequence-flow source cue (#arrow-source*) is applied.
+n_src = len(re.findall(r"'marker-start':[^,\n]*arrow-source", s))
+n_mf = len(re.findall(r"'marker-start':\s*'url\(#mf-start\)'", s))
+if n_src != 1:
+    print(f"FAIL  expected exactly one application of the sequence-flow source cue (#arrow-source), found {n_src}"); fail = 1
+elif s.count("marker-start") != 1 + n_mf:
+    print(f"FAIL  an unexplained marker-start application: {s.count('marker-start')} total, 1 source cue + {n_mf} message-flow"); fail = 1
 else:
-    print("PASS  exactly one marker-start application")
+    print(f"PASS  exactly one source-cue application (+ {n_mf} message-flow start marker, T-1120)")
 
 print("9/9 T-598 source-marker legs passed" if not fail else "T-598 source-marker legs FAILED")
 sys.exit(fail)

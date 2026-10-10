@@ -102,6 +102,7 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 ### Human
 <!-- @auto-tick-on-decide -->
 - [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+  **Why you:** direction — which content kinds the designer turns into fields, and what each project / workflow shows, is product direction the operator ruled on himself (T-347, 2026-10-10); and `fw inception decide` is the operator's
   **Steps:**
   1. Run: `fw task review T-1118` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
