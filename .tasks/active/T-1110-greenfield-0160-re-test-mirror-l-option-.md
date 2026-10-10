@@ -1,13 +1,19 @@
 ---
 id: T-1110
-name: "Greenfield 0.16.0 re-test: mirror-L option for cross-lane flows (exit E, enter N/S) — 9 of 29 differ from the owner's choice"
+name: "Greenfield 0.16.0 re-test: mirror-L option for cross-lane flows (exit E, enter
+  N/S) — 9 of 29 differ from the owner's choice"
 description: >
-  aef-greenfield-test re-test (DM 55): T-1090's L routing matches the owner's bend count exactly (46 -> 24) and 20/29 flows identically; the other 9 are the mirror L (we exit S/N + enter W, the owner exited E + entered N/S). They suggest it as an option. Capture: decide whether a preference (Settings) or a heuristic picks between the two L forms.
+  aef-greenfield-test re-test (DM 55): T-1090's L routing matches the owner's bend
+  count exactly (46 -> 24) and 20/29 flows identically; the other 9 are the mirror
+  L (we exit S/N + enter W, the owner exited E + entered N/S). They suggest it as
+  an option. Capture: decide whether a preference (Settings) or a heuristic picks
+  between the two L forms.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-09T21:47:44Z
-last_update: 2026-10-09T21:47:44Z
-date_finished: null
+last_update: 2026-10-10T12:22:56Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-10T12:19:16Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 2
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=2 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1110: Greenfield 0.16.0 re-test: mirror-L option for cross-lane flows (exit E, enter N/S) — 9 of 29 differ from the owner's choice
@@ -62,8 +89,20 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The owner's choice between the two L forms is analysed on their hand-straightened map (geometry, neighbouring flows at source and target) and the finding recorded here: a rule that reproduces it, or the evidence that none does
+  **Finding: no rule reproduces it.** 24 cross-lane flows, owner drew 15 vertical-first, 9 mirror. Geometry is identical
+  across both groups (dx 200, dy ±130/±260, same box sizes); every flow is a 1-out/1-in pair with no other flow at source
+  or target; and for EVERY flow both L forms cross no other flow and no box. Fewest-crossings agrees on 15/24 only by
+  tie-break. The choice is taste, so a preference, not a rule.
+- [x] Implemented accordingly: if a rule reproduces it, the router applies it (and matches at least as many of the owner's 24 cross-lane flows as 0.16.0's 15); if not, a Settings choice "Cross-lane L: leave vertically / leave horizontally" (persisted, default unchanged). Either way no flow cuts a box and bends stay one per cross-lane flow
+  (`routingPrefs.crossLaneFirst` 'vertical' default / 'horizontal'; Settings "…the L leaves sideways"; persisted in
+  aefRoutingPrefs; the other form still serves when the preferred is blocked. Also fixed: Settings Reset now restores
+  the cross-lane routing — T-1090 had left it out.)
+- [x] `tools/_t1090-cross-lane-l-routing-cdp.mjs` still 12/12 (or extended), plus legs for the new behaviour; wired; screenshots of both forms read
+  (14/14; on dist 0.16.0 exactly the new mirror leg fails, the other 13 pass; bridge expectation 14/14; census 0.
+  Screenshots `docs/screenshots/T-1090/task-lifecycle-{L,H}.png` read: mirror flows leave E and enter top/bottom, one bend,
+  no box cut. Seen side effect in H: the "Outcome?" gateway label moves below the gateway and the vertical flow runs
+  through it — label placement, cosmetic, mirror mode only; not fixed here.)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -98,6 +137,10 @@ date_finished: null
 
 ## Verification
 
+node tools/_t1090-cross-lane-l-routing-cdp.mjs > /tmp/.t1110-out 2>&1 && grep -q "14/14 legs passed" /tmp/.t1110-out
+grep -q '14/14 legs passed" "$TMP/leg-_t1090' tests/run-bridge-tests.sh
+python3 tools/_t821-swallowed-failure-census.py > /tmp/.t1110-census 2>&1 && grep -q "FINDINGS                  0" /tmp/.t1110-census
+test -s docs/screenshots/T-1090/task-lifecycle-H.png
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -320,3 +363,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1110-greenfield-0160-re-test-mirror-l-option-.md
 - **Context:** Initial task creation
+
+### 2026-10-10T12:19:15Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

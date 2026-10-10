@@ -43,9 +43,10 @@ async function main() {
     await sleep(400);
     for (const map of MAPS) {
       const xml = readFileSync(join(REPO, 'build', 'gallery', 'rendered', map + '.bpmn'), 'utf8');
-      for (const mode of ['Z', 'L']) {
+      for (const mode of ['Z', 'L', 'H']) {   // T-1110: H = the mirror L (leave E, enter N/S)
         const rect = await ev(cmd, `(function(){ adoptImportedXml(${JSON.stringify(xml)}, { replace: true });
-          routingPrefs.crossLane = '${mode}'; _edgeGroupCache = null; renderAll();
+          routingPrefs.crossLane = '${mode === 'H' ? 'L' : mode}'; routingPrefs.crossLaneFirst = '${mode === 'H' ? 'horizontal' : 'vertical'}';
+          _edgeGroupCache = null; renderAll();
           var svg = document.querySelector('#canvas svg') || document.querySelector('svg#canvas') || document.querySelector('svg');
           var r = svg.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; })()`);
         await sleep(300);

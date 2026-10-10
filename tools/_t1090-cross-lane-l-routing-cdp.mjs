@@ -64,7 +64,7 @@ async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = awa
 
 // In-page measurement: for each flow, its routed polyline, bends, first/last segment
 // orientation and whether it cuts a node box. `mode` sets routingPrefs.crossLane.
-const MEASURE = (placeSynthetic, mode) => `(function(){
+const MEASURE = (placeSynthetic, mode, first) => `(function(){
   function bends(poly){ var s=[]; for(var i=0;i<poly.length-1;i++){ var dx=poly[i+1].x-poly[i].x, dy=poly[i+1].y-poly[i].y; if(Math.abs(dx)<0.5&&Math.abs(dy)<0.5) continue; s.push(Math.abs(dx)>=Math.abs(dy)?'H':'V'); } var n=0; for(var j=1;j<s.length;j++) if(s[j]!==s[j-1]) n++; return {n:n, first:s[0], last:s[s.length-1]}; }
   state = parseBpmnXml(window.__XML__);
   if (${placeSynthetic}) {
@@ -72,6 +72,7 @@ const MEASURE = (placeSynthetic, mode) => `(function(){
     state.nodes.forEach(function(n){ var key = n.uid.replace(/^u_/,''); if (X[key] !== undefined) { var d = NODE_DEFAULTS[n.type]; var L = findLane(n.lane); n.x = X[key]; n.y = laneTop(n.lane) + (L.height - d.h) / 2; } });
   }
   if (typeof routingPrefs.crossLane !== 'undefined' || '${mode}' === 'Z') routingPrefs.crossLane = '${mode}';
+  routingPrefs.crossLaneFirst = '${first || 'vertical'}';   // T-1110
   _edgeGroupCache = null; refreshDisplayIds();
   var out = {}, total = 0, cut = 0;
   state.edges.forEach(function(e){
@@ -120,6 +121,7 @@ async function main() {
     await ev(cmd, `window.__XML__ = ${JSON.stringify(xml)}; true`);
     await ev(cmd, 'window.__DBG__ = !!' + JSON.stringify(!!process.env.T1090_DBG)); const L = await ev(cmd, MEASURE(!OTHER, 'L')); if (process.env.T1090_DBG) console.log(JSON.stringify(L.dbg));
     const Z = await ev(cmd, MEASURE(!OTHER, 'Z'));
+    const H = await ev(cmd, MEASURE(!OTHER, 'L', 'horizontal'));   // T-1110: the mirror L
     if (OTHER) {
       const crossMulti = Object.values(L.flows).filter(f => f.cross && f.bends > 1).length;
       console.log(JSON.stringify({ file: OTHER, L: { totalBends: L.total, cutsBox: L.cut, crossLaneOver1Bend: crossMulti }, Z: { totalBends: Z.total, cutsBox: Z.cut } }));
@@ -135,6 +137,12 @@ async function main() {
       leg(L.total < Z.total, `total bends L ${L.total} < Z ${Z.total} (Settings toggle restores the Z)`);
       leg(Z.flows.e1 && Z.flows.e1.bends > 1, 'toggle off: e1 is routed the old way again (more than one bend)', JSON.stringify(Z.flows.e1));
       leg(L.e1di === 1, 'exported BPMN DI for e1 has the same single bend as the canvas', 'di bends=' + L.e1di);
+      // T-1110: the mirror preference — the same flows take the OTHER L where it is free; blocked cases keep their fallback
+      const h = H.flows;
+      leg(['e1', 'e2', 'e3', 'e5'].every(id => h[id] && h[id].bends === 1 && h[id].first === 'H' && h[id].last === 'V'),
+          'T-1110 mirror: e1/e2/e3/e5 leave E and enter N/S, still one bend', JSON.stringify(['e1', 'e2', 'e3', 'e5'].map(id => h[id])));
+      leg(h.e7 && h.e7.bends === 1 && h.e7.first === 'H' && h.e9 && h.e9.bends >= 2 && !h.e9.cuts && H.cut === 0,
+          'T-1110 mirror: e7 still one bend, e9 (both blocked) still a Z, no flow cuts a box', JSON.stringify({ e7: h.e7, e9: h.e9, cut: H.cut }));
     }
   } catch (e) {
     leg(false, 'harness', String(e && e.stack || e));
@@ -145,7 +153,7 @@ async function main() {
     for (const d of [repo, doc, udd]) { try { rmSync(d, { recursive: true, force: true }); } catch (_) {} }
   }
   for (const l of legs) console.log(`${l.ok ? 'PASS' : 'FAIL'}  ${l.name}${l.detail ? ' — ' + l.detail : ''}`);
-  const want = OTHER ? 1 : 12;
+  const want = OTHER ? 1 : 14;
   const ok = legs.length === want && legs.every(l => l.ok);
   console.log(ok ? `${legs.length}/${want} legs passed` : `FAILED (${legs.filter(l => !l.ok).length} of ${legs.length})`);
   process.exitCode = ok ? 0 : 1;

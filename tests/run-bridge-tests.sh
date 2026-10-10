@@ -900,7 +900,7 @@ fi
 # N/S and entering W, or leaving E when that corner is blocked; the Z only when both are; same-lane
 # flows stay straight; no flow cuts a box; the Settings toggle restores the old route; DI agrees.
 if node "$ROOT/tools/_t1090-cross-lane-l-routing-cdp.mjs" > "$TMP/leg-_t1090.out" 2>&1 \
-   && grep -q "12/12 legs passed" "$TMP/leg-_t1090.out"; then
+   && grep -q "14/14 legs passed" "$TMP/leg-_t1090.out"; then   # T-1110: +2 mirror-L legs
   pass=$((pass + 1))
 else
   report FAIL "cross-lane flows are no longer routed as a one-bend L (or an L cuts a box, the fallback/Z choice broke, the toggle no longer restores the old route, or the exported DI disagrees with the canvas) (run 'node tools/_t1090-cross-lane-l-routing-cdp.mjs'; T-1090)"
