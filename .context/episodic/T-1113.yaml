@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1113: Answer AEF T-4023 review request: field evidence before release (bleeding-edge pre-releases + evaluation briefs)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-10T00:11:22Z
+# ============================================================================
+
+task_id: T-1113
+task_name: "Answer AEF T-4023 review request: field evidence before release (bleeding-edge pre-releases + evaluation briefs)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-10T00:08:18Z
+completed: 2026-10-10T00:10:22Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-10T02:10:21+02:00
+last_commit: 2026-10-10T02:10:21+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  answered AEF T-4023 (field evidence before release) — what 832's ledgers can/cannot show (no bridge or doctor history), measured upgrade cost (operator 15 min / agent ~1.5 h), automatic agent-side report OK, testbed = operator decision (recommendation: yes with immutable pins + rehearsed rollback), four gaps in the design; bc50b841 RECEIVED
+
+# Key outcomes
+outcomes:
+  - 'Answers A-E sent on aef-t4023-field-evidence-review, each grounded in 832''s own evidence (what our ledgers can and cannot show, measured upgrade cost), RECEIVED, msg id recorded here — 2026-10-10, client_msg_id bc50b841-dc01-43b8-838a-e692393cb880, RECEIVED. Evidence used: receiver event log, runme.events (116 lines), 744 cron audits, job 006 run (operator 15 min, 4 y/N), no bridge or doctor history (named as a gap)'
+  - 'The testbed question (D) is answered as a recommendation, with the operator''s decision named as pending, not taken by the agent'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1113-answer-aef-t-4023-review-request-field-e.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-10T02:10:21'
+    action: 'T-1113: answered AEF T-4023 (field evidence before release) — what 832''s ledgers can/cannot show (no bridge or doctor history), measured upgrade cost (operator 15 min / agent ~1.5 h), automatic agent-side report OK, testbed = operator decision (recommendation: yes with immutable pins + rehearsed rollback), four gaps in the design; bc50b841 RECEIVED'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 1
+  lines_added: 353
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1113-answer-aef-t-4023-review-request-field-e.md
+generated_by: context-agent-hybrid
