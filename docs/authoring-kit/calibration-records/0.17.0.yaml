@@ -1,0 +1,26 @@
+# Calibration record for kit 0.17.0 (tools/kit-calibration-gate.py, T-1008). Bound to the
+# kit bytes by kit_sha256; any change to the kit voids it.
+version: 0.17.0
+kit_sha256: 3f82e8d097d9062e27e190b8104e2b04c49d365ddaa5e11f5cebadf3a687c48b
+reviewers:
+- result: PASS
+  recall: 3/3
+  false_on_clean: 0
+  false_on_unplanted: 0
+  reviewer: codex
+  vendor: openai
+  at: '2026-10-10T13:47:14Z'
+- result: PASS
+  recall: 3/3
+  false_on_clean: 0
+  false_on_unplanted: 0
+  reviewer: glm-5.3
+  vendor: zai
+  at: '2026-10-10T13:47:15Z'
+- result: PASS
+  recall: 3/3
+  false_on_clean: 0
+  false_on_unplanted: 0
+  reviewer: antigravity
+  vendor: google
+  at: '2026-10-10T13:47:15Z'
