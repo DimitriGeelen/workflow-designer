@@ -1,0 +1,78 @@
+runme  012-decide-t1118-go   sha 1368c82632b4   rehearsed 2026-10-11T10:05:11Z   log: /opt/832-Workflow-designer/.context/runme/012-decide-t1118-go/run-20261011T131732.log
+Job:   012-decide-t1118-go   (T-1118)
+What:  Record your GO on T-1118 (field approval and visibility: B1 hide empty fields, B2 field profile, B3 suggest and approve)
+       Your decision today (R1, 'proceed as recommended'): GO on all three builds, in order. B1 hides empty
+       fields behind '+ N empty fields' (measured: a service task shows 13 fields, the corpus fills a median 2).
+       B2 adds a field profile per project and a per-workflow setting in the map (most specific wins; a field with a
+       value is never hidden). B3 adds 'Suggest as a field' on unknown keys; nothing becomes a field until you approve
+       it through a runme job. Findings: docs/reports/T-1118-fields-on-approval-and-visibility.md. A GO decision is
+       yours (Tier 0 for the agent), so it runs here. The agent then files B1-B3 as separate build tasks.
+Steps (each asks y/N first):
+  1. Record GO on T-1118: fw inception decide T-1118 go --rationale '…'
+
+ok    T-1118 is an active inception
+ok    T-1118 has no decision recorded yet
+ok    the agent recommendation is GO
+ok    the research report is committed
+
+Step 1/1: Record GO on T-1118: fw inception decide T-1118 go --rationale '…'
+  runs: do_decide
+Run step 1/1? [y/N] No review was emitted for T-1118 yet — showing it now (T-973 requires you to see it).
+
+══════════════════════════════════════════
+  Inception Review: T-1118
+  0/1 checked
+
+  http://192.168.10.107:3013/inception/T-1118
+
+█▀▀▀▀▀▀▀███▀▀███▀▀███▀█▀▀▀▀▀▀▀█
+█ █▀▀▀█ ██  █▀█▀▄▀ ▀█▀█ █▀▀▀█ █
+█ █   █ ██▀▄▄▄▀█ ▄▀ ▄ █ █   █ █
+█ ▀▀▀▀▀ █ █▀█▀▄ ▄ █▀█ █ ▀▀▀▀▀ █
+█▀██▀█▀▀█▀█▀██▀▄ ▀▄▄▄█▀█▀██████
+█▄█ ▀▀ ▀ ▀▄ ▄▄▀ ██▀█▄   ▀▀ ▀▀▄█
+█ ▄  ▄█▀ █ █ █▄ ▄▄▀█▄  ▄▀▀▄▄ ▀█
+██▄▀██ ▀▀▀▀  ▄ ▀▄█▄▀ ▄  ▄ ██▀▀█
+█ █  ▄ ▀  ▀███▀█▀▄ ▄ █▄▄ █▄▄ ██
+█▀█▄▄▄ ▀▄▄█▄█▀▄ █▀██▄▄▄█▀▄▀█▀ █
+█▀█ █▄▄▀▀█▀ ▀██▄▀▀▄▄▄  ▀▀ ▄ ▄▄█
+█▀▀▀▀▀▀▀█▄▄▀▀▄█▄█ ▄ ▄ █▀█ ██ ▄█
+█ █▀▀▀█ █▄▀█▀▀█▄▀ ▀██ ▀▀▀ ▀█ ▀█
+█ █   █ █▄▀ ▄█▄███ ▄▄▀▄▀█▀█▀▄ █
+█ ▀▀▀▀▀ █▀▄▀▄▄██ █ █▄  █   ▀ ██
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+
+  Open: http://192.168.10.107:3013/inception/T-1118
+  Artifacts: (in docs/reports/)
+    T-1118-fields-on-approval-and-visibility.md
+
+  Scan QR or open link above
+
+  CLI: cd /opt/832-Workflow-designer &&
+    fw inception decide T-1118 go \
+    --rationale "GO"
+
+══════════════════════════════════════════
+
+  Review marker created: .context/working/.reviewed-T-1118
+  (unblocks fw inception decide T-1118 — T-973 gate)
+
+  → Decide: http://192.168.10.107:3013/inception/T-1118
+
+You have read the review above. Continue with the decision? [y/N] HYPOTHESIS: the success clause names nothing anyone could go and look at.
+  Found: ...we will know that we are successful when we see [needs you: name something a person could go and look at — a count, a threshold, a named check, or a state that would visibly change].
+  A success clause has to be checkable by someone who was not in the room.
+  'the system is better' cannot be checked; '5 consecutive tests pass per site'
+  can. Give it a count, a threshold, a named state, or an observable outcome.
+
+ERROR: ## Hypothesis required before a GO decision
+
+A GO is the moment this project takes on a claim. Every support score in
+this task's value-driver table is an argument about that claim — without it,
+the scores can rank but cannot be wrong, because there is nothing for them
+to be wrong about.
+
+The estimator can draft one from this task's own text; correct it and set
+  hypothesis_source: human
+in the frontmatter to make your wording permanent.
+STOPPED: step 1/1 failed (rc=1); later steps not run

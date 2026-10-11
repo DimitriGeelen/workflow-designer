@@ -15,7 +15,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-10-10T12:37:38Z
-last_update: 2026-10-11T07:35:09Z
+last_update: 2026-10-11T12:19:53Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -60,9 +60,9 @@ chosen per project and per workflow, and empty fields out of the way. Research: 
 
 <!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
 
-We believe that unknown content kinds become designer fields only on operator approval, with per-project and per-workflow field visibility (R2 of the T-347 ruling),
-we will achieve Inception: Unknown content kinds become designer fields only on operator approval, with per-project and per-workflow field visibility (R2 of the T-347 ruling).
-We will know that we are successful when we see [NEEDS YOU: name something a person could go and look at — a count, a threshold, a named check, or a state that would visibly change].
+We believe that hiding empty fields by default, a field profile per project and per workflow, and new fields only on operator approval,
+we will achieve a properties panel that shows what a map actually carries, with every new field one the operator chose.
+We will know that we are successful when we see, on the 42 service tasks in examples/, at most 4 field rows shown by default (today 13), 0 filled fields hidden in a CDP census of the corpus, and every field outside the designer default backed by an approval record in the project profile.
 
 ## Assumptions
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-1118 -->
