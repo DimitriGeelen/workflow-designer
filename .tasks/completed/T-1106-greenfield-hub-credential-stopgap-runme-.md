@@ -9,11 +9,11 @@ description: >
   the hub (TOFU), and sends a sidecar test. Stopgap until the permanent measure (research
   task) is decided.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-09T05:36:39Z
-last_update: 2026-10-09T23:41:10Z
-date_finished:
+last_update: 2026-10-09T23:42:02Z
+date_finished: 2026-10-09T23:42:02Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -360,3 +360,20 @@ test -f .context/runme/008-greenfield-hub-credential/retired && test -f .context
 
 ### 2026-10-09T05:40:11Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-f5a0928b
+- **Timestamp:** 2026-10-09T23:42:55Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — `termlink fleet secrets-audit` shows the new secret file 0600 and referenced by profile greenfield-132; no drop file left at /root/greenfield-hub.secret
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=root/greenfield-hub.secret in: `termlink fleet secrets-audit` shows the new secret file 0600 and referenced by profile greenfield-132; no drop file left at /root/greenfield-hub.secr`
+
+### 2026-10-09T23:42:02Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

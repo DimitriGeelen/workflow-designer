@@ -334,3 +334,17 @@ Arc-0 exit additionally needs AEF's attestation on clauses 1 and 2. No Designer-
 - **Converted to [REVIEWER] Agent criteria:** AC#2, AC#3, AC#4
 - **Left under ### Human (carve-outs):** inception-decision: AC#1; unclassified: AC#5
 - **Close path:** `bin/fw reviewer T-732` PASS auto-ticks the converted criteria (T-1985); the normal close gates do the rest.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1c003a5f
+- **Timestamp:** 2026-10-10T05:00:43Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Human)** — [REVIEW] Rule H1 — do roadmap Arcs 4–6 supersede the standing DEFERs (T-279/280/281/282) and AEF's T-2669 NO-GO?
+  - **human-ac-mechanical-signal** (partial, heuristic) — `matched='status: resolved' in Expected: `operator-decisions.yaml` H1 carries `status: resolved` and a `source_of_truth``

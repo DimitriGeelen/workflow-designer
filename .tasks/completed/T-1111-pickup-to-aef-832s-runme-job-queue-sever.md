@@ -8,11 +8,11 @@ description: >
   the launcher's safeguards; this one is the queue itself, with real use from 2026-10-08/09
   (jobs 005-009) and the lessons it exposed (menu shows bare names; no retired state).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-09T23:22:21Z
-last_update: 2026-10-09T23:23:42Z
-date_finished:
+last_update: 2026-10-09T23:24:35Z
+date_finished: 2026-10-09T23:24:35Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -351,3 +351,15 @@ grep -q "G-t1111-runme-job-queue" docs/upstream-pickups/README.md
 
 ### 2026-10-09T23:22:36Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-65b3d651
+- **Timestamp:** 2026-10-09T23:25:27Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-09T23:24:35Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

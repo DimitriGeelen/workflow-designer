@@ -7,11 +7,11 @@ description: >
   job pinned to tag v1.8.7 = 30d16704, pristine vendor commit, baseline advance, agent
   re-applies local fixes from the divergence register.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -42,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T20:43:31Z
-last_update: 2026-10-09T19:57:24Z
-date_finished:
+last_update: 2026-10-09T19:58:18Z
+date_finished: 2026-10-09T19:58:18Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -363,3 +363,15 @@ test "$(grep -c '_t420-rail-attribution-gate\|warn-uncontrolled-absence\|check-b
 
 ### 2026-10-08T20:43:48Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3b10056e
+- **Timestamp:** 2026-10-09T19:59:10Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-09T19:58:18Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

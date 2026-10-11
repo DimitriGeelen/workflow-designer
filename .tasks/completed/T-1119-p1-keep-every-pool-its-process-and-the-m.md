@@ -13,13 +13,13 @@ description: >
   is the opened process; a notice names the pools not shown. BPMN 2.0.2 collaboration
   semantics.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -48,8 +48,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-10T12:51:58Z
-last_update: 2026-10-10T13:08:31Z
-date_finished:
+last_update: 2026-10-10T13:09:39Z
+date_finished: 2026-10-10T13:09:39Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -367,3 +367,15 @@ python3 tools/_t821-swallowed-failure-census.py > /tmp/.t1119-census 2>&1 && gre
 
 ### 2026-10-10T13:02:26Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e243b602
+- **Timestamp:** 2026-10-10T13:10:52Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-10T13:09:39Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

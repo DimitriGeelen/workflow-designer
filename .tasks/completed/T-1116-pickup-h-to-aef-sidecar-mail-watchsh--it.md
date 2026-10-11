@@ -9,11 +9,11 @@ description: >
   a git format-patch that adds them under contrib/, with a MANIFEST (contract, paths
   to adapt, what is 832-specific, evidence), send it, record the delivery.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-10T10:58:57Z
-last_update: 2026-10-10T11:00:30Z
-date_finished:
+last_update: 2026-10-10T11:01:28Z
+date_finished: 2026-10-10T11:01:28Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -353,3 +353,15 @@ grep -q "H-t1116-sidecar-mail-watch" docs/upstream-pickups/README.md
 
 ### 2026-10-10T10:59:18Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ea4919ab
+- **Timestamp:** 2026-10-10T11:02:21Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-10T11:01:28Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

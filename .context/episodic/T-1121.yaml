@@ -1,0 +1,118 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1121: Release designer 0.17.0 (P1/P2 pools + message flows, T-1109 deep link, T-1110 mirror L, T-1092 already in 0.16.0)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-11T09:58:27Z
+# ============================================================================
+
+task_id: T-1121
+task_name: "Release designer 0.17.0 (P1/P2 pools + message flows, T-1109 deep link, T-1110 mirror L, T-1092 already in 0.16.0)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-10T13:36:24Z
+completed: 2026-10-11T09:57:17Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-10T15:38:26+02:00
+last_commit: 2026-10-11T11:56:19+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  0.17.0 prep — VERSION/APP_VERSION 0.17.0 (parity ok), release notes (pools kept + drawn, portal link, mirror L). 0.17.0 kit (3f82e8d0) calibrated PASS by codex (OpenAI), GLM-5.3 (Z.AI) and Antigravity (Google), 3/3 and 0 false each, one run each. runme job 010-release-designer-0.17.0 (cut, commit, tag designer-v0.17.0, push), dry-run passed (sha f6304ddc). bridge after 0.17.0 bump, 5 real reds resolved (all checks P1/P2 legitimately moved, no designer defect) — T-603 guard: a kept + drawn process now passes 'not dropped in silence' (poison arm still fails L1-L4); T-338: second-process / second-participant / message-flow now ROOT-PRESERVED (gap closed by T-1119); T-598: count only the sequence-flow source cue (message flows have their own #mf-start); Why-you lines on the T-1115 / T-1118 go/no-go. Render check waits on the cut; sweep = T-1103 load timeouts; T-974 16/16 alone (ran under calibration load). release designer 0.17.0 — several pools kept and drawn (T-1119/T-1120), portal link opens the project (T-1109), mirror-L option (T-1110); kit re-issued with its own calibration. our Watchtower serves 0.17.0 (pin 0.16.0 -> 0.17.0 from the designer-v0.17.0 tag, fw designer sync --from-tag: MANIFEST and pin anchors match, /designer/app serves sha 6e301322); divergence register updated, _t517 OK
+
+# Key outcomes
+outcomes:
+  - 'VERSION and APP_VERSION read 0.17.0 (T-808 parity); docs/releases/RELEASE-NOTES-0.17.0.md lists T-1119, T-1120, T-1109, T-1110, T-1117-relevant changes and the multi-pool save change, with re-test steps for Greenfield'
+  - 'The 0.17.0 kit carries a PASS calibration of its exact bytes by codex, GLM and Antigravity, one run each, every run recorded (ledger L16)'
+  - 'Bridge suite green apart from known load-only timeouts (T-1103) and the render check that waits on the cut'
+  - 'A runme job (cut, commit, tag designer-v0.17.0, push) is prepared, dry-run passes, the watcher is armed; the agent never runs it for real'
+  - 'After the operator''s run: Watchtower re-pinned to 0.17.0 and Greenfield told by DM what 0.17.0 carries and how to re-test'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'release designer 0.17.0 — several pools kept and drawn (T-1119/T-1120), portal link opens the project (T-1109), mirror-L option (T-1110); kit re-issued with its own calibration'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/runme/010-release-designer-0.17.0/dryrun.ok'
+  - '.context/runme/010-release-designer-0.17.0/job.sh'
+  - 'dist/aef-authoring-kit-0.17.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.17.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.17.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.17.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.17.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.17.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.17.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.17.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.17.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.17.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.17.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.17.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.17.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.17.0/validate-workflow.py'
+  - 'dist/aef-workflow-designer-0.17.0.html'
+  - 'dist/MANIFEST.yaml'
+  - 'docs/authoring-kit/calibration-records/0.17.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.17.0.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1115-sidecar-delivery-to-a-non-injectable-age.md'
+  - '.tasks/active/T-1118-unknown-content-kinds-become-designer-fi.md'
+  - '.tasks/active/T-1121-release-designer-0170-p1p2-pools--messag.md'
+  - 'tools/_t338-input-fidelity-cdp.mjs'
+  - 'tools/_t598-source-marker.py'
+  - 'tools/_t603-multiprocess-import.mjs'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-10T15:38:26'
+    action: 'T-1121: 0.17.0 prep — VERSION/APP_VERSION 0.17.0 (parity ok), release notes (pools kept + drawn, portal link, mirror L)'
+  - time: '2026-10-10T15:48:16'
+    action: 'T-1121: 0.17.0 kit (3f82e8d0) calibrated PASS by codex (OpenAI), GLM-5.3 (Z.AI) and Antigravity (Google), 3/3 and 0 false each, one run each'
+  - time: '2026-10-10T15:49:16'
+    action: 'T-1121: runme job 010-release-designer-0.17.0 (cut, commit, tag designer-v0.17.0, push), dry-run passed (sha f6304ddc)'
+  - time: '2026-10-10T16:18:07'
+    action: 'T-1121: bridge after 0.17.0 bump, 5 real reds resolved (all checks P1/P2 legitimately moved, no designer defect) — T-603 guard: a kept + drawn process now passes ''not dropped in silence'' (poison arm still fails L1-L4); T-338: second-process / second-participant / message-flow now ROOT-PRESERVED (gap closed by T-1119); T-598: count only the sequence-flow source cue (message flows have their own #mf-start); Why-you lines on the T-1115 / T-1118 go/no-go. Render check waits on the cut; sweep = T-1103 load timeouts; T-974 16/16 alone (ran under calibration load)'
+  - time: '2026-10-11T10:48:42'
+    action: 'T-1121: release designer 0.17.0 — several pools kept and drawn (T-1119/T-1120), portal link opens the project (T-1109), mirror-L option (T-1110); kit re-issued with its own calibration'
+  - time: '2026-10-11T11:56:19'
+    action: 'T-1121: our Watchtower serves 0.17.0 (pin 0.16.0 -> 0.17.0 from the designer-v0.17.0 tag, fw designer sync --from-tag: MANIFEST and pin anchors match, /designer/app serves sha 6e301322); divergence register updated, _t517 OK'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 1220 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1220
+  commits: 6
+  files_changed: 30
+  lines_added: 17395
+  lines_removed: 35
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1121-release-designer-0170-p1p2-pools--messag.md
+generated_by: context-agent-hybrid

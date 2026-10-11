@@ -9,13 +9,13 @@ description: >
   so L16 needs a fresh calibration of the 0.16.0 kit bytes. Release via runme job
   (operator runs it; agent never cuts, tags or pushes).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T20:55:51Z
-last_update: 2026-10-09T09:00:00Z
-date_finished:
+last_update: 2026-10-09T09:00:59Z
+date_finished: 2026-10-09T09:00:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -383,3 +383,15 @@ python3 tools/kit-calibration-gate.py check --version 0.16.0
 
 ### 2026-10-08T20:56:09Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2e73b678
+- **Timestamp:** 2026-10-09T09:01:56Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-09T09:00:59Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

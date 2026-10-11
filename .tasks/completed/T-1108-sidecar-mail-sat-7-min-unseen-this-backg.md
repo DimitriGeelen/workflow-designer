@@ -9,11 +9,11 @@ description: >
   pane. Fix: a sidecar-mail watcher armed in the background like runme-watch, plus
   a session-start check that flags a non-injectable session without one.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: [bug]
 components: []
 related_tasks: []
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-09T21:40:09Z
-last_update: 2026-10-09T23:59:06Z
-date_finished:
+last_update: 2026-10-09T23:59:58Z
+date_finished: 2026-10-09T23:59:58Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -398,3 +398,20 @@ WAITING_NO_RECIPIENT on every message) but that fact reaches no one who can act.
 
 ### 2026-10-09T21:40:43Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-22dc36ec
+- **Timestamp:** 2026-10-10T00:00:57Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — `tools/sidecar-mail-watch.sh` exits 0 and names the message when a consult for this agent is waiting and unshown; stays armed when there is none; test `tests/test_t1108_sidecar_mail_watch.sh` covers b
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/test_t1108_sidecar_mail_watch.sh in: `tools/sidecar-mail-watch.sh` exits 0 and names the message when a consult for this agent is waiting and unshown; stays armed when there is none; test`
+
+### 2026-10-09T23:59:58Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

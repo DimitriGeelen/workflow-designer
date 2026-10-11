@@ -9,13 +9,13 @@ description: >
   it, so L16 needs a calibration of the 0.17.0 kit bytes (codex, GLM, Antigravity;
   one run each, all recorded). Release via runme job; agent never cuts, tags or pushes.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tools/_t338-input-fidelity-cdp.mjs, tools/_t598-source-marker.py, tools/_t603-multiprocess-import.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-10T13:36:24Z
-last_update: 2026-10-11T09:55:19Z
-date_finished:
+last_update: 2026-10-11T09:57:17Z
+date_finished: 2026-10-11T09:57:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -89,11 +89,13 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] VERSION and APP_VERSION read 0.17.0 (T-808 parity); docs/releases/RELEASE-NOTES-0.17.0.md lists T-1119, T-1120, T-1109, T-1110, T-1117-relevant changes and the multi-pool save change, with re-test steps for Greenfield
-- [ ] The 0.17.0 kit carries a PASS calibration of its exact bytes by codex, GLM and Antigravity, one run each, every run recorded (ledger L16)
-- [ ] Bridge suite green apart from known load-only timeouts (T-1103) and the render check that waits on the cut
-- [ ] A runme job (cut, commit, tag designer-v0.17.0, push) is prepared, dry-run passes, the watcher is armed; the agent never runs it for real
-- [ ] After the operator's run: Watchtower re-pinned to 0.17.0 and Greenfield told by DM what 0.17.0 carries and how to re-test
+- [x] VERSION and APP_VERSION read 0.17.0 (T-808 parity); docs/releases/RELEASE-NOTES-0.17.0.md lists T-1119, T-1120, T-1109, T-1110, T-1117-relevant changes and the multi-pool save change, with re-test steps for Greenfield
+- [x] The 0.17.0 kit carries a PASS calibration of its exact bytes by codex, GLM and Antigravity, one run each, every run recorded (ledger L16)
+- [x] Bridge suite green apart from known load-only timeouts (T-1103) and the render check that waits on the cut
+- [x] A runme job (cut, commit, tag designer-v0.17.0, push) is prepared, dry-run passes, the watcher is armed; the agent never runs it for real
+  (operator ran job 010 on 2026-10-11, 4/4 steps, rc=0; tag designer-v0.17.0 = f23a16c0 on origin)
+- [x] After the operator's run: Watchtower re-pinned to 0.17.0 and Greenfield told by DM what 0.17.0 carries and how to re-test
+  (re-pin 7ccd5608, /designer/app serves sha 6e301322; Greenfield DM offset 65: sha/bytes/tag, five changes, four re-test steps)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -137,6 +139,12 @@ bvp_scores_proposed:
 # pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
 # past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
 #
+grep -qx '0.17.0' VERSION
+test -f .context/runme/010-release-designer-0.17.0/done
+git rev-parse -q --verify refs/tags/designer-v0.17.0
+grep -q '^version: "0.17.0"' .agentic-framework/policy/designer-pin.yaml
+test "$(git show designer-v0.17.0:dist/aef-workflow-designer-0.17.0.html | sha256sum | cut -c1-64)" = 6e3013229d43c9ada44f9571ac27b962a3fd59a09910f086fcb04326f23b8a10
+test -f docs/authoring-kit/calibration-records/0.17.0.yaml
 # ── Mutable-corpus anchor (T-3326) ────────────────────────────────────────────
 # Do NOT anchor a verification line (or a unit test it runs) to MUTABLE corpus
 # state — an exact live count, or a grep of live `fw audit`/`fw doctor` output
@@ -353,3 +361,15 @@ bvp_scores_proposed:
 
 ### 2026-10-10T13:36:40Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-5bbbe8ac
+- **Timestamp:** 2026-10-11T09:58:18Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-11T09:57:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
