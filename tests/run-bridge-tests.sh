@@ -587,6 +587,20 @@ for leg in "${orphan_legs[@]}"; do
 done
 
 echo
+echo "== Render check on the SOURCE, before any cut (T-1130) =="
+# The release-file render check above can only pass after a cut, so before a release it always reads
+# 'artifact not found' and was written off as expected. On 0.18.0 that hid a real break (B1 folded the
+# governance dropdowns the check looks for) until the operator's release run stopped on it. This leg checks
+# the current source the same way, on every run.
+if python3 "$ROOT/tests/test_designer_render.py" --src > "$TMP/leg-render-src.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "designer render-check on the SOURCE — render, T-177 markers, inspector dropdowns or console broke; the next release cut would stop on it (run 'python3 tests/test_designer_render.py --src'; T-1130)"
+  show_output "$TMP/leg-render-src.out" "test_designer_render.py --src"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Gateway branch-ambiguity parity (T-317) =="
 # W-XML-GW-AMBIGUOUS: the BPMN path had no counterpart to the YAML path's
 # W-GW-AMBIGUOUS, so the designer — which speaks BPMN — would have been shown

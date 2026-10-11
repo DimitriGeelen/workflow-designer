@@ -2735,3 +2735,9 @@ learnings:
   task: T-1117
   date: 2026-10-10
   context: Added via context agent
+- id: PL-392
+  learning: "A check that can only run after a release cut (render check on dist/) reads 'artifact not found' on every pre-cut run, gets written off as expected, and is therefore blind to the very change it exists to catch: 0.18.0's B1 folded the governance dropdowns and only the operator's release run stopped on it. Give release-time checks a source mode and run that on every suite run (tests/test_designer_render.py --src)."
+  source: P-001
+  task: T-1130
+  date: 2026-10-11
+  context: Added via context agent

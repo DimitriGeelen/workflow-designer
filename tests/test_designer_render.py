@@ -74,14 +74,28 @@ class _QuietHandler(http.server.SimpleHTTPRequestHandler):
 
 
 def _resolve_build():
+    """The artifact to check and the directory to serve.
+
+    --src (T-1130): check the CURRENT source instead of the release build, served from a temp directory under
+    the release file name. Without it this check could only run after a cut, so a change that broke what it
+    asserts (0.18.0: B1 folded the governance dropdowns) reached the operator's release run before any check
+    saw it — the bridge suite reported 'artifact not found' on every run before a cut, which read as expected.
+    """
     version = (ROOT / "VERSION").read_text().strip()
+    if "--src" in sys.argv:
+        import shutil
+        import tempfile
+        d = Path(tempfile.mkdtemp(prefix="render-src-"))
+        artifact = d / f"aef-workflow-designer-{version}.html"
+        shutil.copyfile(ROOT / "src" / "aef-workflow-designer.html", artifact)
+        return version, artifact, d
     artifact = DIST / f"aef-workflow-designer-{version}.html"
     if not artifact.exists():
         raise SystemExit(
             f"FAIL: build artifact not found: {artifact}\n"
-            f"      run scripts/release-designer.sh to produce it."
+            f"      run scripts/release-designer.sh to produce it (or check the source with --src)."
         )
-    return version, artifact
+    return version, artifact, DIST
 
 
 def _serve(directory):
@@ -103,8 +117,8 @@ def main():
             "      dev setup: pip install playwright && playwright install chromium"
         )
 
-    version, artifact = _resolve_build()
-    httpd, port = _serve(DIST)
+    version, artifact, served = _resolve_build()
+    httpd, port = _serve(served)
     url = f"http://127.0.0.1:{port}/{artifact.name}"
 
     failures = []
@@ -177,6 +191,10 @@ def main():
                                    clientX: r.x + r.width / 2, clientY: r.y + r.height / 2, view: window };
                     for (const t of ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'])
                         node.dispatchEvent(new (t.startsWith('pointer') ? PointerEvent : MouseEvent)(t, opts));
+                    // T-1124 (0.18.0): empty fields fold behind "+ N empty fields"; an author opens it to
+                    // reach them, and so does this check. The governance dropdowns must still be REACHABLE.
+                    const fold = document.querySelector('#properties .props-empty-fields');
+                    if (fold) fold.click();
                     const all = Array.from(document.querySelectorAll('select'))
                         .map(s => Array.from(s.options).map(o => o.value));
                     const has = sig => all.some(x => x.length === sig.length && x.every((v, i) => v === sig[i]));
