@@ -5,7 +5,8 @@
 # Fixtures are synthetic task files in a temp dir; the predicate is the vendored one.
 set -u
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-FW="$ROOT/.agentic-framework"
+# 832: the vendored copy. In the framework repo: FRAMEWORK_ROOT=. bash <this file>
+FW="${FRAMEWORK_ROOT:-$ROOT/.agentic-framework}"
 . "$FW/lib/inception-readiness.sh" || { echo "FAIL: readiness lib did not load"; exit 1; }
 . "$FW/lib/task-audit.sh" 2>/dev/null || true
 command -v audit_inception_hypothesis >/dev/null || { echo "FAIL: audit_inception_hypothesis missing"; exit 1; }

@@ -45,7 +45,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-11T12:24:39Z
-last_update: 2026-10-11T12:31:24Z
+last_update: 2026-10-11T12:34:48Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -265,10 +265,13 @@ test -f docs/upstream-pickups/I-t1123-handoff-hypothesis-gate/MANIFEST.md
 `fw inception decide T-1118 go` refused: "## Hypothesis required before a GO decision" (placeholder success clause).
 **Root cause:** `lib/inception-readiness.sh` `inception_handoff_blockers` is the one predicate every invitation surface
 asks (fw task review, /inception decide form, audit D14b), and its header says a new hand-off requirement is added
-there. The T-866 hypothesis gate was added only inside `do_inception_decide`, never to the predicate, so invitation
-and enforcement disagree on GO.
-**Why structurally allowed:** no parity test between the decide command's gates and the hand-off predicate; and 832's
-decide job checked the recommendation text instead of running the framework predicates, so its dry-run passed.
+there. The hypothesis gate is 832's OWN local addition (T-866, re-applied by T-1026; upstream AEF has none, it is
+proposed as bundle E patch 0010) and lives only inside `do_inception_decide`. Upstream's predicate came later
+(T-3549/T-3896); when our gate was re-applied on top of it, nobody added the gate to the predicate, so invitation
+and enforcement disagree on GO — in our copy only.
+**Why structurally allowed:** the re-vendor protocol checks that each local fix re-applies cleanly, not that it still
+fits the upstream code around it; no parity test between decide's gates and the hand-off predicate; and 832's decide
+job checked the recommendation text instead of running the framework predicates, so its dry-run passed.
 **Prevention:** the predicate now carries the hypothesis blocker (GO-recommended only), tested by tools/_t1123 incl.
 a parity leg against the decide gate; decide jobs from 013 on run both framework predicates in preflight; upstream
 pickup I proposes the same fix plus a parity test so a future decide gate cannot be added without the predicate.

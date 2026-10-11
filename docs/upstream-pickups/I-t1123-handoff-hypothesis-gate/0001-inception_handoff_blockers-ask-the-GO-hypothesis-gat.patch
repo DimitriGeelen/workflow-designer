@@ -1,0 +1,125 @@
+From 1515ab0406e071e65d00172c6d47cb560ec322aa Mon Sep 17 00:00:00 2001
+From: 832-Workflow-designer <dimitri@dimitrigeelen.com>
+Date: Sun, 11 Oct 2026 14:34:00 +0200
+Subject: [PATCH] inception_handoff_blockers: ask the GO hypothesis gate too
+ (addendum to 832 bundle E patch 0010; 832 T-1123)
+
+Patch 0010 (832 T-866) adds audit_inception_hypothesis and makes fw inception decide ... go refuse without a checkable ## Hypothesis. It does not add the gate to inception_handoff_blockers, the one predicate fw task review, /inception and audit D14b ask (T-3549/T-3896), so with 0010 applied a GO-recommended inception with a placeholder success clause is offered as ready and then refused at decide. Happened in 832 (job 012, T-1118). This adds a hypothesis-unready blocker, asked only when the recommendation is GO and only when the function is loaded (every blocker hides the whole decide form, so NO-GO/DEFER stay decidable; without 0010 it is a no-op). Test: FRAMEWORK_ROOT=. bash contrib/832-handoff-hypothesis/test_handoff_hypothesis.sh -> 8/8 (2 fail without this commit).
+---
+ .../test_handoff_hypothesis.sh                | 64 +++++++++++++++++++
+ lib/inception-readiness.sh                    | 21 ++++++
+ 2 files changed, 85 insertions(+)
+ create mode 100644 contrib/832-handoff-hypothesis/test_handoff_hypothesis.sh
+
+diff --git a/contrib/832-handoff-hypothesis/test_handoff_hypothesis.sh b/contrib/832-handoff-hypothesis/test_handoff_hypothesis.sh
+new file mode 100644
+index 0000000..5466267
+--- /dev/null
++++ b/contrib/832-handoff-hypothesis/test_handoff_hypothesis.sh
+@@ -0,0 +1,64 @@
++#!/bin/bash
++# T-1123: lib/inception-readiness.sh inception_handoff_blockers must report a GO-recommended
++# inception whose ## Hypothesis the decide gate (audit_inception_hypothesis, T-866) would refuse,
++# and must NOT block NO-GO / DEFER handoffs or a GO with a checkable hypothesis.
++# Fixtures are synthetic task files in a temp dir; the predicate is the vendored one.
++set -u
++ROOT=$(cd "$(dirname "$0")/.." && pwd)
++# 832: the vendored copy. In the framework repo: FRAMEWORK_ROOT=. bash <this file>
++FW="${FRAMEWORK_ROOT:-$ROOT/.agentic-framework}"
++. "$FW/lib/inception-readiness.sh" || { echo "FAIL: readiness lib did not load"; exit 1; }
++. "$FW/lib/task-audit.sh" 2>/dev/null || true
++command -v audit_inception_hypothesis >/dev/null || { echo "FAIL: audit_inception_hypothesis missing"; exit 1; }
++
++T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
++mk() { # name rec success-clause
++  cat > "$T/$1.md" <<EOF
++---
++id: T-9999
++workflow_type: inception
++---
++## Hypothesis
++
++We believe that x,
++we will achieve y.
++We will know that we are successful when we see $3.
++
++## Recommendation
++
++**Recommendation:** $2
++
++**Rationale:** because.
++EOF
++}
++PH='[NEEDS YOU: name something a person could go and look at]'
++mk go-placeholder GO "$PH"
++mk go-checkable   GO "at most 4 field rows shown by default on 42 service tasks"
++mk nogo-placeholder NO-GO "$PH"
++mk defer-placeholder DEFER "$PH"
++# GO with no hypothesis section at all
++printf -- '---\nid: T-9999\nworkflow_type: inception\n---\n## Recommendation\n\n**Recommendation:** GO\n\n**Rationale:** because.\n' > "$T/go-missing.md"
++# Recommendation inside an HTML comment must not count
++printf -- '---\nid: T-9999\nworkflow_type: inception\n---\n## Hypothesis\n\nWe believe that x,\nwe will achieve y.\nWe will know that we are successful when we see %s.\n\n## Recommendation\n\n<!--\n**Recommendation:** GO\n-->\n**Recommendation:** DEFER\n\n**Rationale:** because.\n' "$PH" > "$T/commented-go.md"
++
++pass=0; fail=0
++expect() { # file want(blocked|clear)
++  local b; b=$(inception_handoff_blockers "$T/$1.md" | grep -c '^hypothesis-unready')
++  local got=clear; [ "$b" -gt 0 ] && got=blocked
++  if [ "$got" = "$2" ]; then pass=$((pass+1)); echo "ok   $1: $got"; else fail=$((fail+1)); echo "FAIL $1: got $got, want $2"; fi
++}
++expect go-placeholder blocked
++expect go-missing blocked
++expect go-checkable clear
++expect nogo-placeholder clear
++expect defer-placeholder clear
++expect commented-go clear
++# The predicate still always returns 0 (OBS-566 contract)
++inception_handoff_blockers "$T/go-placeholder.md" >/dev/null; rc=$?
++[ "$rc" = 0 ] && { pass=$((pass+1)); echo "ok   returns 0 with a finding"; } || { fail=$((fail+1)); echo "FAIL returned $rc"; }
++# Parity: a blocked fixture is exactly one the decide gate refuses at GO
++if ! audit_inception_hypothesis "$T/go-placeholder.md" go 2>/dev/null && audit_inception_hypothesis "$T/go-checkable.md" go 2>/dev/null; then
++  pass=$((pass+1)); echo "ok   parity with the decide gate"
++else fail=$((fail+1)); echo "FAIL parity with the decide gate"; fi
++echo "T-1123: $pass passed, $fail failed"
++[ "$fail" = 0 ]
+diff --git a/lib/inception-readiness.sh b/lib/inception-readiness.sh
+index 909cfe5..ae1d926 100644
+--- a/lib/inception-readiness.sh
++++ b/lib/inception-readiness.sh
+@@ -109,6 +109,8 @@ inception_underdisposed_questions() {
+ #
+ #     - inception_underdisposed_questions (above) — T-2190 disposition rule
+ #     - audit_inception_recommendation (lib/task-audit.sh) — T-1497 rec rule
++#     - audit_inception_hypothesis (lib/task-audit.sh) — T-866 GO rule, asked
++#       only when the recommendation is GO (832 T-1123)
+ #
+ #   It exists so requirements stop being discovered one refusal at a time. A new
+ #   handoff requirement is added HERE and every invitation surface inherits it.
+@@ -155,6 +157,25 @@ inception_handoff_blockers() {
+         fi
+     fi
+ 
++    # 832 T-1123: 832's local T-866 hypothesis gate (audit_inception_hypothesis, enforced by
++    # `fw inception decide ... go`; proposed upstream as bundle E patch 0010) was never added
++    # here when it was re-applied on top of this predicate, so a GO-recommended
++    # inception with a placeholder success clause was offered to the operator and
++    # then refused at decide (832 job 012, T-1118). Asked only when the agent
++    # recommends GO: the gate binds GO alone, and every blocker hides the whole
++    # form, so a NO-GO / DEFER must stay decidable.
++    if command -v audit_inception_hypothesis >/dev/null 2>&1; then
++        local _rec _hyp
++        _rec=$(awk '/<!--/{c=1} !c && /^\*\*Recommendation:?\*\*/{print; exit} /-->/{c=0}' "$task_file" \
++               | sed -E 's/^\*\*Recommendation:?\*\*:?[[:space:]]*//' | awk '{print toupper($1)}' | tr -d '.,;:*')
++        if [ "$_rec" = "GO" ]; then
++            if ! _hyp=$(audit_inception_hypothesis "$task_file" go 2>&1 >/dev/null); then
++                _hyp=$(printf '%s\n' "$_hyp" | head -1 | sed 's/^HYPOTHESIS: *//')
++                printf 'hypothesis-unready\t## Hypothesis would be refused at a GO: %s\tWrite the three-part hypothesis with a success clause someone could check (a count, threshold or named state); the decide gate refuses a GO without it (T-866).\n' "$_hyp"
++            fi
++        fi
++    fi
++
+     return 0
+ }
+ 
+-- 
+2.43.0
+

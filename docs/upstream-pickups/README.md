@@ -15,6 +15,8 @@ These are `git format-patch` series, each verified on 2026-10-04 to `git am` cle
 
 | [H: sidecar mail watch — wake an agent that cannot be injected](H-t1116-sidecar-mail-watch/MANIFEST.md) (832 T-1116, sent 2026-10-10, asked for by AEF for T-4018) | T-4018 | 1 (contrib/ only) | test 4/4 against the real receiver; `git am` checked on an empty tree |
 
+| [I: hand-off readiness predicate asks the GO hypothesis gate (addendum to E/0010)](I-t1123-handoff-hypothesis-gate/MANIFEST.md) (832 T-1123, sent 2026-10-11) | T-3817 (with E/0010) | 1 (apply after E/0010) | test 8/8 on v1.8.9 lib + 0010 (6/8 without); no-op without 0010 |
+
 **Apply one bundle:** `git am <dir>/*.patch` from your repository root.
 
 **Defects in 832's own code found while building these** (all fixed here and in the bundles):

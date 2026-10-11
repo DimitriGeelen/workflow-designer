@@ -4123,11 +4123,14 @@ concerns:
   context: 'Operator ran job 012 (GO on T-1118, recommendation GO, fw task review and /inception both showed it ready);
     fw inception decide refused: ## Hypothesis success clause was the estimator placeholder. lib/inception-readiness.sh
     inception_handoff_blockers, the predicate every invitation surface asks (T-3279/T-3549/T-3896), composes the
-    disposition and recommendation rules but not audit_inception_hypothesis (T-866). Measured: 12 of 18 active
-    inceptions would be refused a GO; 2 recommended GO (T-1093, T-1118). 832''s job rehearsal also checked only the
-    recommendation, so the dry-run passed. Vendored AEF code plus our own job preflight.'
-  decision_trigger: 'Close when upstream AEF carries the hypothesis blocker in inception_handoff_blockers (pickup I,
-    T-1123) and a re-vendor keeps it without our local fix; 832 decide jobs run the framework predicates in preflight.'
+    disposition and recommendation rules but not audit_inception_hypothesis — which is 832''s OWN local gate (T-866,
+    re-applied T-1026; upstream has no hypothesis gate, proposed as bundle E patch 0010). Our gate was re-applied on
+    top of upstream''s newer predicate and nothing checked the two agree. Measured: 12 of 18 active inceptions would
+    be refused a GO; 2 recommended GO (T-1093, T-1118). 832''s job rehearsal also checked only the recommendation,
+    so the dry-run passed.'
+  decision_trigger: 'Close when every 832 local decide gate is also asked by inception_handoff_blockers, with a
+    re-vendor check that would catch a gate re-applied without its predicate twin; or when upstream adopts the
+    hypothesis gate together with the predicate addendum (pickup I) and both local fixes retire.'
   containment: 'Local fix in the vendored lib (declared, tools/_t1123 8/8); decide jobs (013 onward) check
     audit_inception_hypothesis and inception_handoff_blockers in their preflight.'
   related_tasks: ['T-1123', 'T-1118', 'T-1093']

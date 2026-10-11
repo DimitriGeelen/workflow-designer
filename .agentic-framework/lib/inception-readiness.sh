@@ -157,8 +157,9 @@ inception_handoff_blockers() {
         fi
     fi
 
-    # 832 T-1123: the T-866 hypothesis gate (audit_inception_hypothesis, enforced by
-    # `fw inception decide ... go`) was never added here, so a GO-recommended
+    # 832 T-1123: 832's local T-866 hypothesis gate (audit_inception_hypothesis, enforced by
+    # `fw inception decide ... go`; proposed upstream as bundle E patch 0010) was never added
+    # here when it was re-applied on top of this predicate, so a GO-recommended
     # inception with a placeholder success clause was offered to the operator and
     # then refused at decide (832 job 012, T-1118). Asked only when the agent
     # recommends GO: the gate binds GO alone, and every blocker hides the whole
