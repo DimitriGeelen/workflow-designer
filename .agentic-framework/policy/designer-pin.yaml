@@ -16,13 +16,13 @@
 # frozen annotated tag = published frozen bytes — 832's working tree stays
 # off-limits.
 
-version: "0.16.0"
-sha256: "9cc12bfe589d0b7d83ddff23b8c4f9645f1171360ca09d8b0dbc3522b5da83e6"
-bytes: 1086653
+version: "0.17.0"
+sha256: "6e3013229d43c9ada44f9571ac27b962a3fd59a09910f086fcb04326f23b8a10"
+bytes: 1107340
 
 source_repo: "832-Workflow-designer"
-source_artifact: "dist/aef-workflow-designer-0.16.0.html"
-source_tag: "designer-v0.16.0"
+source_artifact: "dist/aef-workflow-designer-0.17.0.html"
+source_tag: "designer-v0.17.0"
 source_manifest: "dist/MANIFEST.yaml"                 # 832 side
 # Read-only LAN origin for pull-at-tag intake (T-247/D-335, tooling T-2616).
 # `fw designer sync --from-tag` fetches artifact + MANIFEST at the annotated tag
@@ -155,7 +155,9 @@ protocol: "docs/aef-designer-integration-protocol.md" # 832 side (pull → sha25
 #   sha+bytes equal to designer-v0.15.2:dist/MANIFEST.yaml.
 # 832 T-1105 (2026-10-09): 0.15.3 -> 0.16.0 (consumer intake right after the release; Greenfield T-172
 #   fixes T-1088/T-1089/T-1090/T-1092). sha+bytes taken from the designer-v0.16.0 tag blob.
-vendored_path: "vendor/designer/aef-workflow-designer-0.16.0.html"
+# 832 T-1121 (2026-10-11): 0.16.0 -> 0.17.0 (consumer intake right after the release; pools and message
+#   flows kept + drawn T-1119/T-1120, portal link T-1109, mirror L T-1110). sha+bytes from the designer-v0.17.0 tag blob.
+vendored_path: "vendor/designer/aef-workflow-designer-0.17.0.html"
 
 # Offline-hardened (832 T-176): web fonts are embedded as base64 woff2 — ZERO network
 # on load (no fonts.googleapis.com / gstatic fetch). Fully self-contained for
