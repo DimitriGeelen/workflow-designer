@@ -266,7 +266,10 @@ const EXPECTED_CONTENT = {
   // that makes the flip safe to make. Every other row is untouched.
   'documentation':       'CONTENT-PRESERVED',
   'ext-foreign-child':   'CONTENT-DROPPED',
-  'property':            'CONTENT-DROPPED',
+  // T-1096: DROPPED -> PRESERVED on 2026-10-12. A task's <bpmn:property> is now kept with its data associations
+  // (captureProcessData). Measured independently by tools/_t1096-data-objects-roundtrip-cdp.mjs (property, data
+  // input/output associations, data objects/stores and their DI; 0.18.0 measured 2/10 there). Ratchet as above.
+  'property':            'CONTENT-PRESERVED',
   'multiInstanceLoop':   'CONTENT-DROPPED',
   'unknown-attribute':   'CONTENT-DROPPED',
   'incoming-ref':        'CONTENT-DROPPED',

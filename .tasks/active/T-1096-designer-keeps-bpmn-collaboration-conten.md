@@ -1,11 +1,17 @@
 ---
 id: T-1096
-name: "Designer keeps BPMN collaboration content on save: extra participants, messageFlow, dataObject/dataObjectReference, dataStoreReference, data associations (today only aef:io survives) — or warns on import"
+name: "Designer keeps BPMN collaboration content on save: extra participants, messageFlow,
+  dataObject/dataObjectReference, dataStoreReference, data associations (today only
+  aef:io survives) — or warns on import"
 description: >
-  From T-1095 read of Greenfield iter4-8 (docs/reports/T-1095-evergreen-iter4-8-read.md). Confirmed by live round trip on 0.15.3. Related to T-347 (content dropped on import). Greenfield's collaboration form (system pools, message flow per interface) is lost on the first designer save.
+  From T-1095 read of Greenfield iter4-8 (docs/reports/T-1095-evergreen-iter4-8-read.md).
+  Confirmed by live round trip on 0.15.3. Related to T-347 (content dropped on import).
+  Greenfield's collaboration form (system pools, message flow per interface) is lost
+  on the first designer save.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T09:10:54Z
-last_update: 2026-10-08T09:10:54Z
-date_finished: null
+last_update: 2026-10-11T22:32:10Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,51 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-11T22:26:10Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 4
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=pool); F3=4 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L4:keyword=round-trip);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1096: Designer keeps BPMN collaboration content on save: extra participants, messageFlow, dataObject/dataObjectReference, dataStoreReference, data associations (today only aef:io survives) — or warns on import
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Greenfield's T-172 report (2026-10-09). Participants and message flows: done in 0.17.0 (T-1119 kept, T-1120 drawn),
+confirmed by Greenfield's 0.17.0 re-test 4/4 (DM 67). Remaining: process-level data content — dataObject,
+dataObjectReference, dataStoreReference and the data input/output associations on tasks.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Participants and message flows survive save (T-1119/T-1120; Greenfield re-test 0.17.0 4/4, DM 67)
+- [x] Measured, on a probe map: does a save keep dataObject, dataObjectReference, dataStoreReference (with their DI) and dataInput/OutputAssociation on tasks? Result recorded here with the exported fragment
+  (tests/fixtures/aef-bpmn/t1096-data-objects.bpmn on 0.18.0: ALL dropped, silently — no dataObject, no
+  dataObjectReference, no dataStoreReference, no association or property, no DI for any of them; the export simply
+  lacks every element, so nothing dangled and no notice appeared. 2/10 checks, the 2 being "parses" and "no dangling")
+- [x] Whatever is dropped is kept and written back unchanged on save (references still resolve; DI kept), or — where it cannot be kept safely — named in an import notice; never lost silently
+  (kept verbatim: captureProcessData; per-task content keyed by uid and written in tActivity order; DI only for
+  elements still present; 12/12 incl. second save and delete-a-task)
+- [x] A round-trip test (probe map → import → export) fails on the current code for every element that was dropped and passes after; wired into tests/run-bridge-tests.sh; T-338 / T-1119 / T-1120 tests unchanged
+  (0.18.0 2/10 -> 12/12; T-1119 18/18, T-1120 7/7; T-338 ratcheted 'property' DROPPED -> PRESERVED, the one
+  population this keeps; T-1129 corpus export identical to 0.17.0; render --src PASS)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -101,6 +138,8 @@ date_finished: null
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+node tools/_t1096-data-objects-roundtrip-cdp.mjs
+node tools/_t1119-collaboration-roundtrip-cdp.mjs
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
@@ -226,6 +265,15 @@ date_finished: null
 
 ## RCA
 
+**Symptom:** Greenfield (T-172, 2026-10-09): a map with data objects and stores saved back without them.
+**Root cause:** the importer lists dataObject / dataObjectReference / dataStoreReference as process content that is
+not a flow NODE (PROCESS_NON_FLOWNODE) and skips it, and it reads a task's interior only for what it models
+(documentation, aef:*); the exporter writes from state, so whatever the importer skipped is simply absent.
+**Why structurally allowed:** T-338's census injects content one element at a time and had no row for data objects or
+data associations; and an element that is absent leaves no dangling reference, so reference checks stay green.
+**Prevention:** tools/_t1096-data-objects-roundtrip-cdp.mjs checks each data element by id (not by counts or
+references), wired into the bridge; T-338's 'property' row is now a ratchet at PRESERVED.
+
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
      Non-bug-class tasks may leave this section empty or remove it.
@@ -320,3 +368,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1096-designer-keeps-bpmn-collaboration-conten.md
 - **Context:** Initial task creation
+
+### 2026-10-11T22:26:09Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

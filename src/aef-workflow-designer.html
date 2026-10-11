@@ -12188,6 +12188,9 @@ function buildBpmnXml(s) {
     if (aefBlock) lines.push(aefBlock.trimEnd());
     if (incoming) lines.push(incoming);
     if (outgoing) lines.push(outgoing);
+    // T-1096: the task's kept data content, after incoming/outgoing in tActivity's order
+    const kd = s.dataKept && s.dataKept.perNode && s.dataKept.perNode[n.uid];
+    if (kd) for (const t of DATA_TASK_TAGS) for (const x of kd[t] || []) lines.push(`      ${x}`);
     lines.push(`    </bpmn:${tag}>`);
   }
 
@@ -12247,6 +12250,9 @@ function buildBpmnXml(s) {
     }
     lines.push(`    </bpmn:sequenceFlow>`);
   }
+
+  // T-1096: the process's kept data objects and stores, verbatim
+  if (s.dataKept) for (const x of s.dataKept.elements || []) { lines.push(``); lines.push(`    ${x}`); }
 
   lines.push(`  </bpmn:process>`);
   // T-1119: the processes behind the other pools and the messages the kept flows name, verbatim.
@@ -12349,6 +12355,7 @@ function buildBpmnXml(s) {
     }
     if (comp) for (const [ref, x] of comp) if (!done.has(ref)) lines.push(`      ${x}`);
   }
+  for (const x of dataKeptDiLines(s)) lines.push(`      ${x}`);   // T-1096: data shapes and association edges
   lines.push(`    </bpmndi:BPMNPlane>`);
   lines.push(`  </bpmndi:BPMNDiagram>`);
   lines.push(`</bpmn:definitions>`);
@@ -12412,6 +12419,56 @@ function captureCollaboration(doc, proc, ourPart, displayIdToUid) {
     messages: messages.map(ser),
     di,
   };
+}
+
+// T-1096: process-level DATA — dataObject, dataObjectReference, dataStoreReference — and what a task carries to
+// use it (property, dataInputAssociation, dataOutputAssociation) used to vanish on save without a word: measured on
+// tests/fixtures/aef-bpmn/t1096-data-objects.bpmn, all of it, DI included (2/10). The designer does not DRAW data
+// yet; it now KEEPS it, verbatim, the way T-1119 keeps the other pools. Per-task content is keyed by the node's uid
+// (displayIdToUid), so it follows its task through a rename and disappears with it on delete. Returns null when the
+// document has no data content, which keeps every other export byte-identical.
+const DATA_PROC_TAGS = new Set(['dataObject', 'dataObjectReference', 'dataStoreReference']);
+const DATA_TASK_TAGS = ['property', 'dataInputAssociation', 'dataOutputAssociation'];   // tActivity's schema order
+function captureProcessData(doc, proc, displayIdToUid) {
+  const ROOT_NS = { bpmn: 'http://www.omg.org/spec/BPMN/20100524/MODEL', bpmndi: 'http://www.omg.org/spec/BPMN/20100524/DI',
+                    dc: 'http://www.omg.org/spec/DD/20100524/DC', di: 'http://www.omg.org/spec/DD/20100524/DI',
+                    aef: 'http://anchorpoint.framework/aef/extensions' };
+  const M = ROOT_NS.bpmn;
+  const ser = el => new XMLSerializer().serializeToString(el)
+    .replace(/ xmlns:([A-Za-z][\w.-]*)="([^"]*)"/g, (m, pfx, uri) => (ROOT_NS[pfx] === uri ? '' : m));
+  const elements = [], perNode = {}, keepIds = new Set();
+  const note = el => { for (const d of [el, ...el.getElementsByTagName('*')]) if (d.getAttribute && d.getAttribute('id')) keepIds.add(d.getAttribute('id')); };
+  for (const el of Array.from(proc.children || [])) {
+    if (el.namespaceURI === M && DATA_PROC_TAGS.has(el.localName)) { elements.push(ser(el)); note(el); }
+  }
+  for (const [orig, uid] of displayIdToUid) {
+    const node = Array.from(proc.getElementsByTagNameNS(M, '*')).find(e => e.getAttribute('id') === orig);
+    if (!node) continue;
+    const kept = {};
+    for (const c of Array.from(node.children || [])) {
+      if (c.namespaceURI === M && DATA_TASK_TAGS.includes(c.localName)) { (kept[c.localName] = kept[c.localName] || []).push(ser(c)); note(c); }
+    }
+    if (Object.keys(kept).length) perNode[uid] = kept;
+  }
+  if (!elements.length && !Object.keys(perNode).length) return null;
+  const di = [];
+  for (const el of doc.getElementsByTagNameNS(ROOT_NS.bpmndi, '*')) {
+    if ((el.localName === 'BPMNShape' || el.localName === 'BPMNEdge') && keepIds.has(el.getAttribute('bpmnElement'))) {
+      di.push({ ref: el.getAttribute('bpmnElement'), xml: ser(el) });
+    }
+  }
+  return { elements, perNode, di };
+}
+// The kept DI a save may write: only what still has its element (a deleted task takes its associations, and their
+// edges must not dangle).
+function dataKeptDiLines(s) {
+  const k = s && s.dataKept;
+  if (!k) return [];
+  const live = new Set();
+  const note = x => { for (const m of x.matchAll(/\bid="([^"]*)"/g)) live.add(m[1]); };
+  (k.elements || []).forEach(note);
+  for (const n of s.nodes || []) for (const xs of Object.values((k.perNode || {})[n.uid] || {})) xs.forEach(note);
+  return (k.di || []).filter(d => live.has(d.ref)).map(d => d.xml);
 }
 
 // T-1120 (P2): draw the kept pools, read-only, and route the message flows — ONE layout for the canvas and
@@ -13147,6 +13204,7 @@ function parseBpmnXml(text) {
   const _parts = byBpmn(doc, 'participant');
   const partEl = _parts.find(p => p.getAttribute('processRef') === proc.getAttribute('id')) || _parts[0];
   const collab = captureCollaboration(doc, proc, partEl, displayIdToUid);   // T-1119
+  const dataKept = captureProcessData(doc, proc, displayIdToUid);         // T-1096
 
   // Snap y-coords to lane centers for nodes that lacked explicit positions
   const result = {
@@ -13175,6 +13233,8 @@ function parseBpmnXml(text) {
     // T-1119: the other pools, processes and messageFlows, kept verbatim (null for a one-pool file,
     // which keeps every such export byte-identical). Must reach buildBpmnXml, like docComment.
     ...(collab ? { collab } : {}),
+    // T-1096: data objects/stores and the tasks' data associations, kept verbatim (null: byte-identical).
+    ...(dataKept ? { dataKept } : {}),
   };
   // Use a temporary state so laneCenterY() resolves correctly during patching
   const prev = state;
