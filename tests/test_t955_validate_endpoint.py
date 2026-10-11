@@ -169,12 +169,13 @@ def main():
     # passing after someone deleted the route.
     stripped = os.path.join(tmp, 'gallery-serve-stripped.py')
     src = open(SERVER).read()
-    needle = "if parsed.path not in ('/api/save', '/api/delete', '/api/validate'):"
+    # Re-anchored at T-1126, when /api/field-suggestions joined the allowlist: only /api/validate is removed.
+    needle = "if parsed.path not in ('/api/save', '/api/delete', '/api/validate', '/api/field-suggestions'):"
     if needle not in src:
         check('teeth: route-allowlist line found for mutation', False,
               'the dispatch allowlist changed shape; re-anchor this leg')
     else:
-        mutated = src.replace(needle, "if parsed.path not in ('/api/save', '/api/delete'):", 1)
+        mutated = src.replace(needle, "if parsed.path not in ('/api/save', '/api/delete', '/api/field-suggestions'):", 1)
         open(stripped, 'w').write(mutated)
         if mutated == src:
             check('teeth: mutation landed', False, 'replace was a no-op')

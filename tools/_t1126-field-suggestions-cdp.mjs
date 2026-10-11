@@ -23,7 +23,7 @@ import { pageWsUrl } from './_cdp-attach.mjs';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
 const SERVER = join(HERE, 'gallery-serve.py');
-const CLI = join(HERE, 'field-suggestion.py');
+const CLI = join(REPO, 'tools/field-suggestion.py');   // spelled out: the unwired-guard census reads tools/<name>
 const argv = process.argv.slice(2);
 const DESIGNER = (argv.indexOf('--designer') >= 0 && argv[argv.indexOf('--designer') + 1]) || join(REPO, 'src', 'aef-workflow-designer.html');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
