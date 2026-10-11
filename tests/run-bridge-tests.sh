@@ -979,6 +979,28 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1128: the field-profile write path (PUT, project and per-map scope): malformed refused whole, a profile changed
+# since it was read refused 409, bad id refused, atomic, one history line per write.
+if python3 "$ROOT/tools/_t1128-field-profile-server.py" > "$TMP/leg-_t1128s.out" 2>&1 \
+   && grep -q "T-1128 server: 8/8" "$TMP/leg-_t1128s.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "the field-profile write path broke — a malformed or stale profile was written, a bad id accepted, or history/atomicity lost (run 'python3 tools/_t1128-field-profile-server.py'; T-1128)"
+  show_output "$TMP/leg-_t1128s.out" "_t1128-field-profile-server.py"
+  fail=$((fail + 1))
+fi
+
+# T-1128: Settings → "Fields shown by default", per project and per map (map wins for the fields it mentions,
+# the rest falls through); provenance shown; 409 surfaced; Cancel discards; new id starts clean; export unchanged.
+if node "$ROOT/tools/_t1128-field-defaults-settings-cdp.mjs" > "$TMP/leg-_t1128.out" 2>&1 \
+   && grep -q "T-1128: 9/9" "$TMP/leg-_t1128.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "Settings no longer edits the default fields per project/map, the map no longer wins (or no longer falls through), provenance or the 409 message is lost, or a profile changes the export (run 'node tools/_t1128-field-defaults-settings-cdp.mjs'; T-1128)"
+  show_output "$TMP/leg-_t1128.out" "_t1128-field-defaults-settings-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
 # aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
 # guard since T-889 closed (the census showed it had lost its only caller, T-889's Verification).

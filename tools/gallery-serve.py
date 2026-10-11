@@ -25,8 +25,13 @@ Design (T-128 GO, refined at B2 build):
 
 API:
   GET  /api/health                 -> {ok:true, versions:".editor-versions"}
-  GET  /api/field-profile          -> {ok:true, profile} from <repo>/field-profile.json (T-1125);
-                                      404 none (designer default), 422 malformed (refused whole)
+  GET  /api/field-profile[?id=<id>] -> {ok:true, profile, scope, base} — the project profile
+                                      (<repo>/field-profile.json, T-1125) or a map's own
+                                      (.editor-versions/<id>/field-profile.json, T-1128);
+                                      404 none (falls back), 422 malformed (refused whole)
+  PUT  /api/field-profile[?id=<id>] {profile, base, note?} -> {ok:true, profile, base} (T-1128);
+                                      422 malformed, 409 changed since read (current returned);
+                                      atomic; each write appends to field-profile.history.jsonl
   GET  /api/list                   -> {maps:[{id,title,sources[],latest,openTarget}...]}
   GET  /api/versions?id=<id>       -> index.json  ([] if none)
   GET  /api/version?id=<id>&v=<n>  -> that version's BPMN (text/xml)
@@ -106,20 +111,92 @@ def check_field_profile(obj):
     return obj, None
 
 
-def read_field_profile():
-    """T-1125: (http code, body) for GET /api/field-profile. 404 = no profile (designer default)."""
-    p = os.path.join(REPO, FIELD_PROFILE_NAME)
+def field_profile_path(id_=None):
+    """T-1125/T-1128: the project profile at the repo root, or a map's beside its versions."""
+    if id_:
+        return os.path.join(versions_dir(id_), FIELD_PROFILE_NAME)
+    return os.path.join(REPO, FIELD_PROFILE_NAME)
+
+
+def _profile_base(raw):
+    """The version a client read: sha256 of the file bytes, 'none' when there is no file."""
+    import hashlib
+    return 'none' if raw is None else hashlib.sha256(raw).hexdigest()
+
+
+def read_field_profile(id_=None):
+    """T-1125: (http code, body) for GET /api/field-profile[?id=<map>]. 404 = no profile at that scope.
+
+    Every answer carries `base` (T-1128), the version a later write must name, so a profile changed by
+    someone else in between is refused rather than overwritten.
+    """
+    p = field_profile_path(id_)
+    scope = 'map' if id_ else 'project'
     if not os.path.exists(p):
-        return 404, {'ok': False, 'error': 'no field profile', 'path': FIELD_PROFILE_NAME}
+        return 404, {'ok': False, 'error': 'no field profile', 'scope': scope, 'base': 'none'}
     try:
-        with open(p, encoding='utf-8') as f:
-            obj = json.load(f)
+        with open(p, 'rb') as f:
+            raw = f.read()
+        obj = json.loads(raw.decode('utf-8'))
     except (OSError, ValueError) as e:
-        return 422, {'ok': False, 'error': 'field profile unreadable: %s' % e}
+        return 422, {'ok': False, 'error': 'field profile unreadable: %s' % e, 'scope': scope}
     prof, why = check_field_profile(obj)
     if why:
+        return 422, {'ok': False, 'error': 'field profile refused: %s' % why, 'scope': scope,
+                     'base': _profile_base(raw)}
+    return 200, {'ok': True, 'profile': prof, 'scope': scope, 'base': _profile_base(raw)}
+
+
+_PROFILE_LOCK = threading.Lock()
+
+
+def write_field_profile(id_, profile, base, note=''):
+    """T-1128: (http code, body) for PUT /api/field-profile[?id=<map>].
+
+    Refused whole when malformed (same rule as reading). Refused 409 when the file changed since the
+    client read it (`base` differs), returning the current profile — never a silent overwrite. Atomic
+    (temp + os.replace). Every write appends one line to field-profile.history.jsonl beside the file
+    (ts, scope, previous, new, note), so a change can be traced and undone by hand.
+    """
+    prof, why = check_field_profile(profile)
+    if why:
         return 422, {'ok': False, 'error': 'field profile refused: %s' % why}
-    return 200, {'ok': True, 'profile': prof}
+    p = field_profile_path(id_)
+    scope = 'map' if id_ else 'project'
+    with _PROFILE_LOCK:
+        raw = None
+        if os.path.exists(p):
+            with open(p, 'rb') as f:
+                raw = f.read()
+        current = _profile_base(raw)
+        if base != current:
+            _code, cur = read_field_profile(id_)
+            return 409, {'ok': False, 'error': 'the %s profile changed since it was read' % scope,
+                         'base': current, 'current': cur.get('profile')}
+        prev = None
+        if raw is not None:
+            try:
+                prev = json.loads(raw.decode('utf-8'))
+            except ValueError:
+                prev = raw.decode('utf-8', 'replace')
+        d = os.path.dirname(p)
+        os.makedirs(d, exist_ok=True)
+        body = (json.dumps(prof, indent=2, sort_keys=True) + '\n').encode('utf-8')
+        fd, tmp = tempfile.mkstemp(dir=d, suffix='.tmp')
+        try:
+            with os.fdopen(fd, 'wb') as f:
+                f.write(body)
+            os.replace(tmp, p)
+        except Exception:
+            try:
+                os.unlink(tmp)
+            except OSError:
+                pass
+            raise
+        with open(os.path.join(d, 'field-profile.history.jsonl'), 'a', encoding='utf-8') as h:
+            h.write(json.dumps({'ts': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), 'scope': scope,
+                                'id': id_ or None, 'previous': prev, 'new': prof, 'note': note}) + '\n')
+    return 200, {'ok': True, 'profile': prof, 'scope': scope, 'base': _profile_base(body)}
 
 
 def _load_validator():
@@ -695,8 +772,12 @@ class Handler(SimpleHTTPRequestHandler):
         if route == '/api/health':
             return self._json(200, {'ok': True, 'store': '.editor-versions'})
         if route == '/api/field-profile':
-            # T-1125 (T-1118 B2): the project's field profile — which fields the properties panel shows.
-            code, obj = read_field_profile()
+            # T-1125 (T-1118 B2): the project's field profile — which fields the properties panel shows;
+            # T-1128: ?id=<map> reads that map's own profile (stored beside its versions).
+            mid = (q.get('id') or [''])[0]
+            if mid and not self._valid_id(mid):
+                return self._json(400, {'ok': False, 'error': 'invalid id'})
+            code, obj = read_field_profile(mid or None)
             return self._json(code, obj)
         if route == '/api/list':
             # T-143: read-only corpus + saved-map enumeration (no id required).
@@ -822,6 +903,25 @@ class Handler(SimpleHTTPRequestHandler):
             'errors': sum(1 for r in rows if r.get('severity') == 'ERROR'),
             'warnings': sum(1 for r in rows if r.get('severity') == 'WARN'),
         }
+
+    def do_PUT(self):
+        """T-1128: PUT /api/field-profile[?id=<map>]  {profile, base, note?} — write a field profile."""
+        parsed = urlparse(self.path)
+        if parsed.path != '/api/field-profile':
+            return self._json(404, {'ok': False, 'error': 'unknown endpoint'})
+        mid = (parse_qs(parsed.query).get('id') or [''])[0]
+        if mid and not self._valid_id(mid):
+            return self._json(400, {'ok': False, 'error': 'invalid id (need ^[a-z0-9][a-z0-9_-]*$)'})
+        try:
+            length = int(self.headers.get('Content-Length', '0'))
+            payload = json.loads(self.rfile.read(length) or b'{}')
+        except Exception as e:
+            return self._json(400, {'ok': False, 'error': 'bad json: %s' % e})
+        if not isinstance(payload, dict) or 'profile' not in payload or not isinstance(payload.get('base'), str):
+            return self._json(400, {'ok': False, 'error': 'need {profile, base}'})
+        code, obj = write_field_profile(mid or None, payload['profile'], payload['base'],
+                                        str(payload.get('note') or '')[:200])
+        return self._json(code, obj)
 
     def do_POST(self):
         parsed = urlparse(self.path)

@@ -899,6 +899,14 @@ font-family: 'Outfit';
   .props-empty-fields:hover { color: var(--text); }
   /* T-1125: a field the project hides, drawn only because it carries a value */
   .field-hidden-tag { font-size: 10.5px; color: var(--orange, #d29922); margin: -2px 0 4px; }
+  /* T-1128: Settings → Fields shown by default */
+  .fd-scope { display: inline-flex; align-items: center; gap: 4px; margin-left: 10px; font-size: 12px; }
+  .fd-status { display: block; margin: 2px 0 6px; }
+  .fd-status.fd-error { color: var(--danger, #e5534b); }
+  .fd-rows { display: grid; grid-template-columns: minmax(110px, 1fr) auto minmax(120px, 1fr); gap: 4px 10px;
+    align-items: center; margin-bottom: 6px; font-size: 12px; }
+  .fd-rows .fd-eff { color: var(--text-faint); font-size: 11px; }
+  .fd-rows select.fd-changed { border-color: var(--accent); }
   .props-tips .kbd {
     display: inline-block;
     background: var(--surface-2);
@@ -1744,6 +1752,21 @@ font-family: 'Outfit';
           <div class="settings-row"><!-- T-1125: which project field profile is in force -->
             <span>Project field profile</span>
             <span class="settings-hint" id="set-field-profile-status"></span>
+          </div>
+        </div>
+        <div class="settings-section" id="set-fd-section"><!-- T-1128: which fields show by default -->
+          <div class="settings-section-label">Fields shown by default</div>
+          <div class="settings-row">
+            <span>Element</span>
+            <select id="set-fd-type" class="settings-num"></select>
+            <label class="fd-scope"><input type="radio" name="set-fd-scope" value="project" checked> This project</label>
+            <label class="fd-scope"><input type="radio" name="set-fd-scope" value="map"> <span id="set-fd-map-label">This map</span></label>
+          </div>
+          <div class="settings-hint fd-status" id="set-fd-status"></div>
+          <div class="fd-rows" id="set-fd-rows"></div>
+          <div class="settings-row">
+            <button class="btn" id="btn-fd-save" type="button">Save</button>
+            <button class="btn" id="btn-fd-cancel" type="button">Cancel</button>
           </div>
         </div>
         <div class="settings-section">
@@ -6356,13 +6379,15 @@ let _emptyFieldsRevealed = null;
 // checks its shape and refuses a malformed one whole). null = none → the designer default.
 // `_fieldProfileStatus` says why, for the Settings readout: 'none' | 'loaded' | 'refused: …' | 'standalone'.
 let _fieldProfile = null;
+let _fieldProfileBase = 'none';   // T-1128: the version a Settings save must name (409 if it moved)
 let _fieldProfileStatus = 'standalone';
 async function loadFieldProfile() {
   try {
     const r = await fetch('/api/field-profile', { cache: 'no-store' });
-    if (r.status === 404) { _fieldProfile = null; _fieldProfileStatus = 'none'; return; }
     const d = await r.json().catch(() => null);
-    if (r.ok && d && d.ok && d.profile) { _fieldProfile = d.profile; _fieldProfileStatus = 'loaded'; }
+    _fieldProfileBase = (d && d.base) || 'none';
+    if (r.status === 404) { _fieldProfile = null; _fieldProfileStatus = 'none'; }
+    else if (r.ok && d && d.ok && d.profile) { _fieldProfile = d.profile; _fieldProfileStatus = 'loaded'; }
     else { _fieldProfile = null; _fieldProfileStatus = 'refused: ' + ((d && d.error) || ('HTTP ' + r.status)); }
   } catch (e) {
     _fieldProfile = null; _fieldProfileStatus = 'none';
@@ -6370,21 +6395,199 @@ async function loadFieldProfile() {
   }
   if (typeof renderProperties === 'function') renderProperties();
 }
-// One place decides what each Extensions field does, most specific layer last:
-// designer default (AEF_FIELDS) < project profile (< workflow profile, once the operator rules where it
-// lives). Returns { keys, pinned:Set, hidden:Set } — `keys` keeps AEF_FIELDS order; a profile key the
-// type does not offer is ignored (new fields are B3's, approved by the operator). The value-never-hidden
-// rule is NOT applied here but where the panel draws, so no layer can override it.
-function fieldPlanFor(type) {
+// T-1128: a map's OWN profile, stored on the project server beside the map's versions and keyed by the
+// map id (state.workflowMeta.id — the Save target). Fetched on first use per id and cached; a map saved
+// under a new id therefore starts with none. { profile|null, base, status: 'pending'|'none'|'loaded'|'refused: …' }
+const _mapFieldProfiles = new Map();
+function mapFieldProfileId() {
+  const id = state && state.workflowMeta && state.workflowMeta.id;
+  return (_apiAvailable && id && isValidWorkflowId(id)) ? id : null;
+}
+async function loadMapFieldProfile(id, force) {
+  if (!id || (!force && _mapFieldProfiles.has(id))) return _mapFieldProfiles.get(id);
+  _mapFieldProfiles.set(id, { profile: null, base: 'none', status: 'pending' });
+  let ent;
+  try {
+    const r = await fetch('/api/field-profile?id=' + encodeURIComponent(id), { cache: 'no-store' });
+    const d = await r.json().catch(() => null);
+    const base = (d && d.base) || 'none';
+    if (r.status === 404) ent = { profile: null, base, status: 'none' };
+    else if (r.ok && d && d.ok && d.profile) ent = { profile: d.profile, base, status: 'loaded' };
+    else ent = { profile: null, base, status: 'refused: ' + ((d && d.error) || ('HTTP ' + r.status)) };
+  } catch (e) {
+    ent = { profile: null, base: 'none', status: 'none' };
+    aefRecordFault('field-profile:load-map', e);
+  }
+  _mapFieldProfiles.set(id, ent);
+  if (typeof renderProperties === 'function') renderProperties();
+  return ent;
+}
+function currentMapFieldProfile() {
+  const id = mapFieldProfileId();
+  if (!id) return null;
+  const ent = _mapFieldProfiles.get(id);
+  if (!ent) { loadMapFieldProfile(id); return null; }   // first use: fetch, re-render on arrival
+  return ent.profile;
+}
+// One place decides what each Extensions field does. Merge rule (T-1128), per element type and per field:
+// the most specific layer that MENTIONS the field wins — map > project > designer default (AEF_FIELDS); a
+// field the map does not mention falls through to the project. Returns { keys, pinned:Set, hidden:Set,
+// source: Map(key -> 'project'|'map') } — `keys` keeps AEF_FIELDS order; a profile key the type does not
+// offer is ignored (new fields are B3's, approved by the operator). The value-never-hidden rule is NOT
+// applied here but where the panel draws, so no layer can override it.
+function fieldPlanFor(type) { return planFromLayers(type, _fieldProfile, currentMapFieldProfile()); }
+// The merge itself, shared by the panel and Settings (which previews unsaved drafts through it) so the
+// two can never disagree about what a profile does.
+function planFromLayers(type, projectProfile, mapProfile) {
   const keys = (AEF_FIELDS[type] || []).slice();
-  const pinned = new Set(), hidden = new Set();
-  for (const layer of [_fieldProfile]) {
+  const pinned = new Set(), hidden = new Set(), source = new Map();
+  for (const [name, layer] of [['project', projectProfile], ['map', mapProfile]]) {
     const spec = layer && layer.types && layer.types[type];
     if (!spec) continue;
-    for (const k of spec.hide || []) if (keys.includes(k)) { hidden.add(k); pinned.delete(k); }
-    for (const k of spec.show || []) if (keys.includes(k)) { pinned.add(k); hidden.delete(k); }
+    for (const k of spec.hide || []) if (keys.includes(k)) { hidden.add(k); pinned.delete(k); source.set(k, name); }
+    for (const k of spec.show || []) if (keys.includes(k)) { pinned.add(k); hidden.delete(k); source.set(k, name); }
   }
-  return { keys, pinned, hidden };
+  return { keys, pinned, hidden, source };
+}
+
+// ---- T-1128: Settings → "Fields shown by default" ----------------------------------------------
+// Edits happen on a DRAFT of one scope's profile; Save sends it whole with the version it was based on
+// (the server refuses 409 if that moved, and keeps a history line per write); Cancel drops the draft.
+const _fdDraft = { project: null, map: null };
+let _fdMsg = { text: '', error: false };
+function _fdScope() { const r = document.querySelector('input[name="set-fd-scope"]:checked'); return r ? r.value : 'project'; }
+function _fdLayer(scope) {
+  if (scope === 'project') return { profile: _fieldProfile, base: _fieldProfileBase };
+  const id = mapFieldProfileId();
+  const ent = id && _mapFieldProfiles.get(id);
+  return ent ? { profile: ent.profile, base: ent.base, status: ent.status } : { profile: null, base: 'none', status: 'pending' };
+}
+function _fdClone(p) { return p ? JSON.parse(JSON.stringify(p)) : { version: 1, types: {} }; }
+function _fdFieldLabel(k) { const m = FIELD_META[k]; return m ? (m.special === 'tier' ? 'Tier' : m.label) : k; }
+function _fdStateOf(profile, type, k) {
+  const spec = profile && profile.types && profile.types[type];
+  if (spec && (spec.show || []).includes(k)) return 'show';
+  if (spec && (spec.hide || []).includes(k)) return 'hide';
+  return 'default';
+}
+function _fdSetState(profile, type, k, st) {
+  profile.types = profile.types || {};
+  const spec = profile.types[type] = profile.types[type] || {};
+  spec.show = (spec.show || []).filter(x => x !== k);
+  spec.hide = (spec.hide || []).filter(x => x !== k);
+  if (st === 'show') spec.show.push(k);
+  if (st === 'hide') spec.hide.push(k);
+}
+function _fdTidy(profile) {   // drop empty lists and types, keep the file minimal and reviewable
+  const out = { version: 1, types: {} };
+  for (const [t, spec] of Object.entries(profile.types || {})) {
+    const s = {};
+    if ((spec.show || []).length) s.show = spec.show.slice().sort();
+    if ((spec.hide || []).length) s.hide = spec.hide.slice().sort();
+    if (s.show || s.hide) out.types[t] = s;
+  }
+  return out;
+}
+function renderFieldDefaultsUI() {
+  const sel = $('set-fd-type'), rows = $('set-fd-rows'), status = $('set-fd-status');
+  if (!sel || !rows) return;
+  const types = Object.keys(AEF_FIELDS).filter(t => (AEF_FIELDS[t] || []).length);
+  if (sel.options.length !== types.length) {
+    const keep = sel.value;
+    sel.innerHTML = '';
+    for (const t of types) { const o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o); }
+    sel.value = types.includes(keep) ? keep : (types.includes('serviceTask') ? 'serviceTask' : types[0]);
+  }
+  const type = sel.value;
+  const mapId = mapFieldProfileId();
+  const mapRadio = document.querySelector('input[name="set-fd-scope"][value="map"]');
+  if (mapRadio) {
+    mapRadio.disabled = !mapId;
+    if (!mapId && mapRadio.checked) document.querySelector('input[name="set-fd-scope"][value="project"]').checked = true;
+  }
+  $('set-fd-map-label').textContent = mapId ? `This map (${mapId})` : 'This map';
+  const scope = _fdScope();
+  if (scope === 'map' && mapId && !_mapFieldProfiles.has(mapId)) {
+    loadMapFieldProfile(mapId).then(renderFieldDefaultsUI);
+  }
+  const layer = _fdLayer(scope);
+  const draft = _fdDraft[scope];
+  const editing = draft || layer.profile;
+  // Effective state = the merge with this scope's DRAFT in place of its saved profile.
+  const proj = scope === 'project' ? (draft || _fieldProfile) : _fieldProfile;
+  const mapP = scope === 'map' ? (draft || layer.profile) : currentMapFieldProfile();
+  const plan = planFromLayers(type, proj, mapP);
+  const readOnly = !_apiAvailable || (scope === 'map' && layer.status === 'pending');
+  rows.innerHTML = '';
+  for (const k of AEF_FIELDS[type]) {
+    const lab = document.createElement('div');
+    lab.textContent = _fdFieldLabel(k);
+    const s = document.createElement('select');
+    s.className = 'settings-num';
+    s.dataset.key = k;
+    for (const [v, t] of [['default', 'Default'], ['show', 'Always show'], ['hide', 'Hide']]) {
+      const o = document.createElement('option'); o.value = v; o.textContent = t; s.appendChild(o);
+    }
+    s.value = _fdStateOf(editing, type, k);
+    if (draft && s.value !== _fdStateOf(layer.profile, type, k)) s.classList.add('fd-changed');
+    s.disabled = readOnly;
+    s.onchange = () => {
+      const d = _fdDraft[scope] || (_fdDraft[scope] = _fdClone(layer.profile));
+      _fdSetState(d, type, k, s.value);
+      _fdMsg = { text: '', error: false };
+      renderFieldDefaultsUI();
+    };
+    const eff = document.createElement('div');
+    eff.className = 'fd-eff';
+    eff.dataset.key = k;
+    const src = plan.source.get(k) || 'designer default';
+    eff.textContent = (plan.hidden.has(k) ? 'hidden' : plan.pinned.has(k) ? 'always shown' : 'shown when filled') + ' · ' + src;
+    rows.append(lab, s, eff);
+  }
+  let text;
+  if (!_apiAvailable) text = 'Needs the project server — shown read-only (designer default in use).';
+  else if (_fdMsg.text) text = _fdMsg.text;
+  else if (scope === 'map' && layer.status === 'pending') text = 'Loading this map’s settings…';
+  else if (scope === 'map' && !layer.profile) text = 'This map has no settings of its own yet — it uses the project’s. A map saved under a new id starts without any.';
+  else if (scope === 'project' && !layer.profile) text = 'No project settings yet — the designer default is in use.';
+  else text = 'A map setting wins over the project for the fields it mentions; a field with a value always shows.';
+  if (draft && !_fdMsg.text && _apiAvailable) text = 'Unsaved changes. ' + text;
+  status.textContent = text;
+  status.classList.toggle('fd-error', !!_fdMsg.error);
+  $('btn-fd-save').disabled = readOnly || !draft;
+  $('btn-fd-cancel').disabled = !draft;
+}
+async function saveFieldDefaults() {
+  const scope = _fdScope();
+  const draft = _fdDraft[scope];
+  if (!draft || !_apiAvailable) return;
+  const layer = _fdLayer(scope);
+  const mapId = mapFieldProfileId();
+  const url = '/api/field-profile' + (scope === 'map' ? '?id=' + encodeURIComponent(mapId) : '');
+  let r, d;
+  try {
+    r = await fetch(url, { method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profile: _fdTidy(draft), base: layer.base, note: 'Settings → Fields shown by default' }) });
+    d = await r.json().catch(() => null);
+  } catch (e) {
+    _fdMsg = { text: 'Not saved — the project server did not answer.', error: true };
+    aefRecordFault('field-profile:save', e);
+    return renderFieldDefaultsUI();
+  }
+  if (r.ok && d && d.ok) {
+    if (scope === 'project') { _fieldProfile = d.profile; _fieldProfileBase = d.base; _fieldProfileStatus = 'loaded'; }
+    else _mapFieldProfiles.set(mapId, { profile: d.profile, base: d.base, status: 'loaded' });
+    _fdDraft[scope] = null;
+    _fdMsg = { text: 'Saved.', error: false };
+  } else if (r.status === 409) {
+    _fdDraft[scope] = null;
+    if (scope === 'project') await loadFieldProfile(); else await loadMapFieldProfile(mapId, true);
+    _fdMsg = { text: 'Not saved — these settings were changed elsewhere since you opened them. They are reloaded; apply your change again.', error: true };
+  } else {
+    _fdMsg = { text: 'Not saved — ' + ((d && d.error) || ('HTTP ' + r.status)), error: true };
+  }
+  renderFieldDefaultsUI();
+  renderProperties();
 }
 // A field "has a value" when it carries anything an author wrote: a non-blank scalar or a
 // non-empty list. A workflow target that auto-resolves from a uuid ref (T-240) counts too —
@@ -7013,7 +7216,7 @@ function renderProperties() {
         if (lbl) {   // its own line: inside the label row it squeezed the hint into broken columns
           const tag = document.createElement('div');
           tag.className = 'field-hidden-tag';
-          tag.textContent = 'hidden in this project · shown: it has a value';
+          tag.textContent = `hidden in this ${plan.source.get(f) === 'map' ? 'map' : 'project'} · shown: it has a value`;
           lbl.insertAdjacentElement('afterend', tag);
         }
       }
@@ -7568,6 +7771,7 @@ function syncSettingsUI() {
     none: 'none — field-profile.json absent (designer default)',
     loaded: 'field-profile.json in force',
   }[_fieldProfileStatus] || (_fieldProfileStatus + ' (designer default in use)');
+  renderFieldDefaultsUI();   // T-1128
   $('set-label-size').value = labelPrefs.size;
   $('set-show-lane').checked = labelPrefs.showLane;
   $('set-show-ids').checked = labelPrefs.showIds;
@@ -7637,6 +7841,11 @@ $('set-col-spacing').addEventListener('change', e => {
 $('set-branch-pitch').addEventListener('change', e => { setViewPref('branchPitch', e.target.value); applyViewClean(); });
 $('set-clean-on-import').addEventListener('change', e => setViewPref('cleanOnImport', e.target.checked));
 $('set-show-all-fields').addEventListener('change', e => setViewPref('showAllFields', e.target.checked));   // T-1124
+// T-1128: Fields shown by default
+$('set-fd-type').addEventListener('change', () => { _fdMsg = { text: '', error: false }; renderFieldDefaultsUI(); });
+document.querySelectorAll('input[name="set-fd-scope"]').forEach(r => r.addEventListener('change', () => { _fdMsg = { text: '', error: false }; renderFieldDefaultsUI(); }));
+$('btn-fd-save').onclick = () => { saveFieldDefaults(); };
+$('btn-fd-cancel').onclick = () => { _fdDraft[_fdScope()] = null; _fdMsg = { text: '', error: false }; renderFieldDefaultsUI(); };
 $('btn-apply-clean').onclick = applyViewClean;
 $('set-label-size').addEventListener('change', e => setLabelPref('size', e.target.value));
 $('set-show-lane').addEventListener('change', e => setLabelPref('showLane', e.target.checked));
