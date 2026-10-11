@@ -93,10 +93,12 @@ def main():
     others = [r for (_, r) in mod.derive_routes(open(
         os.path.join(mod.REPO, 'tools', 'gallery-serve.py'), encoding='utf-8').read())
         if r != '/api/validate']
-    leaked = sorted({r for r in others if ('UNCLASSIFIED (no semantics row): POST %s' % r) in text
-                     or ('UNCLASSIFIED (no semantics row): GET %s' % r) in text})
+    leaked = sorted({r for r in others if any(('UNCLASSIFIED (no semantics row): %s %s' % (m, r)) in text
+                                              for m in ('GET', 'POST', 'PUT'))})
+    # The size pin is deliberate: a row added or lost without updating this number turns the leg red.
+    # 9 -> 11 at T-1128 (GET and PUT /api/field-profile, each classified in ROUTE_SEMANTICS).
     check_leg('removal is specific: no other route is reported unclassified',
-              not leaked and n_before == 9,
+              not leaked and n_before == 11,
               'table_size=%d leaked=%s' % (n_before, leaked))
 
     # --- leg 5: the report arm is independent and also bites --------------------

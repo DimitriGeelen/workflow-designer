@@ -6408,13 +6408,18 @@ let _emptyFieldsRevealed = null;
 // T-1125 (T-1118 B2): the project's field profile, from GET /api/field-profile (gallery-serve.py
 // checks its shape and refuses a malformed one whole). null = none → the designer default.
 // `_fieldProfileStatus` says why, for the Settings readout: 'none' | 'loaded' | 'refused: …' | 'standalone'.
+// A field-profile answer whose body is not JSON (a proxy's HTML error page, a truncated body) is a fault
+// worth recording — the caller then shows the HTTP status instead of a profile.
+async function _fieldProfileJson(r, code) {
+  try { return await r.json(); } catch (e) { aefRecordFault(code, e); return null; }
+}
 let _fieldProfile = null;
 let _fieldProfileBase = 'none';   // T-1128: the version a Settings save must name (409 if it moved)
 let _fieldProfileStatus = 'standalone';
 async function loadFieldProfile() {
   try {
     const r = await fetch('/api/field-profile', { cache: 'no-store' });
-    const d = await r.json().catch(() => null);
+    const d = await _fieldProfileJson(r, 'field-profile:json');
     _fieldProfileBase = (d && d.base) || 'none';
     if (r.status === 404) { _fieldProfile = null; _fieldProfileStatus = 'none'; }
     else if (r.ok && d && d.ok && d.profile) { _fieldProfile = d.profile; _fieldProfileStatus = 'loaded'; }
@@ -6439,7 +6444,7 @@ async function loadMapFieldProfile(id, force) {
   let ent;
   try {
     const r = await fetch('/api/field-profile?id=' + encodeURIComponent(id), { cache: 'no-store' });
-    const d = await r.json().catch(() => null);
+    const d = await _fieldProfileJson(r, 'field-profile:json-map');
     const base = (d && d.base) || 'none';
     if (r.status === 404) ent = { profile: null, base, status: 'none' };
     else if (r.ok && d && d.ok && d.profile) ent = { profile: d.profile, base, status: 'loaded' };
@@ -6598,7 +6603,7 @@ async function saveFieldDefaults() {
   try {
     r = await fetch(url, { method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ profile: _fdTidy(draft), base: layer.base, note: 'Settings → Fields shown by default' }) });
-    d = await r.json().catch(() => null);
+    d = await _fieldProfileJson(r, 'field-profile:json-save');
   } catch (e) {
     _fdMsg = { text: 'Not saved — the project server did not answer.', error: true };
     aefRecordFault('field-profile:save', e);

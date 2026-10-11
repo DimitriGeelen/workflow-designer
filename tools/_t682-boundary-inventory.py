@@ -141,6 +141,18 @@ ROUTE_SEMANTICS = {
                                 'bpmn -> 400; validator that will not load -> 503, never an '
                                 'empty findings list, so an unavailable validator cannot read '
                                 'as a clean document'),
+    # T-1125 / T-1128: the field profile — which fields the properties panel shows. View-only data:
+    # it never reaches a map's bytes (export byte-identical with and without, tested).
+    ('GET', '/api/field-profile'): ('none — reads <repo>/field-profile.json or, with ?id=, '
+                                    '.editor-versions/<id>/field-profile.json',
+                                    '_valid_id -> 400 on a bad ?id= before any path is built; '
+                                    'no id = fixed repo-root path'),
+    ('PUT', '/api/field-profile'): ('WRITES 2 targets: the profile (repo root, or '
+                                    '.editor-versions/<id>/ with ?id=) and an append to '
+                                    'field-profile.history.jsonl beside it',
+                                    '_valid_id -> 400 before any path is built; whole-profile '
+                                    'validation (422, nothing written); optimistic base check '
+                                    '(409, nothing written); temp + os.replace under a lock'),
 }
 
 
@@ -162,6 +174,11 @@ def derive_routes(src: str) -> set[tuple[str, str]]:
             routes |= {('GET', p) for p in api_literals(node)}
         elif isinstance(node, ast.FunctionDef) and node.name == 'do_POST':
             routes |= {('POST', p) for p in api_literals(node)}
+        # T-1128: the server gained a PUT handler. Without this branch the derivation never saw it, so
+        # a write route existed that this inventory could not even list — the exact "absent row reads
+        # as no authority" failure the derived route set exists to prevent.
+        elif isinstance(node, ast.FunctionDef) and node.name == 'do_PUT':
+            routes |= {('PUT', p) for p in api_literals(node)}
     return routes
 
 
@@ -368,7 +385,7 @@ def render(routes: set[tuple[str, str]], src: str) -> str:
 
 def parse_report_routes(text: str) -> set[tuple[str, str]]:
     out = set()
-    for m in re.finditer(r'^\|\s*(GET|POST)\s*\|\s*`(/api/[^`]+)`\s*\|', text, re.M):
+    for m in re.finditer(r'^\|\s*(GET|POST|PUT)\s*\|\s*`(/api/[^`]+)`\s*\|', text, re.M):
         out.add((m.group(1), m.group(2)))
     return out
 

@@ -109,11 +109,16 @@ async function main() {
   const tmp = mkdtempSync(join(tmpdir(), 't1067-src-'));
   try {
     if (!before) {
-      // the editor as it was before T-1067: the last commit whose src has no T-1067 marker
-      const revs = execFileSync('git', ['-C', REPO, 'log', '--format=%H', '-n', '20', '--', 'src/aef-workflow-designer.html']).toString().trim().split('\n');
+      // the editor as it was before T-1067: the parent of the commit that FIRST added the T-1067 marker.
+      // (T-1130: this used to scan only the last 20 commits of src and went CANNOT RUN once later work
+      // pushed T-1067 out of that window — a check whose reach shrinks as the repo grows.)
+      const intro = execFileSync('git', ['-C', REPO, 'log', '--reverse', '--format=%H', '-S', 'T-1067', '--', 'src/aef-workflow-designer.html']).toString().trim().split('\n')[0];
       let pick = null;
-      for (const r of revs) { const s = execFileSync('git', ['-C', REPO, 'show', `${r}:src/aef-workflow-designer.html`], { maxBuffer: 64e6 }).toString(); if (!s.includes('T-1067')) { pick = s; break; } }
-      if (!pick) { console.log('CANNOT RUN: no pre-T-1067 editor found in the last 20 commits'); return 2; }
+      if (intro) {
+        const s = execFileSync('git', ['-C', REPO, 'show', `${intro}^:src/aef-workflow-designer.html`], { maxBuffer: 64e6 }).toString();
+        if (!s.includes('T-1067')) pick = s;
+      }
+      if (!pick) { console.log('CANNOT RUN: no pre-T-1067 editor found (no commit introducing the T-1067 marker)'); return 2; }
       before = join(tmp, 'before.html'); writeFileSync(before, pick);
     }
     const si = process.argv.indexOf('--shots'); if (si > -1) shotsDir = process.argv[si + 1];
