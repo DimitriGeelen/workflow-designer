@@ -30,6 +30,11 @@ This is a minor release because the panel looks different by default. Nothing ch
   has a value". A map saved under a new id starts with no settings of its own.
 - Without a project server (the designer opened as a local file) the designer default applies and the section is
   read-only, saying why.
+- **For a portal of your own:** the settings travel through two endpoints that 832's gallery server
+  (`tools/gallery-serve.py`) provides — `GET /api/field-profile[?id=<map>]` → `{ok, profile, base}` (404 = none) and
+  `PUT /api/field-profile[?id=<map>]` with `{profile, base}` (409 when changed since read, 422 when malformed).
+  Profile shape: `{"version": 1, "types": {"serviceTask": {"show": [...], "hide": [...]}}}`. A portal without them
+  gets everything else in 0.18.0; the designer simply uses its default fields.
 
 ## Element details (T-1127)
 
@@ -55,7 +60,9 @@ calibration record of these exact bytes (`docs/authoring-kit/calibration-records
 1. Open a map with a service task that has a few fields filled: the panel shows those, plus "+ N empty fields";
    click it — the rest appear.
 2. Double-click the task: the details view shows every field; change one, close — the panel shows the change.
-3. On your project server, Settings → "Fields shown by default" → *This project* → set one field to *Hide* and one
-   to *Always show* → Save; reopen the map: the hidden one is gone from the panel (unless filled), the other shows
-   empty. Then *This map*: set the hidden one to *Always show* → it shows for this map only.
+3. Settings → "Fields shown by default": on your portal (without the two endpoints) it says it needs the project
+   server and is read-only — expected. If you add the endpoints (or try it on 832's gallery server): *This project* →
+   set one field to *Hide* and one to *Always show* → Save; reopen the map: the hidden one is gone from the panel
+   (unless filled), the other shows empty. Then *This map*: set the hidden one to *Always show* → it shows for this
+   map only.
 4. An element with no Agent type: the dropdown is empty, not "primary".
