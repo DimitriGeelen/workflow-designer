@@ -25,6 +25,8 @@ Design (T-128 GO, refined at B2 build):
 
 API:
   GET  /api/health                 -> {ok:true, versions:".editor-versions"}
+  GET  /api/field-profile          -> {ok:true, profile} from <repo>/field-profile.json (T-1125);
+                                      404 none (designer default), 422 malformed (refused whole)
   GET  /api/list                   -> {maps:[{id,title,sources[],latest,openTarget}...]}
   GET  /api/versions?id=<id>       -> index.json  ([] if none)
   GET  /api/version?id=<id>&v=<n>  -> that version's BPMN (text/xml)
@@ -62,6 +64,62 @@ ID_RE = re.compile(r'^[a-z0-9][a-z0-9_-]*$')
 # cached: a validator that is briefly unreadable should be retried, never remembered as
 # missing.
 _VALIDATOR_MOD = None
+
+
+FIELD_PROFILE_NAME = 'field-profile.json'
+_PROFILE_KEY_RE = re.compile(r'^[A-Za-z][A-Za-z0-9_-]*$')
+
+
+def check_field_profile(obj):
+    """T-1125: return (profile, None) when obj is a well-formed field profile, else (None, reason).
+
+    Shape: {"version": 1, "types": {<elementType>: {"show": [key...], "hide": [key...]}}}.
+    Structure only — which keys exist per element type is the designer's (AEF_FIELDS); a key it
+    does not know is ignored there. Anything else is REFUSED whole, never half-applied: a profile
+    that silently dropped a malformed entry would show fields the project asked to hide.
+    """
+    if not isinstance(obj, dict):
+        return None, 'profile must be a JSON object'
+    extra = set(obj) - {'version', 'types'}
+    if extra:
+        return None, 'unknown top-level key(s): %s' % ', '.join(sorted(extra))
+    if obj.get('version') != 1:
+        return None, 'version must be 1'
+    types = obj.get('types')
+    if not isinstance(types, dict):
+        return None, '"types" must be an object of element types'
+    for t, spec in types.items():
+        if not _PROFILE_KEY_RE.match(str(t)):
+            return None, 'bad element type name %r' % t
+        if not isinstance(spec, dict):
+            return None, 'types.%s must be an object' % t
+        bad = set(spec) - {'show', 'hide'}
+        if bad:
+            return None, 'types.%s: unknown key(s) %s' % (t, ', '.join(sorted(bad)))
+        for k in ('show', 'hide'):
+            v = spec.get(k, [])
+            if not isinstance(v, list) or not all(isinstance(x, str) and _PROFILE_KEY_RE.match(x) for x in v):
+                return None, 'types.%s.%s must be a list of field keys' % (t, k)
+        both = set(spec.get('show', [])) & set(spec.get('hide', []))
+        if both:
+            return None, 'types.%s: %s both shown and hidden' % (t, ', '.join(sorted(both)))
+    return obj, None
+
+
+def read_field_profile():
+    """T-1125: (http code, body) for GET /api/field-profile. 404 = no profile (designer default)."""
+    p = os.path.join(REPO, FIELD_PROFILE_NAME)
+    if not os.path.exists(p):
+        return 404, {'ok': False, 'error': 'no field profile', 'path': FIELD_PROFILE_NAME}
+    try:
+        with open(p, encoding='utf-8') as f:
+            obj = json.load(f)
+    except (OSError, ValueError) as e:
+        return 422, {'ok': False, 'error': 'field profile unreadable: %s' % e}
+    prof, why = check_field_profile(obj)
+    if why:
+        return 422, {'ok': False, 'error': 'field profile refused: %s' % why}
+    return 200, {'ok': True, 'profile': prof}
 
 
 def _load_validator():
@@ -636,6 +694,10 @@ class Handler(SimpleHTTPRequestHandler):
         route = parsed.path
         if route == '/api/health':
             return self._json(200, {'ok': True, 'store': '.editor-versions'})
+        if route == '/api/field-profile':
+            # T-1125 (T-1118 B2): the project's field profile — which fields the properties panel shows.
+            code, obj = read_field_profile()
+            return self._json(code, obj)
         if route == '/api/list':
             # T-143: read-only corpus + saved-map enumeration (no id required).
             # T-226/S3a: additive maps[].uuid + separate top-level ghosts[].

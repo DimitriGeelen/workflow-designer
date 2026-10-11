@@ -897,6 +897,8 @@ font-family: 'Outfit';
   .props-empty-fields { display: block; width: 100%; margin: 4px 0 2px; text-align: left;
     font-size: 11px; color: var(--text-faint); background: transparent; border-style: dashed; }
   .props-empty-fields:hover { color: var(--text); }
+  /* T-1125: a field the project hides, drawn only because it carries a value */
+  .field-hidden-tag { font-size: 10.5px; color: var(--orange, #d29922); margin: -2px 0 4px; }
   .props-tips .kbd {
     display: inline-block;
     background: var(--surface-2);
@@ -1739,6 +1741,10 @@ font-family: 'Outfit';
             <span>Show all fields in the properties panel</span>
             <span class="settings-hint">off = empty fields fold into one "+ N empty fields" row; a field with a value always shows</span>
           </label>
+          <div class="settings-row"><!-- T-1125: which project field profile is in force -->
+            <span>Project field profile</span>
+            <span class="settings-hint" id="set-field-profile-status"></span>
+          </div>
         </div>
         <div class="settings-section">
           <div class="settings-section-label">Labels</div>
@@ -6346,6 +6352,40 @@ let _idRenameNotice = null;
 
 // T-1124 (T-1118 B1): which selection has its empty Extensions fields opened (null = none).
 let _emptyFieldsRevealed = null;
+// T-1125 (T-1118 B2): the project's field profile, from GET /api/field-profile (gallery-serve.py
+// checks its shape and refuses a malformed one whole). null = none → the designer default.
+// `_fieldProfileStatus` says why, for the Settings readout: 'none' | 'loaded' | 'refused: …' | 'standalone'.
+let _fieldProfile = null;
+let _fieldProfileStatus = 'standalone';
+async function loadFieldProfile() {
+  try {
+    const r = await fetch('/api/field-profile', { cache: 'no-store' });
+    if (r.status === 404) { _fieldProfile = null; _fieldProfileStatus = 'none'; return; }
+    const d = await r.json().catch(() => null);
+    if (r.ok && d && d.ok && d.profile) { _fieldProfile = d.profile; _fieldProfileStatus = 'loaded'; }
+    else { _fieldProfile = null; _fieldProfileStatus = 'refused: ' + ((d && d.error) || ('HTTP ' + r.status)); }
+  } catch (e) {
+    _fieldProfile = null; _fieldProfileStatus = 'none';
+    aefRecordFault('field-profile:load', e);
+  }
+  if (typeof renderProperties === 'function') renderProperties();
+}
+// One place decides what each Extensions field does, most specific layer last:
+// designer default (AEF_FIELDS) < project profile (< workflow profile, once the operator rules where it
+// lives). Returns { keys, pinned:Set, hidden:Set } — `keys` keeps AEF_FIELDS order; a profile key the
+// type does not offer is ignored (new fields are B3's, approved by the operator). The value-never-hidden
+// rule is NOT applied here but where the panel draws, so no layer can override it.
+function fieldPlanFor(type) {
+  const keys = (AEF_FIELDS[type] || []).slice();
+  const pinned = new Set(), hidden = new Set();
+  for (const layer of [_fieldProfile]) {
+    const spec = layer && layer.types && layer.types[type];
+    if (!spec) continue;
+    for (const k of spec.hide || []) if (keys.includes(k)) { hidden.add(k); pinned.delete(k); }
+    for (const k of spec.show || []) if (keys.includes(k)) { pinned.add(k); hidden.delete(k); }
+  }
+  return { keys, pinned, hidden };
+}
 // A field "has a value" when it carries anything an author wrote: a non-blank scalar or a
 // non-empty list. A workflow target that auto-resolves from a uuid ref (T-240) counts too —
 // the panel shows that resolved id, so folding it away would hide content.
@@ -6845,11 +6885,19 @@ function renderProperties() {
     const revealed = viewPrefs.showAllFields
       || (_emptyFieldsRevealed && _emptyFieldsRevealed.sel === selection && _emptyFieldsRevealed.uid === n.uid);
     let foldedEmpty = 0;
+    const plan = fieldPlanFor(n.type);   // T-1125: project profile (pinned / hidden)
     for (const f of aefFields) {
       const meta = FIELD_META[f];
+      const hasValue = aefFieldHasValue(n, f, meta);
+      // T-1125: a field the project hides is not drawn and not offered under "+ N empty fields" —
+      // unless it carries a value (value-never-hidden) or "Show all fields" is on.
+      const profileHidden = plan.hidden.has(f) && !viewPrefs.showAllFields;
+      if (profileHidden && !hasValue) continue;
       // The target picker is never folded: on a handoff it IS the element's purpose (T-163/T-308), and
-      // "← Make this a handoff" exists to show it — folding it would undo that click.
-      if (!revealed && meta.special !== 'workflowPicker' && !aefFieldHasValue(n, f, meta)) { foldedEmpty++; continue; }
+      // "← Make this a handoff" exists to show it — folding it would undo that click. A field the
+      // project pins ("show") is drawn even when empty.
+      if (!revealed && !plan.pinned.has(f) && meta.special !== 'workflowPicker' && !hasValue) { foldedEmpty++; continue; }
+      const drawnFrom = sAef.childElementCount;
       if (meta.special === 'tier') {
         sAef.appendChild(tierField(n.aef[f] || '', v => { n.aef[f] = v; renderProperties(); }));
       } else if (meta.special === 'select') {
@@ -6957,6 +7005,16 @@ function renderProperties() {
           }, { mono: true, textarea: meta.textarea, hint: meta.hint }));
         } else {
         sAef.appendChild(field(meta.label, n.aef[f] || '', v => { n.aef[f] = v; }, { mono: true, textarea: meta.textarea, hint: meta.hint }));
+        }
+      }
+      if (profileHidden) {   // drawn only because it carries a value — say so
+        const first = sAef.children[drawnFrom];
+        const lbl = first && first.querySelector('.field-label');
+        if (lbl) {   // its own line: inside the label row it squeezed the hint into broken columns
+          const tag = document.createElement('div');
+          tag.className = 'field-hidden-tag';
+          tag.textContent = 'hidden in this project · shown: it has a value';
+          lbl.insertAdjacentElement('afterend', tag);
         }
       }
     }
@@ -7505,6 +7563,11 @@ function syncSettingsUI() {
   $('set-branch-pitch').value = viewPrefs.branchPitch;
   $('set-clean-on-import').checked = viewPrefs.cleanOnImport;
   $('set-show-all-fields').checked = viewPrefs.showAllFields;
+  $('set-field-profile-status').textContent = {
+    standalone: 'none — no project server (designer default)',
+    none: 'none — field-profile.json absent (designer default)',
+    loaded: 'field-profile.json in force',
+  }[_fieldProfileStatus] || (_fieldProfileStatus + ' (designer default in use)');
   $('set-label-size').value = labelPrefs.size;
   $('set-show-lane').checked = labelPrefs.showLane;
   $('set-show-ids').checked = labelPrefs.showIds;
@@ -9791,6 +9854,7 @@ async function detectSaveApi() {
       const bc = $('btn-check');          // T-962: validator findings on the map
       if (bc) bc.style.display = '';
       refreshUuidIndex();   // T-240: bind uuid workflowRefs to live maps at startup
+      loadFieldProfile();   // T-1125: the project's field profile (404 = designer default)
     }
   } catch (_) { /* static gallery — leave the button hidden */ }
 }

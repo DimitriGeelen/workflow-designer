@@ -967,6 +967,18 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1125 (T-1118 B2): the project field profile (field-profile.json, GET /api/field-profile) hides and pins
+# fields; a hidden field with a value is still drawn and tagged; a malformed profile is refused whole;
+# standalone falls back to the designer default; export unchanged.
+if node "$ROOT/tools/_t1125-field-profile-cdp.mjs" > "$TMP/leg-_t1125.out" 2>&1 \
+   && grep -q "T-1125: 9/9" "$TMP/leg-_t1125.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "the project field profile is not served, not applied, hides a field that has a value, half-applies a malformed profile, or changes the export (run 'node tools/_t1125-field-profile-cdp.mjs'; T-1125)"
+  show_output "$TMP/leg-_t1125.out" "_t1125-field-profile-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
 # aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
 # guard since T-889 closed (the census showed it had lost its only caller, T-889's Verification).

@@ -1,13 +1,18 @@
 ---
 id: T-1125
-name: "B2 (T-1118): field profile per project and per workflow decides which fields show (designer default < project < workflow; a filled field is never hidden)"
+name: "B2 (T-1118): field profile per project and per workflow decides which fields
+  show (designer default < project < workflow; a filled field is never hidden)"
 description: >
-  T-1118 GO, build 2 of 3, after B1. A field-profile.yaml beside a project's maps (served by gallery-serve.py) and an aef: setting in the map say, per element type, which fields show and carry approved extra fields; most specific wins; standalone falls back to the designer default.
+  T-1118 GO, build 2 of 3, after B1. A field-profile.yaml beside a project's maps
+  (served by gallery-serve.py) and an aef: setting in the map say, per element type,
+  which fields show and carry approved extra fields; most specific wins; standalone
+  falls back to the designer default.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: [T-1118, T-1124]
@@ -39,8 +44,8 @@ unlocks_inception_decision: ["T-1118:field-profile"]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-11T12:58:35Z
-last_update: 2026-10-11T12:58:35Z
-date_finished: null
+last_update: 2026-10-11T14:18:59Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -51,6 +56,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-11T14:13:07Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1125: B2 (T-1118): field profile per project and per workflow decides which fields show (designer default < project < workflow; a filled field is never hidden)
@@ -63,8 +89,14 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Project profile: `field-profile.json` at the gallery repo root (one project = one gallery repository; a map id is one workflow), shape `{version:1, types:{<elementType>:{show:[keys], hide:[keys]}}}`; served read-only by `GET /api/field-profile` (404 = no profile → designer default); malformed JSON or unknown keys are refused with a reason, never half-applied
+- [x] The designer fetches the profile once per load when the API is available; standalone (file://, no API) it uses the designer default with no error and no request loop
+- [x] Precedence implemented in one function: designer default (AEF_FIELDS) < project profile < workflow profile; `hide` removes a field from the panel, `show` pins it so it is drawn even when empty (not folded by B1); a key not in AEF_FIELDS[type] is ignored in B2 (new fields are B3's, operator-approved)
+- [x] Value-never-hidden holds above all layers: a hidden field that carries a value is drawn, marked "hidden in this project"
+- [x] "Show all fields" (B1) still shows every AEF_FIELDS field, profile hide included
+- [x] Export unchanged by any profile (byte-identical corpus export with and without a profile)
+- [ ] Workflow layer: stored where the operator rules (in the map as an aef: setting, or server-side per map id) — not built before that ruling
+- [x] Tests: gallery endpoint (served, 404, malformed refused) and CDP legs for precedence, pin, hide, value-never-hidden, standalone fallback, export parity; wired into tests/run-bridge-tests.sh
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -294,16 +326,25 @@ date_finished: null
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
 
+## Visual Verification
+
+- `docs/reports/T-1125-evidence/t1125-profile.png` — profile hides endpoint/horizon/tier and pins sideEffect; a
+  service task with tier T2 and endpoint set: Tier and Endpoint drawn, each with an orange line "hidden in this
+  project · shown: it has a value" under the label; Side effect drawn empty (pinned). First version put the tag
+  inside the label row and squeezed the hint into broken columns — moved to its own line, read again, clean.
+
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-10-11 — what "project" means for the profile
+- **Chose:** one profile per gallery repository (`<repo>/field-profile.json`, `GET /api/field-profile`).
+- **Why:** in gallery-serve.py an `id` is one map (one workflow); the repository is the project (832's corpus,
+  Greenfield's portal). A per-id file would be the WORKFLOW layer, not the project one.
+- **Rejected:** a profile per map id as "project" (conflates the two layers the operator asked for).
+
+### 2026-10-11 — a project-hidden field is not offered under "+ N empty fields"
+- **Chose:** hidden fields are left out of the fold too; only "Show all fields" (or a value) brings them back.
+- **Why:** the operator: "not everything is desirable" — a hidden field offered one click away is not hidden.
+- **Rejected:** folding hidden fields with the empty ones (a profile would then change nothing visible but a count).
 
 ## Decision
 
@@ -321,3 +362,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1125-b2-t-1118-field-profile-per-project-and-.md
 - **Context:** Initial task creation
+
+### 2026-10-11T14:13:07Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
