@@ -4112,3 +4112,22 @@ concerns:
   containment: 'On a FAILED auto-handover line, check `git log -1` for a "Session handover" commit before treating
     it as lost; write the restart signal by hand if the commit is there.'
   related_tasks: ['T-1075', 'T-737']
+- id: G-085
+  type: gap
+  status: watching
+  severity: medium
+  title: The inception hand-off readiness check omits the GO hypothesis gate, so the operator is offered a GO that fw inception decide refuses
+  detected: '2026-10-11'
+  origin_task: T-1123
+  id_note: 'G-084 skipped: it is a vendored AEF gap id already cited in this tree (see the G-080 id_note).'
+  context: 'Operator ran job 012 (GO on T-1118, recommendation GO, fw task review and /inception both showed it ready);
+    fw inception decide refused: ## Hypothesis success clause was the estimator placeholder. lib/inception-readiness.sh
+    inception_handoff_blockers, the predicate every invitation surface asks (T-3279/T-3549/T-3896), composes the
+    disposition and recommendation rules but not audit_inception_hypothesis (T-866). Measured: 12 of 18 active
+    inceptions would be refused a GO; 2 recommended GO (T-1093, T-1118). 832''s job rehearsal also checked only the
+    recommendation, so the dry-run passed. Vendored AEF code plus our own job preflight.'
+  decision_trigger: 'Close when upstream AEF carries the hypothesis blocker in inception_handoff_blockers (pickup I,
+    T-1123) and a re-vendor keeps it without our local fix; 832 decide jobs run the framework predicates in preflight.'
+  containment: 'Local fix in the vendored lib (declared, tools/_t1123 8/8); decide jobs (013 onward) check
+    audit_inception_hypothesis and inception_handoff_blockers in their preflight.'
+  related_tasks: ['T-1123', 'T-1118', 'T-1093']

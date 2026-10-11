@@ -1285,3 +1285,15 @@ entries:
       regex was \w+, so a multi-word label ("**Also rejected:**") was read as a continuation and
       folded into the previous value. One character class fixed; tools/_t516 now tests this LIVE
       extractor (8/8) instead of our old dead copy.
+
+  - path: .agentic-framework/lib/inception-readiness.sh
+    kind: content
+    task: T-1123
+    upstream: fix
+    reason: >-
+      inception_handoff_blockers (the one predicate fw task review, /inception and audit D14b ask)
+      never included the T-866 hypothesis gate that fw inception decide enforces on GO, so a
+      GO-recommended inception with a placeholder success clause was offered to the operator and
+      refused at decide (832 job 012, T-1118). Adds a hypothesis-unready blocker, asked only when the
+      recommendation is GO (NO-GO/DEFER stay decidable). tools/_t1123 8/8 (2 fail on the old code).
+      Sent upstream as a pickup (docs/upstream-pickups/I-t1123-handoff-hypothesis-gate).

@@ -109,6 +109,8 @@ inception_underdisposed_questions() {
 #
 #     - inception_underdisposed_questions (above) — T-2190 disposition rule
 #     - audit_inception_recommendation (lib/task-audit.sh) — T-1497 rec rule
+#     - audit_inception_hypothesis (lib/task-audit.sh) — T-866 GO rule, asked
+#       only when the recommendation is GO (832 T-1123)
 #
 #   It exists so requirements stop being discovered one refusal at a time. A new
 #   handoff requirement is added HERE and every invitation surface inherits it.
@@ -152,6 +154,24 @@ inception_handoff_blockers() {
         audit_inception_recommendation "$task_file" >/dev/null 2>&1 || _rc=$?
         if [ "$_rc" -eq 1 ]; then
             printf 'empty-recommendation\t## Recommendation has no substantive **Recommendation:** line\tWrite GO | NO-GO | DEFER plus a rationale. The operator needs an advisory, not a blank form (T-1497).\n'
+        fi
+    fi
+
+    # 832 T-1123: the T-866 hypothesis gate (audit_inception_hypothesis, enforced by
+    # `fw inception decide ... go`) was never added here, so a GO-recommended
+    # inception with a placeholder success clause was offered to the operator and
+    # then refused at decide (832 job 012, T-1118). Asked only when the agent
+    # recommends GO: the gate binds GO alone, and every blocker hides the whole
+    # form, so a NO-GO / DEFER must stay decidable.
+    if command -v audit_inception_hypothesis >/dev/null 2>&1; then
+        local _rec _hyp
+        _rec=$(awk '/<!--/{c=1} !c && /^\*\*Recommendation:?\*\*/{print; exit} /-->/{c=0}' "$task_file" \
+               | sed -E 's/^\*\*Recommendation:?\*\*:?[[:space:]]*//' | awk '{print toupper($1)}' | tr -d '.,;:*')
+        if [ "$_rec" = "GO" ]; then
+            if ! _hyp=$(audit_inception_hypothesis "$task_file" go 2>&1 >/dev/null); then
+                _hyp=$(printf '%s\n' "$_hyp" | head -1 | sed 's/^HYPOTHESIS: *//')
+                printf 'hypothesis-unready\t## Hypothesis would be refused at a GO: %s\tWrite the three-part hypothesis with a success clause someone could check (a count, threshold or named state); the decide gate refuses a GO without it (T-866).\n' "$_hyp"
+            fi
         fi
     fi
 
