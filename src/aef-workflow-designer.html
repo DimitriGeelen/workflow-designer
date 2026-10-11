@@ -1187,6 +1187,23 @@ font-family: 'Outfit';
     padding-top: 90px;
   }
   .settings-modal.visible { display: flex; }
+  /* T-1127: element details view — the side panel's sections, every field, in a large two-column sheet */
+  .details-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 61; display: none;
+    align-items: flex-start; justify-content: center; padding: 40px 20px; }
+  .details-modal.visible { display: flex; }
+  .details-dialog { width: 980px; max-width: 100%; max-height: calc(100vh - 80px); display: flex; flex-direction: column;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+  .details-header { display: flex; align-items: baseline; gap: 12px; padding: 12px 18px; border-bottom: 1px solid var(--border); }
+  .details-title { font-weight: 600; }
+  .details-sub { font-size: 11px; color: var(--text-faint); flex: 1; }
+  /* Sections stack full width; the FIELDS inside a section flow in two columns, so a long section (Extensions)
+     uses the width instead of one tall column beside an empty one. Non-field rows (titles, hints, buttons,
+     I/O lists) span the full width. */
+  .details-body { overflow: auto; padding: 8px 18px 18px; }
+  .details-body .props-section { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    column-gap: 28px; align-items: start; }
+  .details-body .props-section > :not(.field) { grid-column: 1 / -1; }
+  .props-all-details { display: block; width: 100%; margin: 4px 0 8px; font-size: 12px; }
   .settings-dialog {
     width: 560px;
     max-width: calc(100vw - 40px);
@@ -1650,6 +1667,17 @@ font-family: 'Outfit';
   <!-- ============ Editor settings (modal, T-075) ============ -->
   <!-- Every control here is an editor-local preference (localStorage only) —
        none of it enters the workflow document or the bridge seam. -->
+  <!-- T-1127: element details — every field of one element, filled or empty, editable -->
+  <div class="details-modal" id="details-modal" role="dialog" aria-modal="true" aria-labelledby="details-title">
+    <div class="details-dialog">
+      <div class="details-header">
+        <div class="details-title" id="details-title">Element details</div>
+        <span class="details-sub">all fields, filled or empty · edits apply to the element</span>
+        <button class="btn" id="btn-close-details" type="button">Close</button>
+      </div>
+      <div class="details-body" id="details-body"></div>
+    </div>
+  </div>
   <div class="settings-modal" id="settings-modal">
     <div class="settings-dialog">
       <div class="settings-header">
@@ -6600,12 +6628,48 @@ function aefFieldHasValue(n, f, meta) {
   if (meta && meta.special === 'workflowPicker' && typeof resolveWorkflowRef === 'function') return !!resolveWorkflowRef(n);
   return false;
 }
+// ---- T-1127: element details view ---------------------------------------------------------------
+// One element, every field (filled or empty, profile-hidden included and marked), edited in place. It
+// selects the element it shows, so the side panel and the details view always describe the same node.
+let _detailsUid = null;
+function openDetails(uid) {
+  const n = findNode(uid);
+  if (!n) return;
+  if (!(selection && selection.kind === 'node' && selection.id === uid)) {
+    selection = { kind: 'node', id: uid };
+    multiSelect = new Set([uid]);
+    renderNodes(); renderEdges();
+  }
+  _detailsUid = uid;
+  $('details-modal').classList.add('visible');
+  renderProperties();
+}
+function closeDetails() {
+  if (!_detailsUid) return;
+  _detailsUid = null;
+  $('details-modal').classList.remove('visible');
+  $('details-body').innerHTML = '';
+  renderProperties();
+}
+function renderDetails() {
+  const n = findNode(_detailsUid);
+  if (!n || !selection || selection.id !== _detailsUid) { closeDetails(); return; }
+  $('details-title').textContent = (n.name || displayIdOf(n)) + ' — details';
+  _renderPropsInto($('details-body'), true);
+}
+
+// T-1127: the side panel and the element details view are drawn by ONE renderer, so they can never offer
+// different fields or write differently. `details` = true draws every field (no folding, no profile hide —
+// "all config with all options") into the details view's body for the selected node.
 function renderProperties() {
-  const props = $('properties');
+  _renderPropsInto($('properties'), false);
+  if (_detailsUid) renderDetails();
+}
+function _renderPropsInto(props, details) {
   props.innerHTML = '';
   // Multi-selection → selection-scoped Align / Distribute bar (T-134). Takes precedence
   // over the single-node panel; global toolbar actions are unchanged for 0/1 selection.
-  if (multiSelect && multiSelect.size > 1) { renderMultiSelectProps(props); return; }
+  if (!details && multiSelect && multiSelect.size > 1) { renderMultiSelectProps(props); return; }
   if (!selection) {
     // No selection → show the workflow metadata editor.
     // This is the panel for editing things that belong to the workflow itself
@@ -6976,7 +7040,18 @@ function renderProperties() {
   // T-308: a bare catch event is presented as the neutral intermediate event it
   // actually is — the underlying n.type is unchanged and still exports as
   // <bpmn:intermediateCatchEvent>.
-  props.appendChild(propsHeader(isBareCatchEvent(n) ? 'intermediateEvent' : n.type, displayIdOf(n), () => deleteNode(n.id)));
+  props.appendChild(propsHeader(isBareCatchEvent(n) ? 'intermediateEvent' : n.type, displayIdOf(n),
+    details ? null : () => deleteNode(n.id)));   // T-1127: no delete from inside the details view
+  if (!details) {   // T-1127: every element can open its full details (a handoff's double-click jumps instead)
+    const all = document.createElement('button');
+    all.type = 'button';
+    all.className = 'btn props-all-details';
+    all.dataset.testid = 'open-details';
+    all.textContent = '⤢ All details';
+    all.title = 'Open this element in a larger view with all its fields, filled or empty (double-click the element does the same)';
+    all.onclick = () => openDetails(n.uid);
+    props.appendChild(all);
+  }
 
   // BPMN basics
   const sBpmn = section('BPMN');
@@ -7085,7 +7160,7 @@ function renderProperties() {
     // A field with a value is always drawn — hiding only ever removes empty boxes, never data
     // (the T-566 lesson). `selection` is a fresh object on every click, so the opened state
     // ends when the author selects anything else.
-    const revealed = viewPrefs.showAllFields
+    const revealed = details || viewPrefs.showAllFields
       || (_emptyFieldsRevealed && _emptyFieldsRevealed.sel === selection && _emptyFieldsRevealed.uid === n.uid);
     let foldedEmpty = 0;
     const plan = fieldPlanFor(n.type);   // T-1125: project profile (pinned / hidden)
@@ -7094,8 +7169,10 @@ function renderProperties() {
       const hasValue = aefFieldHasValue(n, f, meta);
       // T-1125: a field the project hides is not drawn and not offered under "+ N empty fields" —
       // unless it carries a value (value-never-hidden) or "Show all fields" is on.
-      const profileHidden = plan.hidden.has(f) && !viewPrefs.showAllFields;
+      const profileHidden = plan.hidden.has(f) && !viewPrefs.showAllFields && !details;
       if (profileHidden && !hasValue) continue;
+      // T-1127: the details view draws it anyway and says why the side panel does not.
+      const hiddenInPanel = details && plan.hidden.has(f);
       // The target picker is never folded: on a handoff it IS the element's purpose (T-163/T-308), and
       // "← Make this a handoff" exists to show it — folding it would undo that click. A field the
       // project pins ("show") is drawn even when empty.
@@ -7210,13 +7287,15 @@ function renderProperties() {
         sAef.appendChild(field(meta.label, n.aef[f] || '', v => { n.aef[f] = v; }, { mono: true, textarea: meta.textarea, hint: meta.hint }));
         }
       }
-      if (profileHidden) {   // drawn only because it carries a value — say so
+      if (profileHidden || hiddenInPanel) {   // drawn although the profile hides it — say why
         const first = sAef.children[drawnFrom];
         const lbl = first && first.querySelector('.field-label');
         if (lbl) {   // its own line: inside the label row it squeezed the hint into broken columns
+          const where = plan.source.get(f) === 'map' ? 'map' : 'project';
           const tag = document.createElement('div');
           tag.className = 'field-hidden-tag';
-          tag.textContent = `hidden in this ${plan.source.get(f) === 'map' ? 'map' : 'project'} · shown: it has a value`;
+          tag.textContent = profileHidden ? `hidden in this ${where} · shown: it has a value`
+            : `hidden in the side panel by this ${where}`;
           lbl.insertAdjacentElement('afterend', tag);
         }
       }
@@ -7248,7 +7327,7 @@ function renderProperties() {
       ownerField.appendChild(ownerValue);
       sAef.appendChild(ownerField);
     }
-    if (foldedEmpty) {
+    if (foldedEmpty && !details) {
       const more = document.createElement('button');
       more.type = 'button';
       more.className = 'btn props-empty-fields';
@@ -7799,6 +7878,17 @@ $('settings-modal').addEventListener('mousedown', e => { if (e.target === $('set
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && $('settings-modal').classList.contains('visible')) { closeSettings(); e.stopPropagation(); }
 }, true);
+// T-1127: while the details view is open, Esc closes it and no canvas shortcut acts behind it (Delete,
+// Ctrl+Z, Space-pan…). Typing in its fields is untouched: inputs keep their own keys.
+document.addEventListener('keydown', e => {
+  if (!_detailsUid) return;
+  if (e.key === 'Escape') { closeDetails(); e.stopPropagation(); e.preventDefault(); return; }
+  const t = e.target;
+  const typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
+  if (!typing) e.stopPropagation();
+}, true);
+$('btn-close-details').onclick = () => closeDetails();
+$('details-modal').addEventListener('mousedown', e => { if (e.target === $('details-modal')) closeDetails(); });
 $('set-attach-middle').addEventListener('change', () => setRoutingAttach('middle'));
 $('set-attach-spread').addEventListener('change', () => setRoutingAttach('spread'));
 $('set-cross-lane-l').addEventListener('change', e => setCrossLaneRouting(e.target.checked ? 'L' : 'Z'));
@@ -9361,10 +9451,9 @@ async function jumpToWorkflow(id) {
 // click still selects/edits (unchanged). Suppressed in connect mode.
 function onNodeDblClick(n, e) {
   if (mode === 'connect') return;
-  if (!HANDOFF_TYPES.has(n.type)) return;
-  // T-308: a bare catch event is not presented as a handoff, so double-click must
-  // not scold the author about a target field they are not being shown.
-  if (isBareCatchEvent(n)) return;
+  // T-1127: double-click opens the element's details — except on a handoff, where it keeps
+  // jumping to the target workflow (T-160); a handoff opens its details from the panel button.
+  if (!HANDOFF_TYPES.has(n.type) || isBareCatchEvent(n)) { openDetails(n.uid); return; }
   // T-240: legacy slug if set, else the uuid workflowRef resolved to a live map.
   jumpToWorkflow(effectiveJumpTarget(n));
 }

@@ -1001,6 +1001,18 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1127: the element details view — double-click (or the panel's "All details") shows every field of the element,
+# filled or empty, profile-hidden ones marked; edits land on the element; Esc/Close/backdrop close it; a handoff
+# keeps its double-click jump; fits 1024x768.
+if node "$ROOT/tools/_t1127-element-details-cdp.mjs" > "$TMP/leg-_t1127.out" 2>&1 \
+   && grep -q "T-1127: 7/7" "$TMP/leg-_t1127.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "the element details view no longer opens, no longer shows every field, writes elsewhere than the panel, leaks keys to the canvas, or broke the handoff jump (run 'node tools/_t1127-element-details-cdp.mjs'; T-1127)"
+  show_output "$TMP/leg-_t1127.out" "_t1127-element-details-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
 # aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
 # guard since T-889 closed (the census showed it had lost its only caller, T-889's Verification).
