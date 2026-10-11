@@ -1013,6 +1013,17 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1129: every optional select offers an empty choice — an unset field must not DISPLAY (and write on change) its
+# first option; export of the examples identical to 0.17.0.
+if node "$ROOT/tools/_t1129-optional-select-empty-cdp.mjs" > "$TMP/leg-_t1129.out" 2>&1 \
+   && grep -q "T-1129: 5/5" "$TMP/leg-_t1129.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "an optional select lost its empty choice (an unset field would show and write a value the document does not carry), or the export moved (run 'node tools/_t1129-optional-select-empty-cdp.mjs'; T-1129)"
+  show_output "$TMP/leg-_t1129.out" "_t1129-optional-select-empty-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
 # aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
 # guard since T-889 closed (the census showed it had lost its only caller, T-889's Verification).

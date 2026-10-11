@@ -2405,7 +2405,9 @@ const FIELD_META = {
   // so the hint names it — same convention as contextReads/artifactsWrites above.
   emits:          { label: 'Emits',           hint: 'event name(s) \u00b7 comma-separated', textarea: false },
   tier:           { label: 'Tier',            hint: '0=tier0 / 1 / 2 / 3', special: 'tier' },
-  agentType:      { label: 'Agent type',      hint: 'primary | termlink-worker | human', special: 'select', options: ['primary', 'termlink-worker', 'human'] },
+  // T-1129: leading '' = unset (the optional-select convention). Without it an unset field DISPLAYED 'primary'
+  // and wrote it on any change — a value the document did not carry.
+  agentType:      { label: 'Agent type',      hint: 'primary | termlink-worker | human', special: 'select', options: ['', 'primary', 'termlink-worker', 'human'] },
   // T-618: the vocabulary is NOT designed here — it is read off the corpus. Census over
   // examples/ (tools/_t618-determinism-census.py): deterministic 166, stochastic 42,
   // human 7, across 7 node types. A select rather than free text because those three are
@@ -2440,7 +2442,7 @@ const FIELD_META = {
   sideEffect:     { label: 'Side effect',     hint: 'what this step already did to the world (retry hazard)', textarea: true },
   endpoint:       { label: 'Endpoint',        hint: 'fw … | agent prompt | watchtower view', textarea: true },
   decisionInput:  { label: 'Decision input',  hint: 'expression, e.g. ${findings.confidence}', textarea: false },
-  decisionOwner:  { label: 'Decision owner',  hint: 'agent | human | framework', special: 'select', options: ['agent', 'human', 'framework'] },
+  decisionOwner:  { label: 'Decision owner',  hint: 'agent | human | framework', special: 'select', options: ['', 'agent', 'human', 'framework'] },   // T-1129
   decisionOutputs:{ label: 'Decision outputs',hint: 'enum, comma-separated', textarea: false },
   // S2 (T-225): off-page connector pins the target workflow's immutable uuid via workflowRef
   // (survives the target's rename — S1). `name` is the display label. targetWorkflow stays as the
