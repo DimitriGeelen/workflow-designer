@@ -568,7 +568,8 @@ entries:
       (fw designer sync --from-tag: sha verified against the pin AND designer-v0.15.2's MANIFEST;
       /designer/app now serves sha 68454742). 0.15.2 -> 0.15.3 the same way on 2026-10-03 (served sha
       209d37bb), and 0.15.3 -> 0.16.0 on 2026-10-09 (T-1105, served sha 9cc12bfe), and 0.16.0 -> 0.17.0 on
-      2026-10-11 (T-1121, served sha 6e301322). AEF pins its own version; this one is ours.
+      2026-10-11 (T-1121, served sha 6e301322), and 0.17.0 -> 0.18.0 the same day (T-1130, served sha 3486362c).
+      AEF pins its own version; this one is ours.
 
   - path: .agentic-framework/.vendor-divergence.yaml
     kind: content  # T-1005: the 1.7.740 pristine baseline (2659abad) already contains it
