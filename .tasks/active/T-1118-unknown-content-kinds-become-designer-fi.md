@@ -1,19 +1,22 @@
 ---
 id: T-1118
-name: "Unknown content kinds become designer fields only on operator approval, with per-project and per-workflow field visibility (R2 of the T-347 ruling)"
+name: "Unknown content kinds become designer fields only on operator approval, with
+  per-project and per-workflow field visibility (R2 of the T-347 ruling)"
 description: >
-  Inception: Unknown content kinds become designer fields only on operator approval, with per-project and per-workflow field visibility (R2 of the T-347 ruling)
+  Inception: Unknown content kinds become designer fields only on operator approval,
+  with per-project and per-workflow field visibility (R2 of the T-347 ruling)
 
-status: captured
+status: started-work
 workflow_type: inception
+current_node: frw_3_start
 owner: human
 horizon: now
 tags: []
 components: []
 related_tasks: []
 created: 2026-10-10T12:37:38Z
-last_update: 2026-10-10T12:37:38Z
-date_finished: null
+last_update: 2026-10-11T07:35:09Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -22,16 +25,46 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-10-11T07:33:01Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F2: 2
+      F4: 2
+      F3: 2
+      F1: 2
+    rationale: D1=2 (voi:open-question~'assumption'); D2=2 
+      (voi:open-question~'assumption'); D3=2 (voi:open-question~'assumption'); 
+      D4=2 (voi:open-question~'assumption'); F-RECALL=2 
+      (voi:open-question~'assumption'); F2=2 (voi:open-question~'assumption'); 
+      F4=2 (voi:open-question~'assumption'); F3=2 
+      (voi:open-question~'assumption'); F1=2 (voi:open-question~'assumption')
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1118: Unknown content kinds become designer fields only on operator approval, with per-project and per-workflow field visibility (R2 of the T-347 ruling)
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+The properties panel shows one fixed field list per element type (`AEF_FIELDS`), filled or not: a service task offers
+13 fields and the 42 in `examples/` fill a median of 2. Fields the designer lacks are only listed read-only
+("Other extensions", T-566). The operator wants (T-347 ruling, 2026-10-10): new fields only on his approval, visibility
+chosen per project and per workflow, and empty fields out of the way. Research: `docs/reports/T-1118-fields-on-approval-and-visibility.md`.
+
+## Hypothesis
+
+<!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
+
+We believe that unknown content kinds become designer fields only on operator approval, with per-project and per-workflow field visibility (R2 of the T-347 ruling),
+we will achieve Inception: Unknown content kinds become designer fields only on operator approval, with per-project and per-workflow field visibility (R2 of the T-347 ruling).
+We will know that we are successful when we see [NEEDS YOU: name something a person could go and look at — a count, a threshold, a named check, or a state that would visibly change].
 
 ## Assumptions
-
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-1118 -->
 
 ## Open Questions
@@ -53,25 +86,25 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 -->
 
 - **IW-1: How does the designer notice a new kind of content, and how does it phrase the suggestion to make it a field?**
-  confidence: 0
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: answered
+  rationale: Extend T-566 'Other extensions' (src:6988-7024) with 'Suggest as a field' plus a per-map evidence count; a suggestion is a record, never a field (report §IW-1)
 - **IW-2: How does the operator approve a suggested field (the "tier 0, with operator" path), and where is the approval recorded?**
-  confidence: 0
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: answered
+  rationale: Suggestions queued per project; the operator approves via a runme job that writes the project field profile with approved_by/date; git history is the record (report §IW-2)
 - **IW-3: Where does field visibility live — per project, per workflow, per element type — and which wins when they differ?**
-  confidence: 0
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: answered
+  rationale: Designer default < project profile < workflow setting stored in the map; hard rule: a field with a value is never hidden (report §IW-3)
 - **IW-4: Show only what is used: can the properties panel hide empty / unused fields by default (less clutter) without hiding anything that carries a value, and how does a user reveal a hidden field to fill it?**
-  confidence: 0
-  disposition:
-  rationale:
+  confidence: 3
+  disposition: answered
+  rationale: Measured median 2 of 13 service-task fields filled (42 in examples/); collapse empties behind '+ N empty fields', expandable in place; Settings 'show all fields' restores today's panel (report §IW-4)
 - **IW-5: Which kinds come first — Greenfield's pools and message flows (T-1096)?**
-  confidence: 0
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: answered
+  rationale: Pools and message flows are elements, kept and drawn since 0.17.0 (T-1119/T-1120), not this mechanism; first field candidates are T-566's unknown aef: keys, then element-interior content once T-347 R1 keeps it (report §IW-5)
 
 ## Exploration Plan
 
@@ -114,12 +147,13 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 <!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
 **GO if:**
-- Root cause identified with bounded fix path
-- Fix is scoped, testable, and reversible
+- Each of the three parts (hide empty, field profile, suggest + approve) is a bounded build task, testable with CDP legs
+- Defaults reproduce today's panel, so every part is reversible
+- No filled field can become invisible (value-never-hidden rule holds)
 
 **NO-GO if:**
-- Problem requires fundamental redesign or unbounded scope
-- Fix cost exceeds benefit given current evidence
+- Visibility settings cannot be shared per project without a new server or account model
+- The approval path would let a field appear without the operator
 
 ## Verification
 
@@ -134,17 +168,18 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Recommendation
 
-**Recommendation:** DEFER
+**Recommendation:** GO
 
 **Rationale:**
 
-Operator ruling 2026-10-10 on T-347: preserve everything (R1, build task); R2 as a suggestion the operator approves per kind; which fields show is chosen per project and per workflow, per element type. Design not explored yet: detection of a new kind, suggestion wording, approval path, where the visibility settings live, first candidates (Greenfield's pools and message flows).
+All five questions answered from the code and a corpus measurement. Three bounded builds, in order: B1 hide empty fields (removes the measured pollution, no new files); B2 a field profile per project plus a per-workflow setting in the map (most specific wins, a filled field is never hidden); B3 'Suggest as a field' on unknown keys, approved by an operator runme job that writes the profile. Each is testable and reversible; defaults reproduce today's panel.
 
 **Evidence:**
 
-<!-- Add evidence bullets as exploration progresses (file paths,
-     commit hashes, test results). The filing-time recommendation
-     can be revised before fw inception decide. -->
+- `src/aef-workflow-designer.html:2174` AEF_FIELDS is one fixed list per element type; `:6814-6928` draws every one, filled or not
+- Corpus count, 42 service tasks in examples/: median 2 of 13 fields filled (report, "What the designer does today")
+- `:6988-7024` T-566 'Other extensions' already detects keys with no field (305 of 714 values at T-566)
+- Settings today live only in localStorage (`:2843-2943`), per browser, not per project; tools/gallery-serve.py serves maps per project id
 
 ## Decisions
 
@@ -165,3 +200,6 @@ Operator ruling 2026-10-10 on T-347: preserve everything (R1, build task); R2 as
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-10-11T07:33:01Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
