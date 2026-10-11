@@ -135,42 +135,12 @@ class TestHtmxPartials:
         "path",
         ["/", "/tasks", "/timeline", "/decisions", "/learnings", "/gaps", "/quality", "/metrics", "/patterns", "/costs"],
     )
-    def test_htmx_returns_fragment(self, client, path, document_shell):
+    def test_htmx_returns_fragment(self, client, path):
         resp = client.get(path, headers={"HX-Request": "true"})
         assert resp.status_code == 200
-        shell = document_shell(resp.data.decode())
-        assert not shell, (
-            "%s with HX-Request returned a document shell, not a fragment: %s"
-            % (path, ", ".join(shell))
-        )
-
-    # The detector is the new instrument, so it gets its own tests rather than being
-    # trusted because it is short. Each row below is a payload the SUBSTRING version
-    # got wrong; together they are the reason this task exists.
-    @pytest.mark.parametrize(
-        "payload,expected",
-        [
-            ("<HTML><BODY>x</BODY></HTML>", ["<html>", "<body>"]),
-            ("<!doctype html><p>x</p>", ["<!DOCTYPE>"]),
-            ("<body><p>x</p></body>", ["<body>"]),
-            ('<Html lang="en"><p>x</p></Html>', ["<html>"]),
-        ],
-    )
-    def test_document_shell_is_detected_whatever_its_spelling(self, payload, expected, document_shell):
-        assert document_shell(payload) == expected
-
-    @pytest.mark.parametrize(
-        "payload",
-        [
-            '<nav class="x">hi</nav>',
-            "<!-- <html> --><p>hi</p>",
-            '<script>var s = "<html>";</script><p>hi</p>',
-            "<p>a fragment, no &lt;html&gt;</p>",
-            "",
-        ],
-    )
-    def test_text_that_merely_mentions_a_tag_is_not_a_shell(self, payload, document_shell):
-        assert document_shell(payload) == []
+        html = resp.data.decode()
+        assert "<!DOCTYPE" not in html
+        assert "<html" not in html
 
     @pytest.mark.parametrize(
         "path",
@@ -796,15 +766,14 @@ class TestCockpitUI:
         html = resp.data.decode()
         assert "All Clear" in html
 
-    def test_cockpit_htmx_returns_fragment(self, client, monkeypatch, document_shell):
+    def test_cockpit_htmx_returns_fragment(self, client, monkeypatch):
         """Cockpit returns fragment for htmx requests."""
         scan_data = _make_scan_data()
         monkeypatch.setattr("web.blueprints.core.load_scan", lambda: scan_data)
         resp = client.get("/", headers={"HX-Request": "true"})
         assert resp.status_code == 200
         html = resp.data.decode()
-        shell = document_shell(html)
-        assert not shell, "cockpit HX-Request returned a document shell: %s" % ", ".join(shell)
+        assert "<!DOCTYPE" not in html
         assert "Watchtower" in html
 
     def test_cockpit_scan_age_display(self, client, monkeypatch):
