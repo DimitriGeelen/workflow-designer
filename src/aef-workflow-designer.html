@@ -899,6 +899,10 @@ font-family: 'Outfit';
   .props-empty-fields:hover { color: var(--text); }
   /* T-1125: a field the project hides, drawn only because it carries a value */
   .field-hidden-tag { font-size: 10.5px; color: var(--orange, #d29922); margin: -2px 0 4px; }
+  /* T-1126: the suggestion row under an "Other extensions" entry */
+  .suggest-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 3px 0 2px; }
+  .suggest-row .field-hint { margin: 0; font-size: 11px; color: var(--text-faint); }
+  .btn-suggest { font-size: 11px; padding: 2px 8px; white-space: nowrap; flex: none; }
   /* T-1128: Settings → Fields shown by default */
   .fd-scope { display: inline-flex; align-items: center; gap: 4px; margin-left: 10px; font-size: 12px; }
   .fd-status { display: block; margin: 2px 0 6px; }
@@ -6471,10 +6475,105 @@ function currentMapFieldProfile() {
 // offer is ignored (new fields are B3's, approved by the operator). The value-never-hidden rule is NOT
 // applied here but where the panel draws, so no layer can override it.
 function fieldPlanFor(type) { return planFromLayers(type, _fieldProfile, currentMapFieldProfile()); }
+// T-1126 (T-1118 B3): fields the OPERATOR approved from a suggestion live in the PROJECT profile's `fields`
+// section (the server refuses an entry without approved_by/approved_at). They join the type's built-in fields,
+// after them, in key order; a key the designer already has a field for is never doubled.
+function approvedFieldKeys(type) {
+  const f = _fieldProfile && _fieldProfile.fields;
+  if (!f) return [];
+  return Object.keys(f).filter(k => Array.isArray(f[k].types) && f[k].types.includes(type)
+    && !(AEF_FIELDS[type] || []).includes(k)).sort();
+}
+// ---- T-1126: "Suggest as a field" on a key under "Other extensions" ----------------------------------
+// A suggestion is a RECORD on the project server (POST /api/field-suggestions), never a field: the operator
+// approves or rejects it with tools/field-suggestion.py (via runme). Keys DERIVED from the diagram's shape
+// are not offered — a field for them would be a box whose value the export overwrites (see T-566 above).
+const NOT_SUGGESTIBLE_KEYS = new Set(['owner', 'gatewayKind', 'scopeOf', 'constituents']);
+let _fieldSuggestions = null;          // Map 'type.key' -> suggestion, from GET /api/field-suggestions
+let _fieldSuggestionsLoading = false;
+async function loadFieldSuggestions() {
+  if (!_apiAvailable || _fieldSuggestionsLoading) return;
+  _fieldSuggestionsLoading = true;
+  try {
+    const r = await fetch('/api/field-suggestions', { cache: 'no-store' });
+    const d = await _fieldProfileJson(r, 'field-suggestions:json');
+    _fieldSuggestions = new Map(((d && d.suggestions) || []).map(s => [s.type + '.' + s.key, s]));
+  } catch (e) {
+    aefRecordFault('field-suggestions:load', e);
+    _fieldSuggestions = new Map();
+  } finally { _fieldSuggestionsLoading = false; }
+  renderProperties();
+}
+// The evidence for a suggestion, from the open map: how many elements of this type carry the key.
+function suggestionEvidence(type, k) {
+  const same = state.nodes.filter(x => x.type === type);
+  const carrying = same.filter(x => x.aef && x.aef[k] !== undefined && x.aef[k] !== null && String(x.aef[k]).trim() !== '');
+  const examples = [...new Set(carrying.map(x => String(x.aef[k]).slice(0, 120)))].slice(0, 3);
+  return { count: carrying.length, total: same.length, examples };
+}
+function suggestFieldRow(n, k) {
+  const wrap = document.createElement('div');
+  wrap.className = 'suggest-row';
+  const ev = suggestionEvidence(n.type, k);
+  const evd = document.createElement('span');
+  evd.className = 'field-hint';
+  evd.textContent = `${k} · on ${ev.count} of ${ev.total} ${n.type} element${ev.total === 1 ? '' : 's'}`;
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'btn btn-suggest';
+  b.dataset.testid = 'suggest-field';
+  b.dataset.key = k;
+  const s = _fieldSuggestions && _fieldSuggestions.get(n.type + '.' + k);
+  if (!_apiAvailable) {
+    b.textContent = 'Suggest as a field';
+    b.disabled = true;
+    b.title = 'Needs the project server — suggestions are recorded there for the operator to approve';
+  } else if (s && s.status === 'pending') {
+    b.textContent = 'Suggested ✓';
+    b.disabled = true;
+    b.title = 'Waiting for the operator’s approval';
+  } else if (s && s.status === 'rejected') {
+    b.textContent = 'Rejected';
+    b.disabled = true;
+    b.title = 'The operator rejected this field' + (s.reason ? ': ' + s.reason : '');
+  } else {
+    b.textContent = 'Suggest as a field';
+    b.title = 'Ask the operator to make "' + k + '" an editable field for ' + n.type + ' in this project. '
+      + 'Nothing changes until it is approved.';
+    b.onclick = async () => {
+      b.disabled = true;
+      const id = state.workflowMeta && state.workflowMeta.id;
+      try {
+        const r = await fetch('/api/field-suggestions', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: n.type, key: k, count: Math.max(1, ev.count), total: Math.max(1, ev.total, ev.count),
+            examples: ev.examples, map: (id && isValidWorkflowId(id)) ? id : '' }) });
+        const d = await _fieldProfileJson(r, 'field-suggestions:json-post');
+        if (r.ok && d && d.ok) {
+          (_fieldSuggestions || (_fieldSuggestions = new Map())).set(n.type + '.' + k, d.suggestion);
+        } else {
+          b.title = 'Not recorded — ' + ((d && d.error) || ('HTTP ' + r.status));
+          aefRecordFault('field-suggestions:post', new Error(b.title));
+        }
+      } catch (e) {
+        aefRecordFault('field-suggestions:post', e);
+      }
+      renderProperties();
+    };
+  }
+  if (_apiAvailable && _fieldSuggestions === null) loadFieldSuggestions();
+  wrap.append(evd, b);
+  return wrap;
+}
+function fieldMetaFor(k) {
+  if (FIELD_META[k]) return FIELD_META[k];
+  const a = _fieldProfile && _fieldProfile.fields && _fieldProfile.fields[k];
+  return { label: a ? a.label : k,
+    hint: ((a && a.hint) ? a.hint + ' · ' : '') + 'approved field' + (a && a.approved_by ? ' (' + a.approved_by + ')' : '') };
+}
 // The merge itself, shared by the panel and Settings (which previews unsaved drafts through it) so the
 // two can never disagree about what a profile does.
 function planFromLayers(type, projectProfile, mapProfile) {
-  const keys = (AEF_FIELDS[type] || []).slice();
+  const keys = (AEF_FIELDS[type] || []).concat(approvedFieldKeys(type));
   const pinned = new Set(), hidden = new Set(), source = new Map();
   for (const [name, layer] of [['project', projectProfile], ['map', mapProfile]]) {
     const spec = layer && layer.types && layer.types[type];
@@ -6498,7 +6597,7 @@ function _fdLayer(scope) {
   return ent ? { profile: ent.profile, base: ent.base, status: ent.status } : { profile: null, base: 'none', status: 'pending' };
 }
 function _fdClone(p) { return p ? JSON.parse(JSON.stringify(p)) : { version: 1, types: {} }; }
-function _fdFieldLabel(k) { const m = FIELD_META[k]; return m ? (m.special === 'tier' ? 'Tier' : m.label) : k; }
+function _fdFieldLabel(k) { const m = fieldMetaFor(k); return m.special === 'tier' ? 'Tier' : m.label; }
 function _fdStateOf(profile, type, k) {
   const spec = profile && profile.types && profile.types[type];
   if (spec && (spec.show || []).includes(k)) return 'show';
@@ -6554,7 +6653,7 @@ function renderFieldDefaultsUI() {
   const plan = planFromLayers(type, proj, mapP);
   const readOnly = !_apiAvailable || (scope === 'map' && layer.status === 'pending');
   rows.innerHTML = '';
-  for (const k of AEF_FIELDS[type]) {
+  for (const k of plan.keys) {   // T-1126: built-in + approved fields
     const lab = document.createElement('div');
     lab.textContent = _fdFieldLabel(k);
     const s = document.createElement('select');
@@ -7133,7 +7232,7 @@ function _renderPropsInto(props, details) {
   // as a broken connector. Hide them, say what the node actually is, and offer an
   // explicit way to declare handoff intent (session-scoped — sessionAuthoredLinks).
   const bareCatch = isBareCatchEvent(n);
-  const aefFields = bareCatch ? [] : AEF_FIELDS[n.type];
+  const aefFields = bareCatch ? [] : fieldPlanFor(n.type).keys;   // T-1126: built-in + approved fields
   if (bareCatch) {
     // Not an aef: field group — this node has no aef: extensions at all, which is
     // the whole point. Passing isAef would badge it as one.
@@ -7172,7 +7271,7 @@ function _renderPropsInto(props, details) {
     let foldedEmpty = 0;
     const plan = fieldPlanFor(n.type);   // T-1125: project profile (pinned / hidden)
     for (const f of aefFields) {
-      const meta = FIELD_META[f];
+      const meta = fieldMetaFor(f);
       const hasValue = aefFieldHasValue(n, f, meta);
       // T-1125: a field the project hides is not drawn and not offered under "+ N empty fields" —
       // unless it carries a value (value-never-hidden) or "Show all fields" is on.
@@ -7396,7 +7495,8 @@ function _renderPropsInto(props, details) {
     why.className = 'field-hint';
     why.style.cssText = 'display:block;margin:2px 0 8px;line-height:1.45';
     why.textContent = 'Carried by this node in the source document. Shown read-only — these '
-      + 'keys are either derived from the diagram or not authored here. They are not lost.';
+      + 'keys are either derived from the diagram or not authored here. They are not lost. '
+      + '"Suggest as a field" asks the operator to make one an editable field for this project.';
     sOther.appendChild(why);
     for (const k of hiddenKeys) {
       const row = document.createElement('div');
@@ -7410,6 +7510,7 @@ function _renderPropsInto(props, details) {
         + 'user-select: text; white-space: pre-wrap; word-break: break-word;';
       val.textContent = String(n.aef[k]);
       row.append(lab, val);
+      if (!NOT_SUGGESTIBLE_KEYS.has(k)) row.appendChild(suggestFieldRow(n, k));   // T-1126
       sOther.appendChild(row);
     }
     props.appendChild(sOther);

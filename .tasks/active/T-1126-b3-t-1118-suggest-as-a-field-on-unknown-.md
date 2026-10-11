@@ -1,13 +1,17 @@
 ---
 id: T-1126
-name: "B3 (T-1118): 'Suggest as a field' on unknown keys; a field appears only after the operator approves it via a runme job writing the project profile"
+name: "B3 (T-1118): 'Suggest as a field' on unknown keys; a field appears only after
+  the operator approves it via a runme job writing the project profile"
 description: >
-  T-1118 GO, build 3 of 3, after B2. Extend 'Other extensions' (T-566) with a suggestion action and per-map evidence; suggestions queue per project; the operator's runme approval writes the key into the B2 profile with approved_by/date.
+  T-1118 GO, build 3 of 3, after B2. Extend 'Other extensions' (T-566) with a suggestion
+  action and per-map evidence; suggestions queue per project; the operator's runme
+  approval writes the key into the B2 profile with approved_by/date.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: [T-1118, T-1125]
@@ -39,8 +43,8 @@ unlocks_inception_decision: ["T-1118:suggest-and-approve"]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-11T12:58:39Z
-last_update: 2026-10-11T12:58:39Z
-date_finished: null
+last_update: 2026-10-11T21:36:09Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -51,6 +55,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-11T21:27:39Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=export)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1126: B3 (T-1118): 'Suggest as a field' on unknown keys; a field appears only after the operator approves it via a runme job writing the project profile
@@ -63,8 +88,12 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Each entry under "Other extensions" (an aef: scalar the element type has no field for) gets "Suggest as a field", showing its evidence in the open map ("approvalLimit · on 7 of 12 userTask elements"); it is disabled with the reason when no project server is present
+- [x] A suggestion is a RECORD, never a field: `POST /api/field-suggestions` appends/merges it in `field-suggestions.json` at the repo root (key, element type, count, up to 3 example values, map id, first/last seen); `GET` lists them; a key already suggested shows "suggested", a rejected one "rejected"
+- [x] Approval is the operator's, through a runme job: `tools/field-suggestion.py approve --type T --key K --label L --by NAME` writes the key into the project field profile (`fields` section: label, element types, approved_by, approved_at) and marks the suggestion approved; `reject --reason` marks it rejected; `list` shows them; the server validator accepts the `fields` section and still refuses anything malformed whole
+- [x] After approval the key is a normal Extensions field for that element type (editable, foldable when empty, subject to show/hide, in the details view) and leaves "Other extensions"; its value is saved exactly as before (export byte-identical for unchanged values; an edit lands in the map)
+- [x] Nothing becomes a field without an approval record: a profile `fields` entry missing approved_by/approved_at is refused
+- [x] Tests: server + CLI legs (suggest, merge, list, approve, reject, refused malformed) and CDP legs (button + evidence, suggested state, approved field drawn/editable/exported, standalone disabled); wired into tests/run-bridge-tests.sh; render check --src, T-1124/T-1125/T-1127/T-1128 tests unchanged
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -102,6 +131,10 @@ date_finished: null
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+node tools/_t1126-field-suggestions-cdp.mjs
+python3 tools/_t1128-field-profile-server.py
+python3 tools/_t682-boundary-inventory.py
+python3 tests/test_designer_render.py --src
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
@@ -294,16 +327,33 @@ date_finished: null
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
 
+## Visual Verification
+
+- `docs/reports/T-1126-evidence/t1126-suggested.png` — userTask "Approve small": under "Other extensions · 1" the
+  approvalLimit row (5000), a faint evidence line "approvalLimit · on 2 of 3 userTask elements" and a compact
+  "Suggested ✓" button after the click; no new Extensions field. First capture: button invisible — the headless
+  1400px window cut the panel at ~215px (artefact, re-shot at 1900px); then the button wrapped "Suggested / ✓" and
+  the evidence was body-size — nowrap + 11px faint applied, read again: one line, quiet.
+- `docs/reports/T-1126-evidence/t1126-approved.png` — after the operator's approve: Extensions shows "Approval limit ·
+  amount in EUR · approved field (operator-test)" with 5000; "Other extensions" gone. Read: legible.
+
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-10-11 — approval through a CLI the operator runs, not a button
+- **Chose:** `tools/field-suggestion.py approve|reject|list`, run via a runme job; the editor can only POST a suggestion.
+- **Why:** the T-347 ruling — a field appears "on suggestion ... with operator"; a button in the editor would let any
+  author create fields. The CLI writes through the same validated, history-logged, 409-guarded path as Settings.
+- **Rejected:** an Approve button in Settings (no operator authentication in the designer).
+
+### 2026-10-11 — approved fields live in the PROJECT profile only
+- **Chose:** `fields` section of `<repo>/field-profile.json`; map profiles cannot add fields.
+- **Why:** approval is per project; a map-level field would bypass it. Show/hide of an approved field still works at
+  both levels like any field.
+
+### 2026-10-11 — keys derived from the diagram get no button
+- **Chose:** owner, gatewayKind, scopeOf, constituents are never offered.
+- **Why:** they are written by the diagram's shape (T-566 comment); a field for them would be a box the export
+  overwrites.
 
 ## Decision
 
@@ -321,3 +371,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1126-b3-t-1118-suggest-as-a-field-on-unknown-.md
 - **Context:** Initial task creation
+
+### 2026-10-11T21:27:39Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

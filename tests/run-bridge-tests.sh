@@ -1038,6 +1038,17 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1126 (T-1118 B3): "Suggest as a field" records a suggestion (never a field); only the operator's
+# tools/field-suggestion.py approves (writing the profile's fields section, refused without approval) or rejects.
+if node "$ROOT/tools/_t1126-field-suggestions-cdp.mjs" > "$TMP/leg-_t1126.out" 2>&1 \
+   && grep -q "T-1126: 8/8" "$TMP/leg-_t1126.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "field suggestions broke — a suggestion no longer records, became a field without approval, an approved field is not drawn/editable/exported, or a derived key is offered (run 'node tools/_t1126-field-suggestions-cdp.mjs'; T-1126)"
+  show_output "$TMP/leg-_t1126.out" "_t1126-field-suggestions-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
 # aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
 # guard since T-889 closed (the census showed it had lost its only caller, T-889's Verification).

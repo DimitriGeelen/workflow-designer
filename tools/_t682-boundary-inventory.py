@@ -153,6 +153,15 @@ ROUTE_SEMANTICS = {
                                     '_valid_id -> 400 before any path is built; whole-profile '
                                     'validation (422, nothing written); optimistic base check '
                                     '(409, nothing written); temp + os.replace under a lock'),
+    # T-1126: field suggestions — a record that a key could become a field. The editor can only ADD
+    # a suggestion; approving one (which writes the profile) is tools/field-suggestion.py, operator-run.
+    ('GET', '/api/field-suggestions'): ('none — reads <repo>/field-suggestions.json',
+                                        'n/a (no id or path derived from input)'),
+    ('POST', '/api/field-suggestions'): ('WRITES 1 target: <repo>/field-suggestions.json (append or merge '
+                                         'one entry; status is never changed here)',
+                                         'fixed path; type/key must match the identifier pattern, counts '
+                                         'and examples bounded, map id ID_RE (400, nothing written); temp + '
+                                         'os.replace under a lock'),
 }
 
 

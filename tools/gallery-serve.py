@@ -29,6 +29,10 @@ API:
                                       (<repo>/field-profile.json, T-1125) or a map's own
                                       (.editor-versions/<id>/field-profile.json, T-1128);
                                       404 none (falls back), 422 malformed (refused whole)
+  GET  /api/field-suggestions      -> {ok:true, version, suggestions[]} (T-1126)
+  POST /api/field-suggestions {type, key, count, total, examples[], map} -> {ok:true, suggestion}
+                                      (T-1126) a RECORD in <repo>/field-suggestions.json, never a field;
+                                      approval/rejection only via tools/field-suggestion.py (operator)
   PUT  /api/field-profile[?id=<id>] {profile, base, note?} -> {ok:true, profile, base} (T-1128);
                                       422 malformed, 409 changed since read (current returned);
                                       atomic; each write appends to field-profile.history.jsonl
@@ -85,11 +89,34 @@ def check_field_profile(obj):
     """
     if not isinstance(obj, dict):
         return None, 'profile must be a JSON object'
-    extra = set(obj) - {'version', 'types'}
+    extra = set(obj) - {'version', 'types', 'fields'}
     if extra:
         return None, 'unknown top-level key(s): %s' % ', '.join(sorted(extra))
     if obj.get('version') != 1:
         return None, 'version must be 1'
+    # T-1126 (T-1118 B3): fields the OPERATOR approved from a suggestion — a key the designer has no
+    # built-in field for. Every entry must carry its approval (by, at): nothing becomes a field without it.
+    fields = obj.get('fields', {})
+    if not isinstance(fields, dict):
+        return None, '"fields" must be an object of approved field keys'
+    for k, spec in fields.items():
+        if not _PROFILE_KEY_RE.match(str(k)):
+            return None, 'bad field key %r' % k
+        if not isinstance(spec, dict):
+            return None, 'fields.%s must be an object' % k
+        bad = set(spec) - {'label', 'hint', 'types', 'approved_by', 'approved_at'}
+        if bad:
+            return None, 'fields.%s: unknown key(s) %s' % (k, ', '.join(sorted(bad)))
+        if not (isinstance(spec.get('label'), str) and 0 < len(spec['label'].strip()) <= 60):
+            return None, 'fields.%s.label must be 1-60 characters' % k
+        if 'hint' in spec and not (isinstance(spec['hint'], str) and len(spec['hint']) <= 200):
+            return None, 'fields.%s.hint must be at most 200 characters' % k
+        ts = spec.get('types')
+        if not (isinstance(ts, list) and ts and all(isinstance(t, str) and _PROFILE_KEY_RE.match(t) for t in ts)):
+            return None, 'fields.%s.types must be a non-empty list of element types' % k
+        for a in ('approved_by', 'approved_at'):
+            if not (isinstance(spec.get(a), str) and spec[a].strip()):
+                return None, 'fields.%s has no %s — a field needs the operator\'s approval' % (k, a)
     types = obj.get('types')
     if not isinstance(types, dict):
         return None, '"types" must be an object of element types'
@@ -197,6 +224,97 @@ def write_field_profile(id_, profile, base, note=''):
             h.write(json.dumps({'ts': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), 'scope': scope,
                                 'id': id_ or None, 'previous': prev, 'new': prof, 'note': note}) + '\n')
     return 200, {'ok': True, 'profile': prof, 'scope': scope, 'base': _profile_base(body)}
+
+
+# ---- T-1126 (T-1118 B3): field suggestions — a RECORD that a key could become a field, never a field ----
+FIELD_SUGGESTIONS_NAME = 'field-suggestions.json'
+_SUGGEST_LOCK = threading.Lock()
+
+
+def suggestions_path():
+    return os.path.join(REPO, FIELD_SUGGESTIONS_NAME)
+
+
+def read_suggestions():
+    """The project's suggestion list ({version, suggestions:[...]}); an absent file is an empty list."""
+    p = suggestions_path()
+    if not os.path.exists(p):
+        return {'version': 1, 'suggestions': []}
+    with open(p, encoding='utf-8') as f:
+        doc = json.load(f)
+    if not isinstance(doc, dict) or not isinstance(doc.get('suggestions'), list):
+        raise ValueError('field-suggestions.json is malformed')
+    return doc
+
+
+def _write_suggestions(doc):
+    p = suggestions_path()
+    d = os.path.dirname(p)
+    fd, tmp = tempfile.mkstemp(dir=d, suffix='.tmp')
+    try:
+        with os.fdopen(fd, 'w', encoding='utf-8') as f:
+            json.dump(doc, f, indent=2, sort_keys=True)
+            f.write('\n')
+        os.replace(tmp, p)
+    except Exception:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+
+
+def add_suggestion(payload):
+    """T-1126: (http code, body) for POST /api/field-suggestions {type, key, count, total, examples[], map}.
+
+    One entry per (element type, key); a repeat suggestion merges (latest evidence, maps seen, last_seen)
+    and never changes the status — approval and rejection are the operator's (tools/field-suggestion.py).
+    """
+    if not isinstance(payload, dict):
+        return 400, {'ok': False, 'error': 'need a JSON object'}
+    t, k = payload.get('type'), payload.get('key')
+    if not (isinstance(t, str) and _PROFILE_KEY_RE.match(t) and isinstance(k, str) and _PROFILE_KEY_RE.match(k)):
+        return 400, {'ok': False, 'error': 'type and key must be identifiers'}
+    count, total = payload.get('count'), payload.get('total')
+    if not (isinstance(count, int) and isinstance(total, int) and 0 < count <= total <= 100000):
+        return 400, {'ok': False, 'error': 'count/total must be integers with 0 < count <= total'}
+    ex = payload.get('examples') or []
+    if not (isinstance(ex, list) and len(ex) <= 3 and all(isinstance(x, str) and len(x) <= 120 for x in ex)):
+        return 400, {'ok': False, 'error': 'examples: at most 3 strings of at most 120 characters'}
+    mid = payload.get('map') or ''
+    if mid and not ID_RE.match(mid):
+        return 400, {'ok': False, 'error': 'invalid map id'}
+    now = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+    with _SUGGEST_LOCK:
+        try:
+            doc = read_suggestions()
+        except (OSError, ValueError) as e:
+            return 500, {'ok': False, 'error': 'suggestions unreadable: %s' % e}
+        ent = next((s for s in doc['suggestions'] if s.get('type') == t and s.get('key') == k), None)
+        if ent is None:
+            ent = {'type': t, 'key': k, 'status': 'pending', 'first_seen': now, 'maps': []}
+            doc['suggestions'].append(ent)
+        ent.update({'count': count, 'total': total, 'examples': ex, 'last_seen': now})
+        if mid and mid not in ent['maps']:
+            ent['maps'].append(mid)
+        _write_suggestions(doc)
+    return 200, {'ok': True, 'suggestion': ent}
+
+
+def set_suggestion_status(t, k, status, by, reason=''):
+    """T-1126: mark a suggestion approved/rejected (called by tools/field-suggestion.py, never by the editor)."""
+    with _SUGGEST_LOCK:
+        doc = read_suggestions()
+        ent = next((s for s in doc['suggestions'] if s.get('type') == t and s.get('key') == k), None)
+        if ent is None:
+            ent = {'type': t, 'key': k, 'first_seen': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), 'maps': []}
+            doc['suggestions'].append(ent)
+        ent.update({'status': status, 'decided_by': by,
+                    'decided_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())})
+        if reason:
+            ent['reason'] = reason
+        _write_suggestions(doc)
+        return ent
 
 
 def _load_validator():
@@ -771,6 +889,12 @@ class Handler(SimpleHTTPRequestHandler):
         route = parsed.path
         if route == '/api/health':
             return self._json(200, {'ok': True, 'store': '.editor-versions'})
+        if route == '/api/field-suggestions':
+            # T-1126: the project's field suggestions (pending / approved / rejected).
+            try:
+                return self._json(200, {'ok': True, **read_suggestions()})
+            except (OSError, ValueError) as e:
+                return self._json(500, {'ok': False, 'error': 'suggestions unreadable: %s' % e})
         if route == '/api/field-profile':
             # T-1125 (T-1118 B2): the project's field profile — which fields the properties panel shows;
             # T-1128: ?id=<map> reads that map's own profile (stored beside its versions).
@@ -925,13 +1049,16 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         parsed = urlparse(self.path)
-        if parsed.path not in ('/api/save', '/api/delete', '/api/validate'):
+        if parsed.path not in ('/api/save', '/api/delete', '/api/validate', '/api/field-suggestions'):
             return self._json(404, {'ok': False, 'error': 'unknown endpoint'})
         try:
             length = int(self.headers.get('Content-Length', '0'))
             payload = json.loads(self.rfile.read(length) or b'{}')
         except Exception as e:
             return self._json(400, {'ok': False, 'error': 'bad json: %s' % e})
+        if parsed.path == '/api/field-suggestions':   # T-1126: record a suggestion (never a field)
+            code, obj = add_suggestion(payload)
+            return self._json(code, obj)
         if parsed.path == '/api/delete':
             return self._api_delete(payload)
         if parsed.path == '/api/validate':

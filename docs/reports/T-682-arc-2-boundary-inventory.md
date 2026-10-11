@@ -9,6 +9,7 @@ A route added to the server without a row here fails the drift check.
 | method | path | what it mutates | containment |
 |---|---|---|---|
 | GET | `/api/field-profile` | none — reads <repo>/field-profile.json or, with ?id=, .editor-versions/<id>/field-profile.json | _valid_id -> 400 on a bad ?id= before any path is built; no id = fixed repo-root path |
+| GET | `/api/field-suggestions` | none — reads <repo>/field-suggestions.json | n/a (no id or path derived from input) |
 | GET | `/api/health` | none — liveness only | n/a (no path derived from input) |
 | GET | `/api/instances` | none — runs `instance-node.py snapshot <id>` as a subprocess (read-only: _reverse + _read_refusals; no write path reached) and returns its stdout verbatim | _valid_id -> 400 BEFORE the subprocess starts, so no unfenced id reaches argv; 60s timeout; rc 3 -> 404, any other non-zero -> 500 with output truncated to 2000 chars |
 | GET | `/api/list` | none — enumerates corpus + saved maps | n/a (no id accepted) |
@@ -16,6 +17,7 @@ A route added to the server without a row here fails the drift check.
 | GET | `/api/version` | none — reads vN.bpmn | ID_RE only (read path) |
 | GET | `/api/versions` | none — reads index.json | ID_RE only (read path) |
 | POST | `/api/delete` | MOVES sources to .editor-versions/_trash/ AND writes .context/designer/registry.yaml | _within_repo via archive_move (delete path); registry fixed-path |
+| POST | `/api/field-suggestions` | WRITES 1 target: <repo>/field-suggestions.json (append or merge one entry; status is never changed here) | fixed path; type/key must match the identifier pattern, counts and examples bounded, map id ID_RE (400, nothing written); temp + os.replace under a lock |
 | POST | `/api/save` | WRITES 6 targets: vN.bpmn, vN.png, index.json, corpus copy, served copy, .context/designer/registry.yaml | T-683 per-target containment on the 5 id-derived targets; the registry is fixed-path (see § Ledger authority) |
 | POST | `/api/validate` | none — imports tools/validate-workflow.py via importlib and calls run_xml(bpmn) on the REQUEST BODY, returning findings; reaches no write primitive in either module (verified through the exec_module hop, not inferred from the POST verb) | n/a (no id and no path derived from input — the document arrives in the body and is never persisted); non-str or blank bpmn -> 400; validator that will not load -> 503, never an empty findings list, so an unavailable validator cannot read as a clean document |
 | PUT | `/api/field-profile` | WRITES 2 targets: the profile (repo root, or .editor-versions/<id>/ with ?id=) and an append to field-profile.history.jsonl beside it | _valid_id -> 400 before any path is built; whole-profile validation (422, nothing written); optimistic base check (409, nothing written); temp + os.replace under a lock |
@@ -30,10 +32,10 @@ Patterns searched: `subprocess`, `os\.system`, `os\.popen`, `\bexec\(`, `\beval\
 
 **4 match(es) found — so this is NOT a bare absence:**
 
-- `gallery-serve.py:54` — `import subprocess`
-- `gallery-serve.py:828` — `p = subprocess.run([sys.executable, tool, '--root', REPO, 'snapshot', tpl],`
-- `gallery-serve.py:1107` — `import subprocess`
-- `gallery-serve.py:1108` — `ip = subprocess.check_output(['hostname', '-I']).decode().split()[0]`
+- `gallery-serve.py:58` — `import subprocess`
+- `gallery-serve.py:952` — `p = subprocess.run([sys.executable, tool, '--root', REPO, 'snapshot', tpl],`
+- `gallery-serve.py:1234` — `import subprocess`
+- `gallery-serve.py:1235` — `ip = subprocess.check_output(['hostname', '-I']).decode().split()[0]`
 
 The claim this document makes is therefore the narrow, checkable one: **no route
 reaches an execution primitive, and no execution primitive takes request-derived
@@ -72,22 +74,22 @@ the matched line, not the call graph, so treat DECL as "not evidence either way"
 rather than as "safe".
 
 - **DECL** `gallery-serve.py:16` — `.editor-versions/<id>/index.json            (version list — always)`
-- **DECL** `gallery-serve.py:36` — `GET  /api/versions?id=<id>       -> index.json  ([] if none)`
-- **DECL** `gallery-serve.py:251` — `p = os.path.join(versions_dir(id_), 'index.json')`
-- **WRITE** `gallery-serve.py:264` — `with open(os.path.join(d, 'index.json'), 'w', encoding='utf-8') as f:`
-- **DECL** `gallery-serve.py:268` — `# ---- delete/archive (T-166) — deletion is recoverable: sources move to _trash ----`
-- **DECL** `gallery-serve.py:270` — `"""Per-delete archive folder: .editor-versions/_trash/<id>-<ts>/. The '_trash'`
-- **DECL** `gallery-serve.py:272` — `return os.path.join(REPO, '.editor-versions', '_trash', '%s-%d' % (id_, ts))`
-- **DECL** `gallery-serve.py:445` — `# ---- S3b (T-227) — persistent registry twin (.context/designer/registry.yaml) ----`
-- **DECL** `gallery-serve.py:460` — `def registry_path():`
-- **DECL** `gallery-serve.py:463` — `return os.path.join(REPO, '.context', 'designer', 'registry.yaml')`
-- **READ** `gallery-serve.py:470` — `with open(registry_path(), encoding='utf-8') as f:`
-- **DECL** `gallery-serve.py:477` — `def write_registry(reg):`
-- **DECL** `gallery-serve.py:479` — `path = registry_path()`
-- **WRITE** `gallery-serve.py:582` — `write_registry(reg)`
-- **WRITE** `gallery-serve.py:592` — `write_registry(reg)`
-- **WRITE** `gallery-serve.py:614` — `reg.setdefault('claims', []).append(`
-- **WRITE** `gallery-serve.py:616` — `write_registry(reg)`
+- **DECL** `gallery-serve.py:40` — `GET  /api/versions?id=<id>       -> index.json  ([] if none)`
+- **DECL** `gallery-serve.py:369` — `p = os.path.join(versions_dir(id_), 'index.json')`
+- **WRITE** `gallery-serve.py:382` — `with open(os.path.join(d, 'index.json'), 'w', encoding='utf-8') as f:`
+- **DECL** `gallery-serve.py:386` — `# ---- delete/archive (T-166) — deletion is recoverable: sources move to _trash ----`
+- **DECL** `gallery-serve.py:388` — `"""Per-delete archive folder: .editor-versions/_trash/<id>-<ts>/. The '_trash'`
+- **DECL** `gallery-serve.py:390` — `return os.path.join(REPO, '.editor-versions', '_trash', '%s-%d' % (id_, ts))`
+- **DECL** `gallery-serve.py:563` — `# ---- S3b (T-227) — persistent registry twin (.context/designer/registry.yaml) ----`
+- **DECL** `gallery-serve.py:578` — `def registry_path():`
+- **DECL** `gallery-serve.py:581` — `return os.path.join(REPO, '.context', 'designer', 'registry.yaml')`
+- **READ** `gallery-serve.py:588` — `with open(registry_path(), encoding='utf-8') as f:`
+- **DECL** `gallery-serve.py:595` — `def write_registry(reg):`
+- **DECL** `gallery-serve.py:597` — `path = registry_path()`
+- **WRITE** `gallery-serve.py:700` — `write_registry(reg)`
+- **WRITE** `gallery-serve.py:710` — `write_registry(reg)`
+- **WRITE** `gallery-serve.py:732` — `reg.setdefault('claims', []).append(`
+- **WRITE** `gallery-serve.py:734` — `write_registry(reg)`
 
 The 5 WRITE site(s) are the whole of the editor's ledger authority.
 
