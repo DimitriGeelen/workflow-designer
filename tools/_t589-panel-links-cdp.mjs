@@ -114,6 +114,9 @@ const SNAP = `(function(){
   function panelFor(n){
     selection = { kind: 'node', id: n.id };
     renderProperties();
+    // T-1124: empty fields are folded behind "+ N empty fields"; open it as an author would.
+    var fold = document.querySelector('#properties .props-empty-fields');
+    if (fold) fold.click();
     var root = document.getElementById('properties');
     var as = [].slice.call(root.querySelectorAll('a')).map(function(a){
       return { href: a.getAttribute('href'), abs: a.href, text: a.textContent,

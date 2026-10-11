@@ -893,6 +893,10 @@ font-family: 'Outfit';
     margin: 0 2px;
   }
   .props-tips { font-size: 11px; color: var(--text-faint); line-height: 1.7; padding: 4px 0; }
+  /* T-1124: the folded empty Extensions fields — quiet, full width, reads as a disclosure row */
+  .props-empty-fields { display: block; width: 100%; margin: 4px 0 2px; text-align: left;
+    font-size: 11px; color: var(--text-faint); background: transparent; border-style: dashed; }
+  .props-empty-fields:hover { color: var(--text); }
   .props-tips .kbd {
     display: inline-block;
     background: var(--surface-2);
@@ -1729,6 +1733,11 @@ font-family: 'Outfit';
             <input type="checkbox" id="set-clean-on-import">
             <span>Clean layout when opening a file</span>
             <span class="settings-hint">runs Clean once on import/deep-link (Ctrl+Z reverts to the raw file); off = files open exactly as saved</span>
+          </label>
+          <label class="settings-row"><!-- T-1124 (T-1118 B1) -->
+            <input type="checkbox" id="set-show-all-fields">
+            <span>Show all fields in the properties panel</span>
+            <span class="settings-hint">off = empty fields fold into one "+ N empty fields" row; a field with a value always shows</span>
           </label>
         </div>
         <div class="settings-section">
@@ -2928,7 +2937,7 @@ function setLabelPref(key, value) {
 // rowSpacing does NOT move geometry on load — only an explicit control change
 // re-spaces (PD-044). (Density, a snap-threshold multiplier that never grew
 // lanes, was retired here — see rowPitch.)
-let viewPrefs = { branchPitch: 'auto', cleanOnImport: false, rowSpacing: 96, colSpacing: 150, paletteHidden: false, propsHidden: false };
+let viewPrefs = { branchPitch: 'auto', cleanOnImport: false, rowSpacing: 96, colSpacing: 150, paletteHidden: false, propsHidden: false, showAllFields: false };
 try {
   const _storedView = JSON.parse(localStorage.getItem('aefViewPrefs') || '{}');
   if (['compact', 'auto', 'roomy'].includes(_storedView.branchPitch)) viewPrefs.branchPitch = _storedView.branchPitch;
@@ -2937,6 +2946,7 @@ try {
   if (typeof _storedView.colSpacing === 'number' && _storedView.colSpacing >= 130 && _storedView.colSpacing <= 360) viewPrefs.colSpacing = _storedView.colSpacing;
   if (typeof _storedView.paletteHidden === 'boolean') viewPrefs.paletteHidden = _storedView.paletteHidden;
   if (typeof _storedView.propsHidden === 'boolean') viewPrefs.propsHidden = _storedView.propsHidden;
+  if (typeof _storedView.showAllFields === 'boolean') viewPrefs.showAllFields = _storedView.showAllFields;   // T-1124
 } catch (e) { aefRecordFault('prefs-restore:view', e); }
 function setViewPref(key, value) {
   viewPrefs[key] = value;
@@ -6334,6 +6344,19 @@ function renderMultiSelectProps(props) {
 // reverted with zero signal — the T-263 / rail-225 "didn't rebind" trap.
 let _idRenameNotice = null;
 
+// T-1124 (T-1118 B1): which selection has its empty Extensions fields opened (null = none).
+let _emptyFieldsRevealed = null;
+// A field "has a value" when it carries anything an author wrote: a non-blank scalar or a
+// non-empty list. A workflow target that auto-resolves from a uuid ref (T-240) counts too —
+// the panel shows that resolved id, so folding it away would hide content.
+function aefFieldHasValue(n, f, meta) {
+  const v = n.aef ? n.aef[f] : undefined;
+  if (Array.isArray(v)) return v.length > 0;
+  if (v !== null && v !== undefined && typeof v === 'object') return Object.keys(v).length > 0;
+  if (v !== null && v !== undefined && String(v).trim() !== '') return true;
+  if (meta && meta.special === 'workflowPicker' && typeof resolveWorkflowRef === 'function') return !!resolveWorkflowRef(n);
+  return false;
+}
 function renderProperties() {
   const props = $('properties');
   props.innerHTML = '';
@@ -6814,8 +6837,19 @@ function renderProperties() {
   if (aefFields && aefFields.length) {
     const sAef = section('Extensions', true);
     n.aef = n.aef || {};
+    // T-1124 (T-1118 B1): an empty field is folded into one "+ N empty fields" row unless
+    // Settings → "Show all fields" is on or the author opened the row for THIS selection.
+    // A field with a value is always drawn — hiding only ever removes empty boxes, never data
+    // (the T-566 lesson). `selection` is a fresh object on every click, so the opened state
+    // ends when the author selects anything else.
+    const revealed = viewPrefs.showAllFields
+      || (_emptyFieldsRevealed && _emptyFieldsRevealed.sel === selection && _emptyFieldsRevealed.uid === n.uid);
+    let foldedEmpty = 0;
     for (const f of aefFields) {
       const meta = FIELD_META[f];
+      // The target picker is never folded: on a handoff it IS the element's purpose (T-163/T-308), and
+      // "← Make this a handoff" exists to show it — folding it would undo that click.
+      if (!revealed && meta.special !== 'workflowPicker' && !aefFieldHasValue(n, f, meta)) { foldedEmpty++; continue; }
       if (meta.special === 'tier') {
         sAef.appendChild(tierField(n.aef[f] || '', v => { n.aef[f] = v; renderProperties(); }));
       } else if (meta.special === 'select') {
@@ -6952,6 +6986,17 @@ function renderProperties() {
       ownerValue.textContent = derivedOwner || '— none —';
       ownerField.appendChild(ownerValue);
       sAef.appendChild(ownerField);
+    }
+    if (foldedEmpty) {
+      const more = document.createElement('button');
+      more.type = 'button';
+      more.className = 'btn props-empty-fields';
+      more.dataset.testid = 'empty-fields-toggle';
+      more.textContent = `+ ${foldedEmpty} empty field${foldedEmpty === 1 ? '' : 's'}`;
+      more.title = 'Show the fields this element has no value for, to fill one in. '
+        + 'Settings → "Show all fields" keeps them all visible.';
+      more.onclick = () => { _emptyFieldsRevealed = { sel: selection, uid: n.uid }; renderProperties(); };
+      sAef.appendChild(more);
     }
     props.appendChild(sAef);
   }
@@ -7459,6 +7504,7 @@ function syncSettingsUI() {
   $('set-col-spacing').value = viewPrefs.colSpacing;
   $('set-branch-pitch').value = viewPrefs.branchPitch;
   $('set-clean-on-import').checked = viewPrefs.cleanOnImport;
+  $('set-show-all-fields').checked = viewPrefs.showAllFields;
   $('set-label-size').value = labelPrefs.size;
   $('set-show-lane').checked = labelPrefs.showLane;
   $('set-show-ids').checked = labelPrefs.showIds;
@@ -7527,6 +7573,7 @@ $('set-col-spacing').addEventListener('change', e => {
 });
 $('set-branch-pitch').addEventListener('change', e => { setViewPref('branchPitch', e.target.value); applyViewClean(); });
 $('set-clean-on-import').addEventListener('change', e => setViewPref('cleanOnImport', e.target.checked));
+$('set-show-all-fields').addEventListener('change', e => setViewPref('showAllFields', e.target.checked));   // T-1124
 $('btn-apply-clean').onclick = applyViewClean;
 $('set-label-size').addEventListener('change', e => setLabelPref('size', e.target.value));
 $('set-show-lane').addEventListener('change', e => setLabelPref('showLane', e.target.checked));
@@ -7554,6 +7601,7 @@ $('btn-settings-reset').onclick = () => {
   setViewPref('colSpacing', 150);
   setViewPref('branchPitch', 'auto');
   setViewPref('cleanOnImport', false);
+  setViewPref('showAllFields', false);   // T-1124
   setLabelPref('size', 'm');
   setLabelPref('showLane', true);
   setLabelPref('showIds', true);

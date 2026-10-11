@@ -270,6 +270,9 @@ const T240_ASSERT = `(function(){
     selection = { kind: 'node', id: n.id };
     if (typeof multiSelect !== 'undefined' && multiSelect && multiSelect.clear) multiSelect.clear();
     renderProperties();
+    // T-1124: an empty target field is folded behind "+ N empty fields"; open it as an author would.
+    var fold = document.querySelector('#properties .props-empty-fields');
+    if (fold) fold.click();
     var props = document.getElementById('properties');
     var jump = Array.prototype.filter.call(props.querySelectorAll('button'), function(b){
       return (b.textContent || '').indexOf('Open target workflow') >= 0; })[0] || null;

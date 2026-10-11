@@ -108,6 +108,9 @@ const DRIVE_EXPR = `(() => {
     // ---- L5 + L3: drive the REAL panel ----
     selection = { kind: 'node', id: n.id };
     renderProperties();
+    // T-1124: an empty field is folded behind "+ N empty fields"; open it the way an author would.
+    const fold = document.querySelector('#properties .props-empty-fields');
+    if (fold) fold.click();
     const fields = Array.from(document.querySelectorAll('#properties .field'));
     const wrap = fields.find(w => {
       const l = w.querySelector('.field-label');

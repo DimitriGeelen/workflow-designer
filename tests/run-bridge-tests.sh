@@ -956,6 +956,17 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1124 (T-1118 B1): empty Extensions fields fold into one "+ N empty fields" row; a field with a value is
+# never hidden (all 42 examples/ service tasks); "Show all fields" restores the old panel; export unchanged.
+if node "$ROOT/tools/_t1124-hide-empty-fields-cdp.mjs" > "$TMP/leg-_t1124.out" 2>&1 \
+   && grep -q "T-1124: 10/10" "$TMP/leg-_t1124.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "the properties panel draws empty fields again, hides a field that has a value, the fold row or 'Show all fields' broke, or the setting changes the export (run 'node tools/_t1124-hide-empty-fields-cdp.mjs'; T-1124)"
+  show_output "$TMP/leg-_t1124.out" "_t1124-hide-empty-fields-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
 # aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
 # guard since T-889 closed (the census showed it had lost its only caller, T-889's Verification).
@@ -2432,6 +2443,18 @@ if python3 "$ROOT/tools/_t517-vendor-divergence.py" > "$TMP/leg-_t517-vendor-div
 else
   report FAIL "vendored framework divergence no longer matches .agentic-framework/.vendor-divergence.yaml — either vendored code was patched without declaring it, or a declared local fix has vanished (a re-vendor would do exactly that). Run 'python3 tools/_t517-vendor-divergence.py'; rc 2 is a REFUSAL (manifest or baseline unreachable), not a clean tree"
   show_output "$TMP/leg-_t517-vendor-divergence.out" "_t517-vendor-divergence.py"
+  fail=$((fail + 1))
+fi
+
+# T-1123: the vendored hand-off predicate (inception_handoff_blockers) asks our T-866 hypothesis gate on a
+# GO recommendation, so fw task review / Watchtower never offer a GO that fw inception decide refuses.
+# A re-vendor that drops the local fix (or the gate it pairs with) turns this red.
+if bash "$ROOT/tools/_t1123-handoff-hypothesis.sh" > "$TMP/leg-_t1123.out" 2>&1 \
+   && grep -q "T-1123: 8 passed, 0 failed" "$TMP/leg-_t1123.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "the inception hand-off predicate no longer agrees with the decide gate on the GO hypothesis — a GO-recommended inception with an unready hypothesis would be offered to the operator and refused at decide (run 'bash tools/_t1123-handoff-hypothesis.sh'; T-1123, G-085)"
+  show_output "$TMP/leg-_t1123.out" "_t1123-handoff-hypothesis.sh"
   fail=$((fail + 1))
 fi
 

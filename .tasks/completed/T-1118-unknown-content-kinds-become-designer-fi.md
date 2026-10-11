@@ -6,17 +6,27 @@ description: >
   Inception: Unknown content kinds become designer fields only on operator approval,
   with per-project and per-workflow field visibility (R2 of the T-347 ruling)
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_3_start
+current_node: frw_11_task
 owner: human
-horizon: now
+horizon: null
 tags: []
-components: []
-related_tasks: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t338-input-fidelity-cdp.mjs, tools/_t598-source-marker.py, tools/_t603-multiprocess-import.mjs]
+related_tasks: [T-1124, T-1125, T-1126]
+inception_decisions:
+  - id: hide-empty-fields
+    text: "B1: the properties panel folds empty fields behind '+ N empty fields'; a field with a value is never hidden; Settings 'Show all fields'"
+    ships_in: T-1124
+  - id: field-profile
+    text: "B2: a field profile per project and per workflow decides which fields show (designer default < project < workflow)"
+    ships_in: T-1125
+  - id: suggest-and-approve
+    text: "B3: 'Suggest as a field' on unknown keys; a field appears only after the operator approves it via a runme job"
+    ships_in: T-1126
 created: 2026-10-10T12:37:38Z
-last_update: 2026-10-11T12:20:58Z
-date_finished:
+last_update: 2026-10-11T12:56:03Z
+date_finished: 2026-10-11T12:56:03Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -126,15 +136,15 @@ We will know that we are successful when we see, on the 42 service tasks in exam
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Why you:** direction — which content kinds the designer turns into fields, and what each project / workflow shows, is product direction the operator ruled on himself (T-347, 2026-10-10); and `fw inception decide` is the operator's
   **Steps:**
   1. Run: `fw task review T-1118` (opens Watchtower with recommendation, assumptions, research artifacts)
@@ -194,7 +204,11 @@ All five questions answered from the code and a corpus measurement. Three bounde
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-1118 go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Operator R1 2026-10-11: GO on all three builds in order — B1 hide empty fields (median 2 of 13 service-task fields filled), B2 project + workflow field profile (most specific wins, a filled field is never hidden), B3 suggest-as-field approved by the operator via runme. Each bounded, testable, reversible; defaults reproduce today's panel. Findings: docs/reports/T-1118-fields-on-approval-and-visibility.md
+
+**Date**: 2026-10-11T12:56:02Z
 
 ## Updates
 
@@ -203,3 +217,42 @@ All five questions answered from the code and a corpus measurement. Three bounde
 
 ### 2026-10-11T07:33:01Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-10-11T12:56:02Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Operator R1 2026-10-11: GO on all three builds in order — B1 hide empty fields (median 2 of 13 service-task fields filled), B2 project + workflow field profile (most specific wins, a filled field is never hidden), B3 suggest-as-field approved by the operator via runme. Each bounded, testable, reversible; defaults reproduce today's panel. Findings: docs/reports/T-1118-fields-on-approval-and-visibility.md
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-763fa422
+- **Timestamp:** 2026-10-11T12:56:58Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 3
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-3
+     - evidence: `IW-3 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  3. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-4
+     - evidence: `IW-4 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-2b63e2fc
+- **Timestamp:** 2026-10-11T12:56:58Z
+- **Overall:** CONFIRMED
+- **Claims:** 2
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `src/aef-workflow-designer.html:2174` | file_line | ✓ pass |
+| `T-566` | task | ✓ pass |
+
+### 2026-10-11T12:56:03Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
