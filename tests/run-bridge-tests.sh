@@ -1052,7 +1052,7 @@ fi
 # T-1096: process-level data survives a save — dataObject, dataObjectReference, dataStoreReference, the tasks'
 # property / dataInput / dataOutputAssociation and their DI; nothing dangles; a deleted task takes its associations.
 if node "$ROOT/tools/_t1096-data-objects-roundtrip-cdp.mjs" > "$TMP/leg-_t1096.out" 2>&1 \
-   && grep -q "T-1096: 12/12" "$TMP/leg-_t1096.out"; then
+   && grep -q "T-1096: 13/13" "$TMP/leg-_t1096.out"; then
   pass=$((pass + 1))
 else
   report FAIL "process data (data objects, data stores, data associations or their DI) is dropped on save again, a reference dangles, or a deleted task left its associations behind (run 'node tools/_t1096-data-objects-roundtrip-cdp.mjs'; T-1096)"

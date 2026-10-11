@@ -80,6 +80,9 @@ async function main() {
       var checks = ${JSON.stringify(CHECKS)};
       return { parseError: !!d.getElementsByTagName('parsererror').length, results: checks.map(function(c){ var ok = false; try { ok = !!eval(c[1]); } catch (e) { ok = false; } return [c[0], ok]; }), dangling: dangling() }; })()`);
     leg(!res.parseError, 'export parses', res);
+    // the import notice says the data is kept but not drawn
+    const notice = await ev(cmd, `(function(){ var m = Array.prototype.slice.call(document.querySelectorAll('*')).find(function(e){ return e.children.length === 0 && /data object\\/store element/.test(e.textContent || ''); }); return m ? m.textContent : null; })()`);
+    leg(notice && /3 data object\/store elements and 3 data associations kept unchanged and saved back, not shown yet/.test(notice), 'import notice: data kept and saved back, not shown yet', notice);
     for (const [name, ok] of res.results) leg(ok, name, name.startsWith('every') ? res.dangling : '');
 
     // a second save of our own export is identical (idempotent)

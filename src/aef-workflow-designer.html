@@ -9165,6 +9165,16 @@ function maybeShowLaneFixNotice() {
     parts.push(`this file declares ${sk.length + 1} processes and only one can be opened — ` +
                `NOT imported, and NOT saved back: ${which}`);
   }
+  // T-1096: process data is KEPT and saved back but not drawn yet — say so; and name any data association that
+  // could not be kept because what it points at is not in the document (writing it would leave a dangling reference).
+  const kd = (typeof state === 'object' && state && state.dataKept) || null;
+  if (kd) {
+    const nObj = (kd.elements || []).length;
+    const nAssoc = Object.values(kd.perNode || {}).reduce((a, m) => a + ((m.dataInputAssociation || []).length + (m.dataOutputAssociation || []).length), 0);
+    if (nObj || nAssoc) parts.push(`${nObj} data object/store element${nObj === 1 ? '' : 's'} and ${nAssoc} data association${nAssoc === 1 ? '' : 's'} kept unchanged and saved back, not shown yet`);
+    if ((kd.skipped || []).length) parts.push(`${kd.skipped.length} data association${kd.skipped.length === 1 ? '' : 's'} NOT kept — ` +
+      `${kd.skipped.length === 1 ? 'it points' : 'they point'} at something not in this file: ` + kd.skipped.map(s => `${s.id} → ${s.missing.join(', ')}`).join('; '));
+  }
   const show = parts.length > 0;
   if (show && msg) msg.textContent = '⚠ ' + parts.join('; ');
   el.style.display = show ? '' : 'none';
@@ -12131,6 +12141,8 @@ function buildBpmnXml(s) {
   if (wm.kind) wmAttrs.push(`kind="${escAttr(wm.kind)}"`);
   lines.push(`      <aef:workflowMeta ${wmAttrs.join(' ')}/>`);
   lines.push(`    </bpmn:extensionElements>`);
+  // T-1096: the process's own ioSpecification, kept — tCallableElement places it before the laneSet
+  if (s.dataKept) for (const x of s.dataKept.procIo || []) lines.push(`    ${x}`);
 
   // lane set
   lines.push(`    <bpmn:laneSet id="LaneSet_1">`);
@@ -12428,7 +12440,10 @@ function captureCollaboration(doc, proc, ourPart, displayIdToUid) {
 // (displayIdToUid), so it follows its task through a rename and disappears with it on delete. Returns null when the
 // document has no data content, which keeps every other export byte-identical.
 const DATA_PROC_TAGS = new Set(['dataObject', 'dataObjectReference', 'dataStoreReference']);
-const DATA_TASK_TAGS = ['property', 'dataInputAssociation', 'dataOutputAssociation'];   // tActivity's schema order
+// tActivity's schema order. ioSpecification holds the dataInput/dataOutput an association names (caseagile fixture:
+// task output -> process output) — keeping the association without it would write a dangling reference.
+const DATA_TASK_TAGS = ['ioSpecification', 'property', 'dataInputAssociation', 'dataOutputAssociation'];
+const DATA_ASSOC_TAGS = new Set(['dataInputAssociation', 'dataOutputAssociation']);
 function captureProcessData(doc, proc, displayIdToUid) {
   const ROOT_NS = { bpmn: 'http://www.omg.org/spec/BPMN/20100524/MODEL', bpmndi: 'http://www.omg.org/spec/BPMN/20100524/DI',
                     dc: 'http://www.omg.org/spec/DD/20100524/DC', di: 'http://www.omg.org/spec/DD/20100524/DI',
@@ -12436,28 +12451,42 @@ function captureProcessData(doc, proc, displayIdToUid) {
   const M = ROOT_NS.bpmn;
   const ser = el => new XMLSerializer().serializeToString(el)
     .replace(/ xmlns:([A-Za-z][\w.-]*)="([^"]*)"/g, (m, pfx, uri) => (ROOT_NS[pfx] === uri ? '' : m));
-  const elements = [], perNode = {}, keepIds = new Set();
+  const elements = [], perNode = {}, keepIds = new Set(), procIo = [], skipped = [];
   const note = el => { for (const d of [el, ...el.getElementsByTagName('*')]) if (d.getAttribute && d.getAttribute('id')) keepIds.add(d.getAttribute('id')); };
   for (const el of Array.from(proc.children || [])) {
-    if (el.namespaceURI === M && DATA_PROC_TAGS.has(el.localName)) { elements.push(ser(el)); note(el); }
+    if (el.namespaceURI !== M) continue;
+    if (DATA_PROC_TAGS.has(el.localName)) { elements.push(ser(el)); note(el); }
+    // the PROCESS's own inputs/outputs (tCallableElement) — what an association from a task output may target
+    else if (el.localName === 'ioSpecification') { procIo.push(ser(el)); note(el); }
   }
+  // Pass 1: collect each task's data content (DOM elements) and every id it brings along.
+  const raw = [];
   for (const [orig, uid] of displayIdToUid) {
     const node = Array.from(proc.getElementsByTagNameNS(M, '*')).find(e => e.getAttribute('id') === orig);
     if (!node) continue;
-    const kept = {};
     for (const c of Array.from(node.children || [])) {
-      if (c.namespaceURI === M && DATA_TASK_TAGS.includes(c.localName)) { (kept[c.localName] = kept[c.localName] || []).push(ser(c)); note(c); }
+      if (c.namespaceURI === M && DATA_TASK_TAGS.includes(c.localName)) { raw.push({ uid, c }); note(c); }
     }
-    if (Object.keys(kept).length) perNode[uid] = kept;
   }
-  if (!elements.length && !Object.keys(perNode).length) return null;
+  // Pass 2: an association whose source/target is not among the kept ids would be written dangling — leave it
+  // out and SAY so (skipped[], shown in the import notice) rather than write an invalid reference.
+  const refsOf = c => Array.from(c.children).filter(x => x.localName === 'sourceRef' || x.localName === 'targetRef').map(x => x.textContent.trim());
+  for (const { uid, c } of raw) {
+    if (DATA_ASSOC_TAGS.has(c.localName)) {
+      const missing = refsOf(c).filter(r => r && !keepIds.has(r));
+      if (missing.length) { skipped.push({ id: c.getAttribute('id') || '', missing }); keepIds.delete(c.getAttribute('id')); continue; }
+    }
+    const kept = perNode[uid] || (perNode[uid] = {});
+    (kept[c.localName] = kept[c.localName] || []).push(ser(c));
+  }
+  if (!elements.length && !procIo.length && !Object.keys(perNode).length && !skipped.length) return null;
   const di = [];
   for (const el of doc.getElementsByTagNameNS(ROOT_NS.bpmndi, '*')) {
     if ((el.localName === 'BPMNShape' || el.localName === 'BPMNEdge') && keepIds.has(el.getAttribute('bpmnElement'))) {
       di.push({ ref: el.getAttribute('bpmnElement'), xml: ser(el) });
     }
   }
-  return { elements, perNode, di };
+  return { elements, procIo, perNode, di, skipped };
 }
 // The kept DI a save may write: only what still has its element (a deleted task takes its associations, and their
 // edges must not dangle).
@@ -12467,6 +12496,7 @@ function dataKeptDiLines(s) {
   const live = new Set();
   const note = x => { for (const m of x.matchAll(/\bid="([^"]*)"/g)) live.add(m[1]); };
   (k.elements || []).forEach(note);
+  (k.procIo || []).forEach(note);
   for (const n of s.nodes || []) for (const xs of Object.values((k.perNode || {})[n.uid] || {})) xs.forEach(note);
   return (k.di || []).filter(d => live.has(d.ref)).map(d => d.xml);
 }
