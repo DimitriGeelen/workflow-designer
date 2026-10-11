@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, TypeVar
 
+from markupsafe import Markup, escape
 import yaml
 from flask import g, has_request_context, render_template, request
 
@@ -1073,14 +1074,22 @@ def protect_path_underscores(text: str) -> str:
     return "".join(parts)
 
 
-def render_markdown_safe(text: str, extras: list[str] | None = None) -> str:
+def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
     """Render Markdown to HTML with safe_mode='escape', auto-link T-XXX refs
     and bare http(s) URLs.
 
     Used by /review and any blueprint that needs to render an arbitrary chunk
     of task-body markdown (rationale, evidence, etc.) without piping through
-    tasks.py's AC-specific helpers. Returns '' for empty input. Caller must
-    mark returned string `| safe` in templates.
+    tasks.py's AC-specific helpers. Returns '' for empty input.
+
+    T-606: returns markupsafe.Markup, so callers no longer have to remember
+    `| safe`. Recommended by 010-termlink (rail 563) and correct — but note it
+    was NOT sufficient for the reported symptom: /approvals' AC fields never
+    reach this function, they come from tasks.py's _render_md_inline. The
+    docstring below claims the blueprint-private parser pattern was broken by
+    promoting this helper here; the promotion happened and the private pair
+    survived. Both are now fixed. A contract with two definitions is one
+    definition and one impostor, and the impostor is where the bug lives.
 
     Origin: T-1575 — /review surface dumped raw markdown into a `<pre>` block.
     Promoted here (rather than reused from tasks.py) to break the blueprint-
@@ -1092,11 +1101,24 @@ def render_markdown_safe(text: str, extras: list[str] | None = None) -> str:
     ``extras=None`` is the previous behaviour exactly.
     """
     if not text:
-        return ""
+        return Markup("")
     try:
         import markdown2
     except ImportError:
-        return text  # graceful degradation
+        # T-569: ESCAPE on the degradation path. Every caller marks this `| safe` — that is
+        # stated three lines up in this docstring — so returning the raw text handed
+        # unescaped, attacker-influenced content straight into the page whenever markdown2
+        # was missing. It was latent only because the import has always succeeded here.
+        # A fallback that silently turns escaping off is the same shape as the rest of this
+        # week's defects: the failure renders as health, and nothing in the output says the
+        # renderer degraded.
+        from markupsafe import escape as _escape
+        # T-606: was str(_escape(text)) — correct only because every caller then
+        # applied `| safe`. Now that this function owns the safety, return the
+        # Markup escape() already produced: the entities stay visible as literal
+        # text and are NOT re-escaped into &amp;lt;. The degradation path must keep
+        # escaping; it must not inherit the happy path's trust.
+        return _escape(text)
     text = _TASK_REF_RE_SHARED.sub(r"[\1](/tasks/\1)", text)
     text = protect_path_underscores(text)
     text = _BARE_URL_RE_SHARED.sub(lambda m: f"[{m.group(1).rstrip('.,;:!?')}]({m.group(1).rstrip('.,;:!?')})", text)
@@ -1115,7 +1137,7 @@ def render_markdown_safe(text: str, extras: list[str] | None = None) -> str:
     # become clickable /file/ links. Existence-gated; same rendering-layer
     # contract as the T-1575 URL/T-NNNN shape — agent need not pre-format.
     html = _auto_link_files(html)
-    return html
+    return Markup(html)
 
 
 _REC_MARKER_RE = re_mod.compile(
@@ -1925,14 +1947,30 @@ def load_latest_audit():
 
 
 def linkify_tasks(text):
-    """Convert T-XXX references to clickable Watchtower links (T-851)."""
+    r"""Convert T-XXX references to clickable Watchtower links (T-851).
+
+    T-646: ESCAPE FIRST, THEN LINKIFY. The result is declared trusted HTML by the
+    Jinja filter in app.py, and a function may only vouch for markup it created
+    itself. Before this, the substitution ran over the RAW string and the whole
+    result was wrapped in Markup(), so every `<` in the source prose was published
+    as a tag. The source is not incidental: timeline narratives are read out of
+    committed handover markdown (blueprints/timeline.py:159), so the text is prose
+    that sessions wrote, and sessions write about HTML. Measured on the live
+    /timeline: two `<html` tags reaching the browser from a paragraph *discussing*
+    fragments. Injection-shaped rather than an open door — the input is our own
+    repository — but the ordering is wrong either way, and the fix is one line.
+
+    escape() is applied to the whole input; the anchors are then inserted into
+    already-escaped text, so they are the only markup this function vouches for.
+    T-\d{3,} contains no escapable character, so escaping cannot disturb the match.
+    """
     if not text:
         return text
-    return re_mod.sub(
+    return Markup(re_mod.sub(
         r'\b(T-\d{3,})\b',
         r'<a href="/tasks/\1">\1</a>',
-        str(text),
-    )
+        str(escape(text)),
+    ))
 
 
 _FRAGMENT_CONVENTION_VIOLATION = (
