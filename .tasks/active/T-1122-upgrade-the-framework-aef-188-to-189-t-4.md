@@ -11,7 +11,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_6_run
 owner: agent
 horizon: now
 tags: []
@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-11T10:03:43Z
-last_update: 2026-10-11T10:57:46Z
+last_update: 2026-10-11T11:00:12Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -89,10 +89,13 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A runme job (upgrade from tag v1.8.9 = b8229424, pristine vendor commit, divergence baseline, cron check) is prepared and its dry-run passes; the agent never runs it for real
-- [ ] After the operator's run: .agentic-framework/VERSION reads 1.8.9 and our declared local fixes are re-applied (tools/_t517 OK, re-vendor gate check passes)
-- [ ] Every *.bak the upgrade left is diffed against the live file and removed only if nothing would be lost (CLAUDE.md backup rule); summary recorded here
-- [ ] AEF told on aef-release-v1.8.9 that 832 runs 1.8.9
+- [x] A runme job (upgrade from tag v1.8.9 = b8229424, pristine vendor commit, divergence baseline, cron check) is prepared and its dry-run passes; the agent never runs it for real
+  (job 011, dry-run sha d2500e09; operator ran it 2026-10-11, 4/4, rc=0: pristine d11fca0e, baseline 2d4d7cc1, crontab 7 lines ok)
+- [x] After the operator's run: .agentic-framework/VERSION reads 1.8.9 and our declared local fixes are re-applied (tools/_t517 OK, re-vendor gate check passes)
+  (36 files, 3-way apply of diff(c421d964 -> 2f289d8f), all clean, syntax checked; Watchtower still serves designer 6e301322)
+- [x] Every *.bak the upgrade left is diffed against the live file and removed only if nothing would be lost (CLAUDE.md backup rule); summary recorded here
+  (the upgrade left no *.bak: none newer than the dry-run, no CLAUDE.md.bak or .claude/settings.json.bak; CLAUDE.md and settings.json unchanged)
+- [x] AEF told on aef-release-v1.8.9 that 832 runs 1.8.9 (sidecar msg cc4d2f25)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -135,6 +138,12 @@ bvp_scores_proposed:
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
 # pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
 # past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
+#
+grep -qx '1.8.9' .agentic-framework/VERSION
+test -f .context/runme/011-upgrade-aef-1.8.9/done
+python3 tools/_t517-vendor-divergence.py
+bash tools/_t1000-install-hook.sh --check
+grep -q '^version: "0.17.0"' .agentic-framework/policy/designer-pin.yaml
 #
 # ── Mutable-corpus anchor (T-3326) ────────────────────────────────────────────
 # Do NOT anchor a verification line (or a unit test it runs) to MUTABLE corpus
