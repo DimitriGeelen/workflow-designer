@@ -2,12 +2,17 @@
 id: T-1141
 name: "Answer AEF T-4123: estate knowledge platform requirements from 832's real use"
 description: >
-  AEF msg 12fb0401 (conversation estate-knowledge-requirements): stakeholder input for the ring20 Qdrant estate store — A content, B curation, C retrieval (2-3 real questions), D fabric as solution finder, E model/embedding, plus whether the designer corpus belongs in the store. Answer from 832's own files/tasks, cited. First answer within a day.
+  AEF msg 12fb0401 (conversation estate-knowledge-requirements): stakeholder input
+  for the ring20 Qdrant estate store — A content, B curation, C retrieval (2-3 real
+  questions), D fabric as solution finder, E model/embedding, plus whether the designer
+  corpus belongs in the store. Answer from 832's own files/tasks, cited. First answer
+  within a day.
 
-status: captured
+status: work-completed
 workflow_type: specification
+current_node: frw_11_task
 owner: agent
-horizon: next
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-12T18:25:06Z
-last_update: 2026-10-12T19:23:43Z
-date_finished: null
+last_update: 2026-10-12T21:51:43Z
+date_finished: 2026-10-12T21:51:43Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +55,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-12T21:49:48Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 4
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=4 (body:cross-machine); F-RECALL=2 (body:lightly-promoted);
+      F2=0 (no-signal); F4=0 (basis: task body — no hypothesis, so this score has
+      no claim to be wrong about,L0: no signal); F3=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F1=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1141: Answer AEF T-4123: estate knowledge platform requirements from 832's real use
@@ -67,8 +92,8 @@ Candidate G(2) example: T-1140 (a running claude-fw keeps its old terminator aft
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Answer written to docs/reports/T-1141-aef-t4123-estate-knowledge-answer.md covering A-E, the 832-specific question, G(1)-(4), missed requirements and conflicts; every claim about 832 cites a file, task or measured number
+- [x] Sent on estate-knowledge-requirements in reply to 12fb0401, delivery RECEIVED; message id recorded here — a0a4789f-989c-4124-8c4e-02b9317df846 (2026-10-12)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -228,6 +253,8 @@ Candidate G(2) example: T-1140 (a running claude-fw keeps its old terminator aft
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+test -s docs/reports/T-1141-aef-t4123-estate-knowledge-answer.md
+grep -q "a0a4789f-989c-4124-8c4e-02b9317df846" .context/sidecar/direct-ack.jsonl
 
 ## RCA
 
@@ -325,3 +352,19 @@ Candidate G(2) example: T-1140 (a running claude-fw keeps its old terminator aft
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1141-answer-aef-t-4123-estate-knowledge-platf.md
 - **Context:** Initial task creation
+
+### 2026-10-12T21:49:47Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-c63ca9bf
+- **Timestamp:** 2026-10-12T21:52:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-12T21:51:43Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
