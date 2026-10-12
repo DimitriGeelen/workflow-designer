@@ -1,0 +1,92 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1140: RCA: session ended mid-turn at the budget cap (13:42 2026-10-12) — claude-fw wrapper from 2026-10-08 runs the pre-T-4032 terminator
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-12T14:40:39Z
+# ============================================================================
+
+task_id: T-1140
+task_name: "RCA: session ended mid-turn at the budget cap (13:42 2026-10-12) — claude-fw wrapper from 2026-10-08 runs the pre-T-4032 terminator"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-12T13:49:50Z
+completed: 2026-10-12T14:39:33Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-12T15:52:05+02:00
+last_commit: 2026-10-12T16:39:27+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  RCA of the 13:42 session end — not a crash: the claude-fw wrapper running since 2026-10-08 still executes the 1.8.5 terminator (no T-4032), which killed the session mid-turn when its 180 s handover timed out; terminator handover S-2026-1012-1539 committed. pickup to AEF delivered via sidecar (msg b5ca0eba, RECEIVED) — a running claude-fw keeps a superseded terminator after upgrade; push done. pickup resent to AEF in full (msg a54d6f85) — the first send had an empty body (payload keys read at the wrong level). AEF filed T-4118/T-4119/T-4120 for our pickup; (b) already shipped as T-4069 in ed683536a, the build job 018 field-tests. operator restarted claude-fw — old wrapper 272866 gone, new 2774573 (16:30:40) newer than the vendored script, T-4032 terminator live. RCA block (symptom, root cause, why allowed, prevention) and verification; learning: restart claude-fw after every upgrade
+
+# Key outcomes
+outcomes:
+  - 'Root cause recorded with evidence (transcript tail, .compact-log, wrapper start time against the vendored script''s history)'
+  - 'Staged terminator handover committed; the 2 unpushed commits pushed (77e3645d..41c72589)'
+  - 'Pickup note sent to AEF (claude-fw: a long-lived wrapper keeps running a superseded terminator after an upgrade). `fw pickup send` without --remote only saved it locally (.context/pickup/inbox/P-001-bug-report.yaml); it was delivered by `fw sidecar send --to 999-Agentic-Engineering-Framework`, msg b5ca0eba, RECEIVED — but with an empty body (my extraction read `summary`/`detail` at the top level; they are under `payload:`). AEF flagged it (msg 97a45741); resent in full (1844 chars), msg a54d6f85, RECEIVED. AEF filed (msg 51350d90): T-4118 (wrapper re-execs/warns when its script changed = our a), T-4119 (terminator handover limit vs slow commit/push = c), T-4120 (checkpoint auto-handover failure leaves no reason); (b) already shipped as T-4069 in ed683536a (`fw upgrade`/`fw doctor` name stale running claude-fw wrappers) — job 018 (T-1138) upgrades to exactly that build, so its fw doctor capture should flag pid 272866 unless the operator restarts claude-fw first'
+  - 'Watchers re-armed in the new session (runme + sidecar mail)'
+  - 'Hazard removed: the operator restarted claude-fw. Old wrapper pid 272866 is gone; the new wrapper pid 2774573 started 2026-10-12 16:30:40, after the vendored script''s mtime (2026-10-11 12:18), so it runs the 1.8.9 terminator with T-4032. Watchers re-armed under it'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/handovers/LATEST.md'
+  - '.context/handovers/S-2026-1012-1539.md'
+  - '.context/pickup/inbox/P-001-bug-report.yaml'
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-1140-rca-session-ended-mid-turn-at-the-budget.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-12T15:52:05'
+    action: 'T-1140: RCA of the 13:42 session end — not a crash: the claude-fw wrapper running since 2026-10-08 still executes the 1.8.5 terminator (no T-4032), which killed the session mid-turn when its 180 s handover timed out; terminator handover S-2026-1012-1539 committed'
+  - time: '2026-10-12T15:56:26'
+    action: 'T-1140: pickup to AEF delivered via sidecar (msg b5ca0eba, RECEIVED) — a running claude-fw keeps a superseded terminator after upgrade; push done'
+  - time: '2026-10-12T16:03:22'
+    action: 'T-1140: pickup resent to AEF in full (msg a54d6f85) — the first send had an empty body (payload keys read at the wrong level)'
+  - time: '2026-10-12T16:07:43'
+    action: 'T-1140: AEF filed T-4118/T-4119/T-4120 for our pickup; (b) already shipped as T-4069 in ed683536a, the build job 018 field-tests'
+  - time: '2026-10-12T16:33:21'
+    action: 'T-1140: operator restarted claude-fw — old wrapper 272866 gone, new 2774573 (16:30:40) newer than the vendored script, T-4032 terminator live'
+  - time: '2026-10-12T16:39:27'
+    action: 'T-1140: RCA block (symptom, root cause, why allowed, prevention) and verification; learning: restart claude-fw after every upgrade'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 49 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 49
+  commits: 6
+  files_changed: 5
+  lines_added: 751
+  lines_removed: 10
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1140-rca-session-ended-mid-turn-at-the-budget.md
+generated_by: context-agent-hybrid

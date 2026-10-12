@@ -4,11 +4,11 @@ name: "RCA: session ended mid-turn at the budget cap (13:42 2026-10-12) — clau
 description: >
   RCA: session ended mid-turn at the budget cap (13:42 2026-10-12) — claude-fw wrapper from 2026-10-08 runs the pre-T-4032 terminator
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_6_run
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -39,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-12T13:49:50Z
-last_update: 2026-10-12T14:38:30Z
-date_finished: null
+last_update: 2026-10-12T14:39:33Z
+date_finished: 2026-10-12T14:39:33Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -357,3 +357,25 @@ git merge-base --is-ancestor 03338063 origin/bleeding-edge
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1140-rca-session-ended-mid-turn-at-the-budget.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-5c850d70
+- **Timestamp:** 2026-10-12T14:40:31Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — Pickup note sent to AEF (claude-fw: a long-lived wrapper keeps running a superseded terminator after an upgrade). `fw pickup send` without --remote only saved it locally (.context/pickup/inbox/P-001-b
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=context/pickup/inbox/P-001-bug-report.yaml in: Pickup note sent to AEF (claude-fw: a long-lived wrapper keeps running a superseded terminator after an upgrade). `fw pickup send` without --remote on`
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 1
+     - evidence: `! ps -p 272866 >/dev/null`
+
+### 2026-10-12T14:39:33Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
