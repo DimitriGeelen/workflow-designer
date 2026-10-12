@@ -49,7 +49,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-12T10:23:33Z
-last_update: 2026-10-12T10:53:49Z
+last_update: 2026-10-12T13:39:49Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -89,6 +89,20 @@ bvp_scores_proposed:
 ## Context
 
 <!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+
+## RESUME HERE (session ended at the budget cap, 2026-10-12)
+
+- Maps corrected + record with voided_runs committed; corrected kit (d6851281) calibrated PASS by all three and recorded.
+- Bridge for 0.19.1 (268/4): render release-mode (expected) + T-1103 sweep (known) + TWO NEW, both to fix before job 019:
+  1. tests/test_t983_review_loop_kit.py leg 2b "1 of 24 quotes not verbatim" — the TEST is wrong: line 103-104 uses
+     `re.search(r'source:\s*"(.*)"', d.text, re.S)`, greedy across the two source: lines the guide requires, so it
+     compares the joined text. Fix (edit was blocked by the budget gate, NOT applied):
+     `quotes = [q for d in root.iter(B + 'documentation') for q in re.findall(r'^\s*source:\s*"(.*)"\s*$', d.text or '', re.M)]`
+  2. tools/_t570-meta-carriage-teeth.py failed in the suite — not yet investigated (run it alone first; may be load).
+- Then: re-run bridge, dry-run job 019 (.context/runme/019-release-designer-0.19.1, written, NOT dry-run), hand to the
+  operator; operator's W5 answer A: release 0.19.1 FIRST, then job 018 (field test, dry-run sha 8685ea15).
+- Unread: the Greenfield watcher fired at the end (new post on dm:90d4553895d5a9a6:d1993c2c3ec44c94 after offset 77) — read first.
+- Operator still to do: close T-1127 on http://192.168.10.107:3013/review/T-1127 (W1), then commit it.
 
 ## Acceptance Criteria
 
