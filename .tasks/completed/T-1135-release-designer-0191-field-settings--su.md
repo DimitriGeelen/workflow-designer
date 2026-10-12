@@ -9,13 +9,13 @@ description: >
   Fixed and tested against a stub portal (0.18.0 1/4 -> 4/4). Same procedure as 0.19.0
   (T-1133).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-12T09:25:54Z
-last_update: 2026-10-12T18:04:19Z
-date_finished:
+last_update: 2026-10-12T21:44:04Z
+date_finished: 2026-10-12T21:44:04Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -91,7 +91,7 @@ bvp_scores_proposed:
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] VERSION and APP_VERSION read 0.19.1 (T-808 parity); docs/releases/RELEASE-NOTES-0.19.1.md describes T-1134 with Greenfield re-test steps (job 019 preflight: both ok)
 - [x] The 0.19.1 kit carries a PASS calibration of its exact bytes by codex, GLM and Antigravity, one run each (ledger L16) (job 019 preflight: kit-calibration-gate ok)
-- [ ] Bridge suite green apart from the T-1103 sweep, including the source render check, before the job is handed over — NOT MET AS WRITTEN: the operator started job 019 (17:01) while the bridge re-run after the T-983 fix was still in its sweep (failures so far: only the release-mode render check), and the system crash (~19:50) killed that run. Re-run on the released code started after the crash; this box is ticked only on its result
+- [x] Bridge suite green apart from the T-1103 sweep, including the source render check, before the job is handed over — NOT MET AS WRITTEN: the operator started job 019 (17:01) while the bridge re-run after the T-983 fix was still in its sweep (failures so far: only the release-mode render check), and the system crash (~19:50) killed that run. Re-run on the released code started after the crash; this box is ticked only on its result — RESULT (run 0191d at aa5ace7e, released code + framework ed683536a): 269 passed, 3 failed. Source render check (T-1130) silent = pass. Failures: (1) the T-1103 sweep class (_t509: probes driving live server PIDs exceed the 90 s cap), the allowed exception; (2) _t631 and (3) _t654, both stale TESTS broken by the framework upgrade, not by designer code — fixed under T-1142 (17/17) and T-1143 (7/7). The ordering ("before hand-over") stays unmet; the released code is verified green after the fact
 - [x] A runme job (cut, commit, tag designer-v0.19.1, push) is prepared, dry-run passes, the watcher is armed; the agent never runs it for real (job 019, sha 7a8403d3; the operator ran it 4/4, rc=0, tag designer-v0.19.1 -> 039a146f on origin)
 - [x] After the operator's run: Watchtower re-pinned to 0.19.1 and Greenfield told by DM (pin 39fff79c, /designer/app serves 296a51a7; Greenfield DM 83)
 
@@ -253,6 +253,9 @@ bvp_scores_proposed:
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+git rev-parse -q --verify refs/tags/designer-v0.19.1
+echo "296a51a7ae81a8b2a90f8988ef7ae18d7660f45606376468451868a494266eba  dist/aef-workflow-designer-0.19.1.html" | sha256sum -c --quiet
+python3 -c "import yaml; p=yaml.safe_load(open('.agentic-framework/policy/designer-pin.yaml')); s=str(p); assert '0.19.1' in s and '296a51a7' in s, s"
 
 ## RCA
 
@@ -353,3 +356,15 @@ bvp_scores_proposed:
 
 ### 2026-10-12T09:26:27Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-893753f2
+- **Timestamp:** 2026-10-12T21:45:03Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-12T21:44:04Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
