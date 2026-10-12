@@ -1,0 +1,35 @@
+runme  017-restart-watchtower   sha 010abf6e404e   rehearsed 2026-10-12T12:04:14Z   log: /opt/832-Workflow-designer/.context/runme/017-restart-watchtower/run-20261012T141435.log
+Job:   017-restart-watchtower   (T-1139)
+What:  Restart Watchtower on its current code (then close T-1127 on its review page)
+       Your answer W3 = A. The running Watchtower dates from 2026-10-08 22:40; 15 of its web files changed content
+       since (framework 1.8.8 and 1.8.9, our re-applied local fixes), so the pages you see are the 8-October framework.
+       'fw watchtower current' cannot tell — it looks in <project>/web, which a vendored project does not have (T-1139) —
+       so this job checks against .agentic-framework/web itself. A restart takes it down for a few seconds: reload any open
+       page afterwards; an unsent form would be lost. Same port (3013); the designer page is unaffected.
+       AFTERWARDS (W1 = A): close T-1127 yourself on http://192.168.10.107:3013/review/T-1127 — a task you own is closed by
+       you approving it there, not by any command (job 016 stopped on exactly that, nothing changed).
+Steps (each asks y/N first):
+  1. Restart Watchtower on port 3013, then check it is newer than its web code and answering
+
+ok    Watchtower is running on 3013
+ok    the running Watchtower predates its web code (a restart has something to do)
+
+Step 1/1: Restart Watchtower on port 3013, then check it is newer than its web code and answering
+  runs: do_restart
+Run step 1/1? [y/N] [watchtower] Stopping Watchtower (PID 276396)...
+[watchtower]   Waiting for shutdown... (10s)
+[watchtower] Watchtower stopped.
+[watchtower] Starting Watchtower on port 3013 (project: /opt/832-Workflow-designer)...
+[watchtower] Health check passed (identity verified).
+[firewall] Port 3013 already open.
+
+Watchtower is running
+  Local:  http://localhost:3013
+  LAN:    http://192.168.10.107:3013
+  PID:    1781208
+  Log:    /opt/832-Workflow-designer/.context/working/watchtower.log
+ok  Watchtower restarted (pid 1781208), newer than its web code, answering at http://192.168.10.107:3013
+    next: close T-1127 at http://192.168.10.107:3013/review/T-1127
+ok    step 1/1
+
+DONE: 017-restart-watchtower — all 1 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/017-restart-watchtower/run-20261012T141435.log)
