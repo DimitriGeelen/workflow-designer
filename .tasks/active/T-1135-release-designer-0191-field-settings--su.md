@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-12T09:25:54Z
-last_update: 2026-10-12T18:02:42Z
+last_update: 2026-10-12T18:04:19Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -89,11 +89,11 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] VERSION and APP_VERSION read 0.19.1 (T-808 parity); docs/releases/RELEASE-NOTES-0.19.1.md describes T-1134 with Greenfield re-test steps
-- [ ] The 0.19.1 kit carries a PASS calibration of its exact bytes by codex, GLM and Antigravity, one run each (ledger L16)
-- [ ] Bridge suite green apart from the T-1103 sweep, including the source render check, before the job is handed over
-- [ ] A runme job (cut, commit, tag designer-v0.19.1, push) is prepared, dry-run passes, the watcher is armed; the agent never runs it for real
-- [ ] After the operator's run: Watchtower re-pinned to 0.19.1 and Greenfield told by DM
+- [x] VERSION and APP_VERSION read 0.19.1 (T-808 parity); docs/releases/RELEASE-NOTES-0.19.1.md describes T-1134 with Greenfield re-test steps (job 019 preflight: both ok)
+- [x] The 0.19.1 kit carries a PASS calibration of its exact bytes by codex, GLM and Antigravity, one run each (ledger L16) (job 019 preflight: kit-calibration-gate ok)
+- [ ] Bridge suite green apart from the T-1103 sweep, including the source render check, before the job is handed over — NOT MET AS WRITTEN: the operator started job 019 (17:01) while the bridge re-run after the T-983 fix was still in its sweep (failures so far: only the release-mode render check), and the system crash (~19:50) killed that run. Re-run on the released code started after the crash; this box is ticked only on its result
+- [x] A runme job (cut, commit, tag designer-v0.19.1, push) is prepared, dry-run passes, the watcher is armed; the agent never runs it for real (job 019, sha 7a8403d3; the operator ran it 4/4, rc=0, tag designer-v0.19.1 -> 039a146f on origin)
+- [x] After the operator's run: Watchtower re-pinned to 0.19.1 and Greenfield told by DM (pin 39fff79c, /designer/app serves 296a51a7; Greenfield DM 83)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
