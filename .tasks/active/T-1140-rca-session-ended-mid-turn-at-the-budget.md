@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-12T13:49:50Z
-last_update: 2026-10-12T13:55:32Z
+last_update: 2026-10-12T14:02:24Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -85,7 +85,7 @@ What was lost: nothing of substance. The two commits were local but not pushed. 
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] Root cause recorded with evidence (transcript tail, .compact-log, wrapper start time against the vendored script's history)
 - [x] Staged terminator handover committed; the 2 unpushed commits pushed (77e3645d..41c72589)
-- [x] Pickup note sent to AEF (claude-fw: a long-lived wrapper keeps running a superseded terminator after an upgrade). `fw pickup send` without --remote only saved it locally (.context/pickup/inbox/P-001-bug-report.yaml); it was delivered by `fw sidecar send --to 999-Agentic-Engineering-Framework`, msg b5ca0eba, RECEIVED
+- [x] Pickup note sent to AEF (claude-fw: a long-lived wrapper keeps running a superseded terminator after an upgrade). `fw pickup send` without --remote only saved it locally (.context/pickup/inbox/P-001-bug-report.yaml); it was delivered by `fw sidecar send --to 999-Agentic-Engineering-Framework`, msg b5ca0eba, RECEIVED — but with an empty body (my extraction read `summary`/`detail` at the top level; they are under `payload:`). AEF flagged it (msg 97a45741); resent in full (1844 chars), msg a54d6f85, RECEIVED
 - [x] Watchers re-armed in the new session (runme + sidecar mail)
 
 ### Human
