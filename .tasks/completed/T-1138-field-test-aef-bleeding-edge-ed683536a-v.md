@@ -9,11 +9,11 @@ description: >
   Includes T-4081 (G-114): run lib/watchtower_decision_revert.py, promised on the
   G-114 thread. 832 is AEF's pre-release testbed (operator decision under T-1115).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-12T11:37:17Z
-last_update: 2026-10-12T21:32:08Z
-date_finished:
+last_update: 2026-10-12T22:08:44Z
+date_finished: 2026-10-12T22:08:44Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -92,7 +92,7 @@ bvp_scores_proposed:
 - [x] AEF's request acknowledged on field-test-ed683536a; the upgrade put to the operator with background (his decision, his runme run) — ack eca83f61 (11:38Z); operator ran job 018
 - [x] If he says yes: a runme job upgrades from a clone pinned at ed683536a through the re-vendor protocol (pristine commit, baseline, cron check); dry-run passes; the agent never runs it for real; fw doctor captured before — job 018 (6/6, rc 0, run-20261012T201429.log), doctor-before.txt; pristine 7c11e9dc, baseline 2d400af6
 - [x] After his run: our local fixes re-applied (tools/_t517 OK), *.bak checked, fw doctor after, watchtower_decision_revert.py run and its result reported on G-114 — 6e197b97 (_t517 44/44 OK); no *.bak left by this upgrade (none under the tree newer than 18:00 local; audit "no CLAUDE.md.bak alongside it"); doctor-after.txt; scan "0 ... no longer at HEAD" sent on g114-watchtower-decision-revert (msg 364629d4)
-- [ ] Each of the 19 items reported to AEF as works / broken / not exercised, with evidence for the ones exercised — PART 1 sent (msg 8ae34a8d, 2026-10-12): 7 works, 6 not exercised, items 2,3,5,6(page),7,8 pending job 020 (Watchtower restart: it still serves pre-upgrade code)
+- [x] Each of the 19 items reported to AEF as works / broken / not exercised, with evidence for the ones exercised — PART 1 sent (msg 8ae34a8d, 2026-10-12): 7 works, 6 not exercised, items 2,3,5,6(page),7,8 pending job 020 (Watchtower restart: it still serves pre-upgrade code). PART 2 after job 020 (rc 0, Watchtower pid 3032316): msg 502ebab1, totals corrected in msg 75a211f9 — works 11, partial 1 (item 1: scan only), not exercised 7 (2, 12, 13, 14, 17, 18, 19), broken 0
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -252,6 +252,11 @@ bvp_scores_proposed:
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+grep -q "1.8.9+227.ged683536a" .agentic-framework/VERSION
+python3 tools/_t517-vendor-divergence.py
+test -f .context/runme/018-upgrade-aef-ed683536a/done
+test -f .context/runme/020-restart-watchtower-ed683536a/done
+grep -q "75a211f9-cc6d-454e-9610-8e567f10f844" .context/sidecar/direct-ack.jsonl
 
 ## RCA
 
@@ -352,3 +357,15 @@ bvp_scores_proposed:
 
 ### 2026-10-12T11:38:06Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-44ec5f4c
+- **Timestamp:** 2026-10-12T22:09:55Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-12T22:08:44Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

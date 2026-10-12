@@ -1,0 +1,31 @@
+runme  020-restart-watchtower-ed683536a   sha 2a328cf6860f   rehearsed 2026-10-12T20:58:26Z   log: /opt/832-Workflow-designer/.context/runme/020-restart-watchtower-ed683536a/run-20261012T235859.log
+Job:   020-restart-watchtower-ed683536a   (T-1138)
+What:  Restart Watchtower on the upgraded framework (AEF ed683536a field test)
+       Job 018 upgraded the framework, but the running Watchtower started before it and still serves the old pages
+       (.agentic-framework/web/templates changed at 21:15 local; Watchtower started 19:57). AEF asked us to test six web items
+       (the /approvals split, ticks, search, links) — that needs the new code running. A restart takes it down for a few
+       seconds: reload any open page afterwards; an unsent form would be lost. Same port (3013); the designer page is unaffected.
+Steps (each asks y/N first):
+  1. Restart Watchtower on port 3013, then check it is newer than its web code and answering
+
+ok    Watchtower is running on 3013
+ok    the running Watchtower predates its web code (a restart has something to do)
+
+Step 1/1: Restart Watchtower on port 3013, then check it is newer than its web code and answering
+  runs: do_restart
+Run step 1/1? [y/N] [watchtower] Stopping Watchtower (PID 92537)...
+[watchtower]   Waiting for shutdown... (10s)
+[watchtower] Watchtower stopped.
+[watchtower] Starting Watchtower on port 3013 (project: /opt/832-Workflow-designer)...
+[watchtower] Health check passed (identity verified).
+[firewall] Port 3013 already open.
+
+Watchtower is running
+  Local:  http://localhost:3013
+  LAN:    http://192.168.10.107:3013
+  PID:    3032316
+  Log:    /opt/832-Workflow-designer/.context/working/watchtower.log
+ok  Watchtower restarted (pid 3032316), newer than its web code, answering at http://192.168.10.107:3013
+ok    step 1/1
+
+DONE: 020-restart-watchtower-ed683536a — all 1 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/020-restart-watchtower-ed683536a/run-20261012T235859.log)

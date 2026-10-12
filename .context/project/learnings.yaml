@@ -2753,3 +2753,9 @@ learnings:
   task: T-1140
   date: 2026-10-12
   context: Added via context agent
+- id: PL-395
+  learning: "After a framework upgrade, run the bridge suite before trusting it: intended upstream changes (a URL omitted when no Watchtower, T-4024 refusing comment-only Verification) turn OUR tests and fixtures stale; fix the test to control the input it depends on, never loosen the assertion (T-1142, T-1143). And restart Watchtower: its currency check passes falsely in a vendored consumer (AEF T-4132)"
+  source: P-001
+  task: T-1138
+  date: 2026-10-12
+  context: Added via context agent
