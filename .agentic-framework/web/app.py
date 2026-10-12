@@ -20,19 +20,38 @@ import argparse
 import datetime
 import logging
 import os
+import re
 import secrets
 import signal
 import sys
 
-from flask import (
-    Flask, abort, jsonify, make_response, render_template, request, session,
-)
-from markupsafe import escape
+from flask import Flask, abort, jsonify, render_template, request, session
 
 from web.config import Config
 from web.shared import APP_DIR, NAV_ITEMS, NAV_GROUPS, PROJECT_ROOT, build_ambient
 
 log = logging.getLogger(__name__)
+
+# T-4061 (arc-001 F-9): werkzeug writes one access-log line per request with the
+# full request target, query string included, so a GET ?q=<query> put the query
+# text in the log. The filter rewrites q= / query= values before any handler
+# formats the record. POST bodies never reach the log line.
+_QUERY_PARAM_RE = re.compile(r"([?&](?:q|query)=)[^\s&\"]*")
+
+
+class QueryRedactFilter(logging.Filter):
+    """Redact search/ask query values from request-log records."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        message = record.getMessage()
+        redacted = _QUERY_PARAM_RE.sub(r"\1[redacted]", message)
+        if redacted != message:
+            record.msg = redacted
+            record.args = ()
+        return True
+
+
+logging.getLogger("werkzeug").addFilter(QueryRedactFilter())
 
 
 # ---------------------------------------------------------------------------
@@ -46,6 +65,9 @@ def _resolve_secret_key(project_root) -> tuple[str, str]:
     without logging the key itself. Persisted file is chmod 0600.
 
     T-1302/T-1306: prevents CSRF breakage after every Watchtower restart.
+    T-4062: an EXISTING key file is tightened too. The 0600 used to apply only
+    to a file this function generated, so a file left group- or world-readable
+    (or carrying a POSIX ACL grant) stayed that way indefinitely.
     """
     if Config.SECRET_KEY:
         return Config.SECRET_KEY, "env"
@@ -53,15 +75,51 @@ def _resolve_secret_key(project_root) -> tuple[str, str]:
     from pathlib import Path as _Path
     key_file = _Path(project_root) / ".context" / "working" / ".fw-secret-key"
     if key_file.is_file():
+        _tighten_secret_key_file(key_file)
         key = key_file.read_text().strip()
         if key:
             return key, "file"
 
     key = secrets.token_hex(32)
     key_file.parent.mkdir(parents=True, exist_ok=True)
-    key_file.write_text(key)
+    # T-4062: create at 0600 from the start — write_text() would create it at
+    # the umask's mode and only then chmod, leaving a window where it is readable.
+    fd = os.open(key_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w") as fh:
+        fh.write(key)
     os.chmod(key_file, 0o600)
     return key, "generated"
+
+
+def _tighten_secret_key_file(key_file) -> None:
+    """T-4062: force an existing secret-key file to owner-only access.
+
+    chmod 0600 clears group/other mode bits. A POSIX ACL grant survives a chmod
+    that leaves the group bits at zero, so it is removed with `setfacl -b` (the
+    owner-only mode is then the whole policy). Where setfacl is not installed the
+    grant cannot be removed here; say so and name the file rather than pass silently.
+    """
+    import shutil
+    import subprocess
+
+    key_file = str(key_file)
+    if os.stat(key_file).st_mode & 0o077:
+        log.warning("Tightening %s to 0600 (was group/world-accessible)", key_file)
+        os.chmod(key_file, 0o600)
+    if shutil.which("setfacl"):
+        result = subprocess.run(
+            ["setfacl", "-b", key_file], capture_output=True, text=True, check=False
+        )
+        if result.returncode != 0:
+            log.warning(
+                "setfacl -b failed on %s (rc=%d): %s",
+                key_file, result.returncode, result.stderr.strip(),
+            )
+    else:
+        log.warning(
+            "setfacl not installed — cannot verify %s has no POSIX ACL grant; "
+            "check with getfacl and run setfacl -b if needed", key_file,
+        )
 
 
 def session_cookie_name(port) -> str:
@@ -434,48 +492,6 @@ def create_app() -> Flask:
             str(e.description) if hasattr(e, "description") else str(e)
         )
         is_csrf = description.startswith("CSRF token")
-
-        # ── T-858: write the 403 for the CLIENT THAT ASKED FOR IT ──────────────
-        # THE OPERATOR SAW THIS. They clicked Approve on /approvals and the toast
-        # read "Session expired — Workflow designer (function(){var t=localStorage
-        # .getItem(…". Not a garbled message: a whole 66KB HTML document being
-        # scraped. T-2309 renders the full recovery PAGE, and
-        # web/static/htmx-toast.js extracts its message with
-        #     .replace(/<[^>]*>/g, '').trim().substring(0, 100)
-        # which is a TAG stripper, not a text extractor — it removes <title> and
-        # <script> TAGS and keeps the text INSIDE them, so the page title and the
-        # theme bootstrap's JavaScript source became the error message.
-        #
-        # WHY THE FRAGMENT CARRIES NO <script> AND NO <title>: those are exactly
-        # what that expression turns into prose. Fixing the byte count alone would
-        # leave the defect the moment any element with text content is added.
-        #
-        # BOOSTED REQUESTS ARE INCLUDED, NOT EXEMPTED. _t545's leg 5 records that
-        # the first attempt at this fix exempted HX-Boosted to protect T-2309's
-        # full-page recovery UI — and five routes post plain <form method="post">
-        # under hx-boost, so they are boosted POSTs and kept the whole defect.
-        # htmx sets HX-Request on boosted requests too, so testing HX-Request
-        # alone covers them; adding "and not HX-Boosted" is the known wrong fix.
-        # It is safe because htmx never swaps a 4xx (leg 6 re-checks that fact,
-        # since the design rests on it and a library upgrade could retire it), so
-        # this body reaches the toast and nothing else.
-        #
-        # A PLAIN NAVIGATION STILL GETS THE FULL PAGE — the discrimination is by
-        # caller, not a replacement of one wrong answer with another.
-        if request.headers.get("HX-Request") == "true" or request.path.startswith("/api/"):
-            from flask import make_response
-            from markupsafe import escape
-
-            if is_csrf:
-                kind, msg = "csrf", "Session expired — reload the page and try again."
-            else:
-                kind, msg = "generic", f"Forbidden — {description}"
-            # HX-Error-Kind so a machine client can tell a stale token from a real
-            # permission denial without parsing prose.
-            resp = make_response(f'<div class="toast-error">{escape(msg)}</div>', 403)
-            resp.headers["HX-Error-Kind"] = kind
-            return resp
-
         if is_csrf:
             return render_template(
                 "_wrapper.html",

@@ -45,9 +45,7 @@ FIELDS = {
 _COMMENT_SPAN = re.compile(r"<!--.*?-->", re.DOTALL)
 _HEADING = re.compile(r"^###\s+(.*)$")
 _FIELD = re.compile(r"^[-*]?\s*\*\*(\w+):\*\*\s*(.*)$")
-# 832 T-516/T-1005: labels may contain spaces ("**Also rejected:**"). `\w+` did not match them,
-# so an unknown multi-word label was read as a continuation and folded into the previous value.
-_ANY_BOLD_LABEL = re.compile(r"^[-*]?\s*\*\*([\w][\w ]*?):\*\*")
+_ANY_BOLD_LABEL = re.compile(r"^[-*]?\s*\*\*(\w+):\*\*")
 
 
 def _section(text: str) -> str:

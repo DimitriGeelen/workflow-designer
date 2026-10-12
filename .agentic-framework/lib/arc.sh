@@ -658,46 +658,6 @@ else:  # T-3577: an unquoted trailing ' # comment' is not part of the value
 print(v)
 PY
 )"
-    # T-679 (832-local, re-applied on 1.7.740 under T-1005): consult the SAME UNION
-    # the readers do. The check below reads only arc_id:, but lib/arc_membership.py
-    # unions arc_id: with the legacy `arc:<slug>` tag, so a task whose membership is
-    # recorded ONLY in the tag was invisible to the reassignment refusal -- measured:
-    # `fw arc tag designer-authoring-surface T-590` exited 0 on a task already in
-    # ewcr-governed-delivery. Runs BEFORE any write, so a refusal changes nothing.
-    # Only the frontmatter `tags:` line is scanned: `arc:` also appears in prose.
-    if [ -z "$existing_arc_id" ]; then
-        local legacy_rc=0
-        python3 - "$tf" "$id" "$tid" <<'PY' || legacy_rc=$?
-import re, sys
-fn, arc_id, tid = sys.argv[1], sys.argv[2], sys.argv[3]
-text = open(fn).read()
-try:
-    fm = text[:text.index("\n---", 4)]
-except ValueError:
-    fm = text
-tags_line = re.search(r'^tags:.*$', fm, re.MULTILINE)
-tagged = sorted(set(re.findall(r'arc:([A-Za-z0-9._-]+)', tags_line.group(0)))) if tags_line else []
-if len(tagged) > 1:
-    sys.stderr.write("%s carries %d arc tags (%s); arc_id: holds one\n" % (tid, len(tagged), ", ".join(tagged)))
-    sys.exit(12)
-if tagged and tagged[0] != arc_id:
-    sys.stderr.write("%s already belongs to %s via its legacy arc: tag\n" % (tid, tagged[0]))
-    sys.exit(11)
-# A legacy tag naming THIS arc falls through on purpose: writing arc_id: is the upgrade path.
-PY
-        case "$legacy_rc" in
-            0) ;;
-            11) echo "Error: refusing to tag $tid into '$id' -- its legacy arc: tag already places it in another arc." >&2
-                echo "  A task belongs to one arc at a time (T-1849); reassign deliberately by editing tags:/arc_id:." >&2
-                return 1 ;;
-            12) echo "Error: $tid carries multiple legacy arc: tags (see above)." >&2
-                echo "  arc_id: is single-valued -- collapsing them would drop a membership." >&2
-                echo "  Decide which arc owns it, then edit tags:/arc_id: deliberately." >&2
-                return 1 ;;
-            *) echo "Error: legacy-membership check failed (rc=$legacy_rc); not tagging $tid." >&2
-               return 1 ;;
-        esac
-    fi
     if [ -n "$existing_arc_id" ]; then
         local existing_norm
         existing_norm="$(_arc_normalize_input "$existing_arc_id")"
@@ -896,7 +856,6 @@ arc_close() {
         if [ -z "$wt_url" ]; then
             wt_url="$("${FRAMEWORK_ROOT:-$PROJECT_ROOT}/bin/fw" watchtower url 2>/dev/null || true)"
         fi
-        [ -z "$wt_url" ] && wt_url="http://localhost:3000"
         echo "Error: agents must not invoke 'fw arc close' directly (§ACD/G-062, T-1671)." >&2
         echo "" >&2
         echo "  You appear to be running inside Claude Code (\$CLAUDECODE=1)." >&2
@@ -913,7 +872,7 @@ arc_close() {
         echo "    2. Human: open the Watchtower URL, review the demo evidence," >&2
         echo "       run 'bin/fw arc close ${id} --demo <path> --decision \"...\"'" >&2
         echo "" >&2
-        echo "  Arc detail: ${wt_url}/arcs/${id}" >&2
+        if [ -n "$wt_url" ]; then echo "  Arc detail: ${wt_url}/arcs/${id}" >&2; else echo "  No Watchtower reachable for this project (start one with: fw serve)." >&2; fi
         echo "" >&2
         echo "  Overrides (mirror T-1259 inception-decide): --i-am-human (human typing" >&2
         echo "  into an agent session, rare); --from-watchtower (Flask backend)." >&2
@@ -1045,7 +1004,6 @@ arc_abandon() {
         if [ -z "$wt_url" ]; then
             wt_url="$("${FRAMEWORK_ROOT:-$PROJECT_ROOT}/bin/fw" watchtower url 2>/dev/null || true)"
         fi
-        [ -z "$wt_url" ] && wt_url="http://localhost:3000"
         echo "Error: agents must not invoke 'fw arc abandon' directly (§ACD/G-062, T-1671)." >&2
         echo "" >&2
         echo "  You appear to be running inside Claude Code (\$CLAUDECODE=1)." >&2
@@ -1062,7 +1020,7 @@ arc_abandon() {
         echo "    2. Human: open the Watchtower URL, review the reasoning," >&2
         echo "       run 'bin/fw arc abandon ${id} --reason \"...\"'" >&2
         echo "" >&2
-        echo "  Arc detail: ${wt_url}/arcs/${id}" >&2
+        if [ -n "$wt_url" ]; then echo "  Arc detail: ${wt_url}/arcs/${id}" >&2; else echo "  No Watchtower reachable for this project (start one with: fw serve)." >&2; fi
         echo "" >&2
         echo "  Overrides (mirror T-1259 inception-decide): --i-am-human (human typing" >&2
         echo "  into an agent session, rare); --from-watchtower (Flask backend)." >&2
@@ -1432,8 +1390,7 @@ arc_review() {
     if declare -F _watchtower_url >/dev/null 2>&1; then
         base_url=$(_watchtower_url "$id" 2>/dev/null || true)
     fi
-    [ -z "$base_url" ] && base_url="http://localhost:3000"
-    review_url="${base_url}/arcs/${id}/close"
+    if [ -n "$base_url" ]; then review_url="${base_url}/arcs/${id}/close"; else review_url="(no Watchtower reachable for this project — start one with: fw serve)"; fi
 
     echo ""
     echo "══════════════════════════════════════════"

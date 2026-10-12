@@ -1,7 +1,7 @@
 """Tasks blueprint — task list, detail, status API."""
 
-from markupsafe import Markup
 import re as re_mod
+from html import escape as _html_escape
 from urllib.parse import urlencode
 from datetime import datetime, timezone
 
@@ -17,6 +17,7 @@ from web.shared import (
     protect_path_underscores,
     _auto_link_files,
     count_human_acs,
+    task_review_state,
 )
 from web.subprocess_utils import run_fw_command
 
@@ -369,17 +370,10 @@ def _render_md_inline(text):
     """Render text as Markdown HTML for inline display (T-1551).
     Strips <p> wrapper for use inside <li> contexts. safe_mode='escape'
     blocks raw HTML — only Markdown syntax (links, code, emphasis) renders.
-    Returns '' for empty input.
-
-    T-606: returns markupsafe.Markup. The old contract was "the caller must mark
-    returned strings safe", i.e. correctness lived in every template author's memory
-    rather than in this function. Two of the four consumers forgot, and the operator
-    read 205 escaped &lt;code&gt; on /approvals for as long as that page has existed.
-    Escaping is decided HERE (markdown2 safe_mode='escape' still neutralises raw HTML
-    in the task file); marking the result Markup only stops Jinja escaping it twice.
+    Returns '' for empty input. The caller must mark returned strings safe.
     """
     if not text:
-        return Markup('')
+        return ''
     text = _auto_link_watchtower_paths(text)
     text = _auto_link_task_refs(text)
     text = _auto_link_bare_urls(text)
@@ -390,22 +384,14 @@ def _render_md_inline(text):
         html = html[3:-4]
     html = _linkify_code_urls(html)
     # T-1722: artefact paths → /file/ anchors (existence-gated, idempotent).
-    return Markup(_auto_link_files(html))
+    return _auto_link_files(html)
 
 
 def _render_md_block(text):
     """Same as _render_md_inline but keeps <p> wrapping for block contexts
-    (Expected, If-not). T-1551.
-
-    T-606: returns markupsafe.Markup. The old contract was "the caller must mark
-    returned strings safe", i.e. correctness lived in every template author's memory
-    rather than in this function. Two of the four consumers forgot, and the operator
-    read 205 escaped &lt;code&gt; on /approvals for as long as that page has existed.
-    Escaping is decided HERE (markdown2 safe_mode='escape' still neutralises raw HTML
-    in the task file); marking the result Markup only stops Jinja escaping it twice.
-    """
+    (Expected, If-not). T-1551."""
     if not text:
-        return Markup('')
+        return ''
     text = _auto_link_watchtower_paths(text)
     text = _auto_link_task_refs(text)
     text = _auto_link_bare_urls(text)
@@ -414,7 +400,7 @@ def _render_md_block(text):
     html = markdown2.markdown(text, safe_mode='escape').strip()
     html = _linkify_code_urls(html)
     # T-1722: artefact paths → /file/ anchors (existence-gated, idempotent).
-    return Markup(_auto_link_files(html))
+    return _auto_link_files(html)
 
 
 # T-3224: an AC field heading is `**<marker><suffix>:**`, where the optional
@@ -487,6 +473,33 @@ def _parse_ac_body(body):
     if_not = _render_md_block(if_not)
 
     return steps, expected, if_not
+
+
+def _link_plain_text(text):
+    """T-4044: escape plain (non-Markdown) task text and link existing file paths.
+
+    Same existence-gated `_auto_link_files` rule the Human criteria get, applied
+    to text that is shown as-is (description, Agent criterion). Escaping first
+    keeps `<script>` and friends as text.
+    """
+    return _auto_link_files(_html_escape(text))
+
+
+def _link_task_body(body):
+    """T-4044: the raw Task Body with file paths linked in `## Context` and
+    `### Agent` only. Every line is escaped; other sections are not linked, so
+    the Verification and Human text stays exactly as it was."""
+    out = []
+    in_scope = False
+    for line in body.split("\n"):
+        heading = re_mod.match(r"^(#{2,3})\s+(.*?)\s*$", line)
+        if heading:
+            if len(heading.group(1)) == 2:
+                in_scope = heading.group(2) == "Context"
+            else:
+                in_scope = heading.group(2) == "Agent"
+        out.append(_link_plain_text(line) if in_scope else _html_escape(line))
+    return "\n".join(out)
 
 
 def _parse_acceptance_criteria(body_text):
@@ -778,6 +791,16 @@ def tasks():
 
     # Board columns: newest first, so a cap trims the stalest cards, not the current ones.
     board_tasks = sorted(all_tasks, key=_board_order_key, reverse=True)
+    # T-4045: derived "Awaiting review" column (no new status is stored). The one
+    # readiness predicate (T-4053) decides; waiting tasks stay where their status puts
+    # them and carry their open-Human count so the two kinds are told apart.
+    awaiting_tasks = []
+    for t in board_tasks:
+        t["_review_state"], t["_wait_reasons"], t["_open_human"] = (
+            task_review_state(t["_path"]) if t.get("_location") == "active" and t.get("_path")
+            else (None, [], 0))
+    awaiting_tasks = [t for t in board_tasks if t["_review_state"] == "ready"]
+    board_tasks = [t for t in board_tasks if t["_review_state"] != "ready"]
     # "+N more" must land on the same filtered list the board came from.
     overflow_qs = urlencode([(k, v) for k, v in (
         ("owner", owner_filter), ("horizon", horizon_filter), ("tag", tag_filter),
@@ -806,6 +829,7 @@ def tasks():
         page_title="Tasks",
         tasks=all_tasks,
         board_tasks=board_tasks,
+        awaiting_tasks=awaiting_tasks,
         board_column_cap=BOARD_COLUMN_CAP,
         board_capped_statuses=BOARD_CAPPED_STATUSES,
         overflow_qs=overflow_qs,
@@ -867,6 +891,9 @@ def task_detail(task_id):
 
     # Parse AC checkboxes for interactive rendering
     ac_items = _parse_acceptance_criteria(task_content)
+    for ac in ac_items:  # T-4044: Agent criteria link file paths like Human ones do
+        if ac["section"] == "agent":
+            ac["text_html"] = _link_plain_text(ac["text"])
 
     # Find research artifacts (docs/reports/T-XXX-* and fw-agent-tXXX-*)
     artifacts = []
@@ -911,6 +938,8 @@ def task_detail(task_id):
         page_title=f"Task {task_id}",
         task=task_data,
         task_content=task_content,
+        task_body_html=_link_task_body(task_content),
+        description_html=_link_plain_text(str(task_data.get("description") or "")),
         episodic=episodic,
         task_id=task_id,
         status_options=status_options,
@@ -1207,7 +1236,23 @@ def toggle_ac(task_id):
     if not task_file:
         abort(404)
 
+    old_text = task_file.read_text()
     ok, new_state, err = _toggle_ac_line(task_file, line_idx)
+    if ok and new_state:
+        # T-4070: a tick on a `### Human` box needs a provenance row written in this
+        # request; if it cannot be written the tick is rolled back, never left unprovenanced.
+        try:
+            import uuid
+            from lib import human_ac_ticks
+            extra = {"request_id": request.headers.get("X-Request-Id") or uuid.uuid4().hex,
+                     "remote_addr": request.remote_addr or ""}
+            for key, _kind, _vid in human_ac_ticks.unprovenanced_ticks(old_text, task_file.read_text()):
+                human_ac_ticks.record(PROJECT_ROOT, task_id, key, "watchtower", "watchtower", extra)
+        except Exception as e:  # noqa: BLE001 - any failure must refuse the tick
+            task_file.write_text(old_text)
+            _tick_err = str(e)  # T-4084: a short notice, not a stderr render (T-2222 counts those)
+            return ('<p style="color: var(--pico-del-color);">Tick refused: could not write the '
+                    f'provenance record ({_escape(_tick_err[:1500])})</p>', 500)
     if ok:
         checked_attr = "checked" if new_state else ""
         return f'<input type="checkbox" {checked_attr} onchange="this.form.requestSubmit()" style="margin:0;">'

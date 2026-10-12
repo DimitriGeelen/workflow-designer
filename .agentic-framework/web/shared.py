@@ -10,7 +10,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, TypeVar
 
-from markupsafe import Markup, escape
 import yaml
 from flask import g, has_request_context, render_template, request
 
@@ -1074,22 +1073,14 @@ def protect_path_underscores(text: str) -> str:
     return "".join(parts)
 
 
-def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
+def render_markdown_safe(text: str, extras: list[str] | None = None) -> str:
     """Render Markdown to HTML with safe_mode='escape', auto-link T-XXX refs
     and bare http(s) URLs.
 
     Used by /review and any blueprint that needs to render an arbitrary chunk
     of task-body markdown (rationale, evidence, etc.) without piping through
-    tasks.py's AC-specific helpers. Returns '' for empty input.
-
-    T-606: returns markupsafe.Markup, so callers no longer have to remember
-    `| safe`. Recommended by 010-termlink (rail 563) and correct — but note it
-    was NOT sufficient for the reported symptom: /approvals' AC fields never
-    reach this function, they come from tasks.py's _render_md_inline. The
-    docstring below claims the blueprint-private parser pattern was broken by
-    promoting this helper here; the promotion happened and the private pair
-    survived. Both are now fixed. A contract with two definitions is one
-    definition and one impostor, and the impostor is where the bug lives.
+    tasks.py's AC-specific helpers. Returns '' for empty input. Caller must
+    mark returned string `| safe` in templates.
 
     Origin: T-1575 — /review surface dumped raw markdown into a `<pre>` block.
     Promoted here (rather than reused from tasks.py) to break the blueprint-
@@ -1101,24 +1092,11 @@ def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
     ``extras=None`` is the previous behaviour exactly.
     """
     if not text:
-        return Markup("")
+        return ""
     try:
         import markdown2
     except ImportError:
-        # T-569: ESCAPE on the degradation path. Every caller marks this `| safe` — that is
-        # stated three lines up in this docstring — so returning the raw text handed
-        # unescaped, attacker-influenced content straight into the page whenever markdown2
-        # was missing. It was latent only because the import has always succeeded here.
-        # A fallback that silently turns escaping off is the same shape as the rest of this
-        # week's defects: the failure renders as health, and nothing in the output says the
-        # renderer degraded.
-        from markupsafe import escape as _escape
-        # T-606: was str(_escape(text)) — correct only because every caller then
-        # applied `| safe`. Now that this function owns the safety, return the
-        # Markup escape() already produced: the entities stay visible as literal
-        # text and are NOT re-escaped into &amp;lt;. The degradation path must keep
-        # escaping; it must not inherit the happy path's trust.
-        return _escape(text)
+        return text  # graceful degradation
     text = _TASK_REF_RE_SHARED.sub(r"[\1](/tasks/\1)", text)
     text = protect_path_underscores(text)
     text = _BARE_URL_RE_SHARED.sub(lambda m: f"[{m.group(1).rstrip('.,;:!?')}]({m.group(1).rstrip('.,;:!?')})", text)
@@ -1137,7 +1115,7 @@ def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
     # become clickable /file/ links. Existence-gated; same rendering-layer
     # contract as the T-1575 URL/T-NNNN shape — agent need not pre-format.
     html = _auto_link_files(html)
-    return Markup(html)
+    return html
 
 
 _REC_MARKER_RE = re_mod.compile(
@@ -1534,6 +1512,140 @@ def is_ready_for_batch_completion(status: str, body: str) -> bool:
         return False
     total, unchecked = count_human_acs(body)
     return total > 0 and unchecked == 0
+
+
+# T-4053: review readiness — the ONE predicate behind /approvals, `fw review-queue`
+# and (T-4045) the task board. A task with an unchecked Human criterion is READY for
+# the operator only when the agent is finished: every `### Agent` criterion ticked and
+# every open reviewer-judged Human criterion carries a green independent verdict.
+READY = "ready"
+WAITING_ON_AGENT = "waiting-on-agent"
+_READINESS_CACHE: dict[str, tuple[int, tuple, tuple]] = {}
+_LEDGER_CACHE: dict[str, tuple] = {}
+
+
+def _readiness_stamp(root: Path) -> tuple:
+    """What the verdict ledger's verdict depends on besides the task file: the ledger
+    file and the commit history it is verified against."""
+    out = []
+    for rel in (".context/reviews/verdicts.jsonl", ".git/logs/HEAD"):
+        try:
+            out.append((root / rel).stat().st_mtime_ns)
+        except OSError:
+            out.append(0)
+    return tuple(out)
+
+
+def _shared_ledger(vl, root: Path, stamp: tuple):
+    hit = _LEDGER_CACHE.get(str(root))
+    if hit and hit[0] == stamp:
+        return hit[1]
+    led = vl.load_ledger(root)
+    _LEDGER_CACHE[str(root)] = (stamp, led)
+    return led
+
+
+def _compute_readiness(task_id: str, body: str, root: Path, path: Path | None,
+                       stamp: tuple) -> tuple[str, tuple]:
+    reasons: list[str] = []
+    try:
+        import sys as _sys
+        _lib = str(FRAMEWORK_ROOT / "lib")
+        if _lib not in _sys.path:
+            _sys.path.insert(0, _lib)
+        import delegation as dg
+        if path is not None:  # frontmatter is needed for workflow_type / components
+            body = path.read_text(encoding="utf-8", errors="replace")
+        crits = dg.parse_criteria(body)
+        open_agent = [c for c in crits if c.subhead.lower().startswith("agent") and not c.ticked]
+        if open_agent:
+            n = len(open_agent)
+            reasons.append(f"{n} agent criteri{'on' if n == 1 else 'a'} open")
+        judged = []
+        fm = dg.frontmatter(body)
+        wt = str(fm.get("workflow_type") or "")
+        rs = None
+        for c in dg.human_criteria(body):
+            if c.ticked:
+                continue
+            if rs is None:
+                rs = dg.task_touches_render_surface_cheap(body, FRAMEWORK_ROOT, fm)
+            if dg.classify(c, workflow_type=wt, render_surface=rs).reviewer_judges:
+                judged.append(c)
+        if judged:
+            try:
+                import verdict_ledger as vl
+                if path is None:
+                    ctx = vl._task_ctx(root, task_id)
+                    if ctx is None:
+                        raise RuntimeError("task is not an active task file")
+                else:
+                    # path known: skip _find_task's directory glob and _Ctx.__init__'s
+                    # `git log` render-surface probe (~1.4 s/task); the cheap predicate
+                    # over-reports, which can only turn a green into "not green" (safe).
+                    ctx = object.__new__(vl._Ctx)
+                    vl._Base.__init__(ctx, root, task_id, body)
+                    ctx.path, ctx.workflow, ctx.owner = path, wt.strip().lower(), str(fm.get("owner") or "")
+                    ctx.render, ctx._ledger = bool(rs), None
+                ctx._ledger = _shared_ledger(vl, root, stamp)
+                for c in judged:
+                    row, why = vl.satisfying_verdict(ctx, c)
+                    if row is None:
+                        reasons.append(f"independent review not green on criterion {c.index}")
+            except Exception as e:  # never silently ready (T-4053)
+                reasons.append(f"independent-review state unreadable ({type(e).__name__}: {e})")
+    except Exception as e:
+        reasons.append(f"readiness could not be computed ({type(e).__name__}: {e})")
+    return (WAITING_ON_AGENT if reasons else READY), tuple(reasons)
+
+
+def review_readiness(task_id: str, status: str, body: str,
+                     path: Path | str | None = None) -> tuple[str, list[str]]:
+    """``(state, reasons)`` for a task awaiting the operator; state is ``READY`` or
+    ``WAITING_ON_AGENT``. Reasons are empty iff ready. Cached per task-file mtime and
+    the ledger stamp when ``path`` is given. Fails toward waiting, never silently ready."""
+    root = Path(PROJECT_ROOT)
+    p = Path(path) if path else None
+    stamp = _readiness_stamp(root)
+    mtime = 0
+    if p is not None:
+        try:
+            mtime = p.stat().st_mtime_ns
+        except OSError:
+            p = None
+    if p is not None:
+        hit = _READINESS_CACHE.get(str(p))
+        if hit and hit[0] == mtime and hit[1] == stamp:
+            return hit[2][0], list(hit[2][1])
+    state, reasons = _compute_readiness(task_id, body, root, p, stamp)
+    if p is not None:
+        _READINESS_CACHE[str(p)] = (mtime, stamp, (state, reasons))
+    return state, list(reasons)
+
+
+_OPEN_HUMAN_CACHE: dict[str, tuple[int, int]] = {}
+
+
+def task_review_state(path: Path | str) -> tuple[str | None, list[str], int]:
+    """``(state, reasons, open_human)`` for one task file (T-4045 board column).
+
+    ``state`` is None when the task has no unchecked Human criterion (it is not
+    awaiting anyone); otherwise ``review_readiness``'s verdict. Both the open-Human
+    count and the readiness are cached per file mtime."""
+    p = Path(path)
+
+    def _count(q: Path) -> int:
+        try:
+            return count_human_acs(q.read_text(encoding="utf-8", errors="replace"))[1]
+        except OSError:
+            return 0
+
+    open_human = mtime_cached_get(p, _count, _OPEN_HUMAN_CACHE, 0)
+    if open_human == 0:
+        return None, [], 0
+    state, reasons = review_readiness(p.name.split("-", 2)[0] + "-" + p.name.split("-", 2)[1],
+                                      "", "", p)
+    return state, reasons, open_human
 
 
 def extract_reviewer_verdict(body: str) -> dict:
@@ -1947,30 +2059,14 @@ def load_latest_audit():
 
 
 def linkify_tasks(text):
-    r"""Convert T-XXX references to clickable Watchtower links (T-851).
-
-    T-646: ESCAPE FIRST, THEN LINKIFY. The result is declared trusted HTML by the
-    Jinja filter in app.py, and a function may only vouch for markup it created
-    itself. Before this, the substitution ran over the RAW string and the whole
-    result was wrapped in Markup(), so every `<` in the source prose was published
-    as a tag. The source is not incidental: timeline narratives are read out of
-    committed handover markdown (blueprints/timeline.py:159), so the text is prose
-    that sessions wrote, and sessions write about HTML. Measured on the live
-    /timeline: two `<html` tags reaching the browser from a paragraph *discussing*
-    fragments. Injection-shaped rather than an open door — the input is our own
-    repository — but the ordering is wrong either way, and the fix is one line.
-
-    escape() is applied to the whole input; the anchors are then inserted into
-    already-escaped text, so they are the only markup this function vouches for.
-    T-\d{3,} contains no escapable character, so escaping cannot disturb the match.
-    """
+    """Convert T-XXX references to clickable Watchtower links (T-851)."""
     if not text:
         return text
-    return Markup(re_mod.sub(
+    return re_mod.sub(
         r'\b(T-\d{3,})\b',
         r'<a href="/tasks/\1">\1</a>',
-        str(escape(text)),
-    ))
+        str(text),
+    )
 
 
 _FRAGMENT_CONVENTION_VIOLATION = (
