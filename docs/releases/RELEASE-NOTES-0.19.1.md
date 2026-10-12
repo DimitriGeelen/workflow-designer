@@ -16,7 +16,12 @@ Greenfield in their 0.18.0 re-test.
 
 ## Authoring kit
 
-Content unchanged. Re-issued as 0.19.1 with its own calibration record (`docs/authoring-kit/calibration-records/0.19.1.yaml`).
+Guide, rubric and validator unchanged. **One correction to the calibration maps (T-1136):** the clean control map's
+Warehouse lane covered quality inspection and labelling but cited only the pick/pack/book sentence — breaking the guide's
+own rule that each backing source sentence gets its own `source:` line (AUTHORING.md, the example there is this lane).
+GLM caught it in the first 0.19.1 calibration; every earlier calibration had missed it. Both maps now cite both
+sentences. The failed run is kept in the record (`voided_runs`); the corrected kit passed with codex, GLM and Antigravity
+(`docs/authoring-kit/calibration-records/0.19.1.yaml`).
 
 ## Re-test (Greenfield)
 
