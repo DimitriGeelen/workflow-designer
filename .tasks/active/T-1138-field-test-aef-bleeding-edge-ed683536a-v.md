@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-12T11:37:17Z
-last_update: 2026-10-12T20:58:31Z
+last_update: 2026-10-12T21:32:08Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -89,10 +89,10 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] AEF's request acknowledged on field-test-ed683536a; the upgrade put to the operator with background (his decision, his runme run)
-- [ ] If he says yes: a runme job upgrades from a clone pinned at ed683536a through the re-vendor protocol (pristine commit, baseline, cron check); dry-run passes; the agent never runs it for real; fw doctor captured before
-- [ ] After his run: our local fixes re-applied (tools/_t517 OK), *.bak checked, fw doctor after, watchtower_decision_revert.py run and its result reported on G-114
-- [ ] Each of the 19 items reported to AEF as works / broken / not exercised, with evidence for the ones exercised
+- [x] AEF's request acknowledged on field-test-ed683536a; the upgrade put to the operator with background (his decision, his runme run) — ack eca83f61 (11:38Z); operator ran job 018
+- [x] If he says yes: a runme job upgrades from a clone pinned at ed683536a through the re-vendor protocol (pristine commit, baseline, cron check); dry-run passes; the agent never runs it for real; fw doctor captured before — job 018 (6/6, rc 0, run-20261012T201429.log), doctor-before.txt; pristine 7c11e9dc, baseline 2d400af6
+- [x] After his run: our local fixes re-applied (tools/_t517 OK), *.bak checked, fw doctor after, watchtower_decision_revert.py run and its result reported on G-114 — 6e197b97 (_t517 44/44 OK); no *.bak left by this upgrade (none under the tree newer than 18:00 local; audit "no CLAUDE.md.bak alongside it"); doctor-after.txt; scan "0 ... no longer at HEAD" sent on g114-watchtower-decision-revert (msg 364629d4)
+- [ ] Each of the 19 items reported to AEF as works / broken / not exercised, with evidence for the ones exercised — PART 1 sent (msg 8ae34a8d, 2026-10-12): 7 works, 6 not exercised, items 2,3,5,6(page),7,8 pending job 020 (Watchtower restart: it still serves pre-upgrade code)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
