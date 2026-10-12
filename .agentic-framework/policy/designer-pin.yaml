@@ -16,13 +16,13 @@
 # frozen annotated tag = published frozen bytes — 832's working tree stays
 # off-limits.
 
-version: "0.19.0"
-sha256: "87cca1c3bd47c704f79aabb97cb359ecb3253da61db90dce48751be15a40ee2a"
-bytes: 1145656
+version: "0.19.1"
+sha256: "296a51a7ae81a8b2a90f8988ef7ae18d7660f45606376468451868a494266eba"
+bytes: 1147487
 
 source_repo: "832-Workflow-designer"
-source_artifact: "dist/aef-workflow-designer-0.19.0.html"
-source_tag: "designer-v0.19.0"
+source_artifact: "dist/aef-workflow-designer-0.19.1.html"
+source_tag: "designer-v0.19.1"
 source_manifest: "dist/MANIFEST.yaml"                 # 832 side
 # Read-only LAN origin for pull-at-tag intake (T-247/D-335, tooling T-2616).
 # `fw designer sync --from-tag` fetches artifact + MANIFEST at the annotated tag
@@ -161,7 +161,9 @@ protocol: "docs/aef-designer-integration-protocol.md" # 832 side (pull → sha25
 #   defaults per project/map, element details view, optional-select fix). sha+bytes from the designer-v0.18.0 tag blob.
 # 832 T-1133 (2026-10-12): 0.18.0 -> 0.19.0 (process data kept on save, suggest-and-approve fields, nested plain
 #   task imported). sha+bytes from the designer-v0.19.0 tag blob.
-vendored_path: "vendor/designer/aef-workflow-designer-0.19.0.html"
+# 832 T-1135 (2026-10-12): 0.19.0 -> 0.19.1 (field settings and suggestions read-only on a server without the
+#   endpoints, T-1134; kit calibration maps corrected, T-1136). sha+bytes from the designer-v0.19.1 tag blob.
+vendored_path: "vendor/designer/aef-workflow-designer-0.19.1.html"
 
 # Offline-hardened (832 T-176): web fonts are embedded as base64 woff2 — ZERO network
 # on load (no fonts.googleapis.com / gstatic fetch). Fully self-contained for

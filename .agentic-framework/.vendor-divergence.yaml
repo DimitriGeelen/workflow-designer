@@ -569,7 +569,7 @@ entries:
       /designer/app now serves sha 68454742). 0.15.2 -> 0.15.3 the same way on 2026-10-03 (served sha
       209d37bb), and 0.15.3 -> 0.16.0 on 2026-10-09 (T-1105, served sha 9cc12bfe), and 0.16.0 -> 0.17.0 on
       2026-10-11 (T-1121, served sha 6e301322), and 0.17.0 -> 0.18.0 the same day (T-1130, served sha 3486362c), and 0.18.0 -> 0.19.0 on
-      2026-10-12 (T-1133, served sha 87cca1c3).
+      2026-10-12 (T-1133, served sha 87cca1c3), and 0.19.0 -> 0.19.1 the same day (T-1135, served sha 296a51a7).
       AEF pins its own version; this one is ours.
 
   - path: .agentic-framework/.vendor-divergence.yaml
