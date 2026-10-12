@@ -2741,3 +2741,9 @@ learnings:
   task: T-1130
   date: 2026-10-11
   context: Added via context agent
+- id: PL-393
+  learning: "For a feature/architecture inception, write the hypothesis INTO the recommendation the operator reads before deciding (what we bet, and the measurable sign it worked) — it is the basis of go/no-go/defer. Never back-fill it after fw inception decide refuses a go, and never ask the operator to stamp agent-written text as his own (hypothesis_source: human). Research inceptions are exempt (inception_kind: research). Origin: T-1118, operator review 2026-10-12."
+  source: P-001
+  task: T-1137
+  date: 2026-10-12
+  context: Added via context agent

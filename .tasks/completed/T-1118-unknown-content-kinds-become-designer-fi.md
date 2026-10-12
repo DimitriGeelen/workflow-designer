@@ -19,7 +19,7 @@ inception_decisions:
     text: "B1: the properties panel folds empty fields behind '+ N empty fields'; a field with a value is never hidden; Settings 'Show all fields'"
     ships_in: T-1124
   - id: field-profile
-    text: "B2: a field profile per project and per workflow decides which fields show (designer default < project < workflow)"
+    text: "B2: a field profile per project and per workflow decides which fields show (designer default < project < workflow). Operator 2026-10-11 (T-1125, R1): project layer built; workflow layer deferred — populated-only default (B1) plus element detail view (T-1127) instead"
     ships_in: T-1125
   - id: suggest-and-approve
     text: "B3: 'Suggest as a field' on unknown keys; a field appears only after the operator approves it via a runme job"
@@ -73,6 +73,15 @@ chosen per project and per workflow, and empty fields out of the way. Research: 
 We believe that hiding empty fields by default, a field profile per project and per workflow, and new fields only on operator approval,
 we will achieve a properties panel that shows what a map actually carries, with every new field one the operator chose.
 We will know that we are successful when we see, on the 42 service tasks in examples/, at most 4 field rows shown by default (today 13), 0 filled fields hidden in a CDP census of the corpus, and every field outside the designer default backed by an approval record in the project profile.
+
+> **Provenance and outcome (T-1137, 2026-10-12).** This hypothesis is the AGENT's draft, written after `fw inception decide`
+> refused the go for lack of one — the operator did not see it before deciding, and it is deliberately NOT marked
+> `hypothesis_source: human`. Process fix: a feature inception's hypothesis goes into the recommendation the operator
+> reads before deciding (learning recorded under T-1137). Measured after the build, all three met: (1) median 4
+> Extensions rows on the 42 examples service tasks, was 14 incl. Owner (tools/_t1124-hide-empty-fields-cdp.mjs, leg E);
+> (2) 0 filled fields hidden on those 42 (same tool, leg D); (3) a `fields` entry without approved_by/approved_at is
+> refused whole by the server (tools/_t1126-field-suggestions-cdp.mjs, leg D). Built as per project and per MAP
+> (T-1125, T-1128), not "per workflow".
 
 ## Assumptions
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-1118 -->
