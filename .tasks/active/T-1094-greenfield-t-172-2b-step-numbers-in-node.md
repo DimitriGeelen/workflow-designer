@@ -1,11 +1,19 @@
 ---
 id: T-1094
-name: "Greenfield T-172 #2b: step numbers in node ids count gateways and events (Salesforce tasks read 1,2,4,5; verkoper start + first task look unnumbered)"
+name: "Greenfield T-172 #2b: step numbers in node ids count gateways and events (Salesforce
+  tasks read 1,2,4,5; verkoper start + first task look unnumbered)"
 description: >
-  Split from T-1088 (one bug per task). computeDisplayId ranks EVERY node in a lane by x, so a parallel gateway (sal_3_tegelijk) and start events take step numbers; the owner reads the task sequence as jumping. Decide what a step number counts (tasks only? all activities?) — ids are also bpmn ids, so changing the scheme affects saved files and id-based comparison (T-1089).
+  Split from T-1088 (one bug per task). computeDisplayId ranks EVERY node in a lane
+  by x, so a parallel gateway (sal_3_tegelijk) and start events take step numbers;
+  the owner reads the task sequence as jumping. Decide what a step number counts (tasks
+  only? all activities?) — ids are also bpmn ids, so changing the scheme affects saved
+  files and id-based comparison (T-1089).
 
-status: captured
-workflow_type: build
+status: started-work
+workflow_type: inception
+target_blast_radius: 3
+voi_score: 0.5
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T08:40:22Z
-last_update: 2026-10-08T08:40:22Z
-date_finished: null
+last_update: 2026-10-12T22:18:51Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +58,45 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-12T22:14:35Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1094: Greenfield T-172 #2b: step numbers in node ids count gateways and events (Salesforce tasks read 1,2,4,5; verkoper start + first task look unnumbered)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Inception (converted from build 2026-10-12): the choice changes the BPMN ids written into saved maps, so it is
+the operator's. Research and options: [docs/reports/T-1094-step-numbers-what-they-count.md](../../docs/reports/T-1094-step-numbers-what-they-count.md).
+Recommendation: option 2, activities-only step numbers (events and gateways get a type word).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The misreading is measured on Greenfield's own map (which node takes which number, per lane) and traced to `computeDisplayId` (src :2155)
+- [x] The id constraint is stated: the display id is the exported BPMN id (:12207), and ids already renumber on layout edits
+- [x] Three options with costs and a recommendation (with its bet and how it is measured) are in the report
+- [ ] The operator's decision is recorded (`fw inception decide T-1094 go|no-go`), and on GO a build task is created for the chosen option
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -223,6 +256,7 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+grep -q "^## Recommendation" docs/reports/T-1094-step-numbers-what-they-count.md
 
 ## RCA
 
@@ -293,6 +327,15 @@ date_finished: null
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
 
+**Recommendation:** GO (option 2: activities-only step numbers; events and gateways get a type word)
+**Rationale:** Owners read the number as "step N"; the code means "position N in the lane". Node ids already
+renumber on every layout edit, so a one-time id change costs no more than a node move does today, and it removes
+the misreading at its source. Option 3 (badge-only) adds a second numbering that disagrees with the saved file.
+**Evidence:**
+- Greenfield's map: Salesforce tasks read 1, 2, 4, 5 (gateway `sal_3_tegelijk`); Verkoper's first task is `ver_2` (start event is `ver_1`); end events numbered
+- `computeDisplayId` ranks every node in the lane by x (src :2155-2165); export writes that id (:12207, :12181, :12350)
+- Open before the build: ask Greenfield whether anything of theirs keys on node ids (their T-189 stamps the map id only)
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -320,3 +363,9 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1094-greenfield-t-172-2b-step-numbers-in-node.md
 - **Context:** Initial task creation
+
+### 2026-10-12T22:14:34Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-10-12T22:15:14Z — status-update [task-update-agent]
+- **Change:** workflow_type: build → inception
