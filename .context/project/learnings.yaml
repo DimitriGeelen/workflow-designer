@@ -2747,3 +2747,9 @@ learnings:
   task: T-1137
   date: 2026-10-12
   context: Added via context agent
+- id: PL-394
+  learning: "After a framework upgrade, restart claude-fw: a running bash wrapper keeps the old terminator in memory, so a vendored fix (T-4032) does not reach it"
+  source: unknown
+  task: T-1140
+  date: 2026-10-12
+  context: Added via context agent

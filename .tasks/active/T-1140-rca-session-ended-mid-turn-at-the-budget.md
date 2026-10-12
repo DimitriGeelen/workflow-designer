@@ -6,6 +6,7 @@ description: >
 
 status: started-work
 workflow_type: build
+current_node: frw_6_run
 owner: agent
 horizon: now
 tags: []
@@ -38,7 +39,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-12T13:49:50Z
-last_update: 2026-10-12T14:32:27Z
+last_update: 2026-10-12T14:38:30Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -122,6 +123,10 @@ What was lost: nothing of substance. The two commits were local but not pushed. 
 
 ## Verification
 
+! ps -p 272866 >/dev/null
+grep -q "T-4032" .agentic-framework/bin/claude-fw
+test -f .context/handovers/S-2026-1012-1539.md
+git merge-base --is-ancestor 03338063 origin/bleeding-edge
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -249,6 +254,14 @@ What was lost: nothing of substance. The two commits were local but not pushed. 
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 ## RCA
+
+**Symptom:** the operator saw the session "crash" at 13:42:28Z on 2026-10-12. It was ended during a turn, in the middle of `git push`, at about 959K of the 1M budget cap. Two commits were left unpushed, the terminator's handover was left staged, and both background watchers were killed.
+
+**Root cause:** the claude-fw wrapper (pid 272866) had been running since 2026-10-08 22:40. It held the 1.8.5 `_terminator_watch` in memory, and that version has no T-4032 code: it ends the session the first time it sees the restart signal, once its handover try returns, whether or not the turn is over. The 180 s handover timed out (rc=124) while committing, and the kill followed straight away.
+
+**Why structurally allowed:** upgrading the framework (1.8.8 in T-1104, 1.8.9 in T-1122) replaces the file on disk, but a running bash wrapper never re-reads it, and the restart loop (`claude -c`) reuses the old functions. Until T-4069 (ed683536a, not vendored here yet), neither `fw upgrade` nor `fw doctor` reported a running wrapper older than its script. A slow commit path (59 s of post-commit hooks, 2159 dirty paths, T-1004 class) pushed the handover past its limit. The checkpoint auto-handover failed at 13:37:51 without recording why.
+
+**Prevention:** the operator restarted claude-fw, so pid 2774573 now runs the 1.8.9 terminator. Upstream (msg 51350d90): T-4069 is shipped and will arrive with the job 018 upgrade (`fw doctor` names stale wrappers); T-4118 has the wrapper restart itself or warn when its script changed; T-4119 sizes the terminator's handover limit for a slow commit or push; T-4120 records why a checkpoint handover failed. Learning for 832: after every framework upgrade, restart claude-fw. A vendored fix does not reach a wrapper that is already running.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
