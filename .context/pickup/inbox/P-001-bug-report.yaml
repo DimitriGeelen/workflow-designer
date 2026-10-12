@@ -1,0 +1,49 @@
+pickup_id: P-001
+version: 1
+type: bug-report
+source:
+  project: 832-Workflow-designer
+  task_id: T-1140
+  agent: claude-code
+  timestamp: '2026-10-12T13:55:06Z'
+payload:
+  summary: 'claude-fw: a wrapper started before an upgrade keeps running the old terminator
+    in memory, so the T-4032 ''wait for the turn to end'' fix never reaches it; 832
+    was killed mid-turn at budget-critical'
+  detail: 'Evidence from 832 T-1140 (2026-10-12):
+
+    - The claude-fw wrapper, pid 272866, started 2026-10-08 22:40 under the 1.8.5
+    vendor (3453b87c). 832 then upgraded to 1.8.8 and 1.8.9, which include T-4032.
+    The wrapper still runs the 1.8.5 _terminator_watch, because bash keeps its function
+    definitions in memory and the restart loop (claude -c) re-uses them.
+
+    - 13:39:24Z budget-gate critical wrote the restart signal. 13:39:28Z the terminator
+    started fw handover --commit (180 s limit). The agent was still mid-turn: a commit
+    (59 s in post-commit hooks), then git push. 13:42:28Z the handover timed out (rc=124,
+    stuck at ''Auto-committing handover...''), and the terminator killed claude in
+    the middle of the push.
+
+    - .compact-log has no ''[terminator] restart signal seen ... waiting for the turn
+    to end'' line. That confirms the pre-T-4032 code path.
+
+    Suggested fixes:
+
+    (a) claude-fw re-execs itself, or at least warns, when its own script file is
+    newer than the running process (compare the mtime at start with the current one
+    before each restart loop).
+
+    (b) fw upgrade / fw doctor flags any running claude-fw wrapper older than the
+    vendored script, and tells the operator to restart it.
+
+    (c) The terminator''s handover limit (180 s) is close to one slow commit plus
+    the handover commit. Consider committing the handover without post-commit hooks,
+    or raising the limit when the commit step is the one in progress.
+
+    Also: the checkpoint auto-handover at 13:37:51Z failed with only ''Gathering state...''
+    in .checkpoint.handover.stderr, so the reason was not recorded.'
+  priority: high
+  tags:
+  - claude-fw
+  - terminator
+  - T-4032
+  - upgrade
