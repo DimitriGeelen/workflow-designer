@@ -111,7 +111,8 @@ Probe fixture. Not a real task.
 
 ## Verification
 
-# none
+# T-1143: one real command — since AEF T-4024 a build task whose Verification yields none cannot close
+true
 
 ## Updates
 EOF

@@ -1,13 +1,18 @@
 ---
 id: T-1143
-name: "_t654 probe task has an empty Verification block: AEF T-4024 now refuses to close it, so leg 1 cannot measure"
+name: "_t654 probe task has an empty Verification block: AEF T-4024 now refuses to
+  close it, so leg 1 cannot measure"
 description: >
-  After ed683536a, update-task.sh refuses work-completed on a build task whose ## Verification yields 0 commands (T-4024). tools/_t654's sandbox probe T-9001 has such a block, so leg 1 reports COULD-NOT-MEASURE (bridge 0191d). Fix the fixture: give the probe a real verification command.
+  After ed683536a, update-task.sh refuses work-completed on a build task whose ##
+  Verification yields 0 commands (T-4024). tools/_t654's sandbox probe T-9001 has
+  such a block, so leg 1 reports COULD-NOT-MEASURE (bridge 0191d). Fix the fixture:
+  give the probe a real verification command.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-12T21:34:44Z
-last_update: 2026-10-12T21:34:44Z
-date_finished: null
+last_update: 2026-10-12T21:40:45Z
+date_finished: 2026-10-12T21:40:45Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +55,43 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-12T21:39:38Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1143: _t654 probe task has an empty Verification block: AEF T-4024 now refuses to close it, so leg 1 cannot measure
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Bridge run 0191d (after the ed683536a upgrade): `_t654` leg 1 reports COULD-NOT-MEASURE. Its sandbox probe task
+(workflow_type build) has `## Verification` holding only `# none`, and upstream T-4024 now refuses to close a build
+task whose Verification yields 0 commands. The gate is right; the fixture is stale.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The probe fixture's ## Verification holds one real command that passes (`true`), so the T-4024 gate lets it close
+- [x] `_t654` passes on the live update-task.sh, its teeth leg included (7 passed, 0 failed)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -226,6 +254,7 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+bash tools/_t654-archiving-a-partial-complete-task-must-null-its-horizon.sh
 
 ## RCA
 
@@ -242,6 +271,11 @@ date_finished: null
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** bridge run 0191d, `_t654` leg 1 COULD-NOT-MEASURE: "the ordinary path did not move the file (loc=active, rc=1)", update-task.sh BLOCKED by T-4024.
+**Root cause:** the probe fixture is a build task with a comment-only `## Verification`; AEF T-4024 (in ed683536a) now refuses to close exactly that.
+**Why structurally allowed:** fixtures copy the shape of a real task at the time they are written; nothing re-checks a fixture against gates added later, so a new gate shows up as a test that cannot measure.
+**Prevention:** the test reports COULD-NOT-MEASURE (not a false PASS) when its control leg cannot close, which is how this surfaced on the first sweep after the upgrade; the fixture now carries a real command. The same class as T-1142: re-run the bridge after every re-vendor (already the protocol).
 
 ## Evolution
 
@@ -323,3 +357,18 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1143-t654-probe-task-has-an-empty-verificatio.md
 - **Context:** Initial task creation
+
+### 2026-10-12T21:39:38Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-312fe14c
+- **Timestamp:** 2026-10-12T21:41:51Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-12T21:40:45Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
