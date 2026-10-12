@@ -227,3 +227,7 @@ identity; can a second hub instance with its own secret run on the same host?
 - 2026-10-12, operator (W4, part 1): "yes" — send the recommendation (Option A per-peer keys with a message-only
   scope and expiry, plus Option D's approval flow) to TermLink as a feature request, with the four open questions.
   Sent on sidecar conversation peer-credentials-t1107 (msg 8de6ce27, RECEIVED).
+- 2026-10-12, operator (W4, part 2): "I think we're good for now, leave it." — the stopgap (Greenfield's whole hub
+  secret, held only here) stays as is until TermLink answers. Rotate at once if anyone with access changes on either
+  side or a leak is suspected; revisit by 2027-01-10 at the latest. A narrower stopgap (a separate hub instance just
+  for the partner link) is reconsidered if TermLink answers yes to question 4.
