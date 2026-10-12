@@ -1,13 +1,19 @@
 ---
 id: T-1131
-name: "Export writes a sequenceFlow targetRef to a node id that is not in the output (third-party fixtures boundary-events, simple: targetRef=\"Task_1\")"
+name: "Export writes a sequenceFlow targetRef to a node id that is not in the output
+  (third-party fixtures boundary-events, simple: targetRef=\"Task_1\")"
 description: >
-  Found during T-1096 (dangling-reference scan of every third-party export): the committed goldens for tests/fixtures/third-party/boundary-events.bpmn and simple.bpmn carry <bpmn:sequenceFlow ... targetRef="Task_1"> while no element in the output has id Task_1 — the flow's target was not renamed with its node, or the node is not emitted. Pre-existing (identical on 0.18.0), not caused by T-1096. One bug, one task.
+  Found during T-1096 (dangling-reference scan of every third-party export): the committed
+  goldens for tests/fixtures/third-party/boundary-events.bpmn and simple.bpmn carry
+  <bpmn:sequenceFlow ... targetRef="Task_1"> while no element in the output has id
+  Task_1 — the flow's target was not renamed with its node, or the node is not emitted.
+  Pre-existing (identical on 0.18.0), not caused by T-1096. One bug, one task.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: [bug]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-11T23:14:33Z
-last_update: 2026-10-11T23:14:33Z
-date_finished: null
+last_update: 2026-10-12T00:11:25Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-12T00:09:01Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 4
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=4 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L4:keyword=round-trip);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1131: Export writes a sequenceFlow targetRef to a node id that is not in the output (third-party fixtures boundary-events, simple: targetRef="Task_1")
@@ -62,8 +89,12 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A flow node with a tag outside the allowlist (e.g. plain bpmn:task) nested inside a subProcess is imported (flattened, like an allowlisted nested node, foreignTag kept), so the flows that name it no longer dangle
+- [x] Non-node children of a subProcess (incoming, outgoing, documentation, extensionElements, loop characteristics, ioSpecification, property, data associations) are not mistaken for nodes
+- [x] Guard: every third-party fixture's export is scanned for dangling references (sequenceFlow/attribute/element refs); 0 after the fix (2 files before); wired into tests/run-bridge-tests.sh
+- [x] Changed third-party goldens are reviewed as a diff (additions of the recovered node only) before re-recording; T-523 / T-338 / round-trip tests unchanged
+  (boundary-events + simple only: the recovered task + its DI, the flow now targets it, and the later nodes in the
+  same lane renumber their display ids by one — the "removed" lines are those renames; 11/11 identical after)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -101,6 +132,8 @@ date_finished: null
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+node tools/_t1131-dangling-refs-thirdparty-cdp.mjs
+node tools/_t358-byteid-thirdparty.mjs
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
@@ -226,6 +259,15 @@ date_finished: null
 
 ## RCA
 
+**Symptom:** exports of tests/fixtures/third-party/simple.bpmn and boundary-events.bpmn carry a sequenceFlow whose
+targetRef ("Task_1") names no element in the output (found by T-1096's dangling-reference scan).
+**Root cause:** parseBpmnXml collects ALLOWLISTED node tags with a descendant query (so nodes nested in a subProcess
+are flattened in), but FOREIGN / plain tags (bpmn:task) only from proc.children — a plain task inside a subProcess is
+never imported, while every sequenceFlow is (descendant query), so its flows point at nothing.
+**Why structurally allowed:** the byte-identity goldens were recorded FROM the defective output and compare bytes,
+not validity; no check scanned an export for references that resolve to nothing.
+**Prevention:** a dangling-reference scan over every third-party export, wired into the bridge.
+
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
      Non-bug-class tasks may leave this section empty or remove it.
@@ -320,3 +362,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1131-export-writes-a-sequenceflow-targetref-t.md
 - **Context:** Initial task creation
+
+### 2026-10-12T00:09:00Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

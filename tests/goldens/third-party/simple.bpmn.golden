@@ -50,7 +50,7 @@
       <bpmn:outgoing>flow_3</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="lan_4_end" name="End Event">
+    <bpmn:endEvent id="lan_5_end" name="End Event">
       <bpmn:extensionElements>
         <aef:uid value="u3"/>
         <aef:position x="650.0" y="212.0"/>
@@ -67,21 +67,29 @@
       <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:subProcess>
 
-    <bpmn:sequenceFlow id="flow_1" sourceRef="lan_3_start" targetRef="Task_1">
+    <bpmn:task id="lan_4_task" name="Task">
       <bpmn:extensionElements>
         <aef:uid value="u5"/>
+        <aef:position x="420.0" y="220.0"/>
       </bpmn:extensionElements>
-    </bpmn:sequenceFlow>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+    </bpmn:task>
 
-    <bpmn:sequenceFlow id="flow_2" sourceRef="lan_2_sub" targetRef="lan_4_end">
+    <bpmn:sequenceFlow id="flow_1" sourceRef="lan_3_start" targetRef="lan_4_task">
       <bpmn:extensionElements>
         <aef:uid value="u6"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_3" name="Flow" sourceRef="lan_1_start" targetRef="lan_2_sub">
+    <bpmn:sequenceFlow id="flow_2" sourceRef="lan_2_sub" targetRef="lan_5_end">
       <bpmn:extensionElements>
         <aef:uid value="u7"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_3" name="Flow" sourceRef="lan_1_start" targetRef="lan_2_sub">
+      <bpmn:extensionElements>
+        <aef:uid value="u8"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
   </bpmn:process>
@@ -94,12 +102,19 @@
       <bpmndi:BPMNShape id="BPMNShape_lan_1_start" bpmnElement="lan_1_start">
         <dc:Bounds x="108.0" y="212.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_4_end" bpmnElement="lan_4_end">
+      <bpmndi:BPMNShape id="BPMNShape_lan_5_end" bpmnElement="lan_5_end">
         <dc:Bounds x="650.0" y="212.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_lan_2_sub" bpmnElement="lan_2_sub">
         <dc:Bounds x="300.0" y="80.0" width="120" height="64"/>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_lan_4_task" bpmnElement="lan_4_task">
+        <dc:Bounds x="420.0" y="220.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1">
+        <di:waypoint x="387.5" y="256.0"/>
+        <di:waypoint x="420.0" y="256.0"/>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="BPMNEdge_flow_2" bpmnElement="flow_2">
         <di:waypoint x="420.0" y="112.0"/>
         <di:waypoint x="442.0" y="112.0"/>

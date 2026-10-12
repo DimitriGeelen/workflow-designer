@@ -1071,6 +1071,16 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1131: every third-party fixture's export references only ids it contains. The byte goldens were recorded from
+# the export, so a defect present at recording passes them forever — this checks validity, not bytes.
+if node "$ROOT/tools/_t1131-dangling-refs-thirdparty-cdp.mjs" > "$TMP/leg-_t1131.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a third-party export references an id it does not contain (a node dropped on import while its flows are kept, or a kept element naming something not kept) — run 'node tools/_t1131-dangling-refs-thirdparty-cdp.mjs'; T-1131"
+  show_output "$TMP/leg-_t1131.out" "_t1131-dangling-refs-thirdparty-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
 # aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
 # guard since T-889 closed (the census showed it had lost its only caller, T-889's Verification).

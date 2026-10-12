@@ -12951,11 +12951,22 @@ function parseBpmnXml(text) {
   // tag IS its tag; for a foreign one it is the shape we draw it as.
   const nodeWork = [];
   for (const tag of nodeTags) for (const el of byBpmn(proc, tag)) nodeWork.push([tag, el, null]);
-  for (const el of Array.from(proc.children || [])) {
-    if (el.namespaceURI !== BPMN_NS) continue;
-    const local = el.localName;
-    if (_knownNodeTag.has(local) || PROCESS_NON_FLOWNODE.has(local)) continue;
-    nodeWork.push([foreignDisplayTag(local), el, local]);
+  // T-1131: walk the process AND every subProcess inside it. Allowlisted tags were already collected at any depth
+  // (descendant query, flattened — see T-523 above), and every sequenceFlow too; a non-allowlisted node (plain
+  // bpmn:task) nested in a subProcess was not, so its flows were written pointing at an id the export did not contain
+  // (third-party simple.bpmn, boundary-events.bpmn: targetRef="Task_1"). A subProcess's own non-node children
+  // (incoming/outgoing, loop characteristics, data associations) are skipped as well as the process-level ones.
+  const SUBPROC_NON_FLOWNODE = new Set(['incoming', 'outgoing', 'standardLoopCharacteristics',
+    'multiInstanceLoopCharacteristics', 'dataInputAssociation', 'dataOutputAssociation']);
+  const foreignContainers = [proc, ...byBpmn(proc, 'subProcess')];
+  for (const cont of foreignContainers) {
+    for (const el of Array.from(cont.children || [])) {
+      if (el.namespaceURI !== BPMN_NS) continue;
+      const local = el.localName;
+      if (_knownNodeTag.has(local) || PROCESS_NON_FLOWNODE.has(local)) continue;
+      if (cont !== proc && SUBPROC_NON_FLOWNODE.has(local)) continue;
+      nodeWork.push([foreignDisplayTag(local), el, local]);
+    }
   }
 
   {
