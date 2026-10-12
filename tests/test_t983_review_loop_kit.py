@@ -100,8 +100,10 @@ def main():
         check('2a. clean.bpmn validates with 0 errors', r.returncode in (0, 1), r.stdout[-160:])
         src = re.sub(r'\s+', ' ', open(os.path.join(cal, 'SOURCE.md')).read())
         root = ET.parse(os.path.join(cal, 'clean.bpmn')).getroot()
-        quotes = [m.group(1) for d in root.iter(B + 'documentation')
-                  for m in [re.search(r'source:\s*"(.*)"', d.text or '', re.S)] if m]
+        # T-1136: one quote per source: line, non-greedy — a greedy match joins the two source:
+        # lines AUTHORING 1b requires into one "quote"; a per-line match misses wrapped quotes.
+        quotes = [q for d in root.iter(B + 'documentation')
+                  for q in re.findall(r'source:\s*"(.*?)"', d.text or '', re.S)]
         bad = [q for q in quotes if re.sub(r'\s+', ' ', q).strip() not in src]
         check('2b. every clean.bpmn citation is verbatim from SOURCE.md',
               len(quotes) >= 10 and not bad, '%d quotes, %d not verbatim' % (len(quotes), len(bad)))
