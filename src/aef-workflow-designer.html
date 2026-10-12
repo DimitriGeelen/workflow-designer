@@ -6415,7 +6415,22 @@ let _emptyFieldsRevealed = null;
 // A field-profile answer whose body is not JSON (a proxy's HTML error page, a truncated body) is a fault
 // worth recording — the caller then shows the HTTP status instead of a profile.
 async function _fieldProfileJson(r, code) {
+  // T-1134: a server WITHOUT the endpoint answers 404/403/405 with its own (often HTML) page — expected, not a fault.
+  const ct = (r.headers && r.headers.get && r.headers.get('content-type')) || '';
+  if (!r.ok && !/json/i.test(ct)) return null;
   try { return await r.json(); } catch (e) { aefRecordFault(code, e); return null; }
+}
+// T-1134: whether the project server OFFERS the field-settings endpoint. Only gallery-serve.py's own answer counts:
+// 200 with a profile, or its 404 "no profile yet" (JSON carrying `base`). Any other 404/403/405 — a portal that has
+// /api/health, /api/list, /api/save but not this endpoint (Greenfield, DM 73) — means "not offered here".
+function _fieldProfileAnswer(r, d) {
+  if (r.ok && d && d.ok && d.profile) return 'loaded';
+  if (r.status === 404 && d && typeof d.base === 'string') return 'none';
+  if (r.status === 422 && d && d.error) return 'refused: ' + d.error;
+  return 'unsupported';
+}
+function fieldSettingsSupported() {
+  return _apiAvailable && (_fieldProfileStatus === 'none' || _fieldProfileStatus === 'loaded');
 }
 let _fieldProfile = null;
 let _fieldProfileBase = 'none';   // T-1128: the version a Settings save must name (409 if it moved)
@@ -6425,11 +6440,10 @@ async function loadFieldProfile() {
     const r = await fetch('/api/field-profile', { cache: 'no-store' });
     const d = await _fieldProfileJson(r, 'field-profile:json');
     _fieldProfileBase = (d && d.base) || 'none';
-    if (r.status === 404) { _fieldProfile = null; _fieldProfileStatus = 'none'; }
-    else if (r.ok && d && d.ok && d.profile) { _fieldProfile = d.profile; _fieldProfileStatus = 'loaded'; }
-    else { _fieldProfile = null; _fieldProfileStatus = 'refused: ' + ((d && d.error) || ('HTTP ' + r.status)); }
+    _fieldProfileStatus = _fieldProfileAnswer(r, d);   // T-1134
+    _fieldProfile = _fieldProfileStatus === 'loaded' ? d.profile : null;
   } catch (e) {
-    _fieldProfile = null; _fieldProfileStatus = 'none';
+    _fieldProfile = null; _fieldProfileStatus = 'unsupported';   // T-1134: no answer is not "no settings yet"
     aefRecordFault('field-profile:load', e);
   }
   if (typeof renderProperties === 'function') renderProperties();
@@ -6440,7 +6454,7 @@ async function loadFieldProfile() {
 const _mapFieldProfiles = new Map();
 function mapFieldProfileId() {
   const id = state && state.workflowMeta && state.workflowMeta.id;
-  return (_apiAvailable && id && isValidWorkflowId(id)) ? id : null;
+  return (fieldSettingsSupported() && id && isValidWorkflowId(id)) ? id : null;   // T-1134
 }
 async function loadMapFieldProfile(id, force) {
   if (!id || (!force && _mapFieldProfiles.has(id))) return _mapFieldProfiles.get(id);
@@ -6450,9 +6464,8 @@ async function loadMapFieldProfile(id, force) {
     const r = await fetch('/api/field-profile?id=' + encodeURIComponent(id), { cache: 'no-store' });
     const d = await _fieldProfileJson(r, 'field-profile:json-map');
     const base = (d && d.base) || 'none';
-    if (r.status === 404) ent = { profile: null, base, status: 'none' };
-    else if (r.ok && d && d.ok && d.profile) ent = { profile: d.profile, base, status: 'loaded' };
-    else ent = { profile: null, base, status: 'refused: ' + ((d && d.error) || ('HTTP ' + r.status)) };
+    const st = _fieldProfileAnswer(r, d);   // T-1134
+    ent = { profile: st === 'loaded' ? d.profile : null, base, status: st };
   } catch (e) {
     ent = { profile: null, base: 'none', status: 'none' };
     aefRecordFault('field-profile:load-map', e);
@@ -6491,15 +6504,19 @@ function approvedFieldKeys(type) {
 const NOT_SUGGESTIBLE_KEYS = new Set(['owner', 'gatewayKind', 'scopeOf', 'constituents']);
 let _fieldSuggestions = null;          // Map 'type.key' -> suggestion, from GET /api/field-suggestions
 let _fieldSuggestionsLoading = false;
+let _fieldSuggestionsSupported = null;   // T-1134: null = not asked yet; false = this server has no such endpoint
 async function loadFieldSuggestions() {
   if (!_apiAvailable || _fieldSuggestionsLoading) return;
   _fieldSuggestionsLoading = true;
   try {
     const r = await fetch('/api/field-suggestions', { cache: 'no-store' });
     const d = await _fieldProfileJson(r, 'field-suggestions:json');
+    // T-1134: only our endpoint's answer (ok + a suggestions list) means suggestions are offered here
+    _fieldSuggestionsSupported = !!(r.ok && d && d.ok && Array.isArray(d.suggestions));
     _fieldSuggestions = new Map(((d && d.suggestions) || []).map(s => [s.type + '.' + s.key, s]));
   } catch (e) {
     aefRecordFault('field-suggestions:load', e);
+    _fieldSuggestionsSupported = false;
     _fieldSuggestions = new Map();
   } finally { _fieldSuggestionsLoading = false; }
   renderProperties();
@@ -6524,10 +6541,12 @@ function suggestFieldRow(n, k) {
   b.dataset.testid = 'suggest-field';
   b.dataset.key = k;
   const s = _fieldSuggestions && _fieldSuggestions.get(n.type + '.' + k);
-  if (!_apiAvailable) {
+  if (!_apiAvailable || _fieldSuggestionsSupported !== true) {
     b.textContent = 'Suggest as a field';
     b.disabled = true;
-    b.title = 'Needs the project server — suggestions are recorded there for the operator to approve';
+    b.title = !_apiAvailable ? 'Needs the project server — suggestions are recorded there for the operator to approve'
+      : _fieldSuggestionsSupported === false ? 'This project server does not offer field suggestions'
+      : 'Checking whether this project server offers field suggestions…';
   } else if (s && s.status === 'pending') {
     b.textContent = 'Suggested ✓';
     b.disabled = true;
@@ -6651,7 +6670,7 @@ function renderFieldDefaultsUI() {
   const proj = scope === 'project' ? (draft || _fieldProfile) : _fieldProfile;
   const mapP = scope === 'map' ? (draft || layer.profile) : currentMapFieldProfile();
   const plan = planFromLayers(type, proj, mapP);
-  const readOnly = !_apiAvailable || (scope === 'map' && layer.status === 'pending');
+  const readOnly = !fieldSettingsSupported() || (scope === 'map' && layer.status === 'pending');   // T-1134
   rows.innerHTML = '';
   for (const k of plan.keys) {   // T-1126: built-in + approved fields
     const lab = document.createElement('div');
@@ -6680,12 +6699,14 @@ function renderFieldDefaultsUI() {
   }
   let text;
   if (!_apiAvailable) text = 'Needs the project server — shown read-only (designer default in use).';
+  else if (_fieldProfileStatus === 'unsupported') text = 'This project server does not offer field settings — shown read-only (designer default in use).';   // T-1134
+  else if (/^refused/.test(_fieldProfileStatus)) text = 'The project’s field-profile.json was refused (' + _fieldProfileStatus.slice(9) + ') — fix the file; shown read-only.';
   else if (_fdMsg.text) text = _fdMsg.text;
   else if (scope === 'map' && layer.status === 'pending') text = 'Loading this map’s settings…';
   else if (scope === 'map' && !layer.profile) text = 'This map has no settings of its own yet — it uses the project’s. A map saved under a new id starts without any.';
   else if (scope === 'project' && !layer.profile) text = 'No project settings yet — the designer default is in use.';
   else text = 'A map setting wins over the project for the fields it mentions; a field with a value always shows.';
-  if (draft && !_fdMsg.text && _apiAvailable) text = 'Unsaved changes. ' + text;
+  if (draft && !_fdMsg.text && fieldSettingsSupported()) text = 'Unsaved changes. ' + text;
   status.textContent = text;
   status.classList.toggle('fd-error', !!_fdMsg.error);
   $('btn-fd-save').disabled = readOnly || !draft;
@@ -7957,6 +7978,7 @@ function syncSettingsUI() {
     standalone: 'none — no project server (designer default)',
     none: 'none — field-profile.json absent (designer default)',
     loaded: 'field-profile.json in force',
+    unsupported: 'none — this project server does not offer field settings (designer default)',   // T-1134
   }[_fieldProfileStatus] || (_fieldProfileStatus + ' (designer default in use)');
   renderFieldDefaultsUI();   // T-1128
   $('set-label-size').value = labelPrefs.size;

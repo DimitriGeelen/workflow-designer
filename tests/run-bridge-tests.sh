@@ -1081,6 +1081,17 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1134: on a portal WITHOUT the field endpoints (health/list/save only — Greenfield's shape) the designer offers no
+# field settings and no suggestions, and says why; every other test runs against gallery-serve.py, which has them.
+if node "$ROOT/tools/_t1134-portal-without-endpoints-cdp.mjs" > "$TMP/leg-_t1134.out" 2>&1 \
+   && grep -q "T-1134: 4/4" "$TMP/leg-_t1134.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "on a project server without /api/field-profile or /api/field-suggestions the designer again offers field settings or suggestions (Save would fail there) — run 'node tools/_t1134-portal-without-endpoints-cdp.mjs'; T-1134"
+  show_output "$TMP/leg-_t1134.out" "_t1134-portal-without-endpoints-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
 # aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
 # guard since T-889 closed (the census showed it had lost its only caller, T-889's Verification).
