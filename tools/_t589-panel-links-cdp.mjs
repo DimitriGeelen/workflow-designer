@@ -179,9 +179,8 @@ async function main() {
   // rather than quietly comparing against nothing.
   const src = readFileSync(EDITOR, 'utf8');
   const mk = src.match(/const metaKeys = \[([\s\S]*?)\];/g);
-  const METAKEYS_N = (mk && mk.length === 1)
-    ? (mk[0].match(/'[a-zA-Z]+'/g) || []).length
-    : null;
+  const METAKEYS = (mk && mk.length === 1) ? (mk[0].match(/'[a-zA-Z]+'/g) || []).map(x => x.slice(1, -1)) : null;
+  const METAKEYS_N = METAKEYS ? METAKEYS.length : null;
 
   const doc = mkdtempSync(join(tmpdir(), 't589-doc-'));
   const repo = mkdtempSync(join(tmpdir(), 't589-repo-'));
@@ -327,16 +326,31 @@ async function main() {
     const iFabA = order.indexOf('fabricRef'), iLnkA = order.indexOf('links');
     const carriedAfterKnown = iFabA > -1 && iLnkA > -1 && iTier > -1 && iNoteA > -1
       && Math.min(iFabA, iLnkA) > Math.max(iTier, iNoteA);
-    report(METAKEYS_N === 20 && carriedAfterKnown && s.stable, 'no-contract-change',
-      `metaKeys=${METAKEYS_N} (want 20); two exports ${s.stable ? 'byte-identical' : 'DIFFER'}; meta order ${JSON.stringify(order)}`);
+    // T-1132 (2026-10-12): this pinned the TOTAL at 20, so it went red when T-889 added `authority` on purpose
+    // (21) — a count other tasks legitimately move cannot tell whether THIS change touched the contract. What T-589
+    // claimed is narrower and still checkable: it added NEITHER of its keys to metaKeys.
+    const t589InContract = METAKEYS ? ['fabricRef', 'links'].filter(k => METAKEYS.includes(k)) : null;
+    report(METAKEYS !== null && t589InContract.length === 0 && carriedAfterKnown && s.stable, 'no-contract-change',
+      `fabricRef/links in metaKeys: ${JSON.stringify(t589InContract)} (want none; metaKeys has ${METAKEYS_N}); two exports ${s.stable ? 'byte-identical' : 'DIFFER'}; meta order ${JSON.stringify(order)}`);
 
     // ── Leg 10: BYTE IDENTITY. A document carrying NEITHER key exports to the same bytes from
     // the pre-change build and this one. Both exports are taken in this run from the same
     // fixture — not compared against a stored golden, which would only prove the golden.
-    await load('baseline.html', 't589-plain.bpmn');
-    let xmlBase = await ev(cmd, `buildBpmnXml(state)`);
+    // T-1132 (2026-10-12): the control arm used to be a FROZEN pre-T-589 build (12c10d09). Every later designer
+    // change then read as a difference blamed on T-589 (it went red on lane handling, not on these fields). The
+    // control is now THIS build with T-589's two fields switched off — T-589 is the only variable.
+    // T589_ABLATION_TEETH=1 perturbs the plain export with a field value, to prove this leg can go red.
     await load('designer.html', 't589-plain.bpmn');
+    if (process.env.T589_ABLATION_TEETH) await ev(cmd, `(state.nodes[0].aef = Object.assign({}, state.nodes[0].aef, { fabricRef: 'teeth' }), true)`);
     let xmlNew = await ev(cmd, `buildBpmnXml(state)`);
+    let xmlBase = await ev(cmd, `(function(){
+      var saved = {}; Object.keys(AEF_FIELDS).forEach(function(t){ saved[t] = AEF_FIELDS[t]; AEF_FIELDS[t] = AEF_FIELDS[t].filter(function(k){ return k !== 'fabricRef' && k !== 'links'; }); });
+      var fm = { fabricRef: FIELD_META.fabricRef, links: FIELD_META.links }; delete FIELD_META.fabricRef; delete FIELD_META.links;
+      var nodesAef = state.nodes.map(function(n){ return n.aef; });
+      state.nodes.forEach(function(n){ if (n.aef) { n.aef = Object.assign({}, n.aef); delete n.aef.fabricRef; delete n.aef.links; } });
+      try { return buildBpmnXml(state); } finally {
+        Object.keys(saved).forEach(function(t){ AEF_FIELDS[t] = saved[t]; }); FIELD_META.fabricRef = fm.fabricRef; FIELD_META.links = fm.links;
+        state.nodes.forEach(function(n, i){ n.aef = nodesAef[i]; }); } })()`);
     // A document with no <aef:workflowMeta uuid> gets one MINTED at load, freshly random per
     // page load. That differs between the two builds for a reason that has nothing to do with
     // this change, so it is masked — and the mask is required to fire EXACTLY ONCE on each

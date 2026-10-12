@@ -1060,6 +1060,17 @@ else
   fail=$((fail + 1))
 fi
 
+# T-589 / T-1132: the panel's fabric link and URL list — clickable, round-trip, no contract key added, and a map
+# carrying neither field exports identically with the two fields ablated (it went stale unwired; now scheduled).
+if node "$ROOT/tools/_t589-panel-links-cdp.mjs" > "$TMP/leg-_t589.out" 2>&1 \
+   && grep -q "10/10 T-589 legs passed" "$TMP/leg-_t589.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "the panel's fabric link / URL list broke, one of them joined the metaKeys contract, or a map carrying neither field no longer exports identically (run 'node tools/_t589-panel-links-cdp.mjs'; T-589, T-1132)"
+  show_output "$TMP/leg-_t589.out" "_t589-panel-links-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
 # aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
 # guard since T-889 closed (the census showed it had lost its only caller, T-889's Verification).
