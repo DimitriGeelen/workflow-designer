@@ -1,0 +1,65 @@
+runme  016-close-t1127-restart-watchtower   sha a23c57ea834f   rehearsed 2026-10-12T11:43:58Z   log: /opt/832-Workflow-designer/.context/runme/016-close-t1127-restart-watchtower/run-20261012T140109.log
+Job:   016-close-t1127-restart-watchtower   (T-1127)
+What:  Close T-1127 (element details view) and restart Watchtower on its current code
+       Your answers today, W1 = A and W3 = A. (1) Close T-1127, the element details view: all 8 criteria met,
+       test 7/7 in the bridge suite, screenshots read, shipped in 0.18.0 and confirmed by Greenfield's re-test. It is owned by
+       you, so only you can close it. (2) Restart Watchtower: the running process dates from 2026-10-08 22:40 and 267 of its
+       web files changed since (framework 1.8.8 and 1.8.9, our re-applied local fixes, the T-1123 readiness fix), so the pages
+       you see are the 8-October framework. A restart takes it down for a few seconds — reload any open page afterwards; an
+       unsent form on it would be lost. Same port (3013). The designer page is unaffected (read from file on each request).
+Steps (each asks y/N first):
+  1. Close T-1127: fw task update T-1127 --status work-completed (runs its verification)
+  2. Commit the closure
+  3. Restart Watchtower on port 3013, then check it is current and answering
+
+ok    on bleeding-edge
+ok    nothing staged
+ok    T-1127 is active, owned by you, every Agent criterion ticked
+ok    T-1127 verification passes now (details view test 7/7)
+ok    Watchtower is running on 3013
+
+Step 1/3: Close T-1127: fw task update T-1127 --status work-completed (runs its verification)
+  runs: do_close
+Run step 1/3? [y/N] === Task Update ===
+Task:    T-1127 ("Element detail view: clicking an element opens a larger, zoomed view showing)
+File:    /opt/832-Workflow-designer/.tasks/active/T-1127-element-detail-view-clicking-an-element-.md
+  position: NODE frw_6_run task-lifecycle (already there, nothing written)
+ERROR: Cannot complete human-owned task
+Sovereignty gate (R-033): owner is human.
+  audit: REFUSAL-RECORDED T-1127 skipped-human-gateway R-033 frw_9_human
+The human must review and approve via Watchtower:
+
+══════════════════════════════════════════
+  Human AC Review: T-1127
+  0/0 checked
+
+  http://192.168.10.107:3013/review/T-1127
+
+█▀▀▀▀▀▀▀██▀▀▀▀▀▀█▀▀▀█▀█▀▀▀▀▀▀▀█
+█ █▀▀▀█ █▄███▀▀  ▄▄▄▄██ █▀▀▀█ █
+█ █   █ █▀ ▀ ▄▄   █▄  █ █   █ █
+█ ▀▀▀▀▀ █▀▄ ▄ ▄▀▄▀█▀█▀█ ▀▀▀▀▀ █
+█▀█▀█▀█▀██ ▀▄█▄ ██ ██▀███▀██▀██
+██▀ ▄▀▄▀▀▀ █▄█▀▄██▄█   ▄▀▀▄▀▀ █
+█ █▀▀▄█▀███▄█ ██▄█ ▄▄▀ ▄ ▀▄█ ▀█
+█▄▀▄█ ▄▀█  ▄▄▀▄▀██ ▄▀  ▀  ▄▀▀ █
+██ ██▄▄▀▄█ ▄ ▄▄ ▄█ █▄█▄  █ ▄ ▀█
+█▀█ ▄▀▀▀█▀▀▄▄█▀▄███▀▄█▄█ ▄▀▄▀ █
+█▀▄█▄ █▀█ ▀█ ███   ▄█   ▀ █▄▄██
+█▀▀▀▀▀▀▀█▄▄  ▀▄▀█▀▄█  █▀█ ▀█  █
+█ █▀▀▀█ █▀ ██ ▄ ▄▄ ▄█ ▀▀▀ ▀▄ ▀█
+█ █   █ █▀ ██   ▄▄ ▄██▄ ▀▀▄█▄▀█
+█ ▀▀▀▀▀ █▀ ▄██▀▄▀      ▀  ▄▀ ▀█
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+
+  Open: http://192.168.10.107:3013/review/T-1127
+  Scan QR or open link above
+
+══════════════════════════════════════════
+
+  Review marker created: .context/working/.reviewed-T-1127
+  (unblocks fw inception decide T-1127 — T-973 gate)
+
+  → Decide: http://192.168.10.107:3013/review/T-1127
+
+STOPPED: step 1/3 failed (rc=1); later steps not run

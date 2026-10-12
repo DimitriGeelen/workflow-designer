@@ -1,13 +1,21 @@
 ---
 id: T-1139
-name: "AEF bug: 'fw watchtower current' (and the audit's Watchtower-currency line) look in <project>/web, so in a vendored project they always report current"
+name: "AEF bug: 'fw watchtower current' (and the audit's Watchtower-currency line)
+  look in <project>/web, so in a vendored project they always report current"
 description: >
-  Found 2026-10-12 preparing job 016: bin/watchtower.sh do_current calls watchtower_stale_sources "$pid" "$PROJECT_ROOT/web"; in a consumer the web code is .agentic-framework/web, <project>/web does not exist, so no file is ever newer and the check answers 'current'. 832's Watchtower ran code from 2026-10-08 while 15 web files changed (two upgrades), and the audit printed PASS 'running pid is newer than every file under web/'. Report to AEF (field-test thread) with the fix suggestion: use $FRAMEWORK_ROOT/web. Same class as OBS-097 (PROJECT_ROOT resolution of framework-owned assets).
+  Found 2026-10-12 preparing job 016: bin/watchtower.sh do_current calls watchtower_stale_sources
+  "$pid" "$PROJECT_ROOT/web"; in a consumer the web code is .agentic-framework/web,
+  <project>/web does not exist, so no file is ever newer and the check answers 'current'.
+  832's Watchtower ran code from 2026-10-08 while 15 web files changed (two upgrades),
+  and the audit printed PASS 'running pid is newer than every file under web/'. Report
+  to AEF (field-test thread) with the fix suggestion: use $FRAMEWORK_ROOT/web. Same
+  class as OBS-097 (PROJECT_ROOT resolution of framework-owned assets).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: next
+horizon: now
 tags: [bug]
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-12T11:44:07Z
-last_update: 2026-10-12T11:44:07Z
-date_finished: null
+last_update: 2026-10-12T12:04:22Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-12T12:03:56Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1139: AEF bug: 'fw watchtower current' (and the audit's Watchtower-currency line) look in <project>/web, so in a vendored project they always report current
@@ -62,8 +91,9 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Shown on 832: `fw watchtower current` answers "current" while the running process predates 15 changed files under .agentic-framework/web (start 2026-10-08 22:40)
+- [ ] The operator's restart job (017) checks staleness against .agentic-framework/web directly; after his run Watchtower is newer than its web code
+- [ ] Reported to AEF with the cause (do_current passes $PROJECT_ROOT/web) and the fix ($FRAMEWORK_ROOT/web), also covering the audit's Watchtower-currency line
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,3 +350,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1139-aef-bug-fw-watchtower-current-and-the-au.md
 - **Context:** Initial task creation
+
+### 2026-10-12T12:03:55Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
