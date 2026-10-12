@@ -47,13 +47,18 @@ PASS=0; FAIL=0
 ok()  { PASS=$((PASS+1)); echo "  PASS  $1"; }
 bad() { FAIL=$((FAIL+1)); echo "  FAIL  $1"; }
 
+# T-1142: since AEF ed683536a the block prints the /approvals URL only when a Watchtower is identified
+# (no dead links), and this sandbox has none. A leg that wants the URL sets HOOK_WT to a URL, handed to
+# the hook as WATCHTOWER_URL (its fast path: returned as-is, never contacted); empty = no Watchtower.
+HOOK_WT=""
 run_hook() {  # <hook> <command>  -> RC, OUT
     local hook="$1" cmd="$2" json
     json=$(python3 -c '
 import json,sys
 print(json.dumps({"tool_name":"Bash","tool_input":{"command":sys.argv[1]},"cwd":sys.argv[2]}))' "$cmd" "$SANDBOX")
     OUT=$(printf '%s' "$json" | env -u PROJECT_ROOT -u TASKS_DIR -u CONTEXT_DIR \
-        -u _FW_PATHS_DERIVED_BY -u FRAMEWORK_ROOT \
+        -u _FW_PATHS_DERIVED_BY -u FRAMEWORK_ROOT -u WATCHTOWER_URL \
+        ${HOOK_WT:+WATCHTOWER_URL="$HOOK_WT"} \
         CLAUDECODE=1 PROJECT_ROOT="$SANDBOX" bash "$hook" 2>&1 >/dev/null)
     RC=$?
 }
@@ -103,7 +108,8 @@ else
 fi
 
 echo
-echo "--- 3. the block message names the operator's route"
+echo "--- 3. the block message names the operator's route (a Watchtower is known: HOOK_WT)"
+HOOK_WT="http://127.0.0.1:9"
 run_hook "$HOOK" "$FORCE_PUSH"
 if printf '%s' "$OUT" | grep -qE "^[[:space:]]+cd [^ ]+ && (.*/)?fw tier0 approve[[:space:]]*$"; then
     ok "names the operator's terminal command: cd <project> && fw tier0 approve"
@@ -119,6 +125,15 @@ if printf '%s' "$OUT" | grep -q 'human-only'; then
     ok "says the approval is human-only (the reader is told not to expect the agent to do it)"
 else
     bad "the message no longer says the approval is human-only"
+fi
+HOOK_WT=""
+run_hook "$HOOK" "$FORCE_PUSH"
+if printf '%s' "$OUT" | grep -q 'No Watchtower reachable' \
+   && ! printf '%s' "$OUT" | grep -qE '^[[:space:]]+https?://[^ ]+/approvals[[:space:]]*$' \
+   && printf '%s' "$OUT" | grep -qE "^[[:space:]]+cd [^ ]+ && (.*/)?fw tier0 approve[[:space:]]*$"; then
+    ok "no Watchtower: no dead /approvals link, says so, the terminal route still shown (T-1142)"
+else
+    bad "no Watchtower: the block prints a dead /approvals link, or drops the terminal route (T-1142)"
 fi
 
 echo
@@ -176,7 +191,9 @@ else
     else
         bad "teeth: mutant (a) does not reach the Tier 0 block — teeth would be vacuous"
     fi
+    HOOK_WT="http://127.0.0.1:9"   # T-1142: with a known Watchtower, or the URL half has no bite
     run_hook "$MUT_B" "$FORCE_PUSH"
+    HOOK_WT=""
     if [ "$RC" -eq 2 ] && printf '%s' "$OUT" | grep -q 'TIER 0 BLOCK'; then
         if ! printf '%s' "$OUT" | grep -qE "^[[:space:]]+cd [^ ]+ && (.*/)?fw tier0 approve[[:space:]]*$" \
            && ! printf '%s' "$OUT" | grep -qE '^[[:space:]]+https?://[^ ]+/approvals[[:space:]]*$'; then
