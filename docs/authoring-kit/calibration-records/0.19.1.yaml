@@ -1,0 +1,34 @@
+# Calibration record for kit 0.19.1 (tools/kit-calibration-gate.py, T-1008). Bound to the
+# kit bytes by kit_sha256; any change to the kit voids it.
+version: 0.19.1
+kit_sha256: d6851281dd1cc4c11cebe8eee33501eb5985e1194f488f1996fb24e7e81ff4f6
+reviewers: []
+voided_runs:
+  note: 'Runs on the FIRST 0.19.1 kit build (kit_sha256 3cdf9d7029f96d93...), voided because the calibration maps
+    were corrected after them (T-1136): GLM found that the CLEAN map breaks AUTHORING.md lines 74-80 — its Warehouse
+    lane covers quality-inspection and labelling but cited only the pick/pack/book sentence. The finding is correct
+    (the guide''s own example of the rule is this lane); every earlier calibration had missed it. Kept here so no
+    failure is hidden: the gate reads only "reviewers" above, which all measure the corrected kit.'
+  kit_sha256: 3cdf9d7029f96d9307cbd9dc12c0baff6d3abc4725fca9e7a601814b8670dd39
+  runs:
+  - reviewer: codex
+    vendor: openai
+    result: PASS
+    recall: 3/3
+    false_on_clean: 0
+    false_on_unplanted: 0
+  - reviewer: glm-5.3
+    vendor: zai
+    result: FAIL
+    recall: 3/3
+    false_on_clean: 1
+    false_on_unplanted: 0
+    finding: 'clean map Lane_warehouse (citation, minor): cites only the pick/pack/book sentence though two of its
+      five steps (quality-inspection, labelling) are backed by a different source line; AUTHORING.md requires each
+      backing quote on its own source: line'
+  - reviewer: antigravity
+    vendor: google
+    result: PASS
+    recall: 3/3
+    false_on_clean: 0
+    false_on_unplanted: 0
