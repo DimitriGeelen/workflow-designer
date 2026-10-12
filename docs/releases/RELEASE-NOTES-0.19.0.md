@@ -11,7 +11,7 @@ differently (more is kept). Maps without data save exactly as before.
 - **Nothing is dropped any more.** Data objects, data object references, data store references, a task's data
   input/output associations (and the properties and input/output specifications they point at), and the diagram
   shapes and edges that draw them all come back unchanged on save. Before, every one of them was silently removed
-  (measured: 0 of 7 kept).
+  (measured on a test map: none of the data elements, associations or their shapes survived a save).
 - **Nothing dangles.** Deleting a task takes its data associations and their edges with it. An association whose
   target is not in the file is left out and named in the import notice — a broken reference is never written.
 - **Not drawn yet.** The import notice says how much data is kept and saved back; showing it on the canvas comes later.
