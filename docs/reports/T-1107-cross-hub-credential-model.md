@@ -224,3 +224,6 @@ identity; can a second hub instance with its own secret run on the same host?
 - 2026-10-09, operator: chose option 1 (full hub secret out of band) as the immediate measure, and asked:
   "we do need to find a permanent measure to get this done. Could we research how this is often done also
   in the field with similar solutions?" → this inception.
+- 2026-10-12, operator (W4, part 1): "yes" — send the recommendation (Option A per-peer keys with a message-only
+  scope and expiry, plus Option D's approval flow) to TermLink as a feature request, with the four open questions.
+  Sent on sidecar conversation peer-credentials-t1107 (msg 8de6ce27, RECEIVED).
