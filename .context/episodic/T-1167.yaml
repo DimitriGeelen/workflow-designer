@@ -1,0 +1,198 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1167: Upgrade AEF bleeding-edge ed683536a to 1146a7450 (final G-114 fix T-4127, v1.8.11 candidate)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-13T18:30:06Z
+# ============================================================================
+
+task_id: T-1167
+task_name: "Upgrade AEF bleeding-edge ed683536a to 1146a7450 (final G-114 fix T-4127, v1.8.11 candidate)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T16:43:08Z
+completed: 2026-10-13T18:29:53Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-13T18:44:31+02:00
+last_commit: 2026-10-13T20:29:52+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  runme job 023 — upgrade AEF bleeding-edge ed683536a to 1146a7450 (final G-114 fix T-4127, as AEF advised in msg 36d1129c; not the v1.8.10 tag); re-vendor protocol + Watchtower restart; dry-run 7/7. pristine vendor commit — AEF bleeding-edge 1146a7450 as fw upgrade wrote it (final G-114 fix T-4127; re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF 1146a7450 commit (re-vendor protocol step 2, T-1000). re-apply our local fixes on AEF bleeding-edge 1146a7450 (re-vendor protocol step 3) — 3-way apply of diff(pristine 7c11e9dc -> pre-upgrade e1155248) onto pristine 40b8e12c: 36 files clean, 1 conflict (safe-commands.sh _fw_is_git_commit_clause) resolved to UPSTREAM: AEF T-4108 now admits only this project's own fw launcher, stricter than our T-650 clause, so ours is dropped and the manifest says so; _t650 leg moved to the vendored spelling plus a T-4108 refusal leg (17/17). _t517 44/44 OK; T-4127 present (git commit --only); revert scan 0; designer pin 0.19.1; review-queue rc 0; CLAUDE.md.bak diffed (only the old 300K budget numbers) and removed. runme jobs 023 (retired after steps 1-3; step 4 cancelled by mistake) and 024 (steps 4-7, done rc 0): logs, doctor before/after. criteria ticked with evidence, verification added. RCA (G-114 upstream: scratch-index decision commit left the real index stale; T-4081 then T-4127; revert scan 0 in 832)
+
+# Key outcomes
+outcomes:
+  - 'A runme job upgrades from a clone pinned at 1146a745045e through the re-vendor protocol (doctor before, pristine commit, divergence baseline, cron check, doctor after); its dry-run passes; the agent never runs it for real — job 023 (dry-run 7/7) ran steps 1-3 (pristine 40b8e12c); step 4 was cancelled by mistake, so job 024 (dry-run 6/6) ran steps 4-7, rc 0 (baseline fcac8190, crontab ok, doctor rc 0, Watchtower pid 1390000)'
+  - 'After the operator''s run: our local fixes re-applied (tools/_t517 OK), *.bak checked, Watchtower restarted, watchtower_decision_revert.py run again — c2badf60: 36 clean, 1 conflict resolved to upstream (T-4108 stricter than our T-650 clause); _t517 44/44; _t650 17/17; CLAUDE.md.bak held only the old 300K budget numbers, removed; revert scan 0'
+  - 'The vendored inception.py records decisions with `git commit --only` (T-4127 present) — inception.py:1054'
+  - 'AEF told the upgrade is in, with the revert-scan result — msg 04218dc3 on aef-release-v1.8.10'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'RCA (G-114 upstream: scratch-index decision commit left the real index stale; T-4081 then T-4127; revert scan 0 in 832)'
+    source: git-mined
+  - description: 're-apply our local fixes on AEF bleeding-edge 1146a7450 (re-vendor protocol step 3) — 3-way apply of diff(pristine 7c11e9dc -> pre-upgrade e1155248) onto pristine 40b8e12c: 36 files clean, 1 conflict (safe-commands.sh _fw_is_git_commit_clause) resolved to UPSTREAM: AEF T-4108 now admits only this project''s own fw launcher, stricter than our T-650 clause, so ours is dropped and the manifest says so; _t650 leg moved to the vendored spelling plus a T-4108 refusal leg (17/17). _t517 44/44 OK; T-4127 present (git commit --only); revert scan 0; designer pin 0.19.1; review-queue rc 0; CLAUDE.md.bak diffed (only the old 300K budget numbers) and removed'
+    source: git-mined
+  - description: 'pristine vendor commit — AEF bleeding-edge 1146a7450 as fw upgrade wrote it (final G-114 fix T-4127; re-vendor protocol step 1, T-1000)'
+    source: git-mined
+  - description: 'runme job 023 — upgrade AEF bleeding-edge ed683536a to 1146a7450 (final G-114 fix T-4127, as AEF advised in msg 36d1129c; not the v1.8.10 tag); re-vendor protocol + Watchtower restart; dry-run 7/7'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/budget-gate.sh'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/check-project-boundary.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/memory-recall.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/agents/termlink/termlink.sh'
+  - '.agentic-framework/bin/claude-fw'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/bin/watchtower.sh'
+  - '.agentic-framework/docs/releases/v1.8.11-upgrade-notes.md'
+  - '.agentic-framework/docs/reports/field-test-ed683536a-results.md'
+  - '.agentic-framework/docs/reports/T-4035-emergency-fix-lane.md'
+  - '.agentic-framework/docs/reports/T-4091-estate-push-pipe.md'
+  - '.agentic-framework/docs/reports/T-4091-inputs-ring20-collections-live.txt'
+  - '.agentic-framework/docs/reports/T-4091-inputs-ring20-spike.txt'
+  - '.agentic-framework/docs/reports/T-4092-codex-review-round2.md'
+  - '.agentic-framework/docs/reports/T-4092-codex-review-round3.md'
+  - '.agentic-framework/docs/reports/T-4092-codex-review-round4.md'
+  - '.agentic-framework/docs/reports/T-4092-hotfix-v1810.md'
+  - '.agentic-framework/docs/reports/T-4123-estate-knowledge-requirements.md'
+  - '.agentic-framework/docs/reports/T-4123-inputs/00b-followup-error-resolution.txt'
+  - '.agentic-framework/docs/reports/T-4123-inputs/00-brief-as-sent.txt'
+  - '.agentic-framework/docs/reports/T-4123-inputs/01b-dimitri-mint-dev-G.txt'
+  - '.agentic-framework/docs/reports/T-4123-inputs/01-dimitri-mint-dev.txt'
+  - '.agentic-framework/docs/reports/T-4123-inputs/02b-ring20-manager-role-cards.txt'
+  - '.agentic-framework/docs/reports/T-4123-inputs/02-ring20-manager.txt'
+  - '.agentic-framework/docs/reports/T-4123-inputs/03-832-workflow-designer.txt'
+  - '.agentic-framework/docs/reports/T-4123-inputs/03b-832-correction.txt'
+  - '.agentic-framework/docs/reports/T-4123-inputs/external/google__gemini-2.5-pro.json'
+  - '.agentic-framework/docs/reports/T-4123-inputs/external/google__gemini-2.5-pro.md'
+  - '.agentic-framework/docs/reports/T-4123-inputs/external/openai__gpt-5.json'
+  - '.agentic-framework/docs/reports/T-4123-inputs/external/openai__gpt-5.md'
+  - '.agentic-framework/docs/reports/T-4123-inputs/external/x-ai__grok-4.7.json'
+  - '.agentic-framework/docs/reports/T-4123-inputs/external/x-ai__grok-4.7.md'
+  - '.agentic-framework/docs/reports/T-4129-review-1409-T-1959.md'
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/cmd_classify.py'
+  - '.agentic-framework/lib/config.sh'
+  - '.agentic-framework/lib/context_tokens.py'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/issues.py'
+  - '.agentic-framework/lib/operator_pending.py'
+  - '.agentic-framework/lib/review.sh'
+  - '.agentic-framework/lib/shell_write_scan.py'
+  - '.agentic-framework/lib/sidecar_cli.py'
+  - '.agentic-framework/lib/sidecar/hooks.py'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/templates/claude-project.md'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/upgrade.sh'
+  - '.agentic-framework/lib/verdict_ledger.py'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/lib/watchtower_decision_revert.py'
+  - '.agentic-framework/lib/watchtower-staleness.sh'
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/tools/bats-silent-skip-lint.py'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/approvals.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/config.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/inception.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.context/runme/023-upgrade-aef-1146a7450/doctor-before.txt'
+  - '.context/runme/023-upgrade-aef-1146a7450/dryrun.ok'
+  - '.context/runme/023-upgrade-aef-1146a7450/job.sh'
+  - '.context/runme/023-upgrade-aef-1146a7450/retired'
+  - '.context/runme/023-upgrade-aef-1146a7450/run-20261013T184749.log'
+  - '.context/runme/023-upgrade-aef-1146a7450/run-20261013T200420.log'
+  - '.context/runme/024-upgrade-aef-1146a7450-finish/doctor-after.txt'
+  - '.context/runme/024-upgrade-aef-1146a7450-finish/done'
+  - '.context/runme/024-upgrade-aef-1146a7450-finish/dryrun.ok'
+  - '.context/runme/024-upgrade-aef-1146a7450-finish/job.sh'
+  - '.context/runme/024-upgrade-aef-1146a7450-finish/run-20261013T200755.log'
+  - '.tasks/active/T-1167-upgrade-aef-bleeding-edge-ed683536a-to-1.md'
+  - 'tools/_t650-an-alias-is-the-command-it-aliases.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-13T18:44:31'
+    action: 'T-1167: runme job 023 — upgrade AEF bleeding-edge ed683536a to 1146a7450 (final G-114 fix T-4127, as AEF advised in msg 36d1129c; not the v1.8.10 tag); re-vendor protocol + Watchtower restart; dry-run 7/7'
+  - time: '2026-10-13T20:02:44'
+    action: 'T-1167: pristine vendor commit — AEF bleeding-edge 1146a7450 as fw upgrade wrote it (final G-114 fix T-4127; re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-13T20:07:57'
+    action: 'T-1167: advance the divergence baseline to the pristine AEF 1146a7450 commit (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-13T20:27:57'
+    action: 'T-1167: re-apply our local fixes on AEF bleeding-edge 1146a7450 (re-vendor protocol step 3) — 3-way apply of diff(pristine 7c11e9dc -> pre-upgrade e1155248) onto pristine 40b8e12c: 36 files clean, 1 conflict (safe-commands.sh _fw_is_git_commit_clause) resolved to UPSTREAM: AEF T-4108 now admits only this project''s own fw launcher, stricter than our T-650 clause, so ours is dropped and the manifest says so; _t650 leg moved to the vendored spelling plus a T-4108 refusal leg (17/17). _t517 44/44 OK; T-4127 present (git commit --only); revert scan 0; designer pin 0.19.1; review-queue rc 0; CLAUDE.md.bak diffed (only the old 300K budget numbers) and removed'
+  - time: '2026-10-13T20:28:06'
+    action: 'T-1167: runme jobs 023 (retired after steps 1-3; step 4 cancelled by mistake) and 024 (steps 4-7, done rc 0): logs, doctor before/after'
+  - time: '2026-10-13T20:28:25'
+    action: 'T-1167: criteria ticked with evidence, verification added'
+  - time: '2026-10-13T20:29:52'
+    action: 'T-1167: RCA (G-114 upstream: scratch-index decision commit left the real index stale; T-4081 then T-4127; revert scan 0 in 832)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 106 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [aef-upgrade]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 106
+  commits: 7
+  files_changed: 103
+  lines_added: 9339
+  lines_removed: 3945
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1167-upgrade-aef-bleeding-edge-ed683536a-to-1.md
+generated_by: context-agent-hybrid

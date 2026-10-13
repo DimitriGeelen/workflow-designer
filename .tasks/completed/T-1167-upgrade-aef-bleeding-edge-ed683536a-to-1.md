@@ -8,13 +8,13 @@ description: >
   not the tag, so the field-tested bleeding-edge fixes stay. Carries T-4127 (a9ee0b047
   + d77e21fe3), T-4145, T-4149, T-4150. Same re-vendor protocol as job 018 (T-1138).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_6_run
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: [aef-upgrade]
-components: []
+components: [tools/_t650-an-alias-is-the-command-it-aliases.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:43:08Z
-last_update: 2026-10-13T18:28:26Z
-date_finished:
+last_update: 2026-10-13T18:29:53Z
+date_finished: 2026-10-13T18:29:53Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -380,3 +380,15 @@ between a pristine vendor commit and its baseline, which is what kept this upgra
 
 ### 2026-10-13T16:43:16Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7951e4d7
+- **Timestamp:** 2026-10-13T18:29:56Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-13T18:29:53Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
