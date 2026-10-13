@@ -1,0 +1,8 @@
+review prompt ~6597 tokens (reviewer context not declared)
+review prompt ~6618 tokens (reviewer context not declared)
+recall: 3/3 planted defects caught
+  caught invented/citation                  send-payment-reminder
+  caught undeclared-unknown/invented        quality-inspection
+  caught wrong-authority                    Lane_warehouse
+false findings: 1 on the clean map, 0 on unplanted elements
+CALIBRATION: FAIL

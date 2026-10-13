@@ -1,0 +1,50 @@
+runme  026-calibrate-kit-0.20.0   sha f8df9069b6ed   rehearsed 2026-10-13T21:39:56Z   log: /opt/832-Workflow-designer/.context/runme/026-calibrate-kit-0.20.0/run-20261013T235159.log
+Job:   026-calibrate-kit-0.20.0   (T-1170)
+What:  Calibrate authoring kit 0.20.0 with codex and GLM-5.3 (Antigravity: your run, as before)
+       Release 0.20.0 (activities-only step numbers, tab title) needs its kit calibrated PASS on its exact bytes by
+       three vendors before the release job will cut it (ledger L16, tools/kit-calibration-gate.py). Your choice 1: this job
+       runs codex (OpenAI) and GLM-5.3 (Z.AI, via opencode) here; Antigravity (Google) you run the way you did for 0.19.1.
+       Guide, rubric and validator are unchanged since 0.19.1; only the version moves, which moves the kit's hash.
+       Each step builds the kit, runs loop.sh --calibrate from the built kit (the reviewer must catch the planted defects
+       and raise nothing on the clean map), saves the output in this job's folder and records the result with the gate. A
+       FAIL is recorded too and not retried: the agent brings it to you. Each run takes several minutes and uses the
+       reviewer's subscription. Nothing is committed or pushed; the agent commits the record afterwards.
+Steps (each asks y/N first):
+  1. Calibrate with codex (OpenAI): build the 0.20.0 kit, loop.sh --calibrate, record the result
+  2. Calibrate with GLM-5.3 (Z.AI, opencode): build the 0.20.0 kit, loop.sh --calibrate, record the result
+  3. Show the record and what the release gate says now (Antigravity still to come)
+
+ok    the kit for 0.20.0 builds
+ok    codex is installed
+ok    opencode is installed and lists zai-coding-plan/glm-5.3
+ok    no calibration record for 0.20.0 yet
+
+Step 1/3: Calibrate with codex (OpenAI): build the 0.20.0 kit, loop.sh --calibrate, record the result
+  runs: do_calibrate codex openai "$CODEX_CMD"
+Run step 1/3? [y/N] kit: /tmp/t1170-kit-codex.cZmQmJ/kit (sha256 of SHA256SUMS a82421182737b4d7...), reviewer: codex exec --skip-git-repo-check --sandbox workspace-write
+review prompt ~6597 tokens (reviewer context not declared)
+review prompt ~6618 tokens (reviewer context not declared)
+recall: 3/3 planted defects caught
+  caught invented/citation                  send-payment-reminder
+  caught undeclared-unknown/invented        quality-inspection
+  caught wrong-authority                    Lane_warehouse
+false findings: 0 on the clean map, 0 on unplanted elements
+CALIBRATION: PASS
+0.20.0: codex PASS (openai) recall 3/3, false on clean 0
+CALIBRATION: PASS
+ok    step 1/3
+
+Step 2/3: Calibrate with GLM-5.3 (Z.AI, opencode): build the 0.20.0 kit, loop.sh --calibrate, record the result
+  runs: do_calibrate glm-5.3 zai "$GLM_CMD"
+Run step 2/3? [y/N] kit: /tmp/t1170-kit-glm-5.3.jjobS8/kit (sha256 of SHA256SUMS a82421182737b4d7...), reviewer: opencode run -m zai-coding-plan/glm-5.3
+review prompt ~6597 tokens (reviewer context not declared)
+review prompt ~6618 tokens (reviewer context not declared)
+recall: 3/3 planted defects caught
+  caught invented/citation                  send-payment-reminder
+  caught undeclared-unknown/invented        quality-inspection
+  caught wrong-authority                    Lane_warehouse
+false findings: 1 on the clean map, 0 on unplanted elements
+CALIBRATION: FAIL
+0.20.0: glm-5.3 FAIL (zai) recall 3/3, false on clean 1
+recording the glm-5.3 result failed (rc 1)
+STOPPED: step 2/3 failed (rc=1); later steps not run

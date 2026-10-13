@@ -77,7 +77,18 @@ def main(argv=None):
         p = path_for(a.version)
         doc = yaml.safe_load(open(p)) if os.path.exists(p) else None
         if not doc or doc.get('kit_sha256') != h:
-            doc = {'version': a.version, 'kit_sha256': h, 'reviewers': []}  # a new kit voids old rows
+            # A new kit voids old rows — but never DROPS them (T-1173): the runs on an earlier build, a FAIL above
+            # all, move to voided_runs so no failure is hidden. The gate reads only "reviewers".
+            voided = (doc or {}).get('voided_runs') or []
+            if isinstance(voided, dict):          # 0.19.1's hand-written single entry
+                voided = [voided]
+            if doc and doc.get('reviewers'):
+                voided.append({'kit_sha256': doc.get('kit_sha256'),
+                               'note': 'runs on an earlier build of this kit, voided because the kit changed',
+                               'runs': doc['reviewers']})
+            doc = {'version': a.version, 'kit_sha256': h, 'reviewers': []}
+            if voided:
+                doc['voided_runs'] = voided
         doc['reviewers'].append(dict(res, reviewer=a.reviewer, vendor=a.vendor.lower(),
                                      at=datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')))
         os.makedirs(RECORDS, exist_ok=True)
