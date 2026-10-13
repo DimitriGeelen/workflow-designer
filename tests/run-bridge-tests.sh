@@ -3074,6 +3074,7 @@ T1013_GUARDS=(
   'tools/_t886-writer-mutation.py|mutation teeth for the round-trip guard (suppresses each writer attribute, expects red)'
   'tools/_t892-lane-default-cdp.mjs|CDP regression: the lane Authoring default never re-stamps nodes'
   'tools/_t911-kind-badge-verify-cdp.mjs|CDP regression: workflowMeta/@kind settable and visible (writes .playwright-mcp/t911-panel-kind-select.png)'
+  'tools/_t1172-designer-open-test.py|opening a map from /designer keeps Watchtower around it: inline page, frame with the same load value, fullscreen toggle, cards point at it (T-1172)'
   'tools/_t1168-node-id-map.mjs --check|the committed corpus carries exactly the node ids the designer exports (T-1168 migration stays in step)'
   'tools/_t1168-step-numbers-verify-cdp.mjs|CDP regression: node ids number ACTIVITIES only, events/gateways carry a type word, ids unique and round-trip (T-1168)'
   'tools/_t1155-doc-title-verify-cdp.mjs|CDP regression: tab title and XML heading name the open map, across load, switch and rename (T-1155)'

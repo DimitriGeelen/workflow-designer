@@ -227,7 +227,7 @@ entries:
       verb is absent on the 1.7.740 file), bridge leg.
   - path: .agentic-framework/web/blueprints/designer.py
     kind: content
-    task: T-1048
+    task: T-1048, T-1172
     upstream: fix
     delivered: reported
     delivered_ref: "AEF inbox @348, conversation designer-corpus-thumbnails, client_msg_id 6a6a76ef"
@@ -235,7 +235,21 @@ entries:
       Operator request: preview thumbnails on the /designer corpus page. Each project gains
       `thumb_url` (/api/thumb?id=&v=<latest>) only when <store>/<id>/v<latest>.png exists, so the
       template can show a placeholder instead of a broken image. Guard: tools/_t1048-gallery-thumbs.py
-      legs 5-6 (bridge-wired).
+      legs 5-6 (bridge-wired). T-1172 (operator, 2026-10-14): new route /designer/open renders a map INLINE in
+      a Watchtower page (navigation kept, designer framed from /designer/app with the same load value, so the
+      T-2596/T-2599 nonce flow is untouched) with a fullscreen toggle like the fabric browser; the cards'
+      open_url points at it. Before, /designer/app replaced Watchtower and only the browser's Back returned.
+      Guard: tools/_t1172-designer-open-test.py (bridge-wired). Not yet reported to AEF.
+  - path: .agentic-framework/web/templates/designer_open.html
+    kind: added
+    task: T-1172
+    upstream: fix
+    reason: >-
+      The inline page for /designer/open (T-1172): Watchtower's base layout, a bar (back to the maps, title,
+      version, "Open alone", fullscreen toggle) and the designer in a frame filling the viewport; the
+      fullscreen toggle follows fabric_explorer.html (requestFullscreen on the stage, the button follows
+      fullscreenchange, an exit button inside fullscreen at bottom-right so it covers none of the designer's
+      toolbar). Guard: tools/_t1172-designer-open-test.py.
   - path: .agentic-framework/web/templates/designer_landing.html
     kind: content
     task: T-1048

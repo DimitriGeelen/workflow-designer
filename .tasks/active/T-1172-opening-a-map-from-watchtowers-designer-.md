@@ -1,13 +1,19 @@
 ---
 id: T-1172
-name: "Opening a map from Watchtower's /designer page leaves Watchtower: /designer/app is the bare designer, full tab, no way back but the browser's Back"
+name: "Opening a map from Watchtower's /designer page leaves Watchtower: /designer/app
+  is the bare designer, full tab, no way back but the browser's Back"
 description: >
-  Operator report 2026-10-13: after clicking a map thumbnail he never gets back to Watchtower's normal navigation. /designer/app (web/blueprints/designer.py) serves the designer bundle as the whole page. Fix approach is the operator's choice (Watchtower bar above an embedded designer / new tab / back link in the designer toolbar), asked 2026-10-13.
+  Operator report 2026-10-13: after clicking a map thumbnail he never gets back to
+  Watchtower's normal navigation. /designer/app (web/blueprints/designer.py) serves
+  the designer bundle as the whole page. Fix approach is the operator's choice (Watchtower
+  bar above an embedded designer / new tab / back link in the designer toolbar), asked
+  2026-10-13.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [watchtower, designer-landing, navigation, bug]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T21:48:01Z
-last_update: 2026-10-13T21:48:01Z
-date_finished: null
+last_update: 2026-10-13T23:23:56Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-13T23:23:57Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 1
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=1 (body/components:component-fabric-incidental);
+      F4=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F3=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal); F1=2 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L2:keyword=editor)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1172: Opening a map from Watchtower's /designer page leaves Watchtower: /designer/app is the bare designer, full tab, no way back but the browser's Back
@@ -66,13 +93,20 @@ the whole tab (web/blueprints/designer.py), so Watchtower's navigation is gone. 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] A Watchtower page (base layout, normal navigation) shows the designer for a map inline, in a frame filling the rest of the viewport; it keeps /designer/app's deep-link and the T-2596/T-2599 load nonce
-- [ ] A fullscreen button (⛶) puts the designer area into browser fullscreen and turns into ✖; ✖ or Esc returns to the Watchtower page with its navigation, and the button follows (fullscreenchange), as in the fabric browser
-- [ ] The landing cards' "Open in editor" goes to the inline page and still mints its click-time nonce (T-2596); /designer/app keeps working on its own (old links, the blank editor)
-- [ ] A test proves the inline page renders with the navigation and the frame, and that a card link points at it with the nonce; screenshots of the inline page and of fullscreen are read
-- [ ] .vendor-divergence.yaml declares the changed vendored files; tools/_t517 OK
+- [x] A Watchtower page (base layout, normal navigation) shows the designer for a map inline, in a frame filling the rest of the viewport; it keeps /designer/app's deep-link and the T-2596/T-2599 load nonce — /designer/open; test legs 1-2; screenshot t1172-inline.png
+- [x] A fullscreen button (⛶) puts the designer area into browser fullscreen and turns into ✖; ✖ or Esc returns to the Watchtower page with its navigation, and the button follows (fullscreenchange), as in the fabric browser — measured in headless Chromium: ⛶ -> fullscreenElement dsg-stage, button ✖; ✖ -> null, button ⛶, stage refitted. Esc NOT measurable headless (a synthetic key reaches the page/frame, the designer uses Esc itself; in a real browser Esc is the browser's own fullscreen exit, before the page)
+- [x] The landing cards' "Open in editor" goes to the inline page and still mints its click-time nonce (T-2596); /designer/app keeps working on its own (old links, the blank editor) — leg 4 + live click: /designer/open?load=...%26t%3D1791933910607; leg 5
+- [x] A test proves the inline page renders with the navigation and the frame, and that a card link points at it with the nonce; screenshots of the inline page and of fullscreen are read — tools/_t1172-designer-open-test.py 5/5, bridge-wired; screenshots below
+- [x] .vendor-divergence.yaml declares the changed vendored files; tools/_t517 OK
 
-### Human
+## Visual Verification
+- `.playwright-mcp/t1172-inline.png` (1400x900, private Watchtower on this tree): Watchtower nav + breadcrumbs on top,
+  bar "← Maps · audit-process · v1 · Open alone · ⛶", the designer framed below filling the viewport.
+- `.playwright-mcp/t1172-fullscreen.png`: the designer fills the screen; the ✖ exit sits bottom-right. The first
+  screenshot had it top-right, over the designer's Versions / Save project buttons — moved, re-shot, toolbar clear.
+  One Watchtower theme was checked (the designer has one theme); width 1400.
+
+<!-- No Human criteria: the operator sees it once Watchtower is restarted (runme job). Template note follows. -->
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -104,6 +138,9 @@ the whole tab (web/blueprints/designer.py), so Watchtower's navigation is gone. 
 -->
 
 ## Verification
+python3 tools/_t1172-designer-open-test.py
+python3 tools/_t517-vendor-divergence.py
+grep -q "_t1172-designer-open-test.py" tests/run-bridge-tests.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -337,3 +374,7 @@ the whole tab (web/blueprints/designer.py), so Watchtower's navigation is gone. 
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1172-opening-a-map-from-watchtowers-designer-.md
 - **Context:** Initial task creation
+
+### 2026-10-13T23:23:56Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
