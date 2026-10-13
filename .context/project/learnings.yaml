@@ -2759,3 +2759,9 @@ learnings:
   task: T-1138
   date: 2026-10-12
   context: Added via context agent
+- id: PL-396
+  learning: "Before handing the operator an inception decision link, open its readiness check (Watchtower /inception/T-XXX 'Not ready for your decision', lib/inception-readiness.sh) and resolve every item; an open evidence question means DEFER and no hand-over. A build task converted to inception lacks the Hypothesis / Open Questions / Go-No-Go sections - add them at conversion. Same class as T-1118/T-1123 (GO offered, refused at decide)"
+  source: unknown
+  task: T-1094
+  date: 2026-10-13
+  context: Added via context agent

@@ -44,7 +44,8 @@ both keep holding under any option below, since every option is still a pure fun
 
 ## Recommendation
 
-**Option 2.** The ids are not stable today, so option 2's churn is no worse than what every layout edit
+**DEFER until Greenfield answers whether anything keys on node ids (IW-1, asked on DM 85); then option 2.**
+The ids are not stable today, so option 2's churn is no worse than what every layout edit
 already does, and it removes the misreading at its source. Option 3 trades one confusion for another.
 
 What we bet: owners read the number as a step count, and nothing outside the designer keys on node ids
@@ -61,3 +62,7 @@ evidence map has none, so this can wait for the build.
 
 - 2026-10-12 (session S-2026-1012): converted from build to inception because the choice changes saved ids
   and is the operator's; options and recommendation written for the operator's decision.
+- 2026-10-13: the operator pointed out the task was handed over while Watchtower itself said "Not ready for
+  your decision" (no Hypothesis; an open evidence question). The agent had not opened the readiness check before
+  sending the link. Fixed: Problem Statement, Hypothesis, Open Questions (IW-1 open, IW-2 deferred), Go/No-Go
+  criteria added; recommendation changed GO -> DEFER until IW-1 is answered.

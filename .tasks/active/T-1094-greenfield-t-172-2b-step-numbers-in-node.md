@@ -46,7 +46,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T08:40:22Z
-last_update: 2026-10-12T22:18:51Z
+last_update: 2026-10-13T10:10:26Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -87,7 +87,40 @@ bvp_scores_proposed:
 
 Inception (converted from build 2026-10-12): the choice changes the BPMN ids written into saved maps, so it is
 the operator's. Research and options: [docs/reports/T-1094-step-numbers-what-they-count.md](../../docs/reports/T-1094-step-numbers-what-they-count.md).
-Recommendation: option 2, activities-only step numbers (events and gateways get a type word).
+Preferred option: 2, activities-only step numbers (events and gateways get a type word). Not decidable yet: IW-1 below waits on Greenfield.
+
+## Problem Statement
+
+Map owners read the number in a node id as "step N of the work"; the designer means "position N in the lane".
+Gateways and events take numbers, so Greenfield's owner saw Salesforce tasks 1, 2, 4, 5 and a Verkoper whose first
+task is number 2 (Greenfield T-172 item 2b). The id is also the BPMN id in saved files, so the fix touches them.
+
+## Hypothesis
+
+We believe that numbering only activities in node ids (events and gateways get a type word instead), we will
+achieve ids that owners read as a gap-free step sequence without breaking anything that consumes saved maps.
+We will know that we are successful when we see Greenfield's re-test of `after-owner-straightened.bpmn` read
+1..n in every lane with 0 gaps, `_t358` and `_t364` still green, and 0 reports from consumers keyed on node ids.
+
+## Open Questions
+
+- **IW-1: Does anything outside the designer key on NODE ids across saves (Greenfield's generators, links, diffs)?**
+  confidence: 1
+  disposition: open
+  rationale: asked Greenfield on DM 85 (2026-10-12); their DM 61 only covers the MAP id (their T-189). No answer yet. Blocks the decision: a yes changes the cost of options 2 and 3.
+- **IW-2: Do boundary events share their host task's number or take a type word?**
+  confidence: 1
+  disposition: deferred
+  rationale: the evidence map has no boundary events; it does not change the choice between options, so it is settled in the build task.
+
+## Go/No-Go Criteria
+
+**GO (option 2) if:**
+- IW-1 is answered "nothing keys on node ids", or what does can follow a one-time id change
+- the change stays inside `computeDisplayId` plus test expectations (no import/export format change)
+
+**NO-GO if:**
+- a consumer depends on stable node ids across saves; then option 3 (badge only) or option 1 (document) is re-weighed
 
 ## Acceptance Criteria
 
@@ -327,7 +360,7 @@ grep -q "^## Recommendation" docs/reports/T-1094-step-numbers-what-they-count.md
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
 
-**Recommendation:** GO (option 2: activities-only step numbers; events and gateways get a type word)
+**Recommendation:** DEFER — evidence gap, not a confidence gap: IW-1 (does anything key on node ids?) is unanswered; Greenfield asked on DM 85. Expected to become GO on option 2 if they answer "nothing".
 **Rationale:** Owners read the number as "step N"; the code means "position N in the lane". Node ids already
 renumber on every layout edit, so a one-time id change costs no more than a node move does today, and it removes
 the misreading at its source. Option 3 (badge-only) adds a second numbering that disagrees with the saved file.
