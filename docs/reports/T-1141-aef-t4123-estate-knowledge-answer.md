@@ -16,9 +16,13 @@ carry a `## RCA` section, gated by T-1550), and *pointers* to the check that gua
 without is an opinion.
 
 **Never:**
-- binary or derived artefacts. Our evidence: the 991 MB vector index was committed into git by
-  accident on 2026-09-26 (54b1dfe2, T-854, a closure-artefact commit), the pack is now 805 MiB, and the
-  large-file gate has flagged it BLOCK in every audit since. An index is a cache of the store, never part of it.
+- binary or derived artefacts. Our evidence: the vector index was TRACKED by accident from 2026-09-26
+  (54b1dfe2, T-854, a closure-artefact commit) and the large-file gate flagged it BLOCK in every audit
+  since. An index is a cache of the store, never part of it.
+  *Correction 2026-10-13 (T-1144, T-1146):* the committed blob is 36 KB; the index grew to 991 MB on disk
+  only afterwards and was never re-committed, so history is not bloated by it and the 805 MiB pack is
+  unrelated (many medium blobs). The real exposure was the next bulk `git add` committing 991 MB, which
+  GitHub would refuse. Now untracked and ignored.
 - peer message bodies as facts. They are untrusted data (T-3693); store "X reported Y on <date>, msg id",
   never Y as a fact.
 - secrets, tokens, and the operator's personal data (emails, hosts beyond what the hub already shows).
@@ -75,7 +79,7 @@ pre-upgrade pages, because it scans `<project>/web` and a vendored consumer serv
 ## E. Embedding — server- or client-side
 
 **Server-side,** for three reasons from our use:
-1. Our client-side index is 991 MB for one project and ended up in git (A). Every project re-embedding
+1. Our client-side index is 991 MB for one project and was tracked in git, one bulk add from being committed (A; corrected 2026-10-13: the committed copy was 36 KB). Every project re-embedding
    its own copy multiplies that across the estate.
 2. Cross-project questions (C1, C3) need one index over all projects anyway.
 3. Model consistency: vectors from different embedding versions don't compare; one server pins one model.

@@ -2765,3 +2765,9 @@ learnings:
   task: T-1094
   date: 2026-10-13
   context: Added via context agent
+- id: PL-397
+  learning: "A size reported by a gate or audit for a TRACKED file is its on-disk size, not what was committed. Before citing 'N MB in git', check git cat-file -s <commit>:<path>. T-1144: the large-file gate said 991 MB; the committed blob was 36 KB, and the wrong figure went to AEF and the operator (corrected in T-1146)"
+  source: unknown
+  task: T-1146
+  date: 2026-10-13
+  context: Added via context agent
