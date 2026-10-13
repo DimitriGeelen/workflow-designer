@@ -3,26 +3,28 @@ name: test_xml_node_type_vocab
 type: script
 subsystem: ewcr-arc-0
 location: tests/test_xml_node_type_vocab.py
-tags: [ewcr, arc-0, arc:ewcr-governed-delivery]
-
-purpose: "T-321 — the XML flow-node vocabulary is DERIVED, and stays agreed with both emitters. `XML_NODE_TYPES` in tools/validate-workflow.py is not a hand-written list beside `NODE_TYPES`. It is `{XML_TYPE_MAP.get(t, t) for t in NODE_TYPES} | XML_ONLY_NODE_TYPES` — a translation of the canonical vocabulary plus one declared extension. Two hand-maintained lists describing one modelling language drift, w..."
-
+tags:
+- ewcr
+- arc-0
+- arc:ewcr-governed-delivery
+purpose: T-321 — the XML flow-node vocabulary is DERIVED, and stays agreed with both emitters. `XML_NODE_TYPES` in tools/validate-workflow.py
+  is not a hand-written list beside `NODE_TYPES`. It is `{XML_TYPE_MAP.get(t, t) for t in NODE_TYPES} | XML_ONLY_NODE_TYPES`
+  — a translation of the canonical vocabulary plus one declared extension. Two hand-maintained lists describing one modelling
+  language drift, w...
 depends_on:
-  - target: src/aef-workflow-designer.html
-    type: reads
-  - target: tools/validate-workflow.py
-    type: calls
-  - target: tools/yaml-to-bpmn.py
-    type: calls
-
+- target: src/aef-workflow-designer.html
+  type: reads
+- target: tools/validate-workflow.py
+  type: calls
+- target: tools/yaml-to-bpmn.py
+  type: calls
+- target: src/aef-workflow-designer.html
+  type: calls
 depended_by:
-  - target: tests/run-bridge-tests.sh
-    type: calls
-
+- target: tests/run-bridge-tests.sh
+  type: calls
+- target: tests/run-bridge-tests.sh
+  type: called_by
 last_verified: 2026-09-03
 created_by: T-671
-
-# Edges on this card are DERIVED, not asserted: tools/_t671-arc0-edge-derive.py
-# extracts them from the referring file's own non-comment bytes. Regenerate with
-#   python3 tools/_t671-arc0-edge-derive.py > /tmp/.e.tsv \
-#     && python3 tools/_t671-arc0-card-gen.py /tmp/.e.tsv
+last_enriched: '2026-09-16'
