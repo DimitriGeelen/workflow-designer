@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T19:07:59Z
-last_update: 2026-10-13T21:19:23Z
+last_update: 2026-10-13T21:20:56Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -74,7 +74,7 @@ Slugs are already unique per lane (deriveUniqueSlug), so ids stay unique.
 - [x] A map saved with the new ids imports and re-exports byte-identically; `_t358` (determinism) and `_t364` (tie rule) green, their expectations updated only where an exact id is pinned — round-trip leg per map in _t1168; _t358 third-party goldens re-recorded, every changed line differs only in node ids (checked line by line, 11 files)
 - [x] task-lifecycle's node ids migrated once, by name: lib/instance-position.sh, update-task.sh, every task record's `current_node`, the 5 teeth (_t880, _t881, _t882, _t883, _t923); 0 records name an id missing from task-lifecycle.bpmn; the teeth green; .vendor-divergence.yaml updated — a09c7e72; 183 records, 0 dangling; teeth 16/10/17/18/14; _t517 OK (instance-position.sh reclassified content, with why)
 - [x] The committed rendered corpus is regenerated wherever a test compares exported bytes, and the old->new id map for every changed map is written to docs/reports/T-1168-node-id-map.md (for AEF, with the release) — renamed in place, 256 ids in 24 maps (re-baking would have carried unrelated exporter drift); their false DI trailer replaced by the approved one (T-361 ledger rule); `_t1168-node-id-map.mjs --check` wired as a standing guard (24/24)
-- [ ] The bridge suite shows no failure that the pre-change baseline did not have
+- [x] The bridge suite shows no failure that the pre-change baseline did not have — baseline 269/5; after the change 267/9, the 7 new each fixed at cause (e5cb60dd); third run 274/3 with none of them: _t264 passes alone, the sweep's 90s cap is flagged by the suite as not a regression, _t544 could not measure under calibration load and is green alone
 
 <!-- No Human criteria: the release that ships this is its own task.
      Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

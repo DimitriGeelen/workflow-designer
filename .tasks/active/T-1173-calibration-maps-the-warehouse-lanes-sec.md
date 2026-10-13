@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T22:03:16Z
-last_update: 2026-10-13T22:03:16Z
+last_update: 2026-10-13T22:59:39Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -66,9 +66,9 @@ failed run on record as voided, re-calibrate all three vendors on the corrected 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Every `source:` quote in calibration/clean.bpmn is present byte-for-byte in calibration/SOURCE.md, and in planted.bpmn every one except the planted fabricated citation (expected.json defect 1, "The ERP sends a payment reminder after seven days.")
-- [ ] The 0.20.0 calibration record keeps the codex PASS and the GLM FAIL (with its finding) as voided runs of the first kit build: kit-calibration-gate.py `record` now moves an earlier build's rows into voided_runs instead of dropping them (it used to replace the file), tested in a sandbox; the GLM row carries its finding
-- [ ] A runme job calibrates the corrected kit with codex and GLM-5.3, dry-run clean (Antigravity is the operator's run)
+- [x] Every `source:` quote in calibration/clean.bpmn is present byte-for-byte in calibration/SOURCE.md, and in planted.bpmn every one except the planted fabricated citation (expected.json defect 1, "The ERP sends a payment reminder after seven days.") — clean 25/25, planted 25/26 with exactly that one
+- [x] The 0.20.0 calibration record keeps the codex PASS and the GLM FAIL (with its finding) as voided runs of the first kit build: kit-calibration-gate.py `record` now moves an earlier build's rows into voided_runs instead of dropping them (it used to replace the file), tested in a sandbox; the GLM row carries its finding — and it did so live on job 027's first record
+- [x] A runme job calibrates the corrected kit with codex and GLM-5.3, dry-run clean (Antigravity is the operator's run) — job 027 dry-run 5/5, run rc 0: codex PASS, GLM-5.3 PASS (3/3, 0 false each)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
