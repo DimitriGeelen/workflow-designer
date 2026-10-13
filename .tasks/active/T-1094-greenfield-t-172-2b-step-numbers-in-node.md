@@ -46,7 +46,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T08:40:22Z
-last_update: 2026-10-13T18:59:07Z
+last_update: 2026-10-13T19:00:35Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -99,10 +99,11 @@ task is number 2 (Greenfield T-172 item 2b). The id is also the BPMN id in saved
 
 ## Hypothesis
 
-We believe that numbering only activities in node ids (events and gateways get a type word instead), we will
-achieve ids that owners read as a gap-free step sequence without breaking anything that consumes saved maps.
+We believe that numbering only activities in node ids (events and gateways get a type word instead),
+we will achieve ids that owners read as a gap-free step sequence without breaking anything that consumes saved maps.
 We will know that we are successful when we see Greenfield's re-test of `after-owner-straightened.bpmn` read
-1..n in every lane with 0 gaps, `_t358` and `_t364` still green, and 0 reports from consumers keyed on node ids.
+1..n in every lane with 0 gaps, `_t358` and `_t364` still green, 0 task records whose `current_node` names an id
+missing from task-lifecycle.bpmn after the migration, and 0 reports from consumers keyed on node ids.
 
 ## Open Questions
 
