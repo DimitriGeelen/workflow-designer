@@ -1,13 +1,14 @@
 ---
-id: T-1169
-name: "Bridge suite: 5 legs red after today's AEF 1146a7450 upgrade and observation triage (_t842, _t509/_t525, _t451 backlog, Why-you on T-1151/T-1165, _t568)"
+id: T-1173
+name: "Calibration maps: the Warehouse lane's second quote joins the source's line break (not verbatim) — GLM-5.3 on the 0.20.0 kit"
 description: >
-  Bridge suite: 5 legs red after today's AEF 1146a7450 upgrade and observation triage (_t842, _t509/_t525, _t451 backlog, Why-you on T-1151/T-1165, _t568)
+  Calibration maps: the Warehouse lane's second quote joins the source's line break (not verbatim) — GLM-5.3 on the 0.20.0 kit
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -33,13 +34,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1169` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1173` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-13T19:49:04Z
-last_update: 2026-10-13T21:10:43Z
-date_finished: null
+created: 2026-10-13T22:03:16Z
+last_update: 2026-10-13T23:01:07Z
+date_finished: 2026-10-13T23:01:07Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -52,33 +53,26 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-1169: Bridge suite: 5 legs red after today's AEF 1146a7450 upgrade and observation triage (_t842, _t509/_t525, _t451 backlog, Why-you on T-1151/T-1165, _t568)
+# T-1173: Calibration maps: the Warehouse lane's second quote joins the source's line break (not verbatim) — GLM-5.3 on the 0.20.0 kit
 
 ## Context
 
-The T-1168 baseline run of tests/run-bridge-tests.sh (2026-10-13, after the T-1167 upgrade to AEF 1146a7450 and
-the T-1149 triage) reported 269 passed, 5 failed. Each failing leg is diagnosed and fixed at its cause:
-1. `_t842` commit-exemption spellings 3/19 red: the test calls is_commit_checkpoint_command without the context
-   the hook gives it (PROJECT_ROOT, FRAMEWORK_ROOT, payload cwd); AEF's T-4108 clause, taken in T-1167, needs it
-   to resolve the launcher. With the context all three spellings are ALLOWED (measured).
-2. `_t509` instrument sweep: `_t525-fabric-coverage-teeth.py` red (M1 mutation anchor missing; hermetic leg).
-3. `_t451` unwired-guard backlog moved.
-4. Why-you lint: T-1151 and T-1165 (created by T-1149) carry the inception template's `[REVIEW]` criterion with
-   no `**Why you:**` line.
-5. `_t568` live card visibility probe: a fresh card did not render on the dashboard.
+GLM-5.3 failed the 0.20.0 kit calibration (job 026, 2026-10-13): 3/3 planted defects caught, 1 finding on the CLEAN
+map — Lane_warehouse's second source quote joins SOURCE.md's line break after "could" into a space, so it is not
+verbatim (AUTHORING.md: "The quote must be verbatim"), while the two other citations of the same sentence keep it.
+The finding is correct; the joined quote came in with T-1136's correction for 0.19.1 and every 0.19.1 reviewer
+missed it. The planted map carries the same joined quote. Operator's choice 1 (2026-10-14): fix the maps, keep the
+failed run on record as voided, re-calibrate all three vendors on the corrected kit.
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] `_t842` passes: it calls the predicate with the hook's context (and states why); no expectation weakened — 19/19, negative controls still refused (0029c2ed)
-- [x] `_t525` passes against the upgraded audit.sh, or its anchor is moved to the code that now does the check (cause stated) — not broken: three runs failed three DIFFERENT legs, then 8/8 on rerun; flaky under concurrent audits, which is T-1166's subject (OBS-481), not this upgrade
-- [x] `_t451`'s backlog change is explained and the baseline updated only for entries that are genuinely one-shot — baseline NOT edited: the two new tools were wired instead (_t1149-triage-check.py as a standing guard; T-1168's tools wired by T-1168); ratchet 86/86, no movement
-- [x] T-1151 and T-1165 pass the Why-you lint (their criterion says why it needs the operator, or is routed per AEF's ruleset) — act-in-the-world (T-1151), direction (T-1165, noted as pending at AEF T-1077); _t1066 OK
-- [x] `_t568` passes, or its failure is shown to be environmental with the cause named — cause: job 024 restarted Watchtower at 20:24:50, before our web fixes were re-applied at 20:25:32; job 025 restarted it (rc 0, 567d4ab1); probe PASS; learning recorded
-- [x] A full bridge run has none of the 5 legs red — third run 274/3: none of the five; the three reds were _t264 (passes alone, rc 0), the 90s sweep cap (suite: "NOT a regression") and _t544 (could not measure under the calibration load; green alone at 23:00Z)
+- [x] Every `source:` quote in calibration/clean.bpmn is present byte-for-byte in calibration/SOURCE.md, and in planted.bpmn every one except the planted fabricated citation (expected.json defect 1, "The ERP sends a payment reminder after seven days.") — clean 25/25, planted 25/26 with exactly that one
+- [x] The 0.20.0 calibration record keeps the codex PASS and the GLM FAIL (with its finding) as voided runs of the first kit build: kit-calibration-gate.py `record` now moves an earlier build's rows into voided_runs instead of dropping them (it used to replace the file), tested in a sandbox; the GLM row carries its finding — and it did so live on job 027's first record
+- [x] A runme job calibrates the corrected kit with codex and GLM-5.3, dry-run clean (Antigravity is the operator's run) — job 027 dry-run 5/5, run rc 0: codex PASS, GLM-5.3 PASS (3/3, 0 false each)
 
-<!-- No Human criteria.
-     Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
+### Human
+<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
 
@@ -101,18 +95,16 @@ the T-1149 triage) reported 269 passed, 5 failed. Each failing leg is diagnosed 
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1169`
+         1. Run `bin/fw reviewer T-1173`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1169 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1173 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
-bash tools/_t842-commit-exemption-spelling-regression.sh > /tmp/t1169a.out 2>&1 && grep -q 'failed 0' /tmp/t1169a.out
-python3 tools/_t1066-why-you-check.py
-python3 tools/_t451-unwired-guard-census.py --ratchet > /tmp/t1169b.out 2>&1; grep -q 'no movement' /tmp/t1169b.out
-timeout 300 python3 tools/_t568-live-card-visibility-probe.py > /tmp/t1169c.out 2>&1 && grep -q '^PASS' /tmp/t1169c.out
+python3 -c "import re,sys; src=open('docs/authoring-kit/calibration/SOURCE.md').read(); bad=[(m,q[:50]) for m in ('clean','planted') for q in re.findall(r'source: \"([^\"]*)\"', open('docs/authoring-kit/calibration/%s.bpmn'%m).read()) if q not in src]; sys.exit(0 if bad==[('planted','The ERP sends a payment reminder after seven days.')] else 1)"
+python3 -c "import yaml,sys; d=yaml.safe_load(open('docs/authoring-kit/calibration-records/0.20.0.yaml')); v=d.get('voided_runs') or []; v=[v] if isinstance(v,dict) else v; sys.exit(0 if any(r.get('reviewer')=='glm-5.3' and r.get('result')=='FAIL' and r.get('finding') for e in v for r in e.get('runs',[])) else 1)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -326,7 +318,7 @@ timeout 300 python3 tools/_t568-live-card-visibility-probe.py > /tmp/t1169c.out 
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1169 go|no-go|defer --rationale "..."
+     fw inception decide T-1173 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -335,7 +327,24 @@ timeout 300 python3 tools/_t568-live-card-visibility-probe.py > /tmp/t1169c.out 
 
 ## Updates
 
-### 2026-10-13T19:49:04Z — task-created [task-create-agent]
+### 2026-10-13T22:03:16Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1169-bridge-suite-5-legs-red-after-todays-aef.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1173-calibration-maps-the-warehouse-lanes-sec.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-15af75b6
+- **Timestamp:** 2026-10-13T23:01:10Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — Every `source:` quote in calibration/clean.bpmn is present byte-for-byte in calibration/SOURCE.md, and in planted.bpmn every one except the planted fabricated citation (expected.json defect 1, "The ER
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=calibration/clean.bpmn in: Every `source:` quote in calibration/clean.bpmn is present byte-for-byte in calibration/SOURCE.md, and in planted.bpmn every one except the planted fa`
+
+### 2026-10-13T23:01:07Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

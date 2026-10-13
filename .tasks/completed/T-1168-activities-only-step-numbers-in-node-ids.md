@@ -4,12 +4,13 @@ name: "Activities-only step numbers in node ids (T-1094 GO, option 2), with a on
 description: >
   Activities-only step numbers in node ids (T-1094 GO, option 2), with a one-time migration of task-lifecycle's node ids
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tests/test_gallery_instances_api.py, tests/test_t293_endpoint_reach.py, tools/_editor-behavior-verify-cdp.mjs, tools/_t293-endpoint-reach-cdp.mjs, tools/_t600-label-wrap.mjs, tools/_t842-commit-exemption-spelling-regression.sh, tools/_t880-instance-node-teeth.sh, tools/_t881-resolution-teeth.sh, tools/_t882-advance-teeth.sh, tools/_t883-refusal-audit-teeth.sh, tools/_t884-instance-overlay-cdp.mjs, tools/_t892-lane-default-cdp.mjs, tools/_t893-authority-marker-shots.mjs, tools/_t923-framework-writer-teeth.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T19:07:59Z
-last_update: 2026-10-13T21:20:56Z
-date_finished: null
+last_update: 2026-10-13T23:02:41Z
+date_finished: 2026-10-13T23:02:41Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -338,3 +339,20 @@ test -f docs/reports/T-1168-node-id-map.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1168-activities-only-step-numbers-in-node-ids.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-352c415b
+- **Timestamp:** 2026-10-13T23:03:04Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — task-lifecycle's node ids migrated once, by name: lib/instance-position.sh, update-task.sh, every task record's `current_node`, the 5 teeth (_t880, _t881, _t882, _t883, _t923); 0 records name an id mi
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=lib/instance-position.sh in: task-lifecycle's node ids migrated once, by name: lib/instance-position.sh, update-task.sh, every task record's `current_node`, the 5 teeth (_t880, _t`
+
+### 2026-10-13T23:02:41Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

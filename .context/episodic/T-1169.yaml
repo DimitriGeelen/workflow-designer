@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1169: Bridge suite: 5 legs red after today's AEF 1146a7450 upgrade and observation triage (_t842, _t509/_t525, _t451 backlog, Why-you on T-1151/T-1165, _t568)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-13T23:02:21Z
+# ============================================================================
+
+task_id: T-1169
+task_name: "Bridge suite: 5 legs red after today's AEF 1146a7450 upgrade and observation triage (_t842, _t509/_t525, _t451 backlog, Why-you on T-1151/T-1165, _t568)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T19:49:04Z
+completed: 2026-10-13T23:01:54Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-13T21:55:43+02:00
+last_commit: 2026-10-13T23:10:42+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  four of the five red bridge legs fixed at cause — _t842 calls the predicate with the hook's context (AEF T-4108 needs it; 19/19); _t1149-triage-check wired as a standing guard (unwired ratchet back to baseline but _t1168, wired by T-1168); Why-you lines on T-1151/T-1165; _t525 flaky (8/8 on rerun, T-1166's class); _t568: Watchtower was restarted before our web fixes were re-applied, so runme job 025 restarts it (dry-run 2/2); learning. job 025 done (rc 0) — Watchtower restarted on our re-applied web fixes; _t568 live card probe PASS
+
+# Key outcomes
+outcomes:
+  - '`_t842` passes: it calls the predicate with the hook''s context (and states why); no expectation weakened — 19/19, negative controls still refused (0029c2ed)'
+  - '`_t525` passes against the upgraded audit.sh, or its anchor is moved to the code that now does the check (cause stated) — not broken: three runs failed three DIFFERENT legs, then 8/8 on rerun; flaky under concurrent audits, which is T-1166''s subject (OBS-481), not this upgrade'
+  - '`_t451`''s backlog change is explained and the baseline updated only for entries that are genuinely one-shot — baseline NOT edited: the two new tools were wired instead (_t1149-triage-check.py as a standing guard; T-1168''s tools wired by T-1168); ratchet 86/86, no movement'
+  - 'T-1151 and T-1165 pass the Why-you lint (their criterion says why it needs the operator, or is routed per AEF''s ruleset) — act-in-the-world (T-1151), direction (T-1165, noted as pending at AEF T-1077); _t1066 OK'
+  - '`_t568` passes, or its failure is shown to be environmental with the cause named — cause: job 024 restarted Watchtower at 20:24:50, before our web fixes were re-applied at 20:25:32; job 025 restarted it (rc 0, 567d4ab1); probe PASS; learning recorded'
+  - 'A full bridge run has none of the 5 legs red — third run 274/3: none of the five; the three reds were _t264 (passes alone, rc 0), the 90s sweep cap (suite: "NOT a regression") and _t544 (could not measure under the calibration load; green alone at 23:00Z)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'job 025 done (rc 0) — Watchtower restarted on our re-applied web fixes; _t568 live card probe PASS'
+    source: git-mined
+  - description: 'four of the five red bridge legs fixed at cause — _t842 calls the predicate with the hook''s context (AEF T-4108 needs it; 19/19); _t1149-triage-check wired as a standing guard (unwired ratchet back to baseline but _t1168, wired by T-1168); Why-you lines on T-1151/T-1165; _t525 flaky (8/8 on rerun, T-1166''s class); _t568: Watchtower was restarted before our web fixes were re-applied, so runme job 025 restarts it (dry-run 2/2); learning'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - '.context/runme/025-restart-watchtower-local-fixes/done'
+  - '.context/runme/025-restart-watchtower-local-fixes/dryrun.ok'
+  - '.context/runme/025-restart-watchtower-local-fixes/job.sh'
+  - '.context/runme/025-restart-watchtower-local-fixes/run-20261013T230951.log'
+  - '.tasks/active/T-1151-decide-should-832-mint-and-sign-with-its.md'
+  - '.tasks/active/T-1165-rule-dialect-axis-add-a-conventional-cla.md'
+  - '.tasks/active/T-1169-bridge-suite-5-legs-red-after-todays-aef.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t842-commit-exemption-spelling-regression.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-13T21:55:43'
+    action: 'T-1169: four of the five red bridge legs fixed at cause — _t842 calls the predicate with the hook''s context (AEF T-4108 needs it; 19/19); _t1149-triage-check wired as a standing guard (unwired ratchet back to baseline but _t1168, wired by T-1168); Why-you lines on T-1151/T-1165; _t525 flaky (8/8 on rerun, T-1166''s class); _t568: Watchtower was restarted before our web fixes were re-applied, so runme job 025 restarts it (dry-run 2/2); learning'
+  - time: '2026-10-13T23:10:42'
+    action: 'T-1169: job 025 done (rc 0) — Watchtower restarted on our re-applied web fixes; _t568 live card probe PASS'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 192 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 192
+  commits: 3
+  files_changed: 12
+  lines_added: 461
+  lines_removed: 12
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1169-bridge-suite-5-legs-red-after-todays-aef.md
+generated_by: context-agent-hybrid

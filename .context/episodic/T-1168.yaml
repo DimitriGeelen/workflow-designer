@@ -1,0 +1,332 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1168: Activities-only step numbers in node ids (T-1094 GO, option 2), with a one-time migration of task-lifecycle's node ids
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-13T23:03:12Z
+# ============================================================================
+
+task_id: T-1168
+task_name: "Activities-only step numbers in node ids (T-1094 GO, option 2), with a one-time migration of task-lifecycle's node ids"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T19:07:59Z
+completed: 2026-10-13T23:02:41Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-13T22:05:25+02:00
+last_commit: 2026-10-13T23:19:22+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  activities-only step numbers in node ids (T-1094 GO, option 2) — computeDisplayId numbers activities 1..n per lane, events/gateways carry a type word (start|end|gw|link|error|timer|message|ev, _2 for a same-word-same-slug twin); one-time migration by NAME: 256 ids in the 24-map corpus renamed in place (no other bytes; old->new map in docs/reports/T-1168-node-id-map.md, for AEF), task-lifecycle positions in lib/instance-position.sh + update-task.sh, current_node in 183 task records (0 dangling), teeth/CDP/py tests and docs (schema.md, forward-compile standard, field hint); _t1168 CDP test 10/10 incl. Greenfield's map (Salesforce sal_1, sal_2, sal_gw_tegelijk, sal_3, sal_4), 4 red on the old designer; instance teeth 16/10/17/18/14; _t517 OK. suite fallout from the id change, each fixed at its cause — third-party goldens re-recorded (11 files, every changed line differs only in node ids, checked line by line); corpus trailer: the rename moved the 24 legacy docs' shas off the T-361 ledger, which by design puts them under the live rule, so their false DI comment ('AEF generates it from node coordinates') is replaced by the approved one (none carries DI, so it is true); _t1067 finds the 'Ready' end event by hum_end_ready or the pre-T-1168 badge its control editor shows; _t600 L7 restated (T-1068 re-wraps colliding blocks on purpose; L7 now: still a wrapped block, no word lost; self-test 4 legs failable); _t1129 E compares with node ids masked (field values still byte-equal to 0.17.0); T-1094 related_tasks [T-1168] (T-949 coverage). _t1168-node-id-map.mjs --check wired as a standing guard (corpus ids == designer ids; 24/24) so the one-shot migration tool is not an unwired guard; T1013 runner accepts arguments after the tool name
+
+# Key outcomes
+outcomes:
+  - '`computeDisplayId` implements the scheme; a test proves it on Greenfield''s after-owner-straightened.bpmn: every lane''s activity ids read 1..n with 0 gaps, and no event or gateway id carries a number — tools/_t1168-step-numbers-verify-cdp.mjs 10/10 with T1168_EXTRA_MAP=Greenfield''s map (Salesforce sal_1, sal_2, sal_gw_tegelijk, sal_3, sal_4; Verkoper ver_start_lead, ver_1_lead...); the map is not committed (theirs), the committed legs use task-lifecycle and boundary-events; 4 legs red on the old designer'
+  - 'A map saved with the new ids imports and re-exports byte-identically; `_t358` (determinism) and `_t364` (tie rule) green, their expectations updated only where an exact id is pinned — round-trip leg per map in _t1168; _t358 third-party goldens re-recorded, every changed line differs only in node ids (checked line by line, 11 files)'
+  - 'task-lifecycle''s node ids migrated once, by name: lib/instance-position.sh, update-task.sh, every task record''s `current_node`, the 5 teeth (_t880, _t881, _t882, _t883, _t923); 0 records name an id missing from task-lifecycle.bpmn; the teeth green; .vendor-divergence.yaml updated — a09c7e72; 183 records, 0 dangling; teeth 16/10/17/18/14; _t517 OK (instance-position.sh reclassified content, with why)'
+  - 'The committed rendered corpus is regenerated wherever a test compares exported bytes, and the old->new id map for every changed map is written to docs/reports/T-1168-node-id-map.md (for AEF, with the release) — renamed in place, 256 ids in 24 maps (re-baking would have carried unrelated exporter drift); their false DI trailer replaced by the approved one (T-361 ledger rule); `_t1168-node-id-map.mjs --check` wired as a standing guard (24/24)'
+  - 'The bridge suite shows no failure that the pre-change baseline did not have — baseline 269/5; after the change 267/9, the 7 new each fixed at cause (e5cb60dd); third run 274/3 with none of them: _t264 passes alone, the sweep''s 90s cap is flagged by the suite as not a regression, _t544 could not measure under calibration load and is green alone'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'suite fallout from the id change, each fixed at its cause — third-party goldens re-recorded (11 files, every changed line differs only in node ids, checked line by line); corpus trailer: the rename moved the 24 legacy docs'' shas off the T-361 ledger, which by design puts them under the live rule, so their false DI comment (''AEF generates it from node coordinates'') is replaced by the approved one (none carries DI, so it is true); _t1067 finds the ''Ready'' end event by hum_end_ready or the pre-T-1168 badge its control editor shows; _t600 L7 restated (T-1068 re-wraps colliding blocks on purpose; L7 now: still a wrapped block, no word lost; self-test 4 legs failable); _t1129 E compares with node ids masked (field values still byte-equal to 0.17.0); T-1094 related_tasks [T-1168] (T-949 coverage)'
+    source: git-mined
+  - description: 'activities-only step numbers in node ids (T-1094 GO, option 2) — computeDisplayId numbers activities 1..n per lane, events/gateways carry a type word (start|end|gw|link|error|timer|message|ev, _2 for a same-word-same-slug twin); one-time migration by NAME: 256 ids in the 24-map corpus renamed in place (no other bytes; old->new map in docs/reports/T-1168-node-id-map.md, for AEF), task-lifecycle positions in lib/instance-position.sh + update-task.sh, current_node in 183 task records (0 dangling), teeth/CDP/py tests and docs (schema.md, forward-compile standard, field hint); _t1168 CDP test 10/10 incl. Greenfield''s map (Salesforce sal_1, sal_2, sal_gw_tegelijk, sal_3, sal_4), 4 red on the old designer; instance teeth 16/10/17/18/14; _t517 OK'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/lib/instance-position.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - 'docs/designer/schema.md'
+  - 'docs/reports/T-1168-node-id-map.md'
+  - 'docs/standards/aef-bpmn-forward-compile-v1.md'
+  - 'examples/aef-processes/rendered/arc-lifecycle.bpmn'
+  - 'examples/aef-processes/rendered/assumption-validation.bpmn'
+  - 'examples/aef-processes/rendered/audit-process.bpmn'
+  - 'examples/aef-processes/rendered/context-memory.bpmn'
+  - 'examples/aef-processes/rendered/cross-host-dispatch.bpmn'
+  - 'examples/aef-processes/rendered/error-escalation-ladder.bpmn'
+  - 'examples/aef-processes/rendered/fabric-blast-radius.bpmn'
+  - 'examples/aef-processes/rendered/git-commit-flow.bpmn'
+  - 'examples/aef-processes/rendered/harvest-pipeline.bpmn'
+  - 'examples/aef-processes/rendered/healing-loop.bpmn'
+  - 'examples/aef-processes/rendered/inception-lifecycle.bpmn'
+  - 'examples/aef-processes/rendered/inception-review.bpmn'
+  - 'examples/aef-processes/rendered/promotion-pipeline.bpmn'
+  - 'examples/aef-processes/rendered/release-pipeline.bpmn'
+  - 'examples/aef-processes/rendered/resume-status.bpmn'
+  - 'examples/aef-processes/rendered/review-emission.bpmn'
+  - 'examples/aef-processes/rendered/revisit-due-scan.bpmn'
+  - 'examples/aef-processes/rendered/session-capture.bpmn'
+  - 'examples/aef-processes/rendered/session-handover.bpmn'
+  - 'examples/aef-processes/rendered/task-gate.bpmn'
+  - 'examples/aef-processes/rendered/task-lifecycle.bpmn'
+  - 'examples/aef-processes/rendered/tier0-escalation.bpmn'
+  - 'examples/aef-processes/rendered/upgrade-process.bpmn'
+  - 'examples/aef-processes/rendered/verification-gate.bpmn'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1065-triage-the-60-rulings-and-inception-plac.md'
+  - '.tasks/active/T-1073-answer-ring20-managers-t-2250-orchestrat.md'
+  - '.tasks/active/T-1107-permanent-cross-hub-credential-model-for.md'
+  - '.tasks/active/T-1115-sidecar-delivery-to-a-non-injectable-age.md'
+  - '.tasks/active/T-1127-element-detail-view-clicking-an-element-.md'
+  - '.tasks/active/T-1136-calibration-maps-warehouse-lane-breaks-a.md'
+  - '.tasks/active/T-1139-aef-bug-fw-watchtower-current-and-the-au.md'
+  - '.tasks/active/T-1168-activities-only-step-numbers-in-node-ids.md'
+  - '.tasks/active/T-347-content-inside-an-accepted-element-is-si.md'
+  - '.tasks/active/T-826-emit-the-diagram-kind-marker-the-resolvi.md'
+  - '.tasks/active/T-884-the-designer-shows-where-an-instance-is-.md'
+  - '.tasks/active/T-895-migrate-67-lane-authority-values-onto-el.md'
+  - '.tasks/active/T-896-put-the-authority-ruling-to-aef-one-sema.md'
+  - '.tasks/active/T-962-t-309-slice-3-show-findings-on-the-map--.md'
+  - '.tasks/active/T-986-define-project-objectives.md'
+  - '.tasks/completed/T-1005-re-vendor-step-3-for-17740-re-apply-or-r.md'
+  - '.tasks/completed/T-1006-learning-ledger-a-lesson-is-confirmed-by.md'
+  - '.tasks/completed/T-1007-consumer-intake-our-watchtower-serves-de.md'
+  - '.tasks/completed/T-1009-upstream-pickup-bundles-for-aef-t-931-st.md'
+  - '.tasks/completed/T-1010-aef-as-a-standing-design-partner-aef-own.md'
+  - '.tasks/completed/T-1012-f1-vsdlcenablement-scoring-spec-fires-on.md'
+  - '.tasks/completed/T-1013-bridge-leg-red-unwired-guard-ratchet-dri.md'
+  - '.tasks/completed/T-1014-bridge-leg-red-absence-assertion-census-.md'
+  - '.tasks/completed/T-1015-bridge-leg-red-a-new-g-015-carrier-in-a-.md'
+  - '.tasks/completed/T-1016-bridge-leg-red-swallowed-failure-census-.md'
+  - '.tasks/completed/T-1017-bridge-leg-red-round-trip-serialization-.md'
+  - '.tasks/completed/T-1018-bridge-leg-red-editor-bridge-semantic-fi.md'
+  - '.tasks/completed/T-1019-bridge-leg-red-aefmeta-carriage-and-brid.md'
+  - '.tasks/completed/T-1020-census-local-fixes-to-vendored-files-tha.md'
+  - '.tasks/completed/T-1021-upstream-bundle-e-for-aef-the-5-generic-.md'
+  - '.tasks/completed/T-1022-hand-the-operator-the-bare-import-gate-e.md'
+  - '.tasks/completed/T-1023-drift-gate-no-longer-sees-the-task-of-fw.md'
+  - '.tasks/completed/T-1024-re-redact-this-hosts-machine-id-in-the-v.md'
+  - '.tasks/completed/T-1025-restore-fw-fabric-impact-on-string-depen.md'
+  - '.tasks/completed/T-1026-restore-the-observable-hypothesis-requir.md'
+  - '.tasks/completed/T-1027-restore-fw-note-promote-recording-the-cr.md'
+  - '.tasks/completed/T-1028-restore-fw-note-resolve-for-observations.md'
+  - '.tasks/completed/T-1029-facts-for-the-operators-rotation-decisio.md'
+  - '.tasks/completed/T-1030-correct-t-1029-the-rotation-question-was.md'
+  - '.tasks/completed/T-1031-propose-to-aef-watchtower-secrets-from-t.md'
+  - '.tasks/completed/T-1032-answer-010-termlinks-t-3335-consults-hub.md'
+  - '.tasks/completed/T-1033-8-tasks-awaiting-human-review-have-no-re.md'
+  - '.tasks/completed/T-1034-mark-bundle-a-e-deliveries-in-the-diverg.md'
+  - '.tasks/completed/T-1035-census-13-hook-fix-teeth-t-628t-662-fail.md'
+  - '.tasks/completed/T-1036-loop-detect-state-frozen-since-0857z-whi.md'
+  - '.tasks/completed/T-1037-restore-t-650-with-no-task-fw-git-commit.md'
+  - '.tasks/completed/T-1038-restore-t-662-the-null-focus-block-names.md'
+  - '.tasks/completed/T-1039-repair-the-13-hook-fix-teeth-so-all-run-.md'
+  - '.tasks/completed/T-1040-bundle-f-for-aef-t-3814-t-1037-alias-adm.md'
+  - '.tasks/completed/T-1042-release-immutability-test-g-007-is-red-r.md'
+  - '.tasks/completed/T-1043-instrument-sweep-t509-red-the-workflow-k.md'
+  - '.tasks/completed/T-1044-instrument-sweep-5-more-stale-teeth-insi.md'
+  - '.tasks/completed/T-1045-instrument-sweep-exits-3-incomplete-t402.md'
+  - '.tasks/completed/T-1046-local-session-start-alertssh-list-peer-m.md'
+  - '.tasks/completed/T-1047-task-gate-blocks-scriptssession-start-al.md'
+  - '.tasks/completed/T-1048-thumbnails-on-the-workflow-design-overvi.md'
+  - '.tasks/completed/T-1049-upgrade-vendored-aef-17740---182-t-1000-.md'
+  - '.tasks/completed/T-1050-runme-wake-up-link-dies-with-the-session.md'
+  - '.tasks/completed/T-1051-t549-fabric-coverage-teeth-exceed-the-90.md'
+  - '.tasks/completed/T-1052-rca-two-live-claude-processes-ran-the-sa.md'
+  - '.tasks/completed/T-1053-commit-task-state-the-framework-wrote-af.md'
+  - '.tasks/completed/T-1054-adopt-aef-fw-runme-for-832-operator-comm.md'
+  - '.tasks/completed/T-1055-build-the-runme-launcher-t-1054-option-3.md'
+  - '.tasks/completed/T-1056-stop-the-second-832-agent-claude--n-flee.md'
+  - '.tasks/completed/T-1057-upgrade-vendored-aef-182---183-t-1000-pr.md'
+  - '.tasks/completed/T-1058-send-aef-a-post-upgrade-report-for-183-a.md'
+  - '.tasks/completed/T-1059-retire-832-stopgaps-superseded-by-aef-18.md'
+  - '.tasks/completed/T-1060-bridge-reds-that-pass-alone-a-probe-that.md'
+  - '.tasks/completed/T-1061-the-other-24-load-cdp-probes-still-race-.md'
+  - '.tasks/completed/T-1062-approvals-page-shows-only-defer-items-go.md'
+  - '.tasks/completed/T-1066-a-new-review-human-ac-must-say-why-it-ne.md'
+  - '.tasks/completed/T-1067-t-600s-label-wrap-never-fires-for-the-la.md'
+  - '.tasks/completed/T-1068-t-601-lane-aware-labels-defaultbelow-pla.md'
+  - '.tasks/completed/T-1069-t-893-authority-marker-collides-with-the.md'
+  - '.tasks/completed/T-1074-licence-check-of-the-five-omg-bpmn-20-sc.md'
+  - '.tasks/completed/T-1075-budget-critical-auto-handover-logged-fai.md'
+  - '.tasks/completed/T-1076-upgrade-vendored-aef-183---185-t-1000-pr.md'
+  - '.tasks/completed/T-1077-standing-directive-review-routing-defers.md'
+  - '.tasks/completed/T-1078-advisory-banners-overlay-the-canvas-with.md'
+  - '.tasks/completed/T-1079-align-832s-routing-checks-with-the-aef-r.md'
+  - '.tasks/completed/T-1080-at-the-next-framework-upgrade-v186-call-.md'
+  - '.tasks/completed/T-1081-t628-g020-remedy-reachablesh-fails-insid.md'
+  - '.tasks/completed/T-1082-upgrade-vendored-aef-185---186-t-1000-pr.md'
+  - '.tasks/completed/T-1083-greenfield-messages-read-and-answer-chec.md'
+  - '.tasks/completed/T-1084-make-the-bpmn-fetch-832-file-receiver-pe.md'
+  - '.tasks/completed/T-1085-pickup-to-aef-offer-832s-runme-launcher-.md'
+  - '.tasks/completed/T-1086-follow-up-to-aef-pickup-c24521a0-incepti.md'
+  - '.tasks/completed/T-1087-session-start-mail-check-also-reads-gree.md'
+  - '.tasks/completed/T-1088-greenfield-t-172-2-lane-abbreviations-un.md'
+  - '.tasks/completed/T-1089-greenfield-t-172-5-save-of-a-loaded-map-.md'
+  - '.tasks/completed/T-1090-greenfield-t-172-1-routing-rule-from-the.md'
+  - '.tasks/completed/T-1092-greenfield-t-172-6-review-their-patch-sh.md'
+  - '.tasks/completed/T-1094-greenfield-t-172-2b-step-numbers-in-node.md'
+  - '.tasks/completed/T-1095-read-greenfields-iterations-4-8-evergree.md'
+  - '.tasks/completed/T-1096-designer-keeps-bpmn-collaboration-conten.md'
+  - '.tasks/completed/T-1104-upgrade-the-framework-aef-186-to-187-via.md'
+  - '.tasks/completed/T-1105-release-designer-0160-t-1088-lane-abbr-t.md'
+  - '.tasks/completed/T-1106-greenfield-hub-credential-stopgap-runme-.md'
+  - '.tasks/completed/T-1108-sidecar-mail-sat-7-min-unseen-this-backg.md'
+  - '.tasks/completed/T-1109-greenfield-0160-re-test-a-same-origin-lo.md'
+  - '.tasks/completed/T-1110-greenfield-0160-re-test-mirror-l-option-.md'
+  - '.tasks/completed/T-1111-pickup-to-aef-832s-runme-job-queue-sever.md'
+  - '.tasks/completed/T-1112-runme-launcher-menu-shows-title-state-an.md'
+  - '.tasks/completed/T-1113-answer-aef-t-4023-review-request-field-e.md'
+  - '.tasks/completed/T-1114-re-judge-the-amber-reviewer-rows-on-t-89.md'
+  - '.tasks/completed/T-1116-pickup-h-to-aef-sidecar-mail-watchsh--it.md'
+  - '.tasks/completed/T-1117-watchers-run-until-they-have-something-t.md'
+  - '.tasks/completed/T-1118-unknown-content-kinds-become-designer-fi.md'
+  - '.tasks/completed/T-1119-p1-keep-every-pool-its-process-and-the-m.md'
+  - '.tasks/completed/T-1120-p2-show-every-pool-on-the-canvas-read-on.md'
+  - '.tasks/completed/T-1121-release-designer-0170-p1p2-pools--messag.md'
+  - '.tasks/completed/T-1122-upgrade-the-framework-aef-188-to-189-t-4.md'
+  - '.tasks/completed/T-1123-inception-readiness-check-omits-the-go-h.md'
+  - '.tasks/completed/T-1124-b1-t-1118-properties-panel-hides-empty-f.md'
+  - '.tasks/completed/T-1125-b2-t-1118-field-profile-per-project-and-.md'
+  - '.tasks/completed/T-1126-b3-t-1118-suggest-as-a-field-on-unknown-.md'
+  - '.tasks/completed/T-1128-settings-choose-which-fields-show-by-def.md'
+  - '.tasks/completed/T-1129-optional-select-fields-agent-type-and-de.md'
+  - '.tasks/completed/T-1130-release-designer-0180-fields-populated-o.md'
+  - '.tasks/completed/T-1131-export-writes-a-sequenceflow-targetref-t.md'
+  - '.tasks/completed/T-1132-t-589-panel-links-test-went-stale-metake.md'
+  - '.tasks/completed/T-1133-release-designer-0190-suggest-as-a-field.md'
+  - '.tasks/completed/T-1134-field-settings-and-suggest-as-a-field-st.md'
+  - '.tasks/completed/T-1135-release-designer-0191-field-settings--su.md'
+  - '.tasks/completed/T-1137-process-a-feature-inceptions-hypothesis-.md'
+  - '.tasks/completed/T-1138-field-test-aef-bleeding-edge-ed683536a-v.md'
+  - '.tasks/completed/T-1140-rca-session-ended-mid-turn-at-the-budget.md'
+  - '.tasks/completed/T-1141-answer-aef-t-4123-estate-knowledge-platf.md'
+  - '.tasks/completed/T-1142-t631-leg-3-predates-aefs-no-dead-link-ti.md'
+  - '.tasks/completed/T-1143-t654-probe-task-has-an-empty-verificatio.md'
+  - '.tasks/completed/T-1144-untrack-the-991-mb-vector-index-contextw.md'
+  - '.tasks/completed/T-1145-guard-decision-hand-overs-a-watchtower-d.md'
+  - '.tasks/completed/T-1146-correct-the-991-mb-vector-index-committe.md'
+  - '.tasks/completed/T-1147-resolve-29-uncommitted-fabric-card-rewri.md'
+  - '.tasks/completed/T-1148-report-two-aef-tool-findings-fabric-enri.md'
+  - '.tasks/completed/T-1149-triage-the-138-pending-observations-oper.md'
+  - '.tasks/completed/T-1150-report-25-still-open-framework-findings-.md'
+  - '.tasks/completed/T-1155-designer-set-documenttitle-from-the-load.md'
+  - '.tasks/completed/T-1167-upgrade-aef-bleeding-edge-ed683536a-to-1.md'
+  - '.tasks/completed/T-264-save-target-guard-set-id-field-collision.md'
+  - '.tasks/completed/T-341-an-unresolvable-flownoderef-silently-rea.md'
+  - '.tasks/completed/T-573-emits-panel-field-writes-a-scalar-where-.md'
+  - '.tasks/completed/T-601-side-placed-labels-have-no-pool-or-lane-.md'
+  - '.tasks/completed/T-681-ewcr-arc-holds-only-arc-0-and-every-task.md'
+  - '.tasks/completed/T-708-ra-012-ctl-029-two-stuck-partial-complet.md'
+  - '.tasks/completed/T-785-the-bridge-baseline-is-red-isolate-and-f.md'
+  - '.tasks/completed/T-880-an-instance-record-exists-and-can-be-cre.md'
+  - '.tasks/completed/T-883-the-three-v7-refusals-each-land-in-the-a.md'
+  - '.tasks/completed/T-885-the-round-trip-guard-roundtrip-serializa.md'
+  - '.tasks/completed/T-889-aefmeta-authority-on-the-element--the-si.md'
+  - '.tasks/completed/T-919-obs-351-subject-t-706--ra-010-2026-09-16.md'
+  - '.tasks/completed/T-923-the-framework-is-the-writer-update-tasks.md'
+  - '.tasks/completed/T-925-toolsyaml-to-bpmnpy-drops-document-level.md'
+  - '.tasks/completed/T-931-ownership-follows-open-human-criteria-ow.md'
+  - '.tasks/completed/T-933-refresh-the-operator-decision-docket-and.md'
+  - '.tasks/completed/T-934-the-unit-suite-check-warns-in-every-vend.md'
+  - '.tasks/completed/T-936-a-leaked-python-heredoc-runs-imagemagick.md'
+  - '.tasks/completed/T-937-why-do-agents-generate-operator-decision.md'
+  - '.tasks/completed/T-938-an-encrypted-api-key-is-committed-and-pu.md'
+  - '.tasks/completed/T-939-the-host-machine-id-is-committed-in-a-ke.md'
+  - '.tasks/completed/T-940-the-render-gate-blocks-the-release-t-884.md'
+  - '.tasks/completed/T-941-t-884s-apiinstances-was-never-added-to-t.md'
+  - '.tasks/completed/T-942-t-884s-apiinstances-the-four-remaining-s.md'
+  - '.tasks/completed/T-943-p-011-cannot-tell-a-missing-verification.md'
+  - '.tasks/completed/T-945-restore-the-vendor-divergence-delivery-s.md'
+  - '.tasks/completed/T-949-triage-the-27-go-recorded-inceptions-who.md'
+  - '.tasks/completed/T-950-correct-the-t-949-triage-t-263s-slice-wa.md'
+  - '.tasks/completed/T-951-assert-the-stem--workflowmetaid-invarian.md'
+  - '.tasks/completed/T-952-give-run-bridge-testssh-a-scheduled-call.md'
+  - '.tasks/completed/T-953-emit-aefworkflowmeta-from-yaml-to-bpmnpy.md'
+  - '.tasks/completed/T-954-make-the-spent-decision-script-refuse-to.md'
+  - '.tasks/completed/T-955-t-309-slice-1-apivalidate-endpoint-so-th.md'
+  - '.tasks/completed/T-956-record-the-operators-process-maturity-mo.md'
+  - '.tasks/completed/T-957-hand-t-925-closure-over-as-a-runmesh--i-.md'
+  - '.tasks/completed/T-958-classify-post-apivalidate-in-the-boundar.md'
+  - '.tasks/completed/T-959-t-925s-verification-block-asserts-the-pr.md'
+  - '.tasks/completed/T-960-housekeeping-commit-t-959-close-artefact.md'
+  - '.tasks/completed/T-961-t-309-slice-2-the-designer-can-reach-the.md'
+  - '.tasks/completed/T-973-apisave-returns-validator-findings-advis.md'
+  - '.tasks/completed/T-974-vendor-authoring-kit-released-beside-the.md'
+  - '.tasks/completed/T-975-external-review-of-the-authoring-kit-by-.md'
+  - '.tasks/completed/T-977-e-xml-gw-outgoing-refuses-the-standard-b.md'
+  - '.tasks/completed/T-978-w-xml-disconnected-and-w-xml-deadend-mes.md'
+  - '.tasks/completed/T-980-rca-why-the-peer-consult-sidecar-never-w.md'
+  - '.tasks/completed/T-982-agent-led-map-generation-with-an-iterati.md'
+  - '.tasks/completed/T-983-b1-t-982-the-review-loop-ships-in-the-au.md'
+  - '.tasks/completed/T-999-project-owned-audit-extension-restore-th.md'
+  - 'tests/goldens/third-party/aef-draft-inception-readiness-v2.bpmn.golden'
+  - 'tests/goldens/third-party/bizagi-nested-ns.bpmn.golden'
+  - 'tests/goldens/third-party/boundary-events.bpmn.golden'
+  - 'tests/goldens/third-party/caseagile-local-ns.bpmn.golden'
+  - 'tests/goldens/third-party/collaboration-message-flows.bpmn.golden'
+  - 'tests/goldens/third-party/i18n-documentation.bpmn.golden'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/goldens/third-party/nested-subprocesses.bpmn.golden'
+  - 'tests/goldens/third-party/simple.bpmn.golden'
+  - 'tests/goldens/third-party/zeebe-service-task.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_gallery_instances_api.py'
+  - 'tests/test_t293_endpoint_reach.py'
+  - 'tools/_editor-behavior-verify-cdp.mjs'
+  - 'tools/README.md'
+  - 'tools/_t1067-side-label-wrap-cdp.mjs'
+  - 'tools/_t1078-advisory-overlap-cdp.mjs'
+  - 'tools/_t1129-optional-select-empty-cdp.mjs'
+  - 'tools/_t1168-node-id-map.mjs'
+  - 'tools/_t1168-step-numbers-verify-cdp.mjs'
+  - 'tools/_t293-endpoint-reach-cdp.mjs'
+  - 'tools/_t600-label-wrap.mjs'
+  - 'tools/_t880-instance-node-teeth.sh'
+  - 'tools/_t881-resolution-teeth.sh'
+  - 'tools/_t882-advance-teeth.sh'
+  - 'tools/_t883-refusal-audit-teeth.sh'
+  - 'tools/_t884-instance-overlay-cdp.mjs'
+  - 'tools/_t892-lane-default-cdp.mjs'
+  - 'tools/_t893-authority-marker-shots.mjs'
+  - 'tools/_t923-framework-writer-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-13T22:05:25'
+    action: 'T-1168: activities-only step numbers in node ids (T-1094 GO, option 2) — computeDisplayId numbers activities 1..n per lane, events/gateways carry a type word (start|end|gw|link|error|timer|message|ev, _2 for a same-word-same-slug twin); one-time migration by NAME: 256 ids in the 24-map corpus renamed in place (no other bytes; old->new map in docs/reports/T-1168-node-id-map.md, for AEF), task-lifecycle positions in lib/instance-position.sh + update-task.sh, current_node in 183 task records (0 dangling), teeth/CDP/py tests and docs (schema.md, forward-compile standard, field hint); _t1168 CDP test 10/10 incl. Greenfield''s map (Salesforce sal_1, sal_2, sal_gw_tegelijk, sal_3, sal_4), 4 red on the old designer; instance teeth 16/10/17/18/14; _t517 OK'
+  - time: '2026-10-13T22:44:25'
+    action: 'T-1168: suite fallout from the id change, each fixed at its cause — third-party goldens re-recorded (11 files, every changed line differs only in node ids, checked line by line); corpus trailer: the rename moved the 24 legacy docs'' shas off the T-361 ledger, which by design puts them under the live rule, so their false DI comment (''AEF generates it from node coordinates'') is replaced by the approved one (none carries DI, so it is true); _t1067 finds the ''Ready'' end event by hum_end_ready or the pre-T-1168 badge its control editor shows; _t600 L7 restated (T-1068 re-wraps colliding blocks on purpose; L7 now: still a wrapped block, no word lost; self-test 4 legs failable); _t1129 E compares with node ids masked (field values still byte-equal to 0.17.0); T-1094 related_tasks [T-1168] (T-949 coverage)'
+  - time: '2026-10-13T23:19:22'
+    action: 'T-1168: _t1168-node-id-map.mjs --check wired as a standing guard (corpus ids == designer ids; 24/24) so the one-shot migration tool is not an unwired guard; T1013 runner accepts arguments after the tool name'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 234 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 234
+  commits: 3
+  files_changed: 248
+  lines_added: 3027
+  lines_removed: 1687
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1168-activities-only-step-numbers-in-node-ids.md
+generated_by: context-agent-hybrid

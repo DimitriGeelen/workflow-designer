@@ -1,0 +1,197 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1173: Calibration maps: the Warehouse lane's second quote joins the source's line break (not verbatim) — GLM-5.3 on the 0.20.0 kit
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-13T23:01:19Z
+# ============================================================================
+
+task_id: T-1173
+task_name: "Calibration maps: the Warehouse lane's second quote joins the source's line break (not verbatim) — GLM-5.3 on the 0.20.0 kit"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T22:03:16Z
+completed: 2026-10-13T23:01:07Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-14T00:07:13+02:00
+last_commit: 2026-10-14T00:59:36+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  GLM-5.3's 0.20.0 calibration finding was right — the clean (and planted) map's Warehouse lane joined SOURCE.md's line break, so the quote was not verbatim; both maps fixed (clean: 25/25 quotes byte-for-byte; planted: only its planted fabricated citation differs). kit-calibration-gate record now moves an earlier build's rows into voided_runs instead of dropping them (it replaced the file; sandbox-tested); GLM's finding written on its row. Job 026 retired (codex PASS, GLM FAIL kept); job 027 re-calibrates the corrected kit with codex and GLM, dry-run 5/5. corrected 0.20.0 kit (ffa08c70) calibrated PASS by codex and GLM-5.3, 3/3 and 0 false each (job 027, rc 0); job 026's codex PASS and GLM FAIL kept as voided runs with GLM's finding; Antigravity pending (operator)
+
+# Key outcomes
+outcomes:
+  - 'Every `source:` quote in calibration/clean.bpmn is present byte-for-byte in calibration/SOURCE.md, and in planted.bpmn every one except the planted fabricated citation (expected.json defect 1, "The ERP sends a payment reminder after seven days.") — clean 25/25, planted 25/26 with exactly that one'
+  - 'The 0.20.0 calibration record keeps the codex PASS and the GLM FAIL (with its finding) as voided runs of the first kit build: kit-calibration-gate.py `record` now moves an earlier build''s rows into voided_runs instead of dropping them (it used to replace the file), tested in a sandbox; the GLM row carries its finding — and it did so live on job 027''s first record'
+  - 'A runme job calibrates the corrected kit with codex and GLM-5.3, dry-run clean (Antigravity is the operator''s run) — job 027 dry-run 5/5, run rc 0: codex PASS, GLM-5.3 PASS (3/3, 0 false each)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'GLM-5.3''s 0.20.0 calibration finding was right — the clean (and planted) map''s Warehouse lane joined SOURCE.md''s line break, so the quote was not verbatim; both maps fixed (clean: 25/25 quotes byte-for-byte; planted: only its planted fabricated citation differs). kit-calibration-gate record now moves an earlier build''s rows into voided_runs instead of dropping them (it replaced the file; sandbox-tested); GLM''s finding written on its row. Job 026 retired (codex PASS, GLM FAIL kept); job 027 re-calibrates the corrected kit with codex and GLM, dry-run 5/5'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/clean/agents.log'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/clean/kit/AUTHORING.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/clean/kit/CONFORMANCE.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/clean/kit/CORRECT.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/clean/kit/exemplar.bpmn'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/clean/kit/GENERATE.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/clean/kit/REVIEW.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/clean/kit/RUBRIC.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/clean/kit/validate-workflow.py'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/clean/LOOP.txt'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/clean/map.bpmn'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/clean/REVIEW.json'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/clean/SOURCE.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex.out'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/planted/agents.log'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/planted/kit/AUTHORING.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/planted/kit/CONFORMANCE.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/planted/kit/CORRECT.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/planted/kit/exemplar.bpmn'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/planted/kit/GENERATE.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/planted/kit/REVIEW.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/planted/kit/RUBRIC.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/planted/kit/validate-workflow.py'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/planted/LOOP.txt'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/planted/map.bpmn'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/planted/REVIEW.json'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-codex/planted/SOURCE.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/clean/agents.log'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/clean/kit/AUTHORING.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/clean/kit/CONFORMANCE.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/clean/kit/CORRECT.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/clean/kit/exemplar.bpmn'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/clean/kit/GENERATE.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/clean/kit/REVIEW.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/clean/kit/RUBRIC.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/clean/kit/validate-workflow.py'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/clean/LOOP.txt'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/clean/map.bpmn'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/clean/REVIEW.json'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/clean/SOURCE.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3.out'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/planted/agents.log'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/planted/kit/AUTHORING.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/planted/kit/CONFORMANCE.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/planted/kit/CORRECT.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/planted/kit/exemplar.bpmn'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/planted/kit/GENERATE.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/planted/kit/REVIEW.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/planted/kit/RUBRIC.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/planted/kit/validate-workflow.py'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/planted/LOOP.txt'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/planted/map.bpmn'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/planted/REVIEW.json'
+  - '.context/runme/026-calibrate-kit-0.20.0/calibrate-glm-5.3/planted/SOURCE.md'
+  - '.context/runme/026-calibrate-kit-0.20.0/retired'
+  - '.context/runme/026-calibrate-kit-0.20.0/run-20261013T235159.log'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/clean/agents.log'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/clean/kit/AUTHORING.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/clean/kit/CONFORMANCE.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/clean/kit/CORRECT.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/clean/kit/exemplar.bpmn'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/clean/kit/GENERATE.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/clean/kit/REVIEW.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/clean/kit/RUBRIC.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/clean/kit/validate-workflow.py'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/clean/LOOP.txt'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/clean/map.bpmn'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/clean/REVIEW.json'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/clean/SOURCE.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex.out'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/planted/agents.log'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/planted/kit/AUTHORING.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/planted/kit/CONFORMANCE.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/planted/kit/CORRECT.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/planted/kit/exemplar.bpmn'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/planted/kit/GENERATE.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/planted/kit/REVIEW.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/planted/kit/RUBRIC.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/planted/kit/validate-workflow.py'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/planted/LOOP.txt'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/planted/map.bpmn'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/planted/REVIEW.json'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-codex/planted/SOURCE.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/clean/agents.log'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/clean/kit/AUTHORING.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/clean/kit/CONFORMANCE.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/clean/kit/CORRECT.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/clean/kit/exemplar.bpmn'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/clean/kit/GENERATE.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/clean/kit/REVIEW.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/clean/kit/RUBRIC.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/clean/kit/validate-workflow.py'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/clean/LOOP.txt'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/clean/map.bpmn'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/clean/REVIEW.json'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/clean/SOURCE.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3.out'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/planted/agents.log'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/planted/kit/AUTHORING.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/planted/kit/CONFORMANCE.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/planted/kit/CORRECT.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/planted/kit/exemplar.bpmn'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/planted/kit/GENERATE.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/planted/kit/REVIEW.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/planted/kit/RUBRIC.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/planted/kit/validate-workflow.py'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/planted/LOOP.txt'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/planted/map.bpmn'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/planted/REVIEW.json'
+  - '.context/runme/027-recalibrate-kit-0.20.0/calibrate-glm-5.3/planted/SOURCE.md'
+  - '.context/runme/027-recalibrate-kit-0.20.0/done'
+  - '.context/runme/027-recalibrate-kit-0.20.0/dryrun.ok'
+  - '.context/runme/027-recalibrate-kit-0.20.0/job.sh'
+  - '.context/runme/027-recalibrate-kit-0.20.0/run-20261014T000848.log'
+  - 'docs/authoring-kit/calibration/clean.bpmn'
+  - 'docs/authoring-kit/calibration/planted.bpmn'
+  - 'docs/authoring-kit/calibration-records/0.20.0.yaml'
+  - '.tasks/active/T-1173-calibration-maps-the-warehouse-lanes-sec.md'
+  - 'tools/kit-calibration-gate.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-14T00:07:13'
+    action: 'T-1173: GLM-5.3''s 0.20.0 calibration finding was right — the clean (and planted) map''s Warehouse lane joined SOURCE.md''s line break, so the quote was not verbatim; both maps fixed (clean: 25/25 quotes byte-for-byte; planted: only its planted fabricated citation differs). kit-calibration-gate record now moves an earlier build''s rows into voided_runs instead of dropping them (it replaced the file; sandbox-tested); GLM''s finding written on its row. Job 026 retired (codex PASS, GLM FAIL kept); job 027 re-calibrates the corrected kit with codex and GLM, dry-run 5/5'
+  - time: '2026-10-14T00:59:36'
+    action: 'T-1173: corrected 0.20.0 kit (ffa08c70) calibrated PASS by codex and GLM-5.3, 3/3 and 0 false each (job 027, rc 0); job 026''s codex PASS and GLM FAIL kept as voided runs with GLM''s finding; Antigravity pending (operator)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 57 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 57
+  commits: 3
+  files_changed: 121
+  lines_added: 30930
+  lines_removed: 18
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1173-calibration-maps-the-warehouse-lanes-sec.md
+generated_by: context-agent-hybrid
