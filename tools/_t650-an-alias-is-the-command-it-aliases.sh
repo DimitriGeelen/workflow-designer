@@ -114,7 +114,11 @@ PAIRS=(
   # minutes after the first. Pairs are cheap; that is the argument for keeping this a
   # table rather than a test per alias.
   'git commit -m "T-1: x"|fw git commit -m "T-1: x"'
-  'git commit -m "T-1: x"|bin/fw git commit -m "T-1: x"'
+  # T-1167: was `bin/fw git commit`. Since AEF 1146a7450 (T-4108) a relative launcher is admitted
+  # only when it resolves, from the shell's cwd, to this project's own fw; 832 (and this sandbox)
+  # has no bin/fw, so that spelling is now refused on purpose (asserted below). This project's
+  # real spelling is the vendored launcher.
+  'git commit -m "T-1: x"|.agentic-framework/bin/fw git commit -m "T-1: x"'
 )
 for pair in "${PAIRS[@]}"; do
     TARGET="${pair%%|*}"; ALIAS="${pair##*|}"
@@ -126,6 +130,12 @@ for pair in "${PAIRS[@]}"; do
     fi
     [ "$VT" = "ADMIT" ] || bad "the exempt TARGET itself was blocked ($VT) — T-390 regressed"
 done
+# T-1167: upstream T-4108 — a launcher that is not this project's own fw is not a commit.
+if [ "$(verdict 'bin/fw git commit -m "T-1: x"')" = "BLOCK" ]; then
+    ok "a relative bin/fw that is not this project's launcher is refused (AEF T-4108)"
+else
+    bad "bin/fw git commit admitted in a project with no bin/fw — T-4108's own-launcher check is gone"
+fi
 
 # ---------------------------------------------------------------------------
 echo "--- the reported symptom is gone"

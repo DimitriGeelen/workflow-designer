@@ -284,11 +284,12 @@ entries:
       T-650 (3032e3e2) re-applied by T-1037 after the T-1035 census found it lost on 1.7.740 (T-1005
       had restored only its prose-verb half). With no active task, an alias is admitted exactly when
       the command it aliases is: `fw fix-learned` (it execs `fw context add-learning`) joins the fw
-      no-task allowlist, and `fw git commit` (bare `fw`, `bin/fw`, `.agentic-framework/bin/fw` or an
-      absolute `/…/.agentic-framework/bin/fw`, never another path ending in fw) is the same clause as
-      `git commit` in _fw_is_git_commit_clause, so every is_commit_checkpoint_command guard
-      (substitution, --no-verify/-n, write patterns, per-clause safety) still applies. Probe
-      tools/_t650-an-alias-is-the-command-it-aliases.sh 16/16 (10/16 on the 1.7.740 file), bridge leg.
+      no-task allowlist. The `fw git commit` half (same clause as `git commit` in
+      _fw_is_git_commit_clause) is UPSTREAM since AEF 1146a7450 (T-3814 + T-4108: a relative launcher
+      resolved against the shell's cwd, an absolute one only when it is this project's own fw), which
+      is stricter than ours, so T-1167 took upstream's clause and dropped ours. Still local here: the
+      fix-learned alias, the session-start-alerts admission (T-1047) and the prose-verb rule (T-636).
+      Probe tools/_t650-an-alias-is-the-command-it-aliases.sh, bridge leg.
   - path: .agentic-framework/lib/arc.sh
     kind: content
     task: T-1005
