@@ -47,7 +47,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T10:19:27Z
-last_update: 2026-10-13T10:54:18Z
+last_update: 2026-10-13T10:55:58Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -95,9 +95,9 @@ skips it, a bare Watchtower URL in the reply. Upstream: pickup to AEF to put the
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A Stop hook reads the last assistant message; for each Watchtower decision link in it (`/inception/T-XXX`, `/review/T-XXX`) it runs `inception_handoff_blockers` on that task and, when any task has blockers, blocks the stop with the task id and the blockers
-- [ ] A reply without such links, or whose linked tasks are ready (or not inceptions), passes untouched; the hook fails OPEN (never blocks) when it cannot read the transcript or the task, and says so on stderr
-- [ ] A test drives the hook with fixture transcripts: unready inception link → blocked naming the blocker; ready inception → passes; no link → passes; unreadable transcript → passes with a warning; teeth: the blocker check removed → the unready case passes, the test goes red
+- [x] A Stop hook reads the last assistant message; for each Watchtower decision link in it (`/inception/T-XXX`, `/review/T-XXX`) it runs `inception_handoff_blockers` on that task and, when any task has blockers, blocks the stop with the task id and the blockers — `tools/hooks/guard-decision-handover.py` (0b0216cd); live: blocks a reply naming T-1094 ("IW-1 disposition=false"), passes T-1127 (not an inception)
+- [x] A reply without such links, or whose linked tasks are ready (or not inceptions), passes untouched; the hook fails OPEN (never blocks) when it cannot read the transcript or the task, and says so on stderr — plus one block per stop chain (`stop_hook_active`), so a reply that must name the link cannot loop
+- [x] A test drives the hook with fixture transcripts: unready inception link → blocked naming the blocker; ready inception → passes; no link → passes; unreadable transcript → passes with a warning; teeth: the blocker check removed → the unready case passes, the test goes red — `tests/test_t1145_decision_handover_guard.py` 10/10 (also: /review/ link, earlier-turn link, task not active, last_assistant_message), bridge-wired as an orphan leg
 - [ ] Registered in `.claude/settings.json` and listed in `.vendor-divergence.yaml` if it touches vendored files; the enforcement baseline refreshed if `fw doctor` requires it
 - [x] Pickup sent to AEF (sidecar, delivery RECEIVED) proposing the rule for the framework workflow; message id recorded here — c69abf0f-e9d8-4f2f-af43-be7900cf403c, conversation decision-handover-readiness (2026-10-13): rule (links only via fw task review), Stop hook (832 patch to follow), scaffold sections on --type inception
 
@@ -262,6 +262,9 @@ skips it, a bare Watchtower URL in the reply. Upstream: pickup to AEF to put the
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+python3 tests/test_t1145_decision_handover_guard.py
+grep -q "guard-decision-handover.py" .claude/settings.json
+grep -q "test_t1145_decision_handover_guard.py" tests/run-bridge-tests.sh
 
 ## RCA
 
