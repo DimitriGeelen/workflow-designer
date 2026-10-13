@@ -56,14 +56,21 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Operator decision (2026-10-14): open the map INLINE in a Watchtower page, with a fullscreen toggle that goes
+fullscreen and comes back, the same as the component fabric browser (fabric_explorer.html toggleFullscreen: the
+browser Fullscreen API on the content area, a ⛶ button that turns into ✖, Esc also leaves, and the button follows
+the fullscreenchange event). Today the card's "Open in editor" goes to /designer/app, the bare designer bundle as
+the whole tab (web/blueprints/designer.py), so Watchtower's navigation is gone. Vendored Watchtower code: these are
+832-local changes to declare in .vendor-divergence.yaml (offer upstream to AEF afterwards).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] A Watchtower page (base layout, normal navigation) shows the designer for a map inline, in a frame filling the rest of the viewport; it keeps /designer/app's deep-link and the T-2596/T-2599 load nonce
+- [ ] A fullscreen button (⛶) puts the designer area into browser fullscreen and turns into ✖; ✖ or Esc returns to the Watchtower page with its navigation, and the button follows (fullscreenchange), as in the fabric browser
+- [ ] The landing cards' "Open in editor" goes to the inline page and still mints its click-time nonce (T-2596); /designer/app keeps working on its own (old links, the blank editor)
+- [ ] A test proves the inline page renders with the navigation and the frame, and that a card link points at it with the nonce; screenshots of the inline page and of fullscreen are read
+- [ ] .vendor-divergence.yaml declares the changed vendored files; tools/_t517 OK
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -306,6 +313,13 @@ date_finished: null
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-10-14 — how to get back to Watchtower
+- **Chose:** inline in a Watchtower page with a fullscreen toggle, as the fabric browser does (operator).
+- **Why:** you never leave Watchtower, and fullscreen gives the designer the whole screen when wanted, with one
+  click (or Esc) back; it reuses a pattern the operator already knows from the fabric browser.
+- **Rejected:** a new tab (tabs pile up), a back link in the designer toolbar (the designer still replaces
+  Watchtower), the plain Watchtower bar without fullscreen (less room for the map).
 
 ## Decision
 
