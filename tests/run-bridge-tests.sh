@@ -3073,6 +3073,7 @@ T1013_GUARDS=(
   'tools/_t886-writer-mutation.py|mutation teeth for the round-trip guard (suppresses each writer attribute, expects red)'
   'tools/_t892-lane-default-cdp.mjs|CDP regression: the lane Authoring default never re-stamps nodes'
   'tools/_t911-kind-badge-verify-cdp.mjs|CDP regression: workflowMeta/@kind settable and visible (writes .playwright-mcp/t911-panel-kind-select.png)'
+  'tools/_t1155-doc-title-verify-cdp.mjs|CDP regression: tab title and XML heading name the open map, across load, switch and rename (T-1155)'
 )
 for _entry in "${T1013_GUARDS[@]}"; do
   _tool="${_entry%%|*}"; _tool="${_tool#tools/}"; _why="${_entry#*|}"

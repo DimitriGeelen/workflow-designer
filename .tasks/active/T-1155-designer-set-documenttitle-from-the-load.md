@@ -1,13 +1,19 @@
 ---
 id: T-1155
-name: "Designer: set document.title from the loaded document (tab title hardcoded to investigate.bpmn)"
+name: "Designer: set document.title from the loaded document (tab title hardcoded
+  to investigate.bpmn)"
 description: >
-  Promoted from OBS-371 by T-1149 (observation triage, 2026-10-13). Re-measured: src/aef-workflow-designer.html:6 still has the hardcoded `<title>AEF Workflow Designer — investigate.bpmn</title>`, and `grep -c document.title` returns 0. The only mentions are T-789 (the finding's origin), a T-802 table row that points back at the inbox, and a VALUE-REVIEW report. Original observation text is in .context/inbox.yaml under OBS-371.
+  Promoted from OBS-371 by T-1149 (observation triage, 2026-10-13). Re-measured: src/aef-workflow-designer.html:6
+  still has the hardcoded `<title>AEF Workflow Designer — investigate.bpmn</title>`,
+  and `grep -c document.title` returns 0. The only mentions are T-789 (the finding's
+  origin), a T-802 table row that points back at the inbox, and a VALUE-REVIEW report.
+  Original observation text is in .context/inbox.yaml under OBS-371.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
-horizon: later
+horizon: now
 tags: [observations]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:20:58Z
-last_update: 2026-10-13T16:20:58Z
-date_finished: null
+last_update: 2026-10-13T18:45:19Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,51 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-13T18:45:19Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=3 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L1:keyword=workflow designer)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1155: Designer: set document.title from the loaded document (tab title hardcoded to investigate.bpmn)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+OBS-371 (T-789, 2026-09-22), still true on 2026-10-13: the designer's tab title is the literal
+`AEF Workflow Designer — investigate.bpmn` (src/aef-workflow-designer.html:6) and nothing assigns
+`document.title`, so every map's tab says investigate.bpmn. The XML panel heading (:1856) hard-codes the same
+name. A map's file is `<workflowMeta.id>.bpmn` (rendered/<id>.bpmn, export `${id}.v${v}.bpmn`).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The tab title reads `AEF Workflow Designer — <id>.bpmn` for the map that is open, after a load and after an in-place switch to another map — updateDocumentTitle() called from renderAll(); test steps 1-4 (audit-process, git-commit-flow, loadFromLibrary switch)
+- [x] Renaming the map id in the properties panel updates the tab title and the XML panel heading — called from renameActiveWorkflow (a rename re-renders only the panel); test step 5 through the real ID input (value + blur)
+- [x] The XML panel heading names the open map's file instead of the literal investigate.bpmn — `<strong id="xml-panel-docname">`; screenshot below
+- [x] A browser test (tools/_t1155-doc-title-verify-cdp.mjs) proves it on two different maps, with a control that the title is not the old literal; wired into tests/run-bridge-tests.sh — 5/5 on the fix; 0/5 against HEAD's designer (teeth); wired in T1013_GUARDS, not in the _t451 unwired list
+
+## Visual Verification
+- `.playwright-mcp/t1155-xml-panel-heading.png` (element-level, XML panel header after the rename): reads
+  "Canonical BPMN 2.0 XML — t1155-renamed-map.bpmn (with aef: extensions)", same styling as before. The
+  designer has one theme, no font or density modes (see _t911's mode note), so one render covers it; the tab
+  title itself is not part of the page and is asserted from document.title.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +134,8 @@ date_finished: null
 -->
 
 ## Verification
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" timeout 300 node tools/_t1155-doc-title-verify-cdp.mjs > /tmp/t1155.out 2>&1 && grep -q '"pass": true' /tmp/t1155.out
+grep -q "_t1155-doc-title-verify-cdp.mjs" tests/run-bridge-tests.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -323,3 +362,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1155-designer-set-documenttitle-from-the-load.md
 - **Context:** Initial task creation
+
+### 2026-10-13T18:45:19Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
