@@ -28,8 +28,8 @@ function fixture() {
   let s = readFileSync(join(REPO, 'examples/aef-processes/rendered/task-lifecycle.bpmn'), 'utf8');
   if (s.indexOf('authority="initiative"') < 0) throw new Error('fixture base lacks an initiative lane');
   s = s.replace('authority="initiative"', 'authority="none"');           // agent lane -> retired sentinel: its elements are MISSING
-  const i = s.indexOf('id="frw_4_enter"'); const j = s.indexOf('<aef:meta ', i);
-  if (i < 0 || j < 0 || j - i > 3000) throw new Error('fixture: frw_4_enter meta not found');
+  const i = s.indexOf('id="frw_2_enter"'); const j = s.indexOf('<aef:meta ', i);
+  if (i < 0 || j < 0 || j - i > 3000) throw new Error('fixture: frw_2_enter meta not found');
   s = s.slice(0, j) + '<aef:meta authority="initiative" ' + s.slice(j + '<aef:meta '.length);   // own authority != lane default: DIFFERS
   return s;
 }
@@ -59,7 +59,7 @@ function fixture() {
     const lanes = await ev(cmd, 'getLanes().map(l => ({ id: l.id, authority: l.authority, authoringDefault: l.authoringDefault }))');
     const before = await ev(cmd, 'buildBpmnXml(state)');
     // g.node[data-id] carries the INTERNAL n.id; ask the editor which internal id each display id maps to.
-    const pick = await ev(cmd, `(() => { const by = d => (state.nodes.find(n => displayIdOf(n) === d) || {}).id || null; return { none: by('frw_3_start'), differs: by('frw_4_enter'), missing: by('agt_2_perform') }; })()`);
+    const pick = await ev(cmd, `(() => { const by = d => (state.nodes.find(n => displayIdOf(n) === d) || {}).id || null; return { none: by('frw_1_start'), differs: by('frw_2_enter'), missing: by('agt_2_perform') }; })()`);
     if (!pick.none || !pick.differs || !pick.missing) throw new Error('display ids not resolved: ' + JSON.stringify(pick) + ' sample=' + JSON.stringify(nodes.slice(0, 3)));
     mkdirSync(OUT, { recursive: true });
     const counts = {};
@@ -78,7 +78,7 @@ function fixture() {
     const after = await ev(cmd, 'buildBpmnXml(state)');
     const agentNodes = nodes.filter(n => n.lane === 'agent').length;
     const l1 = ['s', 'm', 'l'].every(k => counts[k].differs === 1 && counts[k].missing === agentNodes);
-    console.log(`L1 ${l1 ? 'PASS' : 'FAIL'}  marker counts per size: ${JSON.stringify(counts)}; agent-lane nodes=${agentNodes} (all MISSING under the retired sentinel), frw_4_enter DIFFERS`);
+    console.log(`L1 ${l1 ? 'PASS' : 'FAIL'}  marker counts per size: ${JSON.stringify(counts)}; agent-lane nodes=${agentNodes} (all MISSING under the retired sentinel), frw_2_enter DIFFERS`);
     const l2 = before === after && before.length > 1000;
     console.log(`L2 ${l2 ? 'PASS' : 'FAIL'}  buildBpmnXml before == after rendering markers (${before.length} bytes); the default never writes`);
     console.log(`lanes: ${JSON.stringify(lanes)}`);

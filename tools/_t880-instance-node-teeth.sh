@@ -46,24 +46,24 @@ reset_fixtures() {
     mk T-9981 build
     mk T-9982 inception
     mk T-9983 spike
-    mk T-9984 build "current_node: frw_11_task"
+    mk T-9984 build "current_node: frw_end_task"
 }
 run() { python3 "$SUBJECT" --root "$ROOT" --tasks-dir "$FIX" "$@" 2>&1; }
 
 # ── controls (must hold under the mutant too) ────────────────────────────────
 c_valid_node_recorded() {
-    local out; out=$(run set T-9981 frw_3_start); local rc=$?
-    [ $rc -eq 0 ] && grep -q '^current_node: frw_3_start$' "$FIX/T-9981-fixture.md" \
-        && [ "$(run get T-9981)" = "NODE frw_3_start task-lifecycle" ] \
+    local out; out=$(run set T-9981 frw_1_start); local rc=$?
+    [ $rc -eq 0 ] && grep -q '^current_node: frw_1_start$' "$FIX/T-9981-fixture.md" \
+        && [ "$(run get T-9981)" = "NODE frw_1_start task-lifecycle" ] \
         && ok valid_node_recorded || bad valid_node_recorded "rc=$rc out=$out"
 }
 c_set_is_placement_one_shot() {
-    # T-882 rewrote this control. It used to pin `set` REPLACING a recorded node (frw_11_task -> frw_2_build,
+    # T-882 rewrote this control. It used to pin `set` REPLACING a recorded node (frw_end_task -> frw_gw_build,
     # an end event hopping back to a gateway) — which is exactly the illegitimate transition S3 exists to
     # refuse. Now: set on a placed entity is REFUSED-PLACED, and the record is unchanged — still one line.
-    local out; out=$(run set T-9984 frw_2_build); local rc=$?
+    local out; out=$(run set T-9984 frw_gw_build); local rc=$?
     local n; n=$(grep -c '^current_node:' "$FIX/T-9984-fixture.md")
-    [ $rc -eq 1 ] && [[ "$out" == REFUSED-PLACED* ]] && [ "$n" = 1 ] && grep -q '^current_node: frw_11_task$' "$FIX/T-9984-fixture.md" \
+    [ $rc -eq 1 ] && [[ "$out" == REFUSED-PLACED* ]] && [ "$n" = 1 ] && grep -q '^current_node: frw_end_task$' "$FIX/T-9984-fixture.md" \
         && ok set_is_placement_one_shot || bad set_is_placement_one_shot "rc=$rc current_node lines=$n out=$out"
 }
 c_no_position_distinct() {
@@ -82,7 +82,7 @@ c_no_entity_distinct() {
         && ok no_entity_distinct || bad no_entity_distinct "rc=$rc out=$out"
 }
 c_set_on_no_template_records_nothing() {
-    local out; out=$(run set T-9983 frw_1_task); local rc=$?
+    local out; out=$(run set T-9983 frw_start_task); local rc=$?
     [ $rc -eq 3 ] && ! grep -q '^current_node:' "$FIX/T-9983-fixture.md" \
         && ok set_on_no_template_records_nothing || bad set_on_no_template_records_nothing "rc=$rc out=$out"
 }
@@ -93,9 +93,9 @@ c_bind_names_rendered_artefact() {
 }
 c_bind_is_not_the_yaml() {
     # a node id valid in the rendered artefact and absent from the canonical YAML
-    grep -q 'id="frw_3_start"' "$ROOT/examples/aef-processes/rendered/task-lifecycle.bpmn" \
-        && ! grep -q 'frw_3_start' "$ROOT/examples/aef-processes/task-lifecycle.workflow.yaml" \
-        && ok bind_is_not_the_yaml || bad bind_is_not_the_yaml "frw_3_start present in YAML or absent from rendered"
+    grep -q 'id="frw_1_start"' "$ROOT/examples/aef-processes/rendered/task-lifecycle.bpmn" \
+        && ! grep -q 'frw_1_start' "$ROOT/examples/aef-processes/task-lifecycle.workflow.yaml" \
+        && ok bind_is_not_the_yaml || bad bind_is_not_the_yaml "frw_1_start present in YAML or absent from rendered"
 }
 c_inception_binds_both() {
     local out; out=$(run bind inception | tr '\n' ' ')
@@ -103,8 +103,8 @@ c_inception_binds_both() {
         && ok inception_binds_both || bad inception_binds_both "out=$out"
 }
 c_inception_accepts_inception_node() {
-    local out; out=$(run set T-9982 hum_2_decision); local rc=$?
-    [ $rc -eq 0 ] && [ "$(run get T-9982)" = "NODE hum_2_decision inception-lifecycle" ] \
+    local out; out=$(run set T-9982 hum_gw_decision); local rc=$?
+    [ $rc -eq 0 ] && [ "$(run get T-9982)" = "NODE hum_gw_decision inception-lifecycle" ] \
         && ok inception_accepts_inception_node || bad inception_accepts_inception_node "rc=$rc out=$out"
 }
 c_no_new_identifier() {
@@ -137,8 +137,8 @@ g_refusal_names_template() {
         && ok refusal_names_template || bad refusal_names_template "out=$out"
 }
 g_foreign_template_node_refused() {
-    # hum_2_decision is real, but in inception-lifecycle; a build task is not bound to it
-    local out; out=$(run set T-9981 hum_2_decision); local rc=$?
+    # hum_gw_decision is real, but in inception-lifecycle; a build task is not bound to it
+    local out; out=$(run set T-9981 hum_gw_decision); local rc=$?
     [ $rc -eq 1 ] && ! grep -q '^current_node:' "$FIX/T-9981-fixture.md" \
         && ok foreign_template_node_refused || bad foreign_template_node_refused "rc=$rc out=$out"
 }

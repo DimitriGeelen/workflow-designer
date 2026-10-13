@@ -8,13 +8,13 @@ description: >
   ones behind one expandable row per section; a field with a value always shows; a
   Settings checkbox restores today's panel. Report: docs/reports/T-1118-fields-on-approval-and-visibility.md
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_editor-behavior-verify-cdp.mjs, tools/_t589-panel-links-cdp.mjs, tools/_t889-authority-first-class-cdp.mjs]
 related_tasks: [T-1118]
 unlocks_inception_decision: ["T-1118:hide-empty-fields"]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
@@ -44,8 +44,8 @@ unlocks_inception_decision: ["T-1118:hide-empty-fields"]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-11T12:58:30Z
-last_update: 2026-10-11T13:56:48Z
-date_finished:
+last_update: 2026-10-11T13:57:48Z
+date_finished: 2026-10-11T13:57:48Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -374,3 +374,20 @@ node tools/_t889-authority-first-class-cdp.mjs
 
 ### 2026-10-11T12:59:11Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-231fc709
+- **Timestamp:** 2026-10-11T13:58:53Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#6 (Agent)** — CDP test tools/_t1124-hide-empty-fields-cdp.mjs covers the above and measures, over the 42 service tasks in examples/, the median number of Extensions rows drawn by default (target ≤ 4, today 13 + Own
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/run-bridge-tests.sh in: CDP test tools/_t1124-hide-empty-fields-cdp.mjs covers the above and measures, over the 42 service tasks in examples/, the median number of Extensions`
+
+### 2026-10-11T13:57:48Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

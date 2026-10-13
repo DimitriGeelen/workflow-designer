@@ -41,9 +41,9 @@ mk() { # $1 dir, $2 id, $3 workflow_type, $4 extra frontmatter line
 }
 reset_fixtures() {
     rm -f "$LIVE"/*.md "$BUILDONLY"/*.md
-    mk "$LIVE" T-9971 build "current_node: frw_3_start"
+    mk "$LIVE" T-9971 build "current_node: frw_1_start"
     mk "$LIVE" T-9972 build
-    mk "$LIVE" T-9973 inception "current_node: hum_2_decision"
+    mk "$LIVE" T-9973 inception "current_node: hum_gw_decision"
     mk "$LIVE" T-9974 spike
     mk "$BUILDONLY" T-9975 build "current_node: agt_2_perform"
     mk "$BUILDONLY" T-9976 test
@@ -55,7 +55,7 @@ runb() { python3 "$SUBJECT" --root "$ROOT" --tasks-dir "$BUILDONLY" "$@" 2>&1; }
 # ── controls ─────────────────────────────────────────────────────────────────
 c_forward_names_file_and_node() {
     local out; out=$(run resolve T-9973 | tr '\n' '|')
-    [[ "$out" == "TEMPLATE examples/aef-processes/rendered/task-lifecycle.bpmn|TEMPLATE examples/aef-processes/rendered/inception-lifecycle.bpmn|NODE hum_2_decision inception-lifecycle|" ]] \
+    [[ "$out" == "TEMPLATE examples/aef-processes/rendered/task-lifecycle.bpmn|TEMPLATE examples/aef-processes/rendered/inception-lifecycle.bpmn|NODE hum_gw_decision inception-lifecycle|" ]] \
         && ok forward_names_file_and_node || bad forward_names_file_and_node "out=$out"
 }
 c_forward_reads_no_authored_binding() {
@@ -89,16 +89,16 @@ c_yaml_id_does_not_resolve() {
     grep -q 'c_sovereignty' "$ROOT/examples/aef-processes/task-lifecycle.workflow.yaml" \
         && ! run nodes task-lifecycle | grep -qx 'c_sovereignty' \
         && [[ "$(run set T-9972 c_sovereignty)" == REFUSED* ]] \
-        && run nodes task-lifecycle | grep -qx 'frw_3_start' \
-        && ! grep -q 'frw_3_start' "$ROOT/examples/aef-processes/task-lifecycle.workflow.yaml" \
-        && ok yaml_id_does_not_resolve || bad yaml_id_does_not_resolve "c_sovereignty resolved, or frw_3_start did not"
+        && run nodes task-lifecycle | grep -qx 'frw_1_start' \
+        && ! grep -q 'frw_1_start' "$ROOT/examples/aef-processes/task-lifecycle.workflow.yaml" \
+        && ok yaml_id_does_not_resolve || bad yaml_id_does_not_resolve "c_sovereignty resolved, or frw_1_start did not"
 }
 CONTROL_CASES="c_forward_names_file_and_node c_forward_reads_no_authored_binding c_template_unknown_distinct c_entity_no_template_distinct c_no_position_named_per_entity c_examined_count_states_population c_yaml_id_does_not_resolve"
 
 # ── gate cases (the binding filter) ──────────────────────────────────────────
 g_reverse_lists_exactly_the_bound() {
     local out; out=$(run instances inception-lifecycle | tr '\n' '|')
-    [[ "$out" == "INSTANCES inception-lifecycle 1 (examined 4 live entities)|  T-9973 NODE hum_2_decision|" ]] \
+    [[ "$out" == "INSTANCES inception-lifecycle 1 (examined 4 live entities)|  T-9973 NODE hum_gw_decision|" ]] \
         && ok reverse_lists_exactly_the_bound || bad reverse_lists_exactly_the_bound "out=$out"
 }
 g_reverse_zero_is_a_measurement() {

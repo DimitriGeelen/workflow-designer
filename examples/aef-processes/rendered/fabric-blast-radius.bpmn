@@ -20,25 +20,25 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="agt" authority="initiative" height="96"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>agt_1_fw</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_start_fw</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
           <aef:laneMeta abbr="frw" authority="authority" height="288"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>frw_3_no</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_9_impact</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_no</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_impact</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_1_git</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_4_for</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_7_quick</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_6_report</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_8_report</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_2_any</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_5_fabric</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_for</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_quick</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_report</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_5_report</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_any</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_fabric</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="agt_1_fw" name="fw fabric blast-radius [ref]">
+    <bpmn:startEvent id="agt_start_fw" name="fw fabric blast-radius [ref]">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
         <aef:position x="222.0" y="92.0"/>
@@ -50,7 +50,7 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="frw_3_no" name="no files changed (exit 0)">
+    <bpmn:endEvent id="frw_end_no" name="no files changed (exit 0)">
       <bpmn:extensionElements>
         <aef:uid value="n_none"/>
         <aef:position x="431.2" y="380.0"/>
@@ -59,7 +59,7 @@
       <bpmn:incoming>flow_3</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:endEvent id="frw_9_impact" name="impact reported (advisory — exit 0 always)">
+    <bpmn:endEvent id="frw_end_impact" name="impact reported (advisory — exit 0 always)">
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
         <aef:position x="1422.0" y="284.0"/>
@@ -80,7 +80,7 @@
       <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_4_for" name="for each changed file: skip non-source, find fabric card">
+    <bpmn:scriptTask id="frw_2_for" name="for each changed file: skip non-source, find fabric card">
       <bpmn:extensionElements>
         <aef:uid value="n_scan"/>
         <aef:position x="587.3" y="270.0"/>
@@ -92,7 +92,7 @@
       <bpmn:outgoing>flow_5</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_7_quick" name="quick impact: card writes → targets; count component">
+    <bpmn:scriptTask id="frw_4_quick" name="quick impact: card writes → targets; count component">
       <bpmn:extensionElements>
         <aef:uid value="n_writes"/>
         <aef:position x="945.0" y="170.0"/>
@@ -104,7 +104,7 @@
       <bpmn:outgoing>flow_8</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_6_report" name="report '(no fabric card)' — advisory gap">
+    <bpmn:scriptTask id="frw_3_report" name="report '(no fabric card)' — advisory gap">
       <bpmn:extensionElements>
         <aef:uid value="n_nocard"/>
         <aef:position x="945.0" y="270.0"/>
@@ -115,7 +115,7 @@
       <bpmn:outgoing>flow_9</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_8_report" name="report: N registered component(s) changed">
+    <bpmn:scriptTask id="frw_5_report" name="report: N registered component(s) changed">
       <bpmn:extensionElements>
         <aef:uid value="n_total"/>
         <aef:position x="1185.0" y="270.0"/>
@@ -127,7 +127,7 @@
       <bpmn:outgoing>flow_10</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:exclusiveGateway id="frw_2_any" name="any files changed?">
+    <bpmn:exclusiveGateway id="frw_gw_any" name="any files changed?">
       <bpmn:extensionElements>
         <aef:uid value="g_changed"/>
         <aef:position x="425.2" y="278.0"/>
@@ -141,7 +141,7 @@
       <bpmn:outgoing>flow_4</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:exclusiveGateway id="frw_5_fabric" name="fabric card exists for file?">
+    <bpmn:exclusiveGateway id="frw_gw_fabric" name="fabric card exists for file?">
       <bpmn:extensionElements>
         <aef:uid value="g_card"/>
         <aef:position x="776.0" y="278.0"/>
@@ -155,19 +155,19 @@
       <bpmn:outgoing>flow_7</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_fw" targetRef="frw_1_git">
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_start_fw" targetRef="frw_1_git">
       <bpmn:extensionElements>
         <aef:uid value="e1"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_git" targetRef="frw_2_any">
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_git" targetRef="frw_gw_any">
       <bpmn:extensionElements>
         <aef:uid value="e2"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_3" name="empty" sourceRef="frw_2_any" targetRef="frw_3_no">
+    <bpmn:sequenceFlow id="flow_3" name="empty" sourceRef="frw_gw_any" targetRef="frw_end_no">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">changed_files == ''</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e3"/>
@@ -175,20 +175,20 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_4" name="changed" sourceRef="frw_2_any" targetRef="frw_4_for">
+    <bpmn:sequenceFlow id="flow_4" name="changed" sourceRef="frw_gw_any" targetRef="frw_2_for">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">changed_files != ''</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e4"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_5" sourceRef="frw_4_for" targetRef="frw_5_fabric">
+    <bpmn:sequenceFlow id="flow_5" sourceRef="frw_2_for" targetRef="frw_gw_fabric">
       <bpmn:extensionElements>
         <aef:uid value="e5"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_6" name="has card" sourceRef="frw_5_fabric" targetRef="frw_7_quick">
+    <bpmn:sequenceFlow id="flow_6" name="has card" sourceRef="frw_gw_fabric" targetRef="frw_4_quick">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">card_found</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e6"/>
@@ -196,28 +196,28 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_7" name="no card" sourceRef="frw_5_fabric" targetRef="frw_6_report">
+    <bpmn:sequenceFlow id="flow_7" name="no card" sourceRef="frw_gw_fabric" targetRef="frw_3_report">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">!card_found</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e7"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_8" sourceRef="frw_7_quick" targetRef="frw_8_report">
+    <bpmn:sequenceFlow id="flow_8" sourceRef="frw_4_quick" targetRef="frw_5_report">
       <bpmn:extensionElements>
         <aef:uid value="e8"/>
         <aef:anchors targetPort="N"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_9" sourceRef="frw_6_report" targetRef="frw_8_report">
+    <bpmn:sequenceFlow id="flow_9" sourceRef="frw_3_report" targetRef="frw_5_report">
       <bpmn:extensionElements>
         <aef:uid value="e9"/>
         <aef:anchors sourcePort="S" targetPort="S"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_10" sourceRef="frw_8_report" targetRef="frw_9_impact">
+    <bpmn:sequenceFlow id="flow_10" sourceRef="frw_5_report" targetRef="frw_end_impact">
       <bpmn:extensionElements>
         <aef:uid value="e10"/>
       </bpmn:extensionElements>

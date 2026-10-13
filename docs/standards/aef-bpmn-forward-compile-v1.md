@@ -150,16 +150,16 @@ fresh `n_…`, none resolve to an existing task):
 
 | uid | BPMN node | proposed type / owner | tier | depends_on (via edge) |
 |---|---|---|---|---|
-| `n_req` | startEvent `agt_1_arc` | *boundary marker* (no task) | — | — |
-| `n_create` | scriptTask `agt_2_create` | build / agent | 1 | n_req |
-| `n_start` | scriptTask `agt_3_start` | build / agent | 1 | n_create |
-| `n_tag` | serviceTask `agt_4_tag` | build / agent | 1 | n_start |
-| `n_bvp` | serviceTask `agt_5_bvp` | build / agent | 1 | n_tag |
+| `n_req` | startEvent `agt_start_arc` | *boundary marker* (no task) | — | — |
+| `n_create` | scriptTask `agt_1_create` | build / agent | 1 | n_req |
+| `n_start` | scriptTask `agt_2_start` | build / agent | 1 | n_create |
+| `n_tag` | serviceTask `agt_3_tag` | build / agent | 1 | n_start |
+| `n_bvp` | serviceTask `agt_4_bvp` | build / agent | 1 | n_tag |
 | `n_approve_driver` | userTask `hum_1_approve` | human-facing / **human** | 0 | n_bvp |
-| `n_work` | serviceTask `agt_6_work` | build / agent | 2 | n_approve_driver |
-| `n_review` | scriptTask `agt_7_emit` | build / agent | 1 | n_work |
+| `n_work` | serviceTask `agt_5_work` | build / agent | 2 | n_approve_driver |
+| `n_review` | scriptTask `agt_6_emit` | build / agent | 1 | n_work |
 | `n_close_decide` | userTask `hum_2_close` | human-facing / **human** | 0 | n_review |
-| `n_route` | exclusiveGateway `hum_3_close` | **decision** (decisionOwner=human) | — | n_close_decide |
+| `n_route` | exclusiveGateway `hum_gw_close` | **decision** (decisionOwner=human) | — | n_close_decide |
 | `n_close` | scriptTask `frw_2_close` | build / agent | 1 | n_route `close` branch |
 | `n_abandon` | scriptTask `frw_1_abandon` | build / agent | 1 | n_route `abandon` branch |
 | `n_end_closed` / `n_end_abandoned` | endEvents | *boundary markers* (no task) | — | — |

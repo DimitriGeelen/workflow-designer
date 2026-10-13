@@ -20,25 +20,25 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="agt" authority="initiative" height="96"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>agt_1_fw</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_start_fw</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
           <aef:laneMeta abbr="frw" authority="authority" height="288"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>frw_9_state</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_state</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_1_read</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_2_read</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_3_census</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_5_parse</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_6_degrade</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_8_rule</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_4_handover</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_7_gather</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_parse</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_5_degrade</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_7_rule</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_handover</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_6_gather</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="agt_1_fw" name="fw resume status">
+    <bpmn:startEvent id="agt_start_fw" name="fw resume status">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
         <aef:position x="207.0" y="92.0"/>
@@ -47,7 +47,7 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="frw_9_state" name="state synthesized (advisory)">
+    <bpmn:endEvent id="frw_end_state" name="state synthesized (advisory)">
       <bpmn:extensionElements>
         <aef:uid value="n_report"/>
         <aef:position x="1382.0" y="284.0"/>
@@ -92,7 +92,7 @@
       <bpmn:outgoing>flow_4</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_5_parse" name="parse handover: staleness, Where-We-Are, Suggested Action, Open Qs">
+    <bpmn:scriptTask id="frw_4_parse" name="parse handover: staleness, Where-We-Are, Suggested Action, Open Qs">
       <bpmn:extensionElements>
         <aef:uid value="n_ho"/>
         <aef:position x="670.0" y="170.0"/>
@@ -104,7 +104,7 @@
       <bpmn:outgoing>flow_7</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_6_degrade" name="degrade: 'No handover found'">
+    <bpmn:scriptTask id="frw_5_degrade" name="degrade: 'No handover found'">
       <bpmn:extensionElements>
         <aef:uid value="n_noho"/>
         <aef:position x="670.0" y="370.0"/>
@@ -115,7 +115,7 @@
       <bpmn:outgoing>flow_8</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_8_rule" name="rule cascade → Recommendations">
+    <bpmn:scriptTask id="frw_7_rule" name="rule cascade → Recommendations">
       <bpmn:extensionElements>
         <aef:uid value="n_synth"/>
         <aef:position x="1145.0" y="270.0"/>
@@ -126,7 +126,7 @@
       <bpmn:outgoing>flow_10</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:exclusiveGateway id="frw_4_handover" name="handover LATEST.md exists?">
+    <bpmn:exclusiveGateway id="frw_gw_handover" name="handover LATEST.md exists?">
       <bpmn:extensionElements>
         <aef:uid value="g_ho"/>
         <aef:position x="590.0" y="278.0"/>
@@ -140,7 +140,7 @@
       <bpmn:outgoing>flow_6</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:subProcess id="frw_7_gather" name="gather optional intelligence: discoveries, scan, recent research">
+    <bpmn:subProcess id="frw_6_gather" name="gather optional intelligence: discoveries, scan, recent research">
       <bpmn:extensionElements>
         <aef:uid value="n_intel"/>
         <aef:position x="900.0" y="270.0"/>
@@ -157,7 +157,7 @@
       <bpmn:outgoing>flow_9</bpmn:outgoing>
     </bpmn:subProcess>
 
-    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_fw" targetRef="frw_1_read">
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_start_fw" targetRef="frw_1_read">
       <bpmn:extensionElements>
         <aef:uid value="e1"/>
       </bpmn:extensionElements>
@@ -175,45 +175,45 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_4" sourceRef="frw_3_census" targetRef="frw_4_handover">
+    <bpmn:sequenceFlow id="flow_4" sourceRef="frw_3_census" targetRef="frw_gw_handover">
       <bpmn:extensionElements>
         <aef:uid value="e4"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_5" name="found" sourceRef="frw_4_handover" targetRef="frw_5_parse">
+    <bpmn:sequenceFlow id="flow_5" name="found" sourceRef="frw_gw_handover" targetRef="frw_4_parse">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">latest_exists</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e5"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_6" name="missing" sourceRef="frw_4_handover" targetRef="frw_6_degrade">
+    <bpmn:sequenceFlow id="flow_6" name="missing" sourceRef="frw_gw_handover" targetRef="frw_5_degrade">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">!latest_exists</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e6"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_7" sourceRef="frw_5_parse" targetRef="frw_7_gather">
+    <bpmn:sequenceFlow id="flow_7" sourceRef="frw_4_parse" targetRef="frw_6_gather">
       <bpmn:extensionElements>
         <aef:uid value="e7"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_8" sourceRef="frw_6_degrade" targetRef="frw_7_gather">
+    <bpmn:sequenceFlow id="flow_8" sourceRef="frw_5_degrade" targetRef="frw_6_gather">
       <bpmn:extensionElements>
         <aef:uid value="e8"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_9" sourceRef="frw_7_gather" targetRef="frw_8_rule">
+    <bpmn:sequenceFlow id="flow_9" sourceRef="frw_6_gather" targetRef="frw_7_rule">
       <bpmn:extensionElements>
         <aef:uid value="e9"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_10" sourceRef="frw_8_rule" targetRef="frw_9_state">
+    <bpmn:sequenceFlow id="flow_10" sourceRef="frw_7_rule" targetRef="frw_end_state">
       <bpmn:extensionElements>
         <aef:uid value="e10"/>
       </bpmn:extensionElements>

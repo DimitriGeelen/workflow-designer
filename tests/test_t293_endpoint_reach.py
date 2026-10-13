@@ -7,7 +7,7 @@ editor in an isolated headless chromium with real CDP mouse input. It guards:
 
   * canvas layer order (#g-badges < #g-edges < #g-nodes < #g-badges-top <
     #g-handles < #g-preview) — T-286 badge layers + T-293 handles layer;
-  * endpoint grab-halo reachability at frw_11_harvest (the field case): handle
+  * endpoint grab-halo reachability at frw_4_harvest (the field case): handle
     centres hit the handle, press+move starts an endpoint drag, never a node
     drag;
   * a full Input-driven reconnect drag actually rewires edge.target.

@@ -33,20 +33,20 @@ async function ev(cmd, e) { const r = await cmd('Runtime.evaluate', { expression
 async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof parseBpmnXml==='function'&&typeof buildBpmnXml==='function'&&typeof instanceOverlayState==='function'&&_appReady===true&&(typeof _deepLinkSettled==='undefined'||_deepLinkSettled!==null))`).catch(() => false); if (ok) return; if (Date.now() - t0 > 20000) throw new Error('editor not ready'); await sleep(150); } }
 async function waitOverlayLoaded(cmd) { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(state && (state.nodes||[]).length > 0 && instanceView.available !== null)`).catch(() => false); if (ok) return; if (Date.now() - t0 > 20000) throw new Error('overlay never loaded'); await sleep(150); } }
 
-// The fixture snapshot: T-9991 stands on agt_2_perform (so done = frw_1_task, frw_2_build, frw_3_start),
-// with an out-of-order refusal fired on frw_7_all toward frw_10_finalize (four DISTINCT states);
-// T-9992 stands on frw_6_run with a refusal fired on frw_6_run itself (L5: both badges on one node).
+// The fixture snapshot: T-9991 stands on agt_2_perform (so done = frw_start_task, frw_gw_build, frw_1_start),
+// with an out-of-order refusal fired on frw_gw_all toward frw_5_finalize (four DISTINCT states);
+// T-9992 stands on frw_3_run with a refusal fired on frw_3_run itself (L5: both badges on one node).
 const SNAPSHOT = {
   template: 'task-lifecycle', generated: '2026-09-29T00:00:00Z', state: 'INSTANCES', examined: 3,
   instances: [
     { task: 'T-9991', state: 'NODE', node: 'agt_2_perform', status: 'started-work', owner: 'agent' },
-    { task: 'T-9992', state: 'NODE', node: 'frw_6_run', status: 'started-work', owner: 'human' },
+    { task: 'T-9992', state: 'NODE', node: 'frw_3_run', status: 'started-work', owner: 'human' },
     { task: 'T-9993', state: 'NO-POSITION', node: '', status: 'captured', owner: 'agent' },
   ],
   refusals: [
-    { ts: '2026-09-29T00:00:01Z', task: 'T-9991', case: 'unmet-input-contract', rule: 'P-010', kind: 'REFUSED-BY-GATE', node: 'frw_7_all', target: '', template: 'task-lifecycle', detail: 'earlier', actor: 'framework' },
-    { ts: '2026-09-29T00:00:02Z', task: 'T-9991', case: 'out-of-order-advance', rule: 'template-flow', kind: 'REFUSED-TRANSITION', node: 'frw_7_all', target: 'frw_10_finalize', template: 'examples/aef-processes/rendered/task-lifecycle.bpmn', detail: 'latest', actor: 'cli' },
-    { ts: '2026-09-29T00:00:03Z', task: 'T-9992', case: 'skipped-human-gateway', rule: 'R-033', kind: 'REFUSED-BY-GATE', node: 'frw_6_run', target: '', template: 'task-lifecycle', detail: 'on the current node', actor: 'framework' },
+    { ts: '2026-09-29T00:00:01Z', task: 'T-9991', case: 'unmet-input-contract', rule: 'P-010', kind: 'REFUSED-BY-GATE', node: 'frw_gw_all', target: '', template: 'task-lifecycle', detail: 'earlier', actor: 'framework' },
+    { ts: '2026-09-29T00:00:02Z', task: 'T-9991', case: 'out-of-order-advance', rule: 'template-flow', kind: 'REFUSED-TRANSITION', node: 'frw_gw_all', target: 'frw_5_finalize', template: 'examples/aef-processes/rendered/task-lifecycle.bpmn', detail: 'latest', actor: 'cli' },
+    { ts: '2026-09-29T00:00:03Z', task: 'T-9992', case: 'skipped-human-gateway', rule: 'R-033', kind: 'REFUSED-BY-GATE', node: 'frw_3_run', target: '', template: 'task-lifecycle', detail: 'on the current node', actor: 'framework' },
   ],
 };
 const legs = []; const leg = (id, name, ok, detail) => { legs.push({ id, name, ok, detail }); console.log(`${id} ${ok ? 'PASS' : 'FAIL'}  ${name}\n      ${detail}`); };
@@ -100,13 +100,13 @@ const COUNTS = `({ current: document.querySelectorAll('g.node[data-instance="cur
     const ids = await ev(cmd, `(() => { const o = {}; for (const g of document.querySelectorAll('g.node[data-instance]')) { const k = g.getAttribute('data-instance'); (o[k] = o[k] || []).push(displayIdOf(findNode(g.getAttribute('data-id')))); } return o; })()`);
     leg('L2', 'four states drawn, nothing else: 1 current (● T-9991), 3 done, 1 refused (⛔ template-flow), 1 refused-target',
         c.current === 1 && c.done === 3 && c.refused === 1 && c.target === 1 && c.any === 6 && c.nodes === c.stateNodes
-          && ids.current[0] === 'agt_2_perform' && JSON.stringify([...ids.done].sort()) === JSON.stringify(['frw_1_task', 'frw_2_build', 'frw_3_start'])
-          && ids.refused[0] === 'frw_7_all' && ids['refused-target'][0] === 'frw_10_finalize'
+          && ids.current[0] === 'agt_2_perform' && JSON.stringify([...ids.done].sort()) === JSON.stringify(['frw_start_task', 'frw_gw_build', 'frw_1_start'])
+          && ids.refused[0] === 'frw_gw_all' && ids['refused-target'][0] === 'frw_5_finalize'
           && badges.current.text === '● T-9991' && badges.refused.text === '⛔ template-flow' && badges['refused-target'].text === '✗ refused target' && badges.done.text === '✓',
         JSON.stringify({ c, ids, badges }));
     // screenshots at every label size, one node per state
     const nodeSel = async did => `g.node[data-id="${await ev(cmd, `(state.nodes.find(n => displayIdOf(n) === '${did}') || {}).id`)}"]`;
-    const targets = { current: 'agt_2_perform', done: 'frw_3_start', refused: 'frw_7_all', 'refused-target': 'frw_10_finalize' };
+    const targets = { current: 'agt_2_perform', done: 'frw_1_start', refused: 'frw_gw_all', 'refused-target': 'frw_5_finalize' };
     for (const size of ['s', 'm', 'l']) {
       await ev(cmd, `labelPrefs.size = "${size}"; renderAll(); true`); await sleep(120);
       for (const [st, did] of Object.entries(targets)) await shot(cmd, await nodeSel(did), `${st}-${size}.png`, 30);
@@ -136,9 +136,9 @@ const COUNTS = `({ current: document.querySelectorAll('g.node[data-instance="cur
     const c5 = await ev(cmd, COUNTS);
     const b5 = await ev(cmd, `(() => { const g = document.querySelector('g.node[data-instance="current"]'); return { node: displayIdOf(findNode(g.getAttribute('data-id'))), badges: Array.from(g.querySelectorAll('[data-instance-badge]')).map(t => t.getAttribute('data-instance-badge') + ':' + t.textContent) }; })()`);
     leg('L5', 'a refusal fired on the current node: data-instance stays current and BOTH badges draw',
-        c5.current === 1 && c5.refused === 0 && b5.node === 'frw_6_run' && b5.badges.includes('current:● T-9992') && b5.badges.includes('refused:⛔ R-033'),
+        c5.current === 1 && c5.refused === 0 && b5.node === 'frw_3_run' && b5.badges.includes('current:● T-9992') && b5.badges.includes('refused:⛔ R-033'),
         JSON.stringify({ c5, b5 }));
-    await shot(cmd, await nodeSel('frw_6_run'), 'current-and-refused-m.png', 30);
+    await shot(cmd, await nodeSel('frw_3_run'), 'current-and-refused-m.png', 30);
 
     // ---- doc B: endpoint absent ----
     const B = await serve(makeDoc(false)); servers.push(B.py);

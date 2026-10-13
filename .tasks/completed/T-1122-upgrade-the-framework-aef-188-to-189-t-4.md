@@ -9,11 +9,11 @@ description: >
   job 006 (T-1104): pristine vendor commit, divergence baseline, re-apply our local
   fixes, check backups.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_6_run
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-11T10:03:43Z
-last_update: 2026-10-11T11:00:12Z
-date_finished:
+last_update: 2026-10-11T11:05:19Z
+date_finished: 2026-10-11T11:05:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -264,6 +264,16 @@ grep -q '^version: "0.17.0"' .agentic-framework/policy/designer-pin.yaml
 
 ## RCA
 
+**Symptom:** (AEF's defect, taken in by this upgrade) under claude-fw, a session that hit the critical budget block
+was killed mid-turn by the auto-restart, losing the turn in progress.
+**Root cause:** AEF T-4032: the restart fired on the budget signal itself instead of at the end of the session's own
+turn, and the stop-driver could continue a turn while a restart was pending. Fixed upstream in v1.8.9.
+**Why structurally allowed:** our side only — 832 takes framework fixes by explicit upgrade, so a released hotfix is
+not in effect until an operator runs the intake. That is by design (re-vendor protocol T-1000, operator-run).
+**Prevention:** the fix is upstream with AEF's regression tests; 832's part is prompt intake: the mail watcher
+(T-1108) surfaced the release announcement and this task took it in the same day. Field confirmation goes to AEF
+after the first critical-budget turn end under claude-fw.
+
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
      Non-bug-class tasks may leave this section empty or remove it.
@@ -361,3 +371,15 @@ grep -q '^version: "0.17.0"' .agentic-framework/policy/designer-pin.yaml
 
 ### 2026-10-11T10:04:04Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-16d52207
+- **Timestamp:** 2026-10-11T11:06:14Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-11T11:05:19Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

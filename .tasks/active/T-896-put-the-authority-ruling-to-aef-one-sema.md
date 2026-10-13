@@ -15,7 +15,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: [arc:designer-authoring-surface]

@@ -44,12 +44,12 @@ mk() { # $1 id, $2 workflow_type, $3 extra frontmatter line
 }
 reset_fixtures() {
     rm -f "$FIX"/*.md
-    mk T-9971 build "current_node: frw_3_start"
+    mk T-9971 build "current_node: frw_1_start"
     mk T-9972 build
-    mk T-9973 build "current_node: frw_11_task"
-    mk T-9974 build "current_node: frw_5_outcome"
+    mk T-9973 build "current_node: frw_end_task"
+    mk T-9974 build "current_node: frw_gw_outcome"
     mk T-9975 inception "current_node: hum_1_record"
-    mk T-9976 inception "current_node: hum_2_decision"
+    mk T-9976 inception "current_node: hum_gw_decision"
     mk T-9977 build "current_node: agt_2_perform"
     mk T-9978 spike
 }
@@ -65,8 +65,8 @@ c_legal_transition_recorded() {
         && ok legal_transition_recorded || bad legal_transition_recorded "rc=$rc out=$out"
 }
 c_gateway_branch_a_legal() {
-    local out; out=$(run advance T-9974 frw_4_enter); local rc=$?
-    [ $rc -eq 0 ] && [ "$(node_of T-9974)" = "frw_4_enter" ] \
+    local out; out=$(run advance T-9974 frw_2_enter); local rc=$?
+    [ $rc -eq 0 ] && [ "$(node_of T-9974)" = "frw_2_enter" ] \
         && ok gateway_branch_a_legal || bad gateway_branch_a_legal "rc=$rc out=$out"
 }
 c_gateway_branch_b_legal() {
@@ -75,45 +75,45 @@ c_gateway_branch_b_legal() {
         && ok gateway_branch_b_legal || bad gateway_branch_b_legal "rc=$rc out=$out"
 }
 c_first_hop_onto_start() {
-    local out; out=$(run advance T-9972 frw_1_task); local rc=$?
-    [ $rc -eq 0 ] && [ "$(run get T-9972)" = "NODE frw_1_task task-lifecycle" ] \
+    local out; out=$(run advance T-9972 frw_start_task); local rc=$?
+    [ $rc -eq 0 ] && [ "$(run get T-9972)" = "NODE frw_start_task task-lifecycle" ] \
         && ok first_hop_onto_start || bad first_hop_onto_start "rc=$rc out=$out"
 }
 c_first_hop_mid_flow_refused_names_start() {
-    local out; out=$(run advance T-9972 frw_3_start); local rc=$?
-    [ $rc -eq 1 ] && [[ "$out" == REFUSED-TRANSITION* ]] && [[ "$out" == *frw_1_task* ]] \
+    local out; out=$(run advance T-9972 frw_1_start); local rc=$?
+    [ $rc -eq 1 ] && [[ "$out" == REFUSED-TRANSITION* ]] && [[ "$out" == *frw_start_task* ]] \
         && ! grep -q '^current_node:' "$FIX/T-9972-fixture.md" \
         && ok first_hop_mid_flow_refused_names_start || bad first_hop_mid_flow_refused_names_start "rc=$rc out=$out"
 }
 c_inception_moves_within_template() {
-    local out; out=$(run advance T-9975 hum_2_decision); local rc=$?
-    [ $rc -eq 0 ] && [ "$(run get T-9975)" = "NODE hum_2_decision inception-lifecycle" ] \
+    local out; out=$(run advance T-9975 hum_gw_decision); local rc=$?
+    [ $rc -eq 0 ] && [ "$(run get T-9975)" = "NODE hum_gw_decision inception-lifecycle" ] \
         && ok inception_moves_within_template || bad inception_moves_within_template "rc=$rc out=$out"
 }
 c_set_places_from_no_position() {
-    local out; out=$(run set T-9972 frw_6_run); local rc=$?
-    [ $rc -eq 0 ] && [ "$(node_of T-9972)" = "frw_6_run" ] \
+    local out; out=$(run set T-9972 frw_3_run); local rc=$?
+    [ $rc -eq 0 ] && [ "$(node_of T-9972)" = "frw_3_run" ] \
         && ok set_places_from_no_position || bad set_places_from_no_position "rc=$rc out=$out"
 }
 c_set_refused_once_placed() {
-    local out; out=$(run set T-9971 frw_10_finalize); local rc=$?
+    local out; out=$(run set T-9971 frw_5_finalize); local rc=$?
     [ $rc -eq 1 ] && [[ "$out" == REFUSED-PLACED* ]] && [[ "$out" == *advance* ]] \
-        && [ "$(node_of T-9971)" = "frw_3_start" ] && [ "$(node_lines T-9971)" = 1 ] \
+        && [ "$(node_of T-9971)" = "frw_1_start" ] && [ "$(node_lines T-9971)" = 1 ] \
         && ok set_refused_once_placed || bad set_refused_once_placed "rc=$rc out=$out"
 }
 c_no_entity_distinct() {
-    local out; out=$(run advance T-9999 frw_1_task); local rc=$?
+    local out; out=$(run advance T-9999 frw_start_task); local rc=$?
     [ $rc -eq 2 ] && [ "$out" = "NO-ENTITY T-9999" ] \
         && ok no_entity_distinct || bad no_entity_distinct "rc=$rc out=$out"
 }
 c_no_template_distinct() {
-    local out; out=$(run advance T-9978 frw_1_task); local rc=$?
+    local out; out=$(run advance T-9978 frw_start_task); local rc=$?
     [ $rc -eq 3 ] && [[ "$out" == NO-TEMPLATE\ spike* ]] && ! grep -q '^current_node:' "$FIX/T-9978-fixture.md" \
         && ok no_template_distinct || bad no_template_distinct "rc=$rc out=$out"
 }
 c_flows_come_from_the_artefact() {
     # The artefact carries the flow the legal hop used; the tool's code carries no node id.
-    grep -q 'sourceRef="frw_3_start" targetRef="agt_2_perform"' "$ROOT/$TPL" \
+    grep -q 'sourceRef="frw_1_start" targetRef="agt_2_perform"' "$ROOT/$TPL" \
         && ! python3 -c "import ast,sys;t=ast.parse(open(sys.argv[1]).read());t.body=[n for n in t.body if not (isinstance(n,ast.Expr) and isinstance(getattr(n,'value',None),ast.Constant))];print(ast.unparse(t))" "$SUBJECT" | grep -qE '\b(frw|agt|hum)_[0-9]+_[a-z]+\b' \
         && ok flows_come_from_the_artefact || bad flows_come_from_the_artefact "a node id is written into the tool, or the artefact lacks the flow"
 }
@@ -121,37 +121,37 @@ CONTROL_CASES="c_legal_transition_recorded c_gateway_branch_a_legal c_gateway_br
 
 # ── gate cases (must go red under the mutant) ────────────────────────────────
 g_out_of_order_refused_unchanged() {
-    local out; out=$(run advance T-9971 frw_10_finalize); local rc=$?
+    local out; out=$(run advance T-9971 frw_5_finalize); local rc=$?
     [ $rc -eq 1 ] && [[ "$out" == REFUSED-TRANSITION* ]] \
-        && [ "$(node_of T-9971)" = "frw_3_start" ] && [ "$(node_lines T-9971)" = 1 ] \
+        && [ "$(node_of T-9971)" = "frw_1_start" ] && [ "$(node_lines T-9971)" = 1 ] \
         && ok out_of_order_refused_unchanged || bad out_of_order_refused_unchanged "rc=$rc out=$out"
 }
 g_refusal_names_current_target_file_successors() {
-    local out; out=$(run advance T-9971 frw_10_finalize)
-    [[ "$out" == REFUSED-TRANSITION\ T-9971:* ]] && [[ "$out" == *frw_3_start*frw_10_finalize* ]] \
-        && [[ "$out" == *"$TPL"* ]] && [[ "$out" == *"successor(s) of frw_3_start in $TPL: agt_2_perform"* ]] \
+    local out; out=$(run advance T-9971 frw_5_finalize)
+    [[ "$out" == REFUSED-TRANSITION\ T-9971:* ]] && [[ "$out" == *frw_1_start*frw_5_finalize* ]] \
+        && [[ "$out" == *"$TPL"* ]] && [[ "$out" == *"successor(s) of frw_1_start in $TPL: agt_2_perform"* ]] \
         && ok refusal_names_current_target_file_successors || bad refusal_names_current_target_file_successors "out=$out"
 }
 g_backwards_refused() {
-    local out; out=$(run advance T-9977 frw_3_start); local rc=$?
+    local out; out=$(run advance T-9977 frw_1_start); local rc=$?
     [ $rc -eq 1 ] && [[ "$out" == REFUSED-TRANSITION* ]] && [ "$(node_of T-9977)" = "agt_2_perform" ] \
         && ok backwards_refused || bad backwards_refused "rc=$rc out=$out"
 }
 g_past_end_refused() {
-    local out; out=$(run advance T-9973 frw_1_task); local rc=$?
+    local out; out=$(run advance T-9973 frw_start_task); local rc=$?
     [ $rc -eq 1 ] && [[ "$out" == REFUSED-TRANSITION* ]] && [[ "$out" == *"end event"* ]] \
-        && [ "$(node_of T-9973)" = "frw_11_task" ] \
+        && [ "$(node_of T-9973)" = "frw_end_task" ] \
         && ok past_end_refused || bad past_end_refused "rc=$rc out=$out"
 }
 g_gateway_two_hops_refused() {
-    local out; out=$(run advance T-9974 frw_6_run); local rc=$?
-    [ $rc -eq 1 ] && [[ "$out" == REFUSED-TRANSITION* ]] && [ "$(node_of T-9974)" = "frw_5_outcome" ] \
+    local out; out=$(run advance T-9974 frw_3_run); local rc=$?
+    [ $rc -eq 1 ] && [[ "$out" == REFUSED-TRANSITION* ]] && [ "$(node_of T-9974)" = "frw_gw_outcome" ] \
         && ok gateway_two_hops_refused || bad gateway_two_hops_refused "rc=$rc out=$out"
 }
 g_cross_template_refused() {
-    # frw_10_finalize is a real node — in task-lifecycle, which this inception is ALSO bound to.
-    local out; out=$(run advance T-9976 frw_10_finalize); local rc=$?
-    [ $rc -eq 1 ] && [[ "$out" == REFUSED-TRANSITION* ]] && [ "$(node_of T-9976)" = "hum_2_decision" ] \
+    # frw_5_finalize is a real node — in task-lifecycle, which this inception is ALSO bound to.
+    local out; out=$(run advance T-9976 frw_5_finalize); local rc=$?
+    [ $rc -eq 1 ] && [[ "$out" == REFUSED-TRANSITION* ]] && [ "$(node_of T-9976)" = "hum_gw_decision" ] \
         && ok cross_template_refused || bad cross_template_refused "rc=$rc out=$out"
 }
 GATE_CASES="g_out_of_order_refused_unchanged g_refusal_names_current_target_file_successors g_backwards_refused g_past_end_refused g_gateway_two_hops_refused g_cross_template_refused"

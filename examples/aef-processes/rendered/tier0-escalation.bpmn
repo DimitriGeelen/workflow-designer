@@ -20,32 +20,32 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="hum" authority="sovereignty" height="108"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>hum_3_abandoned</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_end_abandoned</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>hum_1_human</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>hum_2_approve</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_gw_approve</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
           <aef:laneMeta abbr="frw" authority="authority" height="264"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>frw_7_executed</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_executed</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_1_pretooluse</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_4_block</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_5_consume</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_6_record</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_2_matches</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_3_valid</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_block</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_consume</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_record</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_matches</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_valid</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="agent" name="Agent · Initiative">
         <bpmn:extensionElements>
           <aef:laneMeta abbr="agt" authority="initiative" height="96"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>agt_1_agent</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_2_command</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_start_agent</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_1_command</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="agt_1_agent" name="Agent issues a Bash command">
+    <bpmn:startEvent id="agt_start_agent" name="Agent issues a Bash command">
       <bpmn:extensionElements>
         <aef:uid value="n_propose"/>
         <aef:position x="246.2" y="464.0"/>
@@ -56,7 +56,7 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="frw_7_executed" name="Executed (logged)">
+    <bpmn:endEvent id="frw_end_executed" name="Executed (logged)">
       <bpmn:extensionElements>
         <aef:uid value="n_end_run"/>
         <aef:position x="1402.0" y="284.0"/>
@@ -64,7 +64,7 @@
       <bpmn:incoming>flow_12</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:endEvent id="hum_3_abandoned" name="Abandoned (not executed)">
+    <bpmn:endEvent id="hum_end_abandoned" name="Abandoned (not executed)">
       <bpmn:extensionElements>
         <aef:uid value="n_end_abandoned"/>
         <aef:position x="1402.0" y="98.0"/>
@@ -72,7 +72,7 @@
       <bpmn:incoming>flow_13</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:serviceTask id="agt_2_command" name="Command executes">
+    <bpmn:serviceTask id="agt_1_command" name="Command executes">
       <bpmn:extensionElements>
         <aef:uid value="n_run"/>
         <aef:position x="966.4" y="450.0"/>
@@ -110,7 +110,7 @@
       <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_4_block" name="BLOCK (exit 2) with explanation">
+    <bpmn:scriptTask id="frw_2_block" name="BLOCK (exit 2) with explanation">
       <bpmn:extensionElements>
         <aef:uid value="n_block"/>
         <aef:position x="745.0" y="208.0"/>
@@ -120,7 +120,7 @@
       <bpmn:outgoing>flow_7</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_5_consume" name="Consume token (single-use) + log approval">
+    <bpmn:scriptTask id="frw_3_consume" name="Consume token (single-use) + log approval">
       <bpmn:extensionElements>
         <aef:uid value="n_consume"/>
         <aef:position x="745.0" y="328.0"/>
@@ -130,7 +130,7 @@
       <bpmn:outgoing>flow_11</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_6_record" name="Record rejection — resolved(rejected) + feedback">
+    <bpmn:scriptTask id="frw_4_record" name="Record rejection — resolved(rejected) + feedback">
       <bpmn:extensionElements>
         <aef:uid value="n_record_reject"/>
         <aef:position x="1220.0" y="182.0"/>
@@ -141,7 +141,7 @@
       <bpmn:outgoing>flow_13</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:exclusiveGateway id="frw_2_matches" name="Matches a destructive pattern?">
+    <bpmn:exclusiveGateway id="frw_gw_matches" name="Matches a destructive pattern?">
       <bpmn:extensionElements>
         <aef:uid value="n_match"/>
         <aef:position x="366.4" y="278.0"/>
@@ -153,7 +153,7 @@
       <bpmn:outgoing>flow_4</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:exclusiveGateway id="frw_3_valid" name="Valid single-use approval token?">
+    <bpmn:exclusiveGateway id="frw_gw_valid" name="Valid single-use approval token?">
       <bpmn:extensionElements>
         <aef:uid value="n_check_approval"/>
         <aef:position x="492.6" y="278.0"/>
@@ -169,7 +169,7 @@
       <bpmn:outgoing>flow_6</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:exclusiveGateway id="hum_2_approve" name="Approve or abandon?">
+    <bpmn:exclusiveGateway id="hum_gw_approve" name="Approve or abandon?">
       <bpmn:extensionElements>
         <aef:uid value="n_route"/>
         <aef:position x="1123.6" y="92.0"/>
@@ -181,19 +181,19 @@
       <bpmn:outgoing>flow_10</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_agent" targetRef="frw_1_pretooluse">
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_start_agent" targetRef="frw_1_pretooluse">
       <bpmn:extensionElements>
         <aef:uid value="e_01"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_pretooluse" targetRef="frw_2_matches">
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_pretooluse" targetRef="frw_gw_matches">
       <bpmn:extensionElements>
         <aef:uid value="e_02"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_3" name="no match (not consequential)" sourceRef="frw_2_matches" targetRef="agt_2_command">
+    <bpmn:sequenceFlow id="flow_3" name="no match (not consequential)" sourceRef="frw_gw_matches" targetRef="agt_1_command">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${match == false}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_03"/>
@@ -201,14 +201,14 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_4" name="destructive match" sourceRef="frw_2_matches" targetRef="frw_3_valid">
+    <bpmn:sequenceFlow id="flow_4" name="destructive match" sourceRef="frw_gw_matches" targetRef="frw_gw_valid">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${match == true}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_04"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_5" name="valid token" sourceRef="frw_3_valid" targetRef="frw_5_consume">
+    <bpmn:sequenceFlow id="flow_5" name="valid token" sourceRef="frw_gw_valid" targetRef="frw_3_consume">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${approved == true}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_05"/>
@@ -216,27 +216,27 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_6" name="no approval" sourceRef="frw_3_valid" targetRef="frw_4_block">
+    <bpmn:sequenceFlow id="flow_6" name="no approval" sourceRef="frw_gw_valid" targetRef="frw_2_block">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${approved == false}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_06"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_7" sourceRef="frw_4_block" targetRef="hum_1_human">
+    <bpmn:sequenceFlow id="flow_7" sourceRef="frw_2_block" targetRef="hum_1_human">
       <bpmn:extensionElements>
         <aef:uid value="e_07"/>
         <aef:anchors targetPort="W"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_8" sourceRef="hum_1_human" targetRef="hum_2_approve">
+    <bpmn:sequenceFlow id="flow_8" sourceRef="hum_1_human" targetRef="hum_gw_approve">
       <bpmn:extensionElements>
         <aef:uid value="e_08"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_9" name="approve (fw tier0 approve) + re-issue" sourceRef="hum_2_approve" targetRef="frw_1_pretooluse">
+    <bpmn:sequenceFlow id="flow_9" name="approve (fw tier0 approve) + re-issue" sourceRef="hum_gw_approve" targetRef="frw_1_pretooluse">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${decision == 'approve'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_09"/>
@@ -244,27 +244,27 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_10" name="abandon" sourceRef="hum_2_approve" targetRef="frw_6_record">
+    <bpmn:sequenceFlow id="flow_10" name="abandon" sourceRef="hum_gw_approve" targetRef="frw_4_record">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${decision == 'abandon'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_10"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_11" sourceRef="frw_5_consume" targetRef="agt_2_command">
+    <bpmn:sequenceFlow id="flow_11" sourceRef="frw_3_consume" targetRef="agt_1_command">
       <bpmn:extensionElements>
         <aef:uid value="e_11"/>
         <aef:anchors targetPort="N"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_12" sourceRef="agt_2_command" targetRef="frw_7_executed">
+    <bpmn:sequenceFlow id="flow_12" sourceRef="agt_1_command" targetRef="frw_end_executed">
       <bpmn:extensionElements>
         <aef:uid value="e_12"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_6_record" targetRef="hum_3_abandoned">
+    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_4_record" targetRef="hum_end_abandoned">
       <bpmn:extensionElements>
         <aef:uid value="e_13"/>
       </bpmn:extensionElements>

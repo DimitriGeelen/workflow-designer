@@ -21,22 +21,22 @@
           <aef:laneMeta abbr="hum" authority="sovereignty" height="216"/>
         </bpmn:extensionElements>
         <bpmn:flowNodeRef>hum_1_record</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>hum_2_decision</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_gw_decision</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
           <aef:laneMeta abbr="frw" authority="authority" height="288"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>frw_1_inception</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_9_go</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_10_no</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_8_defer</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_2_create</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_3_start</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_4_generate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_6_complete</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_7_complete</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_start_inception</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_go</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_no</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_defer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_1_create</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_generate</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_5_complete</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_6_complete</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_complete</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="agent" name="Agent · Initiative">
         <bpmn:extensionElements>
@@ -47,7 +47,7 @@
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="frw_1_inception" name="Inception requested">
+    <bpmn:startEvent id="frw_start_inception" name="Inception requested">
       <bpmn:extensionElements>
         <aef:uid value="n_req01"/>
         <aef:position x="120.0" y="308.0"/>
@@ -60,7 +60,7 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="frw_9_go" name="GO — build tasks authorized">
+    <bpmn:endEvent id="frw_end_go" name="GO — build tasks authorized">
       <bpmn:extensionElements>
         <aef:uid value="n_end_go"/>
         <aef:position x="1980.0" y="308.0"/>
@@ -68,7 +68,7 @@
       <bpmn:incoming>flow_11</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:endEvent id="frw_10_no" name="NO-GO — parked">
+    <bpmn:endEvent id="frw_end_no" name="NO-GO — parked">
       <bpmn:extensionElements>
         <aef:uid value="n_end_ng"/>
         <aef:position x="1980.0" y="404.0"/>
@@ -76,7 +76,7 @@
       <bpmn:incoming>flow_12</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:endEvent id="frw_8_defer" name="DEFER — revisit scheduled">
+    <bpmn:endEvent id="frw_end_defer" name="DEFER — revisit scheduled">
       <bpmn:extensionElements>
         <aef:uid value="n_end_df"/>
         <aef:position x="1980.0" y="500.0"/>
@@ -129,7 +129,7 @@
       <bpmn:outgoing>flow_7</bpmn:outgoing>
     </bpmn:userTask>
 
-    <bpmn:scriptTask id="frw_2_create" name="Create inception task (status captured)">
+    <bpmn:scriptTask id="frw_1_create" name="Create inception task (status captured)">
       <bpmn:extensionElements>
         <aef:uid value="n_crea01"/>
         <aef:position x="500.0" y="294.0"/>
@@ -144,7 +144,7 @@
       <bpmn:outgoing>flow_3</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_3_start" name="Start work (captured to started-work)">
+    <bpmn:scriptTask id="frw_2_start" name="Start work (captured to started-work)">
       <bpmn:extensionElements>
         <aef:uid value="n_strt01"/>
         <aef:position x="700.0" y="294.0"/>
@@ -158,7 +158,7 @@
       <bpmn:outgoing>flow_4</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_4_generate" name="Generate review surface + marker">
+    <bpmn:scriptTask id="frw_3_generate" name="Generate review surface + marker">
       <bpmn:extensionElements>
         <aef:uid value="n_revw01"/>
         <aef:position x="1100.0" y="294.0"/>
@@ -173,7 +173,7 @@
       <bpmn:outgoing>flow_6</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_6_complete" name="Complete GO — auto-tick ACs, move to completed, authorize build tasks">
+    <bpmn:scriptTask id="frw_5_complete" name="Complete GO — auto-tick ACs, move to completed, authorize build tasks">
       <bpmn:extensionElements>
         <aef:uid value="n_go01"/>
         <aef:position x="1760.0" y="328.0"/>
@@ -184,7 +184,7 @@
       <bpmn:outgoing>flow_11</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_7_complete" name="Complete NO-GO — record + park">
+    <bpmn:scriptTask id="frw_6_complete" name="Complete NO-GO — record + park">
       <bpmn:extensionElements>
         <aef:uid value="n_ng01"/>
         <aef:position x="1760.0" y="404.0"/>
@@ -195,7 +195,7 @@
       <bpmn:outgoing>flow_12</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_5_complete" name="Complete DEFER — inject stubs + revisit_at">
+    <bpmn:scriptTask id="frw_4_complete" name="Complete DEFER — inject stubs + revisit_at">
       <bpmn:extensionElements>
         <aef:uid value="n_df01"/>
         <aef:position x="1760.0" y="480.0"/>
@@ -206,7 +206,7 @@
       <bpmn:outgoing>flow_13</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:exclusiveGateway id="hum_2_decision" name="Decision?">
+    <bpmn:exclusiveGateway id="hum_gw_decision" name="Decision?">
       <bpmn:extensionElements>
         <aef:uid value="n_rout01"/>
         <aef:position x="1540.0" y="200.0"/>
@@ -219,82 +219,82 @@
       <bpmn:outgoing>flow_10</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:sequenceFlow id="flow_1" sourceRef="frw_1_inception" targetRef="agt_1_file">
+    <bpmn:sequenceFlow id="flow_1" sourceRef="frw_start_inception" targetRef="agt_1_file">
       <bpmn:extensionElements>
         <aef:uid value="e_01"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_2" sourceRef="agt_1_file" targetRef="frw_2_create">
+    <bpmn:sequenceFlow id="flow_2" sourceRef="agt_1_file" targetRef="frw_1_create">
       <bpmn:extensionElements>
         <aef:uid value="e_02"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_3" sourceRef="frw_2_create" targetRef="frw_3_start">
+    <bpmn:sequenceFlow id="flow_3" sourceRef="frw_1_create" targetRef="frw_2_start">
       <bpmn:extensionElements>
         <aef:uid value="e_03"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_4" sourceRef="frw_3_start" targetRef="agt_2_conduct">
+    <bpmn:sequenceFlow id="flow_4" sourceRef="frw_2_start" targetRef="agt_2_conduct">
       <bpmn:extensionElements>
         <aef:uid value="e_04"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_5" sourceRef="agt_2_conduct" targetRef="frw_4_generate">
+    <bpmn:sequenceFlow id="flow_5" sourceRef="agt_2_conduct" targetRef="frw_3_generate">
       <bpmn:extensionElements>
         <aef:uid value="e_05"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_6" sourceRef="frw_4_generate" targetRef="hum_1_record">
+    <bpmn:sequenceFlow id="flow_6" sourceRef="frw_3_generate" targetRef="hum_1_record">
       <bpmn:extensionElements>
         <aef:uid value="e_06"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_7" sourceRef="hum_1_record" targetRef="hum_2_decision">
+    <bpmn:sequenceFlow id="flow_7" sourceRef="hum_1_record" targetRef="hum_gw_decision">
       <bpmn:extensionElements>
         <aef:uid value="e_07"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_8" name="go" sourceRef="hum_2_decision" targetRef="frw_6_complete">
+    <bpmn:sequenceFlow id="flow_8" name="go" sourceRef="hum_gw_decision" targetRef="frw_5_complete">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${decision == 'go'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_08"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_9" name="no-go" sourceRef="hum_2_decision" targetRef="frw_7_complete">
+    <bpmn:sequenceFlow id="flow_9" name="no-go" sourceRef="hum_gw_decision" targetRef="frw_6_complete">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${decision == 'no-go'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_09"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_10" name="defer" sourceRef="hum_2_decision" targetRef="frw_5_complete">
+    <bpmn:sequenceFlow id="flow_10" name="defer" sourceRef="hum_gw_decision" targetRef="frw_4_complete">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${decision == 'defer'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_10"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_11" sourceRef="frw_6_complete" targetRef="frw_9_go">
+    <bpmn:sequenceFlow id="flow_11" sourceRef="frw_5_complete" targetRef="frw_end_go">
       <bpmn:extensionElements>
         <aef:uid value="e_11"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_12" sourceRef="frw_7_complete" targetRef="frw_10_no">
+    <bpmn:sequenceFlow id="flow_12" sourceRef="frw_6_complete" targetRef="frw_end_no">
       <bpmn:extensionElements>
         <aef:uid value="e_12"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_5_complete" targetRef="frw_8_defer">
+    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_4_complete" targetRef="frw_end_defer">
       <bpmn:extensionElements>
         <aef:uid value="e_13"/>
       </bpmn:extensionElements>

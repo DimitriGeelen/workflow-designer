@@ -37,7 +37,7 @@ mk() { # $1 id, $2 workflow_type, $3 extra frontmatter line
 }
 reset_fixtures() {
     rm -f "$FIX"/*.md "$LOG"
-    mk T-9971 build "current_node: frw_3_start"
+    mk T-9971 build "current_node: frw_1_start"
     mk T-9972 build
     mk T-9973 spike
 }
@@ -49,11 +49,11 @@ real_before=$(lines "$REAL_LOG")
 
 # ── leg 1: out-of-order advance ──────────────────────────────────────────────
 t_leg1_out_of_order_appends_line() {
-    local out; out=$(run advance T-9971 frw_10_finalize); local rc=$?
-    [ $rc -eq 1 ] && [[ "$out" == REFUSED-TRANSITION* ]] && [ "$(node_of T-9971)" = frw_3_start ] \
+    local out; out=$(run advance T-9971 frw_5_finalize); local rc=$?
+    [ $rc -eq 1 ] && [[ "$out" == REFUSED-TRANSITION* ]] && [ "$(node_of T-9971)" = frw_1_start ] \
         && [ "$(lines "$LOG")" = 1 ] \
         && [ "$(field "$LOG" 0 case)" = out-of-order-advance ] && [ "$(field "$LOG" 0 rule)" = template-flow ] \
-        && [ "$(field "$LOG" 0 node)" = frw_3_start ] && [ "$(field "$LOG" 0 target)" = frw_10_finalize ] \
+        && [ "$(field "$LOG" 0 node)" = frw_1_start ] && [ "$(field "$LOG" 0 target)" = frw_5_finalize ] \
         && [[ "$(field "$LOG" 0 template)" == *task-lifecycle.bpmn ]] && [ "$(field "$LOG" 0 task)" = T-9971 ] \
         && ok leg1_out_of_order_appends_line || bad leg1_out_of_order_appends_line "rc=$rc out=$out log=$(cat "$LOG" 2>/dev/null)"
 }
@@ -63,7 +63,7 @@ t_leg1_control_legal_advance_appends_nothing() {
         && ok leg1_control_legal_advance_appends_nothing || bad leg1_control_legal_advance_appends_nothing "rc=$rc lines=$(lines "$LOG")"
 }
 t_line_is_json_with_all_keys() {
-    run advance T-9971 frw_10_finalize >/dev/null
+    run advance T-9971 frw_5_finalize >/dev/null
     local keys; keys=$(python3 -c "import json,sys; print(' '.join(json.loads(open(sys.argv[1]).readline()).keys()))" "$LOG" 2>/dev/null)
     [ "$keys" = "ts task case rule kind node target template detail actor" ] && [ "$(field "$LOG" 0 kind)" = REFUSED-TRANSITION ] \
         && [ "$(field "$LOG" 0 actor)" = cli ] \
@@ -71,7 +71,7 @@ t_line_is_json_with_all_keys() {
 }
 t_every_refuse_emission_appends() {
     # REFUSED-PLACED (set on a placed entity) and REFUSED (unknown node) go through the same writer.
-    run set T-9971 frw_4_enter >/dev/null; local rc1=$?
+    run set T-9971 frw_2_enter >/dev/null; local rc1=$?
     run set T-9972 not_a_node >/dev/null; local rc2=$?
     [ $rc1 -eq 1 ] && [ $rc2 -eq 1 ] && [ "$(lines "$LOG")" = 2 ] \
         && [ "$(field "$LOG" 0 rule)" = placement-one-shot ] && [ "$(field "$LOG" 1 rule)" = template-membership ] \
@@ -81,15 +81,15 @@ t_every_refuse_emission_appends() {
 # ── leg 2: skipped human gateway (framework-side, through the lib) ───────────
 libcall() { ( . "$LIB"; PROJECT_ROOT="$ROOT" FW_INSTANCE_TOOL="$TOOL" FW_INSTANCE_TASKS_DIR="$FIX" FW_INSTANCE_REFUSAL_LOG="$LOG" fw_instance_refused "$@" >"$WORK/o" 2>"$WORK/e"; echo $? ); }
 t_leg2_lib_records_framework_refusal() {
-    local rc; rc=$(libcall T-9971 skipped-human-gateway R-033 frw_9_human "owner is human")
-    [ "$rc" = 0 ] && grep -q '^  audit: REFUSAL-RECORDED T-9971 skipped-human-gateway R-033 frw_9_human' "$WORK/o" && [ ! -s "$WORK/e" ] \
+    local rc; rc=$(libcall T-9971 skipped-human-gateway R-033 frw_gw_human "owner is human")
+    [ "$rc" = 0 ] && grep -q '^  audit: REFUSAL-RECORDED T-9971 skipped-human-gateway R-033 frw_gw_human' "$WORK/o" && [ ! -s "$WORK/e" ] \
         && [ "$(lines "$LOG")" = 1 ] && [ "$(field "$LOG" 0 case)" = skipped-human-gateway ] && [ "$(field "$LOG" 0 rule)" = R-033 ] \
-        && [ "$(field "$LOG" 0 node)" = frw_9_human ] && [ "$(field "$LOG" 0 actor)" = framework ] \
+        && [ "$(field "$LOG" 0 node)" = frw_gw_human ] && [ "$(field "$LOG" 0 actor)" = framework ] \
         && [ "$(field "$LOG" 0 template)" = task-lifecycle ] \
         && ok leg2_lib_records_framework_refusal || bad leg2_lib_records_framework_refusal "rc=$rc o=$(cat "$WORK/o") e=$(cat "$WORK/e") lines=$(lines "$LOG")"
 }
 t_leg2_control_empty_case_is_noop() {
-    local rc; rc=$(libcall T-9971 "" R-033 frw_9_human "x")
+    local rc; rc=$(libcall T-9971 "" R-033 frw_gw_human "x")
     [ "$rc" = 0 ] && [ ! -s "$WORK/o" ] && [ ! -s "$WORK/e" ] && [ "$(lines "$LOG")" = 0 ] \
         && ok leg2_control_empty_case_is_noop || bad leg2_control_empty_case_is_noop "rc=$rc lines=$(lines "$LOG")"
 }
@@ -98,15 +98,15 @@ t_leg2_wiring_r033_refusal_not_bypass() {
     local blk; blk=$(awk '/^check_human_sovereignty\(\)/,/^}/' "$UPD")
     local refusal_branch; refusal_branch=$(echo "$blk" | awk '/Sovereignty gate \(R-033\)/,/exit 1/')
     local bypass_branch; bypass_branch=$(echo "$blk" | awk '/SKIP_SOVEREIGNTY.*= true/,/else/')
-    echo "$refusal_branch" | grep -q 'fw_instance_refused "$TASK_ID" skipped-human-gateway R-033 frw_9_human' \
+    echo "$refusal_branch" | grep -q 'fw_instance_refused "$TASK_ID" skipped-human-gateway R-033 frw_gw_human' \
         && ! echo "$bypass_branch" | grep -q 'fw_instance_refused' \
         && ok leg2_wiring_r033_refusal_not_bypass || bad leg2_wiring_r033_refusal_not_bypass "refusal='$refusal_branch'"
 }
 
 # ── leg 3: unmet input contract (wiring pins) ────────────────────────────────
 t_leg3_wiring_p010_p011_refusal_not_bypass() {
-    local p010; p010=$(grep -n 'fw_instance_refused "$TASK_ID" unmet-input-contract P-010 frw_7_all' "$UPD" | cut -d: -f1)
-    local p011; p011=$(grep -n 'fw_instance_refused "$TASK_ID" unmet-input-contract P-011 frw_7_all' "$UPD" | cut -d: -f1)
+    local p010; p010=$(grep -n 'fw_instance_refused "$TASK_ID" unmet-input-contract P-010 frw_gw_all' "$UPD" | cut -d: -f1)
+    local p011; p011=$(grep -n 'fw_instance_refused "$TASK_ID" unmet-input-contract P-011 frw_gw_all' "$UPD" | cut -d: -f1)
     [ -n "$p010" ] && [ -n "$p011" ] \
         && sed -n "$p010,$((p010+3))p" "$UPD" | grep -q 'exit 1' \
         && sed -n "$p011,$((p011+3))p" "$UPD" | grep -q 'exit 1' \
@@ -119,12 +119,12 @@ t_leg3_wiring_p010_p011_refusal_not_bypass() {
 
 # ── reader ───────────────────────────────────────────────────────────────────
 t_reader_lists_and_names_rule() {
-    run advance T-9971 frw_10_finalize >/dev/null
-    libcall T-9972 unmet-input-contract P-010 frw_7_all "2/5 unchecked" >/dev/null
+    run advance T-9971 frw_5_finalize >/dev/null
+    libcall T-9972 unmet-input-contract P-010 frw_gw_all "2/5 unchecked" >/dev/null
     local all; all=$(run refusals); local one; one=$(run refusals T-9972); local none; none=$(run refusals T-9973)
     [ "$(echo "$all" | grep -c '^REFUSAL ')" = 2 ] \
-        && echo "$all" | grep -qE '^REFUSAL [0-9T:Z-]+ T-9971 out-of-order-advance template-flow frw_3_start -> frw_10_finalize$' \
-        && [ "$(echo "$one" | grep -c '^REFUSAL ')" = 1 ] && echo "$one" | grep -qE '^REFUSAL [0-9T:Z-]+ T-9972 unmet-input-contract P-010 frw_7_all$' \
+        && echo "$all" | grep -qE '^REFUSAL [0-9T:Z-]+ T-9971 out-of-order-advance template-flow frw_1_start -> frw_5_finalize$' \
+        && [ "$(echo "$one" | grep -c '^REFUSAL ')" = 1 ] && echo "$one" | grep -qE '^REFUSAL [0-9T:Z-]+ T-9972 unmet-input-contract P-010 frw_gw_all$' \
         && [ "$none" = "NO-REFUSALS T-9973" ] \
         && ok reader_lists_and_names_rule || bad reader_lists_and_names_rule "all=$all one=$one none=$none"
 }
@@ -142,14 +142,14 @@ t_writer_refuses_line_without_rule() {
 # ── never fails, never hides ─────────────────────────────────────────────────
 t_unwritable_log_never_changes_the_refusal() {
     : > "$WORK/blocker"   # a FILE where the log's parent dir would have to be
-    local out; out=$(python3 "$TOOL" --root "$ROOT" --tasks-dir "$FIX" --log "$WORK/blocker/sub/log.jsonl" advance T-9971 frw_10_finalize 2>"$WORK/err"); local rc=$?
-    local rc2; rc2=$( . "$LIB"; PROJECT_ROOT="$ROOT" FW_INSTANCE_TOOL="$TOOL" FW_INSTANCE_TASKS_DIR="$FIX" FW_INSTANCE_REFUSAL_LOG="$WORK/blocker/sub/log.jsonl" fw_instance_refused T-9971 skipped-human-gateway R-033 frw_9_human x >"$WORK/o" 2>"$WORK/e"; echo $? )
-    [ $rc -eq 1 ] && [[ "$out" == REFUSED-TRANSITION* ]] && grep -q '^WARNING: audit line not written' "$WORK/err" && [ "$(node_of T-9971)" = frw_3_start ] \
+    local out; out=$(python3 "$TOOL" --root "$ROOT" --tasks-dir "$FIX" --log "$WORK/blocker/sub/log.jsonl" advance T-9971 frw_5_finalize 2>"$WORK/err"); local rc=$?
+    local rc2; rc2=$( . "$LIB"; PROJECT_ROOT="$ROOT" FW_INSTANCE_TOOL="$TOOL" FW_INSTANCE_TASKS_DIR="$FIX" FW_INSTANCE_REFUSAL_LOG="$WORK/blocker/sub/log.jsonl" fw_instance_refused T-9971 skipped-human-gateway R-033 frw_gw_human x >"$WORK/o" 2>"$WORK/e"; echo $? )
+    [ $rc -eq 1 ] && [[ "$out" == REFUSED-TRANSITION* ]] && grep -q '^WARNING: audit line not written' "$WORK/err" && [ "$(node_of T-9971)" = frw_1_start ] \
         && [ "$rc2" = 0 ] && grep -q '^WARNING: refusal NOT audited' "$WORK/e" && [ ! -s "$WORK/o" ] \
         && ok unwritable_log_never_changes_the_refusal || bad unwritable_log_never_changes_the_refusal "rc=$rc rc2=$rc2 out=$out err=$(cat "$WORK/err") e=$(cat "$WORK/e")"
 }
 t_tool_absent_is_silent() {
-    local rc; rc=$( . "$LIB"; PROJECT_ROOT="$ROOT" FW_INSTANCE_TOOL="$WORK/does-not-exist.py" FW_INSTANCE_REFUSAL_LOG="$LOG" fw_instance_refused T-9971 skipped-human-gateway R-033 frw_9_human x >"$WORK/o" 2>"$WORK/e"; echo $? )
+    local rc; rc=$( . "$LIB"; PROJECT_ROOT="$ROOT" FW_INSTANCE_TOOL="$WORK/does-not-exist.py" FW_INSTANCE_REFUSAL_LOG="$LOG" fw_instance_refused T-9971 skipped-human-gateway R-033 frw_gw_human x >"$WORK/o" 2>"$WORK/e"; echo $? )
     [ "$rc" = 0 ] && [ ! -s "$WORK/o" ] && [ ! -s "$WORK/e" ] && [ "$(lines "$LOG")" = 0 ] \
         && ok tool_absent_is_silent || bad tool_absent_is_silent "rc=$rc"
 }
@@ -157,8 +157,8 @@ t_tool_absent_is_silent() {
 # ── location and override ────────────────────────────────────────────────────
 t_flag_wins_over_env() {
     local A="$WORK/a.jsonl" B="$WORK/b.jsonl"
-    FW_INSTANCE_REFUSAL_LOG="$A" python3 "$TOOL" --root "$ROOT" --tasks-dir "$FIX" --log "$B" advance T-9971 frw_10_finalize >/dev/null 2>&1
-    FW_INSTANCE_REFUSAL_LOG="$A" python3 "$TOOL" --root "$ROOT" --tasks-dir "$FIX" advance T-9971 frw_10_finalize >/dev/null 2>&1
+    FW_INSTANCE_REFUSAL_LOG="$A" python3 "$TOOL" --root "$ROOT" --tasks-dir "$FIX" --log "$B" advance T-9971 frw_5_finalize >/dev/null 2>&1
+    FW_INSTANCE_REFUSAL_LOG="$A" python3 "$TOOL" --root "$ROOT" --tasks-dir "$FIX" advance T-9971 frw_5_finalize >/dev/null 2>&1
     [ "$(lines "$B")" = 1 ] && [ "$(lines "$A")" = 1 ] \
         && ok flag_wins_over_env || bad flag_wins_over_env "a=$(lines "$A") b=$(lines "$B")"
 }
@@ -167,7 +167,7 @@ t_default_location_under_root_audits() {
     local R="$WORK/root"; mkdir -p "$R/examples/aef-processes/rendered" "$R/tools"
     cp "$ROOT/examples/aef-processes/template-binding.yaml" "$R/examples/aef-processes/"
     cp "$ROOT/examples/aef-processes/rendered/"*.bpmn "$R/examples/aef-processes/rendered/"
-    python3 "$TOOL" --root "$R" --tasks-dir "$FIX" advance T-9971 frw_10_finalize >/dev/null 2>&1
+    python3 "$TOOL" --root "$R" --tasks-dir "$FIX" advance T-9971 frw_5_finalize >/dev/null 2>&1
     [ "$(lines "$R/.context/audits/instance-refusals.jsonl")" = 1 ] \
         && ok default_location_under_root_audits || bad default_location_under_root_audits "missing $R/.context/audits/instance-refusals.jsonl"
 }

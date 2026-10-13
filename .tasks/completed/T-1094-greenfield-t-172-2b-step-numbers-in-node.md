@@ -13,7 +13,7 @@ status: work-completed
 workflow_type: inception
 target_blast_radius: 3
 voi_score: 0.5
-current_node: frw_11_task
+current_node: frw_end_task
 owner: agent
 horizon: null
 tags: []

@@ -25,25 +25,25 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="frw" authority="authority" height="216"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>frw_9_handover</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_handover</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_1_gather</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_2_backfill</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_4_extract</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_5_write</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_6_auto</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_7_pre</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_8_push</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_3_all</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_extract</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_write</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_5_auto</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_6_pre</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_7_push</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_all</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="agent" name="Agent · Initiative">
         <bpmn:extensionElements>
           <aef:laneMeta abbr="agt" authority="initiative" height="96"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>agt_1_session</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_start_session</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="agt_1_session" name="Session end / checkpoint requested">
+    <bpmn:startEvent id="agt_start_session" name="Session end / checkpoint requested">
       <bpmn:extensionElements>
         <aef:uid value="n_trigger"/>
         <aef:position x="120.0" y="388.0"/>
@@ -52,7 +52,7 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="frw_9_handover" name="Handover published (next session can resume)">
+    <bpmn:endEvent id="frw_end_handover" name="Handover published (next session can resume)">
       <bpmn:extensionElements>
         <aef:uid value="n_end"/>
         <aef:position x="1720.0" y="286.0"/>
@@ -82,7 +82,7 @@
       <bpmn:outgoing>flow_5</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_4_extract" name="Extract session metrics">
+    <bpmn:scriptTask id="frw_3_extract" name="Extract session metrics">
       <bpmn:extensionElements>
         <aef:uid value="n_metrics"/>
         <aef:position x="720.0" y="272.0"/>
@@ -93,7 +93,7 @@
       <bpmn:outgoing>flow_6</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_5_write" name="Write handover doc + LATEST.md (Where We Are, Suggested Action)">
+    <bpmn:scriptTask id="frw_4_write" name="Write handover doc + LATEST.md (Where We Are, Suggested Action)">
       <bpmn:extensionElements>
         <aef:uid value="n_write"/>
         <aef:position x="920.0" y="272.0"/>
@@ -104,7 +104,7 @@
       <bpmn:outgoing>flow_7</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_6_auto" name="Auto-commit via git agent">
+    <bpmn:scriptTask id="frw_5_auto" name="Auto-commit via git agent">
       <bpmn:extensionElements>
         <aef:uid value="n_commit"/>
         <aef:position x="1120.0" y="272.0"/>
@@ -115,7 +115,7 @@
       <bpmn:outgoing>flow_8</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_7_pre" name="Pre-push audit check">
+    <bpmn:scriptTask id="frw_6_pre" name="Pre-push audit check">
       <bpmn:extensionElements>
         <aef:uid value="n_audit"/>
         <aef:position x="1320.0" y="272.0"/>
@@ -125,7 +125,7 @@
       <bpmn:outgoing>flow_9</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_8_push" name="Push to remotes">
+    <bpmn:scriptTask id="frw_7_push" name="Push to remotes">
       <bpmn:extensionElements>
         <aef:uid value="n_push"/>
         <aef:position x="1520.0" y="272.0"/>
@@ -135,7 +135,7 @@
       <bpmn:outgoing>flow_10</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:exclusiveGateway id="frw_3_all" name="All completed tasks have enriched episodics?">
+    <bpmn:exclusiveGateway id="frw_gw_all" name="All completed tasks have enriched episodics?">
       <bpmn:extensionElements>
         <aef:uid value="n_episodic_gate"/>
         <aef:position x="520.0" y="280.0"/>
@@ -147,63 +147,63 @@
       <bpmn:outgoing>flow_4</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_session" targetRef="frw_1_gather">
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_start_session" targetRef="frw_1_gather">
       <bpmn:extensionElements>
         <aef:uid value="e_01"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_gather" targetRef="frw_3_all">
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_gather" targetRef="frw_gw_all">
       <bpmn:extensionElements>
         <aef:uid value="e_02"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_3" name="missing episodics" sourceRef="frw_3_all" targetRef="frw_2_backfill">
+    <bpmn:sequenceFlow id="flow_3" name="missing episodics" sourceRef="frw_gw_all" targetRef="frw_2_backfill">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${episodics_complete == false}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_03"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_4" name="complete" sourceRef="frw_3_all" targetRef="frw_4_extract">
+    <bpmn:sequenceFlow id="flow_4" name="complete" sourceRef="frw_gw_all" targetRef="frw_3_extract">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${episodics_complete == true}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_04"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_5" sourceRef="frw_2_backfill" targetRef="frw_4_extract">
+    <bpmn:sequenceFlow id="flow_5" sourceRef="frw_2_backfill" targetRef="frw_3_extract">
       <bpmn:extensionElements>
         <aef:uid value="e_05"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_6" sourceRef="frw_4_extract" targetRef="frw_5_write">
+    <bpmn:sequenceFlow id="flow_6" sourceRef="frw_3_extract" targetRef="frw_4_write">
       <bpmn:extensionElements>
         <aef:uid value="e_06"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_7" sourceRef="frw_5_write" targetRef="frw_6_auto">
+    <bpmn:sequenceFlow id="flow_7" sourceRef="frw_4_write" targetRef="frw_5_auto">
       <bpmn:extensionElements>
         <aef:uid value="e_07"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_8" sourceRef="frw_6_auto" targetRef="frw_7_pre">
+    <bpmn:sequenceFlow id="flow_8" sourceRef="frw_5_auto" targetRef="frw_6_pre">
       <bpmn:extensionElements>
         <aef:uid value="e_08"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_9" sourceRef="frw_7_pre" targetRef="frw_8_push">
+    <bpmn:sequenceFlow id="flow_9" sourceRef="frw_6_pre" targetRef="frw_7_push">
       <bpmn:extensionElements>
         <aef:uid value="e_09"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_10" sourceRef="frw_8_push" targetRef="frw_9_handover">
+    <bpmn:sequenceFlow id="flow_10" sourceRef="frw_7_push" targetRef="frw_end_handover">
       <bpmn:extensionElements>
         <aef:uid value="e_10"/>
       </bpmn:extensionElements>

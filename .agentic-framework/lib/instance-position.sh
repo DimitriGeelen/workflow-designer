@@ -5,9 +5,9 @@
 # (examples/aef-processes/rendered/task-lifecycle.bpmn — T-878, T-880). Its position
 # on that template is recorded as `current_node:` in its own frontmatter and may move
 # only along a sequenceFlow the template carries (T-882's guard). update-task.sh IS
-# the process the template draws: when it starts work it is frw_3_start, when it
-# enters issues it is frw_4_enter, when it runs the completion battery it is
-# frw_6_run, and so on. So it writes the node it is, here, through the guard.
+# the process the template draws: when it starts work it is frw_1_start, when it
+# enters issues it is frw_2_enter, when it runs the completion battery it is
+# frw_3_run, and so on. So it writes the node it is, here, through the guard.
 #
 # Two functions, both safe to call from a `set -euo pipefail` close path:
 #
@@ -49,11 +49,11 @@ fw_instance_node_for_transition() {
         started-work)
             case "$old" in
                 issues|blocked) echo agt_2_perform ;;   # back to performing the work
-                *)              echo frw_3_start ;;     # captured (or legacy refined) -> started
+                *)              echo frw_1_start ;;     # captured (or legacy refined) -> started
             esac ;;
-        issues|blocked)  echo frw_4_enter ;;
+        issues|blocked)  echo frw_2_enter ;;
         work-completed)
-            if [ "$partial" = "partial" ]; then echo frw_8_partial; else echo frw_11_task; fi ;;
+            if [ "$partial" = "partial" ]; then echo frw_4_partial; else echo frw_end_task; fi ;;
         *)               echo "" ;;                     # captured (pause): not modelled
     esac
 }

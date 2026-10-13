@@ -9,7 +9,7 @@ description: >
 
 status: work-completed
 workflow_type: build
-current_node: frw_8_partial
+current_node: frw_4_partial
 owner: human
 horizon: now
 tags: [arc:process-instances]

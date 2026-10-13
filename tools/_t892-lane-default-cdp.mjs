@@ -7,7 +7,7 @@
 //       differs ONLY by authoringDefault="…" on that lane's <aef:laneMeta> (diff non-empty, confined)
 //   L4  PRE-FILLS NEW ELEMENTS ONLY: createNodeAt in the defaulted lane -> aef.authority = default;
 //       in an undefaulted lane -> no authority key (control)
-//   L5  MARKERS RE-RENDER: on the T-893 fixture, default framework->initiative turns frw_4_enter's
+//   L5  MARKERS RE-RENDER: on the T-893 fixture, default framework->initiative turns frw_2_enter's
 //       'differs' marker off; counts asserted before/after
 // Screenshots: docs/reports/t892-shots/panel-field.png, node-before.png, node-after.png.
 // Exit 0 = all legs pass; 2 otherwise.
@@ -29,11 +29,11 @@ function cdp(ws) { const s = new WebSocket(ws); let id = 0; const p = new Map();
 async function ev(cmd, e) { const r = await cmd('Runtime.evaluate', { expression: e, returnByValue: true, awaitPromise: true }); if (r.exceptionDetails) throw new Error('eval: ' + JSON.stringify(r.exceptionDetails)); return r.result.value; }
 async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof parseBpmnXml==='function'&&typeof buildBpmnXml==='function'&&typeof refreshDisplayIds==='function'&&typeof renderProperties==='function'&&_appReady===true&&(typeof _deepLinkSettled==='undefined'||_deepLinkSettled!==null))`).catch(() => false); if (ok) return; if (Date.now() - t0 > 20000) throw new Error('editor not ready'); await sleep(150); } }
 
-function fixture() {   // same construction as T-893's driver: agent lane 'none', frw_4_enter own initiative
+function fixture() {   // same construction as T-893's driver: agent lane 'none', frw_2_enter own initiative
   let s = readFileSync(join(REPO, 'examples/aef-processes/rendered/task-lifecycle.bpmn'), 'utf8');
   s = s.replace('authority="initiative"', 'authority="none"');
-  const i = s.indexOf('id="frw_4_enter"'); const j = s.indexOf('<aef:meta ', i);
-  if (i < 0 || j < 0 || j - i > 3000) throw new Error('fixture: frw_4_enter meta not found');
+  const i = s.indexOf('id="frw_2_enter"'); const j = s.indexOf('<aef:meta ', i);
+  if (i < 0 || j < 0 || j - i > 3000) throw new Error('fixture: frw_2_enter meta not found');
   return s.slice(0, j) + '<aef:meta authority="initiative" ' + s.slice(j + '<aef:meta '.length);
 }
 const legs = []; const leg = (id, name, ok, detail) => { legs.push({ id, name, ok, detail }); console.log(`${id} ${ok ? 'PASS' : 'FAIL'}  ${name}\n      ${detail}`); };
@@ -66,8 +66,8 @@ const legs = []; const leg = (id, name, ok, detail) => { legs.push({ id, name, o
     await waitReady(cmd);
     for (let i = 0; i < 50 && !(await ev(cmd, '(state.nodes||[]).length > 0')); i++) await sleep(200);
     await ev(cmd, 'labelPrefs.size = "m"; renderAll(); true');
-    const nodeId = await ev(cmd, `(state.nodes.find(n => displayIdOf(n) === 'frw_4_enter') || {}).id`);
-    if (!nodeId) throw new Error('frw_4_enter not resolved');
+    const nodeId = await ev(cmd, `(state.nodes.find(n => displayIdOf(n) === 'frw_2_enter') || {}).id`);
+    if (!nodeId) throw new Error('frw_2_enter not resolved');
     const before = await ev(cmd, `({ aef: JSON.stringify(state.nodes.map(n => n.aef)), xml: buildBpmnXml(state), differs: document.querySelectorAll('[data-authority-marker="differs"]').length, missing: document.querySelectorAll('[data-authority-marker="missing"]').length, laneDefault: (getLanes().find(l => l.id === 'framework') || {}).authoringDefault })`);
     await shot(cmd, `g.node[data-id="${nodeId}"]`, 'node-before.png', 26);
 
@@ -108,7 +108,7 @@ const legs = []; const leg = (id, name, ok, detail) => { legs.push({ id, name, o
         `aef identical=${before.aef === after.aef}; changed lines=${changed.length}: ${changed.map(l => l.trim().slice(0, 90)).join(' | ')}`);
 
     // ---- L5: markers re-render ----
-    leg('L5', 'MARKERS RE-RENDER: frw_4_enter differs marker off once the lane default matches it',
+    leg('L5', 'MARKERS RE-RENDER: frw_2_enter differs marker off once the lane default matches it',
         before.differs === 1 && after.differs === 0 && before.missing === after.missing,
         `differs before=${before.differs} after=${after.differs}; missing before=${before.missing} after=${after.missing}`);
     await shot(cmd, `g.node[data-id="${nodeId}"]`, 'node-after.png', 26);

@@ -25,7 +25,7 @@ description: >
 
 status: issues
 workflow_type: build
-current_node: frw_4_enter
+current_node: frw_2_enter
 owner: agent
 horizon: now
 tags: []

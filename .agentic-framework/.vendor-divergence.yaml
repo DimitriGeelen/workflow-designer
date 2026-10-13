@@ -1254,12 +1254,17 @@ entries:
       catches. tools/_t936-bare-import-gate-teeth.sh 17/17 (6 red before), bridge leg. Sent upstream
       in bundle B.
   - path: .agentic-framework/lib/instance-position.sh
-    kind: added
-    task: T-880, T-883, T-1005
+    kind: content
+    task: T-880, T-883, T-1005, T-1168
     upstream: fix
     reason: >-
       Instance-node position library (T-880) and its refusal audit (T-883). Undeclared, deleted
       by the 1.7.740 re-vendor; restored. Callers in update-task.sh are re-applied under T-1005.
+      832-ADDED, not AEF's (AEF confirmed 2026-10-13 it has no such file); kind is `content` only
+      because the 1146a7450 upgrade kept the file in the pristine commit 40b8e12c, so the baseline
+      holds it. T-1168 renamed its task-lifecycle node ids (activities-only step numbers:
+      frw_3_start -> frw_1_start, frw_4_enter -> frw_2_enter, frw_6_run -> frw_3_run,
+      frw_8_partial -> frw_4_partial, frw_11_task -> frw_end_task).
   - path: .agentic-framework/lib/task-ownership.sh
     kind: added
     task: T-931, T-1005

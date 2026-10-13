@@ -8,13 +8,13 @@ description: >
   which fields show and carry approved extra fields; most specific wins; standalone
   falls back to the designer default.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/gallery-serve.py]
 related_tasks: [T-1118, T-1124]
 unlocks_inception_decision: ["T-1118:field-profile"]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
@@ -44,8 +44,8 @@ unlocks_inception_decision: ["T-1118:field-profile"]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-11T12:58:35Z
-last_update: 2026-10-11T16:55:55Z
-date_finished:
+last_update: 2026-10-11T17:18:41Z
+date_finished: 2026-10-11T17:18:41Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -95,7 +95,8 @@ bvp_scores_proposed:
 - [x] Value-never-hidden holds above all layers: a hidden field that carries a value is drawn, marked "hidden in this project"
 - [x] "Show all fields" (B1) still shows every AEF_FIELDS field, profile hide included
 - [x] Export unchanged by any profile (byte-identical corpus export with and without a profile)
-- [ ] Workflow layer: stored where the operator rules (in the map as an aef: setting, or server-side per map id) — not built before that ruling
+- [x] Workflow layer: stored where the operator rules (in the map as an aef: setting, or server-side per map id) — not built before that ruling
+  (ruled 2026-10-11, R1: NOT built — deferred. Populated-only by default (B1) plus full editing in an element detail view (T-1127) leave per-workflow pins no job; see Decisions)
 - [x] Tests: gallery endpoint (served, 404, malformed refused) and CDP legs for precedence, pin, hide, value-never-hidden, standalone fallback, export parity; wired into tests/run-bridge-tests.sh
 
 ### Human
@@ -140,6 +141,9 @@ bvp_scores_proposed:
 # pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
 # past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
 #
+node tools/_t1125-field-profile-cdp.mjs
+python3 tools/_serve-gallery-verify.py
+python3 -m py_compile tools/gallery-serve.py
 # ── Mutable-corpus anchor (T-3326) ────────────────────────────────────────────
 # Do NOT anchor a verification line (or a unit test it runs) to MUTABLE corpus
 # state — an exact live count, or a grep of live `fw audit`/`fw doctor` output
@@ -335,6 +339,28 @@ bvp_scores_proposed:
 
 ## Decisions
 
+### 2026-10-11 — CORRECTION, same conversation: the per-map layer IS wanted (supersedes the entry below)
+- Operator, minutes later: "it needs to be configurable which fields are default shown. That's just something that
+  comes in the settings ... of course a per project setting. Also a per map setting if I want."
+- So: B2 closes with the read-only project layer it built; the Settings UI that edits the defaults, per project
+  and per map (per-map stored on the project server next to the map, W1 — both external reviewers' advice), is
+  build task T-1128, with the reviewers' folds as its criteria. The element detail view is T-1127.
+
+### 2026-10-11 — the per-workflow layer is deferred (operator ruling R1) — SUPERSEDED above
+- **Chose:** B2 ships the project layer only; the per-workflow layer is not built now.
+- **Why:** external advice (GLM-5.3: "W1.5", Antigravity: W1 — docs/reports/T-1125-external-review/) showed
+  in-map storage (W2) amends the frozen standard's normative two-class partition, and asked what per-workflow
+  pins are for. Operator: "per default, just to show populated fields. Once a field is populated, it shows up ...
+  if we click on an element, we should get a larger view ... that then shows all the information of this element
+  where you can manually edit it" → B1 already does the first; the second is inception T-1127. Per-workflow pins
+  have no remaining job, and nothing needs to travel in the map. Then: "proceed as suggested" (R1), and, made
+  explicit: "we said filtering plus details page, but all config with all options. Once I double click or
+  whatever ... I get the option to get all options" — the details view is BUILT now (T-1127), not shelved.
+- **Rejected:** W1 per-map server files (work for an unshown need: write path, versioning, rename drift);
+  W2 in-map (frozen-standard amendment, waits on AEF); W3 both (two sources of truth); leaving B2 open (R3).
+- **Revisit:** if T-1127 or real use shows a per-workflow need — the reviews' folds then apply (write path,
+  versioning with the map, merge-vs-replace semantics, provenance readout).
+
 ### 2026-10-11 — what "project" means for the profile
 - **Chose:** one profile per gallery repository (`<repo>/field-profile.json`, `GET /api/field-profile`).
 - **Why:** in gallery-serve.py an `id` is one map (one workflow); the repository is the project (832's corpus,
@@ -366,3 +392,20 @@ bvp_scores_proposed:
 ### 2026-10-11T14:13:07Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-08b8f7d3
+- **Timestamp:** 2026-10-11T17:20:29Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#8 (Agent)** — Tests: gallery endpoint (served, 404, malformed refused) and CDP legs for precedence, pin, hide, value-never-hidden, standalone fallback, export parity; wired into tests/run-bridge-tests.sh
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/run-bridge-tests.sh in: Tests: gallery endpoint (served, 404, malformed refused) and CDP legs for precedence, pin, hide, value-never-hidden, standalone fallback, export parit`
+
+### 2026-10-11T17:18:41Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

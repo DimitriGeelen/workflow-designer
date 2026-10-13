@@ -9,13 +9,13 @@ description: >
   advice in docs/reports/T-1125-external-review/), merge rule, provenance readout,
   and the reviewers' folds.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/gallery-serve.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-11T17:21:15Z
-last_update: 2026-10-11T17:29:14Z
-date_finished:
+last_update: 2026-10-11T17:30:43Z
+date_finished: 2026-10-11T17:30:43Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -377,3 +377,20 @@ python3 -m py_compile tools/gallery-serve.py
 
 ### 2026-10-11T17:23:22Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-074f2227
+- **Timestamp:** 2026-10-11T17:32:05Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#9 (Agent)** — Export byte-identical with any profile; tests: server legs (PUT valid/refused/409/bad id/atomic/history) and CDP legs (edit in Settings → save → reload applied, map overrides project per field, fall-t
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/run-bridge-tests.sh in: Export byte-identical with any profile; tests: server legs (PUT valid/refused/409/bad id/atomic/history) and CDP legs (edit in Settings → save → reloa`
+
+### 2026-10-11T17:30:43Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

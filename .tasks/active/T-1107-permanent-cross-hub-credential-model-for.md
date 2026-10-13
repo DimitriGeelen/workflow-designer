@@ -6,7 +6,7 @@ description: >
 
 status: started-work
 workflow_type: inception
-current_node: frw_3_start
+current_node: frw_1_start
 owner: human
 horizon: now
 tags: []

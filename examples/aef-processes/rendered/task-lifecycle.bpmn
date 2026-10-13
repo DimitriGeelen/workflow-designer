@@ -26,17 +26,17 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="frw" authority="authority" height="216"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>frw_1_task</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_11_task</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_3_start</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_4_enter</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_6_run</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_8_partial</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_10_finalize</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_2_build</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_5_outcome</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_7_all</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_9_human</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_start_task</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_task</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_1_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_enter</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_run</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_partial</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_5_finalize</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_build</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_outcome</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_all</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_human</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="agent" name="Agent · Initiative">
         <bpmn:extensionElements>
@@ -48,7 +48,7 @@
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="frw_1_task" name="Task captured (filed)">
+    <bpmn:startEvent id="frw_start_task" name="Task captured (filed)">
       <bpmn:extensionElements>
         <aef:uid value="n_file"/>
         <aef:position x="120.0" y="294.0"/>
@@ -62,7 +62,7 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="frw_11_task" name="Task completed (in completed/)">
+    <bpmn:endEvent id="frw_end_task" name="Task completed (in completed/)">
       <bpmn:extensionElements>
         <aef:uid value="n_end"/>
         <aef:position x="2120.0" y="294.0"/>
@@ -103,7 +103,7 @@
       <bpmn:outgoing>flow_17</bpmn:outgoing>
     </bpmn:userTask>
 
-    <bpmn:scriptTask id="frw_3_start" name="Start work (captured -&gt; started-work)">
+    <bpmn:scriptTask id="frw_1_start" name="Start work (captured -&gt; started-work)">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
         <aef:position x="520.0" y="280.0"/>
@@ -117,7 +117,7 @@
       <bpmn:outgoing>flow_5</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_4_enter" name="Enter issues (auto → healing diagnose)">
+    <bpmn:scriptTask id="frw_2_enter" name="Enter issues (auto → healing diagnose)">
       <bpmn:extensionElements>
         <aef:uid value="n_issues"/>
         <aef:position x="920.0" y="172.0"/>
@@ -139,7 +139,7 @@
       <bpmn:outgoing>flow_10</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_6_run" name="Run completion gate battery">
+    <bpmn:scriptTask id="frw_3_run" name="Run completion gate battery">
       <bpmn:extensionElements>
         <aef:uid value="n_gates"/>
         <aef:position x="1320.0" y="280.0"/>
@@ -156,7 +156,7 @@
       <bpmn:outgoing>flow_11</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_8_partial" name="Partial-complete (stays active, owner→human, emit review)">
+    <bpmn:scriptTask id="frw_4_partial" name="Partial-complete (stays active, owner→human, emit review)">
       <bpmn:extensionElements>
         <aef:uid value="n_partial"/>
         <aef:position x="1720.0" y="172.0"/>
@@ -166,7 +166,7 @@
       <bpmn:outgoing>flow_16</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_10_finalize" name="Finalize (date_finished, move to completed/, episodic, clear focus)">
+    <bpmn:scriptTask id="frw_5_finalize" name="Finalize (date_finished, move to completed/, episodic, clear focus)">
       <bpmn:extensionElements>
         <aef:uid value="n_finalize"/>
         <aef:position x="1920.0" y="280.0"/>
@@ -177,7 +177,7 @@
       <bpmn:outgoing>flow_18</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:exclusiveGateway id="frw_2_build" name="Build-ready? (G-020 entry guard)">
+    <bpmn:exclusiveGateway id="frw_gw_build" name="Build-ready? (G-020 entry guard)">
       <bpmn:extensionElements>
         <aef:uid value="n_ready"/>
         <aef:position x="320.0" y="288.0"/>
@@ -189,7 +189,7 @@
       <bpmn:outgoing>flow_3</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:exclusiveGateway id="frw_5_outcome" name="Outcome?">
+    <bpmn:exclusiveGateway id="frw_gw_outcome" name="Outcome?">
       <bpmn:extensionElements>
         <aef:uid value="n_progress"/>
         <aef:position x="920.0" y="288.0"/>
@@ -201,7 +201,7 @@
       <bpmn:outgoing>flow_8</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:exclusiveGateway id="frw_7_all" name="All gates pass?">
+    <bpmn:exclusiveGateway id="frw_gw_all" name="All gates pass?">
       <bpmn:extensionElements>
         <aef:uid value="n_gate_result"/>
         <aef:position x="1520.0" y="288.0"/>
@@ -213,7 +213,7 @@
       <bpmn:outgoing>flow_13</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:exclusiveGateway id="frw_9_human" name="Human-owned with unchecked Human ACs?">
+    <bpmn:exclusiveGateway id="frw_gw_human" name="Human-owned with unchecked Human ACs?">
       <bpmn:extensionElements>
         <aef:uid value="n_partial_check"/>
         <aef:position x="1720.0" y="288.0"/>
@@ -225,117 +225,117 @@
       <bpmn:outgoing>flow_15</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:sequenceFlow id="flow_1" sourceRef="frw_1_task" targetRef="frw_2_build">
+    <bpmn:sequenceFlow id="flow_1" sourceRef="frw_start_task" targetRef="frw_gw_build">
       <bpmn:extensionElements>
         <aef:uid value="e_01"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_2" name="placeholder ACs" sourceRef="frw_2_build" targetRef="agt_1_write">
+    <bpmn:sequenceFlow id="flow_2" name="placeholder ACs" sourceRef="frw_gw_build" targetRef="agt_1_write">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${acs_real == false}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_02"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_3" name="build-ready" sourceRef="frw_2_build" targetRef="frw_3_start">
+    <bpmn:sequenceFlow id="flow_3" name="build-ready" sourceRef="frw_gw_build" targetRef="frw_1_start">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${acs_real == true}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_03"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_4" name="re-check" sourceRef="agt_1_write" targetRef="frw_2_build">
+    <bpmn:sequenceFlow id="flow_4" name="re-check" sourceRef="agt_1_write" targetRef="frw_gw_build">
       <bpmn:extensionElements>
         <aef:uid value="e_04"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_5" sourceRef="frw_3_start" targetRef="agt_2_perform">
+    <bpmn:sequenceFlow id="flow_5" sourceRef="frw_1_start" targetRef="agt_2_perform">
       <bpmn:extensionElements>
         <aef:uid value="e_05"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_6" sourceRef="agt_2_perform" targetRef="frw_5_outcome">
+    <bpmn:sequenceFlow id="flow_6" sourceRef="agt_2_perform" targetRef="frw_gw_outcome">
       <bpmn:extensionElements>
         <aef:uid value="e_06"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_7" name="blocked / failing" sourceRef="frw_5_outcome" targetRef="frw_4_enter">
+    <bpmn:sequenceFlow id="flow_7" name="blocked / failing" sourceRef="frw_gw_outcome" targetRef="frw_2_enter">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${outcome == 'issues'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_07"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_8" name="work done" sourceRef="frw_5_outcome" targetRef="agt_3_request">
+    <bpmn:sequenceFlow id="flow_8" name="work done" sourceRef="frw_gw_outcome" targetRef="agt_3_request">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${outcome == 'done'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_08"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_9" name="resume after healing (issues -&gt; started-work)" sourceRef="frw_4_enter" targetRef="agt_2_perform">
+    <bpmn:sequenceFlow id="flow_9" name="resume after healing (issues -&gt; started-work)" sourceRef="frw_2_enter" targetRef="agt_2_perform">
       <bpmn:extensionElements>
         <aef:uid value="e_09"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_10" sourceRef="agt_3_request" targetRef="frw_6_run">
+    <bpmn:sequenceFlow id="flow_10" sourceRef="agt_3_request" targetRef="frw_3_run">
       <bpmn:extensionElements>
         <aef:uid value="e_10"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_11" sourceRef="frw_6_run" targetRef="frw_7_all">
+    <bpmn:sequenceFlow id="flow_11" sourceRef="frw_3_run" targetRef="frw_gw_all">
       <bpmn:extensionElements>
         <aef:uid value="e_11"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_12" name="gate failed — rework" sourceRef="frw_7_all" targetRef="agt_2_perform">
+    <bpmn:sequenceFlow id="flow_12" name="gate failed — rework" sourceRef="frw_gw_all" targetRef="agt_2_perform">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${gates == 'fail'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_12"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_13" name="gates pass" sourceRef="frw_7_all" targetRef="frw_9_human">
+    <bpmn:sequenceFlow id="flow_13" name="gates pass" sourceRef="frw_gw_all" targetRef="frw_gw_human">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${gates == 'pass'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_13"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_14" name="human-owned, Human ACs open" sourceRef="frw_9_human" targetRef="frw_8_partial">
+    <bpmn:sequenceFlow id="flow_14" name="human-owned, Human ACs open" sourceRef="frw_gw_human" targetRef="frw_4_partial">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${partial == true}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_14"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_15" name="fully complete" sourceRef="frw_9_human" targetRef="frw_10_finalize">
+    <bpmn:sequenceFlow id="flow_15" name="fully complete" sourceRef="frw_gw_human" targetRef="frw_5_finalize">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${partial == false}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_15"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_16" sourceRef="frw_8_partial" targetRef="hum_1_human">
+    <bpmn:sequenceFlow id="flow_16" sourceRef="frw_4_partial" targetRef="hum_1_human">
       <bpmn:extensionElements>
         <aef:uid value="e_16"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_17" name="Human ACs checked" sourceRef="hum_1_human" targetRef="frw_10_finalize">
+    <bpmn:sequenceFlow id="flow_17" name="Human ACs checked" sourceRef="hum_1_human" targetRef="frw_5_finalize">
       <bpmn:extensionElements>
         <aef:uid value="e_17"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_18" sourceRef="frw_10_finalize" targetRef="frw_11_task">
+    <bpmn:sequenceFlow id="flow_18" sourceRef="frw_5_finalize" targetRef="frw_end_task">
       <bpmn:extensionElements>
         <aef:uid value="e_18"/>
       </bpmn:extensionElements>

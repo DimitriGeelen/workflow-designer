@@ -20,29 +20,29 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="agt" authority="initiative" height="96"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>agt_1_fw</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_start_fw</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
           <aef:laneMeta abbr="frw" authority="authority" height="288"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>frw_3_return</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_9_blocked</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_13_handoff</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_return</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_blocked</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_handoff</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_1_resolve</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_4_arc</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_5_check</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_7_validate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_10_print</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_11_qr</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_12_mark</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_2_task</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_6_inception</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_8_links</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_arc</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_check</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_validate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_5_print</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_6_qr</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_7_mark</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_task</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_inception</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_links</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="agt_1_fw" name="`fw review` — emit_review(task)">
+    <bpmn:startEvent id="agt_start_fw" name="`fw review` — emit_review(task)">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
         <aef:position x="100.0" y="92.0"/>
@@ -51,7 +51,7 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="frw_3_return" name="return 1 — no task file">
+    <bpmn:endEvent id="frw_end_return" name="return 1 — no task file">
       <bpmn:extensionElements>
         <aef:uid value="n_not_found"/>
         <aef:position x="403.0" y="380.0"/>
@@ -60,7 +60,7 @@
       <bpmn:incoming>flow_3</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:endEvent id="frw_9_blocked" name="BLOCKED — link homework (return 2)">
+    <bpmn:endEvent id="frw_end_blocked" name="BLOCKED — link homework (return 2)">
       <bpmn:extensionElements>
         <aef:uid value="n_homework"/>
         <aef:position x="1013.0" y="380.0"/>
@@ -69,7 +69,7 @@
       <bpmn:incoming>flow_10</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:endEvent id="frw_13_handoff" name="Handoff emitted ✓">
+    <bpmn:endEvent id="frw_end_handoff" name="Handoff emitted ✓">
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
         <aef:position x="1600.0" y="284.0"/>
@@ -87,7 +87,7 @@
       <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_4_arc" name="Arc-parent 3-question check">
+    <bpmn:scriptTask id="frw_2_arc" name="Arc-parent 3-question check">
       <bpmn:extensionElements>
         <aef:uid value="n_arc"/>
         <aef:position x="540.0" y="270.0"/>
@@ -97,7 +97,7 @@
       <bpmn:outgoing>flow_5</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_5_check" name="Check">
+    <bpmn:scriptTask id="frw_3_check" name="Check">
       <bpmn:extensionElements>
         <aef:uid value="n_rec"/>
         <aef:position x="700.0" y="174.0"/>
@@ -107,7 +107,7 @@
       <bpmn:outgoing>flow_8</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_7_validate" name="Validate review links (--enforce)">
+    <bpmn:scriptTask id="frw_4_validate" name="Validate review links (--enforce)">
       <bpmn:extensionElements>
         <aef:uid value="n_link_validate"/>
         <aef:position x="860.0" y="270.0"/>
@@ -117,7 +117,7 @@
       <bpmn:outgoing>flow_9</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_10_print" name="Print review card + URL">
+    <bpmn:scriptTask id="frw_5_print" name="Print review card + URL">
       <bpmn:extensionElements>
         <aef:uid value="n_card"/>
         <aef:position x="1150.0" y="270.0"/>
@@ -126,7 +126,7 @@
       <bpmn:outgoing>flow_12</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_11_qr" name="QR + artifacts (best-effort)">
+    <bpmn:scriptTask id="frw_6_qr" name="QR + artifacts (best-effort)">
       <bpmn:extensionElements>
         <aef:uid value="n_qr"/>
         <aef:position x="1300.0" y="270.0"/>
@@ -136,7 +136,7 @@
       <bpmn:outgoing>flow_13</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_12_mark" name="Mark reviewed — touch .reviewed-&lt;id&gt;">
+    <bpmn:scriptTask id="frw_7_mark" name="Mark reviewed — touch .reviewed-&lt;id&gt;">
       <bpmn:extensionElements>
         <aef:uid value="n_mark"/>
         <aef:position x="1450.0" y="270.0"/>
@@ -145,7 +145,7 @@
       <bpmn:outgoing>flow_14</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:exclusiveGateway id="frw_2_task" name="Task file found?">
+    <bpmn:exclusiveGateway id="frw_gw_task" name="Task file found?">
       <bpmn:extensionElements>
         <aef:uid value="n_found_gate"/>
         <aef:position x="397.0" y="278.0"/>
@@ -157,7 +157,7 @@
       <bpmn:outgoing>flow_4</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:exclusiveGateway id="frw_6_inception" name="inception?">
+    <bpmn:exclusiveGateway id="frw_gw_inception" name="inception?">
       <bpmn:extensionElements>
         <aef:uid value="n_type_gate"/>
         <aef:position x="700.0" y="278.0"/>
@@ -169,7 +169,7 @@
       <bpmn:outgoing>flow_7</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:exclusiveGateway id="frw_8_links" name="Links resolve? (no homework)">
+    <bpmn:exclusiveGateway id="frw_gw_links" name="Links resolve? (no homework)">
       <bpmn:extensionElements>
         <aef:uid value="n_link_gate"/>
         <aef:position x="1007.0" y="278.0"/>
@@ -181,91 +181,91 @@
       <bpmn:outgoing>flow_11</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_fw" targetRef="frw_1_resolve">
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_start_fw" targetRef="frw_1_resolve">
       <bpmn:extensionElements>
         <aef:uid value="e_01"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_resolve" targetRef="frw_2_task">
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_resolve" targetRef="frw_gw_task">
       <bpmn:extensionElements>
         <aef:uid value="e_02"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_3" name="not found" sourceRef="frw_2_task" targetRef="frw_3_return">
+    <bpmn:sequenceFlow id="flow_3" name="not found" sourceRef="frw_gw_task" targetRef="frw_end_return">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${task_file == ""}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_03"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_4" name="found" sourceRef="frw_2_task" targetRef="frw_4_arc">
+    <bpmn:sequenceFlow id="flow_4" name="found" sourceRef="frw_gw_task" targetRef="frw_2_arc">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${task_file != ""}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_04"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_5" sourceRef="frw_4_arc" targetRef="frw_6_inception">
+    <bpmn:sequenceFlow id="flow_5" sourceRef="frw_2_arc" targetRef="frw_gw_inception">
       <bpmn:extensionElements>
         <aef:uid value="e_05"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_6" name="inception" sourceRef="frw_6_inception" targetRef="frw_5_check">
+    <bpmn:sequenceFlow id="flow_6" name="inception" sourceRef="frw_gw_inception" targetRef="frw_3_check">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${workflow_type == inception}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_06"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_7" name="standard" sourceRef="frw_6_inception" targetRef="frw_7_validate">
+    <bpmn:sequenceFlow id="flow_7" name="standard" sourceRef="frw_gw_inception" targetRef="frw_4_validate">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${workflow_type != inception}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_07"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_8" name="rejoin" sourceRef="frw_5_check" targetRef="frw_7_validate">
+    <bpmn:sequenceFlow id="flow_8" name="rejoin" sourceRef="frw_3_check" targetRef="frw_4_validate">
       <bpmn:extensionElements>
         <aef:uid value="e_08"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_9" sourceRef="frw_7_validate" targetRef="frw_8_links">
+    <bpmn:sequenceFlow id="flow_9" sourceRef="frw_4_validate" targetRef="frw_gw_links">
       <bpmn:extensionElements>
         <aef:uid value="e_09"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_10" name="homework" sourceRef="frw_8_links" targetRef="frw_9_blocked">
+    <bpmn:sequenceFlow id="flow_10" name="homework" sourceRef="frw_gw_links" targetRef="frw_end_blocked">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!links_ok &amp;&amp; !bypass}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_10"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_11" name="links ok" sourceRef="frw_8_links" targetRef="frw_10_print">
+    <bpmn:sequenceFlow id="flow_11" name="links ok" sourceRef="frw_gw_links" targetRef="frw_5_print">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${links_ok || bypass}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_11"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_12" sourceRef="frw_10_print" targetRef="frw_11_qr">
+    <bpmn:sequenceFlow id="flow_12" sourceRef="frw_5_print" targetRef="frw_6_qr">
       <bpmn:extensionElements>
         <aef:uid value="e_12"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_11_qr" targetRef="frw_12_mark">
+    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_6_qr" targetRef="frw_7_mark">
       <bpmn:extensionElements>
         <aef:uid value="e_13"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_14" sourceRef="frw_12_mark" targetRef="frw_13_handoff">
+    <bpmn:sequenceFlow id="flow_14" sourceRef="frw_7_mark" targetRef="frw_end_handoff">
       <bpmn:extensionElements>
         <aef:uid value="e_14"/>
       </bpmn:extensionElements>

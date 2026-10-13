@@ -7,7 +7,7 @@
 // user's mouse would.
 //
 // Field symptom (T-293): endpoint reconnect drag ("the hand") often failed to
-// start, worst at frw_11_harvest — the selected edge's grab halos rendered in
+// start, worst at frw_4_harvest — the selected edge's grab halos rendered in
 // #g-edges, below #g-nodes, while T-168 anchors endpoints ON the node border,
 // so the node body (or an active-port indicator dot) shadowed the handle and
 // mousedown started a node drag (or nothing) instead.
@@ -15,7 +15,7 @@
 // Legs:
 //   1. layer-order — #g-badges < #g-edges < #g-nodes < #g-badges-top <
 //      #g-handles < #g-preview under svg#canvas (T-286 + T-293 combined).
-//   2. reach — for BOTH edges of frw_11_harvest (e_16, e_22), both endpoint
+//   2. reach — for BOTH edges of frw_4_harvest (e_16, e_22), both endpoint
 //      handle centres hit the handle itself (elementFromPoint) AND a real
 //      mouse press+move starts edgeDrag kind 'endpoint' with no node drag.
 //   3. reconnect-e2e — a full Input-driven drag of e_16's target endpoint onto
@@ -128,7 +128,7 @@ async function main() {
     })()`);
     leg('layer-order (T-286+T-293 canvas layers)', order.ok, order.err || '');
 
-    // Leg 2: reach — both handles of both frw_11_harvest edges.
+    // Leg 2: reach — both handles of both frw_4_harvest edges.
     for (const uid of ['e_16', 'e_22']) {
       const probe = await evalJson(cmd, `(function(){
         selection = { kind:'edge', id:${JSON.stringify(uid)} }; multiSelect.clear();

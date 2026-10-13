@@ -20,11 +20,11 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="agt" authority="initiative" height="108"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>agt_1_session</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_5_capture</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_2_scan</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_4_emit</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_3_uncaptured</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_start_session</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_end_capture</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_1_scan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_2_emit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_gw_uncaptured</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
@@ -35,7 +35,7 @@
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="agt_1_session" name="session end / context transition">
+    <bpmn:startEvent id="agt_start_session" name="session end / context transition">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
         <aef:position x="90.0" y="98.0"/>
@@ -44,7 +44,7 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="agt_5_capture" name="capture complete — session may close">
+    <bpmn:endEvent id="agt_end_capture" name="capture complete — session may close">
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
         <aef:position x="930.0" y="98.0"/>
@@ -53,7 +53,7 @@
       <bpmn:incoming>flow_7</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:serviceTask id="agt_2_scan" name="scan conversation per category for uncaptured items">
+    <bpmn:serviceTask id="agt_1_scan" name="scan conversation per category for uncaptured items">
       <bpmn:extensionElements>
         <aef:uid value="n_scan"/>
         <aef:position x="170.0" y="84.0"/>
@@ -78,7 +78,7 @@
       <bpmn:outgoing>flow_6</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="agt_4_emit" name="emit capture report (created/updated/practices/questions/gaps)">
+    <bpmn:serviceTask id="agt_2_emit" name="emit capture report (created/updated/practices/questions/gaps)">
       <bpmn:extensionElements>
         <aef:uid value="n_report"/>
         <aef:position x="760.0" y="84.0"/>
@@ -88,7 +88,7 @@
       <bpmn:outgoing>flow_7</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:exclusiveGateway id="agt_3_uncaptured" name="uncaptured items found?">
+    <bpmn:exclusiveGateway id="agt_gw_uncaptured" name="uncaptured items found?">
       <bpmn:extensionElements>
         <aef:uid value="g_found"/>
         <aef:position x="340.0" y="92.0"/>
@@ -120,26 +120,26 @@
       <bpmn:outgoing>flow_5</bpmn:outgoing>
     </bpmn:subProcess>
 
-    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_session" targetRef="agt_2_scan">
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_start_session" targetRef="agt_1_scan">
       <bpmn:extensionElements>
         <aef:uid value="e1"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_2" sourceRef="agt_2_scan" targetRef="agt_3_uncaptured">
+    <bpmn:sequenceFlow id="flow_2" sourceRef="agt_1_scan" targetRef="agt_gw_uncaptured">
       <bpmn:extensionElements>
         <aef:uid value="e2"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_3" name="items found" sourceRef="agt_3_uncaptured" targetRef="frw_1_capture">
+    <bpmn:sequenceFlow id="flow_3" name="items found" sourceRef="agt_gw_uncaptured" targetRef="frw_1_capture">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">uncaptured not empty</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e3"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_4" name="nothing uncaptured" sourceRef="agt_3_uncaptured" targetRef="frw_2_triage">
+    <bpmn:sequenceFlow id="flow_4" name="nothing uncaptured" sourceRef="agt_gw_uncaptured" targetRef="frw_2_triage">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">uncaptured empty</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e4"/>
@@ -152,13 +152,13 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_6" sourceRef="frw_2_triage" targetRef="agt_4_emit">
+    <bpmn:sequenceFlow id="flow_6" sourceRef="frw_2_triage" targetRef="agt_2_emit">
       <bpmn:extensionElements>
         <aef:uid value="e6"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_7" sourceRef="agt_4_emit" targetRef="agt_5_capture">
+    <bpmn:sequenceFlow id="flow_7" sourceRef="agt_2_emit" targetRef="agt_end_capture">
       <bpmn:extensionElements>
         <aef:uid value="e7"/>
       </bpmn:extensionElements>

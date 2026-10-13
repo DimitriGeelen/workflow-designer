@@ -187,10 +187,10 @@ const T240_TARGET = `<?xml version="1.0" encoding="UTF-8"?>
         <bpmn:extensionElements>
           <aef:laneMeta abbr="frw" authority="authority" height="200"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>frw_1_task</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_start_task</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:serviceTask id="frw_1_task" name="target work">
+    <bpmn:serviceTask id="frw_start_task" name="target work">
       <bpmn:extensionElements>
         <aef:uid value="n_tgt"/>
         <aef:position x="100" y="80"/>

@@ -20,19 +20,19 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="agt" authority="initiative" height="389"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>agt_1_error</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_2_proactive</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_13_resolved</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_11_doctrine</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_start_error</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_start_proactive</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_end_resolved</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_end_doctrine</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_1_doctrine</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>agt_3_doctrine</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_7_doctrine</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_8_doctrine</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_9_doctrine</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_10_doctrine</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_12_healing</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_5_code</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_6_doctrine</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>agt_4_doctrine</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_5_doctrine</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_6_doctrine</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_7_healing</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_2_code</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_gw_doctrine_2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_gw_doctrine</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority (healing agent, code)">
         <bpmn:extensionElements>
@@ -42,7 +42,7 @@
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="agt_1_error" name="Error / unexpected behavior">
+    <bpmn:startEvent id="agt_start_error" name="Error / unexpected behavior">
       <bpmn:extensionElements>
         <aef:uid value="n_failure"/>
         <aef:position x="142.0" y="92.6"/>
@@ -51,7 +51,7 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="agt_2_proactive" name="Proactive: practice repeats 3+ tasks (no failure)">
+    <bpmn:startEvent id="agt_start_proactive" name="Proactive: practice repeats 3+ tasks (no failure)">
       <bpmn:extensionElements>
         <aef:uid value="n_reflect"/>
         <aef:position x="187.6" y="287.1"/>
@@ -60,7 +60,7 @@
       <bpmn:outgoing>flow_14</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="agt_13_resolved" name="resolved + pattern learned">
+    <bpmn:endEvent id="agt_end_resolved" name="resolved + pattern learned">
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
         <aef:position x="1382.0" y="384.4"/>
@@ -69,7 +69,7 @@
       <bpmn:incoming>flow_13</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:endEvent id="agt_11_doctrine" name="[DOCTRINE] defer — not yet worth codifying">
+    <bpmn:endEvent id="agt_end_doctrine" name="[DOCTRINE] defer — not yet worth codifying">
       <bpmn:extensionElements>
         <aef:uid value="n_defer"/>
         <aef:position x="834.9" y="384.4"/>
@@ -77,7 +77,7 @@
       <bpmn:incoming>flow_16</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:serviceTask id="agt_3_doctrine" name="[DOCTRINE] set status=issues (auto-triggers diagnose)">
+    <bpmn:serviceTask id="agt_1_doctrine" name="[DOCTRINE] set status=issues (auto-triggers diagnose)">
       <bpmn:extensionElements>
         <aef:uid value="n_issues"/>
         <aef:position x="225.0" y="78.6"/>
@@ -87,7 +87,7 @@
       <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="agt_7_doctrine" name="[DOCTRINE] A: don't repeat — apply known mitigation">
+    <bpmn:serviceTask id="agt_3_doctrine" name="[DOCTRINE] A: don't repeat — apply known mitigation">
       <bpmn:extensionElements>
         <aef:uid value="n_a"/>
         <aef:position x="797.9" y="74.3"/>
@@ -97,7 +97,7 @@
       <bpmn:outgoing>flow_8</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="agt_8_doctrine" name="[DOCTRINE] B: improve technique">
+    <bpmn:serviceTask id="agt_4_doctrine" name="[DOCTRINE] B: improve technique">
       <bpmn:extensionElements>
         <aef:uid value="n_b"/>
         <aef:position x="797.9" y="150.3"/>
@@ -107,7 +107,7 @@
       <bpmn:outgoing>flow_9</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="agt_9_doctrine" name="[DOCTRINE] C: improve tooling (add check / audit rule)">
+    <bpmn:serviceTask id="agt_5_doctrine" name="[DOCTRINE] C: improve tooling (add check / audit rule)">
       <bpmn:extensionElements>
         <aef:uid value="n_c"/>
         <aef:position x="797.9" y="226.3"/>
@@ -117,7 +117,7 @@
       <bpmn:outgoing>flow_10</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="agt_10_doctrine" name="[DOCTRINE] D: change ways of working / codify">
+    <bpmn:serviceTask id="agt_6_doctrine" name="[DOCTRINE] D: change ways of working / codify">
       <bpmn:extensionElements>
         <aef:uid value="n_d"/>
         <aef:position x="797.9" y="302.3"/>
@@ -128,7 +128,7 @@
       <bpmn:outgoing>flow_11</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="agt_12_healing" name="healing resolve --mitigation">
+    <bpmn:serviceTask id="agt_7_healing" name="healing resolve --mitigation">
       <bpmn:extensionElements>
         <aef:uid value="n_resolve"/>
         <aef:position x="1071.2" y="175.9"/>
@@ -142,7 +142,7 @@
       <bpmn:outgoing>flow_12</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:scriptTask id="agt_5_code" name="[CODE] diagnose: classify + lookup + A/B/C/D menu">
+    <bpmn:scriptTask id="agt_2_code" name="[CODE] diagnose: classify + lookup + A/B/C/D menu">
       <bpmn:extensionElements>
         <aef:uid value="n_diagnose"/>
         <aef:position x="425.0" y="78.6"/>
@@ -166,7 +166,7 @@
       <bpmn:outgoing>flow_13</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:exclusiveGateway id="agt_6_doctrine" name="[DOCTRINE] which rung? escalate on recurrence">
+    <bpmn:exclusiveGateway id="agt_gw_doctrine_2" name="[DOCTRINE] which rung? escalate on recurrence">
       <bpmn:extensionElements>
         <aef:uid value="g_ladder"/>
         <aef:position x="536.0" y="183.9"/>
@@ -181,7 +181,7 @@
       <bpmn:outgoing>flow_7</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:exclusiveGateway id="agt_4_doctrine" name="[DOCTRINE] mine episodic -&gt; codification value?">
+    <bpmn:exclusiveGateway id="agt_gw_doctrine" name="[DOCTRINE] mine episodic -&gt; codification value?">
       <bpmn:extensionElements>
         <aef:uid value="g_assess"/>
         <aef:position x="289.5" y="281.1"/>
@@ -194,26 +194,26 @@
       <bpmn:outgoing>flow_16</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_error" targetRef="agt_3_doctrine">
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_start_error" targetRef="agt_1_doctrine">
       <bpmn:extensionElements>
         <aef:uid value="e_01"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_2" name="auto-trigger diagnose" sourceRef="agt_3_doctrine" targetRef="agt_5_code">
+    <bpmn:sequenceFlow id="flow_2" name="auto-trigger diagnose" sourceRef="agt_1_doctrine" targetRef="agt_2_code">
       <bpmn:extensionElements>
         <aef:uid value="e_02"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_3" name="suggestion menu -&gt; agent decides" sourceRef="agt_5_code" targetRef="agt_6_doctrine">
+    <bpmn:sequenceFlow id="flow_3" name="suggestion menu -&gt; agent decides" sourceRef="agt_2_code" targetRef="agt_gw_doctrine_2">
       <bpmn:extensionElements>
         <aef:uid value="e_03"/>
         <aef:anchors sourcePort="S"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_4" name="1st occurrence" sourceRef="agt_6_doctrine" targetRef="agt_7_doctrine">
+    <bpmn:sequenceFlow id="flow_4" name="1st occurrence" sourceRef="agt_gw_doctrine_2" targetRef="agt_3_doctrine">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${same_class_hits &lt;= 1}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_04"/>
@@ -221,14 +221,14 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_5" name="technique gap" sourceRef="agt_6_doctrine" targetRef="agt_8_doctrine">
+    <bpmn:sequenceFlow id="flow_5" name="technique gap" sourceRef="agt_gw_doctrine_2" targetRef="agt_4_doctrine">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${technique_fixable}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_05"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_6" name="same class 2+ times" sourceRef="agt_6_doctrine" targetRef="agt_9_doctrine">
+    <bpmn:sequenceFlow id="flow_6" name="same class 2+ times" sourceRef="agt_gw_doctrine_2" targetRef="agt_5_doctrine">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${same_class_hits &gt;= 2}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_06"/>
@@ -236,7 +236,7 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_7" name="systemic" sourceRef="agt_6_doctrine" targetRef="agt_10_doctrine">
+    <bpmn:sequenceFlow id="flow_7" name="systemic" sourceRef="agt_gw_doctrine_2" targetRef="agt_6_doctrine">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${systemic}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_07"/>
@@ -245,53 +245,53 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_8" sourceRef="agt_7_doctrine" targetRef="agt_12_healing">
+    <bpmn:sequenceFlow id="flow_8" sourceRef="agt_3_doctrine" targetRef="agt_7_healing">
       <bpmn:extensionElements>
         <aef:uid value="e_08"/>
         <aef:anchors targetPort="N"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_9" sourceRef="agt_8_doctrine" targetRef="agt_12_healing">
+    <bpmn:sequenceFlow id="flow_9" sourceRef="agt_4_doctrine" targetRef="agt_7_healing">
       <bpmn:extensionElements>
         <aef:uid value="e_09"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_10" sourceRef="agt_9_doctrine" targetRef="agt_12_healing">
+    <bpmn:sequenceFlow id="flow_10" sourceRef="agt_5_doctrine" targetRef="agt_7_healing">
       <bpmn:extensionElements>
         <aef:uid value="e_10"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_11" sourceRef="agt_10_doctrine" targetRef="agt_12_healing">
+    <bpmn:sequenceFlow id="flow_11" sourceRef="agt_6_doctrine" targetRef="agt_7_healing">
       <bpmn:extensionElements>
         <aef:uid value="e_11"/>
         <aef:anchors targetPort="S"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_12" name="log resolution" sourceRef="agt_12_healing" targetRef="frw_1_code">
+    <bpmn:sequenceFlow id="flow_12" name="log resolution" sourceRef="agt_7_healing" targetRef="frw_1_code">
       <bpmn:extensionElements>
         <aef:uid value="e_12"/>
         <aef:anchors sourcePort="E"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_1_code" targetRef="agt_13_resolved">
+    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_1_code" targetRef="agt_end_resolved">
       <bpmn:extensionElements>
         <aef:uid value="e_13"/>
         <aef:anchors sourcePort="E" targetPort="S"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_14" sourceRef="agt_2_proactive" targetRef="agt_4_doctrine">
+    <bpmn:sequenceFlow id="flow_14" sourceRef="agt_start_proactive" targetRef="agt_gw_doctrine">
       <bpmn:extensionElements>
         <aef:uid value="e_14"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_15" name="worth codifying -&gt; Level D" sourceRef="agt_4_doctrine" targetRef="agt_10_doctrine">
+    <bpmn:sequenceFlow id="flow_15" name="worth codifying -&gt; Level D" sourceRef="agt_gw_doctrine" targetRef="agt_6_doctrine">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${worth_codifying}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_15"/>
@@ -301,7 +301,7 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_16" name="defer" sourceRef="agt_4_doctrine" targetRef="agt_11_doctrine">
+    <bpmn:sequenceFlow id="flow_16" name="defer" sourceRef="agt_gw_doctrine" targetRef="agt_end_doctrine">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!worth_codifying}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_16"/>

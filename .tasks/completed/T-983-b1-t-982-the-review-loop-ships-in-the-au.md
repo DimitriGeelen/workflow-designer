@@ -13,7 +13,7 @@ description: >
 
 status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_1_start
 owner: agent
 horizon: null
 tags: []

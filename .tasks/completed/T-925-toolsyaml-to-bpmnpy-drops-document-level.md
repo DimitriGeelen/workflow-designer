@@ -26,7 +26,7 @@ description: >
 
 status: work-completed
 workflow_type: build
-current_node: frw_11_task
+current_node: frw_end_task
 owner: human
 horizon: null
 tags: [bridge, cross-form, false-green]

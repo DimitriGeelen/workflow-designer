@@ -44,14 +44,24 @@ workflow size. Never edited by users.
 `displayId` is what people see and reference in conversation. It's computed
 from three inputs and recomputed whenever any of them changes.
 
-**Format for nodes**: `<lane.abbr>_<seq>_<slug>`
+**Format for nodes** (T-1168, operator GO on T-1094):
+
+- activities (tasks, sub-processes, imported task types): `<lane.abbr>_<n>_<slug>`
+- events and gateways: `<lane.abbr>_<word>_<slug>`, word = `start` | `end` | `gw` | `link` | `error` |
+  `timer` | `message` (an imported foreign event: `ev`); a second one in the lane with the same word and
+  slug takes `_2`, `_3` in x order
 
 ```
-agt_2_decompose
-└─┬─┘ │ └───┬───┘
- lane │     slug from name
-      └─ spatial position within lane (left-to-right by x)
+agt_2_decompose            sal_gw_tegelijk
+└─┬─┘ │ └───┬───┘          └─┬─┘└┬┘└──┬───┘
+ lane │     slug from name  lane │   slug from name
+      └─ step: rank among the       └─ type word, no number
+         lane's ACTIVITIES (left-to-right by x)
 ```
+
+Map owners read the number as "step N of the work", so only activities take one: a gateway or event
+between two tasks does not leave a gap (before T-1168 every node took a number, and a lane's tasks could
+read 1, 2, 4, 5).
 
 **Format for edges**: `flow_<seq>` — sequential by edge creation order
 (stable; deleted edges leave gaps). Edges don't get richer displayIds

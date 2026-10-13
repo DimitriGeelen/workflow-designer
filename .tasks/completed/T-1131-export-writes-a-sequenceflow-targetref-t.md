@@ -9,13 +9,13 @@ description: >
   Task_1 — the flow's target was not renamed with its node, or the node is not emitted.
   Pre-existing (identical on 0.18.0), not caused by T-1096. One bug, one task.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [bug]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-11T23:14:33Z
-last_update: 2026-10-12T00:11:25Z
-date_finished:
+last_update: 2026-10-12T00:48:06Z
+date_finished: 2026-10-12T00:48:06Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -366,3 +366,20 @@ not validity; no check scanned an export for references that resolve to nothing.
 ### 2026-10-12T00:09:00Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a287c26e
+- **Timestamp:** 2026-10-12T00:49:03Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — Guard: every third-party fixture's export is scanned for dangling references (sequenceFlow/attribute/element refs); 0 after the fix (2 files before); wired into tests/run-bridge-tests.sh
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/run-bridge-tests.sh in: Guard: every third-party fixture's export is scanned for dangling references (sequenceFlow/attribute/element refs); 0 after the fix (2 files before); `
+
+### 2026-10-12T00:48:06Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

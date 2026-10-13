@@ -9,13 +9,13 @@ description: >
   Minor: maps with data objects now save differently (more is kept) — the T-1121 rule.
   Same procedure as 0.18.0 (T-1130), with the source render check run before the job.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-12T00:52:03Z
-last_update: 2026-10-12T07:55:30Z
-date_finished:
+last_update: 2026-10-12T07:57:05Z
+date_finished: 2026-10-12T07:57:05Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -89,11 +89,11 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] VERSION and APP_VERSION read 0.19.0 (T-808 parity); docs/releases/RELEASE-NOTES-0.19.0.md lists T-1126, T-1096, T-1131 with Greenfield re-test steps (incl. that field suggestions need the /api/field-suggestions endpoints on a portal)
-- [ ] The 0.19.0 kit carries a PASS calibration of its exact bytes by codex, GLM and Antigravity, one run each (ledger L16)
-- [ ] Bridge suite green apart from the T-1103 sweep, INCLUDING the source render check (tests/test_designer_render.py --src) — run before the job is handed over
-- [ ] A runme job (cut, commit, tag designer-v0.19.0, push) is prepared, dry-run passes, the watcher is armed; the agent never runs it for real
-- [ ] After the operator's run: Watchtower re-pinned to 0.19.0 and Greenfield told by DM what 0.19.0 carries and how to re-test
+- [x] VERSION and APP_VERSION read 0.19.0 (T-808 parity); docs/releases/RELEASE-NOTES-0.19.0.md lists T-1126, T-1096, T-1131 with Greenfield re-test steps (incl. that field suggestions need the /api/field-suggestions endpoints on a portal)
+- [x] The 0.19.0 kit carries a PASS calibration of its exact bytes by codex, GLM and Antigravity, one run each (ledger L16)
+- [x] Bridge suite green apart from the T-1103 sweep, INCLUDING the source render check (tests/test_designer_render.py --src) — run before the job is handed over
+- [x] A runme job (cut, commit, tag designer-v0.19.0, push) is prepared, dry-run passes, the watcher is armed; the agent never runs it for real
+- [x] After the operator's run: Watchtower re-pinned to 0.19.0 and Greenfield told by DM what 0.19.0 carries and how to re-test
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -131,6 +131,10 @@ bvp_scores_proposed:
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+test -f .context/runme/015-release-designer-0.19.0/done
+git rev-parse -q --verify refs/tags/designer-v0.19.0
+grep -q '^version: "0.19.0"' .agentic-framework/policy/designer-pin.yaml
+python3 tools/kit-calibration-gate.py check --version 0.19.0
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
@@ -353,3 +357,20 @@ bvp_scores_proposed:
 
 ### 2026-10-12T00:52:22Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-03d33d4d
+- **Timestamp:** 2026-10-12T07:58:15Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — Bridge suite green apart from the T-1103 sweep, INCLUDING the source render check (tests/test_designer_render.py --src) — run before the job is handed over
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/test_designer_render.py in: Bridge suite green apart from the T-1103 sweep, INCLUDING the source render check (tests/test_designer_render.py --src) — run before the job is handed`
+
+### 2026-10-12T07:57:05Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

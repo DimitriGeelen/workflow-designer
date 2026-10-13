@@ -10,13 +10,13 @@ description: >
   bridge suite, runme job (cut, commit, tag designer-v0.18.0, push) dry-run; after
   the operator's run re-pin Watchtower and tell Greenfield.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tests/test_designer_render.py, tools/_t682-boundary-inventory.py, tools/_t958-boundary-row-teeth.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -45,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-11T17:58:53Z
-last_update: 2026-10-11T21:16:15Z
-date_finished:
+last_update: 2026-10-11T21:18:13Z
+date_finished: 2026-10-11T21:18:13Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -90,11 +90,14 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] VERSION and APP_VERSION read 0.18.0 (T-808 parity); docs/releases/RELEASE-NOTES-0.18.0.md lists T-1124, T-1125, T-1128, T-1127, T-1129 with re-test steps for Greenfield (incl. how a project sets up field-profile.json)
-- [ ] The 0.18.0 kit carries a PASS calibration of its exact bytes by codex, GLM and Antigravity, one run each, every run recorded (ledger L16)
-- [ ] Bridge suite green apart from known load-only timeouts (T-1103) and the render check that waits on the cut
-- [ ] A runme job (cut, commit, tag designer-v0.18.0, push) is prepared, dry-run passes, the watcher is armed; the agent never runs it for real
-- [ ] After the operator's run: Watchtower re-pinned to 0.18.0 and Greenfield told by DM what 0.18.0 carries and how to re-test
+- [x] VERSION and APP_VERSION read 0.18.0 (T-808 parity); docs/releases/RELEASE-NOTES-0.18.0.md lists T-1124, T-1125, T-1128, T-1127, T-1129 with re-test steps for Greenfield (incl. how a project sets up field-profile.json)
+- [x] The 0.18.0 kit carries a PASS calibration of its exact bytes by codex, GLM and Antigravity, one run each, every run recorded (ledger L16)
+- [x] Bridge suite green apart from known load-only timeouts (T-1103) and the render check that waits on the cut
+- [x] A runme job (cut, commit, tag designer-v0.18.0, push) is prepared, dry-run passes, the watcher is armed; the agent never runs it for real
+  (job 014: first run STOPPED at step 1 — render gate, B1 folded the dropdowns it looks for; fixed in the check + a
+  --src leg that runs before any cut (839bdf64); second run 4/4 rc=0, tag designer-v0.18.0 = 30d397af on origin)
+- [x] After the operator's run: Watchtower re-pinned to 0.18.0 and Greenfield told by DM what 0.18.0 carries and how to re-test
+  (/designer/app serves 3486362c; Greenfield DM offset 71)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -132,6 +135,11 @@ bvp_scores_proposed:
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+grep -qx '0.18.0' VERSION
+test -f .context/runme/014-release-designer-0.18.0/done
+git rev-parse -q --verify refs/tags/designer-v0.18.0
+grep -q '^version: "0.18.0"' .agentic-framework/policy/designer-pin.yaml
+python3 tools/kit-calibration-gate.py check --version 0.18.0
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
@@ -354,3 +362,15 @@ bvp_scores_proposed:
 
 ### 2026-10-11T17:59:43Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d00130a5
+- **Timestamp:** 2026-10-11T21:19:12Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-11T21:18:13Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

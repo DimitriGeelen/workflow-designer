@@ -22,14 +22,14 @@
         </bpmn:extensionElements>
         <bpmn:flowNodeRef>hum_1_approve</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>hum_2_close</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>hum_3_close</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_gw_close</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
           <aef:laneMeta abbr="frw" authority="authority" height="216"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>frw_4_arc</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_3_arc</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_arc_2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_arc</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_2_close</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_1_abandon</bpmn:flowNodeRef>
       </bpmn:lane>
@@ -37,17 +37,17 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="agt" authority="initiative" height="96"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>agt_1_arc</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_4_tag</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_5_bvp</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_6_work</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_2_create</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_3_start</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_7_emit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_start_arc</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_3_tag</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_4_bvp</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_5_work</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_1_create</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_2_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_6_emit</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="agt_1_arc" name="Arc proposed (headline mechanic identified)">
+    <bpmn:startEvent id="agt_start_arc" name="Arc proposed (headline mechanic identified)">
       <bpmn:extensionElements>
         <aef:uid value="n_req"/>
         <aef:position x="153.9" y="416.0"/>
@@ -59,7 +59,7 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="frw_4_arc" name="Arc closed (immutable)">
+    <bpmn:endEvent id="frw_end_arc_2" name="Arc closed (immutable)">
       <bpmn:extensionElements>
         <aef:uid value="n_end_closed"/>
         <aef:position x="1973.9" y="206.0"/>
@@ -67,7 +67,7 @@
       <bpmn:incoming>flow_12</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:endEvent id="frw_3_arc" name="Arc abandoned (immutable)">
+    <bpmn:endEvent id="frw_end_arc" name="Arc abandoned (immutable)">
       <bpmn:extensionElements>
         <aef:uid value="n_end_abandoned"/>
         <aef:position x="1973.9" y="314.0"/>
@@ -75,7 +75,7 @@
       <bpmn:incoming>flow_13</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:serviceTask id="agt_4_tag" name="Tag member tasks (arc_id / arc: tag)">
+    <bpmn:serviceTask id="agt_3_tag" name="Tag member tasks (arc_id / arc: tag)">
       <bpmn:extensionElements>
         <aef:uid value="n_tag"/>
         <aef:position x="772.5" y="402.0"/>
@@ -89,7 +89,7 @@
       <bpmn:outgoing>flow_4</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="agt_5_bvp" name="BVP rescore (writes PROPOSED scores only)">
+    <bpmn:serviceTask id="agt_4_bvp" name="BVP rescore (writes PROPOSED scores only)">
       <bpmn:extensionElements>
         <aef:uid value="n_bvp"/>
         <aef:position x="1003.3" y="402.0"/>
@@ -100,7 +100,7 @@
       <bpmn:outgoing>flow_5</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="agt_6_work" name="Work member tasks (each = own task-lifecycle + Evolution log)">
+    <bpmn:serviceTask id="agt_5_work" name="Work member tasks (each = own task-lifecycle + Evolution log)">
       <bpmn:extensionElements>
         <aef:uid value="n_work"/>
         <aef:position x="1234.2" y="402.0"/>
@@ -133,7 +133,7 @@
       <bpmn:outgoing>flow_9</bpmn:outgoing>
     </bpmn:userTask>
 
-    <bpmn:scriptTask id="agt_2_create" name="Create arc (status draft, immutable arc-NNN)">
+    <bpmn:scriptTask id="agt_1_create" name="Create arc (status draft, immutable arc-NNN)">
       <bpmn:extensionElements>
         <aef:uid value="n_create"/>
         <aef:position x="310.8" y="402.0"/>
@@ -148,7 +148,7 @@
       <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="agt_3_start" name="Start arc (draft → in-progress)">
+    <bpmn:scriptTask id="agt_2_start" name="Start arc (draft → in-progress)">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
         <aef:position x="541.6" y="402.0"/>
@@ -159,7 +159,7 @@
       <bpmn:outgoing>flow_3</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="agt_7_emit" name="Emit close review surface (Watchtower URL + QR)">
+    <bpmn:scriptTask id="agt_6_emit" name="Emit close review surface (Watchtower URL + QR)">
       <bpmn:extensionElements>
         <aef:uid value="n_review"/>
         <aef:position x="1397.1" y="402.0"/>
@@ -192,7 +192,7 @@
       <bpmn:outgoing>flow_13</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:exclusiveGateway id="hum_3_close" name="Close or abandon?">
+    <bpmn:exclusiveGateway id="hum_gw_close" name="Close or abandon?">
       <bpmn:extensionElements>
         <aef:uid value="n_route"/>
         <aef:position x="1589.9" y="92.0"/>
@@ -204,64 +204,64 @@
       <bpmn:outgoing>flow_11</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_arc" targetRef="agt_2_create">
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_start_arc" targetRef="agt_1_create">
       <bpmn:extensionElements>
         <aef:uid value="e_01"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_2" sourceRef="agt_2_create" targetRef="agt_3_start">
+    <bpmn:sequenceFlow id="flow_2" sourceRef="agt_1_create" targetRef="agt_2_start">
       <bpmn:extensionElements>
         <aef:uid value="e_02"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_3" sourceRef="agt_3_start" targetRef="agt_4_tag">
+    <bpmn:sequenceFlow id="flow_3" sourceRef="agt_2_start" targetRef="agt_3_tag">
       <bpmn:extensionElements>
         <aef:uid value="e_03"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_4" sourceRef="agt_4_tag" targetRef="agt_5_bvp">
+    <bpmn:sequenceFlow id="flow_4" sourceRef="agt_3_tag" targetRef="agt_4_bvp">
       <bpmn:extensionElements>
         <aef:uid value="e_04"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_5" sourceRef="agt_5_bvp" targetRef="hum_1_approve">
+    <bpmn:sequenceFlow id="flow_5" sourceRef="agt_4_bvp" targetRef="hum_1_approve">
       <bpmn:extensionElements>
         <aef:uid value="e_05"/>
         <aef:anchors targetPort="W"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_6" sourceRef="hum_1_approve" targetRef="agt_6_work">
+    <bpmn:sequenceFlow id="flow_6" sourceRef="hum_1_approve" targetRef="agt_5_work">
       <bpmn:extensionElements>
         <aef:uid value="e_06"/>
         <aef:anchors sourcePort="E"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_7" sourceRef="agt_6_work" targetRef="agt_7_emit">
+    <bpmn:sequenceFlow id="flow_7" sourceRef="agt_5_work" targetRef="agt_6_emit">
       <bpmn:extensionElements>
         <aef:uid value="e_07"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_8" sourceRef="agt_7_emit" targetRef="hum_2_close">
+    <bpmn:sequenceFlow id="flow_8" sourceRef="agt_6_emit" targetRef="hum_2_close">
       <bpmn:extensionElements>
         <aef:uid value="e_08"/>
         <aef:routingHint role="seg_mid" offset="3.6"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_9" sourceRef="hum_2_close" targetRef="hum_3_close">
+    <bpmn:sequenceFlow id="flow_9" sourceRef="hum_2_close" targetRef="hum_gw_close">
       <bpmn:extensionElements>
         <aef:uid value="e_09"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_10" name="close (demo evidence)" sourceRef="hum_3_close" targetRef="frw_2_close">
+    <bpmn:sequenceFlow id="flow_10" name="close (demo evidence)" sourceRef="hum_gw_close" targetRef="frw_2_close">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${decision == 'close'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_10"/>
@@ -269,7 +269,7 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_11" name="abandon" sourceRef="hum_3_close" targetRef="frw_1_abandon">
+    <bpmn:sequenceFlow id="flow_11" name="abandon" sourceRef="hum_gw_close" targetRef="frw_1_abandon">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${decision == 'abandon'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_11"/>
@@ -277,13 +277,13 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_12" sourceRef="frw_2_close" targetRef="frw_4_arc">
+    <bpmn:sequenceFlow id="flow_12" sourceRef="frw_2_close" targetRef="frw_end_arc_2">
       <bpmn:extensionElements>
         <aef:uid value="e_12"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_1_abandon" targetRef="frw_3_arc">
+    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_1_abandon" targetRef="frw_end_arc">
       <bpmn:extensionElements>
         <aef:uid value="e_13"/>
       </bpmn:extensionElements>

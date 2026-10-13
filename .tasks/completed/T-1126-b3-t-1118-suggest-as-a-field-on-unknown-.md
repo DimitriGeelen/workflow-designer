@@ -7,13 +7,13 @@ description: >
   action and per-map evidence; suggestions queue per project; the operator's runme
   approval writes the key into the B2 profile with approved_by/date.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/gallery-serve.py, tools/_t682-boundary-inventory.py, tools/_t958-boundary-row-teeth.py]
 related_tasks: [T-1118, T-1125]
 unlocks_inception_decision: ["T-1118:suggest-and-approve"]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
@@ -43,8 +43,8 @@ unlocks_inception_decision: ["T-1118:suggest-and-approve"]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-11T12:58:39Z
-last_update: 2026-10-11T22:15:54Z
-date_finished:
+last_update: 2026-10-11T22:16:51Z
+date_finished: 2026-10-11T22:16:51Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -375,3 +375,22 @@ python3 tests/test_designer_render.py --src
 ### 2026-10-11T21:27:39Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-32f62bbe
+- **Timestamp:** 2026-10-11T22:17:57Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — Approval is the operator's, through a runme job: `tools/field-suggestion.py approve --type T --key K --label L --by NAME` writes the key into the project field profile (`fields` section: label, elemen
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/field-suggestion.py in: Approval is the operator's, through a runme job: `tools/field-suggestion.py approve --type T --key K --label L --by NAME` writes the key into the proj`
+- **AC#6 (Agent)** — Tests: server + CLI legs (suggest, merge, list, approve, reject, refused malformed) and CDP legs (button + evidence, suggested state, approved field drawn/editable/exported, standalone disabled); wire
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/run-bridge-tests.sh in: Tests: server + CLI legs (suggest, merge, list, approve, reject, refused malformed) and CDP legs (button + evidence, suggested state, approved field d`
+
+### 2026-10-11T22:16:51Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

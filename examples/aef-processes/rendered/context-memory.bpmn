@@ -20,32 +20,32 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="wrk" authority="none" height="96"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>wrk_1_session</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>wrk_start_session</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>wrk_1_context</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>wrk_2_context</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>wrk_3_context</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="project" name="Project Memory · durable cross-task">
         <bpmn:extensionElements>
           <aef:laneMeta abbr="prj" authority="none" height="264"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>prj_6_project</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>prj_end_project</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>prj_1_add</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>prj_2_add</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>prj_3_add</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>prj_4_add</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>prj_5_promote</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>prj_2_capture</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>prj_4_promote</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>prj_gw_capture</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="episodic" name="Episodic Memory · completed histories">
         <bpmn:extensionElements>
           <aef:laneMeta abbr="epi" authority="none" height="96"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>epi_1_task</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>epi_3_episodic</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>epi_2_generate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>epi_start_task</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>epi_end_episodic</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>epi_1_generate</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="wrk_1_session" name="Session start">
+    <bpmn:startEvent id="wrk_start_session" name="Session start">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
         <aef:position x="121.6" y="92.0"/>
@@ -54,7 +54,7 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="epi_1_task" name="task work-completed (P-011 passed)">
+    <bpmn:startEvent id="epi_start_task" name="task work-completed (P-011 passed)">
       <bpmn:extensionElements>
         <aef:uid value="n_complete"/>
         <aef:position x="136.7" y="452.0"/>
@@ -63,7 +63,7 @@
       <bpmn:outgoing>flow_11</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="prj_6_project" name="project memory durable (survives session)">
+    <bpmn:endEvent id="prj_end_project" name="project memory durable (survives session)">
       <bpmn:extensionElements>
         <aef:uid value="n_persisted"/>
         <aef:position x="1086.6" y="272.0"/>
@@ -73,7 +73,7 @@
       <bpmn:incoming>flow_10</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:endEvent id="epi_3_episodic" name="episodic stored — feeds future recall">
+    <bpmn:endEvent id="epi_end_episodic" name="episodic stored — feeds future recall">
       <bpmn:extensionElements>
         <aef:uid value="n_stored"/>
         <aef:position x="716.4" y="452.0"/>
@@ -81,7 +81,7 @@
       <bpmn:incoming>flow_12</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:serviceTask id="wrk_2_context" name="context init — seed session + focus + counters">
+    <bpmn:serviceTask id="wrk_1_context" name="context init — seed session + focus + counters">
       <bpmn:extensionElements>
         <aef:uid value="n_init"/>
         <aef:position x="229.3" y="78.0"/>
@@ -93,7 +93,7 @@
       <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="wrk_3_context" name="context focus T-XXX — set current_task + recall briefing">
+    <bpmn:serviceTask id="wrk_2_context" name="context focus T-XXX — set current_task + recall briefing">
       <bpmn:extensionElements>
         <aef:uid value="n_focus"/>
         <aef:position x="412.8" y="78.0"/>
@@ -116,7 +116,7 @@
       <bpmn:outgoing>flow_7</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="prj_3_add" name="add-pattern &lt;failure|success|workflow&gt; -&gt; patterns.yaml">
+    <bpmn:serviceTask id="prj_2_add" name="add-pattern &lt;failure|success|workflow&gt; -&gt; patterns.yaml">
       <bpmn:extensionElements>
         <aef:uid value="n_pattern"/>
         <aef:position x="782.7" y="258.0"/>
@@ -128,7 +128,7 @@
       <bpmn:outgoing>flow_8</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="prj_4_add" name="add-decision -&gt; decisions.yaml">
+    <bpmn:serviceTask id="prj_3_add" name="add-decision -&gt; decisions.yaml">
       <bpmn:extensionElements>
         <aef:uid value="n_decision"/>
         <aef:position x="1049.6" y="170.0"/>
@@ -140,7 +140,7 @@
       <bpmn:outgoing>flow_9</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="prj_5_promote" name="promote L-&gt;practice-&gt;directive (3+ applications)">
+    <bpmn:serviceTask id="prj_4_promote" name="promote L-&gt;practice-&gt;directive (3+ applications)">
       <bpmn:extensionElements>
         <aef:uid value="n_promote"/>
         <aef:position x="1049.6" y="346.0"/>
@@ -150,7 +150,7 @@
       <bpmn:outgoing>flow_10</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:scriptTask id="epi_2_generate" name="generate-episodic — task file + git log -&gt; episodic/T-XXX.yaml">
+    <bpmn:scriptTask id="epi_1_generate" name="generate-episodic — task file + git log -&gt; episodic/T-XXX.yaml">
       <bpmn:extensionElements>
         <aef:uid value="n_episodic"/>
         <aef:position x="389.5" y="438.0"/>
@@ -163,7 +163,7 @@
       <bpmn:outgoing>flow_12</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:exclusiveGateway id="prj_2_capture" name="capture what? (agent judgement)">
+    <bpmn:exclusiveGateway id="prj_gw_capture" name="capture what? (agent judgement)">
       <bpmn:extensionElements>
         <aef:uid value="g_capture"/>
         <aef:position x="540.8" y="266.0"/>
@@ -177,40 +177,40 @@
       <bpmn:outgoing>flow_6</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:sequenceFlow id="flow_1" sourceRef="wrk_1_session" targetRef="wrk_2_context">
+    <bpmn:sequenceFlow id="flow_1" sourceRef="wrk_start_session" targetRef="wrk_1_context">
       <bpmn:extensionElements>
         <aef:uid value="e_01"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_2" sourceRef="wrk_2_context" targetRef="wrk_3_context">
+    <bpmn:sequenceFlow id="flow_2" sourceRef="wrk_1_context" targetRef="wrk_2_context">
       <bpmn:extensionElements>
         <aef:uid value="e_02"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_3" name="agent captures knowledge during work" sourceRef="wrk_3_context" targetRef="prj_2_capture">
+    <bpmn:sequenceFlow id="flow_3" name="agent captures knowledge during work" sourceRef="wrk_2_context" targetRef="prj_gw_capture">
       <bpmn:extensionElements>
         <aef:uid value="e_03"/>
         <aef:anchors targetPort="W"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_4" name="learning" sourceRef="prj_2_capture" targetRef="prj_1_add">
+    <bpmn:sequenceFlow id="flow_4" name="learning" sourceRef="prj_gw_capture" targetRef="prj_1_add">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${kind == 'learning'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_04"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_5" name="pattern (failure/success/workflow)" sourceRef="prj_2_capture" targetRef="prj_3_add">
+    <bpmn:sequenceFlow id="flow_5" name="pattern (failure/success/workflow)" sourceRef="prj_gw_capture" targetRef="prj_2_add">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${kind == 'pattern'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_05"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_6" name="decision" sourceRef="prj_2_capture" targetRef="prj_4_add">
+    <bpmn:sequenceFlow id="flow_6" name="decision" sourceRef="prj_gw_capture" targetRef="prj_3_add">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${kind == 'decision'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_06"/>
@@ -218,37 +218,37 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_7" name="3+ applications -&gt; graduate" sourceRef="prj_1_add" targetRef="prj_5_promote">
+    <bpmn:sequenceFlow id="flow_7" name="3+ applications -&gt; graduate" sourceRef="prj_1_add" targetRef="prj_4_promote">
       <bpmn:extensionElements>
         <aef:uid value="e_07"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_8" sourceRef="prj_3_add" targetRef="prj_6_project">
+    <bpmn:sequenceFlow id="flow_8" sourceRef="prj_2_add" targetRef="prj_end_project">
       <bpmn:extensionElements>
         <aef:uid value="e_08"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_9" sourceRef="prj_4_add" targetRef="prj_6_project">
+    <bpmn:sequenceFlow id="flow_9" sourceRef="prj_3_add" targetRef="prj_end_project">
       <bpmn:extensionElements>
         <aef:uid value="e_09"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_10" sourceRef="prj_5_promote" targetRef="prj_6_project">
+    <bpmn:sequenceFlow id="flow_10" sourceRef="prj_4_promote" targetRef="prj_end_project">
       <bpmn:extensionElements>
         <aef:uid value="e_10"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_11" name="framework auto-fires" sourceRef="epi_1_task" targetRef="epi_2_generate">
+    <bpmn:sequenceFlow id="flow_11" name="framework auto-fires" sourceRef="epi_start_task" targetRef="epi_1_generate">
       <bpmn:extensionElements>
         <aef:uid value="e_11"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_12" sourceRef="epi_2_generate" targetRef="epi_3_episodic">
+    <bpmn:sequenceFlow id="flow_12" sourceRef="epi_1_generate" targetRef="epi_end_episodic">
       <bpmn:extensionElements>
         <aef:uid value="e_12"/>
       </bpmn:extensionElements>

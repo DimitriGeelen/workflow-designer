@@ -54,14 +54,14 @@ def build_repo(tmp):
     shutil.copy(os.path.join(ROOT, 'tools', 'instance-node.py'), os.path.join(repo, 'tools'))
     with open(os.path.join(repo, '.tasks', 'active', 'T-9990-fixture.md'), 'w') as fh:
         fh.write('---\nid: T-9990\nname: "fixture"\nstatus: started-work\nworkflow_type: build\n'
-                 'current_node: frw_6_run\nowner: human\n---\n\n# T-9990\n')
+                 'current_node: frw_3_run\nowner: human\n---\n\n# T-9990\n')
     with open(os.path.join(repo, '.context', 'audits', 'instance-refusals.jsonl'), 'w') as fh:
         fh.write(json.dumps({"ts": "2026-09-29T00:00:00Z", "task": "T-9990", "case": "skipped-human-gateway",
-                             "rule": "R-033", "kind": "REFUSED-BY-GATE", "node": "frw_9_human", "target": "",
+                             "rule": "R-033", "kind": "REFUSED-BY-GATE", "node": "frw_gw_human", "target": "",
                              "template": "task-lifecycle", "detail": "fixture", "actor": "framework"}) + '\n')
         fh.write(json.dumps({"ts": "2026-09-29T00:00:01Z", "task": "T-0001", "case": "out-of-order-advance",
-                             "rule": "template-flow", "kind": "REFUSED-TRANSITION", "node": "frw_3_start",
-                             "target": "frw_10_finalize", "template": "x", "detail": "other task", "actor": "cli"}) + '\n')
+                             "rule": "template-flow", "kind": "REFUSED-TRANSITION", "node": "frw_1_start",
+                             "target": "frw_5_finalize", "template": "x", "detail": "other task", "actor": "cli"}) + '\n')
     return repo
 
 
@@ -114,10 +114,10 @@ def main():
         inst = {i['task']: i for i in doc.get('instances', [])}
         check('bound template answers 200 application/json', st == 200 and ct.startswith('application/json'), '%s %s' % (st, ct))
         check('snapshot keys', sorted(doc.keys()) == ['examined', 'generated', 'instances', 'refusals', 'state', 'template'], str(sorted(doc.keys())))
-        check('state INSTANCES with the fixture at its node', doc.get('state') == 'INSTANCES' and inst.get('T-9990', {}).get('node') == 'frw_6_run'
+        check('state INSTANCES with the fixture at its node', doc.get('state') == 'INSTANCES' and inst.get('T-9990', {}).get('node') == 'frw_3_run'
               and inst.get('T-9990', {}).get('state') == 'NODE' and inst.get('T-9990', {}).get('owner') == 'human', json.dumps(inst))
         rules = [(r['task'], r['rule'], r['node']) for r in doc.get('refusals', [])]
-        check('the fixture\'s refusal is carried, the other task\'s is not', rules == [('T-9990', 'R-033', 'frw_9_human')], str(rules))
+        check('the fixture\'s refusal is carried, the other task\'s is not', rules == [('T-9990', 'R-033', 'frw_gw_human')], str(rules))
 
         st2, _, body2 = get(port, '/api/instances?template=inception-lifecycle')
         doc2 = json.loads(body2) if st2 == 200 else {}

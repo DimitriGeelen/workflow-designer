@@ -2,7 +2,7 @@
 // _t1078-advisory-overlap-cdp.mjs — an advisory banner must never sit ON the diagram (T-1078).
 //
 // The independent reviewer's follow-up on T-310: on a malformed map both advisories fire (the
-// lane-fix notice and the Clean layout nudge), and the stacked nudge covered agt_2_agent — the
+// lane-fix notice and the Clean layout nudge), and the stacked nudge covered agt_1_agent — the
 // very top-lane node the lane-fix notice says was moved back. The lane-fix message was also
 // nowrap, so at narrow widths it ran off the canvas on one line.
 //

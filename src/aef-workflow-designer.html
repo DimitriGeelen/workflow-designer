@@ -2149,8 +2149,29 @@ function uniqueAbbrAmong(others, candidate) {
   return candidate; // give up
 }
 
+// T-1168 (T-1094 GO, option 2): map owners read the number in an id as "step N of the work", so only
+// ACTIVITIES are numbered. Events and gateways carry a type word instead (Greenfield T-172 #2b: a gateway
+// taking "3" made a lane's tasks read 1, 2, 4, 5). Imported foreign tags: *Gateway -> gw, *Event -> ev,
+// anything else (task, sendTask, callActivity, ...) is an activity.
+const STEP_WORD = {
+  startEvent: 'start', endEvent: 'end',
+  exclusiveGateway: 'gw', parallelGateway: 'gw',
+  linkEventThrow: 'link', linkEventCatch: 'link',
+  eventError: 'error', eventTimer: 'timer', eventMessage: 'message',
+};
+function stepWordOf(node) {
+  if (STEP_WORD[node.type]) return STEP_WORD[node.type];
+  const tag = node.foreignTag || '';
+  if (/Gateway$/.test(tag)) return 'gw';
+  if (/Event$/.test(tag)) return 'ev';
+  return null;
+}
+function isStepNumbered(node) { return stepWordOf(node) === null; }
+
 // Compute a node's displayId from its slug, lane, and spatial position.
-// Spatial position = 1-based rank by x-coordinate among nodes in the same lane.
+// An activity is `<abbr>_<n>_<slug>`, n = 1-based rank by x among the ACTIVITIES of its lane.
+// An event or gateway is `<abbr>_<word>_<slug>`; a second one in the lane with the same word and slug
+// takes `_2`, `_3` in x order (slugs never contain `_`, so the suffix cannot collide with another id).
 // If two nodes share an x exactly, uid order breaks the tie deterministically.
 function computeDisplayId(node) {
   const lane = findLane(node.lane);
@@ -2159,9 +2180,15 @@ function computeDisplayId(node) {
     .filter(n => n.lane === node.lane)
     .slice()
     .sort((a, b) => a.x - b.x || a.uid.localeCompare(b.uid));
-  const seq = sameLane.findIndex(n => n.uid === node.uid) + 1;
-  const slug = node.slug || deriveSlug(node.name);
-  return `${abbr}_${seq}_${slug}`;
+  const slugOf = n => n.slug || deriveSlug(n.name);
+  const slug = slugOf(node);
+  const word = stepWordOf(node);
+  if (word === null) {
+    const seq = sameLane.filter(isStepNumbered).findIndex(n => n.uid === node.uid) + 1;
+    return `${abbr}_${seq}_${slug}`;
+  }
+  const k = sameLane.filter(n => stepWordOf(n) === word && slugOf(n) === slug).findIndex(n => n.uid === node.uid);
+  return `${abbr}_${word}_${slug}${k > 0 ? '_' + (k + 1) : ''}`;
 }
 
 // Edge displayId: `flow_<seq>` where seq is the edge's index in state.edges.
@@ -7216,7 +7243,8 @@ function _renderPropsInto(props, details) {
   displayLabel.textContent = 'Display ID';
   const displayHint = document.createElement('span');
   displayHint.className = 'field-hint';
-  displayHint.textContent = '· computed · <lane>_<seq>_<slug>';
+  // T-1168: only activities take a step number; events and gateways a type word.
+  displayHint.textContent = isStepNumbered(n) ? '· computed · <lane>_<step>_<slug>' : `· computed · <lane>_${stepWordOf(n)}_<slug>`;
   displayLabel.appendChild(displayHint);
   displayPreview.appendChild(displayLabel);
   const displayValue = document.createElement('div');
@@ -9215,7 +9243,7 @@ function maybeShowLaneFixNotice() {
 }
 
 // T-1078 (reviewer follow-up on T-310): an advisory must never sit ON the diagram. With both
-// advisories showing, the stacked Clean nudge covered agt_2_agent — the very top-lane node the
+// advisories showing, the stacked Clean nudge covered agt_1_agent — the very top-lane node the
 // lane-fix notice says it moved back. The advisories stay floating chrome, but while any is
 // visible the canvas wrap gets top padding below the last one, so the SVG (height 100% of the
 // content box, border-box sizing) shrinks into the space under them and no node can be covered.
@@ -10430,7 +10458,7 @@ const FINDING_MARKER_EXCLUDED = new Set([
   'W-XML-GW-AMBIGUOUS',
 ]);
 
-// `location` is prose, e.g. "node 'wrk_2_context'" or "exclusiveGateway 'frw_2_build'",
+// `location` is prose, e.g. "node 'wrk_1_context'" or "exclusiveGateway 'frw_gw_build'",
 // and "<file>" for document-level findings. Surveyed across the whole rendered corpus plus
 // four deliberately-broken variants: three shapes, two of them quoted-id.
 //

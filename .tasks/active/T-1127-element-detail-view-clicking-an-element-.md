@@ -8,7 +8,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_6_run
+current_node: frw_3_run
 owner: human
 horizon: now
 tags: []

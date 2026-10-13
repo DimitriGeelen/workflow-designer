@@ -10,11 +10,11 @@ description: >
   12 of 18 active inceptions would be refused a GO. Fix in the vendored copy (declared
   local fix), then pickup to AEF with bug + fix.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [bug]
 components: []
 related_tasks: []
@@ -45,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-11T12:24:39Z
-last_update: 2026-10-11T12:34:48Z
-date_finished:
+last_update: 2026-10-11T12:37:49Z
+date_finished: 2026-10-11T12:37:49Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -93,7 +93,8 @@ bvp_scores_proposed:
 - [x] The vendored inception_handoff_blockers reports `hypothesis-unready` for a GO-recommended inception whose hypothesis the decide gate would refuse, and stays clear for NO-GO / DEFER and for a checkable GO (tools/_t1123 8/8; 2 of 8 fail on the old code)
 - [x] `fw task review` refuses the hand-off of such an inception (T-1093: BLOCKED, hypothesis-unready) and passes T-1118
 - [x] The local fix is declared in .agentic-framework/.vendor-divergence.yaml (tools/_t517 OK) and the gap registered (G-085)
-- [ ] Pickup I sent to AEF with the bug (evidence, root cause) and the fix as a patch plus its test
+- [x] Pickup I sent to AEF with the bug (evidence, root cause) and the fix as a patch plus its test
+  (addendum to E/0010; RECEIVED, client_msg_id 17893420, conversation pickup-i-handoff-hypothesis, commit 89aa1684)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -373,3 +374,15 @@ pickup I proposes the same fix plus a parity test so a future decide gate cannot
 
 ### 2026-10-11T12:31:07Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-cb6acac0
+- **Timestamp:** 2026-10-11T12:38:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-11T12:37:49Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

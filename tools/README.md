@@ -149,7 +149,7 @@ status). No new identifier is minted — the task id is the instance identity.
 python3 tools/instance-node.py bind inception      # rendered template file(s) it instantiates
 python3 tools/instance-node.py nodes task-lifecycle # node ids a position may take
 python3 tools/instance-node.py get  T-873           # NODE <id> <template> | NO-POSITION | NO-TEMPLATE | NO-ENTITY
-python3 tools/instance-node.py set  T-873 frw_6_run # REFUSED unless the node is in a bound template
+python3 tools/instance-node.py set  T-873 frw_3_run # REFUSED unless the node is in a bound template
 ```
 
 Exit codes: `0` ok (NODE / NO-POSITION / recorded) · `1` REFUSED or STALE · `2` NO-ENTITY ·

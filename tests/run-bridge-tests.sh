@@ -485,7 +485,7 @@ fi
 
 echo
 echo "== endpoint reconnect reachability: handles above node bodies, real-input drag (T-293, G-003) =="
-# The field-found frw_11_harvest case — endpoint grab halos must win the hit-test
+# The field-found frw_4_harvest case — endpoint grab halos must win the hit-test
 # on the node border (isolated chromium, real Input.dispatchMouseEvent; also
 # guards the T-286+T-293 canvas layer order).
 if python3 "$ROOT/tests/test_t293_endpoint_reach.py"; then
@@ -3074,6 +3074,7 @@ T1013_GUARDS=(
   'tools/_t886-writer-mutation.py|mutation teeth for the round-trip guard (suppresses each writer attribute, expects red)'
   'tools/_t892-lane-default-cdp.mjs|CDP regression: the lane Authoring default never re-stamps nodes'
   'tools/_t911-kind-badge-verify-cdp.mjs|CDP regression: workflowMeta/@kind settable and visible (writes .playwright-mcp/t911-panel-kind-select.png)'
+  'tools/_t1168-step-numbers-verify-cdp.mjs|CDP regression: node ids number ACTIVITIES only, events/gateways carry a type word, ids unique and round-trip (T-1168)'
   'tools/_t1155-doc-title-verify-cdp.mjs|CDP regression: tab title and XML heading name the open map, across load, switch and rename (T-1155)'
 )
 for _entry in "${T1013_GUARDS[@]}"; do

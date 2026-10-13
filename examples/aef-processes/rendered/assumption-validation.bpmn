@@ -25,8 +25,8 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="frw" authority="authority" height="204"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>frw_6_assumption</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_5_invalidated</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_assumption</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_invalidated</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_1_register</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_3_mark</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_2_mark</bpmn:flowNodeRef>
@@ -36,13 +36,13 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="agt" authority="initiative" height="108"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>agt_1_assumption</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_2_gather</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>agt_3_evidence</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_start_assumption</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_1_gather</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_gw_evidence</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="agt_1_assumption" name="Assumption identified (linked to a task)">
+    <bpmn:startEvent id="agt_start_assumption" name="Assumption identified (linked to a task)">
       <bpmn:extensionElements>
         <aef:uid value="n_req"/>
         <aef:position x="187.9" y="382.0"/>
@@ -55,7 +55,7 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="frw_6_assumption" name="Assumption validated">
+    <bpmn:endEvent id="frw_end_assumption" name="Assumption validated">
       <bpmn:extensionElements>
         <aef:uid value="n_end_validated"/>
         <aef:position x="1345.6" y="175.0"/>
@@ -63,7 +63,7 @@
       <bpmn:incoming>flow_6</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:endEvent id="frw_5_invalidated" name="Invalidated → gap/risk registered">
+    <bpmn:endEvent id="frw_end_invalidated" name="Invalidated → gap/risk registered">
       <bpmn:extensionElements>
         <aef:uid value="n_end_gap"/>
         <aef:position x="1345.6" y="277.0"/>
@@ -71,7 +71,7 @@
       <bpmn:incoming>flow_8</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:serviceTask id="agt_2_gather" name="Gather evidence (research / test)">
+    <bpmn:serviceTask id="agt_1_gather" name="Gather evidence (research / test)">
       <bpmn:extensionElements>
         <aef:uid value="n_gather"/>
         <aef:position x="520.0" y="368.0"/>
@@ -131,7 +131,7 @@
       <bpmn:outgoing>flow_8</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:exclusiveGateway id="agt_3_evidence" name="Evidence supports the assumption?">
+    <bpmn:exclusiveGateway id="agt_gw_evidence" name="Evidence supports the assumption?">
       <bpmn:extensionElements>
         <aef:uid value="n_assess"/>
         <aef:position x="720.0" y="376.0"/>
@@ -143,27 +143,27 @@
       <bpmn:outgoing>flow_5</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_assumption" targetRef="frw_1_register">
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_start_assumption" targetRef="frw_1_register">
       <bpmn:extensionElements>
         <aef:uid value="e_01"/>
         <aef:anchors sourcePort="N" targetPort="W"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_register" targetRef="agt_2_gather">
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_register" targetRef="agt_1_gather">
       <bpmn:extensionElements>
         <aef:uid value="e_02"/>
         <aef:anchors sourcePort="E"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_3" sourceRef="agt_2_gather" targetRef="agt_3_evidence">
+    <bpmn:sequenceFlow id="flow_3" sourceRef="agt_1_gather" targetRef="agt_gw_evidence">
       <bpmn:extensionElements>
         <aef:uid value="e_03"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_4" name="supported" sourceRef="agt_3_evidence" targetRef="frw_3_mark">
+    <bpmn:sequenceFlow id="flow_4" name="supported" sourceRef="agt_gw_evidence" targetRef="frw_3_mark">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${evidence_supports == true}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_04"/>
@@ -172,7 +172,7 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_5" name="refuted" sourceRef="agt_3_evidence" targetRef="frw_2_mark">
+    <bpmn:sequenceFlow id="flow_5" name="refuted" sourceRef="agt_gw_evidence" targetRef="frw_2_mark">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${evidence_supports == false}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_05"/>
@@ -180,7 +180,7 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_6" sourceRef="frw_3_mark" targetRef="frw_6_assumption">
+    <bpmn:sequenceFlow id="flow_6" sourceRef="frw_3_mark" targetRef="frw_end_assumption">
       <bpmn:extensionElements>
         <aef:uid value="e_06"/>
       </bpmn:extensionElements>
@@ -192,7 +192,7 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_8" sourceRef="frw_4_invalidated" targetRef="frw_5_invalidated">
+    <bpmn:sequenceFlow id="flow_8" sourceRef="frw_4_invalidated" targetRef="frw_end_invalidated">
       <bpmn:extensionElements>
         <aef:uid value="e_08"/>
       </bpmn:extensionElements>

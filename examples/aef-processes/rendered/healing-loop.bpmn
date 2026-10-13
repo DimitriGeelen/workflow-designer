@@ -20,18 +20,18 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="hum" authority="sovereignty" height="216"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>hum_2_choose</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>hum_1_human</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_1_choose</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_gw_human</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
           <aef:laneMeta abbr="frw" authority="authority" height="96"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>frw_1_auto</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_2_advisory</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_5_resolved</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_3_log</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_4_resume</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_start_auto</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_advisory</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_resolved</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_1_log</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_resume</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="agent" name="Agent · Initiative">
         <bpmn:extensionElements>
@@ -44,7 +44,7 @@
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="frw_1_auto" name="Auto-trigger — task entered issues/blocked">
+    <bpmn:startEvent id="frw_start_auto" name="Auto-trigger — task entered issues/blocked">
       <bpmn:extensionElements>
         <aef:uid value="n_trigger"/>
         <aef:position x="120.0" y="308.0"/>
@@ -57,7 +57,7 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="frw_2_advisory" name="Advisory only — no pattern recorded">
+    <bpmn:endEvent id="frw_end_advisory" name="Advisory only — no pattern recorded">
       <bpmn:extensionElements>
         <aef:uid value="n_end_advisory"/>
         <aef:position x="883.0" y="308.0"/>
@@ -66,7 +66,7 @@
       <bpmn:incoming>flow_6</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:endEvent id="frw_5_resolved" name="Resolved &amp; recorded (antifragile)">
+    <bpmn:endEvent id="frw_end_resolved" name="Resolved &amp; recorded (antifragile)">
       <bpmn:extensionElements>
         <aef:uid value="n_end_resolved"/>
         <aef:position x="1880.0" y="308.0"/>
@@ -133,7 +133,7 @@
       <bpmn:outgoing>flow_8</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:userTask id="hum_2_choose" name="Choose ladder rung + direct the recovery">
+    <bpmn:userTask id="hum_1_choose" name="Choose ladder rung + direct the recovery">
       <bpmn:extensionElements>
         <aef:uid value="n_choose"/>
         <aef:position x="1080.0" y="84.0"/>
@@ -149,7 +149,7 @@
       <bpmn:outgoing>flow_7</bpmn:outgoing>
     </bpmn:userTask>
 
-    <bpmn:scriptTask id="frw_3_log" name="Log resolution — append pattern + learning + task note">
+    <bpmn:scriptTask id="frw_1_log" name="Log resolution — append pattern + learning + task note">
       <bpmn:extensionElements>
         <aef:uid value="n_resolve"/>
         <aef:position x="1480.0" y="294.0"/>
@@ -164,7 +164,7 @@
       <bpmn:outgoing>flow_9</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_4_resume" name="Resume task (→ started-work)">
+    <bpmn:scriptTask id="frw_2_resume" name="Resume task (→ started-work)">
       <bpmn:extensionElements>
         <aef:uid value="n_resume"/>
         <aef:position x="1680.0" y="294.0"/>
@@ -175,7 +175,7 @@
       <bpmn:outgoing>flow_10</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:exclusiveGateway id="hum_1_human" name="Human acts on the advice?">
+    <bpmn:exclusiveGateway id="hum_gw_human" name="Human acts on the advice?">
       <bpmn:extensionElements>
         <aef:uid value="n_acted"/>
         <aef:position x="877.0" y="200.0"/>
@@ -187,7 +187,7 @@
       <bpmn:outgoing>flow_6</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:sequenceFlow id="flow_1" sourceRef="frw_1_auto" targetRef="agt_1_classify">
+    <bpmn:sequenceFlow id="flow_1" sourceRef="frw_start_auto" targetRef="agt_1_classify">
       <bpmn:extensionElements>
         <aef:uid value="e_01"/>
       </bpmn:extensionElements>
@@ -205,14 +205,14 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_4" sourceRef="agt_3_suggest" targetRef="hum_1_human">
+    <bpmn:sequenceFlow id="flow_4" sourceRef="agt_3_suggest" targetRef="hum_gw_human">
       <bpmn:extensionElements>
         <aef:uid value="e_04"/>
         <aef:anchors targetPort="W"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_5" name="acts on advice" sourceRef="hum_1_human" targetRef="hum_2_choose">
+    <bpmn:sequenceFlow id="flow_5" name="acts on advice" sourceRef="hum_gw_human" targetRef="hum_1_choose">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${act == true}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_05"/>
@@ -220,34 +220,34 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_6" name="advisory only" sourceRef="hum_1_human" targetRef="frw_2_advisory">
+    <bpmn:sequenceFlow id="flow_6" name="advisory only" sourceRef="hum_gw_human" targetRef="frw_end_advisory">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${act == false}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_06"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_7" sourceRef="hum_2_choose" targetRef="agt_4_apply">
+    <bpmn:sequenceFlow id="flow_7" sourceRef="hum_1_choose" targetRef="agt_4_apply">
       <bpmn:extensionElements>
         <aef:uid value="e_07"/>
         <aef:anchors sourcePort="E"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_8" sourceRef="agt_4_apply" targetRef="frw_3_log">
+    <bpmn:sequenceFlow id="flow_8" sourceRef="agt_4_apply" targetRef="frw_1_log">
       <bpmn:extensionElements>
         <aef:uid value="e_08"/>
         <aef:anchors sourcePort="E"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_9" sourceRef="frw_3_log" targetRef="frw_4_resume">
+    <bpmn:sequenceFlow id="flow_9" sourceRef="frw_1_log" targetRef="frw_2_resume">
       <bpmn:extensionElements>
         <aef:uid value="e_09"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_10" sourceRef="frw_4_resume" targetRef="frw_5_resolved">
+    <bpmn:sequenceFlow id="flow_10" sourceRef="frw_2_resume" targetRef="frw_end_resolved">
       <bpmn:extensionElements>
         <aef:uid value="e_10"/>
       </bpmn:extensionElements>

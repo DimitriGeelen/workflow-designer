@@ -7,7 +7,7 @@ description: >
 
 status: work-completed
 workflow_type: inception
-current_node: frw_11_task
+current_node: frw_end_task
 owner: human
 horizon: null
 tags: []
