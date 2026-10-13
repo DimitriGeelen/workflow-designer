@@ -1,0 +1,21 @@
+id: tools/hooks/guard-decision-handover.py
+name: guard-decision-handover
+type: script
+subsystem: enforcement-hooks
+location: tools/hooks/guard-decision-handover.py
+tags: []
+
+purpose: "T-1145 — Stop hook: a decision link in the agent's reply must pass the inception readiness check."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-13
+created_by: unknown

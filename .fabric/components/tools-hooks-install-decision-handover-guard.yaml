@@ -1,0 +1,21 @@
+id: tools/hooks/install-decision-handover-guard.py
+name: install-decision-handover-guard
+type: script
+subsystem: enforcement-hooks
+location: tools/hooks/install-decision-handover-guard.py
+tags: []
+
+purpose: "T-1145 — register the decision-handover guard (a Stop hook) in .claude/settings.json."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-13
+created_by: unknown

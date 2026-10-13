@@ -567,6 +567,7 @@ orphan_legs=(
   "tests/test_session_start_alerts.py|the /resume session-start check stopped delegating mail to fw sidecar alerts correctly: output or flags lost, a NOT CHECKED / failing / missing verb read as nothing, or the runme section hidden (T-1046, T-1059)"
   "tests/test_t1055_runme_launcher.py|the runme launcher no longer enforces the operator's safeguards itself: a job that runs at load time, has no dry-run, changed since its dry-run, or is already done can run, or a step runs without its y/N (T-1055)"
   "tests/test_t1050_runme_alerts.py|the session-start check no longer tells a new session that a handed-over runme.sh has nothing watching it (WATCH LOST), or misreports an in-flight / unrecorded run (T-1050)"
+  "tests/test_t1145_decision_handover_guard.py|the Stop hook no longer blocks a reply that hands the operator an unready inception's decision link, blocks a ready or link-free reply, loops, or fails closed (T-1145)"
 )
 for leg in "${orphan_legs[@]}"; do
   legfile="${leg%%|*}"
