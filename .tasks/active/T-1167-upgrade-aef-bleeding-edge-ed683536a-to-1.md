@@ -43,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:43:08Z
-last_update: 2026-10-13T18:27:57Z
+last_update: 2026-10-13T18:28:07Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -93,10 +93,10 @@ Checked before any commit: index empty; watchtower_decision_revert.py --days 60:
 ## Acceptance Criteria
 
 ### Agent
-- [ ] A runme job upgrades from a clone pinned at 1146a745045e through the re-vendor protocol (doctor before, pristine commit, divergence baseline, cron check, doctor after); its dry-run passes; the agent never runs it for real
-- [ ] After the operator's run: our local fixes re-applied (tools/_t517 OK), *.bak checked, Watchtower restarted, watchtower_decision_revert.py run again
-- [ ] The vendored inception.py records decisions with `git commit --only` (T-4127 present)
-- [ ] AEF told the upgrade is in, with the revert-scan result
+- [x] A runme job upgrades from a clone pinned at 1146a745045e through the re-vendor protocol (doctor before, pristine commit, divergence baseline, cron check, doctor after); its dry-run passes; the agent never runs it for real — job 023 (dry-run 7/7) ran steps 1-3 (pristine 40b8e12c); step 4 was cancelled by mistake, so job 024 (dry-run 6/6) ran steps 4-7, rc 0 (baseline fcac8190, crontab ok, doctor rc 0, Watchtower pid 1390000)
+- [x] After the operator's run: our local fixes re-applied (tools/_t517 OK), *.bak checked, Watchtower restarted, watchtower_decision_revert.py run again — c2badf60: 36 clean, 1 conflict resolved to upstream (T-4108 stricter than our T-650 clause); _t517 44/44; _t650 17/17; CLAUDE.md.bak held only the old 300K budget numbers, removed; revert scan 0
+- [x] The vendored inception.py records decisions with `git commit --only` (T-4127 present) — inception.py:1054
+- [x] AEF told the upgrade is in, with the revert-scan result — msg 04218dc3 on aef-release-v1.8.10
 
 <!-- No Human criteria: the operator's part is running the job.
      Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -130,6 +130,11 @@ Checked before any commit: index empty; watchtower_decision_revert.py --days 60:
 -->
 
 ## Verification
+grep -q "1146a745045ee204701419c4ac172030a1ef88a1" .framework.yaml
+grep -q -- "commit --only" .agentic-framework/web/blueprints/inception.py
+python3 tools/_t517-vendor-divergence.py
+python3 .agentic-framework/lib/watchtower_decision_revert.py --days 60
+test -f .context/runme/024-upgrade-aef-1146a7450-finish/done
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
