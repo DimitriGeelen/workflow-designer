@@ -9,13 +9,13 @@ description: >
   only? all activities?) — ids are also bpmn ids, so changing the scheme affects saved
   files and id-based comparison (T-1089).
 
-status: started-work
+status: work-completed
 workflow_type: inception
 target_blast_radius: 3
 voi_score: 0.5
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T08:40:22Z
-last_update: 2026-10-13T19:02:33Z
-date_finished:
+last_update: 2026-10-13T19:07:38Z
+date_finished: 2026-10-13T19:07:38Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -392,13 +392,13 @@ the misreading at its source. Option 3 (badge-only) adds a second numbering that
 
 ## Decision
 
-<!-- Filled at completion of inception tasks via:
-     fw inception decide T-1094 go|no-go|defer --rationale "..."
+**Decision**: GO
 
-     For non-inception tasks this section is ignored. Kept in template
-     so `fw inception decide` (lib/inception.sh) finds the anchor heading
-     without auto-creating; T-1832 added auto-create as fallback for
-     legacy tasks lacking this section. -->
+**Rationale**: Owners read the number as "step N"; the code means "position N in the lane". Node ids already
+renumber on every layout edit, so a one-time id change costs no more than a node move does today, and it removes
+the misreading at its source. Option 3 (badge-only) adds a second numbering that disagrees with the saved file.
+
+**Date**: 2026-10-13T19:07:37Z
 
 ## Updates
 
@@ -412,3 +412,36 @@ the misreading at its source. Option 3 (badge-only) adds a second numbering that
 
 ### 2026-10-12T22:15:14Z — status-update [task-update-agent]
 - **Change:** workflow_type: build → inception
+
+### 2026-10-13T19:07:37Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Owners read the number as "step N"; the code means "position N in the lane". Node ids already
+renumber on every layout edit, so a one-time id change costs no more than a node move does today, and it removes
+the misreading at its source. Option 3 (badge-only) adds a second numbering that disagrees with the saved file.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9d3ec1a0
+- **Timestamp:** 2026-10-13T19:07:41Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-955af317
+- **Timestamp:** 2026-10-13T19:07:41Z
+- **Overall:** CONTRADICTED
+- **Claims:** 3
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `lib/review.sh:205-211` | file | ✗ fail — file not found at PROJECT_ROOT |
+| `T-2945` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
+| `T-2421` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
+
+### 2026-10-13T19:07:38Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
