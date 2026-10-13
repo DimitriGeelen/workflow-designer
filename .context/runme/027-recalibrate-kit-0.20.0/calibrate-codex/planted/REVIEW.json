@@ -1,0 +1,34 @@
+[
+  {
+    "element": "Lane_warehouse",
+    "category": "wrong-authority",
+    "severity": "major",
+    "source_evidence": "For accepted orders the warehouse picks the parts, packs the order and books a carrier.",
+    "problem": "The warehouse department is marked authority=\"authority\", assigning its work to an automated agent instead of a human department.",
+    "correction": "Change Lane_warehouse laneMeta authority from \"authority\" to \"sovereignty\"."
+  },
+  {
+    "element": "quality-inspection",
+    "category": "invented",
+    "severity": "major",
+    "source_evidence": "The warehouse also does quality inspection and labelling for each order, but nobody could\nsay whether those happen before or after packing, or in which order relative to each other.",
+    "problem": "The map places quality inspection between picking and packing even though its order relative to packing is explicitly unknown.",
+    "correction": "Remove pick-parts--quality-inspection and quality-inspection--pack-order and their incoming/outgoing references, restore a direct pick-parts to pack-order flow, and leave quality-inspection unconnected with an associated annotation declaring its unknown order relative to packing and labelling."
+  },
+  {
+    "element": "send-payment-reminder",
+    "category": "invented",
+    "severity": "major",
+    "source_evidence": "source is silent",
+    "problem": "The map adds an ERP payment-reminder task after invoicing that the source never describes.",
+    "correction": "Remove send-payment-reminder, its lane reference and incident flows, and connect generate-and-send-invoice directly to accepted-order-fulfilled, updating incoming/outgoing references."
+  },
+  {
+    "element": "send-payment-reminder",
+    "category": "citation",
+    "severity": "major",
+    "source_evidence": "source is silent",
+    "problem": "The documentation presents \"The ERP sends a payment reminder after seven days.\" as a source quote although that sentence does not appear in SOURCE.md.",
+    "correction": "Remove the fabricated citation along with the unsupported payment-reminder task; do not attribute a seven-day reminder rule to the source."
+  }
+]

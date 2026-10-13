@@ -1,0 +1,26 @@
+[
+  {
+    "element": "send-payment-reminder",
+    "category": "invented",
+    "severity": "major",
+    "source_evidence": "source is silent",
+    "problem": "The task 'Send payment reminder' and its documentation quote \"The ERP sends a payment reminder after seven days.\" appear nowhere in the source, which mentions no reminder, no payment step and no seven days.",
+    "correction": "Delete the task send-payment-reminder, its flowNodeRef in Lane_erp, the flows generate-and-send-invoice--send-payment-reminder and send-payment-reminder--accepted-order-fulfilled, and wire generate-and-send-invoice directly to accepted-order-fulfilled."
+  },
+  {
+    "element": "quality-inspection",
+    "category": "undeclared-unknown",
+    "severity": "major",
+    "source_evidence": "The warehouse also does quality inspection and labelling for each order, but nobody could say whether those happen before or after packing, or in which order relative to each other.",
+    "problem": "The map wires pick-parts -> quality-inspection -> pack-order, asserting quality inspection happens between picking and packing, an order the source explicitly leaves unknown while labelling (correctly unconnected and annotated) carries the declaration for only one of the two steps.",
+    "correction": "Delete the flows pick-parts--quality-inspection and quality-inspection--pack-order, add a direct flow pick-parts -> pack-order (the source's own 'picks the parts, packs the order' sequence), and leave quality-inspection unconnected with an annotation of unknown order like labelling's."
+  },
+  {
+    "element": "Lane_warehouse",
+    "category": "wrong-authority",
+    "severity": "major",
+    "source_evidence": "For accepted orders the warehouse picks the parts, packs the order and books a carrier.",
+    "problem": "The Warehouse lane declares authority=\"authority\" (an automated system acting on its own rules), but the warehouse is a named department that performs the work, which the rubric and AUTHORING.md section 3 class as sovereignty with a human owner.",
+    "correction": "Change Lane_warehouse's aef:laneMeta from authority=\"authority\" to authority=\"sovereignty\"."
+  }
+]
