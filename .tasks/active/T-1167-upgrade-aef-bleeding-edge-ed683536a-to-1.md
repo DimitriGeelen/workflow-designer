@@ -10,7 +10,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_6_run
 owner: agent
 horizon: now
 tags: [aef-upgrade]
@@ -43,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:43:08Z
-last_update: 2026-10-13T18:28:07Z
+last_update: 2026-10-13T18:28:26Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -280,6 +280,22 @@ test -f .context/runme/024-upgrade-aef-1146a7450-finish/done
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** (AEF G-114, upstream) a decision recorded in Watchtower could be silently reverted in git by the
+next ordinary commit, while the working tree still showed it. In 832: not hit (revert scan 0 before and after).
+
+**Root cause:** upstream. Watchtower committed a decision through a scratch index (T-2708) and left the real
+index holding the pre-decision blobs, so the next commit wrote them back. T-4081 reset the real index after the
+fact; T-4127 commits the decision paths with `git commit --only` through the real index under git's own lock.
+
+**Why structurally allowed:** a commit made in one index and a second index left stale is invisible to every
+check that looks at HEAD or the working tree; nothing compared them. On 832's side: the 1.8.10 tag and our
+bleeding-edge pin diverge, so "upgrade to the release" would have dropped field-tested fixes. We asked before
+picking a commit instead of upgrading to the tag.
+
+**Prevention:** upstream ships the revert detector (watchtower_decision_revert.py, in this task's Verification)
+and T-4127. Locally: our commits stage explicit paths only, and the re-vendor gate (T-1000) refuses commits
+between a pristine vendor commit and its baseline, which is what kept this upgrade's commits ordered.
 
 ## Evolution
 
