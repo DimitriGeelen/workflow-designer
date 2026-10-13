@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1155: Designer: set document.title from the loaded document (tab title hardcoded to investigate.bpmn)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-13T18:49:18Z
+# ============================================================================
+
+task_id: T-1155
+task_name: "Designer: set document.title from the loaded document (tab title hardcoded to investigate.bpmn)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T16:20:58Z
+completed: 2026-10-13T18:49:05Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-13T20:48:43+02:00
+last_commit: 2026-10-13T20:49:04+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the designer's tab title and XML panel heading name the open map (<id>.bpmn) instead of the literal investigate.bpmn (OBS-371) — updateDocumentTitle() from renderAll() and from a rename; CDP test 5/5 on two maps, load + in-place switch + rename through the real ID input, 0/5 against the old designer; wired into the bridge suite. drop the empty Human template heading (it sat outside Acceptance Criteria after the Visual Verification section)
+
+# Key outcomes
+outcomes:
+  - 'The tab title reads `AEF Workflow Designer — <id>.bpmn` for the map that is open, after a load and after an in-place switch to another map — updateDocumentTitle() called from renderAll(); test steps 1-4 (audit-process, git-commit-flow, loadFromLibrary switch)'
+  - 'Renaming the map id in the properties panel updates the tab title and the XML panel heading — called from renameActiveWorkflow (a rename re-renders only the panel); test step 5 through the real ID input (value + blur)'
+  - 'The XML panel heading names the open map''s file instead of the literal investigate.bpmn — `<strong id="xml-panel-docname">`; screenshot below'
+  - 'A browser test (tools/_t1155-doc-title-verify-cdp.mjs) proves it on two different maps, with a control that the title is not the old literal; wired into tests/run-bridge-tests.sh — 5/5 on the fix; 0/5 against HEAD''s designer (teeth); wired in T1013_GUARDS, not in the _t451 unwired list'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1155-designer-set-documenttitle-from-the-load.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1155-doc-title-verify-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-13T20:48:43'
+    action: 'T-1155: the designer''s tab title and XML panel heading name the open map (<id>.bpmn) instead of the literal investigate.bpmn (OBS-371) — updateDocumentTitle() from renderAll() and from a rename; CDP test 5/5 on two maps, load + in-place switch + rename through the real ID input, 0/5 against the old designer; wired into the bridge suite'
+  - time: '2026-10-13T20:49:04'
+    action: 'T-1155: drop the empty Human template heading (it sat outside Acceptance Criteria after the Visual Verification section)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 148 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [observations]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 148
+  commits: 2
+  files_changed: 4
+  lines_added: 207
+  lines_removed: 17
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1155-designer-set-documenttitle-from-the-load.md
+generated_by: context-agent-hybrid
