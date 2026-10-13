@@ -103,26 +103,26 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="hir" authority="none" height="130"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>hir_1_job</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>hir_2_write</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>hir_3_approve</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>hir_4_job</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hir_start_job</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hir_1_write</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hir_2_approve</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hir_gw_job</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="_b4703b36-7f21-42bb-8d74-1717bcff8d1a" name="Recruitment">
         <bpmn:extensionElements>
           <aef:laneMeta abbr="rec" authority="none" height="245"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>rec_7_job</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>rec_end_job</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>rec_3_publish</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>rec_4_publish</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>rec_5_publish</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>rec_1_complete</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>rec_2_9a9ec640</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>rec_6_4ea95b48</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>rec_3_select</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>rec_gw_9a9ec640</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>rec_gw_4ea95b48</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>rec_2_select</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="hir_1_job" name="Job vacancy to be  advertised">
+    <bpmn:startEvent id="hir_start_job" name="Job vacancy to be  advertised">
       <bpmn:extensionElements>
         <aef:uid value="u1"/>
         <aef:position x="187.0" y="109.0"/>
@@ -130,7 +130,7 @@
       <bpmn:outgoing>flow_5</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="rec_7_job" name="Job vacancy advertised">
+    <bpmn:endEvent id="rec_end_job" name="Job vacancy advertised">
       <bpmn:extensionElements>
         <aef:uid value="u2"/>
         <aef:position x="1476.0" y="296.5"/>
@@ -138,7 +138,7 @@
       <bpmn:incoming>flow_11</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:serviceTask id="rec_4_publish" name="Publish job advertisement on homepage">
+    <bpmn:serviceTask id="rec_3_publish" name="Publish job advertisement on homepage">
       <bpmn:extensionElements>
         <aef:uid value="u3"/>
         <aef:position x="1101.0" y="282.5"/>
@@ -147,7 +147,7 @@
       <bpmn:outgoing>flow_9</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="rec_5_publish" name="Publish job on 3rd party platforms">
+    <bpmn:serviceTask id="rec_4_publish" name="Publish job on 3rd party platforms">
       <bpmn:extensionElements>
         <aef:uid value="u4"/>
         <aef:position x="1207.0" y="282.5"/>
@@ -156,7 +156,7 @@
       <bpmn:outgoing>flow_12</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:userTask id="hir_2_write" name="Write job description">
+    <bpmn:userTask id="hir_1_write" name="Write job description">
       <bpmn:extensionElements>
         <aef:uid value="u5"/>
         <aef:position x="274.0" y="95.0"/>
@@ -165,7 +165,7 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:userTask>
 
-    <bpmn:userTask id="hir_3_approve" name="Approve job advertisement">
+    <bpmn:userTask id="hir_2_approve" name="Approve job advertisement">
       <bpmn:extensionElements>
         <aef:uid value="u6"/>
         <aef:position x="663.0" y="95.0"/>
@@ -267,7 +267,7 @@
       <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:userTask>
 
-    <bpmn:exclusiveGateway id="hir_4_job" name="Job advertisement approved?">
+    <bpmn:exclusiveGateway id="hir_gw_job" name="Job advertisement approved?">
       <bpmn:extensionElements>
         <aef:uid value="u8"/>
         <aef:position x="838.0" y="103.0"/>
@@ -277,7 +277,7 @@
       <bpmn:outgoing>flow_4</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:parallelGateway id="rec_2_9a9ec640" name="_9a9ec640-4cd2-465f-b9e3-3a8edc6f4375">
+    <bpmn:parallelGateway id="rec_gw_9a9ec640" name="_9a9ec640-4cd2-465f-b9e3-3a8edc6f4375">
       <bpmn:extensionElements>
         <aef:uid value="u9"/>
         <aef:position x="952.0" y="290.5"/>
@@ -287,7 +287,7 @@
       <bpmn:outgoing>flow_8</bpmn:outgoing>
     </bpmn:parallelGateway>
 
-    <bpmn:parallelGateway id="rec_6_4ea95b48" name="_4ea95b48-6f9d-4787-bd32-24727837cd01">
+    <bpmn:parallelGateway id="rec_gw_4ea95b48" name="_4ea95b48-6f9d-4787-bd32-24727837cd01">
       <bpmn:extensionElements>
         <aef:uid value="u10"/>
         <aef:position x="1348.0" y="290.5"/>
@@ -297,7 +297,7 @@
       <bpmn:outgoing>flow_11</bpmn:outgoing>
     </bpmn:parallelGateway>
 
-    <bpmn:businessRuleTask id="rec_3_select" name="Select 3rd party platforms for publishing">
+    <bpmn:businessRuleTask id="rec_2_select" name="Select 3rd party platforms for publishing">
       <bpmn:extensionElements>
         <aef:uid value="u11"/>
         <aef:position x="1015.0" y="282.5"/>
@@ -306,73 +306,73 @@
       <bpmn:outgoing>flow_10</bpmn:outgoing>
     </bpmn:businessRuleTask>
 
-    <bpmn:sequenceFlow id="flow_1" sourceRef="hir_2_write" targetRef="rec_1_complete">
+    <bpmn:sequenceFlow id="flow_1" sourceRef="hir_1_write" targetRef="rec_1_complete">
       <bpmn:extensionElements>
         <aef:uid value="u12"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_2" sourceRef="rec_1_complete" targetRef="hir_3_approve">
+    <bpmn:sequenceFlow id="flow_2" sourceRef="rec_1_complete" targetRef="hir_2_approve">
       <bpmn:extensionElements>
         <aef:uid value="u13"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_3" name="No" sourceRef="hir_4_job" targetRef="rec_1_complete">
+    <bpmn:sequenceFlow id="flow_3" name="No" sourceRef="hir_gw_job" targetRef="rec_1_complete">
       <bpmn:extensionElements>
         <aef:uid value="u14"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_4" name="Yes" sourceRef="hir_4_job" targetRef="rec_2_9a9ec640">
+    <bpmn:sequenceFlow id="flow_4" name="Yes" sourceRef="hir_gw_job" targetRef="rec_gw_9a9ec640">
       <bpmn:extensionElements>
         <aef:uid value="u15"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_5" sourceRef="hir_1_job" targetRef="hir_2_write">
+    <bpmn:sequenceFlow id="flow_5" sourceRef="hir_start_job" targetRef="hir_1_write">
       <bpmn:extensionElements>
         <aef:uid value="u16"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_6" sourceRef="hir_3_approve" targetRef="hir_4_job">
+    <bpmn:sequenceFlow id="flow_6" sourceRef="hir_2_approve" targetRef="hir_gw_job">
       <bpmn:extensionElements>
         <aef:uid value="u17"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_7" sourceRef="rec_2_9a9ec640" targetRef="rec_4_publish">
+    <bpmn:sequenceFlow id="flow_7" sourceRef="rec_gw_9a9ec640" targetRef="rec_3_publish">
       <bpmn:extensionElements>
         <aef:uid value="u18"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_8" sourceRef="rec_2_9a9ec640" targetRef="rec_3_select">
+    <bpmn:sequenceFlow id="flow_8" sourceRef="rec_gw_9a9ec640" targetRef="rec_2_select">
       <bpmn:extensionElements>
         <aef:uid value="u19"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_9" sourceRef="rec_4_publish" targetRef="rec_6_4ea95b48">
+    <bpmn:sequenceFlow id="flow_9" sourceRef="rec_3_publish" targetRef="rec_gw_4ea95b48">
       <bpmn:extensionElements>
         <aef:uid value="u20"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_10" sourceRef="rec_3_select" targetRef="rec_5_publish">
+    <bpmn:sequenceFlow id="flow_10" sourceRef="rec_2_select" targetRef="rec_4_publish">
       <bpmn:extensionElements>
         <aef:uid value="u21"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_11" sourceRef="rec_6_4ea95b48" targetRef="rec_7_job">
+    <bpmn:sequenceFlow id="flow_11" sourceRef="rec_gw_4ea95b48" targetRef="rec_end_job">
       <bpmn:extensionElements>
         <aef:uid value="u22"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_12" sourceRef="rec_5_publish" targetRef="rec_6_4ea95b48">
+    <bpmn:sequenceFlow id="flow_12" sourceRef="rec_4_publish" targetRef="rec_gw_4ea95b48">
       <bpmn:extensionElements>
         <aef:uid value="u23"/>
       </bpmn:extensionElements>
@@ -483,37 +483,37 @@
 
   <bpmndi:BPMNDiagram id="BPMNDiagram_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3">
     <bpmndi:BPMNPlane id="BPMNPlane_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3" bpmnElement="Process_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3">
-      <bpmndi:BPMNShape id="BPMNShape_hir_1_job" bpmnElement="hir_1_job">
+      <bpmndi:BPMNShape id="BPMNShape_hir_start_job" bpmnElement="hir_start_job">
         <dc:Bounds x="187.0" y="109.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_rec_7_job" bpmnElement="rec_7_job">
+      <bpmndi:BPMNShape id="BPMNShape_rec_end_job" bpmnElement="rec_end_job">
         <dc:Bounds x="1476.0" y="296.5" width="36" height="36"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_rec_4_publish" bpmnElement="rec_4_publish">
+      <bpmndi:BPMNShape id="BPMNShape_rec_3_publish" bpmnElement="rec_3_publish">
         <dc:Bounds x="1101.0" y="282.5" width="110" height="64"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_rec_5_publish" bpmnElement="rec_5_publish">
+      <bpmndi:BPMNShape id="BPMNShape_rec_4_publish" bpmnElement="rec_4_publish">
         <dc:Bounds x="1207.0" y="282.5" width="110" height="64"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_hir_2_write" bpmnElement="hir_2_write">
+      <bpmndi:BPMNShape id="BPMNShape_hir_1_write" bpmnElement="hir_1_write">
         <dc:Bounds x="274.0" y="95.0" width="110" height="64"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_hir_3_approve" bpmnElement="hir_3_approve">
+      <bpmndi:BPMNShape id="BPMNShape_hir_2_approve" bpmnElement="hir_2_approve">
         <dc:Bounds x="663.0" y="95.0" width="110" height="64"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_rec_1_complete" bpmnElement="rec_1_complete">
         <dc:Bounds x="456.0" y="282.5" width="110" height="64"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_hir_4_job" bpmnElement="hir_4_job">
+      <bpmndi:BPMNShape id="BPMNShape_hir_gw_job" bpmnElement="hir_gw_job">
         <dc:Bounds x="838.0" y="103.0" width="48" height="48"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_rec_2_9a9ec640" bpmnElement="rec_2_9a9ec640">
+      <bpmndi:BPMNShape id="BPMNShape_rec_gw_9a9ec640" bpmnElement="rec_gw_9a9ec640">
         <dc:Bounds x="952.0" y="290.5" width="48" height="48"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_rec_6_4ea95b48" bpmnElement="rec_6_4ea95b48">
+      <bpmndi:BPMNShape id="BPMNShape_rec_gw_4ea95b48" bpmnElement="rec_gw_4ea95b48">
         <dc:Bounds x="1348.0" y="290.5" width="48" height="48"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_rec_3_select" bpmnElement="rec_3_select">
+      <bpmndi:BPMNShape id="BPMNShape_rec_2_select" bpmnElement="rec_2_select">
         <dc:Bounds x="1015.0" y="282.5" width="110" height="64"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1">

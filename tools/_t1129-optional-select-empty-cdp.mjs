@@ -116,7 +116,10 @@ async function main() {
     const firstDiff = (a, b) => { const A = a.split('\n'), B = b.split('\n'); for (let i = 0; i < Math.max(A.length, B.length); i++) if (A[i] !== B[i]) return { line: i + 1, now: (A[i] || '').trim().slice(0, 200), was: (B[i] || '').trim().slice(0, 200) }; return null; };
     // A map whose file has no workflowMeta uuid gets a FRESH one minted on every load (by design, T-226), so two
     // loads always differ there; compare without it for those files only.
-    const norm = (f, x) => /<aef:workflowMeta[^>]*\suuid="/.test(readFileSync(f, 'utf8')) ? x : x.replace(/(<aef:workflowMeta[^>]*?)\suuid="[^"]*"/, '$1');
+    // T-1168 changed node ids on purpose (activities-only step numbers): 0.17.0 writes `frw_7_all`, now `frw_gw_all`.
+    // E is about field VALUES, so node-id tokens are masked on both sides; every other byte still has to match.
+    const ID = /(?<![A-Za-z0-9.-])[a-z][a-z0-9]{1,2}_(?:\d+|start|end|gw|link|error|timer|message|ev)_[a-z0-9-]+(?:_\d+(?![a-z]))?/g;
+    const norm = (f, x) => (/<aef:workflowMeta[^>]*\suuid="/.test(readFileSync(f, 'utf8')) ? x : x.replace(/(<aef:workflowMeta[^>]*?)\suuid="[^"]*"/, '$1')).replace(ID, 'ID');
     const diffs = corpus.filter(f => norm(f, now[f]) !== norm(f, was[f])).map(f => ({ file: f.replace(REPO + '/', ''), at: firstDiff(norm(f, now[f]), norm(f, was[f])) }));
     leg(diffs.length === 0, `E export of ${corpus.length} examples identical to 0.17.0`, diffs);
   } catch (e) {

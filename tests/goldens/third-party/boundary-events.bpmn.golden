@@ -34,7 +34,7 @@
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="lan_4_startevent" name="StartEvent_1">
+    <bpmn:startEvent id="lan_start_startevent" name="StartEvent_1">
       <bpmn:extensionElements>
         <aef:uid value="u1"/>
         <aef:position x="275.0" y="214.0"/>
@@ -42,7 +42,7 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:intermediateThrowEvent id="lan_2_joker" name="joker">
+    <bpmn:intermediateThrowEvent id="lan_link_joker" name="joker">
       <bpmn:extensionElements>
         <aef:uid value="u2"/>
         <aef:position x="185.0" y="480.0"/>
@@ -57,7 +57,7 @@
       </bpmn:extensionElements>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="lan_7_superman" name="superman">
+    <bpmn:serviceTask id="lan_5_superman" name="superman">
       <bpmn:extensionElements>
         <aef:uid value="u4"/>
         <aef:position x="781.0" y="140.0"/>
@@ -65,7 +65,7 @@
       </bpmn:extensionElements>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="lan_5_wonder" name="wonder woman">
+    <bpmn:serviceTask id="lan_3_wonder" name="wonder woman">
       <bpmn:extensionElements>
         <aef:uid value="u5"/>
         <aef:position x="412.0" y="349.0"/>
@@ -73,28 +73,28 @@
       </bpmn:extensionElements>
     </bpmn:serviceTask>
 
-    <bpmn:subProcess id="lan_3_subprocess" name="SubProcess_1">
+    <bpmn:subProcess id="lan_2_subprocess" name="SubProcess_1">
       <bpmn:extensionElements>
         <aef:uid value="u6"/>
         <aef:position x="204.0" y="78.0"/>
       </bpmn:extensionElements>
     </bpmn:subProcess>
 
-    <bpmn:task id="lan_8_task" name="Task_2">
+    <bpmn:task id="lan_6_task" name="Task_2">
       <bpmn:extensionElements>
         <aef:uid value="u7"/>
         <aef:position x="795.0" y="75.0"/>
       </bpmn:extensionElements>
     </bpmn:task>
 
-    <bpmn:task id="lan_9_compensationtask" name="CompensationTask">
+    <bpmn:task id="lan_7_compensationtask" name="CompensationTask">
       <bpmn:extensionElements>
         <aef:uid value="u8"/>
         <aef:position x="795.0" y="249.0"/>
       </bpmn:extensionElements>
     </bpmn:task>
 
-    <bpmn:task id="lan_6_task" name="Task_1">
+    <bpmn:task id="lan_4_task" name="Task_1">
       <bpmn:extensionElements>
         <aef:uid value="u9"/>
         <aef:position x="431.0" y="192.0"/>
@@ -102,7 +102,7 @@
       <bpmn:incoming>flow_1</bpmn:incoming>
     </bpmn:task>
 
-    <bpmn:sequenceFlow id="flow_1" sourceRef="lan_4_startevent" targetRef="lan_6_task">
+    <bpmn:sequenceFlow id="flow_1" sourceRef="lan_start_startevent" targetRef="lan_4_task">
       <bpmn:extensionElements>
         <aef:uid value="u10"/>
       </bpmn:extensionElements>
@@ -111,31 +111,31 @@
 
   <bpmndi:BPMNDiagram id="BPMNDiagram_process_1">
     <bpmndi:BPMNPlane id="BPMNPlane_process_1" bpmnElement="Process_process_1">
-      <bpmndi:BPMNShape id="BPMNShape_lan_4_startevent" bpmnElement="lan_4_startevent">
+      <bpmndi:BPMNShape id="BPMNShape_lan_start_startevent" bpmnElement="lan_start_startevent">
         <dc:Bounds x="275.0" y="214.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_2_joker" bpmnElement="lan_2_joker">
+      <bpmndi:BPMNShape id="BPMNShape_lan_link_joker" bpmnElement="lan_link_joker">
         <dc:Bounds x="185.0" y="480.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_lan_1_batman" bpmnElement="lan_1_batman">
         <dc:Bounds x="185.0" y="349.0" width="110" height="64"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_7_superman" bpmnElement="lan_7_superman">
+      <bpmndi:BPMNShape id="BPMNShape_lan_5_superman" bpmnElement="lan_5_superman">
         <dc:Bounds x="781.0" y="140.0" width="110" height="64"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_5_wonder" bpmnElement="lan_5_wonder">
+      <bpmndi:BPMNShape id="BPMNShape_lan_3_wonder" bpmnElement="lan_3_wonder">
         <dc:Bounds x="412.0" y="349.0" width="110" height="64"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_3_subprocess" bpmnElement="lan_3_subprocess">
+      <bpmndi:BPMNShape id="BPMNShape_lan_2_subprocess" bpmnElement="lan_2_subprocess">
         <dc:Bounds x="204.0" y="78.0" width="120" height="64"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_8_task" bpmnElement="lan_8_task">
+      <bpmndi:BPMNShape id="BPMNShape_lan_6_task" bpmnElement="lan_6_task">
         <dc:Bounds x="795.0" y="75.0" width="110" height="64"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_9_compensationtask" bpmnElement="lan_9_compensationtask">
+      <bpmndi:BPMNShape id="BPMNShape_lan_7_compensationtask" bpmnElement="lan_7_compensationtask">
         <dc:Bounds x="795.0" y="249.0" width="110" height="64"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_6_task" bpmnElement="lan_6_task">
+      <bpmndi:BPMNShape id="BPMNShape_lan_4_task" bpmnElement="lan_4_task">
         <dc:Bounds x="431.0" y="192.0" width="110" height="64"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1">

@@ -326,5 +326,5 @@
     </bpmn:sequenceFlow>
   </bpmn:process>
 
-  <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates -->
+  <!-- BPMN DI (visual layout) omitted; node geometry travels as aef:position -->
 </bpmn:definitions>

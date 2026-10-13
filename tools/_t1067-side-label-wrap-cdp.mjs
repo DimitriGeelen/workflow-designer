@@ -7,7 +7,8 @@
 // T-1067 lets adjustLabelPlacements() try the name as a 2- or 3-line block when every single-line
 // placement collides, keeping it only when the measured score is STRICTLY better.
 //
-// Stimulus: the editor's default document, end event "Ready" (badge hum_2_ready, human lane),
+// Stimulus: the editor's default document, end event "Ready" (badge hum_end_ready since T-1168's
+// activities-only numbering, hum_2_ready in older editors such as the L1 control copy; human lane),
 // renamed to the operator's sentence — exactly the reviewer's reproduction.
 //   L1  CONTROL: the editor BEFORE T-1067 (git HEAD~ copy, or --before PATH) keeps ONE line and collides
 //   L2  the current editor wraps it (>= 2 name lines)
@@ -28,7 +29,8 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
 const SRC = join(REPO, 'src', 'aef-workflow-designer.html');
 const SENTENCE = 'run halted - operator kill switch';
-const BADGE = 'hum_2_ready';
+const BADGES = ['hum_end_ready', 'hum_2_ready'];   // T-1168: new id, and the pre-T-1168 id the control editor shows
+const BADGE = BADGES.join(' or ');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function findChrome() {
@@ -43,7 +45,7 @@ function findChrome() {
 // adjustLabelPlacements does for edges and nodes (pool furniture is not needed for the claim).
 const probe = (name, wrap) => `(function(){ try {
   labelPrefs.wrapNames = ${wrap};
-  var n = state.nodes.filter(function(x){ var b=document.querySelector('text.node-id-badge[data-nl="'+x.uid+'"]'); return b && b.textContent===${JSON.stringify(BADGE)}; })[0];
+  var n = state.nodes.filter(function(x){ var b=document.querySelector('text.node-id-badge[data-nl="'+x.uid+'"]'); return b && ${JSON.stringify(BADGES)}.indexOf(b.textContent) >= 0; })[0];
   if (!n) return {ok:false, error:'no node with badge ${BADGE}'};
   n.name = ${JSON.stringify(name)};
   renderAll();
@@ -91,7 +93,7 @@ async function measure(editorPath, tag) {
     if (shotsDir) {
       for (const size of ['s', 'm', 'l']) for (const wrap of [true, false]) {
         await ev(`(labelPrefs.size=${JSON.stringify(size)}, 0)`);
-        const r = await ev(probe(SENTENCE, wrap) + `; (function(){ var n=state.nodes.filter(function(x){var b=document.querySelector('text.node-id-badge[data-nl="'+x.uid+'"]');return b&&b.textContent===${JSON.stringify(BADGE)};})[0];
+        const r = await ev(probe(SENTENCE, wrap) + `; (function(){ var n=state.nodes.filter(function(x){var b=document.querySelector('text.node-id-badge[data-nl="'+x.uid+'"]');return b&&${JSON.stringify(BADGES)}.indexOf(b.textContent)>=0;})[0];
           var t=document.querySelector('text.node-label[data-nl="'+n.uid+'"]'); var r=t.getBoundingClientRect(); return {x:r.x,y:r.y}; })()`);
         await cmd('Page.bringToFront');
         const shot = await cmd('Page.captureScreenshot', { format: 'png', clip: { x: Math.max(0, r.x - 260), y: Math.max(0, r.y - 120), width: 520, height: 260, scale: 2 } });

@@ -15,7 +15,11 @@
 //       (the option really switches, and the measurement can produce a failing value)
 //   L6  wrapOverlongBelowLabels() is called BEFORE deCollideBelowLabels() and
 //       adjustLabelPlacements() — side placement re-stacks, it never re-wraps
-//   L7  adjustLabelPlacements() preserves the wrapped line count
+//   L7  adjustLabelPlacements() keeps the long name a WRAPPED block (>= 2 lines) and loses no word.
+//       It used to assert the line count is preserved, i.e. placement never re-wraps; T-1068 (third
+//       round, 536e52d7) deliberately lets a colliding block be re-wrapped narrower, so the count may
+//       change. It passed only because this stimulus never collided, until T-1168's new id badges
+//       changed the geometry (4 -> 3 lines). What must hold is that the text survives intact.
 //
 // --self-test loads a POISONED copy of the editor with the wrap call removed and
 // requires L1/L2/L3/L7 to FAIL there. A leg that cannot fail asserts nothing (T-592).
@@ -95,11 +99,14 @@ const probeExpr = (name, wrap) => `(function(){ try{
   // side-placed stack while claiming to describe the below-placed one.
   var idY=idEl?+idEl.getAttribute('y'):null;
   var before=lines.length;
+  var wordsOf=function(ts){ return ts.map(function(t){return t.textContent;}).join(' ').split(/\s+/).filter(Boolean).join(' '); };
+  var wordsBefore=wordsOf(lines);
   adjustLabelPlacements();
-  var after=gNodes.querySelectorAll('text[data-nl="'+n.uid+'"].node-label').length;
+  var afterEls=Array.prototype.slice.call(gNodes.querySelectorAll('text[data-nl="'+n.uid+'"].node-label'));
+  var after=afterEls.length, wordsAfter=wordsOf(afterEls);
   return {ok:true, uid:n.uid, cap:cap, nLines:lines.length, widths:widths,
           maxY:Math.max.apply(null,ys), idY:idY,
-          afterPlacement:after, beforePlacement:before};
+          afterPlacement:after, beforePlacement:before, sameWords: wordsBefore===wordsAfter};
 }catch(e){ return {ok:false,error:String(e&&e.stack||e)}; } })()`;
 
 // L3's probe (T-1068). The insert order only shows once adjustLabelPlacements() moves the
@@ -176,8 +183,8 @@ function measuredLegs(r) {
     ? { id: 'L3', ok: side.nLines >= 2 && side.idY > side.maxY,
         detail: `side-placed (${side.anchor}) ${side.uid}: ${side.nLines} line(s), id badge y=${side.idY}, last name line y=${side.maxY}` }
     : { id: 'L3', ok: false, detail: `NOT EVALUATED — no below-node's long name lands beside its shape (tried ${side.tried.join(',')})` });
-  L.push({ id: 'L7', ok: long.afterPlacement === long.beforePlacement && long.beforePlacement >= 2,
-           detail: `lines ${long.beforePlacement} -> ${long.afterPlacement} across adjustLabelPlacements()` });
+  L.push({ id: 'L7', ok: long.beforePlacement >= 2 && long.afterPlacement >= 2 && long.sameWords === true,
+           detail: `lines ${long.beforePlacement} -> ${long.afterPlacement} across adjustLabelPlacements(), words ${long.sameWords ? 'intact' : 'CHANGED'}` });
   L.push({ id: 'L4', ok: short.nLines === 1, detail: `short name rendered ${short.nLines} line(s)` });
   L.push({ id: 'L5', ok: off.nLines === 1 && off.widths[0] > off.cap,
            detail: `wrapNames=false -> ${off.nLines} line(s), width ${off.widths[0]} vs cap ${off.cap}` });
