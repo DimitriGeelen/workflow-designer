@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1150: Report 25 still-open framework findings from the observation inbox to AEF
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-13T18:31:02Z
+# ============================================================================
+
+task_id: T-1150
+task_name: "Report 25 still-open framework findings from the observation inbox to AEF"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T16:20:07Z
+completed: 2026-10-13T18:30:52Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-13T18:23:51+02:00
+last_commit: 2026-10-13T20:30:52+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  criteria — one report of the 25 framework findings, each re-checked against the vendored framework, sent to AEF. report of the 25 framework findings for AEF, each re-checked 2026-10-13 against our vendored copy and AEF's bleeding-edge tip: 22 still true, 2 filed at AEF but only in part, 1 partly fixed, 1 not checkable (termlink binary). sent to AEF (f90be604, conversation 832-framework-findings-t1150, RECEIVED); criteria ticked
+
+# Key outcomes
+outcomes:
+  - '`docs/reports/T-1150-framework-findings-for-aef.md` lists all 25 findings, each with its 832 observation id, what is wrong, the evidence (file:line or reproduction) and its effect on a consumer — 6b2bb93c'
+  - 'Each finding was re-checked against the vendored framework while the report was written; any that turn out fixed are dropped from the report and marked as fixed in the report''s header — three read-only TermLink workers, vendored ed683536a and AEF tip 1146a745: none fully fixed, so none dropped; the table marks 22 still true, 2 filed at AEF in part (T-3471, T-3839), 1 partly fixed (OBS-449), 1 not checkable (OBS-387, termlink binary)'
+  - 'Sent to AEF over the sidecar, and the message id is recorded in this task — f90be604-a613-43de-ad8f-531393296ca3 (conversation 832-framework-findings-t1150), delivery RECEIVED'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'report of the 25 framework findings for AEF, each re-checked 2026-10-13 against our vendored copy and AEF''s bleeding-edge tip: 22 still true, 2 filed at AEF but only in part, 1 partly fixed, 1 not checkable (termlink binary)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-1150-framework-findings-for-aef.md'
+  - '.tasks/active/T-1150-report-25-still-open-framework-findings-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-13T18:23:51'
+    action: 'T-1150: criteria — one report of the 25 framework findings, each re-checked against the vendored framework, sent to AEF'
+  - time: '2026-10-13T20:28:52'
+    action: 'T-1150: report of the 25 framework findings for AEF, each re-checked 2026-10-13 against our vendored copy and AEF''s bleeding-edge tip: 22 still true, 2 filed at AEF but only in part, 1 partly fixed, 1 not checkable (termlink binary)'
+  - time: '2026-10-13T20:30:52'
+    action: 'T-1150: sent to AEF (f90be604, conversation 832-framework-findings-t1150, RECEIVED); criteria ticked'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 130 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [aef-upstream, observations]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 130
+  commits: 3
+  files_changed: 2
+  lines_added: 258
+  lines_removed: 14
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1150-report-25-still-open-framework-findings-.md
+generated_by: context-agent-hybrid
