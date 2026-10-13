@@ -43,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:20:07Z
-last_update: 2026-10-13T16:23:09Z
+last_update: 2026-10-13T18:30:12Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -89,9 +89,9 @@ report. AEF may already have fixed or filed some on their side; the report asks 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `docs/reports/T-1150-framework-findings-for-aef.md` lists all 25 findings, each with its 832 observation id, what is wrong, the evidence (file:line or reproduction) and its effect on a consumer
-- [ ] Each finding was re-checked against the vendored framework while the report was written; any that turn out fixed are dropped from the report and marked as fixed in the report's header
-- [ ] Sent to AEF over the sidecar, and the message id is recorded in this task
+- [x] `docs/reports/T-1150-framework-findings-for-aef.md` lists all 25 findings, each with its 832 observation id, what is wrong, the evidence (file:line or reproduction) and its effect on a consumer — 6b2bb93c
+- [x] Each finding was re-checked against the vendored framework while the report was written; any that turn out fixed are dropped from the report and marked as fixed in the report's header — three read-only TermLink workers, vendored ed683536a and AEF tip 1146a745: none fully fixed, so none dropped; the table marks 22 still true, 2 filed at AEF in part (T-3471, T-3839), 1 partly fixed (OBS-449), 1 not checkable (OBS-387, termlink binary)
+- [x] Sent to AEF over the sidecar, and the message id is recorded in this task — f90be604-a613-43de-ad8f-531393296ca3 (conversation 832-framework-findings-t1150), delivery RECEIVED
 
 <!-- No Human criteria: a report to a peer agent.
      Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
