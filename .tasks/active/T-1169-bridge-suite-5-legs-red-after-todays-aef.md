@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T19:49:04Z
-last_update: 2026-10-13T19:49:04Z
+last_update: 2026-10-13T21:10:43Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -70,11 +70,11 @@ the T-1149 triage) reported 269 passed, 5 failed. Each failing leg is diagnosed 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `_t842` passes: it calls the predicate with the hook's context (and states why); no expectation weakened
-- [ ] `_t525` passes against the upgraded audit.sh, or its anchor is moved to the code that now does the check (cause stated)
-- [ ] `_t451`'s backlog change is explained and the baseline updated only for entries that are genuinely one-shot
-- [ ] T-1151 and T-1165 pass the Why-you lint (their criterion says why it needs the operator, or is routed per AEF's ruleset)
-- [ ] `_t568` passes, or its failure is shown to be environmental with the cause named
+- [x] `_t842` passes: it calls the predicate with the hook's context (and states why); no expectation weakened — 19/19, negative controls still refused (0029c2ed)
+- [x] `_t525` passes against the upgraded audit.sh, or its anchor is moved to the code that now does the check (cause stated) — not broken: three runs failed three DIFFERENT legs, then 8/8 on rerun; flaky under concurrent audits, which is T-1166's subject (OBS-481), not this upgrade
+- [x] `_t451`'s backlog change is explained and the baseline updated only for entries that are genuinely one-shot — baseline NOT edited: the two new tools were wired instead (_t1149-triage-check.py as a standing guard; T-1168's tools wired by T-1168); ratchet 86/86, no movement
+- [x] T-1151 and T-1165 pass the Why-you lint (their criterion says why it needs the operator, or is routed per AEF's ruleset) — act-in-the-world (T-1151), direction (T-1165, noted as pending at AEF T-1077); _t1066 OK
+- [x] `_t568` passes, or its failure is shown to be environmental with the cause named — cause: job 024 restarted Watchtower at 20:24:50, before our web fixes were re-applied at 20:25:32; job 025 restarted it (rc 0, 567d4ab1); probe PASS; learning recorded
 - [ ] A full bridge run has none of the 5 legs red
 
 <!-- No Human criteria.
@@ -109,6 +109,10 @@ the T-1149 triage) reported 269 passed, 5 failed. Each failing leg is diagnosed 
 -->
 
 ## Verification
+bash tools/_t842-commit-exemption-spelling-regression.sh > /tmp/t1169a.out 2>&1 && grep -q 'failed 0' /tmp/t1169a.out
+python3 tools/_t1066-why-you-check.py
+python3 tools/_t451-unwired-guard-census.py --ratchet > /tmp/t1169b.out 2>&1; grep -q 'no movement' /tmp/t1169b.out
+timeout 300 python3 tools/_t568-live-card-visibility-probe.py > /tmp/t1169c.out 2>&1 && grep -q '^PASS' /tmp/t1169c.out
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.

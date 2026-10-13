@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T19:07:59Z
-last_update: 2026-10-13T20:05:25Z
+last_update: 2026-10-13T21:19:23Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -70,10 +70,10 @@ Slugs are already unique per lane (deriveUniqueSlug), so ids stay unique.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `computeDisplayId` implements the scheme; a test proves it on Greenfield's after-owner-straightened.bpmn: every lane's activity ids read 1..n with 0 gaps, and no event or gateway id carries a number
-- [ ] A map saved with the new ids imports and re-exports byte-identically; `_t358` (determinism) and `_t364` (tie rule) green, their expectations updated only where an exact id is pinned
-- [ ] task-lifecycle's node ids migrated once, by name: lib/instance-position.sh, update-task.sh, every task record's `current_node`, the 5 teeth (_t880, _t881, _t882, _t883, _t923); 0 records name an id missing from task-lifecycle.bpmn; the teeth green; .vendor-divergence.yaml updated
-- [ ] The committed rendered corpus is regenerated wherever a test compares exported bytes, and the old->new id map for every changed map is written to docs/reports/T-1168-node-id-map.md (for AEF, with the release)
+- [x] `computeDisplayId` implements the scheme; a test proves it on Greenfield's after-owner-straightened.bpmn: every lane's activity ids read 1..n with 0 gaps, and no event or gateway id carries a number — tools/_t1168-step-numbers-verify-cdp.mjs 10/10 with T1168_EXTRA_MAP=Greenfield's map (Salesforce sal_1, sal_2, sal_gw_tegelijk, sal_3, sal_4; Verkoper ver_start_lead, ver_1_lead...); the map is not committed (theirs), the committed legs use task-lifecycle and boundary-events; 4 legs red on the old designer
+- [x] A map saved with the new ids imports and re-exports byte-identically; `_t358` (determinism) and `_t364` (tie rule) green, their expectations updated only where an exact id is pinned — round-trip leg per map in _t1168; _t358 third-party goldens re-recorded, every changed line differs only in node ids (checked line by line, 11 files)
+- [x] task-lifecycle's node ids migrated once, by name: lib/instance-position.sh, update-task.sh, every task record's `current_node`, the 5 teeth (_t880, _t881, _t882, _t883, _t923); 0 records name an id missing from task-lifecycle.bpmn; the teeth green; .vendor-divergence.yaml updated — a09c7e72; 183 records, 0 dangling; teeth 16/10/17/18/14; _t517 OK (instance-position.sh reclassified content, with why)
+- [x] The committed rendered corpus is regenerated wherever a test compares exported bytes, and the old->new id map for every changed map is written to docs/reports/T-1168-node-id-map.md (for AEF, with the release) — renamed in place, 256 ids in 24 maps (re-baking would have carried unrelated exporter drift); their false DI trailer replaced by the approved one (T-361 ledger rule); `_t1168-node-id-map.mjs --check` wired as a standing guard (24/24)
 - [ ] The bridge suite shows no failure that the pre-change baseline did not have
 
 <!-- No Human criteria: the release that ships this is its own task.
@@ -108,6 +108,10 @@ Slugs are already unique per lane (deriveUniqueSlug), so ids stay unique.
 -->
 
 ## Verification
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" timeout 300 node tools/_t1168-step-numbers-verify-cdp.mjs > /tmp/t1168v.out 2>&1 && grep -q '"pass": true' /tmp/t1168v.out
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" timeout 600 node tools/_t1168-node-id-map.mjs --check
+python3 tools/_t517-vendor-divergence.py
+test -f docs/reports/T-1168-node-id-map.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.

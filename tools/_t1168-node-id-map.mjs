@@ -114,7 +114,22 @@ async function main() {
       const drifted = Object.entries(result.maps).filter(([, v]) => v.changed).map(([k, v]) => `${k} (${v.changed}: ${Object.entries(v.map).slice(0, 3).map(([o, n]) => o + '->' + n).join(', ')})`);
       console.log(drifted.length ? `FAIL: ${drifted.length} corpus map(s) carry ids the designer no longer exports: ${drifted.join('; ')}`
                                  : `PASS: all ${files.length} corpus maps carry exactly the node ids the designer exports`);
-      process.exitCode = drifted.length || result.notPure.length ? 1 : 0;
+      // Task records hold task-lifecycle positions (current_node, T-880/T-923): every one must name a node
+      // task-lifecycle.bpmn still has, or the migration missed a record.
+      const tl = readFileSync(join(RENDERED, 'task-lifecycle.bpmn'), 'utf8');
+      const tlIds = new Set([...tl.matchAll(/ id="([^"]+)"/g)].map(m => m[1]));
+      const dangling = [];
+      for (const d of ['active', 'completed']) {
+        const dir = join(REPO, '.tasks', d);
+        if (!existsSync(dir)) continue;
+        for (const f of readdirSync(dir).filter(x => x.endsWith('.md'))) {
+          const m = readFileSync(join(dir, f), 'utf8').match(/^current_node:[ \t]*(\S+)/m);
+          if (m && m[1] !== 'null' && !tlIds.has(m[1])) dangling.push(`${f.slice(0, 6)}:${m[1]}`);
+        }
+      }
+      console.log(dangling.length ? `FAIL: ${dangling.length} task record(s) name a node task-lifecycle.bpmn does not have: ${dangling.slice(0, 8).join(', ')}`
+                                  : 'PASS: every task record\'s current_node is a node of task-lifecycle.bpmn');
+      process.exitCode = drifted.length || result.notPure.length || dangling.length ? 1 : 0;
       return;
     }
     console.log(`${files.length} maps, ${changed} with renamed ids, ${result.notPure.length} with inconsistent ids${result.notPure.length ? ': ' + result.notPure.join(', ') : ''}${WRITE ? ' (written)' : ''}`);
