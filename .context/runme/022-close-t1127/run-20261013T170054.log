@@ -1,0 +1,61 @@
+runme  022-close-t1127   sha e98a35b40ef5   rehearsed 2026-10-13T14:52:21Z   log: /opt/832-Workflow-designer/.context/runme/022-close-t1127/run-20261013T170054.log
+Job:   022-close-t1127   (T-1127)
+What:  Close T-1127 (element detail view, shipped in 0.18.0) — your option 1
+       You chose option 1. The agent cannot do it: T-1127 is owner:human, and an agent session may neither close a
+       human-owned task nor change its owner (R-033, T-3586). It has no Human criteria, so the reviewer agents have no route
+       either (AEF T-3449 'READY TO CLOSE'); 832 is proposing to AEF that the reviewer closes this case in future.
+       Evidence: shipped in designer 0.18.0 (release notes), 6/6 criteria ticked, verification 3/3 (checked again just now).
+       This runs the one command AEF's review queue lists for it.
+Steps (each asks y/N first):
+  1. Close T-1127 (work-completed; the framework re-runs its verification)
+  2. Commit the closure (T-1127's files only)
+
+ok    T-1127 is still active and owner:human
+ok    every criterion is ticked and there are no Human criteria
+ok    shipped: named in the 0.18.0 release notes
+
+Step 1/2: Close T-1127 (work-completed; the framework re-runs its verification)
+  runs: .agentic-framework/bin/fw task update T-1127 --status work-completed
+Run step 1/2? [y/N] === Task Update ===
+Task:    T-1127 ("Element detail view: clicking an element opens a larger, zoomed view showing)
+File:    /opt/832-Workflow-designer/.tasks/active/T-1127-element-detail-view-clicking-an-element-.md
+  position: NODE frw_6_run task-lifecycle (already there, nothing written)
+ERROR: Cannot complete human-owned task
+Sovereignty gate (R-033): owner is human.
+  audit: REFUSAL-RECORDED T-1127 skipped-human-gateway R-033 frw_9_human
+The human must review and approve via Watchtower:
+
+══════════════════════════════════════════
+  Human AC Review: T-1127
+  0/0 checked
+
+  http://192.168.10.107:3013/review/T-1127
+
+█▀▀▀▀▀▀▀██▀▀▀▀▀▀█▀▀▀█▀█▀▀▀▀▀▀▀█
+█ █▀▀▀█ █▄███▀▀  ▄▄▄▄██ █▀▀▀█ █
+█ █   █ █▀ ▀ ▄▄   █▄  █ █   █ █
+█ ▀▀▀▀▀ █▀▄ ▄ ▄▀▄▀█▀█▀█ ▀▀▀▀▀ █
+█▀█▀█▀█▀██ ▀▄█▄ ██ ██▀███▀██▀██
+██▀ ▄▀▄▀▀▀ █▄█▀▄██▄█   ▄▀▀▄▀▀ █
+█ █▀▀▄█▀███▄█ ██▄█ ▄▄▀ ▄ ▀▄█ ▀█
+█▄▀▄█ ▄▀█  ▄▄▀▄▀██ ▄▀  ▀  ▄▀▀ █
+██ ██▄▄▀▄█ ▄ ▄▄ ▄█ █▄█▄  █ ▄ ▀█
+█▀█ ▄▀▀▀█▀▀▄▄█▀▄███▀▄█▄█ ▄▀▄▀ █
+█▀▄█▄ █▀█ ▀█ ███   ▄█   ▀ █▄▄██
+█▀▀▀▀▀▀▀█▄▄  ▀▄▀█▀▄█  █▀█ ▀█  █
+█ █▀▀▀█ █▀ ██ ▄ ▄▄ ▄█ ▀▀▀ ▀▄ ▀█
+█ █   █ █▀ ██   ▄▄ ▄██▄ ▀▀▄█▄▀█
+█ ▀▀▀▀▀ █▀ ▄██▀▄▀      ▀  ▄▀ ▀█
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+
+  Open: http://192.168.10.107:3013/review/T-1127
+  Scan QR or open link above
+
+══════════════════════════════════════════
+
+  Review marker created: .context/working/.reviewed-T-1127
+  (unblocks fw inception decide T-1127 — T-973 gate)
+
+  → Decide: http://192.168.10.107:3013/review/T-1127
+
+STOPPED: step 1/2 failed (rc=1); later steps not run
