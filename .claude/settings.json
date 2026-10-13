@@ -290,6 +290,11 @@
           {
             "type": "command",
             "command": "${CLAUDE_PROJECT_DIR}/.agentic-framework/bin/fw hook sidecar-receiver-ready"
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/tools/hooks/guard-decision-handover.py",
+            "timeout": 60
           }
         ]
       }
