@@ -3,17 +3,17 @@ name: _t657-vendor-divergence-must-reach-an-audit-line
 type: script
 subsystem: verification-probes
 location: tools/_t657-vendor-divergence-must-reach-an-audit-line.sh
-tags: [prober, mutation-testing]
-
-purpose: "Prober: the vendored-divergence guard must reach an audit line. Mutation legs assert completeness via tools/lib/mutation-assert.sh (T-661)."
-
+tags:
+- prober
+- mutation-testing
+purpose: 'Prober: the vendored-divergence guard must reach an audit line. Mutation legs assert completeness via tools/lib/mutation-assert.sh
+  (T-661).'
 depends_on:
-  - target: tools/lib/mutation-assert.sh
-    type: calls
-
+- target: tools/lib/mutation-assert.sh
+  type: calls
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
-
+- target: tests/run-bridge-tests.sh
+  type: called_by
 last_verified: 2026-08-31
 created_by: T-661
+last_enriched: '2026-10-13'

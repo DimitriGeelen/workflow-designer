@@ -23,6 +23,8 @@ depended_by:
   type: called_by
 - target: tools/_t448-drift-classification-teeth.py
   type: called_by
+- target: tools/_t806-corpus-sweep-guard-controls.py
+  type: called_by
 last_verified: 2026-09-03
 created_by: T-673
-last_enriched: '2026-09-16'
+last_enriched: '2026-10-13'

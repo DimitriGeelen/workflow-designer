@@ -249,6 +249,22 @@ depends_on:
   type: calls
 - target: tools/yaml-to-bpmn.py
   type: calls
+- target: tools/_t657-vendor-divergence-must-reach-an-audit-line.sh
+  type: calls
+- target: tools/_t949-completeness-teeth.sh
+  type: calls
+- target: tools/_t301-invariant-teeth.sh
+  type: calls
+- target: tools/_t952-ratchet-teeth.sh
+  type: calls
+- target: tools/_t952-audit-rail-teeth.sh
+  type: calls
+- target: tools/_t866-hypothesis-form-teeth.sh
+  type: calls
+- target: tools/_t650-an-alias-is-the-command-it-aliases.sh
+  type: calls
+- target: tools/_t662-null-focus-commit-path-must-be-discoverable.sh
+  type: calls
 depended_by:
 - target: tests/test_t316_runner_orphans.py
   type: calls
@@ -270,6 +286,10 @@ depended_by:
   type: called_by
 - target: tools/_t581-byteid-baseline-teeth.py
   type: called_by
+- target: tools/_t813-history-trap-controls.sh
+  type: read_by
+- target: tools/_t817-wiring-controls.sh
+  type: read_by
 last_verified: 2026-09-03
 created_by: T-671
-last_enriched: '2026-09-16'
+last_enriched: '2026-10-13'

@@ -17,6 +17,8 @@ depended_by:
   type: calls
 - target: tests/run-bridge-tests.sh
   type: called_by
+- target: tools/_t820-rule-axes.sh
+  type: called_by
 last_verified: 2026-09-03
 created_by: T-673
-last_enriched: '2026-09-16'
+last_enriched: '2026-10-13'

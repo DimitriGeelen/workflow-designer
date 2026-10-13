@@ -4,18 +4,12 @@ type: script
 subsystem: instruments
 location: tools/_t952-ratchet-teeth.sh
 tags: []
-
-purpose: "T-952 — does the bridge-suite ratchet bite, and does it refuse when it cannot measure?"
+purpose: T-952 — does the bridge-suite ratchet bite, and does it refuse when it cannot measure?
 purpose_source: header-comment
-
-depends_on:
-  # Format: - target: <relative-path>
-  #          type: calls|reads|writes|triggers|renders
-  []
-
+depends_on: []
 depended_by:
-  # Same format as depends_on — filled by enrich.py or manually
-  []
-
+- target: tests/run-bridge-tests.sh
+  type: called_by
 last_verified: 2026-09-30
 created_by: unknown
+last_enriched: '2026-10-13'
