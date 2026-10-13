@@ -1,0 +1,1 @@
+Steps 1-3 ran (pristine commit 40b8e12c); step 4 was cancelled by mistake (operator, 2026-10-13). Its preflight now rightly fails (expects the old framework). Continued by job 024-upgrade-aef-1146a7450-finish (steps 4-7).

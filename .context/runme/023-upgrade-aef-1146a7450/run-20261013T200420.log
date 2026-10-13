@@ -1,0 +1,29 @@
+runme  023-upgrade-aef-1146a7450   sha 8574cac8a5de   rehearsed 2026-10-13T16:44:25Z   log: /opt/832-Workflow-designer/.context/runme/023-upgrade-aef-1146a7450/run-20261013T200420.log
+Job:   023-upgrade-aef-1146a7450   (T-1167)
+What:  Upgrade AEF bleeding-edge ed683536a -> 1146a7450 (final G-114 fix, v1.8.11 candidate), re-vendor protocol
+       AEF released v1.8.10, an emergency fix for G-114: a decision recorded in Watchtower could be silently undone
+       by the next ordinary commit. We run bleeding-edge ed683536a, which has the first fix (T-4081) but not the final one
+       (T-4127). AEF advised (msg 36d1129c) NOT the v1.8.10 tag, which would drop the bleeding-edge fixes we field-tested,
+       but the bleeding-edge tip 1146a7450 (also T-4145 sidecar framing, T-4149 boundary hook parser, T-4150 budget-gate
+       classifier). Checked today: nothing staged, and AEF's revert scan finds 0 decisions undone in 60 days.
+       Same protocol as job 018: fw doctor captured first; pristine vendor commit (--allow-delete-locals, backups kept);
+       divergence baseline advanced; crontab checked; fw doctor after; then Watchtower is restarted on the new code.
+       The agent then re-applies our local fixes and re-runs the revert scan. Nothing is pushed.
+       Afterwards: relaunch claude-fw at a natural break (a running wrapper keeps the old code).
+Steps (each asks y/N first):
+  1. Capture fw doctor BEFORE
+  2. Upgrade to 1146a7450 (clone, check out the pinned commit, fw upgrade --allow-delete-locals, re-install the re-vendor gate)
+  3. Pristine commit: .agentic-framework/ exactly as the upgrade wrote it
+  4. Advance the divergence baseline to that commit (commit it alone)
+  5. Check the crontab still points at the vendored framework
+  6. Capture fw doctor AFTER
+  7. Restart Watchtower on port 3013, then check it is newer than its web code and answering
+
+ok    on bleeding-edge
+ok    nothing staged
+ok    no uncommitted edits under .agentic-framework/
+ok    re-vendor gate installed (T-1000)
+FAIL  framework is ed683536a (.framework.yaml version_sha)
+ok    .fwvendor-preserve.yaml committed as-is
+ok    upstream bleeding-edge still has 1146a7450
+STOPPED: preflight failed (state changed since the dry-run?); nothing run
