@@ -12,8 +12,12 @@
 // export, for information.
 //
 //   node tools/_t1168-node-id-map.mjs <out.json> [--write]
+//   node tools/_t1168-node-id-map.mjs --check
 // --write rewrites each changed map in place with the id substitution, only when its ids are consistent.
-// Exit 0 = every map's ids consistent. 1 = some map is not. 2 = harness could not run.
+// --check (standing guard, wired in run-bridge-tests.sh): after the migration the committed corpus must carry
+//   exactly the ids the designer exports; any map with a renamed id is red (the corpus drifted from the
+//   designer's numbering, or the numbering changed again without a migration).
+// Exit 0 = every map's ids consistent (and, with --check, none renamed). 1 = not. 2 = harness could not run.
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -26,9 +30,10 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
 const SERVER = join(HERE, 'gallery-serve.py');
 const RENDERED = join(REPO, 'examples/aef-processes/rendered');
-const OUT = process.argv[2];
+const CHECK = process.argv.includes('--check');
+const OUT = CHECK ? null : process.argv[2];
 const WRITE = process.argv.includes('--write');
-if (!OUT) { console.error('usage: _t1168-node-id-map.mjs <out.json> [--write]'); process.exit(2); }
+if (!OUT && !CHECK) { console.error('usage: _t1168-node-id-map.mjs <out.json> [--write] | --check'); process.exit(2); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
@@ -103,8 +108,15 @@ async function main() {
       }
       if (WRITE && consistent && Object.keys(r.map).length) writeFileSync(join(RENDERED, f), renamed);
     }
-    writeFileSync(OUT, JSON.stringify(result, null, 2) + '\n');
+    if (OUT) writeFileSync(OUT, JSON.stringify(result, null, 2) + '\n');
     const changed = Object.entries(result.maps).filter(([, v]) => v.changed).length;
+    if (CHECK) {
+      const drifted = Object.entries(result.maps).filter(([, v]) => v.changed).map(([k, v]) => `${k} (${v.changed}: ${Object.entries(v.map).slice(0, 3).map(([o, n]) => o + '->' + n).join(', ')})`);
+      console.log(drifted.length ? `FAIL: ${drifted.length} corpus map(s) carry ids the designer no longer exports: ${drifted.join('; ')}`
+                                 : `PASS: all ${files.length} corpus maps carry exactly the node ids the designer exports`);
+      process.exitCode = drifted.length || result.notPure.length ? 1 : 0;
+      return;
+    }
     console.log(`${files.length} maps, ${changed} with renamed ids, ${result.notPure.length} with inconsistent ids${result.notPure.length ? ': ' + result.notPure.join(', ') : ''}${WRITE ? ' (written)' : ''}`);
     process.exitCode = result.notPure.length ? 1 : 0;
   } catch (e) {

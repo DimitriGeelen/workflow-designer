@@ -3074,15 +3074,18 @@ T1013_GUARDS=(
   'tools/_t886-writer-mutation.py|mutation teeth for the round-trip guard (suppresses each writer attribute, expects red)'
   'tools/_t892-lane-default-cdp.mjs|CDP regression: the lane Authoring default never re-stamps nodes'
   'tools/_t911-kind-badge-verify-cdp.mjs|CDP regression: workflowMeta/@kind settable and visible (writes .playwright-mcp/t911-panel-kind-select.png)'
+  'tools/_t1168-node-id-map.mjs --check|the committed corpus carries exactly the node ids the designer exports (T-1168 migration stays in step)'
   'tools/_t1168-step-numbers-verify-cdp.mjs|CDP regression: node ids number ACTIVITIES only, events/gateways carry a type word, ids unique and round-trip (T-1168)'
   'tools/_t1155-doc-title-verify-cdp.mjs|CDP regression: tab title and XML heading name the open map, across load, switch and rename (T-1155)'
 )
 for _entry in "${T1013_GUARDS[@]}"; do
   _tool="${_entry%%|*}"; _tool="${_tool#tools/}"; _why="${_entry#*|}"
+  # T-1168: an entry may carry arguments after the tool name ('tools/x.mjs --check|why').
+  _args=(); case "$_tool" in *" "*) read -r _tool _rest <<< "$_tool"; read -r -a _args <<< "$_rest" ;; esac
   case "$_tool" in
-    *.py)  _cmd=(python3 "$ROOT/tools/$_tool") ;;
-    *.sh)  _cmd=(bash "$ROOT/tools/$_tool") ;;
-    *.mjs|*.js) _cmd=(node "$ROOT/tools/$_tool") ;;
+    *.py)  _cmd=(python3 "$ROOT/tools/$_tool" "${_args[@]}") ;;
+    *.sh)  _cmd=(bash "$ROOT/tools/$_tool" "${_args[@]}") ;;
+    *.mjs|*.js) _cmd=(node "$ROOT/tools/$_tool" "${_args[@]}") ;;
     *) _cmd=(false) ;;
   esac
   if (cd "$ROOT" && timeout 600 "${_cmd[@]}") > "$TMP/leg-t1013-$_tool.out" 2>&1; then
