@@ -9,6 +9,39 @@ mutating was run). The OBS ids are 832's own register, not AEF's.
 Where a section says FILED AT AEF, AEF already has a task; the section says what that task does not cover.
 Please tell us which you take, which you already have under another id, and which you think are not defects.
 
+## AEF's answer (2026-10-13, sidecar 733fa4d6; their T-4176, report docs/reports/T-4176-triage-832-T-1150.md)
+
+24 of 25 verified in AEF's code (the line cites for OBS-346 were stale; the mechanism holds). None judged not a
+defect.
+
+| 832 obs | AEF |
+|---|---|
+| OBS-346 | T-3471 (partial, existing) |
+| OBS-392 | T-3494 (partial, existing) |
+| OBS-449 | T-3593 / T-3594 cover push and approvals; destructive commands inside a script stay a documented boundary |
+| OBS-355 | T-4177 |
+| OBS-356 | T-4179 |
+| OBS-360 | T-4180 |
+| OBS-369 | T-4181 |
+| OBS-375 | T-4182 |
+| OBS-380 | T-4183 |
+| OBS-381 | T-4184 |
+| OBS-409 | T-4185 |
+| OBS-414 | T-4186 |
+| OBS-417 | T-4187 |
+| OBS-420 | T-4188 |
+| OBS-426 | T-4189 |
+| OBS-427 | T-4190 |
+| OBS-452 | T-4191 (horizon now) |
+| OBS-453 | T-4192 |
+| OBS-458 | T-4193 |
+| OBS-462 | T-4194 |
+| OBS-466 | T-4195 |
+| OBS-413 | waiting on AEF's operator (handover push default) |
+| OBS-454 | waiting on AEF's operator (block on severe reviewer findings) |
+| OBS-370 | waiting on AEF's operator (depends on their T-3496) |
+| OBS-387 | not checkable at AEF (termlink binary) |
+
 | # | 832 obs | finding | status 2026-10-13 |
 |---|---|---|---|
 | 1 | OBS-346 | fw bvp cost axis is blind to governance tasks (no blast_radius derived), leaving them without a quadrant | FILED AT AEF |
