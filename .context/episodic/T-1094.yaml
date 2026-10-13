@@ -1,0 +1,95 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1094: Greenfield T-172 #2b: step numbers in node ids count gateways and events (Salesforce tasks read 1,2,4,5; verkoper start + first task look unnumbered)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-13T19:07:49Z
+# ============================================================================
+
+task_id: T-1094
+task_name: "Greenfield T-172 #2b: step numbers in node ids count gateways and events (Salesforce tasks read 1,2,4,5; verkoper start + first task look unnumbered)"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-08T08:40:22Z
+completed: 2026-10-13T19:07:38Z
+duration_days: 5
+updates_count: 4
+first_commit: 2026-10-13T00:19:48+02:00
+last_commit: 2026-10-13T21:07:43+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception — what a step number counts. Measured on Greenfield's map (gateway/start/end events take numbers: sal 1,2,4,5; ver_1 = start), traced to computeDisplayId; the display id is the exported BPMN id but already renumbers on layout edits. Three options; recommend GO on activities-only numbering. Operator decides. not ready for the operator after all — added Problem Statement, Hypothesis, Open Questions (IW-1 node-id consumers: open, waiting on Greenfield DM 85; IW-2 deferred), Go/No-Go; recommendation GO -> DEFER (evidence gap). Learning: check inception readiness before handing over a decision link. IW-1 answered — Greenfield keys on nothing (cf5afe0b), but task-lifecycle's node ids are task positions for AEF (lib/instance-position.sh, 6) and 832 (update-task.sh 9, 186 task records, 5 teeth); option 2 renames all 11 frw ids. Recommendation stays DEFER; IW-3 asked of AEF (edf3b1c7). learning — survey every consumer of a shared identifier, not only the peer who raised it. AEF keys on nothing either (09d75d02); lib/instance-position.sh is 832-added, misread as AEF's and corrected to AEF (ab6597a6). Every node-id dependency is 832's own -> recommendation GO on option 2 with a one-time migration of our task-lifecycle references; IW-3 dissolved; report and learning corrected. hypothesis on one line per clause (the readiness parser missed 'we will achieve' across a line break); success clause adds 0 dangling current_node after the migration. success clause on one line (the hypothesis parser reads only the line that holds 'we will know'). drop the criterion only the decision could satisfy (it blocked the operator's decide: 1/4 Agent AC unchecked); the post-GO build task is a note, not a criterion. inception decision GO (via Watchtower)
+
+# Key outcomes
+outcomes:
+  - 'The misreading is measured on Greenfield''s own map (which node takes which number, per lane) and traced to `computeDisplayId` (src :2155)'
+  - 'The id constraint is stated: the display id is the exported BPMN id (:12207), and ids already renumber on layout edits'
+  - 'Three options with costs and a recommendation (with its bet and how it is measured) are in the report'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - 'docs/reports/T-1094-step-numbers-what-they-count.md'
+  - '.tasks/active/T-1094-greenfield-t-172-2b-step-numbers-in-node.md'
+  - '.tasks/completed/T-1094-greenfield-t-172-2b-step-numbers-in-node.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-13T00:19:48'
+    action: 'T-1094: inception — what a step number counts. Measured on Greenfield''s map (gateway/start/end events take numbers: sal 1,2,4,5; ver_1 = start), traced to computeDisplayId; the display id is the exported BPMN id but already renumbers on layout edits. Three options; recommend GO on activities-only numbering. Operator decides'
+  - time: '2026-10-13T12:11:20'
+    action: 'T-1094: not ready for the operator after all — added Problem Statement, Hypothesis, Open Questions (IW-1 node-id consumers: open, waiting on Greenfield DM 85; IW-2 deferred), Go/No-Go; recommendation GO -> DEFER (evidence gap). Learning: check inception readiness before handing over a decision link'
+  - time: '2026-10-13T20:58:55'
+    action: 'T-1094: IW-1 answered — Greenfield keys on nothing (cf5afe0b), but task-lifecycle''s node ids are task positions for AEF (lib/instance-position.sh, 6) and 832 (update-task.sh 9, 186 task records, 5 teeth); option 2 renames all 11 frw ids. Recommendation stays DEFER; IW-3 asked of AEF (edf3b1c7)'
+  - time: '2026-10-13T20:59:06'
+    action: 'T-1094: learning — survey every consumer of a shared identifier, not only the peer who raised it'
+  - time: '2026-10-13T21:00:34'
+    action: 'T-1094: AEF keys on nothing either (09d75d02); lib/instance-position.sh is 832-added, misread as AEF''s and corrected to AEF (ab6597a6). Every node-id dependency is 832''s own -> recommendation GO on option 2 with a one-time migration of our task-lifecycle references; IW-3 dissolved; report and learning corrected'
+  - time: '2026-10-13T21:01:33'
+    action: 'T-1094: hypothesis on one line per clause (the readiness parser missed ''we will achieve'' across a line break); success clause adds 0 dangling current_node after the migration'
+  - time: '2026-10-13T21:02:31'
+    action: 'T-1094: success clause on one line (the hypothesis parser reads only the line that holds ''we will know'')'
+  - time: '2026-10-13T21:05:30'
+    action: 'T-1094: drop the criterion only the decision could satisfy (it blocked the operator''s decide: 1/4 Agent AC unchecked); the post-GO build task is a note, not a criterion'
+  - time: '2026-10-13T21:07:43'
+    action: 'T-1094: inception decision GO (via Watchtower)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 9 commit(s), 7827 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 7827
+  commits: 9
+  files_changed: 4
+  lines_added: 308
+  lines_removed: 63
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1094-greenfield-t-172-2b-step-numbers-in-node.md
+generated_by: context-agent-hybrid

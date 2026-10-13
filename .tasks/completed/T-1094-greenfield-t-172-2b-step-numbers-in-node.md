@@ -17,7 +17,7 @@ current_node: frw_11_task
 owner: agent
 horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/hooks/guard-decision-handover.py, tools/hooks/install-decision-handover-guard.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
