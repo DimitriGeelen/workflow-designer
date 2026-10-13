@@ -1,0 +1,32 @@
+runme  025-restart-watchtower-local-fixes   sha c465f94b7dcc   rehearsed 2026-10-13T19:55:32Z   log: /opt/832-Workflow-designer/.context/runme/025-restart-watchtower-local-fixes/run-20261013T230951.log
+Job:   025-restart-watchtower-local-fixes   (T-1169)
+What:  Restart Watchtower so it serves our local web fixes (re-applied after the 1146a7450 upgrade)
+       Job 024 restarted Watchtower at 20:24:50, but our local framework fixes were re-applied after it, at 20:25:32
+       (commit c2badf60), including six in .agentic-framework/web (T-568 card cache, T-606 rendered AC headlines, T-547,
+       T-545, T-569, T-772). So the running dashboard is AEF's code without them; the bridge suite's T-568 probe caught it
+       (a card edit does not show on the live dashboard). A restart takes it down for a few seconds: reload any open page
+       afterwards; an unsent form would be lost. Same port (3013); the designer page is unaffected.
+Steps (each asks y/N first):
+  1. Restart Watchtower on port 3013, then check it is newer than its web code and answering
+
+ok    Watchtower is running on 3013
+ok    the running Watchtower predates its web code (a restart has something to do)
+
+Step 1/1: Restart Watchtower on port 3013, then check it is newer than its web code and answering
+  runs: do_restart
+Run step 1/1? [y/N] [watchtower] Stopping Watchtower (PID 1390000)...
+[watchtower]   Waiting for shutdown... (10s)
+[watchtower] Watchtower stopped.
+[watchtower] Starting Watchtower on port 3013 (project: /opt/832-Workflow-designer)...
+[watchtower] Health check passed (identity verified).
+[firewall] Port 3013 already open.
+
+Watchtower is running
+  Local:  http://localhost:3013
+  LAN:    http://192.168.10.107:3013
+  PID:    1783905
+  Log:    /opt/832-Workflow-designer/.context/working/watchtower.log
+ok  Watchtower restarted (pid 1783905), newer than its web code, answering at http://192.168.10.107:3013
+ok    step 1/1
+
+DONE: 025-restart-watchtower-local-fixes — all 1 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/025-restart-watchtower-local-fixes/run-20261013T230951.log)
