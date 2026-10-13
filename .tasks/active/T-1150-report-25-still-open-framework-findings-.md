@@ -2,10 +2,15 @@
 id: T-1150
 name: "Report 25 still-open framework findings from the observation inbox to AEF"
 description: >
-  T-1149 triage found 25 observations that are framework (AEF) defects, still true in the vendored framework and never reported upstream: OBS-346, OBS-355, OBS-356, OBS-360, OBS-369, OBS-370, OBS-375, OBS-380, OBS-381, OBS-387, OBS-392, OBS-409, OBS-413, OBS-414, OBS-417, OBS-420, OBS-426, OBS-427, OBS-449, OBS-452, OBS-453, OBS-454, OBS-458, OBS-462, OBS-466. Write one report and send it to AEF.
+  T-1149 triage found 25 observations that are framework (AEF) defects, still true
+  in the vendored framework and never reported upstream: OBS-346, OBS-355, OBS-356,
+  OBS-360, OBS-369, OBS-370, OBS-375, OBS-380, OBS-381, OBS-387, OBS-392, OBS-409,
+  OBS-413, OBS-414, OBS-417, OBS-420, OBS-426, OBS-427, OBS-449, OBS-452, OBS-453,
+  OBS-454, OBS-458, OBS-462, OBS-466. Write one report and send it to AEF.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_3_start
 owner: agent
 horizon: now
 tags: [aef-upstream, observations]
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:20:07Z
-last_update: 2026-10-13T16:20:07Z
-date_finished: null
+last_update: 2026-10-13T16:23:09Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,23 +55,46 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-13T16:23:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1150: Report 25 still-open framework findings from the observation inbox to AEF
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The T-1149 triage (docs/reports/T-1149-observation-triage.md) found 25 observations that are framework (AEF)
+defects, still true in the vendored framework (1.8.9+227) and never reported upstream. They go to AEF as one
+report. AEF may already have fixed or filed some on their side; the report asks them to say which.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] `docs/reports/T-1150-framework-findings-for-aef.md` lists all 25 findings, each with its 832 observation id, what is wrong, the evidence (file:line or reproduction) and its effect on a consumer
+- [ ] Each finding was re-checked against the vendored framework while the report was written; any that turn out fixed are dropped from the report and marked as fixed in the report's header
+- [ ] Sent to AEF over the sidecar, and the message id is recorded in this task
 
-### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
+<!-- No Human criteria: a report to a peer agent.
+     Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
 
@@ -97,6 +125,8 @@ date_finished: null
 -->
 
 ## Verification
+test -f docs/reports/T-1150-framework-findings-for-aef.md
+test "$(grep -cE '^### OBS-[0-9]+' docs/reports/T-1150-framework-findings-for-aef.md)" -ge 1
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -323,3 +353,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1150-report-25-still-open-framework-findings-.md
 - **Context:** Initial task creation
+
+### 2026-10-13T16:23:09Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
