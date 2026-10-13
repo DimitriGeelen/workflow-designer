@@ -46,7 +46,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T08:40:22Z
-last_update: 2026-10-13T10:10:26Z
+last_update: 2026-10-13T18:59:07Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -88,8 +88,8 @@ bvp_scores_proposed:
 Inception (converted from build 2026-10-12): the choice changes the BPMN ids written into saved maps, so it is
 the operator's. Research and options: [docs/reports/T-1094-step-numbers-what-they-count.md](../../docs/reports/T-1094-step-numbers-what-they-count.md).
 Preferred option: 2, activities-only step numbers (events and gateways get a type word). IW-1 answered
-2026-10-13: Greenfield keys on nothing (sidecar cf5afe0b), but AEF and 832 itself do key on task-lifecycle node ids
-(IW-1 rationale). Not decidable yet: IW-3 asks AEF whether it can follow a one-time rename.
+2026-10-13: Greenfield and AEF key on nothing; only 832's own lifecycle-position code and records key on
+task-lifecycle's node ids, which the build migrates once. Decidable.
 
 ## Problem Statement
 
@@ -109,11 +109,11 @@ We will know that we are successful when we see Greenfield's re-test of `after-o
 - **IW-1: Does anything outside the designer key on NODE ids across saves (Greenfield's generators, links, diffs)?**
   confidence: 3
   disposition: answered
-  rationale: YES, for one map. Greenfield keys on nothing (sidecar cf5afe0b, 2026-10-13: doc-merge by name, generators overwrite their own ids, links by map id, lane checks by lane id; "a one-time id change on re-save is fine"). But the task-lifecycle map's node ids are used as instance positions: AEF's own lib/instance-position.sh hard-codes 6 (pristine 40b8e12c; e.g. frw_3_start, frw_4_enter, frw_6_run); 832's local update-task.sh 9 (frw_7_all, frw_9_human, frw_11_task, ...); 186 of 832's task files carry `current_node: frw_*` (170 frw_11_task); 5 teeth tools (_t880, _t881, _t882, _t883, _t923). Measured 2026-10-13. Option 2 renames all 11 frw ids (5 activities renumber, 6 events/gateways get a type word), 7 of them referenced. Confidence 3: grep-measured here; Greenfield's part is their own account.
-- **IW-3: Can AEF follow a one-time rename of task-lifecycle's node ids (instance-position.sh and their own tasks' current_node), or should task-lifecycle's ids be frozen?**
-  confidence: 0
-  disposition: deferred
-  rationale: new, from IW-1's answer; asked AEF on 2026-10-13 (sidecar edf3b1c7, conversation t1094-task-lifecycle-node-ids). Decides the cost of option 2: a coordinated migration (AEF's lib + our update-task.sh, 186 records, 5 teeth tools) or an exemption for maps whose ids are used as positions. Options 1 and 3 do not touch ids.
+  rationale: Outside 832, no. Greenfield keys on nothing (sidecar cf5afe0b, 2026-10-13: doc-merge by name, generators overwrite their own ids, links by map id, lane checks by lane id; "a one-time id change on re-save is fine"). AEF keys on nothing (sidecar 09d75d02, measured on their bleeding-edge: no code references the frw ids, no task carries current_node). Inside 832, yes, for task-lifecycle only: our own lifecycle-position code (lib/instance-position.sh, 832-added, kind: added, T-880/T-923; 6 refs) and our local update-task.sh (9 refs), 186 task files' `current_node: frw_*`, 5 teeth (_t880, _t881, _t882, _t883, _t923). Option 2 renames all 11 frw ids, 7 of them referenced; we migrate them once. Confidence 3: grep-measured here; Greenfield's and AEF's parts are their own measurements.
+- **IW-3: Can AEF follow a one-time rename of task-lifecycle's node ids?**
+  confidence: 3
+  disposition: dissolved
+  rationale: asked on the mistaken belief that lib/instance-position.sh was AEF's (it is 832-added). AEF (sidecar 09d75d02): it depends on none of these ids; "the one-time rename is fine"; asks for the old->new map with the release.
 - **IW-2: Do boundary events share their host task's number or take a type word?**
   confidence: 1
   disposition: deferred
@@ -366,15 +366,15 @@ grep -q "^## Recommendation" docs/reports/T-1094-step-numbers-what-they-count.md
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
 
-**Recommendation:** DEFER — evidence gap: IW-1 found that AEF and 832 key on task-lifecycle's node ids (Greenfield does not), so option 2's cost now depends on IW-3, AEF's answer on following a one-time rename. Asked AEF 2026-10-13.
+**Recommendation:** GO on option 2 (activities-only step numbers; events and gateways get a type word), with a one-time migration of 832's own task-lifecycle references in the same build. IW-1: nothing outside 832 keys on node ids (Greenfield, AEF); inside 832 only task-lifecycle's ids are used, as task positions, and we migrate them. GO criterion 2 holds for the format (no import/export change), but the build is wider than `computeDisplayId`: it also renames the 7 referenced frw ids in lib/instance-position.sh, update-task.sh, 186 task records and 5 teeth, by name not by number, and sends AEF the old->new map with the release.
 **Rationale:** Owners read the number as "step N"; the code means "position N in the lane". Node ids already
 renumber on every layout edit, so a one-time id change costs no more than a node move does today, and it removes
 the misreading at its source. Option 3 (badge-only) adds a second numbering that disagrees with the saved file.
 **Evidence:**
 - Greenfield's map: Salesforce tasks read 1, 2, 4, 5 (gateway `sal_3_tegelijk`); Verkoper's first task is `ver_2` (start event is `ver_1`); end events numbered
 - `computeDisplayId` ranks every node in the lane by x (src :2155-2165); export writes that id (:12207, :12181, :12350)
-- Greenfield confirms nothing of theirs keys on node ids (sidecar cf5afe0b, 2026-10-13)
-- task-lifecycle's node ids are instance positions: AEF lib/instance-position.sh (6 refs), 832 update-task.sh (9), 186 task files' current_node, 5 teeth tools; option 2 renames all 11 frw ids, 7 of them referenced
+- Greenfield (cf5afe0b) and AEF (09d75d02) confirm nothing of theirs keys on node ids; AEF wants the old->new map with the release
+- inside 832, task-lifecycle's node ids are task positions: lib/instance-position.sh (832-added, 6 refs), update-task.sh (9), 186 task files' current_node, 5 teeth; option 2 renames all 11 frw ids, 7 of them referenced
 
 ## Decisions
 

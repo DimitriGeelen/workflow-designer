@@ -44,10 +44,9 @@ both keep holding under any option below, since every option is still a pure fun
 
 ## Recommendation
 
-**DEFER until AEF answers IW-3 (can it follow a one-time rename of task-lifecycle's node ids?); then decide
-between option 2 with a coordinated migration, option 2 with task-lifecycle exempt, or option 3.**
-IW-1 is answered (2026-10-13, see "Who keys on node ids" below): Greenfield keys on nothing, but the
-task-lifecycle map's node ids are used as task positions by AEF and by 832 itself.
+**GO on option 2, with a one-time migration of 832's own task-lifecycle references in the same build.**
+IW-1 is answered (2026-10-13, see "Who keys on node ids" below): nothing outside 832 keys on node ids
+(Greenfield, AEF); inside 832 only the task-lifecycle map's ids are used, as task positions, and we migrate them.
 
 The original case for option 2 still holds:
 The ids are not stable today, so option 2's churn is no worse than what every layout edit
@@ -63,8 +62,8 @@ re-test of the same map reads 1..n per lane with no gaps, and `_t358`/`_t364` st
 | consumer | keys on node ids? | evidence |
 |---|---|---|
 | Greenfield | no | sidecar cf5afe0b: doc-merge matches by name; their generators overwrite the ids of maps they publish; links use map ids; lane checks use lane ids; "a one-time id change on re-save is fine" |
-| AEF (framework) | yes, task-lifecycle only | `lib/instance-position.sh` (pristine AEF 1146a7450) names 6 frw ids as the positions a task is at (frw_3_start, frw_4_enter, frw_6_run, ...) |
-| 832 (local framework fix) | yes, task-lifecycle only | `update-task.sh` 9 refs (frw_7_all, frw_9_human, frw_11_task, ...) |
+| AEF (framework) | no | sidecar 09d75d02, measured on their bleeding-edge: no code references the frw ids, no task carries current_node; "the one-time rename is fine", send the old->new map with the release |
+| 832 (local framework additions) | yes, task-lifecycle only | `lib/instance-position.sh` (832-added, T-880/T-923) 6 refs; `update-task.sh` local fix 9 refs (frw_7_all, frw_9_human, frw_11_task, ...) |
 | 832 task records | yes | 186 task files carry `current_node: frw_*` (170 `frw_11_task`) |
 | 832 teeth | yes | `_t880`, `_t881`, `_t882`, `_t883`, `_t923` |
 
@@ -74,9 +73,10 @@ referenced above. The renumbering also reuses old numbers for other nodes (frw_3
 so a migration must map names, not numbers. These ids already change if anyone moves a node in task-lifecycle
 and re-saves; they stay put today because nobody does.
 
-The remaining choice: (a) option 2 plus a coordinated one-time migration (AEF's lib, our update-task.sh, the
-records, the teeth); (b) option 2 with maps whose ids are used as positions exempt (task-lifecycle keeps its
-ids); (c) option 3. Asked AEF (IW-3) which it can carry.
+Every reference is 832's own, so the migration is ours: rename the 7 referenced ids in instance-position.sh and
+update-task.sh, rewrite `current_node` in the task records and the teeth, mapping by name, and send AEF the
+old->new map with the release. Exempting task-lifecycle instead would put a permanent special case in
+`computeDisplayId` to save a one-time, mechanical change, so it is not recommended.
 
 ## Open sub-question for the build task
 
@@ -95,3 +95,7 @@ evidence map has none, so this can wait for the build.
   GO, the agent checked the consumers it had not asked and found AEF's lib/instance-position.sh and 832's own
   update-task.sh, task records and teeth keyed on task-lifecycle's node ids. Recommendation stays DEFER; IW-3
   asked of AEF.
+- 2026-10-13: AEF answered (09d75d02): it depends on none of these ids. The agent had misread
+  lib/instance-position.sh as AEF's; it is 832-added (kept in our "pristine" vendor commit because the upgrade
+  keeps added files). Corrected to AEF (ab6597a6). Every dependency is 832's own; recommendation GO on option 2
+  with a one-time migration.

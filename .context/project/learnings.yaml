@@ -2785,7 +2785,7 @@ learnings:
   context: fleet-doctor auto-registered
   application: "Drift-detection: compare hub_fingerprint in this learning against current KnownHubStore.get(address)"
 - id: PL-400
-  learning: "Before a change to a shared identifier (node ids, file names, keys), survey EVERY consumer, not only the peer who raised it: grep the framework (vendored and pristine), our own task records and teeth for the identifiers. T-1094: Greenfield's 'nothing keys on node ids' nearly became a GO while AEF's lib/instance-position.sh, our update-task.sh, 186 task records and 5 teeth keyed on task-lifecycle's node ids."
+  learning: "Before a change to a shared identifier (node ids, file names, keys), survey EVERY consumer, not only the peer who raised it: grep the framework, our own task records and teeth for the identifiers. And attribute a framework file before blaming its owner: our 'pristine' vendor commit keeps files WE added (check .vendor-divergence.yaml for kind: added). T-1094: Greenfield's 'nothing keys on node ids' nearly became a GO while our own lib/instance-position.sh (832-added, first misattributed to AEF), update-task.sh, 186 task records and 5 teeth keyed on task-lifecycle's node ids."
   source: P-001
   task: T-1094
   date: 2026-10-13
