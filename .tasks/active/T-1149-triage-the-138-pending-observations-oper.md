@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:13:11Z
-last_update: 2026-10-13T16:17:32Z
+last_update: 2026-10-13T16:22:42Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -66,10 +66,10 @@ carrier gets a task), or **dismiss** (superseded, a duplicate, or no longer true
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Every observation pending on 2026-10-13 has an answer: resolved with a carrier, promoted, or dismissed with a reason (none left pending among them)
-- [ ] `docs/reports/T-1149-observation-triage.md` lists each observation's id, answer and carrier/reason, with counts per answer
-- [ ] Every resolve carrier exists (a task file under `.tasks/` or a tracked path)
-- [ ] The inbox still parses as YAML
+- [x] Every observation pending on 2026-10-13 has an answer: resolved with a carrier, promoted, or dismissed with a reason (none left pending among them)
+- [x] `docs/reports/T-1149-observation-triage.md` lists each observation's id, answer and carrier/reason, with counts per answer
+- [x] Every resolve carrier exists (a task file under `.tasks/` or a tracked path)
+- [x] The inbox still parses as YAML
 
 <!-- No Human criteria: triage answers are recorded with reasons in the report.
      Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -315,6 +315,16 @@ python3 tools/_t1149-triage-check.py
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-10-13 — what counts as a carrier
+- **Chose:** a carrier must actually hold the finding (a task whose body covers it, a shipped fix, an upstream report); still-true findings with none got a task.
+- **Why:** the earlier census (`tools/_t703-inbox-residue.py`) classes an observation by the task it was noticed under; that task being closed does not mean the finding was handled.
+- **Rejected:** bulk-resolving by context task (the T-915 rule), which would have closed about 40 still-true findings.
+
+### 2026-10-13 — framework findings: one report task, our own findings: one task each
+- **Chose:** the 25 framework findings go to AEF as one report (T-1150); the 16 of our own each got a task, horizon later.
+- **Why:** one report is one deliverable to AEF; our own findings are independent bugs (one bug, one task).
+- **Rejected:** `fw note promote`, which names the new task with the observation's whole text.
 
 ## Decision
 

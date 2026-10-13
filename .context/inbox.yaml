@@ -433,7 +433,11 @@ observations:
   captured: 2026-08-12 09:40:56+00:00
   context_task: T-449
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-676"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-676 is the P-002 instance register, and its context cites OBS-033 as the family origin. docs/reports/framework-agent-pickup-2026-09-09.md (lines 87-94) takes the completed-task commit problem upstream."
+  resolved_at: 2026-10-13T16:21:28Z
   promoted_to: null
 - id: OBS-034
   text: 'fw note silently discards its payload when the first argument is an unrecognised subcommand.
@@ -915,7 +919,11 @@ observations:
   context_task: T-423
   tags:
   - governance
-  status: pending
+  status: resolved
+  resolved_carrier: "T-531"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-531 (completed) measured the shared termlink identity and left the keying decision to the operator. learnings.yaml:2238 records that a shared identity hides the producer. The decision itself is carried by the promote entry under OBS-251."
+  resolved_at: 2026-10-13T16:21:28Z
   promoted_to: null
   urgent: true
 - id: OBS-249
@@ -955,14 +963,22 @@ observations:
   captured: 2026-08-15T08:59:28Z
   context_task: T-423
   tags: [testing]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-526"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-526 (completed) ran the suite N=5, identified the non-deterministic legs, and wrote docs/reports/T-526-bridge-suite-determinism.md. The observation text already notes this. T-917 and learnings.yaml also reference it."
+  resolved_at: 2026-10-13T16:21:28Z
   promoted_to: null
 - id: OBS-251
   text: "Shared termlink identity is not just an attribution gap — it is a live cross-project READ. Measured this session, not hypothesised. Two facts found while draining the rail for T-513: (1) agent-chat-arc offset 11882 is AEF's reply to us and its sender fingerprint is d1993c2c3ec44c94, which is OUR fingerprint — the rail cannot distinguish 832-Workflow-designer from AEF cryptographically, so every attribution on it rests entirely on the metadata.from_project convention that the T-420 hook enforces on OUR posts and cannot enforce on anyone else's. (2) Worse and previously unstated: because the identity is shared, another project's DM topic appears in OUR inbox with 127 unread. dm:9219671e28054458 (ring20-manager) is an AP-fleet/Kea-DHCP conversation belonging to a different project on this host, and it includes a thread about custody of a leaked root password for the Deco M4R AP fleet. I read three messages of it while checking for AEF traffic and stopped; no credential value appears in those messages and I have echoed nothing. This is the concrete case OBS-247 and OBS-248 asked about in the abstract. The exposure runs both directions: their operational traffic is readable by this project's sessions, and anything we post is signed with a key that other projects also hold, so a post claiming to be from 832-Workflow-designer proves nothing. Proposed remedy is unchanged from OBS-248 — this project mints and signs with its own key — but the decision is the operator's because it changes fleet identity and TOFU state, and I am deliberately not touching TERMLINK_IDENTITY_FILE: the path AUTO-CREATES a keypair when absent, so an experiment reads as minting a new identity rather than inspecting one. NOT acted on beyond this note."
   captured: 2026-08-15T09:29:03Z
   context_task: null
   tags: [security]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1151"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1151 (Decide: should 832 mint and sign with its own termlink identity? Shared root key d1993c2c3ec44c94 exposes other projects' DM traffic and cannot attribute our posts). Still true and no task decides it. T-916 deliberately left it pending as the operator's call, and T-531 says \"OBS-251 already carries it\". The question of whether 832 mints its own termlink key (changing fleet identity and TOFU state) has no carrier task."
+  resolved_at: 2026-10-13T16:21:28Z
   promoted_to: null
   urgent: true
 - id: OBS-252
@@ -1070,7 +1086,11 @@ observations:
   captured: 2026-08-16T09:54:43Z
   context_task: T-537
   tags: [termlink]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-537"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-537 is titled for exactly this defect, is work-completed, and was filed as a record without a fix because termlink is shared code. It contains the three measured causes."
+  resolved_at: 2026-10-13T16:21:29Z
   promoted_to: null
   urgent: true
 - id: OBS-262
@@ -1130,7 +1150,11 @@ observations:
   captured: 2026-08-16T19:16:47Z
   context_task: T-358
   tags: [process]
-  status: pending
+  status: resolved
+  resolved_carrier: "docs/reports/framework-agent-pickup-2026-09-09.md"
+  resolved_carrier_kind: "path"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): This is the same family as OBS-311, where a completed task cannot commit its own files. The pickup (lines ~87-94 and ~155) proposes the remedy upstream, and T-676 holds the register and variants."
+  resolved_at: 2026-10-13T16:21:29Z
   promoted_to: null
 - id: OBS-268
   text: "CANDIDATE MECHANISM for the standalone-green / sweep-red class registered as OBS-265, offered as a hypothesis with a population and NOT as a demonstrated cause. Third instance seen today: leg 2 of tools/_t344-watch-set-denominator.sh went red once with 'src/aef-workflow-designer.html is NOT watched', then passed on every subsequent attempt - the guard is 8/8 green twice over, the expander returns the file 3 times out of 3, and the exact pipeline returns 0 eight times out of eight. What makes this instance more useful than the earlier two is that the leg uses a shape with a KNOWN load-sensitive failure mode rather than an unexplained one: python3 EXPANDER | grep -qx PATTERN under set -o pipefail. L-387 already records that grep -q exits the moment it matches and closes the pipe, so a producer still writing takes SIGPIPE and the pipeline reports 141 - which pipefail then makes the verdict, and the leg reads as a failed assertion rather than as a killed producer. It is load-sensitive by construction, because whether the producer has finished flushing when grep exits depends on scheduling, which is exactly the green-alone-red-in-company signature. Note the ~10KB of expander output fits inside a 64KB pipe buffer, so the producer normally completes and this should be rare - consistent with three sightings and no reproduction. Population measured, not estimated: 26 files under tools/ and tests/ set pipefail AND contain at least one '| grep -q' pipeline, roughly 100 pipelines in total, the heaviest being _t408-hygiene-teeth.sh at 16 and _t386/_t411 at 9 each. What would settle it: have the sweep capture each probe's rc AND stderr rather than discarding both, since a SIGPIPE death is distinguishable from an assertion failure by which leg reports and how fast. Cheap and it converts a three-sighting mystery into a measurement. Deliberately not fixed here - the remedy is either the documented capture form or dropping pipefail for those lines, and choosing across roughly 100 sites is a task, not an aside."
@@ -1148,7 +1172,11 @@ observations:
   captured: 2026-08-16T19:48:20Z
   context_task: T-358
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-551"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-551 (completed) is titled \"the instrument sweep discards every probe's output\". That is exactly the diagnostic gap this observation recommended closing, and the task body references OBS-265 and OBS-269."
+  resolved_at: 2026-10-13T16:21:29Z
   promoted_to: null
   urgent: true
 - id: OBS-270
@@ -1390,7 +1418,11 @@ observations:
   captured: 2026-08-17T14:29:35Z
   context_task: T-189
   tags: [governance]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1152"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1152 (Detect [REVIEW] ACs whose referenced repo document is older than the task content (stale-proposal check)). The finding is real, and its own text says the population-wide detector is unbuilt. No task has a stale-referenced-document check for [REVIEW] ACs. A grep of tools/ for it found nothing. T-501 only mentions the observation in passing."
+  resolved_at: 2026-10-13T16:21:29Z
   promoted_to: null
 - id: OBS-292
   text: "Three tasks in one session (T-448, T-552, T-557) each wired a new probe into tests/run-bridge-tests.sh, each asserted in its own Verification block that the probe was REGISTERED -- grep -q '<probe>' tests/run-bridge-tests.sh -- and not one of them RAN tests/run-bridge-tests.sh. All three completed green while leaving the suite at 109 passed / 4 failed, and the red went unnoticed for a day because nothing between a task's own probe and a session handover ever runs the suite. Found only by executing T-101's Verification block by hand to check whether an all-ACs-ticked task would survive the P-011 gate; T-101 leg 2 IS the suite, so a rank-5 HV/HC task could not have completed. DETECTOR SHAPE: for any task whose diff touches tests/run-bridge-tests.sh, require 'run-bridge-tests.sh' to appear in that task's ## Verification -- both are in the same commit, so this is decidable at completion time from the task file plus git diff --name-only. Sibling of PL-148 (an instrument's registration must be asserted by something other than the instrument): here the instrument asserted its own registration and nothing asserted the host suite still passed. Not built here."
@@ -1598,7 +1630,11 @@ observations:
   captured: 2026-08-26T11:46:04Z
   context_task: T-590
   tags: [governance]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-593"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-593 is titled \"EWCR handoff envelope records an operator ...\" and its body cites OBS-310 as manufactured attribution. T-590 also files it and surfaces it to /approvals."
+  resolved_at: 2026-10-13T16:21:29Z
   promoted_to: null
   urgent: true
 - id: OBS-311
@@ -1606,7 +1642,11 @@ observations:
   captured: 2026-08-26T12:32:07Z
   context_task: T-592
   tags: [governance]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-676"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-676 registers the P-002 completion-commit instances, including its own instance 9, and the pickup document carries the proposed remedy to AEF. The observation proposes the same \"allow commit of the focused task's own paths\" fix."
+  resolved_at: 2026-10-13T16:21:29Z
   promoted_to: null
   urgent: true
 - id: OBS-312
@@ -1614,7 +1654,11 @@ observations:
   captured: 2026-08-26T14:31:10Z
   context_task: T-593
   tags: [governance]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-676"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): It is a repeat of OBS-311 on a second task, with the landing-task workaround noted. Both the instance register and the upstream pickup cover it."
+  resolved_at: 2026-10-13T16:21:29Z
   promoted_to: null
 - id: OBS-313
   text: "RESOLVED under T-604, and my recorded cause was WRONG. Measured: the failing run took 3s against 5-6s for passing runs — it failed FASTER, so the '25s editor-load timeout under contention' I wrote down could never have been the cause, and raising the timeouts would have changed nothing while looking addressed. The real mechanism, reproduced under 2x CPU load at 1-in-6: DevToolsActivePort is written when the BROWSER is listening, which is not the instant the PAGE target is registered in /json, so targets.find(t => t.type === 'page') returns undefined and the property access throws a bare TypeError, surfacing as DRIVER ERROR exit 2. This was NOT a new defect: OBS-304 already named the same race and was fixed at four call sites, while seventy-three others kept it and tools/_t366-uid-shape-agnostic.mjs documented it in prose as a 'remaining unguarded race' without fixing it. A fix applied at the call site instead of the definition site gets re-found as a new bug. Fixed by one shared tools/_cdp-attach.mjs and a scan leg that reddens when any driver hand-rolls the deref again. Second candidate fix from the original note still stands and is NOT done: the gate truncates failure output to head -5, which cut off the driver's verdict — drivers print their verdict last."
@@ -1664,14 +1708,22 @@ observations:
   captured: 2026-08-26T21:10:00Z
   context_task: T-392
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-607"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-607 (completed) is titled \"focus-drift gate cannot see the fw invocation...\" and fixes the regex anchor for the path-prefixed form. The fix came via .agentic-framework upstream-pickup patch E-t1021 (0001-check-active-task-the-focus-drift-target...)."
+  resolved_at: 2026-10-13T16:21:29Z
   promoted_to: null
 - id: OBS-319
   text: "AC headline text reaches six templates as RAW markdown and is never rendered. `ac.text` is m.group(2) straight off the task-file checkbox line in _parse_acceptance_criteria (web/blueprints/tasks.py:513) — unlike steps/expected/if_not it passes through NO renderer, so on /approvals an operator reads literal asterisks and backticks: '**Decide whether to cut 0.9.0, and whether AEF should be told to re-pin.**' and 'whether `W-GW-AMBIGUOUS` should accept...' render with their markup visible (confirmed in the accessibility tree after T-606 landed). Consumers: _approvals_content.html:567, task_detail.html:473/499/543, _review_acs.html:59, _task_panel.html:68. DELIBERATELY NOT FOLDED INTO T-606: different root cause. T-606 was 'renderer output got escaped at the template'; this is 'the field was never rendered at all', and the fix is the opposite direction — render it, NEVER mark it `| safe`. Marking raw file content safe is precisely the XSS mistake T-606's L4b leg now guards against, and the two changes look similar enough in a diff that merging them would have destroyed the distinction. Verified no Python consumer compares or writes back ac.text (display-only, six template sites), so rendering it is safe; markdown2 safe_mode='escape' keeps hostile task-file HTML neutralised."
   captured: 2026-08-26T21:00:00Z
   context_task: T-606
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1153"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1153 (Render AC headline text (ac.text) in /approvals and task templates instead of showing raw markdown; never mark it |safe). T-606 explicitly deferred it (\"different root cause\"). The AC headline `ac.text` has no renderer, and the observation shows it unrendered at six template sites. It is only listed in docs/reports/operator-decision-docket.md, which is a decision list and not a fix. I found no task that fixes it."
+  resolved_at: 2026-10-13T16:21:30Z
   promoted_to: null
 - id: OBS-318
   text: "The /approvals page — the operator decision surface this session prints a link to every turn — renders markdown as literal escaped text. MEASURED on our own instance at http://192.168.10.107:3013/approvals: 205 occurrences of escaped &lt;code&gt; against 2 real <code>, plus 78 escaped &lt;strong&gt;. Reported by 010-termlink at rail 563 with a recommended one-line fix at the definition site: make web/shared.py render_markdown_safe() return markupsafe.Markup(html) so no caller can forget the | safe. THAT FIX IS CORRECT AND WOULD NOT FIX OUR /approvals. Verified rather than assumed: the AC fields on that page (ac.text, ac.expected, step at web/templates/_approvals_content.html:567,575,580) are NOT produced by render_markdown_safe. They come from _render_md_inline() at web/blueprints/tasks.py:364 — a SECOND, blueprint-private renderer carrying the same unstated caller obligation. render_markdown_safe's own docstring says it was promoted out of tasks.py specifically to 'break the blueprint-private parser pattern called out in the T-1575 RCA'; the promotion happened and the private renderer survived alongside it. So the definition-site fix must be applied to BOTH renderers, or the page stays broken while the diff looks like a fix. This is the T-601 shape exactly: change the instrument, then check what CONSUMES it before believing the fix. Vendored under .agentic-framework/ (G-008 permits in-tree fix and upstream). RESOLVED by T-606: markupsafe.Markup returned from all three renderers at the definition site. Measured after: /approvals 205 escaped -> 0, real <code> 2 -> 207; /tasks/T-347 13 -> 0 (23 -> 36); /tasks/T-597 9 -> 0 (8 -> 17); /review/T-597 unchanged at 15. The template `| safe` markings I first added turned out to be REDUNDANT — reverting them with Markup in place left the page correct, which is the measurement that proves the fix lives at the definition and not at the call site, so the landed diff is two files. Original note (kept, it was the reason to stop): NOT attempted that session — a shared HTML rendering path is security-relevant and adding | safe to a field that is not renderer output would open an XSS hole in the operator's own console; that verification needs budget this session does not have."
@@ -1688,7 +1740,11 @@ observations:
   captured: 2026-08-26T19:37:07Z
   context_task: T-601
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1154"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1154 (Pool border sized to node boxes, not rendered labels: contentRightEdge()/poolHeight() let right-most below-labels overhang the pool). I found no task that sizes the pool to label extents. The only task hits are T-043, T-050 and T-255, which cover the box-based contentRightEdge and the page-width floor; none addresses label overhang. Not re-measured. The finding was kept out of T-601 on purpose and has no carrier."
+  resolved_at: 2026-10-13T16:21:30Z
   promoted_to: null
 - id: OBS-321
   text: "Three [REVIEW] Human ACs on T-597 and T-608 were found ticked on disk without the operator; Watchtower shows no POST, and the 30m structural audit, oe-hourly audit and 'fw bvp --include-proposed' were each reverted-and-rerun without re-ticking. Ticks were working-tree only and have been reverted; ticked copies preserved in session scratchpad. Writer unidentified. A ticked [REVIEW] AC is a sovereignty-bearing write that tells every downstream gate the human has ruled, and it blanked the operator's EWCR decision card for three sessions."
@@ -1832,7 +1888,11 @@ observations:
   captured: 2026-09-05T10:58:37Z
   context_task: T-575
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-842"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-842 (completed) pins the commit/checkpoint exemption spelling and the regression test tools/_t842-commit-exemption-spelling-regression.sh. T-676 variant (d) and the pickup (line 168) record the \"first T-NNN\" matcher defect."
+  resolved_at: 2026-10-13T16:21:30Z
   promoted_to: null
 - id: OBS-336
   text: ".framework.yaml carries an uncommitted enforcement-threshold change nobody in-session can account for: inception_commit_limit raised 4 to 15, PLUS a duplicate uppercase INCEPTION_COMMIT_LIMIT: 15 key written alongside the legacy lowercase one. mtime 2026-09-06 20:30, so it predates this session; no entry in .gate-bypass-log.yaml. 15 is exactly where T-685's inception gate was blocking. Two separate questions for the operator: (1) is the raise theirs? (2) the duplicate-key shape means one setting now has two spellings in one file — a later config set can update one and leave the other diverged, and nothing reports the divergence. Left UNCOMMITTED deliberately; the agent must not commit a loosened gate it cannot attribute."
@@ -1858,7 +1918,11 @@ observations:
   captured: 2026-09-09T07:39:43Z
   context_task: T-423
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "docs/reports/framework-agent-pickup-2026-09-09.md"
+  resolved_carrier_kind: "path"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): The pickup (line 209) reports \"OBS-338 \u2014 CDP legs silently require node \u2265 21\" and T-692 (completed) asserts that report. It is a tracked upstream report. T-705 also references it."
+  resolved_at: 2026-10-13T16:21:30Z
   promoted_to: null
 - id: OBS-339
   text: "T-694 measured: a task file with NO content at all scores D1=4 D2=0 D3=2 D4=2 through the BVP estimator, on evidence body:structural-gate, body:default-change, body:env-class-handled. Those signals come from the task TEMPLATE's own boilerplate comments (the P-011 errexit warning, the SIGPIPE hint, the REVIEWER routing block), not from the task. So D1=4 of 5 on Antifragility is the floor every task in this repo inherits on creation, and 12 active tasks score exactly that floor plus one point of F1 - meaning they were not scored low, they were not scored at all. Instrument: tools/_t694-bvp-distinguishability.py. Report: docs/reports/T-694-bvp-distinguishability.md"
@@ -1888,49 +1952,73 @@ observations:
   captured: 2026-09-10T05:50:10Z
   context_task: T-575
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-676"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): It is P-002 instance 10, where `git restore --staged` is blocked with focus null. T-676 is the register for this family, and OBS-342 narrows the finding to the missing restore/reset entries in the safe-list."
+  resolved_at: 2026-10-13T16:21:30Z
   promoted_to: null
 - id: OBS-342
   text: "CORRECTION to OBS-341, same session, before anyone acts on it. I wrote there that after a completion 'every OTHER index operation needed to assemble a correct commit is refused'. That is an overclaim and my own session transcript disproves it: with focus null I ran git add successfully and only git restore --staged was blocked. check-active-task.sh:240 says why — git add is safe-listed in its own right ('task-agnostic, no drift'), separately from T-2054's null-focus git commit exemption. The accurate finding is narrower and sharper than what I wrote: the safe-list admits the STAGING operation but not its INVERSE. With no active task you may add a path to the index but you may not remove one. So after a completion you can assemble a wrong commit and cannot correct it without re-pointing focus at an unrelated task, which is exactly the traceability loss the earlier instances describe. Whoever scopes a fix should treat this as 'the enumeration is missing git restore/git reset', not as 'index operations are blocked'."
   captured: 2026-09-10T05:51:04Z
   context_task: T-575
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-676"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): It is a correction to OBS-341 (the safe-list admits add but not restore/reset). Both fall under the T-676 P-002 family and the upstream null-focus work in docs/upstream-pickups/F-t3814-null-focus-aliases."
+  resolved_at: 2026-10-13T16:21:30Z
   promoted_to: null
 - id: OBS-343
   text: "CORRECTION to OBS-340, same session, before anyone acts on it. OBS-340 presented the inception voi_score tie as a new finding. It is not. T-624 and T-625 found all of it on 2026-08-29 — the tie, the abstention framing, the _score_inception_voi site, the missing _proposed lane — and the evidence is written into this repo's own inception template at .tasks/templates/inception.md:26-35, four lines above the field I was measuring, together with a working tool at tools/_t624-voi-provenance.py. I did not check the registers or the template before filing, which is the one-command check I DID run for the sibling finding OBS-339 (confirmed new). Treat OBS-340 as confirmation, not discovery. The part that is genuinely new is a recurrence measurement T-624 could not have made because it needed elapsed time: T-624 measured 38 of 41 inceptions at the template default and chose an in-template warning as its prevention; twelve days later it is 12 of 13 active on the value axis and 40 of 43 on the cost axis by T-624's own tool. The proportion has not moved. That is a finding about prevention selection - a comment is not a gate - and it has been retargeted onto T-696, which was itself filed as a duplicate and is now scoped to the recurrence alone."
   captured: 2026-09-10T05:54:13Z
   context_task: T-575
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-696"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): The text says the finding \"has been retargeted onto T-696\", which is active and scoped to the voi_score default-recurrence. The original find is covered by T-624 and T-625 and by .tasks/templates/inception.md:26-35. T-588 also references it."
+  resolved_at: 2026-10-13T16:21:31Z
   promoted_to: null
 - id: OBS-344
   text: "Level 1 of the selection hierarchy has no register and no verb. An autonomous mandate this project has now run twice says work is selected top-down starting from 'project goals and objectives'. There is no .context/project/goals.yaml or objectives.yaml — the only statement of goals is docs/reports/T-002-aef-workflow-designer-goals.md, a prose report produced by a single task in the project's first week. Consequence: nothing resolves a task to a goal, no gate checks that a selected task advances one, and fw has no verb to query them, so both autonomous runs entered the hierarchy at level 2 (arc) and reconstructed level 1 only when explicitly re-reading the mandate. Compare the levels below it, which all have registers and verbs: arcs have .context/arcs/*.yaml and fw arc, tasks have .tasks/ and fw task, scoring has fw bvp. The top of the hierarchy is the only level with no machine-readable form, which makes it the only level whose gate cannot fire. Measured this session by attempting to execute level 1 as written. Goals 3 and 4 of that document (map swimlanes to the authority model; round-trip BPMN export AND import) are where every currently-blocked high-value task sits, which is exactly the traceability a register would have made routine."
   captured: 2026-09-10T20:11:11Z
   context_task: T-575
   tags: [bug]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): No longer true. .context/project/objectives.yaml now exists and is tracked, and T-986 (\"define project objectives\") and T-1072 cover it. The register gap this observation described was closed."
+  dismissed_at: 2026-10-13T16:21:31Z
   promoted_to: null
 - id: OBS-345
   text: "F-ORIENT-01: the mandate names a 'housekeeping verb'; fw v1.6.354 has none. 'fw housekeeping' returns 'Unknown command'. The token appears once in the whole dispatcher, bin/fw:841, inside a fw doctor comment that distinguishes host-scope findings so an agent does not bundle them into 'project housekeeping'. Substituted fw doctor for that slot and declared the substitution rather than inventing the verb."
   captured: 2026-09-16T13:23:20Z
   context_task: T-575
   tags: []
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Pure record of a substitution (fw doctor used for the nonexistent housekeeping verb). I re-checked: bin/fw:1730 mentions the word only in a comment. No action is left, since the mandate wording is the operator's."
+  dismissed_at: 2026-10-13T16:21:31Z
   promoted_to: null
 - id: OBS-346
   text: "F-BVP-02 (arc-003 cycle 1, URGENT): the F8 cost axis is structurally blind to governance work. Cost = 0.6*blast_radius + 0.3*tier + 0.1*effort, and blast_radius is derived from file paths named in the task body. 31 of the 35 arc-003 remediation tasks got tier and effort but NO blast_radius, so cost renders as a dash and fw bvp assigns NO quadrant at all. The 4 that did place all name a file path. Consequence: every task whose subject is a task record rather than a source file - all 14 CTL-029 findings, both velocity findings, and the single FAIL on the board (T-723 RA-027, D2 human review queue) - is unrankable and therefore invisible to a Q1/Q2 selection rule. Unplaced is not the same state as low-value, and the quadrant table has no cell for it. Distinct from T-694: that finding was about value-axis ties, this is absence on the cost axis. Sovereign question - not decided by the agent."
   captured: 2026-09-16T13:32:18Z
   context_task: T-575
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: fw bvp cost axis is blind to governance tasks (no blast_radius derived), leaving them without a quadrant). Still a real, unreported framework defect. The fw bvp cost axis (blast_radius from file paths in the task body) leaves governance tasks unplaced. It is absent from the pickup documents and upstream-pickups, and only the docs/reports/T-703 census mentions it."
+  resolved_at: 2026-10-13T16:21:31Z
   promoted_to: null
 - id: OBS-347
   text: "P-002 instances 11 and 12 (arc-003 cycle 2, 2026-09-16): the check-active-task gate blocks READ-ONLY Tier-3 operations when focus is null. Instance 11: 'fw audit' refused - a compliance health check, which CLAUDE.md's own Enforcement Tiers table lists under Tier 3 'Pre-approved categories (health checks, status queries)'. Instance 12: '.agentic-framework/agents/context/checkpoint.sh status' refused - this is the exact command CLAUDE.md's Context Budget Management section instructs the agent to run to measure the budget, and T-675 makes it the ONLY trustworthy read. Both were triggered by the documented state (b): focus cleared by a task completion. Neither command modifies anything; the block message's 'Attempting to modify:' field was empty in both cases. Consequence: after completing any task the agent cannot measure its own budget or run the audit without first re-focusing an unrelated task, which is drift the gate exists to prevent. Resolved both times via the prescribed remedy (fw context focus), not bypassed. Now twelve instances of the P-002 family; see T-676."
   captured: 2026-09-16T13:48:15Z
   context_task: T-575
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-676"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Instances 11-12 of the P-002 family, where read-only commands (fw audit, checkpoint.sh status) are blocked with null focus. T-676's register is built for exactly these, and instance 5 (checkpoint.sh status) is already in it."
+  resolved_at: 2026-10-13T16:21:31Z
   promoted_to: null
 - id: OBS-348
   text: "F-AUTOTICK-01 (T-704 / RA-008, 2026-09-16): inception T-015 was closed with ALL FOUR acceptance criteria ticked by the marker @auto-tick-on-decide, including the Human [REVIEW] AC that CLAUDE.md protects with 'NEVER check a ### Human AC. Only the human may verify and check these boxes.' Two of the auto-ticked Agent ACs are false on their face: 'Problem statement validated' is ticked against an EMPTY Problem Statement section, and 'Assumptions tested' against an EMPTY Assumptions section. The task's Problem Statement, Assumptions, Open Questions, Exploration Plan and Scope Fence are all unfilled template comments, and the Recommendation's Evidence block is the unfilled template comment too - the word Confirmed in the rationale is supported by no file path, commit hash or test output anywhere in the record. Status went captured to started-work to work-completed in ONE second (2026-07-04T22:49:09Z) with commits=0 files_changed=0. Separately the episodic record .context/episodic/T-015.yaml carries enrichment_status: complete while its decisions: block holds the literal template strings [date] - [topic] / [what was decided] / [rationale]; the audit's episodic-quality check passes it, and D1 reports 0 percent TODO because the placeholders use [date] rather than the literal [TODO]. Whether @auto-tick-on-decide on a Human AC is intended design (running fw inception decide IS the human review) or a sovereignty leak is a Sovereign question and is NOT decided by the agent. Three more inceptions carry the same RA-008 shape: T-103, T-250, T-587 (tasks T-705, T-706, T-707) - unchecked."
@@ -1959,7 +2047,11 @@ observations:
   captured: 2026-09-16T15:59:34Z
   context_task: T-575
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-706"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-706 (completed) is the RA-010 task, and its body references OBS-350 as the correction. The sovereign question stays with the operator in that task."
+  resolved_at: 2026-10-13T16:21:31Z
   promoted_to: null
 - id: OBS-351
   text: "OBS-351 subject (T-706 / RA-010, 2026-09-16): operator ruling - 'the task file counts'. C-001 says conversations are ephemeral, files are permanent; a task file IS a file. T-250 recorded 1012 chars of Evidence, 738 chars Problem Statement and 1198 chars Open Questions in its own task file, all durable and committed, and the audit reports it as having no research artifact because the check looks only in docs/reports/. CONSEQUENCE BROADER THAN T-250: RA-011 was a false positive on a DIRECTORY mismatch (artifact in docs/research/ not docs/reports/). RA-010 is a false positive for a larger reason - the check tests LOCATION, not whether the thinking was preserved at all. Under this ruling any inception whose reasoning is recorded in its own task file satisfies C-001 and must not be warned about, and the check as written cannot express that. Two of the four findings this check produced (RA-010, RA-011) were false positives; the other two (RA-008 T-015, RA-009 T-103) were genuine. A check with a 50 percent false-positive rate on its own output set. NOT FIXED - whether the check should be scoped to read task files, retired, or replaced by a content check is a scope decision and is surfaced, not taken."
@@ -1973,21 +2065,29 @@ observations:
   captured: 2026-09-17T05:37:48Z
   context_task: T-575
   tags: [termlink]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Superseded and corrected by OBS-353, which OBS-354 corrected again. T-734 (completed) guards against the truncated-search defect that produced all three."
+  dismissed_at: 2026-10-13T16:21:31Z
   promoted_to: null
 - id: OBS-353
   text: "CORRECTION to OBS-352 and to T-733's premise. The agent-chat-arc I posted the R6/R7 re-ask to on 2026-09-16 no longer exists. The rail now serving is the RESTORED original log: count 1001, latest_offset 1534, retention messages:1000 — NOT the retention:forever topic I created. My post was offset 0 of a topic that has been replaced. A search for R6|R7|832-Workflow-designer|EWCR-ARC0 returns 12 hits, all ours, all from offsets 534-586 dated ~2026-08. The 2026-09-16 re-ask is absent. So OBS-352's conclusion ('most likely unread rather than ignored') is WRONG in the direction that matters: the post was not unread, it is GONE, and AEF was never in a position to read it. T-733's Recommendation and Evolution both rest on the premise that the ask was delivered to a durable topic; that premise is false. T-733 is work-completed/partial-complete and must NOT be closed on that evidence. This also strengthens the T-733 sovereign question rather than settling it: the substrate is not merely volatile, it round-trips between two different logs with different retention, and a post can be silently displaced by a restore. Re-sending is NOT the fix and I have not re-sent — the operator rules on the substrate first."
   captured: 2026-09-19T21:00:50Z
   context_task: T-575
   tags: [correction]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Wrong by its own correction, OBS-354, which re-measured with `fw arc thread` and found the EWCR chain intact. Only the one lost re-ask post survives, and T-733 and T-734 hold it."
+  dismissed_at: 2026-10-13T16:21:31Z
   promoted_to: null
 - id: OBS-354
   text: "OBS-353 IS WRONG AND I AM CORRECTING IT THE SAME WAY IT CORRECTED OBS-352 — by re-measuring instead of re-reasoning. OBS-353 concluded the R6/R7 re-ask was GONE and that 'every rail offset our Arc-0 register cites is now dangling'. Both halves are false. fw arc thread enumeration over agent-chat-arc (57 threads, root_offset range 536..1087) shows the EWCR-ARC0-ATTEST-832 chain INTACT AND REACHABLE: roots @602 @629 @639 @643 @734 @737 @741 @744 @777 @786, one linear chain, descendant counts 13..2. @643 is the R6/R7 routing post the register cites, and it reads back today. The register's rail_citation_integrity block therefore overstates the loss. ROOT CAUSE, AND IT IS THE SAME DEFECT TWICE: both OBS-352 and OBS-353 rested on a termlink_channel_search whose limit truncated the result set, read as if it were exhaustive. A search that returns N hits under limit=N has told you nothing about hit N+1. What IS true and survives: my 2026-09-16 re-ask to the recreated retention=forever topic is absent, because that topic was displaced by the restore. So the correct finding is much narrower than OBS-353 claimed - one post I sent is lost, the cited historical evidence is not. SECOND SIGNAL, recorded not interpreted: all eleven EWCR threads report last activity at exactly 2026-09-07 19:36, identical to the minute, which is a bulk-replay artifact of the restore rather than real traffic times. Timestamps on this rail are not trustworthy as evidence of when something was said; offsets and content still are."
   captured: 2026-09-19T21:17:14Z
   context_task: T-575
   tags: [correction]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-734"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-734 (completed) is titled \"absence claimed from a truncated search\" and ships tools/_t734_absence_guard.py. T-733 and T-773 carry the surviving fact, that the 2026-09-16 re-ask is lost."
+  resolved_at: 2026-10-13T16:21:31Z
   promoted_to: null
   urgent: true
 - id: OBS-355
@@ -1995,7 +2095,11 @@ observations:
   captured: 2026-09-19T21:38:47Z
   context_task: T-696
   tags: [calibration]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: fw bvp quadrant split uses a running median over the ranked population, so scoring other tasks moves a task's quadrant (selection laundering)). The finding is only named in the T-702 and T-703 census lists, which are not carriers. The BVP quadrant boundary is a running median over the ranked population, so scoring neighbours can promote tasks into Q1. It is a framework calibration defect with no tracked report."
+  resolved_at: 2026-10-13T16:21:32Z
   promoted_to: null
   urgent: true
 - id: OBS-356
@@ -2003,49 +2107,69 @@ observations:
   captured: 2026-09-20T13:29:48Z
   context_task: T-730
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: fw build has no dependency-bootstrap step (lib/ts/node_modules never provisioned) and doctor's 'TypeScript build stale' WARN hides the real js-yaml resolve failure). T-730 (completed) says the finding was 'left for triage' and 'not filed as its own task'; grep finds no other carrier (OBS-356 appears only in T-730 and its episodic file). G-001 in concerns.yaml is the vendor-payload gap, but it does not mention the missing npm bootstrap or the misleading doctor WARN. I did not re-check whether the vendored `fw build` still lacks a bootstrap step."
+  resolved_at: 2026-10-13T16:21:32Z
   promoted_to: null
 - id: OBS-357
   text: "T-368 has sat in the D2 review queue 43 days asking whether to cut 0.9.0 and whether AEF should be told to re-pin. Release 0.12.0 shipped 2026-09-20 (tag designer-v0.12.0, announced on the rail), so the question is superseded as written - the operator cannot answer it as posed. Same class as T-732 H3/H6: a queued decision that events overtook. The ruling it needs is not 'cut 0.9.0 yes/no' but 'moot, close it'. Found by T-723 while justifying the ten over-30d rows."
   captured: 2026-09-20T18:21:23Z
   context_task: T-723
   tags: [review-queue]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-368 is now `status: work-completed` (.tasks/active/T-368-release-state-blindness-8-src-commits-ah.md:9), so the queued question is closed. The finding itself said the 0.9.0 question was superseded by the 0.12.0 release. Its only other mentions are in the VALUE-REVIEW report."
+  dismissed_at: 2026-10-13T16:21:32Z
   promoted_to: null
 - id: OBS-358
   text: "Archiving a task moves its whole Verification block into CTL-013's re-run set, and the audit pays that cost on every subsequent run. Measured today: fw audit completed normally before T-723 swept T-093/T-178 into completed/; every oe-daily run after it stalls at CTL-013 past 300s. T-093's block runs four suites - run-bridge-tests, run-validator-tests, check-corpus-geometry over 24 maps, and editor_bridge_structured_parity. The sweep was correct and should not be reverted; the cost is structural. Two candidate shapes for the operator: bound CTL-013 to a sample or a time budget, or re-run verification only for tasks archived since the last audit record. Filed from T-708 after the hang was diagnosed rather than waited out."
   captured: 2026-09-20T18:31:55Z
   context_task: T-708
   tags: [audit-cost]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-765"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-765 (completed) states the mechanism: CTL-013 evals the Verification blocks of the most recent completed tasks, so audit cost is unbounded. It files 'time-box or sandbox CTL-013' as a Sovereign question (T-765:116-118). T-755 and T-761 also cite OBS-358 and localise the hang to CTL-013/oe-daily."
+  resolved_at: 2026-10-13T16:21:32Z
   promoted_to: null
 - id: OBS-359
   text: "Pre-push audit gate is fail-open under concurrency. Reproduced 2026-09-20: a background 'fw audit --section oe-daily' held the audit lock, and 'git push origin master' printed '=== Pre-Push Audit Check ===' then 'Another audit is already running - exiting' and pushed anyway (18bf6250..aba7d30f). The gate did not fail; it did not run, and the push could not tell the difference. Same shape as PL-221 - the skip message reads like normal operation. Candidate shapes for the operator: wait on the lock with a timeout, or treat lock-contention as a refusal rather than a pass. Note the gate is also the ONLY audit most pushes ever get, so a silent skip means a push with no audit at all."
   captured: 2026-09-20T18:33:15Z
   context_task: T-708
   tags: [enforcement]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Fixed upstream in the vendored framework. audit.sh:345-360 records this exact 2026-08-11 incident and makes a contended audit exit 75 (EX_TEMPFAIL, 'did not run') instead of 0. audit.sh:576 prints 'no verdict produced', so the pre-push hook can now tell a skip from a pass. I read only the audit.sh side, not the hook that consumes the 75."
+  dismissed_at: 2026-10-13T16:21:32Z
   promoted_to: null
 - id: OBS-360
   text: "CTL-029's second detector has no sweep verb behind it. audit.sh:3921 flags tasks with all Agent ACs ticked but status started-work as 'completable, not closed'; fw task archive-eligible only sweeps status work-completed (audit.sh:3788-3830), so it cleared T-093/T-178 and cannot reach this class at all. Measured 2026-09-20: EIGHT tasks have every Agent AND Human AC ticked and sit in started-work waiting only on the status verb - T-041, T-101, T-102, T-105, T-293, T-309, T-357, T-681. The operator already did the review on all eight. Six others in the same CTL-029 set genuinely await judgement: T-189, T-209, T-286, T-344, T-345, T-402. The eight block eight RA tasks (T-709 to T-722) that cannot close while they are open. Two gates stand between an agent and the flip: focus-drift (T-1730) and sovereignty on owner human. Candidate shapes for the operator: extend archive-eligible to the started-work+all-ticked case, or run the eight completion verbs. Not a recommendation to bypass either gate."
   captured: 2026-09-20T18:40:13Z
   context_task: T-709
   tags: [ctl-029]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: fw task archive-eligible cannot sweep CTL-029 'all ACs ticked but started-work' tasks (only work-completed)). Still true. `is_archive_eligible` in .agentic-framework/bin/fw:5876 returns False unless status is work-completed, so the started-work-with-all-ACs-ticked class has no sweep verb. T-709 is only the per-task RA row (T-041) and does not propose a verb. No upstream report exists."
+  resolved_at: 2026-10-13T16:21:32Z
   promoted_to: null
 - id: OBS-361
   text: "Full fw audit does not hang - it is killed at exactly 600s. Measured 2026-09-21 under T-755: a full run wrapped in 'timeout 2400' died with exit 143 (SIGTERM) at elapsed=600s; the 2400s timeout never fired, so a 600-second ceiling in the surface running the command got there first. Next to it: oe-daily ALONE measures 578s to completion. A full run is oe-daily plus eighteen sections, so it needs ~700s+ and hits the ceiling every time. A ceiling at the point of observation looks exactly like a hang - the process stops emitting and never returns. This completes the chain OBS-358 opened: sweep moves T-093 to completed -> its Verification block carries four test suites -> CTL-013 evals them every oe-daily run -> 578s -> full run ~700s+ -> SIGTERM at 600s -> 'hangs'. Steps up to CTL-013 are the real structural cost OBS-358 already owns. The last two steps are a measurement artefact of the harness, and they are why the cost keeps being filed as a defect of the audit rather than a budget that outgrew its container. Consequence for any autonomous run in this environment: a full audit cannot be observed from inside a 600s box at all, so it must be detached (nohup setsid) or run section-wise. Not a proposal to shorten any check."
   captured: 2026-09-21T08:25:10Z
   context_task: T-755
   tags: []
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Corrected by OBS-362, which found the 600s kill was the audit's own watchdog and not an external ceiling. The vendored audit.sh now sizes the watchdog for unscoped runs (line 385: `AUDIT_TIMEOUT=${FW_AUDIT_TIMEOUT:-${FW_AUDIT_FULL_TIMEOUT:-3000}}`), so the 600s kill on a full run is gone. The underlying CTL-013 cost is carried by T-765."
+  dismissed_at: 2026-10-13T16:21:32Z
   promoted_to: null
 - id: OBS-362
   text: "Correction to OBS-361: the 600s kill is NOT an external ceiling, it is the audit killing itself. audit.sh:312 sets AUDIT_TIMEOUT from FW_AUDIT_TIMEOUT default 600, and audit.sh:346 arms a watchdog subshell that runs 'sleep AUDIT_TIMEOUT && kill -TERM $$' against its own PID. Added by T-1162/T-866/T-1464 as an anti-zombie guard for cron, which is a correct guard - it was simply sized when the audit was fast. Verified by elimination: re-launching the full run detached under nohup setsid, deliberately outside any shell or tool lifetime, still died at exactly 600s with exit 143. The margin is the alarming part: oe-daily ALONE measures 578s against a 600s self-kill, so that single section clears by 22 seconds. Any further growth in T-093's four suites, or a busier host, and even a section-scoped run stops completing - presenting identically, as a hang. Because the killer is inside the audit, nothing outside it ever reports a kill, which is why this read as a mystery for so long. Remedy is a budget decision (raise FW_AUDIT_TIMEOUT, or make the watchdog scale with the section set), NOT shortening any check. Operator's call - not actioned."
   captured: 2026-09-21T08:35:20Z
   context_task: T-755
   tags: []
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): No longer true. The vendored audit.sh:381-387 scales the timeout for the unscoped case (FW_AUDIT_FULL_TIMEOUT, default 3000s) and notes the watchdog was a pinned constant while the corpus grew. That is the remedy the observation asked for. The audit's cost is tracked in T-765."
+  dismissed_at: 2026-10-13T16:21:32Z
   promoted_to: null
 - id: OBS-363
   text: "create-task.sh sets owner: by first-match substitution, so a task whose NAME contains the text 'owner:' has its name rewritten and its real owner field left EMPTY. Measured on T-768: requested name 'SQ-2 upstream: report the owner:human-with-zero-Human-ACs fault to AEF for remediation' with --owner agent produced name '...report the owner: agenthuman-with-zero-Human-ACs...' and owner: (empty). Empty owner breaks ownership resolution and the audit's compliance checks. This is PL-164 firing live (prose ABOUT a string-matching mechanism contains the string it matches) and it is a second, independent defect in the same creation path that SQ-2/T-767 already owns. Fixed by hand on T-768; the generator is NOT fixed. One bug one task: needs its own record."
@@ -2124,105 +2248,155 @@ observations:
   captured: 2026-09-21T20:42:16Z
   context_task: T-780
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: fw bvp estimate-cost all --dry-run reports every task as skipped (cannot preview its own writes)). No fix or report found. The only trace is T-780's AC that filed the observation in the inbox. Vendored bvp.sh still advertises `estimate-cost all|sweep ... [--dry-run]`, and grep finds no would-write counter."
+  resolved_at: 2026-10-13T16:21:33Z
   promoted_to: null
 - id: OBS-370
   text: "Inception template instructs the agent to change voi_score and target_blast_radius, but both are operator-owned fields and no *_proposed channel exists for either. T-788 filed today carried the planted defaults (target_blast_radius: 3, voi_score: 0.5) because the sovereignty rule forbids an agent writing them and there is nowhere else to put a proposal. Verified: grep for 'voi_score_proposed|target_blast_radius_proposed' across .agentic-framework/lib, .agentic-framework/agents and tools returns ZERO hits, where bvp_scores_proposed and cost_estimate_proposed both exist and are written by the estimator. So the template's own warning ('CHANGE THIS - leaving 0.5 does not score the task, it abstains') names a real defect and simultaneously asks the agent to cross a sovereignty boundary to fix it. The measured consequence is already recorded: 38 of 41 inceptions carry both defaults, which is why the hv-lc quadrant ranked as one flat tie. The missing piece is not agent discipline, it is the proposal channel that exists for every other BVP field."
   captured: 2026-09-22T07:44:18Z
   context_task: T-788
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: inception template tells the agent to change voi_score/target_blast_radius, which are operator-owned, with no *_proposed channel). Re-measured today: grep for voi_score_proposed / target_blast_radius_proposed across .agentic-framework/lib, agents and tools still returns zero hits. OBS-370 appears only in the inbox and in T-788's episodic file, so nothing carries it and it was never reported upstream."
+  resolved_at: 2026-10-13T16:21:33Z
   promoted_to: null
 - id: OBS-371
   text: "Product defect: the Workflow Designer's browser tab title is a hardcoded literal naming a document that is never loaded. src/aef-workflow-designer.html carries <title>AEF Workflow Designer - investigate.bpmn</title> and the file contains ZERO assignments to document.title (grep -c 'document.title' = 0 across all 997 KB). Reproduced across two different loads: opening audit-process and then t293-retest-harvest both leave the title reading 'investigate.bpmn' while the canvas and the ID field show the correct, different document. Not a localStorage artefact - the string 'investigate' does not appear in the aefAutosaveDoc key at all. Consequence: every tab, bookmark and window-switcher entry for this product is mislabelled, and with two workflows open in two tabs they are indistinguishable. It is also the first thing a new user sees. Cheap to fix (assign document.title wherever the loaded document name is set); filed rather than fixed because nothing else in this task modifies the product."
   captured: 2026-09-22T07:48:14Z
   context_task: T-789
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1155"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1155 (Designer: set document.title from the loaded document (tab title hardcoded to investigate.bpmn)). Re-measured: src/aef-workflow-designer.html:6 still has the hardcoded `<title>AEF Workflow Designer \u2014 investigate.bpmn</title>`, and `grep -c document.title` returns 0. The only mentions are T-789 (the finding's origin), a T-802 table row that points back at the inbox, and a VALUE-REVIEW report."
+  resolved_at: 2026-10-13T16:21:33Z
   promoted_to: null
 - id: OBS-372
   text: "The P-011 Verification template documents 'out=$(cmd 2>&1); echo \"$out\" | grep -q PATTERN' as SIGPIPE-safe. Measured today: it is not, and its failure is payload-and-position dependent, which is worse than failing outright. Reproduced in T-789: capturing the designer page (994055 bytes) and piping to grep -q gave rc=141, and the completion gate reported 'DID NOT FINISH ... killed - signal 13, exit 141' with no output, so the leg told us nothing about the subject. Mechanism isolated with three controls: match EARLY in a 900 KB string -> rc=141; match LATE in the SAME 900 KB string -> rc=0; match EARLY in a 10 KB string -> rc=0. So the failure needs BOTH a payload larger than the pipe buffer AND a match early enough that grep -q exits before echo finishes writing. The consequence is that this pattern passes during development on small or late-matching inputs and dies in the gate when the page grows or the pattern moves - the template's own stated remedy for a SIGPIPE hazard reintroduces it above ~64 KB. The pipe-free form has no such dependency: case \"$out\" in *PATTERN*) true;; *) false;; esac, measured rc=0 on the same 994055-byte capture. Recommend the template state the size condition rather than an unqualified 'SIGPIPE-safe', and offer the case form for large captures."
   captured: 2026-09-22T07:50:19Z
   context_task: T-789
   tags: []
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Fixed upstream. The vendored template .agentic-framework/.tasks/templates/default.md:123-141 now has a Pipefail/SIGPIPE section (T-2743) that gives the measured 146 KB rc=141 case. T-789 already switched its own leg to the pipe-free `case` form (T-789:179-181)."
+  dismissed_at: 2026-10-13T16:21:33Z
   promoted_to: null
 - id: OBS-373
   text: "tools/bake-clean-layout.py does not parse --help and runs its real, corpus-wide MUTATING operation instead. Invoked as 'python3 tools/bake-clean-layout.py --help' expecting usage text, it instead swept every map and rewrote 24 files under examples/aef-processes/rendered/ - the seam artefact AEF pins against - reporting 'moved 5' for audit-process and 'moved 9' for error-escalation-ladder. Reverted immediately with git checkout -- examples/; the tree is byte-identical to HEAD (git diff --stat empty) and nothing was committed, so there is no lasting damage. THE HAZARD IS THE SHAPE, NOT THIS INCIDENT: --help is the universal probe for 'what does this tool do', it is what any agent or new contributor reaches for FIRST, and here it is the trigger for a destructive sweep across a pinned seam. Every other public tool in tools/ that was probed this session (validate-workflow.py, yaml-to-bpmn.py, bpmn-cli.py) answers --help with usage text; bake-clean-layout.py is the outlier. Two cheap fixes, either sufficient: parse --help and print usage before doing anything, or require an explicit --write/--apply flag so the default run is a dry run. The second is stronger because it also protects the no-argument invocation. Related: this also disqualifies bake-clean-layout.py from the MCP surface under T-791's read-only scope fence - it is a corpus mutator, not a pure function, so it cannot be exposed as a tool no matter how useful auto-layout would be to an agent authoring a workflow."
   captured: 2026-09-22T08:35:38Z
   context_task: T-794
   tags: []
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Fixed by commit 93fc39cf (T-806): bake-clean-layout.py now refuses unrecognised flags. tools/bake-clean-layout.py:275-295 defines FLAGS = (--check, --dry-run, --help, -h), handles --help, and has a `--dry-run` mode, so `--help` no longer mutates the corpus."
+  dismissed_at: 2026-10-13T16:21:34Z
   promoted_to: null
 - id: OBS-374
   text: "fw fabric register names a remediation file that has NEVER existed in this project: it REFUSES to assign a subsystem with 'add a paths: pattern to .fabric/subsystems.yaml', and .fabric/subsystems.yaml is absent. Only .fabric/watch-patterns.yaml exists under .fabric/. The reader is sent to edit a file that is not there, with no hint that creating it is the actual step. Source: .agentic-framework/agents/fabric/lib/describe.py:356 joins project_root + '.fabric/subsystems.yaml' and silently finds nothing; lib/summary.sh:8-12 has the honest branch ('No subsystems.yaml found') so the absence IS known to one code path and not to the other. THIS EXPLAINS A STANDING AUDIT WARNING: 'Fabric: 94 under-populated card(s) - TODO purpose: 30, unknown subsystem: 30'. Those 30 are not neglect, they are structurally unassignable - every card registered since the rule file went missing gets subsystem: unknown and the named remedy cannot be followed. The 411 older cards DO carry subsystems (release, conformance, verification on the tools/_t8* family), so assignment worked at some point and the rule file was lost or never vendored rather than never used. Measured today registering tools/_t841-scoring-spec-controls.sh. SAME CLASS as the verb-surface gap sent to AEF under T-841 and as T-840's upstream_repo defect: a check that names a remedy the reader cannot apply. Not fixed here - one bug one task - and the fix needs a decision about whether the pattern set is authored locally or vendored from AEF, which determines whether this is ours or upstream's."
   captured: 2026-09-25T08:46:35Z
   context_task: T-841
   tags: [bug]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): No longer true. `.fabric/subsystems.yaml` now exists (`ls .fabric/` shows components, subsystems.yaml, watch-patterns.yaml). `git log` shows it tracked and touched by commit 547fb9eb (T-908), so the file `fw fabric register` points at is there."
+  dismissed_at: 2026-10-13T16:21:34Z
   promoted_to: null
 - id: OBS-375
   text: "Found while committing under T-840. A SECOND, OPPOSITE CLOSURE DEADLOCK: the focus-drift gate strands a closure commit even when focus IS set. T-839 root-caused the NULL-focus version (close the last active task, focus goes null, check-active-task blocks the commit recording the closure). This is the other direction and is not fixed by that work. Sequence measured: close a task, then follow correct practice by setting focus to the next live task BEFORE committing. The closure commit necessarily references the task it closes. The focus-drift gate (T-1730) then refuses it, because the commit's first task reference is the CLOSED task while focus points at the live one - and it says so itself: 'is not active, so focus cannot point at it - context focus would refuse it'. There is therefore NO focus value that satisfies the gate: the closed task is unfocusable, any other focus is drift. The only two escapes it names are --switch-focus and FW_SWITCH_FOCUS=1, both Tier-2 bypasses an agent must not take on an operator's behalf - so the documented remedy is unavailable to the actor who hits it, the same un-actionable-remedy shape as OBS-374 and the bvp verb gap. WORKED AROUND NOT FIXED: bare 'git commit' is not hooked by the focus-drift gate, so the closure commits through it with the commit-msg hook still enforcing the task reference. That also makes the gate inconsistent - it constrains the wrapper spelling the framework MANDATES and ignores the bare one, the SAME asymmetry as the commit-checkpoint defect pinned by the T-842 ratchet. TEMPTING WRONG FIX AVOIDED: relabelling the commit with the focused task's id would satisfy the parser and produce a FALSE ATTRIBUTION - a green gate bought with a lie about which task the work belongs to. Not done. PROPER FIX IS A DESIGN CALL, not an agent's: either the gate exempts a commit whose referenced task is in completed/ (the closure case is legitimate and frequent), or closure commits are attributed differently, or a task stays focusable until its closure is committed."
   captured: 2026-09-25T08:59:00Z
   context_task: T-840
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: focus-drift gate (T-1730) strands closure commits \u2014 no focus value satisfies it once the referenced task is in completed/). Still true. The vendored check-active-task.sh:915-925 still prints '$TARGET_TASK is not active, so focus cannot point at it' and offers only the Tier-2 bypasses --switch-focus and FW_SWITCH_FOCUS=1, with no exemption for closure commits. No task or report carries OBS-375. Pickup E 0001 changes how the drift target is parsed, not the closed-task case, and pickup F covers null focus, not this."
+  resolved_at: 2026-10-13T16:21:34Z
   promoted_to: null
 - id: OBS-376
   text: "Found under T-843. CENSUS FALSE POSITIVE: _t560's SEARCH_SOURCED test lacks the command-boundary anchoring its FORMS patterns have, so the word 'grep' inside a QUOTED PAYLOAD counts as a search invocation. The surviving uncontrolled leg in .tasks/active/ is T-592:217: 'if ( eval ...out=$( { echo \"3 passed, 2 FAILED\"; exit 1; } 2>&1 ); echo \"$out\" | grep -q \"passed\"... ); then rc=0; else rc=1; fi; test \"$rc\" -eq 0'. The leg is SOUND: rc is set by an if/else and can never be unset, so a broken inner expression fails loud rather than silent. It is counted only because the count-eq-zero form fired and SEARCH_SOURCED saw the literal string 'grep' inside the eval payload that the leg is DEMONSTRATING, not running as its own search. The census already solved this exact problem one level up: CMD_START anchors the FORMS regexes at a command boundary precisely so that 'the word grep appearing inside a quoted pattern does not read as an invocation' (its own comment). SEARCH_SOURCED never got the same treatment. The census header even anticipates the class, explaining that this task's own suite leg 'test $failed -eq 0' was excluded because the zero comes from a parsed number rather than an empty search - T-592's leg is the same shape and was not excluded. DELIBERATELY NOT REPAIRED: adding a control to a sound leg, or rewriting 'test $rc -eq 0' to dodge the classifier, would be fitting the corpus to the instrument instead of fixing the instrument - and it would make the corpus number less meaningful, not more. The fix is to anchor SEARCH_SOURCED at a command boundary the way FORMS already is, or to exclude a zero-comparison whose value comes from a variable the same line assigned. One bug one task, and this one is the instrument's, not the leg's. NOTE FOR WHOEVER TAKES IT: the census is now load-bearing for a close gate (T-843), so a false positive here blocks a close rather than merely inflating a report. That raises its priority above where it sat when the census was advisory."
   captured: 2026-09-25T09:43:13Z
   context_task: T-843
   tags: [bug]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Corrected by OBS-378, which showed the proposed fix would trade one false positive for four false negatives (the loop accumulators in T-312, T-313, T-397 and T-816). T-844 applied the correction by documenting the rule and giving T-592 a control."
+  dismissed_at: 2026-10-13T16:21:34Z
   promoted_to: null
 - id: OBS-377
   text: "Found under T-843 when the new close gate refused the task that built it. TWO GAPS IN _t560's CONTROL MODEL, both making it credit weaker evidence over stronger. (1) IT HAS NO NOTION OF A DIFFERENTIAL CONTROL, which is strictly stronger than the EXISTENCE control it does recognise. A differential leg makes two invocations in one line and asserts they DISAGREE - one must produce output and the other must not - so a dead subject fails the first clause instead of passing the second. That is a complete control against the vacuous-pass defect: it cannot pass if the thing under test is silent. The census sees only PATTERN (a sibling greps the same string positively) and EXISTENCE (test -f/-s/-d on the same line), so a differential leg reads as NONE and gets flagged, while a bare 'test -f X && ! grep -q P X' - which proves the path and nothing about the pattern, and which the census header itself calls the exact overstatement to avoid - reads as controlled. The instrument therefore prefers the weaker evidence. (2) EXIST_CTRL MATCHES ONLY -f, -s AND -d, SO 'test -x' IS NOT RECOGNISED AT ALL. Proving a file exists AND is executable counts for less than proving it merely exists, which is backwards: -x implies -f. Measured: a leg guarded by 'test -x <script>' was flagged; adding a redundant 'test -f <script>' beside it cleared the flag with no change in what the leg actually establishes. NOT WORKED AROUND: the leg now carries -f for the instrument and -x because it is the assertion worth making, and the differential stays because it is the real control. Writing legs to suit the classifier rather than the risk is how a corpus number stops meaning anything. FIX: add -x (and arguably -e, -r) to EXIST_CTRL; and add a DIFFERENTIAL level above EXISTENCE, recognised by a line that asserts both a non-empty and an empty result from the same subject. PRIORITY NOTE: the census is now load-bearing for a close gate, so every control it fails to recognise blocks a close rather than merely inflating a report - and it will push authors toward the weaker control that it can see."
   captured: 2026-09-25T10:04:57Z
   context_task: T-843
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-845"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-845 (completed) makes `test -x`, `-e` and `-r` count as existence controls (T-845:49-52). The differential-control half is explicitly ruled out there (T-845:72) because no workable definition was found. That reasoning is recorded, so nothing is left unaddressed."
+  resolved_at: 2026-10-13T16:21:34Z
   promoted_to: null
 - id: OBS-378
   text: "CORRECTION TO OBS-376, which was wrong on both counts. Filed under T-844 after measuring rather than reasoning. (1) THE PROPOSED FIX CANNOT WORK. OBS-376 said to anchor SEARCH_SOURCED at a command boundary the way FORMS already is. Measured: T-592's leg contains 'echo \"$out\" | grep -q \"passed\"' inside its eval payload, so there is a real pipe immediately before grep and CMD_START still matches. Anchoring changes nothing for the case that motivated it. (2) THE SCOPE WAS WRONG AND IN THE DANGEROUS DIRECTION. OBS-376 implied a class of false positives from variable-operand zero comparisons. Measured over all 37 count-eq-zero legs with a balanced-paren operand extractor: 32 compare a command substitution containing a search, 5 compare a bare variable, and only ONE of those five is a false positive. The other four are LOOP ACCUMULATORS in T-312, T-313, T-397 and T-816, and they carry exactly the vacuous-pass risk the census exists to find: demonstrated at the shell, 'n=0; for f in /nonexistent/*.bpmn; do n=$((n+1)); done; test \"$n\" -eq 0' passes having measured nothing. So the census is RIGHT about four of the five, and implementing OBS-376 would have traded one false positive for FOUR FALSE NEGATIVES - strictly worse now that the classifier gates closes, because a false negative silently admits a vacuous assertion whereas a false positive merely annoys. THE CLASSIFIER WAS THEREFORE DELIBERATELY NOT CHANGED. The single real false positive (T-592, where rc is assigned a literal in both branches of an if/else so it cannot be zero-by-omission) was given a control instead - and that control is worth having on its own terms, because it pins the fixture string the demonstration depends on. WHAT SURVIVES OF OBS-376 is a documentation defect, now fixed: SEARCH_SOURCED's name understates what it correctly catches. The right statement of the rule is 'a zero that means NO WORK HAPPENED rather than NO MATCH' - empty search, empty glob, loop that never ran, all one defect. The census header now says so. LESSON WORTH THE NOTE: I filed OBS-376 confident enough to propose a specific code change, from reading one leg. The measurement contradicted the fix AND the scope. An observation that proposes a remedy should say whether the remedy was tested against the population or only against the instance that prompted it - mine did not, and a reader could have implemented it in good faith and made the instrument blind."
   captured: 2026-09-25T10:43:19Z
   context_task: T-844
   tags: [bug]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): A correction note to OBS-376 (the proposed census change was wrong; the census was deliberately left unchanged). T-844, which filed it, is completed and the header fix shipped. No action is left."
+  dismissed_at: 2026-10-13T16:21:34Z
   promoted_to: null
 - id: OBS-379
   text: "THIRD LIMIT IN _t560's CONTROL MODEL, same class and same direction as OBS-377: control_level() line 147 filters candidate patterns with 'len(p) >= 3', so a pattern of one or two characters can NEVER earn PATTERN credit no matter how good the companion leg is. Measured under T-844: T-155's two legs assert over 'grep -vc ^_' where the pattern is '^_' - two characters. A same-string companion leg was added under T-843 and the census kept reporting both legs as UNCONTROLLED, because the pattern was silently dropped from the candidate list before any sibling was considered. NOTHING IN THE OUTPUT SAYS WHY. The author sees a leg they have just controlled still listed as uncontrolled, with no indication that the pattern was too short to qualify - which is the worst version of this failure, because the obvious next move is to assume the control is wrong and rewrite a correct leg. I did exactly that: I claimed 16 of 17 legs drained in T-843's commit when the true figure was 14, because I verified the companion leg PASSED and verified the corpus count FELL, and never checked that those two specific legs had left the list. The count fell for other reasons. CONSEQUENCE now that the classifier gates closes: a leg with a legitimate short-pattern control cannot be closed at all except by the FW_ALLOW_UNCONTROLLED_ABSENCE bypass, which is precisely how a gate earns a standing bypass. WORKED AROUND, NOT FIXED: T-155's two legs now carry an EXISTENCE control (test -d on the directory they enumerate), which is weaker than the PATTERN control they actually have but is what the instrument can see. FIX: either drop the length floor and rely on the same-string requirement to prevent over-crediting (a 2-char pattern matching a sibling's 2-char pattern EXACTLY is not the coincidence the floor was guarding against - the floor guards against substring accidents, which the same-string rule already handles), or keep the floor and REPORT it, so a leg is listed as 'pattern too short to credit' rather than as uncontrolled. Reporting the reason is the cheaper half and it is what would have stopped me over-claiming."
   captured: 2026-09-25T10:44:00Z
   context_task: T-844
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-845"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-845 (completed) removed the `len(p) >= 3` floor ('FIXED' note in tools/_t560-absence-assertion-census.py:98 and the 'floor is gone' note at line 211). It also made the census report why a leg is not credited (T-845:64), which was the cheaper half the observation asked for."
+  resolved_at: 2026-10-13T16:21:34Z
   promoted_to: null
 - id: OBS-380
   text: "T-846 triage: 4 of the 15 standing audit WARN mitigations tell the reader to run 'bin/fw ...', and THERE IS NO bin/fw IN THIS PROJECT. Measured: 'bin/fw version' returns 'No such file or directory'. This project runs shared-tooling mode - the framework is vendored at .agentic-framework/bin/fw and resolved via .framework.yaml - so bin/fw is a path that exists only INSIDE the framework repo. Affected rows: the three BVP driver warnings (F1, F3, F4) and the fabric under-populated-cards warning. WHY THIS IS WORSE THAN A COSMETIC PATH BUG: the audit's own PRIORITY ACTIONS block reprints these four mitigations verbatim, so they are literally the first four commands a reader is told to run after every audit, and all four fail on paste. A reader who trusts the output learns within seconds that the output cannot be trusted. Rows F1/F3/F4 are doubly unrunnable: even with the path corrected, 'fw bvp driver --add --scoring-file' creates a NEW driver and no verb attaches a spec to an EXISTING one, which is the verb gap already sent to AEF under T-841. NOT FIXED HERE: the mitigation strings live in vendored code (.agentic-framework/), and this task was a triage rather than a fix round - 15 warnings' worth of upstream edits in one task is the unscoped building G-020 exists to prevent. Sent upstream instead. SUGGESTED FIX for whoever takes it: mitigations should name the resolved framework binary the same way the audit already resolves paths elsewhere in its own output, or use the bare 'fw' the CLAUDE.md quick-reference table uses - not the repo-relative bin/fw, which is correct only in the framework's own checkout. NOTE ON MY OWN HISTORY WITH THIS: I made the identical mistake in T-155, handing the operator a 'bin/fw' command I had never run. It is an easy error to make and the audit makes it four times a day."
   captured: 2026-09-25T11:41:29Z
   context_task: T-846
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: audit WARN mitigations name repo-relative bin/fw, which does not exist in shared-tooling consumers). Still true. The vendored audit.sh:4352, 4357 and 4613 still print `bin/fw ...` in mitigations, and this project has no bin/fw. T-846 deferred the fix upstream ('15 warnings' worth of upstream edits in one task'), but no tracked upstream report exists. docs/upstream-pickups holds only the A\u2013I patch sets, none for this."
+  resolved_at: 2026-10-13T16:21:35Z
   promoted_to: null
 - id: OBS-381
   text: "T-846 triage, the cross-cutting finding and the one that refines this morning's recommendation: FOUR OF FIFTEEN STANDING AUDIT WARNINGS ARE PERMANENTLY VACUOUS IN THIS PROJECT. Rows 1, 2, 3 and 8 - onboarding-seed corpus references, PROJECT_ROOT resolution over Python under web/+lib/, stale-slice-references over web/templates+web/blueprints+lib, and cron exec-bit over directly-invoked crontab scripts. Each is honestly labelled 'NOT EVALUATED: candidate set empty', which is exactly the three-valued pattern I spent this morning recommending as the fix for false greens, and the labelling is RIGHT. But their candidate sets are empty because of this project's LAYOUT, not because of a transient state: there are no .py files under web/ or lib/, there is no web/templates or web/blueprints, there are no directly-invoked scripts in the deployed crontab. Those facts are not going to change. So these four will report NOT EVALUATED every single day forever and can never do anything else. THE LESSON, AND IT IS A CORRECTION TO MY OWN ARGUMENT: honest labelling is NECESSARY BUT NOT SUFFICIENT. Three-valued outcomes fix the LYING problem - a check that did not run no longer reads as a pass. They do not fix the NOISE problem. A check structurally unable to have a candidate set in a given project should be SCOPED OUT for that project, not reported daily as an unresolved warning, because 27 percent of this audit's standing warning count is now rails that cannot fire. That is the same erosion OBS-293 describes for a permanently red ratchet - readers learn to skip the report - arriving through the honest door instead of the dishonest one. I argued for three-valued outcomes this morning as if labelling were the whole fix. It is half. SUGGESTED SHAPE: a per-project scope declaration for rails whose corpus is structurally absent, so the check reports NOT APPLICABLE once and stops counting toward the warning total - distinguishable from NOT EVALUATED, which means 'this run found nothing and that might change tomorrow'. NOT_APPLICABLE, NOT_EVALUATED, PASS, FAIL is four-valued, and the fourth value is the one that keeps the report readable."
   captured: 2026-09-25T11:44:46Z
   context_task: T-846
   tags: [idea]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: audit needs a per-project NOT_APPLICABLE scope for checks whose corpus is structurally absent (4 of 15 warnings permanently vacuous)). Real and unaddressed. Four of the 15 standing audit warnings can never fire in this layout (no web/ or lib/ .py, no templates, no direct cron scripts). The observation asks for a per-project NOT_APPLICABLE scope. T-846 and T-848 only cite it, and no concern, learning or upstream report carries it."
+  resolved_at: 2026-10-13T16:21:35Z
   promoted_to: null
 - id: OBS-382
   text: "T-846/T-848 follow-on: RE-COST OF THE LEGACY ABSENCE-LEG DRAIN, measured rather than estimated, and it splits the population in two with one half structurally unreachable by any agent-permitted action. Totals: 103 uncontrolled absence legs, ALL of them in .tasks/completed/ (active/ is clean). 55 are REACHABLE - they carry an extractable grep pattern, so an APPENDED sibling leg greping the same string positively earns PATTERN credit, which is exactly what PD-308 permits. 48 are BLOCKED. The blocked 48 are dominated by the shape 'test -z \"$(git status --porcelain -- <path>)\"' and its relatives: they extract NO grep pattern at all, so PATTERN credit is impossible in principle, and the only control that would work is a SAME-LINE existence guard - measured: control_level gives EXISTENCE for 'test -d X && test -z ...' and NONE for the same leg with an appended sibling 'test -d X'. Sibling existence controls are not recognised; EXIST_CTRL searches the leg's own text. PD-308 permits APPENDING a sibling and explicitly forbids altering an existing assertion. So for these 48 the only remedy that works is the one the ruling forbids, and the only action the ruling allows cannot work. Third instance today of a remedy that cannot reach the thing it is for, and the first where the obstruction is one of our own rulings rather than upstream tooling. THE PRIZE IS REAL AND WORTH STATING: baseline is 78 and current is 103. Draining just the 55 REACHABLE legs takes the count to 48 - BELOW the baseline - so the baseline could then be lowered to 48 and the _t560 ratchet would go GREEN for the first time since 2026-09-01. The 48 blocked legs do not need to be touched to achieve that. NOT STARTED THIS SESSION, deliberately: 55 PD-308 edits across 55 completed task files each needing a Tier-2 log row is a single-pass job, and a partial drain delivers no state change at all because nothing improves until the count crosses 78. Starting it at 69 percent context would strand a half-written Tier-2 log. Next session's opening job, with these numbers already in hand. TWO WAYS TO UNBLOCK THE 48, both the operator's: widen PD-308 to permit prepending a same-line existence guard to an archived leg (additive in spirit - it adds a conjunct and removes no assertion - but it does modify an existing line, which the ruling deliberately refused), or teach _t560 to credit a sibling existence control, which is a classifier change and carries the false-negative risk T-844 and T-845 both refused. I have no recommendation between them yet and would want to measure the second before proposing it."
   captured: 2026-09-25T12:19:13Z
   context_task: T-669
   tags: [idea]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-669"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): The active T-669 body has the section 'The numbers, measured 2026-09-25 (T-844/T-845/OBS-382)' (T-669:240-254). It holds the 55 reachable / 48 blocked split, the drain plan and the two unblock options. T-785 also cites it."
+  resolved_at: 2026-10-13T16:21:35Z
   promoted_to: null
 - id: OBS-383
   text: "Auto-handover DISCARDS hand-enrichment of Suggested First Action — measured, one commit apart. In S-2026-0925-1441 I replaced a one-line stub Suggested First Action with a 50-line drain plan (55/48 split, payoff arithmetic, four traps) and committed it in 19bf3dbf. The PreCompact hook then generated S-2026-0925-1453, which regenerated the section from scratch: LATEST.md now reads, in full, 'Continue T-737: handover.sh reports 3 urgent observations where the register holds 36'. The enrichment survives only in the superseded file. So the generator is not merely thin — it is NON-CARRYING: every hand-improvement to a handover has a shelf life of exactly one compaction, and the next session reads the stub. This is the same false-silence class as the rest of T-841..T-848: the handover LOOKS complete (zero TODO markers, all sections present) while the one section a next session acts on has been emptied. Candidate fixes: (a) enricher reads the predecessor's Suggested First Action and carries it forward unless the focus task changed; (b) the section is sourced FROM the focus task's body rather than authored in the handover, which is the workaround applied by hand today under T-737; (c) a check that refuses a handover whose Suggested First Action is shorter than its predecessor's for the same focus task."
   captured: 2026-09-25T13:11:22Z
   context_task: T-737
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-862"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-862 (completed) was filed from OBS-383 ('Handover Suggested First Action is non-carrying'). It shipped tools/_t862-handover-carry-teeth.sh, a carry-forward check."
+  resolved_at: 2026-10-13T16:21:35Z
   promoted_to: null
   urgent: true
 - id: OBS-384
@@ -2230,7 +2404,11 @@ observations:
   captured: 2026-09-25T13:13:39Z
   context_task: T-737
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-849"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-849 (completed) is titled 'G-087 guard admits level ok with tokens 0 \u2014 the zero door is the one that opens on every compaction'. It is the fix for exactly this finding."
+  resolved_at: 2026-10-13T16:21:35Z
   promoted_to: null
   urgent: true
 - id: OBS-385
@@ -2238,7 +2416,11 @@ observations:
   captured: 2026-09-25T16:08:16Z
   context_task: T-669
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "docs/upstream-pickups/F-t3814-null-focus-aliases/0001-safe-commands-with-no-task-an-alias-gets-its-target-.patch"
+  resolved_carrier_kind: "path"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Pickup F 0001 adds `fix-learned` to the no-task allowlist and quotes the completion prompt 'fw fix-learned T-XXX'. It is a tracked upstream patch, and it makes the printed follow-up runnable after the last focused task closes (option (a) in the observation). I have not confirmed AEF has merged it."
+  resolved_at: 2026-10-13T16:21:35Z
   promoted_to: null
   urgent: true
 - id: OBS-386
@@ -2258,7 +2440,11 @@ observations:
   captured: 2026-09-25T20:35:41Z
   context_task: T-854
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: termlink_spawn/termlink_dispatch return ok:true with workers_registered:0 and execute nothing). The failure is documented only in docs/reports/T-854-procasfit-run-handback.md and T-854's park notes. No fix or upstream report was found. I did not re-test spawn/dispatch, since that would be a mutating call. `ok:true` with workers_registered:0 and timed_out:false is the defect to report."
+  resolved_at: 2026-10-13T16:21:35Z
   promoted_to: null
   urgent: true
 - id: OBS-388
@@ -2290,7 +2476,11 @@ observations:
   captured: 2026-09-25T22:36:31Z
   context_task: T-854
   tags: [process]
-  status: pending
+  status: resolved
+  resolved_carrier: ".context/project/concerns.yaml"
+  resolved_carrier_kind: "path"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Concern G-072 (concerns.yaml ~3630-3670) records this same finding: 31 high-value tasks with 22 agent-executable ones falling outside every hv quadrant, 'Nothing answers what can be executed', and the quadrant ranking cannot direct an agent. OBS-390 re-measures it per arc, and the priority-model decision stays with the operator. G-076 covers the related unconfirmed-scores point."
+  resolved_at: 2026-10-13T16:21:35Z
   promoted_to: null
   urgent: true
 - id: OBS-391
@@ -2298,7 +2488,11 @@ observations:
   captured: 2026-09-25T22:37:28Z
   context_task: T-854
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1156"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1156 (Auto-approval telemetry row (T-856) should record the full bvp_scores_proposed history (estimator, rationale, rubric_sha, ts) before confirm clears it). Still true. tools/_t856-auto-approval-teeth.sh is the only T-856 artifact, and grep for `proposal_count` / `bvp_scores_history` across tools and .context/project finds nothing. The telemetry row still keeps only the latest scores. T-854 references the observation but does not fix it."
+  resolved_at: 2026-10-13T16:21:36Z
   promoted_to: null
   urgent: true
 - id: OBS-392
@@ -2306,7 +2500,11 @@ observations:
   captured: 2026-09-25T22:44:50Z
   context_task: T-854
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: BVP estimator scores no-signal drivers at mid-scale 2, so contentless stubs rank hv-hc (should abstain / NOT_EVALUATED)). Still true. .tasks/active/T-279-*.md:43-45 carries a bvp_scores_proposed rationale with every driver at '=2 (no-signal)'. T-859 says outright that the value-axis `no-signal = 2` default is 'not fixed, and forbidden here'. G-076 only cites AEF's own OBS-443, a different numbering. No 832 carrier or upstream report exists."
+  resolved_at: 2026-10-13T16:21:36Z
   promoted_to: null
   urgent: true
 - id: OBS-393
@@ -2314,7 +2512,11 @@ observations:
   captured: 2026-09-25T23:29:22Z
   context_task: T-860
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-860"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): The T-860 body (.tasks/active/T-860-t534-d2-queue-guard-is-a-dead-control-au.md:92) records OBS-393 and the seventh-casualty finding. Line 369 says the task is parked on the Sovereign question, restoring T-656's split or retiring legs 1-3. The finding and its decision point both live there."
+  resolved_at: 2026-10-13T16:21:36Z
   promoted_to: null
   urgent: true
 - id: OBS-394
@@ -2322,7 +2524,11 @@ observations:
   captured: 2026-09-26T00:41:19Z
   context_task: T-737
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "docs/reports/2026-09-26-bvp-epistemics-and-handover-fidelity.md"
+  resolved_carrier_kind: "path"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): The tracked report lists OBS-394 as an open Sovereign question (\u00a75, line 222). I did not find a safe-commands.sh change that allowlists for/while loops, so the finding is still open. Its content is parked in that report as an operator decision. OBS-412 is a later confirmation of the same gate."
+  resolved_at: 2026-10-13T16:21:36Z
   promoted_to: null
   urgent: true
 - id: OBS-395
@@ -2330,7 +2536,11 @@ observations:
   captured: 2026-09-26T00:41:35Z
   context_task: T-737
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "docs/reports/2026-09-26-bvp-epistemics-and-handover-fidelity.md"
+  resolved_carrier_kind: "path"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): The tracked report holds OBS-395 as an open Sovereign question (\u00a75, line 221): whether blast_radius should fall back to body path-tokens, which would partly reverse T-3068. It is a scoring-model ruling, so it is parked rather than built."
+  resolved_at: 2026-10-13T16:21:37Z
   promoted_to: null
   urgent: true
 - id: OBS-396
@@ -2338,7 +2548,11 @@ observations:
   captured: 2026-09-26T07:37:14Z
   context_task: T-737
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-863"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): .tasks/active/T-863-fw-fabric-register-can-never-assign-a-su.md:123 states the Sovereign question from OBS-396. Line 402 records the task as parked, blocked on that question. T-908 (completed) covered the subsystem taxonomy work separately."
+  resolved_at: 2026-10-13T16:21:37Z
   promoted_to: null
   urgent: true
 - id: OBS-397
@@ -2346,7 +2560,11 @@ observations:
   captured: 2026-09-26T07:58:57Z
   context_task: T-696
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "docs/reports/T-696-voi-ruling.md"
+  resolved_carrier_kind: "path"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Line 177 (\"The Sovereign question this raises (filed as OBS-397)\") carries the portfolio-split question. T-864 (completed) fixed the mechanical half, and its line 302 notes OBS-397 is unchanged. The bvp-epistemics report \u00a75 also lists it as open."
+  resolved_at: 2026-10-13T16:21:37Z
   promoted_to: null
   urgent: true
 - id: OBS-398
@@ -2354,7 +2572,11 @@ observations:
   captured: 2026-09-26T09:08:42Z
   context_task: null
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "docs/reports/2026-09-26-bvp-epistemics-and-handover-fidelity.md"
+  resolved_carrier_kind: "path"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): The report lists the inception-scoring exception as an open Sovereign question (\u00a75, line 218). docs/reports/arc-004-scope.md:65 also cites OBS-398. It is a scoring-model decision, parked in tracked docs."
+  resolved_at: 2026-10-13T16:21:37Z
   promoted_to: null
   urgent: true
 - id: OBS-399
@@ -2403,14 +2625,20 @@ observations:
   captured: 2026-09-27T00:01:46Z
   context_task: T-878
   tags: []
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Fixed by T-880 (cited as T-878 F1). .agentic-framework/agents/task-create/update-task.sh:350-357 now guards on examples/aef-processes/rendered/task-lifecycle.bpmn and names node frw_7_all. It no longer refers to the nonexistent aef-task-lifecycle/meta.json."
+  dismissed_at: 2026-10-13T16:21:37Z
   promoted_to: null
 - id: OBS-404
   text: "BPMN allows multiple lane partitions per process — laneSet is 0..* on Process, precisely so one process can be partitioned more than one way — and BOTH our readers take only the first, silently. The editor collects every laneSet (byBpmn(proc,'laneSet')) and then iterates laneSets[0] only, at src/aef-workflow-designer.html:10832-10834; the validator uses process.find('{BPMN}laneSet'), a singular find, at tools/validate-workflow.py:1096. A third-party file declaring two partitions loses one without a word, and on save we would write back the survivor as though it were the whole document. This is the same defect shape as T-603, which found processes[0] silently discarding every later bpmn:process in a real Bizagi fixture — the sibling was fixed, this one was not. No corpus file carries more than one laneSet today, so nothing here exercises it. Found while testing the operator's view-perspective idea: if a lane partition is a VIEW (authority view, architectural-domain view, business-domain view), multiple laneSets are the natural carrier and our tooling cannot currently hold them."
   captured: 2026-09-27T09:25:51Z
   context_task: T-874
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-347"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): .tasks/active/T-347-content-inside-an-accepted-element-is-si.md:210 names `participant[0]` and `laneSets[0]` as first-only reads. src/aef-workflow-designer.html:12827-12829 still reads `laneSets[0]`, so the finding is still true. T-358 (active) also handles laneSets[0] versus later laneSets."
+  resolved_at: 2026-10-13T16:21:37Z
   promoted_to: null
   urgent: true
 - id: OBS-405
@@ -2418,7 +2646,11 @@ observations:
   captured: 2026-09-27T11:21:29Z
   context_task: T-897
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-897"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-897 (.tasks/active/T-897-orchestrate-4-sequential-procasfit-auton.md:340) records the display-name-collision spawn false-green. T-922 (line 84) adopts the rule that a dispatch status is never evidence and the handback artefact is. tools/_procasfit-orchestrate.sh is a tracked file that mentions OBS-405."
+  resolved_at: 2026-10-13T16:21:37Z
   promoted_to: null
   urgent: true
 - id: OBS-406
@@ -2436,7 +2668,11 @@ observations:
   captured: 2026-09-27T12:23:58Z
   context_task: null
   tags: [review-queue]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1157"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1157 (Run a full fw verify-queue sweep and triage the red partial-complete review-queue tasks (T-308, T-310, T-325 and the rest of the 72)). T-900 (.tasks/completed/T-900-t-886-changed-a-shared-harness-with-five.md:93-97) only cites OBS-407 as a reminder and says the reds in T-308/T-310/T-325 are \"separately-found\". I found no task that investigates or fixes them. Whether the review-queue tasks are still red is not re-measured, but nothing carries it."
+  resolved_at: 2026-10-13T16:21:38Z
   promoted_to: null
   urgent: true
 - id: OBS-408
@@ -2456,14 +2692,20 @@ observations:
   captured: 2026-09-27T13:01:12Z
   context_task: T-897
   tags: [bvp]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: bvp-estimator gives stub tasks an identical D1-D4 vector from template idiom, so it cannot rank them). docs/reports/arc-004-scope.md:46 reports identical results for a different case. The specific finding is that stub tasks T-889..T-894 get the identical D1-D4 vector (4/4/3/2) because the estimator reads template idiom, and that finding has no carrier. The estimator lives in the vendored AEF (agents/termlink/bvp-estimator/estimator.py), and I did not re-measure it today."
+  resolved_at: 2026-10-13T16:21:38Z
   promoted_to: null
 - id: OBS-410
   text: "MCP fw server is rooted at a DIFFERENT project than the session: mcp__fw__version reports Project /005-Yellowtwig/001-theSpiceFactory/002-Azure-DevOps fw v1.6.768, while .agentic-framework/bin/fw reports /opt/832-Workflow-designer fw v1.7.68. The MCP toolset exposes agent-authority WRITE verbs (work_on, task_update, note, context_focus, context_add_learning, assumption_add). An agent reaching for mcp__fw__work_on here would create/mutate task state in an unrelated project, silently and with no gate objecting - the call succeeds. Measured live this session: mcp__fw__task_show T-889 returned 'Task T-889 not found' while .tasks/active/T-889-*.md exists locally, which is how the cross-rooting was detected. A not-found is the BENIGN direction; a write is not."
   captured: 2026-09-27T13:42:38Z
   context_task: T-889
   tags: []
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Re-measured. mcp__fw__version now reports Project /opt/832-Workflow-designer, fw v1.8.9+227.ged683536a, Mode vendored. The cross-rooting no longer reproduces."
+  dismissed_at: 2026-10-13T16:21:38Z
   promoted_to: null
   urgent: true
 - id: OBS-411
@@ -2471,21 +2713,29 @@ observations:
   captured: 2026-09-27T14:43:39Z
   context_task: T-904
   tags: [bug]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Fixed by T-1025 (\"restore fw fabric impact on string dependencies\", completed). `fw fabric impact tools/_roundtrip-serialization-cdp.mjs` now prints a full chain (_t591, test_roundtrip_serialization, run-bridge-tests and others). docs/upstream-pickups/E-t1021-revendor-restores/0002 also carries the patch upstream."
+  dismissed_at: 2026-10-13T16:21:38Z
   promoted_to: null
 - id: OBS-412
   text: "OBS-394 (check-active-task blocks pure READS not on the allowlist) hit 3x in the FIRST FIFTEEN MINUTES of round 3, all three during TASK SELECTION — before any task could legitimately exist. Blocked forms this round: (1) a 'for f in .tasks/active/T-90*.md; do head' loop; (2) a 'grep -l ... | while read f' pipeline; (3) 'python3 -c' reading task frontmatter. All three write nothing. Rounds 1 and 2 each recorded the same gate on different forms (VAR= prefix, xargs, 'fw task show' vs 'fw arc list'). The structural point is sharper than 'the allowlist is incomplete': the mandate requires selecting a task by BVP quadrant BEFORE starting one, but reading the ranking inputs is gated on having started one. Three consecutive autonomous rounds have independently worked around the same circularity, each burning turns on rephrasing. The cheap fix is not a bigger allowlist - it is making the SELECTION reads unconditionally safe (a read-only 'fw bvp'/'fw task list' path that does not require focus), so the gate stops standing between the agent and the decision the gate's own framework asks for."
   captured: 2026-09-27T14:43:49Z
   context_task: T-904
   tags: [process]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): A later confirmation of OBS-394 (the same circularity of selecting a task while the gate blocks reads), which is carried by the bvp-epistemics report \u00a75. It adds no separate action."
+  dismissed_at: 2026-10-13T16:21:39Z
   promoted_to: null
 - id: OBS-413
   text: "fw handover PUSHES TO ORIGIN with no flag asking it to. Round 1 recorded that 'fw handover --commit pushed to origin/bleeding-edge as part of its designed flow'. Round 3 measured the stronger fact: plain 'fw handover', WITHOUT --commit, also commits AND pushes (bc9d6ba3..8f88547c -> origin/bleeding-edge, verified with git log origin/bleeding-edge). The push is not gated on --commit at all, so --commit is not the thing to avoid if you want a local handover. Why it matters beyond surprise: pushing is an OUTWARD-FACING, hard-to-reverse action. An agent generating a handover document is doing bookkeeping; it has no reason to expect that the same verb publishes every local commit on the branch to a remote where others can see it. Concretely, this run published round 2's three deliberately-local commits (a906f337, 71d4943b, f0c84765) as a side effect of round 3 writing its own handover - round 2's handback explicitly told the next round those were local and unpushed, and that statement is now false through no action of round 2's. Ask for: either --no-push (and/or push behind an explicit flag), or the verb states in its output BEFORE acting that it will publish. Note this also breaks the 'check before trusting this handback' convention the rounds use to hand off branch state."
   captured: 2026-09-27T15:20:32Z
   context_task: T-889
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: fw handover pushes to origin without a flag or any warning; add --no-push or announce the push first). .agentic-framework/agents/handover/handover.sh calls `_push_to_remotes` unconditionally in the normal and checkpoint paths (lines 396 and 1844), and I found no --no-push or FW_NO_PUSH option. Plain `fw handover` therefore publishes local commits. Nothing in docs/upstream-pickups or the tasks reports it."
+  resolved_at: 2026-10-13T16:21:39Z
   promoted_to: null
   urgent: true
 - id: OBS-414
@@ -2493,7 +2743,11 @@ observations:
   captured: 2026-09-27T15:48:40Z
   context_task: T-906
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: fw bvp estimate-cost prints [wrote] and exits 0 when it wrote no blast_radius; the ranker shows the same bare dash for a missing cost axis and a missing value axis). T-906 (.tasks/completed/T-906-backfill-components-on-the-40-tasks-with.md:296) only records \"Reported, not fixed\". estimator.py:3546 still returns the no-components-UNMEASURED-not-zero rationale. No upstream report exists in docs/upstream-pickups."
+  resolved_at: 2026-10-13T16:21:39Z
   promoted_to: null
   urgent: true
 - id: OBS-415
@@ -2521,35 +2775,51 @@ observations:
   captured: 2026-09-27T21:19:30Z
   context_task: T-897
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: add Verification-block guidance to the task template (anchor cross-task legs across active/ and completed/; prefer find over ls for existence checks; control negated greps)). The finding is a Verification-block guidance gap. The framework template .agentic-framework/.tasks/templates/default.md has no note about anchoring a leg across active/ and completed/ or preferring find over ls, and no 832 task carries it. T-891's four refusals are only the evidence."
+  resolved_at: 2026-10-13T16:21:39Z
   promoted_to: null
 - id: OBS-418
   text: "The node-level and workflowMeta-level self-tests in tools/_roundtrip-serialization-cdp.mjs pool 'witnesses' across ALL verdicts, so a BLIND finding is printed next to fixture names where that key was LIVE. Measured under T-910: the lane-level leg (copied from the same shape) reported height BLIND in 1 of 20 and named arc-lifecycle.bpmn and bare-catch-event.bpmn, both of which were LIVE; the actual blind document was lane-capacity-large-spill.bpmn. A finding that names the wrong evidence sends the reader to open a file where nothing is wrong, and the natural conclusion is that the finding is noise. T-910 fixed this at the LANE level only (per-verdict witness lists plus value_before/value_after on BLIND) and deliberately did not rewrite the two guards it was not about. The same change is wanted for selftest.blind (line ~791) and wmTest.blind (line ~855)."
   captured: 2026-09-27T22:31:28Z
   context_task: T-910
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1158"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1158 (Give the node-level and workflowMeta-level round-trip self-tests per-verdict witness lists (selftest.blind and wmTest.blind in _roundtrip-serialization-cdp.mjs)). T-910 (.tasks/completed/T-910-the-round-trip-guard-covers-aefworkflowm.md:334-337) deliberately left selftest.blind and wmTest.blind in tools/_roundtrip-serialization-cdp.mjs unfixed and filed OBS-418. No task owns the follow-up, and the node and workflowMeta legs still pool witnesses across all verdicts."
+  resolved_at: 2026-10-13T16:21:39Z
   promoted_to: null
 - id: OBS-419
   text: "T-910 AC6 answer, recorded so the NEXT container-level aef: element does not re-derive it. The question was whether the round-trip guard wants one denominator per aef: element or one that walks them all. ANSWER: one shared derivation (built under T-910 as deriveEmittedAttrs/checkElementDenominator, now serving both workflowMeta and laneMeta), and NOT a registry that walks every aef: element. Evidence: the emitter writes 23 distinct aef: element names, of which 21 are NODE-level and already inside checkDenominator()'s scope via aefExtensionXml(). A 'register every aef: element' check would therefore start life with 21 entries needing blanket exclusions, which is the permanently-red check OBS-293 names: a rail nobody can act on trains readers to ignore it. Only TWO container-level elements exist (process-level workflowMeta, lane-level laneMeta) and they now share one derivation, so a third arrives by adding data rather than by writing a third checker. The trigger to revisit is a THIRD container-level aef: element appearing in the emitter, not a third aef: element of any kind."
   captured: 2026-09-27T22:31:37Z
   context_task: T-910
   tags: [decision]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): A pure decision record. T-910 AC6 and the T-910 body (.tasks/completed/T-910-...md) plus .context/episodic/T-910.yaml hold the answer and the revisit trigger. No action is left."
+  dismissed_at: 2026-10-13T16:21:41Z
   promoted_to: null
 - id: OBS-420
   text: "fw fabric register REFUSES and writes the card anyway. Measured under T-910: 'fw fabric register tests/fixtures/aef-bpmn/t910-lane-authoring-default.bpmn' printed 'REFUSED: ... describes itself nowhere — write a header comment' and nevertheless created .fabric/components/tests-fixtures-aef-bpmn-t910-lane-authoring-default.yaml with type: script (for a BPMN data file), subsystem: fixtures and purpose: 'TODO: describe what this component does'. Two harms, one class. First, the refusal is not a refusal: a reader who trusts the message believes nothing was written. Second, what it writes is an under-populated card pointing at a path that .fabric/watch-patterns.yaml EXPLICITLY EXCLUDES ('tests/fixtures/** .bpmn/.xml/.yaml fixtures are DATA, not code'), so a single refused call increments BOTH standing audit WARNs at once — 'N under-populated card(s)' (127) and 'N card(s) point at files no watch pattern covers' (11). Same shape as OBS-414, where estimate-cost prints [wrote] and exits 0 having written no blast_radius: the verb's report and the verb's effect disagree, and the report is the half people read. Card deleted by hand under T-910."
   captured: 2026-09-27T22:33:49Z
   context_task: T-910
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: fw fabric register prints REFUSED yet writes the card (type script, TODO purpose) for files outside the watch patterns). T-910 (line 400) only records that `fw fabric register` refuses and still writes the card. Nothing was reported upstream. The refusal comes from .agentic-framework/agents/fabric/lib/describe.py (a file \"describes itself nowhere\") and register.sh, and I did not re-measure whether the card is still written."
+  resolved_at: 2026-10-13T16:21:41Z
   promoted_to: null
 - id: OBS-421
   text: "R-033 refuses the human it exists to protect, and routes them to a flag named --skip. Measured 2026-09-28: the operator ran 'fw task update T-910 --owner agent' INTERACTIVELY at a root shell in the project and got 'ERROR: Cannot change owner from human — human ownership is protected (R-033). Only the human can reassign human-owned tasks. Use --skip-human-ownership to bypass (logged).' The message asserts a permission the gate cannot check: it says only the human may reassign, and then refuses the human, because nothing distinguishes a person at a TTY from an agent shelling out. The only route through is a flag whose name reads like a violation, so a human doing the sanctioned thing must type 'skip' and take a logged bypass. Two consequences. (1) The message is misleading in the one situation it is written for. (2) It trains the reflex that --skip-* flags are normal, which is the opposite of what the bypass ladder is for. NOTE THE ACTUAL WORKAROUND COSTS NOTHING: the ownership change was never needed — 'fw task update T-910 --status work-completed' closes it directly, since completing a human-owned task is the human's own act. So the gate sent a human toward a logged bypass to reach a state they could reach unbypassed. Worth considering whether R-033 should detect an interactive TTY, or whether its message should name the direct-completion path instead of the skip flag. Related: G-027 (fw note promote creates owner: human by default) is what put T-910 behind this gate in the first place, with zero Human ACs to justify the ownership."
   captured: 2026-09-28T10:41:46Z
   context_task: T-737
   tags: [bug]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): The claim was corrected by OBS-422 (see .tasks/completed/T-912-fw-note-promote-produces-a-task-nobody-c.md:109). T-913 (completed) covers the empty-reason bypass logging that came with it. The 832 R-033 handling is covered by CLAUDE.md and the T-1127 notes."
+  dismissed_at: 2026-10-13T16:21:42Z
   promoted_to: null
   urgent: true
 - id: OBS-422
@@ -2585,35 +2855,51 @@ observations:
   captured: 2026-09-28T11:32:43Z
   context_task: T-912
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-915"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-915 (.tasks/completed/T-915-drain-the-carried-by-completed-task-clas.md:334) found the dangling-task class this observation names (1 dangling-task). T-912 (line 348) records that the audit rail is OBS-425's. The audit rail is not clearly built. The carrier is the dangling-promoted_to handling in T-915."
+  resolved_at: 2026-10-13T16:21:42Z
   promoted_to: null
 - id: OBS-426
   text: "DELETING A TASK FILE RECYCLES ITS ID, so the git record ends up with two different tasks under one number. Did it to myself 2026-09-28 within ten minutes. T-914 was created as a T-912 control fixture, proved that 'fw note promote --owner human' still honours the flag, and was deleted as the fixture it was. The very next 'fw task create' allocated T-914 AGAIN — because generate_id (create-task.sh:251-263) globs .tasks/active/T-*.md and .tasks/completed/T-*.md and takes max+1, so an id is only reserved for as long as its FILE exists. Commit 8d82f9f6 now says 'T-914 was deleted before its observation was disposed of', and T-914 is simultaneously the live census task for the urgent-observation cohort. Anyone reading that commit and then opening T-914 gets a different task than the one described, with nothing signalling the substitution. THE REAL LESSON IS NARROWER THAN 'IDS SHOULD BE MONOTONIC': deleting a task file is not a safe cleanup operation and I should not have done it. A fixture task should be completed or dismissed through the verbs, leaving the id spent, exactly as a fixture OBSERVATION is dismissed rather than deleted — which this project already knows, since the eleven dismissed observation husks in the inbox are deliberately kept as evidence. The asymmetry is that the inbox has a dismiss verb and the task system has no 'retire this, it was never real' path, so the only way to unmake a task is rm, and rm is what recycles the id. Either give generate_id a high-water mark that survives deletion (a counter file, or scan git history for ever-used ids), or give the task system a disposal verb so nobody needs rm. Note FW_ID_QUARANTINE_GAP exists at :252, suggesting id-gap handling was already thought about from a different angle."
   captured: 2026-09-28T11:49:27Z
   context_task: T-737
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: deleting a task file recycles its id (generate_id is max+1 over files); add a high-water mark or a task disposal verb). .agentic-framework/agents/task-create/create-task.sh generate_id still takes max+1 over existing files. FW_ID_QUARANTINE_GAP (line 282) only handles outlier gaps, not deletions. There is no task-retire verb, and no task or upstream pickup carries this."
+  resolved_at: 2026-10-13T16:21:42Z
   promoted_to: null
 - id: OBS-427
   text: "The operator-facing translator can filter a refusal down to nothing and the fallback then reports 'Unknown error', which is indistinguishable from 'the subprocess said nothing at all'. Two different diagnoses, one string. web/shared.py:1318 operator_facing_stderr() drops every line matching 8 patterns (--skip-*, FW_*=1, 'Options:', numbered option lines, 'logged Tier-2', '=== Task Update ===', '^Task:|^File:', the sovereignty warning) and strips the result. A gate refusal composed only of those lines translates to the empty string. web/blueprints/inception.py:647-648 then does: _operator_facing_stderr(...)[:300] or 'Unknown error from fw inception decide' — so the operator is told nothing was said, when in fact something was said and this function discarded it. The T-3280 intent is right (gate messages are written FOR AGENTS and name their own Tier-2 bypasses; showing a human 'use --skip-x' normalises bypass for what is usually an authoring gap). The failure is the fallback, not the filtering: when the input was NON-EMPTY and the output is empty, that is a KNOWN state and should say so — 'the gate refused with a message written for agents; the reason is in the server log' — rather than collapsing into the same string used for 'no output at all'. Same shape as OBS-423 (a Tier-2 bypass logged with an empty reason) and as the T-3105 grammar this project already holds: NOT EVALUATED is not PASSED, and SUPPRESSED is not UNKNOWN. Surfaced 2026-09-28 by an operator hitting it on T-3532, a task in another project's id space; our vendored copy carries the identical code, so the defect is ours to fix too under G-008. Note the comment at inception.py:642 confirms the real reason survives server-side via logging.error — so the information exists and only the operator is denied it."
   captured: 2026-09-28T12:52:22Z
   context_task: T-737
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: inception decide fallback says 'Unknown error' when operator_facing_stderr filtered a non-empty refusal to nothing). .agentic-framework/web/blueprints/inception.py:816-817 still does `_operator_facing_stderr(...) or \"Unknown error from fw inception decide\"`, so a filtered-to-empty refusal reads as \"no output\". Nothing carries it, and the same code is vendored here (G-008)."
+  resolved_at: 2026-10-13T16:21:43Z
   promoted_to: null
 - id: OBS-428
   text: "T-921 live check: this observation body quotes the shape 'fw task update T-910 --status work-completed' as prose. Before T-921 that literal tripped the focus-drift gate and the note could not be filed under a different focus — it happened three times on 2026-09-28, once while probing the gate itself. If this record exists, the fix works on the surface that reported it."
   captured: 2026-09-28T21:54:07Z
   context_task: T-921
   tags: [verification]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): A live-verification note for T-921. The record exists, which was the check, and T-921 (completed, drift-extraction fix) carries the outcome. No action is left."
+  dismissed_at: 2026-10-13T16:21:43Z
   promoted_to: null
 - id: OBS-429
   text: "The bridge suite's run history contains runs that EXITED 0 WHILE REPORTING FAILURES. Measured 2026-09-29 from tests/.run-history.tsv, which T-813 made append-only: two consecutive runs on 2026-09-27 (12:16:46 and 12:19:51) recorded '71 passed, 9 failed, exit 0'. The suite's last line is [ \"$fail\" -eq 0 ], which cannot return 0 with fail=9, so the script did not reach it. Both anomalous runs did ~80 legs in ~200s where a complete run does ~151 legs in 650-1045s, and the 12:19 run shares its commit (d43b09a0) with a 12:22 run that did 121/30 in 703s — SAME TREE, one-third the suite, opposite exit code. So the suite can terminate early, mid-way, and report SUCCESS. No arg handling, no filter, no 'exit 0' literal anywhere in the file; the mechanism is unidentified. WHY THIS MATTERS MORE THAN THE FAILURE COUNT: any caller gating on the exit code — which is what a scheduled job does — would have read those two runs as a clean pass over 9 failures and 71 of 151 legs. It is the false-green class in the suite that exists to prevent false greens. Also recorded from the same history, and separately actionable: the suite has been RED for all 12 recorded runs (7, 10, 9, 21, 9, 9, 30, 29, 14, 31, 32, 28 failures) since recording began 2026-09-22, and three runs died on SIGTERM (exit 143) at 600s, 558s and 687s, so something kills it around the 10-minute mark. Blocks T-917: scheduling a suite whose exit code does not track its failures institutionalises the false green rather than surfacing it."
   captured: 2026-09-28T22:12:45Z
   context_task: T-917
   tags: [bug]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): A duplicate of OBS-430, filed ten seconds later with the same text. OBS-430 is the original, and it is carried by T-917, T-952 and T-997."
+  dismissed_at: 2026-10-13T16:21:43Z
   promoted_to: null
   urgent: true
 - id: OBS-430
@@ -2621,7 +2907,11 @@ observations:
   captured: 2026-09-28T22:12:55Z
   context_task: T-917
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-997"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): .tasks/active/T-997-bridge-suite-records-honestly-completion.md:5 names OBS-430, a pipe-killed sweep recorded rc 0, as finding F1-F3 from inception T-995. T-917 (line 390) and T-952 (line 52) also carry it."
+  resolved_at: 2026-10-13T16:21:43Z
   promoted_to: null
   urgent: true
 - id: OBS-431
@@ -2629,84 +2919,126 @@ observations:
   captured: 2026-09-28T22:35:56Z
   context_task: T-918
   tags: [doc-drift]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-918"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): .tasks/completed/T-918-t-578s-census-inflates-its-own-code-edge.md:350 records \"Triggered: OBS-431\". The finding is only recorded there; I did not confirm that tools/_t451-unwired-guard-census.py:519 was edited. If the stale LIMIT line (JS \"never stripped\") is still printed, it is a small residual."
+  resolved_at: 2026-10-13T16:21:44Z
   promoted_to: null
 - id: OBS-432
   text: "P-011 verification runner is killed by a leg containing 'exit 1': fw task verify T-906 ran leg [2] (a for-loop with '|| exit 1'), printed nothing for it, printed no leg [3] and no 'Verification: n/3' summary, and returned as if done. The runner evals legs in its own shell, so a leg's exit is the runner's exit — a verification block can terminate the gate before the failing leg is reported, and a block whose FIRST leg exits 0 via 'exit 0' would read as a pass with the rest unrun. Reproduced 2026-09-29 under procAsFit round 1; fixed at the leg (subshell) not at the runner — one lock at a time."
   captured: 2026-09-28T22:56:55Z
   context_task: T-906
   tags: []
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Fixed in the vendored framework. `fw task verify` runs each leg through a Python subprocess with `shell=True` (.agentic-framework/lib/verify-acs.sh:133), and the close gate evals each leg in a subshell (update-task.sh:1883). A leg's `exit 1` can no longer end the runner. I did not run a leg that contains `exit 1` to confirm."
+  dismissed_at: 2026-10-13T16:21:44Z
   promoted_to: null
 - id: OBS-433
   text: "A recorded current_node does not advance when the lifecycle it models advances. T-880 recorded frw_6_run on itself while open; fw task update --status work-completed moved it to completed/ (node frw_10_finalize then frw_11_task in task-lifecycle.bpmn) and the record still says frw_6_run — and the task gate correctly refused the agent's post-close edit. So every position recorded by hand is stale from the next status transition onward, and 'get' cannot tell 'stale by status' from 'current' because the transition is not in the template's vocabulary of the record. This is T-882's scope (advance validates against the template): the natural hook is update-task.sh's own transitions writing the node they ARE (frw_3_start, frw_8_partial, frw_10_finalize, frw_11_task), which would make the framework the writer and the agent a reader."
   captured: 2026-09-28T23:06:47Z
   context_task: T-880
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-923"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-923 (completed) is \"the framework is the writer\" and cites OBS-433 as its origin (.tasks/completed/T-923-*.md:99). T-882 also records the finding and its hand-off (T-882:82,289)."
+  resolved_at: 2026-10-13T16:21:45Z
   promoted_to: null
 - id: OBS-434
   text: "fw healing resolve T-XXX --mitigation '...' is documented (CLAUDE.md, healing.sh usage) as a two-argument verb but then PROMPTS interactively for a 'short name for this failure pattern' with no flag to supply it. Run from a non-interactive agent shell it blocked for 321s until killed (T-890, 2026-09-29). With stdin closed it prints the prompt and exits 0 having recorded nothing — an exit-0 no-op. Needs a --name flag (or derive a default from --mitigation) and a non-zero exit when the name cannot be read."
   captured: 2026-09-28T23:25:24Z
   context_task: T-890
   tags: []
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Fixed in the vendored framework. healing/lib/resolve.sh now takes the pattern name from a flag (line 18) and falls back to `resolved-issue-$task_id` when it is empty (line 70). It no longer exits 0 without recording anything. I did not run the verb."
+  dismissed_at: 2026-10-13T16:21:45Z
   promoted_to: null
 - id: OBS-435
   text: "fw fabric register examples/aef-processes/template-binding.yaml printed 'REFUSED: no subsystem rule matches — add a paths: pattern to .fabric/subsystems.yaml' and exited — and ALSO wrote .fabric/components/examples-aef-processes-template-binding.yaml with subsystem: unknown. A refusal that leaves the artefact it refused is the T-3129-style exit-0-no-op inverted: the caller reads REFUSED and moves on, the tree carries a card the refusal said it would not create, and fabric drift will later report the file as registered. Either refuse and write nothing, or write and say so. (T-863 covers the subsystem-assignment side; this is the write-on-refuse side.) Measured 2026-09-29 under T-881."
   captured: 2026-09-28T23:26:55Z
   context_task: T-881
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-929"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-929 (active) names OBS-435 and OBS-441 as its root-cause cases. Its body (lines 24-25) covers the card being created anyway while REFUSED is printed. I did not check whether T-929 will also fix the unknown-subsystem path, which vendored register.sh:350-353 still prints as REFUSED after writing the card."
+  resolved_at: 2026-10-13T16:21:45Z
   promoted_to: null
 - id: OBS-436
   text: "YAML-form IW-9 check reads the LANE only: _check_iw9_authority (tools/validate-workflow.py:896) computes authority = lane_authority.get(node.lane) and never consults the node's own aef.authority, while the XML form's twin applies T-889 clause 2 'element wins' (elem_authority if present else lane). Consequence: a YAML node with aef.authority: initiative in a sovereignty lane passes O-3/O-1 on the YAML side by its lane and would be judged by its element on the XML side after the bridge projects it — the two forms disagree about the same map. This is a RELATION gap (which carrier is authority-of-record), distinct from the vocabulary gap T-902 closed. Not built under T-902 (one bug, one task); needs its own task once T-895 migrates values onto elements, because today only 6 corpus maps carry the key on nodes and all sit in lanes that agree."
   captured: 2026-09-28T23:37:52Z
   context_task: T-902
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1159"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1159 (YAML-form IW-9 check ignores element aef.authority (T-889 clause-2 'element wins' has no YAML twin)). Still true. The YAML `_check_iw9_authority` in tools/validate-workflow.py takes `authority = lane_authority.get(node.get(\"lane\"))` (about line 998) and never consults the node's own `aef.authority`. T-902 and docs/reports/T-320-rule-form-parity-census.md:324 only mention it as \"filed as an observation\". No task carries it."
+  resolved_at: 2026-10-13T16:21:46Z
   promoted_to: null
 - id: OBS-437
   text: "check-active-task keys its 'workable status' test on the FOCUSED task, not on the file being written: with focus on T-882 (started-work), 'python3 tools/instance-node.py advance T-880 frw_7_all' rewrote current_node in .tasks/completed/T-880-*.md and nothing refused it (2026-09-29, restored from HEAD by hand, diff was one line). In procAsFit round 1 the same tool's 'set T-880 …' WAS refused — because focus was T-880 itself, whose status was work-completed (check-active-task.sh:852-871). So a completed task's record is protected only while it is the focus; under any other task's focus any script write lands. Two consequences: (1) the post-close protection of completed/ records is an accident of focus, not a property of the path; (2) instance-node.py has no --dry-run, so 'what would advance do' cannot be asked without doing it — T-884 (designer shows position) will want a read-only 'next' or 'successors' verb anyway."
   captured: 2026-09-29T00:04:00Z
   context_task: T-882
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1160"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1160 (Completed task records are writable by any script under another task's focus; instance-node.py has no read-only successors verb). Still true. check-active-task.sh gates on the focused task, not on the file being written. `instance-node.py` has no dry-run or read-only \"successors\" verb; it only names successors in its refusal text (tools/instance-node.py:24). T-930 covers session ownership of focus, not protection of completed/ records. The only mention in the tree is a comment in tools/_procasfit-orchestrate.sh."
+  resolved_at: 2026-10-13T16:21:46Z
   promoted_to: null
 - id: OBS-438
   text: "procAsFit orchestrator burned 7 rounds against a known wall in 33 seconds. Round 2 hit 'You've hit your session limit · resets 3:10am' 26 min in; rounds 3-9 were then dispatched anyway and each died in 4-5s — all seven .out files BYTE-IDENTICAL (md5 e721d019), i.e. one refusal repeated, not seven failures. The verdict column read FAILED-NO-HANDBACK eight times, which is true and useless: it cannot distinguish 'this round tried and failed' from 'this round never ran'. The mandate's own clause (three attempts at the same wall is context burned, not progress) was violated by the orchestrator, not a worker. Fixed in tools/_procasfit-orchestrate.sh: quota refusal is detected on the worker's own output, gets its own verdict (QUOTA-WAIT-n / QUOTA-EXHAUSTED-RUN-STOPPED), and either waits to the parsed reset and retries the SAME round or stops the run leaving remaining rounds undispatched. Detector proven both directions by selftest: fires on the real refusal, does not fire on a real successful round's output."
   captured: 2026-09-29T06:56:17Z
   context_task: T-922
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "tools/_procasfit-orchestrate.sh"
+  resolved_carrier_kind: "path"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): The fix is in this tracked file: quota refusals get their own verdict and the run stops instead of burning the remaining rounds (header comment item 5, lines 25-37, which cites OBS-437/438). The finding says the detector was proven by selftest; I did not re-run it."
+  resolved_at: 2026-10-13T16:21:46Z
   promoted_to: null
 - id: OBS-439
   text: "A handback written only at the end is a handback that may never be written. procAsFit round 2 closed T-882 (commit 162afe3b) and opened T-923 with ~25 lines of real implementation plus a new lib and teeth script, then died on a quota refusal with handback_bytes=0. The work is in the tree but was invisible to the run record and to every subsequent round, which were therefore fed round 1's handback and told round 2 produced nothing — a true statement about the artefact and a false picture of the state. The orchestrator prompt now requires the handback skeleton be written BEFORE work starts and filled as it goes, and every round's prompt now carries an observed inherited-state census (started-work tasks + uncommitted paths) so an interrupted unit is picked up rather than re-selected around. Same class as OBS-405: the artefact is the only evidence, so the artefact must exist early."
   captured: 2026-09-29T06:56:27Z
   context_task: T-922
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "tools/_procasfit-orchestrate.sh"
+  resolved_carrier_kind: "path"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): The same file has the fix (header item 6): the handback skeleton is written before work starts, and each round's prompt carries an inherited-state census. This is also recorded in .context/working/procasfit9/FINAL-REPORT.md."
+  resolved_at: 2026-10-13T16:21:46Z
   promoted_to: null
 - id: OBS-440
   text: "The five T-820 classification axes are 4/5 RED, and the red names rules from four tasks that closed green: E-META-AUTHORITY (T-902) unclassified in PARITY and unwitnessed; E-XML-META-AUTHORITY, E-XML-LANE-AUTHORING-DEFAULT (T-890), W-XML-AUTHORITY-DEFAULT-MISMATCH (T-894) unclassified in ANCHOR and unwitnessed; W-XML-NODE-UNASSIGNED stale in ANCHOR after T-909 promoted it to E-XML-NODE-UNASSIGNED; and a NEW cross-form DISAGREEMENT on E-NODE-LANE (yaml fires, xml silent, reporting E-XML-NODE-UNASSIGNED) that test_rule_form_parity.py reports green because both forms merely NAME it. Found under T-826 while closing its AC5 for the two kind rules only. Each belongs to its originating task, not to T-826 (one bug = one task)."
   captured: 2026-09-29T07:56:32Z
   context_task: T-826
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-927"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-927 (active) is \"the five T-820 classification axes have\u2026\" and cites OBS-440 (T-927:13). tools/_t826-kind-rule-axes-teeth.sh also references it."
+  resolved_at: 2026-10-13T16:21:46Z
   promoted_to: null
 - id: OBS-441
   text: "OBS-435 recurrence with a SHARPER diagnosis (4th sighting): 'fw fabric register' REFUSED tests/fixtures/invalid/E-XML-WORKFLOW-KIND.bpmn for 'describes itself nowhere' while the file opens with a 15-line XML comment doing exactly that. Round 2 saw the same refusal on three .py/.js files carrying '// T-884 —' headers. The pattern across four sightings is that the self-description detector recognises some comment syntaxes and not others — an XML '<!-- ... -->' block at the top of a .bpmn is invisible to it. It also creates the card ANYWAY and then prints REFUSED, so the refusal is advisory and the card is unpopulated ('Purpose:' empty), which is the worst combination: the register gains a row that says nothing and the operator gets a message that says the author wrote nothing."
   captured: 2026-09-29T08:09:00Z
   context_task: T-826
   tags: []
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Superseded by OBS-446, which states that OBS-441's diagnosis (comment syntax not recognised) was wrong and the real cause is an unskipped shebang or XML declaration. The corrected root cause is in T-929."
+  dismissed_at: 2026-10-13T16:21:46Z
   promoted_to: null
 - id: OBS-442
   text: "_t560 ratchet is RED on a leg this session did not write: .tasks/active/T-826:304 adds an uncontrolled absence assertion, test -z \"$(git log --since=2026-07-21 --oneline -- docs/standards/aef-bpmn-mapping-v1.md)\". Measured 2026-09-29: census green at 10:01 (baseline 74, current 74, rc=0) and red at 10:09 (74/75); T-826's file mtime 10:08:43, size 28094 -> 28887, so a CONCURRENT session was mid-write. NOT EDITED BY T-785 and deliberately not re-filed as a task in another session's lane, because T-826 is active, in-flight, and owned elsewhere. Its own close is gated by the same census (T-843), so the framework will put this in front of its owner. Class: the test-z / no-grep-pattern shape T-669 costed as '48 BLOCKED, PATTERN credit impossible, only a same-line existence guard works' — and T-826 is in .tasks/active/, so unlike the archived population its owner may add that guard directly, no PD-308 needed. Second-order point worth more than the leg: this is the concurrency mode nothing accounts for — a corpus-wide ratchet gates every task's close, so any session can red every other session's gate with one leg, and the blocked sessions have no way to tell an own-regression from someone else's."
   captured: 2026-09-29T08:12:01Z
   context_task: T-785
   tags: [concurrency]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-785"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-785 (completed) addresses the concurrency point: \"the ratchet is not this task's to pin, and a concurrent session proved it\" (T-785:293, 532). The offending leg, `test -z \u2026 aef-bpmn-mapping-v1.md` in T-826, no longer appears in any task file (grep found nothing)."
+  resolved_at: 2026-10-13T16:21:46Z
   promoted_to: null
   urgent: true
 - id: OBS-443
@@ -2714,7 +3046,11 @@ observations:
   captured: 2026-09-29T08:14:23Z
   context_task: T-785
   tags: [concurrency]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-930"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-930 (active) covers the same defect. focus.yaml is session-global, nothing checks `focus_session`, and one session's focus re-points another session's gate. It was filed from OBS-447, which re-diagnosed this same behaviour."
+  resolved_at: 2026-10-13T16:21:46Z
   promoted_to: null
   urgent: true
 - id: OBS-444
@@ -2722,35 +3058,51 @@ observations:
   captured: 2026-09-29T08:17:40Z
   context_task: T-669
   tags: [concurrency]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): It is a correction to the T-785 commit message, i.e. a record note. Its cause, T-826:304, is gone from the tree. Its structural point, that corpus-wide ratchets go stale under concurrent sessions, is the one OBS-442 and T-785 already carry."
+  dismissed_at: 2026-10-13T16:21:47Z
   promoted_to: null
 - id: OBS-445
   text: "UNDIAGNOSED, ESCALATED AFTER THREE HYPOTHESES (T-573 round 3): .context/working/focus.yaml's current_task changes WITHOUT a focus verb being run, and the drift silently re-points the check-active-task gate at a task the session is not working on -- so a write can be attributed to the wrong task, or blocked as 'No active task' mid-unit. TWO OBSERVATIONS THIS ROUND: (1) after 'fw work-on T-573' set focus=T-573, a few read-only Bash calls later a write was refused with 'BLOCKED: No active task' and focus.yaml held current_task: null; (2) later, after implementation work under focus=T-573, focus.yaml held current_task: T-669 -- a task this session only ever READ (fw bvp T-669 and file greps), never started. ELIMINATED: 'fw bvp T-XXX' does not do it (set focus T-573, ran fw bvp T-826, focus unchanged); no crontab entry references this project; checkpoint.sh only READS focus.yaml (and reads the wrong key -- filed separately as T-928). NOT eliminated: stop-guard.sh / subagent-stop.sh / post-compact-resume.sh, or a concurrent session on the same repo (other sessions did commit to bleeding-edge during round 2). WHAT A REPRODUCTION NEEDS: an inotify watch on focus.yaml recording the writing PID, since the value alone does not name its author."
   captured: 2026-09-29T08:27:10Z
   context_task: T-573
   tags: []
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Resolved by OBS-447, which confirmed a concurrent session by timeline. The follow-up is T-930."
+  dismissed_at: 2026-10-13T16:21:47Z
   promoted_to: null
 - id: OBS-446
   text: "CORRECTION to OBS-441: its diagnosis ('the self-description detector recognises some comment syntaxes and not others -- an XML comment block is invisible to it') was WRONG. Measured under T-573: the detector handles // runs and <!-- --> banners fine; what it does not do is SKIP A LEADING SHEBANG OR XML DECLARATION before looking for them (describe.py:204-222). The sibling # branch skips the shebang explicitly, which is why .sh files resolve and executable .mjs files do not. Root cause filed as T-929 with the fix and the two control legs it needs. Keeping the wrong diagnosis on the record rather than deleting it: it was arrived at from two sightings and was the kind of plausible-by-extension guess that three further measurements (comment syntax, file extension, git-tracked-ness) each refuted."
   captured: 2026-09-29T08:31:43Z
   context_task: T-573
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-929"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-929 (active) is the root-cause task this correction names. Its title is \"fabric describe.py cannot read a // header past a shebang\". Its body cites OBS-435/441."
+  resolved_at: 2026-10-13T16:21:47Z
   promoted_to: null
 - id: OBS-447
   text: "OBS-445 RESOLVED (focus.yaml drift): the cause is a CONCURRENT SESSION on the same repo, which was the one hypothesis I listed as not-eliminated. Confirmed by timeline rather than by inference: git log shows another session committing T-785 work at 09:50, 10:12, 10:14, 10:16 and T-669 work at 10:17, interleaved with my own T-826 commit at 10:08 — and the T-669 focus value I observed appeared in exactly that window. One of their own commit subjects even reads 'a concurrent session proved it in twenty minutes'. SO THE DEFECT IS NOT A PHANTOM WRITER, IT IS THAT focus.yaml IS SESSION-GLOBAL WITH NO OWNERSHIP: two sessions in one working tree share one current_task, so each silently re-points the other's check-active-task gate. The file HAS a focus_session field (mine read S-2026-0929-0740) and nothing checks it — the same shape as the budget-status cache before T-675 taught it to refuse a foreign session. THE FIX ALREADY EXISTS ONE MODULE OVER: checkpoint.sh budget refuses an unmeasured, stale or FOREIGN-SESSION cache and reports level unknown plus the reason. focus.sh should do the same: a focus written by another session is not mine to obey, and 'unknown' is not 'ok'. Filing as its own task is worth it because the failure is silent and mis-attributes writes."
   captured: 2026-09-29T08:39:04Z
   context_task: T-922
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-930"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-930 (active) was filed from this observation, per its text (\"as OBS-447\"). It proposes refusing a foreign `focus_session`, like the T-675 budget-cache fix."
+  resolved_at: 2026-10-13T16:21:47Z
   promoted_to: null
 - id: OBS-448
   text: "OBS-201 class (python source executed as shell) has fired three more times since T-391 swept it on 2026-08-08, and the evidence is 37MB of unintended SCREEN CAPTURES at the repository root. Files, all untracked: '0' (0 bytes, 2026-09-23), 'importlib.util' (7,962,637 bytes, 2026-09-25), 'yaml,glob,sys' (28,916,814 bytes, 2026-09-28). Each begins with the PostScript header '%!PS-Adobe-3.0' and '%%Creator: (ImageMagick)', with %%Title set to the filename. So a python3 -c command containing a bare 'import' had that word resolved by the shell to ImageMagick's import(1), which captured the screen and wrote PostScript named after the following token. T-391 closed the sweep and nothing prevents the next occurrence. That is the G-019 shape: cleaning up the mess was mitigation, prevention would be import(1) not being reachable as a bare word. NOT DELETED, for two reasons: they are the only evidence the class is still live, and they are screen captures whose contents I have not examined past the PostScript header and will not. Whatever was on screen at those three moments is the operator's to review or destroy. T-571 (never git add -A) is what has kept them out of the index for six days."
   captured: 2026-09-29T20:09:21Z
   context_task: T-737
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-936"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-936 (completed) was filed from OBS-448. It detects the ImageMagick PostScript artefacts and gates the bare word. A related patch is in docs/upstream-pickups/B-t936-captures-and-secret-history/. T-935 (active) separately covers the screenshot format policy."
+  resolved_at: 2026-10-13T16:21:47Z
   promoted_to: null
   urgent: true
 - id: OBS-449
@@ -2758,7 +3110,11 @@ observations:
   captured: 2026-09-29T23:14:35Z
   context_task: T-938
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: Tier 0 passes a script that contains a destructive command, and approvals are keyed to a hash of the exact command string). This is an AEF defect and no report to AEF is tracked. The vendored check-tier0.sh header (lines 27-48) now admits that Tier 0 does not inspect scripts, but that is a documented limitation, not a fix. I did not check whether the approval is still keyed to a hash of the whole command string, so the second half is unverified. The only mentions are in episodic memory and T-968."
+  resolved_at: 2026-10-13T16:21:47Z
   promoted_to: null
   urgent: true
 - id: OBS-450
@@ -2766,7 +3122,9 @@ observations:
   captured: 2026-09-30T07:34:14Z
   context_task: T-939
   tags: [bug]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Fixed upstream. The vendored web/blueprints/inception.py:753-760 carries a T-3539 comment that a non-zero CLI exit with empty output now gets a specific message instead of \"Unknown error\". The silent-gate cause is also fixed: `inception_underdisposed_questions` was run unguarded under `set -e`. I did not run the Watchtower GO flow."
+  dismissed_at: 2026-10-13T16:21:48Z
   promoted_to: null
   urgent: true
 - id: OBS-451
@@ -2774,35 +3132,55 @@ observations:
   captured: 2026-09-30T08:46:47Z
   context_task: T-937
   tags: [bug]
-  status: pending
+  status: resolved
+  resolved_carrier: "docs/reports/T-1005-aef-inbox-triage-2026-10-03-page2.md"
+  resolved_carrier_kind: "path"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): The report records that AEF accepted this finding and filed it as T-3585, in the row quoting \"Our OBS-451 \u2026 filed as T-3585\"."
+  resolved_at: 2026-10-13T16:21:48Z
   promoted_to: null
 - id: OBS-452
   text: "handover.sh emits a handover that passes every completeness check while carrying no session content. S-2026-0930-1220 shipped 0 [TODO] markers (so the stale-handover warning in /resume never fires), an empty session_narrative, tasks_completed: [] on a day that closed 11, and literal 'None' under Decisions Made / Things Tried That Failed / Open Questions. Its 'Where We Are' is generated by concatenating the top five commit SUBJECTS, which on a long session describes only the first third and silently omits the finding the session was about. The [TODO] convention is the only signal that a handover needs filling, and the generator does not emit [TODO] for sections it fills with 'None' or with mined commit text — so an empty handover and a complete one are indistinguishable to every reader and every gate. Same defect class as T-943 (P-011 could not distinguish absent from malformed) and T-675 (.budget-status wrote maximum headroom on scan failure): a surface that is confident because it has nothing left to be wrong about. Candidate fix: emit [TODO] rather than 'None' for narrative/decisions/failures/blockers, and mark a commit-subject-derived 'Where We Are' as [AUTO-MINED - VERIFY] so the next session knows it was not authored."
   captured: 2026-09-30T16:05:24Z
   context_task: T-944
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: handover.sh emits a complete-looking handover with no session content (None sections, no [TODO], commit-subject Where We Are)). Still true. Vendored handover.sh still writes `**Blockers:** None` (line 1265), and its own comment at line 1209 says the \"Next step: See task file\" and \"Blockers: None\" entries were present in 119/119 handovers. It does not emit [TODO] for those sections. No 832 task or report to AEF mentions OBS-452."
+  resolved_at: 2026-10-13T16:21:49Z
   promoted_to: null
 - id: OBS-453
   text: "fw task update has no --related flag, so the audit's GO-scope-not-propagated check demands a related_tasks: link the CLI provides no supported way to write. Flags available: --status --owner --type --horizon --tags --add-tag --reason --force --happiness and the --skip-* family. Nothing sets related_tasks: or unlocks_inception_decision:. T-949 had to backfill 22 inceptions with a purpose-built script (tools/_t949-backfill-related-tasks.py) because the only sanctioned alternative was 22 hand edits, and shell writes to .tasks/ are blocked by the write scanner by design. This is why the field sat empty on 27 inceptions for up to four months while the work itself was delivered: the convention people actually used was a prose citation in the child task ('First build slice authorised by the T-038 GO'), which is what you can write without tooling. A check that enforces a field the CLI cannot set will always measure tooling absence rather than the behaviour it cares about. Candidate fix: fw task update T-XXX --related T-YYY[,T-ZZZ] --unlocks T-AAA, appending rather than replacing, refusing ids that do not resolve."
   captured: 2026-09-30T17:39:56Z
   context_task: null
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: fw task update cannot set related_tasks / unlocks_inception_decision). Still true. `grep` finds no `--related` or `--unlocks` flag in the vendored update-task.sh. The mentions of `related_tasks` there are about a gate, not a setter. T-949 backfilled the field with a purpose-built script. No upstream report exists."
+  resolved_at: 2026-10-13T16:21:49Z
   promoted_to: null
 - id: OBS-454
   text: "The reviewer static-scan returns severe, deterministic findings and the task closes anyway. T-954 closed with 5/5 acceptance criteria and 14/14 verification while the same run reported Overall: FAIL with three findings — swallowed-errors once and skip-as-pass twice — all severe, all deterministic, all against the verification block that had just been declared 14/14 passed. The findings were correct: a subject driven into a temp file with a trailing or-true, then read back by an absence check with no assertion that the file has content, so a crash certifies the property instead of failing. THE DETECTION EXISTS AND THE ENFORCEMENT DOES NOT. That is the exact gap this project keeps rediscovering one layer at a time: T-945 (a correct divergence detector with no audit line), T-949 (a 27-item warning with one true item), T-952 (a daily monitor whose verdict reached only syslog). Here the surface is present and read, the finding is severe and deterministic rather than heuristic, and the gate still says work-completed. Whether a severe deterministic reviewer finding should BLOCK a close is a sovereignty question, not an agent one — the argument against is that a non-blocking scan can be improved freely without stalling every close, and the argument for is that severe plus deterministic is exactly the class that does not need human judgement. Candidate shape if it is ever wanted: block on severe AND deterministic only, leave heuristic findings advisory, and require the same --force the AC and verification gates already take so a bypass is logged rather than silent."
   captured: 2026-09-30T20:11:15Z
   context_task: T-925
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: severe + deterministic reviewer static-scan findings do not block work-completed (operator ruling needed)). I found no carrier. The only hit for the id is docs/reports/T-825-ewcr-arc-scoping-review.md:124, an unrelated entry numbered OBS-454. The reviewer static-scan still reports severe deterministic findings (swallowed errors, skip-as-pass) without blocking a close. The observation frames this as a sovereignty question, so it needs an operator ruling."
+  resolved_at: 2026-10-13T16:21:49Z
   promoted_to: null
 - id: OBS-455
   text: "No gate makes route classification part of shipping a route: _t682-boundary-inventory.py is only ever run by a sweep (audit.sh), so a route added to tools/gallery-serve.py enters the tree unclassified and stays that way for an UNBOUNDED interval. Hit twice by the same author on consecutive days: T-884/GET /api/instances (~26h latency, fixed T-941) and T-955/POST /api/validate (fixed T-958). T-941's own in-file comment warns about exactly this, which is evidence that a comment is not a control. Remedy: run _t682 from a pre-commit or PreToolUse gate when tools/gallery-serve.py is staged, so the omission cannot reach a commit and wait for a sweep. T-958 hardened the DETECTOR (teeth prober wired into run-bridge-tests.sh) and deliberately did not build this gate."
   captured: 2026-09-30T21:48:42Z
   context_task: T-958
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1161"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1161 (Gate the T-682 boundary inventory on commits that stage tools/gallery-serve.py). Still true. No git hook or settings entry runs `_t682-boundary-inventory.py` when tools/gallery-serve.py is staged. T-941 only put the check on a schedule, and T-958 hardened the detector but \"deliberately did not build this gate\"."
+  resolved_at: 2026-10-13T16:21:49Z
   promoted_to: null
   urgent: true
 - id: OBS-456
@@ -2810,21 +3188,31 @@ observations:
   captured: 2026-09-30T21:48:51Z
   context_task: T-958
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1162"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1162 (T-682 boundary inventory: cited evidence line numbers go stale silently (anchor on content or assert the cited line)). Still true. tools/_t682-boundary-inventory.py has no check that cited line numbers still contain the cited text. T-958 notes the staleness as \"filed as OBS-456, not fixed here\" (T-958:84). No task exists."
+  resolved_at: 2026-10-13T16:21:49Z
   promoted_to: null
 - id: OBS-457
   text: "The T-560 absence census floor (74) has been breached by exactly ONE pre-existing leg since 2026-09-25, and it now has a name instead of being an anonymous +1: T-826 line 304, 'test -z $(git log --since=2026-07-21 --oneline -- docs/standards/aef-bpmn-mapping-v1.md)'. Two defects in one line: uncontrolled absence (nothing greps the same pattern where it IS present, T-843) and time-dependence (a fixed --since date accrues commits, so the assertion decays toward false for reasons unrelated to what it claims, PL-365). Measured at T-959: census reads 75 against floor 74, and read 75 at commit cf4e503b too, so this is one of the standing 32 bridge-suite failures and NOT a new regression. Not fixed under T-959 because T-826 is another OPEN task and that line is its own close gate -- editing another task's verification unasked is not the agent's call. Remedy belongs to whoever closes T-826: assert the positive fact (the standard still contains the clause this task depended on) rather than the absence of commits."
   captured: 2026-09-30T22:19:01Z
   context_task: T-959
   tags: []
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): The offending leg (`test -z \u2026 aef-bpmn-mapping-v1.md` in T-826) is gone from every task file (grep found nothing). The finding is a duplicate of OBS-442 and OBS-444 on the same leg."
+  dismissed_at: 2026-10-13T16:21:50Z
   promoted_to: null
 - id: OBS-458
   text: "The episodic generator concludes 'Mechanical task -- AC checked, no decisions to record' from the task file's ## Decisions section ALONE, and never reads .context/project/decisions.yaml. Any decision recorded through the decision menu or fw inception decide therefore lands in the register and is INVISIBLE to episodic memory -- the memory that outlives the task file's surrounding context. Measured at T-959: T-925 existed to make exactly one decision (PD-351, an operator sovereignty ruling on a four-month deferral), its register entry is complete, its task-file Decisions section was empty, and its generated episodic asserted there were no decisions. Corrected by hand in both places. Remedy: the generator should join on decisions.yaml by task id, and where the register has an entry the task file lacks, say so rather than concluding absence. Same defect shape as OBS-452 (hollow handover) -- a generator that reports confidently on the one source it happens to read."
   captured: 2026-09-30T22:42:59Z
   context_task: T-959
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: episodic generator ignores decisions.yaml and concludes 'no decisions to record'). Still true. The vendored agents/context/lib/episodic.sh generates \"Mechanical task\" text without ever reading decisions.yaml. 832 corrected T-925 by hand (OBS-458 appears only in T-925 and its episodic) and reported nothing upstream."
+  resolved_at: 2026-10-13T16:21:50Z
   promoted_to: null
   urgent: true
 - id: OBS-459
@@ -2832,7 +3220,11 @@ observations:
   captured: 2026-09-30T22:47:41Z
   context_task: T-959
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1163"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1163 (Bridge-suite failure ratchet treats a one-leg flake as a regression (needs per-leg record or N consecutive rows)). A real finding with no carrier. T-959 (completed) records the flake (T-959:118-121) but built nothing. The T-952 ratchet still compares a floor against a failure count that varies from run to run, and no task covers per-leg tracking or N consecutive rows."
+  resolved_at: 2026-10-13T16:21:50Z
   promoted_to: null
   urgent: true
 - id: OBS-460
@@ -2840,7 +3232,11 @@ observations:
   captured: 2026-09-30T23:07:16Z
   context_task: null
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1037"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-1037 (fdbe6d3e) restored T-650, so with no task `fw fix-learned` and `fw git commit` are admitted exactly as `fw context add-learning` and `git commit` are. I did not re-run the close prompt itself. Upstream offer is docs/upstream-pickups/F-t3814-null-focus-aliases (0001 safe-commands patch). learnings.yaml:2599 also records it."
+  resolved_at: 2026-10-13T16:21:50Z
   promoted_to: null
   urgent: true
 - id: OBS-461
@@ -2848,7 +3244,11 @@ observations:
   captured: 2026-09-30T23:08:47Z
   context_task: T-960
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1037"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): The null-focus close leftover commit deadlock is fixed. T-1037 admits `fw git commit` with no task, and T-1038 improved the null-focus block message. The fix is offered upstream in docs/upstream-pickups/F-t3814-null-focus-aliases. T-960 recorded the original workaround."
+  resolved_at: 2026-10-13T16:21:50Z
   promoted_to: null
   urgent: true
 - id: OBS-462
@@ -2856,7 +3256,11 @@ observations:
   captured: 2026-10-01T06:13:13Z
   context_task: T-309
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: audit rail for child-to-parent back-reference when a task closes an IW/unpriced item owned by another task). The stale T-309 blocker was fixed by revision 2 (7d9fad58). The structural remedy was never filed. That remedy is an audit rail so that closing an IW or unpriced item that belongs to another task requires a back-reference from child to parent. grep finds no OBS-462 carrier, and T-309 has no staleness or back-reference text."
+  resolved_at: 2026-10-13T16:21:50Z
   promoted_to: null
   urgent: true
 - id: OBS-463
@@ -2864,7 +3268,9 @@ observations:
   captured: 2026-10-01T07:38:44Z
   context_task: T-962
   tags: []
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): No longer true. .agentic-framework/policy/designer-pin.yaml now pins 0.19.1, vendor/designer/ contains aef-workflow-designer-0.19.1.html, and http://127.0.0.1:3013/designer/app now returns the page titled \"AEF Workflow Designer \u2014 investigate.bpmn\" instead of the placeholder."
+  dismissed_at: 2026-10-13T16:21:51Z
   promoted_to: null
   urgent: true
 - id: OBS-464
@@ -2872,7 +3278,9 @@ observations:
   captured: 2026-10-01T08:41:11Z
   context_task: T-962
   tags: []
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Fixed in the vendored framework. I sourced safe-commands.sh and ran `is_commit_checkpoint_command` on `git commit`, `fw git commit` and `.agentic-framework/bin/fw git commit`. All three were ADMITted. check-active-task.sh:1007-1010 uses that predicate for the T-3179 partial-complete branch."
+  dismissed_at: 2026-10-13T16:21:51Z
   promoted_to: null
   urgent: true
 - id: OBS-465
@@ -2880,7 +3288,11 @@ observations:
   captured: 2026-10-01T11:47:31Z
   context_task: T-964
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1164"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1164 (Designer: mark the lane band for lane-anchored validator findings (LANE-CAPACITY, LANE-GEOMETRY, ABBR-DUP, LANE-AUTHORING-DEFAULT)). The four lane-anchored rules (W-XML-LANE-CAPACITY, W-XML-LANE-GEOMETRY, E-XML-ABBR-DUP, E-XML-LANE-AUTHORING-DEFAULT) still have no marker on the lane band. Grepping src, .tasks and docs/reports found no task or report that marks lane bands. T-964's body covers the allowlist failing silently, not lane-band markers."
+  resolved_at: 2026-10-13T16:21:51Z
   promoted_to: null
   urgent: true
 - id: OBS-466
@@ -2888,7 +3300,11 @@ observations:
   captured: 2026-10-01T12:33:39Z
   context_task: T-966
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1150"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1150 (Report to AEF: reviewer layer-1 destructive-action scanner matches strings in prose and comments, escalating tasks that only describe a destructive operation). The reviewer's destructive-action scanner is an AEF component, and it still escalates tasks that only describe a destructive operation. grep found no 832 carrier and no upstream report. The related commits, T-965 6c7ad26d and T-966 7c909ec5, only reworded the text."
+  resolved_at: 2026-10-13T16:21:51Z
   promoted_to: null
   urgent: true
 - id: OBS-467
@@ -2896,7 +3312,11 @@ observations:
   captured: 2026-10-01T12:59:37Z
   context_task: T-967
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1165"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1165 (Rule-dialect axis: add a CONVENTIONAL class for predicates on properties the standard neither requires nor forbids (W-XML-DISCONNECTED)). T-967 (active, line ~99) records the gap and proposes a fourth CONVENTIONAL class. No task owns building it, and grep for CONVENTIONAL outside inbox.yaml finds nothing. W-XML-DISCONNECTED is still classified UNIVERSAL."
+  resolved_at: 2026-10-13T16:21:51Z
   promoted_to: null
   urgent: true
 - id: OBS-468
@@ -2904,82 +3324,172 @@ observations:
   captured: 2026-10-01T17:23:18Z
   context_task: T-972
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-990"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-990 (c8c77d00) \"four red validator guards green\" closed exactly these guards. The task file is .tasks/completed/T-990-clear-the-three-red-validator-guards-fro.md and it cites OBS-468."
+  resolved_at: 2026-10-13T16:21:53Z
   promoted_to: null
 - id: OBS-469
   text: "Sidecar identity defect in VENDORED installs: lib/sidecar/outbox.py _root() uses FRAMEWORK_ROOT (or its own file location), so in this project agent_id resolves to '.agentic-framework', not '832-Workflow-designer'. Effects: (1) 'fw sidecar inbox' reads an EMPTY inbox while the real one inbox:cacc73ea32b121dd/832-Workflow-designer holds 79 consults (17 substantive AEF replies 09-22..09-30, plus nudges up to 10 attempts); (2) every consult we send is signed '.agentic-framework', so replies route away from us. This is the mechanism behind the operator having to say 'check your inbox'. Workaround (verified via whoami): FRAMEWORK_ROOT=/opt/832-Workflow-designer python3 .agentic-framework/lib/sidecar_cli.py <cmd>. Durable fix belongs upstream (project id from PROJECT_ROOT, not FRAMEWORK_ROOT). Found under T-979."
   captured: 2026-10-01T18:46:04Z
   context_task: T-979
   tags: []
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Fixed in the vendored framework. .agentic-framework/lib/sidecar/outbox.py:60-68 `_root()` now uses PROJECT_ROOT or the nearest `.framework.yaml`, and strips the vendored `.agentic-framework` dir (T-3671). AEF adopted our D1 in the T-980 RCA (T-1005 page2, conversation sidecar-vendored-consumer-rca)."
+  dismissed_at: 2026-10-13T16:21:54Z
   promoted_to: null
 - id: OBS-470
   text: "How to actually reach Ring20 Manager (diagnosed under T-979, extends OBS-469): it does NOT read sidecar inboxes. inbox:cacc73ea32b121dd/proxmox-ring20-management contains only our 3 posts, ever. Live listeners (notify-sidecar.sh) exist only for claude-termlink, framework-agent-systemd, claude-termlink-alt: none for 832 or Ring20, so fw sidecar 'INJECTED_NOW, delivered:true' proves nothing about being read. Ring20's identity fingerprint is 9219671e28054458 (it signs receipts as proxmox-ring20-management). Local projects share host fingerprint d1993c2c3ec44c94 and talk to it on dm:9219671e28054458:d1993c2c3ec44c94 with a '[<project> -> ring20-manager]' prefix: send with 'termlink channel dm 9219671e28054458 --send ...'. Watch for replies by SENDER FINGERPRINT, not text: a text filter matched our own request on first poll."
   captured: 2026-10-01T19:01:08Z
   context_task: T-979
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "docs/reports/T-980-sidecar-rca.md"
+  resolved_carrier_kind: "path"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): The report's D7 section (line 63) records that Ring20 does not read sidecar inboxes, and its D7 table row (line 98) records that it is reachable only by DM. The note is a diagnosis under T-980, which is completed. The ready-to-use `termlink channel dm 9219671e28054458` recipe appears only in the handover, not in a durable file."
+  resolved_at: 2026-10-13T16:21:54Z
   promoted_to: null
 - id: OBS-471
   text: "HAZARD on AEF 1.7.740 (now vendored here by T-988): 'fw termlink cleanup' IGNORES ITS ARGUMENTS. --help, -h, --dry-run, -n or a typo all run the FULL cleanup: rm -rf of finished workers' dirs including uncollected result.md/result.jsonl, plus SIGTERM of orphan PIDs. Reported to AEF by 055-agentic-fleet-cockpit (inbox offset 24, their T-413; tracked upstream as T-3651/T-3595). DO NOT run 'fw termlink cleanup' in this project in any form until the upstream fix is vendored. Framework tooling, not workflow design: not ours to fix (operator rule), ours to avoid."
   captured: 2026-10-01T21:38:07Z
   context_task: T-981
   tags: []
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Fixed in the vendored framework (AEF 1.8.9+227). .agentic-framework/agents/termlink/termlink.sh:488-507 now parses `--help`, `-h`, `--dry-run`, `-n` and `--yes`, and rejects unknown options with exit 2. A comment there cites the \"ignored arguments\" bug."
+  dismissed_at: 2026-10-13T16:21:55Z
   promoted_to: null
 - id: OBS-472
   text: "sidecar consult to cacc73ea32b121dd/proxmox-ring20-management unanswered after 11 attempt(s) on the retry ladder (rung 5, conversation consult-proxmox-ring20-management, client_msg_id 0cc9a889-5463-4061-b521-ac8a602d7a72). Re-posts and inbox nudges have not produced a reply."
   captured: 2026-10-03T08:53:02Z
   context_task: T-1008
   tags: [sidecar]
-  status: pending
+  status: resolved
+  resolved_carrier: "docs/reports/T-980-sidecar-rca.md"
+  resolved_carrier_kind: "path"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): The alert is true but expected. T-980 D7 (line 63) records that Ring20 never reads sidecar inboxes, so the retry ladder cannot succeed on that route. There is no reply and none can arrive by this route."
+  resolved_at: 2026-10-13T16:21:55Z
   promoted_to: null
 - id: OBS-473
   text: "sidecar consult to cacc73ea32b121dd/999-Agentic-Engineering-Framework unanswered after 11 attempt(s) on the retry ladder (rung 5, conversation sidecar-vendored-consumer-rca, client_msg_id 641ff426-e9d4-4588-bb17-bc84d187662e). Re-posts and inbox nudges have not produced a reply."
   captured: 2026-10-03T08:53:02Z
   context_task: T-1008
   tags: [sidecar]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Conversation sidecar-vendored-consumer-rca was answered. T-1005 page2 row 2 lists AEF replies at @144-147 and @156, and @144 adopts D1."
+  dismissed_at: 2026-10-13T16:21:55Z
   promoted_to: null
 - id: OBS-474
   text: "sidecar consult to cacc73ea32b121dd/999-Agentic-Engineering-Framework unanswered after 11 attempt(s) on the retry ladder (rung 5, conversation sidecar-vendored-consumer-rca, client_msg_id e0f045ed-f9d6-4ba9-a7c7-289bdf9b449f). Re-posts and inbox nudges have not produced a reply."
   captured: 2026-10-03T08:53:02Z
   context_task: T-1008
   tags: [sidecar]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Same conversation sidecar-vendored-consumer-rca as OBS-473, already answered by AEF (T-1005 page2 row 2). It is a different client_msg_id on the same answered conversation."
+  dismissed_at: 2026-10-13T16:21:55Z
   promoted_to: null
 - id: OBS-475
   text: "sidecar consult to cacc73ea32b121dd/999-Agentic-Engineering-Framework unanswered after 11 attempt(s) on the retry ladder (rung 5, conversation doc-understates-process, client_msg_id c01cc6fc-ab7e-4880-8ab5-da41da48ed3e). Re-posts and inbox nudges have not produced a reply."
   captured: 2026-10-03T09:03:02Z
   context_task: T-1008
   tags: [sidecar]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Conversation doc-understates-process was answered by AEF at @150. T-1005 page2 line 44 reads \"ADOPTED \u2014 doc fix on their side\"."
+  dismissed_at: 2026-10-13T16:21:56Z
   promoted_to: null
 - id: OBS-476
   text: "sidecar consult to cacc73ea32b121dd/999-Agentic-Engineering-Framework unanswered after 11 attempt(s) on the retry ladder (rung 5, conversation revendor-protocol, client_msg_id eee4054b-d30e-4899-b206-de9efe4faee7). Re-posts and inbox nudges have not produced a reply."
   captured: 2026-10-04T04:08:02Z
   context_task: T-1020
   tags: [sidecar]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Conversation revendor-protocol was answered by AEF. T-1005 page2 lists 5 substantive replies (@153,155,158,162,163) and receipts, and line 39 reads \"ADOPTED \u2014 inception T-3737 (GO on exploration)\"."
+  dismissed_at: 2026-10-13T16:21:56Z
   promoted_to: null
 - id: OBS-477
   text: "sidecar consult to cacc73ea32b121dd/proxmox-ring20-management unanswered after 12 attempt(s) on the retry ladder (rung 5, conversation consult-proxmox-ring20-management, client_msg_id 0cc9a889-5463-4061-b521-ac8a602d7a72). Re-posts and inbox nudges have not produced a reply."
   captured: 2026-10-04T08:53:02Z
   context_task: T-1021
   tags: [sidecar]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Duplicate of OBS-472. It is the same Ring20 conversation and the same client_msg_id, one more retry attempt. Covered by T-980 D7."
+  dismissed_at: 2026-10-13T16:21:56Z
   promoted_to: null
 - id: OBS-478
   text: "sidecar consult to cacc73ea32b121dd/999-Agentic-Engineering-Framework unanswered after 12 attempt(s) on the retry ladder (rung 5, conversation sidecar-vendored-consumer-rca, client_msg_id 641ff426-e9d4-4588-bb17-bc84d187662e). Re-posts and inbox nudges have not produced a reply."
   captured: 2026-10-04T08:53:02Z
   context_task: T-1021
   tags: [sidecar]
-  status: pending
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Duplicate of OBS-473. It is the same sidecar-vendored-consumer-rca client_msg_id, one more retry attempt, and the conversation was answered by AEF."
+  dismissed_at: 2026-10-13T16:21:56Z
   promoted_to: null
 - id: OBS-479
   text: "fw context focus WM-002 exits 1 with NO message in 832 (no WM-* tasks exist here), while the no-active-task block tells the agent to use WM-001/002/003. A silent refusal plus advice that cannot work (seen 2026-10-04 closing T-1021)"
   captured: 2026-10-04T12:37:12Z
   context_task: T-737
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1038"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): T-1038 AC (line 91) says the WM-* hint now prints only where WM tasks exist (OBS-479). The vendored check-active-task.sh:761-764 carries a comment on the dead-end `focus WM-002`. The fix and its upstream offer are in docs/upstream-pickups/F-t3814-null-focus-aliases (0002 patch)."
+  resolved_at: 2026-10-13T16:21:56Z
+  promoted_to: null
+- id: OBS-480
+  text: "sidecar consult to cacc73ea32b121dd/832-Workflow-designer/t1039-teeth2 unanswered after 11 attempt(s) on the retry ladder (rung 5, conversation t1039, client_msg_id 550ad311-6056-482c-b1d6-5299b3a8f35a). Re-posts and inbox nudges have not produced a reply."
+  captured: 2026-10-06T02:43:02Z
+  context_task: null
+  tags: [sidecar]
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Auto-generated consult-unanswered alert from a short-lived review sub-agent (t1039-teeth2). No context task. No matching conversation_id appears in .context/sidecar/receiver/messages, so no reply exists. The agent has ended and the ladder cannot be satisfied. Nothing is left to do."
+  dismissed_at: 2026-10-13T16:21:57Z
+  promoted_to: null
+- id: OBS-481
+  text: "Bridge run 2026-10-06 15:16Z on 536e52d7: 5 audit-reading teeth red (_t525, _t534, _t535, _t536, _t628), all green alone and 248/0 on the rerun of the same commit. The run window overlapped the 16:45 and 17:00 local cron audits (17:00 a full one, 13KB). Same class as T-1060 (reds that pass alone); suspected cause: concurrent cron audit, not confirmed."
+  captured: 2026-10-06T15:47:42Z
+  context_task: T-1068
+  tags: []
+  status: resolved
+  resolved_carrier: "T-1166"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): promoted to new task T-1166 (Audit-reading teeth go red under a concurrent cron audit: confirm the cause and isolate (_t525/_t534/_t535/_t536/_t628)). Real flake, one occurrence and cause unconfirmed. Five audit-reading teeth (_t525, _t534, _t535, _t536, _t628) went red during a cron audit and were green alone and on rerun. The only record is a note in T-1068 (~line 463). The cause is not confirmed and no task owns it."
+  resolved_at: 2026-10-13T16:21:59Z
+  promoted_to: null
+- id: OBS-482
+  text: "sidecar consult to cacc73ea32b121dd/832-Workflow-designer/t1039-teeth2 unanswered after 12 attempt(s) on the retry ladder (rung 5, conversation t1039, client_msg_id 550ad311-6056-482c-b1d6-5299b3a8f35a). Re-posts and inbox nudges have not produced a reply."
+  captured: 2026-10-07T02:48:02Z
+  context_task: null
+  tags: [sidecar]
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Duplicate of OBS-480, the same t1039 conversation and client_msg_id, one more attempt. Dismissed on the same grounds."
+  dismissed_at: 2026-10-13T16:21:59Z
+  promoted_to: null
+- id: OBS-483
+  text: "Codex reviewer seat cannot run browser harnesses (read-only sandbox, no temp files) and votes AMBER on visual criteria though it finds nothing wrong; a rung-5 panel needs unanimity, so T-310 AC#1 and T-893 AC#1 (claude-code green) fall back to the operator. Reported to AEF with cause, impact and ETA request on conversation aef-reviewer-codex-seat (2026-10-07, RECEIVED); follows their task for our fe6c8641. Re-judge both when it ships."
+  captured: 2026-10-07T11:20:25Z
+  context_task: T-1082
+  tags: []
+  status: resolved
+  resolved_carrier: "T-1114"
+  resolved_carrier_kind: "task"
+  resolved_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): AEF filed T-3986 in response, and it shipped in 1.8.8 as a not-evaluated outcome for a seat that could not evaluate. T-1114 (completed) re-judged the AMBER rows on T-893 and checked T-310. The AEF reply is receiver message 035c38a7 on conversation aef-reviewer-codex-seat."
+  resolved_at: 2026-10-13T16:21:59Z
+  promoted_to: null
+- id: OBS-484
+  text: "sidecar consult to cacc73ea32b121dd/termlink unanswered after 11 attempt(s) on the retry ladder (rung 5, conversation sidecar-delivery-noninjectable, client_msg_id ab75a2b5-6ee0-4bbc-809a-1f5aec509e3d). Re-posts and inbox nudges have not produced a reply."
+  captured: 2026-10-11T20:18:02Z
+  context_task: T-1130
+  tags: [sidecar]
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Conversation sidecar-delivery-noninjectable was answered. The receiver messages include 6574d5e3 from 010-termlink (\"answer to your consult\"), b3143a4b and f0ebf815 from 999-Agentic-Engineering-Framework. The consult was closed under T-1130."
+  dismissed_at: 2026-10-13T16:21:59Z
+  promoted_to: null
+- id: OBS-485
+  text: "sidecar consult to cacc73ea32b121dd/termlink unanswered after 12 attempt(s) on the retry ladder (rung 5, conversation sidecar-delivery-noninjectable, client_msg_id ab75a2b5-6ee0-4bbc-809a-1f5aec509e3d). Re-posts and inbox nudges have not produced a reply."
+  captured: 2026-10-12T20:18:03Z
+  context_task: T-1138
+  tags: [sidecar]
+  status: dismissed
+  dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Duplicate of OBS-484, the same conversation and client_msg_id one retry later. That conversation was answered by 010-termlink and AEF."
+  dismissed_at: 2026-10-13T16:22:00Z
   promoted_to: null
