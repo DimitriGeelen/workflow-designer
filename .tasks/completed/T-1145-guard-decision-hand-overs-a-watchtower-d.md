@@ -12,13 +12,13 @@ description: >
   so the reply is corrected before the operator sees it. Same class as T-1118/T-1123.
   Upstream proposal sent to AEF.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_11_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/hooks/guard-decision-handover.py, tools/hooks/install-decision-handover-guard.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -47,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T10:19:27Z
-last_update: 2026-10-13T10:55:58Z
-date_finished:
+last_update: 2026-10-13T11:26:11Z
+date_finished: 2026-10-13T11:26:11Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -98,7 +98,7 @@ skips it, a bare Watchtower URL in the reply. Upstream: pickup to AEF to put the
 - [x] A Stop hook reads the last assistant message; for each Watchtower decision link in it (`/inception/T-XXX`, `/review/T-XXX`) it runs `inception_handoff_blockers` on that task and, when any task has blockers, blocks the stop with the task id and the blockers — `tools/hooks/guard-decision-handover.py` (0b0216cd); live: blocks a reply naming T-1094 ("IW-1 disposition=false"), passes T-1127 (not an inception)
 - [x] A reply without such links, or whose linked tasks are ready (or not inceptions), passes untouched; the hook fails OPEN (never blocks) when it cannot read the transcript or the task, and says so on stderr — plus one block per stop chain (`stop_hook_active`), so a reply that must name the link cannot loop
 - [x] A test drives the hook with fixture transcripts: unready inception link → blocked naming the blocker; ready inception → passes; no link → passes; unreadable transcript → passes with a warning; teeth: the blocker check removed → the unready case passes, the test goes red — `tests/test_t1145_decision_handover_guard.py` 10/10 (also: /review/ link, earlier-turn link, task not active, last_assistant_message), bridge-wired as an orphan leg
-- [ ] Registered in `.claude/settings.json` and listed in `.vendor-divergence.yaml` if it touches vendored files; the enforcement baseline refreshed if `fw doctor` requires it
+- [x] Registered in `.claude/settings.json` and listed in `.vendor-divergence.yaml` if it touches vendored files; the enforcement baseline refreshed if `fw doctor` requires it — operator ran job 021 (rc 0, commit 77ccaf22): one entry added to the Stop group, baseline e54de4f4…, doctor "Enforcement baseline intact". Touches no vendored file (tools/, tests/ only), so no divergence entry
 - [x] Pickup sent to AEF (sidecar, delivery RECEIVED) proposing the rule for the framework workflow; message id recorded here — c69abf0f-e9d8-4f2f-af43-be7900cf403c, conversation decision-handover-readiness (2026-10-13): rule (links only via fw task review), Stop hook (832 patch to follow), scaffold sections on --type inception
 
 ### Human
@@ -365,3 +365,20 @@ grep -q "test_t1145_decision_handover_guard.py" tests/run-bridge-tests.sh
 
 ### 2026-10-13T10:20:11Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e9841c3f
+- **Timestamp:** 2026-10-13T11:27:27Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — A Stop hook reads the last assistant message; for each Watchtower decision link in it (`/inception/T-XXX`, `/review/T-XXX`) it runs `inception_handoff_blockers` on that task and, when any task has blo
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/hooks/guard-decision-handover.py in: A Stop hook reads the last assistant message; for each Watchtower decision link in it (`/inception/T-XXX`, `/review/T-XXX`) it runs `inception_handoff`
+
+### 2026-10-13T11:26:11Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
