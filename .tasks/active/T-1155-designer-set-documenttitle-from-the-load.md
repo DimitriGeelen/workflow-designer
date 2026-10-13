@@ -11,7 +11,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_3_start
+current_node: frw_6_run
 owner: agent
 horizon: now
 tags: [observations]
@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:20:58Z
-last_update: 2026-10-13T18:45:19Z
+last_update: 2026-10-13T18:48:43Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -102,9 +102,8 @@ name. A map's file is `<workflowMeta.id>.bpmn` (rendered/<id>.bpmn, export `${id
   designer has one theme, no font or density modes (see _t911's mode note), so one render covers it; the tab
   title itself is not part of the page and is asserted from document.title.
 
-### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
+<!-- No Human criteria (all agent-verifiable; the template's Human section was removed).
+     Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
 
      ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
