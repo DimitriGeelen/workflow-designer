@@ -46,7 +46,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T08:40:22Z
-last_update: 2026-10-13T19:01:37Z
+last_update: 2026-10-13T19:02:33Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -134,7 +134,11 @@ We will know that we are successful when we see 0 gaps in the activity numbers o
 - [x] The misreading is measured on Greenfield's own map (which node takes which number, per lane) and traced to `computeDisplayId` (src :2155)
 - [x] The id constraint is stated: the display id is the exported BPMN id (:12207), and ids already renumber on layout edits
 - [x] Three options with costs and a recommendation (with its bet and how it is measured) are in the report
-- [ ] The operator's decision is recorded (`fw inception decide T-1094 go|no-go`), and on GO a build task is created for the chosen option
+
+<!-- After the decision (not a criterion: the decide gate requires every Agent AC ticked BEFORE it records,
+     so a criterion that only the decision can satisfy blocks the decision itself): on GO the agent creates the
+     build task for the chosen option, with the one-time migration of task-lifecycle's node ids in scope. -->
+
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
