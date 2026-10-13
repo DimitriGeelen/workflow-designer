@@ -3069,6 +3069,7 @@ T1013_GUARDS=(
   'tools/_t843-absence-gate-tests.sh|tests for the uncontrolled-absence close gate'
   'tools/_t845-control-recogniser-tests.sh|tests for _t560s control recogniser'
   'tools/_t848-realization-check-tests.sh|tests for the realization-ledger checker'
+  'tools/_t1149-triage-check.py|every observation the T-1149 triage answered stays answered, and every carrier it cites still resolves (OBS-425 class)'
   'tools/_t849-budget-zero-token-tests.sh|teeth: the zero-token hole in checkpoint.shs budget reader'
   'tools/_t886-writer-mutation.py|mutation teeth for the round-trip guard (suppresses each writer attribute, expects red)'
   'tools/_t892-lane-default-cdp.mjs|CDP regression: the lane Authoring default never re-stamps nodes'

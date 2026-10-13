@@ -47,6 +47,11 @@
 
 set -uo pipefail
 REPO="${T842_REPO_ROOT:-/opt/832-Workflow-designer}"
+# T-1169: the hook calls the predicate with PROJECT_ROOT, FRAMEWORK_ROOT and the payload cwd set. Since AEF
+# 1146a7450 (T-4108, taken by T-1167) an `fw git commit` launcher is admitted only when it resolves to THIS
+# project's own fw, which needs that context; called bare, every fw spelling read as foreign and rows 7-9 went
+# red while the hook admitted them. Give the predicate what the hook gives it, nothing more.
+export PROJECT_ROOT="$REPO" FRAMEWORK_ROOT="$REPO/.agentic-framework" _FW_PAYLOAD_CWD="$REPO"
 STRICT=0
 [ "${1:-}" = "--strict" ] && STRICT=1
 

@@ -81,6 +81,7 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 ### Human
 <!-- @auto-tick-on-decide -->
 - [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+  **Why you:** act-in-the-world — minting and signing with a new TermLink identity changes credentials on a hub other projects share (and what they can read of each other's DM traffic); and `fw inception decide` is the operator's
   **Steps:**
   1. Run: `fw task review T-1151` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation

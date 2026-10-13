@@ -2790,3 +2790,16 @@ learnings:
   task: T-1094
   date: 2026-10-13
   context: Added via context agent
+- id: PL-401
+  learning: "Fleet doctor observed auth-mismatch on hub 'greenfield' (192.168.10.132:9100). date_observed=2026-10-13T19:03:35Z hub_fingerprint=sha256:e06c21d2c04f5d873c8ea852e65b6bb1701ec3fa75821b392e81ccb45a8b8021. T-1051 Option D auto-registration — if a later agent sees a different pinned fingerprint for this hub, this learning is stale and should not be acted on."
+  source: T-1052
+  task: T-1051
+  date: 2026-10-13
+  context: fleet-doctor auto-registered
+  application: "Drift-detection: compare hub_fingerprint in this learning against current KnownHubStore.get(address)"
+- id: PL-402
+  learning: "An upgrade job that restarts Watchtower BEFORE the agent re-applies our local web fixes leaves the dashboard running AEF's code without them (T-1167: restart 20:24:50, re-apply 20:25:32; the T-568 probe caught it hours later). Restart Watchtower as the LAST step, after the re-apply, or hand over a restart job right after it."
+  source: P-001
+  task: T-1169
+  date: 2026-10-13
+  context: Added via context agent
