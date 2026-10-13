@@ -29,3 +29,10 @@ focus.yaml
 # session-specific path is not available to them.
 t413/
 *-probe.out
+
+# T-1144: FOURTH instance. The framework's local vector index (fw recall / fw ask), 991 MB, was
+# swept in by T-854's closure-artefact commit 54b1dfe2 (2026-09-26) and tracked for 17 days; the
+# large-file gate flagged it BLOCK in every audit and nobody owned it. A derived cache, rebuilt from
+# the store on demand — never content. Its SQLite sidecars (-wal, -shm, -journal) with it.
+fw-vec-index.db
+fw-vec-index.db-*

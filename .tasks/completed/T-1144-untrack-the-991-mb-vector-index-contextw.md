@@ -1,13 +1,19 @@
 ---
 id: T-1144
-name: "Untrack the 991 MB vector index .context/working/fw-vec-index.db (committed by accident in T-854) and gitignore it"
+name: "Untrack the 991 MB vector index .context/working/fw-vec-index.db (committed
+  by accident in T-854) and gitignore it"
 description: >
-  The large-file gate flags .context/working/fw-vec-index.db (991 MB) as BLOCK in every audit since 2026-09-26: it was committed once in 54b1dfe2 (T-854 closure artefacts) and is still tracked; the pack is 805 MiB. Untrack (git rm --cached) + .gitignore so it stops growing the repo. Shrinking history (filter-repo + force push) is Tier 0 and the operator's separate decision. Surfaced while answering AEF T-4123 (T-1141).
+  The large-file gate flags .context/working/fw-vec-index.db (991 MB) as BLOCK in
+  every audit since 2026-09-26: it was committed once in 54b1dfe2 (T-854 closure artefacts)
+  and is still tracked; the pack is 805 MiB. Untrack (git rm --cached) + .gitignore
+  so it stops growing the repo. Shrinking history (filter-repo + force push) is Tier
+  0 and the operator's separate decision. Surfaced while answering AEF T-4123 (T-1141).
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_11_task
 owner: agent
-horizon: next
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-12T21:54:33Z
-last_update: 2026-10-12T21:55:02Z
-date_finished: null
+last_update: 2026-10-13T11:33:08Z
+date_finished: 2026-10-13T11:33:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,48 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-13T11:29:25Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1144: Untrack the 991 MB vector index .context/working/fw-vec-index.db (committed by accident in T-854) and gitignore it
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**CORRECTION (2026-10-13), the premise of the name was wrong:** the blob committed in 54b1dfe2 is **36 KB**
+(`git cat-file -s` → 36864; the only version in history, also on GitHub). The index grew to 991 MB on disk
+*afterwards* and was never committed again. The large-file gate measures a tracked file by its on-disk size,
+and the agent repeated that number as "committed" (also to AEF in T-1141 and to the operator) without checking.
+History is NOT bloated by it; the 805 MiB pack is many medium blobs (vendored node_modules, `watchtower.log`
+committed repeatedly). The real risk was the NEXT bulk `git add`: it would have committed 991 MB, which GitHub
+refuses (>100 MB), breaking the mirror and bloating history permanently. That is what this task prevents.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `.context/working/fw-vec-index.db` is no longer tracked (`git rm --cached`), and the file on disk is untouched (same size) — 1052135424 bytes before and after
+- [x] Ignored with a comment naming the class (4th instance after T-222, T-410, T-417 in `.context/working/.gitignore`), so `git add -A` cannot re-add it — `git check-ignore -v` → `.context/working/.gitignore:37`; `-wal/-shm` sidecars covered too
+- [x] Whether the blob reached the GitHub mirror is checked and reported; shrinking history is NOT done — it reached GitHub at 36 KB (commit 54b1dfe2 present on DimitriGeelen/workflow-designer, repo 72 MB), so there is nothing to shrink; no history rewrite needed or proposed
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -226,6 +260,9 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+test -z "$(git ls-files .context/working/fw-vec-index.db)"
+git check-ignore -q .context/working/fw-vec-index.db
+test -f .context/working/fw-vec-index.db
 
 ## RCA
 
@@ -323,3 +360,19 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1144-untrack-the-991-mb-vector-index-contextw.md
 - **Context:** Initial task creation
+
+### 2026-10-13T11:29:24Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-f72386bc
+- **Timestamp:** 2026-10-13T11:33:10Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-13T11:33:08Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
