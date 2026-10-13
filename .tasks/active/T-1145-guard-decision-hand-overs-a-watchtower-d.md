@@ -47,7 +47,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T10:19:27Z
-last_update: 2026-10-13T10:20:32Z
+last_update: 2026-10-13T10:22:19Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -99,7 +99,7 @@ skips it, a bare Watchtower URL in the reply. Upstream: pickup to AEF to put the
 - [ ] A reply without such links, or whose linked tasks are ready (or not inceptions), passes untouched; the hook fails OPEN (never blocks) when it cannot read the transcript or the task, and says so on stderr
 - [ ] A test drives the hook with fixture transcripts: unready inception link → blocked naming the blocker; ready inception → passes; no link → passes; unreadable transcript → passes with a warning; teeth: the blocker check removed → the unready case passes, the test goes red
 - [ ] Registered in `.claude/settings.json` and listed in `.vendor-divergence.yaml` if it touches vendored files; the enforcement baseline refreshed if `fw doctor` requires it
-- [ ] Pickup sent to AEF (sidecar, delivery RECEIVED) proposing the rule for the framework workflow; message id recorded here
+- [x] Pickup sent to AEF (sidecar, delivery RECEIVED) proposing the rule for the framework workflow; message id recorded here — c69abf0f-e9d8-4f2f-af43-be7900cf403c, conversation decision-handover-readiness (2026-10-13): rule (links only via fw task review), Stop hook (832 patch to follow), scaffold sections on --type inception
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
