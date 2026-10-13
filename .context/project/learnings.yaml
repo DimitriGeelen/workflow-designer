@@ -2771,3 +2771,9 @@ learnings:
   task: T-1146
   date: 2026-10-13
   context: Added via context agent
+- id: PL-398
+  learning: "Before writing a runme job, check earlier jobs and retired/ files for the same action: job 022 repeated job 016's refusal (R-033 refuses a CLI close of a human-owned task even from the operator's terminal; only Watchtower approval closes it). A command printed by a framework hint is not proof it passes the gates"
+  source: unknown
+  task: T-1127
+  date: 2026-10-13
+  context: Added via context agent
