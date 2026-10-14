@@ -46,7 +46,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T19:31:01Z
-last_update: 2026-10-14T20:03:33Z
+last_update: 2026-10-14T20:08:32Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -85,14 +85,31 @@ bvp_scores_proposed:
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+`tools/_t392-safelist-shadow-gate.py` and `tools/_t607-drift-gate-reach.py` prove the drift gate is reachable past the
+safe-command fast path (T-392) and across invocation forms (T-607). Their behaviour matrices pass; their poison arms
+(mutate check-active-task.sh, expect the matrix to go red, restore by sha256) SKIP because the strings they mutate
+are gone after the T-1167 upgrade. A poison arm that cannot run means nothing proves the matrix would notice a
+regression.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Each arm's mutation target is located in the current check-active-task.sh (or wherever the behaviour moved), with the reason it moved
+- [x] Both arms run again (no SKIP): poisoned, the matrix goes red on exactly the legs the arm targets; restored, the file's sha256 matches the original
+- [x] An arm whose target genuinely no longer exists in the vendored code says so as a FAIL naming the missing target, never a SKIP that leaves the verdict green-looking
+- [x] T-607's "P2 now reaches the gate — fold into the matrix" note is acted on (folded in, or recorded why not)
+- [x] `fw verify-queue --task T-392` passes
+
+**Where the targets went (2026-10-14):**
+- T-392 deferral: 832's `_deferred_safe_exit=1` was replaced by upstream T-2880 (same behaviour: a safe command exits
+  early only when it names no task, else `SAFE_ALLOWED=1` and on to the drift gate). Arm now restores the
+  unconditional `exit 0`: reddens bare/bin/mandated/absolute P2; restored sha256 equal.
+- T-607 path forms: no longer a widened regex anchor (upstream patterns are `(bin/)?fw`); 832's T-639 clause
+  normaliser rewrites `<path>/fw` to `fw` before matching. Arm drops that line: reddens bin/mandated/absolute, bare
+  stays green. `bin` now reddens too, because clauses are only matched when they start with `fw` — expectation updated.
+- Missing target: both arms print `[FAIL] mutation target not found once` and the verdict is FAIL/exit 1 (proven
+  against a temp copy of the hook with each target removed; the real hook untouched, sha256 cef2bc38… before/after).
+- P2: not folded into T-607 — `_t392`'s matrix covers it in the same four forms and its arm proves it; T-607 now says so.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -126,6 +143,9 @@ bvp_scores_proposed:
 -->
 
 ## Verification
+python3 tools/_t392-safelist-shadow-gate.py > /tmp/.t1179-392 2>&1 && grep -q 'arm proven failable' /tmp/.t1179-392
+python3 tools/_t607-drift-gate-reach.py > /tmp/.t1179-607 2>&1 && grep -q 'arm proven failable' /tmp/.t1179-607
+git diff --quiet -- .agentic-framework/agents/context/check-active-task.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.

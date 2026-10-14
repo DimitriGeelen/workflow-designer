@@ -182,13 +182,20 @@ def main():
         print("\npoison arm (restores the file, sha256-verified)")
         before = hashlib.sha256(HOOK.read_bytes()).hexdigest()
         src = HOOK.read_text()
-        needle = "        _deferred_safe_exit=1"
-        if needle not in src:
-            print("  [SKIP] deferral absent — arm would probe UNPOISONED code")
+        # T-1179: the deferral is upstream's T-2880 since the T-1167 upgrade (832's own `_deferred_safe_exit=1`
+        # form is gone): a safe command exits early only when it names no task, else it sets SAFE_ALLOWED and
+        # falls through to the drift gate. Poison = the pre-T-392 behaviour, an unconditional early exit.
+        needle = ('        if [ -z "$DRIFT_TARGET" ]; then\n'
+                  '            exit 0\n'
+                  '        fi\n'
+                  '        SAFE_ALLOWED=1\n')
+        if src.count(needle) != 1:
+            print(f"  [FAIL] mutation target not found once in {HOOK.name} (found {src.count(needle)}x): the"
+                  " deferral moved again — re-anchor this arm; an arm that cannot run proves nothing")
             arm_ok = False
         else:
             # Restore the original immediate exit: pattern 2 must go dark again.
-            HOOK.write_text(src.replace(needle, "        exit 0", 1))
+            HOOK.write_text(src.replace(needle, "        exit 0\n", 1))
             try:
                 poisoned = evaluate(root)
             finally:

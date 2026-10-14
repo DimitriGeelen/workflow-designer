@@ -130,7 +130,9 @@ def pattern2_status(root):
         print("             early-return at check-active-task.sh:97 exits 0 before the gate")
         print("             at :305, so no anchor fix can reach it. Not fixed by T-607.")
     else:
-        print("             T-392 appears to have landed — fold this case into the matrix above.")
+        print("             T-392 landed; its matrix (tools/_t392-safelist-shadow-gate.py) covers P2 in the")
+        print("             same four forms (bare, bin, mandated, absolute) and its poison arm proves it — not")
+        print("             duplicated here (T-1179).")
     return reachable
 
 
@@ -145,24 +147,30 @@ def main():
         print("\npoison arm (restores the file, sha256-verified)")
         before = hashlib.sha256(HOOK.read_bytes()).hexdigest()
         src = HOOK.read_text()
-        needle = "(^|[[:space:]])([^[:space:]]*/)?fw"
-        if needle not in src:
-            print("  [SKIP] widened anchor absent — arm would probe UNPOISONED code")
+        # T-1179: the path widening no longer lives in the regex anchor (upstream patterns are `(bin/)?fw` again);
+        # 832's T-639 clause normaliser rewrites any `<path>/fw` clause to `fw` before the patterns run. Poison =
+        # drop that line: the mandated (.agentic-framework/bin/fw) and absolute forms must go dark, bare/bin stay.
+        needle = '        if [[ "$clause" =~ ^[^[:space:]]*/fw([[:space:]].*)$ ]]; then clause="fw${BASH_REMATCH[1]}"; fi\n'
+        if src.count(needle) != 1:
+            print(f"  [FAIL] mutation target not found once in {HOOK.name} (found {src.count(needle)}x): the"
+                  " path normalisation moved again — re-anchor this arm; an arm that cannot run proves nothing")
             arm_ok = False
         else:
-            HOOK.write_text(src.replace(needle, "(^|[[:space:]])(bin/)?fw"))
+            HOOK.write_text(src.replace(needle, "", 1))
             try:
                 poisoned = evaluate(root)
             finally:
                 HOOK.write_text(src)
             restored = hashlib.sha256(HOOK.read_bytes()).hexdigest() == before
-            # The arm must redden the MANDATED/ABSOLUTE path forms and leave bare/bin green.
+            # The arm must redden every PATH form and leave bare `fw` green. Since T-1179 that includes bin/fw:
+            # clauses are only matched when they start with `fw`, so the normaliser carries bin/ as well (under the
+            # old `(bin/)?fw` regex design bin/ stayed green; that design is gone).
             red = {lbl.split()[1] for lbl, k, e, s, good, rc in poisoned
                    if not good and k == "fix"}
             green = {lbl.split()[1] for lbl, k, e, s, good, rc in poisoned
                      if good and k == "fix"}
-            arm_ok = ({"mandated", "absolute"} <= red) and ({"bare", "bin"} <= green) and restored
-            print(f"  [{'PROVEN' if arm_ok else 'NOT PROVEN'}] revert to (bin/)? anchor: "
+            arm_ok = ({"bin", "mandated", "absolute"} <= red) and ({"bare"} <= green) and restored
+            print(f"  [{'PROVEN' if arm_ok else 'NOT PROVEN'}] drop the <path>/fw clause normaliser: "
                   f"reddened {sorted(red) or 'NOTHING'}, still green {sorted(green)}; "
                   f"restored={'yes' if restored else 'NO — TREE LEFT DIRTY'}")
 
