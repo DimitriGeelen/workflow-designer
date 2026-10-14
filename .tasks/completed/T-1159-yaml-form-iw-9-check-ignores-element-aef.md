@@ -9,13 +9,13 @@ description: >
   only mention it as "filed as an observation". No task carries it. Original observation
   text is in .context/inbox.yaml under OBS-436.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [observations]
-components: []
+components: [tests/run-bridge-tests.sh, tools/validate-workflow.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:21:08Z
-last_update: 2026-10-14T21:55:14Z
-date_finished:
+last_update: 2026-10-14T21:55:16Z
+date_finished: 2026-10-14T21:55:16Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -363,3 +363,15 @@ python3 tests/test_validate_iw9.py
 ### 2026-10-14T21:51:48Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7aebc37b
+- **Timestamp:** 2026-10-14T21:55:23Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-14T21:55:16Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
