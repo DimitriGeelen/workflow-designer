@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:21:03Z
-last_update: 2026-10-14T19:33:55Z
+last_update: 2026-10-14T21:43:44Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -90,9 +90,9 @@ the real red count and gives every red task a cause and an owner.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] One full `fw verify-queue --all --json` sweep has run; the per-task verdicts and the red/green/skipped counts are in `docs/reports/T-1157-verify-queue-sweep.md`
-- [ ] Every red task is classified with evidence (stale verification line, real regression, environment/timeout) and has a carrier: fixed under this task when it is the verification line itself, else a new task (one per independent bug)
-- [ ] A re-run of `fw verify-queue --task` on each task fixed here passes
+- [x] One full `fw verify-queue --all --json` sweep has run; the per-task verdicts and the red/green/skipped counts are in `docs/reports/T-1157-verify-queue-sweep.md` — 16 checked, 8 red (7 fail, 1 timeout)
+- [x] Every red task is classified with evidence (stale verification line, real regression, environment/timeout) and has a carrier: fixed under this task when it is the verification line itself, else a new task (one per independent bug) — 6 fixed here, T-1178 (regression), T-1179 (harness drift), T-340 timeout → suite run → T-1180
+- [x] A re-run of `fw verify-queue --task` on each task fixed here passes — T-410 6/6, T-593 9/9, T-597 7/7, T-540 4/4, T-703 4/4, T-884 22/22 (and T-866 8/8, T-392 2/2 after their tasks)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -126,6 +126,11 @@ the real red count and gives every red task a cause and an owner.
 -->
 
 ## Verification
+test -s docs/reports/T-1157-verify-queue-sweep.md
+grep -q '16 checked, 8 red' docs/reports/T-1157-verify-queue-sweep.md
+grep -q '278 passed, 4 failed' docs/reports/T-1157-verify-queue-sweep.md
+tools/_t596-arc0-exit-gate.sh --self-test
+python3 tools/_t703-inbox-residue.py --probe-dismiss
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
