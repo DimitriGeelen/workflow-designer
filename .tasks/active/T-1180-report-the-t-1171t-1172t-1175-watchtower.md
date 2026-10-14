@@ -46,7 +46,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T20:15:17Z
-last_update: 2026-10-14T21:39:48Z
+last_update: 2026-10-14T21:42:02Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -92,10 +92,10 @@ AEF. The drain ratchet (`tools/_t688`) went red on it (42 > 41).
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `docs/reports/T-1180-watchtower-designer-upstream.md` says what each change does and why, with the 832 commits, and a patch of the three files with paths relative to AEF's tree that `git apply --check` accepts on a clean copy of the vendored files at their pre-change commit
-- [ ] The report is sent to AEF over the sidecar (message id recorded)
-- [ ] All three register entries carry `delivered: reported` and a `delivered_ref` naming that message; the stale "Not yet reported to AEF" lines are gone
-- [ ] `python3 tools/_t688-divergence-drain-ratchet.py` is green
+- [x] `docs/reports/T-1180-watchtower-designer-upstream.md` says what each change does and why, with the 832 commits, and a patch of the three files with paths relative to AEF's tree that `git apply --check` accepts on a clean copy of the vendored files at their pre-change commit — APPLY-CHECK-OK on f9a1fc70~1; not checked on AEF's tree (project boundary), said so in the report
+- [x] The report is sent to AEF over the sidecar (message id recorded) — b9ede25a-b1a0-4c9d-a99e-11c4220f3080, conversation 832-watchtower-designer-t1180, RECEIVED
+- [x] All three register entries carry `delivered: reported` and a `delivered_ref` naming that message; the stale "Not yet reported to AEF" lines are gone
+- [x] `python3 tools/_t688-divergence-drain-ratchet.py` is green — 41 at baseline 41; `_t517` OK
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -129,6 +129,12 @@ AEF. The drain ratchet (`tools/_t688`) went red on it (42 > 41).
 -->
 
 ## Verification
+test -s docs/reports/T-1180-watchtower-designer-upstream.md
+test "$(grep -c '^diff --git a/web/' docs/reports/T-1180-watchtower-designer.patch)" -eq 3
+test "$(grep -c 'b9ede25a' .agentic-framework/.vendor-divergence.yaml)" -eq 3
+! grep -q 'Not yet reported to AEF' .agentic-framework/.vendor-divergence.yaml
+python3 tools/_t688-divergence-drain-ratchet.py
+python3 tools/_t517-vendor-divergence.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.

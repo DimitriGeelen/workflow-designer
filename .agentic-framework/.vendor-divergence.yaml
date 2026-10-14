@@ -230,7 +230,7 @@ entries:
     task: T-1048, T-1172
     upstream: fix
     delivered: reported
-    delivered_ref: "AEF inbox @348, conversation designer-corpus-thumbnails, client_msg_id 6a6a76ef"
+    delivered_ref: "T-1048 part: AEF inbox @348, conversation designer-corpus-thumbnails, client_msg_id 6a6a76ef. T-1172 part: T-1180 report + patch, conversation 832-watchtower-designer-t1180, client_msg_id b9ede25a (RECEIVED 2026-10-14)"
     reason: >-
       Operator request: preview thumbnails on the /designer corpus page. Each project gains
       `thumb_url` (/api/thumb?id=&v=<latest>) only when <store>/<id>/v<latest>.png exists, so the
@@ -239,11 +239,13 @@ entries:
       a Watchtower page (navigation kept, designer framed from /designer/app with the same load value, so the
       T-2596/T-2599 nonce flow is untouched) with a fullscreen toggle like the fabric browser; the cards'
       open_url points at it. Before, /designer/app replaced Watchtower and only the browser's Back returned.
-      Guard: tools/_t1172-designer-open-test.py (bridge-wired). Not yet reported to AEF.
+      Guard: tools/_t1172-designer-open-test.py (bridge-wired).
   - path: .agentic-framework/web/templates/designer_open.html
     kind: added
     task: T-1172, T-1175
     upstream: fix
+    delivered: reported
+    delivered_ref: "T-1180 report + patch, conversation 832-watchtower-designer-t1180, client_msg_id b9ede25a (RECEIVED 2026-10-14)"
     reason: >-
       The inline page for /designer/open (T-1172): Watchtower's base layout, a bar (back to the maps, title,
       version, "Open alone", fullscreen toggle) and the designer in a frame filling the viewport; the
@@ -257,7 +259,7 @@ entries:
     task: T-1048, T-1171
     upstream: fix
     delivered: reported
-    delivered_ref: "AEF inbox @348, conversation designer-corpus-thumbnails, client_msg_id 6a6a76ef"
+    delivered_ref: "T-1048 part: AEF inbox @348, conversation designer-corpus-thumbnails, client_msg_id 6a6a76ef. T-1171 part: T-1180 report + patch, conversation 832-watchtower-designer-t1180, client_msg_id b9ede25a (RECEIVED 2026-10-14)"
     reason: >-
       The card shows a 120px preview tile above its title, or a dashed "no preview" box. It is a
       plain <img>, deliberately not a link: the card's one editor link must keep minting its
@@ -265,7 +267,7 @@ entries:
       (fallback to an empty <img>) shown red. T-1171 (operator request 2026-10-13): hovering the tile shows a
       fly-out (the same image ~2x, kept inside the viewport, after a short delay) with an Open button; Open,
       the fly-out image and a click on the tile CLICK the card's editor link (corpusOpenCard), so it stays the
-      card's only ?load link. Guard: tools/_t1171-landing-flyout-test.py (bridge-wired). Not yet reported to AEF.
+      card's only ?load link. Guard: tools/_t1171-landing-flyout-test.py (bridge-wired).
   - path: .agentic-framework/lib/ts/dist/loop-detect.js
     kind: content
     task: T-1036
