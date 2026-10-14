@@ -71,7 +71,10 @@ check "C2 and reports the fixed classification holding"  "1" "$(run "$C" | grep 
 # The classifier call the mutants replace. Inside the gate's `python3 -c "..."` block, so no
 # injected text may contain a double quote (the first one ends the bash string — see the
 # \x27 note in the git history of this file, T-402 M2).
-ANCHOR='    is_allowed_cmd, _reason = _classify(command)'
+# T-1181: anchored on the START of the call. The T-1167 upgrade added arguments
+# (_classify(command, cwd=..., framework_root=..., project_root=...)), and the exact-line anchor stopped matching,
+# so every sweep since reported these teeth ABSTAINED. The mutants replace the WHOLE line whatever its arguments.
+ANCHOR='    is_allowed_cmd, _reason = _classify(command'
 # The pre-T-2919 allowlist, as vendored before 1.7.68 (git show 7b5e227e~1:…/budget-gate.sh:152).
 OLD_ALLOW='git\s+commit|git\s+add|git\s+push|git\s+fetch|git\s+(status|log|diff)|fw\s+(handover|git|context\s+init|resume|task)|context\.sh\s+init|resume\.sh|checkpoint\.sh|budget-gate\.sh|handover\.sh|update-task\.sh|echo\s+0\s*>'
 
@@ -79,10 +82,12 @@ mutate() {  # $1 = gate copy, $2 = replacement line, $3 = label
   python3 - "$1" "$ANCHOR" "$2" <<'PY' || { echo "  FAIL  $3 mutation anchor missing" >&2; exit 2; }
 import sys
 p, anchor, repl = sys.argv[1:4]
-src = open(p, encoding="utf-8").read()
-if src.count(anchor + "\n") != 1:
+lines = open(p, encoding="utf-8").read().split("\n")
+hits = [i for i, l in enumerate(lines) if l.startswith(anchor)]
+if len(hits) != 1:
     sys.exit(1)
-open(p, "w", encoding="utf-8").write(src.replace(anchor + "\n", repl + "\n"))
+lines[hits[0]] = repl
+open(p, "w", encoding="utf-8").write("\n".join(lines))
 PY
 }
 row() { echo "$out" | tr -s ' ' | grep -cF "$1"; }
