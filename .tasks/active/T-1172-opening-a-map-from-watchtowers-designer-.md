@@ -11,7 +11,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_3_run
 owner: agent
 horizon: now
 tags: [watchtower, designer-landing, navigation, bug]
@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T21:48:01Z
-last_update: 2026-10-13T23:23:56Z
+last_update: 2026-10-14T09:12:01Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -286,6 +286,20 @@ grep -q "_t1172-designer-open-test.py" tests/run-bridge-tests.sh
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** after opening a map from Watchtower's /designer page the operator "never got back to the normal
+navigation of Watchtower": the map filled the whole tab and only the browser's Back returned.
+
+**Root cause:** the cards linked to /designer/app, which serves the designer bundle as the entire page (T-2589/T-2599
+moved the editor there as a standalone app because it is not an htmx partial). Nothing put Watchtower around it; the
+only embedding page (/designer/overlay) is standalone too.
+
+**Why structurally allowed:** the landing page's tests (T-2596 nonce counter, _t1048 tiles) checked the cards' link
+TARGET and nonce, never where the user ends up or how they get back; a dead-end page is invisible to any check that
+reads only the link.
+
+**Prevention:** tools/_t1172-designer-open-test.py (bridge-wired) asserts the cards open the inline page, that it
+renders inside Watchtower's layout with the frame and the fullscreen toggle, and that the frame keeps the load value.
 
 ## Evolution
 
