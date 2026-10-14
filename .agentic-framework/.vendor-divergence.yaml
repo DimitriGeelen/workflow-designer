@@ -252,7 +252,7 @@ entries:
       toolbar). Guard: tools/_t1172-designer-open-test.py.
   - path: .agentic-framework/web/templates/designer_landing.html
     kind: content
-    task: T-1048
+    task: T-1048, T-1171
     upstream: fix
     delivered: reported
     delivered_ref: "AEF inbox @348, conversation designer-corpus-thumbnails, client_msg_id 6a6a76ef"
@@ -260,7 +260,10 @@ entries:
       The card shows a 120px preview tile above its title, or a dashed "no preview" box. It is a
       plain <img>, deliberately not a link: the card's one editor link must keep minting its
       click-time nonce (AEF T-2596). Guard: tools/_t1048-gallery-thumbs.py legs 5-6, with a mutant
-      (fallback to an empty <img>) shown red.
+      (fallback to an empty <img>) shown red. T-1171 (operator request 2026-10-13): hovering the tile shows a
+      fly-out (the same image ~2x, kept inside the viewport, after a short delay) with an Open button; Open,
+      the fly-out image and a click on the tile CLICK the card's editor link (corpusOpenCard), so it stays the
+      card's only ?load link. Guard: tools/_t1171-landing-flyout-test.py (bridge-wired). Not yet reported to AEF.
   - path: .agentic-framework/lib/ts/dist/loop-detect.js
     kind: content
     task: T-1036

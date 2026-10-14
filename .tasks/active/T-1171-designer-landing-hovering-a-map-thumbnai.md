@@ -1,13 +1,18 @@
 ---
 id: T-1171
-name: "Designer landing: hovering a map thumbnail enlarges it (fly-out), leaving shrinks it back; the enlarged view has an Open button"
+name: "Designer landing: hovering a map thumbnail enlarges it (fly-out), leaving shrinks
+  it back; the enlarged view has an Open button"
 description: >
-  Operator request 2026-10-13: on Watchtower's /designer page the map thumbnails (T-1048) should zoom up smoothly on hover, as a fly-out above the grid, and return on mouse-out; the enlarged view carries an 'Open' (enter) button that opens the map. Vendored web template (832-local, designer_landing.html): declare the divergence.
+  Operator request 2026-10-13: on Watchtower's /designer page the map thumbnails (T-1048)
+  should zoom up smoothly on hover, as a fly-out above the grid, and return on mouse-out;
+  the enlarged view carries an 'Open' (enter) button that opens the map. Vendored
+  web template (832-local, designer_landing.html): declare the divergence.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [watchtower, designer-landing, ux]
 components: []
 related_tasks: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T21:47:55Z
-last_update: 2026-10-13T21:47:55Z
-date_finished: null
+last_update: 2026-10-13T23:44:25Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,22 +55,54 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-13T23:44:26Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1171: Designer landing: hovering a map thumbnail enlarges it (fly-out), leaving shrinks it back; the enlarged view has an Open button
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Operator request (2026-10-13): on Watchtower's /designer page, hovering a map thumbnail (T-1048) should blow it
+up like a fly-out, shrink back when the mouse leaves, and the enlarged view needs an "Open" (enter) button; a click
+on the thumbnail opens the map too. The card's "Open in editor" link must stay the card's ONLY nonce-minting link
+(T-2596, the per-card counter), so the fly-out's Open and the thumbnail click trigger that link, they are not links
+themselves. Opening goes to the inline page from T-1172. Vendored template (designer_landing.html, 832-local T-1048).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Hovering a thumbnail shows a fly-out of the same image, several times larger, above the grid with a short grow animation; leaving the thumbnail and the fly-out shrinks it away; it stays inside the viewport at the grid's edges — headless Chromium, real mouse hover: class fly, opacity 1, 680px vs a 316px tile; at 800px wide right edge 792 (inside), at 1400 the right-column card's fly-out 712..1392 (inside); mouse to the actions row: opacity 0, hidden
+- [x] The fly-out carries an "Open" button; it and a click on the thumbnail open the map through the card's existing "Open in editor" link (nonce minted by that link, which stays the card's only link with ?load) — Open clicked: /designer/open?load=...%26t%3D1791958855988 (fresh nonce); markup leg 3-4
+- [x] Cards without a thumbnail show no fly-out — template: the no-thumb branch has no fly-out; test leg 2 (this store has 0 such cards, so it is vacuous here) and _t1048 leg 5 renders a card without a thumb
+- [x] A test proves the markup (one fly-out per thumbnail card, Open button wired to the card link, no extra ?load link) and a browser check measures hover -> visible and larger, leave -> hidden, Open -> /designer/open with a fresh nonce; screenshots read — tools/_t1171-landing-flyout-test.py 5/5 (bridge-wired); _t1048 updated to count tiles, not every image (6/6)
+- [x] .vendor-divergence.yaml updated for designer_landing.html; tools/_t517 OK
 
-### Human
+## Visual Verification
+- `.playwright-mcp/t1171-flyout.png` (1400x900, private Watchtower on this tree): the third card's map enlarged above
+  the grid, kept inside the right edge, bar "t101-review-harvest-pipeline · v2" with "Open →". The enlarged image is the
+  same stored preview PNG scaled up, so it is softer than the designer itself (a larger stored preview would sharpen it).
+
+<!-- No Human criteria: the operator sees it once Watchtower is restarted (runme job). Template note follows. -->
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -97,6 +134,9 @@ date_finished: null
 -->
 
 ## Verification
+python3 tools/_t1171-landing-flyout-test.py
+python3 tools/_t1048-gallery-thumbs.py
+python3 tools/_t517-vendor-divergence.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -323,3 +363,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1171-designer-landing-hovering-a-map-thumbnai.md
 - **Context:** Initial task creation
+
+### 2026-10-13T23:44:25Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
