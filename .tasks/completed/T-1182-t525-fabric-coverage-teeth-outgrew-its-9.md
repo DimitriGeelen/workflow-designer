@@ -12,13 +12,13 @@ description: >
   (_t549 168/180s, _t550 75/90s, _t567 76/90s). Related: T-1166 (audit-reading teeth
   under a concurrent cron audit).
 
-status: started-work
+status: work-completed
 workflow_type: test
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [teeth, performance]
-components: []
+components: [tools/_t402-gate-drive-teeth.sh, tools/_t509-instrument-sweep.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -47,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T22:44:35Z
-last_update: 2026-10-14T23:06:58Z
-date_finished:
+last_update: 2026-10-14T23:09:59Z
+date_finished: 2026-10-14T23:09:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -346,8 +346,9 @@ timeout 160 python3 tools/_t525-fabric-coverage-teeth.py
 
 ### 2026-10-15 — measured caps, not a cheaper _t525
 - **Chose:** SLOW_CAP entries at ~1.5x the worst observed run: _t525 160 s, _t549 270 s (was 180), _t550 120 s,
-  _t567 120 s; the numbers written beside them in `tools/_t509-instrument-sweep.sh`. Follow up with AEF on the
-  single-check audit selector that T-1051 asked for on 2026-10-05.
+  _t567 120 s; the numbers written beside them in `tools/_t509-instrument-sweep.sh`. The single-check audit
+  selector first asked of AEF on 2026-10-05 was asked again with the new numbers: sidecar 684349da, conversation
+  832-audit-check-selector-t1182, RECEIVED (done here, not deferred).
 - **Why:** the time is the framework's own structure audit (54 s for 832 measured here; 58 s in the audit's own
   full-audit-timing.yaml; 22 s at T-1051, 16.9 s at T-549), not waste in the teeth. Leg 1 audits this repository on
   purpose (T-549: "the check is reached here" cannot be proven on a fixture).
@@ -382,3 +383,15 @@ timeout 160 python3 tools/_t525-fabric-coverage-teeth.py
 ### 2026-10-14T22:46:11Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2877dc17
+- **Timestamp:** 2026-10-14T23:11:28Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-14T23:09:59Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1182: _t525 fabric-coverage teeth outgrew its 90s sweep cap (103s on a quiet machine): measure and fix
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-14T23:11:36Z
+# ============================================================================
+
+task_id: T-1182
+task_name: "_t525 fabric-coverage teeth outgrew its 90s sweep cap (103s on a quiet machine): measure and fix"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-14T22:44:35Z
+completed: 2026-10-14T23:09:59Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-10-15T01:06:58+02:00
+last_commit: 2026-10-15T01:06:58+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  measured SLOW_CAP entries for the four probes that pay for a whole structure audit (54 s on 832 now, 16.9 s at T-549): _t525 160, _t549 270, _t550 120, _t567 120 (~1.5x worst run); instrument sweep 101/101 green, nothing killed or abstained
+
+# Key outcomes
+outcomes:
+  - 'Where the time goes is measured per audit call and per leg, written in this task''s Updates with the numbers'
+  - 'The cause is fixed at its source when it is in the teeth (wasted work), or the probe gets a measured SLOW_CAP entry with stated headroom when the cost is legitimate — the choice and numbers recorded in ## Decisions'
+  - '`bash tools/_t509-instrument-sweep.sh` no longer reports `_t525` as did-not-finish on a quiet machine, and `_t525` still passes 8/8 — SWEEP PASS 101/101, 0 did-not-finish, 0 abstained, no headroom warning (740 s)'
+  - 'The three probes near their caps (_t549, _t550, _t567) are re-measured and their numbers recorded'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-15 — measured caps, not a cheaper _t525'
+    chose: 'SLOW_CAP entries at ~1.5x the worst observed run: _t525 160 s, _t549 270 s (was 180), _t550 120 s, _t567 120 s; the numbers written beside them in `tools/_t509-instrument-sweep.sh`. The single-check audit selector first asked of AEF on 2026-10-05 was asked again with the new numbers: sidecar 684349da, conversation 832-audit-check-selector-t1182, RECEIVED (done here, not deferred).'
+    rationale: 'the time is the framework''s own structure audit (54 s for 832 measured here; 58 s in the audit''s own full-audit-timing.yaml; 22 s at T-1051, 16.9 s at T-549), not waste in the teeth. Leg 1 audits this repository on purpose (T-549: "the check is reached here" cannot be proven on a fixture).'
+    alternatives_rejected: ['moving leg 1 onto the fixture (deletes what it proves); reading the latest cron audit record instead of running one (tests a record, not the check, and drags in T-1166''s concurrency); raising the global 90 s cap (hides the next probe that grows).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1182-t525-fabric-coverage-teeth-outgrew-its-9.md'
+  - 'tools/_t509-instrument-sweep.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-15T01:06:58'
+    action: 'T-1182: measured SLOW_CAP entries for the four probes that pay for a whole structure audit (54 s on 832 now, 16.9 s at T-549): _t525 160, _t549 270, _t550 120, _t567 120 (~1.5x worst run); instrument sweep 101/101 green, nothing killed or abstained'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 25 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [teeth, performance]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 25
+  commits: 1
+  files_changed: 2
+  lines_added: 80
+  lines_removed: 12
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1182-t525-fabric-coverage-teeth-outgrew-its-9.md
+generated_by: context-agent-hybrid
