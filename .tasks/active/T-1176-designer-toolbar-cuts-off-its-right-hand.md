@@ -43,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T17:25:44Z
-last_update: 2026-10-14T17:33:12Z
+last_update: 2026-10-14T17:41:25Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -141,7 +141,8 @@ server-gated buttons shown). Read control by control:
   all visible, none clipped.
 - 1440: 2 rows; row 1 brand … View XML (actions right of the brand), row 2 Settings … Save. All visible.
 - 1280 / 1200 (the inline frame): 2 rows; row 1 brand … Reset, row 2 Clean layout … Save. All visible.
-- 1024: 2 rows; row 1 brand … zoom group (− fit + ⤢) on the right, row 2 ◧ ◨ ⛶ together, + Add Lane … Save.
+- 1024: 2 rows; standalone (after the 8→6px gap): row 1 brand … zoom group … ◧ ◨ ⛶, row 2 + Add Lane … Save
+  (inline 1024, narrower frame: ◧ ◨ ⛶ open row 2). Corrected per reviewer V-20261014-dabbb3bd.
   All visible. (The reviewer's split ◧ ◨ | ⛶ is gone: zoom and view controls now wrap as groups; test leg asserts it.)
 - First attempt (two blocks wrapping) was reachable but wasted row 1 (1440: ~600px empty; 1024: 3 rows) — redone
   as one flowing sequence after reading those screenshots.
