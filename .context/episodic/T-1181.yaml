@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1181: Re-anchor the T-402 gate-drive teeth on the upgraded budget-gate.sh (_classify call gained arguments)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-14T22:46:04Z
+# ============================================================================
+
+task_id: T-1181
+task_name: "Re-anchor the T-402 gate-drive teeth on the upgraded budget-gate.sh (_classify call gained arguments)"
+workflow_type: test
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-14T22:44:29Z
+completed: 2026-10-14T22:45:42Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-15T00:45:41+02:00
+last_commit: 2026-10-15T00:45:41+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-402 gate-drive teeth re-anchored on the start of the _classify(command call (the upgrade added arguments), replacing the whole line; 23/23 instead of ABSTAINED in every sweep. T-1182 filed: _t525 takes 103s against its 90s sweep cap
+
+# Key outcomes
+outcomes:
+  - 'The mutation anchors on the `is_allowed_cmd, _reason = _classify(command` call whatever its arguments, and replaces the whole line'
+  - '`tools/_t402-gate-drive-teeth.sh` runs to a verdict: C1/C2 green, and each mutant (M1, M2) turns the probe red — 23/23'
+  - 'If the call moves again the teeth still abstain with a message naming the missing anchor (not a pass) — zero or several matching lines exit 1 into the unchanged `FAIL … mutation anchor missing` / exit 2 path'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1181-re-anchor-the-t-402-gate-drive-teeth-on-.md'
+  - '.tasks/active/T-1182-t525-fabric-coverage-teeth-outgrew-its-9.md'
+  - 'tools/_t402-gate-drive-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-15T00:45:41'
+    action: 'T-1181: T-402 gate-drive teeth re-anchored on the start of the _classify(command call (the upgrade added arguments), replacing the whole line; 23/23 instead of ABSTAINED in every sweep. T-1182 filed: _t525 takes 103s against its 90s sweep cap'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [upgrade, teeth]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1
+  commits: 1
+  files_changed: 3
+  lines_added: 693
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1181-re-anchor-the-t-402-gate-drive-teeth-on-.md
+generated_by: context-agent-hybrid
