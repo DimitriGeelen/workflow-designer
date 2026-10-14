@@ -1,13 +1,18 @@
 ---
 id: T-1162
-name: "T-682 boundary inventory: cited evidence line numbers go stale silently (anchor on content or assert the cited line)"
+name: "T-682 boundary inventory: cited evidence line numbers go stale silently (anchor
+  on content or assert the cited line)"
 description: >
-  Promoted from OBS-456 by T-1149 (observation triage, 2026-10-13). Still true. tools/_t682-boundary-inventory.py has no check that cited line numbers still contain the cited text. T-958 notes the staleness as "filed as OBS-456, not fixed here" (T-958:84). No task exists. Original observation text is in .context/inbox.yaml under OBS-456.
+  Promoted from OBS-456 by T-1149 (observation triage, 2026-10-13). Still true. tools/_t682-boundary-inventory.py
+  has no check that cited line numbers still contain the cited text. T-958 notes the
+  staleness as "filed as OBS-456, not fixed here" (T-958:84). No task exists. Original
+  observation text is in .context/inbox.yaml under OBS-456.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: later
+horizon: now
 tags: [observations]
 components: []
 related_tasks: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:21:15Z
-last_update: 2026-10-13T16:21:15Z
-date_finished: null
+last_update: 2026-10-14T21:59:42Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +55,47 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-14T21:57:57Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=3 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L3:keyword=promote)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1162: T-682 boundary inventory: cited evidence line numbers go stale silently (anchor on content or assert the cited line)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+`tools/_t682-boundary-inventory.py` checks the T-682 report against `tools/gallery-serve.py` by comparing route
+SETS. Its evidence bullets cite `gallery-serve.py:N` with the line's text, and an edit that only shifts lines left
+them all pointing at the wrong line while the check stayed green (OBS-456: T-958 found all 19 off by 26-70 lines).
+
+Process note: the tool edits were made while focus was still on T-1170, before this task was started (a slip in
+the task-first rule, caught when the G-020 gate refused the next command); they are committed under this task.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The default check also asserts every `gallery-serve.py:N` citation's line still holds its quoted text; a stale one fails the check, naming the line, the text and where the text is now (or that it is gone) — 21/21 hold today; runs after the route comparison so a route change is still reported as one
+- [x] A report with no readable citations fails rather than passing as "nothing stale" — and so does a report where even ONE citation bullet stopped parsing (found while proving this: a partial format change would otherwise pass on a smaller count)
+- [x] `--self-test` gains a phase that shifts the source by one line and expects every citation flagged as one line down and the check red; the pristine source stays green — phase 4 OK, 21 flagged
+- [x] The T-958 teeth that the bridge suite runs (`tools/_t958-boundary-row-teeth.py`) still pass — 5/5
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +129,9 @@ date_finished: null
 -->
 
 ## Verification
+python3 tools/_t682-boundary-inventory.py
+python3 tools/_t682-boundary-inventory.py --self-test
+python3 tools/_t958-boundary-row-teeth.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -323,3 +358,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1162-t-682-boundary-inventory-cited-evidence-.md
 - **Context:** Initial task creation
+
+### 2026-10-14T21:57:56Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)

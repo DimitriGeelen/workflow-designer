@@ -399,14 +399,31 @@ def parse_report_routes(text: str) -> set[tuple[str, str]]:
     return out
 
 
+# T-1162 (OBS-456): every evidence bullet cites `gallery-serve.py:N` with the line's text. The route check
+# compares SETS, so an edit that only shifts lines left every citation pointing at the wrong line while the
+# check stayed green (T-958 measured all 19 drifted by 26-70 lines). Each citation is now held to its text.
+CITATION_RE = re.compile(r'`gallery-serve\.py:(\d+)` — `(.*)`\s*$', re.M)
+
+
+def stale_citations(report_text: str, src: str) -> list[tuple[int, str, list[int]]]:
+    """(cited line, cited text, lines where that text is now) for every citation whose line no longer holds it."""
+    lines = [l.strip() for l in src.splitlines()]
+    out = []
+    for m in CITATION_RE.finditer(report_text):
+        ln, text = int(m.group(1)), m.group(2)
+        if not (1 <= ln <= len(lines) and lines[ln - 1] == text):
+            out.append((ln, text, [i for i, l in enumerate(lines, 1) if l == text]))
+    return out
+
+
 def check(server_src: str | None = None) -> int:
     src = server_src if server_src is not None else open(SERVER, encoding='utf-8').read()
     derived = derive_routes(src)
     if not os.path.exists(REPORT):
         print('DRIFT: report does not exist — run --write', file=sys.stderr)
         return 1
-    documented = parse_report_routes(open(REPORT, encoding='utf-8').read())
-
+    report_text = open(REPORT, encoding='utf-8').read()
+    documented = parse_report_routes(report_text)
     missing = derived - documented
     extra = documented - derived
     unclassified = {r for r in derived if r not in ROUTE_SEMANTICS}
@@ -424,7 +441,30 @@ def check(server_src: str | None = None) -> int:
         print('fenced on purpose. Run --write after adding its semantics.', file=sys.stderr)
         return 1
 
-    print('OK — %d routes, server and inventory agree, all classified' % len(derived))
+    # Citations second: a route change usually shifts lines too, and the route message is the one that matters.
+    cited = len(CITATION_RE.findall(report_text))
+    # An unparseable citation must not read as "not stale": every bullet that cites a line must parse.
+    unread = [l for l in re.findall(r'^- .*gallery-serve\.py:\d+.*$', report_text, re.M) if not CITATION_RE.search(l)]
+    if cited == 0 or unread:
+        print('DRIFT: %s — the bullet format changed, so those citations were not checked:'
+              % ('no `gallery-serve.py:N` citation the checker can read' if cited == 0
+                 else '%d citation bullet(s) the checker cannot read' % len(unread)), file=sys.stderr)
+        for l in unread[:5]:
+            print('  %s' % l[:100], file=sys.stderr)
+        return 1
+    stale = stale_citations(report_text, src)
+    if stale:
+        print('DRIFT: %d of %d evidence citations no longer point at their text:' % (len(stale), cited),
+              file=sys.stderr)
+        for ln, text, now in stale:
+            where = ('now at line %s' % ', '.join(map(str, now))) if now else 'text no longer in the file'
+            print('  gallery-serve.py:%d `%s` — %s' % (ln, text[:80], where), file=sys.stderr)
+        print('\nA citation that lands on the wrong line sends a reader to the wrong code. '
+              'Run --write to regenerate.', file=sys.stderr)
+        return 1
+
+    print('OK — %d routes, server and inventory agree, all classified; %d evidence citations point at their text'
+          % (len(derived), cited))
     return 0
 
 
@@ -500,6 +540,25 @@ def self_test() -> int:
         return 1
     print('phase 3 OK — %d classifier cases hold, including the nested-paren open(...,\'w\') '
           'that the first version under-reported' % len(cases))
+    # T-1162 phase 4: the citation check must go red when lines only SHIFT (the OBS-456 case: same routes,
+    # same text, every cited line number wrong), and stay green on the unshifted source.
+    report_text = open(REPORT, encoding='utf-8').read()
+    if stale_citations(report_text, src):
+        print('SELF-TEST FAIL: citations already stale on the pristine source — run --write first',
+              file=sys.stderr)
+        return 1
+    shifted = '# T-1162 probe: one line added at the top\n' + src
+    moved = stale_citations(report_text, shifted)
+    # (a cited text can occur more than once, e.g. `write_registry(reg)`: the shifted line must be AMONG its places)
+    if len(moved) != len(CITATION_RE.findall(report_text)) or any(ln + 1 not in now for ln, _t, now in moved):
+        print('SELF-TEST FAIL: shifting the source by one line did not flag every citation as moved by one '
+              '(got %d flagged)' % len(moved), file=sys.stderr)
+        return 1
+    if check(server_src=shifted) == 0:
+        print('SELF-TEST FAIL: check stayed green with every citation one line off', file=sys.stderr)
+        return 1
+    print('phase 4 OK — a one-line shift flags all %d citations (each now one line down) and the check goes red'
+          % len(moved))
     print('\nself-test OK — both the route deriver and the ledger scan are capable of moving')
     return 0
 
