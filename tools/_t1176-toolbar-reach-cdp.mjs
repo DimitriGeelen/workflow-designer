@@ -52,7 +52,11 @@ const MEASURE = `(function(){
   var below = ['palette', 'canvas-wrap', 'properties'].map(function(id){ var e = document.getElementById(id) || document.querySelector('.' + id);
     return e ? { id: id, top: Math.round(e.getBoundingClientRect().top) } : null; }).filter(Boolean);
   var overlap = below.filter(function(b){ return b.top < Math.round(hr.bottom) - 1; });
-  return { width: innerWidth, headerH: Math.round(hr.height), shown: shown.length, bad: bad, overlap: overlap, below: below };
+  // The zoom (− fit + ⤢) and view (◧ ◨ ⛶) controls must each stay on ONE row (reviewer on T-1176: ⛶ split off at 1024).
+  var groups = [['btn-zoom-out', 'zoom-level', 'btn-zoom-in', 'btn-zoom-fit'], ['btn-toggle-palette', 'btn-toggle-props', 'btn-focus-mode']];
+  var split = groups.filter(function(g){ var tops = g.map(function(id){ return Math.round(document.getElementById(id).getBoundingClientRect().top); });
+    return Math.max.apply(null, tops) - Math.min.apply(null, tops) > 4; }).map(function(g){ return g.join(' '); });
+  return { width: innerWidth, headerH: Math.round(hr.height), shown: shown.length, bad: bad, overlap: overlap, below: below, split: split };
 })()`;
 
 async function main() {
@@ -79,9 +83,13 @@ async function main() {
       await cmd('Emulation.setDeviceMetricsOverride', { width: w, height: 860, deviceScaleFactor: 1, mobile: false });
       await cmd('Page.navigate', { url: `${BASE}/designer.html?load=rendered/${MAP}.bpmn` });
       await sleep(300); await waitReady(cmd); await sleep(900);   // server-gated buttons appear after /api/health
+      // Measure the layout the user SEES: web fonts are wider than the fallback, and a measurement taken before they
+      // load passed a one-row header that wrapped once they arrived (found reviewing the inline 1920 screenshot).
+      await ev(cmd, `document.fonts.ready.then(function(){ return new Promise(function(r){ setTimeout(r, 300); }); })`);
       const m = await ev(cmd, MEASURE);
       push(`${w}px: all ${m.shown} visible header controls inside the window and clickable`, m.bad.length === 0 && m.shown >= 15, m.bad.length ? m.bad : { shown: m.shown, headerH: m.headerH });
       push(`${w}px: the panels start below the header (no overlap)`, m.overlap.length === 0 && m.below.length >= 2, m.overlap.length ? m.overlap : m.below);
+      push(`${w}px: the zoom group and the view group each stay on one row`, m.split.length === 0, m.split);
       if (w === 1920) push('1920px: the header is still one 48px row', m.headerH === 48, m.headerH);
       // The XML panel is an overlay placed below the header; with a 2-row header a fixed 48px would cover row 2.
       const xp = await ev(cmd, `(function(){ document.getElementById('btn-xml').click();

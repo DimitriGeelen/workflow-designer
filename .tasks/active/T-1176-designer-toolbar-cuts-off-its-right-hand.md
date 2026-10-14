@@ -43,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T17:25:44Z
-last_update: 2026-10-14T17:32:18Z
+last_update: 2026-10-14T17:33:12Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -99,7 +99,7 @@ content and the toolbar wraps onto a second row when it does not fit; one row wh
 ### Human
 - [ ] The header screenshots at 1024, 1280, 1440 and 1920, standalone and inline in Watchtower, show every toolbar control visible and unclipped, the wrap tidy, nothing overlapping, the space used well (independent reviewer, CLAUDE.md rule T-1174)
   **Steps:**
-  1. Open the screenshots listed in this task's `## Visual Verification` (files under `.playwright-mcp/t1176-*.png`).
+  1. Open the screenshots listed in this task's `## Visual Verification`: standalone `.playwright-mcp/t1176-header-*.png` and inline in Watchtower `.playwright-mcp/t1175-inline-*.png`.
   2. In each, check every header control: Open project, Pending refs, +, instances, zoom −/fit/+/⤢, ◧ ◨ ⛶, + Add Lane, Reset, Clean layout, View XML, Settings, Load…, Check, Versions, Save to project, Save.
   **Expected:** every control fully visible in every screenshot; where the toolbar wraps, the second row is aligned and nothing overlaps the canvas.
   **If not:** name the screenshot and the control; the task goes back to the agent.
@@ -141,10 +141,19 @@ server-gated buttons shown). Read control by control:
   all visible, none clipped.
 - 1440: 2 rows; row 1 brand … View XML (actions right of the brand), row 2 Settings … Save. All visible.
 - 1280 / 1200 (the inline frame): 2 rows; row 1 brand … Reset, row 2 Clean layout … Save. All visible.
-- 1024: 2 rows; row 1 brand … ◧ ◨, row 2 ⛶, + Add Lane … Save. All visible. Wart: ⛶ (focus mode) lands at the
-  start of row 2, apart from ◧ ◨ — reachable, but the view group is split.
+- 1024: 2 rows; row 1 brand … zoom group (− fit + ⤢) on the right, row 2 ◧ ◨ ⛶ together, + Add Lane … Save.
+  All visible. (The reviewer's split ◧ ◨ | ⛶ is gone: zoom and view controls now wrap as groups; test leg asserts it.)
 - First attempt (two blocks wrapping) was reachable but wasted row 1 (1440: ~600px empty; 1024: 3 rows) — redone
   as one flowing sequence after reading those screenshots.
+
+**Inline in Watchtower** (reviewer V-20261014-cdf84f4c asked for real ones; a private Watchtower serving this
+working designer, fonts loaded before measuring): `.playwright-mcp/t1175-inline-{1024,1280,1440,1920}.png`.
+- Measured in each: 20 controls, 0 outside the frame or covered; frame margins 13px each side.
+- 1920 (frame 1894px): ONE row, AEF·BPMN … Save. A first take showed Save alone on row 2: the measurement had been
+  taken before the web fonts loaded (wider than the fallback); gap 8→6px fixed it (needs 1848 of 1894) and the test
+  now waits for document.fonts.ready.
+- 1440 (1414px): 2 rows, row 1 brand … View XML, row 2 Settings … Save. 1280 (1254px): 2 rows, row 1 brand … Reset,
+  row 2 Clean layout … Save. 1024 (998px): 2 rows, row 1 brand … zoom, row 2 ◧ ◨ ⛶ … Save. All visible, groups whole.
 
 ## Verification
 PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" timeout 300 node tools/_t1176-toolbar-reach-cdp.mjs > /tmp/t1176.out 2>&1 && grep -q '"pass": true' /tmp/t1176.out
