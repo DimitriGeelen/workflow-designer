@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1180: Report the T-1171/T-1172/T-1175 Watchtower designer changes upstream to AEF (drain ratchet 42 > 41)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-14T21:42:55Z
+# ============================================================================
+
+task_id: T-1180
+task_name: "Report the T-1171/T-1172/T-1175 Watchtower designer changes upstream to AEF (drain ratchet 42 > 41)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-14T20:15:17Z
+completed: 2026-10-14T21:42:42Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-14T23:39:48+02:00
+last_commit: 2026-10-14T23:42:02+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  upstream report + patch for the Watchtower designer pages (T-1171 fly-out, T-1172 inline /designer/open, T-1175 full width); git apply --check OK on the pre-change vendored files. three Watchtower designer fixes reported to AEF (b9ede25a, RECEIVED); register entries marked delivered: reported; drain ratchet back to 41/41
+
+# Key outcomes
+outcomes:
+  - '`docs/reports/T-1180-watchtower-designer-upstream.md` says what each change does and why, with the 832 commits, and a patch of the three files with paths relative to AEF''s tree that `git apply --check` accepts on a clean copy of the vendored files at their pre-change commit — APPLY-CHECK-OK on f9a1fc70~1; not checked on AEF''s tree (project boundary), said so in the report'
+  - 'The report is sent to AEF over the sidecar (message id recorded) — b9ede25a-b1a0-4c9d-a99e-11c4220f3080, conversation 832-watchtower-designer-t1180, RECEIVED'
+  - 'All three register entries carry `delivered: reported` and a `delivered_ref` naming that message; the stale "Not yet reported to AEF" lines are gone'
+  - '`python3 tools/_t688-divergence-drain-ratchet.py` is green — 41 at baseline 41; `_t517` OK'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'three Watchtower designer fixes reported to AEF (b9ede25a, RECEIVED); register entries marked delivered: reported; drain ratchet back to 41/41'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - 'docs/reports/T-1180-watchtower-designer.patch'
+  - 'docs/reports/T-1180-watchtower-designer-upstream.md'
+  - '.tasks/active/T-1180-report-the-t-1171t-1172t-1175-watchtower.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-14T23:39:48'
+    action: 'T-1180: upstream report + patch for the Watchtower designer pages (T-1171 fly-out, T-1172 inline /designer/open, T-1175 full width); git apply --check OK on the pre-change vendored files'
+  - time: '2026-10-14T23:42:02'
+    action: 'T-1180: three Watchtower designer fixes reported to AEF (b9ede25a, RECEIVED); register entries marked delivered: reported; drain ratchet back to 41/41'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 87 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [upstream, aef]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 87
+  commits: 2
+  files_changed: 4
+  lines_added: 667
+  lines_removed: 9
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1180-report-the-t-1171t-1172t-1175-watchtower.md
+generated_by: context-agent-hybrid

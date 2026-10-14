@@ -9,13 +9,13 @@ description: >
   are still red is not re-measured, but nothing carries it. Original observation text
   is in .context/inbox.yaml under OBS-407.
 
-status: started-work
+status: work-completed
 workflow_type: test
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [observations]
-components: []
+components: [tools/_t596-arc0-exit-gate.sh, tools/_t703-inbox-residue.py, tools/_t884-instance-overlay-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:21:03Z
-last_update: 2026-10-14T21:43:44Z
-date_finished:
+last_update: 2026-10-14T21:43:45Z
+date_finished: 2026-10-14T21:43:45Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -364,3 +364,15 @@ python3 tools/_t703-inbox-residue.py --probe-dismiss
 
 ### 2026-10-14T19:20:03Z — status-update [task-update-agent]
 - **Change:** horizon: now → now
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-617afcb7
+- **Timestamp:** 2026-10-14T21:43:53Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-14T21:43:45Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

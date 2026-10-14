@@ -11,11 +11,11 @@ description: >
   at @348, an earlier change). Send AEF one report with the commits and what each
   change does, record the message on all three entries, and get the ratchet green.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [upstream, aef]
 components: []
 related_tasks: []
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T20:15:17Z
-last_update: 2026-10-14T21:42:02Z
-date_finished:
+last_update: 2026-10-14T21:42:42Z
+date_finished: 2026-10-14T21:42:42Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -132,6 +132,8 @@ AEF. The drain ratchet (`tools/_t688`) went red on it (42 > 41).
 test -s docs/reports/T-1180-watchtower-designer-upstream.md
 test "$(grep -c '^diff --git a/web/' docs/reports/T-1180-watchtower-designer.patch)" -eq 3
 test "$(grep -c 'b9ede25a' .agentic-framework/.vendor-divergence.yaml)" -eq 3
+# control: the same pattern IS found in the register as it stood before this task (commit 680470da)
+git show 680470da:.agentic-framework/.vendor-divergence.yaml | grep -c 'Not yet reported to AEF'
 ! grep -q 'Not yet reported to AEF' .agentic-framework/.vendor-divergence.yaml
 python3 tools/_t688-divergence-drain-ratchet.py
 python3 tools/_t517-vendor-divergence.py
@@ -364,3 +366,15 @@ python3 tools/_t517-vendor-divergence.py
 
 ### 2026-10-14T20:15:47Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-5ab0d76c
+- **Timestamp:** 2026-10-14T21:42:46Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-14T21:42:42Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

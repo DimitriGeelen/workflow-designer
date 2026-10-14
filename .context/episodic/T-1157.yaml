@@ -1,0 +1,97 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1157: Run a full fw verify-queue sweep and triage the red partial-complete review-queue tasks (T-308, T-310, T-325 and the rest of the 72)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-14T21:44:02Z
+# ============================================================================
+
+task_id: T-1157
+task_name: "Run a full fw verify-queue sweep and triage the red partial-complete review-queue tasks (T-308, T-310, T-325 and the rest of the 72)"
+workflow_type: test
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T16:21:03Z
+completed: 2026-10-14T21:43:45Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-10-14T21:20:28+02:00
+last_commit: 2026-10-14T23:43:44+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  real acceptance criteria (full sweep, classify each red with a carrier, re-run fixed ones); started, horizon now. review-queue sweep — 6 of 8 reds were stale checks, fixed: T-410 pin 14/14, T-593 sourced-resolution legs (mutation-proven), T-597 poison flips a still-open question, T-540 confirmed_by stamp, T-703 probe knows FIXED + residue <= census, T-884 sorted expectation (my T-1168 slip) + set -e safe line; all six re-verified green. Real regression filed T-1178 (inception template lost to 1.8.2), harness drift T-1179 (poison arms). report complete — bridge suite 278/4 (3 load failures pass alone, 1 real fixed by T-1180); all reds carried
+
+# Key outcomes
+outcomes:
+  - 'One full `fw verify-queue --all --json` sweep has run; the per-task verdicts and the red/green/skipped counts are in `docs/reports/T-1157-verify-queue-sweep.md` — 16 checked, 8 red (7 fail, 1 timeout)'
+  - 'Every red task is classified with evidence (stale verification line, real regression, environment/timeout) and has a carrier: fixed under this task when it is the verification line itself, else a new task (one per independent bug) — 6 fixed here, T-1178 (regression), T-1179 (harness drift), T-340 timeout → suite run → T-1180'
+  - 'A re-run of `fw verify-queue --task` on each task fixed here passes — T-410 6/6, T-593 9/9, T-597 7/7, T-540 4/4, T-703 4/4, T-884 22/22 (and T-866 8/8, T-392 2/2 after their tasks)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'report complete — bridge suite 278/4 (3 load failures pass alone, 1 real fixed by T-1180); all reds carried'
+    source: git-mined
+  - description: 'review-queue sweep — 6 of 8 reds were stale checks, fixed: T-410 pin 14/14, T-593 sourced-resolution legs (mutation-proven), T-597 poison flips a still-open question, T-540 confirmed_by stamp, T-703 probe knows FIXED + residue <= census, T-884 sorted expectation (my T-1168 slip) + set -e safe line; all six re-verified green. Real regression filed T-1178 (inception template lost to 1.8.2), harness drift T-1179 (poison arms)'
+    source: git-mined
+  - description: 'real acceptance criteria (full sweep, classify each red with a carrier, re-run fixed ones); started, horizon now'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-1157-verify-queue-sweep.md'
+  - '.tasks/active/T-1157-run-a-full-fw-verify-queue-sweep-and-tri.md'
+  - '.tasks/active/T-1178-inception-template-lost-t-865t-866-secti.md'
+  - '.tasks/active/T-1179-re-anchor-the-t-392t-607-drift-gate-pois.md'
+  - '.tasks/active/T-410-watchtower-session-signing-key-is-commit.md'
+  - '.tasks/active/T-540-bootstrap-bvp-scoring-and-produce-the-fi.md'
+  - '.tasks/active/T-593-ewcr-handoff-envelope-records-an-operato.md'
+  - '.tasks/active/T-703-ra-007-101-observations-pending-for-more.md'
+  - '.tasks/active/T-884-the-designer-shows-where-an-instance-is-.md'
+  - '.tasks/completed/T-1180-report-the-t-1171t-1172t-1175-watchtower.md'
+  - 'tools/_t596-arc0-exit-gate.sh'
+  - 'tools/_t703-inbox-residue.py'
+  - 'tools/_t884-instance-overlay-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-14T21:20:28'
+    action: 'T-1157: real acceptance criteria (full sweep, classify each red with a carrier, re-run fixed ones); started, horizon now'
+  - time: '2026-10-14T21:33:56'
+    action: 'T-1157: review-queue sweep — 6 of 8 reds were stale checks, fixed: T-410 pin 14/14, T-593 sourced-resolution legs (mutation-proven), T-597 poison flips a still-open question, T-540 confirmed_by stamp, T-703 probe knows FIXED + residue <= census, T-884 sorted expectation (my T-1168 slip) + set -e safe line; all six re-verified green. Real regression filed T-1178 (inception template lost to 1.8.2), harness drift T-1179 (poison arms)'
+  - time: '2026-10-14T23:43:44'
+    action: 'T-1157: report complete — bridge suite 278/4 (3 load failures pass alone, 1 real fixed by T-1180); all reds carried'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 1762 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [observations]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1762
+  commits: 3
+  files_changed: 13
+  lines_added: 796
+  lines_removed: 31
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1157-run-a-full-fw-verify-queue-sweep-and-tri.md
+generated_by: context-agent-hybrid
