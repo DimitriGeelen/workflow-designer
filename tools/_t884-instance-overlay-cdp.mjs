@@ -100,7 +100,7 @@ const COUNTS = `({ current: document.querySelectorAll('g.node[data-instance="cur
     const ids = await ev(cmd, `(() => { const o = {}; for (const g of document.querySelectorAll('g.node[data-instance]')) { const k = g.getAttribute('data-instance'); (o[k] = o[k] || []).push(displayIdOf(findNode(g.getAttribute('data-id')))); } return o; })()`);
     leg('L2', 'four states drawn, nothing else: 1 current (● T-9991), 3 done, 1 refused (⛔ template-flow), 1 refused-target',
         c.current === 1 && c.done === 3 && c.refused === 1 && c.target === 1 && c.any === 6 && c.nodes === c.stateNodes
-          && ids.current[0] === 'agt_2_perform' && JSON.stringify([...ids.done].sort()) === JSON.stringify(['frw_start_task', 'frw_gw_build', 'frw_1_start'])
+          && ids.current[0] === 'agt_2_perform' && JSON.stringify([...ids.done].sort()) === JSON.stringify(['frw_start_task', 'frw_gw_build', 'frw_1_start'].sort())
           && ids.refused[0] === 'frw_gw_all' && ids['refused-target'][0] === 'frw_5_finalize'
           && badges.current.text === '● T-9991' && badges.refused.text === '⛔ template-flow' && badges['refused-target'].text === '✗ refused target' && badges.done.text === '✓',
         JSON.stringify({ c, ids, badges }));

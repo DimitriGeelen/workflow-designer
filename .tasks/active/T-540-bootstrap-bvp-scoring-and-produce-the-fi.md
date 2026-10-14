@@ -410,7 +410,10 @@ python3 -c "import yaml; yaml.safe_load(open('policy/value-drivers.yaml'))"
 # positive home anywhere: the whole point is that no task carries a CONFIRMED score, and
 # `bvp_scores_proposed:` does not match `^bvp_scores:`. So there is no same-string sibling to
 # be had, and this guard proves the search had a corpus to walk, not that the pattern is right.
-test -d .tasks && test "$(grep -rlE '^bvp_scores:' .tasks/ | wc -l)" -eq 0
+# T-1157 (2026-10-14): "zero bvp_scores:" was true until the operator's T-856 ruling let agents confirm through
+# `fw bvp confirm` (BVP_AUTO_CONFIRM); 33 tasks were scored that way. The invariant kept: no bvp_scores: that the
+# verb did not write, i.e. every scored task carries the confirmed_by stamp it writes.
+test -d .tasks && test "$(for f in $(grep -rlE '^bvp_scores:' .tasks/); do grep -qE '^confirmed_by: ' "$f" || echo "$f"; done | wc -l)" -eq 0
 # The estimator ran over the real corpus, not a sample.
 test "$(grep -rlE '^bvp_scores_proposed:' .tasks/active/ | wc -l)" -ge 60
 

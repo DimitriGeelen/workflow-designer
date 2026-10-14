@@ -178,6 +178,11 @@ def probe_dismiss():
     if flipped and not persisted and not actor:
         print("\nVERDICT: CONFIRMED — dismiss closes the entry and records neither reason nor actor.")
         return 0
+    if flipped and persisted and actor:
+        # T-1157: the vendored verb now persists the reason and who/when (fixed upstream, reached 832 with the
+        # bleeding-edge upgrade T-1167) — the defect this probe confirmed is gone, which is the outcome option A asked for.
+        print("\nVERDICT: FIXED — dismiss now records the reason and dismissed_by/at.")
+        return 0
     print("\nVERDICT: the verb behaves differently from observe.sh:280-298 as read; re-inspect.")
     return 1
 

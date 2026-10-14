@@ -318,7 +318,8 @@ git check-ignore -q .agentic-framework/.context/working/.fw-secret-key
 # 5. The tracked tree carries no key material by name. Own exit code is the verdict.
 python3 tools/tracked-secret-artifacts.py
 # 6. Teeth, pinned to the leg count so a silently-shortened harness cannot pass.
-./tools/_t410-secret-artifact-teeth.sh > /tmp/.t410-teeth.txt 2>&1 && grep -q "TEETH PASS — 13/13" /tmp/.t410-teeth.txt
+#    14 since T-1009 (bundle B) added a leg; T-1157 found this pin still at 13 and red.
+./tools/_t410-secret-artifact-teeth.sh > /tmp/.t410-teeth.txt 2>&1 && grep -q "TEETH PASS — 14/14" /tmp/.t410-teeth.txt
 
 ## RCA
 

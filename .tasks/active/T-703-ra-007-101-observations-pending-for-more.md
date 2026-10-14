@@ -187,7 +187,9 @@ python3 tools/_t703-inbox-residue.py --check
 python3 tools/_t703-inbox-residue.py --probe-dismiss
 test -f docs/reports/T-703-inbox-residue.md
 # the enumeration is regenerable and every stale item is in it: row count == audit's count for the same day
-test "$(grep -c '^| OBS-' docs/reports/T-703-inbox-residue.md)" -eq "$(python3 tools/_t703-inbox-residue.py | sed -n 's/^T-703 — inbox residue: \([0-9]*\) .*/\1/p')"
+# T-1157 (2026-10-14): was "census rows == residue now"; the T-1149 triage drained the residue to 0, so equality
+# with the 28-row census went red for the good reason. Kept: the residue has not grown past the census.
+test "$(python3 tools/_t703-inbox-residue.py | sed -n 's/^T-703 — inbox residue: \([0-9]*\) .*/\1/p')" -le "$(grep -c '^| OBS-' docs/reports/T-703-inbox-residue.md)"
 # (the probe hashes the real register before/after itself and exits 2 if it moved — no separate git-diff leg,
 #  which would go red on any unrelated uncommitted `fw note` capture)
 

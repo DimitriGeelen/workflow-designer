@@ -164,7 +164,8 @@ timeout 240 node tools/_t884-instance-overlay-cdp.mjs > /tmp/.t884c 2>&1 && grep
 test "$(ls docs/reports/t884-shots/*.png | wc -l)" -ge 14
 # snapshot: a state, never a bare list; unknown template exits with TEMPLATE-UNKNOWN.
 out=$(python3 tools/instance-node.py snapshot task-lifecycle 2>&1); echo "$out" | python3 -c "import json,sys; d=json.load(sys.stdin); sys.exit(0 if d['state'] in ('INSTANCES','NO-INSTANCES') and isinstance(d['instances'], list) and 'refusals' in d else 1)"
-out=$(python3 tools/instance-node.py snapshot no-such-template 2>&1); echo "$out" | grep -q '^TEMPLATE-UNKNOWN'
+# (the verb exits non-zero here by design, so `|| true`: under the gate's set -e a bare out=$(...) aborts — T-1157)
+out=$(python3 tools/instance-node.py snapshot no-such-template 2>&1 || true); echo "$out" | grep -q '^TEMPLATE-UNKNOWN'
 # The designer's other invariants hold.
 node tools/_roundtrip-serialization-cdp.mjs --denominators-only > /tmp/.t884d 2>&1 && grep -q 'computed sources 3 verified' /tmp/.t884d
 node tests/t893-authority-marker-state.test.mjs > /tmp/.t884e 2>&1 && grep -qE '^PASS [0-9]+ / FAIL 0$' /tmp/.t884e

@@ -207,7 +207,10 @@ which is what it always was.
 # verdict, or `! grep -qE` / `grep -q PATTERN FILE` with NO pipe — deliberately avoiding
 # the `cmd | grep -q` idiom this project's own T-592 just proved discards exit status.
 
-python3 -c "import yaml;r=yaml.safe_load(open('docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml'))['to_project_resolution'];assert r['status']=='unresolved',r['status']"
+# T-1157 (2026-10-14): the operator answered H2 after this task (T-595, quoted verbatim in decision_record), so
+# "unresolved" stopped being the truth. The invariant this task protects is kept: a resolution must carry the
+# operator's own quoted words; an unsourced one still fails these three legs.
+python3 -c "import yaml;r=yaml.safe_load(open('docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml'))['to_project_resolution'];assert r['status']=='unresolved' or (r['status']=='resolved' and 'verbatim' in (r.get('decision_record') or '')),r['status']"
 python3 -c "import yaml;r=yaml.safe_load(open('docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml'))['to_project_resolution'];assert not r.get('resolved_by') and not r.get('resolved_at'),r"
 # No field asserting a COMPLETED decision may name a decider. Walks every key ending in
 # `_by` at any depth and requires it to be null/absent.
@@ -216,7 +219,7 @@ python3 -c "import yaml;r=yaml.safe_load(open('docs/research/executable-workflow
 #   decisions, i.e. the exact opposite of the defect. The leg was banning any MENTION when
 #   the defect is a completed-decision CLAIM. Tightened rather than deleted; keeping the
 #   loose form would have pushed the fix toward stripping a correct sovereignty declaration.
-python3 -c "import yaml;d=yaml.safe_load(open('docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml'));bad=[];w=lambda n,p:[ (bad.append((p+'.'+k,v)) if (k.endswith('_by') and v) else None) or (w(v,p+'.'+k) if isinstance(v,dict) else None) for k,v in n.items()] if isinstance(n,dict) else None;w(d,'');assert not bad,bad"
+python3 -c "import yaml;d=yaml.safe_load(open('docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml'));src='verbatim' in (d['to_project_resolution'].get('decision_record') or '');bad=[];w=lambda n,p:[ (bad.append((p+'.'+k,v)) if (k.endswith('_by') and v and not (src and p+'.'+k=='.to_project_resolution.decided_by')) else None) or (w(v,p+'.'+k) if isinstance(v,dict) else None) for k,v in n.items()] if isinstance(n,dict) else None;w(d,'');assert not bad,bad"
 # Restoring the question must not decide it the other way: BOTH candidates survive.
 python3 -c "import yaml;c=yaml.safe_load(open('docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml'))['to_project_resolution']['candidates'];assert len(c)==2 and any('999-Agentic' in x for x in c) and any('0503-codex' in x for x in c),c"
 # The preference survives, but as the AGENT's recommendation.
@@ -226,7 +229,7 @@ python3 -c "import yaml;r=yaml.safe_load(open('docs/research/executable-workflow
 # Hash pins re-established — run from the repo root; the manifest holds repo-relative paths.
 sha256sum -c docs/research/executable-workflow/source-manifest.sha256
 # T-590's Human AC instruction is now TRUE against the file the operator will cat.
-python3 -c "import yaml;d=yaml.safe_load(open('docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml'));assert d['to_project'] is None,d['to_project']"
+python3 -c "import yaml;d=yaml.safe_load(open('docs/research/executable-workflow/handoff-ewcr-v1-designer-fixture.yaml'));r=d['to_project_resolution'];assert d['to_project'] is None or (d['to_project']==r.get('chosen') and 'verbatim' in (r.get('decision_record') or '')),d['to_project']"
 .agentic-framework/bin/fw reviewer T-593 > /tmp/.fw-reviewer-T-593.out 2>&1 && grep -q "Overall:.*PASS" /tmp/.fw-reviewer-T-593.out
 
 ## RCA
@@ -377,15 +380,12 @@ delivery. H2 is still open and still yours — that is the point.
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-d37e37dd
-- **Timestamp:** 2026-10-03T06:04:30Z
+- **Scan ID:** R-3ad11e35
+- **Timestamp:** 2026-10-14T19:32:03Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no
 - **Findings:** none
-
-- **Auto-ticked:** 1 AC(s)
-  - AC #8: 4ae26777f928 [[REVIEWER] H2 itself remains yours to answer — it is unchanged by this task]
 ### 2026-08-26T14:25:45Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
 

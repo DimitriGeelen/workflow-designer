@@ -104,11 +104,19 @@ elif mode == 'agent_decided':
     h2['decided_by'] = 'agent'
 elif mode == 'unsourced_new_resolution':
     # The shape that matters most: an open question flipped to resolved with no source.
-    h1 = next(q for q in qs if q['id'] == 'H1')
-    h1['status'] = 'resolved'
-    h1['decided_by'] = 'operator'
+    # Flip a question that is STILL open: H1 was the first open one when this was written, but the operator ruled it
+    # (T-732), so flipping it changed nothing and the gate looked blind (T-1157). No open question left = nothing to poison.
+    q = next((q for q in qs if q.get('status') == 'open'), None)
+    if q is None:
+        sys.exit(9)
+    q['status'] = 'resolved'
+    q['decided_by'] = 'operator'
 yaml.safe_dump(d, open(sys.argv[2], 'w', encoding='utf-8'))
 PY
+  if [ $? -eq 9 ]; then   # nothing to poison: say so, never count it as caught
+    echo "SKIP  poison [$label]   (no open question left to flip)"
+    rm -rf "$tmp"; return
+  fi
   python3 "$CHECK" "$tmp/p.yaml" "$ENV_FILE" "$REPO" --quiet >/dev/null 2>&1
   local rc=$?
   if [ "$rc" -eq 2 ]; then
