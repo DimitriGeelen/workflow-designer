@@ -43,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T17:25:44Z
-last_update: 2026-10-14T17:26:22Z
+last_update: 2026-10-14T17:32:18Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -96,18 +96,6 @@ content and the toolbar wraps onto a second row when it does not fit; one row wh
 - [x] A browser test (tools/_t1176-toolbar-reach-cdp.mjs) proves it, fails on the old designer, and is bridge-wired — 16/16; old designer 4 width legs red (Check/Versions/Save to project/Save outside the window; Pending refs… clipped vertically at every width up to 1440, found by the test)
 - [x] Screenshots at each width read control by control, listed in ## Visual Verification (CLAUDE.md, T-1174)
 
-## Visual Verification
-`.playwright-mcp/t1176-header-{1024,1200,1280,1440,1920}.png` (header + top of the panels, map audit-process,
-server-gated buttons shown). Read control by control:
-- 1920: one row of 48px; AEF·BPMN, Workflow Designer, v0.19.1, fault dot, Open project…, Pending refs…, +, instances,
-  − fit + ⤢ ◧ ◨ ⛶, + Add Lane, Reset, Clean layout, View XML, Settings, Load…, Check, Versions, Save to project, Save:
-  all visible, none clipped.
-- 1440: 2 rows; row 1 brand … View XML (actions right of the brand), row 2 Settings … Save. All visible.
-- 1280 / 1200 (the inline frame): 2 rows; row 1 brand … Reset, row 2 Clean layout … Save. All visible.
-- 1024: 2 rows; row 1 brand … ◧ ◨, row 2 ⛶, + Add Lane … Save. All visible. Wart: ⛶ (focus mode) lands at the
-  start of row 2, apart from ◧ ◨ — reachable, but the view group is split.
-- First attempt (two blocks wrapping) was reachable but wasted row 1 (1440: ~600px empty; 1024: 3 rows) — redone
-  as one flowing sequence after reading those screenshots.
 ### Human
 - [ ] The header screenshots at 1024, 1280, 1440 and 1920, standalone and inline in Watchtower, show every toolbar control visible and unclipped, the wrap tidy, nothing overlapping, the space used well (independent reviewer, CLAUDE.md rule T-1174)
   **Steps:**
@@ -144,6 +132,19 @@ server-gated buttons shown). Read control by control:
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1176 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+
+## Visual Verification
+`.playwright-mcp/t1176-header-{1024,1200,1280,1440,1920}.png` (header + top of the panels, map audit-process,
+server-gated buttons shown). Read control by control:
+- 1920: one row of 48px; AEF·BPMN, Workflow Designer, v0.19.1, fault dot, Open project…, Pending refs…, +, instances,
+  − fit + ⤢ ◧ ◨ ⛶, + Add Lane, Reset, Clean layout, View XML, Settings, Load…, Check, Versions, Save to project, Save:
+  all visible, none clipped.
+- 1440: 2 rows; row 1 brand … View XML (actions right of the brand), row 2 Settings … Save. All visible.
+- 1280 / 1200 (the inline frame): 2 rows; row 1 brand … Reset, row 2 Clean layout … Save. All visible.
+- 1024: 2 rows; row 1 brand … ◧ ◨, row 2 ⛶, + Add Lane … Save. All visible. Wart: ⛶ (focus mode) lands at the
+  start of row 2, apart from ◧ ◨ — reachable, but the view group is split.
+- First attempt (two blocks wrapping) was reachable but wasted row 1 (1440: ~600px empty; 1024: 3 rows) — redone
+  as one flowing sequence after reading those screenshots.
 
 ## Verification
 PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" timeout 300 node tools/_t1176-toolbar-reach-cdp.mjs > /tmp/t1176.out 2>&1 && grep -q '"pass": true' /tmp/t1176.out
