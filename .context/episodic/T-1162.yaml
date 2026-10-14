@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1162: T-682 boundary inventory: cited evidence line numbers go stale silently (anchor on content or assert the cited line)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-14T21:59:54Z
+# ============================================================================
+
+task_id: T-1162
+task_name: "T-682 boundary inventory: cited evidence line numbers go stale silently (anchor on content or assert the cited line)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T16:21:15Z
+completed: 2026-10-14T21:59:43Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-14T23:59:42+02:00
+last_commit: 2026-10-14T23:59:42+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the boundary inventory check holds every gallery-serve.py:N citation to its text (21/21 today), names where moved text went, fails on any unreadable citation bullet, and runs after the route check; self-test phase 4 proves a one-line shift goes red; T-958 teeth 5/5
+
+# Key outcomes
+outcomes:
+  - 'The default check also asserts every `gallery-serve.py:N` citation''s line still holds its quoted text; a stale one fails the check, naming the line, the text and where the text is now (or that it is gone) — 21/21 hold today; runs after the route comparison so a route change is still reported as one'
+  - 'A report with no readable citations fails rather than passing as "nothing stale" — and so does a report where even ONE citation bullet stopped parsing (found while proving this: a partial format change would otherwise pass on a smaller count)'
+  - '`--self-test` gains a phase that shifts the source by one line and expects every citation flagged as one line down and the check red; the pristine source stays green — phase 4 OK, 21 flagged'
+  - 'The T-958 teeth that the bridge suite runs (`tools/_t958-boundary-row-teeth.py`) still pass — 5/5'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1162-t-682-boundary-inventory-cited-evidence-.md'
+  - 'tools/_t682-boundary-inventory.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-14T23:59:42'
+    action: 'T-1162: the boundary inventory check holds every gallery-serve.py:N citation to its text (21/21 today), names where moved text went, fails on any unreadable citation bullet, and runs after the route check; self-test phase 4 proves a one-line shift goes red; T-958 teeth 5/5'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1778 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [observations]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1778
+  commits: 1
+  files_changed: 2
+  lines_added: 111
+  lines_removed: 13
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1162-t-682-boundary-inventory-cited-evidence-.md
+generated_by: context-agent-hybrid
