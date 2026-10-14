@@ -10,7 +10,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_3_run
 owner: agent
 horizon: now
 tags: [designer, toolbar, bug, ux]
@@ -43,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T17:25:44Z
-last_update: 2026-10-14T17:41:25Z
+last_update: 2026-10-14T17:44:02Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -97,7 +97,7 @@ content and the toolbar wraps onto a second row when it does not fit; one row wh
 - [x] Screenshots at each width read control by control, listed in ## Visual Verification (CLAUDE.md, T-1174)
 
 ### Human
-- [ ] The header screenshots at 1024, 1280, 1440 and 1920, standalone and inline in Watchtower, show every toolbar control visible and unclipped, the wrap tidy, nothing overlapping, the space used well (independent reviewer, CLAUDE.md rule T-1174)
+- [x] The header screenshots at 1024, 1280, 1440 and 1920, standalone and inline in Watchtower, show every toolbar control visible and unclipped, the wrap tidy, nothing overlapping, the space used well (independent reviewer, CLAUDE.md rule T-1174)
   **Steps:**
   1. Open the screenshots listed in this task's `## Visual Verification`: standalone `.playwright-mcp/t1176-header-*.png` and inline in Watchtower `.playwright-mcp/t1175-inline-*.png`.
   2. In each, check every header control: Open project, Pending refs, +, instances, zoom −/fit/+/⤢, ◧ ◨ ⛶, + Add Lane, Reset, Clean layout, View XML, Settings, Load…, Check, Versions, Save to project, Save.
@@ -132,6 +132,7 @@ content and the toolbar wraps onto a second row when it does not fit; one row wh
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1176 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+  **Reviewer verdict:** green V-20261014-dabbb3bd — reviewer-judge-t-1176-r3-37efd0827a99:reviewer (rung rung-3-termlink-single-reviewer), digest 508a360c150b; dispatch judge-t-1176-r3-37efd0827a99; evidence: .context/reviews/evidence/T-1176/AC1-judge-t-1176-r3-37efd0827a99.md, .context/reviews/evidence/T-1176/t1176-header-1024-judge-t-1176-r3-37efd0827a99.png, .context/reviews/evidence/T-1176/t1176-header-1280-judge-t-1176-r3-37efd0827a99.png, .context/reviews/evidence/T-1176/t1176-header-1440-judge-t-1176-r3-37efd0827a99.png, .context/reviews/evidence/T-1176/t1176-header-1920-judge-t-1176-r3-37efd0827a99.png, .context/reviews/evidence/T-1176/t1175-inline-1024-judge-t-1176-r3-37efd0827a99.png, .context/reviews/evidence/T-1176/t1175-inline-1280-judge-t-1176-r3-37efd0827a99.png, .context/reviews/evidence/T-1176/t1175-inline-1440-judge-t-1176-r3-37efd0827a99.png, .context/reviews/evidence/T-1176/t1175-inline-1920-judge-t-1176-r3-37efd0827a99.png; ledger .context/reviews/verdicts.jsonl
 
 ## Visual Verification
 `.playwright-mcp/t1176-header-{1024,1200,1280,1440,1920}.png` (header + top of the panels, map audit-process,
@@ -304,6 +305,21 @@ grep -q "_t1176-toolbar-reach-cdp.mjs" tests/run-bridge-tests.sh
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** the operator, on the inline designer (T-1172): "the menu buttons drop off. I cannot access them
+anymore" — Check, Versions, Save to project and Save were past the right edge below ~1450px, standalone and inline.
+
+**Root cause:** the header was one non-wrapping flex row inside a fixed 48px grid row; every control added to it over
+time (T-154, T-228, T-884, T-962 …) lengthened the row, and nothing ever made it wrap. "Pending refs…" also wrapped its
+own label to two lines and overflowed the 48px vertically.
+
+**Why structurally allowed:** no test or review looked at the header at less than a wide window; screenshots were
+read for layout at one width (T-1174 learning); the designer is usually used full-screen at 1920 by its author.
+
+**Prevention:** tools/_t1176-toolbar-reach-cdp.mjs (bridge-wired) asserts every header control is inside the window
+and clickable at 1024-1920, the groups stay whole, the panels and XML panel sit below the header — measured after
+web fonts load; and the CLAUDE.md rule (T-1174) for every UI change: three widths, control by control, independent
+reviewer.
 
 ## Evolution
 
