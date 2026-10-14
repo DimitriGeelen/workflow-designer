@@ -7,13 +7,13 @@ description: >
   unfoldable … you should just see little notch button to unfold them again … You
   should also be able to set their width … persistent in the persistent setting.'
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [designer, panels, ux, settings]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T17:25:50Z
-last_update: 2026-10-14T19:07:51Z
-date_finished:
+last_update: 2026-10-14T19:09:42Z
+date_finished: 2026-10-14T19:09:42Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -97,7 +97,7 @@ panel's width, and keep both in the persistent settings.
 - [x] Screenshots at 1024, 1440 and 1920 of: both open, each folded, both resized — read control by control in ## Visual Verification (CLAUDE.md, T-1174)
 
 ### Human
-- [ ] The panel screenshots at 1024, 1440 and 1920 (both open, palette folded, properties folded, both resized) show the notches visible and clickable, the fold/unfold buttons and drag edges discoverable, the canvas using the freed space, nothing clipped or overlapping (independent reviewer, CLAUDE.md rule T-1174)
+- [x] The panel screenshots at 1024, 1440 and 1920 (both open, palette folded, properties folded, both resized) show the notches visible and clickable, the fold/unfold buttons and drag edges discoverable, the canvas using the freed space, nothing clipped or overlapping (independent reviewer, CLAUDE.md rule T-1174)
   **Steps:**
   1. Open the screenshots listed in this task's `## Visual Verification` (`.playwright-mcp/t1177-*.png`).
   2. In each, check the notch(es), the fold buttons, the drag edges, the toolbar, and that the canvas fills the space.
@@ -132,6 +132,7 @@ panel's width, and keep both in the persistent settings.
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1177 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+  **Reviewer verdict:** green V-20261014-4fedbb99 — reviewer-judge-t-1177-r3-3ce9939f7ee6:reviewer (rung rung-3-termlink-single-reviewer), digest e6e32a86b954; dispatch judge-t-1177-r3-3ce9939f7ee6; evidence: .context/reviews/evidence/T-1177/AC1-judge-t-1177-r3-3ce9939f7ee6.md, .context/reviews/evidence/T-1177/t1177-1024-open.png, .context/reviews/evidence/T-1177/t1177-1024-palette-folded.png, .context/reviews/evidence/T-1177/t1177-1024-props-folded.png, .context/reviews/evidence/T-1177/t1177-1024-resized.png, .context/reviews/evidence/T-1177/t1177-1440-open.png, .context/reviews/evidence/T-1177/t1177-1440-palette-folded.png, .context/reviews/evidence/T-1177/t1177-1440-props-folded.png, .context/reviews/evidence/T-1177/t1177-1440-resized.png, .context/reviews/evidence/T-1177/t1177-1920-open.png, .context/reviews/evidence/T-1177/t1177-1920-palette-folded.png, .context/reviews/evidence/T-1177/t1177-1920-props-folded.png, .context/reviews/evidence/T-1177/t1177-1920-resized.png; ledger .context/reviews/verdicts.jsonl
 
 ## Visual Verification
 Screenshots written by `tools/_t1177-panels-cdp.mjs` (headless chromium, 860px high, map audit-process), each read:
@@ -384,3 +385,15 @@ grep -q "_t1177-panels-cdp.mjs" tests/run-bridge-tests.sh
 ### 2026-10-14T17:45:39Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2620f477
+- **Timestamp:** 2026-10-14T19:10:12Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-14T19:09:42Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

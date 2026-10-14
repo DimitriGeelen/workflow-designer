@@ -1,0 +1,115 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1177: Designer: left and right panels fold away to a notch, can be resized by dragging, and remember their state and width
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-14T19:10:20Z
+# ============================================================================
+
+task_id: T-1177
+task_name: "Designer: left and right panels fold away to a notch, can be resized by dragging, and remember their state and width"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-14T17:25:50Z
+completed: 2026-10-14T19:09:42Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-14T19:49:40+02:00
+last_commit: 2026-10-14T21:09:15+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  WIP (context ran out) — panel width CSS vars, fold tabs/notch and drag-edge markup + CSS, PANEL_W bounds and viewPrefs defaults; restore/apply/wiring and the test are NOT done yet (listed in the task); tabs show but do nothing until then. side panels fold to a notch and resize by drag — width prefs restored with bounds, applied with a canvas floor of 320px, tab/drag/double-click wiring; _t1177-panels-cdp.mjs 18/18 (fails before T-1177), bridge-wired; screenshots 1024/1440/1920 read in Visual Verification. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'Each side panel has a fold button on its inner edge; folded, the panel leaves a notch (~16px strip) at the window edge with an unfold button; the toolbar''s ◧ ◨ still fold/unfold the same state'
+  - 'Dragging a panel''s inner edge sets its width (palette 160-480px, properties 240-640px, the canvas keeps at least 320px); double-clicking the edge resets the default (220 / 320)'
+  - 'Fold state and both widths persist across reloads (aefViewPrefs); out-of-range or invalid stored values fall back to the defaults'
+  - 'The findings drawer and the XML panel follow the panel widths and fold states; focus mode still hides everything'
+  - 'A browser test (tools/_t1177-panels-cdp.mjs) proves fold via the panel button and unfold via the notch, resize by a real mouse drag with clamping, double-click reset, and persistence over a reload; it fails on the old designer and is bridge-wired'
+  - 'Screenshots at 1024, 1440 and 1920 of: both open, each folded, both resized — read control by control in ## Visual Verification (CLAUDE.md, T-1174)'
+  - 'The panel screenshots at 1024, 1440 and 1920 (both open, palette folded, properties folded, both resized) show the notches visible and clickable, the fold/unfold buttons and drag edges discoverable, the canvas using the freed space, nothing clipped or overlapping (independent reviewer, CLAUDE.md rule T-1174)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1177/AC1-judge-t-1177-r3-3ce9939f7ee6.md'
+  - '.context/reviews/evidence/T-1177/t1177-1024-open.png'
+  - '.context/reviews/evidence/T-1177/t1177-1024-palette-folded.png'
+  - '.context/reviews/evidence/T-1177/t1177-1024-props-folded.png'
+  - '.context/reviews/evidence/T-1177/t1177-1024-resized.png'
+  - '.context/reviews/evidence/T-1177/t1177-1440-open.png'
+  - '.context/reviews/evidence/T-1177/t1177-1440-palette-folded.png'
+  - '.context/reviews/evidence/T-1177/t1177-1440-props-folded.png'
+  - '.context/reviews/evidence/T-1177/t1177-1440-resized.png'
+  - '.context/reviews/evidence/T-1177/t1177-1920-open.png'
+  - '.context/reviews/evidence/T-1177/t1177-1920-palette-folded.png'
+  - '.context/reviews/evidence/T-1177/t1177-1920-props-folded.png'
+  - '.context/reviews/evidence/T-1177/t1177-1920-resized.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.playwright-mcp/t1177-1024-open.png'
+  - '.playwright-mcp/t1177-1024-palette-folded.png'
+  - '.playwright-mcp/t1177-1024-props-folded.png'
+  - '.playwright-mcp/t1177-1024-resized.png'
+  - '.playwright-mcp/t1177-1440-open.png'
+  - '.playwright-mcp/t1177-1440-palette-folded.png'
+  - '.playwright-mcp/t1177-1440-props-folded.png'
+  - '.playwright-mcp/t1177-1440-resized.png'
+  - '.playwright-mcp/t1177-1920-open.png'
+  - '.playwright-mcp/t1177-1920-palette-folded.png'
+  - '.playwright-mcp/t1177-1920-props-folded.png'
+  - '.playwright-mcp/t1177-1920-resized.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1177-designer-left-and-right-panels-fold-away.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1177-panels-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-14T19:49:40'
+    action: 'T-1177: WIP (context ran out) — panel width CSS vars, fold tabs/notch and drag-edge markup + CSS, PANEL_W bounds and viewPrefs defaults; restore/apply/wiring and the test are NOT done yet (listed in the task); tabs show but do nothing until then'
+  - time: '2026-10-14T21:07:51'
+    action: 'T-1177: side panels fold to a notch and resize by drag — width prefs restored with bounds, applied with a canvas floor of 320px, tab/drag/double-click wiring; _t1177-panels-cdp.mjs 18/18 (fails before T-1177), bridge-wired; screenshots 1024/1440/1920 read in Visual Verification'
+  - time: '2026-10-14T21:09:15'
+    action: 'T-1177: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 103 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, panels, ux, settings]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 103
+  commits: 4
+  files_changed: 35
+  lines_added: 1319
+  lines_removed: 35
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1177-designer-left-and-right-panels-fold-away.md
+generated_by: context-agent-hybrid
