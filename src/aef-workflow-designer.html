@@ -176,24 +176,26 @@ font-family: 'Outfit';
 
   .app {
     display: grid;
-    grid-template-rows: 48px 1fr;
+    grid-template-rows: auto 1fr;   /* T-1176: the header wraps to a 2nd row when its controls do not fit */
     height: 100vh;
   }
 
   /* ============ Header ============ */
+  /* T-1176 (operator 2026-10-14: "the menu buttons drop off"): one row of 48px where everything fits; below
+     ~1450px the toolbar wraps onto a second row instead of pushing Check / Versions / Save past the edge. */
   header {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 16px;
+    justify-content: flex-start;
+    min-height: 48px;
+    box-sizing: border-box;
+    gap: 6px 8px;
+    padding: 6px 16px;
     background: linear-gradient(180deg, #15192266 0%, transparent 100%), var(--surface);
     border-bottom: 1px solid var(--border);
   }
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+  .brand { display: contents; }   /* T-1176: see .actions */
   .brand-mark {
     font-family: var(--mono);
     font-weight: 600;
@@ -298,10 +300,13 @@ font-family: 'Outfit';
     line-height: 1;
   }
   .btn-icon:hover { color: var(--accent); border-color: var(--accent); }
-  .actions {
-    display: flex;
-    gap: 6px;
-  }
+  /* T-1176: the brand group and the actions flow as ONE sequence of header items (display: contents), so a row
+     fills before the next starts — as two blocks, a narrow window put the whole actions block on its own row and
+     left most of the first row empty. The zoom controls take the free space on their left, so on a wide window the
+     actions still sit on the right. */
+  .actions { display: contents; }
+  #btn-zoom-out { margin-left: auto; }
+  header .btn, header .btn-icon { white-space: nowrap; }   /* T-1176: "Pending refs…" wrapped to 2 lines and overflowed */
   .btn {
     font-family: var(--sans);
     font-size: 12px;
@@ -1264,7 +1269,7 @@ font-family: 'Outfit';
 
   .xml-panel {
     position: fixed;
-    inset: 48px 0 0 0;
+    inset: var(--header-h, 48px) 0 0 0;   /* T-1176: below the header, whatever its height */
     background: var(--bg);
     z-index: 50;
     display: none;
@@ -13583,6 +13588,15 @@ _appReady = true;            // from here on, edits autosave to localStorage
 autoLoadStored();            // B1: if a prior session left unsaved work, bring it back automatically
 detectSaveApi();             // B3: reveal "Save to project" when the write-capable server is present
 syncSettingsUI();            // T-1067: the settings controls show the stored prefs from load, not only once the panel opens
+// T-1176: the header wraps to a second row on narrow windows, so its height varies; overlays that sit below it
+// (the XML panel) read --header-h instead of a fixed 48px.
+(function trackHeaderHeight() {
+  const h = document.querySelector('header');
+  if (!h) return;
+  const set = () => document.documentElement.style.setProperty('--header-h', Math.round(h.getBoundingClientRect().height) + 'px');
+  set();
+  if (window.ResizeObserver) new ResizeObserver(set).observe(h); else window.addEventListener('resize', set);
+})();
 
 // T-808 (F-10): state which build is on screen. The ONLY write of APP_VERSION into the
 // DOM — one constant, one render site, so there is nothing that can drift from anything.

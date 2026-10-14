@@ -1,11 +1,16 @@
 ---
 id: T-1176
-name: "Designer toolbar cuts off its right-hand buttons when the window is narrower than ~1450px (Check, Versions, Save project unreachable)"
+name: "Designer toolbar cuts off its right-hand buttons when the window is narrower
+  than ~1450px (Check, Versions, Save project unreachable)"
 description: >
-  Operator 2026-10-14: 'the menu buttons drop off. I cannot access them anymore.' Seen in the T-1172 screenshots: inline (frame ~1200px) the toolbar ends at Load…; fullscreen at 1400px Save project is clipped. The toolbar is one row with no wrap or overflow, so every control past the width is unreachable.
+  Operator 2026-10-14: 'the menu buttons drop off. I cannot access them anymore.'
+  Seen in the T-1172 screenshots: inline (frame ~1200px) the toolbar ends at Load…;
+  fullscreen at 1400px Save project is clipped. The toolbar is one row with no wrap
+  or overflow, so every control past the width is unreachable.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: [designer, toolbar, bug, ux]
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T17:25:44Z
-last_update: 2026-10-14T17:25:44Z
-date_finished: null
+last_update: 2026-10-14T17:26:22Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,22 +55,66 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-14T17:26:22Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1176: Designer toolbar cuts off its right-hand buttons when the window is narrower than ~1450px (Check, Versions, Save project unreachable)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The header is one flex row (`header`, `.actions` without wrap) in a fixed 48px grid row (`.app` grid-template-rows:
+48px 1fr), so below ~1450px the right-hand controls (Check, Versions, Save to project, Save) are pushed past the edge
+and unreachable — inline in Watchtower (T-1172, frame ~1200px) and standalone alike. Fix: the header row sizes to its
+content and the toolbar wraps onto a second row when it does not fit; one row where it fits.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] At widths 1024, 1280, 1440 and 1920 (standalone, and inline in the Watchtower frame) every visible header control lies fully inside the viewport and can be clicked (measured: rect within the window, elementFromPoint at its centre is the control) — all 20 controls at 1024/1200/1280/1440/1920; 1200 stands for the inline frame (~1200px)
+- [x] At 1920 the header is still one row of 48px (nothing changes where everything fitted) — 48
+- [x] The canvas, palette and properties panels fill the space below the header at every width (no overlap, no gap) — panels top == header bottom (77 or 48); the XML panel too (now placed by --header-h)
+- [x] A browser test (tools/_t1176-toolbar-reach-cdp.mjs) proves it, fails on the old designer, and is bridge-wired — 16/16; old designer 4 width legs red (Check/Versions/Save to project/Save outside the window; Pending refs… clipped vertically at every width up to 1440, found by the test)
+- [x] Screenshots at each width read control by control, listed in ## Visual Verification (CLAUDE.md, T-1174)
 
+## Visual Verification
+`.playwright-mcp/t1176-header-{1024,1200,1280,1440,1920}.png` (header + top of the panels, map audit-process,
+server-gated buttons shown). Read control by control:
+- 1920: one row of 48px; AEF·BPMN, Workflow Designer, v0.19.1, fault dot, Open project…, Pending refs…, +, instances,
+  − fit + ⤢ ◧ ◨ ⛶, + Add Lane, Reset, Clean layout, View XML, Settings, Load…, Check, Versions, Save to project, Save:
+  all visible, none clipped.
+- 1440: 2 rows; row 1 brand … View XML (actions right of the brand), row 2 Settings … Save. All visible.
+- 1280 / 1200 (the inline frame): 2 rows; row 1 brand … Reset, row 2 Clean layout … Save. All visible.
+- 1024: 2 rows; row 1 brand … ◧ ◨, row 2 ⛶, + Add Lane … Save. All visible. Wart: ⛶ (focus mode) lands at the
+  start of row 2, apart from ◧ ◨ — reachable, but the view group is split.
+- First attempt (two blocks wrapping) was reachable but wasted row 1 (1440: ~600px empty; 1024: 3 rows) — redone
+  as one flowing sequence after reading those screenshots.
 ### Human
+- [ ] The header screenshots at 1024, 1280, 1440 and 1920, standalone and inline in Watchtower, show every toolbar control visible and unclipped, the wrap tidy, nothing overlapping, the space used well (independent reviewer, CLAUDE.md rule T-1174)
+  **Steps:**
+  1. Open the screenshots listed in this task's `## Visual Verification` (files under `.playwright-mcp/t1176-*.png`).
+  2. In each, check every header control: Open project, Pending refs, +, instances, zoom −/fit/+/⤢, ◧ ◨ ⛶, + Add Lane, Reset, Clean layout, View XML, Settings, Load…, Check, Versions, Save to project, Save.
+  **Expected:** every control fully visible in every screenshot; where the toolbar wraps, the second row is aligned and nothing overlaps the canvas.
+  **If not:** name the screenshot and the control; the task goes back to the agent.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -97,6 +146,8 @@ date_finished: null
 -->
 
 ## Verification
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" timeout 300 node tools/_t1176-toolbar-reach-cdp.mjs > /tmp/t1176.out 2>&1 && grep -q '"pass": true' /tmp/t1176.out
+grep -q "_t1176-toolbar-reach-cdp.mjs" tests/run-bridge-tests.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -323,3 +374,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1176-designer-toolbar-cuts-off-its-right-hand.md
 - **Context:** Initial task creation
+
+### 2026-10-14T17:26:22Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
