@@ -995,22 +995,36 @@ class Validator:
             # An unresolvable lane reference reads as authority-absent, matching
             # the XML form's treatment of a node in no flowNodeRef. E-NODE-LANE
             # already reports the dangling reference itself.
-            authority = lane_authority.get(node.get("lane"))
             ntype = node.get("type")
             aef = node.get("aef")
             if not isinstance(aef, dict):
                 aef = {}
+            # T-1159 (OBS-436): T-889 / T-888 clause 2 on this form too — THE ELEMENT CARRIES ITS
+            # AUTHORITY. The node's own `aef.authority` wins; the lane is the fallback. The XML twin
+            # has done this since T-889, so before this the two forms could judge the same map
+            # differently once a node states an authority its lane does not. Same precedence as
+            # the XML form, including for a value outside AUTHORITIES (E-META-AUTHORITY reports
+            # that separately; it still is the element's statement).
+            elem_authority = aef.get("authority")
+            authority = (
+                elem_authority
+                if elem_authority is not None
+                else lane_authority.get(node.get("lane"))
+            )
 
-            # O-3: an inception's boundary MUST be sovereignty(human)-laned
+            # O-3: an inception's boundary MUST carry sovereignty authority
             if ntype == "subProcess" and aef.get("workflowType") == "inception":
                 if authority != "sovereignty":
                     self.err(
                         "E-INCEPTION-NOT-SOVEREIGN",
                         "node '%s'" % uid,
-                        'inception (workflowType="inception") must be in a '
-                        "sovereignty (human) lane; its lane authority is %s "
-                        "(O-3, mapping-v1 §7)"
-                        % ("absent" if authority is None else "'%s'" % authority),
+                        'inception (workflowType="inception") must carry '
+                        "sovereignty authority; its authority is %s "
+                        "(source: %s) (O-3, mapping-v1 §7, T-888 clause 2)"
+                        % (
+                            "absent" if authority is None else "'%s'" % authority,
+                            "the element" if elem_authority is not None else "its lane",
+                        ),
                     )
 
             # O-1: task-type should agree with lane authority (lane wins)

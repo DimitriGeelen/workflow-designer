@@ -3074,6 +3074,7 @@ T1013_GUARDS=(
   'tools/_t886-writer-mutation.py|mutation teeth for the round-trip guard (suppresses each writer attribute, expects red)'
   'tools/_t892-lane-default-cdp.mjs|CDP regression: the lane Authoring default never re-stamps nodes'
   'tools/_t911-kind-badge-verify-cdp.mjs|CDP regression: workflowMeta/@kind settable and visible (writes .playwright-mcp/t911-panel-kind-select.png)'
+  'tests/test_t1159_yaml_element_authority.py|the YAML IW-9 check lets a node own aef.authority win over its lane, as the XML form does; both forms agree on 6 cases (T-1159)'
   'tools/_t1178-inception-template.sh|the inception template carries the hypothesis section and score fields, the schema hook and GO gate accept it, and an upgrade keeps it (T-1178)'
   'tools/_t1177-panels-cdp.mjs|CDP regression: side panels fold to a notch and back, resize by drag with clamping, double-click reset, persist over reload (T-1177)'
   'tools/_t1176-toolbar-reach-cdp.mjs|CDP regression: every header control visible and clickable at 1024/1200/1280/1440/1920, panels and the XML panel below the header (T-1176)'

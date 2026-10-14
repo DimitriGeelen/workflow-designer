@@ -1,13 +1,19 @@
 ---
 id: T-1159
-name: "YAML-form IW-9 check ignores element aef.authority (T-889 clause-2 'element wins' has no YAML twin)"
+name: "YAML-form IW-9 check ignores element aef.authority (T-889 clause-2 'element
+  wins' has no YAML twin)"
 description: >
-  Promoted from OBS-436 by T-1149 (observation triage, 2026-10-13). Still true. The YAML `_check_iw9_authority` in tools/validate-workflow.py takes `authority = lane_authority.get(node.get("lane"))` (about line 998) and never consults the node's own `aef.authority`. T-902 and docs/reports/T-320-rule-form-parity-census.md:324 only mention it as "filed as an observation". No task carries it. Original observation text is in .context/inbox.yaml under OBS-436.
+  Promoted from OBS-436 by T-1149 (observation triage, 2026-10-13). Still true. The
+  YAML `_check_iw9_authority` in tools/validate-workflow.py takes `authority = lane_authority.get(node.get("lane"))`
+  (about line 998) and never consults the node's own `aef.authority`. T-902 and docs/reports/T-320-rule-form-parity-census.md:324
+  only mention it as "filed as an observation". No task carries it. Original observation
+  text is in .context/inbox.yaml under OBS-436.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: later
+horizon: now
 tags: [observations]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:21:08Z
-last_update: 2026-10-13T16:21:08Z
-date_finished: null
+last_update: 2026-10-14T21:55:14Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,45 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-14T21:51:49Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=3 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L3:keyword=promote)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1159: YAML-form IW-9 check ignores element aef.authority (T-889 clause-2 'element wins' has no YAML twin)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+T-889 (T-888 ruling clause 2): a node's own authority wins over its lane's. The XML form's `_check_iw9_authority`
+does that (`authority = elem_authority if present else lane`); the YAML form's twin reads the lane only, so the two
+forms can judge the same map differently (OBS-436). Fix the YAML side to the same rule.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The YAML `_check_iw9_authority` takes `aef.authority` when the node states one, else the lane's — the same rule as the XML form, for O-3, O-1 and W-LANE-NO-OWNER; the O-3 message names the source (element or lane) as the XML one does
+- [x] A new test proves both directions on the YAML form, and the same maps on the XML form agree: inception with element `sovereignty` in an `initiative` lane passes O-3; inception with element `initiative` in a `sovereignty` lane fails O-3; a node with no element authority still follows its lane — `tests/test_t1159_yaml_element_authority.py` 6/6 (also O-1 both ways)
+- [x] The test fails on the validator before this change, and is bridge-wired — 3/6 on HEAD's validator, each a YAML/XML disagreement
+- [x] The corpus is unaffected: the YAML findings over every `examples/**/*.yaml` are identical before and after (today no corpus node's element authority disagrees with its lane) — 26 maps, 12 findings, byte-identical dump
+- [x] The existing parity tests still pass (`tests/test_rule_form_parity.py`, `tests/test_harness_cross_form_agreement.py`, `tests/test_validate_iw9.py`) — plus test_rule_dialect_axis and test_finding_anchorability, all OK
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +128,11 @@ date_finished: null
 -->
 
 ## Verification
+python3 tests/test_t1159_yaml_element_authority.py
+grep -q "test_t1159_yaml_element_authority.py" tests/run-bridge-tests.sh
+python3 tests/test_rule_form_parity.py
+python3 tests/test_harness_cross_form_agreement.py
+python3 tests/test_validate_iw9.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -323,3 +359,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1159-yaml-form-iw-9-check-ignores-element-aef.md
 - **Context:** Initial task creation
+
+### 2026-10-14T21:51:48Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)

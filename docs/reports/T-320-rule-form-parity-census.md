@@ -324,5 +324,8 @@ are untouched: the YAML form still has no `laneMeta authoringDefault` carrier, s
 paired without inventing one. **What this does not close:** T-889's clause-2 "element wins"
 reading in the XML IW-9 check has no YAML twin — `_check_iw9_authority` reads the lane only.
 That is a second gap of a different kind (a relation, not a vocabulary), filed as an
-observation under T-902 and not built there.
+observation under T-902 and not built there. **Closed by T-1159 (2026-10-14):** the YAML
+`_check_iw9_authority` now lets the node's own `aef.authority` win, with the lane as fallback, for
+O-3, O-1 and W-LANE-NO-OWNER. `tests/test_t1159_yaml_element_authority.py` checks both forms on 6
+cases. The corpus findings did not change.
 
