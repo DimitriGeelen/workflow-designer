@@ -328,17 +328,40 @@ font-family: 'Outfit';
   /* ============ Main layout ============ */
   main {
     display: grid;
-    grid-template-columns: 220px 1fr 320px;
+    /* T-1177: the side panels' widths are the operator's (dragged, persisted in aefViewPrefs) */
+    grid-template-columns: var(--pal-w, 220px) 1fr var(--props-w, 320px);
     min-height: 0;
+    position: relative;   /* T-1177: anchors the panel tabs and resize edges */
   }
   /* T-245 view-chrome: hiding a side panel must also drop its grid track, or the
      canvas would keep a dead band where the panel was. Focus mode hides all three
      chrome regions; the SVG's fit-to-view viewBox (T-043) reflows the diagram into
      the freed space with no zoom math. */
   body.vc-no-palette .palette { display: none; }
-  body.vc-no-palette main { grid-template-columns: 1fr 320px; }
+  body.vc-no-palette main { grid-template-columns: 1fr var(--props-w, 320px); }
   body.vc-no-props .properties { display: none; }
-  body.vc-no-props main { grid-template-columns: 220px 1fr; }
+  body.vc-no-props main { grid-template-columns: var(--pal-w, 220px) 1fr; }
+  /* T-1177 (operator 2026-10-14): each side panel folds away to a little notch at its edge and unfolds from it, and
+     its width is set by dragging its inner edge. ONE tab per side: on the panel's inner edge when open (◂ / ▸ folds),
+     at the window edge when folded (the notch, ▸ / ◂ unfolds). */
+  .panel-tab {
+    position: absolute; top: 50%; z-index: 6; transform: translateY(-50%);
+    width: 16px; height: 56px; padding: 0; margin: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; line-height: 1; color: var(--text-dim);
+    background: var(--surface-2); border: 1px solid var(--border-strong, var(--border)); cursor: pointer;
+  }
+  .panel-tab:hover { color: var(--accent); border-color: var(--accent); }
+  #tab-palette { left: var(--pal-w, 220px); border-left: none; border-radius: 0 6px 6px 0; }
+  #tab-props { right: var(--props-w, 320px); border-right: none; border-radius: 6px 0 0 6px; }
+  body.vc-no-palette #tab-palette { left: 0; }
+  body.vc-no-props #tab-props { right: 0; }
+  .panel-resizer { position: absolute; top: 0; bottom: 0; width: 7px; z-index: 5; cursor: col-resize; }
+  .panel-resizer:hover, .panel-resizer.dragging { background: var(--accent-soft, rgba(122,184,255,.18)); }
+  #resize-palette { left: calc(var(--pal-w, 220px) - 4px); }
+  #resize-props { right: calc(var(--props-w, 320px) - 4px); }
+  body.vc-no-palette #resize-palette, body.vc-no-props #resize-props { display: none; }
+  body.vc-focus .panel-tab, body.vc-focus .panel-resizer { display: none; }
   body.vc-no-palette.vc-no-props main { grid-template-columns: 1fr; }
   body.vc-focus .app { grid-template-rows: 1fr; }
   body.vc-focus header { display: none; }
@@ -694,7 +717,7 @@ font-family: 'Outfit';
      occlusion is a predictable bottom strip instead of arbitrary.
      Left/right track main's own grid columns (220px palette, 320px properties), including
      the modes that remove them, so the dock never straddles a panel edge. */
-  #findings-drawer { position: fixed; left: 220px; right: 320px; bottom: 0; z-index: 40;
+  #findings-drawer { position: fixed; left: var(--pal-w, 220px); right: var(--props-w, 320px); bottom: 0; z-index: 40;
     max-height: 30vh; display: none; flex-direction: column; background: var(--surface);
     border: 1px solid var(--border-strong); border-bottom: none;
     border-radius: 8px 8px 0 0; box-shadow: 0 -4px 18px rgba(0,0,0,.26); }
@@ -1661,6 +1684,11 @@ font-family: 'Outfit';
         Drag any selected node to reposition.
       </div>
     </aside>
+    <!-- T-1177: fold tabs (the notch when folded) and drag edges for the two side panels -->
+    <button type="button" class="panel-tab" id="tab-palette" title="Fold the palette" aria-label="Fold the palette">◂</button>
+    <button type="button" class="panel-tab" id="tab-props" title="Fold the properties panel" aria-label="Fold the properties panel">▸</button>
+    <div class="panel-resizer" id="resize-palette" title="Drag to set the palette width · double-click: default"></div>
+    <div class="panel-resizer" id="resize-props" title="Drag to set the properties panel width · double-click: default"></div>
   </main>
 
   <!-- T-245: the only visible chrome in focus mode — floating, semi-transparent

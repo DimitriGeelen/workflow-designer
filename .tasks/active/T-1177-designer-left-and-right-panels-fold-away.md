@@ -133,6 +133,24 @@ panel's width, and keep both in the persistent settings.
        `bin/fw reviewer T-1177 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Work in progress (session ran out of context, 2026-10-14)
+DONE in src/aef-workflow-designer.html (committed as WIP):
+- CSS: `main` grid uses `var(--pal-w,220px) 1fr var(--props-w,320px)` (+ folded variants), `position: relative`;
+  `.panel-tab` (#tab-palette / #tab-props: on the inner edge when open, at the window edge when folded = the notch),
+  `.panel-resizer` (#resize-palette / #resize-props), hidden in focus mode; findings drawer reads the vars.
+- Markup: the two tabs and two resizers at the end of `<main>`.
+- `PANEL_W` bounds and `viewPrefs.paletteWidth / propsWidth` defaults.
+NOT DONE (the next session's first edits; the edit text was drafted and blocked only by the budget gate):
+1. restore: after the showAllFields line in the aefViewPrefs restore, accept paletteWidth/propsWidth only if a finite
+   number within PANEL_W bounds.
+2. applyViewChrome(): set `--pal-w` / `--props-w` on document.documentElement; tab glyphs/titles (open ◂ / ▸ fold,
+   folded ▸ / ◂ unfold).
+3. wirePanelChrome(): tab click -> setViewPref(paletteHidden/propsHidden toggle); resizer pointerdown/move/up (live
+   CSS var while dragging, clamp to bounds and canvas >= 320px, setViewPref on release); dblclick -> default.
+4. tools/_t1177-panels-cdp.mjs (fold via tab, unfold via notch, real drag + clamp, dblclick reset, reload keeps
+   state; fails on HEAD~), bridge-wire it; screenshots 1024/1440/1920 in all states; reviewer judge (CLAUDE.md T-1174).
+Until 1-3 land the tabs show but do nothing and the resizers do not drag; widths stay at the defaults.
+
 ## Verification
 PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" timeout 300 node tools/_t1177-panels-cdp.mjs > /tmp/t1177.out 2>&1 && grep -q '"pass": true' /tmp/t1177.out
 grep -q "_t1177-panels-cdp.mjs" tests/run-bridge-tests.sh
