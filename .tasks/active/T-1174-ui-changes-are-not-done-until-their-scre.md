@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T17:23:20Z
-last_update: 2026-10-14T17:23:20Z
+last_update: 2026-10-14T17:24:55Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -66,9 +66,9 @@ control by control, at one width only, and no independent reviewer saw it.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] CLAUDE.md (Project-Specific Rules) states the standard: every rendered change gets screenshots at several widths and in every state it touches, each read control by control (every control visible and reachable), listed in the task, and judged by an independent review agent before the task closes
-- [ ] A learning records the miss and the rule
-- [ ] AEF gets a pickup proposing the same standard for the framework (with the T-1172 evidence), delivery recorded
+- [x] CLAUDE.md (Project-Specific Rules) states the standard: every rendered change gets screenshots at several widths and in every state it touches, each read control by control (every control visible and reachable), listed in the task, and judged by an independent review agent before the task closes — "UI changes are reviewed on screenshots, by you AND an independent review agent" (511534db)
+- [x] A learning records the miss and the rule — learnings.yaml (511534db)
+- [x] AEF gets a pickup proposing the same standard for the framework (with the T-1172 evidence), delivery recorded — ac7a3e6f-b147-487a-93ff-92a0ca962817 (conversation ui-visual-review-standard), RECEIVED
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
