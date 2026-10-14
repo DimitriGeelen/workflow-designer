@@ -75,6 +75,21 @@ against the live file. If every backup-only line is superseded by the live file,
 summarise the diff in the upgrade task. If any line would be lost, report it to the operator and keep
 the backup. Never delete a backup unread.
 
+### UI changes are reviewed on screenshots, by you AND an independent review agent (operator, 2026-10-14)
+
+"If you make UI changes … do a visual review of that screenshot and review agent. That should be a standard."
+T-1172 shipped the inline designer with its toolbar cut off (Check, Versions, Save project unreachable); the
+screenshot showed it, but it was read for the layout, at one width, and nobody else looked. For every change that
+renders (designer `src/`, Watchtower templates/CSS, anything a person sees):
+1. **Screenshots of every state the change touches** (hover, open/closed, fullscreen, empty/full) **at three
+   widths at least**: narrow (~1024), normal (~1440), wide (~1920), plus the operator's screen if known.
+2. **Read each one control by control**: every button, menu and field visible, reachable and unclipped; nothing
+   overlapping or off-screen; the space used well. Write what was checked per screenshot in the task's
+   `## Visual Verification`. A screenshot looked at "for the layout" is not a review.
+3. **An independent review agent judges them before close**: a `[REVIEW]` criterion listing the screenshot paths
+   and what to check, judged by `fw reviewer judge T-XXX --criterion N` (AEF routing, PD-357). The task does not
+   close on the author's own look alone.
+
 ### Review routing follows the CURRENT AEF ruleset (operator, 2026-10-06, PD-357)
 
 The operator's standing directive: who checks what (operator or independent reviewer, the
@@ -96,7 +111,6 @@ never copied here. 832's own routing rules apply only where AEF is silent; on a 
   `tools/_t1066-why-you-check.py` and `tools/_t770-delegation-boundary.py` were aligned with AEF by T-1079
   (`_t770` routes every Human criterion through `fw task classify-ac`, T-1080, and fails closed to the
   operator when the verb gives no clean answer).
-
 ## Core Principle
 
 **Nothing gets done without a task.** This is enforced structurally by the framework, not by agent discipline.
@@ -548,7 +562,7 @@ Each component has a YAML card in `.fabric/components/` with: id, name, type, su
 - Above 85%: propose only wrap-up actions (commit, learnings, handover)
 - Above 95%: handover immediately, no new work
 - The percentages are the contract. Absolute token counts move with `FW_CONTEXT_WINDOW`
-  (300K default → 225K / 255K / 285K) and must not be written down as if fixed.
+  (800K default → 600K / 680K / 760K) and must not be written down as if fixed.
 - **This applies especially in autonomous mode** — without a human to catch the mistake, proposing work that can't complete in remaining context risks losing all uncommitted work
 
 ### Automated Monitoring (Claude Code)
@@ -556,7 +570,7 @@ Each component has a YAML card in `.fabric/components/` with: id, name, type, su
 - **Fallback:** A PostToolUse hook runs `checkpoint.sh` for warnings and auto-handover (T-136)
 - Escalation ladder, as percentages of `FW_CONTEXT_WINDOW` (source of truth:
   `agents/context/budget-gate.sh`): **75%** ok→warn (note), **85%** warn→urgent
-  (warning), **95%** urgent→critical (**BLOCK**). At the 300K default: 225K / 255K / 285K.
+  (warning), **95%** urgent→critical (**BLOCK**). At the 800K default: 600K / 680K / 760K.
 - At critical, allowed: git commit/add, fw handover/task, reading files, Write/Edit to `.context/` `.tasks/` `.claude/` (wrap-up paths). Blocked: Write/Edit to source files, general Bash
 - Status cached in `.context/working/.budget-status` (JSON: level, tokens, timestamp)
 - Check current usage: `./agents/context/checkpoint.sh status`
@@ -692,7 +706,7 @@ Human ACs represent real verification steps. Unvalidated deliverables carry down
 ### Commit Cadence and Check-In
 After **every commit**, briefly report what was done and ask if the user wants to continue. Do not chain multiple commits without user interaction.
 
-**Structural enforcement (T-139):** The `budget-gate.sh` PreToolUse hook reads actual token usage from the session transcript and **blocks** Write/Edit/Bash tool calls when context reaches critical level (>=95% of `FW_CONTEXT_WINDOW` — 285K at the 300K default). At critical, only git commit, fw handover, and read operations are allowed. The hook writes `.context/working/.budget-status` with current level (ok/warn/urgent/critical) for fast caching. PostToolUse `checkpoint.sh` remains as fallback for warnings and auto-handover.
+**Structural enforcement (T-139):** The `budget-gate.sh` PreToolUse hook reads actual token usage from the session transcript and **blocks** Write/Edit/Bash tool calls when context reaches critical level (>=95% of `FW_CONTEXT_WINDOW` — 760K at the 800K default). At critical, only git commit, fw handover, and read operations are allowed. The hook writes `.context/working/.budget-status` with current level (ok/warn/urgent/critical) for fast caching. PostToolUse `checkpoint.sh` remains as fallback for warnings and auto-handover.
 
 ### Operator Commands Ship as ONE `runme.sh` Line — standing directive (T-3675)
 
