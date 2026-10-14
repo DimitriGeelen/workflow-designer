@@ -1,13 +1,19 @@
 ---
 id: T-1157
-name: "Run a full fw verify-queue sweep and triage the red partial-complete review-queue tasks (T-308, T-310, T-325 and the rest of the 72)"
+name: "Run a full fw verify-queue sweep and triage the red partial-complete review-queue
+  tasks (T-308, T-310, T-325 and the rest of the 72)"
 description: >
-  Promoted from OBS-407 by T-1149 (observation triage, 2026-10-13). T-900 (.tasks/completed/T-900-t-886-changed-a-shared-harness-with-five.md:93-97) only cites OBS-407 as a reminder and says the reds in T-308/T-310/T-325 are "separately-found". I found no task that investigates or fixes them. Whether the review-queue tasks are still red is not re-measured, but nothing carries it. Original observation text is in .context/inbox.yaml under OBS-407.
+  Promoted from OBS-407 by T-1149 (observation triage, 2026-10-13). T-900 (.tasks/completed/T-900-t-886-changed-a-shared-harness-with-five.md:93-97)
+  only cites OBS-407 as a reminder and says the reds in T-308/T-310/T-325 are "separately-found".
+  I found no task that investigates or fixes them. Whether the review-queue tasks
+  are still red is not re-measured, but nothing carries it. Original observation text
+  is in .context/inbox.yaml under OBS-407.
 
-status: captured
+status: started-work
 workflow_type: test
+current_node: frw_1_start
 owner: agent
-horizon: later
+horizon: now
 tags: [observations]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:21:03Z
-last_update: 2026-10-13T16:21:03Z
-date_finished: null
+last_update: 2026-10-14T19:20:27Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,43 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-14T19:19:46Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=3 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L3:keyword=promote)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1157: Run a full fw verify-queue sweep and triage the red partial-complete review-queue tasks (T-308, T-310, T-325 and the rest of the 72)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+OBS-407 (2026-09-27): a 5-task rotation of `fw verify-queue` found 3 red (T-308, T-310, T-325), all partial-complete
+tasks the operator sees as "agent-verified, awaiting a human AC". The queue was never swept whole. This task measures
+the real red count and gives every red task a cause and an owner.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] One full `fw verify-queue --all --json` sweep has run; the per-task verdicts and the red/green/skipped counts are in `docs/reports/T-1157-verify-queue-sweep.md`
+- [ ] Every red task is classified with evidence (stale verification line, real regression, environment/timeout) and has a carrier: fixed under this task when it is the verification line itself, else a new task (one per independent bug)
+- [ ] A re-run of `fw verify-queue --task` on each task fixed here passes
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -323,3 +352,10 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1157-run-a-full-fw-verify-queue-sweep-and-tri.md
 - **Context:** Initial task creation
+
+### 2026-10-14T19:19:46Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
+
+### 2026-10-14T19:20:03Z — status-update [task-update-agent]
+- **Change:** horizon: now → now
