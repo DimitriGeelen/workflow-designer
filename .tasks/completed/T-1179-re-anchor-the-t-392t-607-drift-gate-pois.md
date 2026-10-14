@@ -11,13 +11,13 @@ description: >
   prove each arm goes red when poisoned, and re-run T-392's verification. T-607 also
   reports P2 'now reaches the gate — fold into the matrix'.
 
-status: started-work
+status: work-completed
 workflow_type: test
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [upgrade, teeth]
-components: []
+components: [tools/_t392-safelist-shadow-gate.py, tools/_t596-arc0-exit-gate.sh, tools/_t607-drift-gate-reach.py, tools/_t703-inbox-residue.py, tools/_t884-instance-overlay-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T19:31:01Z
-last_update: 2026-10-14T20:08:32Z
-date_finished:
+last_update: 2026-10-14T20:08:34Z
+date_finished: 2026-10-14T20:08:34Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -376,3 +376,15 @@ git diff --quiet -- .agentic-framework/agents/context/check-active-task.sh
 ### 2026-10-14T20:03:33Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-896b4be3
+- **Timestamp:** 2026-10-14T20:09:19Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-14T20:08:34Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
