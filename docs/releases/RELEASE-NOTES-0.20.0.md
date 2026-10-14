@@ -31,6 +31,15 @@
   `AEF Workflow Designer — <map>.bpmn`, and so does the heading of the XML panel. It follows a switch to another map
   and a rename.
 
+- **The toolbar is never cut off (T-1176).** On a window narrower than about 1450px, Check, Versions, Save to project
+  and Save fell off the right edge. The toolbar now wraps onto a second row when it has to, keeping the zoom buttons
+  together and the view buttons together; on a wide window it is one row as before.
+
+- **The side panels fold away and can be resized (T-1177).** Each side panel has a small tab on its inner edge: click
+  it to fold the panel away to a notch at the window edge, and click the notch to bring it back (◧ ◨ in the toolbar do
+  the same). Drag a panel's inner edge to set its width (palette 160–480px, properties 240–640px; the canvas always
+  keeps at least 320px), and double-click the edge for the default. Folded panels and widths are remembered.
+
 ## Authoring kit
 
 Guide, rubric and validator unchanged; re-issued as 0.20.0 with its own calibration
@@ -43,4 +52,6 @@ Guide, rubric and validator unchanged; re-issued as 0.20.0 with its own calibrat
    `ver_start_lead`, `ver_1_lead`.
 2. Your doc-merge, generators and links still work on the re-saved map (they key on names, map ids and lane ids).
 3. The tab title shows the map you opened, and changes when you open another.
-4. Everything in 0.19.1 (the field-settings re-test) is included, if you have not run it yet.
+4. Make the window narrow (about 1024px): every toolbar button is still on screen. Fold a side panel with its edge
+   tab, unfold it from the notch, drag its edge wider, reload: the panels come back as you left them.
+5. Everything in 0.19.1 (the field-settings re-test) is included, if you have not run it yet.
