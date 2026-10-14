@@ -1,0 +1,39 @@
+runme  028-restart-watchtower-designer-inline   sha 1000cecf7376   rehearsed 2026-10-14T06:22:50Z   log: /opt/832-Workflow-designer/.context/runme/028-restart-watchtower-designer-inline/run-20261014T111053.log
+Job:   028-restart-watchtower-designer-inline   (T-1172)
+What:  Restart Watchtower: maps open inline with fullscreen (T-1172) and the thumbnail fly-out (T-1171)
+       Your two requests from 2026-10-13/14 are built and tested on a private copy; the running Watchtower still
+       serves the old pages until it restarts. After the restart, on /designer: hovering a thumbnail enlarges it with an
+       Open button, and opening a map keeps Watchtower's navigation around it, with a fullscreen button (Esc or the button
+       brings you back). A restart takes Watchtower down for a few seconds: reload any open page afterwards; an unsent form
+       would be lost. Same port (3013).
+Steps (each asks y/N first):
+  1. Restart Watchtower on port 3013, then check it is newer than its web code and answering
+  2. Check the live pages: /designer has the fly-out, a map opens inline at /designer/open
+
+ok    Watchtower is running on 3013
+ok    the running Watchtower predates its web code (a restart has something to do)
+ok    the inline page and the fly-out are committed
+
+Step 1/2: Restart Watchtower on port 3013, then check it is newer than its web code and answering
+  runs: do_restart
+Run step 1/2? [y/N] [watchtower] Stopping Watchtower (PID 1783905)...
+[watchtower]   Waiting for shutdown... (10s)
+[watchtower] Watchtower stopped.
+[watchtower] Starting Watchtower on port 3013 (project: /opt/832-Workflow-designer)...
+[watchtower] Health check passed (identity verified).
+[firewall] Port 3013 already open.
+
+Watchtower is running
+  Local:  http://localhost:3013
+  LAN:    http://192.168.10.107:3013
+  PID:    348241
+  Log:    /opt/832-Workflow-designer/.context/working/watchtower.log
+ok  Watchtower restarted (pid 348241), answering at http://192.168.10.107:3013
+ok    step 1/2
+
+Step 2/2: Check the live pages: /designer has the fly-out, a map opens inline at /designer/open
+  runs: do_check
+Run step 2/2? [y/N] ok  open http://192.168.10.107:3013/designer — hover a thumbnail, click Open; the ⛶ button goes fullscreen
+ok    step 2/2
+
+DONE: 028-restart-watchtower-designer-inline — all 2 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/028-restart-watchtower-designer-inline/run-20261014T111053.log)
