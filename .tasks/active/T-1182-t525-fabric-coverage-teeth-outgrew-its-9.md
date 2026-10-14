@@ -1,13 +1,22 @@
 ---
 id: T-1182
-name: "_t525 fabric-coverage teeth outgrew its 90s sweep cap (103s on a quiet machine): measure and fix"
+name: "_t525 fabric-coverage teeth outgrew its 90s sweep cap (103s on a quiet machine):
+  measure and fix"
 description: >
-  Found by the T-1157/T-340 quiet suite run: the T-509 instrument sweep is INCOMPLETE on every run because tools/_t525-fabric-coverage-teeth.py does not finish in 90s; alone on a quiet machine it took 102.5s (T-543 measured 86s on a smaller tree, and noted its cost tracks the watched tree). Raising the cap without measuring is what the sweep warns against. Measure where the time goes, make it cheaper or give it a measured SLOW_CAP entry with headroom, and check the three others near their caps (_t549 168/180s, _t550 75/90s, _t567 76/90s). Related: T-1166 (audit-reading teeth under a concurrent cron audit).
+  Found by the T-1157/T-340 quiet suite run: the T-509 instrument sweep is INCOMPLETE
+  on every run because tools/_t525-fabric-coverage-teeth.py does not finish in 90s;
+  alone on a quiet machine it took 102.5s (T-543 measured 86s on a smaller tree, and
+  noted its cost tracks the watched tree). Raising the cap without measuring is what
+  the sweep warns against. Measure where the time goes, make it cheaper or give it
+  a measured SLOW_CAP entry with headroom, and check the three others near their caps
+  (_t549 168/180s, _t550 75/90s, _t567 76/90s). Related: T-1166 (audit-reading teeth
+  under a concurrent cron audit).
 
-status: captured
+status: started-work
 workflow_type: test
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [teeth, performance]
 components: []
 related_tasks: []
@@ -38,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T22:44:35Z
-last_update: 2026-10-14T22:44:35Z
-date_finished: null
+last_update: 2026-10-14T23:06:58Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +59,44 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-14T22:46:12Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1182: _t525 fabric-coverage teeth outgrew its 90s sweep cap (103s on a quiet machine): measure and fix
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The T-509 instrument sweep has been INCOMPLETE on every run because `tools/_t525-fabric-coverage-teeth.py` does
+not finish within its 90 s cap: 102.5 s alone on a quiet machine (2026-10-15). T-549 had cut it from 86 s by moving
+the branch legs onto a fixture; something has grown since. The sweep itself warns against raising a cap unmeasured.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Where the time goes is measured per audit call and per leg, written in this task's Updates with the numbers
+- [x] The cause is fixed at its source when it is in the teeth (wasted work), or the probe gets a measured SLOW_CAP entry with stated headroom when the cost is legitimate — the choice and numbers recorded in ## Decisions
+- [x] `bash tools/_t509-instrument-sweep.sh` no longer reports `_t525` as did-not-finish on a quiet machine, and `_t525` still passes 8/8 — SWEEP PASS 101/101, 0 did-not-finish, 0 abstained, no headroom warning (740 s)
+- [x] The three probes near their caps (_t549, _t550, _t567) are re-measured and their numbers recorded
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +130,10 @@ date_finished: null
 -->
 
 ## Verification
+bash -n tools/_t509-instrument-sweep.sh
+grep -q '\[_t525-fabric-coverage-teeth.py\]=160' tools/_t509-instrument-sweep.sh
+grep -q '\[_t549-fabric-coverage-mutation-teeth.py\]=270' tools/_t509-instrument-sweep.sh
+timeout 160 python3 tools/_t525-fabric-coverage-teeth.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -307,6 +344,17 @@ date_finished: null
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-10-15 — measured caps, not a cheaper _t525
+- **Chose:** SLOW_CAP entries at ~1.5x the worst observed run: _t525 160 s, _t549 270 s (was 180), _t550 120 s,
+  _t567 120 s; the numbers written beside them in `tools/_t509-instrument-sweep.sh`. Follow up with AEF on the
+  single-check audit selector that T-1051 asked for on 2026-10-05.
+- **Why:** the time is the framework's own structure audit (54 s for 832 measured here; 58 s in the audit's own
+  full-audit-timing.yaml; 22 s at T-1051, 16.9 s at T-549), not waste in the teeth. Leg 1 audits this repository on
+  purpose (T-549: "the check is reached here" cannot be proven on a fixture).
+- **Rejected:** moving leg 1 onto the fixture (deletes what it proves); reading the latest cron audit record instead
+  of running one (tests a record, not the check, and drags in T-1166's concurrency); raising the global 90 s cap
+  (hides the next probe that grows).
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -319,7 +367,18 @@ date_finished: null
 
 ## Updates
 
+### 2026-10-15 — measurements
+- `_t525` alone, quiet machine: 102.5 s (first run), 79.4 s (profiled run). Profile: leg 1 `fw audit --sections
+  structure` on 832 = 54.0 s; five fixture audits = 5.1 + 5.1 + 5.2 + 5.0 + 4.9 s; nothing measurable outside
+  subprocesses. T-549 had measured one structure audit at 16.86 s and fixture audits at ~1.5 s.
+- Alone vs in the quiet sweep of 2026-10-15: `_t549` 126 / 168 s, `_t550` 53 / 75 s, `_t567` 66 / 76 s; `_t525`
+  killed at 90 s in the sweep.
+
 ### 2026-10-14T22:44:35Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1182-t525-fabric-coverage-teeth-outgrew-its-9.md
 - **Context:** Initial task creation
+
+### 2026-10-14T22:46:11Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

@@ -74,7 +74,16 @@ declare -A SLOW_CAP=(
   # `fw audit --sections structure`, which grew with AEF 1.8.x (sidecar, cron, branch, vendor checks):
   # 22.1 s per run on 1.8.3 (docstring: ~8 s on 1.7.x), 90.9-99.6 s total measured 2026-10-06.
   # Way out: an audit selector for one check (asked of AEF), bringing a run back to seconds.
-  [_t549-fabric-coverage-mutation-teeth.py]=180
+  # T-1182 (2026-10-15): the structure section grew again — 54 s for one audit of 832 (the audit's own
+  # full-audit-timing.yaml: 58 s), fixture audits 1.5 s -> 5 s. Measured alone / in a quiet sweep: _t549 126 / 168 s,
+  # _t525 79-103 / killed at 90, _t550 53 / 75, _t567 66 / 76. In-sweep runs are 15-40 % slower (cron audits overlap,
+  # T-1166). Each cap is ~1.5x the worst observed run; the HEADROOM WARNING still fires at 75 % of it. These four are
+  # paying for a whole structure audit to read one check, so the selector is still the way out (asked again, T-1182).
+  [_t549-fabric-coverage-mutation-teeth.py]=270
+  # _t525 leg 1 audits THIS repository on purpose (T-549 kept it: "the check is reached here" cannot be a fixture).
+  [_t525-fabric-coverage-teeth.py]=160
+  [_t550-audit-parse-anchor-teeth.py]=120
+  [_t567-episodic-yaml-safety-teeth.sh]=120
 )
 
 # ── SUBSET SELECTION (T-850) ──────────────────────────────────────────────────────────
