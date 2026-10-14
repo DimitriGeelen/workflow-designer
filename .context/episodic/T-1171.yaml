@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1171: Designer landing: hovering a map thumbnail enlarges it (fly-out), leaving shrinks it back; the enlarged view has an Open button
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-14T09:12:44Z
+# ============================================================================
+
+task_id: T-1171
+task_name: "Designer landing: hovering a map thumbnail enlarges it (fly-out), leaving shrinks it back; the enlarged view has an Open button"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T21:47:55Z
+completed: 2026-10-14T09:12:23Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-14T08:22:30+02:00
+last_commit: 2026-10-14T08:22:30+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  hovering a map thumbnail on /designer blows it up as a fly-out (same image ~2x, kept inside the viewport, short delay and grow) with an Open button; leaving shrinks it away; Open, the fly-out image and the tile click the card's own editor link, which stays the card's only ?load link (T-2596). Browser-measured (hover/leave/Open with a fresh nonce), screenshot read; markup test 5/5 bridge-wired; _t1048 counts tiles not images (6/6); divergence declared
+
+# Key outcomes
+outcomes:
+  - 'Hovering a thumbnail shows a fly-out of the same image, several times larger, above the grid with a short grow animation; leaving the thumbnail and the fly-out shrinks it away; it stays inside the viewport at the grid''s edges — headless Chromium, real mouse hover: class fly, opacity 1, 680px vs a 316px tile; at 800px wide right edge 792 (inside), at 1400 the right-column card''s fly-out 712..1392 (inside); mouse to the actions row: opacity 0, hidden'
+  - 'The fly-out carries an "Open" button; it and a click on the thumbnail open the map through the card''s existing "Open in editor" link (nonce minted by that link, which stays the card''s only link with ?load) — Open clicked: /designer/open?load=...%26t%3D1791958855988 (fresh nonce); markup leg 3-4'
+  - 'Cards without a thumbnail show no fly-out — template: the no-thumb branch has no fly-out; test leg 2 (this store has 0 such cards, so it is vacuous here) and _t1048 leg 5 renders a card without a thumb'
+  - 'A test proves the markup (one fly-out per thumbnail card, Open button wired to the card link, no extra ?load link) and a browser check measures hover -> visible and larger, leave -> hidden, Open -> /designer/open with a fresh nonce; screenshots read — tools/_t1171-landing-flyout-test.py 5/5 (bridge-wired); _t1048 updated to count tiles, not every image (6/6)'
+  - '.vendor-divergence.yaml updated for designer_landing.html; tools/_t517 OK'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.tasks/active/T-1171-designer-landing-hovering-a-map-thumbnai.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1048-gallery-thumbs.py'
+  - 'tools/_t1171-landing-flyout-test.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-14T08:22:30'
+    action: 'T-1171: hovering a map thumbnail on /designer blows it up as a fly-out (same image ~2x, kept inside the viewport, short delay and grow) with an Open button; leaving shrinks it away; Open, the fly-out image and the tile click the card''s own editor link, which stays the card''s only ?load link (T-2596). Browser-measured (hover/leave/Open with a fresh nonce), screenshot read; markup test 5/5 bridge-wired; _t1048 counts tiles not images (6/6); divergence declared'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 684 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [watchtower, designer-landing, ux]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 684
+  commits: 3
+  files_changed: 10
+  lines_added: 311
+  lines_removed: 17
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1171-designer-landing-hovering-a-map-thumbnai.md
+generated_by: context-agent-hybrid

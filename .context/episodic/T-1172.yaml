@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1172: Opening a map from Watchtower's /designer page leaves Watchtower: /designer/app is the bare designer, full tab, no way back but the browser's Back
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-14T09:13:38Z
+# ============================================================================
+
+task_id: T-1172
+task_name: "Opening a map from Watchtower's /designer page leaves Watchtower: /designer/app is the bare designer, full tab, no way back but the browser's Back"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-13T21:48:01Z
+completed: 2026-10-14T09:13:21Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-14T01:23:14+02:00
+last_commit: 2026-10-14T11:13:20+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  operator decision — open a map inline in a Watchtower page with a fullscreen toggle like the fabric browser; criteria. open a map INLINE in Watchtower with a fullscreen toggle (operator's choice, like the fabric browser) — /designer/open renders the base layout + the designer framed from /designer/app with the same load value (deep-link and T-2596/T-2599 nonce untouched); ⛶ fullscreen on the stage, ✖ inside fullscreen at bottom-right (top-right covered the designer's toolbar, moved after the screenshot); cards point at it and keep the click-time nonce; /designer/app unchanged. Test 5/5, bridge-wired; screenshots read; divergence declared (_t517 OK). RCA (cards linked the standalone /designer/app; tests checked the link target, not where the user ends up)
+
+# Key outcomes
+outcomes:
+  - 'A Watchtower page (base layout, normal navigation) shows the designer for a map inline, in a frame filling the rest of the viewport; it keeps /designer/app''s deep-link and the T-2596/T-2599 load nonce — /designer/open; test legs 1-2; screenshot t1172-inline.png'
+  - 'A fullscreen button (⛶) puts the designer area into browser fullscreen and turns into ✖; ✖ or Esc returns to the Watchtower page with its navigation, and the button follows (fullscreenchange), as in the fabric browser — measured in headless Chromium: ⛶ -> fullscreenElement dsg-stage, button ✖; ✖ -> null, button ⛶, stage refitted. Esc NOT measurable headless (a synthetic key reaches the page/frame, the designer uses Esc itself; in a real browser Esc is the browser''s own fullscreen exit, before the page)'
+  - 'The landing cards'' "Open in editor" goes to the inline page and still mints its click-time nonce (T-2596); /designer/app keeps working on its own (old links, the blank editor) — leg 4 + live click: /designer/open?load=...%26t%3D1791933910607; leg 5'
+  - 'A test proves the inline page renders with the navigation and the frame, and that a card link points at it with the nonce; screenshots of the inline page and of fullscreen are read — tools/_t1172-designer-open-test.py 5/5, bridge-wired; screenshots below'
+  - '.vendor-divergence.yaml declares the changed vendored files; tools/_t517 OK'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-14 — how to get back to Watchtower'
+    chose: 'inline in a Watchtower page with a fullscreen toggle, as the fabric browser does (operator).'
+    rationale: 'you never leave Watchtower, and fullscreen gives the designer the whole screen when wanted, with one click (or Esc) back; it reuses a pattern the operator already knows from the fabric browser.'
+    alternatives_rejected: ['a new tab (tabs pile up), a back link in the designer toolbar (the designer still replaces Watchtower), the plain Watchtower bar without fullscreen (less room for the map).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.tasks/active/T-1172-opening-a-map-from-watchtowers-designer-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1172-designer-open-test.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-14T01:23:14'
+    action: 'T-1172: operator decision — open a map inline in a Watchtower page with a fullscreen toggle like the fabric browser; criteria'
+  - time: '2026-10-14T01:44:04'
+    action: 'T-1172: open a map INLINE in Watchtower with a fullscreen toggle (operator''s choice, like the fabric browser) — /designer/open renders the base layout + the designer framed from /designer/app with the same load value (deep-link and T-2596/T-2599 nonce untouched); ⛶ fullscreen on the stage, ✖ inside fullscreen at bottom-right (top-right covered the designer''s toolbar, moved after the screenshot); cards point at it and keep the click-time nonce; /designer/app unchanged. Test 5/5, bridge-wired; screenshots read; divergence declared (_t517 OK)'
+  - time: '2026-10-14T11:13:20'
+    action: 'T-1172: RCA (cards linked the standalone /designer/app; tests checked the link target, not where the user ends up)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 685 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [watchtower, designer-landing, navigation, bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 685
+  commits: 4
+  files_changed: 7
+  lines_added: 957
+  lines_removed: 22
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1172-opening-a-map-from-watchtowers-designer-.md
+generated_by: context-agent-hybrid

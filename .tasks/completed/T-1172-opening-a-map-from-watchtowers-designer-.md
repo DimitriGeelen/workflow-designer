@@ -9,13 +9,13 @@ description: >
   bar above an embedded designer / new tab / back link in the designer toolbar), asked
   2026-10-13.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_run
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [watchtower, designer-landing, navigation, bug]
-components: []
+components: [tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T21:48:01Z
-last_update: 2026-10-14T09:12:01Z
-date_finished:
+last_update: 2026-10-14T09:13:21Z
+date_finished: 2026-10-14T09:13:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -392,3 +392,15 @@ renders inside Watchtower's layout with the frame and the fullscreen toggle, and
 ### 2026-10-13T23:23:56Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e19ebc46
+- **Timestamp:** 2026-10-14T09:13:26Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-14T09:13:21Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
