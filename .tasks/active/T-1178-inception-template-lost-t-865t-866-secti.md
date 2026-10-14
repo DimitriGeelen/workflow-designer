@@ -1,13 +1,22 @@
 ---
 id: T-1178
-name: "Inception template lost T-865/T-866 sections to the 1.8.2 upgrade (hypothesis, success clause, unfilled scores)"
+name: "Inception template lost T-865/T-866 sections to the 1.8.2 upgrade (hypothesis,
+  success clause, unfilled scores)"
 description: >
-  Found by T-1157's verify-queue sweep: T-866 red because .tasks/templates/inception.md has no '## Hypothesis' / 'We will know that we are successful when we see'. The 1.8.2 upgrade (T-1049) replaced the project's template with upstream's, and T-1053 committed it as leftover task-state (e8e7e488): T-865's no-default voi/blast-radius block and T-866's hypothesis section were both lost, while the gate code (lib/inception.sh, inception-readiness.sh) that expects them survived. Restore both, record the template in the upgrade's re-apply list so the next fw upgrade cannot revert it silently, and re-run T-865/T-866 verification.
+  Found by T-1157's verify-queue sweep: T-866 red because .tasks/templates/inception.md
+  has no '## Hypothesis' / 'We will know that we are successful when we see'. The
+  1.8.2 upgrade (T-1049) replaced the project's template with upstream's, and T-1053
+  committed it as leftover task-state (e8e7e488): T-865's no-default voi/blast-radius
+  block and T-866's hypothesis section were both lost, while the gate code (lib/inception.sh,
+  inception-readiness.sh) that expects them survived. Restore both, record the template
+  in the upgrade's re-apply list so the next fw upgrade cannot revert it silently,
+  and re-run T-865/T-866 verification.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [regression, upgrade, templates]
 components: []
 related_tasks: []
@@ -38,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T19:29:56Z
-last_update: 2026-10-14T19:29:56Z
-date_finished: null
+last_update: 2026-10-14T20:03:14Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +59,48 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-14T19:57:35Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1178: Inception template lost T-865/T-866 sections to the 1.8.2 upgrade (hypothesis, success clause, unfilled scores)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The 1.8.2 upgrade (T-1049) overwrote `.tasks/templates/inception.md` with upstream's; T-1053 committed it as leftover
+state (e8e7e488). Lost: T-866's `## Hypothesis` section (the GO gate in lib/inception.sh still requires it, or
+`inception_kind: research`) and T-865's "no pre-filled scores" block (the template ships `target_blast_radius: 3`,
+`voi_score: 0.5` again). Upstream has since made the upgrade keep customised templates (T-3965). Complication found
+while restoring: AEF's T-2188 schema hook (`check-inception-schema`, active here) refuses edits to an inception
+without those two fields, so T-865's removal must be squared with it before it is restored.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `.tasks/templates/inception.md` has T-866's `## Hypothesis` section again (the three phrases the gate looks for, and the `inception_kind: research` exemption)
+- [x] The score fields follow whatever is compatible with the active T-2188 schema hook: T-865's no-default form if the hook accepts an inception created from it, else the upstream defaults kept and the conflict recorded in ## Decisions (no AEF report needed: the estimator already ignores unsourced values, so nothing conflicts — see Decisions)
+- [x] An inception created from the restored template (create-task.sh, which `fw inception start` calls) can be edited (schema hook does not refuse) and its GO check sees the hypothesis section — `tools/_t1178-inception-template.sh` 8/8, 5 red on the stock template, bridge-wired
+- [x] The current upgrade code keeps this customised template (T-3965 helper reports KEPT, not UPDATED), shown by a dry run
+- [x] T-866's Verification passes (`fw verify-queue --task T-866` 8/8); T-865's "no `voi_score:` line" leg is superseded by the T-2188 hook (Decisions)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +134,10 @@ date_finished: null
 -->
 
 ## Verification
+bash tools/_t1178-inception-template.sh
+grep -q "_t1178-inception-template.sh" tests/run-bridge-tests.sh
+grep -q '^## Hypothesis$' .tasks/templates/inception.md
+grep -q 'voi_score_source: human' .tasks/templates/inception.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -307,6 +348,17 @@ date_finished: null
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-10-14 — the score fields: keep them, restore T-865's meaning in a comment
+- **Chose:** keep `target_blast_radius: 3` / `voi_score: 0.5` in the template, with T-865's note restored above them:
+  they are placeholders, the estimator ignores any value without `<field>_source: human`, and how to override.
+- **Why:** AEF's T-2188 schema hook (active here since the 1.8.2 upgrade) refuses any edit to an inception without
+  the two fields, so T-865's deletion would make every new inception uneditable until someone typed a number in.
+  T-865's actual goal (an unchosen 0.5 must not rank as "judged middling") already holds in the estimator
+  (`estimator.py`, T-865: "anything else -> estimated from the task's own text"), whatever the template ships.
+- **Rejected:** T-865's no-field form (blocked by T-2188 on the first edit; T-3948's upgrade backfill would also
+  re-add 3/0.5 to every inception anyway). Consequence: T-865's verification leg "no `^voi_score:` line in the
+  template" is red by design now; T-865 is closed, so no gate runs it.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -323,3 +375,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1178-inception-template-lost-t-865t-866-secti.md
 - **Context:** Initial task creation
+
+### 2026-10-14T19:57:34Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
