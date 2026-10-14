@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1178: Inception template lost T-865/T-866 sections to the 1.8.2 upgrade (hypothesis, success clause, unfilled scores)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-14T20:03:27Z
+# ============================================================================
+
+task_id: T-1178
+task_name: "Inception template lost T-865/T-866 sections to the 1.8.2 upgrade (hypothesis, success clause, unfilled scores)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-14T19:29:56Z
+completed: 2026-10-14T20:03:15Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-14T22:03:14+02:00
+last_commit: 2026-10-14T22:03:14+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception template restored — T-866 Hypothesis section back, T-865's placeholder/override note back above the score fields (kept: AEF's T-2188 hook requires them; estimator ignores unsourced values); _t1178 8/8 (5 red on the stock template), bridge-wired; upgrade dry-run would now KEEP it; T-866 re-verified 8/8
+
+# Key outcomes
+outcomes:
+  - '`.tasks/templates/inception.md` has T-866''s `## Hypothesis` section again (the three phrases the gate looks for, and the `inception_kind: research` exemption)'
+  - 'The score fields follow whatever is compatible with the active T-2188 schema hook: T-865''s no-default form if the hook accepts an inception created from it, else the upstream defaults kept and the conflict recorded in ## Decisions (no AEF report needed: the estimator already ignores unsourced values, so nothing conflicts — see Decisions)'
+  - 'An inception created from the restored template (create-task.sh, which `fw inception start` calls) can be edited (schema hook does not refuse) and its GO check sees the hypothesis section — `tools/_t1178-inception-template.sh` 8/8, 5 red on the stock template, bridge-wired'
+  - 'The current upgrade code keeps this customised template (T-3965 helper reports KEPT, not UPDATED), shown by a dry run'
+  - 'T-866''s Verification passes (`fw verify-queue --task T-866` 8/8); T-865''s "no `voi_score:` line" leg is superseded by the T-2188 hook (Decisions)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-14 — the score fields: keep them, restore T-865''s meaning in a comment'
+    chose: 'keep `target_blast_radius: 3` / `voi_score: 0.5` in the template, with T-865''s note restored above them: they are placeholders, the estimator ignores any value without `<field>_source: human`, and how to override.'
+    rationale: 'AEF''s T-2188 schema hook (active here since the 1.8.2 upgrade) refuses any edit to an inception without the two fields, so T-865''s deletion would make every new inception uneditable until someone typed a number in. T-865''s actual goal (an unchosen 0.5 must not rank as "judged middling") already holds in the estimator (`estimator.py`, T-865: "anything else -> estimated from the task''s own text"), whatever the template ships.'
+    alternatives_rejected: ['T-865''s no-field form (blocked by T-2188 on the first edit; T-3948''s upgrade backfill would also re-add 3/0.5 to every inception anyway). Consequence: T-865''s verification leg "no `^voi_score:` line in the template" is red by design now; T-865 is closed, so no gate runs it.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1178-inception-template-lost-t-865t-866-secti.md'
+  - '.tasks/templates/inception.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1178-inception-template.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-14T22:03:14'
+    action: 'T-1178: inception template restored — T-866 Hypothesis section back, T-865''s placeholder/override note back above the score fields (kept: AEF''s T-2188 hook requires them; estimator ignores unsourced values); _t1178 8/8 (5 red on the stock template), bridge-wired; upgrade dry-run would now KEEP it; T-866 re-verified 8/8'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 33 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [regression, upgrade, templates]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 33
+  commits: 1
+  files_changed: 4
+  lines_added: 200
+  lines_removed: 11
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1178-inception-template-lost-t-865t-866-secti.md
+generated_by: context-agent-hybrid

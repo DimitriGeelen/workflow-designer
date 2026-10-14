@@ -2,12 +2,20 @@
 id: T-1179
 name: "Re-anchor the T-392/T-607 drift-gate poison arms on the upgraded check-active-task.sh"
 description: >
-  Found by T-1157's verify-queue sweep: tools/_t392-safelist-shadow-gate.py (13/13 matrix legs) and tools/_t607-drift-gate-reach.py (14/14) still pass on behaviour, but their poison arms SKIP because the code they mutate ('_deferred_safe_exit=1' and the widened '(^|[[:space:]])([^[:space:]]*/)?fw' anchor) is no longer in .agentic-framework/agents/context/check-active-task.sh after the bleeding-edge upgrade (T-1167): upstream implemented the same behaviour differently. Find where the deferral and the anchor live now, re-point both arms, prove each arm goes red when poisoned, and re-run T-392's verification. T-607 also reports P2 'now reaches the gate — fold into the matrix'.
+  Found by T-1157's verify-queue sweep: tools/_t392-safelist-shadow-gate.py (13/13
+  matrix legs) and tools/_t607-drift-gate-reach.py (14/14) still pass on behaviour,
+  but their poison arms SKIP because the code they mutate ('_deferred_safe_exit=1'
+  and the widened '(^|[[:space:]])([^[:space:]]*/)?fw' anchor) is no longer in .agentic-framework/agents/context/check-active-task.sh
+  after the bleeding-edge upgrade (T-1167): upstream implemented the same behaviour
+  differently. Find where the deferral and the anchor live now, re-point both arms,
+  prove each arm goes red when poisoned, and re-run T-392's verification. T-607 also
+  reports P2 'now reaches the gate — fold into the matrix'.
 
-status: captured
+status: started-work
 workflow_type: test
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [upgrade, teeth]
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T19:31:01Z
-last_update: 2026-10-14T19:31:01Z
-date_finished: null
+last_update: 2026-10-14T20:03:33Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-14T20:03:33Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1179: Re-anchor the T-392/T-607 drift-gate poison arms on the upgraded check-active-task.sh
@@ -323,3 +352,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1179-re-anchor-the-t-392t-607-drift-gate-pois.md
 - **Context:** Initial task creation
+
+### 2026-10-14T20:03:33Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
