@@ -354,8 +354,13 @@ font-family: 'Outfit';
   .panel-tab:hover { color: var(--accent); border-color: var(--accent); }
   #tab-palette { left: var(--pal-w, 220px); border-left: none; border-radius: 0 6px 6px 0; }
   #tab-props { right: var(--props-w, 320px); border-right: none; border-radius: 6px 0 0 6px; }
-  body.vc-no-palette #tab-palette { left: 0; }
-  body.vc-no-props #tab-props { right: 0; }
+  /* folded: the panel's track goes, and a 16px strip at the window edge holds the notch (main's padding, so the canvas
+     never lies under it) */
+  body.vc-no-palette main { padding-left: 16px; }
+  body.vc-no-props main { padding-right: 16px; }
+  body.vc-no-palette #tab-palette { left: 0; border-left: 1px solid var(--border-strong, var(--border)); border-radius: 0 6px 6px 0; height: 72px; }
+  body.vc-no-props #tab-props { right: 0; border-right: 1px solid var(--border-strong, var(--border)); border-radius: 6px 0 0 6px; height: 72px; }
+  body.panel-resizing, body.panel-resizing * { cursor: col-resize !important; user-select: none; }
   .panel-resizer { position: absolute; top: 0; bottom: 0; width: 7px; z-index: 5; cursor: col-resize; }
   .panel-resizer:hover, .panel-resizer.dragging { background: var(--accent-soft, rgba(122,184,255,.18)); }
   #resize-palette { left: calc(var(--pal-w, 220px) - 4px); }
@@ -365,7 +370,7 @@ font-family: 'Outfit';
   body.vc-no-palette.vc-no-props main { grid-template-columns: 1fr; }
   body.vc-focus .app { grid-template-rows: 1fr; }
   body.vc-focus header { display: none; }
-  body.vc-focus main { grid-template-columns: 1fr; }
+  body.vc-focus main { grid-template-columns: 1fr; padding: 0; }
   body.vc-focus .palette, body.vc-focus .properties { display: none; }
   #vc-exit {
     display: none;
@@ -721,8 +726,8 @@ font-family: 'Outfit';
     max-height: 30vh; display: none; flex-direction: column; background: var(--surface);
     border: 1px solid var(--border-strong); border-bottom: none;
     border-radius: 8px 8px 0 0; box-shadow: 0 -4px 18px rgba(0,0,0,.26); }
-  body.vc-no-palette #findings-drawer { left: 0; }
-  body.vc-no-props   #findings-drawer { right: 0; }
+  body.vc-no-palette #findings-drawer { left: 16px; }   /* T-1177: beside the notch */
+  body.vc-no-props   #findings-drawer { right: 16px; }
   /* Focus mode deliberately strips chrome to the diagram; a findings dock is chrome. */
   body.vc-focus      #findings-drawer { display: none !important; }
   #findings-drawer[data-open="1"] { display: flex; }
@@ -3067,7 +3072,10 @@ function setLabelPref(key, value) {
 // rowSpacing does NOT move geometry on load — only an explicit control change
 // re-spaces (PD-044). (Density, a snap-threshold multiplier that never grew
 // lanes, was retired here — see rowPitch.)
-let viewPrefs = { branchPitch: 'auto', cleanOnImport: false, rowSpacing: 96, colSpacing: 150, paletteHidden: false, propsHidden: false, showAllFields: false };
+let viewPrefs = { branchPitch: 'auto', cleanOnImport: false, rowSpacing: 96, colSpacing: 150, paletteHidden: false, propsHidden: false, showAllFields: false, palW: 220, propsW: 320 };
+// T-1177: the side panels' widths (px) — default, the drag's bounds, and the canvas's floor between them.
+const PANEL_W = { palW: { def: 220, min: 160, max: 480 }, propsW: { def: 320, min: 240, max: 640 } };
+const CANVAS_MIN_W = 320;
 try {
   const _storedView = JSON.parse(localStorage.getItem('aefViewPrefs') || '{}');
   if (['compact', 'auto', 'roomy'].includes(_storedView.branchPitch)) viewPrefs.branchPitch = _storedView.branchPitch;
@@ -3077,6 +3085,10 @@ try {
   if (typeof _storedView.paletteHidden === 'boolean') viewPrefs.paletteHidden = _storedView.paletteHidden;
   if (typeof _storedView.propsHidden === 'boolean') viewPrefs.propsHidden = _storedView.propsHidden;
   if (typeof _storedView.showAllFields === 'boolean') viewPrefs.showAllFields = _storedView.showAllFields;   // T-1124
+  for (const k of Object.keys(PANEL_W)) {   // T-1177: an out-of-range or non-numeric width falls back to the default
+    const v = _storedView[k];
+    if (Number.isFinite(v) && v >= PANEL_W[k].min && v <= PANEL_W[k].max) viewPrefs[k] = Math.round(v);
+  }
 } catch (e) { aefRecordFault('prefs-restore:view', e); }
 function setViewPref(key, value) {
   viewPrefs[key] = value;
@@ -3099,7 +3111,46 @@ function applyViewChrome() {
   if (bp) { bp.setAttribute('aria-pressed', String(!!viewPrefs.paletteHidden)); bp.title = viewPrefs.paletteHidden ? 'Show palette' : 'Hide palette'; }
   const br = document.getElementById('btn-toggle-props');
   if (br) { br.setAttribute('aria-pressed', String(!!viewPrefs.propsHidden)); br.title = viewPrefs.propsHidden ? 'Show properties panel' : 'Hide properties panel'; }
+  applyPanelWidths();
+  // T-1177: one tab per side — folds the open panel from its inner edge, unfolds the folded one from the notch.
+  const tabs = [['tab-palette', viewPrefs.paletteHidden, '▸', '◂', 'the palette'],
+                ['tab-props', viewPrefs.propsHidden, '◂', '▸', 'the properties panel']];
+  for (const [id, folded, gUnfold, gFold, what] of tabs) {
+    const t = document.getElementById(id);
+    if (!t) continue;
+    t.textContent = folded ? gUnfold : gFold;
+    t.title = (folded ? 'Unfold ' : 'Fold ') + what;
+    t.setAttribute('aria-label', t.title);
+    t.setAttribute('aria-expanded', String(!folded));
+  }
 }
+// T-1177: the widths actually applied. The stored preference is the operator's; on a window too narrow for both
+// panels plus CANVAS_MIN_W of canvas they give way (the wider one first), so the canvas never collapses. The stored
+// value is untouched, so widening the window brings the chosen widths back.
+function panelWidthsFor(totalW) {
+  let pal = viewPrefs.paletteHidden ? 0 : viewPrefs.palW;
+  let props = viewPrefs.propsHidden ? 0 : viewPrefs.propsW;
+  let over = pal + props + CANVAS_MIN_W - totalW;
+  while (over > 0) {
+    const key = (props - (viewPrefs.propsHidden ? 0 : PANEL_W.propsW.min)) >= (pal - (viewPrefs.paletteHidden ? 0 : PANEL_W.palW.min)) ? 'props' : 'pal';
+    const floor = key === 'props' ? (viewPrefs.propsHidden ? 0 : PANEL_W.propsW.min) : (viewPrefs.paletteHidden ? 0 : PANEL_W.palW.min);
+    const cur = key === 'props' ? props : pal;
+    const cut = Math.min(over, cur - floor);
+    if (cut <= 0) break;
+    if (key === 'props') props -= cut; else pal -= cut;
+    over -= cut;
+  }
+  return { pal, props };
+}
+function applyPanelWidths() {
+  const m = document.querySelector('main');
+  const total = m ? m.getBoundingClientRect().width : window.innerWidth;
+  const { pal, props } = panelWidthsFor(total || window.innerWidth);
+  const root = document.documentElement.style;
+  if (!viewPrefs.paletteHidden) root.setProperty('--pal-w', pal + 'px');
+  if (!viewPrefs.propsHidden) root.setProperty('--props-w', props + 'px');
+}
+window.addEventListener('resize', () => applyPanelWidths());
 function setFocusMode(on) {
   focusMode = !!on;
   applyViewChrome();
@@ -8077,6 +8128,47 @@ $('btn-toggle-palette').onclick = () => setViewPref('paletteHidden', !viewPrefs.
 $('btn-toggle-props').onclick = () => setViewPref('propsHidden', !viewPrefs.propsHidden);
 $('btn-focus-mode').onclick = () => setFocusMode(true);
 $('vc-exit').onclick = () => setFocusMode(false);
+// T-1177: the panel tabs fold/unfold the same state as ◧ ◨; dragging a panel's inner edge sets its width (live while
+// dragging, persisted on release), double-click restores the default.
+$('tab-palette').onclick = () => setViewPref('paletteHidden', !viewPrefs.paletteHidden);
+$('tab-props').onclick = () => setViewPref('propsHidden', !viewPrefs.propsHidden);
+function wirePanelResizer(id, key, side) {
+  const el = $(id);
+  let drag = null;
+  const widthAt = clientX => {
+    const r = document.querySelector('main').getBoundingClientRect();
+    const other = key === 'palW' ? (viewPrefs.propsHidden ? 0 : viewPrefs.propsW) : (viewPrefs.paletteHidden ? 0 : viewPrefs.palW);
+    const raw = side === 'left' ? clientX - r.left : r.right - clientX;
+    const max = Math.min(PANEL_W[key].max, r.width - other - CANVAS_MIN_W);
+    return Math.round(Math.max(PANEL_W[key].min, Math.min(max, raw)));
+  };
+  el.addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    drag = { id: e.pointerId, w: viewPrefs[key] };
+    el.setPointerCapture(e.pointerId);
+    el.classList.add('dragging');
+    document.body.classList.add('panel-resizing');
+  });
+  el.addEventListener('pointermove', e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    drag.w = widthAt(e.clientX);
+    document.documentElement.style.setProperty(key === 'palW' ? '--pal-w' : '--props-w', drag.w + 'px');
+  });
+  const end = e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const w = drag.w;
+    drag = null;
+    el.classList.remove('dragging');
+    document.body.classList.remove('panel-resizing');
+    if (w !== viewPrefs[key]) setViewPref(key, w);
+  };
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
+  el.addEventListener('dblclick', () => setViewPref(key, PANEL_W[key].def));
+}
+wirePanelResizer('resize-palette', 'palW', 'left');
+wirePanelResizer('resize-props', 'propsW', 'right');
 applyViewChrome();
 // T-251 canvas-navigation wiring. Buttons anchor the zoom at the viewport centre.
 $('btn-zoom-in').onclick = () => setZoom(effectiveZoom() * 1.25);

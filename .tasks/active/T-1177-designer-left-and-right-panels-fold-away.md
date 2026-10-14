@@ -42,7 +42,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T17:25:50Z
-last_update: 2026-10-14T17:45:39Z
+last_update: 2026-10-14T19:07:51Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -89,12 +89,12 @@ panel's width, and keep both in the persistent settings.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Each side panel has a fold button on its inner edge; folded, the panel leaves a notch (~16px strip) at the window edge with an unfold button; the toolbar's ◧ ◨ still fold/unfold the same state
-- [ ] Dragging a panel's inner edge sets its width (palette 160-480px, properties 240-640px, the canvas keeps at least 320px); double-clicking the edge resets the default (220 / 320)
-- [ ] Fold state and both widths persist across reloads (aefViewPrefs); out-of-range or invalid stored values fall back to the defaults
-- [ ] The findings drawer and the XML panel follow the panel widths and fold states; focus mode still hides everything
-- [ ] A browser test (tools/_t1177-panels-cdp.mjs) proves fold via the panel button and unfold via the notch, resize by a real mouse drag with clamping, double-click reset, and persistence over a reload; it fails on the old designer and is bridge-wired
-- [ ] Screenshots at 1024, 1440 and 1920 of: both open, each folded, both resized — read control by control in ## Visual Verification (CLAUDE.md, T-1174)
+- [x] Each side panel has a fold button on its inner edge; folded, the panel leaves a notch (~16px strip) at the window edge with an unfold button; the toolbar's ◧ ◨ still fold/unfold the same state
+- [x] Dragging a panel's inner edge sets its width (palette 160-480px, properties 240-640px, the canvas keeps at least 320px); double-clicking the edge resets the default (220 / 320)
+- [x] Fold state and both widths persist across reloads (aefViewPrefs); out-of-range or invalid stored values fall back to the defaults
+- [x] The findings drawer and the XML panel follow the panel widths and fold states; focus mode still hides everything
+- [x] A browser test (tools/_t1177-panels-cdp.mjs) proves fold via the panel button and unfold via the notch, resize by a real mouse drag with clamping, double-click reset, and persistence over a reload; it fails on the old designer and is bridge-wired
+- [x] Screenshots at 1024, 1440 and 1920 of: both open, each folded, both resized — read control by control in ## Visual Verification (CLAUDE.md, T-1174)
 
 ### Human
 - [ ] The panel screenshots at 1024, 1440 and 1920 (both open, palette folded, properties folded, both resized) show the notches visible and clickable, the fold/unfold buttons and drag edges discoverable, the canvas using the freed space, nothing clipped or overlapping (independent reviewer, CLAUDE.md rule T-1174)
@@ -133,23 +133,23 @@ panel's width, and keep both in the persistent settings.
        `bin/fw reviewer T-1177 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
-## Work in progress (session ran out of context, 2026-10-14)
-DONE in src/aef-workflow-designer.html (committed as WIP):
-- CSS: `main` grid uses `var(--pal-w,220px) 1fr var(--props-w,320px)` (+ folded variants), `position: relative`;
-  `.panel-tab` (#tab-palette / #tab-props: on the inner edge when open, at the window edge when folded = the notch),
-  `.panel-resizer` (#resize-palette / #resize-props), hidden in focus mode; findings drawer reads the vars.
-- Markup: the two tabs and two resizers at the end of `<main>`.
-- `PANEL_W` bounds and `viewPrefs.paletteWidth / propsWidth` defaults.
-NOT DONE (the next session's first edits; the edit text was drafted and blocked only by the budget gate):
-1. restore: after the showAllFields line in the aefViewPrefs restore, accept paletteWidth/propsWidth only if a finite
-   number within PANEL_W bounds.
-2. applyViewChrome(): set `--pal-w` / `--props-w` on document.documentElement; tab glyphs/titles (open ◂ / ▸ fold,
-   folded ▸ / ◂ unfold).
-3. wirePanelChrome(): tab click -> setViewPref(paletteHidden/propsHidden toggle); resizer pointerdown/move/up (live
-   CSS var while dragging, clamp to bounds and canvas >= 320px, setViewPref on release); dblclick -> default.
-4. tools/_t1177-panels-cdp.mjs (fold via tab, unfold via notch, real drag + clamp, dblclick reset, reload keeps
-   state; fails on HEAD~), bridge-wire it; screenshots 1024/1440/1920 in all states; reviewer judge (CLAUDE.md T-1174).
-Until 1-3 land the tabs show but do nothing and the resizers do not drag; widths stay at the defaults.
+## Visual Verification
+Screenshots written by `tools/_t1177-panels-cdp.mjs` (headless chromium, 860px high, map audit-process), each read:
+- `.playwright-mcp/t1177-1024-open.png`, `t1177-1440-open.png`, `t1177-1920-open.png`: palette 220px, properties
+  320px; the palette tab (◂) on the palette's inner edge at mid-height, the properties tab (▸) on the properties
+  panel's inner edge; both whole and over no panel control; toolbar unchanged (two rows at 1024/1440, one at 1920, T-1176).
+- `t1177-{1024,1440,1920}-palette-folded.png`: the palette is gone, a 16px strip at the left window edge holds the notch
+  (▸, 72px high, mid-height); the canvas starts right of the strip and the diagram refits wider; ◧ shows pressed.
+- `t1177-{1024,1440,1920}-props-folded.png`: the same on the right: notch (◂) at the right window edge, ◨ pressed; the
+  palette and its tab unchanged.
+- `t1177-{1024,1440,1920}-resized.png`: palette dragged to 330px, properties to 460px (at 1024 the properties panel stops
+  where the canvas keeps 320px); both tabs follow the new edges; the properties fields widen with the panel; the canvas
+  is at least 320px wide (asserted by the test).
+- Seen and left: the drag edges show only as a col-resize cursor and a tint on hover (the panel border marks where);
+  the fold tab covers the middle 56px of each edge, so a drag starts above or below it. The "Restored your unsaved
+  work" toast comes from the test's reloads, not from this change. The XML panel is an overlay across the full width
+  below the header, so the panel widths do not move it.
+- Tests: `_t1177-panels-cdp.mjs` 18/18; on the designer before T-1177 it fails (no #tab-palette).
 
 ## Verification
 PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" timeout 300 node tools/_t1177-panels-cdp.mjs > /tmp/t1177.out 2>&1 && grep -q '"pass": true' /tmp/t1177.out
