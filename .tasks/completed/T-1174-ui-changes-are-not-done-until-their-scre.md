@@ -4,10 +4,11 @@ name: "UI changes are not done until their screenshots are reviewed control by c
 description: >
   UI changes are not done until their screenshots are reviewed control by control, at several widths, and by an independent review agent (operator rule 2026-10-14; T-1172 shipped with the designer toolbar cut off)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T17:23:20Z
-last_update: 2026-10-14T17:24:55Z
-date_finished: null
+last_update: 2026-10-14T17:25:09Z
+date_finished: 2026-10-14T17:25:09Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -329,3 +330,15 @@ grep -q "UI changes are reviewed on screenshots" CLAUDE.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1174-ui-changes-are-not-done-until-their-scre.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ca4029b9
+- **Timestamp:** 2026-10-14T17:25:12Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-14T17:25:09Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1175: Inline designer page uses the full screen width (Watchtower's page container caps it)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-14T17:45:33Z
+# ============================================================================
+
+task_id: T-1175
+task_name: "Inline designer page uses the full screen width (Watchtower's page container caps it)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-14T17:25:38Z
+completed: 2026-10-14T17:45:18Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-14T19:42:11+02:00
+last_commit: 2026-10-14T19:43:10+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the inline designer page uses the full window width (main#content:has(#dsg-stage) lifts Watchtower's container cap for this page only; frame 13px from each edge at 1024/1280/1440/1920); test leg 6 asserts the rule is on the inline page only (6/6); inline screenshots read control by control; divergence declared. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'On /designer/open the designer frame spans the window width minus a small margin (<= 16px each side) at 1280, 1440 and 1920; every other Watchtower page keeps its container width — measured 13px each side at 1024/1280/1440/1920 (frame 998/1254/1414/1894); the rule is scoped by :has(#dsg-stage), absent from /designer (test leg 6)'
+  - 'The bar above the frame (← Maps, title, Open alone, ⛶) and Watchtower''s navigation stay fully visible at those widths — measured (⛶ inside the window) and seen in each screenshot'
+  - 'tools/_t1172-designer-open-test.py gains a leg asserting the width rule is on the inline page only; still passes; .vendor-divergence.yaml covers it; _t517 OK — 6/6'
+  - 'Screenshots at 1280, 1440 and 1920 read control by control in ## Visual Verification (CLAUDE.md, T-1174)'
+  - 'The inline-page screenshots at 1280, 1440 and 1920 show the designer using the full width, Watchtower''s navigation and the bar above the frame fully visible, the designer''s toolbar complete (independent reviewer, CLAUDE.md rule T-1174)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.context/reviews/evidence/T-1175/AC1-judge-t-1175-r3-aea5e977c744.md'
+  - '.context/reviews/evidence/T-1175/t1175-inline-1280-judge-t-1175-r3-aea5e977c744.png'
+  - '.context/reviews/evidence/T-1175/t1175-inline-1440-judge-t-1175-r3-aea5e977c744.png'
+  - '.context/reviews/evidence/T-1175/t1175-inline-1920-judge-t-1175-r3-aea5e977c744.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1175-inline-designer-page-uses-the-full-scree.md'
+  - 'tools/_t1172-designer-open-test.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-14T19:42:11'
+    action: 'T-1175: the inline designer page uses the full window width (main#content:has(#dsg-stage) lifts Watchtower''s container cap for this page only; frame 13px from each edge at 1024/1280/1440/1920); test leg 6 asserts the rule is on the inline page only (6/6); inline screenshots read control by control; divergence declared'
+  - time: '2026-10-14T19:43:10'
+    action: 'T-1175: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 19 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [watchtower, designer-landing, ux]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 19
+  commits: 2
+  files_changed: 10
+  lines_added: 104
+  lines_removed: 11
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1175-inline-designer-page-uses-the-full-scree.md
+generated_by: context-agent-hybrid

@@ -1,13 +1,17 @@
 ---
 id: T-1177
-name: "Designer: left and right panels fold away to a notch, can be resized by dragging, and remember their state and width"
+name: "Designer: left and right panels fold away to a notch, can be resized by dragging,
+  and remember their state and width"
 description: >
-  Operator 2026-10-14: 'the left panel and the right panel should be foldable and unfoldable … you should just see little notch button to unfold them again … You should also be able to set their width … persistent in the persistent setting.'
+  Operator 2026-10-14: 'the left panel and the right panel should be foldable and
+  unfoldable … you should just see little notch button to unfold them again … You
+  should also be able to set their width … persistent in the persistent setting.'
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [designer, panels, ux, settings]
 components: []
 related_tasks: []
@@ -38,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T17:25:50Z
-last_update: 2026-10-14T17:25:50Z
-date_finished: null
+last_update: 2026-10-14T17:45:39Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,22 +54,55 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-14T17:45:39Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1177: Designer: left and right panels fold away to a notch, can be resized by dragging, and remember their state and width
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Today (T-245): ◧ / ◨ in the toolbar hide the palette / properties panel completely (display:none, persisted in
+aefViewPrefs as paletteHidden / propsHidden); widths are fixed (`main` grid 220px 1fr 320px, the findings drawer
+mirrors them). The operator wants: fold each panel away to a little notch at its edge that unfolds it again, set each
+panel's width, and keep both in the persistent settings.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Each side panel has a fold button on its inner edge; folded, the panel leaves a notch (~16px strip) at the window edge with an unfold button; the toolbar's ◧ ◨ still fold/unfold the same state
+- [ ] Dragging a panel's inner edge sets its width (palette 160-480px, properties 240-640px, the canvas keeps at least 320px); double-clicking the edge resets the default (220 / 320)
+- [ ] Fold state and both widths persist across reloads (aefViewPrefs); out-of-range or invalid stored values fall back to the defaults
+- [ ] The findings drawer and the XML panel follow the panel widths and fold states; focus mode still hides everything
+- [ ] A browser test (tools/_t1177-panels-cdp.mjs) proves fold via the panel button and unfold via the notch, resize by a real mouse drag with clamping, double-click reset, and persistence over a reload; it fails on the old designer and is bridge-wired
+- [ ] Screenshots at 1024, 1440 and 1920 of: both open, each folded, both resized — read control by control in ## Visual Verification (CLAUDE.md, T-1174)
 
 ### Human
+- [ ] The panel screenshots at 1024, 1440 and 1920 (both open, palette folded, properties folded, both resized) show the notches visible and clickable, the fold/unfold buttons and drag edges discoverable, the canvas using the freed space, nothing clipped or overlapping (independent reviewer, CLAUDE.md rule T-1174)
+  **Steps:**
+  1. Open the screenshots listed in this task's `## Visual Verification` (`.playwright-mcp/t1177-*.png`).
+  2. In each, check the notch(es), the fold buttons, the drag edges, the toolbar, and that the canvas fills the space.
+  **Expected:** every control visible and recognisable; folding gives the space to the canvas; nothing overlaps.
+  **If not:** name the screenshot and what is wrong; the task goes back to the agent.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -97,6 +134,8 @@ date_finished: null
 -->
 
 ## Verification
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" timeout 300 node tools/_t1177-panels-cdp.mjs > /tmp/t1177.out 2>&1 && grep -q '"pass": true' /tmp/t1177.out
+grep -q "_t1177-panels-cdp.mjs" tests/run-bridge-tests.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -323,3 +362,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1177-designer-left-and-right-panels-fold-away.md
 - **Context:** Initial task creation
+
+### 2026-10-14T17:45:39Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

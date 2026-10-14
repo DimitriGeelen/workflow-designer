@@ -8,11 +8,11 @@ description: >
   container, so the designer frame is narrower than the window. Vendored template/CSS
   (832-local).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [watchtower, designer-landing, ux]
 components: []
 related_tasks: []
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T17:25:38Z
-last_update: 2026-10-14T17:33:32Z
-date_finished:
+last_update: 2026-10-14T17:45:18Z
+date_finished: 2026-10-14T17:45:18Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -95,7 +95,7 @@ Pico caps in width, so the designer frame leaves empty margins on wide screens. 
 - [x] Screenshots at 1280, 1440 and 1920 read control by control in ## Visual Verification (CLAUDE.md, T-1174)
 
 ### Human
-- [ ] The inline-page screenshots at 1280, 1440 and 1920 show the designer using the full width, Watchtower's navigation and the bar above the frame fully visible, the designer's toolbar complete (independent reviewer, CLAUDE.md rule T-1174)
+- [x] The inline-page screenshots at 1280, 1440 and 1920 show the designer using the full width, Watchtower's navigation and the bar above the frame fully visible, the designer's toolbar complete (independent reviewer, CLAUDE.md rule T-1174)
   **Steps:**
   1. Open the screenshots listed in this task's `## Visual Verification` (`.playwright-mcp/t1175-inline-*.png`).
   2. In each, check: the frame reaches near both window edges; ← Maps, title, Open alone, ⛶ visible; every control of the designer's toolbar visible.
@@ -130,6 +130,7 @@ Pico caps in width, so the designer frame leaves empty margins on wide screens. 
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1175 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+  **Reviewer verdict:** green V-20261014-9f7785ae — reviewer-judge-t-1175-r3-aea5e977c744:reviewer (rung rung-3-termlink-single-reviewer), digest b580c27cde9e; dispatch judge-t-1175-r3-aea5e977c744; evidence: .context/reviews/evidence/T-1175/AC1-judge-t-1175-r3-aea5e977c744.md, .context/reviews/evidence/T-1175/t1175-inline-1280-judge-t-1175-r3-aea5e977c744.png, .context/reviews/evidence/T-1175/t1175-inline-1440-judge-t-1175-r3-aea5e977c744.png, .context/reviews/evidence/T-1175/t1175-inline-1920-judge-t-1175-r3-aea5e977c744.png; ledger .context/reviews/verdicts.jsonl
 
 ## Visual Verification
 `.playwright-mcp/t1175-inline-{1024,1280,1440,1920}.png` — a private Watchtower on this tree, serving the WORKING
@@ -374,3 +375,15 @@ python3 tools/_t517-vendor-divergence.py
 
 ### 2026-10-14T17:33:32Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-585f392a
+- **Timestamp:** 2026-10-14T17:45:26Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-14T17:45:18Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

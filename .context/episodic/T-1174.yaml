@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1174: UI changes are not done until their screenshots are reviewed control by control, at several widths, and by an independent review agent (operator rule 2026-10-14; T-1172 shipped with the designer toolbar cut off)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-14T17:25:21Z
+# ============================================================================
+
+task_id: T-1174
+task_name: "UI changes are not done until their screenshots are reviewed control by control, at several widths, and by an independent review agent (operator rule 2026-10-14; T-1172 shipped with the designer toolbar cut off)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-14T17:23:20Z
+completed: 2026-10-14T17:25:09Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-14T19:24:54+02:00
+last_commit: 2026-10-14T19:25:08+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  standing rule (operator 2026-10-14) — UI changes are reviewed on screenshots at three widths and every touched state, control by control, and judged by an independent review agent before close; learning (T-1172's toolbar cut off, screenshot read only for layout); pickup to AEF (ac7a3e6f). criteria ticked (rule, learning, AEF pickup ac7a3e6f)
+
+# Key outcomes
+outcomes:
+  - 'CLAUDE.md (Project-Specific Rules) states the standard: every rendered change gets screenshots at several widths and in every state it touches, each read control by control (every control visible and reachable), listed in the task, and judged by an independent review agent before the task closes — "UI changes are reviewed on screenshots, by you AND an independent review agent" (511534db)'
+  - 'A learning records the miss and the rule — learnings.yaml (511534db)'
+  - 'AEF gets a pickup proposing the same standard for the framework (with the T-1172 evidence), delivery recorded — ac7a3e6f-b147-487a-93ff-92a0ca962817 (conversation ui-visual-review-standard), RECEIVED'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'CLAUDE.md'
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-1174-ui-changes-are-not-done-until-their-scre.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-14T19:24:54'
+    action: 'T-1174: standing rule (operator 2026-10-14) — UI changes are reviewed on screenshots at three widths and every touched state, control by control, and judged by an independent review agent before close; learning (T-1172''s toolbar cut off, screenshot read only for layout); pickup to AEF (ac7a3e6f)'
+  - time: '2026-10-14T19:25:08'
+    action: 'T-1174: criteria ticked (rule, learning, AEF pickup ac7a3e6f)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1
+  commits: 2
+  files_changed: 3
+  lines_added: 359
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1174-ui-changes-are-not-done-until-their-scre.md
+generated_by: context-agent-hybrid

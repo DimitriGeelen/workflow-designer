@@ -1,0 +1,113 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1176: Designer toolbar cuts off its right-hand buttons when the window is narrower than ~1450px (Check, Versions, Save project unreachable)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-14T17:44:56Z
+# ============================================================================
+
+task_id: T-1176
+task_name: "Designer toolbar cuts off its right-hand buttons when the window is narrower than ~1450px (Check, Versions, Save project unreachable)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-14T17:25:44Z
+completed: 2026-10-14T17:44:34Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-14T19:32:17+02:00
+last_commit: 2026-10-14T19:44:33+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the designer toolbar never cuts off a control — the header row sizes to its content and its controls flow as one wrapping sequence (one 48px row at 1920; two rows at 1024-1440), labels stay on one line (Pending refs… overflowed vertically), the XML panel sits below the real header height (--header-h). Test 16/16 at 1024/1200/1280/1440/1920 (every control inside the window and clickable, panels and XML panel below the header), 4 width legs red on the old designer; screenshots read control by control; bridge-wired. Visual Verification moved below the Human block (it cut the screenshot criterion off from Acceptance Criteria, so the reviewer found none). reviewer verdict. reviewer amber (V-20261014-cdf84f4c) acted on — zoom and view controls wrap as groups (⛶ no longer split from ◧ ◨ at 1024), real inline screenshots in Watchtower at 1024/1280/1440/1920 (all 20 controls clean, measured), gap 8->6px so the inline 1920 frame (1894px) keeps one row; test waits for web fonts before measuring (a pre-font measurement had passed a layout that wrapped), 21/21. Visual Verification wording corrected per reviewer V-20261014-dabbb3bd (standalone 1024 keeps ◧ ◨ ⛶ on row 1 after the gap change). RCA (one non-wrapping header row in a fixed 48px grid row, never tested below a wide window)
+
+# Key outcomes
+outcomes:
+  - 'At widths 1024, 1280, 1440 and 1920 (standalone, and inline in the Watchtower frame) every visible header control lies fully inside the viewport and can be clicked (measured: rect within the window, elementFromPoint at its centre is the control) — all 20 controls at 1024/1200/1280/1440/1920; 1200 stands for the inline frame (~1200px)'
+  - 'At 1920 the header is still one row of 48px (nothing changes where everything fitted) — 48'
+  - 'The canvas, palette and properties panels fill the space below the header at every width (no overlap, no gap) — panels top == header bottom (77 or 48); the XML panel too (now placed by --header-h)'
+  - 'A browser test (tools/_t1176-toolbar-reach-cdp.mjs) proves it, fails on the old designer, and is bridge-wired — 16/16; old designer 4 width legs red (Check/Versions/Save to project/Save outside the window; Pending refs… clipped vertically at every width up to 1440, found by the test)'
+  - 'Screenshots at each width read control by control, listed in ## Visual Verification (CLAUDE.md, T-1174)'
+  - 'The header screenshots at 1024, 1280, 1440 and 1920, standalone and inline in Watchtower, show every toolbar control visible and unclipped, the wrap tidy, nothing overlapping, the space used well (independent reviewer, CLAUDE.md rule T-1174)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'RCA (one non-wrapping header row in a fixed 48px grid row, never tested below a wide window)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/evidence/T-1176/AC1-judge-t-1176-r3-37efd0827a99.md'
+  - '.context/reviews/evidence/T-1176/AC1-judge-t-1176-r3-38f3a5494f12.md'
+  - '.context/reviews/evidence/T-1176/t1175-inline-1024-judge-t-1176-r3-37efd0827a99.png'
+  - '.context/reviews/evidence/T-1176/t1175-inline-1280-judge-t-1176-r3-37efd0827a99.png'
+  - '.context/reviews/evidence/T-1176/t1175-inline-1440-judge-t-1176-r3-37efd0827a99.png'
+  - '.context/reviews/evidence/T-1176/t1175-inline-1920-judge-t-1176-r3-37efd0827a99.png'
+  - '.context/reviews/evidence/T-1176/t1176-header-1024-judge-t-1176-r3-37efd0827a99.png'
+  - '.context/reviews/evidence/T-1176/t1176-header-1024.png'
+  - '.context/reviews/evidence/T-1176/t1176-header-1200.png'
+  - '.context/reviews/evidence/T-1176/t1176-header-1280-judge-t-1176-r3-37efd0827a99.png'
+  - '.context/reviews/evidence/T-1176/t1176-header-1280.png'
+  - '.context/reviews/evidence/T-1176/t1176-header-1440-judge-t-1176-r3-37efd0827a99.png'
+  - '.context/reviews/evidence/T-1176/t1176-header-1440.png'
+  - '.context/reviews/evidence/T-1176/t1176-header-1920-judge-t-1176-r3-37efd0827a99.png'
+  - '.context/reviews/evidence/T-1176/t1176-header-1920.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1176-designer-toolbar-cuts-off-its-right-hand.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1176-toolbar-reach-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-14T19:32:17'
+    action: 'T-1176: the designer toolbar never cuts off a control — the header row sizes to its content and its controls flow as one wrapping sequence (one 48px row at 1920; two rows at 1024-1440), labels stay on one line (Pending refs… overflowed vertically), the XML panel sits below the real header height (--header-h). Test 16/16 at 1024/1200/1280/1440/1920 (every control inside the window and clickable, panels and XML panel below the header), 4 width legs red on the old designer; screenshots read control by control; bridge-wired'
+  - time: '2026-10-14T19:33:12'
+    action: 'T-1176: Visual Verification moved below the Human block (it cut the screenshot criterion off from Acceptance Criteria, so the reviewer found none)'
+  - time: '2026-10-14T19:34:07'
+    action: 'T-1176: reviewer verdict'
+  - time: '2026-10-14T19:41:25'
+    action: 'T-1176: reviewer amber (V-20261014-cdf84f4c) acted on — zoom and view controls wrap as groups (⛶ no longer split from ◧ ◨ at 1024), real inline screenshots in Watchtower at 1024/1280/1440/1920 (all 20 controls clean, measured), gap 8->6px so the inline 1920 frame (1894px) keeps one row; test waits for web fonts before measuring (a pre-font measurement had passed a layout that wrapped), 21/21'
+  - time: '2026-10-14T19:42:48'
+    action: 'T-1176: reviewer verdict'
+  - time: '2026-10-14T19:44:01'
+    action: 'T-1176: Visual Verification wording corrected per reviewer V-20261014-dabbb3bd (standalone 1024 keeps ◧ ◨ ⛶ on row 1 after the gap change)'
+  - time: '2026-10-14T19:44:33'
+    action: 'T-1176: RCA (one non-wrapping header row in a fixed 48px grid row, never tested below a wide window)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 18 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, toolbar, bug, ux]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 18
+  commits: 7
+  files_changed: 22
+  lines_added: 332
+  lines_removed: 49
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1176-designer-toolbar-cuts-off-its-right-hand.md
+generated_by: context-agent-hybrid
