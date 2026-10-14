@@ -242,14 +242,16 @@ entries:
       Guard: tools/_t1172-designer-open-test.py (bridge-wired). Not yet reported to AEF.
   - path: .agentic-framework/web/templates/designer_open.html
     kind: added
-    task: T-1172
+    task: T-1172, T-1175
     upstream: fix
     reason: >-
       The inline page for /designer/open (T-1172): Watchtower's base layout, a bar (back to the maps, title,
       version, "Open alone", fullscreen toggle) and the designer in a frame filling the viewport; the
       fullscreen toggle follows fabric_explorer.html (requestFullscreen on the stage, the button follows
       fullscreenchange, an exit button inside fullscreen at bottom-right so it covers none of the designer's
-      toolbar). Guard: tools/_t1172-designer-open-test.py.
+      toolbar). T-1175: the page lifts Watchtower's container width cap for itself only (main#content:has(#dsg-stage),
+      single-level :has as base.html uses), so the designer spans the window. Guard: tools/_t1172-designer-open-test.py
+      (leg 6 for the width rule).
   - path: .agentic-framework/web/templates/designer_landing.html
     kind: content
     task: T-1048, T-1171

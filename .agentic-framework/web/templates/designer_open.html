@@ -5,6 +5,9 @@
    The frame loads /designer/app with the same load value, so its deep-link and the T-2596/T-2599 nonce flow are
    untouched (the app route 302-mints a nonce when the value carries none). #}
 <style>
+    /* 832 T-1175 (operator 2026-10-14: "use the full width when available"): lift Watchtower's container cap on
+       this page only — single-level :has(), as base.html already uses. */
+    main#content:has(#dsg-stage) { max-width: none; padding-left: 12px; padding-right: 12px; }
     .dsg-open-bar { display: flex; align-items: center; gap: 0.75rem; margin: 0 0 0.5rem 0; }
     .dsg-open-bar h2 { margin: 0; font-size: 1.1rem; }
     .dsg-open-bar .dsg-spacer { flex: 1; }

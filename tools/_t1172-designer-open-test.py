@@ -55,6 +55,10 @@ out["noload_status"] = noload.status_code
 out["noload_location"] = noload.headers.get("Location", "")
 app_r = c.get("/designer/app")
 out["app_status"] = app_r.status_code
+# T-1175: the full-width rule is on the inline page, scoped to it, and not on the landing page
+rule = "main#content:has(#dsg-stage)"
+out["fullwidth_on_open"] = rule in page and "max-width: none" in page
+out["fullwidth_not_on_landing"] = rule not in html
 print(json.dumps(out))
 '''
 
@@ -78,6 +82,8 @@ def main():
         ("4 the landing cards open /designer/open and keep the click-time nonce minter (T-2596)",
          o["landing_status"] == 200 and bool(o["card_href"]) and o["card_nonce_minter"] and o["cards_to_app"] == 0),
         ("5 /designer/app still answers on its own", o["app_status"] in (200, 302)),
+        ("6 the inline page lifts Watchtower's width cap for itself only (T-1175)",
+         o["fullwidth_on_open"] and o["fullwidth_not_on_landing"]),
     ]
     for name, ok in legs:
         print(("PASS  " if ok else "FAIL  ") + name)

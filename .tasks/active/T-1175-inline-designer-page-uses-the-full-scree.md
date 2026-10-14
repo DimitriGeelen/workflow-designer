@@ -1,11 +1,16 @@
 ---
 id: T-1175
-name: "Inline designer page uses the full screen width (Watchtower's page container caps it)"
+name: "Inline designer page uses the full screen width (Watchtower's page container
+  caps it)"
 description: >
-  Operator 2026-10-14 on T-1172: 'use the whole page width of the screen … use the full width when available'. /designer/open renders inside Watchtower's centred page container, so the designer frame is narrower than the window. Vendored template/CSS (832-local).
+  Operator 2026-10-14 on T-1172: 'use the whole page width of the screen … use the
+  full width when available'. /designer/open renders inside Watchtower's centred page
+  container, so the designer frame is narrower than the window. Vendored template/CSS
+  (832-local).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: [watchtower, designer-landing, ux]
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-14T17:25:38Z
-last_update: 2026-10-14T17:27:59Z
-date_finished: null
+last_update: 2026-10-14T17:33:32Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,22 +55,52 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-14T17:33:33Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1175: Inline designer page uses the full screen width (Watchtower's page container caps it)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+/designer/open (T-1172) renders inside Watchtower's `<main class="container" id="content">` (base.html:645), which
+Pico caps in width, so the designer frame leaves empty margins on wide screens. Watchtower already uses single-level
+`:has()` in base.html, so the page lifts the cap for itself only: `main#content:has(#dsg-stage)`.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] On /designer/open the designer frame spans the window width minus a small margin (<= 16px each side) at 1280, 1440 and 1920; every other Watchtower page keeps its container width — measured 13px each side at 1024/1280/1440/1920 (frame 998/1254/1414/1894); the rule is scoped by :has(#dsg-stage), absent from /designer (test leg 6)
+- [x] The bar above the frame (← Maps, title, Open alone, ⛶) and Watchtower's navigation stay fully visible at those widths — measured (⛶ inside the window) and seen in each screenshot
+- [x] tools/_t1172-designer-open-test.py gains a leg asserting the width rule is on the inline page only; still passes; .vendor-divergence.yaml covers it; _t517 OK — 6/6
+- [x] Screenshots at 1280, 1440 and 1920 read control by control in ## Visual Verification (CLAUDE.md, T-1174)
 
 ### Human
+- [ ] The inline-page screenshots at 1280, 1440 and 1920 show the designer using the full width, Watchtower's navigation and the bar above the frame fully visible, the designer's toolbar complete (independent reviewer, CLAUDE.md rule T-1174)
+  **Steps:**
+  1. Open the screenshots listed in this task's `## Visual Verification` (`.playwright-mcp/t1175-inline-*.png`).
+  2. In each, check: the frame reaches near both window edges; ← Maps, title, Open alone, ⛶ visible; every control of the designer's toolbar visible.
+  **Expected:** full width used, nothing clipped, nothing overlapping.
+  **If not:** name the screenshot and what is wrong; the task goes back to the agent.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -96,7 +131,20 @@ date_finished: null
        `bin/fw reviewer T-1175 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Visual Verification
+`.playwright-mcp/t1175-inline-{1024,1280,1440,1920}.png` — a private Watchtower on this tree, serving the WORKING
+designer (the live one serves the pinned 0.19.1 bundle, which gets T-1176's toolbar fix only with release 0.20.0);
+web fonts loaded before measuring. Read control by control:
+- Watchtower navigation (Work, Knowledge, Architecture, Govern, Docs, search, settings, theme), status line,
+  breadcrumbs: visible at every width.
+- Bar: ← Maps, audit-process, v1, Open alone, ⛶: visible at every width (⛶ measured inside the window).
+- Frame: 13px from each window edge (998 / 1254 / 1414 / 1894 px wide) — the full width is used.
+- Designer toolbar inside the frame: all 20 controls inside the frame and clickable (measured); 1920 one row,
+  1024-1440 two rows, zoom and view groups whole (details under T-1176).
+
 ## Verification
+python3 tools/_t1172-designer-open-test.py
+python3 tools/_t517-vendor-divergence.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -323,3 +371,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1175-inline-designer-page-uses-the-full-scree.md
 - **Context:** Initial task creation
+
+### 2026-10-14T17:33:32Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
