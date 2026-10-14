@@ -78,7 +78,8 @@ declare -A SLOW_CAP=(
   # full-audit-timing.yaml: 58 s), fixture audits 1.5 s -> 5 s. Measured alone / in a quiet sweep: _t549 126 / 168 s,
   # _t525 79-103 / killed at 90, _t550 53 / 75, _t567 66 / 76. In-sweep runs are 15-40 % slower (cron audits overlap,
   # T-1166). Each cap is ~1.5x the worst observed run; the HEADROOM WARNING still fires at 75 % of it. These four are
-  # paying for a whole structure audit to read one check, so the selector is still the way out (asked again, T-1182).
+  # paying for a whole structure audit to read one check, so the selector is still the way out (asked again, T-1182;
+  # AEF filed it as T-4209, `fw audit --check <id>` + `--list-checks`, horizon next). When it lands, cut these caps back.
   [_t549-fabric-coverage-mutation-teeth.py]=270
   # _t525 leg 1 audits THIS repository on purpose (T-549 kept it: "the check is reached here" cannot be a fixture).
   [_t525-fabric-coverage-teeth.py]=160
