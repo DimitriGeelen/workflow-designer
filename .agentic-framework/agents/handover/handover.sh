@@ -84,14 +84,57 @@ _resolve_commit_task() {
     COMMIT_TASK="T-000"
 }
 
+# T-4196 (832 OBS-413): what a push is about to do, computed once so the
+# announcement, the --no-push notice and the push loop agree. Sets
+# _ps_branch, _ps_targets (space-separated, same origin-only rule as the loop
+# below: T-1255/T-1474) and _ps_count (commits on HEAD the first target's
+# tracking ref does not have; local view, no fetch).
+_push_summary() {
+    _ps_branch=$(git -C "$PROJECT_ROOT" rev-parse --abbrev-ref HEAD 2>/dev/null || echo "?")
+    local _n _origin=false
+    _n=$(git -C "$PROJECT_ROOT" remote 2>/dev/null | wc -l)
+    git -C "$PROJECT_ROOT" remote 2>/dev/null | grep -qx 'origin' && _origin=true
+    if [ "$_origin" = true ] && [ "$_n" -gt 1 ]; then
+        _ps_targets="origin"
+    else
+        _ps_targets=$(git -C "$PROJECT_ROOT" remote 2>/dev/null | tr '\n' ' ')
+        _ps_targets="${_ps_targets% }"
+    fi
+    local _first="${_ps_targets%% *}"
+    if [ -n "$_first" ] && git -C "$PROJECT_ROOT" rev-parse -q --verify "refs/remotes/$_first/$_ps_branch" >/dev/null 2>&1; then
+        _ps_count=$(git -C "$PROJECT_ROOT" rev-list --count "refs/remotes/$_first/$_ps_branch..HEAD" 2>/dev/null || echo "?")
+        _ps_where="not yet on $_first"
+    else
+        _ps_count=$(git -C "$PROJECT_ROOT" rev-list --count HEAD 2>/dev/null || echo "?")
+        _ps_where="branch not yet on ${_first:-any remote}"
+    fi
+}
+
 # T-2588: Shared push leg for both normal handovers and --checkpoint commits.
 # Checkpoint commits previously accumulated locally with no push — exactly the
 # state a checkpoint exists to protect gets stranded if the session dies or
 # the budget gate blocks a later push (T-2587). Push failures are warnings,
 # never a silent skip: the caller sees explicit WARNING lines either way.
 _push_to_remotes() {
+    _push_summary
     echo ""
+    # T-4196: --no-push is an explicit, logged opt-out. Push stays the default
+    # (CLAUDE.md §Session End, T-1144) — operator ruling 2026-10-13 on 832 OBS-413.
+    if [ "$NO_PUSH" = true ]; then
+        echo -e "${YELLOW}Not pushing (--no-push): branch $_ps_branch has $_ps_count commit(s) $_ps_where (remotes: ${_ps_targets:-none}). Push before ending the session: git push${NC}"
+        local _np_log="$PROJECT_ROOT/.context/working/.gate-bypass-log.yaml"
+        mkdir -p "$(dirname "$_np_log")"
+        {
+            echo "- timestamp: '$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
+            echo "  task: '${COMMIT_TASK:-}'"
+            echo "  flag: '--no-push'"
+            echo "  caller: 'handover.sh'"
+            echo "  reason: 'handover push opt-out, branch $_ps_branch, $_ps_count unpushed (T-4196)'"
+        } >> "$_np_log"
+        return 0
+    fi
     echo -e "${CYAN}Pushing to remotes...${NC}"
+    echo -e "${CYAN}Pushing branch $_ps_branch: $_ps_count commit(s) $_ps_where -> remotes: ${_ps_targets:-none}${NC}"
     _push_failed=false
     # T-1277 set 60s to bound an UNREACHABLE remote. But the wall-clock this
     # timeout actually has to cover is network + the pre-push hook, and the hook
@@ -231,11 +274,13 @@ SESSION_ID=""
 AUTO_COMMIT=true
 COMMIT_TASK=""
 CHECKPOINT_MODE=false
+NO_PUSH=false
 while [[ $# -gt 0 ]]; do
     case $1 in
         --session) SESSION_ID="$2"; shift 2 ;;
         --commit) AUTO_COMMIT=true; shift ;;
         --no-commit) AUTO_COMMIT=false; shift ;;
+        --no-push) NO_PUSH=true; shift ;;
         --task|-t) COMMIT_TASK="$2"; shift 2 ;;
         --owner) AGENT_OWNER="$2"; shift 2 ;;
         --emergency) AUTO_COMMIT=true; shift ;;  # Deprecated (D-028): treated as normal handover
@@ -247,6 +292,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --session ID   Use specific session ID (default: auto-generated)"
             echo "  --commit       Auto-commit handover via git agent (default)"
             echo "  --no-commit    Skip auto-commit"
+            echo "  --no-push      Commit but do not push (logged Tier-2; push is the default, T-4196)"
             echo "  --task, -t ID  Task ID for commit (default: T-012)"
             echo "  --owner NAME   Agent/provider name (default: \$AGENT_OWNER or claude-code)"
             echo "  --checkpoint   Mid-session checkpoint (does not replace LATEST.md)"
@@ -430,164 +476,6 @@ PREDECESSOR=""
 if [ -f "$HANDOVER_DIR/LATEST.md" ]; then
     PREDECESSOR=$(grep "^session_id:" "$HANDOVER_DIR/LATEST.md" 2>/dev/null | cut -d: -f2 | tr -d ' ')
 fi
-
-# ── SUGGESTED FIRST ACTION CARRY-FORWARD (T-862, OBS-383) ──────────────────────
-#
-# Every other section of this document is DERIVED — from git, from the task
-# register, from the audit. Regenerating them from scratch each run is correct.
-# Exactly one section is AUTHORED, and it is the only one a reader is invited to
-# improve: Suggested First Action. Before T-862 the generator overwrote it
-# unconditionally with a single computed line, so a hand-written plan survived
-# precisely one regeneration. Measured four times on 2026-09-25/26; the cleanest
-# pair is cfc7e9ed -> f98bf459, one commit apart, focus unchanged, 4,982 chars
-# replaced by 7 lines.
-#
-# The loss was silent BY CONSTRUCTION. A stub is present, and a stub is not
-# missing, so every completeness check the document has passed. Nothing anywhere
-# compared a handover to its predecessor. That is the same false-green shape as
-# the rest of T-841..T-861: the artefact looks finished because the check cannot
-# tell "nothing to say" from "the words were discarded".
-#
-# WHAT THIS DOES NOT DO. It does not decide where handover content ought to live.
-# OBS-383(b) — render the section from the focus task's body — would relocate
-# authority over the content and is a Sovereign question, left open deliberately.
-# Carrying bytes the generator did not author forward is data preservation and
-# commits to nothing.
-#
-# THE DANGEROUS FAILURE IS NOT "it fails to carry". That shows up the first time
-# anyone looks. It is "it carries always", which would silently present a plan
-# written for a DIFFERENT task as this task's next step — a worse false-green
-# than the one being fixed, and one that reads as authoritative. Hence the focus
-# guard below, and hence the over-firing control in the teeth.
-
-# The session's own focus, read from the same file the generator below consults
-# (focus.yaml:current_task) so the two cannot disagree about what we are on.
-FOCUS_TASK=$(grep -m1 '^current_task:' "$CONTEXT_DIR/working/focus.yaml" 2>/dev/null \
-    | sed 's/^current_task:[[:space:]]*//' | tr -d " '\"" )
-case "$FOCUS_TASK" in T-[0-9]*) ;; *) FOCUS_TASK="" ;; esac
-
-# Resolve LATEST.md to the file it points at. Called BEFORE the symlink is
-# repointed (that happens at the end of this script), so it is the predecessor.
-_sfa_predecessor_file() {
-    local l="$HANDOVER_DIR/LATEST.md"
-    [ -e "$l" ] || return 1
-    if [ -L "$l" ]; then readlink -f "$l"; else printf '%s' "$l"; fi
-}
-
-# Print the body of the Suggested First Action section, minus any carry label a
-# previous run added. Without the strip, repeated carries stack provenance
-# banners until the banner is longer than the content.
-_sfa_extract() {
-    [ -f "${1:-}" ] || return 1
-    awk '
-        /^## Suggested First Action[[:space:]]*$/ { inside=1; next }
-        inside && /^## / { exit }
-        inside && /^<!-- sfa-carry-begin -->$/ { skip=1; next }
-        inside && /^<!-- sfa-carry-end -->$/   { skip=0; next }
-        inside && !skip { print }
-    ' "$1"
-}
-
-# The task id a section was written for. The marker is authoritative and is
-# emitted by this script from T-862 onward; the `Continue T-NNN` fallback reads
-# handovers written before the marker existed. Empty means unknown, and unknown
-# is NOT treated as a match — see _sfa_compose.
-_sfa_origin_focus() {
-    local f="${1:-}" m
-    m=$(grep -m1 -oE '<!-- sfa-focus: (T-[0-9]+) -->' "$f" 2>/dev/null | grep -oE 'T-[0-9]+')
-    [ -n "$m" ] && { printf '%s' "$m"; return 0; }
-    _sfa_extract "$f" | grep -m1 -oE '^Continue (T-[0-9]+)' | grep -oE 'T-[0-9]+'
-}
-
-# Is this section nothing but what the generator itself would have produced?
-# Blank lines, HTML comments, the mergeback nudge, and a lone `Continue T-NNN`
-# / `See active tasks` line are all generator output. If nothing else remains,
-# there is nothing worth preserving and carrying would only add provenance
-# noise to content that has no provenance.
-_sfa_is_stub() {
-    local n
-    n=$(printf '%s\n' "$1" \
-        | grep -vE '^[[:space:]]*$' \
-        | grep -vE '^[[:space:]]*<!--' \
-        | grep -vE '^(Continue T-[0-9]+|See active tasks)' \
-        | grep -vE '^\*\*Mergeback|^>[[:space:]]*\*\*Mergeback' \
-        | grep -c '')
-    [ "$n" -eq 0 ]
-}
-
-# $1 = the freshly generated one-liner. Prints the section body to emit.
-_sfa_compose() {
-    local generated="$1"
-    local cur_focus pred body origin age_note pred_id
-
-    printf '<!-- sfa-focus: %s -->\n' "${FOCUS_TASK:-none}"
-
-    cur_focus="${FOCUS_TASK:-}"
-    pred="$(_sfa_predecessor_file)" || { printf '%s\n' "$generated"; return 0; }
-    body="$(_sfa_extract "$pred")" || { printf '%s\n' "$generated"; return 0; }
-
-    # Nothing authored in the predecessor -> generate, and say nothing about it.
-    if _sfa_is_stub "$body"; then printf '%s\n' "$generated"; return 0; fi
-
-    origin="$(_sfa_origin_focus "$pred")"
-
-    # The focus guard. An authored plan is about a TASK; presenting it under a
-    # different task is the over-firing failure this is built to avoid. When the
-    # origin cannot be established at all, fall back to asking whether the
-    # content itself still names the task we are on — and if it does not, refuse
-    # to carry. Unknown provenance fails CLOSED.
-    if [ -n "$origin" ]; then
-        [ "$origin" = "$cur_focus" ] || { printf '%s\n' "$generated"; return 0; }
-        age_note="focus $origin unchanged"
-    else
-        if [ -z "$cur_focus" ] || ! printf '%s' "$body" | grep -qF -- "$cur_focus"; then
-            printf '%s\n' "$generated"; return 0
-        fi
-        age_note="origin focus not recorded; carried because the text names $cur_focus"
-    fi
-
-    pred_id=$(grep -m1 '^session_id:' "$pred" 2>/dev/null | cut -d: -f2- | tr -d ' ')
-    [ -n "$pred_id" ] || pred_id="$(basename "$pred" .md)"
-
-    # Age, not just provenance. "Carried from S-2026-0926-0154" tells a reader
-    # where the text came from but not whether to trust it; a plan that is two
-    # hours old and one that is nine days old warrant different reactions, and
-    # the session id only encodes the former to someone who does the arithmetic.
-    # Falls back to file mtime, then to saying plainly that the age is unknown —
-    # an unknown age is reported as unknown rather than omitted, because a label
-    # silently missing its age reads as freshness.
-    local pred_ts age_txt now_s then_s mins
-    pred_ts=$(grep -m1 '^timestamp:' "$pred" 2>/dev/null | cut -d: -f2- | sed 's/^[[:space:]]*//')
-    now_s=$(date -u +%s 2>/dev/null)
-    then_s=$(date -u -d "$pred_ts" +%s 2>/dev/null) \
-        || then_s=$(stat -c %Y "$pred" 2>/dev/null)
-    if [ -n "${then_s:-}" ] && [ -n "${now_s:-}" ] && [ "$then_s" -le "$now_s" ] 2>/dev/null; then
-        mins=$(( (now_s - then_s) / 60 ))
-        if   [ "$mins" -lt 60 ]   ; then age_txt="${mins}m old"
-        elif [ "$mins" -lt 2880 ] ; then age_txt="$(( mins / 60 ))h old"
-        else                            age_txt="$(( mins / 1440 ))d old"
-        fi
-    else
-        age_txt="age unknown"
-    fi
-    age_note="$age_note, $age_txt"
-
-    # The label is not decoration. A carried section that reads as freshly
-    # authored is a new false-green: the reader would act on a plan without
-    # knowing when it was written or that nobody has revisited it since.
-    printf '<!-- sfa-carry-begin -->\n'
-    printf '> **Carried forward from `%s`** — %s.\n' "$pred_id" "$age_note"
-    printf '> This section was authored by hand, not generated, so it is preserved rather than\n'
-    printf '> overwritten (T-862/OBS-383). Nobody has re-checked it since it was written: if it\n'
-    printf '> is stale, replace it — regeneration will not, which is the whole point.\n'
-    printf '> The generator would otherwise have written here: `%s`\n' "$generated"
-    printf '<!-- sfa-carry-end -->\n\n'
-    printf '%s\n' "$body"
-}
-# ── end T-862 carry-forward ──
-# tools/_t862-handover-carry-teeth.sh extracts the block between this marker and
-# the banner above, and sources it. Move or rename either marker and the teeth
-# exit 4 announcing they can no longer reach the code — they do not quietly pass.
 
 # Get active tasks — T-3027: classified by status, not by directory membership.
 classify_active_tasks
@@ -993,7 +881,9 @@ if items:
     parts = [f'{t} ({d})' for t, d in items]
     count = len(items)
     more = len(tasks_seen) - count
-    summary = 'Session worked on: ' + '; '.join(parts)
+    # T-4191 (832 OBS-452): this is mined from commit subjects, not authored —
+    # say so, so a reader does not take it for the session's own account.
+    summary = 'AUTO-MINED from commit subjects — VERIFY: Session worked on: ' + '; '.join(parts)
     if more > 0:
         summary += f'. Plus {more} more commit(s).'
     else:
@@ -1032,28 +922,8 @@ if [ -f "$ARC_FOCUS_FILE" ]; then
     fi
 fi
 
-# T-1452 / G-053: surface ripe revisit_at deferrals. Silent when the file is absent
-# or empty.
-#
-# T-626: this block used to attribute the two files to a daily cron invocation of
-# revisit-due-scan.sh, and read them without ever running it. That sentence made the omission
-# invisible: it names a producer, so every reader assumed one existed. In this project
-# none did — the only revisit-due-scan cron entry on the host is rooted at another
-# project — so the two files were written exactly once, by hand, and T-155's revisit sat
-# 8 days past its date unseen.
-#
-# The scan costs 14ms (measured). Making a 14ms check depend on a scheduled job is what
-# turned its cost of observation from negligible into infinite (G-044). Handover already
-# runs every session, so it refreshes what it is about to render.
-#
-# Best-effort by design: a handover that aborts because a diagnostic scan failed is a
-# worse outcome than the blindness it replaces, since generating the handover is the
-# load-bearing act and the revisit list is advisory. Failure here is silent by intent.
-_T626_SCAN="$FRAMEWORK_ROOT/agents/context/revisit-due-scan.sh"
-if [ -x "$_T626_SCAN" ]; then
-    PROJECT_ROOT="$PROJECT_ROOT" "$_T626_SCAN" >/dev/null 2>&1 || true
-fi
-
+# T-1452 / G-053: surface ripe revisit_at deferrals (populated by daily
+# revisit-due-scan.sh cron). Silent when the file is absent or empty.
 REVISITS_FILE="$PROJECT_ROOT/.context/working/.revisits-due.txt"
 if [ -s "$REVISITS_FILE" ]; then
     echo "## Revisits Ripe Today"
@@ -1260,9 +1130,10 @@ for tid, tname, tstatus, h, lu in wip:
     print(f'- **Last action:** {last_action}')
     if not digest:
         # Constant across 119/119 entries when measured (§11b). Kept in full mode
-        # so `HANDOVER_DIGEST=0` reproduces the old output byte-for-byte.
-        print(f'- **Next step:** See task file')
-        print(f'- **Blockers:** None')
+        # so `HANDOVER_DIGEST=0` still carries the fields, but as [TODO] rather
+        # than a filler that reads as answered (T-4191, 832 OBS-452).
+        print(f'- **Next step:** [TODO] see task file')
+        print(f'- **Blockers:** [TODO]')
     print()
     print()
 
@@ -1623,15 +1494,15 @@ fi
 cat >> "$HANDOVER_FILE" << EOF
 ## Decisions Made This Session
 
-None
+[TODO] — record decisions, or write "None" if there were none
 
 ## Things Tried That Failed
 
-None
+[TODO] — record failed approaches, or write "None"
 
 ## Open Questions / Blockers
 
-None
+[TODO] — record open questions and blockers, or write "None"
 
 ## Token Usage
 
@@ -1655,7 +1526,7 @@ ${VECIDX_LINE}
 
 ${MERGEBACK_NUDGE}
 
-$(_sfa_compose "$(python3 -c "
+$(python3 -c "
 import glob, re, os
 import yaml
 tasks_dir = '$TASKS_DIR/active'
@@ -1745,7 +1616,7 @@ elif candidates:
     print(f'Continue {tid}: {tname}')
 else:
     print('See active tasks')
-" 2>/dev/null || echo "See active tasks")")
+" 2>/dev/null || echo "See active tasks")
 
 ## Files Changed This Session
 
