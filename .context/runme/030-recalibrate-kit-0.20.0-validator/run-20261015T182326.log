@@ -1,0 +1,116 @@
+runme  030-recalibrate-kit-0.20.0-validator   sha 8bdceb4b3124   rehearsed 2026-10-15T05:07:57Z   log: /opt/832-Workflow-designer/.context/runme/030-recalibrate-kit-0.20.0-validator/run-20261015T182326.log
+Job:   030-recalibrate-kit-0.20.0-validator   (T-1170)
+What:  Re-calibrate the 0.20.0 kit with codex and GLM-5.3: the validator in it changed (T-1159)
+       The 0.20.0 kit ships the validator (validate-workflow.py). Tonight's T-1159 fix changed it: the YAML form now
+       lets a node's own aef.authority win over its lane, as the BPMN form already did. The kit's bytes moved
+       (ffa08c70 -> be1d3c5e), so job 027's codex and GLM passes no longer cover what would ship, and the release gate refuses.
+       The kit reviews BPMN maps, whose checks did not change; this is the byte-exact rule doing its job. Same steps as 027:
+       build the kit, loop.sh --calibrate from it, record each result; a FAIL is recorded and not retried; the gate moves
+       027's runs into voided_runs. Antigravity is your run on this kit, as before, if you want it in the record.
+       Nothing is committed or pushed.
+Steps (each asks y/N first):
+  1. Calibrate with codex (OpenAI): build the 0.20.0 kit, loop.sh --calibrate, record the result
+  2. Calibrate with GLM-5.3 (Z.AI, opencode): build the 0.20.0 kit, loop.sh --calibrate, record the result
+  3. Show the record (027's runs now under voided_runs) and what the release gate says
+
+ok    on bleeding-edge
+ok    the kit for 0.20.0 builds
+ok    the existing 0.20.0 record measured an EARLIER build (job 027), not this one
+ok    the validator in the kit is the committed one (no uncommitted change)
+ok    codex is installed
+ok    opencode is installed and lists zai-coding-plan/glm-5.3
+
+Step 1/3: Calibrate with codex (OpenAI): build the 0.20.0 kit, loop.sh --calibrate, record the result
+  runs: do_calibrate codex openai "$CODEX_CMD"
+Run step 1/3? [y/N] kit: /tmp/t1170-kit-codex.KB1rXc/kit (sha256 of SHA256SUMS be1d3c5e49447ca4...), reviewer: codex exec --skip-git-repo-check --sandbox workspace-write
+review prompt ~6597 tokens (reviewer context not declared)
+review prompt ~6618 tokens (reviewer context not declared)
+recall: 3/3 planted defects caught
+  caught invented/citation                  send-payment-reminder
+  caught undeclared-unknown/invented        quality-inspection
+  caught wrong-authority                    Lane_warehouse
+false findings: 0 on the clean map, 0 on unplanted elements
+CALIBRATION: PASS
+0.20.0: codex PASS (openai) recall 3/3, false on clean 0
+CALIBRATION: PASS
+ok    step 1/3
+
+Step 2/3: Calibrate with GLM-5.3 (Z.AI, opencode): build the 0.20.0 kit, loop.sh --calibrate, record the result
+  runs: do_calibrate glm-5.3 zai "$GLM_CMD"
+Run step 2/3? [y/N] kit: /tmp/t1170-kit-glm-5.3.HLiTUL/kit (sha256 of SHA256SUMS be1d3c5e49447ca4...), reviewer: opencode run -m zai-coding-plan/glm-5.3
+review prompt ~6597 tokens (reviewer context not declared)
+review prompt ~6618 tokens (reviewer context not declared)
+recall: 3/3 planted defects caught
+  caught invented/citation                  send-payment-reminder
+  caught undeclared-unknown/invented        quality-inspection
+  caught wrong-authority                    Lane_warehouse
+false findings: 0 on the clean map, 0 on unplanted elements
+CALIBRATION: PASS
+0.20.0: glm-5.3 PASS (zai) recall 3/3, false on clean 0
+CALIBRATION: PASS
+ok    step 2/3
+
+Step 3/3: Show the record (027's runs now under voided_runs) and what the release gate says
+  runs: do_show
+Run step 3/3? [y/N] # Calibration record for kit 0.20.0 (tools/kit-calibration-gate.py, T-1008). Bound to the
+# kit bytes by kit_sha256; any change to the kit voids it.
+version: 0.20.0
+kit_sha256: be1d3c5e49447ca4c88f2b2eb0149bdbecff446f89bebe6b0321a7988fd41c23
+reviewers:
+- result: PASS
+  recall: 3/3
+  false_on_clean: 0
+  false_on_unplanted: 0
+  reviewer: codex
+  vendor: openai
+  at: '2026-10-15T16:27:17Z'
+- result: PASS
+  recall: 3/3
+  false_on_clean: 0
+  false_on_unplanted: 0
+  reviewer: glm-5.3
+  vendor: zai
+  at: '2026-10-15T16:34:32Z'
+voided_runs:
+- kit_sha256: a82421182737b4d72575e897f98267636d4823c970f36f094ed9f23047b686b6
+  note: runs on an earlier build of this kit, voided because the kit changed
+  runs:
+  - result: PASS
+    recall: 3/3
+    false_on_clean: 0
+    false_on_unplanted: 0
+    reviewer: codex
+    vendor: openai
+    at: '2026-10-13T21:52:58Z'
+  - result: FAIL
+    recall: 3/3
+    false_on_clean: 1
+    false_on_unplanted: 0
+    reviewer: glm-5.3
+    vendor: zai
+    at: '2026-10-13T22:01:11Z'
+    finding: 'clean map Lane_warehouse (citation, minor): its second source quote
+      joins SOURCE.md''s line break after "could" into a space, so it is not verbatim,
+      while the two other citations of the same sentence keep it. Correct; fixed by
+      T-1173 in both calibration maps (the joined quote came in with T-1136 for 0.19.1)'
+- kit_sha256: ffa08c7060c7e26ea42094f9824a66c967c9e44f5a2d5d505427996bca17ffb6
+  note: runs on an earlier build of this kit, voided because the kit changed
+  runs:
+  - result: PASS
+    recall: 3/3
+    false_on_clean: 0
+    false_on_unplanted: 0
+    reviewer: codex
+    vendor: openai
+    at: '2026-10-13T22:16:19Z'
+  - result: PASS
+    recall: 3/3
+    false_on_clean: 0
+    false_on_unplanted: 0
+    reviewer: glm-5.3
+    vendor: zai
+    at: '2026-10-13T22:23:10Z'
+kit 0.20.0 calibrated: codex (openai) 3/3, glm-5.3 (zai) 3/3
+ok    step 3/3
+
+DONE: 030-recalibrate-kit-0.20.0-validator — all 3 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/030-recalibrate-kit-0.20.0-validator/run-20261015T182326.log)

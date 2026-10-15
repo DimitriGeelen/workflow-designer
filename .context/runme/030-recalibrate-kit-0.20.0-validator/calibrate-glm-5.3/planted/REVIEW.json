@@ -1,0 +1,26 @@
+[
+  {
+    "element": "Lane_warehouse",
+    "category": "wrong-authority",
+    "severity": "major",
+    "source_evidence": "For accepted orders the warehouse picks the parts, packs the order and books a carrier.",
+    "problem": "The warehouse is a named department whose staff perform the work (AUTHORING.md §3 lists 'warehouse' under the sovereignty row), but the lane declares authority=\"authority\", which means an automated system acting on its own rules.",
+    "correction": "Change Lane_warehouse's aef:laneMeta to authority=\"sovereignty\" so the warehouse tasks derive a human owner."
+  },
+  {
+    "element": "quality-inspection",
+    "category": "undeclared-unknown",
+    "severity": "major",
+    "source_evidence": "The warehouse also does quality inspection and labelling for each order, but nobody could say whether those happen before or after packing, or in which order relative to each other.",
+    "problem": "The map hides the order the source explicitly declares unknown by wiring flows pick-parts--quality-inspection and quality-inspection--pack-order, asserting inspection happens after picking and before packing — contradicting both the source and the map's own Note_labelling ('intentionally unconnected').",
+    "correction": "Delete flows pick-parts--quality-inspection and quality-inspection--pack-order, restore a direct pick-parts--pack-order flow, and leave quality-inspection unconnected with its own annotation like Note_labelling (order relative to packing and to labelling not recorded in the source)."
+  },
+  {
+    "element": "send-payment-reminder",
+    "category": "invented",
+    "severity": "major",
+    "source_evidence": "source is silent",
+    "problem": "The task 'Send payment reminder' and its flows generate-and-send-invoice--send-payment-reminder and send-payment-reminder--accepted-order-fulfilled are supported by no source text, and the task's documentation quote \"The ERP sends a payment reminder after seven days.\" appears nowhere in SOURCE.md (fabricated citation).",
+    "correction": "Delete the task, its two sequence flows and its flowNodeRef in Lane_erp, and route generate-and-send-invoice directly to accepted-order-fulfilled."
+  }
+]

@@ -1,0 +1,109 @@
+[0m
+> build · glm-5.3
+[0m
+[0m→ [0mRead kit/REVIEW.md
+[0m✗ [0mRead kit/SOURCE.md failed
+[91m[1mError: [0mFile not found: /opt/832-Workflow-designer/.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/kit/SOURCE.md
+[0m→ [0mRead kit/RUBRIC.md
+[0m
+[0m$ [0mls -la /opt/832-Workflow-designer/.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/ /opt/832-Workflow-designer/.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/kit/
+/opt/832-Workflow-designer/.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/:
+total 32
+drwxrwxr-x+ 1 root root    76 Oct 15 18:29 .
+drwxrwxr-x+ 1 root root    10 Oct 15 18:29 ..
+-rw-rw-r--+ 1 root root   282 Oct 15 18:29 agents.log
+drwxrwxr-x+ 1 root root   196 Oct 15 18:29 kit
+-rw-rw-r--+ 1 root root    59 Oct 15 18:29 LOOP.txt
+-rw-r--r--+ 1 root root 19744 Oct 15 18:29 map.bpmn
+-rw-r--r--+ 1 root root   823 Oct 15 18:29 SOURCE.md
+
+/opt/832-Workflow-designer/.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/kit/:
+total 172
+drwxrwxr-x+ 1 root root    196 Oct 15 18:29 .
+drwxrwxr-x+ 1 root root     76 Oct 15 18:29 ..
+-rw-r--r--+ 1 root root  19740 Oct 15 18:29 AUTHORING.md
+-rw-r--r--+ 1 root root   7744 Oct 15 18:29 CONFORMANCE.md
+-rw-r--r--+ 1 root root    841 Oct 15 18:29 CORRECT.md
+-rw-r--r--+ 1 root root  15848 Oct 15 18:29 exemplar.bpmn
+-rw-r--r--+ 1 root root    535 Oct 15 18:29 GENERATE.md
+-rw-r--r--+ 1 root root    783 Oct 15 18:29 REVIEW.md
+-rw-r--r--+ 1 root root   5037 Oct 15 18:29 RUBRIC.md
+-rw-r--r--+ 1 root root 106995 Oct 15 18:29 validate-workflow.py
+[0m
+[0m→ [0mRead SOURCE.md
+[0m→ [0mRead LOOP.txt
+[0m→ [0mRead map.bpmn
+[0m→ [0mRead kit/AUTHORING.md
+[0m→ [0mRead kit/CONFORMANCE.md
+[0m→ [0mRead kit/CORRECT.md
+Now let me run the validator on the map.
+[0m
+[0m$ [0mpython3 kit/validate-workflow.py map.bpmn
+WARN  [W-XML-GW-AMBIGUOUS] exclusiveGateway 'credit-limit-exceeded': gw_ambiguous: exclusiveGateway has 2 outgoing flows without a conditionExpression (credit-limit-exceeded--decide-whether-to-accept-order-anyway, credit-limit-exceeded--pick-parts); at most one may be the default
+WARN  [W-XML-GW-AMBIGUOUS] exclusiveGateway 'accept-order-anyway': gw_ambiguous: exclusiveGateway has 2 outgoing flows without a conditionExpression (accept-order-anyway--close-rejected-order, accept-order-anyway--pick-parts); at most one may be the default
+WARN  [W-XML-UNREACHABLE] node 'labelling': node is not reachable from any startEvent
+WARN  [W-XML-UNREACHABLE] node 'quality-inspection': node is not reachable from any startEvent
+WARN  [W-XML-DEADEND] node 'labelling': no endEvent is reachable from this node: either control is trapped, or the source does not record what follows it
+WARN  [W-XML-DEADEND] node 'quality-inspection': no endEvent is reachable from this node: either control is trapped, or the source does not record what follows it
+WARN  [W-XML-DISCONNECTED] <process>: the flow graph falls into 3 disconnected parts: 16 node(s) [order-arrives-by-email -> accepted-order-fulfilled, order-rejected]; 1 node(s) [no start -> no end]; 1 node(s) [no start -> no end]. Either these are separate processes sharing one pool, or some steps have no recorded place in one process (then annotate them, do not connect them)
+WARN  [W-LANE-NO-OWNER] node 'close-rejected-order': this task's authority 'none' names no owner; mapping-v1 §3 derives a task's owner from its lane, so this task has no derivable owner. Declared unknown is honest: do not guess one
+WARN  [W-LANE-NO-OWNER] node 'tell-customer': this task's authority 'none' names no owner; mapping-v1 §3 derives a task's owner from its lane, so this task has no derivable owner. Declared unknown is honest: do not guess one
+INFO  [I-XML-LANE-GEOMETRY-SKIP] laneSet: lane/geometry agreement not evaluated: 18 of 18 flow node(s) carry no <aef:position> y (e.g. accept-order-anyway, accepted-order-fulfilled, book-carrier). Geometry that does not exist cannot disagree with the declared lanes — this map is SKIPPED by lane_geometry, not passed by it
+WARN  map.bpmn -- 0 error(s), 9 warning(s), 1 note(s)
+[0m
+The validator's findings are all on the rubric's do-not-report list. Now I'll verify every citation mechanically against the source before writing the review.
+[0m$ [0mpython3 - <<'EOF'
+import re
+src = open('SOURCE.md').read()
+mapper = open('map.bpmn').read()
+quotes = re.findall(r'source: "([^"]+)"', mapper)
+for q in quotes:
+    status = 'OK' if q in src else 'MISSING'
+    print(f"{status}: {q[:70]!r}")
+print('---')
+print('unstated docs:', re.findall(r'source: unstated[^\n<]*', mapper))
+EOF
+OK: 'Returns are handled by a separate process that is not described here.'
+OK: 'A sales employee enters the order into the ERP.'
+OK: "Credit control checks the customer's credit limit."
+OK: 'If the limit is exceeded, the sales\nmanager decides whether to accept '
+OK: 'For accepted orders the warehouse picks the parts, packs the order and'
+OK: 'The warehouse also does quality inspection and labelling for each orde'
+OK: 'The carrier collects the parcel and delivers it to the customer.'
+OK: 'After shipment the ERP\ngenerates and sends the invoice automatically.'
+OK: 'A customer order arrives by email.'
+OK: 'A sales employee enters the order into the ERP.'
+OK: "Credit control checks the customer's credit limit."
+OK: 'If the limit is exceeded, the sales\nmanager decides whether to accept '
+OK: 'If the limit is exceeded, the sales\nmanager decides whether to accept '
+OK: 'If the limit is exceeded, the sales\nmanager decides whether to accept '
+OK: 'a rejected order is closed'
+OK: 'customer is told.'
+OK: 'a rejected order is closed and the\ncustomer is told.'
+OK: 'For accepted orders the warehouse picks the parts, packs the order and'
+OK: 'For accepted orders the warehouse picks the parts, packs the order and'
+OK: 'For accepted orders the warehouse picks the parts, packs the order and'
+OK: 'The carrier collects the parcel and delivers it to the customer.'
+OK: 'The carrier collects the parcel and delivers it to the customer.'
+OK: 'After shipment the ERP\ngenerates and sends the invoice automatically.'
+OK: 'The warehouse also does quality inspection and labelling for each orde'
+OK: 'The warehouse also does quality inspection and labelling for each orde'
+---
+unstated docs: ['source: unstated - The source names no performer for closing a rejected order or telling the customer.', 'source: unstated - marks where the stated order ends; the source names no result']
+[0m
+All 25 quotes are verbatim in the source; the two `unstated` citations are honest declarations. My element-by-element review:
+
+- **Lanes/authority**: all seven correct — sales/credit/manager/warehouse `sovereignty` (named roles/departments), carrier `external`, ERP `authority` (source makes it the actor for the invoice only), unknown performer `none` (declared). "Enter order into ERP" correctly stays in the sales lane (ERP only supports it).
+- **Coverage**: every source sentence is mapped; nothing missed, nothing invented. Start event is named because the source states the trigger; the rejected end is named because the source states that outcome; the fulfilment end is unnamed + `unstated` + note.
+- **Order**: pick→pack→book is the prose sequence AUTHORING §4 explicitly blesses; the plain two-successor fork at collect-parcel (deliver + invoice) matches the rubric's "Not invented" list, and both branches always happen per the source.
+- **Gateways**: `credit-limit-exceeded` carries the source's words on the exceeded branch with an unlabelled default; `accept-order-anyway` labels both branches with the source's words and infers no default — both explicitly not invented.
+- **Unknowns declared**: inspection/labelling unconnected and annotated; close/tell performer `none`; final result `unstated`. Every remaining validator warning is on the rubric's do-not-report list and traces to a declared unknown.
+- **Scope**: returns kept as a note, not a task; no reference material modelled.
+
+I find nothing the rubric says to report:
+[0m← [0mWrite REVIEW.json
+Wrote file successfully.
+[0m
+Review complete. `./REVIEW.json` is written as `[]` — no findings.
+
+Basis: all 25 documentation quotes verified verbatim against SOURCE.md (mechanically), the two `unstated` citations are honest; every lane authority matches the source's performer; every unknown (inspection/labelling order, close/tell performer, final outcome) is declared rather than hidden; the default flow, plain fork, and unnamed end event all fall under the rubric's "Not invented" list; and all validator warnings are on the "Do not report" list, each tracing to a declared unknown.

@@ -1,0 +1,26 @@
+[
+  {
+    "element": "Lane_warehouse",
+    "category": "wrong-authority",
+    "severity": "major",
+    "source_evidence": "For accepted orders the warehouse picks the parts, packs the order and books a carrier.",
+    "problem": "The warehouse department is marked authority=\"authority\", assigning its work to an automated system instead of the named human department.",
+    "correction": "Change Lane_warehouse laneMeta authority from \"authority\" to \"sovereignty\"."
+  },
+  {
+    "element": "quality-inspection",
+    "category": "undeclared-unknown",
+    "severity": "major",
+    "source_evidence": "The warehouse also does quality inspection and labelling for each order, but nobody could\nsay whether those happen before or after packing, or in which order relative to each other.",
+    "problem": "Quality inspection is placed between picking and packing even though its order is explicitly unknown, with no annotation declaring that uncertainty.",
+    "correction": "Remove pick-parts--quality-inspection and quality-inspection--pack-order and their incoming/outgoing references, restore a direct pick-parts to pack-order sequence flow, and leave quality-inspection unconnected with an associated note declaring its unknown order relative to packing and labelling."
+  },
+  {
+    "element": "send-payment-reminder",
+    "category": "invented",
+    "severity": "major",
+    "source_evidence": "source is silent",
+    "problem": "The map adds an ERP payment-reminder step after invoicing and supports it with a fabricated source quote about seven days.",
+    "correction": "Remove send-payment-reminder, its fabricated documentation, lane reference and incident sequence flows; connect generate-and-send-invoice directly to accepted-order-fulfilled and update the incoming/outgoing references."
+  }
+]
