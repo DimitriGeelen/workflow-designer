@@ -42,8 +42,10 @@
 
 ## Authoring kit
 
-Guide, rubric and validator unchanged; re-issued as 0.20.0 with its own calibration
-(`docs/authoring-kit/calibration-records/0.20.0.yaml`).
+Guide and rubric unchanged. One validator change (T-1159): on the YAML form, a node's own `aef.authority` now wins
+over its lane's, as it already did on the BPMN form, so the two forms judge a map the same way. BPMN maps, which the
+kit reviews, are checked exactly as before. Re-issued as 0.20.0 with its own calibration of these exact bytes:
+codex PASS 3/3, GLM-5.3 PASS 3/3 (`docs/authoring-kit/calibration-records/0.20.0.yaml`).
 
 ## Re-test (Greenfield)
 
