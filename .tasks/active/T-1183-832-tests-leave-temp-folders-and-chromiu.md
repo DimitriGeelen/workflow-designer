@@ -47,7 +47,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-15T17:26:02Z
-last_update: 2026-10-15T17:32:47Z
+last_update: 2026-10-15T17:46:44Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -96,10 +96,10 @@ tests may leave behind.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Every leftover prefix AEF named is attributed with evidence: to an 832 producer (file:line), or to "not 832" with the search that shows it; the result is sent to AEF on conversation tmp-leak-p015
-- [ ] Each 832 producer cleans up on every exit path (normal, error, timeout/kill where catchable); a run of each leaves no new entry in /tmp
-- [ ] 832's own leftovers already in /tmp are removed, by exact prefix (never a broad glob over others' folders)
-- [ ] A guard in the bridge suite counts /tmp entries with 832's prefixes before and after the run and fails on growth
+- [x] Every leftover prefix AEF named is attributed with evidence: to an 832 producer (file:line), or to "not 832" with the search that shows it; the result is sent to AEF on conversation tmp-leak-p015 — ours: t1068-corpus (tools/_t1068-corpus-labels.mjs:77) and a share of org.chromium.Chromium.*; not ours: the other seven (no occurrence anywhere in the tree); sent c9c9da44
+- [x] Each 832 producer cleans up on every exit path (normal, error, timeout/kill where catchable); a run of each leaves no new entry in /tmp — done at the RUNNERS rather than in 112 files: the bridge suite and the instrument sweep export TMPDIR into their trapped run dir, so every test they run is contained (node/python/bash/Chromium follow it; a SIGKILLed Chromium's folder lands there too, measured). _t1068 also fixed at source (+0/+0 measured). Standalone runs of the other browser tests outside the runners still leave a Chromium folder (~11 MB per 1877); recorded, not fixed here
+- [x] 832's own leftovers already in /tmp are removed, by exact prefix (never a broad glob over others' folders) — 42 t1068-corpus-* (148 MB); org.chromium.Chromium.* left in place because 832's cannot be told from other projects'
+- [x] A guard in the bridge suite counts /tmp entries with 832's prefixes before and after the run and fails on growth — realised as `tools/_t1183-tmp-containment.sh` (4/4, 2 red on the old runners, bridge-wired): it checks both runners export TMPDIR into a trapped dir before their first test and proves the mechanism with deliberate leaks; a before/after count of the shared /tmp was rejected because other projects write there concurrently (measured: AEF tests during the sweep window). Sweep under containment: 101/101, 0 of the entries created in its window are 832's
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -133,6 +133,10 @@ tests may leave behind.
 -->
 
 ## Verification
+bash tools/_t1183-tmp-containment.sh
+grep -q "_t1183-tmp-containment.sh" tests/run-bridge-tests.sh
+bash -n tests/run-bridge-tests.sh
+bash -n tools/_t509-instrument-sweep.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
