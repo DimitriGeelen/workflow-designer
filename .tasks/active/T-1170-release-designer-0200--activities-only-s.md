@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T21:35:58Z
-last_update: 2026-10-15T17:22:27Z
+last_update: 2026-10-15T17:24:07Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -66,11 +66,11 @@ old->new id map, docs/reports/T-1168-node-id-map.md, as they asked).
 ## Acceptance Criteria
 
 ### Agent
-- [ ] VERSION and APP_VERSION read 0.20.0 (tools/_t808-version-parity.sh passes)
-- [ ] docs/releases/RELEASE-NOTES-0.20.0.md says what changed, that re-saved maps' ids change once (with the map), and the re-test steps for Greenfield
-- [ ] The 0.20.0 kit carries a PASS calibration of its exact bytes (tools/kit-calibration-gate.py check --version 0.20.0)
-- [ ] A runme release job is dry-run clean and handed to the operator; after the operator's run, tag designer-v0.20.0 exists on origin
-- [ ] Greenfield and AEF are told (AEF with the id map)
+- [x] VERSION and APP_VERSION read 0.20.0 (tools/_t808-version-parity.sh passes)
+- [x] docs/releases/RELEASE-NOTES-0.20.0.md says what changed, that re-saved maps' ids change once (with the map), and the re-test steps for Greenfield — plus T-1176, T-1177 and the T-1159 validator change in the kit
+- [x] The 0.20.0 kit carries a PASS calibration of its exact bytes (tools/kit-calibration-gate.py check --version 0.20.0) — job 030: codex 3/3, GLM-5.3 3/3 on be1d3c5e
+- [x] A runme release job is dry-run clean and handed to the operator; after the operator's run, tag designer-v0.20.0 exists on origin — job 031 rc 0, release commit ae41d0c2, tag on origin; Watchtower re-pinned (serves 51931b8a, APP_VERSION 0.20.0)
+- [x] Greenfield and AEF are told (AEF with the id map) — Greenfield f5851641 (HUB_ACCEPTED, conversation greenfield-designer-0.20.0, re-test steps); AEF d20448cf (RECEIVED, id map at the tag)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
