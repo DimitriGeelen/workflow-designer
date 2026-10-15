@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1183: 832 tests leave temp folders and Chromium profiles in the shared /tmp (P-015 via AEF)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-15T17:46:55Z
+# ============================================================================
+
+task_id: T-1183
+task_name: "832 tests leave temp folders and Chromium profiles in the shared /tmp (P-015 via AEF)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-15T17:26:02Z
+completed: 2026-10-15T17:46:45Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-15T19:32:48+02:00
+last_commit: 2026-10-15T19:46:45+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  832 test runs no longer leave folders in the shared /tmp (P-015 via AEF) — bridge suite and instrument sweep export TMPDIR into their trapped run dir (node/python/bash/Chromium all follow it); _t1068 removes its profile (42 leftovers, 148 MB, removed by exact prefix); guard _t1183-tmp-containment.sh 4/4 (2 red on the old runners), bridge-wired; attribution sent to AEF (c9c9da44). criteria evidenced — sweep under containment 101/101, nothing in its window is 832's; standalone browser-test runs outside the runners recorded as not fixed
+
+# Key outcomes
+outcomes:
+  - 'Every leftover prefix AEF named is attributed with evidence: to an 832 producer (file:line), or to "not 832" with the search that shows it; the result is sent to AEF on conversation tmp-leak-p015 — ours: t1068-corpus (tools/_t1068-corpus-labels.mjs:77) and a share of org.chromium.Chromium.*; not ours: the other seven (no occurrence anywhere in the tree); sent c9c9da44'
+  - 'Each 832 producer cleans up on every exit path (normal, error, timeout/kill where catchable); a run of each leaves no new entry in /tmp — done at the RUNNERS rather than in 112 files: the bridge suite and the instrument sweep export TMPDIR into their trapped run dir, so every test they run is contained (node/python/bash/Chromium follow it; a SIGKILLed Chromium''s folder lands there too, measured). _t1068 also fixed at source (+0/+0 measured). Standalone runs of the other browser tests outside the runners still leave a Chromium folder (~11 MB per 1877); recorded, not fixed here'
+  - '832''s own leftovers already in /tmp are removed, by exact prefix (never a broad glob over others'' folders) — 42 t1068-corpus-* (148 MB); org.chromium.Chromium.* left in place because 832''s cannot be told from other projects'''
+  - 'A guard in the bridge suite counts /tmp entries with 832''s prefixes before and after the run and fails on growth — realised as `tools/_t1183-tmp-containment.sh` (4/4, 2 red on the old runners, bridge-wired): it checks both runners export TMPDIR into a trapped dir before their first test and proves the mechanism with deliberate leaks; a before/after count of the shared /tmp was rejected because other projects write there concurrently (measured: AEF tests during the sweep window). Sweep under containment: 101/101, 0 of the entries created in its window are 832''s'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'criteria evidenced — sweep under containment 101/101, nothing in its window is 832''s; standalone browser-test runs outside the runners recorded as not fixed'
+    source: git-mined
+  - description: '832 test runs no longer leave folders in the shared /tmp (P-015 via AEF) — bridge suite and instrument sweep export TMPDIR into their trapped run dir (node/python/bash/Chromium all follow it); _t1068 removes its profile (42 leftovers, 148 MB, removed by exact prefix); guard _t1183-tmp-containment.sh 4/4 (2 red on the old runners), bridge-wired; attribution sent to AEF (c9c9da44)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1183-832-tests-leave-temp-folders-and-chromiu.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1068-corpus-labels.mjs'
+  - 'tools/_t1183-tmp-containment.sh'
+  - 'tools/_t509-instrument-sweep.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-15T19:32:48'
+    action: 'T-1183: 832 test runs no longer leave folders in the shared /tmp (P-015 via AEF) — bridge suite and instrument sweep export TMPDIR into their trapped run dir (node/python/bash/Chromium all follow it); _t1068 removes its profile (42 leftovers, 148 MB, removed by exact prefix); guard _t1183-tmp-containment.sh 4/4 (2 red on the old runners), bridge-wired; attribution sent to AEF (c9c9da44)'
+  - time: '2026-10-15T19:46:45'
+    action: 'T-1183: criteria evidenced — sweep under containment 101/101, nothing in its window is 832''s; standalone browser-test runs outside the runners recorded as not fixed'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 20 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [tests, hygiene, shared-host]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 20
+  commits: 2
+  files_changed: 5
+  lines_added: 450
+  lines_removed: 9
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1183-832-tests-leave-temp-folders-and-chromiu.md
+generated_by: context-agent-hybrid
