@@ -25,7 +25,7 @@
 // Usage:  node tools/_t1068-corpus-labels.mjs [--self-test]
 // Exit:   0 pass · 1 leg failed · 2 driver/integrity error
 import { spawn } from 'node:child_process';
-import { readFileSync, writeFileSync, readdirSync, mkdtempSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync, mkdtempSync, existsSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pageWsUrl } from './_cdp-attach.mjs';
@@ -76,7 +76,9 @@ async function probe(editorPath, modes = ['orig', 'start', 'all']) {
   if (!exe) throw new Error('no Playwright chromium under ~/.cache/ms-playwright');
   const udd = mkdtempSync(join(tmpdir(), 't1068-corpus-'));
   const proc = spawn(exe, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
-    '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: 'ignore' });
+    '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'],
+    // T-1183: Chromium's own org.chromium.Chromium.* temp folder lands inside the profile, so it goes with it
+    { stdio: 'ignore', env: { ...process.env, TMPDIR: udd } });
   let ws;
   try {
     let port;
@@ -116,7 +118,11 @@ async function probe(editorPath, modes = ['orig', 'start', 'all']) {
     return rows;
   } finally {
     try { ws && ws.close(); } catch (_) {}
+    // T-1183 (P-015): the profile was never removed — one t1068-corpus-* folder left in the shared /tmp per run.
+    const gone = proc.exitCode !== null ? Promise.resolve() : new Promise(r => { proc.once('exit', r); setTimeout(r, 3000); });
     try { proc.kill('SIGKILL'); } catch (_) {}
+    await gone;
+    try { rmSync(udd, { recursive: true, force: true }); } catch (_) {}
   }
 }
 

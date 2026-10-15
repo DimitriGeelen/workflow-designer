@@ -267,8 +267,13 @@ echo
 # Captured for passing probes too, and dropped only once the verdict is known: a probe that
 # passes while printing something alarming would otherwise be invisible by construction, which
 # is the same blind spot one level down.
-CAPDIR="$(mktemp -d "${TMPDIR:-/tmp}/t509-capture-XXXXXX")"
-trap 'rm -rf "$CAPDIR"' EXIT INT TERM
+# T-1183 (P-015): the probes run with TMPDIR inside one run directory, removed on exit, so a probe that leaves
+# its temp folders (or a hard-killed Chromium's org.chromium.Chromium.*) leaves them there, not in the shared /tmp.
+RUNTMP="$(mktemp -d "${TMPDIR:-/tmp}/t509-run-XXXXXX")"
+trap 'rm -rf "$RUNTMP"' EXIT INT TERM
+CAPDIR="$RUNTMP/capture"
+mkdir -p "$CAPDIR"
+export TMPDIR="$RUNTMP"
 CAPTURE_LINES="${T509_CAPTURE_LINES:-30}"
 
 pass=0; ran=0

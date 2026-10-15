@@ -16,6 +16,11 @@ BRIDGE="$ROOT/tools/yaml-to-bpmn.py"
 VALIDATOR="$ROOT/tools/validate-workflow.py"
 CORPUS="$ROOT/examples/aef-processes"
 TMP="$(mktemp -d)"
+# T-1183 (P-015): everything this suite starts writes its temp files INSIDE $TMP, which the traps below remove on
+# every exit. node tmpdir(), python tempfile, bash mktemp and headless Chromium's own org.chromium.Chromium.* folder
+# all follow TMPDIR. Before this, ~112 browser tests (91 kill Chromium hard, 38 never remove their profile) left
+# their folders in the host's shared /tmp: 1877 Chromium folders in 3 days.
+export TMPDIR="$TMP"
 
 # T-1081: no leg reads the suite's stdin. When the suite runs under an agent or a pipe, that stdin
 # is a pipe nobody closes, and any stray reader (a fileless `sed`, an accidental command
@@ -3074,6 +3079,7 @@ T1013_GUARDS=(
   'tools/_t886-writer-mutation.py|mutation teeth for the round-trip guard (suppresses each writer attribute, expects red)'
   'tools/_t892-lane-default-cdp.mjs|CDP regression: the lane Authoring default never re-stamps nodes'
   'tools/_t911-kind-badge-verify-cdp.mjs|CDP regression: workflowMeta/@kind settable and visible (writes .playwright-mcp/t911-panel-kind-select.png)'
+  'tools/_t1183-tmp-containment.sh|the suite and the instrument sweep run every test with TMPDIR in a private run dir they remove, so nothing they run leaves folders in the shared /tmp (T-1183, P-015)'
   'tests/test_t1159_yaml_element_authority.py|the YAML IW-9 check lets a node own aef.authority win over its lane, as the XML form does; both forms agree on 6 cases (T-1159)'
   'tools/_t1178-inception-template.sh|the inception template carries the hypothesis section and score fields, the schema hook and GO gate accept it, and an upgrade keeps it (T-1178)'
   'tools/_t1177-panels-cdp.mjs|CDP regression: side panels fold to a notch and back, resize by drag with clamping, double-click reset, persist over reload (T-1177)'
