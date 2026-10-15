@@ -4,12 +4,13 @@ name: "Release designer 0.20.0 — activities-only step numbers (T-1168, Greenfi
 description: >
   Release designer 0.20.0 — activities-only step numbers (T-1168, Greenfield T-172 #2b) and tab title names the open map (T-1155)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T21:35:58Z
-last_update: 2026-10-15T17:24:07Z
-date_finished: null
+last_update: 2026-10-15T17:24:08Z
+date_finished: 2026-10-15T17:24:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -334,3 +335,15 @@ git rev-parse -q --verify refs/tags/designer-v0.20.0
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1170-release-designer-0200--activities-only-s.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-31b278b9
+- **Timestamp:** 2026-10-15T17:24:11Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-15T17:24:08Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

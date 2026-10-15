@@ -1,0 +1,183 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1170: Release designer 0.20.0 — activities-only step numbers (T-1168, Greenfield T-172 #2b) and tab title names the open map (T-1155)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-15T17:24:20Z
+# ============================================================================
+
+task_id: T-1170
+task_name: "Release designer 0.20.0 — activities-only step numbers (T-1168, Greenfield T-172 #2b) and tab title names the open map (T-1155)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T21:35:58Z
+completed: 2026-10-15T17:24:08Z
+duration_days: 2
+updates_count: 1
+first_commit: 2026-10-13T23:37:21+02:00
+last_commit: 2026-10-15T19:24:07+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release 0.20.0 prepared — criteria and release notes (activities-only step numbers with before/after examples and the id map; tab title; Greenfield re-test steps). runme job 026 — calibrate kit 0.20.0 with codex and GLM-5.3 here (operator's choice 1; Antigravity his run), record each through the gate; dry-run 4/4. 0.20.0 release notes — toolbar never cut off (T-1176) and folding/resizable side panels (T-1177), with re-test steps. runme job 030 — re-calibrate the 0.20.0 kit with codex and GLM-5.3 after T-1159 changed the validator it ships (kit ffa08c70 -> be1d3c5e); dry-run 6/6. job 030 done — 0.20.0 kit (be1d3c5e, with the T-1159 validator) calibrated: codex PASS 3/3, GLM-5.3 PASS 3/3; 027's runs moved to voided_runs; release gate passes. 0.20.0 prep — VERSION/APP_VERSION 0.20.0 (parity ok), release notes (validator change in the kit, calibration PASS codex + GLM). runme job 031 — release designer 0.20.0 (cut, commit, tag designer-v0.20.0, push); dry-run 9/9. release designer 0.20.0 — activities-only step numbers (T-1168), tab title names the map (T-1155), toolbar never clips (T-1176), folding/resizable side panels (T-1177); kit re-issued with the T-1159 validator, calibrated. our Watchtower serves 0.20.0 (pin 0.19.1 -> 0.20.0 from the designer-v0.20.0 tag, sync --from-tag: anchors match, /designer/app serves 51931b8a, APP_VERSION 0.20.0); divergence register updated, _t517 OK. job 031 run record (release 0.20.0 rc 0, tag designer-v0.20.0 on ae41d0c2, pushed); Greenfield and AEF told
+
+# Key outcomes
+outcomes:
+  - 'VERSION and APP_VERSION read 0.20.0 (tools/_t808-version-parity.sh passes)'
+  - 'docs/releases/RELEASE-NOTES-0.20.0.md says what changed, that re-saved maps'' ids change once (with the map), and the re-test steps for Greenfield — plus T-1176, T-1177 and the T-1159 validator change in the kit'
+  - 'The 0.20.0 kit carries a PASS calibration of its exact bytes (tools/kit-calibration-gate.py check --version 0.20.0) — job 030: codex 3/3, GLM-5.3 3/3 on be1d3c5e'
+  - 'A runme release job is dry-run clean and handed to the operator; after the operator''s run, tag designer-v0.20.0 exists on origin — job 031 rc 0, release commit ae41d0c2, tag on origin; Watchtower re-pinned (serves 51931b8a, APP_VERSION 0.20.0)'
+  - 'Greenfield and AEF are told (AEF with the id map) — Greenfield f5851641 (HUB_ACCEPTED, conversation greenfield-designer-0.20.0, re-test steps); AEF d20448cf (RECEIVED, id map at the tag)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'release designer 0.20.0 — activities-only step numbers (T-1168), tab title names the map (T-1155), toolbar never clips (T-1176), folding/resizable side panels (T-1177); kit re-issued with the T-1159 validator, calibrated'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/runme/026-calibrate-kit-0.20.0/dryrun.ok'
+  - '.context/runme/026-calibrate-kit-0.20.0/job.sh'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/clean/agents.log'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/clean/kit/AUTHORING.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/clean/kit/CONFORMANCE.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/clean/kit/CORRECT.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/clean/kit/exemplar.bpmn'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/clean/kit/GENERATE.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/clean/kit/REVIEW.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/clean/kit/RUBRIC.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/clean/kit/validate-workflow.py'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/clean/LOOP.txt'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/clean/map.bpmn'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/clean/REVIEW.json'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/clean/SOURCE.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex.out'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/planted/agents.log'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/planted/kit/AUTHORING.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/planted/kit/CONFORMANCE.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/planted/kit/CORRECT.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/planted/kit/exemplar.bpmn'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/planted/kit/GENERATE.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/planted/kit/REVIEW.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/planted/kit/RUBRIC.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/planted/kit/validate-workflow.py'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/planted/LOOP.txt'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/planted/map.bpmn'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/planted/REVIEW.json'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-codex/planted/SOURCE.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/agents.log'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/kit/AUTHORING.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/kit/CONFORMANCE.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/kit/CORRECT.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/kit/exemplar.bpmn'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/kit/GENERATE.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/kit/REVIEW.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/kit/RUBRIC.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/kit/validate-workflow.py'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/LOOP.txt'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/map.bpmn'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/REVIEW.json'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/clean/SOURCE.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3.out'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/planted/agents.log'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/planted/kit/AUTHORING.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/planted/kit/CONFORMANCE.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/planted/kit/CORRECT.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/planted/kit/exemplar.bpmn'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/planted/kit/GENERATE.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/planted/kit/REVIEW.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/planted/kit/RUBRIC.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/planted/kit/validate-workflow.py'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/planted/LOOP.txt'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/planted/map.bpmn'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/planted/REVIEW.json'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/calibrate-glm-5.3/planted/SOURCE.md'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/done'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/dryrun.ok'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/job.sh'
+  - '.context/runme/030-recalibrate-kit-0.20.0-validator/run-20261015T182326.log'
+  - '.context/runme/031-release-designer-0.20.0/done'
+  - '.context/runme/031-release-designer-0.20.0/dryrun.ok'
+  - '.context/runme/031-release-designer-0.20.0/job.sh'
+  - '.context/runme/031-release-designer-0.20.0/run-20261015T191751.log'
+  - 'dist/aef-authoring-kit-0.20.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.20.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.20.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.20.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.20.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.20.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.20.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.20.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.20.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.20.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.20.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.20.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.20.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.20.0/validate-workflow.py'
+  - 'dist/aef-workflow-designer-0.20.0.html'
+  - 'dist/MANIFEST.yaml'
+  - 'docs/authoring-kit/calibration-records/0.20.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.20.0.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1170-release-designer-0200--activities-only-s.md'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-13T23:37:21'
+    action: 'T-1170: release 0.20.0 prepared — criteria and release notes (activities-only step numbers with before/after examples and the id map; tab title; Greenfield re-test steps)'
+  - time: '2026-10-13T23:40:04'
+    action: 'T-1170: runme job 026 — calibrate kit 0.20.0 with codex and GLM-5.3 here (operator''s choice 1; Antigravity his run), record each through the gate; dry-run 4/4'
+  - time: '2026-10-14T21:10:59'
+    action: 'T-1170: 0.20.0 release notes — toolbar never cut off (T-1176) and folding/resizable side panels (T-1177), with re-test steps'
+  - time: '2026-10-15T07:08:03'
+    action: 'T-1170: runme job 030 — re-calibrate the 0.20.0 kit with codex and GLM-5.3 after T-1159 changed the validator it ships (kit ffa08c70 -> be1d3c5e); dry-run 6/6'
+  - time: '2026-10-15T19:10:45'
+    action: 'T-1170: job 030 done — 0.20.0 kit (be1d3c5e, with the T-1159 validator) calibrated: codex PASS 3/3, GLM-5.3 PASS 3/3; 027''s runs moved to voided_runs; release gate passes'
+  - time: '2026-10-15T19:12:25'
+    action: 'T-1170: 0.20.0 prep — VERSION/APP_VERSION 0.20.0 (parity ok), release notes (validator change in the kit, calibration PASS codex + GLM)'
+  - time: '2026-10-15T19:12:53'
+    action: 'T-1170: runme job 031 — release designer 0.20.0 (cut, commit, tag designer-v0.20.0, push); dry-run 9/9'
+  - time: '2026-10-15T19:18:00'
+    action: 'T-1170: release designer 0.20.0 — activities-only step numbers (T-1168), tab title names the map (T-1155), toolbar never clips (T-1176), folding/resizable side panels (T-1177); kit re-issued with the T-1159 validator, calibrated'
+  - time: '2026-10-15T19:22:28'
+    action: 'T-1170: our Watchtower serves 0.20.0 (pin 0.19.1 -> 0.20.0 from the designer-v0.20.0 tag, sync --from-tag: anchors match, /designer/app serves 51931b8a, APP_VERSION 0.20.0); divergence register updated, _t517 OK'
+  - time: '2026-10-15T19:24:07'
+    action: 'T-1170: job 031 run record (release 0.20.0 rc 0, tag designer-v0.20.0 on ae41d0c2, pushed); Greenfield and AEF told'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 10 commit(s), 2628 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2628
+  commits: 10
+  files_changed: 87
+  lines_added: 33672
+  lines_removed: 37
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1170-release-designer-0200--activities-only-s.md
+generated_by: context-agent-hybrid
