@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1184: After the next AEF upgrade: move _t525/_t549 onto fw audit --check fabric-coverage (AEF T-4209) and cut the T-1182 slow caps back
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-16T21:26:48Z
+# ============================================================================
+
+task_id: T-1184
+task_name: "After the next AEF upgrade: move _t525/_t549 onto fw audit --check fabric-coverage (AEF T-4209) and cut the T-1182 slow caps back"
+workflow_type: refactor
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-15T20:04:21Z
+completed: 2026-10-16T21:26:23Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-15T22:04:36+02:00
+last_commit: 2026-10-16T23:26:22+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  captured — move the fabric-coverage teeth onto fw audit --check (AEF T-4209) after the next upgrade. fabric-coverage teeth run fw audit --check fabric-coverage (AEF T-4209) — _t525 103 -> 11 s (8/8; leg 7 proves the run by its coverage line, --check writes no report), _t549 168 -> 18 s (5/5 mutations still red), _t550 75 -> 8 s; their T-1182 slow caps removed; sweep 101/101 in 508 s
+
+# Key outcomes
+outcomes:
+  - '`_t525` runs `fw audit --check fabric-coverage` instead of the whole structure section, with every leg still asserting what it asserted (coverage line, branch taken, severity WARN, arithmetic, hermetic) — leg 7''s "it ran" proof moved from "a dated report was written" (`--check` writes none: measured 0 breaches, 0 declared writes) to leg 1''s coverage line from that same run, so silence still cannot pass'
+  - '`_t525` passes 8/8 and `_t549` still proves it: each mutation of the coverage branch turns `_t525` red — 8/8 in 9-11 s; _t549 5/5 in 18 s'
+  - 'Both are re-timed; the T-1182 SLOW_CAP entries for them are cut to ~1.5x the new worst run, or removed when under the 90 s default; `_t550`/`_t567` are left as they are unless they also read only this check — _t525 (103 -> 11 s), _t549 (168 -> 18 s) and _t550 (75 -> 8 s; its leg 5 read only this check, switched too) caps removed; _t567 does not run the audit, keeps 120'
+  - 'The instrument sweep stays green (no did-not-finish, no abstained) — 101/101, 508 s (was 740-779 s)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1184-after-the-next-aef-upgrade-move-t525t549.md'
+  - 'tools/_t509-instrument-sweep.sh'
+  - 'tools/_t525-fabric-coverage-teeth.py'
+  - 'tools/_t550-audit-parse-anchor-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-15T22:04:36'
+    action: 'T-1184: captured — move the fabric-coverage teeth onto fw audit --check (AEF T-4209) after the next upgrade'
+  - time: '2026-10-16T23:26:22'
+    action: 'T-1184: fabric-coverage teeth run fw audit --check fabric-coverage (AEF T-4209) — _t525 103 -> 11 s (8/8; leg 7 proves the run by its coverage line, --check writes no report), _t549 168 -> 18 s (5/5 mutations still red), _t550 75 -> 8 s; their T-1182 slow caps removed; sweep 101/101 in 508 s'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 1522 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [teeth, performance, upgrade]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1522
+  commits: 2
+  files_changed: 4
+  lines_added: 390
+  lines_removed: 18
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1184-after-the-next-aef-upgrade-move-t525t549.md
+generated_by: context-agent-hybrid
