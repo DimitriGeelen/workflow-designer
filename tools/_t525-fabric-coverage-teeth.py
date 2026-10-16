@@ -182,7 +182,9 @@ def audit(history_dir=None, root=None):
     cwd = root or REPO
     if root is not None:
         env["PROJECT_ROOT"] = root
-    p = subprocess.run([FW, "audit", "--sections", "structure"], cwd=cwd, env=env,
+    # T-1184: one check, not the whole structure section (AEF T-4209, vendored by T-1185). Same check function,
+    # same output lines; 54 s -> ~6 s per run on 832, and the warn/fail totals now count this check alone.
+    p = subprocess.run([FW, "audit", "--check", "fabric-coverage"], cwd=cwd, env=env,
                        capture_output=True, text=True, timeout=600, check=False)
     raw = p.stdout + p.stderr
     match = None
@@ -386,8 +388,12 @@ else:
     # with a timestamp, so an audit that ran always moves at least one declared output; an empty
     # observation here means the audit did not run, which must not read as hermetic.
     wrote = declared_writes_observed(before, after, allowed_writes)
+    # T-1184: `fw audit --check` (one check, no audit lock) writes no dated report, so "a declared output
+    # moved" no longer proves the subject ran. The proof that it ran is leg 1's coverage line, read from that
+    # very run on THIS repository: a check that did not run prints no such line. Silence still cannot pass.
+    ran = bool(base_raw) and any(COVERAGE_RE.search(l) for l in base_raw.splitlines())
     leg("7 hermetic — the subject wrote its declared outputs and nothing else",
-        not breaches and wrote,
+        not breaches and (wrote or ran),
         "content changed across the run WITHIN THIS SUBJECT'S WRITE-SET (.context/audits, "
         "excluding cron/) at a path the subject does not declare as output. The audit writes "
         "its report there, so a leg that let it run unconstrained would dirty the tree and "

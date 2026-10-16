@@ -1,13 +1,22 @@
 ---
 id: T-1184
-name: "After the next AEF upgrade: move _t525/_t549 onto fw audit --check fabric-coverage (AEF T-4209) and cut the T-1182 slow caps back"
+name: "After the next AEF upgrade: move _t525/_t549 onto fw audit --check fabric-coverage
+  (AEF T-4209) and cut the T-1182 slow caps back"
 description: >
-  AEF T-4209 (bleeding-edge 495901b5d): fw audit --list-checks / fw audit --check fabric-coverage runs just that check (13.7 s at AEF vs ~54 s for 832's whole structure section) and takes no audit lock. When 832 next upgrades its vendored framework past 495901b5d: switch tools/_t525-fabric-coverage-teeth.py leg 1 and the fixture runs (and so _t549) to --check fabric-coverage, confirm the coverage line and branches are unchanged, re-measure, and cut the SLOW_CAP entries added by T-1182 (_t525 160, _t549 270, and _t550/_t567 if they also read one check) back toward 90 s. Blocked on that upgrade (operator-scheduled).
+  AEF T-4209 (bleeding-edge 495901b5d): fw audit --list-checks / fw audit --check
+  fabric-coverage runs just that check (13.7 s at AEF vs ~54 s for 832's whole structure
+  section) and takes no audit lock. When 832 next upgrades its vendored framework
+  past 495901b5d: switch tools/_t525-fabric-coverage-teeth.py leg 1 and the fixture
+  runs (and so _t549) to --check fabric-coverage, confirm the coverage line and branches
+  are unchanged, re-measure, and cut the SLOW_CAP entries added by T-1182 (_t525 160,
+  _t549 270, and _t550/_t567 if they also read one check) back toward 90 s. Blocked
+  on that upgrade (operator-scheduled).
 
-status: captured
+status: started-work
 workflow_type: refactor
+current_node: frw_1_start
 owner: agent
-horizon: later
+horizon: now
 tags: [teeth, performance, upgrade]
 components: []
 related_tasks: []
@@ -38,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-15T20:04:21Z
-last_update: 2026-10-15T20:04:35Z
-date_finished: null
+last_update: 2026-10-16T21:26:22Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +59,44 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-16T21:13:21Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1184: After the next AEF upgrade: move _t525/_t549 onto fw audit --check fabric-coverage (AEF T-4209) and cut the T-1182 slow caps back
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+`tools/_t525-fabric-coverage-teeth.py` runs a whole `fw audit --sections structure` (54 s on 832) six times to read
+one check, and `_t549` drives it four more times; T-1182 gave them caps of 160 s / 270 s. Since the T-1185 upgrade
+the vendored framework has AEF T-4209: `fw audit --check fabric-coverage` runs that one check (5.7 s here).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `_t525` runs `fw audit --check fabric-coverage` instead of the whole structure section, with every leg still asserting what it asserted (coverage line, branch taken, severity WARN, arithmetic, hermetic) — leg 7's "it ran" proof moved from "a dated report was written" (`--check` writes none: measured 0 breaches, 0 declared writes) to leg 1's coverage line from that same run, so silence still cannot pass
+- [x] `_t525` passes 8/8 and `_t549` still proves it: each mutation of the coverage branch turns `_t525` red — 8/8 in 9-11 s; _t549 5/5 in 18 s
+- [x] Both are re-timed; the T-1182 SLOW_CAP entries for them are cut to ~1.5x the new worst run, or removed when under the 90 s default; `_t550`/`_t567` are left as they are unless they also read only this check — _t525 (103 -> 11 s), _t549 (168 -> 18 s) and _t550 (75 -> 8 s; its leg 5 read only this check, switched too) caps removed; _t567 does not run the audit, keeps 120
+- [x] The instrument sweep stays green (no did-not-finish, no abstained) — 101/101, 508 s (was 740-779 s)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +130,10 @@ date_finished: null
 -->
 
 ## Verification
+grep -q '"audit", "--check", "fabric-coverage"' tools/_t525-fabric-coverage-teeth.py
+timeout 90 python3 tools/_t525-fabric-coverage-teeth.py
+timeout 90 python3 tools/_t550-audit-parse-anchor-teeth.py
+bash -n tools/_t509-instrument-sweep.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -323,3 +360,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1184-after-the-next-aef-upgrade-move-t525t549.md
 - **Context:** Initial task creation
+
+### 2026-10-16T21:13:21Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)

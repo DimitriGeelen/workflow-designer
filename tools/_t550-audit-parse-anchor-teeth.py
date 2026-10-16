@@ -175,7 +175,8 @@ def main():
     # the shape used above — otherwise these fixtures have drifted into testing a format
     # nothing produces, which is the same class of decay as the defect under repair.
     fw = os.path.join(ROOT, ".agentic-framework/bin/fw")
-    p = subprocess.run([fw, "audit", "--section", "structure"], cwd=ROOT,
+    # T-1184: one check, not the structure section (AEF T-4209): the shape is the same check's own line.
+    p = subprocess.run([fw, "audit", "--check", "fabric-coverage"], cwd=ROOT,
                        capture_output=True, text=True, timeout=600, check=False)
     real = p.stdout + p.stderr
     shape = re.compile(r"^\[[A-Z]+\] Fabric: \d+ registered, \d+ unregistered \(of \d+ watched")

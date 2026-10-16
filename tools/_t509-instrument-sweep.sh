@@ -80,10 +80,9 @@ declare -A SLOW_CAP=(
   # T-1166). Each cap is ~1.5x the worst observed run; the HEADROOM WARNING still fires at 75 % of it. These four are
   # paying for a whole structure audit to read one check, so the selector is still the way out (asked again, T-1182;
   # AEF filed it as T-4209, `fw audit --check <id>` + `--list-checks`, horizon next). When it lands, cut these caps back.
-  [_t549-fabric-coverage-mutation-teeth.py]=270
-  # _t525 leg 1 audits THIS repository on purpose (T-549 kept it: "the check is reached here" cannot be a fixture).
-  [_t525-fabric-coverage-teeth.py]=160
-  [_t550-audit-parse-anchor-teeth.py]=120
+  # T-1184 (2026-10-16): it landed with the T-1185 upgrade. _t525 and _t550 now run `fw audit --check fabric-coverage`:
+  # _t525 103 s -> 9-11 s, _t549 168 s -> 18 s, _t550 75 s -> 8 s, all under the 90 s default, so their caps are gone.
+  # _t567 does not run the audit (its cost is its own), so it keeps the cap measured at T-1182.
   [_t567-episodic-yaml-safety-teeth.sh]=120
 )
 
