@@ -1,0 +1,68 @@
+[1mfw doctor[0m - Framework Health Check
+
+  [0;32mOK[0m  Framework installation
+  [0;32mOK[0m  Active mode: vendored (/opt/832-Workflow-designer/.agentic-framework)
+  [0;32mOK[0m  .framework.yaml found
+  [0;32mOK[0m  Task directories
+  [0;32mOK[0m  Context directory
+  [0;32mOK[0m  Git commit-msg hook
+  [0;32mOK[0m  Git pre-push hook
+  [0;32mOK[0m  Exec-bit parity: all 303 indexed-100755 script(s) executable on disk
+  [0;36mINFO[0m  Large-file gate: 13 tracked file(s) above warn threshold (under block)
+  [0;32mOK[0m  Repo root: no untracked binary files
+  [0;32mOK[0m  Handover LATEST.md resolves to S-2026-1014-2056.md
+  [0;32mOK[0m  Last auto-handover succeeded (pre-compact handover)
+  [0;32mOK[0m  Hook path validation: 40 hooks, all portable
+  [0;32mOK[0m  Hook exercise from /tmp: 29 PreToolUse/PostToolUse hook(s) resolve from foreign CWD
+  [0;32mOK[0m  All agent scripts executable
+  [0;32mOK[0m  Plugin task-awareness
+  [0;36mSKIP[0m  Test infrastructure (consumer project — tests live in framework repo)
+  [0;36mSKIP[0m  ShellCheck linter (consumer project)
+  [0;32mOK[0m  No orphaned MCP processes
+  [0;32mOK[0m  .mcp.json (4 MCP server(s) configured)
+  [0;32mOK[0m  Playwright pip package (test runner)
+  [0;32mOK[0m  Playwright MCP server (agent UI verification)
+  [0;32mOK[0m  No global install at /root/.agentic-framework
+  [0;32mOK[0m  status-transitions.yaml (8 transitions, no orphaned/unreachable states)
+  [0;32mOK[0m  BVP drivers: every active free and arc-scoped driver is scorable
+  [1;33mWARN[0m  Fabric: 179 under-populated card(s)
+         TODO purpose: 21, unknown subsystem: 1, no edges: 172
+         Run: bin/fw fabric enrich --describe-only  (then: bin/fw fabric drift)
+  [0;32mOK[0m  Delegation surface: reviewer-closeable 1, reviewer-judges 60, agent-self 2, operator-only 18 (across 73 active task(s))
+         delegable now: T-884 — bin/fw task delegate <id> --dry-run
+  [0;36mINFO[0m  Unclosable-misfiled: 1 active task(s) — owner:human, no Human criteria, all Agent ACs ticked
+         Run: bin/fw review-queue  (READY TO CLOSE section — per-task evidence, one command each)
+  [0;32mOK[0m  framework MCP 22 tools (gated: 6) — stopped (manifest ready; start: fw mcp start --background)
+  [0;36mSKIP[0m  port3000 hygiene: no baseline yet
+         Run: python3 tools/port3000_hygiene.py baseline-refresh
+  [0;32mOK[0m  index: vector index opens (256179 chunks)
+  [0;32mOK[0m  manifest: manifest present
+  [0;32mOK[0m  import: web.embeddings importable from the reindex path
+  [0;32mOK[0m  age: vector index 0.4h old (limit 24h)
+  [0;32mOK[0m  lag: 1 task(s), 0 learning(s) not in the index; 3 source file(s) new or changed since indexed
+  [0;32mOK[0m  canary: canary FWCANARY-1792106402523723 retrieved as top hit
+  [0;32mOK[0m  token: canary FWCANARY-1792106402523723 planted in the index
+  [0;32mOK[0m  cron: index-reindex-hourly scheduled
+  [0;32mOK[0m  usage: recall: 12 of 140 queries in 7d could not run
+  [0;32mOK[0m  disk: no orphan index scratch; free space covers the next reindex
+  [0;36mSKIP[0m  recall usage: web.recall_telemetry not importable here (ModuleNotFoundError)
+  [0;32mOK[0m  Watchtower running (http://192.168.10.107:3013, pid 3325742)
+  [0;32mOK[0m  Watchtower secret key is owner-only (mode 600)
+  [0;36mSKIP[0m  Session supervision (not inside a Claude Code session)
+  [0;32mOK[0m  Continuous-run wrapper last recorded ARMED (start, restarts=0, 2026-10-15T23:43:49Z)
+  [1;33mWARN[0m  ...but the TURN DRIVER is not armed — the loop takes no turns
+         reason: state-unreadable-or-empty
+         Arm it:  bin/fw continuous arm --hours N --iterations N
+         Detail:  bin/fw continuous status
+         wrapper pid 3165234 is alive
+  [0;32mOK[0m  Installed claude-fw matches repo source (2 copies on PATH, all current)
+  [0;32mOK[0m  Running claude-fw wrapper(s) (1) newer than their script
+  [0;32mOK[0m  Hook configuration valid (40 hooks in 25 matchers across 6 events)
+
+fw doctor was KILLED after 43s, during: Watchtower smoke test
+  Every check after this point did NOT run. They are UNMEASURED, not passing.
+  Phases completed (slowest first):
+    11s  plugin task-awareness
+    6s  hook exercise from /tmp
+    6s  port3000 hygiene ratchet
+    1s  startup

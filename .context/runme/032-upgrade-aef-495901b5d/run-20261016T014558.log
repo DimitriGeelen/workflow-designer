@@ -1,0 +1,31 @@
+runme  032-upgrade-aef-495901b5d   sha 59ce7825d2d8   rehearsed 2026-10-15T23:24:15Z   log: /opt/832-Workflow-designer/.context/runme/032-upgrade-aef-495901b5d/run-20261016T014558.log
+Job:   032-upgrade-aef-495901b5d   (T-1185)
+What:  Upgrade AEF bleeding-edge 1146a7450 -> 495901b5d (v1.8.11 field test + fw audit --check), re-vendor protocol
+       Your 'yes, prepare the upgrade' (2026-10-16). AEF asked 832 to field-test their v1.8.11 candidate (a75c25472,
+       14 items; a positive test from another project is their release approval), and has since pushed T-4209
+       (fw audit --check), which lets our four slow audit probes run in seconds (T-1184). 495901b5d is the upstream
+       bleeding-edge tip: 133 commits past ours, with both of those as ancestors (checked). Same protocol as job 023:
+       fw doctor captured first; pristine vendor commit (--allow-delete-locals, backups kept); divergence baseline advanced;
+       crontab checked; fw doctor after; then Watchtower is restarted on the new code (down a few seconds; reload any open
+       page). The agent then re-applies our local fixes, re-runs the revert scan and runs the field-test items.
+       Nothing is pushed. Afterwards: relaunch claude-fw at a natural break (a running wrapper keeps the old code).
+Steps (each asks y/N first):
+  1. Capture fw doctor BEFORE
+  2. Upgrade to 495901b5d (clone, check out the pinned commit, fw upgrade --allow-delete-locals, re-install the re-vendor gate)
+  3. Pristine commit: .agentic-framework/ exactly as the upgrade wrote it
+  4. Advance the divergence baseline to that commit (commit it alone)
+  5. Check the crontab still points at the vendored framework
+  6. Capture fw doctor AFTER
+  7. Restart Watchtower on port 3013, then check it is newer than its web code and answering
+
+ok    on bleeding-edge
+ok    nothing staged
+ok    no uncommitted edits under .agentic-framework/
+ok    re-vendor gate installed (T-1000)
+ok    framework is 1146a7450 (.framework.yaml version_sha)
+ok    .fwvendor-preserve.yaml committed as-is
+ok    upstream still has 495901b5d
+
+Step 1/7: Capture fw doctor BEFORE
+  runs: do_doctor before
+Run step 1/7? [y/N] 
