@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-15T23:22:11Z
-last_update: 2026-10-16T21:01:37Z
+last_update: 2026-10-16T21:13:14Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -64,11 +64,12 @@ baseline, crontab, doctor and Watchtower restart; the agent then re-applies 832'
 ## Acceptance Criteria
 
 ### Agent
-- [ ] The target commit is resolved upstream to a full sha, and 1146a7450 (our version) and a75c25472 (the field-test candidate) are both its ancestors
-- [ ] A runme upgrade job (modelled on 023) is dry-run clean and handed to the operator; after the run, `.framework.yaml` version_sha is the target and the pristine vendor commit exists
-- [ ] 832's local fixes are re-applied by 3-way (re-vendor protocol step 3); `tools/_t517-vendor-divergence.py` OK; conflicts resolved and recorded
-- [ ] Post-upgrade checks: AEF's decision-revert scan 0, designer pin still 0.20.0, `fw review-queue` runs, `.bak` files diffed and handled per CLAUDE.md
-- [ ] The field-test items 832 can exercise (1, 2, 3, 4, 5, 7, 10, 11, 13, 14) are each run and reported to AEF as WORKS / BROKEN / NOT EXERCISED with evidence
+- [x] The target commit is resolved upstream to a full sha, and 1146a7450 (our version) and a75c25472 (the field-test candidate) are both its ancestors — 495901b5db6081b31605e84c620326978cc2d7c4, bleeding-edge tip, 133 commits
+- [x] A runme upgrade job (modelled on 023) is dry-run clean and handed to the operator; after the run, `.framework.yaml` version_sha is the target and the pristine vendor commit exists — job 032 rc 0 (7/7, survived a duplicate launch and the host tmux crash), pristine b9930c7e, baseline 1c945199
+- [x] 832's local fixes are re-applied by 3-way (re-vendor protocol step 3); `tools/_t517-vendor-divergence.py` OK; conflicts resolved and recorded — 39 files, 0 conflicts; instance-position.sh re-declared `added` (832-only, kept unchanged by fw vendor); _t517 45/45, ratchet 41/41
+- [x] Post-upgrade checks: AEF's decision-revert scan 0, designer pin still 0.20.0, `fw review-queue` runs, `.bak` files diffed and handled per CLAUDE.md — revert scan 0; pin 0.20.0 present; review-queue rc 0; no .bak left by this upgrade
+- [x] The field-test items 832 can exercise (1, 2, 3, 4, 5, 7, 10, 11, 13, 14) are each run and reported to AEF as WORKS / BROKEN / NOT EXERCISED with evidence — sent 5196b215: WORKS 2, 4, 10; WORKS in part 1 (BROKEN: fw test lint exits 1 in a consumer, silent-skip lint reads the absent .agentic-framework/tests/), 3, 7, 11; NOT EXERCISED 5, 13, 14. T-4209 --check: 5.7 s vs 54 s
+- [ ] Watchtower restarted on the re-applied code (job 033): /designer/open answers again (404 between job 032's restart and the re-apply)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
