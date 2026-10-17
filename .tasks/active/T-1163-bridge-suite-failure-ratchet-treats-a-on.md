@@ -11,7 +11,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_3_run
 owner: agent
 horizon: now
 tags: [observations]
@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:21:18Z
-last_update: 2026-10-17T09:02:17Z
+last_update: 2026-10-17T09:02:38Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -277,6 +277,21 @@ grep -q 'UNCONFIRMED RISE' tools/project-audit.sh
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** the bridge-suite ratchet would call a one-leg flake a regression (OBS-459: 33 then 34 failures at the
+same commit), and in practice its floor sat at 32 while runs failed 2-4, so it could see neither flakes nor real rises.
+It also failed on staleness after 48 h, claiming a nightly schedule that is not running.
+
+**Root cause:** the ratchet compared ONE run's count with the floor, though that count is not stable run to run; and its
+staleness rule encoded an assumption (nightly schedule) that a prior decision (T-917) had explicitly rejected.
+
+**Why structurally allowed:** the teeth tested single-row histories only, so "one row decides" was never challenged;
+nothing tied the ratchet's wording to the cron registry where the no-schedule decision lives; and nothing prompted
+lowering the floor (the tool says "can be lowered", but nobody acted on it for two weeks).
+
+**Prevention:** teeth legs 1b/1c (single high run -> UNCONFIRMED, dip between -> not confirmed) fail on the old
+ratchet; the project audit renders UNCONFIRMED as a WARN; the floor now sits at the real count, so the "can be lowered"
+line fires on the next improvement instead of being 30 failures out of date.
 
 ## Evolution
 
