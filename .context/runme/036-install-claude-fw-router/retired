@@ -1,0 +1,5 @@
+Superseded, not run (2026-10-17). Both /usr/bin/claude-fw (19:48) and ~/.local/bin/claude-fw (16:43) were already the
+router (cmp equal to .agentic-framework/bin/claude-fw-router) before this job ran: installed by another route, most
+likely another project's install.sh, which now installs the router. This job left no run log, no events and no backup.
+fw doctor: "Installed claude-fw matches repo source (2 copies on PATH, all current)". The routing test (do_route_test)
+was run by the agent against both installed copies: both run the dummy project's own claude-fw. See T-1190.

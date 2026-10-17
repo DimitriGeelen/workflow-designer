@@ -89,10 +89,10 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Operator job 036 backs up both installed copies (sha256 recorded) before touching them
-- [ ] After the job, /usr/bin/claude-fw and ~/.local/bin/claude-fw are byte-identical to .agentic-framework/bin/claude-fw-router
-- [ ] The installed router, run in a dummy project, execs that project's own claude-fw (proved with a marker script, no claude started)
-- [ ] `fw doctor` no longer reports "Installed claude-fw (fixed copy) drifted"
+- [x] ~~Operator job 036 backs up both installed copies (sha256 recorded) before touching them~~ — SUPERSEDED, NOT MET: both copies were replaced by the router through another route (16:43 and 19:48 local, 2026-10-17; most likely another project's install.sh) before job 036 ran, so no backup of the old fixed copies exists. They were a pre-T-4218 claude-fw (69580 B), reproducible from AEF git history; nothing 832-specific was lost. Job 036 retired with this reason (`.context/runme/036-install-claude-fw-router/retired`)
+- [x] After the job, /usr/bin/claude-fw and ~/.local/bin/claude-fw are byte-identical to .agentic-framework/bin/claude-fw-router — cmp equal, both
+- [x] The installed router, run in a dummy project, execs that project's own claude-fw (proved with a marker script, no claude started) — job 036's do_route_test run by the agent: both ok
+- [x] `fw doctor` no longer reports "Installed claude-fw (fixed copy) drifted" — doctor: "Installed claude-fw matches repo source (2 copies on PATH, all current)"
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -141,6 +141,10 @@ bvp_scores_proposed:
 -->
 
 ## Verification
+
+cmp -s .agentic-framework/bin/claude-fw-router /usr/bin/claude-fw
+cmp -s .agentic-framework/bin/claude-fw-router /root/.local/bin/claude-fw
+test -f .context/runme/036-install-claude-fw-router/retired
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
