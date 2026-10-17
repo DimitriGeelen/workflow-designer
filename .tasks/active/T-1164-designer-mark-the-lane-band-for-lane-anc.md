@@ -397,6 +397,16 @@ dock open; sticky = zoom 160%, scrolled right half-way (T-1091 strip). Read by t
   (label 377-619 vs visible band 311-602).
 - **Rejected:** re-framing the screenshots so the overlap does not show (would pass the review and leave the defect).
 
+### 2026-10-17 — Second amber: the raised toast now sat on the canvas; and my re-centring had two flaws
+- The toast in every shot was provoked BY THE TEST (each re-navigation restored the previous leg's autosave and showed
+  "Restored your unsaved work"). `_t1164`'s open() now clears the autosave first; the toast fix for the dock stays.
+- Reading my own new shots: (a) centring a name in a SHORT visible strip pushed it up into the lane above ("AGENT
+  ITIATIVE" at 1920); pinning it to the strip's top instead showed the END of the words (lane names run
+  bottom-to-top). **Chose:** re-centre only when the whole name fits the visible room, else keep its lane-centred place
+  (never worse than T-1091). (b) the re-centred name touched a marked lane's ⚠ pill; the room now starts below it.
+- The leg asserts all three (in own lane, clear of the pill, in the visible room when it fits). Controls: the first
+  re-centring (6d9662c0) fails at 1920, no re-centring fails at 1024, no pill room fails at 1024; final code 14/14.
+
 ### 2026-10-17 — T-962's lane leg updated, not deleted
 - `tests/test_t962_findings_on_map.py` asserted lane findings are "not on the map", recording this very gap. Updated to
   the new contract (listed, anchored to their lane, lane marked); the pre-change designer fails it.

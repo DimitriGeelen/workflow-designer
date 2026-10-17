@@ -3353,11 +3353,22 @@ function syncStickyLanes() {
     const c = h.cloneNode(true);
     c.setAttribute('transform', `translate(${shift} 0)`);
     c.classList.add('sticky');
+    // Re-centred only when the whole name fits the visible room. When it does not, it keeps its lane-centred place:
+    // pinning it to the room's top showed the END of the words (the text runs bottom-to-top), and centring it in a
+    // short room pushed it up into the lane above. Either way it never leaves its own lane.
     const r = c.querySelector('rect'), y0 = +r.getAttribute('y'), y1 = y0 + +r.getAttribute('height');
-    const top = Math.max(y0, vTop), bot = Math.min(y1, vBot);
-    if (bot - top > 24 && (top > y0 || bot < y1)) {
-      const dy = (top + bot) / 2 - (y0 + y1) / 2;
-      for (const t of c.querySelectorAll('.lane-label')) t.setAttribute('transform', `translate(0 ${dy}) ${t.getAttribute('transform') || ''}`);
+    const labels = Array.from(c.querySelectorAll('.lane-label'));
+    const rot = labels.length ? /rotate\(-90 [-\d.]+ ([-\d.]+)\)/.exec(labels[0].getAttribute('transform') || '') : null;
+    if (rot) {
+      let len = 0;
+      for (const t of h.querySelectorAll('.lane-label')) { try { len = Math.max(len, t.getBBox().width); } catch (_) {} }
+      const pillRoom = c.querySelector('.node-finding-pill') ? 18 : 0;   // a marked lane's ✖/⚠ pill sits at its top
+      const lc = +rot[1], roomTop = Math.max(y0 + pillRoom, vTop) + 4, roomBot = Math.min(y1, vBot) - 4;
+      if (len && len <= roomBot - roomTop && (lc - len / 2 < roomTop || lc + len / 2 > roomBot)) {
+        const c2 = (roomTop + roomBot) / 2;   // inside the room, hence inside the lane
+        const dy = c2 - lc;
+        if (Math.abs(dy) > 0.5) for (const t of labels) t.setAttribute('transform', `translate(0 ${dy}) ${t.getAttribute('transform') || ''}`);
+      }
     }
     const lane = lanes.find(l => l.id === h.getAttribute('data-lane-id'));
     if (lane) c.addEventListener('click', ev => { ev.stopPropagation(); onLaneClick(lane); });

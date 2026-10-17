@@ -59,11 +59,13 @@ async function main() {
     if (!up) throw new Error('sidecar down:\n' + pyErr.slice(-400));
     cl = cdp(await pageWsUrl(await waitPortFile(join(udd, 'DevToolsActivePort')))); await cl.ready; const { cmd } = cl;
     await cmd('Page.enable'); await cmd('Runtime.enable');
+    // Each open clears the autosave first: re-navigating would otherwise restore the previous leg's edited document and
+    // show "Restored your unsaved work" every time — a toast this test provokes, not one a user meets on each load.
     const open = async w => {
       await cmd('Emulation.setDeviceMetricsOverride', { width: w, height: 860, deviceScaleFactor: 1, mobile: false });
+      await ev(cmd, `(function(){ try { localStorage.removeItem('aefAutosaveDoc'); localStorage.removeItem('aefLabelPrefs'); } catch (e) {} return 1; })()`).catch(() => null);
       await cmd('Page.navigate', { url: `http://127.0.0.1:${port}/designer.html?load=rendered/${MAP}.bpmn` });
       await sleep(300); await waitReady(cmd); await sleep(300);
-      await ev(cmd, `(localStorage.removeItem('aefLabelPrefs'), 1)`);
     };
     const shot = async name => {
       const { data } = await cmd('Page.captureScreenshot', { format: 'png' });
@@ -131,10 +133,20 @@ async function main() {
         document.querySelectorAll('#g-sticky-lanes .lane-header').forEach(function(h){
           var lr = h.querySelector('rect').getBoundingClientRect(), top = Math.max(lr.top, vTop), bot = Math.min(lr.bottom, vBot);
           var lb = null; h.querySelectorAll('.lane-label').forEach(function(t){ var b = t.getBoundingClientRect(); lb = lb ? { top: Math.min(lb.top, b.top), bottom: Math.max(lb.bottom, b.bottom) } : { top: b.top, bottom: b.bottom }; });
-          if (!lb || bot - top < (lb.bottom - lb.top) + 4) return;   // no room in the visible band: nothing to assert
-          out.push({ lane: h.getAttribute('data-lane-id'), inside: lb.top >= top - 1 && lb.bottom <= bot + 1, label: [Math.round(lb.top), Math.round(lb.bottom)], band: [Math.round(top), Math.round(bot)] }); });
+          if (!lb || bot <= top) return;
+          var pill = h.querySelector('.node-finding-pill'), pr = pill ? pill.getBoundingClientRect() : null;
+          if (pr && pr.bottom > top) top = Math.max(top, pr.bottom);   // the room below a marked lane's pill
+          var fits = bot - top >= (lb.bottom - lb.top) + 4;
+          var clearOfPill = !pr || lb.top >= pr.bottom - 0.5 || lb.bottom <= pr.top + 0.5;
+          out.push({ lane: h.getAttribute('data-lane-id'), fits: fits,
+                     // never out of its own lane; and, when it fits, wholly in the visible band (when it does not, it keeps
+                     // its lane-centred place: asserted by inLane alone)
+                     inLane: lb.top >= lr.top - 1 && lb.bottom <= lr.bottom + 1,
+                     ok: clearOfPill && (fits ? (lb.top >= top - 1 && lb.bottom <= bot + 1) : true), clearOfPill: clearOfPill,
+                     label: [Math.round(lb.top), Math.round(lb.bottom)], band: [Math.round(top), Math.round(bot)], lane_px: [Math.round(lr.top), Math.round(lr.bottom)] }); });
         return out; })()`);
-      push(`${w} pinned lane names sit inside the visible part of their lane, above the open dock`, fit.length > 0 && fit.every(f => f.inside), fit);
+      push(`${w} pinned lane names stay in their own lane, clear of the finding pill, and in its visible part (above the open dock) whenever they fit there`,
+           fit.length > 0 && fit.every(f => f.inLane && f.ok), fit);
     }
   } catch (e) {
     push('harness', false, String(e && e.stack || e)); process.exitCode = 2;
