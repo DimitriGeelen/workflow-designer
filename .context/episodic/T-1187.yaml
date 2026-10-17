@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1187: Ask AEF to re-pin the designer 0.14.0 -> 0.20.0 (nine releases behind) and follow it to landing
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T14:35:13Z
+# ============================================================================
+
+task_id: T-1187
+task_name: "Ask AEF to re-pin the designer 0.14.0 -> 0.20.0 (nine releases behind) and follow it to landing"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-17T08:46:38Z
+completed: 2026-10-17T14:35:00Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-17T10:49:30+02:00
+last_commit: 2026-10-17T10:51:18+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  AEF is the designer's main consumer (operator 2026-10-17) — AEF asked to re-pin 0.14.0 -> 0.20.0 (47e480b2); tools/_t1187-aef-pin-lag.sh (BEHIND 10 today, REFUSED when unreadable) shown every session by session-start-alerts; CLAUDE.md rule: a release is done only when AEF serves it; learning recorded. AEF accepted the re-pin as AEF T-4224 (plan: id inventory, sync --from-tag, migrate stored ids with the T-1168 map, conformance green)
+
+# Key outcomes
+outcomes:
+  - 'AEF is asked to re-pin 0.14.0 -> 0.20.0 with tag, sha256 and bytes, what the nine releases bring, and the T-1168 node-id change with its id map; the message id is recorded — 47e480b2 (RECEIVED), conversation 832-designer-repin-0.20.0; ten releases in fact (0.15.1 included)'
+  - 'A check reports AEF''s upstream pin against 832''s latest designer tag (current / N releases behind), reading AEF''s public bleeding-edge, and refuses rather than passes when it cannot read it — tools/_t1187-aef-pin-lag.sh: BEHIND 10 today (rc 1); a bad address REFUSED (rc 2); shown every session by tools/session-start-alerts.py section 4 (both alerts tests and the T-1047 gate still pass)'
+  - 'The release practice says a designer release is done only when AEF serves it: the operator''s direction is recorded as a project rule in CLAUDE.md, and the lag check is part of it — CLAUDE.md "AEF is the designer''s main consumer"; learning recorded'
+  - 'AEF''s pin reads 0.20.0 upstream (followed to landing; this criterion stays open until it does) — LANDED 2026-10-17: AEF c1a87c16f (msg 9f337efb), sha verified by them against MANIFEST and artefact; `tools/_t1187-aef-pin-lag.sh` reads "CURRENT: AEF serves designer 0.20.0". Their 79 stored maps renumber via our T-1189 table. — AEF T-4224 (2026-10-17): inventory where AEF stores node ids, re-pin via sync --from-tag, migrate stored ids with the T-1168 map before any re-save, conformance/currency green; starts after their env-leak push. Check: `bash tools/_t1187-aef-pin-lag.sh` reads CURRENT'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'CLAUDE.md'
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-1187-ask-aef-to-re-pin-the-designer-0140---02.md'
+  - 'tools/session-start-alerts.py'
+  - 'tools/_t1187-aef-pin-lag.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-17T10:49:30'
+    action: 'T-1187: AEF is the designer''s main consumer (operator 2026-10-17) — AEF asked to re-pin 0.14.0 -> 0.20.0 (47e480b2); tools/_t1187-aef-pin-lag.sh (BEHIND 10 today, REFUSED when unreadable) shown every session by session-start-alerts; CLAUDE.md rule: a release is done only when AEF serves it; learning recorded'
+  - time: '2026-10-17T10:51:18'
+    action: 'T-1187: AEF accepted the re-pin as AEF T-4224 (plan: id inventory, sync --from-tag, migrate stored ids with the T-1168 map, conformance green)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 348 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [aef, designer, pin]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 348
+  commits: 2
+  files_changed: 5
+  lines_added: 420
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1187-ask-aef-to-re-pin-the-designer-0140---02.md
+generated_by: context-agent-hybrid
