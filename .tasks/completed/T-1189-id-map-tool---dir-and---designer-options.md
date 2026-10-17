@@ -7,13 +7,13 @@ description: >
   is fixed to examples/aef-processes/rendered and src/; add --dir and --designer so
   it runs on a directory of their maps against the released 0.20.0 artefact.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t1189-id-map-dir.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-17T13:40:32Z
-last_update: 2026-10-17T14:41:11Z
-date_finished:
+last_update: 2026-10-17T22:47:03Z
+date_finished: 2026-10-17T22:47:03Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -91,7 +91,11 @@ bvp_scores_proposed:
 - [x] `--designer <file>` loads that designer HTML (e.g. the released 0.20.0 artefact) instead of src/
 - [x] Default behaviour unchanged: `--check` on 832's corpus still PASSes both lines (corpus ids, task records)
 - [x] Run on a copy of 832's pre-T-1168 corpus via --dir gives the same table as docs/reports/T-1168-node-id-map.md
-- [ ] Table + patch produced for AEF's 79 maps once they name the commit and paths, and sent on 832-designer-repin-0.20.0
+- [x] Table + patch produced for AEF's 79 maps once they name the commit and paths, and sent on 832-designer-repin-0.20.0
+  — done against the released 0.21.0 (superseding 0.20.0): AEF's corpus at c1a87c16f held 47 maps, not 79 (549 ids, all pure
+  renames, docs/reports/T-1189-aef-node-id-map-0.21.0.md); the patch went by TermLink file transfer and was announced to AEF.
+  Applied: AEF's live `.context/designer/projects/aef-greenfield-onboarding/v1.bpmn` (GitHub bleeding-edge, 2026-10-18) carries
+  exactly the table's new ids (agt_start_fw, agt_2_first, agt_3_complete, agt_4_generate, agt_end_ready) and none of the old.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -373,3 +377,20 @@ grep -q '_t1189-id-map-dir.sh' tests/run-bridge-tests.sh
 
 ### 2026-10-17T13:40:55Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a1de07a9
+- **Timestamp:** 2026-10-17T22:48:12Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-17T22:47:03Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1189: id-map tool: --dir and --designer options for AEF's 79 maps (AEF T-4224)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T22:48:20Z
+# ============================================================================
+
+task_id: T-1189
+task_name: "id-map tool: --dir and --designer options for AEF's 79 maps (AEF T-4224)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-17T13:40:32Z
+completed: 2026-10-17T22:47:03Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-17T15:47:50+02:00
+last_commit: 2026-10-17T19:54:15+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  _t1168-node-id-map --dir/--designer — the uid-paired old->new id table for any directory of maps (for AEF T-4224's 79 maps). AEF node id map for the 47 maps on GitHub at c1a87c16f — 551 ids, 0 inconsistent, pure renames, patch applies cleanly; sent to AEF with the slug question (names 'T-001: ...' give slug 001, unchanged since 0.14.0) and a request for the 32 local-only files. AEF node id map against the released designer-v0.21.0 (47 maps, 549 ids, 0 inconsistent, pure renames, patch applies at c1a87c16f); the 0.20.0 table marked superseded
+
+# Key outcomes
+outcomes:
+  - '`tools/_t1168-node-id-map.mjs --dir <path>` maps every .bpmn under <path> (recursive, keys are relative paths); with `--write` it renames in that directory only'
+  - '`--designer <file>` loads that designer HTML (e.g. the released 0.20.0 artefact) instead of src/'
+  - 'Default behaviour unchanged: `--check` on 832''s corpus still PASSes both lines (corpus ids, task records)'
+  - 'Run on a copy of 832''s pre-T-1168 corpus via --dir gives the same table as docs/reports/T-1168-node-id-map.md'
+  - 'Table + patch produced for AEF''s 79 maps once they name the commit and paths, and sent on 832-designer-repin-0.20.0'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-1189-aef-node-id-map-0.21.0.md'
+  - 'docs/reports/T-1189-aef-node-id-map.md'
+  - '.fabric/components/tools-_t1189-id-map-dir.yaml'
+  - '.tasks/active/T-1189-id-map-tool---dir-and---designer-options.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1168-node-id-map.mjs'
+  - 'tools/_t1189-id-map-dir.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-17T15:47:50'
+    action: 'T-1189: _t1168-node-id-map --dir/--designer — the uid-paired old->new id table for any directory of maps (for AEF T-4224''s 79 maps)'
+  - time: '2026-10-17T16:41:28'
+    action: 'T-1189: AEF node id map for the 47 maps on GitHub at c1a87c16f — 551 ids, 0 inconsistent, pure renames, patch applies cleanly; sent to AEF with the slug question (names ''T-001: ...'' give slug 001, unchanged since 0.14.0) and a request for the 32 local-only files'
+  - time: '2026-10-17T19:54:15'
+    action: 'T-1189: AEF node id map against the released designer-v0.21.0 (47 maps, 549 ids, 0 inconsistent, pure renames, patch applies at c1a87c16f); the 0.20.0 table marked superseded'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 546 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 546
+  commits: 3
+  files_changed: 7
+  lines_added: 2165
+  lines_removed: 12
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1189-id-map-tool---dir-and---designer-options.md
+generated_by: context-agent-hybrid
