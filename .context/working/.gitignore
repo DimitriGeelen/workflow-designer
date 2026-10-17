@@ -36,3 +36,6 @@ t413/
 # the store on demand — never content. Its SQLite sidecars (-wal, -shm, -journal) with it.
 fw-vec-index.db
 fw-vec-index.db-*
+# T-1191: _t451-unwired-guard-census.py's per-file results, keyed by content hash. A derived cache, rebuilt on demand.
+.t451-refs-cache.json
+.t451-refs-cache.json.*.tmp

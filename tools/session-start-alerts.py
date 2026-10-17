@@ -271,7 +271,8 @@ def watched_topics(mark_seen):
 
 def aef_pin():
     """T-1187: is AEF serving our latest designer release? One line; never fails the run."""
-    tool = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_t1187-aef-pin-lag.sh")
+    # Spelled root/"tools"/name so _t451's census sees the call (T-1191).
+    tool = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "_t1187-aef-pin-lag.sh")
     try:
         r = subprocess.run(["bash", tool], capture_output=True, text=True, timeout=30)
         line = (r.stdout.strip().splitlines() or ["(no output)"])[-1]

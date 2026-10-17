@@ -78,7 +78,9 @@ the defect it was warning about.
 """
 import ast
 import glob
+import hashlib
 import io
+import json
 import os
 import re
 import sys
@@ -317,6 +319,14 @@ def _composed_refs(tree):
     """Tool basenames sitting in the same literal path expression as 'tools'."""
     found = set()
     for node in ast.walk(tree):
+        # T-1191: `import _audit_lock` / `from _audit_lock import x` runs tools/_audit_lock.py as surely as a path
+        # does. Every module name is offered as <name>.py; the caller keeps only names in the tool population.
+        if isinstance(node, ast.Import):
+            found.update(a.name.split('.')[0] + '.py' for a in node.names)
+            continue
+        if isinstance(node, ast.ImportFrom) and node.module and not node.level:
+            found.add(node.module.split('.')[0] + '.py')
+            continue
         if isinstance(node, ast.Call):
             parts = [a.value for a in node.args
                      if isinstance(a, ast.Constant) and isinstance(a.value, str)]
@@ -333,8 +343,62 @@ def _composed_refs(tree):
     return found
 
 
+def _file_refs(p, text):
+    """(refs, fell_back) for one file. A pure function of (path, text) and this script."""
+    if os.path.splitext(p)[1].lower() == '.py':
+        n = len(PARSE_FALLBACKS)
+        stripped = _strip_python(text, p)
+        if stripped is None:            # unparseable: counted, and read WHOLE
+            return set(TOOL_RE.findall(text)), len(PARSE_FALLBACKS) > n
+        found = set(TOOL_RE.findall(stripped))
+        try:
+            found.update(_composed_refs(ast.parse(text)))
+        except (SyntaxError, ValueError):   # unreachable: _strip_python parsed it
+            pass
+        return found, False
+    return set(TOOL_RE.findall(strip_prose(p, text))), False
+
+
+# T-1191: per-file results cached by content. The key is the file's sha256 plus this script's own sha256 and the
+# Python version, so an edited file, an edited census or another interpreter (tokenize/ast) is recomputed; a cached
+# parse fallback is re-recorded on every read, so PARSE_FALLBACKS counts exactly as without the cache. The cache is
+# a speed-up only: unreadable, corrupt or absent, it is ignored. T451_NO_CACHE=1 turns it off.
+CACHE_FILE = '.context/working/.t451-refs-cache.json'
+_CACHE = None
+_CACHE_DIRTY = False
+_SELF_KEY = hashlib.sha256(open(__file__, 'rb').read() + sys.version.encode()).hexdigest()[:16]
+
+
+def _cache():
+    global _CACHE
+    if _CACHE is None:
+        _CACHE = {}
+        if os.environ.get('T451_NO_CACHE') != '1':
+            try:
+                d = json.load(open(CACHE_FILE, encoding='utf-8'))
+                if isinstance(d, dict) and d.get('self') == _SELF_KEY and isinstance(d.get('files'), dict):
+                    _CACHE = d['files']
+            except (OSError, ValueError):
+                pass
+    return _CACHE
+
+
+def save_cache():
+    if not _CACHE_DIRTY or os.environ.get('T451_NO_CACHE') == '1':
+        return
+    try:
+        tmp = '%s.%d.tmp' % (CACHE_FILE, os.getpid())
+        with open(tmp, 'w', encoding='utf-8') as f:
+            json.dump({'self': _SELF_KEY, 'files': _CACHE}, f)
+        os.replace(tmp, CACHE_FILE)
+    except OSError:
+        pass
+
+
 def read_refs(paths):
+    global _CACHE_DIRTY
     found = set()
+    cache = _cache()
     for p in paths:
         if not os.path.isfile(p):
             continue
@@ -342,18 +406,17 @@ def read_refs(paths):
             text = open(p, encoding='utf-8', errors='replace').read()
         except OSError:
             continue
-        if os.path.splitext(p)[1].lower() == '.py':
-            stripped = _strip_python(text, p)
-            if stripped is None:            # unparseable: counted, and read WHOLE
-                found.update(TOOL_RE.findall(text))
-                continue
-            found.update(TOOL_RE.findall(stripped))
-            try:
-                found.update(_composed_refs(ast.parse(text)))
-            except (SyntaxError, ValueError):   # unreachable: _strip_python parsed it
-                pass
+        key = p + '\0' + hashlib.sha256(text.encode('utf-8', 'surrogatepass')).hexdigest()
+        hit = cache.get(key)
+        if hit is not None:
+            if hit[1]:
+                PARSE_FALLBACKS.append(p)
+            found.update(hit[0])
             continue
-        found.update(TOOL_RE.findall(strip_prose(p, text)))
+        refs, fell_back = _file_refs(p, text)
+        cache[key] = [sorted(refs), fell_back]
+        _CACHE_DIRTY = True
+        found.update(refs)
     return found
 
 
@@ -374,7 +437,9 @@ def gauge_refs():
                'whole is the T-493 defect this function exists to fix.'
                % (GAUGE_FILE, GAUGE_FIELD))
     try:
-        doc = yaml.safe_load(open(GAUGE_FILE, encoding='utf-8')) or {}
+        # T-1191: C loader when libyaml is present — the pure-Python one was ~0.9 s here.
+        doc = yaml.load(open(GAUGE_FILE, encoding='utf-8'),
+                        Loader=getattr(yaml, 'CSafeLoader', yaml.SafeLoader)) or {}
     except Exception as exc:                      # noqa: BLE001 - any parse failure
         refuse('%s did not parse (%s), so a root source could not be enumerated.'
                % (GAUGE_FILE, exc))
@@ -388,15 +453,22 @@ def gauge_refs():
     return found
 
 
+VERIF_HEAD_RE = re.compile(r'^## Verification\s*$', re.M)
+NEXT_HEAD_RE = re.compile(r'^## ', re.M)
+
+
 def verification_refs(task_paths):
     """tool -> [task ids] for tools named in a task's ## Verification block."""
     out = {}
     for p in task_paths:
         s = open(p, encoding='utf-8', errors='replace').read()
-        m = re.search(r'^## Verification\s*$(.*?)(?=^## |\Z)', s, re.M | re.S)
-        if not m:
+        # T-1191: the same span as r'^## Verification\s*$(.*?)(?=^## |\Z)' (re.M|re.S), cut in two anchored
+        # searches; the lazy scan with a lookahead at every character was half of this gauge's time.
+        h = VERIF_HEAD_RE.search(s)
+        if not h:
             continue
-        body = '\n'.join(l for l in m.group(1).splitlines() if not l.strip().startswith('#'))
+        n = NEXT_HEAD_RE.search(s, h.end())
+        body = '\n'.join(l for l in s[h.end():n.start() if n else len(s)].splitlines() if not l.strip().startswith('#'))
         tid = re.match(r'(T-\d+)', os.path.basename(p))
         for t in set(TOOL_RE.findall(body)):
             out.setdefault(t, []).append(tid.group(1) if tid else os.path.basename(p))
@@ -432,13 +504,20 @@ def main():
     # This is the T-493 fix. The edge set is the same data the old code unioned in one
     # step; the difference is entirely in the direction of travel. A dead tool's
     # references are never traversed, so dead tools can no longer vouch for each other.
-    edges = {t: (read_refs(['tools/' + t]) & set(population)) - {t} for t in population}
+    # T-1191: edges are read lazily, only for tools the closure has reached. The walk never
+    # asks for a dead tool's edges, so reading them all was wasted work with no effect on
+    # the answer.
+    edges = {}
+    def edges_of(t):
+        if t not in edges:
+            edges[t] = (read_refs(['tools/' + t]) & set(population)) - {t}
+        return edges[t]
     live = set(roots)
     frontier = set(roots)
     while frontier:
         nxt = set()
         for t in frontier:
-            nxt |= edges.get(t, set())
+            nxt |= edges_of(t)
         nxt -= live
         live |= nxt
         frontier = nxt
@@ -588,4 +667,6 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    _rc = main()
+    save_cache()
+    sys.exit(_rc)

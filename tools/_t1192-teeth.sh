@@ -5,7 +5,7 @@
 #   3. --commit commits only the SYNCED one, removes only the SUPERSEDED file, leaves DIFFERS and KEEP alone
 #   4. --commit without --task is refused (exit 2) and changes nothing
 # Exit 0 = all legs pass, 1 = a leg failed.
-TOOL="$(cd "$(dirname "$0")" && pwd)/_t1192-upgrade-templates.sh"
+TOOL="$(cd "$(dirname "$0")/.." && pwd)/tools/_t1192-upgrade-templates.sh"
 T=$(mktemp -d) || exit 2
 trap 'rm -rf "$T"' EXIT
 fail=0

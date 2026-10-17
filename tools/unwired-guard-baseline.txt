@@ -222,7 +222,6 @@ t404-gate-e2e.sh
 
 # MANUAL BY DESIGN (28): intake/delivery helpers, one-off censuses, browser-session visual verifiers.
 _procasfit-orchestrate.sh
-_t1000-install-hook.sh
 _t1006-lesson-evidence.sh
 _t440-drive-empty.sh
 _t440-zero-population-census.py
