@@ -9,13 +9,13 @@ description: >
   the latest scores. T-854 references the observation but does not fix it. Original
   observation text is in .context/inbox.yaml under OBS-391.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [observations]
-components: []
+components: [tools/_t856-auto-approval-teeth.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:21:01Z
-last_update: 2026-10-17T23:40:23Z
-date_finished:
+last_update: 2026-10-17T23:42:26Z
+date_finished: 2026-10-17T23:42:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -133,8 +133,8 @@ reads as "right first time" when it was right the second time.
 
 ## Verification
 
-bash tools/_t856-auto-approval-teeth.sh | grep -q 'PASS 15 / FAIL 0'
-bash tools/_t856-auto-approval-teeth.sh | grep -q 'PASS  telemetry_row_keeps_proposal_history'
+# grep -c, not -q: -q exits at the first match and SIGPIPEs the suite mid-run (signal 13, L-387)
+bash tools/_t856-auto-approval-teeth.sh | grep -c -e 'PASS 15 / FAIL 0' -e 'PASS  telemetry_row_keeps_proposal_history' | grep -qx 2
 python3 tools/_t517-vendor-divergence.py
 grep -q 'T-1156 (OBS-391) EXTENDS the row' .agentic-framework/.vendor-divergence.yaml
 bash tools/_t865-sticky-scoring-teeth.sh | grep -q 'PASS 7 / FAIL 0'
@@ -368,3 +368,27 @@ bash tools/_t865-sticky-scoring-teeth.sh | grep -q 'PASS 7 / FAIL 0'
 ### 2026-10-17T23:40:23Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9ce09d59
+- **Timestamp:** 2026-10-17T23:42:30Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 3
+
+**Per-AC findings:**
+
+- **AC#4 (Agent)** — The divergence register entry for `lib/bvp.sh` names the change, and `tools/_t517-vendor-divergence.py` reports OK
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=lib/bvp.sh in: The divergence register entry for `lib/bvp.sh` names the change, and `tools/_t517-vendor-divergence.py` reports OK`
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 2
+     - evidence: `bash tools/_t856-auto-approval-teeth.sh | grep -c -e 'PASS 15 / FAIL 0' -e 'PASS  telemetry_row_keeps_proposal_history' | grep -qx 2`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 5
+     - evidence: `bash tools/_t865-sticky-scoring-teeth.sh | grep -q 'PASS 7 / FAIL 0'`
+
+### 2026-10-17T23:42:26Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

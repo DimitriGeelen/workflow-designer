@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1156: Auto-approval telemetry row (T-856) should record the full bvp_scores_proposed history (estimator, rationale, rubric_sha, ts) before confirm clears it
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T23:42:38Z
+# ============================================================================
+
+task_id: T-1156
+task_name: "Auto-approval telemetry row (T-856) should record the full bvp_scores_proposed history (estimator, rationale, rubric_sha, ts) before confirm clears it"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T16:21:01Z
+completed: 2026-10-17T23:42:26Z
+duration_days: 4
+updates_count: 2
+first_commit: 2026-10-18T01:41:58+02:00
+last_commit: 2026-10-18T01:41:58+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the auto-approval telemetry row keeps the whole proposal trail confirm clears (proposal_count, proposal_history with estimator/rationale/rubric_sha/ts) and proposer_exact_first (OBS-391); T-856 teeth 15/15 with a disagreeing two-proposal fixture; divergence register updated, _t517 OK
+
+# Key outcomes
+outcomes:
+  - 'The row carries `proposal_count` and `proposal_history` (every entry''s ts, estimator, scores, rationale, rubric_sha), captured before the clear; YAML timestamps are serialised, so the row is never lost to a JSON error'
+  - 'The row carries `proposer_exact_first` (the FIRST proposal matched what was confirmed); `proposer_exact` keeps its meaning (latest)'
+  - '`tools/_t856-auto-approval-teeth.sh` covers it with a two-proposal fixture that disagrees (the OBS-391 shape) and still passes in full'
+  - 'The divergence register entry for `lib/bvp.sh` names the change, and `tools/_t517-vendor-divergence.py` reports OK'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the auto-approval telemetry row keeps the whole proposal trail confirm clears (proposal_count, proposal_history with estimator/rationale/rubric_sha/ts) and proposer_exact_first (OBS-391); T-856 teeth 15/15 with a disagreeing two-proposal fixture; divergence register updated, _t517 OK'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.tasks/active/T-1156-auto-approval-telemetry-row-t-856-should.md'
+  - 'tools/_t856-auto-approval-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-18T01:41:58'
+    action: 'T-1156: the auto-approval telemetry row keeps the whole proposal trail confirm clears (proposal_count, proposal_history with estimator/rationale/rubric_sha/ts) and proposer_exact_first (OBS-391); T-856 teeth 15/15 with a disagreeing two-proposal fixture; divergence register updated, _t517 OK'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6201 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [observations]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 6201
+  commits: 1
+  files_changed: 4
+  lines_added: 111
+  lines_removed: 9
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1156-auto-approval-telemetry-row-t-856-should.md
+generated_by: context-agent-hybrid
