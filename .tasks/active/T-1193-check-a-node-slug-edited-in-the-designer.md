@@ -1,13 +1,19 @@
 ---
 id: T-1193
-name: "Check: a node slug edited in the designer may be lost on save/reload (slugManual not exported)"
+name: "Check: a node slug edited in the designer may be lost on save/reload (slugManual
+  not exported)"
 description: >
-  Seen while answering AEF (T-1189): the properties panel lets you edit a node's slug (slugManual), but the BPMN export writes no slug and the importer re-derives every slug from the name, so the edit may vanish after save and reload. Reproduce in the designer before calling it a bug; if confirmed, persist it (aef extension) or remove the field.
+  Seen while answering AEF (T-1189): the properties panel lets you edit a node's slug
+  (slugManual), but the BPMN export writes no slug and the importer re-derives every
+  slug from the name, so the edit may vanish after save and reload. Reproduce in the
+  designer before calling it a bug; if confirmed, persist it (aef extension) or remove
+  the field.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-17T14:41:29Z
-last_update: 2026-10-17T14:41:29Z
-date_finished: null
+last_update: 2026-10-17T18:39:14Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,55 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-17T18:39:14Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1193: Check: a node slug edited in the designer may be lost on save/reload (slugManual not exported)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+CONFIRMED 2026-10-17 (scratch t1193-repro.mjs, task-lifecycle, headless chromium): node "Write real acceptance criteria",
+id `agt_1_write`; Slug field set to `myslug` -> id `agt_1_myslug`, and the export carries `id="agt_1_myslug"`. Reloading
+that exported file gives `agt_1_write` again (slug re-derived from the name, slugManual false). So the edit is lost on
+reload AND the next save changes the id in the file without the user doing anything. Cause: the Slug field sets
+n.slug/n.slugManual in memory only; the export writes no slug; the importer re-derives every slug from the name.
+
+Options (operator decides; each changes what users can do or what files contain):
+1. Persist a manual slug: write it to the node's aef metadata (e.g. `aef:meta slug="…"`) only when set by hand, and
+   honour it on import. Files without manual slugs stay byte-identical. It adds an aef key, which is a vocabulary
+   change AEF has to know about (their pin notes track the aef key set).
+2. Remove the field (or show the slug read-only, "derived from the name"): users rename the node to change its id.
+   No file change; the 832 corpus has no manual slug to lose.
+3. Re-derive the slug from the imported id when it differs from the name-derived one. Rejected: it would treat every
+   hand-written or older-rule id (AEF's 47 maps) as a manual slug and break the migration just delivered.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Reproduced (or refuted) in a real browser: edit a node's slug in the properties panel, save (export), reload the exported file; record whether the id keeps the edited slug, with the exact ids before and after — confirmed: agt_1_write -> agt_1_myslug (exported) -> agt_1_write after reload
+- [x] If confirmed: the options (persist the slug in the BPMN, or remove/relabel the field) written up with their consequences for saved files and ids, and the choice put to the operator before any change to the export — see Context; put to the operator 2026-10-17
+- [ ] If refuted: the mechanism that keeps it written down here, and a test that pins it
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -338,3 +379,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1193-check-a-node-slug-edited-in-the-designer.md
 - **Context:** Initial task creation
+
+### 2026-10-17T18:39:14Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
