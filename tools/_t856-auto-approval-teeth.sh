@@ -57,6 +57,11 @@ created: 2026-09-25T00:00:00Z
 last_update: 2026-09-25T00:00:00Z
 date_finished: null
 bvp_scores_proposed:
+  - ts: 2026-09-24T12:33:00Z
+    estimator: bvp-estimator-v1-heuristic
+    scores: {D1: 3, D2: 2, D3: 0}
+    rationale: 'D1=3 (body:first-pass); D3=0 (no-signal)'
+    rubric_sha: aaaa00000001
   - at: 2026-09-25T00:00:00Z
     scores: {D1: 3, D2: 2, D3: 1, D4: 1}
 ---
@@ -109,6 +114,23 @@ assert r['proposer_exact'] is True, r.get('proposer_exact')
 assert r['switch'].startswith('T-3487'), r.get('switch')
 " 2>/dev/null; then ok telemetry_row_carries_proposal_and_delta
 else bad telemetry_row_carries_proposal_and_delta "row shape wrong: $(printf '%s' "$last" | head -c 200)"; fi
+
+# T-1156 (OBS-391): the row keeps the WHOLE proposal trail confirm is about to clear, and says
+# whether the first proposal was already right. The fixture's two proposals disagree (D3 0 -> 1,
+# D4 added), the OBS-391 shape: latest exact, first not.
+if printf '%s' "$last" | python3 -c "
+import json,sys
+r=json.load(sys.stdin)
+h=r['proposal_history']
+assert r['proposal_count']==2 and len(h)==2, (r.get('proposal_count'), h)
+assert h[0]['estimator']=='bvp-estimator-v1-heuristic' and h[0]['rubric_sha']=='aaaa00000001', h[0]
+assert h[0]['rationale'].startswith('D1=3'), h[0]
+assert h[0]['scores']=={'D1':3,'D2':2,'D3':0}, h[0]
+assert '2026-09-24' in h[0]['ts'] and '2026-09-25' in h[1]['ts'], (h[0]['ts'], h[1]['ts'])
+assert h[1]['scores']=={'D1':3,'D2':2,'D3':1,'D4':1}, h[1]
+assert r['proposer_exact'] is True and r['proposer_exact_first'] is False, (r['proposer_exact'], r['proposer_exact_first'])
+" 2>/dev/null; then ok telemetry_row_keeps_proposal_history
+else bad telemetry_row_keeps_proposal_history "history wrong: $(printf '%s' "$last" | head -c 300)"; fi
 
 # ── CONTROL: the switch OFF still refuses ─────────────────────────────────────
 write_fixture

@@ -346,6 +346,10 @@ entries:
       had been silently dark since the upgrade (34 rows, last 2026-09-29). Probe
       tools/_t856-auto-approval-teeth.sh retargeted, 14/14 (5 red on upstream). Upstream
       candidate: the telemetry row.
+      T-1156 (OBS-391) EXTENDS the row: proposal_count, proposal_history (every proposal's ts,
+      estimator, scores, rationale, rubric_sha, captured before confirm clears the list; non-JSON
+      YAML values stringified) and proposer_exact_first. Probe 15/15 with a two-proposal fixture
+      that disagrees.
   - path: .agentic-framework/web/app.py
     kind: content
     task: T-544

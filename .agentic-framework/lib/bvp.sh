@@ -1174,6 +1174,31 @@ def cmd_confirm(args):
             _src = _latest.get('scores') if 'scores' in _latest else _latest
             _proposed_scores = {k: v for k, v in (_src or {}).items()
                                 if isinstance(v, (int, float)) and not isinstance(v, bool)}
+    # T-1156 (OBS-391): keep EVERY proposal, not just the latest -- confirm clears the list below, and
+    # with it the estimator's reasoning. Two proposals that disagree are the signal: "exact" against
+    # the latest alone reads as right-first-time when it was right the second time. Values are
+    # stringified where YAML gave a non-JSON type (timestamps), so the row is never lost to a dump error.
+    def _jsonable(v):
+        if isinstance(v, dict):
+            return {str(k): _jsonable(x) for k, x in v.items()}
+        if isinstance(v, (list, tuple)):
+            return [_jsonable(x) for x in v]
+        if v is None or isinstance(v, (bool, int, float, str)):
+            return v
+        return str(v)
+    _history = []
+    for _entry in (proposed if isinstance(proposed, list) else ([proposed] if proposed else [])):
+        if not isinstance(_entry, dict):
+            continue
+        _scores = _entry.get('scores') if 'scores' in _entry else {
+            k: v for k, v in _entry.items() if isinstance(v, (int, float)) and not isinstance(v, bool)}
+        _history.append(_jsonable({
+            'ts': _entry.get('ts', _entry.get('at')),
+            'estimator': _entry.get('estimator'),
+            'scores': _scores or {},
+            'rationale': _entry.get('rationale'),
+            'rubric_sha': _entry.get('rubric_sha'),
+        }))
 
     fm['bvp_scores'] = confirmed
     fm['bvp_scores_proposed'] = []  # M3 — cleared; estimator may re-populate next sweep.
@@ -1221,6 +1246,12 @@ def cmd_confirm(args):
             'overrides': overrides or {},
             'delta_vs_proposed': _delta,
             'proposer_exact': bool(_proposed_scores) and not _delta and not overrides,
+            # T-1156: the whole proposal trail, and whether the FIRST proposal was already right.
+            'proposal_count': len(_history),
+            'proposal_history': _history,
+            'proposer_exact_first': bool(_history) and not overrides
+                                    and {k: int(v) for k, v in (_history[0].get('scores') or {}).items()
+                                         if isinstance(v, (int, float)) and not isinstance(v, bool)} == confirmed,
             'os_user': os.environ.get('USER', 'unknown'),
         })
 

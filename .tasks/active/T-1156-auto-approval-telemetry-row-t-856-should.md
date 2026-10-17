@@ -1,13 +1,19 @@
 ---
 id: T-1156
-name: "Auto-approval telemetry row (T-856) should record the full bvp_scores_proposed history (estimator, rationale, rubric_sha, ts) before confirm clears it"
+name: "Auto-approval telemetry row (T-856) should record the full bvp_scores_proposed
+  history (estimator, rationale, rubric_sha, ts) before confirm clears it"
 description: >
-  Promoted from OBS-391 by T-1149 (observation triage, 2026-10-13). Still true. tools/_t856-auto-approval-teeth.sh is the only T-856 artifact, and grep for `proposal_count` / `bvp_scores_history` across tools and .context/project finds nothing. The telemetry row still keeps only the latest scores. T-854 references the observation but does not fix it. Original observation text is in .context/inbox.yaml under OBS-391.
+  Promoted from OBS-391 by T-1149 (observation triage, 2026-10-13). Still true. tools/_t856-auto-approval-teeth.sh
+  is the only T-856 artifact, and grep for `proposal_count` / `bvp_scores_history`
+  across tools and .context/project finds nothing. The telemetry row still keeps only
+  the latest scores. T-854 references the observation but does not fix it. Original
+  observation text is in .context/inbox.yaml under OBS-391.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: later
+horizon: now
 tags: [observations]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:21:01Z
-last_update: 2026-10-13T16:21:01Z
-date_finished: null
+last_update: 2026-10-17T23:40:23Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,49 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-17T23:40:23Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=3 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L3:keyword=promote)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1156: Auto-approval telemetry row (T-856) should record the full bvp_scores_proposed history (estimator, rationale, rubric_sha, ts) before confirm clears it
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+OBS-391: `fw bvp confirm` clears `bvp_scores_proposed:`, and the T-856 telemetry row (832's re-applied divergence in
+vendored `lib/bvp.sh`, register entry T-1005) keeps only the LATEST scores. The estimator's reasoning (per-proposal
+estimator id, rationale, rubric_sha, timestamp) is lost, and when two proposals disagreed, `proposer_exact: true`
+reads as "right first time" when it was right the second time.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The row carries `proposal_count` and `proposal_history` (every entry's ts, estimator, scores, rationale, rubric_sha), captured before the clear; YAML timestamps are serialised, so the row is never lost to a JSON error
+- [x] The row carries `proposer_exact_first` (the FIRST proposal matched what was confirmed); `proposer_exact` keeps its meaning (latest)
+- [x] `tools/_t856-auto-approval-teeth.sh` covers it with a two-proposal fixture that disagrees (the OBS-391 shape) and still passes in full
+  — 15/15 (was 14/14); the new case asserts both entries' ts (YAML datetimes, stringified), the first entry's estimator,
+  rationale and rubric_sha, and proposer_exact true with proposer_exact_first false. The other confirm probes still
+  pass: _t865 7/7, _t866 10/10, _t867 10/10. The real ledger is untouched (FW_BVP_TELEMETRY_PATH redirect).
+- [x] The divergence register entry for `lib/bvp.sh` names the change, and `tools/_t517-vendor-divergence.py` reports OK
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +132,12 @@ date_finished: null
 -->
 
 ## Verification
+
+bash tools/_t856-auto-approval-teeth.sh | grep -q 'PASS 15 / FAIL 0'
+bash tools/_t856-auto-approval-teeth.sh | grep -q 'PASS  telemetry_row_keeps_proposal_history'
+python3 tools/_t517-vendor-divergence.py
+grep -q 'T-1156 (OBS-391) EXTENDS the row' .agentic-framework/.vendor-divergence.yaml
+bash tools/_t865-sticky-scoring-teeth.sh | grep -q 'PASS 7 / FAIL 0'
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -323,3 +364,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1156-auto-approval-telemetry-row-t-856-should.md
 - **Context:** Initial task creation
+
+### 2026-10-17T23:40:23Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
