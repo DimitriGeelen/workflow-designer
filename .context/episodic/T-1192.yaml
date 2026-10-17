@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1192: Upgrade jobs commit the task templates fw upgrade syncs (left uncommitted twice: T-1138, T-1188)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T14:25:51Z
+# ============================================================================
+
+task_id: T-1192
+task_name: "Upgrade jobs commit the task templates fw upgrade syncs (left uncommitted twice: T-1138, T-1188)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-17T14:21:28Z
+completed: 2026-10-17T14:25:36Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-17T16:25:35+02:00
+last_commit: 2026-10-17T16:25:35+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  tools/_t1192-upgrade-templates.sh settles the task templates an upgrade syncs (SYNCED committed, SUPERSEDED .upstream removed, DIFFERS/KEEP named); teeth 4/4 on scratch repos; CLAUDE.md upgrade rule runs it in every upgrade job
+
+# Key outcomes
+outcomes:
+  - 'A reusable check (`tools/_t1192-upgrade-templates.sh`) lists, after an upgrade: each `.tasks/templates/*.md` that is modified and identical to the vendored copy (safe to commit), each that differs from it (report), and each `*.upstream` with the count of lines our template lacks'
+  - 'With `--commit` it commits only the identical ones and removes only `.upstream` files with 0 missing lines; anything else is left and named'
+  - 'Teeth: tested on a scratch git repo with all three cases, plus a no-change control'
+  - 'The next upgrade job runs it as a step (noted in the re-vendor protocol / job template) — upgrade jobs are copied by hand, so the rule went into CLAUDE.md beside the upgrade-backups rule, where every upgrade is checked'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'CLAUDE.md'
+  - '.fabric/components/tools-_t1192-teeth.yaml'
+  - '.fabric/components/tools-_t1192-upgrade-templates.yaml'
+  - '.tasks/active/T-1192-upgrade-jobs-commit-the-task-templates-f.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1192-teeth.sh'
+  - 'tools/_t1192-upgrade-templates.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-17T16:25:35'
+    action: 'T-1192: tools/_t1192-upgrade-templates.sh settles the task templates an upgrade syncs (SYNCED committed, SUPERSEDED .upstream removed, DIFFERS/KEEP named); teeth 4/4 on scratch repos; CLAUDE.md upgrade rule runs it in every upgrade job'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 7
+  lines_added: 542
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1192-upgrade-jobs-commit-the-task-templates-f.md
+generated_by: context-agent-hybrid
