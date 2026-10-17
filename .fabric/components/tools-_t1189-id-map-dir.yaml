@@ -1,0 +1,21 @@
+id: tools/_t1189-id-map-dir.sh
+name: _t1189-id-map-dir
+type: script
+subsystem: instruments
+location: tools/_t1189-id-map-dir.sh
+tags: []
+
+purpose: "_t1189-id-map-dir.sh — T-1189: tools/_t1168-node-id-map.mjs --dir/--designer reproduce the T-1168 migration on a directory that is not 832's corpus, so the same tool can renumber another project's maps (AEF T-4224)."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-17
+created_by: unknown

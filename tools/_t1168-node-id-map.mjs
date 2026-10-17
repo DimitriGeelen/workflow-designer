@@ -11,8 +11,11 @@
 // file, and no old id that was renamed survives in it. `pureRename` additionally reports byte equality with the
 // export, for information.
 //
-//   node tools/_t1168-node-id-map.mjs <out.json> [--write]
+//   node tools/_t1168-node-id-map.mjs <out.json> [--write] [--dir <path>] [--designer <file>]
 //   node tools/_t1168-node-id-map.mjs --check
+// --dir maps every .bpmn under <path> (recursive; keys are paths relative to it) instead of 832's corpus, and
+//   --write then renames there. --designer loads that designer HTML (e.g. a released artefact) instead of src/.
+//   Both exist so another project's maps can be migrated the same way (AEF T-4224, 832 T-1189).
 // --write rewrites each changed map in place with the id substitution, only when its ids are consistent.
 // --check (standing guard, wired in run-bridge-tests.sh): after the migration the committed corpus must carry
 //   exactly the ids the designer exports; any map with a renamed id is red (the corpus drifted from the
@@ -21,7 +24,7 @@
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
-import { join, dirname } from 'node:path';
+import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import net from 'node:net';
 import { pageWsUrl } from './_cdp-attach.mjs';
@@ -29,11 +32,25 @@ import { pageWsUrl } from './_cdp-attach.mjs';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
 const SERVER = join(HERE, 'gallery-serve.py');
-const RENDERED = join(REPO, 'examples/aef-processes/rendered');
+const argVal = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
+const DIR = argVal('--dir');
+const DESIGNER = resolve(argVal('--designer') || join(REPO, 'src/aef-workflow-designer.html'));
+const RENDERED = DIR ? resolve(DIR) : join(REPO, 'examples/aef-processes/rendered');
 const CHECK = process.argv.includes('--check');
-const OUT = CHECK ? null : process.argv[2];
+const OUT = CHECK || !process.argv[2] || process.argv[2].startsWith('--') ? null : process.argv[2];
 const WRITE = process.argv.includes('--write');
-if (!OUT && !CHECK) { console.error('usage: _t1168-node-id-map.mjs <out.json> [--write] | --check'); process.exit(2); }
+if (!OUT && !CHECK) { console.error('usage: _t1168-node-id-map.mjs <out.json> [--write] [--dir <path>] [--designer <file>] | --check'); process.exit(2); }
+if ((DIR && !existsSync(RENDERED)) || !existsSync(DESIGNER)) { console.error(`not found: ${!existsSync(DESIGNER) ? DESIGNER : RENDERED}`); process.exit(2); }
+// 832's corpus is flat; a --dir tree is walked, so a key is a relative path such as projects/x/map.bpmn.
+function bpmnFiles(dir, rel = '') {
+  const out = [];
+  for (const e of readdirSync(join(dir, rel), { withFileTypes: true })) {
+    const r = rel ? rel + '/' + e.name : e.name;
+    if (e.isDirectory() && DIR) out.push(...bpmnFiles(dir, r));
+    else if (e.isFile() && e.name.endsWith('.bpmn')) out.push(r);
+  }
+  return out.sort();
+}
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
@@ -73,12 +90,11 @@ function substitute(xml, map) {
 }
 
 async function main() {
-  const files = readdirSync(RENDERED).filter(f => f.endsWith('.bpmn')).sort();
+  const files = bpmnFiles(RENDERED);
   const doc = mkdtempSync(join(tmpdir(), 't1168m-doc-'));
   const repo = mkdtempSync(join(tmpdir(), 't1168m-repo-'));
-  copyFileSync(join(REPO, 'src/aef-workflow-designer.html'), join(doc, 'designer.html'));
-  mkdirSync(join(doc, 'rendered'), { recursive: true });
-  for (const f of files) copyFileSync(join(RENDERED, f), join(doc, 'rendered', f));
+  copyFileSync(DESIGNER, join(doc, 'designer.html'));
+  for (const f of files) { mkdirSync(dirname(join(doc, 'rendered', f)), { recursive: true }); copyFileSync(join(RENDERED, f), join(doc, 'rendered', f)); }
   const port = await freePort();
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
   const BASE = `http://127.0.0.1:${port}`;
@@ -103,8 +119,8 @@ async function main() {
         pureRename: pure, unpaired: r.unpaired, missing, survivors, map: r.map };
       if (!consistent) result.notPure.push(f);
       if (process.env.T1168_DUMP_DIR) {
-        writeFileSync(join(process.env.T1168_DUMP_DIR, f + '.renamed'), renamed);
-        writeFileSync(join(process.env.T1168_DUMP_DIR, f + '.exported'), r.exported);
+        writeFileSync(join(process.env.T1168_DUMP_DIR, f.replaceAll('/', '__') + '.renamed'), renamed);
+        writeFileSync(join(process.env.T1168_DUMP_DIR, f.replaceAll('/', '__') + '.exported'), r.exported);
       }
       if (WRITE && consistent && Object.keys(r.map).length) writeFileSync(join(RENDERED, f), renamed);
     }
@@ -115,7 +131,8 @@ async function main() {
       console.log(drifted.length ? `FAIL: ${drifted.length} corpus map(s) carry ids the designer no longer exports: ${drifted.join('; ')}`
                                  : `PASS: all ${files.length} corpus maps carry exactly the node ids the designer exports`);
       // Task records hold task-lifecycle positions (current_node, T-880/T-923): every one must name a node
-      // task-lifecycle.bpmn still has, or the migration missed a record.
+      // task-lifecycle.bpmn still has, or the migration missed a record. 832's own records only: not with --dir.
+      if (DIR) { process.exitCode = drifted.length || result.notPure.length ? 1 : 0; return; }
       const tl = readFileSync(join(RENDERED, 'task-lifecycle.bpmn'), 'utf8');
       const tlIds = new Set([...tl.matchAll(/ id="([^"]+)"/g)].map(m => m[1]));
       const dangling = [];
