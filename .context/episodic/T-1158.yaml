@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1158: Give the node-level and workflowMeta-level round-trip self-tests per-verdict witness lists (selftest.blind and wmTest.blind in _roundtrip-serialization-cdp.mjs)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T23:37:25Z
+# ============================================================================
+
+task_id: T-1158
+task_name: "Give the node-level and workflowMeta-level round-trip self-tests per-verdict witness lists (selftest.blind and wmTest.blind in _roundtrip-serialization-cdp.mjs)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T16:21:06Z
+completed: 2026-10-17T23:36:59Z
+duration_days: 4
+updates_count: 2
+first_commit: 2026-10-18T01:36:58+02:00
+last_commit: 2026-10-18T01:36:58+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  node and workflowMeta self-tests keep witnesses per verdict (blind_in with value_before/after, also_live_in), as the lane level does; teeth with one-fixture mutants reproduce OBS-418 on the old guard and pass on the new; wired
+
+# Key outcomes
+outcomes:
+  - 'Node level: `selftest.blind[]` entries carry `blind_in` (fixture + value_before/value_after) and `also_live_in`, from per-verdict lists; the pooled `witnesses` is gone'
+  - 'workflowMeta level: `wm_selftest.blind[]` the same'
+  - 'Proven by a mutant whose projection ignores one key: the BLIND names only fixtures that carry that key, none where it was not exercised, at both levels'
+  - 'The unmutated guard''s verdict is unchanged (same pass and summary lines as before the change)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'node and workflowMeta self-tests keep witnesses per verdict (blind_in with value_before/after, also_live_in), as the lane level does; teeth with one-fixture mutants reproduce OBS-418 on the old guard and pass on the new; wired'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1158-give-the-node-level-and-workflowmeta-lev.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_roundtrip-serialization-cdp.mjs'
+  - 'tools/_t1158-witness-per-verdict-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-18T01:36:58'
+    action: 'T-1158: node and workflowMeta self-tests keep witnesses per verdict (blind_in with value_before/after, also_live_in), as the lane level does; teeth with one-fixture mutants reproduce OBS-418 on the old guard and pass on the new; wired'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6195 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [observations]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 6195
+  commits: 1
+  files_changed: 4
+  lines_added: 191
+  lines_removed: 31
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1158-give-the-node-level-and-workflowmeta-lev.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,21 @@
+id: tools/_t1158-witness-per-verdict-teeth.sh
+name: _t1158-witness-per-verdict-teeth
+type: script
+subsystem: instruments
+location: tools/_t1158-witness-per-verdict-teeth.sh
+tags: []
+
+purpose: "T-1158 (OBS-418) — teeth for per-verdict witness lists in the round-trip guard's node-level and workflowMeta-level self-tests (tools/_roundtrip-serialization-cdp.mjs)."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-17
+created_by: unknown
