@@ -8,13 +8,13 @@ description: >
   by the agent, announcement to AEF with version/tag/sha256/bytes and the 0.21.0 id
   table for their 47 maps.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-17T17:14:11Z
-last_update: 2026-10-17T17:14:20Z
-date_finished:
+last_update: 2026-10-17T18:42:21Z
+date_finished: 2026-10-17T18:42:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -91,8 +91,8 @@ bvp_scores_proposed:
 - [x] VERSION and APP_VERSION read 0.21.0 (T-808 parity green); release notes docs/releases/RELEASE-NOTES-0.21.0.md committed
 - [x] One operator job, rehearsed: calibrate the 0.21.0 kit with codex and GLM-5.3 (gate PASS on its exact bytes), then cut, commit, tag designer-v0.21.0, push — job 037, 7/7, rc 0 (2026-10-17 17:50Z): codex PASS 3/3, GLM-5.3 PASS 3/3, release commit ddc6f47e, tag designer-v0.21.0 pushed; artefact sha256 da161971…, 1164928 B
 - [x] After the tag: our Watchtower serves 0.21.0 (pin from the tag via `fw designer sync --from-tag`, /designer/app sha matches, divergence register OK) — d2f2e547: anchors match, /designer/app serves da161971, APP_VERSION 0.21.0, _t517 OK
-- [ ] AEF told version, tag, sha256, bytes and what changes; the uid-paired table for their 47 maps re-run against the released 0.21.0 artefact and delivered when they name a listening session
-- [ ] `tools/_t1187-aef-pin-lag.sh` followed until it reads CURRENT for 0.21.0 (stays open until then)
+- [x] AEF told version, tag, sha256, bytes and what changes; the uid-paired table for their 47 maps re-run against the released 0.21.0 artefact and delivered when they name a listening session — announced 2026-10-17; patch, md and JSON sent by TermLink to tl-yd7b7ylr, all three sha256-verified by AEF and applied at their 0be892d87 (msg 7f48f09b)
+- [x] `tools/_t1187-aef-pin-lag.sh` followed until it reads CURRENT for 0.21.0 (stays open until then) — CURRENT 2026-10-17
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -141,6 +141,11 @@ bvp_scores_proposed:
 -->
 
 ## Verification
+
+git rev-parse -q --verify refs/tags/designer-v0.21.0
+bash tools/_t808-version-parity.sh > /tmp/.t1195p 2>&1
+bash tools/_t1187-aef-pin-lag.sh > /tmp/.t1195 2>&1 && grep -q '^CURRENT' /tmp/.t1195
+python3 tools/kit-calibration-gate.py check --version 0.21.0 > /tmp/.t1195k 2>&1
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -370,3 +375,20 @@ bvp_scores_proposed:
 
 ### 2026-10-17T17:14:20Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-c5c08d98
+- **Timestamp:** 2026-10-17T18:42:25Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-17T18:42:21Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
