@@ -74,6 +74,10 @@ After every framework upgrade, diff each `*.bak` it left (`CLAUDE.md.bak`, `.cla
 against the live file. If every backup-only line is superseded by the live file, delete the backup and
 summarise the diff in the upgrade task. If any line would be lost, report it to the operator and keep
 the backup. Never delete a backup unread.
+The same holds for the task templates an upgrade syncs (left uncommitted, or written beside ours as `<name>.upstream`;
+missed twice, T-1138 and T-1188): every upgrade job ends with `bash tools/_t1192-upgrade-templates.sh --commit --task T-XXXX`,
+which commits only templates identical to the vendored copy, removes only `.upstream` files ours fully contains, and
+names the rest for a person (exit 1).
 
 ### UI changes are reviewed on screenshots, by you AND an independent review agent (operator, 2026-10-14)
 
@@ -621,7 +625,7 @@ When using Claude Code's Task tool to dispatch sub-agents (Explore, Plan, Code, 
 | Factor | Rule |
 |--------|------|
 | Max parallel agents | **5** |
-| Token headroom | Leave **40K tokens** free for result ingestion before dispatching |
+| Token headroom | Keep the **spawn reserve** free before dispatching: `min(50K, max(20K, 20K + 5% × (CONTEXT_WINDOW − 200K)))` — 20K at 200K, 35K at 500K, 50K at 800K+ (covers result ingestion) |
 | When parallel | Tasks are independent, no shared files, no sequential dependency |
 | When sequential | Tasks depend on prior results, or editing same files |
 | Background agents | Use `run_in_background: true` for agents >2K tokens expected output |

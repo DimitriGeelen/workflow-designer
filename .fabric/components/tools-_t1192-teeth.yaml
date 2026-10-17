@@ -1,0 +1,21 @@
+id: tools/_t1192-teeth.sh
+name: _t1192-teeth
+type: script
+subsystem: instruments
+location: tools/_t1192-teeth.sh
+tags: []
+
+purpose: "_t1192-teeth.sh — T-1192: tools/_t1192-upgrade-templates.sh on scratch git repos. 1. control: nothing changed -> exit 0, \"nothing to settle\" 2. all four cases -> SYNCED / DIFFERS / SUPERSEDED / KEEP each named, exit 1 3."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-17
+created_by: unknown

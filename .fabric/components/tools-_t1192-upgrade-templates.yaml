@@ -1,0 +1,21 @@
+id: tools/_t1192-upgrade-templates.sh
+name: _t1192-upgrade-templates
+type: script
+subsystem: instruments
+location: tools/_t1192-upgrade-templates.sh
+tags: []
+
+purpose: "_t1192-upgrade-templates.sh — T-1192: after a framework upgrade, settle the task templates it synced."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-17
+created_by: unknown
