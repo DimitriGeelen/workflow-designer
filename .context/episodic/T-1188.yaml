@@ -1,0 +1,150 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1188: Upgrade AEF 495901b5d -> 956f05f36 (T-4219 lint, T-4223 /gaps) and field-check both
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T13:52:34Z
+# ============================================================================
+
+task_id: T-1188
+task_name: "Upgrade AEF 495901b5d -> 956f05f36 (T-4219 lint, T-4223 /gaps) and field-check both"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-17T12:57:09Z
+completed: 2026-10-17T13:50:56Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-17T15:00:41+02:00
+last_commit: 2026-10-17T15:29:34+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  operator job 034 — upgrade AEF 495901b5d -> 956f05f36 (T-4219, T-4223), no Watchtower restart until fixes are re-applied; pre-upgrade baseline: /gaps 10-11 s, fw test lint rc=1. pristine vendor commit — AEF bleeding-edge 956f05f36 as fw upgrade wrote it (T-4219 consumer lint, T-4223 /gaps; re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF 956f05f36 commit (re-vendor protocol step 2, T-1000). re-apply 832's 38 local fixes onto pristine AEF 956f05f36 (re-vendor protocol step 3, T-1000). operator job 035 — restart Watchtower on AEF 956f05f36 with the re-applied local fixes; field check: fw test lint now rc=0 (AEF T-4219 works in 832)
+
+# Key outcomes
+outcomes:
+  - 'Operator job 034 upgrades the vendored framework to AEF bleeding-edge 956f05f36 (pristine vendor commit + divergence baseline advanced, re-vendor protocol T-1000); it does NOT restart Watchtower (job 032 restarted before the re-apply and /designer/open 404''d until job 033)'
+  - 'Every declared local fix is re-applied (3-way onto the new pristine) and `tools/_t517-vendor-divergence.py` reports no STALE local'
+  - 'Field check of AEF T-4219: `.agentic-framework/bin/fw test lint` exits 0 in 832'
+  - 'Field check of AEF T-4223: /gaps timed on 832''s real register before (495901b5d: ~9.3 s after our T-1186) and after the upgrade; result reported to AEF on conversation 832-gaps-page-slow'
+  - 'Watchtower restarted on the re-applied code by a second operator job; /designer/open answers 200'
+  - 'Instrument sweep green after the upgrade'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'operator job 035 — restart Watchtower on AEF 956f05f36 with the re-applied local fixes; field check: fw test lint now rc=0 (AEF T-4219 works in 832)'
+    source: git-mined
+  - description: 're-apply 832''s 38 local fixes onto pristine AEF 956f05f36 (re-vendor protocol step 3, T-1000)'
+    source: git-mined
+  - description: 'operator job 034 — upgrade AEF 495901b5d -> 956f05f36 (T-4219, T-4223), no Watchtower restart until fixes are re-applied; pre-upgrade baseline: /gaps 10-11 s, fw test lint rc=1'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-17 — Watchtower restart split out of the upgrade job'
+    chose: 'job 034 upgrades only; job 035 restarts Watchtower after the local fixes are re-applied.'
+    rationale: 'job 032 restarted inside the upgrade, before the re-apply, and /designer/open 404''d until job 033.'
+    alternatives_rejected: ['keeping the restart as the last upgrade step (that is the 032 failure).']
+  - decision: '2026-10-17 — Results'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/agents/termlink/termlink.sh'
+  - '.agentic-framework/bin/claude-fw'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/docs/reports/field-test-v1.8.11-results.md'
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/gaps.py'
+  - '.agentic-framework/lib/hook_parity.py'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/paths.sh'
+  - '.agentic-framework/lib/silent-skip-lint.sh'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/templates/claude-project.md'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/discovery.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.context/runme/034-upgrade-aef-956f05f36/dryrun.ok'
+  - '.context/runme/034-upgrade-aef-956f05f36/job.sh'
+  - '.context/runme/035-restart-watchtower-956f05f36/dryrun.ok'
+  - '.context/runme/035-restart-watchtower-956f05f36/job.sh'
+  - '.tasks/active/T-1188-upgrade-aef-495901b5d---956f05f36-t-4219.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-17T15:00:41'
+    action: 'T-1188: operator job 034 — upgrade AEF 495901b5d -> 956f05f36 (T-4219, T-4223), no Watchtower restart until fixes are re-applied; pre-upgrade baseline: /gaps 10-11 s, fw test lint rc=1'
+  - time: '2026-10-17T15:22:26'
+    action: 'T-1188: pristine vendor commit — AEF bleeding-edge 956f05f36 as fw upgrade wrote it (T-4219 consumer lint, T-4223 /gaps; re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-17T15:26:47'
+    action: 'T-1188: advance the divergence baseline to the pristine AEF 956f05f36 commit (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-17T15:27:24'
+    action: 'T-1188: re-apply 832''s 38 local fixes onto pristine AEF 956f05f36 (re-vendor protocol step 3, T-1000)'
+  - time: '2026-10-17T15:29:34'
+    action: 'T-1188: operator job 035 — restart Watchtower on AEF 956f05f36 with the re-applied local fixes; field check: fw test lint now rc=0 (AEF T-4219 works in 832)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 53 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 53
+  commits: 5
+  files_changed: 55
+  lines_added: 4416
+  lines_removed: 3747
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1188-upgrade-aef-495901b5d---956f05f36-t-4219.md
+generated_by: context-agent-hybrid
