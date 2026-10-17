@@ -1,6 +1,6 @@
 # Workflow Designer 0.21.0 — release notes
 
-**Since:** `designer-v0.20.0` (2026-10-16) · **Minor: readable ids for task-named steps, lane names stay in view, the
+**Since:** `designer-v0.20.0` (2026-10-15) · **Minor: readable ids for task-named steps, lane names stay in view, the
 pool encloses its labels.** Asked for by the operator, AEF (option c on their designer re-pin, AEF T-4224) and
 Greenfield (T-172 #3). Includes everything in 0.20.0.
 
