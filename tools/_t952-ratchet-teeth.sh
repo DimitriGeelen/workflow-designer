@@ -21,7 +21,9 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT INT TERM
 
 NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-OLD="$(date -u -d '5 days ago' +%Y-%m-%dT%H:%M:%SZ)"
+OLD="$(date -u -d '10 days ago' +%Y-%m-%dT%H:%M:%SZ)"   # T-1163: past the 7-day limit
+EARLIER="$(date -u -d '2 hours ago' +%Y-%m-%dT%H:%M:%SZ)"
+EARLIEST="$(date -u -d '4 hours ago' +%Y-%m-%dT%H:%M:%SZ)"
 
 mkfix() {  # mkfix <name> <baseline-content> ; rows on stdin
     local r="$TMP/$1"
@@ -49,16 +51,44 @@ else
     sed -n '1,20p' "$TMP/out"; echo; echo "=== $PASS passed, $FAIL failed ==="; exit 1
 fi
 
-# --- leg 1: a RISE fails ------------------------------------------------------
+# --- leg 1: a CONFIRMED rise fails (two consecutive completed runs above the floor, T-1163) ---
 R=$(mkfix rose "32 | control" <<EOF
+$EARLIER	120	34	1	999	abc12345
 $NOW	119	35	1	999	abc12345
 EOF
 )
 rc=$(run "$R")
 if [ "$rc" -ne 0 ] && grep -q 'ROSE' "$TMP/out" && grep -q '+3' "$TMP/out"; then
-    ok "a rise from 32 to 35 fails and names the delta"
+    ok "a rise from 32 to 35, confirmed by the run before (34), fails and names the delta"
 else
-    bad "a rise did not fail (rc=$rc) — the ratchet has no teeth"
+    bad "a confirmed rise did not fail (rc=$rc) — the ratchet has no teeth"
+fi
+
+# --- leg 1b: ONE run above the floor is UNCONFIRMED, not a breach (OBS-459 flake, T-1163) ---
+R=$(mkfix flake "32 | control" <<EOF
+$EARLIER	122	32	1	999	abc12345
+$NOW	121	33	1	999	abc12345
+EOF
+)
+rc=$(run "$R")
+if [ "$rc" -eq 0 ] && grep -q 'UNCONFIRMED RISE' "$TMP/out" && ! grep -q 'ROSE —' "$TMP/out"; then
+    ok "one run at 33 after a run at the floor is reported UNCONFIRMED and does not fail"
+else
+    bad "a single high run was handled as rc=$rc — a one-leg flake must not breach, and must not pass silently"
+fi
+
+# --- leg 1c: a dip between two high runs does not confirm (the two NEWEST must both be above) ---
+R=$(mkfix dip "32 | control" <<EOF
+$EARLIEST	119	35	1	999	abc12345
+$EARLIER	124	30	1	999	abc12345
+$NOW	119	35	1	999	abc12345
+EOF
+)
+rc=$(run "$R")
+if [ "$rc" -eq 0 ] && grep -q 'UNCONFIRMED RISE' "$TMP/out"; then
+    ok "35, 30, 35: the newest pair is not both above the floor, so the rise stays unconfirmed"
+else
+    bad "a dip between two high runs was handled as rc=$rc — only the two newest runs may confirm"
 fi
 
 # --- leg 2: a FALL passes, changes nothing, and says the floor can drop -------
@@ -78,7 +108,8 @@ fi
 # Reading the newest row would report a 20-failure improvement. The last COMPLETED row
 # is the 35 above it, which must fail.
 R=$(mkfix killed "32 | control" <<EOF
-2026-09-30T09:00:00Z	119	35	1	999	abc12345
+$EARLIEST	120	34	1	999	abc12345
+$EARLIER	119	35	1	999	abc12345
 $NOW	64	12	143	118	abc12345
 EOF
 )
@@ -108,8 +139,8 @@ $OLD	122	32	1	999	abc12345
 EOF
 )
 rc=$(run "$R")
-if [ "$rc" -ne 0 ] && grep -qi 'past the 48h limit' "$TMP/out"; then
-    ok "a 5-day-old run fails on staleness — a floor is not held by an untaken measurement"
+if [ "$rc" -ne 0 ] && grep -qi 'past the 7-day limit' "$TMP/out"; then
+    ok "a 10-day-old run fails on staleness — a floor is not held by an untaken measurement"
 else
     bad "stale history passed (rc=$rc) — a dead schedule would read as healthy"
 fi

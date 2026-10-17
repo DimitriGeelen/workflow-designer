@@ -45,8 +45,10 @@ PROJ = Path(os.environ.get("T952_PROJ", Path(__file__).resolve().parent.parent))
 HISTORY = PROJ / "tests/.run-history.tsv"
 BASELINE = PROJ / "tools/_t952-bridge-baseline.txt"
 
-# Nightly schedule -> two consecutive misses is a broken schedule, not a slow week.
-STALE_AFTER = timedelta(hours=48)
+# T-1163: the suite is NOT scheduled — T-917 chose a cheap monitor over a 40-minute browser suite on a timer
+# (.context/cron-registry.yaml, bridge-suite-age-daily). It runs by hand, so a week without a completed run is the
+# signal; the old 48h limit assumed a nightly schedule that never existed and failed every quiet weekend.
+STALE_AFTER = timedelta(days=7)
 
 COMPLETED_RCS = (0, 1)
 
@@ -141,17 +143,28 @@ def main():
 
     if age > STALE_AFTER:
         print(f"FAIL: the newest completed run is {age.days}d {age.seconds // 3600}h old, "
-              f"past the {int(STALE_AFTER.total_seconds() // 3600)}h limit.")
-        print("      The suite is scheduled nightly, so this means the schedule is not")
-        print("      running. A floor cannot be 'held' by a measurement nobody took.")
+              f"past the {STALE_AFTER.days}-day limit.")
+        print("      The suite runs by hand (it is deliberately not scheduled, T-917), so nobody has")
+        print("      run it for a week: run tests/run-bridge-tests.sh. A floor cannot be 'held' by a")
+        print("      measurement nobody took.")
         rc = 1
 
-    if latest["fail"] > floor:
+    # T-1163 (OBS-459): the failure count moves run to run at the same commit (one flaky leg: 33 then 34), so a
+    # single run above the floor is not yet a regression. A rise is CONFIRMED when the two newest completed runs are
+    # both above the floor; one run above it is reported loudly as UNCONFIRMED and the next run settles it.
+    previous = completed[-2] if len(completed) > 1 else None
+    if latest["fail"] > floor and previous is not None and previous["fail"] > floor:
         print(f"FAIL: failures ROSE — {latest['fail']} against a floor of {floor} "
-              f"(+{latest['fail'] - floor}).")
+              f"(+{latest['fail'] - floor}), confirmed by the run before it ({previous['fail']}).")
         print("      Something that used to pass now fails. Fix it, or move the floor")
         print("      deliberately with a reason, which is a commit and not an edit.")
         rc = 1
+    elif latest["fail"] > floor:
+        print(f"WARN: UNCONFIRMED RISE — {latest['fail']} against a floor of {floor} "
+              f"(+{latest['fail'] - floor}) in the newest run only "
+              f"({'the run before held at %d' % previous['fail'] if previous else 'no earlier completed run'}).")
+        print("      One flaky leg moves this count (OBS-459). Run the suite again: a second run above")
+        print("      the floor confirms the rise and fails this ratchet; a run at or under it clears it.")
     elif latest["fail"] < floor:
         print(f"OK — and the floor CAN BE LOWERED: {latest['fail']} < {floor} "
               f"({floor - latest['fail']} fewer).")

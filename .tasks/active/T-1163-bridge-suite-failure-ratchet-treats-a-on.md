@@ -1,13 +1,19 @@
 ---
 id: T-1163
-name: "Bridge-suite failure ratchet treats a one-leg flake as a regression (needs per-leg record or N consecutive rows)"
+name: "Bridge-suite failure ratchet treats a one-leg flake as a regression (needs
+  per-leg record or N consecutive rows)"
 description: >
-  Promoted from OBS-459 by T-1149 (observation triage, 2026-10-13). A real finding with no carrier. T-959 (completed) records the flake (T-959:118-121) but built nothing. The T-952 ratchet still compares a floor against a failure count that varies from run to run, and no task covers per-leg tracking or N consecutive rows. Original observation text is in .context/inbox.yaml under OBS-459.
+  Promoted from OBS-459 by T-1149 (observation triage, 2026-10-13). A real finding
+  with no carrier. T-959 (completed) records the flake (T-959:118-121) but built nothing.
+  The T-952 ratchet still compares a floor against a failure count that varies from
+  run to run, and no task covers per-leg tracking or N consecutive rows. Original
+  observation text is in .context/inbox.yaml under OBS-459.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: later
+horizon: now
 tags: [observations]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:21:18Z
-last_update: 2026-10-13T16:21:18Z
-date_finished: null
+last_update: 2026-10-17T09:02:17Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,45 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-17T08:58:35Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=3 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L3:keyword=promote)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1163: Bridge-suite failure ratchet treats a one-leg flake as a regression (needs per-leg record or N consecutive rows)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+`tools/_t952-bridge-suite-ratchet.py` compares the newest completed bridge-suite run's failure count with a floor
+(`tools/_t952-bridge-baseline.txt`). The count varies run to run (OBS-459: 33 then 34 at the same commit), so a single
+flaky leg reads as a regression. Measured 2026-10-17: the floor is still 32 while recent runs fail 2-4, so the
+ratchet cannot see a real rise either, and lowering it would make every flake a breach.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A rise above the floor fails only when it is CONFIRMED by the two newest completed runs both above it; a single run above it is reported loudly as UNCONFIRMED (a possible flake, with the next run to settle it), not as a breach — and tools/project-audit.sh shows it as a WARN, never folded into "floor held" (proven on a fixture)
+- [x] The floor is lowered to what the suite actually fails now, with the reason in the baseline file — 32 -> 2 (newest completed run 280/2, both explained and since fixed or load-only); previous floor kept as a comment
+- [x] `tools/_t952-ratchet-teeth.sh` covers the new rule: one run above the floor -> UNCONFIRMED (not a breach), two consecutive -> breach, a dip between -> not confirmed; and still bites on the old cases — 11/11; 3 of them fail on the old ratchet
+- [x] The ratchet's staleness assumption ("the suite is scheduled nightly") is checked against the real schedule, and the finding recorded (fixed here if it is the ratchet's wording, its own task if the schedule is missing) — no schedule exists BY DECISION (T-917, cron-registry bridge-suite-age-daily), so the wording was the defect: limit 48h -> 7 days, message says the suite runs by hand
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +128,10 @@ date_finished: null
 -->
 
 ## Verification
+bash tools/_t952-ratchet-teeth.sh
+python3 tools/_t952-bridge-suite-ratchet.py
+bash -n tools/project-audit.sh
+grep -q 'UNCONFIRMED RISE' tools/project-audit.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -307,6 +342,14 @@ date_finished: null
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-10-17 — two consecutive runs, not a per-leg record
+- **Chose:** a rise is confirmed by the two newest completed runs both above the floor; one run above is an
+  UNCONFIRMED warning (WARN in the project audit). Staleness limit 7 days, worded for a suite run by hand.
+- **Why:** the history file records counts, not legs, and a second run is the cheapest way to tell a one-leg flake from
+  a real rise; the floor can then sit at what the suite really fails (2) instead of 32.
+- **Rejected:** a per-leg pass/fail record (would name the flipped leg, but needs a new history format and a suite
+  change for the same verdict); scheduling the suite nightly (T-917 decided against it: 40-minute browser suite).
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -323,3 +366,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1163-bridge-suite-failure-ratchet-treats-a-on.md
 - **Context:** Initial task creation
+
+### 2026-10-17T08:58:34Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)

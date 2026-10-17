@@ -393,6 +393,14 @@ check_bridge_suite_ratchet() {
     _floor=$(printf  '%s\n' "$_out" | grep -m1 'baseline floor'  | sed 's/^[^:]*: *//')
     _age=$(printf    '%s\n' "$_out" | grep -m1 -oE '\([0-9]+d [0-9]+h old\)')
 
+    # T-1163: one run above the floor is an UNCONFIRMED rise (a possible flake). The ratchet exits 0 for it, but
+    # the reader must still see it, so it is a WARN here, never folded into "floor held".
+    if [ "$_rc" -eq 0 ] && printf '%s\n' "$_out" | grep -q 'UNCONFIRMED RISE'; then
+        warn "Bridge suite: $(printf '%s\n' "$_out" | grep -m1 'UNCONFIRMED RISE' | sed 's/^WARN: *//' | cut -c1-140)" \
+             "floor ${_floor:-unknown}; latest ${_latest:-unknown} ${_age:-}" \
+             "Run the suite again: cd $PROJECT_ROOT && bash tests/run-bridge-tests.sh — a second run above the floor confirms the rise, one at or under it clears it"
+        return 0
+    fi
     if [ "$_rc" -eq 0 ]; then
         pass "Bridge suite: failure floor held — ${_latest:-unknown} ${_age:-}"
         return 0

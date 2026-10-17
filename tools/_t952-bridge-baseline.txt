@@ -23,4 +23,5 @@
 # The 32 are NOT triaged as benign. T-944 examined 20 of them and filed T-946/T-947/T-948;
 # 12 were explicitly not individually investigated. This floor holds the line while that
 # work is outstanding; it does not bless it.
-32 | Measured 2026-09-30T18:50:16Z: 125 passed, 32 failed, rc=1, 803s, commit cf4e503b. Previous completed run 122/32. 12 of the 32 remain uninvestigated (T-946).
+# Previous floor: 32 (measured 2026-09-30, commit cf4e503b, 125/32; 12 then uninvestigated, T-946).
+2 | T-1163, 2026-10-17: lowered to the newest completed run, 2026-10-14T22:26:58Z, 280 passed / 2 failed, commit f01e688f. Its two: the T-509 instrument sweep killing _t525 at its cap (fixed since: T-1182, T-1184) and _t573 COULD NOT RUN under load (passes alone, 8/8). Runs before it: 4, 3, 3. A single flaky leg no longer breaches this floor: a rise must show in two consecutive completed runs (T-1163).
