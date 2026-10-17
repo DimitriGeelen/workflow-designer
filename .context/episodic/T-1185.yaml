@@ -1,0 +1,182 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1185: Upgrade vendored AEF to bleeding-edge 495901b5d (v1.8.11 field test + T-4209 audit --check)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T08:30:32Z
+# ============================================================================
+
+task_id: T-1185
+task_name: "Upgrade vendored AEF to bleeding-edge 495901b5d (v1.8.11 field test + T-4209 audit --check)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-15T23:22:11Z
+completed: 2026-10-17T08:30:20Z
+duration_days: 2
+updates_count: 1
+first_commit: 2026-10-16T01:24:23+02:00
+last_commit: 2026-10-17T10:30:18+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  runme job 032 — upgrade vendored AEF 1146a7450 -> bleeding-edge 495901b5d (v1.8.11 field test + T-4209), re-vendor protocol as job 023; dry-run 7/7; upstream ancestry checked (1146a7450 and a75c25472 both ancestors, 133 commits). pristine vendor commit — AEF bleeding-edge 495901b5d as fw upgrade wrote it (v1.8.11 field test + T-4209 audit --check; re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF 495901b5d commit (re-vendor protocol step 2, T-1000). re-apply our local fixes on AEF bleeding-edge 495901b5d (re-vendor protocol step 3) — 3-way apply of diff(pristine 40b8e12c -> pre-upgrade 02b920b2) onto pristine b9930c7e: 39 files, 0 conflicts. instance-position.sh (832-only, kept unchanged by fw vendor) re-declared kind: added per T-1049. _t517 45/45 OK; ratchet 41/41; revert scan 0; designer pin 0.20.0 present; review-queue rc 0; no .bak left; all re-applied .sh/.py parse. job 032 run record (upgrade done, rc 0, 7/7); runme job 033 — restart Watchtower on the re-applied local fixes (/designer/open is 404 until then); dry-run 4/4. field-test report sent to AEF (5196b215) — WORKS 2/4/10, partly 1/3/7/11 (fw test lint exits 1 in a consumer), not exercised 5/13/14; fw audit --check 5.7 s vs 54 s; waiting on job 033. job 033 done — Watchtower on the re-applied code, /designer/open 200, designer 0.20.0; smoke 53/54 alone (/gaps 16 s vs 5 s limit -> T-1186)
+
+# Key outcomes
+outcomes:
+  - 'The target commit is resolved upstream to a full sha, and 1146a7450 (our version) and a75c25472 (the field-test candidate) are both its ancestors — 495901b5db6081b31605e84c620326978cc2d7c4, bleeding-edge tip, 133 commits'
+  - 'A runme upgrade job (modelled on 023) is dry-run clean and handed to the operator; after the run, `.framework.yaml` version_sha is the target and the pristine vendor commit exists — job 032 rc 0 (7/7, survived a duplicate launch and the host tmux crash), pristine b9930c7e, baseline 1c945199'
+  - '832''s local fixes are re-applied by 3-way (re-vendor protocol step 3); `tools/_t517-vendor-divergence.py` OK; conflicts resolved and recorded — 39 files, 0 conflicts; instance-position.sh re-declared `added` (832-only, kept unchanged by fw vendor); _t517 45/45, ratchet 41/41'
+  - 'Post-upgrade checks: AEF''s decision-revert scan 0, designer pin still 0.20.0, `fw review-queue` runs, `.bak` files diffed and handled per CLAUDE.md — revert scan 0; pin 0.20.0 present; review-queue rc 0; no .bak left by this upgrade'
+  - 'The field-test items 832 can exercise (1, 2, 3, 4, 5, 7, 10, 11, 13, 14) are each run and reported to AEF as WORKS / BROKEN / NOT EXERCISED with evidence — sent 5196b215: WORKS 2, 4, 10; WORKS in part 1 (BROKEN: fw test lint exits 1 in a consumer, silent-skip lint reads the absent .agentic-framework/tests/), 3, 7, 11; NOT EXERCISED 5, 13, 14. T-4209 --check: 5.7 s vs 54 s'
+  - 'Watchtower restarted on the re-applied code (job 033): /designer/open answers again (404 between job 032''s restart and the re-apply) — job 033 rc 0; /designer/open 200, designer APP_VERSION 0.20.0, process no longer predates its code; smoke alone 53/54 (only /gaps, 16 s against a 5 s limit — T-1186)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'job 032 run record (upgrade done, rc 0, 7/7); runme job 033 — restart Watchtower on the re-applied local fixes (/designer/open is 404 until then); dry-run 4/4'
+    source: git-mined
+  - description: 're-apply our local fixes on AEF bleeding-edge 495901b5d (re-vendor protocol step 3) — 3-way apply of diff(pristine 40b8e12c -> pre-upgrade 02b920b2) onto pristine b9930c7e: 39 files, 0 conflicts. instance-position.sh (832-only, kept unchanged by fw vendor) re-declared kind: added per T-1049. _t517 45/45 OK; ratchet 41/41; revert scan 0; designer pin 0.20.0 present; review-queue rc 0; no .bak left; all re-applied .sh/.py parse'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/budget-gate.sh'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/check-visual-verification.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/context/visual_checklist.py'
+  - '.agentic-framework/agents/fabric/fabric.sh'
+  - '.agentic-framework/agents/fabric/lib/cardlint.py'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/git.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/git/lib/secret-scan.sh'
+  - '.agentic-framework/agents/git/lib/stale-index-guard.py'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/agents/ux-review/ux_shots.py'
+  - '.agentic-framework/bin/claude-fw'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/docs/context-compaction.md'
+  - '.agentic-framework/docs/reports/field-test-v1.8.11-results.md'
+  - '.agentic-framework/docs/reports/T-4092-hotfix-v1810.md'
+  - '.agentic-framework/docs/reports/T-4176-triage-832-T-1150.md'
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/cmd_classify.py'
+  - '.agentic-framework/lib/config.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/estate_ingest.py'
+  - '.agentic-framework/lib/estate_push.py'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/index_reconcile.py'
+  - '.agentic-framework/lib/push-resolve.sh'
+  - '.agentic-framework/lib/reviewer/judge_cli.py'
+  - '.agentic-framework/lib/reviewer/static_scan.py'
+  - '.agentic-framework/lib/sidecar-audit.sh'
+  - '.agentic-framework/lib/sidecar_cli.py'
+  - '.agentic-framework/lib/sidecar/hooks.py'
+  - '.agentic-framework/lib/sidecar/http_server.py'
+  - '.agentic-framework/lib/sidecar/inject.py'
+  - '.agentic-framework/lib/sidecar/lifecycle.py'
+  - '.agentic-framework/lib/sidecar/watcher.py'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/unclosable_misfiled.py'
+  - '.agentic-framework/lib/upgrade.sh'
+  - '.agentic-framework/lib/upgrade_template_shipped.py'
+  - '.agentic-framework/lib/verdict_ledger.py'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/.tasks/templates/default.md'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/config.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.context/runme/032-upgrade-aef-495901b5d/doctor-after.txt'
+  - '.context/runme/032-upgrade-aef-495901b5d/doctor-before.txt'
+  - '.context/runme/032-upgrade-aef-495901b5d/done'
+  - '.context/runme/032-upgrade-aef-495901b5d/dryrun.ok'
+  - '.context/runme/032-upgrade-aef-495901b5d/job.sh'
+  - '.context/runme/032-upgrade-aef-495901b5d/run-20261016T012742.log'
+  - '.context/runme/032-upgrade-aef-495901b5d/run-20261016T014558.log'
+  - '.context/runme/033-restart-watchtower-after-upgrade/done'
+  - '.context/runme/033-restart-watchtower-after-upgrade/dryrun.ok'
+  - '.context/runme/033-restart-watchtower-after-upgrade/job.sh'
+  - '.context/runme/033-restart-watchtower-after-upgrade/run-20261017T101211.log'
+  - '.tasks/active/T-1185-upgrade-vendored-aef-to-bleeding-edge-49.md'
+  - '.tasks/active/T-1186-watchtower-gaps-takes-16-s-on-832-smoke-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-16T01:24:23'
+    action: 'T-1185: runme job 032 — upgrade vendored AEF 1146a7450 -> bleeding-edge 495901b5d (v1.8.11 field test + T-4209), re-vendor protocol as job 023; dry-run 7/7; upstream ancestry checked (1146a7450 and a75c25472 both ancestors, 133 commits)'
+  - time: '2026-10-16T01:49:58'
+    action: 'T-1185: pristine vendor commit — AEF bleeding-edge 495901b5d as fw upgrade wrote it (v1.8.11 field test + T-4209 audit --check; re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-16T07:44:02'
+    action: 'T-1185: advance the divergence baseline to the pristine AEF 495901b5d commit (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-16T23:01:15'
+    action: 'T-1185: re-apply our local fixes on AEF bleeding-edge 495901b5d (re-vendor protocol step 3) — 3-way apply of diff(pristine 40b8e12c -> pre-upgrade 02b920b2) onto pristine b9930c7e: 39 files, 0 conflicts. instance-position.sh (832-only, kept unchanged by fw vendor) re-declared kind: added per T-1049. _t517 45/45 OK; ratchet 41/41; revert scan 0; designer pin 0.20.0 present; review-queue rc 0; no .bak left; all re-applied .sh/.py parse'
+  - time: '2026-10-16T23:01:38'
+    action: 'T-1185: job 032 run record (upgrade done, rc 0, 7/7); runme job 033 — restart Watchtower on the re-applied local fixes (/designer/open is 404 until then); dry-run 4/4'
+  - time: '2026-10-16T23:13:14'
+    action: 'T-1185: field-test report sent to AEF (5196b215) — WORKS 2/4/10, partly 1/3/7/11 (fw test lint exits 1 in a consumer), not exercised 5/13/14; fw audit --check 5.7 s vs 54 s; waiting on job 033'
+  - time: '2026-10-17T10:30:18'
+    action: 'T-1185: job 033 done — Watchtower on the re-applied code, /designer/open 200, designer 0.20.0; smoke 53/54 alone (/gaps 16 s vs 5 s limit -> T-1186)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 1988 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [upgrade, aef]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1988
+  commits: 7
+  files_changed: 89
+  lines_added: 8145
+  lines_removed: 3815
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1185-upgrade-vendored-aef-to-bleeding-edge-49.md
+generated_by: context-agent-hybrid

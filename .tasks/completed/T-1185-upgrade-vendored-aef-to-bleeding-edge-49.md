@@ -4,10 +4,11 @@ name: "Upgrade vendored AEF to bleeding-edge 495901b5d (v1.8.11 field test + T-4
 description: >
   Operator 2026-10-16: 'yes, prepare the upgrade'. AEF asked for a v1.8.11 field test (round 2, a75c25472; 14 items, 832 can exercise 1,2,3,4,5,7,10,11,13,14) and has since pushed T-4209 (fw audit --check, 495901b5d). Upgrade the vendored framework from 1146a7450 by the re-vendor protocol (T-1000) as T-1167 did: pristine vendor commit, re-apply 832's local fixes by 3-way, revert scan, backups diffed, Watchtower restarted; then exercise the field-test items and report per item to AEF; T-1184 follows.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [upgrade, aef]
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-15T23:22:11Z
-last_update: 2026-10-17T08:30:18Z
-date_finished: null
+last_update: 2026-10-17T08:30:20Z
+date_finished: 2026-10-17T08:30:20Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -335,3 +336,15 @@ grep -q 'version: "0.20.0"' .agentic-framework/policy/designer-pin.yaml
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1185-upgrade-vendored-aef-to-bleeding-edge-49.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-90e081e1
+- **Timestamp:** 2026-10-17T08:30:23Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-17T08:30:20Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
