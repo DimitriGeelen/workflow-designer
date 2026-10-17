@@ -87,10 +87,10 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] VERSION and APP_VERSION read 0.22.0 (T-808 parity); release notes docs/releases/RELEASE-NOTES-0.22.0.md committed
-- [ ] One operator job, rehearsed: calibrate the 0.22.0 kit with codex and GLM-5.3 (gate PASS on its bytes), then cut, commit, tag designer-v0.22.0, push
-- [ ] After the tag: our Watchtower serves 0.22.0 (sync --from-tag, served sha matches, divergence register OK)
-- [ ] AEF told version, tag, sha256, bytes, what changes, and the 8 draft-node renames (fwk_4_062 -> fwk_4_close, fw_7_020 -> fw_7_build)
+- [x] VERSION and APP_VERSION read 0.22.0 (T-808 parity); release notes docs/releases/RELEASE-NOTES-0.22.0.md committed
+- [x] One operator job, rehearsed: calibrate the 0.22.0 kit with codex and GLM-5.3 (gate PASS on its bytes), then cut, commit, tag designer-v0.22.0, push — job 038, 7/7 rc 0 (21:09Z): codex PASS, GLM-5.3 PASS; sha256 b311d485…, 1171433 B
+- [x] After the tag: our Watchtower serves 0.22.0 (sync --from-tag, served sha matches, divergence register OK)
+- [x] AEF told version, tag, sha256, bytes, what changes, and the 8 draft-node renames (fwk_4_062 -> fwk_4_close, fw_7_020 -> fw_7_build)
 - [ ] `tools/_t1187-aef-pin-lag.sh` followed until it reads CURRENT for 0.22.0
 
 ### Human
