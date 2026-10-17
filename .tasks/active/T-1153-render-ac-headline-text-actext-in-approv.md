@@ -99,7 +99,10 @@ would be vendor divergence on AEF's code, so this task reports to AEF instead of
   — sent to cacc73ea32b121dd/999-Agentic-Engineering-Framework, conversation `832-ac-text-render`, client_msg_id
   4f3de570-f372-41ed-9faf-2d6ffc7f9af9 (RECEIVED, direct). The fallback was reported as LATENT: its only includer
   (inception_detail, inception.py:417) sets text_html for every Agent criterion, so it cannot fire today.
-- [ ] AEF's answer (task id or reason) is recorded here
+- [x] AEF's answer (task id or reason) is recorded here
+  — msg 968e371f-d672-40de-8e2a-9de63fbd4fdd: both taken. The latent `| safe` fallback is **AEF T-4287** (horizon next:
+  escape the fallback or make text_html mandatory); raw markdown at the 7 sites is **AEF T-4288** (horizon later: one
+  inline-markdown renderer for every headline). Both are AEF's to deliver; 832 picks them up on a later upgrade.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -133,6 +136,10 @@ would be vendor divergence on AEF's code, so this task reports to AEF instead of
 -->
 
 ## Verification
+
+grep -q '4f3de570-f372-41ed-9faf-2d6ffc7f9af9' .context/sidecar/direct-ack.jsonl
+.agentic-framework/bin/fw sidecar inbox --show 968e371f-d672-40de-8e2a-9de63fbd4fdd | grep -q 'T-4288'
+grep -q '(ac.text_html or ac.text) | safe' .agentic-framework/web/templates/_ac_list.html
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
