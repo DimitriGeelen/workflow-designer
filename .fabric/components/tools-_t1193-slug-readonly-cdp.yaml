@@ -1,0 +1,21 @@
+id: tools/_t1193-slug-readonly-cdp.mjs
+name: _t1193-slug-readonly-cdp
+type: script
+subsystem: browser-harness
+location: tools/_t1193-slug-readonly-cdp.mjs
+tags: []
+
+purpose: "TODO: describe what this component does"
+purpose_source: none
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-17
+created_by: unknown

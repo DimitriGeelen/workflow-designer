@@ -104,7 +104,7 @@ Options (operator decides; each changes what users can do or what files contain)
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] Reproduced (or refuted) in a real browser: edit a node's slug in the properties panel, save (export), reload the exported file; record whether the id keeps the edited slug, with the exact ids before and after — confirmed: agt_1_write -> agt_1_myslug (exported) -> agt_1_write after reload
 - [x] If confirmed: the options (persist the slug in the BPMN, or remove/relabel the field) written up with their consequences for saved files and ids, and the choice put to the operator before any change to the export — see Context; put to the operator 2026-10-17
-- [ ] If refuted: the mechanism that keeps it written down here, and a test that pins it
+- [x] Operator decision applied (2026-10-17, "whatever you think" after the background): the Slug field is READ-ONLY and follows the name (option 2); renaming the step changes it. No file change. `tools/_t1193-slug-readonly-cdp.mjs` 4/4 (read-only; typing changes nothing; rename changes slug and id; export reloads with identical ids); the pre-change designer fails the two editing legs; wired into the bridge suite
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -136,6 +136,12 @@ Options (operator decides; each changes what users can do or what files contain)
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1193 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+- [ ] [REVIEW] The read-only Slug field reads as derived, not editable, and its hint says how to change it
+  **Steps:**
+  1. Open `.playwright-mcp/t1193-{1024,1440,1920}-props.png` (a task selected, properties panel)
+  2. Check: the Slug field shows `write`, styled like the other read-only fields (UID, Owner), hint "follows the name · rename to change" on one line; nothing in the panel clipped or overlapping
+  **Expected:** holds in all three
+  **If not:** name the screenshot and what is wrong
 
 <!--
   Render-touching build tasks (web/templates, web/static, web/blueprints, web/shared.py,
@@ -153,6 +159,10 @@ Options (operator decides; each changes what users can do or what files contain)
 -->
 
 ## Verification
+
+node tools/_t1193-slug-readonly-cdp.mjs > /tmp/.t1193 2>&1 && grep -q 'PASS: 4/4' /tmp/.t1193
+node tools/_t1194-slug-task-id-cdp.mjs > /tmp/.t1193b 2>&1 && grep -q '^PASS' /tmp/.t1193b
+grep -q '_t1193-slug-readonly-cdp.mjs' tests/run-bridge-tests.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -282,6 +292,16 @@ Options (operator decides; each changes what users can do or what files contain)
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+## Visual Verification
+
+`.playwright-mcp/t1193-{1024,1440,1920}-props.png` from `tools/_t1193-slug-readonly-cdp.mjs` (task-lifecycle, "Write real
+acceptance criteria" selected). Read by the author:
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| node selected | Slug field | ok | ok | ok | shows `write`, dimmed like UID/Owner; hint "follows the name · rename to change" on one line (first take wrapped "it" to a 2nd line: shortened) |
+| node selected | Name, Display ID, rest of the panel | ok | ok | ok | unchanged; Display ID agt_1_write; nothing clipped |
 
 ## RCA
 

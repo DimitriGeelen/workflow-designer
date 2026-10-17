@@ -7438,19 +7438,21 @@ function _renderPropsInto(props, details) {
   const sBpmn = section('BPMN');
   sBpmn.appendChild(field('Name', n.name, v => {
     n.name = v;
-    // Slug auto-tracks the name unless the user has overridden it.
-    if (!n.slugManual) n.slug = deriveUniqueSlug(n, v);
+    // The slug follows the name (T-1193: it is no longer editable).
+    n.slug = deriveUniqueSlug(n, v);
     refreshDisplayIds();
     renderNodes();
     renderProperties();
   }));
-  sBpmn.appendChild(field('Slug', n.slug || '', v => {
-    n.slug = (v || '').toLowerCase().replace(/[^a-z0-9\-]/g, '').slice(0, 16);
-    n.slugManual = true; // mark as user-overridden so name changes don't clobber it
-    refreshDisplayIds();
-    renderNodes();
-    renderProperties();
-  }, { mono: true, hint: 'short id descriptor · derived from name unless overridden' }));
+  // T-1193: the slug is SHOWN, not edited. It follows the name. A slug typed here was never saved (the export writes no
+  // slug; the importer derives every slug from the name), so it reverted on reload and the next save changed the id
+  // unasked. Rename the step to change it.
+  {
+    const f = field('Slug', n.slug || '', () => {}, { mono: true, hint: 'follows the name · rename to change' });
+    const inp = f.querySelector('input');
+    if (inp) { inp.readOnly = true; inp.tabIndex = -1; inp.setAttribute('aria-readonly', 'true'); inp.dataset.testid = 'slug-readonly'; inp.style.opacity = '0.75'; }
+    sBpmn.appendChild(f);
+  }
   // Read-only displayId preview
   const displayPreview = document.createElement('div');
   displayPreview.className = 'field';
