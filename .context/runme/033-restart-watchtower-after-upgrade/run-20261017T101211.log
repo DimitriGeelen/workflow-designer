@@ -1,0 +1,40 @@
+runme  033-restart-watchtower-after-upgrade   sha 75d16b7fecd9   rehearsed 2026-10-16T21:01:32Z   log: /opt/832-Workflow-designer/.context/runme/033-restart-watchtower-after-upgrade/run-20261017T101211.log
+Job:   033-restart-watchtower-after-upgrade   (T-1185)
+What:  Restart Watchtower on the upgraded framework WITH our local fixes (inline map page back)
+       Job 032 upgraded the framework to AEF 495901b5d and restarted Watchtower in its last step, which was correct
+       for that moment but ran AEF's code before our local fixes were re-applied. They are now re-applied and committed
+       (39 files, 0 conflicts). Until Watchtower restarts, our web changes are missing from it: /designer/open (the inline
+       map page) answers 404 right now. A restart takes Watchtower down for a few seconds; reload any open page afterwards
+       (an unsent form would be lost). Same port (3013). Nothing is committed or pushed.
+Steps (each asks y/N first):
+  1. Restart Watchtower on port 3013, then check it is newer than its web code and answering
+  2. Check the inline map page answers and carries the full-width rule
+
+ok    on bleeding-edge
+ok    Watchtower is running on 3013
+ok    the re-applied local fixes are committed
+ok    the inline map page template is present
+
+Step 1/2: Restart Watchtower on port 3013, then check it is newer than its web code and answering
+  runs: do_restart
+Run step 1/2? [y/N] [watchtower] Stopping Watchtower (PID 912519)...
+[watchtower]   Waiting for shutdown... (10s)
+[watchtower] Watchtower stopped.
+[watchtower] Starting Watchtower on port 3013 (project: /opt/832-Workflow-designer)...
+[watchtower] Health check passed (identity verified).
+[firewall] Port 3013 already open.
+
+Watchtower is running
+  Local:  http://localhost:3013
+  LAN:    http://192.168.10.107:3013
+  PID:    1342454
+  Log:    /opt/832-Workflow-designer/.context/working/watchtower.log
+ok  Watchtower restarted (pid 1342454), answering at http://192.168.10.107:3013
+ok    step 1/2
+
+Step 2/2: Check the inline map page answers and carries the full-width rule
+  runs: do_check
+Run step 2/2? [y/N] ok  http://192.168.10.107:3013/designer/open answers with the full-width inline page
+ok    step 2/2
+
+DONE: 033-restart-watchtower-after-upgrade — all 2 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/033-restart-watchtower-after-upgrade/run-20261017T101211.log)
