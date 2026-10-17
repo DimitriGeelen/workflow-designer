@@ -1,13 +1,16 @@
 ---
 id: T-1091
-name: "Greenfield T-172 #3: Settings option 'Sticky lane labels' — lane names pinned at the left edge while scrolling wide maps"
+name: "Greenfield T-172 #3: Settings option 'Sticky lane labels' — lane names pinned
+  at the left edge while scrolling wide maps"
 description: >
-  aef-greenfield-test T-172 item 3. Render-only, stored per browser like the other label preferences (aefLabelPrefs). Map tobe-walkthrough-verkoop is ~3800 px wide.
+  aef-greenfield-test T-172 item 3. Render-only, stored per browser like the other
+  label preferences (aefLabelPrefs). Map tobe-walkthrough-verkoop is ~3800 px wide.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +41,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T08:38:10Z
-last_update: 2026-10-08T08:38:10Z
-date_finished: null
+last_update: 2026-10-17T14:46:28Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +53,50 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-17T14:46:29Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1091: Greenfield T-172 #3: Settings option 'Sticky lane labels' — lane names pinned at the left edge while scrolling wide maps
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Asked by Greenfield (T-172 #3) and again by the operator (2026-10-17: "when we need to scroll to the right with
+different lanes, keep the lane names sticky so I can always see them"). Zoomed in, `.canvas-wrap` scrolls and the lane
+header strip (SVG, in `#g-pool`, under the nodes) leaves the view. Fit mode never scrolls, so it is unaffected.
+Design: a top SVG layer `#g-sticky-lanes` holds a copy of each lane's header, placed at the visible left edge, drawn
+ONLY while the view's left edge is past the pool's left edge; empty otherwise, so an unscrolled canvas is unchanged.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Zoomed in and scrolled right past the pool's left edge, every lane's name is visible at the canvas's left edge, at its own lane's height (also after a vertical scroll), drawn above tasks and arrows
+- [x] Unscrolled (fit mode, or zoomed at scroll 0) the sticky layer is empty and nothing else in the canvas changes
+- [x] Clicking a sticky lane name selects that lane, as the normal header does
+- [x] Settings → "Sticky lane labels", default on, kept across reloads (aefLabelPrefs); off restores today's behaviour; nothing sticky when "Show lane names" is off
+- [x] Thumbnails/exports carry no sticky layer, and the BPMN export is byte-identical with the option on and off
+- [x] CDP regression test covering the above, wired into the bridge suite; existing designer suites still green — `tools/_t1091-sticky-lanes-cdp.mjs` 31/31 (control: the pre-T-1091 designer fails 18 legs); _t258, _t1109, _t1177, _t1176, _t1168, _t1155 green
+- [x] Screenshots at 1024, 1440 and 1920 (unscrolled, scrolled right, scrolled right + down, option off), each read control by control and written up in `## Visual Verification`
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -95,8 +128,20 @@ date_finished: null
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1091 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+- [ ] [REVIEW] The sticky lane names read well while scrolling: legible, clearly separated from the diagram under them, not hiding anything that matters
+  **Steps:**
+  1. Open the screenshots listed in `## Visual Verification` (1024 / 1440 / 1920; unscrolled, scrolled right, scrolled right + down, option off)
+  2. In each scrolled shot: every lane has its name at the left edge, at that lane's height; the strip is opaque and separated from the diagram; no toolbar, panel or control is covered
+  3. In the unscrolled and option-off shots: the canvas looks as it did before this change
+  **Expected:** all of step 2 and 3 hold in every screenshot
+  **If not:** name the screenshot and what is wrong (unreadable, overlapping, misaligned lane, covered control)
 
 ## Verification
+
+node tools/_t1091-sticky-lanes-cdp.mjs > /tmp/.t1091 2>&1 && grep -q 'PASS: 31/31' /tmp/.t1091
+node tools/_t1177-panels-cdp.mjs > /tmp/.t1091p 2>&1
+node tools/_t1176-toolbar-reach-cdp.mjs > /tmp/.t1091t 2>&1
+grep -q '_t1091-sticky-lanes-cdp.mjs' tests/run-bridge-tests.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -224,6 +269,22 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+## Visual Verification
+
+Screenshots from `node tools/_t1091-sticky-lanes-cdp.mjs` (map task-lifecycle, 3 lanes, zoom 160%, height 860), in
+`.playwright-mcp/`: t1091-{1024,1440,1920}-{unscrolled,scrolled,scrolled-down,off}.png (1920 has no scrolled-down: the
+map fits vertically there, maxTop 5). Each read by the author, control by control:
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| unscrolled | lane headers (original) | ok | ok | ok | pool title and three headers as before; nothing extra drawn |
+| scrolled right | pinned lane names | ok | ok | ok | HUMAN SOVEREIGNTY / FRAMEWORK · AUTHORITY / AGENT INITIATIVE at the left edge, each on its own lane, opaque, edged |
+| scrolled right | diagram under the strip | ok | ok | ok | covered while pinned (a frozen column's nature: e.g. "Request completion" left part at 1024); a little more scroll reveals it |
+| scrolled right + down | pinned lane names | ok | ok | n/a | still at the left edge, aligned with their lanes after the vertical scroll |
+| option off, scrolled | canvas | ok | ok | ok | no strip; the label fragments it covers ("ealing / -work)" at 1920) show again |
+| all | toolbar, both panels, fold tabs | ok | ok | ok | all buttons on screen; palette fold tab sits on the strip's left edge at mid-height (T-1177, by design), no label text under it |
+| all | "Restored your unsaved work" toast | ok | ok | ok | the designer's existing autosave notice in a fresh test profile, not this change |
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -320,3 +381,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1091-greenfield-t-172-3-settings-option-stick.md
 - **Context:** Initial task creation
+
+### 2026-10-17T14:46:28Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now

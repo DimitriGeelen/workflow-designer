@@ -609,6 +609,9 @@ font-family: 'Outfit';
   .lane-header { cursor: pointer; }
   .lane-header:hover .lane-label { fill: var(--text); }
   .lane-header.selected .lane-label { font-weight: 600; }
+  /* T-1091: the pinned copies sit over the diagram, so they are edged and shadowed to read as a frozen column */
+  #g-sticky-lanes .lane-header > rect:first-child { stroke: var(--border); stroke-width: 1; }
+  #g-sticky-lanes { filter: drop-shadow(3px 0 3px rgba(0, 0, 0, 0.35)); }
   .pool-label {
     fill: var(--text-dim);
     font-family: var(--sans);
@@ -1647,6 +1650,9 @@ font-family: 'Outfit';
         <g id="g-edges"></g>
         <g id="g-nodes"></g>
         <g id="g-badges-top" pointer-events="none"></g>
+        <!-- T-1091: zoomed and scrolled right, a copy of each lane header pinned at the visible left edge, above
+             nodes and edges so the lane names stay readable. Empty while the pool's left edge is in view. -->
+        <g id="g-sticky-lanes"></g>
         <!-- T-293: the selected edge's reconnect chrome (endpoint grab halos/dots,
              port indicators) must paint AND hit-test above node bodies — endpoints
              anchor on the node border (T-168), so inside #g-edges half of every
@@ -1869,6 +1875,11 @@ font-family: 'Outfit';
           <label class="settings-row">
             <input type="checkbox" id="set-show-lane">
             <span>Show lane names</span>
+          </label>
+          <label class="settings-row">
+            <input type="checkbox" id="set-sticky-lanes">
+            <span>Sticky lane labels</span>
+            <span class="settings-hint">keep lane names at the left edge when zoomed in and scrolled right</span>
           </label>
           <label class="settings-row">
             <input type="checkbox" id="set-show-ids">
@@ -3052,11 +3063,11 @@ function setSnapPref(key, value) {
 
 // Lane-label fit ladder (T-084) — editor-local (localStorage), same seam
 // discipline as routingPrefs/snapPrefs: render-only, never in the document.
-let labelPrefs = { laneFit: true, wrapNames: true, showLane: true, showIds: true, showEdge: true, showPool: true, showAuthority: true, size: 'm' };
+let labelPrefs = { laneFit: true, wrapNames: true, showLane: true, showIds: true, showEdge: true, showPool: true, showAuthority: true, stickyLanes: true, size: 'm' };
 try {
   const _storedLabel = JSON.parse(localStorage.getItem('aefLabelPrefs') || '{}');
   if (typeof _storedLabel.laneFit === 'boolean') labelPrefs.laneFit = _storedLabel.laneFit;
-  for (const k of ['wrapNames', 'showLane', 'showIds', 'showEdge', 'showPool', 'showAuthority'])
+  for (const k of ['wrapNames', 'showLane', 'showIds', 'showEdge', 'showPool', 'showAuthority', 'stickyLanes'])
     if (typeof _storedLabel[k] === 'boolean') labelPrefs[k] = _storedLabel[k];
   if (['s', 'm', 'l'].includes(_storedLabel.size)) labelPrefs.size = _storedLabel.size;
 } catch (e) { aefRecordFault('prefs-restore:label', e); }
@@ -3265,6 +3276,7 @@ function applyCanvasZoom() {
   const zf = $('btn-zoom-fit');
   if (zf) zf.setAttribute('aria-pressed', String(zoomFactor == null));
   syncOverlayPin();
+  syncStickyLanes();   // T-1091
 }
 // Keep the svg point under (anchorX, anchorY) stationary across the zoom change —
 // Ctrl+wheel anchors at the cursor; buttons anchor at the viewport centre.
@@ -3293,6 +3305,33 @@ function syncOverlayPin() {
   for (const id of ['clean-nudge', 'lane-fix-notice', 'authority-summary']) {   // T-310: advisories pin (T-1092: three)
     const n = $(id);
     if (n) n.style.transform = (dx || dy) ? `translate(calc(-50% + ${dx}px), ${dy}px)` : '';
+  }
+}
+// T-1091: sticky lane labels. Zoomed in and scrolled right, the lane header strip (in #g-pool, under the nodes)
+// leaves the view; a copy of each rendered header is pinned at the visible left edge in #g-sticky-lanes, above
+// nodes and edges. Drawn only while the view's left edge is past the pool's left edge, so an unscrolled canvas is
+// unchanged; never past the pool's right edge. View state only: rebuilt on every scroll, zoom and render, and
+// stripped from thumbnails. Geometry is read from what renderPool drew, not recomputed.
+function syncStickyLanes() {
+  const g = $('g-sticky-lanes');
+  if (!g) return;
+  g.replaceChildren();
+  if (!labelPrefs.stickyLanes || !labelPrefs.showLane || zoomFactor == null) return;
+  const ctm = svg.getScreenCTM(), pb = svg.querySelector('#g-pool > .pool-border');
+  if (!ctm || !pb) return;
+  const wr = canvasWrap.getBoundingClientRect();
+  const left = (wr.left + canvasWrap.clientLeft - ctm.e) / ctm.a;   // the visible left edge, in SVG units
+  const px = +pb.getAttribute('x'), pw = +pb.getAttribute('width');
+  const shift = Math.min(left - px, pw - LANE_HEADER);
+  if (!(shift > 0.5)) return;
+  const lanes = getLanes();
+  for (const h of svg.querySelectorAll('#g-pool > .lane-header')) {
+    const c = h.cloneNode(true);
+    c.setAttribute('transform', `translate(${shift} 0)`);
+    c.classList.add('sticky');
+    const lane = lanes.find(l => l.id === h.getAttribute('data-lane-id'));
+    if (lane) c.addEventListener('click', ev => { ev.stopPropagation(); onLaneClick(lane); });
+    g.appendChild(c);
   }
 }
 // Drag-to-pan: middle-mouse always, or left-drag while Space is held. CAPTURE
@@ -3362,7 +3401,7 @@ canvasWrap.addEventListener('wheel', e => {
   const step = e.deltaY < 0 ? 1.12 : 1 / 1.12;
   setZoom(effectiveZoom() * step, e.clientX, e.clientY);
 }, { passive: false });
-canvasWrap.addEventListener('scroll', syncOverlayPin);
+canvasWrap.addEventListener('scroll', () => { syncOverlayPin(); syncStickyLanes(); });   // T-1091
 
 function el(tag, attrs = {}, children = []) {
   const e = document.createElementNS(SVG_NS, tag);
@@ -3650,6 +3689,7 @@ function syncCanvasSize() {
   // renderNodes()/renderEdges() run before this in renderAll(), so the <text>
   // glyphs are already in the DOM; getBBox measures their true extent. The pool
   // rect stays node-box-driven (renderPool) — labels may sit outside the pool.
+  $('g-sticky-lanes')?.replaceChildren();   // T-1091: view-state copies never size the document (applyCanvasZoom redraws them)
   try {
     const bb = svg.getBBox();
     if (bb && bb.width > 0 && bb.height > 0) {
@@ -8113,6 +8153,7 @@ function syncSettingsUI() {
   renderFieldDefaultsUI();   // T-1128
   $('set-label-size').value = labelPrefs.size;
   $('set-show-lane').checked = labelPrefs.showLane;
+  $('set-sticky-lanes').checked = labelPrefs.stickyLanes;
   $('set-show-ids').checked = labelPrefs.showIds;
   $('set-show-edge').checked = labelPrefs.showEdge;
   $('set-show-pool').checked = labelPrefs.showPool;
@@ -8240,6 +8281,7 @@ $('btn-fd-cancel').onclick = () => { _fdDraft[_fdScope()] = null; _fdMsg = { tex
 $('btn-apply-clean').onclick = applyViewClean;
 $('set-label-size').addEventListener('change', e => setLabelPref('size', e.target.value));
 $('set-show-lane').addEventListener('change', e => setLabelPref('showLane', e.target.checked));
+$('set-sticky-lanes').addEventListener('change', e => setLabelPref('stickyLanes', e.target.checked));
 $('set-show-ids').addEventListener('change', e => setLabelPref('showIds', e.target.checked));
 $('set-show-edge').addEventListener('change', e => setLabelPref('showEdge', e.target.checked));
 $('set-show-pool').addEventListener('change', e => setLabelPref('showPool', e.target.checked));
@@ -8267,6 +8309,7 @@ $('btn-settings-reset').onclick = () => {
   setViewPref('showAllFields', false);   // T-1124
   setLabelPref('size', 'm');
   setLabelPref('showLane', true);
+  setLabelPref('stickyLanes', true);
   setLabelPref('showIds', true);
   setLabelPref('showEdge', true);
   setLabelPref('showPool', true);
@@ -10752,6 +10795,7 @@ function captureThumbnail() {
       // T-258: annotation badges are a live-state overlay, not document content —
       // thumbnails must stay annotation-free (and byte-stable across parent feeds).
       _stripAnnotationLayer(clone);
+      clone.querySelector('#g-sticky-lanes')?.replaceChildren();   // T-1091: sticky lane copies are view state
       _inlineComputedStyles(svg, clone);
       clone.setAttribute('viewBox', `${vbX} ${vbY} ${vbW} ${vbH}`);
       clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
