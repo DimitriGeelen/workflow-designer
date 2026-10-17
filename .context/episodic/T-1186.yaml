@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1186: Watchtower /gaps takes 16 s on 832 (smoke test times out at 5 s): find why
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T08:36:01Z
+# ============================================================================
+
+task_id: T-1186
+task_name: "Watchtower /gaps takes 16 s on 832 (smoke test times out at 5 s): find why"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-17T08:29:51Z
+completed: 2026-10-17T08:35:50Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-17T10:35:49+02:00
+last_commit: 2026-10-17T10:35:49+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  /gaps 16 -> 9.3 s — our G-040 gauge parses episodics with yaml.CSafeLoader (8.1 -> 0.76 s, same verdict); AEF's share (register re-parsed once per gauge, 7 s) reported with the profile (aadaa9aa)
+
+# Key outcomes
+outcomes:
+  - 'The time in `/gaps` is profiled and attributed to the functions that spend it, with the numbers in this task — cProfile 20.8 s: gauge_state x9 (lib/gaps.py:430); in it, the 9 closure-gauge subprocesses 13.5 s (G-040 8.1 s, G-035 4.0 s, the other seven ~1.3 s together) and load_concerns_yaml x9 = 7.0 s (0.775 s per parse of our 256 KB / 61-entry concerns.yaml)'
+  - 'The cause is classified: 832''s local web change, 832''s data (size of a register), or AEF''s code — with evidence — NOT our web changes (lib/gaps.py and blueprints/discovery.py byte-identical to pristine 495901b5d). 832''s DATA: the G-040 gauge we wrote (pure-Python parse of 950 episodics) and G-035 (census). AEF''s CODE: the register re-parsed once per gauge, gauges sequential'
+  - 'If it is 832''s: fixed here, and `/gaps` answers inside the smoke limit (5 s); if it is AEF''s: reported to AEF with the profile, and this task records the message id — split: ours fixed (G-040 via yaml.CSafeLoader, 8.1 -> 0.76 s, same verdict on all 950 files and on 5 corruption kinds; /gaps 16 -> 9.3 s); AEF''s reported (aadaa9aa, RECEIVED: parse once per request, CSafeLoader, concurrent/cached gauges). /gaps stays over 5 s until AEF acts; G-035 (4 s) left as is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.tasks/active/T-1186-watchtower-gaps-takes-16-s-on-832-smoke-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-17T10:35:49'
+    action: 'T-1186: /gaps 16 -> 9.3 s — our G-040 gauge parses episodics with yaml.CSafeLoader (8.1 -> 0.76 s, same verdict); AEF''s share (register re-parsed once per gauge, 7 s) reported with the profile (aadaa9aa)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [watchtower, performance]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 2
+  lines_added: 46
+  lines_removed: 11
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1186-watchtower-gaps-takes-16-s-on-832-smoke-.md
+generated_by: context-agent-hybrid

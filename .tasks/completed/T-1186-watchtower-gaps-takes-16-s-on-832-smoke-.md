@@ -10,11 +10,11 @@ description: >
   blueprints) play a part. Profile the route, attribute the time (our code or AEF's),
   fix ours or report AEF's with the numbers.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [watchtower, performance]
 components: []
 related_tasks: []
@@ -45,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-17T08:29:51Z
-last_update: 2026-10-17T08:35:49Z
-date_finished:
+last_update: 2026-10-17T08:35:50Z
+date_finished: 2026-10-17T08:35:50Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -373,3 +373,24 @@ python3 -c "import yaml; yaml.safe_load(open('.context/project/concerns.yaml'))"
 ### 2026-10-17T08:32:20Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0157c0cc
+- **Timestamp:** 2026-10-17T08:35:53Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 3
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — The time in `/gaps` is profiled and attributed to the functions that spend it, with the numbers in this task — cProfile 20.8 s: gauge_state x9 (lib/gaps.py:430); in it, the 9 closure-gauge subprocesse
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=lib/gaps.py in: The time in `/gaps` is profiled and attributed to the functions that spend it, with the numbers in this task — cProfile 20.8 s: gauge_state x9 (lib/ga`
+- **AC#2 (Agent)** — The cause is classified: 832's local web change, 832's data (size of a register), or AEF's code — with evidence — NOT our web changes (lib/gaps.py and blueprints/discovery.py byte-identical to pristin
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=lib/gaps.py in: The cause is classified: 832's local web change, 832's data (size of a register), or AEF's code — with evidence — NOT our web changes (lib/gaps.py and`
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-17T08:35:50Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
