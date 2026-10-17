@@ -744,6 +744,9 @@ font-family: 'Outfit';
   /* Focus mode deliberately strips chrome to the diagram; a findings dock is chrome. */
   body.vc-focus      #findings-drawer { display: none !important; }
   #findings-drawer[data-open="1"] { display: flex; }
+  /* T-1164: the app toast (showToast, bottom:18px inline) sat on the dock's rows, e.g. "Restored your unsaved work" over a
+     finding. While the dock is open the toast rises above the dock's tallest extent (max-height 30vh). */
+  body:has(#findings-drawer[data-open="1"]) #app-toast { bottom: calc(30vh + 12px) !important; }
   .findings-head { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-bottom: 1px solid var(--border); }
   .findings-title { font-weight: 600; font-size: 12px; }
   /* The state line is the load-bearing part of this panel: "not yet checked",
@@ -3338,11 +3341,24 @@ function syncStickyLanes() {
   const px = +pb.getAttribute('x'), pw = +pb.getAttribute('width');
   const shift = Math.min(left - px, pw - LANE_HEADER);
   if (!(shift > 0.5)) return;
+  // The visible band, in SVG units: the wrap, minus the findings dock where it overlays the canvas bottom (T-962). A
+  // pinned name is centred in the VISIBLE part of its lane, so a lane taller than the view, or one running under the
+  // dock, keeps its name in sight (T-1164 review: "RAMEWORK" cut by the dock at 1024).
+  let visBottom = wr.bottom;
+  const dock = $('findings-drawer');
+  if (dock && dock.getAttribute('data-open') === '1') { const dr = dock.getBoundingClientRect(); if (dr.height && dr.top < visBottom) visBottom = dr.top; }
+  const vTop = (wr.top + canvasWrap.clientTop - ctm.f) / ctm.d, vBot = (visBottom - ctm.f) / ctm.d;
   const lanes = getLanes();
   for (const h of svg.querySelectorAll('#g-pool > .lane-header')) {
     const c = h.cloneNode(true);
     c.setAttribute('transform', `translate(${shift} 0)`);
     c.classList.add('sticky');
+    const r = c.querySelector('rect'), y0 = +r.getAttribute('y'), y1 = y0 + +r.getAttribute('height');
+    const top = Math.max(y0, vTop), bot = Math.min(y1, vBot);
+    if (bot - top > 24 && (top > y0 || bot < y1)) {
+      const dy = (top + bot) / 2 - (y0 + y1) / 2;
+      for (const t of c.querySelectorAll('.lane-label')) t.setAttribute('transform', `translate(0 ${dy}) ${t.getAttribute('transform') || ''}`);
+    }
     const lane = lanes.find(l => l.id === h.getAttribute('data-lane-id'));
     if (lane) c.addEventListener('click', ev => { ev.stopPropagation(); onLaneClick(lane); });
     g.appendChild(c);

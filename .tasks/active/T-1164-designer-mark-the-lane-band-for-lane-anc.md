@@ -138,7 +138,7 @@ findings dock as "not on the map" rows and never reach the canvas, though the op
 
 ## Verification
 
-node tools/_t1164-lane-findings-cdp.mjs > /tmp/.t1164 2>&1 && grep -q 'PASS: 11/11' /tmp/.t1164
+node tools/_t1164-lane-findings-cdp.mjs > /tmp/.t1164 2>&1 && grep -q 'PASS: 14/14' /tmp/.t1164
 python3 tests/test_t962_findings_on_map.py > /tmp/.t1164a 2>&1 && grep -q '11 passed, 0 failed' /tmp/.t1164a
 node tools/_t1154-pool-label-fit-cdp.mjs > /tmp/.t1164b 2>&1 && grep -q 'PASS: 7/7' /tmp/.t1164b
 node tools/_t1091-sticky-lanes-cdp.mjs > /tmp/.t1164c 2>&1 && grep -q 'PASS: 31/31' /tmp/.t1164c
@@ -285,7 +285,8 @@ dock open; sticky = zoom 160%, scrolled right half-way (T-1091 strip). Read by t
 | marked (fit) | dock header and rows | ok | ok | ok | "2 findings · 0 errors, 2 warnings · 1 on the map"; no "not on the map" on the lane rows |
 | marked (fit) | dragged-out task below the pool | ok | ok | ok | hangs visibly outside every lane; the drawn pool does NOT stretch around it (T-1154 interaction fixed) |
 | sticky | pinned framework header | ok | ok | ok | edge + ⚠ pill carried by the T-1091 copy; label "FRAMEWORK · AUTHORITY" readable below the pill |
-| all | toolbar, panels, dock, toast | ok | ok | ok | nothing clipped; the autosave toast overlaps the dock's second row at the bottom, as before this change |
+| all | toolbar, panels, dock, toast | ok | ok | ok | nothing clipped; the autosave toast now sits ABOVE the open dock (first review: it hid dock row 2 at 1440/1920) |
+| sticky, 1024 | pinned FRAMEWORK · AUTHORITY vs the dock | ok | ok | ok | name centred in the visible part of the lane, wholly above the dock (first review: "RAMEWORK", first letter under the dock) |
 
 ## RCA
 
@@ -385,6 +386,16 @@ dock open; sticky = zoom 160%, scrolled right half-way (T-1091 strip). Read by t
   the dragged-out node (431 -> 647 px), making the node look inside a lane the file says it is not in — hiding the
   exact disagreement LANE-GEOMETRY reports. **Chose:** only text that STARTS inside the pool may stretch it (a badge
   straddling the border still counts). Leg 1 of `_t1164` guards it; `_t1154` stays 7/7.
+
+### 2026-10-17 — Reviewer amber: two covered things, both fixed rather than reframed
+- (1) The app toast ("Restored your unsaved work") sat on the dock's second row at 1440/1920. **Chose:** while the dock
+  is open the toast rises above it (CSS, `body:has(#findings-drawer[data-open="1"]) #app-toast`).
+- (2) At 1024 zoomed the pinned framework name ran under the dock ("RAMEWORK"). The dock overlays the canvas bottom by
+  T-962's design, and the pinned name was centred on the whole lane. **Chose:** a pinned name is centred in the
+  VISIBLE part of its lane (view minus the open dock): what T-1091 was asked for ("so I can always see the lane
+  names"). New leg per width in `_t1164` (14/14); against a copy without the re-centring it fails at 1024 exactly
+  (label 377-619 vs visible band 311-602).
+- **Rejected:** re-framing the screenshots so the overlap does not show (would pass the review and leave the defect).
 
 ### 2026-10-17 — T-962's lane leg updated, not deleted
 - `tests/test_t962_findings_on_map.py` asserted lane findings are "not on the map", recording this very gap. Updated to

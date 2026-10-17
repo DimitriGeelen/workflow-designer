@@ -125,6 +125,16 @@ async function main() {
       await ev(cmd, `(function(){ var wr = document.querySelector('.canvas-wrap'), r = wr.getBoundingClientRect(); setZoom(1.6, r.left + 1, r.top + 1);
         wr.scrollLeft = Math.round((wr.scrollWidth - wr.clientWidth) * 0.5); return new Promise(function(res){ setTimeout(res, 300); }); })()`);
       await shot(`${w}-sticky`);
+      // Every pinned name that fits in its lane's visible band (above the open dock) lies wholly inside that band.
+      const fit = await ev(cmd, `(function(){ var wr = document.querySelector('.canvas-wrap').getBoundingClientRect(), dr = document.getElementById('findings-drawer').getBoundingClientRect();
+        var vTop = wr.top, vBot = Math.min(wr.bottom, dr.height ? dr.top : wr.bottom), out = [];
+        document.querySelectorAll('#g-sticky-lanes .lane-header').forEach(function(h){
+          var lr = h.querySelector('rect').getBoundingClientRect(), top = Math.max(lr.top, vTop), bot = Math.min(lr.bottom, vBot);
+          var lb = null; h.querySelectorAll('.lane-label').forEach(function(t){ var b = t.getBoundingClientRect(); lb = lb ? { top: Math.min(lb.top, b.top), bottom: Math.max(lb.bottom, b.bottom) } : { top: b.top, bottom: b.bottom }; });
+          if (!lb || bot - top < (lb.bottom - lb.top) + 4) return;   // no room in the visible band: nothing to assert
+          out.push({ lane: h.getAttribute('data-lane-id'), inside: lb.top >= top - 1 && lb.bottom <= bot + 1, label: [Math.round(lb.top), Math.round(lb.bottom)], band: [Math.round(top), Math.round(bot)] }); });
+        return out; })()`);
+      push(`${w} pinned lane names sit inside the visible part of their lane, above the open dock`, fit.length > 0 && fit.every(f => f.inside), fit);
     }
   } catch (e) {
     push('harness', false, String(e && e.stack || e)); process.exitCode = 2;
