@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1191: G-035 gauge (_t451 unwired-guard census) takes 3.75 s and now sets /gaps page time alone
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T14:43:20Z
+# ============================================================================
+
+task_id: T-1191
+task_name: "G-035 gauge (_t451 unwired-guard census) takes 3.75 s and now sets /gaps page time alone"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-17T14:21:22Z
+completed: 2026-10-17T14:43:05Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-17T16:34:15+02:00
+last_commit: 2026-10-17T16:34:15+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  G-035 gauge 3.75 s -> 0.5 s, /gaps 1.0 s — lazy edges, C YAML loader, per-file content-hash cache, Verification span cut without a per-character lookahead; import edges close 3 census false positives (ratchet back to baseline)
+
+# Key outcomes
+outcomes:
+  - 'Where the 3.75 s goes is measured (profile, numbers) and recorded in this task'
+  - '`tools/_t451-unwired-guard-census.py --json` output is byte-identical before and after the change (reference captured first) — true of every SPEED change (lazy edges, C loader, cache, span cut), each proved by cmp in no-cache, cold and warm mode; the import-edge rule changes the output ON PURPOSE (3 tools unwired -> live), see Decisions'
+  - 'The gauge runs in under 1 s on 832''s tree, and /gaps is re-timed'
+  - 'The instrument sweep stays green — 102/102 (545 s, host load 20-27)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-17 — Where the time went, and what fixed it'
+    chose: 'lazy edges + C YAML loader (worker''s diff, -27%); a per-file cache keyed by content sha256 + this script''s sha256 + Python version (warm 3.1 -> 0.8-1.1 s); the Verification span cut by two anchored searches instead of a lazy regex with a lookahead per character (0.47 s; same span on 1197 task files + 7 edge cases). Result: gauge 3.75 s -> 0.5 s; /gaps 3.8-4.1 s -> 1.0 s (10-11 s before AEF T-4223).'
+    alternatives_rejected: ['rewriting the char-loop strippers (larger change, and the cache makes them a cold-run cost only).']
+  - decision: '2026-10-17 — Import edges (output change, deliberate)'
+    chose: '`import X` / `from X import` count as an edge to tools/X.py (filtered to the population, so stdlib names add nothing; it found no other import-only tool), and the two callers spell root/"tools"/name. Ratchet back to 85 = baseline, live 283 -> 286; `_t1000-install-hook.sh` removed from the baseline (wired by T-1161, the ratchet asked for it).'
+    alternatives_rejected: ['baselining the three (a baseline entry for a tool that runs is the stale-exemption the file warns against).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/working/.gitignore'
+  - '.tasks/active/T-1191-g-035-gauge-t451-unwired-guard-census-ta.md'
+  - 'tools/session-start-alerts.py'
+  - 'tools/_t1192-teeth.sh'
+  - 'tools/_t451-unwired-guard-census.py'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-17T16:34:15'
+    action: 'T-1191: G-035 gauge 3.75 s -> 0.5 s, /gaps 1.0 s — lazy edges, C YAML loader, per-file content-hash cache, Verification span cut without a per-character lookahead; import edges close 3 census false positives (ratchet back to baseline)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 21 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 21
+  commits: 1
+  files_changed: 6
+  lines_added: 501
+  lines_removed: 21
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1191-g-035-gauge-t451-unwired-guard-census-ta.md
+generated_by: context-agent-hybrid

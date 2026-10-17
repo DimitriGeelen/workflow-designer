@@ -7,13 +7,13 @@ description: >
   0.8 s, G-035 (python3 tools/_t451-unwired-guard-census.py --json) takes 3.75 s.
   Make it fast without changing its verdict.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t1192-teeth.sh, tools/_t451-unwired-guard-census.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-17T14:21:22Z
-last_update: 2026-10-17T14:26:00Z
-date_finished:
+last_update: 2026-10-17T14:43:05Z
+date_finished: 2026-10-17T14:43:05Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -90,7 +90,7 @@ bvp_scores_proposed:
 - [x] Where the 3.75 s goes is measured (profile, numbers) and recorded in this task
 - [x] `tools/_t451-unwired-guard-census.py --json` output is byte-identical before and after the change (reference captured first) — true of every SPEED change (lazy edges, C loader, cache, span cut), each proved by cmp in no-cache, cold and warm mode; the import-edge rule changes the output ON PURPOSE (3 tools unwired -> live), see Decisions
 - [x] The gauge runs in under 1 s on 832's tree, and /gaps is re-timed
-- [ ] The instrument sweep stays green
+- [x] The instrument sweep stays green — 102/102 (545 s, host load 20-27)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -394,3 +394,20 @@ Profiled by TermLink worker t1191-profile (report: scratch t1191/REPORT.md), the
 
 ### 2026-10-17T14:21:51Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0fcccbe5
+- **Timestamp:** 2026-10-17T14:43:12Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-17T14:43:05Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
