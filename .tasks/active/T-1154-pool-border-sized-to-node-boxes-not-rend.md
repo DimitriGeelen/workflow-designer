@@ -94,9 +94,9 @@ measurement (machine-dependent bytes; T-358 export determinism). The fix must ke
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] Measured first on the 24-map corpus with designer 0.20.0: per map, how far any rendered node label reaches past the pool's right border and below its bottom border; numbers recorded here. If nothing overhangs, the task closes as not reproduced with that measurement — 2026-10-17, 1440 px, label size m (scratch t1154-measure.mjs): node labels past the RIGHT border in 1 of 24 maps (healing-loop +3 px, "Resolved & recorded (antifragi…"); 5 more within 1-9 px (task-lifecycle -1, session-handover -2, arc-lifecycle -8, inception-lifecycle -9, inception-review -13). Labels past the BOTTOM: none (worst -6; the lane fit already reserves below-label room, LANE_FIT_LABEL). Id badges: right +38 (session-handover), bottom up to +6 on many maps. Reproduced on the right edge; the bottom is a badge-only matter (see Decisions)
-- [x] If reproduced: the DRAWN pool (border, header band, lane backgrounds) encloses every rendered node label on the right and at the bottom with a margin; no node moves — right edge: labels and badges now >= 11 px inside on all 24 maps; bottom: labels already inside (measured), badge-only overhang left by decision (see Decisions)
+- [x] If reproduced: the DRAWN pool (border, header band, lane backgrounds) encloses every rendered node label on the right and at the bottom with a margin; no node moves — right edge: labels and badges >= 10 px inside on all 24 maps; bottom: labels and badges >= 3 px above the border on all 24 maps (the last lane is drawn taller by the pad; saved lane heights unchanged)
 - [x] The BPMN export stays independent of text measurement: byte-identical across two loads and across label sizes s/m/l, and the corpus checks stay green (`_t1168-node-id-map.mjs --check`); any change in exported bytes is stated and justified here — no exported byte changes: the pad never reaches buildBpmnXml (identical with pad forced to 0; the T-1119 collaboration's pool DI width stays box-based with a 100 px pad drawn); identical across s/m/l
-- [x] CDP regression test on a fixture with a long label under the right-most node and in the bottom lane; the pre-change designer fails it (control); wired into the bridge suite — `tools/_t1154-pool-label-fit-cdp.mjs` 7/7; control: pre-change designer 1/7 (long label +113 px). Bottom-lane leg dropped with the bottom decision
+- [x] CDP regression test on a fixture with a long label under the right-most node and in the bottom lane; the pre-change designer fails it (control); wired into the bridge suite — `tools/_t1154-pool-label-fit-cdp.mjs` 7/7; control: pre-change designer 1/7 (long label +113 px; bottom badges past the border on several maps). The bottom is covered by the 24-map corpus leg (badges under bottom-lane nodes), not a separate fixture
 - [x] Screenshots at 1024, 1440 and 1920 of the fixture (fit and zoomed), read control by control in `## Visual Verification`
 
 ### Human
@@ -284,6 +284,8 @@ t1154-{1024,1440,1920}-{fit,zoomed}.png (zoomed = 160%, scrolled to the right ed
 | fit | pool right border vs long label + badge | ok | ok | ok | label and frw_end_resolved end inside the border; small at fit, gap visible at 1920 |
 | zoomed | pool right border vs long label + badge | ok | ok | ok | ~20 px gap between label end and border at 1024 (644 vs 664), similar at 1440/1920 |
 | zoomed | pool header band, lane backgrounds, dividers | ok | ok | ok | all reach the widened border; no short band |
+| fit | pool bottom border vs bottom-lane badges | ok | ok | ok | every badge (agt_*_…) ends above the border; the agent lane background reaches it |
+| zoomed | pool bottom border vs agt_4_apply | n/a | n/a | ok | 1920: badge ends ~15 px above the border (was ON it in the first review, amber); 1024/1440 zoomed shots end above the bottom edge — the fit shots cover it there |
 | zoomed | sticky lane names (T-1091) | ok | ok | ok | pinned at the left edge (scrolled right); the end event at 1024 sits partly under the strip, as T-1091 documents |
 | all | toolbar, panels, fold tabs | ok | ok | ok | unchanged; "Restored your unsaved work" toast is the existing autosave notice |
 
@@ -296,8 +298,9 @@ the pool and were never measured against it.
 **Why structurally allowed:** the box-based edge is shared by the BPMN export (which must stay text-measurement-free) and by
 the T-601 placement scorer, so the drawing reused it; no check compared rendered text to the border (OBS-314 was noted
 in T-601 and left without a carrier until T-1149's triage).
-**Prevention:** `tools/_t1154-pool-label-fit-cdp.mjs` in the bridge suite checks all 24 corpus maps and a long-label fixture
-against the drawn border, and that the export stays pad-free.
+**Prevention:** `tools/_t1154-pool-label-fit-cdp.mjs` in the bridge suite checks all 24 corpus maps (right AND bottom) and
+a long-label fixture against the drawn border, and that the export stays pad-free. Second-order cause found while
+fixing: most renderNodes() calls bypass renderAll, so the fit lives at the end of renderNodes.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -385,12 +388,23 @@ against the drawn border, and that the export stays pad-free.
 - **Rejected:** a character-count width estimate in contentRightEdge() (deterministic but approximate, and it would
   change exported bytes for corpus maps near the edge).
 
-### 2026-10-17 — Bottom edge left as is
-- **Chose:** no change at the bottom. Labels never overhang it (worst -6 px): the lane fit already reserves room for
-  below-labels (LANE_FIT_LABEL). Only id badges reach up to 6 px below on some maps.
-- **Why:** lane heights are document state (saved); growing them for a badge is a separate question, not this defect.
-- **Rejected:** widening the drawn bottom lane only (the drawn and saved lane heights would disagree, and lane resize
-  handles act on the saved height).
+### 2026-10-17 — Bottom edge: first left alone, then fixed after the reviewer's amber
+- **First chose:** no change at the bottom (labels never overhang it; only id badges, up to 6 px), because lane heights
+  are saved. The independent reviewer returned AMBER: in the 1920 shots the badge agt_4_apply sat on the bottom border,
+  my Visual Verification did not mention it, and the criterion did not exempt it. Rewording the criterion to pass would
+  have been gaming the review; a badge crossing the border is this task's own defect.
+- **Then chose:** the same drawn-only pad at the bottom (`poolLabelPadBottom`, 4 px margin): the LAST lane is drawn
+  taller by it; `lane.height` (saved) is unchanged, so the export is too (pad-0 identity leg).
+- **Accepted cost:** a node dropped into those few drawn pixels below the saved lane bottom lands outside every lane
+  (laneAtY uses saved heights); after a lane resize the pad is recomputed, so the drawn bottom may shift by its size.
+
+### 2026-10-17 — fitPoolToLabels runs at the end of renderNodes, not in renderAll
+- Measured: after load the bottom pad was 0, yet calling fitPoolToLabels() by hand gave 2. 12 of the 13 renderNodes()
+  call sites (drag, rename, link edits, ...) bypass renderAll, so a pad computed in renderAll went stale when a later
+  renderNodes() re-placed the badges. Now renderNodes() ends with the fit; on a change it redraws the pool and refits
+  the canvas (syncCanvasSize).
+- **Rejected (disproved):** a web-font timing cause. A font-load hook was tried, logged (the pad stayed 0 after fonts
+  loaded) and the test passes without it, so it was removed rather than kept as unproven code.
 
 ## Decision
 

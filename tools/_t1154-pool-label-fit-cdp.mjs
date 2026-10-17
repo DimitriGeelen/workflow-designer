@@ -24,6 +24,7 @@ const RENDERED = join(REPO, 'examples/aef-processes/rendered');
 const FIXTURE_MAP = 'healing-loop';     // the corpus map that overhung (+3 px) when T-1154 was measured
 const LONG = 'Resolved, recorded and promoted to a durable project learning';
 const MIN_MARGIN = 10;                  // POOL_LABEL_MARGIN is 12; bbox rounding leaves at least 10
+const MIN_MARGIN_BOTTOM = 3;            // POOL_LABEL_MARGIN_BOTTOM is 4
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
@@ -36,11 +37,13 @@ async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = awa
 // In the page: how far the furthest rendered label / badge sits from the drawn pool's right border (negative = inside).
 const OVERHANG = `(function(){
   var pb = svg.querySelector('#g-pool > .pool-border');
-  var edge = +pb.getAttribute('x') + +pb.getAttribute('width'), worst = -1e9, what = '';
+  var edge = +pb.getAttribute('x') + +pb.getAttribute('width'), floor = +pb.getAttribute('y') + +pb.getAttribute('height');
+  var worst = -1e9, what = '', worstB = -1e9, whatB = '';
   svg.querySelectorAll('#g-nodes .node-label, #g-badges text, #g-badges-top text').forEach(function(t){
     var b; try { b = t.getBBox(); } catch (e) { return; } if (!b.width) return;
-    var o = b.x + b.width - edge; if (o > worst) { worst = o; what = t.textContent.slice(0, 40); } });
-  return { overhang: worst, what: what, drawnW: +pb.getAttribute('width') };
+    var o = b.x + b.width - edge; if (o > worst) { worst = o; what = t.textContent.slice(0, 40); }
+    var u = b.y + b.height - floor; if (u > worstB) { worstB = u; whatB = t.textContent.slice(0, 40); } });
+  return { overhang: worst, what: what, below: worstB, whatBelow: whatB, drawnW: +pb.getAttribute('width'), drawnH: +pb.getAttribute('height') };
 })()`;
 // The participant's exported DI width, read from the export itself.
 const EXPORT_W = `(function(){ var x = buildBpmnXml(state);
@@ -96,9 +99,10 @@ async function main() {
     for (const f of maps) {
       await open(f.replace(/\.bpmn$/, ''), 1440);
       const o = await ev(cmd, OVERHANG);
-      if (!(o.overhang <= -MIN_MARGIN)) bad.push(`${f}: ${o.overhang.toFixed(1)} (${o.what})`);
+      if (!(o.overhang <= -MIN_MARGIN)) bad.push(`${f}: right ${o.overhang.toFixed(1)} (${o.what})`);
+      if (!(o.below <= -MIN_MARGIN_BOTTOM)) bad.push(`${f}: bottom ${o.below.toFixed(1)} (${o.whatBelow})`);
     }
-    push(`corpus: on all ${maps.length} maps every label and badge sits >= ${MIN_MARGIN}px inside the pool's right border`, bad.length === 0, bad);
+    push(`corpus: on all ${maps.length} maps every label and badge sits >= ${MIN_MARGIN}px inside the right border and >= ${MIN_MARGIN_BOTTOM}px above the bottom border`, bad.length === 0, bad);
 
     // 2-5. fixture: long label under the right-most node
     await open(FIXTURE_MAP, 1440);

@@ -3423,8 +3423,7 @@ function renderAll() {
   syncBoundaryPositions();
   renderPool();
   renderEdges();
-  renderNodes();
-  fitPoolToLabels();   // T-1154: after the labels exist; redraws the pool only when its label pad changes
+  renderNodes();       // ends with fitPoolToLabels() (T-1154)
   renderProperties();
   syncCanvasSize();
   updateStatus();
@@ -3774,17 +3773,25 @@ function fitLaneLabel(headerG, lane, cx, cy, laneH, isSelected) {
 // right-most node could hang past the drawn pool. After the nodes are drawn, fitPoolToLabels() widens the DRAWN pool
 // alone by poolLabelPad to the rendered labels and badges plus a margin. View only: export, label placement (T-601
 // scores against the box edge, so the pad cannot feed back into it) and the page-width drag keep the box edge.
-let poolLabelPad = 0;
-const POOL_LABEL_MARGIN = 12;
+// The bottom works the same way with its own pad (id badges under bottom-lane nodes reached up to 6 px past it):
+// the LAST lane is drawn taller by poolLabelPadBottom; lane.height, which is saved, does not change.
+let poolLabelPad = 0, poolLabelPadBottom = 0;
+const POOL_LABEL_MARGIN = 12, POOL_LABEL_MARGIN_BOTTOM = 4;
 function fitPoolToLabels() {
-  const edge = contentRightEdge();
-  let right = edge;
+  const edge = contentRightEdge(), floor = POOL_Y + poolHeight();
+  let right = edge, bottom = floor;
   for (const t of svg.querySelectorAll('#g-nodes .node-label, #g-badges text, #g-badges-top text')) {
     let b; try { b = t.getBBox(); } catch (_) { continue; }
-    if (b.width) right = Math.max(right, b.x + b.width + POOL_LABEL_MARGIN);
+    if (!b.width) continue;
+    right = Math.max(right, b.x + b.width + POOL_LABEL_MARGIN);
+    bottom = Math.max(bottom, b.y + b.height + POOL_LABEL_MARGIN_BOTTOM);
   }
-  const pad = Math.ceil(right - edge);
-  if (pad !== poolLabelPad) { poolLabelPad = pad; renderPool(); }
+  const pad = Math.ceil(right - edge), padB = getLanes().length ? Math.ceil(bottom - floor) : 0;
+  if (pad !== poolLabelPad || padB !== poolLabelPadBottom) {
+    poolLabelPad = pad; poolLabelPadBottom = padB;
+    renderPool();
+    syncCanvasSize();   // the drawn pool changed size; outside renderAll nothing else would refit the view
+  }
 }
 
 function renderPool() {
@@ -3792,7 +3799,7 @@ function renderPool() {
   // pool outline
   const px = POOL_X, py = POOL_Y;
   const pw = contentRightEdge() - POOL_X + poolLabelPad; // encloses the right-most node (T-043) and its label (T-1154)
-  const ph = poolHeight();
+  const ph = poolHeight() + poolLabelPadBottom;           // T-1154: drawn only; the last lane below carries the pad
 
   // pool header strip
   gPool.appendChild(el('rect', { x: px, y: py, width: pw, height: POOL_HEADER, fill: 'var(--surface-2)' }));
@@ -3803,7 +3810,7 @@ function renderPool() {
   const lanesArr = getLanes();
   for (let li = 0; li < lanesArr.length; li++) {
     const lane = lanesArr[li];
-    const lh = lane.height;
+    const lh = lane.height + (li === lanesArr.length - 1 ? poolLabelPadBottom : 0);   // T-1154: drawn height only
     const isSelected = selection?.kind === 'lane' && selection.id === lane.id;
 
     // Lane body background — tinted by authority
@@ -4233,6 +4240,7 @@ function renderNodes() {
   adjustEdgeLabelPlacements();
   addIdBadgeHalos();
   layerIdBadges();
+  fitPoolToLabels();   // T-1154: last, after every label and badge is placed; most renderNodes() calls bypass renderAll
 }
 
 // Overlong below-label wrap (T-600): gateway/event names render on a single line
