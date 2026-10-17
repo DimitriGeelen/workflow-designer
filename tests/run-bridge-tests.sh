@@ -3089,6 +3089,7 @@ T1013_GUARDS=(
   'tools/_t1171-landing-flyout-test.py|the /designer cards'"'"' thumbnail fly-out: one per thumbnail card, Open through the card link, still one ?load link per card (T-1171)'
   'tools/_t1172-designer-open-test.py|opening a map from /designer keeps Watchtower around it: inline page, frame with the same load value, fullscreen toggle, cards point at it (T-1172)'
   'tools/_t1168-node-id-map.mjs --check|the committed corpus carries exactly the node ids the designer exports (T-1168 migration stays in step)'
+  'tools/_t1154-pool-label-fit-cdp.mjs|CDP regression: the drawn pool encloses every rendered label and id badge on the right (24 maps + long-label fixture); the BPMN export stays box-based and pad-free (T-1154)'
   'tools/_t1091-sticky-lanes-cdp.mjs|CDP regression: zoomed and scrolled right, lane names stay pinned at the left edge, aligned and on top; nothing pinned unscrolled; option persists; export and thumbnails unaffected (T-1091)'
   'tools/_t1192-teeth.sh|after an upgrade, templates identical to the vendored copy are committed, .upstream files ours contains are removed, the rest named (T-1192)'
   'tools/_t1189-id-map-dir.sh|the id-map tool run on another directory (--dir, --designer 0.20.0) reproduces the T-1168 table and migration byte for byte (T-1189, for AEF T-4224)'

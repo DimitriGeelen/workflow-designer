@@ -3424,6 +3424,7 @@ function renderAll() {
   renderPool();
   renderEdges();
   renderNodes();
+  fitPoolToLabels();   // T-1154: after the labels exist; redraws the pool only when its label pad changes
   renderProperties();
   syncCanvasSize();
   updateStatus();
@@ -3768,11 +3769,29 @@ function fitLaneLabel(headerG, lane, cx, cy, laneH, isSelected) {
   headerG.appendChild(el('title', {}, [text(lane.name)]));
 }
 
+// T-1154 (OBS-314): contentRightEdge() encloses node BOXES, and it must: it feeds the BPMN export, which may not
+// depend on text measurement (bytes would vary with the machine's fonts). So a label or id badge centred under the
+// right-most node could hang past the drawn pool. After the nodes are drawn, fitPoolToLabels() widens the DRAWN pool
+// alone by poolLabelPad to the rendered labels and badges plus a margin. View only: export, label placement (T-601
+// scores against the box edge, so the pad cannot feed back into it) and the page-width drag keep the box edge.
+let poolLabelPad = 0;
+const POOL_LABEL_MARGIN = 12;
+function fitPoolToLabels() {
+  const edge = contentRightEdge();
+  let right = edge;
+  for (const t of svg.querySelectorAll('#g-nodes .node-label, #g-badges text, #g-badges-top text')) {
+    let b; try { b = t.getBBox(); } catch (_) { continue; }
+    if (b.width) right = Math.max(right, b.x + b.width + POOL_LABEL_MARGIN);
+  }
+  const pad = Math.ceil(right - edge);
+  if (pad !== poolLabelPad) { poolLabelPad = pad; renderPool(); }
+}
+
 function renderPool() {
   gPool.innerHTML = '';
   // pool outline
   const px = POOL_X, py = POOL_Y;
-  const pw = contentRightEdge() - POOL_X; // content-aware: encloses right-most node (T-043)
+  const pw = contentRightEdge() - POOL_X + poolLabelPad; // encloses the right-most node (T-043) and its label (T-1154)
   const ph = poolHeight();
 
   // pool header strip
@@ -4432,8 +4451,10 @@ function adjustLabelPlacements() {
   // the lane header strip, hanging outside the pool, or reaching over a lane
   // divider scored a clean 0 and was kept. The divider case is the one that
   // matters most: a lane encodes WHO acts, so a label drawn over the next lane
-  // attributes the step to the wrong actor. Geometry mirrors renderPool() exactly
-  // — same px/pw/ph, same band stacking from POOL_Y + POOL_HEADER.
+  // attributes the step to the wrong actor. Geometry mirrors renderPool() — same
+  // px/pw/ph, same band stacking from POOL_Y + POOL_HEADER — except the drawn pool's
+  // label pad (T-1154): it is derived FROM label placement, so scoring against it
+  // would feed back; the box edge is the bound here.
   const px = POOL_X, py = POOL_Y;
   const pw = contentRightEdge() - POOL_X;
   const ph = poolHeight();

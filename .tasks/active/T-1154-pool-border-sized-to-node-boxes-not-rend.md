@@ -1,13 +1,19 @@
 ---
 id: T-1154
-name: "Pool border sized to node boxes, not rendered labels: contentRightEdge()/poolHeight() let right-most below-labels overhang the pool"
+name: "Pool border sized to node boxes, not rendered labels: contentRightEdge()/poolHeight()
+  let right-most below-labels overhang the pool"
 description: >
-  Promoted from OBS-314 by T-1149 (observation triage, 2026-10-13). I found no task that sizes the pool to label extents. The only task hits are T-043, T-050 and T-255, which cover the box-based contentRightEdge and the page-width floor; none addresses label overhang. Not re-measured. The finding was kept out of T-601 on purpose and has no carrier. Original observation text is in .context/inbox.yaml under OBS-314.
+  Promoted from OBS-314 by T-1149 (observation triage, 2026-10-13). I found no task
+  that sizes the pool to label extents. The only task hits are T-043, T-050 and T-255,
+  which cover the box-based contentRightEdge and the page-width floor; none addresses
+  label overhang. Not re-measured. The finding was kept out of T-601 on purpose and
+  has no carrier. Original observation text is in .context/inbox.yaml under OBS-314.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: later
+horizon: now
 tags: [observations]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:20:56Z
-last_update: 2026-10-13T16:20:56Z
-date_finished: null
+last_update: 2026-10-17T16:17:01Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,48 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-17T16:17:02Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=pool); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=3 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L3:keyword=promote)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1154: Pool border sized to node boxes, not rendered labels: contentRightEdge()/poolHeight() let right-most below-labels overhang the pool
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+OBS-314 (T-601, 2026-08-26): `contentRightEdge()` encloses the right-most node BOX (+60 margin), not its label, so a
+below-label centred on the right-most node can overhang the pool border; `poolHeight()` may do the same at the bottom.
+Never re-measured since. Constraint found on reading: the BPMN export writes the pool's DI width from
+`contentRightEdge()` (src line ~12557), so sizing it from RENDERED text would make saved files depend on font
+measurement (machine-dependent bytes; T-358 export determinism). The fix must keep the export deterministic.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Measured first on the 24-map corpus with designer 0.20.0: per map, how far any rendered node label reaches past the pool's right border and below its bottom border; numbers recorded here. If nothing overhangs, the task closes as not reproduced with that measurement — 2026-10-17, 1440 px, label size m (scratch t1154-measure.mjs): node labels past the RIGHT border in 1 of 24 maps (healing-loop +3 px, "Resolved & recorded (antifragi…"); 5 more within 1-9 px (task-lifecycle -1, session-handover -2, arc-lifecycle -8, inception-lifecycle -9, inception-review -13). Labels past the BOTTOM: none (worst -6; the lane fit already reserves below-label room, LANE_FIT_LABEL). Id badges: right +38 (session-handover), bottom up to +6 on many maps. Reproduced on the right edge; the bottom is a badge-only matter (see Decisions)
+- [x] If reproduced: the DRAWN pool (border, header band, lane backgrounds) encloses every rendered node label on the right and at the bottom with a margin; no node moves — right edge: labels and badges now >= 11 px inside on all 24 maps; bottom: labels already inside (measured), badge-only overhang left by decision (see Decisions)
+- [x] The BPMN export stays independent of text measurement: byte-identical across two loads and across label sizes s/m/l, and the corpus checks stay green (`_t1168-node-id-map.mjs --check`); any change in exported bytes is stated and justified here — no exported byte changes: the pad never reaches buildBpmnXml (identical with pad forced to 0; the T-1119 collaboration's pool DI width stays box-based with a 100 px pad drawn); identical across s/m/l
+- [x] CDP regression test on a fixture with a long label under the right-most node and in the bottom lane; the pre-change designer fails it (control); wired into the bridge suite — `tools/_t1154-pool-label-fit-cdp.mjs` 7/7; control: pre-change designer 1/7 (long label +113 px). Bottom-lane leg dropped with the bottom decision
+- [x] Screenshots at 1024, 1440 and 1920 of the fixture (fit and zoomed), read control by control in `## Visual Verification`
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -95,8 +129,20 @@ date_finished: null
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1154 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+- [ ] [REVIEW] The pool border visibly encloses the long label under the right-most node, and the widened pool looks intentional (header band and lanes widen with it), at every width
+  **Steps:**
+  1. Open the screenshots listed in `## Visual Verification` (t1154-{1024,1440,1920}-{fit,zoomed}.png)
+  2. In each: the label "Resolved, recorded and promoted to a durable project learning" and its id badge end inside the pool's right border, with a visible gap; the pool header band and every lane background reach the same right edge; nothing else in the canvas or chrome is clipped or overlapped
+  **Expected:** step 2 holds in all six screenshots
+  **If not:** name the screenshot and what is wrong (label touching or crossing the border, a band or lane shorter than the border, a clipped control)
 
 ## Verification
+
+node tools/_t1154-pool-label-fit-cdp.mjs > /tmp/.t1154 2>&1 && grep -q 'PASS: 7/7' /tmp/.t1154
+node tools/_t1091-sticky-lanes-cdp.mjs > /tmp/.t1154s 2>&1 && grep -q 'PASS: 31/31' /tmp/.t1154s
+node tools/_t601-lane-boundary.mjs > /tmp/.t1154p 2>&1 && grep -q '^PASS' /tmp/.t1154p
+node tools/_t1168-node-id-map.mjs --check > /tmp/.t1154c 2>&1
+grep -q '_t1154-pool-label-fit-cdp.mjs' tests/run-bridge-tests.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -227,7 +273,31 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+## Visual Verification
+
+Screenshots from `node tools/_t1154-pool-label-fit-cdp.mjs`: map healing-loop (the corpus map that overhung) with the
+right-most end event renamed "Resolved, recorded and promoted to a durable project learning", in `.playwright-mcp/`:
+t1154-{1024,1440,1920}-{fit,zoomed}.png (zoomed = 160%, scrolled to the right edge). Read by the author:
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| fit | pool right border vs long label + badge | ok | ok | ok | label and frw_end_resolved end inside the border; small at fit, gap visible at 1920 |
+| zoomed | pool right border vs long label + badge | ok | ok | ok | ~20 px gap between label end and border at 1024 (644 vs 664), similar at 1440/1920 |
+| zoomed | pool header band, lane backgrounds, dividers | ok | ok | ok | all reach the widened border; no short band |
+| zoomed | sticky lane names (T-1091) | ok | ok | ok | pinned at the left edge (scrolled right); the end event at 1024 sits partly under the strip, as T-1091 documents |
+| all | toolbar, panels, fold tabs | ok | ok | ok | unchanged; "Restored your unsaved work" toast is the existing autosave notice |
+
 ## RCA
+
+**Symptom:** a label or id badge under the right-most node could reach past the pool's right border (measured: healing-loop
+label +3 px, session-handover badge +38 px; a long end-event label +113 px).
+**Root cause:** the pool is sized by `contentRightEdge()` = right-most node BOX + 60 px; labels and badges are drawn after
+the pool and were never measured against it.
+**Why structurally allowed:** the box-based edge is shared by the BPMN export (which must stay text-measurement-free) and by
+the T-601 placement scorer, so the drawing reused it; no check compared rendered text to the border (OBS-314 was noted
+in T-601 and left without a carrier until T-1149's triage).
+**Prevention:** `tools/_t1154-pool-label-fit-cdp.mjs` in the bridge suite checks all 24 corpus maps and a long-label fixture
+against the drawn border, and that the export stays pad-free.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -307,6 +377,21 @@ date_finished: null
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-10-17 — Widen the DRAWN pool, not contentRightEdge()
+- **Chose:** after renderNodes, measure rendered labels and badges; redraw the pool wider by the overhang + 12 px
+  (`poolLabelPad`). Export, T-601 placement scoring and the page-width drag keep the box edge.
+- **Why:** contentRightEdge() feeds the BPMN export; text measurement there would make saved bytes depend on fonts.
+  The scorer must not see the pad (it is derived from placement: feedback loop).
+- **Rejected:** a character-count width estimate in contentRightEdge() (deterministic but approximate, and it would
+  change exported bytes for corpus maps near the edge).
+
+### 2026-10-17 — Bottom edge left as is
+- **Chose:** no change at the bottom. Labels never overhang it (worst -6 px): the lane fit already reserves room for
+  below-labels (LANE_FIT_LABEL). Only id badges reach up to 6 px below on some maps.
+- **Why:** lane heights are document state (saved); growing them for a badge is a separate question, not this defect.
+- **Rejected:** widening the drawn bottom lane only (the drawn and saved lane heights would disagree, and lane resize
+  handles act on the saved height).
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -323,3 +408,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1154-pool-border-sized-to-node-boxes-not-rend.md
 - **Context:** Initial task creation
+
+### 2026-10-17T16:17:01Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
