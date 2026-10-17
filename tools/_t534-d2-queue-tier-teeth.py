@@ -67,6 +67,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _audit_lock import run_fw_audit, LOCK_HELD, LOCK_HELD_MESSAGE  # noqa: E402  (T-1166)
 from datetime import datetime, timedelta, timezone
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -196,9 +198,12 @@ def d2_line(tasks_dir):
     env = dict(os.environ)
     env["TASKS_DIR"] = tasks_dir
     out = os.path.join(tempfile.gettempdir(), "t534-teeth-audit.yaml")
-    p = subprocess.run([FW, "audit", "--section", "discovery", "--output", out],
-                       cwd=REPO, env=env, capture_output=True, text=True,
-                       timeout=600, check=False)
+    p = run_fw_audit([FW, "audit", "--section", "discovery", "--output", out],
+                     cwd=REPO, env=env, capture_output=True, text=True,
+                     timeout=600, check=False)
+    if p.returncode == LOCK_HELD:   # T-1166: a held audit lock is not a missing D2 line
+        print(LOCK_HELD_MESSAGE)
+        sys.exit(2)
     for line in (p.stdout + p.stderr).splitlines():
         if "D2: Human review queue" in line:
             return line.strip()

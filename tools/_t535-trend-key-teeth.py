@@ -34,6 +34,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _audit_lock import run_fw_audit, LOCK_HELD, LOCK_HELD_MESSAGE  # noqa: E402  (T-1166)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FW = os.path.join(ROOT, ".agentic-framework", "bin", "fw")
@@ -106,9 +108,12 @@ def main():
     try:
         write_corpus(sandbox)
         env = dict(os.environ, AUDITS_DIR=sandbox)
-        proc = subprocess.run([FW, "audit", "--section", "structure"],
-                              cwd=ROOT, env=env, capture_output=True, text=True, timeout=600)
+        proc = run_fw_audit([FW, "audit", "--section", "structure"],
+                            cwd=ROOT, env=env, capture_output=True, text=True, timeout=600)
         stdout = proc.stdout + proc.stderr
+        if proc.returncode == LOCK_HELD:   # T-1166: a held audit lock is not a missing TREND section
+            print(LOCK_HELD_MESSAGE)
+            sys.exit(2)
     finally:
         shutil.rmtree(sandbox, ignore_errors=True)
 

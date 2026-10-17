@@ -1,13 +1,19 @@
 ---
 id: T-1166
-name: "Audit-reading teeth go red under a concurrent cron audit: confirm the cause and isolate (_t525/_t534/_t535/_t536/_t628)"
+name: "Audit-reading teeth go red under a concurrent cron audit: confirm the cause
+  and isolate (_t525/_t534/_t535/_t536/_t628)"
 description: >
-  Promoted from OBS-481 by T-1149 (observation triage, 2026-10-13). Real flake, one occurrence and cause unconfirmed. Five audit-reading teeth (_t525, _t534, _t535, _t536, _t628) went red during a cron audit and were green alone and on rerun. The only record is a note in T-1068 (~line 463). The cause is not confirmed and no task owns it. Original observation text is in .context/inbox.yaml under OBS-481.
+  Promoted from OBS-481 by T-1149 (observation triage, 2026-10-13). Real flake, one
+  occurrence and cause unconfirmed. Five audit-reading teeth (_t525, _t534, _t535,
+  _t536, _t628) went red during a cron audit and were green alone and on rerun. The
+  only record is a note in T-1068 (~line 463). The cause is not confirmed and no task
+  owns it. Original observation text is in .context/inbox.yaml under OBS-481.
 
-status: captured
+status: started-work
 workflow_type: test
+current_node: frw_1_start
 owner: agent
-horizon: later
+horizon: now
 tags: [observations]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:21:25Z
-last_update: 2026-10-13T16:21:25Z
-date_finished: null
+last_update: 2026-10-17T09:38:04Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,43 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-17T09:12:54Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=3 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L3:keyword=promote)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1166: Audit-reading teeth go red under a concurrent cron audit: confirm the cause and isolate (_t525/_t534/_t535/_t536/_t628)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+OBS-481: five audit-reading teeth (_t525, _t534, _t535, _t536, _t628) went red during a cron audit and were green
+alone and on rerun; the cause was never confirmed. Hypothesis to test first: each runs `fw audit`, which takes an
+exclusive audit lock, so a concurrent cron audit makes it exit early (75) or read a half-written report.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The cause is confirmed or refuted by reproduction: each of the five run while an audit holds the lock, with the observed exit code and output — CONFIRMED (lock held with flock): _t534, _t535, _t536 refused at once (rc 2, 0 s) blaming the control ("no D2 line", "no TREND ANALYSIS section", "no CTL-028 line") because `fw audit` exited 75 ("Another audit is already running"); _t525 passed (lock-free `fw audit --check` since T-1184); _t628 passed (does not take the lock)
+- [x] Each affected probe either avoids the lock (`fw audit --check <id>` where it reads one check, AEF T-4209) or reports a lock collision as COULD NOT RUN / abstain (never as a regression of what it guards) — none of their checks is selectable yet (`--list-checks`), so tools/_audit_lock.py: retry while the lock is held (10 s polls, up to T1166_LOCK_WAIT, default 180 s), then `CANNOT RUN: another fw audit held the audit lock` with rc 2, the wording the suite files under "never got to look" (T-1060)
+- [x] The five pass alone, and none reads as a regression while an audit holds the lock — alone: all pass; lock held 25 s: _t534 8/8, _t535 7/7, _t536 5/5 after waiting; lock held past a 20 s wait: all three CANNOT RUN rc 2
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +126,11 @@ date_finished: null
 -->
 
 ## Verification
+python3 -c "import sys; sys.path.insert(0,'tools'); import _audit_lock as a; assert a.LOCK_HELD == 75 and 'CANNOT RUN' in a.LOCK_HELD_MESSAGE"
+grep -q "run_fw_audit" tools/_t534-d2-queue-tier-teeth.py
+grep -q "run_fw_audit" tools/_t535-trend-key-teeth.py
+grep -q "run_fw_audit" tools/_t536-status-desync-teeth.py
+timeout 300 python3 tools/_t536-status-desync-teeth.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -323,3 +357,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1166-audit-reading-teeth-go-red-under-a-concu.md
 - **Context:** Initial task creation
+
+### 2026-10-17T09:12:53Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)

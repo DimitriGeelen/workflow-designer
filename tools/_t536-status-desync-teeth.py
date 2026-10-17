@@ -27,6 +27,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _audit_lock import run_fw_audit, LOCK_HELD, LOCK_HELD_MESSAGE  # noqa: E402  (T-1166)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FW = os.path.join(ROOT, ".agentic-framework", "bin", "fw")
@@ -97,8 +99,11 @@ def build_tree(base):
 
 def run_audit(tasks_dir):
     env = dict(os.environ, TASKS_DIR=tasks_dir)
-    proc = subprocess.run([FW, "audit", "--section", "compliance"],
-                          cwd=ROOT, env=env, capture_output=True, text=True, timeout=900)
+    proc = run_fw_audit([FW, "audit", "--section", "compliance"],
+                        cwd=ROOT, env=env, capture_output=True, text=True, timeout=900)
+    if proc.returncode == LOCK_HELD:   # T-1166: a held audit lock is not a missing control
+        print(LOCK_HELD_MESSAGE)
+        sys.exit(2)
     return proc.stdout + proc.stderr
 
 
