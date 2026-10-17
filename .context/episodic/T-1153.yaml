@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1153: Render AC headline text (ac.text) in /approvals and task templates instead of showing raw markdown; never mark it |safe
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T23:33:31Z
+# ============================================================================
+
+task_id: T-1153
+task_name: "Render AC headline text (ac.text) in /approvals and task templates instead of showing raw markdown; never mark it |safe"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T16:20:53Z
+completed: 2026-10-17T23:33:22Z
+duration_days: 4
+updates_count: 2
+first_commit: 2026-10-18T01:30:32+02:00
+last_commit: 2026-10-18T01:33:21+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  rescoped to a report — every ac.text site is in vendored AEF templates; 7 raw sites + a latent |safe fallback sent to AEF (832-ac-text-render, RECEIVED). AEF took both points (T-4287 latent |safe fallback, T-4288 headline renderer)
+
+# Key outcomes
+outcomes:
+  - 'The seven raw sites and the `| safe` fallback are reported to AEF with file:line at the vendored commit, and their task id asked for'
+  - 'AEF''s answer (task id or reason) is recorded here'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1153-render-ac-headline-text-actext-in-approv.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-18T01:30:32'
+    action: 'T-1153: rescoped to a report — every ac.text site is in vendored AEF templates; 7 raw sites + a latent |safe fallback sent to AEF (832-ac-text-render, RECEIVED)'
+  - time: '2026-10-18T01:33:21'
+    action: 'T-1153: AEF took both points (T-4287 latent |safe fallback, T-4288 headline renderer)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 6192 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [observations]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 6192
+  commits: 2
+  files_changed: 1
+  lines_added: 58
+  lines_removed: 11
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1153-render-ac-headline-text-actext-in-approv.md
+generated_by: context-agent-hybrid
