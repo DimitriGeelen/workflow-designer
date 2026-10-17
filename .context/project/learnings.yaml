@@ -2809,3 +2809,9 @@ learnings:
   task: T-1174
   date: 2026-10-14
   context: Added via context agent
+- id: PL-404
+  learning: "A release that ends at the tag leaves the main consumer behind unseen: AEF sat on designer 0.14.0 for ten releases. Count a release done when the consumer serves it, and check the consumer's pin every session (tools/_t1187-aef-pin-lag.sh)."
+  source: unknown
+  task: T-1187
+  date: 2026-10-17
+  context: Added via context agent

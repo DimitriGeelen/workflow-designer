@@ -90,6 +90,19 @@ renders (designer `src/`, Watchtower templates/CSS, anything a person sees):
    and what to check, judged by `fw reviewer judge T-XXX --criterion N` (AEF routing, PD-357). The task does not
    close on the author's own look alone.
 
+### AEF is the designer's main consumer: a release is done only when AEF serves it (operator, 2026-10-17)
+
+"With AEF it should be very tight continuous development ... Greenfield will fall off and AEF will continue to be
+your main body." On that day AEF's designer pin was 0.14.0, ten releases behind 0.20.0, and nothing in 832 had
+noticed, because a release counted as done at the tag (T-1187).
+1. **Every designer release goes to AEF** the moment it is tagged: version, tag, sha256, bytes, what it brings, and
+   anything that changes what AEF stores (node ids, fields), with the material they need (id maps).
+2. **Track AEF's pin until it matches.** `tools/_t1187-aef-pin-lag.sh` reads AEF's public pin (CURRENT / BEHIND N /
+   REFUSED); the session-start alerts print it every session. BEHIND is a follow-up item, not background noise.
+3. **Follow up, don't wait silently.** If AEF has not picked a release up within a few days, ask on its conversation,
+   and ask for their task id so it can be followed.
+4. AEF's own work for 832 (their tasks on our reports) is followed the same way, item by item.
+
 ### Review routing follows the CURRENT AEF ruleset (operator, 2026-10-06, PD-357)
 
 The operator's standing directive: who checks what (operator or independent reviewer, the

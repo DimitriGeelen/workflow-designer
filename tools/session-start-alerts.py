@@ -10,6 +10,9 @@ Two sections, runme first so a failing mail check can never hide it:
      832's own topic reader and its marker file retired here (T-1059).
   3. Watched peer topics (T-1087): peers that post on shared hub topics instead of the sidecar
      (Greenfield). Listed by name above a per-topic last-seen offset; --mark-seen advances it.
+  4. AEF designer pin (T-1187): AEF is the designer's main consumer (operator, 2026-10-17); a release is
+     done only when AEF serves it. One line from tools/_t1187-aef-pin-lag.sh: CURRENT, BEHIND N, or
+     NOT CHECKED. Informational: it never changes the exit code, which stays the mail check's.
 
 The user-level /resume skill (step 7) runs `scripts/session-start-alerts.sh --limit 10`; the
 script may run with no task in focus (T-1047 allowlist).
@@ -266,6 +269,19 @@ def watched_topics(mark_seen):
     return rc
 
 
+def aef_pin():
+    """T-1187: is AEF serving our latest designer release? One line; never fails the run."""
+    tool = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_t1187-aef-pin-lag.sh")
+    try:
+        r = subprocess.run(["bash", tool], capture_output=True, text=True, timeout=30)
+        line = (r.stdout.strip().splitlines() or ["(no output)"])[-1]
+        if r.returncode == 2:
+            line = "NOT CHECKED — " + line
+    except (OSError, subprocess.TimeoutExpired) as e:
+        line = "NOT CHECKED — %s" % e
+    print("AEF designer pin: %s" % line)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=10)
@@ -274,6 +290,7 @@ def main(argv=None):
     print_runme()  # first, so a failed mail check below cannot hide it
     rc_mail = mail(a.limit, a.mark_seen)
     rc_topics = watched_topics(a.mark_seen)
+    aef_pin()
     return max(rc_mail, rc_topics)
 
 
