@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1163: Bridge-suite failure ratchet treats a one-leg flake as a regression (needs per-leg record or N consecutive rows)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T09:02:51Z
+# ============================================================================
+
+task_id: T-1163
+task_name: "Bridge-suite failure ratchet treats a one-leg flake as a regression (needs per-leg record or N consecutive rows)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-13T16:21:18Z
+completed: 2026-10-17T09:02:39Z
+duration_days: 4
+updates_count: 2
+first_commit: 2026-10-17T11:02:17+02:00
+last_commit: 2026-10-17T11:02:38+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  bridge-suite ratchet — a rise must show in two consecutive completed runs (one run above the floor is an UNCONFIRMED warning, WARN in the project audit); floor 32 -> 2; staleness 48h -> 7 days, worded for a suite run by hand (T-917: deliberately unscheduled); teeth 11/11 (3 red on the old ratchet). RCA recorded
+
+# Key outcomes
+outcomes:
+  - 'A rise above the floor fails only when it is CONFIRMED by the two newest completed runs both above it; a single run above it is reported loudly as UNCONFIRMED (a possible flake, with the next run to settle it), not as a breach — and tools/project-audit.sh shows it as a WARN, never folded into "floor held" (proven on a fixture)'
+  - 'The floor is lowered to what the suite actually fails now, with the reason in the baseline file — 32 -> 2 (newest completed run 280/2, both explained and since fixed or load-only); previous floor kept as a comment'
+  - '`tools/_t952-ratchet-teeth.sh` covers the new rule: one run above the floor -> UNCONFIRMED (not a breach), two consecutive -> breach, a dip between -> not confirmed; and still bites on the old cases — 11/11; 3 of them fail on the old ratchet'
+  - 'The ratchet''s staleness assumption ("the suite is scheduled nightly") is checked against the real schedule, and the finding recorded (fixed here if it is the ratchet''s wording, its own task if the schedule is missing) — no schedule exists BY DECISION (T-917, cron-registry bridge-suite-age-daily), so the wording was the defect: limit 48h -> 7 days, message says the suite runs by hand'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-17 — two consecutive runs, not a per-leg record'
+    chose: 'a rise is confirmed by the two newest completed runs both above the floor; one run above is an UNCONFIRMED warning (WARN in the project audit). Staleness limit 7 days, worded for a suite run by hand.'
+    rationale: 'the history file records counts, not legs, and a second run is the cheapest way to tell a one-leg flake from a real rise; the floor can then sit at what the suite really fails (2) instead of 32.'
+    alternatives_rejected: ['a per-leg pass/fail record (would name the flipped leg, but needs a new history format and a suite change for the same verdict); scheduling the suite nightly (T-917 decided against it: 40-minute browser suite).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1163-bridge-suite-failure-ratchet-treats-a-on.md'
+  - 'tools/project-audit.sh'
+  - 'tools/_t952-bridge-baseline.txt'
+  - 'tools/_t952-bridge-suite-ratchet.py'
+  - 'tools/_t952-ratchet-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-17T11:02:17'
+    action: 'T-1163: bridge-suite ratchet — a rise must show in two consecutive completed runs (one run above the floor is an UNCONFIRMED warning, WARN in the project audit); floor 32 -> 2; staleness 48h -> 7 days, worded for a suite run by hand (T-917: deliberately unscheduled); teeth 11/11 (3 red on the old ratchet)'
+  - time: '2026-10-17T11:02:38'
+    action: 'T-1163: RCA recorded'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 5321 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [observations]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5321
+  commits: 2
+  files_changed: 5
+  lines_added: 142
+  lines_removed: 27
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1163-bridge-suite-failure-ratchet-treats-a-on.md
+generated_by: context-agent-hybrid

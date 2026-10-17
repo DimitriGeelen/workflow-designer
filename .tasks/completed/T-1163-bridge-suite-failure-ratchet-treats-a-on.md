@@ -9,13 +9,13 @@ description: >
   run to run, and no task covers per-leg tracking or N consecutive rows. Original
   observation text is in .context/inbox.yaml under OBS-459.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_run
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [observations]
-components: []
+components: [tools/project-audit.sh, tools/_t952-bridge-baseline.txt, tools/_t952-bridge-suite-ratchet.py, tools/_t952-ratchet-teeth.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:21:18Z
-last_update: 2026-10-17T09:02:38Z
-date_finished:
+last_update: 2026-10-17T09:02:39Z
+date_finished: 2026-10-17T09:02:39Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -385,3 +385,15 @@ line fires on the next improvement instead of being 30 failures out of date.
 ### 2026-10-17T08:58:34Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-969cccf6
+- **Timestamp:** 2026-10-17T09:02:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-17T09:02:39Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
