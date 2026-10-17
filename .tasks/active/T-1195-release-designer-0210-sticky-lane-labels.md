@@ -88,9 +88,9 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] VERSION and APP_VERSION read 0.21.0 (T-808 parity green); release notes docs/releases/RELEASE-NOTES-0.21.0.md committed
-- [ ] One operator job, rehearsed: calibrate the 0.21.0 kit with codex and GLM-5.3 (gate PASS on its exact bytes), then cut, commit, tag designer-v0.21.0, push
-- [ ] After the tag: our Watchtower serves 0.21.0 (pin from the tag via `fw designer sync --from-tag`, /designer/app sha matches, divergence register OK)
+- [x] VERSION and APP_VERSION read 0.21.0 (T-808 parity green); release notes docs/releases/RELEASE-NOTES-0.21.0.md committed
+- [x] One operator job, rehearsed: calibrate the 0.21.0 kit with codex and GLM-5.3 (gate PASS on its exact bytes), then cut, commit, tag designer-v0.21.0, push — job 037, 7/7, rc 0 (2026-10-17 17:50Z): codex PASS 3/3, GLM-5.3 PASS 3/3, release commit ddc6f47e, tag designer-v0.21.0 pushed; artefact sha256 da161971…, 1164928 B
+- [x] After the tag: our Watchtower serves 0.21.0 (pin from the tag via `fw designer sync --from-tag`, /designer/app sha matches, divergence register OK) — d2f2e547: anchors match, /designer/app serves da161971, APP_VERSION 0.21.0, _t517 OK
 - [ ] AEF told version, tag, sha256, bytes and what changes; the uid-paired table for their 47 maps re-run against the released 0.21.0 artefact and delivered when they name a listening session
 - [ ] `tools/_t1187-aef-pin-lag.sh` followed until it reads CURRENT for 0.21.0 (stays open until then)
 
