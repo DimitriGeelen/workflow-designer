@@ -4,10 +4,11 @@ name: "Report to AEF: check-active-task judges the focused task, not the written
 description: >
   Report to AEF: check-active-task judges the focused task, not the written path (OBS-437, T-1160)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-17T23:12:05Z
-last_update: 2026-10-17T23:12:05Z
-date_finished: null
+last_update: 2026-10-17T23:15:36Z
+date_finished: 2026-10-17T23:15:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -120,7 +121,8 @@ date_finished: null
 
 ## Verification
 
-grep -q '832-obs437-focus-gate' .context/sidecar/outbox/17367115-f4f3-4c26-a5c3-a0a83f7d51fe.json
+# the outbox file is removed once delivered; the direct-path ack ledger keeps the send
+grep -q '17367115-f4f3-4c26-a5c3-a0a83f7d51fe' .context/sidecar/direct-ack.jsonl
 .agentic-framework/bin/fw sidecar inbox --show 10311956-a4a8-4662-8d9c-e89207c5369a | grep -q 'T-4285'
 
 # Shell commands that MUST pass before work-completed. One per line.
@@ -348,3 +350,25 @@ grep -q '832-obs437-focus-gate' .context/sidecar/outbox/17367115-f4f3-4c26-a5c3-
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1199-report-to-aef-check-active-task-judges-t.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ad4f332d
+- **Timestamp:** 2026-10-17T23:15:38Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 3
+     - evidence: `.agentic-framework/bin/fw sidecar inbox --show 10311956-a4a8-4662-8d9c-e89207c5369a | grep -q 'T-4285'`
+
+### 2026-10-17T23:15:36Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

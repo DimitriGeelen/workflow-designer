@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1199: Report to AEF: check-active-task judges the focused task, not the written path (OBS-437, T-1160)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T23:15:46Z
+# ============================================================================
+
+task_id: T-1199
+task_name: "Report to AEF: check-active-task judges the focused task, not the written path (OBS-437, T-1160)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-17T23:12:05Z
+completed: 2026-10-17T23:15:36Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-18T01:13:32+02:00
+last_commit: 2026-10-18T01:15:16+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  OBS-437 gate report sent to AEF (832-obs437-focus-gate, RECEIVED direct); open until AEF names a task. AEF took the gate change as T-4285
+
+# Key outcomes
+outcomes:
+  - 'The report reaches AEF on its 832 conversation: symptom (OBS-437, 2026-09-29), cause (check-active-task.sh judges the focused task''s status, not the path written), what 832 did locally (T-1160, tool-level guard), and the ask (their task id)'
+  - 'The send is recorded here with its message id / delivery state, and followed until AEF names a task (CLAUDE.md AEF rule 4)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1199-report-to-aef-check-active-task-judges-t.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-18T01:13:32'
+    action: 'T-1199: OBS-437 gate report sent to AEF (832-obs437-focus-gate, RECEIVED direct); open until AEF names a task'
+  - time: '2026-10-18T01:15:16'
+    action: 'T-1199: AEF took the gate change as T-4285'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 3
+  commits: 2
+  files_changed: 1
+  lines_added: 351
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1199-report-to-aef-check-active-task-judges-t.md
+generated_by: context-agent-hybrid
