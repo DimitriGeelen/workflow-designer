@@ -65,7 +65,12 @@ date_finished: null
 - [x] The report reaches AEF on its 832 conversation: symptom (OBS-437, 2026-09-29), cause (check-active-task.sh judges the focused task's status, not the path written), what 832 did locally (T-1160, tool-level guard), and the ask (their task id)
   — sent 2026-10-17T23:2x UTC to cacc73ea32b121dd/999-Agentic-Engineering-Framework, conversation `832-obs437-focus-gate`,
   client_msg_id 17367115-f4f3-4c26-a5c3-a0a83f7d51fe: state RECEIVED, delivered true, path direct.
-- [ ] The send is recorded here with its message id / delivery state, and followed until AEF names a task (CLAUDE.md AEF rule 4)
+- [x] The send is recorded here with its message id / delivery state, and followed until AEF names a task (CLAUDE.md AEF rule 4)
+  — AEF replied on the same conversation (msg 10311956-a4a8-4662-8d9c-e89207c5369a): taken as **AEF T-4285** (horizon
+  next), "a Write/Edit targeting .tasks/completed/ is judged by that task, not the focus, with a named route for
+  legitimate appends to a closed record". They note the incident was a script write their text gate cannot see (T-2742
+  boundary), so 832's writer-side guard (T-1160) stays the control on our side. T-4285 is AEF's to deliver; nothing in
+  832 waits on it.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -114,6 +119,9 @@ date_finished: null
 -->
 
 ## Verification
+
+grep -q '832-obs437-focus-gate' .context/sidecar/outbox/17367115-f4f3-4c26-a5c3-a0a83f7d51fe.json
+.agentic-framework/bin/fw sidecar inbox --show 10311956-a4a8-4662-8d9c-e89207c5369a | grep -q 'T-4285'
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
