@@ -1,13 +1,20 @@
 ---
 id: T-1153
-name: "Render AC headline text (ac.text) in /approvals and task templates instead of showing raw markdown; never mark it |safe"
+name: "Render AC headline text (ac.text) in /approvals and task templates instead
+  of showing raw markdown; never mark it |safe"
 description: >
-  Promoted from OBS-319 by T-1149 (observation triage, 2026-10-13). T-606 explicitly deferred it ("different root cause"). The AC headline `ac.text` has no renderer, and the observation shows it unrendered at six template sites. It is only listed in docs/reports/operator-decision-docket.md, which is a decision list and not a fix. I found no task that fixes it. Original observation text is in .context/inbox.yaml under OBS-319.
+  Promoted from OBS-319 by T-1149 (observation triage, 2026-10-13). T-606 explicitly
+  deferred it ("different root cause"). The AC headline `ac.text` has no renderer,
+  and the observation shows it unrendered at six template sites. It is only listed
+  in docs/reports/operator-decision-docket.md, which is a decision list and not a
+  fix. I found no task that fixes it. Original observation text is in .context/inbox.yaml
+  under OBS-319.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: later
+horizon: now
 tags: [observations]
 components: []
 related_tasks: []
@@ -38,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:20:53Z
-last_update: 2026-10-13T16:20:53Z
-date_finished: null
+last_update: 2026-10-17T23:29:09Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +57,49 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-17T23:29:10Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=3 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L3:keyword=promote)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1153: Render AC headline text (ac.text) in /approvals and task templates instead of showing raw markdown; never mark it |safe
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Every site is in the VENDORED framework (`.agentic-framework/web/templates`); 832 has no web/ of its own. A local patch
+would be vendor divergence on AEF's code, so this task reports to AEF instead of editing. Measured at the vendored copy
+(AEF 956f05f36, 2026-10-18): AEF has since added `ac.text_html` and uses it at `task_detail.html:473` and
+`_ac_list.html:45`; seven sites still print the raw `ac.text`: `_ac_list.html:57,74`, `_approvals_content.html:796`,
+`_review_acs.html:59`, `_task_panel.html:68`, `task_detail.html:499,543`. And `_ac_list.html:45` is
+`(ac.text_html or ac.text) | safe`, which marks the RAW text safe whenever text_html is empty.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The seven raw sites and the `| safe` fallback are reported to AEF with file:line at the vendored commit, and their task id asked for
+  — sent to cacc73ea32b121dd/999-Agentic-Engineering-Framework, conversation `832-ac-text-render`, client_msg_id
+  4f3de570-f372-41ed-9faf-2d6ffc7f9af9 (RECEIVED, direct). The fallback was reported as LATENT: its only includer
+  (inception_detail, inception.py:417) sets text_html for every Agent criterion, so it cannot fire today.
+- [ ] AEF's answer (task id or reason) is recorded here
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -323,3 +359,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1153-render-ac-headline-text-actext-in-approv.md
 - **Context:** Initial task creation
+
+### 2026-10-17T23:29:09Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
