@@ -13,6 +13,9 @@ Two sections, runme first so a failing mail check can never hide it:
   4. AEF designer pin (T-1187): AEF is the designer's main consumer (operator, 2026-10-17); a release is
      done only when AEF serves it. One line from tools/_t1187-aef-pin-lag.sh: CURRENT, BEHIND N, or
      NOT CHECKED. Informational: it never changes the exit code, which stays the mail check's.
+  5. Stale [REVIEW] documents (T-1152, OBS-291): an open [REVIEW] criterion that asks someone to read a docs/
+     document older than its task's content. One line from tools/_t1152-stale-review-doc.py naming the
+     tasks; informational too.
 
 The user-level /resume skill (step 7) runs `scripts/session-start-alerts.sh --limit 10`; the
 script may run with no task in focus (T-1047 allowlist).
@@ -283,6 +286,25 @@ def aef_pin():
     print("AEF designer pin: %s" % line)
 
 
+def stale_review_docs():
+    """T-1152: [REVIEW] criteria pointing at a document older than the task. One line; never fails the run."""
+    tool = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "_t1152-stale-review-doc.py")
+    try:
+        r = subprocess.run([sys.executable, tool], capture_output=True, text=True, timeout=90)
+        lines = r.stdout.strip().splitlines() or ["(no output)"]
+        if r.returncode == 1:
+            tasks = sorted({l.split()[1] for l in lines if l.startswith("STALE ")}, key=lambda t: int(t[2:]))
+            line = "%d finding(s) in %s — run: python3 tools/_t1152-stale-review-doc.py" % (
+                len([l for l in lines if l.startswith("STALE ")]), ", ".join(tasks))
+        elif r.returncode in (0, 3):
+            line = lines[-1]
+        else:
+            line = "NOT CHECKED — exit %d: %s" % (r.returncode, (r.stderr.strip().splitlines() or [""])[-1][:120])
+    except (OSError, subprocess.TimeoutExpired) as e:
+        line = "NOT CHECKED — %s" % e
+    print("Stale [REVIEW] docs: %s" % line)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=10)
@@ -292,6 +314,7 @@ def main(argv=None):
     rc_mail = mail(a.limit, a.mark_seen)
     rc_topics = watched_topics(a.mark_seen)
     aef_pin()
+    stale_review_docs()
     return max(rc_mail, rc_topics)
 
 

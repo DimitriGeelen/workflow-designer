@@ -1,13 +1,19 @@
 ---
 id: T-1152
-name: "Detect [REVIEW] ACs whose referenced repo document is older than the task content (stale-proposal check)"
+name: "Detect [REVIEW] ACs whose referenced repo document is older than the task content
+  (stale-proposal check)"
 description: >
-  Promoted from OBS-291 by T-1149 (observation triage, 2026-10-13). The finding is real, and its own text says the population-wide detector is unbuilt. No task has a stale-referenced-document check for [REVIEW] ACs. A grep of tools/ for it found nothing. T-501 only mentions the observation in passing. Original observation text is in .context/inbox.yaml under OBS-291.
+  Promoted from OBS-291 by T-1149 (observation triage, 2026-10-13). The finding is
+  real, and its own text says the population-wide detector is unbuilt. No task has
+  a stale-referenced-document check for [REVIEW] ACs. A grep of tools/ for it found
+  nothing. T-501 only mentions the observation in passing. Original observation text
+  is in .context/inbox.yaml under OBS-291.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: later
+horizon: now
 tags: [observations]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:20:51Z
-last_update: 2026-10-13T16:20:51Z
-date_finished: null
+last_update: 2026-10-17T23:45:15Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,56 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-17T23:45:16Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=3 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L3:keyword=promote)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1152: Detect [REVIEW] ACs whose referenced repo document is older than the task content (stale-proposal check)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+OBS-291 (T-189): a `[REVIEW]` criterion told the operator to read a proposal document last edited 2026-07-12, while
+four later items lived only in the task. A sign-off would have ruled on the July proposal believing it ruled on the
+current one. Nothing compares a referenced document with the task it stands for.
+
+Detector shape: for every ACTIVE task with an unchecked `[REVIEW]`/`[REVIEWER]` criterion that names a tracked repo
+path, compare the path's last-commit date with the task's last BODY change. Frontmatter is excluded because sweeps
+rewrite it (the BVP estimator stamps `bvp_scores_proposed:` on every task). Warn when the task body is newer by more
+than N days (default 7).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `tools/_t1152-stale-review-doc.py` reports one `STALE` line per (task, criterion, path) with both dates and the gap, and a state line that is never a bare empty list (`NO-STALE examined …` / `NOT EVALUATED …`)
+- [x] The task date is the last commit that changed the task BODY; a frontmatter-only commit (an estimator sweep) does not make a task newer
+  (also skipped, measured necessary: checkbox ticks, Updates/Reviewer Verdict/Verification edits, corpus sweeps)
+- [x] Teeth on a scratch git repo: a stale doc fires; a fresh doc, a frontmatter-only bump, a checked criterion, an untracked path and a non-REVIEW criterion do not
+  — `tools/_t1152-stale-review-doc-teeth.py` 17/17, plus ticks, bookkeeping sections, corpus sweeps (and the limit as
+  the discriminator), template comments, non-docs paths, the three exit states. Three detector mutants (tick, bookkeeping,
+  sweep handling disabled) each turn their own control red. Wired as a bridge leg.
+- [x] Run on the live corpus with the result recorded here, and surfaced where someone will see it (decided below, with the count)
+  — 8 findings in T-340, T-347, T-358, T-590, T-695, T-696, T-732 (15 tasks / 16 paths examined); one line in the
+  session-start alerts every /resume; cold 20 s, warm 0.25 s, cached output identical to uncached.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +139,12 @@ date_finished: null
 -->
 
 ## Verification
+
+python3 tools/_t1152-stale-review-doc-teeth.py
+python3 tools/_t1152-stale-review-doc.py; test $? -le 1
+bash scripts/session-start-alerts.sh --limit 1 | grep -c '^Stale \[REVIEW\] docs: ' | grep -qx 1
+grep -q '_t1152-stale-review-doc-teeth.py' tests/run-bridge-tests.sh
+python3 tools/_t451-unwired-guard-census.py --ratchet
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -307,6 +355,26 @@ date_finished: null
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-10-18 — what dates a task, and which paths count
+- **Chose:** the task's last CONTENT commit, skipping frontmatter-only edits, checkbox ticks, edits confined to
+  Updates / Reviewer Verdict / Verification, and corpus sweeps (≥ 20 task files in one commit); and docs/**/*.md|html
+  only by default.
+- **Why, measured on the live corpus:** the naive "doc older than the task file" fired 30 times, mostly on tests,
+  tools, fixtures and screenshots (evidence, not the task's stand-in) and on automatic appends. Documents only: 10.
+  Skipping sweeps (T-660's commit 568c36fd rewrote 81 task bodies to fix a literal T-XXX; it alone dated T-189 and
+  T-353): 8, each a real content change after the document (e.g. T-347: the operator's ruling recorded 2026-10-10,
+  while its open [REVIEW] criterion still asks the reviewer to choose by reading the 2026-08-03 report).
+- **Rejected:** task-file mtime or last commit (every estimator sweep would "refresh" every task); flagging every
+  path (`--all-paths` keeps it available).
+
+### 2026-10-18 — where it is surfaced
+- **Chose:** one informational line in `scripts/session-start-alerts.sh` (what /resume shows every session), naming
+  the tasks; a blob-keyed date cache makes it 0.25 s warm (20 s cold). Not a bridge-suite leg: it judges live task
+  data, not code, so it would turn the code suite red for a document someone has not updated yet. Its teeth ARE a
+  bridge leg.
+- **The 8 live findings are not fixed here**: each needs its owner to bring the document up to the task (or the
+  criterion up to the decision), which is that task's work, not this detector's. They now show at every /resume.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -323,3 +391,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1152-detect-review-acs-whose-referenced-repo-.md
 - **Context:** Initial task creation
+
+### 2026-10-17T23:45:15Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
