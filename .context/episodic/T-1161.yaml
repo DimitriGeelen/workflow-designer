@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1161: Gate the T-682 boundary inventory on commits that stage tools/gallery-serve.py
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T08:56:59Z
+# ============================================================================
+
+task_id: T-1161
+task_name: "Gate the T-682 boundary inventory on commits that stage tools/gallery-serve.py"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T16:21:13Z
+completed: 2026-10-17T08:56:49Z
+duration_days: 4
+updates_count: 2
+first_commit: 2026-10-17T10:56:48+02:00
+last_commit: 2026-10-17T10:56:48+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  pre-commit gate for the editor's authority inventory — when gallery-serve.py or the T-682 report is staged, _t682 runs on the STAGED bytes and blocks with the --write remedy; marked hook line via an idempotent installer; suite legs --check this line and T-1000's; proven in a clone (stale report blocked, regenerated passes, unrelated 9 ms, fixed-tree-stale-index blocked)
+
+# Key outcomes
+outcomes:
+  - 'A pre-commit gate runs `_t682-boundary-inventory.py` when `tools/gallery-serve.py` or the T-682 report is staged, and blocks with the remedy (`--write`) when the check fails; any other commit is not slowed — tools/_t1161-boundary-gate.sh; an unrelated staged file returns in 9 ms'
+  - 'It checks the STAGED content, not the working tree (a fixed working tree with a stale staged file must not pass) — both files read with `git show :path`; proof case D (working tree regenerated, staged report stale) is BLOCKED'
+  - 'It is installed as one marked line in `.git/hooks/pre-commit` by an idempotent installer with `--check`; a bridge-suite leg runs `--check` for this line and the T-1000 one, so a hook reinstall that drops either is caught — tools/_t1161-install-hook.sh (second line, after T-1000''s); two T1013_GUARDS legs, both pass'
+  - 'Proven: a staged route added to gallery-serve.py without a report update is refused; the same with the report regenerated passes; an unrelated commit is unaffected — in a throwaway clone: A blocked, B (route + semantics + regenerated report) passes, C unaffected, D blocked; through the real hook the commit is refused (rc 1, BLOCKED)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'pre-commit gate for the editor''s authority inventory — when gallery-serve.py or the T-682 report is staged, _t682 runs on the STAGED bytes and blocks with the --write remedy; marked hook line via an idempotent installer; suite legs --check this line and T-1000''s; proven in a clone (stale report blocked, regenerated passes, unrelated 9 ms, fixed-tree-stale-index blocked)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1161-gate-the-t-682-boundary-inventory-on-com.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1161-boundary-gate.sh'
+  - 'tools/_t1161-install-hook.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-17T10:56:48'
+    action: 'T-1161: pre-commit gate for the editor''s authority inventory — when gallery-serve.py or the T-682 report is staged, _t682 runs on the STAGED bytes and blocks with the --write remedy; marked hook line via an idempotent installer; suite legs --check this line and T-1000''s; proven in a clone (stale report blocked, regenerated passes, unrelated 9 ms, fixed-tree-stale-index blocked)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5315 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [observations]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5315
+  commits: 1
+  files_changed: 4
+  lines_added: 124
+  lines_removed: 9
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1161-gate-the-t-682-boundary-inventory-on-com.md
+generated_by: context-agent-hybrid
