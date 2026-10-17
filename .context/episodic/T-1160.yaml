@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1160: Completed task records are writable by any script under another task's focus; instance-node.py has no read-only successors verb
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T23:06:51Z
+# ============================================================================
+
+task_id: T-1160
+task_name: "Completed task records are writable by any script under another task's focus; instance-node.py has no read-only successors verb"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-13T16:21:10Z
+completed: 2026-10-17T23:06:12Z
+duration_days: 4
+updates_count: 2
+first_commit: 2026-10-18T01:06:00+02:00
+last_commit: 2026-10-18T01:06:00+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  instance-node.py guards closed records itself — a record in completed/ moves only onto an end event (REFUSED-CLOSED, audited; the framework close and partial-complete still walk) — and gains a read-only successors verb (OBS-437); teeth 12/12 + mutation OK, wired
+
+# Key outcomes
+outcomes:
+  - '`advance`/`walk`/`set` on a record under `completed/` onto a non-end node print `REFUSED-CLOSED`, exit 1, write nothing, and append one audit line (case `closed-record`)'
+  - '`walk` of a completed/ record to an endEvent (the framework''s own close) still succeeds, and a partial-complete record in active/ still walks to `frw_4_partial`'
+  - '`successors <T-XXX>` prints the current node and its legal successors per template of record (or the startEvents for NO-POSITION, or none for an end event) and writes nothing'
+  - 'A teeth test covers all three on scratch task files and is wired into `tests/run-bridge-tests.sh`; the existing instance-node tests still pass'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-18 — what "closed" means for the guard'
+    chose: 'the record''s directory (`completed/`), and the only legal move from it is onto an endEvent; a walk is judged by its destination, not each hop.'
+    rationale: 'the framework walks a record to `frw_end_task` AFTER the archive move, through intermediate nodes, and a partial-complete task is `status: work-completed` yet stays in active/ and walks to `frw_4_partial` (a scriptTask).'
+    alternatives_rejected: ['`status: work-completed` (breaks partial-complete); "never write a completed record" (breaks every close); per-hop judging (refuses the framework''s own close walk). The PreToolUse gate keying on focus rather than the written path is AEF''s (vendored check-active-task.sh), so it is reported to them, not patched here.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1160-completed-task-records-are-writable-by-a.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/instance-node.py'
+  - 'tools/_t1160-closed-record-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-18T01:06:00'
+    action: 'T-1160: instance-node.py guards closed records itself — a record in completed/ moves only onto an end event (REFUSED-CLOSED, audited; the framework close and partial-complete still walk) — and gains a read-only successors verb (OBS-437); teeth 12/12 + mutation OK, wired'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6165 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [observations]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 6165
+  commits: 1
+  files_changed: 4
+  lines_added: 340
+  lines_removed: 13
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1160-completed-task-records-are-writable-by-a.md
+generated_by: context-agent-hybrid
