@@ -78,10 +78,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 546
-  commits: 3
-  files_changed: 7
-  lines_added: 2165
-  lines_removed: 12
+  commits: 4
+  files_changed: 9
+  lines_added: 2281
+  lines_removed: 19
+  footprint_refreshed_at: '2026-10-17T22:48:27Z'
+  footprint_refreshed_by_commit: 670b3a8d
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1189-id-map-tool---dir-and---designer-options.md

@@ -4,11 +4,11 @@ name: "OBS-487: find the owner of the uncommitted .editor-versions files"
 description: >
   OBS-487: find the owner of the uncommitted .editor-versions files
 
-status: started-work
+status: work-completed
 workflow_type: test
-current_node: frw_3_run
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -39,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-17T22:48:43Z
-last_update: 2026-10-17T22:48:43Z
-date_finished: null
+last_update: 2026-10-17T22:53:39Z
+date_finished: 2026-10-17T22:53:39Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -363,3 +363,25 @@ grep -q 'mint_store_version' tools/bake-clean-layout.py
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1198-obs-487-find-the-owner-of-the-uncommitte.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-95e2a2fb
+- **Timestamp:** 2026-10-17T22:53:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 3
+     - evidence: `tar -tzf .context/working/t1198/obs487-editor-versions-residue.tgz | wc -l | grep -qx 45`
+
+### 2026-10-17T22:53:39Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
