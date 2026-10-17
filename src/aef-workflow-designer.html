@@ -2118,7 +2118,8 @@ function generateUid(prefix) {
 // lowercased, stripped of non-alphanum. Falls back to 'node' if nothing usable.
 // T-1194: a leading task id ("T-001: Orientation", "T-001 - Orientation", "T-001 Orientation") names the task, not
 // the step, and made every such slug its digits (agt_1_001). It is skipped; a name that is ONLY a task id keeps it.
-const LEADING_TASK_ID = /^\s*T-\d+(?:\s*[:\-–—]\s*|\s+)/i;
+// T-1196: also the framework's gap, observation and learning ids (G-062, OBS-314, L-417), at AEF's request.
+const LEADING_TASK_ID = /^\s*(?:T|G|OBS|L)-\d+(?:\s*[:\-–—]\s*|\s+)/i;
 function deriveSlug(displayName) {
   if (!displayName) return 'node';
   const rest = displayName.replace(LEADING_TASK_ID, '');

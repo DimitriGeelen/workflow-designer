@@ -35,6 +35,15 @@ const CASES = [
   ['T-shirt sizing', 'shirt'],
   ['TX-001: not a task id', 'tx'],
   ['Extraordinarilylongfirstword here', 'extraordinarilyl'],
+  // T-1196: the framework's other id prefixes are skipped the same way; look-alike words are not.
+  ['G-062 close gates — headline mechanic fired?', 'close'],
+  ['G-020 build-readiness gate armed', 'build'],
+  ['OBS-314: pool sizing', 'pool'],
+  ['L-417 - stale slice references', 'stale'],
+  ['G-062', '062'],
+  ['G-force test', 'force'],
+  ['L-shaped layout', 'shaped'],
+  ['OBSERVE the gate', 'observe'],
   ['', 'node'],
 ];
 
