@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1152: Detect [REVIEW] ACs whose referenced repo document is older than the task content (stale-proposal check)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T23:54:38Z
+# ============================================================================
+
+task_id: T-1152
+task_name: "Detect [REVIEW] ACs whose referenced repo document is older than the task content (stale-proposal check)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-13T16:20:51Z
+completed: 2026-10-17T23:54:26Z
+duration_days: 4
+updates_count: 2
+first_commit: 2026-10-18T01:54:19+02:00
+last_commit: 2026-10-18T01:54:19+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  stale-[REVIEW]-document detector (OBS-291) — task content date skips frontmatter, ticks, bookkeeping sections and corpus sweeps; docs/ documents only by default; blob-keyed cache (20 s -> 0.25 s); 8 live findings shown in the session-start alerts; teeth 17/17 + 3 mutants, wired
+
+# Key outcomes
+outcomes:
+  - '`tools/_t1152-stale-review-doc.py` reports one `STALE` line per (task, criterion, path) with both dates and the gap, and a state line that is never a bare empty list (`NO-STALE examined …` / `NOT EVALUATED …`)'
+  - 'The task date is the last commit that changed the task BODY; a frontmatter-only commit (an estimator sweep) does not make a task newer'
+  - 'Teeth on a scratch git repo: a stale doc fires; a fresh doc, a frontmatter-only bump, a checked criterion, an untracked path and a non-REVIEW criterion do not'
+  - 'Run on the live corpus with the result recorded here, and surfaced where someone will see it (decided below, with the count)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-18 — what dates a task, and which paths count'
+    chose: 'the task''s last CONTENT commit, skipping frontmatter-only edits, checkbox ticks, edits confined to Updates / Reviewer Verdict / Verification, and corpus sweeps (≥ 20 task files in one commit); and docs/**/*.md|html only by default. - **Why, measured on the live corpus:** the naive "doc older than the task file" fired 30 times, mostly on tests, tools, fixtures and screenshots (evidence, not the task''s stand-in) and on automatic appends. Documents only: 10. Skipping sweeps (T-660''s commit 568c36fd rewrote 81 task bodies to fix a literal T-XXX; it alone dated T-189 and T-353): 8, each a real content change after the document (e.g. T-347: the operator''s ruling recorded 2026-10-10, while its open [REVIEW] criterion still asks the reviewer to choose by reading the 2026-08-03 report).'
+    alternatives_rejected: ['task-file mtime or last commit (every estimator sweep would "refresh" every task); flagging every path (`--all-paths` keeps it available).']
+  - decision: '2026-10-18 — where it is surfaced'
+    chose: 'one informational line in `scripts/session-start-alerts.sh` (what /resume shows every session), naming the tasks; a blob-keyed date cache makes it 0.25 s warm (20 s cold). Not a bridge-suite leg: it judges live task data, not code, so it would turn the code suite red for a document someone has not updated yet. Its teeth ARE a bridge leg. - **The 8 live findings are not fixed here**: each needs its owner to bring the document up to the task (or the criterion up to the decision), which is that task''s work, not this detector''s. They now show at every /resume.'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/working/.gitignore'
+  - '.tasks/active/T-1152-detect-review-acs-whose-referenced-repo-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/session-start-alerts.py'
+  - 'tools/_t1152-stale-review-doc.py'
+  - 'tools/_t1152-stale-review-doc-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-18T01:54:19'
+    action: 'T-1152: stale-[REVIEW]-document detector (OBS-291) — task content date skips frontmatter, ticks, bookkeeping sections and corpus sweeps; docs/ documents only by default; blob-keyed cache (20 s -> 0.25 s); 8 live findings shown in the session-start alerts; teeth 17/17 + 3 mutants, wired'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6213 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [observations]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 6213
+  commits: 1
+  files_changed: 6
+  lines_added: 585
+  lines_removed: 9
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1152-detect-review-acs-whose-referenced-repo-.md
+generated_by: context-agent-hybrid

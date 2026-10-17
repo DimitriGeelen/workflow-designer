@@ -1,0 +1,21 @@
+id: tools/_t1152-stale-review-doc-teeth.py
+name: _t1152-stale-review-doc-teeth
+type: script
+subsystem: instruments
+location: tools/_t1152-stale-review-doc-teeth.py
+tags: []
+
+purpose: "Teeth for tools/_t1152-stale-review-doc.py (T-1152, OBS-291), on a scratch git repo with backdated commits."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-17
+created_by: unknown
