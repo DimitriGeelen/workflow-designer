@@ -7450,7 +7450,8 @@ function _renderPropsInto(props, details) {
   {
     const f = field('Slug', n.slug || '', () => {}, { mono: true, hint: 'follows the name · rename to change' });
     const inp = f.querySelector('input');
-    if (inp) { inp.readOnly = true; inp.tabIndex = -1; inp.setAttribute('aria-readonly', 'true'); inp.dataset.testid = 'slug-readonly'; inp.style.opacity = '0.75'; }
+    if (inp) { inp.readOnly = true; inp.tabIndex = -1; inp.setAttribute('aria-readonly', 'true'); inp.dataset.testid = 'slug-readonly';
+               inp.style.cssText = 'background: var(--surface); color: var(--text-faint); user-select: text;'; }   // as UID/Owner
     sBpmn.appendChild(f);
   }
   // Read-only displayId preview

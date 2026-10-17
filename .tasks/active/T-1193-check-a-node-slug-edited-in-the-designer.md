@@ -300,7 +300,7 @@ acceptance criteria" selected). Read by the author:
 
 | state | control | 1024 | 1440 | 1920 | note |
 |-------|---------|------|------|------|------|
-| node selected | Slug field | ok | ok | ok | shows `write`, dimmed like UID/Owner; hint "follows the name · rename to change" on one line (first take wrapped "it" to a 2nd line: shortened) |
+| node selected | Slug field | ok | ok | ok | shows `write` with the exact UID/Owner read-only style (surface background, faint text; first review amber: an opacity dim did not match); hint on one line (first take wrapped "it": shortened) |
 | node selected | Name, Display ID, rest of the panel | ok | ok | ok | unchanged; Display ID agt_1_write; nothing clipped |
 
 ## RCA
