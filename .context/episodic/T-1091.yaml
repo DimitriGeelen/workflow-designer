@@ -1,0 +1,102 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1091: Greenfield T-172 #3: Settings option 'Sticky lane labels' — lane names pinned at the left edge while scrolling wide maps
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T14:58:35Z
+# ============================================================================
+
+task_id: T-1091
+task_name: "Greenfield T-172 #3: Settings option 'Sticky lane labels' — lane names pinned at the left edge while scrolling wide maps"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-08T08:38:10Z
+completed: 2026-10-17T14:57:35Z
+duration_days: 9
+updates_count: 2
+first_commit: 2026-10-17T16:55:25+02:00
+last_commit: 2026-10-17T16:56:44+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  sticky lane labels — zoomed in and scrolled right, every lane name stays pinned at the canvas's left edge (copies in a top layer #g-sticky-lanes, above nodes/edges, aligned with their lanes); Settings toggle 'Sticky lane labels' (default on, persisted); nothing drawn unscrolled; export and thumbnails unaffected. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'Zoomed in and scrolled right past the pool''s left edge, every lane''s name is visible at the canvas''s left edge, at its own lane''s height (also after a vertical scroll), drawn above tasks and arrows'
+  - 'Unscrolled (fit mode, or zoomed at scroll 0) the sticky layer is empty and nothing else in the canvas changes'
+  - 'Clicking a sticky lane name selects that lane, as the normal header does'
+  - 'Settings → "Sticky lane labels", default on, kept across reloads (aefLabelPrefs); off restores today''s behaviour; nothing sticky when "Show lane names" is off'
+  - 'Thumbnails/exports carry no sticky layer, and the BPMN export is byte-identical with the option on and off'
+  - 'CDP regression test covering the above, wired into the bridge suite; existing designer suites still green — `tools/_t1091-sticky-lanes-cdp.mjs` 31/31 (control: the pre-T-1091 designer fails 18 legs); _t258, _t1109, _t1177, _t1176, _t1168, _t1155 green'
+  - 'Screenshots at 1024, 1440 and 1920 (unscrolled, scrolled right, scrolled right + down, option off), each read control by control and written up in `## Visual Verification`'
+  - '[REVIEW] The sticky lane names read well while scrolling: legible, clearly separated from the diagram under them, not hiding anything that matters'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1091/AC1-judge-t-1091-r3-c673f4706a21.md'
+  - '.context/reviews/evidence/T-1091/t1091-1024-off.png'
+  - '.context/reviews/evidence/T-1091/t1091-1024-scrolled-down.png'
+  - '.context/reviews/evidence/T-1091/t1091-1024-scrolled.png'
+  - '.context/reviews/evidence/T-1091/t1091-1024-unscrolled.png'
+  - '.context/reviews/evidence/T-1091/t1091-1440-off.png'
+  - '.context/reviews/evidence/T-1091/t1091-1440-scrolled-down.png'
+  - '.context/reviews/evidence/T-1091/t1091-1440-scrolled.png'
+  - '.context/reviews/evidence/T-1091/t1091-1440-unscrolled.png'
+  - '.context/reviews/evidence/T-1091/t1091-1920-off.png'
+  - '.context/reviews/evidence/T-1091/t1091-1920-scrolled.png'
+  - '.context/reviews/evidence/T-1091/t1091-1920-unscrolled.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.fabric/components/tools-_t1091-sticky-lanes-cdp.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1091-greenfield-t-172-3-settings-option-stick.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1091-sticky-lanes-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-17T16:55:25'
+    action: 'T-1091: sticky lane labels — zoomed in and scrolled right, every lane name stays pinned at the canvas''s left edge (copies in a top layer #g-sticky-lanes, above nodes/edges, aligned with their lanes); Settings toggle ''Sticky lane labels'' (default on, persisted); nothing drawn unscrolled; export and thumbnails unaffected'
+  - time: '2026-10-17T16:56:44'
+    action: 'T-1091: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 13339 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 13339
+  commits: 2
+  files_changed: 20
+  lines_added: 371
+  lines_removed: 12
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1091-greenfield-t-172-3-settings-option-stick.md
+generated_by: context-agent-hybrid

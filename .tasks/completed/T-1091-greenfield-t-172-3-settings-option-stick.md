@@ -6,13 +6,13 @@ description: >
   aef-greenfield-test T-172 item 3. Render-only, stored per browser like the other
   label preferences (aefLabelPrefs). Map tobe-walkthrough-verkoop is ~3800 px wide.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t1091-sticky-lanes-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -41,8 +41,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T08:38:10Z
-last_update: 2026-10-17T14:46:28Z
-date_finished:
+last_update: 2026-10-17T14:57:35Z
+date_finished: 2026-10-17T14:57:35Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -128,13 +128,14 @@ ONLY while the view's left edge is past the pool's left edge; empty otherwise, s
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1091 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-- [ ] [REVIEW] The sticky lane names read well while scrolling: legible, clearly separated from the diagram under them, not hiding anything that matters
+- [x] [REVIEW] The sticky lane names read well while scrolling: legible, clearly separated from the diagram under them, not hiding anything that matters
   **Steps:**
   1. Open the screenshots listed in `## Visual Verification` (1024 / 1440 / 1920; unscrolled, scrolled right, scrolled right + down, option off)
   2. In each scrolled shot: every lane has its name at the left edge, at that lane's height; the strip is opaque and separated from the diagram; no toolbar, panel or control is covered
   3. In the unscrolled and option-off shots: the canvas looks as it did before this change
   **Expected:** all of step 2 and 3 hold in every screenshot
   **If not:** name the screenshot and what is wrong (unreadable, overlapping, misaligned lane, covered control)
+  **Reviewer verdict:** green V-20261017-8fff31c0 — reviewer-judge-t-1091-r3-c673f4706a21:reviewer (rung rung-3-termlink-single-reviewer), digest 43f29c8a0542; dispatch judge-t-1091-r3-c673f4706a21; evidence: .context/reviews/evidence/T-1091/AC1-judge-t-1091-r3-c673f4706a21.md, .context/reviews/evidence/T-1091/t1091-1024-unscrolled.png, .context/reviews/evidence/T-1091/t1091-1024-scrolled.png, .context/reviews/evidence/T-1091/t1091-1024-scrolled-down.png, .context/reviews/evidence/T-1091/t1091-1024-off.png, .context/reviews/evidence/T-1091/t1091-1440-unscrolled.png, .context/reviews/evidence/T-1091/t1091-1440-scrolled.png, .context/reviews/evidence/T-1091/t1091-1440-scrolled-down.png, .context/reviews/evidence/T-1091/t1091-1440-off.png, .context/reviews/evidence/T-1091/t1091-1920-unscrolled.png, .context/reviews/evidence/T-1091/t1091-1920-scrolled.png, .context/reviews/evidence/T-1091/t1091-1920-off.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -327,6 +328,14 @@ map fits vertically there, maxTop 5). Each read by the author, control by contro
 
 ## Recommendation
 
+**Recommendation:** GO
+**Rationale:** Lane names stay pinned at the left edge when zoomed in and scrolled right, as asked; nothing changes unscrolled; the option is in Settings (default on). Built, tested and independently reviewed green.
+**Evidence:**
+- `tools/_t1091-sticky-lanes-cdp.mjs` 31/31 at 1024/1440/1920; the pre-change designer fails 18 legs (the test bites)
+- BPMN export byte-identical with the option on and off; thumbnails carry no pinned copies
+- Independent reviewer: green on all 11 screenshots (verdict V-20261017-8fff31c0, revision fccddcd3)
+- Neighbouring designer tests green: _t258, _t1109, _t1177, _t1176, _t1168, _t1155
+
 <!-- T-2945: same shape as inception.md's block — the gate that reads it
      (audit_inception_recommendation, lib/task-audit.sh:117) is shared, so the
      shape is copied rather than reinvented.
@@ -385,3 +394,15 @@ map fits vertically there, maxTop 5). Each read by the author, control by contro
 ### 2026-10-17T14:46:28Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-945803ed
+- **Timestamp:** 2026-10-17T14:58:27Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-17T14:57:35Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
