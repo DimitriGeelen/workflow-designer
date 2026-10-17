@@ -4,10 +4,11 @@ name: "Ask AEF to re-pin the designer 0.14.0 -> 0.20.0 (nine releases behind) an
 description: >
   Operator 2026-10-17 asked whether AEF upgraded. Checked AEF upstream bleeding-edge 5c886336b: policy/designer-pin.yaml is still 0.14.0 (re-pinned 2026-09-30, T-3584), nine releases behind 0.20.0, so every AEF Watchtower except 832's local pin serves 0.14.0. Send AEF the catch-up request with what each release brings, the T-1168 node-id change and its id map, and the tag/sha to pin; follow until their pin reads 0.20.0.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [aef, designer, pin]
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-17T08:46:38Z
-last_update: 2026-10-17T08:51:18Z
-date_finished: null
+last_update: 2026-10-17T14:35:00Z
+date_finished: 2026-10-17T14:35:00Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -67,7 +68,7 @@ counted as done at the tag.
 - [x] AEF is asked to re-pin 0.14.0 -> 0.20.0 with tag, sha256 and bytes, what the nine releases bring, and the T-1168 node-id change with its id map; the message id is recorded — 47e480b2 (RECEIVED), conversation 832-designer-repin-0.20.0; ten releases in fact (0.15.1 included)
 - [x] A check reports AEF's upstream pin against 832's latest designer tag (current / N releases behind), reading AEF's public bleeding-edge, and refuses rather than passes when it cannot read it — tools/_t1187-aef-pin-lag.sh: BEHIND 10 today (rc 1); a bad address REFUSED (rc 2); shown every session by tools/session-start-alerts.py section 4 (both alerts tests and the T-1047 gate still pass)
 - [x] The release practice says a designer release is done only when AEF serves it: the operator's direction is recorded as a project rule in CLAUDE.md, and the lag check is part of it — CLAUDE.md "AEF is the designer's main consumer"; learning recorded
-- [ ] AEF's pin reads 0.20.0 upstream (followed to landing; this criterion stays open until it does) — AEF T-4224 (2026-10-17): inventory where AEF stores node ids, re-pin via sync --from-tag, migrate stored ids with the T-1168 map before any re-save, conformance/currency green; starts after their env-leak push. Check: `bash tools/_t1187-aef-pin-lag.sh` reads CURRENT
+- [x] AEF's pin reads 0.20.0 upstream (followed to landing; this criterion stays open until it does) — LANDED 2026-10-17: AEF c1a87c16f (msg 9f337efb), sha verified by them against MANIFEST and artefact; `tools/_t1187-aef-pin-lag.sh` reads "CURRENT: AEF serves designer 0.20.0". Their 79 stored maps renumber via our T-1189 table. — AEF T-4224 (2026-10-17): inventory where AEF stores node ids, re-pin via sync --from-tag, migrate stored ids with the T-1168 map before any re-save, conformance/currency green; starts after their env-leak push. Check: `bash tools/_t1187-aef-pin-lag.sh` reads CURRENT
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -116,6 +117,10 @@ counted as done at the tag.
 -->
 
 ## Verification
+
+bash tools/_t1187-aef-pin-lag.sh > /tmp/.t1187 2>&1 && grep -q '^CURRENT' /tmp/.t1187
+grep -q 'AEF is the designer' CLAUDE.md
+python3 tools/session-start-alerts.py > /tmp/.t1187s 2>&1; grep -q 'AEF designer pin:' /tmp/.t1187s
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -342,3 +347,20 @@ counted as done at the tag.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1187-ask-aef-to-re-pin-the-designer-0140---02.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b1b48bf2
+- **Timestamp:** 2026-10-17T14:35:04Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-17T14:35:00Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
