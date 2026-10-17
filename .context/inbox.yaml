@@ -3493,3 +3493,20 @@ observations:
   dismissed_reason: "T-1149 triage, operator-authorised 2026-10-13 ('answer the observations'): Duplicate of OBS-484, the same conversation and client_msg_id one retry later. That conversation was answered by 010-termlink and AEF."
   dismissed_at: 2026-10-13T16:22:00Z
   promoted_to: null
+- id: OBS-486
+  text: "sidecar consult to cacc73ea32b121dd/832-Workflow-designer/t1039-teeth2 unanswered after 13 attempt(s) on the retry ladder (rung 6, conversation t1039, client_msg_id 550ad311-6056-482c-b1d6-5299b3a8f35a). Re-posts and inbox nudges have not produced a reply."
+  captured: 2026-10-14T02:48:02Z
+  context_task: T-1171
+  tags: [sidecar]
+  status: pending
+  promoted_to: null
+- id: OBS-487
+  text: "45 paths under .editor-versions/ (index.json updates + new vN.bpmn/vN.png snapshots, note 'T-300 dialect-preserving Clean re-bake', files dated 2026-10-01) are uncommitted for 16 days. Found by the T-1164 completion gate's uncommitted-files warning. Needs an owner: commit them under the task that made them, or discard if they were a stray run."
+  captured: 2026-10-17T18:35:47Z
+  context_task: T-1164
+  tags: []
+  status: resolved
+  resolved_carrier: "T-1198"
+  resolved_carrier_kind: "task"
+  resolved_at: 2026-10-17T22:51:44Z
+  promoted_to: null
