@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1194: deriveSlug skips a leading task id (T-001: / T-001 -) so task-named nodes get readable ids (AEF option c)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T17:13:08Z
+# ============================================================================
+
+task_id: T-1194
+task_name: "deriveSlug skips a leading task id (T-001: / T-001 -) so task-named nodes get readable ids (AEF option c)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-17T17:07:54Z
+completed: 2026-10-17T17:12:36Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-17T19:12:35+02:00
+last_commit: 2026-10-17T19:12:35+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  deriveSlug skips a leading task id ('T-001: Orientation' -> orientation), operator's choice of option (c) for AEF
+
+# Key outcomes
+outcomes:
+  - 'deriveSlug drops a leading task id (`T-001:`, `T-001 -`, `T-001 —`, `T-001` followed by a space), so "T-001: Orientation and health" gives `orientation`; a name that is only a task id ("T-001") keeps today''s slug (`001`); names without a leading task id give exactly today''s slug'
+  - 'Every other slug implementation in the repo (Python validators, CLI, docs) agrees, or is shown not to exist — none exists: deriveSlug is the only one (4 call sites in src, all node slugs); `_t563` only mentions it in prose and stays 5/5'
+  - '832''s 24-map corpus and every committed fixture: ids unchanged, or each change listed here (`_t1168-node-id-map.mjs --check` green; fixtures whose names start with a task id checked one by one) — corpus unchanged (0 names start with a task id); the only fixture hits, tests/fixtures/t889-authority/*, carry "T-889 …" as a PROCESS name, not a node name; `_t889` test green'
+  - 'AEF''s 47 maps at c1a87c16f re-run with the new designer: activities named "T-NNN: ..." get word slugs (e.g. agt_1_orientation); table consistency 0 inconsistent — 549 ids renamed (agt_1_orientation now unchanged), 0 inconsistent, 0 unpaired; e.g. agt_3_first_commit -> agt_2_first, hum_2_goals -> hum_1_define. 8 draft nodes named "G-062 …"/"G-020 …" (gap ids) keep digit slugs: out of the approved scope, told to AEF'
+  - 'Unit-level test of the slug rule (cases above) wired into the bridge suite; existing designer suites green — `tools/_t1194-slug-task-id-cdp.mjs` 16/16; control: pre-change designer fails exactly the 7 task-id cases, passes the 9 unchanged-name cases'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t1194-slug-task-id-cdp.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1194-deriveslug-skips-a-leading-task-id-t-001.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1194-slug-task-id-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-17T19:12:35'
+    action: 'T-1194: deriveSlug skips a leading task id (''T-001: Orientation'' -> orientation), operator''s choice of option (c) for AEF'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 5
+  lines_added: 490
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1194-deriveslug-skips-a-leading-task-id-t-001.md
+generated_by: context-agent-hybrid
