@@ -592,7 +592,7 @@ entries:
       209d37bb), and 0.15.3 -> 0.16.0 on 2026-10-09 (T-1105, served sha 9cc12bfe), and 0.16.0 -> 0.17.0 on
       2026-10-11 (T-1121, served sha 6e301322), and 0.17.0 -> 0.18.0 the same day (T-1130, served sha 3486362c), and 0.18.0 -> 0.19.0 on
       2026-10-12 (T-1133, served sha 87cca1c3), and 0.19.0 -> 0.19.1 the same day (T-1135, served sha 296a51a7), and 0.19.1 -> 0.20.0
-      on 2026-10-15 (T-1170, served sha 51931b8a), and 0.20.0 -> 0.21.0 on 2026-10-17 (T-1195, served sha da161971).
+      on 2026-10-15 (T-1170, served sha 51931b8a), and 0.20.0 -> 0.21.0 on 2026-10-17 (T-1195, served sha da161971), and 0.21.0 -> 0.22.0 the same day (T-1197, served sha b311d485).
       AEF pins its own version; this one is ours.
 
   - path: .agentic-framework/.vendor-divergence.yaml
