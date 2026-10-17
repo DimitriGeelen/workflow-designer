@@ -26,6 +26,13 @@ template of record carries — read from the artefact, never from a table in thi
                             PLACEMENT — one shot, for entities that predate this
                             mechanism — not a move. Without this refusal `set` would be
                             a bypass beside `advance` and the guard would be decoration.
+  REFUSED-CLOSED            set/advance/walk on a record in a `completed/` tasks directory
+                            onto anything but an endEvent (T-1160, OBS-437). A closed
+                            record's only legal move is onto its end: the framework walks
+                            it to frw_end_task after the archive move, and nothing else may
+                            rewrite it. Closed means the DIRECTORY, not `status:` — a
+                            partial-complete task is work-completed yet stays in active/
+                            and walks on through frw_4_partial and the human nodes.
 Every exclusiveGateway in the bound templates branches on its outgoing flows, so any
 ONE outgoing flow is a legal hop. No token semantics for parallel/inclusive gateways:
 a sequenceFlow is treated as a legal single-token transition, nothing more.
@@ -47,6 +54,11 @@ Usage:
                                                     contains the target (printed as START <id>); no path
                                                     → REFUSED-TRANSITION, nothing written; already there
                                                     → exit 0, nothing written
+  instance-node.py successors <T-XXX>               READ-ONLY (T-1160): what advance would accept, writes nothing.
+                                                    SUCCESSORS <current> <template>: <ids> per template of
+                                                    record ("(none — ...)" past an end event); from
+                                                    NO-POSITION the startEvents of each bound template;
+                                                    a closed record adds CLOSED <file>: only <end ids>
   instance-node.py resolve <T-XXX>                  forward resolution (T-881): TEMPLATE <file> per bound
                                                     template, then NODE <id> <template> | NO-POSITION
   instance-node.py instances <template-id>          reverse resolution (T-881): every LIVE entity bound
@@ -182,12 +194,26 @@ def template_start_events(path):
     return [el.get("id") for el in _bpmn_iter(path, "startEvent") if el.get("id")]
 
 
+def template_end_events(path):
+    return [el.get("id") for el in _bpmn_iter(path, "endEvent") if el.get("id")]
+
+
+def _is_closed_record(path):
+    """T-1160: a record in the completed/ archive. The directory, not `status:` (see REFUSED-CLOSED)."""
+    return os.path.basename(os.path.dirname(os.path.abspath(path))) == "completed"
+
+
+def _closed_end_events(a, tpls):
+    return [e for t in tpls for e in template_end_events(template_file(a.rendered_dir, t))]
+
+
 AUDIT_LOG = None  # resolved in main(): --log, else $FW_INSTANCE_REFUSAL_LOG, else <root>/.context/audits/instance-refusals.jsonl
 
 # What each refusal kind is, when the caller does not say more precisely.
 _DEFAULT_CASE = {
     "REFUSED-TRANSITION": ("out-of-order-advance", "template-flow"),
     "REFUSED-PLACED": ("re-placement", "placement-one-shot"),
+    "REFUSED-CLOSED": ("closed-record", "completed-archive"),
     "REFUSED": ("malformed-entity", "frontmatter"),
 }
 
@@ -237,6 +263,21 @@ def refuse(kind, task, detail, case=None, rule=None, node="", target="", templat
         "actor": actor,
     })
     return 1
+
+
+def _closed_refusal(a, path, tpls, current, target):
+    """T-1160: None when the write may go ahead, else the refusal's exit code. Called before EVERY write
+    of a position (set, and the one hop path advance and walk share), so no verb can bypass it."""
+    # MUTATION-ANCHOR closed-check (teeth disable the archive test here)
+    if not _is_closed_record(path):
+        return None
+    ends = _closed_end_events(a, tpls)
+    if target in ends:
+        return None
+    return refuse("REFUSED-CLOSED", a.task,
+                  f"{os.path.relpath(path, a.root)} is a closed record (completed/); its only legal move is onto "
+                  f"an end event ({', '.join(ends) or 'none in the bound templates'}), not '{target}'",
+                  node=current or "NO-POSITION", target=target, template=",".join(tpls))
 
 
 def _write_node(path, text, fm_start, fm_end, node):
@@ -339,6 +380,9 @@ def cmd_set(a, table):
         print(f"NO-TEMPLATE {wt or '(none)'}: nothing to record a position against")
         return 3
     placed = fields.get("current_node", "").strip().strip("'\"")
+    rc = _closed_refusal(a, path, tpls, placed, a.node)
+    if rc is not None:
+        return rc
     if placed:
         # T-882: set is placement, and placement is one-shot. A recorded position moves
         # only along a flow (advance); a setter that re-placed freely would be a bypass.
@@ -370,13 +414,15 @@ def cmd_advance(a, table):
     return _advance_core(a, table, a.node, announce)
 
 
-def _advance_core(a, table, node, announce, prefer=None):
+def _advance_core(a, table, node, announce, prefer=None, destination=None):
     """One validated hop. Shared by advance and walk so a walk cannot take a hop advance would refuse.
 
     Template of record: the bound template(s) containing the current node. Two bound templates may
     share a node id (an inception binds both lifecycles and both carry a start-work script task), so
     every candidate is consulted and the hop is legal if ANY of them carries the flow; `prefer` (the
-    template a walk is on) is consulted first so a walk never changes template mid-route."""
+    template a walk is on) is consulted first so a walk never changes template mid-route.
+    `destination` is where a walk is going: a closed record may pass through other nodes only on its
+    way to an end event (T-1160), so the closed check judges the walk's target, not each hop."""
     path = find_task(a.tasks_dirs, a.task)
     if not path:
         print(f"NO-ENTITY {a.task}")
@@ -390,6 +436,9 @@ def _advance_core(a, table, node, announce, prefer=None):
         print(f"NO-TEMPLATE {wt or '(none)'}: nothing to advance against")
         return 3
     current = fields.get("current_node", "").strip().strip("'\"")
+    rc = _closed_refusal(a, path, tpls, current, destination or node)
+    if rc is not None:
+        return rc
     if not current:
         # An instance starts at the start. Placing a legacy entity mid-flow is `set`'s job.
         starts = {t: template_start_events(template_file(a.rendered_dir, t)) for t in tpls}
@@ -509,10 +558,42 @@ def cmd_walk(a, table):
         print(f"START {node}" if prev == "NO-POSITION" else f"HOP {prev} -> {node}")
 
     for hop in hops:
-        rc = _advance_core(a, table, hop, announce, prefer=of_record)
+        rc = _advance_core(a, table, hop, announce, prefer=of_record, destination=target)
         if rc != 0:
             return rc
     print(f"NODE {target} {of_record} (walked {len(hops)} hop(s), recorded in {os.path.relpath(path, a.root)})")
+    return 0
+
+
+def cmd_successors(a, table):
+    """READ-ONLY (T-1160, OBS-437): what advance would accept from the recorded position, without
+    attempting it. Same template-of-record rule as _advance_core; never writes, never audits."""
+    path = find_task(a.tasks_dirs, a.task)
+    if not path:
+        print(f"NO-ENTITY {a.task}")
+        return 2
+    fields, fm_start, _ = frontmatter(open(path, encoding="utf-8").read())
+    if fm_start < 0:
+        print(f"MALFORMED {a.task}: no frontmatter block")
+        return 1
+    wt, tpls = bound_templates(fields, table)
+    if not tpls:
+        print(f"NO-TEMPLATE {wt or '(none)'}")
+        return 3
+    current = fields.get("current_node", "").strip().strip("'\"")
+    if not current:
+        for t in tpls:
+            print(f"SUCCESSORS NO-POSITION {t}: {', '.join(template_start_events(template_file(a.rendered_dir, t)))} (startEvent)")
+    else:
+        candidates = [t for t in tpls if current in template_nodes(template_file(a.rendered_dir, t))]
+        if not candidates:
+            print(f"NODE {current} STALE (not in {','.join(tpls)})")
+            return 1
+        for t in candidates:
+            succ = template_flows(template_file(a.rendered_dir, t)).get(current, [])
+            print(f"SUCCESSORS {current} {t}: " + (", ".join(succ) if succ else "(none — an end event has no outgoing flow)"))
+    if _is_closed_record(path):
+        print(f"CLOSED {os.path.relpath(path, a.root)}: only an end event is accepted ({', '.join(_closed_end_events(a, tpls))})")
     return 0
 
 
@@ -693,6 +774,7 @@ def main(argv=None):
     s = sub.add_parser("set"); s.add_argument("task"); s.add_argument("node"); s.set_defaults(fn=cmd_set)
     s = sub.add_parser("advance"); s.add_argument("task"); s.add_argument("node"); s.set_defaults(fn=cmd_advance)
     s = sub.add_parser("walk"); s.add_argument("task"); s.add_argument("node"); s.set_defaults(fn=cmd_walk)
+    s = sub.add_parser("successors"); s.add_argument("task"); s.set_defaults(fn=cmd_successors)
     s = sub.add_parser("resolve"); s.add_argument("task"); s.set_defaults(fn=cmd_resolve)
     s = sub.add_parser("instances"); s.add_argument("template"); s.set_defaults(fn=cmd_instances)
     s = sub.add_parser("roundtrip"); s.add_argument("templates", nargs="*"); s.set_defaults(fn=cmd_roundtrip)

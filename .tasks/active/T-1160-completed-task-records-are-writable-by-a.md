@@ -1,13 +1,20 @@
 ---
 id: T-1160
-name: "Completed task records are writable by any script under another task's focus; instance-node.py has no read-only successors verb"
+name: "Completed task records are writable by any script under another task's focus;
+  instance-node.py has no read-only successors verb"
 description: >
-  Promoted from OBS-437 by T-1149 (observation triage, 2026-10-13). Still true. check-active-task.sh gates on the focused task, not on the file being written. `instance-node.py` has no dry-run or read-only "successors" verb; it only names successors in its refusal text (tools/instance-node.py:24). T-930 covers session ownership of focus, not protection of completed/ records. The only mention in the tree is a comment in tools/_procasfit-orchestrate.sh. Original observation text is in .context/inbox.yaml under OBS-437.
+  Promoted from OBS-437 by T-1149 (observation triage, 2026-10-13). Still true. check-active-task.sh
+  gates on the focused task, not on the file being written. `instance-node.py` has
+  no dry-run or read-only "successors" verb; it only names successors in its refusal
+  text (tools/instance-node.py:24). T-930 covers session ownership of focus, not protection
+  of completed/ records. The only mention in the tree is a comment in tools/_procasfit-orchestrate.sh.
+  Original observation text is in .context/inbox.yaml under OBS-437.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: later
+horizon: now
 tags: [observations]
 components: []
 related_tasks: []
@@ -38,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:21:10Z
-last_update: 2026-10-13T16:21:10Z
-date_finished: null
+last_update: 2026-10-17T23:00:11Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +57,57 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-17T23:00:12Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=3 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L3:keyword=promote)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1160: Completed task records are writable by any script under another task's focus; instance-node.py has no read-only successors verb
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+OBS-437 (2026-09-29): with focus on T-882, `instance-node.py advance T-880 frw_7_all` rewrote `current_node` in the
+COMPLETED record of T-880 and nothing refused it, because check-active-task.sh judges the focused task, not the file
+written. Two parts are 832's own and are fixed here, in `tools/instance-node.py`:
+1. **A closed record's only legal move is onto an end event.** The framework itself walks a task to `frw_end_task` after
+   moving it to completed/ (update-task.sh, `fw_instance_walk ... frw_end_task`), so a blanket "never write a completed
+   record" would break every close. The tool refuses (`REFUSED-CLOSED`, audit-logged) any set/advance/walk on a record
+   that lives in a `completed/` tasks directory unless the target is an endEvent of the template of record.
+   Closed means the archive directory, NOT `status: work-completed`: a partial-complete task carries that status but stays
+   in active/ and is walked to `frw_4_partial` (a scriptTask), then on through the human verification nodes.
+2. **A read-only `successors <T-XXX>` verb**: what advance/walk would accept from the current position, without writing.
+
+Out of scope, the framework part: the PreToolUse gate keying on focus rather than the written path is AEF's
+(check-active-task.sh is vendored); reported to AEF, not patched locally.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `advance`/`walk`/`set` on a record under `completed/` onto a non-end node print `REFUSED-CLOSED`, exit 1, write nothing, and append one audit line (case `closed-record`)
+- [x] `walk` of a completed/ record to an endEvent (the framework's own close) still succeeds, and a partial-complete record in active/ still walks to `frw_4_partial`
+- [x] `successors <T-XXX>` prints the current node and its legal successors per template of record (or the startEvents for NO-POSITION, or none for an end event) and writes nothing
+- [x] A teeth test covers all three on scratch task files and is wired into `tests/run-bridge-tests.sh`; the existing instance-node tests still pass
+  (`tools/_t1160-closed-record-teeth.sh` 12/12 + mutation OK; _t880 16/16, _t881 10/10, _t882 17/17 + mutation OK,
+  _t883 18/18, _t923 14/14; real corpus: `roundtrip` OK over 228 live entities, `walk T-1198 frw_end_task` already there)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +141,13 @@ date_finished: null
 -->
 
 ## Verification
+
+bash tools/_t1160-closed-record-teeth.sh | grep -q 'MUTATION OK'
+bash tools/_t882-advance-teeth.sh | grep -q 'PASS 17 / FAIL 0'
+bash tools/_t923-framework-writer-teeth.sh | grep -q 'PASS 14 / FAIL 0'
+bash tools/_t883-refusal-audit-teeth.sh | grep -q 'PASS 18 / FAIL 0'
+grep -q '_t1160-closed-record-teeth.sh' tests/run-bridge-tests.sh
+python3 tools/_t451-unwired-guard-census.py --ratchet
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -307,6 +358,15 @@ date_finished: null
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-10-18 — what "closed" means for the guard
+- **Chose:** the record's directory (`completed/`), and the only legal move from it is onto an endEvent; a walk is
+  judged by its destination, not each hop.
+- **Why:** the framework walks a record to `frw_end_task` AFTER the archive move, through intermediate nodes, and a
+  partial-complete task is `status: work-completed` yet stays in active/ and walks to `frw_4_partial` (a scriptTask).
+- **Rejected:** `status: work-completed` (breaks partial-complete); "never write a completed record" (breaks every
+  close); per-hop judging (refuses the framework's own close walk). The PreToolUse gate keying on focus rather than the
+  written path is AEF's (vendored check-active-task.sh), so it is reported to them, not patched here.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -323,3 +383,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1160-completed-task-records-are-writable-by-a.md
 - **Context:** Initial task creation
+
+### 2026-10-17T23:00:11Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
