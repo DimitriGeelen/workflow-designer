@@ -2,12 +2,17 @@
 id: T-1161
 name: "Gate the T-682 boundary inventory on commits that stage tools/gallery-serve.py"
 description: >
-  Promoted from OBS-455 by T-1149 (observation triage, 2026-10-13). Still true. No git hook or settings entry runs `_t682-boundary-inventory.py` when tools/gallery-serve.py is staged. T-941 only put the check on a schedule, and T-958 hardened the detector but "deliberately did not build this gate". Original observation text is in .context/inbox.yaml under OBS-455.
+  Promoted from OBS-455 by T-1149 (observation triage, 2026-10-13). Still true. No
+  git hook or settings entry runs `_t682-boundary-inventory.py` when tools/gallery-serve.py
+  is staged. T-941 only put the check on a schedule, and T-958 hardened the detector
+  but "deliberately did not build this gate". Original observation text is in .context/inbox.yaml
+  under OBS-455.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: later
+horizon: now
 tags: [observations]
 components: []
 related_tasks: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:21:13Z
-last_update: 2026-10-13T16:21:13Z
-date_finished: null
+last_update: 2026-10-17T08:56:48Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +55,45 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-17T08:53:02Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=3 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L3:keyword=promote)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1161: Gate the T-682 boundary inventory on commits that stage tools/gallery-serve.py
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+`tools/_t682-boundary-inventory.py` checks the editor's authority surface (routes of `tools/gallery-serve.py`) and
+its evidence citations (T-1162) against `docs/reports/T-682-arc-2-boundary-inventory.md`. It runs on a schedule and
+in the bridge suite, but nothing stops a commit that changes the server without regenerating the report (OBS-455).
+The framework owns `.git/hooks/pre-commit` and has no extension point, so 832 adds one marked line (T-1000 pattern).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A pre-commit gate runs `_t682-boundary-inventory.py` when `tools/gallery-serve.py` or the T-682 report is staged, and blocks with the remedy (`--write`) when the check fails; any other commit is not slowed — tools/_t1161-boundary-gate.sh; an unrelated staged file returns in 9 ms
+- [x] It checks the STAGED content, not the working tree (a fixed working tree with a stale staged file must not pass) — both files read with `git show :path`; proof case D (working tree regenerated, staged report stale) is BLOCKED
+- [x] It is installed as one marked line in `.git/hooks/pre-commit` by an idempotent installer with `--check`; a bridge-suite leg runs `--check` for this line and the T-1000 one, so a hook reinstall that drops either is caught — tools/_t1161-install-hook.sh (second line, after T-1000's); two T1013_GUARDS legs, both pass
+- [x] Proven: a staged route added to gallery-serve.py without a report update is refused; the same with the report regenerated passes; an unrelated commit is unaffected — in a throwaway clone: A blocked, B (route + semantics + regenerated report) passes, C unaffected, D blocked; through the real hook the commit is refused (rc 1, BLOCKED)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -97,6 +127,11 @@ date_finished: null
 -->
 
 ## Verification
+bash tools/_t1161-install-hook.sh --check
+bash tools/_t1000-install-hook.sh --check
+grep -q "_t1161-install-hook.sh --check" tests/run-bridge-tests.sh
+bash -n tools/_t1161-boundary-gate.sh
+python3 tools/_t682-boundary-inventory.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -323,3 +358,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1161-gate-the-t-682-boundary-inventory-on-com.md
 - **Context:** Initial task creation
+
+### 2026-10-17T08:53:01Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)

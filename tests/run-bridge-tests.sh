@@ -3079,6 +3079,8 @@ T1013_GUARDS=(
   'tools/_t886-writer-mutation.py|mutation teeth for the round-trip guard (suppresses each writer attribute, expects red)'
   'tools/_t892-lane-default-cdp.mjs|CDP regression: the lane Authoring default never re-stamps nodes'
   'tools/_t911-kind-badge-verify-cdp.mjs|CDP regression: workflowMeta/@kind settable and visible (writes .playwright-mcp/t911-panel-kind-select.png)'
+  'tools/_t1161-install-hook.sh --check|the pre-commit hook still carries 832s boundary-inventory gate line (a framework hook reinstall erases it) (T-1161)'
+  'tools/_t1000-install-hook.sh --check|the pre-commit hook still carries 832s re-vendor gate line (a framework hook reinstall erases it) (T-1000, checked since T-1161)'
   'tools/_t1183-tmp-containment.sh|the suite and the instrument sweep run every test with TMPDIR in a private run dir they remove, so nothing they run leaves folders in the shared /tmp (T-1183, P-015)'
   'tests/test_t1159_yaml_element_authority.py|the YAML IW-9 check lets a node own aef.authority win over its lane, as the XML form does; both forms agree on 6 cases (T-1159)'
   'tools/_t1178-inception-template.sh|the inception template carries the hypothesis section and score fields, the schema hook and GO gate accept it, and an upgrade keeps it (T-1178)'
