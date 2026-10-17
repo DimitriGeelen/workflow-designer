@@ -16,13 +16,13 @@
 # frozen annotated tag = published frozen bytes — 832's working tree stays
 # off-limits.
 
-version: "0.20.0"
-sha256: "51931b8a40ece180eb5981f57ab4a41f4c956e0d4cea877c5905ea89b65f6f3c"
-bytes: 1159393
+version: "0.21.0"
+sha256: "da1619714dfcb46f265c989d08a2c5129fb0134c40f726826a86fff93294b505"
+bytes: 1164928
 
 source_repo: "832-Workflow-designer"
-source_artifact: "dist/aef-workflow-designer-0.20.0.html"
-source_tag: "designer-v0.20.0"
+source_artifact: "dist/aef-workflow-designer-0.21.0.html"
+source_tag: "designer-v0.21.0"
 source_manifest: "dist/MANIFEST.yaml"                 # 832 side
 # Read-only LAN origin for pull-at-tag intake (T-247/D-335, tooling T-2616).
 # `fw designer sync --from-tag` fetches artifact + MANIFEST at the annotated tag
@@ -166,7 +166,9 @@ protocol: "docs/aef-designer-integration-protocol.md" # 832 side (pull → sha25
 # 832 T-1170 (2026-10-15): 0.19.1 -> 0.20.0 (activities-only step numbers T-1168, tab title names the map T-1155,
 #   toolbar never clips T-1176, folding/resizable side panels T-1177). sha+bytes from the designer-v0.20.0 tag blob,
 #   equal to its MANIFEST.
-vendored_path: "vendor/designer/aef-workflow-designer-0.20.0.html"
+# 832 T-1195 (2026-10-17): 0.20.0 -> 0.21.0 (task-id-free node slugs T-1194, sticky lane labels T-1091, pool encloses
+#   its labels T-1154). sha+bytes from the designer-v0.21.0 tag blob, equal to its MANIFEST.
+vendored_path: "vendor/designer/aef-workflow-designer-0.21.0.html"
 
 # Offline-hardened (832 T-176): web fonts are embedded as base64 woff2 — ZERO network
 # on load (no fonts.googleapis.com / gstatic fetch). Fully self-contained for
