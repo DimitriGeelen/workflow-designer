@@ -6,13 +6,13 @@ description: >
   2026-10-17): a node named 'G-062 close gates ...' gets slug 'close', not '062'.
   Same rule as T-1194's task ids. Affects 8 AEF draft nodes; no 832 map.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tools/_t1194-slug-task-id-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -41,8 +41,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-17T18:52:47Z
-last_update: 2026-10-17T18:52:57Z
-date_finished:
+last_update: 2026-10-17T18:54:38Z
+date_finished: 2026-10-17T18:54:38Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -369,3 +369,20 @@ node tools/_t1168-node-id-map.mjs --check > /tmp/.t1196c 2>&1
 
 ### 2026-10-17T18:52:57Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e57af976
+- **Timestamp:** 2026-10-17T18:55:07Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-17T18:54:38Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
