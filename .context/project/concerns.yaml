@@ -2457,7 +2457,7 @@ concerns:
   - T-562
   - T-431
   closure_check_command: "python3 -c \"import glob,yaml,json;bad=[]\nfor f in glob.glob('.context/episodic/*.yaml'):\n\
-    \    try: yaml.safe_load(open(f,encoding='utf-8'))\n    except Exception: bad.append(f)\nsrc=open('.agentic-framework/agents/audit/audit.sh',encoding='utf-8',errors='replace').read()\n\
+    \    try: yaml.load(open(f,encoding='utf-8'),Loader=getattr(yaml,'CSafeLoader',yaml.SafeLoader))\n    except Exception: bad.append(f)\nsrc=open('.agentic-framework/agents/audit/audit.sh',encoding='utf-8',errors='replace').read()\n\
     wired='.context/episodic' in src and 'safe_load' in src\nprint(json.dumps({'verdict':'READY' if (wired\
     \ and not bad) else 'NOT_READY','ready':bool(wired and not bad),'unparseable_episodics':len(bad),'audit_parses_episodics':wired,'gap':'G-040'}))\""
 - id: G-041

@@ -2,12 +2,19 @@
 id: T-1186
 name: "Watchtower /gaps takes 16 s on 832 (smoke test times out at 5 s): find why"
 description: >
-  Found closing T-1185 (2026-10-17): after the AEF 495901b5d upgrade and job 033's restart, the Watchtower smoke test passes 53/54 alone; /gaps fails by timeout (smoke limit 5 s, web/smoke_test.py:122). Measured twice with curl: 200 in 15.9 s and 16.2 s. Under fw doctor (machine busy) 6/54 time out. Not yet known: whether /gaps was this slow before the upgrade, and whether 832's local web changes (app.py, shared.py, blueprints) play a part. Profile the route, attribute the time (our code or AEF's), fix ours or report AEF's with the numbers.
+  Found closing T-1185 (2026-10-17): after the AEF 495901b5d upgrade and job 033's
+  restart, the Watchtower smoke test passes 53/54 alone; /gaps fails by timeout (smoke
+  limit 5 s, web/smoke_test.py:122). Measured twice with curl: 200 in 15.9 s and 16.2
+  s. Under fw doctor (machine busy) 6/54 time out. Not yet known: whether /gaps was
+  this slow before the upgrade, and whether 832's local web changes (app.py, shared.py,
+  blueprints) play a part. Profile the route, attribute the time (our code or AEF's),
+  fix ours or report AEF's with the numbers.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [watchtower, performance]
 components: []
 related_tasks: []
@@ -38,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-17T08:29:51Z
-last_update: 2026-10-17T08:29:51Z
-date_finished: null
+last_update: 2026-10-17T08:35:49Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +57,42 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-17T08:32:20Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1186: Watchtower /gaps takes 16 s on 832 (smoke test times out at 5 s): find why
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Watchtower's `/gaps` answers 200 but takes ~16 s on 832; the smoke test allows 5 s, so it reads as a failure and,
+under load, drags 5 more pages over the limit with it.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The time in `/gaps` is profiled and attributed to the functions that spend it, with the numbers in this task — cProfile 20.8 s: gauge_state x9 (lib/gaps.py:430); in it, the 9 closure-gauge subprocesses 13.5 s (G-040 8.1 s, G-035 4.0 s, the other seven ~1.3 s together) and load_concerns_yaml x9 = 7.0 s (0.775 s per parse of our 256 KB / 61-entry concerns.yaml)
+- [x] The cause is classified: 832's local web change, 832's data (size of a register), or AEF's code — with evidence — NOT our web changes (lib/gaps.py and blueprints/discovery.py byte-identical to pristine 495901b5d). 832's DATA: the G-040 gauge we wrote (pure-Python parse of 950 episodics) and G-035 (census). AEF's CODE: the register re-parsed once per gauge, gauges sequential
+- [x] If it is 832's: fixed here, and `/gaps` answers inside the smoke limit (5 s); if it is AEF's: reported to AEF with the profile, and this task records the message id — split: ours fixed (G-040 via yaml.CSafeLoader, 8.1 -> 0.76 s, same verdict on all 950 files and on 5 corruption kinds; /gaps 16 -> 9.3 s); AEF's reported (aadaa9aa, RECEIVED: parse once per request, CSafeLoader, concurrent/cached gauges). /gaps stays over 5 s until AEF acts; G-035 (4 s) left as is
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -112,6 +141,8 @@ date_finished: null
 -->
 
 ## Verification
+grep -q "CSafeLoader" .context/project/concerns.yaml
+python3 -c "import yaml; yaml.safe_load(open('.context/project/concerns.yaml'))"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -338,3 +369,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1186-watchtower-gaps-takes-16-s-on-832-smoke-.md
 - **Context:** Initial task creation
+
+### 2026-10-17T08:32:20Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
