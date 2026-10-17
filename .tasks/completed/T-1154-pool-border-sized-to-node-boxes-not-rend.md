@@ -9,13 +9,13 @@ description: >
   label overhang. Not re-measured. The finding was kept out of T-601 on purpose and
   has no carrier. Original observation text is in .context/inbox.yaml under OBS-314.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [observations]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t1154-pool-label-fit-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:20:56Z
-last_update: 2026-10-17T16:17:01Z
-date_finished:
+last_update: 2026-10-17T16:50:37Z
+date_finished: 2026-10-17T16:50:37Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -129,12 +129,13 @@ measurement (machine-dependent bytes; T-358 export determinism). The fix must ke
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1154 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-- [ ] [REVIEW] The pool border visibly encloses the long label under the right-most node, and the widened pool looks intentional (header band and lanes widen with it), at every width
+- [x] [REVIEW] The pool border visibly encloses the long label under the right-most node, and the widened pool looks intentional (header band and lanes widen with it), at every width
   **Steps:**
   1. Open the screenshots listed in `## Visual Verification` (t1154-{1024,1440,1920}-{fit,zoomed}.png)
   2. In each: the label "Resolved, recorded and promoted to a durable project learning" and its id badge end inside the pool's right border, with a visible gap; the pool header band and every lane background reach the same right edge; nothing else in the canvas or chrome is clipped or overlapped
   **Expected:** step 2 holds in all six screenshots
   **If not:** name the screenshot and what is wrong (label touching or crossing the border, a band or lane shorter than the border, a clipped control)
+  **Reviewer verdict:** green V-20261017-625480b3 — reviewer-judge-t-1154-r3-29c105bed60b:reviewer (rung rung-3-termlink-single-reviewer), digest b8f03fac225f; dispatch judge-t-1154-r3-29c105bed60b; evidence: .context/reviews/evidence/T-1154/AC1-judge-t-1154-r3-29c105bed60b.md, .context/reviews/evidence/T-1154/t1154-1024-fit-judge-t-1154-r3-29c105bed60b.png, .context/reviews/evidence/T-1154/t1154-1024-zoomed-judge-t-1154-r3-29c105bed60b.png, .context/reviews/evidence/T-1154/t1154-1440-fit-judge-t-1154-r3-29c105bed60b.png, .context/reviews/evidence/T-1154/t1154-1440-zoomed-judge-t-1154-r3-29c105bed60b.png, .context/reviews/evidence/T-1154/t1154-1920-fit-judge-t-1154-r3-29c105bed60b.png, .context/reviews/evidence/T-1154/t1154-1920-zoomed-judge-t-1154-r3-29c105bed60b.png, .context/reviews/evidence/T-1154/crop-1024-fit-right-edge-judge-t-1154-r3-29c105bed60b.png, .context/reviews/evidence/T-1154/crop-1440-fit-right-edge-judge-t-1154-r3-29c105bed60b.png, .context/reviews/evidence/T-1154/crop-1920-fit-right-edge-judge-t-1154-r3-29c105bed60b.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -342,6 +343,14 @@ fixing: most renderNodes() calls bypass renderAll, so the fit lives at the end o
 
 ## Recommendation
 
+**Recommendation:** GO
+**Rationale:** The drawn pool now encloses every rendered label and id badge on the right and at the bottom; the BPMN export is unchanged (box-based, no text measurement). Measured, tested, and independently reviewed green after one amber that was fixed, not reworded.
+**Evidence:**
+- Before: healing-loop label +3 px, session-handover badge +38 px past the right border; bottom badges up to +6 px. After: all 24 maps >= 10 px inside on the right, >= 3 px at the bottom
+- `tools/_t1154-pool-label-fit-cdp.mjs` 7/7; the pre-change designer fails it (1/7, long label +113 px)
+- Export byte-identical with the pad forced to 0 (incl. a two-pool collaboration's pool DI) and across label sizes s/m/l
+- Reviewer: amber (bottom badge on the border, undisclosed) -> fixed -> green (V on revision 2c5a627e)
+
 <!-- T-2945: same shape as inception.md's block — the gate that reads it
      (audit_inception_recommendation, lib/task-audit.sh:117) is shared, so the
      shape is copied rather than reinvented.
@@ -426,3 +435,15 @@ fixing: most renderNodes() calls bypass renderAll, so the fit lives at the end o
 ### 2026-10-17T16:17:01Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-f17fb7c8
+- **Timestamp:** 2026-10-17T16:52:13Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-17T16:50:37Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

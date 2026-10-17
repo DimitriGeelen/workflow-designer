@@ -1,0 +1,114 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1154: Pool border sized to node boxes, not rendered labels: contentRightEdge()/poolHeight() let right-most below-labels overhang the pool
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T16:52:24Z
+# ============================================================================
+
+task_id: T-1154
+task_name: "Pool border sized to node boxes, not rendered labels: contentRightEdge()/poolHeight() let right-most below-labels overhang the pool"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-13T16:20:56Z
+completed: 2026-10-17T16:50:37Z
+duration_days: 4
+updates_count: 2
+first_commit: 2026-10-17T18:34:33+02:00
+last_commit: 2026-10-17T18:50:08+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the drawn pool encloses rendered labels and id badges on the right (OBS-314); export unchanged. reviewer verdict. bottom edge too (reviewer amber: badge agt_4_apply on the bottom border); fit runs at the end of renderNodes
+
+# Key outcomes
+outcomes:
+  - 'Measured first on the 24-map corpus with designer 0.20.0: per map, how far any rendered node label reaches past the pool''s right border and below its bottom border; numbers recorded here. If nothing overhangs, the task closes as not reproduced with that measurement — 2026-10-17, 1440 px, label size m (scratch t1154-measure.mjs): node labels past the RIGHT border in 1 of 24 maps (healing-loop +3 px, "Resolved & recorded (antifragi…"); 5 more within 1-9 px (task-lifecycle -1, session-handover -2, arc-lifecycle -8, inception-lifecycle -9, inception-review -13). Labels past the BOTTOM: none (worst -6; the lane fit already reserves below-label room, LANE_FIT_LABEL). Id badges: right +38 (session-handover), bottom up to +6 on many maps. Reproduced on the right edge; the bottom is a badge-only matter (see Decisions)'
+  - 'If reproduced: the DRAWN pool (border, header band, lane backgrounds) encloses every rendered node label on the right and at the bottom with a margin; no node moves — right edge: labels and badges >= 10 px inside on all 24 maps; bottom: labels and badges >= 3 px above the border on all 24 maps (the last lane is drawn taller by the pad; saved lane heights unchanged)'
+  - 'The BPMN export stays independent of text measurement: byte-identical across two loads and across label sizes s/m/l, and the corpus checks stay green (`_t1168-node-id-map.mjs --check`); any change in exported bytes is stated and justified here — no exported byte changes: the pad never reaches buildBpmnXml (identical with pad forced to 0; the T-1119 collaboration''s pool DI width stays box-based with a 100 px pad drawn); identical across s/m/l'
+  - 'CDP regression test on a fixture with a long label under the right-most node and in the bottom lane; the pre-change designer fails it (control); wired into the bridge suite — `tools/_t1154-pool-label-fit-cdp.mjs` 7/7; control: pre-change designer 1/7 (long label +113 px; bottom badges past the border on several maps). The bottom is covered by the 24-map corpus leg (badges under bottom-lane nodes), not a separate fixture'
+  - 'Screenshots at 1024, 1440 and 1920 of the fixture (fit and zoomed), read control by control in `## Visual Verification`'
+  - '[REVIEW] The pool border visibly encloses the long label under the right-most node, and the widened pool looks intentional (header band and lanes widen with it), at every width'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-17 — Widen the DRAWN pool, not contentRightEdge()'
+    chose: 'after renderNodes, measure rendered labels and badges; redraw the pool wider by the overhang + 12 px (`poolLabelPad`). Export, T-601 placement scoring and the page-width drag keep the box edge.'
+    rationale: 'contentRightEdge() feeds the BPMN export; text measurement there would make saved bytes depend on fonts. The scorer must not see the pad (it is derived from placement: feedback loop).'
+    alternatives_rejected: ['a character-count width estimate in contentRightEdge() (deterministic but approximate, and it would change exported bytes for corpus maps near the edge).']
+  - decision: '2026-10-17 — Bottom edge: first left alone, then fixed after the reviewer''s amber'
+  - decision: '2026-10-17 — fitPoolToLabels runs at the end of renderNodes, not in renderAll'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/evidence/T-1154/AC1-judge-t-1154-r3-29c105bed60b.md'
+  - '.context/reviews/evidence/T-1154/AC1-judge-t-1154-r3-f2b3c4d61bf9.md'
+  - '.context/reviews/evidence/T-1154/crop-1024-fit-right-edge-judge-t-1154-r3-29c105bed60b.png'
+  - '.context/reviews/evidence/T-1154/crop-1440-fit-right-edge-judge-t-1154-r3-29c105bed60b.png'
+  - '.context/reviews/evidence/T-1154/crop-1440-zoomed-right-edge-judge-t-1154-r3-f2b3c4d61bf9.png'
+  - '.context/reviews/evidence/T-1154/crop-1920-fit-bottom-badge-judge-t-1154-r3-f2b3c4d61bf9.png'
+  - '.context/reviews/evidence/T-1154/crop-1920-fit-right-edge-judge-t-1154-r3-29c105bed60b.png'
+  - '.context/reviews/evidence/T-1154/crop-1920-zoomed-bottom-badge-judge-t-1154-r3-f2b3c4d61bf9.png'
+  - '.context/reviews/evidence/T-1154/t1154-1024-fit-judge-t-1154-r3-29c105bed60b.png'
+  - '.context/reviews/evidence/T-1154/t1154-1024-zoomed-judge-t-1154-r3-29c105bed60b.png'
+  - '.context/reviews/evidence/T-1154/t1154-1440-fit-judge-t-1154-r3-29c105bed60b.png'
+  - '.context/reviews/evidence/T-1154/t1154-1440-zoomed-judge-t-1154-r3-29c105bed60b.png'
+  - '.context/reviews/evidence/T-1154/t1154-1440-zoomed.png'
+  - '.context/reviews/evidence/T-1154/t1154-1920-fit-judge-t-1154-r3-29c105bed60b.png'
+  - '.context/reviews/evidence/T-1154/t1154-1920-fit.png'
+  - '.context/reviews/evidence/T-1154/t1154-1920-zoomed-judge-t-1154-r3-29c105bed60b.png'
+  - '.context/reviews/evidence/T-1154/t1154-1920-zoomed.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.fabric/components/tools-_t1154-pool-label-fit-cdp.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1154-pool-border-sized-to-node-boxes-not-rend.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1154-pool-label-fit-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-17T18:34:33'
+    action: 'T-1154: the drawn pool encloses rendered labels and id badges on the right (OBS-314); export unchanged'
+  - time: '2026-10-17T18:36:33'
+    action: 'T-1154: reviewer verdict'
+  - time: '2026-10-17T18:48:37'
+    action: 'T-1154: bottom edge too (reviewer amber: badge agt_4_apply on the bottom border); fit runs at the end of renderNodes'
+  - time: '2026-10-17T18:50:08'
+    action: 'T-1154: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 5789 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [observations]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5789
+  commits: 4
+  files_changed: 25
+  lines_added: 439
+  lines_removed: 38
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1154-pool-border-sized-to-node-boxes-not-rend.md
+generated_by: context-agent-hybrid
