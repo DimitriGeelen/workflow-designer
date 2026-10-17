@@ -3094,6 +3094,7 @@ T1013_GUARDS=(
   'tools/_t1194-slug-task-id-cdp.mjs|deriveSlug skips a leading task id (T-001: Orientation -> orientation); other names keep their slug (T-1194)'
   'tools/_t1154-pool-label-fit-cdp.mjs|CDP regression: the drawn pool encloses every rendered label and id badge on the right (24 maps + long-label fixture); the BPMN export stays box-based and pad-free (T-1154)'
   'tools/_t1091-sticky-lanes-cdp.mjs|CDP regression: zoomed and scrolled right, lane names stay pinned at the left edge, aligned and on top; nothing pinned unscrolled; option persists; export and thumbnails unaffected (T-1091)'
+  'tools/_t1158-witness-per-verdict-teeth.sh|the round-trip guard'"'"'s node and workflowMeta self-tests name a BLIND only where it happened (blind_in + value_before/after), LIVE fixtures apart (also_live_in); proven by one-fixture mutants that the old pooled list misnamed (T-1158, OBS-418)'
   'tools/_t1160-closed-record-teeth.sh|a record in completed/ moves only onto an end event (REFUSED-CLOSED, audited), the framework close and partial-complete still walk, successors is read-only; mutation run included (T-1160, OBS-437)'
   'tools/_t1192-teeth.sh|after an upgrade, templates identical to the vendored copy are committed, .upstream files ours contains are removed, the rest named (T-1192)'
   'tools/_t1189-id-map-dir.sh|the id-map tool run on another directory (--dir, --designer 0.20.0) reproduces the T-1168 table and migration byte for byte (T-1189, for AEF T-4224)'

@@ -740,16 +740,18 @@ const PREFLIGHT_EXPR = `(function(){
       // Best verdict across candidates: LIVE beats DRIFT-ELSEWHERE beats BLIND. Only the
       // eventbind shape yields more than one candidate, and there the wanted key is reachable
       // through exactly one of them.
-      var best=null,bestMoved=null;
+      var best=null,bestMoved=null,blindAfter=null;
       for(var c=0;c<cands.length;c++){
         var m2=parseBpmnXml(cands[c]);
         if(!m2){ best='LIVE'; bestMoved=['<parse broke>']; break; }
-        if(p1===proj(m2)){ if(best===null) best='BLIND'; continue; }
+        if(p1===proj(m2)){ if(best===null){ best='BLIND'; blindAfter=valuesOf(m2,spec.k); } continue; }
         var moved=[];
         for(var j=0;j<METAKEYS.length;j++) if(valuesOf(m1,METAKEYS[j])!==valuesOf(m2,METAKEYS[j])) moved.push(METAKEYS[j]);
         if(moved.indexOf(spec.k)>=0){ best='LIVE'; bestMoved=moved; break; }
         if(best!=='LIVE'){ best='DRIFT-ELSEWHERE'; bestMoved=moved; }
       }
+      // T-1158: a BLIND carries the before/after the parser saw, as the lane level does (T-910).
+      if(best==='BLIND'){ results.push({key:spec.k,shape:spec.shape,verdict:best,candidates:cands.length,value_before:valuesOf(m1,spec.k),value_after:blindAfter}); continue; }
       results.push({key:spec.k,shape:spec.shape,verdict:best,moved:bestMoved,candidates:cands.length});
     }
     // Restore the page's state so the per-fixture round trip that follows is unaffected.
@@ -808,7 +810,7 @@ const WM_PREFLIGHT_EXPR = `(function(){
       if(mut===text){ results.push({key:k,verdict:'NOT-PRESENT'}); continue; }
       var m2=parseBpmnXml(mut);
       if(!m2){ results.push({key:k,verdict:'LIVE',moved:['<parse broke>']}); continue; }
-      if(wmProj(m2)===p1){ results.push({key:k,verdict:'BLIND'}); continue; }
+      if(wmProj(m2)===p1){ results.push({key:k,verdict:'BLIND',value_before:wmValue(m1,k),value_after:wmValue(m2,k)}); continue; }
       // Attribute the movement to the key it was aimed at. A mutation that moves SOME other
       // attribute is DRIFT-ELSEWHERE, not coverage of this one — the same distinction the
       // node-level probe needs for the eventbind trio.
@@ -1172,7 +1174,9 @@ async function main() {
     // thoroughness for its own sake: a key absent from one fixture may be the only live one in
     // another, and a per-document verdict cannot tell "this document has no boundary events" from
     // "this key is unguarded".
-    const perKey = new Map(KEYSPEC.map(s => [s.k, { key: s.k, shape: s.shape, LIVE: 0, BLIND: 0, ELSEWHERE: 0, absent: 0, unexercisable: 0, unexercisable_reason: null, witnesses: [] }]));
+    // T-1158 (OBS-418): witnesses kept PER VERDICT, as the lane level does (T-910). One pooled list
+    // printed fixtures where the key was LIVE next to a BLIND finding.
+    const perKey = new Map(KEYSPEC.map(s => [s.k, { key: s.k, shape: s.shape, LIVE: 0, BLIND: 0, ELSEWHERE: 0, absent: 0, unexercisable: 0, unexercisable_reason: null, w: { LIVE: [], BLIND: [], ELSEWHERE: [], NOT_EXERCISABLE: [] } }]));
     const selftest = { fixtures_exercised: 0, unperturbable: [] };
     for (const name of fixtures) {
       const text = readFileSync(join(FIXturesDir, name), 'utf8');
@@ -1182,10 +1186,10 @@ async function main() {
       selftest.fixtures_exercised++;
       for (const res of r.results) {
         const agg = perKey.get(res.key); if (!agg) continue;
-        if (res.verdict === 'LIVE') { agg.LIVE++; if (agg.witnesses.length < 2) agg.witnesses.push(name); }
-        else if (res.verdict === 'BLIND') { agg.BLIND++; if (agg.witnesses.length < 2) agg.witnesses.push(name); }
-        else if (res.verdict === 'DRIFT-ELSEWHERE') { agg.ELSEWHERE++; if (agg.witnesses.length < 2) agg.witnesses.push(name); }
-        else if (res.verdict === 'NOT-EXERCISABLE') { agg.unexercisable++; agg.unexercisable_reason = res.reason; if (agg.witnesses.length < 2) agg.witnesses.push(name); }
+        if (res.verdict === 'LIVE') { agg.LIVE++; if (agg.w.LIVE.length < 3) agg.w.LIVE.push(name); }
+        else if (res.verdict === 'BLIND') { agg.BLIND++; if (agg.w.BLIND.length < 3) agg.w.BLIND.push({ fixture: name, value_before: res.value_before, value_after: res.value_after }); }
+        else if (res.verdict === 'DRIFT-ELSEWHERE') { agg.ELSEWHERE++; if (agg.w.ELSEWHERE.length < 3) agg.w.ELSEWHERE.push(name); }
+        else if (res.verdict === 'NOT-EXERCISABLE') { agg.unexercisable++; agg.unexercisable_reason = res.reason; if (agg.w.NOT_EXERCISABLE.length < 3) agg.w.NOT_EXERCISABLE.push(name); }
         else agg.absent++;
       }
     }
@@ -1195,8 +1199,8 @@ async function main() {
     // the projection.
     selftest.keys_total = keys.length;
     selftest.live = keys.filter(k => k.LIVE > 0).map(k => k.key);
-    selftest.blind = keys.filter(k => k.BLIND > 0).map(k => ({ key: k.key, shape: k.shape, docs: k.BLIND, witnesses: k.witnesses }));
-    selftest.drift_elsewhere = keys.filter(k => k.ELSEWHERE > 0).map(k => ({ key: k.key, shape: k.shape, docs: k.ELSEWHERE }));
+    selftest.blind = keys.filter(k => k.BLIND > 0).map(k => ({ key: k.key, shape: k.shape, docs: k.BLIND, blind_in: k.w.BLIND, also_live_in: k.w.LIVE }));
+    selftest.drift_elsewhere = keys.filter(k => k.ELSEWHERE > 0).map(k => ({ key: k.key, shape: k.shape, docs: k.ELSEWHERE, drift_in: k.w.ELSEWHERE }));
     // Three distinct unproven states, kept apart because they have three different remedies:
     //   NEVER-PRESENT    no fixture carries the key          -> author a fixture that sets it
     //   NOT-EXERCISABLE  carrier present, no legal mutation  -> enrich an existing fixture
@@ -1241,7 +1245,7 @@ async function main() {
     // Per-fixture would be dishonest here for the same reason it was at the node level: uuid is
     // carried by exactly 1 of 20 fixtures and kind by 1, so a per-document verdict cannot tell
     // "this document does not set uuid" from "uuid is unguarded".
-    const wmPerKey = new Map(WMSPEC.map(k => [k, { key: k, LIVE: 0, BLIND: 0, ELSEWHERE: 0, absent: 0, witnesses: [] }]));
+    const wmPerKey = new Map(WMSPEC.map(k => [k, { key: k, LIVE: 0, BLIND: 0, ELSEWHERE: 0, absent: 0, w: { LIVE: [], BLIND: [], ELSEWHERE: [] } }]));
     const wmTest = { fixtures_exercised: 0, unperturbable: [] };
     for (const name of fixtures) {
       const text = readFileSync(join(FIXturesDir, name), 'utf8');
@@ -1251,16 +1255,16 @@ async function main() {
       wmTest.fixtures_exercised++;
       for (const res of r.results) {
         const agg = wmPerKey.get(res.key); if (!agg) continue;
-        if (res.verdict === 'LIVE') { agg.LIVE++; if (agg.witnesses.length < 2) agg.witnesses.push(name); }
-        else if (res.verdict === 'BLIND') { agg.BLIND++; if (agg.witnesses.length < 2) agg.witnesses.push(name); }
-        else if (res.verdict === 'DRIFT-ELSEWHERE') { agg.ELSEWHERE++; if (agg.witnesses.length < 2) agg.witnesses.push(name); }
+        if (res.verdict === 'LIVE') { agg.LIVE++; if (agg.w.LIVE.length < 3) agg.w.LIVE.push(name); }
+        else if (res.verdict === 'BLIND') { agg.BLIND++; if (agg.w.BLIND.length < 3) agg.w.BLIND.push({ fixture: name, value_before: res.value_before, value_after: res.value_after }); }
+        else if (res.verdict === 'DRIFT-ELSEWHERE') { agg.ELSEWHERE++; if (agg.w.ELSEWHERE.length < 3) agg.w.ELSEWHERE.push(name); }
         else agg.absent++;
       }
     }
     const wmKeys = [...wmPerKey.values()];
     wmTest.live = wmKeys.filter(k => k.LIVE > 0).map(k => k.key);
-    wmTest.blind = wmKeys.filter(k => k.BLIND > 0).map(k => ({ key: k.key, docs: k.BLIND, witnesses: k.witnesses }));
-    wmTest.drift_elsewhere = wmKeys.filter(k => k.ELSEWHERE > 0).map(k => ({ key: k.key, docs: k.ELSEWHERE }));
+    wmTest.blind = wmKeys.filter(k => k.BLIND > 0).map(k => ({ key: k.key, docs: k.BLIND, blind_in: k.w.BLIND, also_live_in: k.w.LIVE }));
+    wmTest.drift_elsewhere = wmKeys.filter(k => k.ELSEWHERE > 0).map(k => ({ key: k.key, docs: k.ELSEWHERE, drift_in: k.w.ELSEWHERE }));
     // NEVER-PRESENT is reported and is NOT counted as covered. pageWidth is the known case: no
     // fixture authors it, so nothing about it was measured. Per T-3105 that is not a pass, and
     // this project's grammar is that NOT EVALUATED is not PASSED.
@@ -1287,12 +1291,11 @@ async function main() {
     // Per-fixture would be dishonest for the same reason it is at the two levels above:
     // authoringDefault is carried by very few fixtures, so a per-document verdict cannot tell
     // "this document sets no authoring default" from "authoringDefault is unguarded".
-    // T-910: witnesses are kept PER VERDICT, not pooled. The wm and node levels share one
-    // `witnesses` list across every verdict, so a BLIND finding is reported alongside fixture
-    // names that were LIVE — which sends the reader to open the wrong document. Hit on the first
-    // run of this leg: height came back BLIND on 1 of 20 and the two names printed next to it
-    // were both fixtures where it was live. Filed for the other two levels rather than changed
-    // here, so this task does not quietly rewrite guards it is not about.
+    // T-910: witnesses are kept PER VERDICT, not pooled. A pooled list reported a BLIND finding
+    // alongside fixture names that were LIVE — which sends the reader to open the wrong document.
+    // Hit on the first run of this leg: height came back BLIND on 1 of 20 and the two names
+    // printed next to it were both fixtures where it was live. The node and wm levels took the
+    // same shape in T-1158 (OBS-418).
     const lmPerKey = new Map(LMSPEC.map(k => [k, { key: k, LIVE: 0, BLIND: 0, ELSEWHERE: 0, absent: 0, not_applied: 0, unexercisable: 0, unexercisable_detail: null, w: { LIVE: [], BLIND: [], ELSEWHERE: [], NOT_APPLIED: [], NOT_EXERCISABLE: [] } }]));
     const lmTest = { fixtures_exercised: 0, unperturbable: [], setup_broken: [] };
     for (const name of fixtures) {
