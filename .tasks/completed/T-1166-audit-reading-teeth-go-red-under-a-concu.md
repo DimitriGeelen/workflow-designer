@@ -9,13 +9,13 @@ description: >
   only record is a note in T-1068 (~line 463). The cause is not confirmed and no task
   owns it. Original observation text is in .context/inbox.yaml under OBS-481.
 
-status: started-work
+status: work-completed
 workflow_type: test
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [observations]
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t534-d2-queue-tier-teeth.py, tools/_t535-trend-key-teeth.py, tools/_t536-status-desync-teeth.py, tools/_t842-commit-exemption-spelling-regression.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:21:25Z
-last_update: 2026-10-17T09:38:04Z
-date_finished:
+last_update: 2026-10-17T09:38:06Z
+date_finished: 2026-10-17T09:38:06Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -361,3 +361,20 @@ timeout 300 python3 tools/_t536-status-desync-teeth.py
 ### 2026-10-17T09:12:53Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3dbbb1f9
+- **Timestamp:** 2026-10-17T09:38:12Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — Each affected probe either avoids the lock (`fw audit --check <id>` where it reads one check, AEF T-4209) or reports a lock collision as COULD NOT RUN / abstain (never as a regression of what it guard
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_audit_lock.py in: Each affected probe either avoids the lock (`fw audit --check <id>` where it reads one check, AEF T-4209) or reports a lock collision as COULD NOT RUN`
+
+### 2026-10-17T09:38:06Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

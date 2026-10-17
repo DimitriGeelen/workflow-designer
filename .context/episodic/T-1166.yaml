@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1166: Audit-reading teeth go red under a concurrent cron audit: confirm the cause and isolate (_t525/_t534/_t535/_t536/_t628)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T09:38:20Z
+# ============================================================================
+
+task_id: T-1166
+task_name: "Audit-reading teeth go red under a concurrent cron audit: confirm the cause and isolate (_t525/_t534/_t535/_t536/_t628)"
+workflow_type: test
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T16:21:25Z
+completed: 2026-10-17T09:38:06Z
+duration_days: 4
+updates_count: 2
+first_commit: 2026-10-17T11:38:05+02:00
+last_commit: 2026-10-17T11:38:05+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  cause of OBS-481 confirmed — a concurrent audit holds the audit lock, fw audit exits 75, and _t534/_t535/_t536 refused blaming the control; tools/_audit_lock.py waits for the lock (up to 180 s) then says CANNOT RUN; reproduced both ways (25 s collision: all pass after waiting; held past the wait: CANNOT RUN rc 2); _t525 already lock-free (T-1184); sweep 101/101
+
+# Key outcomes
+outcomes:
+  - 'The cause is confirmed or refuted by reproduction: each of the five run while an audit holds the lock, with the observed exit code and output — CONFIRMED (lock held with flock): _t534, _t535, _t536 refused at once (rc 2, 0 s) blaming the control ("no D2 line", "no TREND ANALYSIS section", "no CTL-028 line") because `fw audit` exited 75 ("Another audit is already running"); _t525 passed (lock-free `fw audit --check` since T-1184); _t628 passed (does not take the lock)'
+  - 'Each affected probe either avoids the lock (`fw audit --check <id>` where it reads one check, AEF T-4209) or reports a lock collision as COULD NOT RUN / abstain (never as a regression of what it guards) — none of their checks is selectable yet (`--list-checks`), so tools/_audit_lock.py: retry while the lock is held (10 s polls, up to T1166_LOCK_WAIT, default 180 s), then `CANNOT RUN: another fw audit held the audit lock` with rc 2, the wording the suite files under "never got to look" (T-1060)'
+  - 'The five pass alone, and none reads as a regression while an audit holds the lock — alone: all pass; lock held 25 s: _t534 8/8, _t535 7/7, _t536 5/5 after waiting; lock held past a 20 s wait: all three CANNOT RUN rc 2'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1166-audit-reading-teeth-go-red-under-a-concu.md'
+  - 'tools/_audit_lock.py'
+  - 'tools/_t534-d2-queue-tier-teeth.py'
+  - 'tools/_t535-trend-key-teeth.py'
+  - 'tools/_t536-status-desync-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-17T11:38:05'
+    action: 'T-1166: cause of OBS-481 confirmed — a concurrent audit holds the audit lock, fw audit exits 75, and _t534/_t535/_t536 refused blaming the control; tools/_audit_lock.py waits for the lock (up to 180 s) then says CANNOT RUN; reproduced both ways (25 s collision: all pass after waiting; held past the wait: CANNOT RUN rc 2); _t525 already lock-free (T-1184); sweep 101/101'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5356 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [observations]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5356
+  commits: 1
+  files_changed: 5
+  lines_added: 118
+  lines_removed: 17
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1166-audit-reading-teeth-go-red-under-a-concu.md
+generated_by: context-agent-hybrid
