@@ -1,13 +1,20 @@
 ---
 id: T-1164
-name: "Designer: mark the lane band for lane-anchored validator findings (LANE-CAPACITY, LANE-GEOMETRY, ABBR-DUP, LANE-AUTHORING-DEFAULT)"
+name: "Designer: mark the lane band for lane-anchored validator findings (LANE-CAPACITY,
+  LANE-GEOMETRY, ABBR-DUP, LANE-AUTHORING-DEFAULT)"
 description: >
-  Promoted from OBS-465 by T-1149 (observation triage, 2026-10-13). The four lane-anchored rules (W-XML-LANE-CAPACITY, W-XML-LANE-GEOMETRY, E-XML-ABBR-DUP, E-XML-LANE-AUTHORING-DEFAULT) still have no marker on the lane band. Grepping src, .tasks and docs/reports found no task or report that marks lane bands. T-964's body covers the allowlist failing silently, not lane-band markers. Original observation text is in .context/inbox.yaml under OBS-465.
+  Promoted from OBS-465 by T-1149 (observation triage, 2026-10-13). The four lane-anchored
+  rules (W-XML-LANE-CAPACITY, W-XML-LANE-GEOMETRY, E-XML-ABBR-DUP, E-XML-LANE-AUTHORING-DEFAULT)
+  still have no marker on the lane band. Grepping src, .tasks and docs/reports found
+  no task or report that marks lane bands. T-964's body covers the allowlist failing
+  silently, not lane-band markers. Original observation text is in .context/inbox.yaml
+  under OBS-465.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: later
+horizon: now
 tags: [observations]
 components: []
 related_tasks: []
@@ -38,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:21:20Z
-last_update: 2026-10-13T16:21:20Z
-date_finished: null
+last_update: 2026-10-17T18:01:22Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +57,47 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-17T18:01:23Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 2
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=2 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=3 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L3:keyword=promote)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1164: Designer: mark the lane band for lane-anchored validator findings (LANE-CAPACITY, LANE-GEOMETRY, ABBR-DUP, LANE-AUTHORING-DEFAULT)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+OBS-465 (T-964): four validator rules report a LANE, not a node (`lane '<id>'`): W-XML-LANE-CAPACITY, W-XML-LANE-GEOMETRY,
+E-XML-ABBR-DUP, E-XML-LANE-AUTHORING-DEFAULT. `findingNodeId()` rightly resolves them to nothing, so they reach the
+findings dock as "not on the map" rows and never reach the canvas, though the operator asked for findings to be
+"visibly in the flow so we can remediate it". Remedy: mark the lane band, already drawn, the way nodes are marked.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A finding whose location names a lane (`lane '<id>'`, the first quoted id when two are named) that matches an exported lane id marks that lane: its header strip carries the severity (ERROR red / WARN orange, worst wins) and a ✖/⚠ pill; node findings keep resolving to nodes first
+- [x] The dock row of a lane finding is anchored (no "not on the map"), clicking it selects the lane, and the header count "N on the map" includes marked lanes
+- [x] Markers come only from the latest check (a lane fixed and re-checked loses its mark; an unavailable check clears every mark); `FINDING_MARKER_EXCLUDED` applies to lane findings too; the BPMN export is unchanged by a mark — the exclusion is checked before either resolver runs (by construction, no separate leg)
+- [x] CDP test: a node moved clear of every lane band gives LANE-GEOMETRY/LANE-CAPACITY marks on the right lane(s) with anchored rows; fixing it and re-checking clears them; the pre-change designer fails it (control); wired into the bridge suite; T-962's test stays green — `_t1164` 11/11 (control 4/11); T-962 11/11 after its lane leg was updated to the new contract (control fails it)
+- [ ] Screenshots at 1024, 1440 and 1920 (lane marked, dock open; and scrolled with the sticky lane strip), read control by control in `## Visual Verification`, independent review green
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -95,8 +129,20 @@ date_finished: null
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1164 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+- [ ] [REVIEW] A lane-anchored finding is visibly on the map: the marked lane is recognisable as the one in trouble, the lane name stays readable, and nothing in the canvas or dock is covered or clipped
+  **Steps:**
+  1. Open the screenshots listed in `## Visual Verification` (t1164-{1024,1440,1920}-{marked,sticky}.png)
+  2. In each: the FRAMEWORK · AUTHORITY lane header carries an orange edge and a ⚠ pill at its top, its name is readable below the pill, the dock header says "1 on the map" and its lane rows are not marked "not on the map"; nothing else is covered or clipped
+  **Expected:** step 2 holds in all six; at fit on 1024 the mark is small (the whole map is) but present
+  **If not:** name the screenshot and what is wrong (mark missing or on the wrong lane, label under the pill, a clipped control)
 
 ## Verification
+
+node tools/_t1164-lane-findings-cdp.mjs > /tmp/.t1164 2>&1 && grep -q 'PASS: 11/11' /tmp/.t1164
+python3 tests/test_t962_findings_on_map.py > /tmp/.t1164a 2>&1 && grep -q '11 passed, 0 failed' /tmp/.t1164a
+node tools/_t1154-pool-label-fit-cdp.mjs > /tmp/.t1164b 2>&1 && grep -q 'PASS: 7/7' /tmp/.t1164b
+node tools/_t1091-sticky-lanes-cdp.mjs > /tmp/.t1164c 2>&1 && grep -q 'PASS: 31/31' /tmp/.t1164c
+grep -q '_t1164-lane-findings-cdp.mjs' tests/run-bridge-tests.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -227,6 +273,20 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+## Visual Verification
+
+Screenshots from `node tools/_t1164-lane-findings-cdp.mjs` (task-lifecycle; the framework lane's first task dragged
+below every lane band, then Check): t1164-{1024,1440,1920}-{marked,sticky}.png in `.playwright-mcp/`. marked = fit view,
+dock open; sticky = zoom 160%, scrolled right half-way (T-1091 strip). Read by the author:
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| marked (fit) | framework lane header: orange edge + ⚠ pill | ok | ok | ok | at fit the whole map is small; at 1024 the mark is tiny (as node markers are), clear at 1920 |
+| marked (fit) | dock header and rows | ok | ok | ok | "2 findings · 0 errors, 2 warnings · 1 on the map"; no "not on the map" on the lane rows |
+| marked (fit) | dragged-out task below the pool | ok | ok | ok | hangs visibly outside every lane; the drawn pool does NOT stretch around it (T-1154 interaction fixed) |
+| sticky | pinned framework header | ok | ok | ok | edge + ⚠ pill carried by the T-1091 copy; label "FRAMEWORK · AUTHORITY" readable below the pill |
+| all | toolbar, panels, dock, toast | ok | ok | ok | nothing clipped; the autosave toast overlaps the dock's second row at the bottom, as before this change |
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -269,6 +329,13 @@ date_finished: null
 
 ## Recommendation
 
+**Recommendation:** GO
+**Rationale:** Lane-anchored findings now reach the map: the lane is marked, its dock row is anchored and selects it, and marks follow the latest check. Found and fixed a T-1154 interaction on the way.
+**Evidence:**
+- `tools/_t1164-lane-findings-cdp.mjs` 11/11; pre-change designer fails 7 legs
+- `tests/test_t962_findings_on_map.py` 11/11 with its lane leg updated; pre-change designer fails it
+- Export unchanged by a mark; _t1154 7/7, _t1091 31/31, _t601, _t1176 green
+
 <!-- T-2945: same shape as inception.md's block — the gate that reads it
      (audit_inception_recommendation, lib/task-audit.sh:117) is shared, so the
      shape is copied rather than reinvented.
@@ -307,6 +374,22 @@ date_finished: null
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-10-17 — Mark the header strip, not the whole band
+- **Chose:** the lane's HEADER strip carries the mark (severity edge + the node marker's ✖/⚠ pill at its top); the
+  label is fitted below the pill when marked. It travels with the T-1091 sticky copy, so it stays visible when scrolled.
+- **Rejected:** tinting the whole lane band (it already carries the authority tint, and a full-width colour would fight
+  every node marker in the lane).
+
+### 2026-10-17 — T-1154 follow-up found here: a node outside the lanes must not stretch the drawn pool
+- The T-964 fixture (a node dragged below every lane) showed that T-1154's drawn-pool pad grew the last lane around
+  the dragged-out node (431 -> 647 px), making the node look inside a lane the file says it is not in — hiding the
+  exact disagreement LANE-GEOMETRY reports. **Chose:** only text that STARTS inside the pool may stretch it (a badge
+  straddling the border still counts). Leg 1 of `_t1164` guards it; `_t1154` stays 7/7.
+
+### 2026-10-17 — T-962's lane leg updated, not deleted
+- `tests/test_t962_findings_on_map.py` asserted lane findings are "not on the map", recording this very gap. Updated to
+  the new contract (listed, anchored to their lane, lane marked); the pre-change designer fails it.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -323,3 +406,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1164-designer-mark-the-lane-band-for-lane-anc.md
 - **Context:** Initial task creation
+
+### 2026-10-17T18:01:22Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)

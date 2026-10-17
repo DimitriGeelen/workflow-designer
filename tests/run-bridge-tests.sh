@@ -3089,6 +3089,7 @@ T1013_GUARDS=(
   'tools/_t1171-landing-flyout-test.py|the /designer cards'"'"' thumbnail fly-out: one per thumbnail card, Open through the card link, still one ?load link per card (T-1171)'
   'tools/_t1172-designer-open-test.py|opening a map from /designer keeps Watchtower around it: inline page, frame with the same load value, fullscreen toggle, cards point at it (T-1172)'
   'tools/_t1168-node-id-map.mjs --check|the committed corpus carries exactly the node ids the designer exports (T-1168 migration stays in step)'
+  'tools/_t1164-lane-findings-cdp.mjs|CDP regression: lane-anchored validator findings mark the lane header (severity + pill), anchor their dock row and select the lane; marks follow the latest check; a node dragged out does not stretch the drawn pool (T-1164)'
   'tools/_t1194-slug-task-id-cdp.mjs|deriveSlug skips a leading task id (T-001: Orientation -> orientation); other names keep their slug (T-1194)'
   'tools/_t1154-pool-label-fit-cdp.mjs|CDP regression: the drawn pool encloses every rendered label and id badge on the right (24 maps + long-label fixture); the BPMN export stays box-based and pad-free (T-1154)'
   'tools/_t1091-sticky-lanes-cdp.mjs|CDP regression: zoomed and scrolled right, lane names stay pinned at the left edge, aligned and on top; nothing pinned unscrolled; option persists; export and thumbnails unaffected (T-1091)'

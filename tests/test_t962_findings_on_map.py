@@ -146,6 +146,9 @@ JS_LANE_OVERFLOW = """async () => {
     capacityListed: rows.filter(r => r === 'W-XML-LANE-CAPACITY').length,
     capacityMarked: marked.filter(r => r === 'W-XML-LANE-CAPACITY').length,
     unanchoredRows: document.querySelectorAll('.finding-row[data-anchored="0"]').length,
+    // T-1164: lane-anchored rows now carry their lane, and the lane header is marked.
+    capacityLaneRows: document.querySelectorAll('.finding-row[data-rule="W-XML-LANE-CAPACITY"][data-anchored="1"][data-lane]').length,
+    lanesMarked: document.querySelectorAll('#g-pool > .lane-header[data-finding]').length,
   };
 }"""
 
@@ -272,16 +275,18 @@ def main():
             # CORRECTED FROM MY FIRST ATTEMPT, which demanded a MARKER here and failed.
             # W-XML-LANE-CAPACITY anchors to `lane '<id>'`, not to a node, so no node marker
             # is possible — the denylist inversion was necessary but could never be
-            # sufficient for a lane-anchored rule. What must hold is that it is LISTED and
-            # HONESTLY LABELLED as unanchored, rather than dropped for having nowhere to sit.
-            # Lane markers are a separate gap (4 lane-anchored rules), filed, not faked here.
-            check("lane-anchored findings are LISTED and flagged as not-on-the-map "
-                  "(never dropped for having no node to sit on)",
-                  lo["capacityListed"] > 0 and lo["capacityMarked"] == 0
-                  and lo["unanchoredRows"] >= lo["capacityListed"],
-                  "listed=%s marked=%s unanchored=%s rows=%s"
-                  % (lo["capacityListed"], lo["capacityMarked"],
-                     lo["unanchoredRows"], lo["rows"]))
+            # sufficient for a lane-anchored rule. What must hold is that it is LISTED, never
+            # dropped for having no node to sit on.
+            # T-1164 closed the gap this leg used to record ("lane markers are a separate gap"):
+            # a lane-anchored finding now marks its LANE and its row is anchored to that lane,
+            # so the leg asserts that instead of "not on the map". Still no NODE marker for it.
+            check("lane-anchored findings are LISTED, anchored to their lane and mark the lane "
+                  "(never dropped for having no node to sit on; T-1164)",
+                  lo["capacityListed"] > 0 and lo["capacityLaneRows"] == lo["capacityListed"]
+                  and lo["lanesMarked"] > 0,
+                  "listed=%s laneAnchored=%s lanesMarked=%s rows=%s"
+                  % (lo["capacityListed"], lo["capacityLaneRows"],
+                     lo["lanesMarked"], lo["rows"]))
 
             # --- leg 7: the denylist quiets the canvas WITHOUT hiding the row --------
             a = page.evaluate(JS_AMBIGUOUS)
