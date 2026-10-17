@@ -10,13 +10,13 @@ description: >
   silently, not lane-band markers. Original observation text is in .context/inbox.yaml
   under OBS-465.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_run
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [observations]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tests/test_t962_findings_on_map.py, tools/_t1164-lane-findings-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -45,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-13T16:21:20Z
-last_update: 2026-10-17T18:01:22Z
-date_finished:
+last_update: 2026-10-17T18:31:29Z
+date_finished: 2026-10-17T18:31:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -382,7 +382,7 @@ dock open; sticky = zoom 160%, scrolled right half-way (T-1091 strip). Read by t
 - **Rejected:** tinting the whole lane band (it already carries the authority tint, and a full-width colour would fight
   every node marker in the lane).
 
-### 2026-10-17 — T-1154 follow-up found here: a node outside the lanes must not stretch the drawn pool
+### 2026-10-17 — Fixed in this task: a node outside the lanes must not stretch the drawn pool (an interaction with the closed T-1154)
 - The T-964 fixture (a node dragged below every lane) showed that T-1154's drawn-pool pad grew the last lane around
   the dragged-out node (431 -> 647 px), making the node look inside a lane the file says it is not in — hiding the
   exact disagreement LANE-GEOMETRY reports. **Chose:** only text that STARTS inside the pool may stretch it (a badge
@@ -432,3 +432,15 @@ dock open; sticky = zoom 160%, scrolled right half-way (T-1091 strip). Read by t
 ### 2026-10-17T18:01:22Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-231e9c55
+- **Timestamp:** 2026-10-17T18:32:31Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-17T18:31:29Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
