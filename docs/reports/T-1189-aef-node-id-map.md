@@ -1,5 +1,8 @@
 # T-1189 — AEF node id map, old -> new (designer 0.20.0, AEF c1a87c16f)
 
+**SUPERSEDED — do not apply.** AEF's re-pin goes to 0.21.0 (task-id-free slugs, T-1194); use
+`T-1189-aef-node-id-map-0.21.0.md`. Kept as the record of what 0.20.0 would have produced.
+
 Produced by 832 tools/_t1168-node-id-map.mjs --dir --designer designer-v0.20.0 (sha 51931b8a...). Old and new
 ids are paired through each node's aef:uid, never by number. Every map is a pure id rename: reversing the map
 restores the original byte for byte; the patch applies cleanly at c1a87c16f. Ids not listed are unchanged.
