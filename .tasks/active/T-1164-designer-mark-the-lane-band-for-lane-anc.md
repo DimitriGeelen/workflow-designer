@@ -12,7 +12,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_3_run
 owner: agent
 horizon: now
 tags: [observations]
@@ -97,7 +97,7 @@ findings dock as "not on the map" rows and never reach the canvas, though the op
 - [x] The dock row of a lane finding is anchored (no "not on the map"), clicking it selects the lane, and the header count "N on the map" includes marked lanes
 - [x] Markers come only from the latest check (a lane fixed and re-checked loses its mark; an unavailable check clears every mark); `FINDING_MARKER_EXCLUDED` applies to lane findings too; the BPMN export is unchanged by a mark — the exclusion is checked before either resolver runs (by construction, no separate leg)
 - [x] CDP test: a node moved clear of every lane band gives LANE-GEOMETRY/LANE-CAPACITY marks on the right lane(s) with anchored rows; fixing it and re-checking clears them; the pre-change designer fails it (control); wired into the bridge suite; T-962's test stays green — `_t1164` 11/11 (control 4/11); T-962 11/11 after its lane leg was updated to the new contract (control fails it)
-- [ ] Screenshots at 1024, 1440 and 1920 (lane marked, dock open; and scrolled with the sticky lane strip), read control by control in `## Visual Verification`, independent review green
+- [x] Screenshots at 1024, 1440 and 1920 (lane marked, dock open; and scrolled with the sticky lane strip), read control by control in `## Visual Verification`, independent review green — green on dea57767 after two ambers, both fixed in the product or the test, not reframed
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -129,12 +129,13 @@ findings dock as "not on the map" rows and never reach the canvas, though the op
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1164 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-- [ ] [REVIEW] A lane-anchored finding is visibly on the map: the marked lane is recognisable as the one in trouble, the lane name stays readable, and nothing in the canvas or dock is covered or clipped
+- [x] [REVIEW] A lane-anchored finding is visibly on the map: the marked lane is recognisable as the one in trouble, the lane name stays readable, and nothing in the canvas or dock is covered or clipped
   **Steps:**
   1. Open the screenshots listed in `## Visual Verification` (t1164-{1024,1440,1920}-{marked,sticky}.png)
   2. In each: the FRAMEWORK · AUTHORITY lane header carries an orange edge and a ⚠ pill at its top, its name is readable below the pill, the dock header says "1 on the map" and its lane rows are not marked "not on the map"; nothing else is covered or clipped
   **Expected:** step 2 holds in all six; at fit on 1024 the mark is small (the whole map is) but present
   **If not:** name the screenshot and what is wrong (mark missing or on the wrong lane, label under the pill, a clipped control)
+  **Reviewer verdict:** green V-20261017-c53367c2 — reviewer-judge-t-1164-r3-9efd288b23e1:reviewer (rung rung-3-termlink-single-reviewer), digest c6a91c4e5091; dispatch judge-t-1164-r3-9efd288b23e1; evidence: .context/reviews/evidence/T-1164/AC1-judge-t-1164-r3-9efd288b23e1.md, .context/reviews/evidence/T-1164/judge-t-1164-r3-9efd288b23e1-t1164-1024-marked.png, .context/reviews/evidence/T-1164/judge-t-1164-r3-9efd288b23e1-t1164-1024-sticky.png, .context/reviews/evidence/T-1164/judge-t-1164-r3-9efd288b23e1-t1164-1440-marked.png, .context/reviews/evidence/T-1164/judge-t-1164-r3-9efd288b23e1-t1164-1440-sticky.png, .context/reviews/evidence/T-1164/judge-t-1164-r3-9efd288b23e1-t1164-1920-marked.png, .context/reviews/evidence/T-1164/judge-t-1164-r3-9efd288b23e1-t1164-1920-sticky.png, .context/reviews/evidence/T-1164/judge-t-1164-r3-9efd288b23e1-crop-1024-marked-header.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
