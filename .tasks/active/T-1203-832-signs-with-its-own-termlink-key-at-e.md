@@ -104,6 +104,12 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
   RAIL_IDENTITY_FILE re-stored as the relative path after 046 step 2 stopped (b66924f9); receiver restarted by job
   047 (pid 599615, env set). Coverage after 047: 6 OK / 1 FAIL — only the MCP server started before the switch
   (pid 3456583), which picks the key up when the Claude session restarts. Tick this after the restart's check.
+  Regression 2026-10-18, caught by the standing check: job 048's `fw upgrade` (T-1204), run from the operator
+  terminal, restarted receiver, supervisor and watcher WITHOUT the variable (20:23Z, pid 2205909), so they were back
+  on the host key. Fix: `tools/runme-launcher.sh` exports the key to every job step, only when the file exists
+  (launcher test leg 15). Job 050 restarted the stack: receiver 2358205, supervisor 2358564 and watcher 2358858 all
+  keyed; coverage 6 OK / 1 FAIL (the MCP server only). The supervisor restarting a dead receiver inherits its own
+  env, so it stays keyed while the supervisor is. Reported to AEF as field evidence for T-4311.
   "Refuses to start when missing" holds for the runme signal only (it skips the post). A Claude session, its MCP
   server and the receiver take the path from static config and termlink mints at a missing path, so for them the
   guard is DETECTION: the key then resolves to a new fingerprint and the coverage check FAILs `key file` at the
