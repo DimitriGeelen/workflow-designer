@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1205: Repair stale teeth in _t390 and _t640 (mutation targets moved upstream) and wire them into the bridge suite
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-18T22:49:10Z
+# ============================================================================
+
+task_id: T-1205
+task_name: "Repair stale teeth in _t390 and _t640 (mutation targets moved upstream) and wire them into the bridge suite"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-18T21:41:41Z
+completed: 2026-10-18T22:46:59Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-19T00:46:57+02:00
+last_commit: 2026-10-19T00:46:57+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  _t390 and _t640 teeth follow the live guard shapes (upstream reshaped the arm; T-3222 replaced 832's guard) and both are wired into the bridge suite
+
+# Key outcomes
+outcomes:
+  - '`_t390`: its TEETH mutant targets the live shape of the capture-verb line (`status|focus|init|add-learning|…`), applies, and turns the leg red; the script passes on the real source (FAIL=0)'
+  - '`_t640`: each leg either holds against the live guard (upstream T-3222''s destination-aware curl/wget check) with a mutation that applies, or is retired with the reason written in the script; the `--output-dir` reader leg is resolved one way or the other with evidence; the script exits 0'
+  - 'Both are wired into `tests/run-bridge-tests.sh`, so the next time the shape moves the suite goes red'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1205-repair-stale-teeth-in-t390-and-t640-muta.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t390-capture-verbs-nulltask.sh'
+  - 'tools/_t640-fetchers-that-write-are-writes.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T00:46:57'
+    action: 'T-1205: _t390 and _t640 teeth follow the live guard shapes (upstream reshaped the arm; T-3222 replaced 832''s guard) and both are wired into the bridge suite'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 65 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 65
+  commits: 1
+  files_changed: 4
+  lines_added: 127
+  lines_removed: 48
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1205-repair-stale-teeth-in-t390-and-t640-muta.md
+generated_by: context-agent-hybrid
