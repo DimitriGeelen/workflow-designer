@@ -4,10 +4,11 @@ name: "T-358 golden: re-record aef-draft-inception-readiness-v2 after the T-1196
 description: >
   Found by the post-v1.8.11 bridge suite (T-1204) and by the T-509 sweep (_t581 abstains on the same golden). tools/_t358-byteid-thirdparty.mjs: 10 identical, 1 drifted. In aef-draft-inception-readiness-v2.bpmn the emitted id fw_1_2204 is now fw_1_filing. T-1196 (2026-10-17, released in 0.22.0) made deriveSlug skip leading G-/OBS-/L- ids, so the slug comes from the words. Re-record that one golden via --record, but only after reviewing that the diff is exactly that class of id change and nothing else.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-18T22:37:33Z
-last_update: 2026-10-18T22:37:33Z
-date_finished: null
+last_update: 2026-10-18T22:39:10Z
+date_finished: 2026-10-18T22:39:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -350,3 +351,20 @@ grep -q 'fw_1_filing' tests/goldens/third-party/aef-draft-inception-readiness-v2
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1207-t-358-golden-re-record-aef-draft-incepti.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-97e1285c
+- **Timestamp:** 2026-10-18T22:39:21Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-18T22:39:10Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
