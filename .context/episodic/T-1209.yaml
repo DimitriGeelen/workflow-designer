@@ -1,0 +1,103 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1209: Details view reopens scrolled: openDetails keeps the previous scroll position, hiding the element's name
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-18T23:19:21Z
+# ============================================================================
+
+task_id: T-1209
+task_name: "Details view reopens scrolled: openDetails keeps the previous scroll position, hiding the element's name"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-18T23:12:40Z
+completed: 2026-10-18T23:18:37Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-19T01:15:30+02:00
+last_commit: 2026-10-19T01:17:22+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the element details view opens at the top every time (closeDetails kept the body's scrollTop); edits still keep the place. [REVIEW] criterion for the independent screenshot review (UI rule, 2026-10-14). reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'Opening the details view always starts at the top (body `scrollTop` 0), whatever the last view''s position, for the same element and for another one'
+  - 'Editing a field while the view is open keeps the scroll position (the re-render does not jump to the top)'
+  - '`tools/_t1127-element-details-cdp.mjs` gains a leg for both, and the leg fails on the unfixed source (control); its other legs, `_t1124` and `_t308`, still pass'
+  - 'Screenshots after the fix at 1024, 1440 and 1920 start at the element header, read and recorded under `## Visual Verification`'
+  - 'The fix is listed in `docs/releases/PENDING-next-release.md`'
+  - '[REVIEW] The reopened details view starts at the element header at every width, and nothing else in it regressed'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/evidence/T-1209/AC1-judge-t-1209-r3-c22cd1c53d58.md'
+  - '.context/reviews/evidence/T-1209/after-t1127-details-1024.png'
+  - '.context/reviews/evidence/T-1209/after-t1127-details-1440.png'
+  - '.context/reviews/evidence/T-1209/after-t1127-details-1920.png'
+  - '.context/reviews/evidence/T-1209/before-t1127-details-1024.png'
+  - '.context/reviews/evidence/T-1209/before-t1127-details-1440.png'
+  - '.context/reviews/evidence/T-1209/before-t1127-details-1920.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - 'docs/releases/PENDING-next-release.md'
+  - 'docs/reports/T-1127-evidence/2026-10-19/t1127-details-1024.png'
+  - 'docs/reports/T-1127-evidence/2026-10-19/t1127-details-1400.png'
+  - 'docs/reports/T-1127-evidence/2026-10-19/t1127-details-1440.png'
+  - 'docs/reports/T-1127-evidence/2026-10-19/t1127-details-1920.png'
+  - 'docs/reports/T-1209-evidence/t1127-details-1024.png'
+  - 'docs/reports/T-1209-evidence/t1127-details-1400.png'
+  - 'docs/reports/T-1209-evidence/t1127-details-1440.png'
+  - 'docs/reports/T-1209-evidence/t1127-details-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1209-details-view-reopens-scrolled-opendetail.md'
+  - 'tools/_t1127-element-details-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T01:15:30'
+    action: 'T-1209: the element details view opens at the top every time (closeDetails kept the body''s scrollTop); edits still keep the place'
+  - time: '2026-10-19T01:16:08'
+    action: 'T-1209: [REVIEW] criterion for the independent screenshot review (UI rule, 2026-10-14)'
+  - time: '2026-10-19T01:17:22'
+    action: 'T-1209: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5
+  commits: 3
+  files_changed: 21
+  lines_added: 454
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1209-details-view-reopens-scrolled-opendetail.md
+generated_by: context-agent-hybrid

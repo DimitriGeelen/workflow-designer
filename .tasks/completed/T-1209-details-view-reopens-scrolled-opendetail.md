@@ -4,12 +4,13 @@ name: "Details view reopens scrolled: openDetails keeps the previous scroll posi
 description: >
   Found while reviewing T-1127's screenshots at three widths (2026-10-19). closeDetails() empties #details-body but never resets its scrollTop, so every later openDetails() (any element) opens where the last view was left, about 155 px down in the test: the element header and the BPMN Name/Slug row are hidden above the fold. Fix: reset the body's scroll to the top when the view OPENS. Not on re-render while it is open: editing a field re-renders and must keep the place.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-18T23:12:40Z
-last_update: 2026-10-18T23:12:40Z
-date_finished: null
+last_update: 2026-10-18T23:18:37Z
+date_finished: 2026-10-18T23:18:37Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -72,7 +73,7 @@ open (1400) starts at the top; every later open starts about 155 px down. `close
 - [x] The fix is listed in `docs/releases/PENDING-next-release.md`
 
 ### Human
-- [ ] [REVIEW] The reopened details view starts at the element header at every width, and nothing else in it regressed
+- [x] [REVIEW] The reopened details view starts at the element header at every width, and nothing else in it regressed
   **Steps:**
   1. Open the BEFORE screenshots: `docs/reports/T-1127-evidence/2026-10-19/t1127-details-1024.png`, `…-1440.png`, `…-1920.png` (the view opened after an earlier scroll: the header and the Name/Slug row are above the fold)
   2. Open the AFTER screenshots: `docs/reports/T-1209-evidence/t1127-details-1024.png`, `…-1440.png`, `…-1920.png`
@@ -123,6 +124,7 @@ open (1400) starts at the top; every later open starts about 155 px down. `close
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261018-234040a1 — reviewer-judge-t-1209-r3-c22cd1c53d58:reviewer (rung rung-3-termlink-single-reviewer), digest 8a0fab33f944; dispatch judge-t-1209-r3-c22cd1c53d58; evidence: .context/reviews/evidence/T-1209/AC1-judge-t-1209-r3-c22cd1c53d58.md, .context/reviews/evidence/T-1209/after-t1127-details-1024.png, .context/reviews/evidence/T-1209/after-t1127-details-1440.png, .context/reviews/evidence/T-1209/after-t1127-details-1920.png, .context/reviews/evidence/T-1209/before-t1127-details-1024.png, .context/reviews/evidence/T-1209/before-t1127-details-1440.png, .context/reviews/evidence/T-1209/before-t1127-details-1920.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -375,3 +377,20 @@ grep -q 'T-1209' docs/releases/PENDING-next-release.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1209-details-view-reopens-scrolled-opendetail.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-315e01c3
+- **Timestamp:** 2026-10-18T23:19:08Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-18T23:18:37Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
