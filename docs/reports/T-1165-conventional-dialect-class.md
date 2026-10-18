@@ -30,7 +30,12 @@ present or connected. BPMN 2.0 itself admits a process with no start event and w
 
 So the authoring kit currently tells every external author that a disconnected map, or one without a start event,
 fails something "any conformant document satisfies". That is false (see the kit's `CONFORMANCE.md` rows, last
-generated for calibration job 030: all seven graph-shape WARNs print `UNIVERSAL`).
+generated for calibration job 030: all seven graph-shape WARNs it lists print `UNIVERSAL`. The kit documents the
+XML form only, so it shows 7 of the 13 rules below; the other 6 are their YAML-form twins).
+
+One qualification (independent review): §3 line 89 ("fork = independent tasks; join = barrier") is a semantic hook
+someone could cite for W-PGW-UNBALANCED. It describes what a join means, not that every fork MUST have one, so it is
+not a requirement; but it is the nearest text, and the build task should rule on it explicitly.
 
 ### F2 — It is a population, not one rule (IW-2: answered, confidence 3)
 
@@ -107,7 +112,36 @@ already derives and counts every class, so 13 moves and 18 citations are asserta
 The choice between option 1 and option 2 is a vocabulary decision for map authors, so it is the operator's.
 Option 2 is a fine answer too; both beat option 3.
 
+## External consultation (2026-10-18)
+
+The operator asked for outside views before deciding. Two were requested:
+
+**Independent reviewer** (a read-only TermLink worker, `t1165-review`, told to form its view before reading this
+recommendation). Facts: confirmed (31/63 structure-only, all UNIVERSAL; 55/4/4 split; 13 without a normative basis;
+§6 has no graph-shape clause). Pick: **option 1**, because the two cases ask the author for different actions (add a
+carrier vs restructure). Its strongest counter-argument against its own pick: the kit legend already says "house
+convention, not the standard", which is exactly true of the 13, so authors gain little from a fourth word; and
+CONVENTIONAL is a negative class ("UNIVERSAL unless cited") that rests on a hand-kept citation table.
+Additions this write-up missed, adopted for the build task if GO:
+- **A third option: show the basis.** Keep the classes and add a `basis` column to the kit's CONFORMANCE.md, so an
+  author sees *why* a rule is universal, and a blank basis explains itself. Compatible with option 1 or 2.
+- **Harden the citation check:** require the quoted span to carry a normative keyword (MUST / MUST NOT / SHOULD,
+  with SHOULD's status decided explicitly); make the non-standard grounds (`xml-id`, `xml-idref`, `bpmn-schema`) a
+  closed list with their own probe; normalise whitespace before matching.
+- **Fix upstream is a real alternative:** AEF could ratify a graph-shape clause in mapping-v1.x, which would make
+  some of the 13 genuinely UNIVERSAL. That is AEF's call (asked, below).
+- **Tier C needs its own criterion:** any E-* structural rule that cannot cite a basis (candidates: E-GW-OUTGOING's
+  remaining 1-in/1-out refusal, E-LANES-EMPTY) must surface as a finding, not stay silently UNIVERSAL.
+- Scope note: mixed rules with a SHOULD basis (W-TYPE-LANE-MISMATCH, §3 line 97) are outside the 31 and unchecked.
+
+**AEF** (consulted on conversation `832-t1165-dialect-class`, msg f0550119): which label serves them as kit
+consumer and co-owner of the standard, whether their compiler requires any of these graph properties, and whether
+they would rather the standard say something. Answer pending.
+
 ## Dialogue log
+
+- 2026-10-18: operator asked (in Dutch) what separates options 1 and 2, and whether outside consultation is
+  possible. Answered with the add-a-carrier vs restructure distinction; AEF and an independent reviewer consulted.
 
 - 2026-10-18: operator "proceed as you see fit" (backlog work delegated); this inception was chosen by the agent,
   research only, no build artifacts. No operator dialogue on the question itself yet.
