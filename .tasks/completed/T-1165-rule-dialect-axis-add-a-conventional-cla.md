@@ -9,17 +9,17 @@ description: >
   is still classified UNIVERSAL. Original observation text is in .context/inbox.yaml
   under OBS-467.
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [observations]
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t842-commit-exemption-spelling-regression.sh]
 related_tasks: []
 created: 2026-10-13T16:21:23Z
-last_update: 2026-10-17T23:56:58Z
-date_finished:
+last_update: 2026-10-18T09:00:52Z
+date_finished: 2026-10-18T09:00:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -139,15 +139,15 @@ predicate or severity; the designer consuming the axis; building anything before
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Why you:** direction — whether the validator's rule-dialect axis gains a CONVENTIONAL class changes how every rule is classified for map owners and for AEF; and `fw inception decide` is the operator's
   **Steps:**
   1. Run: `fw task review T-1165` (opens Watchtower with recommendation, assumptions, research artifacts)
@@ -208,7 +208,11 @@ meaning one checkable thing; option 2 is acceptable if the operator prefers fewe
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-1165 go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Operator 2026-10-18: GO, option 1 (new class CONVENTIONAL) with the review additions. mapping-v1 section 6 is silent on graph shape; 31/63 rules derive UNIVERSAL from structure alone, 13 with no normative basis. Build: per-rule citation verified against the standard (normative keyword, closed list of non-standard grounds), missing citation derives CONVENTIONAL; basis column in the kit; uncited well-formedness rules surface as findings; kit re-calibrated; 13 class changes and a v1.x note proposed to AEF. AEF (msg f1f5ef6f) and an independent reviewer both chose option 1. Bounded, reversible (a label, no stored data), assertable. Findings: docs/reports/T-1165-conventional-dialect-class.md
+
+**Date**: 2026-10-18T09:00:50Z
 
 ## Updates
 
@@ -218,3 +222,43 @@ meaning one checkable thing; option 2 is acceptable if the operator prefers fewe
 ### 2026-10-17T23:56:58Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+### 2026-10-18T09:00:50Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Operator 2026-10-18: GO, option 1 (new class CONVENTIONAL) with the review additions. mapping-v1 section 6 is silent on graph shape; 31/63 rules derive UNIVERSAL from structure alone, 13 with no normative basis. Build: per-rule citation verified against the standard (normative keyword, closed list of non-standard grounds), missing citation derives CONVENTIONAL; basis column in the kit; uncited well-formedness rules surface as findings; kit re-calibrated; 13 class changes and a v1.x note proposed to AEF. AEF (msg f1f5ef6f) and an independent reviewer both chose option 1. Bounded, reversible (a label, no stored data), assertable. Findings: docs/reports/T-1165-conventional-dialect-class.md
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-f4a6b98f
+- **Timestamp:** 2026-10-18T09:00:56Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 3
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-1
+     - evidence: `IW-1 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-3
+     - evidence: `IW-3 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  3. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-4
+     - evidence: `IW-4 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-7a1e5fc7
+- **Timestamp:** 2026-10-18T09:00:56Z
+- **Overall:** CONFIRMED
+- **Claims:** 3
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `docs/reports/T-1165-conventional-dialect-class.md` | file | ✓ pass |
+| `T-970` | task | ✓ pass |
+| `T-977` | task | ✓ pass |
+
+### 2026-10-18T09:00:52Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO

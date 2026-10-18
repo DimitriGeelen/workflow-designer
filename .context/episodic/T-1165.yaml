@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1165: Rule-dialect axis: add a CONVENTIONAL class for predicates on properties the standard neither requires nor forbids (W-XML-DISCONNECTED)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-18T09:01:16Z
+# ============================================================================
+
+task_id: T-1165
+task_name: "Rule-dialect axis: add a CONVENTIONAL class for predicates on properties the standard neither requires nor forbids (W-XML-DISCONNECTED)"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T16:21:23Z
+completed: 2026-10-18T09:00:52Z
+duration_days: 5
+updates_count: 2
+first_commit: 2026-10-18T02:00:50+02:00
+last_commit: 2026-10-18T10:59:13+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception research — the standard is silent on graph shape; 31/63 rules derive UNIVERSAL from structure alone, 13 with no normative basis; CONVENTIONAL derivable from a checked per-rule citation; recommendation GO (option 1), decision is the operator's. independent review recorded (facts confirmed, option 1, basis column, citation hardening, upstream alternative, tier-C criterion); AEF consult pending. AEF consult answered — option 1; AEF requires none of the 13 graph properties; yes to a non-normative v1.x note. runme job 039 — record the operator's GO (option 1); dry-run passed. hypothesis in the three-part form (the decide gate refused job 039's first run on a missing 'we will achieve'); fw task review now passes readiness; run log of the refused run kept
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/039-decide-t1165-go/dryrun.ok'
+  - '.context/runme/039-decide-t1165-go/job.sh'
+  - '.context/runme/039-decide-t1165-go/run-20261018T105147.log'
+  - 'docs/reports/T-1165-conventional-dialect-class.md'
+  - '.tasks/active/T-1165-rule-dialect-axis-add-a-conventional-cla.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-18T02:00:50'
+    action: 'T-1165: inception research — the standard is silent on graph shape; 31/63 rules derive UNIVERSAL from structure alone, 13 with no normative basis; CONVENTIONAL derivable from a checked per-rule citation; recommendation GO (option 1), decision is the operator''s'
+  - time: '2026-10-18T10:39:59'
+    action: 'T-1165: independent review recorded (facts confirmed, option 1, basis column, citation hardening, upstream alternative, tier-C criterion); AEF consult pending'
+  - time: '2026-10-18T10:41:25'
+    action: 'T-1165: AEF consult answered — option 1; AEF requires none of the 13 graph properties; yes to a non-normative v1.x note'
+  - time: '2026-10-18T10:48:16'
+    action: 'T-1165: runme job 039 — record the operator''s GO (option 1); dry-run passed'
+  - time: '2026-10-18T10:59:13'
+    action: 'T-1165: hypothesis in the three-part form (the decide gate refused job 039''s first run on a missing ''we will achieve''); fw task review now passes readiness; run log of the refused run kept'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 6759 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [observations]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 6759
+  commits: 5
+  files_changed: 5
+  lines_added: 343
+  lines_removed: 20
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1165-rule-dialect-axis-add-a-conventional-cla.md
+generated_by: context-agent-hybrid
