@@ -81,9 +81,30 @@ instead of deleting project lines, so 832's project-owned lines get the `<!-- pr
 - [x] The tag's commit is resolved and checked: 956f05f36 is its ancestor (no rollback), or the gap is reported before the upgrade
   — `git ls-remote`: refs/tags/v1.8.11 = master = e42aa41bf4da2279376a30722e0462165ff8de7c; 956f05f36 is its
   ancestor (`merge-base --is-ancestor` true), 175 commits behind.
-- [ ] An operator job upgrades 832 to v1.8.11 under the T-1188 protocol (doctor before and after, pristine vendor commit, divergence baseline, crontab check, re-vendor gate), dry-run and committed
-- [ ] After the run, local fixes reported STALE by `tools/_t517` are re-applied or retired, the `.bak` backups are diffed and handled (CLAUDE.md rule), and the template sync `tools/_t1192-upgrade-templates.sh --commit --task T-1204` exits 0
-- [ ] WORKS/FAILS on T-4303, T-4264 and T-4232 goes to AEF, each with the command run and its output
+- [x] An operator job upgrades 832 to v1.8.11 under the T-1188 protocol (doctor before and after, pristine vendor commit, divergence baseline, crontab check, re-vendor gate), dry-run and committed
+  — job 048 ran 2026-10-18 20:18–20:53Z, rc=0, all 7 steps: VERSION 1.8.11, pristine commit 169c260a (110 paths),
+  baseline ac6adbe0, TermLink settings kept (step 3), crontab ok, doctor after PASS. Doctor warnings to follow:
+  Watchtower predates its source (restart job), and the smoke test timed out on `/` and `/cron`.
+  AEF's heads-up (msg 53b2facd: a bare `fw upgrade` from 1.8.10 refuses its own --depth=1 clone) did not apply:
+  the job used a full clone and the new code.
+- [x] After the run, local fixes reported STALE by `tools/_t517` are re-applied or retired, the `.bak` backups are diffed and handled (CLAUDE.md rule), and the template sync `tools/_t1192-upgrade-templates.sh --commit --task T-1204` exits 0
+  — f308076d: 36 of 38 patches clean. `safe-commands.sh` 3-way: both conflicts resolved by keeping both sides
+  (upstream T-4264 `_fw_git_skip_globals` beside 832 T-1047; upstream T-3746 sed-w/sort-o detectors beside 832
+  T-632/T-640, a union that only adds gating); `bash -n` OK; `_t1047` 24/24, `_t632` 36/36, `_t636` 18/18,
+  `_t650` 17/17. `designer-pin.yaml`: v1.8.11 pins our 0.23.0 sha, so it is superseded and removed from the register.
+  `_t517` OK, 44 declared. `CLAUDE.md.bak`: the backup-only lines are the old 75/85/95% budget prose, replaced by
+  v1.8.11's spawn-reserve bands, and no project line is among them, so it was removed. `_t1192`: rc=0
+  (`inception.md.upstream` SUPERSEDED, removed). `.claude/settings.json.pre-t857` dates from 2026-10-01 and is not
+  from this upgrade, so it was left alone.
+  Pre-existing, not from this upgrade (the code they target is identical before it): `_t390` teeth (sed target moved)
+  and `_t640` (its curl/wget guard was replaced upstream by T-3222). Neither is wired into a suite. Logged as a follow-up.
+- [x] WORKS/FAILS on T-4303, T-4264 and T-4232 goes to AEF, each with the command run and its output
+  — msg 7422e8d9. T-4303 WORKS (832's real bin/fw in a scratch copy, broken with an unclosed if: check-tier0 still
+  blocks with rc=2 and allows with rc=0; the message names `bin/fw`, "does not parse" and the repair; other verbs still
+  fail). T-4264 WORKS 8/8 (git -C/--git-dir read-only, every -c gated). T-4232 WORKS (an unmarked line in the
+  governance section gives REFUSED, rc=1, CLAUDE.md byte-identical; the same line in a project-owned region gives
+  KEPT, rc=0). Findings sent with it: check-human-ac-tick refuses a cp to `.tasks/` outside PROJECT_ROOT; the
+  T-3850 vendor-locals refusal fires before T-4232's; the T-4303 repair hint names the framework-repo path in a consumer.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
