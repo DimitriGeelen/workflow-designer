@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1201: Resolve the 8 stale-[REVIEW]-document findings (T-1152): bring each document or criterion up to its task
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-18T09:20:47Z
+# ============================================================================
+
+task_id: T-1201
+task_name: "Resolve the 8 stale-[REVIEW]-document findings (T-1152): bring each document or criterion up to its task"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-18T09:14:01Z
+completed: 2026-10-18T09:20:21Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-18T11:18:33+02:00
+last_commit: 2026-10-18T11:20:20+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  currency sections in the 5 documents the T-1152 detector found older than their tasks — T-397 brief (T-347 ruled, T-340 BOTH re-derived, T-358 T-891 interaction), T-347 report (ruled; loss re-measured, still live), T-694 report (re-run numbers), T-732 dossier (H1, H3 ruled; H5, H6 open; gate 0/3), T-590 inventory (routing-only edit). per-finding assessment recorded; detector NO-STALE. T-347 and T-732 name the currency work done for them (their criteria are answered by the operator's rulings; ticking stays theirs)
+
+# Key outcomes
+outcomes:
+  - 'Each of the 8 findings is assessed: what the newer task content is, and whether it changes what the reviewer reads (recorded per finding below)'
+  - 'Every finding where it does is fixed in the document (a dated currency section naming the task commit it catches up to) or in the criterion''s Steps; none by editing dates or ticking boxes'
+  - '`tools/_t1152-stale-review-doc.py` reports NO-STALE afterwards, or names exactly the findings left with a stated reason'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-347-accepted-element-content.md'
+  - 'docs/reports/T-397-import-repair-semantics-brief.md'
+  - 'docs/reports/T-694-bvp-distinguishability.md'
+  - 'docs/reports/T-732-h-register-dossier.md'
+  - 'docs/research/executable-workflow/designer-contract-inventory.md'
+  - '.tasks/active/T-1201-resolve-the-8-stale-review-document-find.md'
+  - '.tasks/active/T-347-content-inside-an-accepted-element-is-si.md'
+  - '.tasks/active/T-732-drain-the-h-register-four-open-operator-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-18T11:18:33'
+    action: 'T-1201: currency sections in the 5 documents the T-1152 detector found older than their tasks — T-397 brief (T-347 ruled, T-340 BOTH re-derived, T-358 T-891 interaction), T-347 report (ruled; loss re-measured, still live), T-694 report (re-run numbers), T-732 dossier (H1, H3 ruled; H5, H6 open; gate 0/3), T-590 inventory (routing-only edit)'
+  - time: '2026-10-18T11:19:04'
+    action: 'T-1201: per-finding assessment recorded; detector NO-STALE'
+  - time: '2026-10-18T11:20:20'
+    action: 'T-1201: T-347 and T-732 name the currency work done for them (their criteria are answered by the operator''s rulings; ticking stays theirs)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 6
+  commits: 3
+  files_changed: 8
+  lines_added: 438
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1201-resolve-the-8-stale-review-document-find.md
+generated_by: context-agent-hybrid
