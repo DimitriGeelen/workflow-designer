@@ -4,12 +4,13 @@ name: "T-821 census: excuse the fitPoolToLabels getBBox catch (T-1154) with its 
 description: >
   The swallowed-failure census (tools/_t821-swallowed-failure-census.py) FAILs on src/aef-workflow-designer.html:3826, a bare catch added by T-1154 on 2026-10-17 in fitPoolToLabels(): getBBox() throws on an unrendered text node and the loop skips it. Skipping is correct (an unrendered label has no extent to widen the pool to), the same reason the census already accepts for two other getBBox sites. Add the line to EXCUSES with that reason; the census and its teeth (the T-821 legs of the bridge suite) go green. No designer source change, so no release.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t821-swallowed-failure-census.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-18T22:34:50Z
-last_update: 2026-10-18T22:34:50Z
-date_finished: null
+last_update: 2026-10-18T22:36:48Z
+date_finished: 2026-10-18T22:36:48Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -347,3 +348,20 @@ git diff --quiet HEAD -- src/
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1206-t-821-census-excuse-the-fitpooltolabels-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3398acef
+- **Timestamp:** 2026-10-18T22:36:54Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-18T22:36:48Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
