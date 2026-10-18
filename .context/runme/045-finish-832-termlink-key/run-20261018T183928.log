@@ -1,0 +1,34 @@
+runme  045-finish-832-termlink-key   sha 2f451fbfac90   rehearsed 2026-10-18T16:21:18Z   log: /opt/832-Workflow-designer/.context/runme/045-finish-832-termlink-key/run-20261018T183928.log
+Job:   045-finish-832-termlink-key   (T-1203)
+What:  Finish 832's TermLink key (T-1203): verify it, back it up, record the public fingerprint (job 044's steps 2-3)
+       Job 044 created the key correctly (fingerprint 05c467b46a0bdf5e, mode 600, no extended ACL) and then stopped
+       on a bug in the agent's own ACL check, before the backup and the fingerprint record. This job does those two steps,
+       after re-verifying the key with the corrected check. It creates no key: if the key is missing it stops. Nothing is
+       posted to the hub and no session switches to the key yet (the rollout is a later job). The backup goes to
+       /root/.termlink-project-keys/ (mode 700); you may want an off-host copy of it too.
+Steps (each asks y/N first):
+  1. Back the key up to /root/.termlink-project-keys/832-Workflow-designer.key (dir mode 700) and verify the copy is identical
+  2. Record the public fingerprint in .context/termlink-identity.fingerprint
+
+ok    on bleeding-edge
+ok    the key exists at /opt/832-Workflow-designer/.context/secrets/termlink-identity.key
+ok    the key is mode 600
+ok    the key has no extended (named) ACL entry
+ok    the key resolves to 05c467b46a0bdf5e without creating anything
+ok    the key is gitignored and untracked
+ok    no backup exists yet at /root/.termlink-project-keys/832-Workflow-designer.key
+ok    this shell still resolves the shared host key d1993c2c3ec44c94
+
+Step 1/2: Back the key up to /root/.termlink-project-keys/832-Workflow-designer.key (dir mode 700) and verify the copy is identical
+  runs: do_backup
+Run step 1/2? [y/N] ok  backup at /root/.termlink-project-keys/832-Workflow-designer.key (mode 600), identical
+ok    step 1/2
+
+Step 2/2: Record the public fingerprint in .context/termlink-identity.fingerprint
+  runs: do_record
+Run step 2/2? [y/N]   Fingerprint: 05c467b46a0bdf5e
+  Public key:  add70a324e98a58787aa64ae23005ed53c20264c83fe0a0ca6be83a27297f47c
+ok  fingerprint recorded; the key stays ignored and untracked
+ok    step 2/2
+
+DONE: 045-finish-832-termlink-key — all 2 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/045-finish-832-termlink-key/run-20261018T183928.log)
