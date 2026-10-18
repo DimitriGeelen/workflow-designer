@@ -16,7 +16,11 @@ owner: agent
 horizon: null
 tags: [observations]
 components: [tests/run-bridge-tests.sh, tools/_t842-commit-exemption-spelling-regression.sh]
-related_tasks: []
+related_tasks: [T-1200]
+inception_decisions:
+  - id: conventional-class
+    text: "Option 1: a new CONVENTIONAL class derived from a cited RULE_BASIS (MUST/SHALL/REQUIRED found verbatim in mapping-v1, closed GROUNDS list)"
+    ships_in: T-1200
 created: 2026-10-13T16:21:23Z
 last_update: 2026-10-18T09:00:52Z
 date_finished: 2026-10-18T09:00:52Z

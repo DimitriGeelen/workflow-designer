@@ -11,7 +11,8 @@ owner: agent
 horizon: null
 tags: []
 components: [tests/test_rule_dialect_axis.py, tools/build-authoring-kit.py]
-related_tasks: []
+related_tasks: [T-1165]
+unlocks_inception_decision: ["T-1165:conventional-class"]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
 #                                 # at CAPTURE, unlike components: which the framework

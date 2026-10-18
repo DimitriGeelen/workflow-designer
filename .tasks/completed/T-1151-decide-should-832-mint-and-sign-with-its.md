@@ -17,7 +17,11 @@ owner: agent
 horizon: null
 tags: [observations]
 components: [tests/run-bridge-tests.sh, tools/_t842-commit-exemption-spelling-regression.sh]
-related_tasks: []
+related_tasks: [T-1203]
+inception_decisions:
+  - id: own-key-identity-file
+    text: "Option 1: 832 mints one project key and every entry point signs with it via TERMLINK_IDENTITY_FILE (not DIR, not AGENT_ID)"
+    ships_in: T-1203
 created: 2026-10-13T16:20:48Z
 last_update: 2026-10-18T13:52:35Z
 date_finished: 2026-10-18T13:52:35Z
