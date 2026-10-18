@@ -122,7 +122,10 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
   010-termlink (msg 8dd1ba95, RECEIVED): per-topic read ACL or dm payload encryption, plus a no-create env mode and a
   serving-process whoami. AEF (msg ee63c63c) took both: T-4326 (rail status resolves the host key without the
   identity variables; drop the `env -u` in `_t1203-identity-coverage.sh` once vendored) and T-4327 (one canonical
-  from_project spelling), both after v1.8.11. Still open: the drain window, which ends at the first session start where both
+  from_project spelling), both after v1.8.11. TermLink (msg 727b53ba) filed: DM read privacy as input to their T-2422
+  (per-agent authorization model, design open, their operator's), T-3467 (env no-create refusal mode), T-3468
+  (report a running MCP server's fingerprint). No dates promised. Once T-3467 lands, sessions, the MCP server and
+  the receiver can also refuse a missing key. Still open: the drain window, which ends at the first session start where both
   fingerprints show no unread DMs. Tick then.
 
 ### Human
