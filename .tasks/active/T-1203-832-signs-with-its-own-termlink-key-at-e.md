@@ -114,7 +114,10 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
   server and the receiver take the path from static config and termlink mints at a missing path, so for them the
   guard is DETECTION: the key then resolves to a new fingerprint and the coverage check FAILs `key file` at the
   next session start. Restore from the backup (`/root/.termlink-project-keys/832-Workflow-designer.key`).
-- [ ] A coverage probe signs one post from each entry point and fails if any carries the host fingerprint; wired as a standing check
+  After the Claude restart (2026-10-19): coverage **OK 9 / FAIL 0**. MCP servers pid 3185399 and 3215784 keyed, the
+  session live, the receiver keyed, and `fw rail` state: project. A resumed session counts too: the MCP server is
+  a child of the Claude process, not of the conversation.
+- [x] A coverage probe signs one post from each entry point and fails if any carries the host fingerprint; wired as a standing check
   — standing check (2026-10-18): `tools/session-start-alerts.py` `identity_coverage()` prints one `TermLink identity:`
   line every session (OK n / FAIL n with the failing entry points). It reads environments and never posts, so a
   session start does not write to the hub. Signed-post probe on topic `832-identity-probe`: offset 0 from session
