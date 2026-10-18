@@ -1,19 +1,26 @@
 ---
 id: T-1151
-name: "Decide: should 832 mint and sign with its own termlink identity? Shared root key d1993c2c3ec44c94 exposes other projects' DM traffic and cannot attribute our posts"
+name: "Decide: should 832 mint and sign with its own termlink identity? Shared root
+  key d1993c2c3ec44c94 exposes other projects' DM traffic and cannot attribute our
+  posts"
 description: >
-  Promoted from OBS-251 by T-1149 (observation triage, 2026-10-13). Still true and no task decides it. T-916 deliberately left it pending as the operator's call, and T-531 says "OBS-251 already carries it". The question of whether 832 mints its own termlink key (changing fleet identity and TOFU state) has no carrier task. Original observation text is in .context/inbox.yaml under OBS-251.
+  Promoted from OBS-251 by T-1149 (observation triage, 2026-10-13). Still true and
+  no task decides it. T-916 deliberately left it pending as the operator's call, and
+  T-531 says "OBS-251 already carries it". The question of whether 832 mints its own
+  termlink key (changing fleet identity and TOFU state) has no carrier task. Original
+  observation text is in .context/inbox.yaml under OBS-251.
 
-status: captured
+status: started-work
 workflow_type: inception
+current_node: frw_1_start
 owner: agent
-horizon: later
+horizon: now
 tags: [observations]
 components: []
 related_tasks: []
 created: 2026-10-13T16:20:48Z
-last_update: 2026-10-13T16:20:48Z
-date_finished: null
+last_update: 2026-10-18T12:35:34Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -22,17 +29,53 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-10-18T12:35:36Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F2: 2
+      F4: 2
+      F3: 2
+      F1: 2
+    rationale: D1=2 (voi:open-question~'assumption'); D2=2 
+      (voi:open-question~'assumption'); D3=2 (voi:open-question~'assumption'); 
+      D4=2 (voi:open-question~'assumption'); F-RECALL=2 
+      (voi:open-question~'assumption'); F2=2 (voi:open-question~'assumption'); 
+      F4=2 (voi:open-question~'assumption'); F3=2 
+      (voi:open-question~'assumption'); F1=2 (voi:open-question~'assumption')
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1151: Decide: should 832 mint and sign with its own termlink identity? Shared root key d1993c2c3ec44c94 exposes other projects' DM traffic and cannot attribute our posts
 
-## Problem Statement
+OBS-251 (2026-08-15): 832's TermLink posts are signed with fingerprint d1993c2c3ec44c94, which other projects on
+this host also hold. Two consequences were measured then: (1) a post "from 832" proves nothing cryptographically,
+since AEF's reply carried the same fingerprint, so attribution rests on a metadata convention; (2) another project's
+DM topic (ring20-manager, AP-fleet operations including a credential-custody thread) appears in 832's inbox, so
+sessions here can read it, and vice versa. Remedy proposed then: 832 mints and signs with its own key. That changes
+fleet identity and TOFU state, so it is the operator's decision. Research artifact:
+`docs/reports/T-1151-termlink-identity.md`.
 
-<!-- What problem are we exploring? For whom? Why now? -->
+## Hypothesis
+
+<!-- Agent wording (2026-10-18), replacing the estimator draft; the operator may correct it. -->
+
+We believe that giving 832 its own TermLink signing identity,
+we will achieve posts that are attributable to 832 alone and an inbox that no longer receives other projects' DMs.
+We will know that we are successful when a 832 post carries a fingerprint no other project holds, and 832's inbox
+lists no DM rail addressed to the shared fingerprint d1993c2c3ec44c94.
 
 ## Assumptions
-
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-1151 -->
+
+- A-1: the identity is still shared today (OBS-251 is two months old). To be measured read-only.
+- A-2: minting a per-project key is supported by TermLink without forking it (TERMLINK_IDENTITY_FILE or similar).
+- A-3: what a switch breaks (peer trust pins, hub auth, sidecar addressing, existing DM rails) can be listed before acting.
 
 ## Open Questions
 
@@ -52,9 +95,28 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
 
+- **IW-1: Is 832's TermLink identity still shared with other projects today, and which ones?**
+  confidence: 0
+  disposition: (open)
+  rationale: (read-only: whoami, identity file location, fingerprints on recent posts, DM rails by name only)
+- **IW-2: Is the exposure still live — do other projects' DM rails still reach 832's inbox?**
+  confidence: 0
+  disposition: (open)
+  rationale: (counts and rail names only; no message content read)
+- **IW-3: How would 832 get its own key, and does TermLink/AEF already support or plan per-project identity?**
+  confidence: 0
+  disposition: (open)
+  rationale: (TermLink docs/help and AEF's sidecar code; no key is created)
+- **IW-4: What breaks if 832 switches key — peer trust (TOFU), hub auth, sidecar circuit addressing, existing rails?**
+  confidence: 0
+  disposition: (open)
+  rationale: (read the auth and addressing paths)
+
 ## Exploration Plan
 
-<!-- How will we validate assumptions? Spikes, prototypes, research? Time-box each. -->
+Research only, read-only, one session. Measure the current identity and its sharing without creating, rotating or
+pointing at any key; count DM rails by name without opening other projects' messages; read TermLink's identity and
+TOFU model and AEF's sidecar addressing; list what a switch would touch. No experiment that could mint a key.
 
 ## Technical Constraints
 
@@ -66,7 +128,9 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Scope Fence
 
-<!-- What's IN scope for this exploration? What's explicitly OUT? -->
+IN: whether the identity is shared, whether the exposure is live, how a per-project key would work, what it would
+break. OUT: creating, rotating or pointing at any key; changing TOFU state or hub config; reading other projects'
+message content; anything outside this repo except read-only queries to TermLink.
 
 ## Acceptance Criteria
 
@@ -136,3 +200,7 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-10-18T12:35:34Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
