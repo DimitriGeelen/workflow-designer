@@ -21,7 +21,7 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="fw" authority="authority" height="320"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>fw_1_2204</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>fw_1_filing</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>fw_2_put</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>fw_3_record</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>fw_gw_proposed</bpmn:flowNodeRef>
@@ -88,7 +88,7 @@
       <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="fw_1_2204" name="T-2204 filing gate — refuses filing without GO/NO-GO/DEFER (recorded as PRIOR, not finding)">
+    <bpmn:serviceTask id="fw_1_filing" name="T-2204 filing gate — refuses filing without GO/NO-GO/DEFER (recorded as PRIOR, not finding)">
       <bpmn:extensionElements>
         <aef:uid value="u5"/>
         <aef:position x="265.0" y="168.0"/>
@@ -234,13 +234,13 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_2" name="prior required at filing" sourceRef="agt_1_file" targetRef="fw_1_2204">
+    <bpmn:sequenceFlow id="flow_2" name="prior required at filing" sourceRef="agt_1_file" targetRef="fw_1_filing">
       <bpmn:extensionElements>
         <aef:uid value="u19"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_3" sourceRef="fw_1_2204" targetRef="agt_2_create">
+    <bpmn:sequenceFlow id="flow_3" sourceRef="fw_1_filing" targetRef="agt_2_create">
       <bpmn:extensionElements>
         <aef:uid value="u20"/>
         <aef:anchors sourcePort="E" targetPort="N"/>
@@ -361,7 +361,7 @@
       <bpmndi:BPMNShape id="BPMNShape_agt_1_file" bpmnElement="agt_1_file">
         <dc:Bounds x="265.0" y="466.0" width="110" height="64"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_fw_1_2204" bpmnElement="fw_1_2204">
+      <bpmndi:BPMNShape id="BPMNShape_fw_1_filing" bpmnElement="fw_1_filing">
         <dc:Bounds x="265.0" y="168.0" width="110" height="64"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_agt_2_create" bpmnElement="agt_2_create">
