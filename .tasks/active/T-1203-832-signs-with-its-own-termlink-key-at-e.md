@@ -120,7 +120,9 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
   — 2026-10-18: announced to AEF on `832-t1151-termlink-identity` (msg 34fd848e, RECEIVED). The message carries the fingerprint, the public
   key, the MCP gap, the `fw rail status` ambient-env quirk and the from_project label-case hint. Feature request to
   010-termlink (msg 8dd1ba95, RECEIVED): per-topic read ACL or dm payload encryption, plus a no-create env mode and a
-  serving-process whoami. Still open: the drain window, which ends at the first session start where both
+  serving-process whoami. AEF (msg ee63c63c) took both: T-4326 (rail status resolves the host key without the
+  identity variables; drop the `env -u` in `_t1203-identity-coverage.sh` once vendored) and T-4327 (one canonical
+  from_project spelling), both after v1.8.11. Still open: the drain window, which ends at the first session start where both
   fingerprints show no unread DMs. Tick then.
 
 ### Human
