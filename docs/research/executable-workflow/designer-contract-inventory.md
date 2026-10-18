@@ -6,6 +6,12 @@
 **Contract under inventory:** `docs/standards/aef-bpmn-mapping-v1.md` **v1.1 (2026-07-12)**, Part I frozen
 **Status:** research artifact. Nothing here ratifies, decides, or moves a boundary.
 
+> **Currency — 2026-10-18 (832 T-1201).** Checked against T-590's later edit (2026-09-26, T-871, commit 7f550c74):
+> that commit re-routed T-590's review criteria (RUBBER-STAMP to REVIEWER, sections moved) and changed nothing
+> this inventory describes, so its content stands. One addition to the contract since: mapping-v1 Part II now
+> carries a non-normative note that the standard places no requirement on graph shape (T-1200, accepted by AEF
+> 2026-10-18). Part I, the frozen surface inventoried here, is unchanged.
+
 ---
 
 ## 0. What this document is for, and what it is not

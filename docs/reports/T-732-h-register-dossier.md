@@ -8,6 +8,16 @@ is a decision; this is the packet the decision is made against.
 
 **Approvals route:** http://192.168.10.107:3013/approvals
 
+> **Currency — 2026-10-18 (832 T-1201).** Two of the four questions below were ruled after this dossier was
+> assembled, and the register is the source of truth:
+> - **H1 RESOLVED** (operator, 2026-09-21): the DEFERs (T-279/280/281/282) and AEF's T-2669 NO-GO **stand**.
+> - **H3 RESOLVED** (operator, 2026-09-22): option D, both correlations derived from the arc
+>   (`shared_initiative_correlation: arc:ewcr-governed-delivery`).
+> - **Still open: H5 and H6** (`operator-decisions.yaml`). The gate today (`tools/_t596-arc0-exit-gate.sh`):
+>   clause 3 BLOCKED by H5, H6; clause 1 BLOCKED (AEF answered 2026-08-27 and did not attest); clause 2 BLOCKED
+>   (awaiting AEF's attestation). Arc 0 is 0 of 3. Ruling H5 and H6 clears clause 3 only.
+> T-732's recommendation (2026-10-05, commit e4db8955) reads the same way: tick its H1 criterion, rule H5, then H6.
+
 ---
 
 ## Why this is the only Arc-0 work on our side — and the one place that claim is too strong

@@ -7,6 +7,30 @@
 
 ---
 
+## Currency — what changed after this brief (2026-10-18, 832 T-1201)
+
+This brief was last edited 2026-08-10. Three of the tasks it covers learned things since, recorded in the tasks and
+not here; the stale-document detector (T-1152) flagged each. Read these before the sections below:
+
+- **Q1a · T-347 is RULED** (operator, 2026-10-10; T-347 Decisions, commit d436d048): **(a) preserve and re-emit**
+  content the designer does not consume (R1); turning an unknown kind into a real field happens only **as a
+  suggestion the operator approves** (R2); fields can be shown or hidden per project and per workflow (built as
+  T-1118 B1–B3). Open: R1a (a second pool kept unchanged, with a notice on import) awaits confirmation. The
+  recommendation below was adopted; T-347's `[REVIEW]` box stays unticked only because ticking is the operator's.
+- **Q1b · T-340: the "carry BOTH 0" number below no longer reproduces** as written (T-340, commit e02daf10). The
+  command's `find` has no scope filter, and the tree now holds build output and editor snapshots: unscoped it prints
+  `BOTH = 43`. Scoped to authored files: **78 files, BOTH = 1**, and that one is T-423's deliberate witness
+  (`tests/fixtures/exported/t423-carrier-witness.bpmn`); the other 42 are derived files emitted by T-423's additive
+  DI, working as designed. **The disjointness claim and recommendation (b) stand.** T-340's criterion carries the
+  scoped command.
+- **Q2b · T-358: a new interaction since T-891** (T-358 Recommendation, re-checked 2026-10-05, commit e4db8955).
+  Orphan nodes now get no lane, and the validator raises `E-XML-NODE-UNASSIGNED` on them. So under A/AB every node
+  of a lane-less third-party document lands in no lane and fails validation. T-358 now recommends **AB** (stop
+  fabricating lanes in both importer and emitter, and write an inert provenance marker), and rule **T-341** (where an
+  orphan lands) first or together with it.
+
+---
+
 ## Why this document exists
 
 Four arc tasks are stopped on Human `[REVIEW]` rulings. Between them they hold the

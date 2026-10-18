@@ -1,5 +1,13 @@
 # T-694 — Does the BVP estimator distinguish tasks?
 
+> **Currency — 2026-10-18 (832 T-1201).** T-695 and T-696 gained recommendations on 2026-10-05 (T-1033, commit
+> e4db8955) that cite a re-run of this instrument; this report still showed the 2026-09-10 numbers. Re-run today:
+> 223 tasks, **137** carry a proposed vector, **76** distinct, the modal vector covers **14 (10.2%)**: still real
+> discriminating power, and the modal vector is still the empty-task floor of Finding A (D1=4). Inception inputs:
+> **18** inceptions, `voi_score` still the template default on **16**, `target_blast_radius` default on **16**
+> (2026-10-05: 12 of 14). The findings stand; the defaults problem grew with the population. The recommendations
+> themselves (T-695: fix comment-stripping upstream; T-696: show unset inceptions as unscored) are in those tasks.
+
 **Measured 2026-09-10.** Instrument: `tools/_t694-bvp-distinguishability.py`.
 Population: all 96 task files in `.tasks/active/`, of which 73 carry a proposed
 driver vector.

@@ -1,5 +1,15 @@
 # T-347 — what happens to content INSIDE an element the importer accepts
 
+> **Currency — 2026-10-18 (832 T-1201).** Two things happened after this report:
+> 1. **The repair semantics are RULED** (operator, 2026-10-10; T-347 Decisions, commit d436d048): **(a) preserve
+>    and re-emit** what the designer does not consume (R1); an unknown kind becomes a real field only **as a
+>    suggestion the operator approves** (R2); per-project and per-workflow field visibility (T-1118). R1a (a second
+>    pool kept unchanged, with a notice on import) awaits confirmation.
+> 2. **Ruled is not built.** Re-run today, same instrument: documentation **1/2** carriers lose it (was 2/2;
+>    `i18n-documentation` now keeps it), foreign extensionElements children **6/7**, property **1/2**, loop
+>    characteristics **2/2**, unknown attributes **3/3**. The loss this report measured is still live; R1 is the
+>    build that ends it.
+
 **Run:** `node tools/_t347-accepted-element-content-cdp.mjs`, 2026-08-03.
 **Positive control** (`arc-lifecycle`, designer-produced, input-derived): **no shape lost.**
 
