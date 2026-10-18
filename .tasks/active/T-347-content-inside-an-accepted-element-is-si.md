@@ -610,3 +610,8 @@ bash tests/run-bridge-tests.sh
 ### 2026-10-10T12:38:34Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+### 2026-10-18 — referenced documents brought up to date [agent, T-1201]
+- **Change:** T-1201 added currency sections to `docs/reports/T-347-accepted-element-content.md` and the T-397 brief:
+  the 2026-10-10 ruling is recorded there, and the loss was re-measured (still live, R1 not built). The `[REVIEW]`
+  criterion is answered by that ruling; ticking it is the operator's.

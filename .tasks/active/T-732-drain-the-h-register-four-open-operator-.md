@@ -335,6 +335,11 @@ Arc-0 exit additionally needs AEF's attestation on clauses 1 and 2. No Designer-
 - **Left under ### Human (carve-outs):** inception-decision: AC#1; unclassified: AC#5
 - **Close path:** `bin/fw reviewer T-732` PASS auto-ticks the converted criteria (T-1985); the normal close gates do the rest.
 
+### 2026-10-18 — dossier brought up to date [agent, T-1201]
+- **Change:** T-1201 added a currency section to `docs/reports/T-732-h-register-dossier.md`: H1 (2026-09-21) and
+  H3 (2026-09-22) are resolved in the register, H5 and H6 still open, Arc-0 gate 0 of 3. The H1 criterion is answered
+  by the operator's ruling; ticking it is the operator's.
+
 ## Reviewer Verdict (v1.5)
 
 - **Scan ID:** R-1c003a5f
