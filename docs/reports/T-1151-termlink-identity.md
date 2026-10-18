@@ -98,7 +98,72 @@ authorises.
 Scope note: this makes 832's posts attributable and stops it receiving other projects' DMs. It does not make DMs
 private on this hub: that needs option 4.
 
+## External consultation (2026-10-18)
+
+The operator holds that TermLink is a strong design for authority, authentication and security, and asked for the
+confidentiality claim to be settled from TermLink itself, plus outside views.
+
+### TermLink's own source (read-only worker in /opt/termlink, `t1151-termlink-src`)
+
+TermLink's security model is deliberate and layered, and the claim above is now **confirmed, confidence 3**:
+- **Transport and authentication are strong and independent of the signing key:** TLS with certificate pinning
+  (TOFU) plus a hub HMAC secret (`docs/operations/per-agent-identity.md:56-57`: transport trust "is not touched; only
+  which client signing key is chosen"). Switching 832's key does not touch hub auth (line 107: `fleet doctor`
+  "still passes").
+- **Every post is signed and bound to its key:** the hub verifies the envelope signature and that `sender_id`
+  equals the fingerprint of the signing public key (`crates/termlink-hub/src/channel.rs:909-922`, T-1427).
+- **Reads are not access-controlled per topic, and payloads are not encrypted:** channel list/subscribe are
+  `Observe`-scope "pure reads" (`crates/termlink-hub/src/server.rs:526-532`); `handle_channel_subscribe_with`
+  (`channel.rs:1402-1460`) never compares the caller to the topic's `dm:<a>:<b>` halves; no encryption primitive
+  exists in the crates (grep for encrypt/chacha/aes-gcm/x25519/sealed: zero). The hub is the trust boundary: any
+  session holding a hub token can read any topic. That is a design choice for a trusted fleet, not a bug.
+- **TermLink's own learnings call the shared key a defect:** PL-166 (T-1693) — on a shared host `from_fingerprint`
+  "identifies the HOST, not the agent", and matchers keyed on it are "vacuous"; the fix named is per-agent keys
+  (T-1700, T-2292; per-project keys under `instance/secrets/<agent>_identity.key`, mode 600).
+- **`TERMLINK_IDENTITY_DIR` moves more than the key:** also the TOFU `known_hubs` store, `outbound.sqlite`,
+  `awaiting_ack.sqlite`, `cursors.json` (`crates/termlink-session/src/identity_dir.rs:1-35`). A fresh dir starts
+  with no pinned hubs, so it would re-trust hubs on first contact. `TERMLINK_IDENTITY_FILE` changes the key only.
+- **A fingerprint change renames DM rails, with no history migration; peers re-pin** (`per-agent-identity.md:59-66,82`).
+
+So TermLink already gives 832 what it needs for **attribution**: a distinct key is the documented fix. It does not
+offer per-topic **confidentiality** at all: option 4 (an upstream request) is a feature request, not a bug report.
+
+### Independent reviewer (read-only worker, `t1151-review`)
+
+Facts confirmed; picks **option 1 with option 4 filed alongside**. Strongest counter-argument: the cost lands now
+and the benefit is soft (`from_project` already labels posts; any process that misses the variable silently signs as
+the host, splitting attribution across more code paths than today). Its answer: treat it as a coordination event and
+verify coverage mechanically. Gaps it found, adopted for the build if GO:
+- **The proposed key path is not gitignored:** `.context/termlink/…` and `.context/rail-identity.key` both match no
+  ignore rule; only `.context/secrets/` is ignored (`.gitignore:43`). Use `.context/secrets/termlink-identity.key`,
+  add a check before minting, run `tools/tracked-secret-artifacts.py`.
+- **Absolute path, fail closed:** because the variable mints a key at a missing path, launchers must use an absolute
+  path and refuse to start if the file is absent, never create it.
+- **The sidecar follows whatever its process env resolves** (`lib/sidecar/dm.py:67-88` `whoami`, `:115`): a receiver
+  started without the variable keeps draining the host rails, silently. Drain both fingerprints for a transition
+  window.
+- **Coverage probe:** post one probe from every entry point (receiver, watchers, MCP server, dispatched workers,
+  cron) and fail if any is signed with the host fingerprint. Dispatched workers are a hole nobody has checked.
+- **Mint once, back it up:** losing the key means a new fingerprint and a second announcement.
+
+### AEF (conversation `832-t1151-termlink-identity`, msg 01b13f84)
+
+Asked: should the sidecar honour RAIL_IDENTITY_FILE; does anything on their side key on 832's fingerprint; does AEF
+sign with a project key; FILE vs DIR. Answer pending.
+
+### What changes in the recommendation
+
+Still **GO on option 1**, refined: `TERMLINK_IDENTITY_FILE` (not DIR, which would also move pinned hubs), key at
+`.context/secrets/termlink-identity.key` (ignored), absolute path, fail-closed launchers, a both-fingerprint drain
+window, a per-entry-point coverage probe, a key backup. Option 4 becomes a feature request to TermLink for
+per-topic read control or end-to-end encryption, framed as such: TermLink's model makes the hub the trust boundary.
+
 ## Dialogue log
 
-- 2026-10-18: operator chose this inception next ("begin met 1"). Research only, read-only; no operator dialogue on
-  the question itself yet.
+- 2026-10-18: operator chose this inception next ("begin met 1"). Research only, read-only.
+- 2026-10-18: operator: "I believe that TermLink is a great design for authority, authentication and security."
+  Agent agreed on the strengths seen (signed envelopes, built-in per-agent identity, separate hub auth, TOFU pinning,
+  safety-minded tooling), placed the problems in this host's configuration and AEF's sidecar, and said the
+  confidentiality claim rested on help text only. Operator: settle it from TermLink itself and get external consult.
+  Result above: TermLink's source confirms its model (strong transport auth and sender binding, hub as the read
+  trust boundary, no encryption) and its own learnings name per-agent keys as the fix.
