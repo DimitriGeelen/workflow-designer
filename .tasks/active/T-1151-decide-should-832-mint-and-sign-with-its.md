@@ -96,21 +96,21 @@ lists no DM rail addressed to the shared fingerprint d1993c2c3ec44c94.
 -->
 
 - **IW-1: Is 832's TermLink identity still shared with other projects today, and which ones?**
-  confidence: 0
-  disposition: (open)
-  rationale: (read-only: whoami, identity file location, fingerprints on recent posts, DM rails by name only)
+  confidence: 3
+  disposition: answered
+  rationale: yes. `termlink whoami`: d1993c2c3ec44c94 "shared with 126 other sessions on this hub"; read-only resolver gives the host file /root/.termlink/identity.key; `fw rail status` state: host. Greenfield (90d45538) and CashWeb already use their own keys (artifact F1)
 - **IW-2: Is the exposure still live — do other projects' DM rails still reach 832's inbox?**
-  confidence: 0
-  disposition: (open)
-  rationale: (counts and rail names only; no message content read)
+  confidence: 2
+  disposition: answered
+  rationale: yes: 28 DM rails on the shared fingerprint; read cursors are host-wide (ring20 DM 12 unread at 00:38, 0 now, unread by this session). An own key does NOT give confidentiality: DMs are signed not encrypted and found by client-side filtering of all hub topics; not confirmed by reading anyone's DM, hence 2 (artifact F2)
 - **IW-3: How would 832 get its own key, and does TermLink/AEF already support or plan per-project identity?**
-  confidence: 0
-  disposition: (open)
-  rationale: (TermLink docs/help and AEF's sidecar code; no key is created)
+  confidence: 3
+  disposition: answered
+  rationale: env precedence TERMLINK_IDENTITY_FILE > TERMLINK_AGENT_ID > TERMLINK_IDENTITY_DIR > host; framework has `fw config set RAIL_IDENTITY_FILE` (lib/rail-identity.sh, AEF T-2904), but only `fw rail` applies it — the sidecar (circuit.py, dm.py) does not, so full coverage needs TERMLINK_IDENTITY_FILE at every 832 entry point (artifact F3)
 - **IW-4: What breaks if 832 switches key — peer trust (TOFU), hub auth, sidecar circuit addressing, existing rails?**
-  confidence: 0
-  disposition: (open)
-  rationale: (read the auth and addressing paths)
+  confidence: 2
+  disposition: answered
+  rationale: expected none for hub auth (hub.secret) and TOFU (hub certs) and sidecar addressing (project-addressed); DM rails move to the new fingerprint; read cursors stay shared unless TERMLINK_IDENTITY_DIR, unmeasured; peers need the new fingerprint announced. Docs-read, not exercised (exercising = registering a new identity, the act being decided) (artifact F4)
 
 ## Exploration Plan
 
@@ -157,12 +157,16 @@ message content; anything outside this repo except read-only queries to TermLink
 
 <!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
 **GO if:**
-- Root cause identified with bounded fix path
-- Fix is scoped, testable, and reversible
+- The identity is still shared and the exposure is live: **met** (126 sessions, 28 DM rails, shared cursors; F1, F2)
+- A supported, project-local mechanism exists, needing no TermLink fork and no host config change: **met**
+  (env precedence, `RAIL_IDENTITY_FILE`; F3)
+- What a switch touches can be listed and checked: **met with a stated gap** (hub auth and the cursor dir are
+  docs-read, so the build starts with an operator-approved spike; F4)
 
 **NO-GO if:**
-- Problem requires fundamental redesign or unbounded scope
-- Fix cost exceeds benefit given current evidence
+- A switch breaks hub authentication or AEF mail delivery: not expected, verified by the spike before rollout
+- The benefit is only cosmetic: no, attribution becomes provable and other projects' DMs stop landing here
+  (confidentiality is NOT delivered; that is upstream, option 4)
 
 ## Verification
 
@@ -177,9 +181,17 @@ message content; anything outside this repo except read-only queries to TermLink
 
 ## Recommendation
 
-**Recommendation:** DEFER
+**Recommendation:** GO
 
-**Rationale:** Not yet explored: captured from OBS-251 by the T-1149 triage. Evidence gap: no exploration has been done, so there is nothing to recommend GO or NO-GO on yet.
+**Rationale:** 832 still signs with the host key that 126 other sessions hold (`termlink whoami`), so nothing it
+posts is attributable; 28 DM rails addressed to that key land in its directory, and read state is shared host-wide
+(a DM went from 12 unread to 0 without this session reading it). TermLink and the framework already support a
+project key (env precedence; `RAIL_IDENTITY_FILE`), but the sidecar ignores the framework setting, so the build
+must set `TERMLINK_IDENTITY_FILE` at every 832 entry point. Order: an operator-approved spike (hub auth, AEF
+delivery, what TERMLINK_IDENTITY_DIR moves), then the key minted by a runme job (gitignored, mode 600), then rollout
+checked by `fw rail status` = project, then the new fingerprint announced to AEF, plus a report upstream asking for
+DM access control, because an own key gives attribution, not privacy. Detail:
+`docs/reports/T-1151-termlink-identity.md`.
 
 ## Decisions
 
