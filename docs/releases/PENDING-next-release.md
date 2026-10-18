@@ -17,5 +17,6 @@ author moves each item into `RELEASE-NOTES-<version>.md` and deletes it here. (T
 - Say plainly in the AEF announcement: `E-XML-GW-OUTGOING` is an ERROR that rests on no basis (a house rule with
   error severity). Its severity is unchanged in this release; whether it should stay an ERROR is an open question.
 - The kit bytes change, so the release job's kit calibration (codex + GLM-5.3) runs on the new kit.
-- mapping-v1 Part II gained a proposed non-normative note: the standard places no requirement on graph shape.
-  Ratification is AEF's (sent on `832-t1165-dialect-class`).
+- mapping-v1 Part II gained a non-normative note: the standard places no requirement on graph shape. AEF accepted
+  the wording as written (msg 37a67ab0); it moves into Part I at the next frozen v1.x. AEF also confirmed its
+  compiler has no basis for E-GW-OUTGOING either, so CONVENTIONAL fits; keeping it an ERROR is 832's call.

@@ -156,8 +156,8 @@ enter a future frozen version.
   standard places no requirement on a process's graph shape: connectivity, the presence of start or end events,
   reachability of nodes, dead ends, or the balance of parallel forks and joins. A document with any of these shapes
   can be v1-conformant (§6). Validators may report them as conventions of their own, and the reference validator
-  classes such rules CONVENTIONAL. AEF agreed to a note of this kind (832 conversation `832-t1165-dialect-class`,
-  2026-10-18); its wording and placement in a frozen version are AEF's to ratify.
+  classes such rules CONVENTIONAL. AEF agreed to a note of this kind and accepted this wording as written (832
+  conversation `832-t1165-dialect-class`, 2026-10-18, msg 37a67ab0); it moves into Part I at the next frozen v1.x.
 
 Requested on termlink thread T-175 (2026-07-11). On ruling, these graduate to Part I under **v1.1**.
 
