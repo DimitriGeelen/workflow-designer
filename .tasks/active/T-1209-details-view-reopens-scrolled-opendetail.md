@@ -72,6 +72,13 @@ open (1400) starts at the top; every later open starts about 155 px down. `close
 - [x] The fix is listed in `docs/releases/PENDING-next-release.md`
 
 ### Human
+- [ ] [REVIEW] The reopened details view starts at the element header at every width, and nothing else in it regressed
+  **Steps:**
+  1. Open the BEFORE screenshots: `docs/reports/T-1127-evidence/2026-10-19/t1127-details-1024.png`, `…-1440.png`, `…-1920.png` (the view opened after an earlier scroll: the header and the Name/Slug row are above the fold)
+  2. Open the AFTER screenshots: `docs/reports/T-1209-evidence/t1127-details-1024.png`, `…-1440.png`, `…-1920.png`
+  3. In each AFTER shot check, control by control: the element header (type and display id) and the BPMN Name / Slug row are visible at the top; the Close button is visible and unclipped; the Extensions fields sit in two columns with no overlap or clipping; the Tier buttons are whole; Horizon carries "hidden in the side panel by this project"
+  **Expected:** all three AFTER shots start at the element header, and every listed control is visible, reachable and unclipped
+  **If not:** name the screenshot and the control, and what is wrong with it
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
