@@ -75,7 +75,10 @@ k=$(bash -c '. tools/runme-signal.sh; printf %s "$RUNME_SIGNAL_KEY"' 2>/dev/null
 [ "$k" = "$K" ] && ok "runme signal" "posts with TERMLINK_IDENTITY_FILE=$K (skips the post if the key is missing)" || bad "runme signal" "key path is '${k:-?}'"
 
 # 5. fw rail (framework setting)
-st=$(.agentic-framework/bin/fw rail status 2>/dev/null | awk '/state:/{print $2}')
+# Run WITHOUT the session variable: `fw rail status` computes "the host key" from the ambient env, so in a session
+# that already signs with the project key it compares the key with itself and reports "host" (seen in job 046).
+st=$(env -u TERMLINK_IDENTITY_FILE -u TERMLINK_AGENT_ID -u TERMLINK_IDENTITY_DIR \
+    .agentic-framework/bin/fw rail status 2>/dev/null | awk '/state:/{print $2}')
 [ "$st" = project ] && ok "fw rail" "state: project" || bad "fw rail" "state: ${st:-?} (set RAIL_IDENTITY_FILE)"
 
 # Dispatched workers inherit the dispatching session's env (covered by 1); cron posts nothing (T-1203 map).

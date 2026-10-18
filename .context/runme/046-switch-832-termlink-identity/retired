@@ -1,0 +1,7 @@
+Step 1 ran on 2026-10-18 (env block added to .claude/settings.json, hooks byte-identical, baseline intact). Step 2
+stopped on two agent errors: (1) `fw config set RAIL_IDENTITY_FILE <absolute path>` wraps the long value onto a
+YAML continuation line, which fw_config reads as empty; the agent re-set it to the relative path
+`.context/secrets/termlink-identity.key` (one line, resolved against the project root). (2) the step's check ran
+`fw rail status` in a shell that already carried TERMLINK_IDENTITY_FILE (Claude Code applied the new env live), so
+the status compared the project key with itself and said "host"; run without the variable it reads `state: project`.
+Steps 3-4 (receiver restart, coverage) did not run: job 047-restart-receiver-own-key. Retired, not done.

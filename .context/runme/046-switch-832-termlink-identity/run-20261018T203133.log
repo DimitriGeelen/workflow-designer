@@ -1,0 +1,46 @@
+runme  046-switch-832-termlink-identity   sha 620c2d8d5708   rehearsed 2026-10-18T18:29:06Z   log: /opt/832-Workflow-designer/.context/runme/046-switch-832-termlink-identity/run-20261018T203133.log
+Job:   046-switch-832-termlink-identity   (T-1203)
+What:  Switch 832 to its own TermLink key (T-1203): sessions env, fw rail setting, sidecar receiver restart
+       Your T-1151 GO, the rollout (AEF: 'set it yourselves for now'; their upstream change is AEF T-4311). The key
+       05c467b46a0bdf5e exists and is backed up. Three steps the agent may not do itself:
+        1. .claude/settings.json gains an 'env' block with TERMLINK_IDENTITY_FILE. The file is protected (B-005) because it
+           registers the enforcement hooks; the step adds ONLY 'env' and proves the hooks are byte-identical (the
+           enforcement baseline hashes the hooks block, and fw doctor must still say 'intact').
+        2. fw config set RAIL_IDENTITY_FILE to the same key, so 'fw rail' signs with it.
+        3. The sidecar receiver is restarted with the variable exported, so AEF mail is signed with 832's key. Mail that
+           arrives during the few seconds it is down falls back to the hub inbox and is not lost.
+       Afterwards: restart this Claude session (exit, then claude-fw) so sessions and the TermLink MCP server pick up the
+       key; the agent then runs tools/_t1203-identity-coverage.sh, which must show no FAIL. Rollback is one step each:
+       remove the env block, unset the setting, restart the receiver without the variable.
+Steps (each asks y/N first):
+  1. Add ONLY an env block (TERMLINK_IDENTITY_FILE) to .claude/settings.json; prove the hooks are unchanged
+  2. fw config set RAIL_IDENTITY_FILE /opt/832-Workflow-designer/.context/secrets/termlink-identity.key; fw rail status must read state: project
+  3. Restart the sidecar receiver with TERMLINK_IDENTITY_FILE exported; verify its environment
+  4. Run the coverage check (sessions and the MCP server stay FAIL until you restart this Claude session)
+
+ok    on bleeding-edge
+ok    the key exists, mode 600, and resolves to 05c467b46a0bdf5e without creating anything
+ok    .claude/settings.json has no env block yet
+ok    .claude/settings.json is committed (a clean starting point to diff against)
+ok    fw doctor: enforcement baseline intact before the change
+ok    the sidecar receiver is running (it will be restarted)
+ok    the coverage check exists
+
+Step 1/4: Add ONLY an env block (TERMLINK_IDENTITY_FILE) to .claude/settings.json; prove the hooks are unchanged
+  runs: do_settings
+Run step 1/4? [y/N]  .claude/settings.json | 3 +++
+ 1 file changed, 3 insertions(+)
+ok  env block added; hooks byte-identical (sha256 e54de4f4dc2609811f37dd31e7c44148e152f9ced6b7f06e76f50902c87cad33); enforcement baseline intact
+ok    step 1/4
+
+Step 2/4: fw config set RAIL_IDENTITY_FILE /opt/832-Workflow-designer/.context/secrets/termlink-identity.key; fw rail status must read state: project
+  runs: do_rail
+Run step 2/4? [y/N] Set RAIL_IDENTITY_FILE = /opt/832-Workflow-designer/.context/secrets/termlink-identity.key
+Rail signing identity
+  state:       host
+  fingerprint: d1993c2c3ec44c94
+  identity:    <host default>
+  ⚠ posts are attributed to the HOST — indistinguishable from co-resident agents.
+    Set one with: bin/fw config set RAIL_IDENTITY_FILE .context/rail-identity.key
+fw rail status does not read state: project
+STOPPED: step 2/4 failed (rc=1); later steps not run

@@ -1,0 +1,6 @@
+Rail signing identity
+  state:       host
+  fingerprint: d1993c2c3ec44c94
+  identity:    <host default>
+  ⚠ posts are attributed to the HOST — indistinguishable from co-resident agents.
+    Set one with: bin/fw config set RAIL_IDENTITY_FILE .context/rail-identity.key
