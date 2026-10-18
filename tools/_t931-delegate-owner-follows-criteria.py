@@ -64,8 +64,14 @@ OPEN_JUDGEMENT = """
 """
 
 CASES = [
-    # (name, owner, human-section, expected owner_after)
-    ("no Human criteria at all -> owner follows (the lost fix)", "human", "", "agent"),
+    # (name, owner, human-section, expected owner_after[, expected class])
+    # T-1204 (AEF v1.8.11): AEF T-4156 rules this case differently and AEF's ruleset wins on review
+    # routing (CLAUDE.md, PD-357). owner: human with NO Human criteria and every Agent criterion done
+    # is `ready-to-close`: the CLI adds one reviewer-judged close-readiness criterion and leaves the
+    # owner alone; the reviewer's verdict decides ownership at close. The T-931 rule still holds
+    # where criteria exist (the next case).
+    ("no Human criteria at all -> ready-to-close, owner unchanged until the verdict (AEF T-4156)",
+     "human", "", "human", "ready-to-close"),
     ("every Human criterion ticked -> owner follows", "human",
      "\n### Human\n- [x] [REVIEW] Signed off already\n", "agent"),
     ("CONTROL an open judgement criterion keeps owner: human", "human", OPEN_JUDGEMENT, "human"),
@@ -89,7 +95,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix="t931-delegate-") as root:
         os.makedirs(os.path.join(root, ".tasks", "active"))
         os.makedirs(os.path.join(root, ".tasks", "completed"))
-        for i, (name, owner, human, want) in enumerate(CASES):
+        for i, (name, owner, human, want, *want_class) in enumerate(CASES):
             tid = "T-%d" % (9101 + i)
             with open(os.path.join(root, ".tasks", "active", tid + "-fixture.md"), "w") as fh:
                 fh.write(FM.format(tid=tid, owner=owner, human=human))
@@ -99,7 +105,7 @@ def main():
                                                                (p.stderr or p.stdout)[-300:]))
                 return 2
             got = rec.get("owner_after")
-            ok = got == want
+            ok = got == want and (not want_class or rec.get("class") == want_class[0])
             failures += 0 if ok else 1
             print("  %s  %s (owner_after=%s, want %s)" % ("PASS" if ok else "FAIL", name, got, want))
     print("%d/%d passed" % (len(CASES) - failures, len(CASES)))

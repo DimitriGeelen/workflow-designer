@@ -111,8 +111,9 @@ Probe fixture. Not a real task.
 
 ## Verification
 
-# T-1143: one real command — since AEF T-4024 a build task whose Verification yields none cannot close
-true
+# T-1143: one real command — since AEF T-4024 a build task whose Verification yields none cannot close.
+# T-1204: and not a tautology — since AEF v1.8.11 (T-4197) the reviewer's severe tautology finding on a bare true blocks it.
+test -d .tasks/active
 
 ## Updates
 EOF

@@ -193,6 +193,33 @@ def main():
         leg(rc == 0 and "Nothing to run" in out and not b.made("s1") and not os.path.exists(os.path.join(d, "done"))
             and "RETIRED: superseded by 002-new" in out2, "14 retired: not offered, not run, no done written; --list --all names it")
 
+        # 15 (T-1204) steps run with 832's TermLink key exported when the key file exists, and with the
+        #    variable UNSET when it does not (termlink mints a key at a missing path, T-1151)
+        envjob = TWO_STEPS.replace("'touch @OUT@/s1'", "'printf %s \"${TERMLINK_IDENTITY_FILE-UNSET}\" > @OUT@/key'")
+        b = Box(tmp, "l15")
+        b.job("001-env", envjob)
+        b.run("--dry-run")
+        fake_key = os.path.join(tmp, "fake.key")
+        with open(fake_key, "w") as fh:
+            fh.write("not a key\n")
+        os.environ["RUNME_IDENTITY_KEY"] = fake_key
+        os.environ["TERMLINK_IDENTITY_FILE"] = "/somewhere/else"
+        try:
+            b.run(answers="y\ny\n")
+            got_present = open(os.path.join(b.out, "key")).read() if b.made("key") else None
+            b2 = Box(tmp, "l15b")
+            b2.job("001-env", envjob)
+            b2.run("--dry-run")
+            os.environ["RUNME_IDENTITY_KEY"] = os.path.join(tmp, "missing.key")
+            b2.run(answers="y\ny\n")
+            got_missing = open(os.path.join(b2.out, "key")).read() if b2.made("key") else None
+        finally:
+            os.environ.pop("RUNME_IDENTITY_KEY", None)
+            os.environ.pop("TERMLINK_IDENTITY_FILE", None)
+        leg(got_present == fake_key and got_missing == "UNSET" and not os.path.exists(os.path.join(tmp, "missing.key")),
+            "15 steps inherit the key when it exists; the variable is unset (nothing minted) when it is missing",
+            "present=%r missing=%r" % (got_present, got_missing))
+
     print("\n%d failed leg(s)" % len(fails) if fails else "\nall legs passed")
     return 1 if fails else 0
 

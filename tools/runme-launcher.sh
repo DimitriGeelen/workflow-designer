@@ -227,6 +227,12 @@ runme_signal_init "$(basename "$d") [sha ${sha:0:12}]" "$LOG"
 dsha=$(sed -n 's/^sha=//p' "$d/dryrun.ok"); dat=$(sed -n 's/^at=//p' "$d/dryrun.ok")
 [ "$sha" = "$dsha" ] || fail "$(basename "$d")/job.sh CHANGED since its dry-run (now ${sha:0:12}, rehearsed ${dsha:0:12}). Nothing run; the agent must dry-run it again."
 load_job "$d"
+# T-1204: steps sign with 832's own TermLink key (T-1203). A job can restart a daemon that then inherits this
+# shell's env: job 048's fw upgrade restarted the sidecar receiver on 2026-10-18 from a terminal without the
+# variable, and mail went out under the shared host key again. Exported only when the key file EXISTS: termlink
+# MINTS a key at a missing TERMLINK_IDENTITY_FILE path (T-1151), so a lost key unsets it instead.
+RUNME_KEY="${RUNME_IDENTITY_KEY:-$PROJ/.context/secrets/termlink-identity.key}"   # override: tests only
+if [ -f "$RUNME_KEY" ]; then export TERMLINK_IDENTITY_FILE="$RUNME_KEY"; else unset TERMLINK_IDENTITY_FILE; fi
 say "runme  $(basename "$d")   sha ${sha:0:12}   rehearsed $dat   log: $LOG"
 show_plan "$d"
 say
