@@ -179,6 +179,15 @@ async function main() {
     if (process.env.T1127_SHOTS) {
       const s = await cmd('Page.captureScreenshot', { format: 'png' });
       writeFileSync(join(process.env.T1127_SHOTS, 't1127-details-1024.png'), Buffer.from(s.data, 'base64'));
+      // The bottom of the view as well (T-1127 review, amber: the lower fields and "Other extensions" with its
+      // read-only key and "Suggest as a field" were never in a shot).
+      const bottom = async (w) => {
+        await ev(cmd, `(function(){ var b = document.getElementById('details-body'); b.scrollTop = b.scrollHeight; return true; })()`);
+        await sleep(100);
+        const sb = await cmd('Page.captureScreenshot', { format: 'png' });
+        writeFileSync(join(process.env.T1127_SHOTS, `t1127-details-${w}-bottom.png`), Buffer.from(sb.data, 'base64'));
+      };
+      await bottom(1024);
       // The UI review rule (operator, 2026-10-14) wants three widths: normal (~1440) and wide (~1920) as well.
       // Shots only; no leg asserts on them.
       for (const [w, h] of [[1440, 900], [1920, 1080]]) {
@@ -187,6 +196,7 @@ async function main() {
         await ev(cmd, `(openDetails(${JSON.stringify(S1)}), true)`); await sleep(150);
         const sw = await cmd('Page.captureScreenshot', { format: 'png' });
         writeFileSync(join(process.env.T1127_SHOTS, `t1127-details-${w}.png`), Buffer.from(sw.data, 'base64'));
+        await bottom(w);
       }
     }
     await cmd('Emulation.clearDeviceMetricsOverride');

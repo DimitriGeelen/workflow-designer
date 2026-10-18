@@ -106,9 +106,9 @@ bvp_scores_proposed:
 ### Human
 - [ ] [REVIEW] The element details view shows every field of the element, legibly, at narrow, normal and wide widths
   **Steps:**
-  1. Open `docs/reports/T-1209-evidence/t1127-details-1024.png`, `t1127-details-1440.png` and `t1127-details-1920.png` (designer 0.23.0 plus the T-1209 fix; a service task with Endpoint and Side effect filled and Horizon hidden in the side panel by the project profile)
-  2. In each, check control by control: the title "Call the service — details" and the Close button; the element header; the BPMN section (Name, Slug, Display ID, UID, Lane); the Extensions fields in two columns, filled and empty alike; the Tier buttons; the orange "hidden in the side panel by this project" mark on Horizon; nothing clipped, overlapping or off-screen
-  3. In `t1127-details-1920.png` also check the "Other extensions" section below (read-only, with "Suggest as a field")
+  1. Open the six shots in `docs/reports/T-1127-evidence/2026-10-19-full/`: `t1127-details-{1024,1440,1920}.png` (the view as it opens, at the top) and `t1127-details-{1024,1440,1920}-bottom.png` (the same view scrolled to the bottom). Designer 0.23.0 plus the T-1209 fix; a service task with Endpoint and Side effect filled and Horizon hidden in the side panel by the project profile
+  2. In each TOP shot, check control by control: the title "Call the service — details" and the Close button; the element header; the BPMN section (Name, Slug, Display ID, UID, Lane); the Extensions fields in two columns, filled and empty alike; the Tier buttons; the orange "hidden in the side panel by this project" mark on Horizon; nothing clipped, overlapping or off-screen
+  3. In each BOTTOM shot: the lower Extensions fields (Fabric component, Links, Note, Owner); the "Other extensions" section with its read-only key row (customKey = kept) and the "Suggest as a field" control; the I/O contract with "+ add input" / "+ add output"; nothing clipped
   **Expected:** every listed control is visible, reachable and unclipped at all three widths, and the view uses the space in two columns
   **If not:** name the screenshot and the control, and what is wrong with it
 
