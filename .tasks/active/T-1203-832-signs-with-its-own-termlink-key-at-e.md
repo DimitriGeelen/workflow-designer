@@ -66,7 +66,9 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `.context/secrets/` is confirmed gitignored for the key path before anything is minted (`git check-ignore`), and `tools/tracked-secret-artifacts.py` is clean
+- [x] `.context/secrets/` is confirmed gitignored for the key path before anything is minted (`git check-ignore`), and `tools/tracked-secret-artifacts.py` is clean
+  — 2026-10-18: `.gitignore:43 .context/secrets/` matches `.context/secrets/termlink-identity.key`; scan ok over
+  12210 tracked files, no key material.
 - [ ] Spike (operator job): one throwaway session with a scratch key authenticates to the hub and delivers one sidecar message to AEF; the scratch key is then removed; result recorded here
 - [ ] Mint (operator job): exactly one project key at `.context/secrets/termlink-identity.key`, mode 600, backed up; its fingerprint recorded here
 - [ ] Every 832 entry point that runs termlink sets `TERMLINK_IDENTITY_FILE` to the absolute key path and refuses to start when the file is missing (never mints); `RAIL_IDENTITY_FILE` set; `fw rail status` reads `state: project`
