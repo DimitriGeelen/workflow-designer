@@ -1,0 +1,48 @@
+runme  039-decide-t1165-go   sha 99b786c5d0a8   rehearsed 2026-10-18T08:48:11Z   log: /opt/832-Workflow-designer/.context/runme/039-decide-t1165-go/run-20261018T105147.log
+Job:   039-decide-t1165-go   (T-1165)
+What:  Record your GO on T-1165 (rule-dialect axis: a 4th class CONVENTIONAL, option 1)
+       Your decision today ('1'): GO, option 1 with the additions. The standard is silent on graph shape, yet
+       13 rules about it (disconnected flow, missing start/end events, unreachable and dead-end steps, parallel-gateway
+       balance, both forms) are labelled UNIVERSAL in the kit. They become CONVENTIONAL, derived from a per-rule citation
+       the test checks against the standard (a missing citation means CONVENTIONAL). Additions from the outside review: a
+       'basis' column in the kit, a stricter citation check (normative keyword, closed list of other grounds), and any of
+       the 18 well-formedness rules that cannot cite a basis surfaces as a finding. AEF and the independent reviewer both
+       picked option 1; AEF requires none of the 13 and wants a non-normative v1.x note in the standard.
+       Findings: docs/reports/T-1165-conventional-dialect-class.md. A GO decision is yours, so it runs here. The agent then
+       files the build as its own task.
+Steps (each asks y/N first):
+  1. Record GO on T-1165: fw inception decide T-1165 go --rationale '…'
+
+ok    on bleeding-edge
+ok    T-1165 is an active inception
+ok    T-1165 has no decision recorded yet
+ok    the agent recommendation is GO
+ok    the research report is committed
+
+Step 1/1: Record GO on T-1165: fw inception decide T-1165 go --rationale '…'
+  runs: do_decide
+Run step 1/1? [y/N] No review was emitted for T-1165 yet — showing it now (T-973 requires you to see it).
+
+BLOCKED: this inception is not handoff-ready:
+    - [hypothesis-unready] ## Hypothesis would be refused at a GO: not in the three-part form — missing: 'we will achieve'
+      fix: Write the three-part hypothesis with a success clause someone could check (a count, threshold or named state); the decide gate refuses a GO without it (T-866).
+
+  No handoff link has been emitted.
+  Bypass: FW_ALLOW_UNREADY_HANDOFF=1 (logged Tier-2)
+
+NOTE: T-1165 decided without a prior 'fw task review' — the decider is the reviewer (T-3991).
+HYPOTHESIS: not in the three-part form — missing: 'we will achieve'
+  The form is not decoration. Each clause answers a different question:
+  what changes, what that buys, and how anyone would later tell if it worked.
+
+ERROR: ## Hypothesis required before a GO decision
+
+A GO is the moment this project takes on a claim. Every support score in
+this task's value-driver table is an argument about that claim — without it,
+the scores can rank but cannot be wrong, because there is nothing for them
+to be wrong about.
+
+The estimator can draft one from this task's own text; correct it and set
+  hypothesis_source: human
+in the frontmatter to make your wording permanent.
+STOPPED: step 1/1 failed (rc=1); later steps not run

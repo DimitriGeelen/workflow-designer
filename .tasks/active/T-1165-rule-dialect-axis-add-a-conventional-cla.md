@@ -65,8 +65,8 @@ as correctness: the 47-of-48 mistake again. Research artifact: `docs/reports/T-1
 
 <!-- Agent wording (2026-10-18), replacing the estimator draft; the operator may correct it. -->
 
-We believe that deriving a CONVENTIONAL class for structure-only rules with no normative basis
-will stop the authoring kit labelling house graph-shape rules as universal truths.
+We believe that deriving a CONVENTIONAL class for structure-only rules with no normative basis,
+we will achieve an authoring kit that no longer presents our house graph-shape rules as universal truths to external authors.
 We will know that we are successful when the axis test derives 13 rules CONVENTIONAL (tiers A+B in the artifact),
 every remaining structure-only UNIVERSAL rule carries a citation the test resolves in the standard, and the kit's
 CONFORMANCE.md prints those 13 as CONVENTIONAL.
