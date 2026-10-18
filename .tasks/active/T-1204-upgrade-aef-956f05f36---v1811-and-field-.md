@@ -105,6 +105,9 @@ instead of deleting project lines, so 832's project-owned lines get the `<!-- pr
   governance section gives REFUSED, rc=1, CLAUDE.md byte-identical; the same line in a project-owned region gives
   KEPT, rc=0). Findings sent with it: check-human-ac-tick refuses a cp to `.tasks/` outside PROJECT_ROOT; the
   T-3850 vendor-locals refusal fires before T-4232's; the T-4303 repair hint names the framework-repo path in a consumer.
+  AEF (msg a2de5b29) recorded these as their round 11 (all three WORKS) and filed T-4335 (name
+  `.agentic-framework/bin/fw` in a consumer) and T-4336 (the human-AC guard and `.tasks/` outside the project). They
+  treat the ordering as a known interaction, not a defect.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
