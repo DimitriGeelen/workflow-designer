@@ -7025,6 +7025,10 @@ function openDetails(uid) {
   _detailsUid = uid;
   $('details-modal').classList.add('visible');
   renderProperties();
+  // T-1209: every open starts at the top (the element header and its name). closeDetails() empties the body but the
+  // container kept its scrollTop, so a reopen started where the last view was left. Only on OPEN: an edit while
+  // open re-renders through renderDetails() and must keep the place.
+  $('details-body').scrollTop = 0;
 }
 function closeDetails() {
   if (!_detailsUid) return;

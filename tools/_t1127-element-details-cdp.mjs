@@ -147,6 +147,31 @@ async function main() {
     await ev(cmd, `(closeDetails(), true)`);
     leg(afterDbl === false && viaBtn.open && viaBtn.uid === H1, 'E handoff: double-click keeps its jump, the button opens details', { afterDbl, viaBtn: viaBtn.uid });
 
+    // G (T-1209) — every open starts at the top; an edit while open keeps the place.
+    //   Unfixed: closeDetails() cleared the body but kept its scrollTop, so a reopen (any element) started where the
+    //   last view was left and hid the element header and the Name/Slug row (seen at 1024/1440/1920 on 2026-10-19).
+    const scrollTo = `(function(){ var b = document.getElementById('details-body'); b.scrollTop = 200; return b.scrollTop; })()`;
+    const top = `document.getElementById('details-body').scrollTop`;
+    await ev(cmd, `(openDetails(${JSON.stringify(S1)}), true)`); await sleep(100);
+    const scrolled = await ev(cmd, scrollTo);
+    await ev(cmd, `(closeDetails(), openDetails(${JSON.stringify(S1)}), true)`); await sleep(100);
+    const reopenSame = await ev(cmd, top);
+    await ev(cmd, scrollTo);
+    await ev(cmd, `(closeDetails(), openDetails(${JSON.stringify(S2)}), true)`); await sleep(100);
+    const openOther = await ev(cmd, top);
+    // edit while open and scrolled: the re-render must not jump back to the top
+    await ev(cmd, `(closeDetails(), openDetails(${JSON.stringify(S1)}), true)`); await sleep(100);
+    const before = await ev(cmd, scrollTo);
+    await ev(cmd, `(function(){ var b = document.getElementById('details-body');
+      var f = Array.prototype.slice.call(b.querySelectorAll('.field')).find(function(x){ var l = x.querySelector('.field-label'); return l && l.firstChild.textContent.trim() === 'Side effect'; });
+      var i = f.querySelector('textarea, input'); i.value = 'writes the ledger twice'; i.dispatchEvent(new Event('input', { bubbles: true })); i.dispatchEvent(new Event('change', { bubbles: true })); return true; })()`);
+    await sleep(100);
+    const afterEdit = await ev(cmd, top);
+    await ev(cmd, `(closeDetails(), true)`);
+    leg(scrolled > 0 && reopenSame === 0 && openOther === 0 && before > 0 && afterEdit > 0,
+      'G (T-1209) reopen starts at the top (same and other element); an edit while open keeps the place',
+      { scrolled, reopenSame, openOther, before, afterEdit });
+
     // F — 1024x768
     await cmd('Emulation.setDeviceMetricsOverride', { width: 1024, height: 768, deviceScaleFactor: 1, mobile: false });
     await ev(cmd, `(openDetails(${JSON.stringify(S1)}), true)`); await sleep(150);
@@ -154,6 +179,15 @@ async function main() {
     if (process.env.T1127_SHOTS) {
       const s = await cmd('Page.captureScreenshot', { format: 'png' });
       writeFileSync(join(process.env.T1127_SHOTS, 't1127-details-1024.png'), Buffer.from(s.data, 'base64'));
+      // The UI review rule (operator, 2026-10-14) wants three widths: normal (~1440) and wide (~1920) as well.
+      // Shots only; no leg asserts on them.
+      for (const [w, h] of [[1440, 900], [1920, 1080]]) {
+        await ev(cmd, `(closeDetails(), true)`);
+        await cmd('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: false });
+        await ev(cmd, `(openDetails(${JSON.stringify(S1)}), true)`); await sleep(150);
+        const sw = await cmd('Page.captureScreenshot', { format: 'png' });
+        writeFileSync(join(process.env.T1127_SHOTS, `t1127-details-${w}.png`), Buffer.from(sw.data, 'base64'));
+      }
     }
     await cmd('Emulation.clearDeviceMetricsOverride');
     leg(fit.left >= 0 && fit.right <= fit.vw && fit.bottom <= fit.vh, 'F fits 1024x768 (body scrolls if needed)', fit);
