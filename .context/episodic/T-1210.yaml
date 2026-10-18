@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1210: _t544 refuses since v1.8.11: a cold Watchtower's first /approvals takes ~13 s, past the probe's 3 s per try
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-18T23:59:22Z
+# ============================================================================
+
+task_id: T-1210
+task_name: "_t544 refuses since v1.8.11: a cold Watchtower's first /approvals takes ~13 s, past the probe's 3 s per try"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-18T23:56:49Z
+completed: 2026-10-18T23:58:49Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-19T01:58:47+02:00
+last_commit: 2026-10-19T01:58:47+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  _t544 waits for a cold instance's slow first /approvals (13.4 s since v1.8.11): 60 s per request, 90 s boot budget; all legs green; measurement sent to AEF
+
+# Key outcomes
+outcomes:
+  - '`_t544` gives a cold instance enough time: one attempt waits for the slow first `/approvals` (no stacked retries that each redo the cold work), within a boot budget that covers the measured 13 s with margin; the reason is written beside the numbers'
+  - '`python3 tools/_t544-session-cookie-port-teeth.py` exits 0 on the real code, and its teeth still bite (by construction: it binds a non-default port, so the broken code path can only emit `fw_session_3000`; leg 0 refuses if that separation collapses)'
+  - 'The 13 s cold first `/approvals` (1.3 s warm; `/cron` 1.4 s cold) goes to AEF as a measurement, asking for their task id'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1210-t544-refuses-since-v1811-a-cold-watchtow.md'
+  - 'tools/_t544-session-cookie-port-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T01:58:47'
+    action: 'T-1210: _t544 waits for a cold instance''s slow first /approvals (13.4 s since v1.8.11): 60 s per request, 90 s boot budget; all legs green; measurement sent to AEF'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 2
+  lines_added: 354
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1210-t544-refuses-since-v1811-a-cold-watchtow.md
+generated_by: context-agent-hybrid

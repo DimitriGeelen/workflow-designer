@@ -4,12 +4,13 @@ name: "_t544 refuses since v1.8.11: a cold Watchtower's first /approvals takes ~
 description: >
   Bridge leg T-544 (session cookie named for the bound port) REFUSES since the AEF v1.8.11 upgrade (T-1204): 'instance on :PORT never answered within 25s'. Measured 2026-10-19: a cold web.app listens after ~2 s, but its FIRST /approvals takes 13.4 s (then 1.3 s); /cron cold 1.4 s, /designer 0.04 s, and both set the same fw_session_<port> cookie. The probe asks /approvals with timeout=3 inside BOOT_TIMEOUT_S=25, so a cold boot never answers in time. Fix the probe's timing (keep /approvals, the page with the CSRF form), and report the 13 s cold first request to AEF as a measurement.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t544-session-cookie-port-teeth.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-18T23:56:49Z
-last_update: 2026-10-18T23:56:49Z
-date_finished: null
+last_update: 2026-10-18T23:58:49Z
+date_finished: 2026-10-18T23:58:49Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -346,3 +347,20 @@ python3 tools/_t544-session-cookie-port-teeth.py
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1210-t544-refuses-since-v1811-a-cold-watchtow.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-01fd5acd
+- **Timestamp:** 2026-10-18T23:59:11Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-18T23:58:49Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
