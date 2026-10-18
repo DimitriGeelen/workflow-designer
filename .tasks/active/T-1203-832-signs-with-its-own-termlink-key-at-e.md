@@ -79,6 +79,9 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
   circuit `//dimitrimintdev/cacc73ea32b121dd/832-Workflow-designer`, hub `sender_id` 16334dd785b7e868 (not the host
   key), surfaced normally; "nothing on our side keyed on your old fingerprint" (answers consult question b).
 - [ ] Mint (operator job): exactly one project key at `.context/secrets/termlink-identity.key`, mode 600, backed up; its fingerprint recorded here
+  — job 044 (2026-10-18) created it: fingerprint **05c467b46a0bdf5e**, mode 600, no extended ACL (getfacl: base
+  entries only), ignored and untracked. It stopped before the backup on a bug in the agent's ACL check (`^user:`
+  matched the base `user::` line); retired with reason. Backup and fingerprint record: job 045 (dry-run 8/8).
 - [ ] Every 832 entry point that runs termlink sets `TERMLINK_IDENTITY_FILE` to the absolute key path and refuses to start when the file is missing (never mints); `RAIL_IDENTITY_FILE` set; `fw rail status` reads `state: project`
 - [ ] A coverage probe signs one post from each entry point and fails if any carries the host fingerprint; wired as a standing check
 - [ ] DMs on both fingerprints are drained for a transition window; the new fingerprint is announced to AEF; a feature request for per-topic read control goes to TermLink

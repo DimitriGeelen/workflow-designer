@@ -1,0 +1,6 @@
+Step 1 ran on 2026-10-18 and CREATED the key correctly (fingerprint 05c467b46a0bdf5e, mode 600, extended ACL
+stripped: getfacl shows only user::rw- group::--- other::---). It then stopped on a bug in the agent's own check:
+`getfacl | grep '^user:'` also matches the base owner entry `user::rw-`, so a clean key read as "extended ACL
+present". Steps 2-3 (backup, record fingerprint) did not run. Re-running is impossible by design (the preflight
+refuses an existing key), so they are job 045-finish-832-termlink-key, with the check corrected to '^user:[^:]'.
+Retired, not done: the job did not complete.

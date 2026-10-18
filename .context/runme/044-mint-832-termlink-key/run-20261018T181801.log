@@ -1,0 +1,31 @@
+runme  044-mint-832-termlink-key   sha 052309fbb9fe   rehearsed 2026-10-18T16:01:04Z   log: /opt/832-Workflow-designer/.context/runme/044-mint-832-termlink-key/run-20261018T181801.log
+Job:   044-mint-832-termlink-key   (T-1203)
+What:  Mint 832's own TermLink signing key (T-1203, your T-1151 GO): create once, lock down, back up, record the fingerprint
+       Your T-1151 GO, step 2. The spike (job 043) proved the hub and AEF accept a non-host key. This creates 832's
+       real key ONCE at .context/secrets/termlink-identity.key (gitignored), LOCALLY: nothing is posted to the hub and no
+       session switches to it yet (that is the rollout, a later job). The key is created by TermLink's own resolver pointed at
+       that absolute path; 'termlink identity init' is NOT used because it writes the shared host key. The directory carries
+       a default ACL that names user dimitri-mint-dev; the job strips extended ACLs from the key so only root can read it,
+       and copies it to /root/.termlink-project-keys/ (mode 700) as a backup. Losing the key means a new fingerprint and a
+       second announcement, so you may want an off-host copy of that backup too. The fingerprint (public) is written to a
+       tracked file; the key itself never enters git.
+Steps (each asks y/N first):
+  1. Create the key at /opt/832-Workflow-designer/.context/secrets/termlink-identity.key (TermLink resolver, local only) and lock it down (mode 600, no extended ACL)
+  2. Back it up to /root/.termlink-project-keys/832-Workflow-designer.key (dir mode 700) and verify the copy is identical
+  3. Record the public fingerprint in .context/termlink-identity.fingerprint; confirm git sees no key
+
+ok    on bleeding-edge
+ok    the key path is gitignored
+ok    no key exists yet at /opt/832-Workflow-designer/.context/secrets/termlink-identity.key
+ok    no backup exists yet at /root/.termlink-project-keys/832-Workflow-designer.key
+ok    no identity override is set in this shell
+ok    this shell resolves the shared host key d1993c2c3ec44c94 (read-only)
+ok    setfacl and getfacl are available
+
+Step 1/3: Create the key at /opt/832-Workflow-designer/.context/secrets/termlink-identity.key (TermLink resolver, local only) and lock it down (mode 600, no extended ACL)
+  runs: do_mint
+Run step 1/3? [y/N] Identity resolved (per-agent resolver)
+  Fingerprint: 05c467b46a0bdf5e
+  Public key:  add70a324e98a58787aa64ae23005ed53c20264c83fe0a0ca6be83a27297f47c
+an extended ACL entry is still present
+STOPPED: step 1/3 failed (rc=1); later steps not run
