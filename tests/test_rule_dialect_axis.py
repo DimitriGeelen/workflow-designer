@@ -41,10 +41,17 @@ The classification is therefore derived from `docs/standards/aef-bpmn-mapping-v1
     demands `conditionExpression` therefore fires on documents that satisfy the
     frozen standard — that is a defect in the rule, not a quirk of the peer.
 
+  - **CONVENTIONAL** (T-1200, T-1165 GO) — the predicate reads STRUCTURE
+    carriers only (plain graph shape) and nothing normative backs the property:
+    no mapping-v1 text that REQUIRES it, no well-formedness ground. mapping-v1 §6
+    is silent on connectivity, start/end events, reachability and gateway
+    balance, so those rules state our house style. Derived from RULE_BASIS,
+    whose every entry is checked against its source.
+
   - **UNIVERSAL** — everything else: the predicate rests on structure any
-    conformant document must satisfy, or it constrains a carrier only WHEN
-    PRESENT, or the carrier is MUST-emit (in which case absence is itself the
-    violation — PL-035).
+    conformant document must satisfy (with a basis that resolves), or it
+    constrains a carrier only WHEN PRESENT, or the carrier is MUST-emit (in which
+    case absence is itself the violation — PL-035).
 
 POLARITY IS THE HINGE, and it is mechanical. `W-GW-AMBIGUOUS` fires when
 `condition` is ABSENT (REQUIRES) and is dialect-relative. `W-PGW-CONDITION`
@@ -77,6 +84,10 @@ STANDARD = os.path.join(ROOT, "docs", "standards", "aef-bpmn-mapping-v1.md")
 UNIVERSAL = "UNIVERSAL"
 DIALECT_RELATIVE = "DIALECT-RELATIVE"
 PRESENTATIONAL = "PRESENTATIONAL"
+# T-1200 (T-1165 GO, OBS-467): a rule over STRUCTURE carriers only, with no normative basis. The standard is silent
+# on the property it checks (graph shape: connectivity, start/end events, reachability, gateway balance), so the
+# rule states a house convention, not something "any conformant document satisfies". Derived from RULE_BASIS below.
+CONVENTIONAL = "CONVENTIONAL"
 
 # ---- carrier classes (derived from the standard, see _standard_partition) ---
 SEMANTIC_MUST = "semantic-must"          # standard says MUST emit; absence IS the violation
@@ -353,13 +364,128 @@ RULE_CARRIERS = {
 }
 
 
-def classify(carriers, polarity):
+# --------------------------------------------------------------------------
+# T-1200: the BASIS of a structure-only rule. Carrier class and polarity cannot say whether the standard backs a
+# STRUCTURAL property at all -- which is how W-XML-DISCONNECTED derived UNIVERSAL on a property mapping-v1 never
+# mentions (OBS-467). So every rule whose carriers are all STRUCTURE declares what backs it, and failures() checks
+# the declaration against the source, so a class still cannot be asserted by typing a label (T-323):
+#
+#   ("mapping-v1", "<quote>")  the quote must occur in the frozen standard (whitespace-normalised) AND carry a
+#                              requirement keyword: MUST, MUST NOT, SHALL or REQUIRED. SHOULD does not qualify --
+#                              UNIVERSAL promises that "any conformant document satisfies it", which a SHOULD
+#                              cannot promise (T-1200 decision).
+#   ("ground", "<name>")       a well-formedness ground outside mapping-v1, from the CLOSED list GROUNDS.
+#
+# No basis -> CONVENTIONAL. WHAT THIS DOES NOT PROVE: that a quote is APT. The check proves the cited text exists
+# and requires something; whether it requires THIS property is still a reading (T-1165 F3).
+# --------------------------------------------------------------------------
+GROUNDS = {
+    "xml-wellformed": "the document must parse as XML (XML 1.0 well-formedness)",
+    "xml-id": "an ID value must be unique within the document (XML 1.0 validity constraint: ID)",
+    "xml-idref": "an IDREF must match an ID in the document (XML 1.0 validity constraint: IDREF)",
+    "bpmn-schema": "the BPMN 2.0 XSD's element vocabulary and required structure (definitions > process)",
+    "yaml-form-schema": "the YAML form's own schema: it is 832's format, so its required keys and node types are "
+                        "the format, not a convention about it",
+    "yaml-form-ref": "a reference in the YAML form (an edge endpoint) must resolve to a node uid",
+}
+_OWNER_IS_LANE = ("mapping-v1", "a node's `owner` MUST be its lane")
+RULE_BASIS = {
+    # -- YAML form ---------------------------------------------------------
+    "E-NOT-MAPPING":          ("ground", "yaml-form-schema"),
+    "E-TOPLEVEL-MISSING":     ("ground", "yaml-form-schema"),
+    "E-LANES-EMPTY":          _OWNER_IS_LANE,
+    "E-LANE-FIELD":           ("ground", "yaml-form-schema"),
+    "E-NODE-FIELD":           ("ground", "yaml-form-schema"),
+    "E-NODE-TYPE":            ("ground", "yaml-form-schema"),
+    "E-NODE-LANE":            _OWNER_IS_LANE,
+    "E-EDGE-FIELD":           ("ground", "yaml-form-schema"),
+    "E-EDGE-DANGLING":        ("ground", "yaml-form-ref"),
+    # -- XML form ----------------------------------------------------------
+    "E-XML-STRUCTURE":        ("ground", "bpmn-schema"),
+    "E-XML-ID-DUP":           ("ground", "xml-id"),
+    "E-XML-NODE-TYPE":        ("ground", "bpmn-schema"),
+    "E-XML-FLOW-DANGLING":    ("ground", "xml-idref"),
+    "E-XML-LANEREF-DANGLING": ("ground", "xml-idref"),
+    "E-XML-LANES-EMPTY":      _OWNER_IS_LANE,
+    "E-XML-NODE-UNASSIGNED":  _OWNER_IS_LANE,
+    # NOT declared, deliberately: E-GW-OUTGOING / E-XML-GW-OUTGOING (an exclusive gateway needs >= 2 outgoing
+    # flows unless it converges). mapping-v1 §3 says "outgoing edges = branches", with no requirement keyword, and
+    # BPMN admits the shape. They derive CONVENTIONAL while carrying ERROR severity: a finding, pinned below, not a
+    # basis invented to keep them universal. Nor the 13 graph-shape WARNs (T-1165 tiers A+B): nothing backs them.
+}
+_REQUIREMENT_RE = re.compile(r"\b(MUST|SHALL|REQUIRED)\b")
+# Pinned so a basis added or dropped is a decision, not drift (T-1165: 13 graph-shape WARNs + 2 uncited ERRORs).
+EXPECTED_CONVENTIONAL = 15
+EXPECTED_UNCITED_ERRORS = ("E-GW-OUTGOING", "E-XML-GW-OUTGOING")
+
+
+def _structure_only(carriers):
+    return all(CARRIER_CLASS[c] == STRUCTURE for c in carriers)
+
+
+def _norm(s):
+    return " ".join(s.split())
+
+
+def basis_text(rid):
+    """One line naming what backs a rule's class -- for the kit's basis column (T-1200)."""
+    carriers, _pol = RULE_CARRIERS[rid]
+    if not _structure_only(carriers):
+        return "carrier: " + ", ".join("%s (%s)" % (c, CARRIER_CLASS[c]) for c in carriers)
+    b = RULE_BASIS.get(rid)
+    if not b:
+        return "none: the standard is silent on this property (house convention)"
+    kind, ref = b
+    return ('mapping-v1: "%s"' % ref) if kind == "mapping-v1" else ("%s: %s" % (ref, GROUNDS.get(ref, "?")))
+
+
+def basis_failures(standard_text):
+    """Every declared basis must resolve; only structure-only rules may declare one; counts are pinned."""
+    fails = []
+    std = _norm(standard_text)
+    for rid, b in sorted(RULE_BASIS.items()):
+        if rid not in RULE_CARRIERS:
+            fails.append("RULE_BASIS names '%s', which RULE_CARRIERS does not declare" % rid)
+            continue
+        if not _structure_only(RULE_CARRIERS[rid][0]):
+            fails.append("RULE_BASIS names '%s', but its class is derived from its carriers; a basis applies to "
+                         "structure-only rules only" % rid)
+            continue
+        kind, ref = b
+        if kind == "mapping-v1":
+            if _norm(ref) not in std:
+                fails.append("basis of '%s' quotes mapping-v1 %r, which the standard does not contain -- a citation "
+                             "that does not resolve is an asserted class (T-323)" % (rid, ref))
+            elif not _REQUIREMENT_RE.search(ref):
+                fails.append("basis of '%s' quotes %r, which carries no requirement keyword (MUST/SHALL/REQUIRED); "
+                             "text that describes is not text that requires" % (rid, ref))
+        elif kind == "ground":
+            if ref not in GROUNDS:
+                fails.append("basis of '%s' names ground %r, which is not in the closed list GROUNDS" % (rid, ref))
+        else:
+            fails.append("basis of '%s' has kind %r; only 'mapping-v1' and 'ground' exist" % (rid, kind))
+    cls = classification()
+    conv = sorted(r for r, c in cls.items() if c == CONVENTIONAL)
+    if len(conv) != EXPECTED_CONVENTIONAL:
+        fails.append("%d rules derive CONVENTIONAL, expected %d: %s. A basis added or dropped changes what the kit "
+                     "tells authors; pin the new count deliberately." % (len(conv), EXPECTED_CONVENTIONAL, conv))
+    errors = tuple(r for r in conv if r.startswith("E-"))
+    if errors != tuple(sorted(EXPECTED_UNCITED_ERRORS)):
+        fails.append("uncited ERROR-severity rules are %s, expected %s: an ERROR that rests on no basis refuses "
+                     "documents the standard admits" % (list(errors), list(EXPECTED_UNCITED_ERRORS)))
+    return fails
+
+
+def classify(carriers, polarity, basis=None):
     """The whole discriminator, in one place, with no corpus term in it."""
     classes = [CARRIER_CLASS[c] for c in carriers]
     # §1 is normative: a change to presentational data alone MUST be a no-op for
     # the task graph, so a rule reading only those cannot report a graph defect.
     if all(c == PRESENTATION for c in classes):
         return PRESENTATIONAL
+    # T-1200: plain graph shape with nothing normative behind it is a house convention.
+    if all(c == STRUCTURE for c in classes) and not basis:
+        return CONVENTIONAL
     # fires on the absence of something the standard does not mandate
     if polarity == REQUIRES and any(c == SEMANTIC_OPTIONAL for c in classes):
         return DIALECT_RELATIVE
@@ -511,6 +637,11 @@ def failures(quiet=False):
         for c in sorted(declared_unratified):
             print("NOTE (unratified, T-325): carrier %s -- %s"
                   % (c, UNRATIFIED_CARRIERS[c]))
+
+    # (5b) T-1200: every structure-only rule's basis resolves against its source, and the CONVENTIONAL count
+    #      is pinned. Run only on a coherent table (a missing carrier class would raise inside classification()).
+    if not fails:
+        fails.extend(basis_failures(open(STANDARD, encoding="utf-8").read()))
 
     # (6) polarity is a behavioural claim, not a label. Only runnable once the
     #     declarations above are complete and coherent -- running it on a
@@ -701,7 +832,7 @@ def probe_failures():
 
 def classification():
     """-> {rule_id: class}. Raises if any carrier is unclassified."""
-    return {rid: classify(carriers, pol)
+    return {rid: classify(carriers, pol, RULE_BASIS.get(rid))
             for rid, (carriers, pol) in RULE_CARRIERS.items()}
 
 
@@ -716,7 +847,8 @@ def _control(name, mutate, fails, expect="fails"):
     """Apply `mutate` to module globals, assert the guard reacts, restore."""
     saved = {k: globals()[k] for k in
              ("RULE_CARRIERS", "CARRIER_CLASS", "UNRATIFIED_CARRIERS",
-              "EXPECTED_UNRATIFIED", "STANDARD", "POLARITY_PROBES")}
+              "EXPECTED_UNRATIFIED", "STANDARD", "POLARITY_PROBES",
+              "RULE_BASIS", "EXPECTED_CONVENTIONAL")}
     try:
         mutate()
         if expect == "fails":
@@ -772,6 +904,29 @@ def negative_controls():
         globals()["STANDARD"] = os.path.join(ROOT, "docs", "standards", "__none__.md")
     _control("an unreadable frozen standard", _missing_standard, fails, expect="raise")
 
+    # T-1200: each way a basis could be asserted rather than derived must go red.
+    def _fabricated_quote():
+        globals()["RULE_BASIS"] = dict(RULE_BASIS, **{
+            "W-XML-DISCONNECTED": ("mapping-v1", "every process MUST be connected")})
+    _control("a basis quoting text the standard does not contain", _fabricated_quote, fails)
+
+    def _descriptive_quote():
+        globals()["RULE_BASIS"] = dict(RULE_BASIS, **{
+            "E-XML-GW-OUTGOING": ("mapping-v1", "outgoing edges = branches")})
+    _control("a basis quoting real but non-requiring text (no MUST/SHALL/REQUIRED)", _descriptive_quote, fails)
+
+    def _unknown_ground():
+        globals()["RULE_BASIS"] = dict(RULE_BASIS, **{"W-XML-DEADEND": ("ground", "common-sense")})
+    _control("a basis naming a ground outside the closed list", _unknown_ground, fails)
+
+    def _dropped_basis():
+        globals()["RULE_BASIS"] = {k: v for k, v in RULE_BASIS.items() if k != "E-XML-ID-DUP"}
+    _control("a basis silently dropped (the CONVENTIONAL count moves)", _dropped_basis, fails)
+
+    def _basis_on_carrier_rule():
+        globals()["RULE_BASIS"] = dict(RULE_BASIS, **{"W-GW-AMBIGUOUS": ("ground", "xml-id")})
+    _control("a basis on a rule whose class comes from its carriers", _basis_on_carrier_rule, fails)
+
     return fails
 
 
@@ -794,20 +949,24 @@ def main():
         return 1
     cls = classification()
     counts = {k: sum(1 for v in cls.values() if v == k)
-              for k in (UNIVERSAL, DIALECT_RELATIVE, PRESENTATIONAL)}
+              for k in (UNIVERSAL, DIALECT_RELATIVE, PRESENTATIONAL, CONVENTIONAL)}
     for rid in sorted(cls):
         if cls[rid] != UNIVERSAL:
             print("  %-28s %s" % (rid, cls[rid]))
+    for rid in EXPECTED_UNCITED_ERRORS:
+        print("NOTE (uncited ERROR, T-1200): %s refuses a document on a property no basis requires -- severity "
+              "is the validator's call, the class is honest" % rid)
     # G-013: the summary names its SUBJECT, not just its numbers.
     print("rule dialect axis: %d validator rules classified from the frozen "
           "standard's carrier partition -- %d universal, %d dialect-relative, "
-          "%d presentational (%d carriers unratified by §1). %d polarity probes "
+          "%d presentational, %d conventional (structure-only, no normative basis; %d structure-only rules cite "
+          "one) (%d carriers unratified by §1). %d polarity probes "
           "run against real fixtures, covering %d/%d dialect-relative rules plus "
           "%d same-carrier CONSTRAINS controls; %d CONSTRAINS rules over optional "
           "carriers are classified but not behaviourally probed. No corpus term "
           "participates in this classification."
           % (len(cls), counts[UNIVERSAL], counts[DIALECT_RELATIVE],
-             counts[PRESENTATIONAL], len(UNRATIFIED_CARRIERS),
+             counts[PRESENTATIONAL], counts[CONVENTIONAL], len(RULE_BASIS), len(UNRATIFIED_CARRIERS),
              len(POLARITY_PROBES),
              sum(1 for r in POLARITY_PROBES if cls[r] == DIALECT_RELATIVE),
              counts[DIALECT_RELATIVE],

@@ -122,7 +122,8 @@ def intake_rules():
 
 def conformance_md(version):
     val = _load(VALIDATOR, '_kit_validator')
-    axis = _load(AXIS, '_kit_axis').classification()
+    axis_mod = _load(AXIS, '_kit_axis')
+    axis = axis_mod.classification()
     rules = xml_rules()
     missing = sorted(r for r in rules if r not in axis)
     lines = [
@@ -163,17 +164,23 @@ def conformance_md(version):
         '',
         '## Rules',
         '',
-        'Class: UNIVERSAL = any conformant document satisfies it. DIALECT-RELATIVE = house',
-        'convention, not the standard. PRESENTATIONAL = layout only. UNCLASSIFIED = the axis has',
-        'not ruled on it yet (stated, not guessed).',
+        # T-1200 (T-1165): CONVENTIONAL added, and every rule says what backs its class.
+        'Class: UNIVERSAL = any conformant document satisfies it. DIALECT-RELATIVE = an optional',
+        'field the standard does not require is missing: add it, or ignore it as your dialect.',
+        'CONVENTIONAL = the standard is silent on this graph shape and our house style expects',
+        'it: restructure, or ignore it if the shape is deliberate. PRESENTATIONAL = layout only.',
+        'UNCLASSIFIED = the axis has not ruled on it yet (stated, not guessed). The basis column',
+        'names what the class rests on: the standard text, a well-formedness ground, the carrier',
+        'read, or none.',
         '',
-        '| rule | severity | class | says |',
-        '|---|---|---|---|',
+        '| rule | severity | class | basis | says |',
+        '|---|---|---|---|---|',
     ]
     for rid in sorted(rules):
         sev, msg = rules[rid]
-        lines.append('| `%s` | %s | %s | %s |' % (
-            rid, sev, axis.get(rid, 'UNCLASSIFIED'), msg.replace('|', '\\|')))
+        basis = axis_mod.basis_text(rid) if rid in axis else ''
+        lines.append('| `%s` | %s | %s | %s | %s |' % (
+            rid, sev, axis.get(rid, 'UNCLASSIFIED'), basis.replace('|', '\\|'), msg.replace('|', '\\|')))
     lines += ['', '%d rules, %d unclassified.' % (len(rules), len(missing)), '']
     intake = intake_rules()
     lines += ['## Before any rule runs', '',
