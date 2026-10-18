@@ -1,0 +1,48 @@
+runme  047-restart-receiver-own-key   sha a3c1c65b7cbc   rehearsed 2026-10-18T18:40:11Z   log: /opt/832-Workflow-designer/.context/runme/047-restart-receiver-own-key/run-20261018T204356.log
+Job:   047-restart-receiver-own-key   (T-1203)
+What:  Restart the sidecar receiver with 832's own TermLink key (T-1203; job 046's steps 3-4)
+       Job 046 added the settings env block (done, hooks unchanged) and stopped at step 2 on two agent errors, both
+       now fixed: RAIL_IDENTITY_FILE is stored correctly and fw rail reads state: project. What is left: the sidecar receiver
+       still runs with the host key. This job restarts it with TERMLINK_IDENTITY_FILE exported, so AEF mail is signed with
+       832's key; mail arriving in the few seconds it is down falls back to the hub inbox and is not lost. Then the coverage
+       check: everything must be OK except the running TermLink MCP server, which picks up the key when you restart this
+       Claude session (exit, then claude-fw).
+Steps (each asks y/N first):
+  1. Restart the sidecar receiver with TERMLINK_IDENTITY_FILE exported; verify its environment
+  2. Run the coverage check (only the running MCP server may still FAIL, until you restart Claude)
+
+ok    on bleeding-edge
+ok    the key exists, mode 600, and resolves to 05c467b46a0bdf5e without creating anything
+ok    the sidecar receiver is running (it will be restarted)
+ok    the coverage check exists
+
+Step 1/2: Restart the sidecar receiver with TERMLINK_IDENTITY_FILE exported; verify its environment
+  runs: do_receiver
+Run step 1/2? [y/N] receiver stopped: was pid=4156345
+receiver started: agent=832-Workflow-designer pid=599615 port=41723
+  url:    http://127.0.0.1:41723
+  token:  /opt/832-Workflow-designer/.context/sidecar/receiver.token (mode 0600)
+  inject: enabled
+inbox topic: exists inbox:cacc73ea32b121dd/832-Workflow-designer
+watcher started: supervisor pid=601158 tick=30s termlink=present
+ok  receiver pid 599615 runs with 832's key
+ok    step 1/2
+
+Step 2/2: Run the coverage check (only the running MCP server may still FAIL, until you restart Claude)
+  runs: do_coverage
+Run step 2/2? [y/N] === T-1203 identity coverage: every entry point must sign as 05c467b46a0bdf5e (host key: d1993c2c3ec44c94) ===
+  OK           key file                     mode 600, no extended ACL, resolves to 05c467b46a0bdf5e
+  OK           sessions (settings env)      TERMLINK_IDENTITY_FILE set
+  NOT RUNNING  this session (live)          not run from a Claude session
+  OK           MCP server (.mcp.json)       TERMLINK_IDENTITY_FILE set
+  FAIL         MCP server pid 3456583 (live) env is 'unset' (started before the switch: restart the session)
+  OK           sidecar receiver pid 599615  env set
+  OK           runme signal                 posts with TERMLINK_IDENTITY_FILE=/opt/832-Workflow-designer/.context/secrets/termlink-identity.key (skips the post if the key is missing)
+  OK           fw rail                      state: project
+
+OK 6 / FAIL 1
+
+Expected: FAIL only for 'MCP server pid … (live)', until you restart this Claude session (exit, then claude-fw).
+ok    step 2/2
+
+DONE: 047-restart-receiver-own-key — all 2 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/047-restart-receiver-own-key/run-20261018T204356.log)

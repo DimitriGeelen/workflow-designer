@@ -1,0 +1,11 @@
+=== T-1203 identity coverage: every entry point must sign as 05c467b46a0bdf5e (host key: d1993c2c3ec44c94) ===
+  OK           key file                     mode 600, no extended ACL, resolves to 05c467b46a0bdf5e
+  OK           sessions (settings env)      TERMLINK_IDENTITY_FILE set
+  NOT RUNNING  this session (live)          not run from a Claude session
+  OK           MCP server (.mcp.json)       TERMLINK_IDENTITY_FILE set
+  FAIL         MCP server pid 3456583 (live) env is 'unset' (started before the switch: restart the session)
+  OK           sidecar receiver pid 599615  env set
+  OK           runme signal                 posts with TERMLINK_IDENTITY_FILE=/opt/832-Workflow-designer/.context/secrets/termlink-identity.key (skips the post if the key is missing)
+  OK           fw rail                      state: project
+
+OK 6 / FAIL 1
