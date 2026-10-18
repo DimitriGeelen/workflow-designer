@@ -105,6 +105,12 @@ instead of deleting project lines, so 832's project-owned lines get the `<!-- pr
   governance section gives REFUSED, rc=1, CLAUDE.md byte-identical; the same line in a project-owned region gives
   KEPT, rc=0). Findings sent with it: check-human-ac-tick refuses a cp to `.tasks/` outside PROJECT_ROOT; the
   T-3850 vendor-locals refusal fires before T-4232's; the T-4303 repair hint names the framework-repo path in a consumer.
+  Bridge suite after the upgrade (285 passed, 11 failed), triaged: T-949 (build links declared), T-568 (fixture
+  left by a killed run), T-654 (AEF T-4197 tautology), T-931 (AEF T-4156 ruling), T-614 (AEF T-4226 ladder) and
+  T-1161 (boundary gate reinstalled after the hook reinstall) are fixed (7e2f984a, 932ddd53). T-509 run alone:
+  "SWEEP INCOMPLETE — no regression found" (rc=3); its only abstention, _t581, is the same third-party golden as
+  T-358. T-821 and T-358 are designer findings from 2026-10-17 (T-1154, T-1196), older than this upgrade, and go to a
+  designer task.
   AEF (msg a2de5b29) recorded these as their round 11 (all three WORKS) and filed T-4335 (name
   `.agentic-framework/bin/fw` in a consumer) and T-4336 (the human-AC guard and `.tasks/` outside the project). They
   treat the ordering as a known interaction, not a defect.
