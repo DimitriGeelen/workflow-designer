@@ -54,6 +54,15 @@ EXCUSES = {
     "try { data = await res.json(); } catch (_) { /* non-JSON body handled below */ }":
         (1, "the null data is caught by the next branch, which records the fault via "
             "aefRecordFault('validate') and returns {ok:false, reason}; never read as clean."),
+    # T-1206: added by T-1154 (fitPoolToLabels) and missed then, because the bridge suite was not run.
+    "let b; try { b = t.getBBox(); } catch (_) { continue; }":
+        (1, "getBBox throws on an unrendered label or badge; such a node has no extent, so "
+            "skipping it IS the right fit (the pool widens only to what is drawn). Recording "
+            "it would fire on every headless render, as with the getScreenCTM sites."),
+    # T-1206: added by T-1164 (sticky lane names) the same day, missed the same way.
+    "for (const t of h.querySelectorAll('.lane-label')) { try { len = Math.max(len, t.getBBox().width); } catch (_) {} }":
+        (1, "an unrendered lane label adds no width; when none measures, len stays 0 and the "
+            "`len &&` guard below leaves the name in its lane-centred place, the safe default."),
     "try { bb = svg.getBBox(); } catch (_) { bb = null; }":
         (1, "null bb is handled by the caller as 'nothing to fit', which is true when the "
             "canvas is empty — indistinguishable from the throw and equally correct."),
