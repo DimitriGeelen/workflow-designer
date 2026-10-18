@@ -1,0 +1,56 @@
+runme  043-spike-own-termlink-key   sha a4bb132cbbb0   rehearsed 2026-10-18T13:57:36Z   log: /opt/832-Workflow-designer/.context/runme/043-spike-own-termlink-key/run-20261018T175607.log
+Job:   043-spike-own-termlink-key   (T-1203)
+What:  Spike for T-1203: one throwaway TermLink key — does the hub accept it, and does AEF mail still arrive?
+       Your T-1151 GO, step 1. Before 832 gets its real key, prove the two things the research could only read from
+       docs: (a) the hub accepts a post signed with a key other than the shared host key (hub auth is hub.secret, not the
+       key), and (b) a sidecar message to AEF still arrives when signed with it. A SCRATCH key is created in
+       /tmp/t1203-spike (mode 700 dir, key mode 600), used for one probe post on a new topic spike:832-t1203 and one sidecar
+       message to AEF that says it is a probe, then deleted. This registers a throwaway identity on the shared hub once.
+       The host key and 832's normal sessions are not touched. Results land in this job's directory for the agent.
+Steps (each asks y/N first):
+  1. Create the scratch key by posting one probe to spike:832-t1203 (key auto-created at /tmp/t1203-spike/scratch.key, mode 600)
+  2. Read the probe back: the hub accepted it, signed with the scratch fingerprint
+  3. Send one sidecar message to AEF signed with the scratch key (it says it is a probe)
+  4. Delete the scratch key and confirm this shell still resolves the host key
+
+ok    on bleeding-edge
+ok    termlink is installed
+ok    no identity override is set in this shell (the spike sets its own)
+ok    this shell resolves the shared host key d1993c2c3ec44c94 (read-only resolver)
+ok    no leftover spike dir at /tmp/t1203-spike
+
+Step 1/4: Create the scratch key by posting one probe to spike:832-t1203 (key auto-created at /tmp/t1203-spike/scratch.key, mode 600)
+  runs: do_probe
+Run step 1/4? [y/N] {
+  "confirmed": false,
+  "delivered": {
+    "offset": 0,
+    "ts": 1792338969719
+  },
+  "status": "delivered-unconfirmed"
+}
+key mode: 600
+Identity resolved (per-agent resolver, read-only)
+  Fingerprint: 16334dd785b7e868
+  Public key:  26d0ea5dbf6917f8dc5d046afdffd3cb8f9a2003f1ae7ddae0f129724adb31fb
+ok  scratch fingerprint differs from the host key
+ok    step 1/4
+
+Step 2/4: Read the probe back: the hub accepted it, signed with the scratch fingerprint
+  runs: do_readback
+Run step 2/4? [y/N] {"artifact_ref":null,"metadata":{"from_project":"832-Workflow-designer"},"msg_type":"note","offset":0,"payload_b64":"ODMyIFQtMTIwMyBzcGlrZSBwcm9iZTogYSBzY3JhdGNoIGlkZW50aXR5IHRlc3RpbmcgaHViIGFjY2VwdGFuY2UuIFNhZmUgdG8gaWdub3JlLg==","sender_id":"16334dd785b7e868","topic":"spike:832-t1203","ts":1792338969719}
+ok  the hub stored the probe signed by the scratch key 16334dd785b7e868
+ok    step 2/4
+
+Step 3/4: Send one sidecar message to AEF signed with the scratch key (it says it is a probe)
+  runs: do_sidecar
+Run step 3/4? [y/N] {"client_msg_id": "e6595f4c-3958-4638-9faf-c532ee42efad", "state": "HUB_ACCEPTED", "delivered": true, "reason": "", "topic": "inbox:cacc73ea32b121dd/999-Agentic-Engineering-Framework", "hub": "local", "addressed_by": "explicit circuit on hub cacc73ea32b121dd"}
+ok  delivered
+ok    step 3/4
+
+Step 4/4: Delete the scratch key and confirm this shell still resolves the host key
+  runs: do_cleanup
+Run step 4/4? [y/N] ok  scratch key deleted; host key untouched
+ok    step 4/4
+
+DONE: 043-spike-own-termlink-key — all 4 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/043-spike-own-termlink-key/run-20261018T175607.log)
