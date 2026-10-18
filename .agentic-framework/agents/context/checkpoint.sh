@@ -37,10 +37,19 @@ BASELINE_FILE="$CONTEXT_DIR/working/.session-baseline"
 # two license opposite actions.
 CONTEXT_WINDOW=$(fw_config_int "CONTEXT_WINDOW" 800000)
 
-# Token thresholds (autoCompact disabled — D-027)
-TOKEN_WARN=$((CONTEXT_WINDOW * 75 / 100))        # ~75% (600K at 800K) — informational
-TOKEN_URGENT=$((CONTEXT_WINDOW * 85 / 100))      # ~85% (680K at 800K) — commit + checkpoint
-TOKEN_CRITICAL=$((CONTEXT_WINDOW * 95 / 100))    # ~95% (760K at 800K) — handover NOW
+# Token thresholds (autoCompact disabled — D-027). T-4226: one ladder, computed by
+# lib/budget_ladder.py from the spawn reserve R (the same table budget-gate.sh reads).
+# Amber = warn (informational), Red = urgent (commit + checkpoint), Stop = critical (handover NOW).
+# An unreadable ladder leaves every threshold above the cap: no band fires (fail open).
+_LADDER=$(python3 -I "$FRAMEWORK_ROOT/lib/budget_ladder.py" "$CONTEXT_WINDOW" 2>/dev/null) || _LADDER=""
+_ladder_get() { printf '%s\n' "$_LADDER" | sed -n "s/^$1=//p"; }
+TOKEN_WARN=$(_ladder_get TOKEN_WARN)
+TOKEN_URGENT=$(_ladder_get TOKEN_URGENT)
+TOKEN_CRITICAL=$(_ladder_get TOKEN_CRITICAL)
+BUDGET_RESERVE=$(_ladder_get BUDGET_RESERVE)
+TOKEN_WARN=${TOKEN_WARN:-$((CONTEXT_WINDOW + 1))}
+TOKEN_URGENT=${TOKEN_URGENT:-$((CONTEXT_WINDOW + 1))}
+TOKEN_CRITICAL=${TOKEN_CRITICAL:-$((CONTEXT_WINDOW + 1))}
 
 # Check tokens every N tool calls (balance: accuracy vs performance)
 TOKEN_CHECK_INTERVAL=$(fw_config_int "TOKEN_CHECK_INTERVAL" 5)
@@ -347,6 +356,23 @@ SIGNAL_EOF
     fi
 }
 
+# T-4226: the band name for a used count, read off the ladder thresholds above.
+_budget_band() {
+    local tokens="$1"
+    if [ "$tokens" -ge "$TOKEN_CRITICAL" ]; then echo "Stop"
+    elif [ "$tokens" -ge "$TOKEN_URGENT" ]; then echo "Red"
+    elif [ "$tokens" -ge "$TOKEN_WARN" ]; then echo "Amber"
+    else echo "Green"
+    fi
+}
+
+# T-4226: tokens still to add before a band's threshold is reached (0 once reached).
+_tokens_to_go() {
+    local to_go=$(( $1 - $2 ))
+    [ "$to_go" -lt 0 ] && to_go=0
+    echo "$to_go"
+}
+
 warn_by_tokens() {
     local tokens="$1"
     local pct=$((tokens * 100 / CONTEXT_WINDOW))
@@ -354,7 +380,7 @@ warn_by_tokens() {
     if [ "$tokens" -ge "$TOKEN_CRITICAL" ]; then
         echo "" >&2
         echo "===========================================" >&2
-        echo "Session wrapping up: ${tokens} tokens (~${pct}% of the ${CONTEXT_WINDOW}-token budget cap)." >&2
+        echo "Session wrapping up: ${tokens} tokens (~${pct}% of the ${CONTEXT_WINDOW}-token budget cap; Stop band)." >&2
         echo "Task files have all essential state. Commit and handover." >&2
         echo "Details: docs/context-compaction.md (budget ladder, what handover/compact capture)" >&2
         echo "===========================================" >&2
@@ -363,7 +389,7 @@ warn_by_tokens() {
         _auto_handover_at_critical "$tokens"
     elif [ "$tokens" -ge "$TOKEN_URGENT" ]; then
         echo "" >&2
-        echo "WARNING: Context at ${tokens} tokens (~${pct}% of the ${CONTEXT_WINDOW}-token budget cap)." >&2
+        echo "WARNING: Context at ${tokens} tokens (~${pct}% of the ${CONTEXT_WINDOW}-token budget cap; Red band)." >&2
         echo "BUDGET: Do not start new implementation work. Commit and handover." >&2
         echo "ACTION: Commit work, then '$(_fw_cmd) handover --checkpoint'" >&2
         echo "Details: docs/context-compaction.md (budget ladder, what to do at each level)" >&2
@@ -615,6 +641,8 @@ except Exception: print('')
             if [ "${tokens:-0}" -gt 0 ]; then
                 pct=$((tokens * 100 / CONTEXT_WINDOW))
                 echo "Context tokens: ${tokens} (~${pct}% of the ${CONTEXT_WINDOW}-token budget cap)"
+                echo "Band: $(_budget_band "$tokens") — free $((CONTEXT_WINDOW - tokens)) tokens; spawn reserve R=${BUDGET_RESERVE} (Green spawns, Amber small only, Red and Stop none)"
+                echo "To each band: Amber at ${TOKEN_WARN} used (+$(_tokens_to_go "$TOKEN_WARN" "$tokens")), Red at ${TOKEN_URGENT} (+$(_tokens_to_go "$TOKEN_URGENT" "$tokens")), Stop at ${TOKEN_CRITICAL} (+$(_tokens_to_go "$TOKEN_CRITICAL" "$tokens"))"
                 echo "Model: ${model:-unknown} — the cap is a configured dial, not this model's window."
                 echo "  Raise or lower it with: $(_fw_cmd) config set CONTEXT_WINDOW <tokens>"
             else
@@ -676,7 +704,7 @@ except Exception: print('')
         if [ -z "$MY_CLAUDE_SID" ] && [ -n "${FW_TRANSCRIPT_PATH:-}" ]; then
             MY_CLAUDE_SID=$(basename "$FW_TRANSCRIPT_PATH" .jsonl)
         fi
-        BUDGET_FILE="$BUDGET_FILE" MY_SESSION_ID="$MY_SESSION_ID" MY_CLAUDE_SID="$MY_CLAUDE_SID" STATUS_MAX_AGE="$(fw_config_int "BUDGET_STATUS_MAX_AGE" 90)" python3 -c "
+        BUDGET_FILE="$BUDGET_FILE" MY_SESSION_ID="$MY_SESSION_ID" MY_CLAUDE_SID="$MY_CLAUDE_SID" CONTEXT_WINDOW="$CONTEXT_WINDOW" STATUS_MAX_AGE="$(fw_config_int "BUDGET_STATUS_MAX_AGE" 90)" python3 -c "
 import json, os, time, sys
 
 budget_file = os.environ['BUDGET_FILE']
@@ -709,31 +737,6 @@ my_csid = os.environ.get('MY_CLAUDE_SID') or ''
 if csid and my_csid and csid != my_csid:
     reasons.append(f'cache was written by Claude session {csid}, not this one ({my_csid})')
 
-# T-849 (closes the hole left in T-3241's remediation of G-087): the three tests
-# above shut the stale door and the foreign-session door and left the ZERO door
-# open — and the zero door is the one that opens on every compaction, which is
-# exactly when an agent runs /resume and asks for the gauge. Measured
-# 2026-09-25: this reader printed 'level: ok / tokens: 0 / age_seconds: 51' from
-# a cache written fresh by this very session, against a true 98,461. That is
-# verbatim the {'level':'ok','tokens':0} payload the field report was written
-# about, surviving the guard built to stop it. A level without a credible count
-# is not a gauge: report unknown and make the reader run 'checkpoint.sh status'.
-# baseline_tokens rides along in the same write, so the contradiction is
-# MEASURABLE rather than merely suspicious — tokens below a non-zero baseline is
-# impossible, since baseline is what the session had already paid before its
-# first turn.
-_base = s.get('baseline_tokens')
-_base_known = isinstance(_base, int) and not isinstance(_base, bool) and _base > 0
-if not isinstance(tokens, int) or isinstance(tokens, bool):
-    reasons.append(f'cache carries no numeric token count (tokens: {tokens!r}) — a level without a count is not a gauge')
-elif tokens <= 0:
-    if _base_known:
-        reasons.append(f'cache reports tokens: {tokens} while baseline_tokens: {_base} — impossible, a session cannot hold fewer tokens than it had paid before its first turn')
-    else:
-        reasons.append(f'cache reports tokens: {tokens} — the writer recorded no measurement, which is NOT the same as a healthy zero')
-elif _base_known and tokens < _base:
-    reasons.append(f'cache reports tokens: {tokens} below baseline_tokens: {_base} — impossible, so the measurement is not trustworthy')
-
 if reasons:
     print('level: unknown')
     for r in reasons:
@@ -744,6 +747,13 @@ else:
     print(f'level: {level}')
     print(f'tokens: {tokens}')
     print(f'age_seconds: {age}')
+    # T-4226: free tokens against the configured cap, and the band they name.
+    # The level line above keeps the machine names (ok/warn/urgent/critical).
+    if isinstance(tokens, int):
+        band = {'ok': 'Green', 'warn': 'Amber', 'urgent': 'Red', 'critical': 'Stop'}.get(level, 'unknown')
+        window = int(os.environ['CONTEXT_WINDOW'])
+        print(f'free_tokens: {window - tokens}')
+        print(f'band: {band}')
     # T-3248: pass the useful-headroom fields through when the writer measured
     # them (budget-gate rides them along in the same cache write). Absent or
     # null fields print nothing — measurement only, never a fabricated number.

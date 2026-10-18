@@ -248,17 +248,34 @@ _fw_strip_env_prefixes() {
     _FW_ENV_STRIPPED="$c"
 }
 
-# 832 T-1047: is $1 THIS project's scripts/session-start-alerts.sh? The /resume skill's step 7
-# (AEF T-3327) runs it at session START, before any task is focused, so the no-task gate must
-# admit it or the unseen-mail check never runs when it matters. It reads the inbox; --mark-seen
-# writes only .context/working/.alerts-seen-offset (framework state, like `fw context`). Only a
-# relative scripts/ path or $PROJECT_ROOT/scripts/ is admitted — never a same-named file
-# elsewhere. Redirects on the line are still judged by has_bash_write_pattern on the original.
-_fw_is_session_start_alerts() {
-    case "$1" in
-        scripts/session-start-alerts.sh|./scripts/session-start-alerts.sh) return 0 ;;
-    esac
-    [ -n "${PROJECT_ROOT:-}" ] && [ "$1" = "$PROJECT_ROOT/scripts/session-start-alerts.sh" ]
+# F-26 (T-4264): git takes its global options BEFORE the sub-verb, so the word
+# after `git` is `-C`, `--git-dir=...`, `-P` and so on, not the verb. This strips
+# them and prints `git <verb> <args...>` for the caller to classify. The verb is
+# then judged exactly as the bare form is, so a write behind a global option stays
+# a write: `git -C DIR commit` is still refused. Anything not recognised (an
+# unknown global, a value option with no value) returns non-zero: fail closed.
+# `-c` is the one that can run code: `-c core.fsmonitor=CMD status` executes CMD,
+# so keys that name a program are refused here rather than admitted as read-only.
+_fw_git_skip_globals() {
+    local -a words
+    read -ra words <<< "$1"
+    local i=1 n=${#words[@]} tok key
+    while [ "$i" -lt "$n" ]; do
+        tok="${words[$i]}"
+        case "$tok" in
+            -C|--git-dir|--work-tree|--namespace)
+                i=$((i + 2)) ;;
+            --git-dir=*|--work-tree=*|--namespace=*|-P|--no-pager)
+                i=$((i + 1)) ;;
+            # -c k=v is never read-only: too many config keys run a program
+            # (pager, fsmonitor, textconv, filters, ssh/askpass, aliases, ...)
+            # for a denylist to be complete, so it fails closed with the rest.
+            -*) return 1 ;;
+            *) break ;;
+        esac
+    done
+    [ "$i" -lt "$n" ] || return 1
+    echo "git ${words[*]:$i}"
 }
 
 # Single (non-compound) command classification. This is the original
@@ -517,8 +534,10 @@ _fw_single_command_is_safe() {
     case "$base" in
         # Category 1: Git read-only
         git)
-            local git_sub
-            git_sub=$(echo "$cmd" | awk '{print $2}')
+            # F-26 (T-4264): judge the verb after git's global options, not the first word.
+            local git_norm git_sub
+            git_norm=$(_fw_git_skip_globals "$cmd") || return 1
+            git_sub=$(echo "$git_norm" | awk '{print $2}')
             case "$git_sub" in
                 # T-2888 added the second line. The first had grown one verb per
                 # incident — T-2052, T-2054, T-2462 and T-2878 each patched this
@@ -533,8 +552,16 @@ _fw_single_command_is_safe() {
                 # residue: `git symbolic-ref HEAD refs/heads/x` writes. Same
                 # reason `config` stays out — a verb whose read and write forms
                 # differ only by an argument cannot be decided on the verb alone.
-                status|log|diff|show|branch|remote|describe|rev-parse|tag|stash|shortlog|blame|ls-files|ls-tree|cat-file|name-rev|reflog)
+                status|log|diff|show|remote|describe|rev-parse|shortlog|blame|ls-files|ls-tree|cat-file|name-rev|reflog)
                     return 0
+                    ;;
+                # T-2889: branch, tag and stash are the same class as config —
+                # read and write forms differ only by arguments (`git stash`
+                # stashes the working tree, `git branch -d x` / `git tag -d x`
+                # delete refs). Decided on the arguments, gated when unsure.
+                branch|tag|stash)
+                    _fw_git_refverb_is_read "$git_sub" "$git_norm" && return 0
+                    return 1
                     ;;
                 rev-list|ls-remote|merge-base|grep|for-each-ref|count-objects|check-ignore|verify-commit|var|whatchanged|cherry|diff-tree|show-ref|help)
                     return 0
@@ -570,12 +597,6 @@ _fw_single_command_is_safe() {
                     return 0
                     ;;
             esac
-            ;;
-
-        # 832 T-1047: /resume's mail check, this project's copy only (see _fw_is_session_start_alerts).
-        # The `bash scripts/session-start-alerts.sh` spelling is admitted in the bash|sh arm.
-        session-start-alerts.sh)
-            _fw_is_session_start_alerts "$(echo "$cmd" | awk '{print $1}')" && return 0
             ;;
 
         # Category 2: File reading
@@ -937,15 +958,6 @@ _fw_single_command_is_safe() {
                     # of why it fired.
                     return 0
                     ;;
-                fix-learned)
-                    # 832 T-650 (restored by T-1037 on 1.7.740): `fw fix-learned T-XXX "text"`
-                    # IS `fw context add-learning "text" --task T-XXX --source P-001` (bin/fw's
-                    # branch execs exactly that), and add-learning is admitted above. The
-                    # completion prompt prints THIS spelling, so refusing it refuses the
-                    # framework's own advice. An allowlist of effects must not be indexed by
-                    # spelling; tools/_t650-*.sh asserts alias/target parity pairwise.
-                    return 0
-                    ;;
                 handover)
                     # T-2878: session handover is the Session End Protocol's
                     # mandatory step; it runs precisely when no task is active.
@@ -1033,8 +1045,6 @@ _fw_single_command_is_safe() {
             if echo "$cmd" | grep -qE '^\s*(ba)?sh\s+-n\b'; then
                 return 0
             fi
-            # 832 T-1047: `bash scripts/session-start-alerts.sh …` (see the arm of that name)
-            _fw_is_session_start_alerts "$(echo "$cmd" | awk '{print $2}')" && return 0
             ;;
 
         # Special: echo without redirect is safe (diagnostic output)
@@ -1090,43 +1100,6 @@ _fw_single_command_is_safe() {
 }
 
 # Check if a command contains file-write patterns
-# 832 T-636 (re-applied on 1.7.740 by T-1005): framework verbs whose quoted arguments are
-# PROSE the framework stores, not shell it runs. Only for these may a verb named inside quotes
-# (`fw note "tee writes a copy"`) be ignored by the rm/tee checks below.
-_sc_is_framework_prose_verb() {
-    local c="$1" tok1 tok2 tok3 rest
-    rest="${c#"${c%%[![:space:]]*}"}"          # ltrim
-    tok1="${rest%%[[:space:]]*}"
-    case "$tok1" in
-        fw|*/fw) ;;
-        *) return 1 ;;
-    esac
-    rest="${rest#"$tok1"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
-    tok2="${rest%%[[:space:]]*}"
-    rest="${rest#"$tok2"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
-    tok3="${rest%%[[:space:]]*}"
-    case "$tok2" in
-        note) return 0 ;;
-        # T-650: the alias needs its OWN entry here, not just in _sc_simple_is_safe.
-        # The two lists answer different questions — "is this verb safe with no task?"
-        # and "does this verb take free prose that must not be read as shell?" — and
-        # `fw fix-learned T-XXX "<sentence>"` needs a yes from both. With only the first,
-        # the command is admitted and then trips on its own argument the moment a learning
-        # contains `>` or `&&`, which is exactly the kind of sentence a bugfix learning is.
-        fix-learned) return 0 ;;
-        context)
-            case "$tok3" in add-learning|add-pattern|add-decision) return 0 ;; esac
-            ;;
-        task)
-            case "$tok3" in create) return 0 ;; esac
-            ;;
-        git)
-            case "$tok3" in commit) return 0 ;; esac
-            ;;
-    esac
-    return 1
-}
-
 has_bash_write_pattern() {
     local cmd="$1"
 
@@ -1138,17 +1111,7 @@ has_bash_write_pattern() {
     # and stay writes, and any OTHER redirect on the line still bites below.
     # (The T-3344 strip in is_bash_safe_command covers the allowlist side only;
     # check-active-task consults THIS scan first.)
-    # 832 T-404/T-632 (re-applied on 1.7.740 by T-1005): judge REDIRECTS on shell structure,
-    # not on characters inside quotes. `grep -n "a\\|>>\\|b" f`, `echo "a > b"` and
-    # `python3 -c "...>= 50..."` are reads; the raw-text scan called them writes and the
-    # no-task gate refused them. Uses upstream's _fw_strip_quoted. Conservative fallbacks to
-    # the RAW text: unbalanced quotes (strip fails), or any command substitution, since
-    # stripping a double-quoted "$(cmd > f)" would hide a real write.
-    local _rview="$cmd"
-    if [[ "$cmd" != *'$('* && "$cmd" != *'`'* ]] && declare -F _fw_strip_quoted >/dev/null 2>&1; then
-        _rview="$(_fw_strip_quoted "$cmd")" || _rview="$cmd"
-    fi
-    local _scan="$_rview" _sprev=""
+    local _scan="$cmd" _sprev=""
     while [ "$_scan" != "$_sprev" ]; do
         _sprev="$_scan"
         _scan=$(printf '%s' "$_scan" | sed -E 's#(^|[^>&0-9])([0-9]|&)?>>?[[:space:]]*/dev/null([[:space:];|&)]|$)#\1 \3#')
@@ -1159,50 +1122,35 @@ has_bash_write_pattern() {
         return 0
     fi
 
+    # T-3746 (832 T-1005): the exemption above excludes `2>` and `&>` wholesale,
+    # but only the fd-duplication form (`2>&1`, `&>&2`) writes nothing. `2>err.log`
+    # and `&>out.log` redirect to a FILE and must count. /dev/null targets were
+    # already stripped from _scan, so `2>/dev/null` stays a read.
+    if echo "$_scan" | grep -qE '(2|&)>[^>&]'; then
+        return 0
+    fi
+
     # In-place sed
     if echo "$cmd" | grep -qE '\bsed\b.*-i'; then
         return 0
     fi
 
-    # 832 T-632/T-640 (re-applied on 1.7.740 by T-1005). Three writes the checks above miss,
-    # each on a verb the allowlist ADMITS, so a miss here is an unguarded write without a task:
-    #   2> FILE / &> FILE   the redirect test above skips every fd-2 and &> form (to keep 2>&1);
-    #                       /dev/null targets were already stripped from $_scan
-    #   sed ... w FILE      sed's w flag / w command writes without -i
-    #   sort -o / --output  sort writes its output file itself
-    if echo "$_scan" | grep -qE '(^|[^>&0-9])(2|&)>>?[[:space:]]*[^&[:space:]]'; then
+    # T-3746: sed writes files with no redirect — the `w FILE` command
+    # (`sed -n '/x/w out'`) and the `s///w FILE` flag. A `w`/`W` right after a
+    # delimiter, quote, `;`, `$` or line number (optionally after s-flags) and
+    # followed by a filename. Conservative: replacement text ending `/w x/`
+    # also matches, which errs toward the task gate.
+    if echo "$cmd" | grep -qE "\\bsed\\b.*[/;'\"\$0-9][gpIiMme0-9]*[wW][[:space:]]+[^[:space:]]"; then
         return 0
     fi
-    if echo "$cmd" | grep -qE "\bsed\b.*[^[:alnum:]]w[[:space:]]+[^[:space:]'\"]"; then
+
+    # T-3746: `sort -o FILE` / `sort --output[=]FILE` write the output file.
+    if echo "$cmd" | grep -qE '\bsort\b[^|;&]*[[:space:]](-[a-zA-Z]*o|--output)'; then
         return 0
-    fi
-    if echo "$cmd" | grep -qE '\bsort\b.*(^|[[:space:]])(-o([[:space:]]|$)|--output)'; then
-        return 0
-    fi
-    # 832 T-640 (re-applied on 1.7.740 by T-1005). Upstream ALLOWLISTS awk and uniq; ours kept
-    # them gated because each can write without a shell redirect. So the write check must see it:
-    #   awk/gawk/mawk  `print > "f"`, `print | cmd`, `system(...)` live INSIDE the quoted program,
-    #                  which the quote-aware redirect scan above (rightly) ignores — judged on RAW
-    #   uniq IN OUT    the second file operand is an output file
-    if echo "$cmd" | grep -qE '(^|[^[:alnum:]_-])[gm]?awk\b' \
-       && echo "$cmd" | grep -qE '>|system[[:space:]]*\(|print[^|]*\|'; then
-        return 0
-    fi
-    if echo "$_rview" | grep -qE '(^|[;&|[:space:]])uniq\b'; then
-        local _uw _un=0 _after=0
-        for _uw in $(printf '%s' "$cmd" | sed -E 's/.*(^|[;&|[:space:]])uniq\b//; s/[;&|].*//'); do
-            case "$_uw" in -*) ;; *) _un=$((_un + 1)) ;; esac
-        done
-        [ "$_un" -ge 2 ] && return 0
     fi
 
     # Destructive file operations (already caught by Tier 0 but belt-and-suspenders)
-    # T-636 (re-applied by T-1005): verbs named INSIDE a quoted argument of a framework PROSE
-    # verb are text, not commands. Any other command keeps the raw view: `bash -c "rm -rf x"`
-    # executes its quotes.
-    local _pview="$cmd"
-    if [ "$_rview" != "$cmd" ] && _sc_is_framework_prose_verb "$cmd"; then _pview="$_rview"; fi
-    if echo "$_pview" | grep -qE '\b(rm|rmdir)\b'; then
+    if echo "$cmd" | grep -qE '\b(rm|rmdir)\b'; then
         return 0
     fi
 
@@ -1212,7 +1160,7 @@ has_bash_write_pattern() {
     fi
 
     # tee (writes to file)
-    if echo "$_pview" | grep -qE '\btee\b'; then
+    if echo "$cmd" | grep -qE '\btee\b'; then
         return 0
     fi
 
@@ -1364,6 +1312,75 @@ _fw_fetch_writes_file() {
         return 0
     fi
     return 1
+}
+
+# T-2889: is this `git branch|tag|stash` clause a READ form?
+#
+# The three verbs list on their own and write with arguments, so the verb alone
+# cannot decide them (the reason `config` and `symbolic-ref` are absent from the
+# git allowlist). Words are split plainly, NOT through _fw_strip_quoted: that
+# drops quoted words, which would turn `git branch "new"` (a create) into a bare
+# listing. Plain splitting can only ADD positional words, and an unexpected
+# positional reads as a write — the failure direction is toward the task gate.
+#
+#   stash   read only as `stash list` / `stash show`; bare stash and every other
+#           sub-verb (push, pop, apply, drop, clear, save, create, store, branch)
+#           write the working tree or refs/stash.
+#   branch  write on any of -d -D -m -M -c -C -f -u -t (alone or in a short-flag
+#           cluster) or --delete/--move/--copy/--force/--track/--no-track/
+#           --set-upstream-to/--unset-upstream/--edit-description/--create-reflog.
+#           A positional word is a branch to create unless a list-mode option
+#           (-l/--list or --contains/--no-contains/--merged/--no-merged/
+#           --points-at, which imply --list) is present.
+#   tag     write on any of -d -a -s -u -f -m -F -e (alone or clustered) or
+#           --delete/--annotate/--sign/--local-user/--force/--message/--file/
+#           --edit. A positional word is a tag to create unless a list-mode
+#           option (-l/--list/-n*/--contains/--no-contains/--merged/--no-merged/
+#           --points-at) or -v/--verify is present.
+_fw_git_refverb_is_read() {
+    local verb="$1" cmd="$2"
+    local -a words
+    read -ra words <<< "$cmd"
+    # words[0]=git, words[1]=verb; arguments start at index 2.
+    local args=("${words[@]:2}")
+
+    if [ "$verb" = "stash" ]; then
+        case "${args[0]:-}" in list|show) return 0 ;; esac
+        return 1
+    fi
+
+    local w_short w_long listing=0 positional=0 endopts=0 tok
+    if [ "$verb" = "branch" ]; then
+        w_short='dDmMcCfut'
+        w_long='^--(delete|move|copy|force|track(=.*)?|no-track|set-upstream-to(=.*)?|unset-upstream|edit-description|create-reflog)$'
+    else
+        w_short='dasufmFe'
+        w_long='^--(delete|annotate|sign|local-user(=.*)?|force|message(=.*)?|file(=.*)?|edit)$'
+    fi
+    for tok in "${args[@]}"; do
+        if [ "$endopts" -eq 1 ]; then positional=1; continue; fi
+        case "$tok" in
+            --) endopts=1 ;;
+            -l|--list|--contains|--contains=*|--no-contains|--no-contains=*|\
+            --merged|--merged=*|--no-merged|--no-merged=*|--points-at|--points-at=*)
+                listing=1 ;;
+            --*)
+                [[ "$tok" =~ $w_long ]] && return 1
+                [ "$verb" = "tag" ] && [ "$tok" = "--verify" ] && listing=1
+                ;;
+            -?*)
+                [[ "${tok:1}" == *["$w_short"]* ]] && return 1
+                if [ "$verb" = "tag" ]; then
+                    [[ "$tok" == -n* || "${tok:1}" == *[lv]* ]] && listing=1
+                else
+                    [[ "${tok:1}" == *l* ]] && listing=1
+                fi
+                ;;
+            *) positional=1 ;;
+        esac
+    done
+    [ "$positional" -eq 1 ] && [ "$listing" -eq 0 ] && return 1
+    return 0
 }
 
 # T-3238: does this SINGLE find clause carry an action/mutation predicate?

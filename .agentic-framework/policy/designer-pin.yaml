@@ -146,33 +146,19 @@ protocol: "docs/aef-designer-integration-protocol.md" # 832 side (pull → sha25
 #   New in 0.14.0 (832): aefMeta.authority first-class; lane authoring defaults; diagram-kind
 #   marker; instance overlay via an OPTIONAL /api/instances probe. Served statically here, that
 #   probe 404s once in the console by design (absence is a state, not a fault).
-# 832 T-988 (2026-10-01): LOCAL re-pin 0.14.0 -> 0.15.0 on operator request ("full upgrade"),
-#   ahead of AEF's own pin — declared in .vendor-divergence.yaml so a re-vendor cannot drop it
-#   silently. sha+bytes computed independently from the designer-v0.15.0 tag blob and equal to
-#   the MANIFEST at that tag (src_commit 1a179ecb).
-# 832 T-1007 (2026-10-03): 0.15.0 -> 0.15.2 (consumer intake; the pin had lagged two releases
-#   unseen because the T-382 release-lag rail was dropped from audit.sh by the 1.7.740 re-vendor).
-#   sha+bytes equal to designer-v0.15.2:dist/MANIFEST.yaml.
-# 832 T-1105 (2026-10-09): 0.15.3 -> 0.16.0 (consumer intake right after the release; Greenfield T-172
-#   fixes T-1088/T-1089/T-1090/T-1092). sha+bytes taken from the designer-v0.16.0 tag blob.
-# 832 T-1121 (2026-10-11): 0.16.0 -> 0.17.0 (consumer intake right after the release; pools and message
-#   flows kept + drawn T-1119/T-1120, portal link T-1109, mirror L T-1110). sha+bytes from the designer-v0.17.0 tag blob.
-# 832 T-1130 (2026-10-11): 0.17.0 -> 0.18.0 (consumer intake right after the release; populated-only panel, field
-#   defaults per project/map, element details view, optional-select fix). sha+bytes from the designer-v0.18.0 tag blob.
-# 832 T-1133 (2026-10-12): 0.18.0 -> 0.19.0 (process data kept on save, suggest-and-approve fields, nested plain
-#   task imported). sha+bytes from the designer-v0.19.0 tag blob.
-# 832 T-1135 (2026-10-12): 0.19.0 -> 0.19.1 (field settings and suggestions read-only on a server without the
-#   endpoints, T-1134; kit calibration maps corrected, T-1136). sha+bytes from the designer-v0.19.1 tag blob.
-# 832 T-1170 (2026-10-15): 0.19.1 -> 0.20.0 (activities-only step numbers T-1168, tab title names the map T-1155,
-#   toolbar never clips T-1176, folding/resizable side panels T-1177). sha+bytes from the designer-v0.20.0 tag blob,
-#   equal to its MANIFEST.
-# 832 T-1195 (2026-10-17): 0.20.0 -> 0.21.0 (task-id-free node slugs T-1194, sticky lane labels T-1091, pool encloses
-#   its labels T-1154). sha+bytes from the designer-v0.21.0 tag blob, equal to its MANIFEST.
-# 832 T-1197 (2026-10-17): 0.21.0 -> 0.22.0 (lane findings marked on the lane T-1164, read-only slug T-1193, G-/OBS-/L-
-#   ids skipped in slugs T-1196). sha+bytes from the designer-v0.22.0 tag blob, equal to its MANIFEST.
-# 832 T-1202 (2026-10-18): 0.22.0 -> 0.23.0 (designer unchanged but for its version; authoring kit: CONVENTIONAL class
-#   and basis column, 15 graph-shape rules re-classed, T-1200). Same byte count as 0.22.0 (the version string is the
-#   only change), different sha. sha+bytes from the designer-v0.23.0 tag blob, equal to its MANIFEST.
+# T-4224 (2026-10-17): re-pinned 0.14.0 -> 0.20.0 via `fw designer sync --from-tag designer-v0.20.0`
+#   (832 T-1187). Sha256+bytes match the MANIFEST at the tag. 0.20.0 renumbers node ids (activities
+#   count only; events/gateways take a type word) on each map's NEXT SAVE — see the Updates of T-4224
+#   for the corpus inventory and what was and was not migrated.
+# T-4224 (2026-10-17): re-pinned 0.20.0 -> 0.21.0 (832 announce e40ceacc). 0.21.0 carries 832 T-1194
+#   (operator-chosen option c): a leading task id in a node name is skipped when deriving the slug, so
+#   "T-001: Orientation" keeps agt_1_orientation. Also T-1091 sticky lane labels, T-1154 pool border (drawing only).
+# T-4279 (2026-10-17): re-pinned 0.21.0 -> 0.22.0 (832 announce 1af206e9). 0.22.0 carries 832 T-1196 (operator
+#   request): leading G-/OBS-/L- ids are skipped in slugs like T- ids (8 draft nodes rename on next save);
+#   T-1193 read-only Slug field; T-1164 lane validator findings marked on the lane.
+# T-4310 (2026-10-18): re-pinned 0.22.0 -> 0.23.0 (832 announce 590beaba, 832 T-1202). Only the version string
+#   changes in the designer; the authoring kit's CONFORMANCE.md gains a CONVENTIONAL rule class (832 T-1165).
+#   No node ids, fields, validator findings or migration change.
 vendored_path: "vendor/designer/aef-workflow-designer-0.23.0.html"
 
 # Offline-hardened (832 T-176): web fonts are embedded as base64 woff2 — ZERO network

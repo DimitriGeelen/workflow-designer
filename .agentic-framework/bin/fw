@@ -62,6 +62,47 @@ NC='\033[0m'
 FW_REAL_PATH="$(readlink -f "$0" 2>/dev/null || realpath "$0" 2>/dev/null || echo "$0")"
 FW_BIN_DIR="$(cd "$(dirname "$FW_REAL_PATH")" && pwd)"
 
+# --- G-118 / T-4303: `fw hook` must route even when this file does not parse ---
+# bash reads bin/fw one top-level command at a time, so a broken block anywhere below
+# this point (an unclosed block at line 1354 took every hook down) is never reached
+# if we leave here first. Healthy bin/fw: bash -n passes and we fall straight through,
+# unchanged. Broken bin/fw: name the cause and the repair, then run the hook through
+# lib/hook-dispatch.sh with a minimal resolution (no bin/fw functions are available).
+if [ "${1:-}" = "hook" ] && ! _fw_parse_err="$(bash -n "$FW_REAL_PATH" 2>&1)"; then
+    echo "fw hook: bin/fw ($FW_REAL_PATH) does not parse, so hooks run in degraded mode via lib/hook-dispatch.sh." >&2
+    echo "  bash: $(printf '%s\n' "$_fw_parse_err" | head -1)" >&2
+    echo "  repair (from the framework repo root): bash -n bin/fw   then   git diff bin/fw   (the unfinished edit)" >&2
+    _fw_fb_lib="$FW_BIN_DIR/../lib/hook-dispatch.sh"
+    if [ ! -f "$FW_BIN_DIR/../FRAMEWORK.md" ] || [ ! -f "$_fw_fb_lib" ]; then
+        echo "fw hook: framework tree at $FW_BIN_DIR/.. is incomplete — allowing (hook not run)." >&2
+        exit 0
+    fi
+    FRAMEWORK_ROOT="$(cd "$FW_BIN_DIR/.." && pwd)"
+    if [ -n "${CLAUDE_PROJECT_DIR:-}" ] && { [ -f "$CLAUDE_PROJECT_DIR/.framework.yaml" ] || [ -d "$CLAUDE_PROJECT_DIR/.tasks" ]; }; then
+        PROJECT_ROOT="$CLAUDE_PROJECT_DIR"
+    elif [ -n "${PROJECT_ROOT:-}" ] && { [ -f "$PROJECT_ROOT/.framework.yaml" ] || [ -d "$PROJECT_ROOT/.tasks" ]; }; then
+        :
+    else
+        _fw_fb_dir="$PWD"
+        PROJECT_ROOT=""
+        while [ "$_fw_fb_dir" != "/" ] && [ -z "$PROJECT_ROOT" ]; do
+            if [ ! -f "$_fw_fb_dir/.fw-not-a-project" ] && { [ -f "$_fw_fb_dir/.framework.yaml" ] || [ -d "$_fw_fb_dir/.tasks" ]; }; then
+                PROJECT_ROOT="$_fw_fb_dir"
+            fi
+            _fw_fb_dir="$(dirname "$_fw_fb_dir")"
+        done
+        PROJECT_ROOT="${PROJECT_ROOT:-$FRAMEWORK_ROOT}"
+    fi
+    export FRAMEWORK_ROOT PROJECT_ROOT
+    AGENTS_DIR="$FRAMEWORK_ROOT/agents"
+    FW_LIB_DIR="$FRAMEWORK_ROOT/lib"
+    # shellcheck source=../lib/hook-dispatch.sh
+    source "$_fw_fb_lib"
+    shift
+    fw_hook_run "$@"
+    exit 0
+fi
+
 # Find PROJECT_ROOT by walking up from cwd looking for .framework.yaml or .tasks/.
 # T-1841: skip dirs containing .fw-not-a-project sentinel — these are vendored
 # framework copies (.agentic-framework/) or rollback dirs (.agentic-framework.rollback/)
@@ -539,10 +580,14 @@ do_vendor() {
     local target="${PROJECT_ROOT:-.}"
     local source_override=""
     local allow_delete_locals=false
+    local precheck=false
 
     while [[ $# -gt 0 ]]; do
         case $1 in
             --dry-run) dry_run=true; shift ;;
+            # T-4278: run only the local-file check (T-3850) and return its verdict;
+            # writes nothing. fw upgrade calls this before its first writing step.
+            --precheck) precheck=true; dry_run=true; shift ;;
             --target) target="$2"; shift 2 ;;
             --source) source_override="$2"; shift 2 ;;
             --allow-delete-locals) allow_delete_locals=true; shift ;;
@@ -558,6 +603,8 @@ do_vendor() {
                 echo "  --allow-delete-locals"
                 echo "              Proceed even though local files under .agentic-framework/"
                 echo "              would be deleted or overwritten (logged Tier-2, backed up)"
+                echo "  --precheck  Only run the local-file check; exit non-zero where the real"
+                echo "              run would refuse. Writes nothing (used by fw upgrade, T-4278)"
                 echo "  -h, --help  Show this help"
                 echo ""
                 echo "Local files (T-3850): list them in .fwvendor-preserve.yaml at the project"
@@ -729,8 +776,17 @@ do_vendor() {
         if [ "$dry_run" = true ]; then
             # T-3907: preview the run as it would be invoked, flags included.
             [ "$allow_delete_locals" = true ] && _vp_args+=(--allow)
-            python3 "$_vp_py" pre "${_vp_args[@]}" --dry-run || _vp_rc=$?
+            local _vp_out=""
+            _vp_out=$(python3 "$_vp_py" pre "${_vp_args[@]}" --dry-run 2>&1) || _vp_rc=$?
+            [ -n "$_vp_out" ] && printf '%s\n' "$_vp_out"
             rm -rf "$_vp_dir"; _vp_dir=""
+            if [ "$precheck" = true ]; then
+                # T-4278: the verdict is the dry-run's own T-3907 line, not a new flag:
+                # the helper found beside bin/fw can be an older copy than this one.
+                [ "$_vp_rc" -ne 0 ] && return "$_vp_rc"
+                case "$_vp_out" in *"REAL RUN WOULD REFUSE"*) return 3 ;; esac
+                return 0
+            fi
         else
             [ "$allow_delete_locals" = true ] && _vp_args+=(--allow)
             python3 "$_vp_py" pre "${_vp_args[@]}" || _vp_rc=$?
@@ -740,7 +796,8 @@ do_vendor() {
                 return 1
             fi
         fi
-    elif [ -d "$dest" ] && [ -n "$(ls -A "$dest" 2>/dev/null)" ] && [ "$dry_run" != true ] \
+    elif [ -d "$dest" ] && [ -n "$(ls -A "$dest" 2>/dev/null)" ] \
+            && { [ "$dry_run" != true ] || [ "$precheck" = true ]; } \
             && [ "$allow_delete_locals" != true ]; then
         # Fail safe, not open: without the checker we cannot tell a consumer's
         # files from ours, and the copy below would delete them unseen.
@@ -748,6 +805,7 @@ do_vendor() {
         echo -e "         Re-run with --allow-delete-locals to vendor anyway (local files there will be lost)." >&2
         return 1
     fi
+    [ "$precheck" = true ] && return 0
 
     if [ "$dry_run" = true ]; then
         echo -e "${BOLD}fw vendor --dry-run${NC}"
@@ -1170,7 +1228,8 @@ if [ -z "$PROJECT_ROOT" ]; then
        [ "$_cmd" != "init" ] && [ "$_cmd" != "help" ] && [ "$_cmd" != "-h" ] && \
        [ "$_cmd" != "--help" ] && [ "$_cmd" != "version" ] && [ "$_cmd" != "-v" ] && \
        [ "$_cmd" != "--version" ] && [ "$_cmd" != "update" ] && [ "$_cmd" != "hook" ] && \
-       [ "$_cmd" != "vendor" ] && [ -n "$_cmd" ] && _fw_cmd_is_known "$_cmd"; then
+       [ "$_cmd" != "vendor" ] && [ "$_cmd" != "upgrade" ] && [ "$_cmd" != "install" ] && \
+       [ -n "$_cmd" ] && _fw_cmd_is_known "$_cmd"; then
 
         # Non-TTY: use defaults (cwd + claude), announcing on stderr only.
         #
@@ -1194,17 +1253,14 @@ if [ -z "$PROJECT_ROOT" ]; then
         # Pinned by tests/unit/test_fw_json_stdout_purity.py, which asserts the
         # move in both directions (on stderr AND absent from stdout) plus that
         # the branch actually fires, so the contract cannot pass vacuously.
+        # T-2746: the non-TTY arm no longer initialises anything. It used to run
+        # do_init on $PWD for any known verb, so a read-only `fw sidecar inbox
+        # --peek` from an agent's Bash tool created a whole project (git init,
+        # vendored tree, live hooks) in whatever directory the agent happened to
+        # be in. No fw command initialises a project implicitly; `fw init` does.
         if [ ! -t 0 ]; then
-            FRAMEWORK_ROOT=$(resolve_framework) || true
-            if [ -n "$FRAMEWORK_ROOT" ]; then
-                export PROJECT_ROOT="$PWD"
-                export FRAMEWORK_ROOT
-                FW_LIB_DIR="$FRAMEWORK_ROOT/lib"
-                source "$FRAMEWORK_ROOT/lib/init.sh"
-                do_init "$PWD" --provider claude >&2
-                exec "$0" "$@"
-            fi
-            # Fall through to normal "no framework" error if resolve fails
+            echo "not in an AEF project: $PWD; run fw init to create one (fw init $PWD), or cd to an existing project" >&2
+            exit 1
         else
             echo -e "${YELLOW}No framework project detected in the current directory.${NC}"
             echo ""
@@ -1308,6 +1364,20 @@ fi
 # re-resolves back to the CONSUMER's vendored copy (T-498 preference) → infinite
 # recursion → fork bomb. lib/upgrade.sh now passes env-scoped FRAMEWORK_ROOT to
 # the handoff; this branch lets the cloned fw honour it.
+# T-4248: an inherited FRAMEWORK_ROOT is only honoured when it is a real framework
+# tree (lib/ and agents/ present). A leaked value pointing at a target project
+# (dimitri-mint-dev, 2026-10-17) made `fw init` source <target>/lib/init.sh.
+if [ -n "${FRAMEWORK_ROOT:-}" ] && { [ ! -d "$FRAMEWORK_ROOT/lib" ] || [ ! -d "$FRAMEWORK_ROOT/agents" ]; }; then
+    # T-4298: warn once per calling shell (marker keyed on the parent pid, which is the
+    # shell exporting the stale value), never from `fw hook` (hook stderr is agent-visible
+    # noise on every tool call). The re-resolve itself always happens.
+    _t4298_marker="${TMPDIR:-/tmp}/fw-inherited-root-warned.$(id -u 2>/dev/null || echo 0).$PPID"
+    if [ "${1:-}" != "hook" ] && [ ! -e "$_t4298_marker" ]; then
+        echo "fw: inherited FRAMEWORK_ROOT=$FRAMEWORK_ROOT has no lib/ or agents/ — re-resolving (shown once per shell)" >&2
+        : > "$_t4298_marker" 2>/dev/null || true
+    fi
+    FRAMEWORK_ROOT=""
+fi
 if [ -z "${FRAMEWORK_ROOT:-}" ]; then
     FRAMEWORK_ROOT=$(resolve_framework) || true
 fi
@@ -3713,6 +3783,10 @@ sys.exit(0 if '$_tl_topic' in names else 1)
             _dm_rows=$(fw_sidecar_dm_stale_facts "$PROJECT_ROOT" 24) && _dm_rc=0 || _dm_rc=$?  # T-3837: set -e
             if [ "$_dm_rc" -eq 2 ]; then
                 _doctor_warn_host "DM-rail staleness check could not run (fw sidecar dm-stale --json produced no readable output)"
+            elif [ "$_dm_rc" -eq 0 ] && [ -n "$_dm_rows" ] && fw_sidecar_dm_host_shared; then
+                # T-4257 (F-11): host-default identity — these rails are every project's,
+                # not ours. One INFO line, no WARN count, no drain advice.
+                echo -e "  ${CYAN}INFO${NC}  [host] $(fw_sidecar_dm_host_summary "$_dm_rows")"
             elif [ "$_dm_rc" -eq 0 ] && [ -n "$_dm_rows" ]; then
                 local _dm_topic _dm_unread _dm_age _dm_age_disp
                 while IFS=$'\t' read -r _dm_topic _dm_unread _dm_age; do
@@ -8108,15 +8182,6 @@ EOF
         # Pairs with TermLink T-1636 (inbox.queued emitter, hub-side).
         exec python3 "$FW_LIB_DIR/peer.py" "$@"
         ;;
-    external)
-        # 832 T-887: external-consult — the UNCORRELATED counterpart to `peer`.
-        # `peer` and `sidecar` consult the TermLink mesh, where every responder
-        # is a Claude sharing one cohort identity, so a peer consult cannot
-        # catch a failure mode the lineage shares. This asks differently-trained
-        # models for the STRONGEST OBJECTION, and records it as a named,
-        # rescannable artifact. Local G-008 divergence pending upstream.
-        exec python3 "$FW_LIB_DIR/external_consult.py" "$@"
-        ;;
     sidecar)
         # T-3406 / arc-011 peer-consult sidecar: send a consult to a peer
         # agent and read consults addressed to this one. Wraps the outbox
@@ -8795,19 +8860,7 @@ from pathlib import Path
 from datetime import datetime
 
 # T-1533: shared helper. Robust to running from /opt/999-... where web/ is on the path.
-# T-643: ...which is exactly the layout it was tested in, and the only one. In a
-# VENDORED install the framework lives at <project>/.agentic-framework/, so web/ is
-# not under PROJECT_ROOT, the import below raises, and the `except ImportError`
-# substitutes the inline fallback — silently, every single time. Measured in
-# 832-Workflow-designer: `sys.path.insert(0, PROJECT_ROOT); import web.shared` ->
-# ModuleNotFoundError, so the shared predicate had never once executed in this CLI
-# while `/approvals` (which lives inside web/) used it. The two surfaces drifted in
-# precisely the manner count_unchecked_human_acs' docstring says sharing prevents.
-# FRAMEWORK_ROOT is exported unconditionally at the top of this file and is correct
-# in both modes, so try it first and keep PROJECT_ROOT for the framework-repo layout.
-for _root in (os.environ.get("FRAMEWORK_ROOT", ""), os.environ.get("PROJECT_ROOT", ".")):
-    if _root:
-        sys.path.insert(0, _root)
+sys.path.insert(0, os.environ.get("PROJECT_ROOT", "."))
 try:
     from web.shared import extract_recommendation_state, count_unchecked_human_acs
 except ImportError:
@@ -8824,14 +8877,8 @@ except ImportError:
         body2 = re.sub(r"<!--.*?-->", "", m.group(1), flags=re.DOTALL).strip()
         if not body2:
             return "NO-REC"
-        # T-643: vocabulary kept IDENTICAL to web/shared.py:791, alternation order
-        # included (longest-first, so NO-GO is not matched as GO). The shipped set was
-        # (NO-GO|GO|DEFER) — it rendered CLOSE (T-579) and KEEP-OPEN (T-609) as '?',
-        # i.e. as "the agent owes a verdict", when the agent had given one the library
-        # accepts. `_` form normalised to `-` per the T-1391 contract, as the library does.
-        v = re.search(r"\*\*Recommendation:\*\*\s*(KEEP-OPEN|NO[-_]GO|CLOSE|GO|DEFER)\b",
-                      body2, re.IGNORECASE)
-        return v.group(1).upper().replace("_", "-") if v else "?"
+        v = re.search(r"\*\*Recommendation:\*\*\s*(NO-GO|GO|DEFER)\b", body2, re.IGNORECASE)
+        return v.group(1).upper() if v else "?"
     # T-2075 (T-2064 GO) inline fallback — kept in sync with web.shared.count_unchecked_human_acs.
     # Same predicate the queue uses; consumer projects without web/ get equivalent behaviour.
     def count_unchecked_human_acs(body):
@@ -8964,17 +9011,7 @@ waiting_rows = []  # T-4053: open Human criteria, but the agent is not done
 decided_rows = []  # T-3178: decided but still open — one operator action left
 # T-1571 / F5: precompute pending-inception scan once, reuse below for both passes
 # Pattern matches the canonical block emitted by lib/inception.sh do_inception_decide.
-# T-739: DEFER deliberately NOT in this alternation. A MATCH here is used as an
-# EXCLUSION at the `not DECISION_RE.search(text)` test below, so every verb listed
-# means "this decision is settled, stop showing it". A DEFER is the explicit record
-# that the decision has NOT been made — it is the one state that most needs to stay
-# on a pending-decisions surface. With DEFER included, recording a deferral deleted
-# the task from this queue permanently: T-155 deferred 2026-07-29 and stayed invisible
-# through a full rewrite of its recommendation from DEFER to NO-GO.
-# Scope note: this regex has exactly one consumer (the DECISIONS predicate below).
-# extract_recommendation_state() reads **Recommendation:**, a different field, and is
-# untouched — that is why the rendered VERDICT column can still read DEFER.
-DECISION_RE = re.compile(r"^\*\*Decision\*\*:\s*(GO|NO-GO)\b", re.M)
+DECISION_RE = re.compile(r"^\*\*Decision\*\*:\s*(GO|NO-GO|DEFER)\b", re.M)
 for f in sorted(ACTIVE.glob("*.md")):
     text = f.read_text(errors="replace")
     # Frontmatter (used by both passes)
@@ -9133,13 +9170,7 @@ NAME_W = 60
 def _verdict_color(v):
     # T-1576: NO-REC in cyan (call-to-action — agent should write a recommendation),
     # distinct from grey '?' (deferred/unknown verdict in an existing block).
-    # T-643: CLOSE and KEEP-OPEN fell through to the default and rendered in the SAME
-    # grey as '?' — a stated verdict wearing the colour of "no readable verdict". Both
-    # are resolutions rather than call-to-action, so: magenta for CLOSE (terminal
-    # disposition), blue for KEEP-OPEN (stay-of-execution). Colour choice is taste and
-    # is the [REVIEW] Human AC on T-643.
     return {"GO": "\033[32m", "DEFER": "\033[33m", "NO-GO": "\033[31m",
-            "CLOSE": "\033[35m", "KEEP-OPEN": "\033[34m",
             "NO-REC": "\033[36m"}.get(v, "\033[90m")
 
 # T-1571 / F5: DECISIONS section — pending inception GO/NO-GO/DEFER decisions.
@@ -9209,21 +9240,18 @@ if waiting_rows:
         truncated = (name[:NAME_W] + "...") if len(name) > NAME_W else name
         print(f"{tid_v:<8}  {str(age_days)+'d':>4}  {truncated}")
         print(f"\033[2m    {why}\033[0m")
-# T-643: the tally used to name its five buckets one at a time, so a verdict the
-# vocabulary accepts but this list forgot was counted NOWHERE — the parenthetical
-# silently summed to less than the total beside it. That is exactly what happened the
-# moment CLOSE and KEEP-OPEN started parsing: 53 awaiting review, 51 accounted for.
-# Count what is there instead of what was expected. VERDICT_ORDER fixes the reading
-# order for the verdicts we know; anything else appends alphabetically rather than
-# disappearing, so the next addition to the vocabulary (OBS-329's ABSTAIN, say) shows
-# up uncounted-but-visible rather than not at all.
-VERDICT_ORDER = ["GO", "DEFER", "NO-GO", "CLOSE", "KEEP-OPEN", "?", "NO-REC"]
-counts = {}
-for r in rows:
-    counts[r[0]] = counts.get(r[0], 0) + 1
-ordered = VERDICT_ORDER + sorted(k for k in counts if k not in VERDICT_ORDER)
-parts = [f"{_verdict_color(v)}{counts[v]} {v}\033[0m" for v in ordered if counts.get(v)]
-total = len(rows) + len(decision_rows) + len(paused_rows) + len(decided_rows) + len(um_rows)  # upstream's total, our tally (T-1005)
+go = sum(1 for r in rows if r[0] == "GO")
+defer = sum(1 for r in rows if r[0] == "DEFER")
+nogo = sum(1 for r in rows if r[0] == "NO-GO")
+unk = sum(1 for r in rows if r[0] == "?")
+no_rec = sum(1 for r in rows if r[0] == "NO-REC")
+parts = []
+if go: parts.append(f"\033[32m{go} GO\033[0m")
+if defer: parts.append(f"\033[33m{defer} DEFER\033[0m")
+if nogo: parts.append(f"\033[31m{nogo} NO-GO\033[0m")
+if unk: parts.append(f"\033[90m{unk} ?\033[0m")
+if no_rec: parts.append(f"\033[36m{no_rec} NO-REC\033[0m")
+total = len(rows) + len(decision_rows) + len(paused_rows) + len(decided_rows) + len(um_rows)
 verif_only = f"{len(rows)} task(s) ready for human review" if rows else ""
 if waiting_rows:
     verif_only = (verif_only + " · " if verif_only else "") + f"{len(waiting_rows)} waiting on the agent"
@@ -10569,66 +10597,10 @@ PYSEARCH
         do_vendor "$@"
         ;;
     hook)
-        # fw hook <name> [args...] — runtime path resolution for Claude Code hooks
-        # Resolves FRAMEWORK_ROOT from symlink, PROJECT_ROOT from cwd.
-        # Replaces hardcoded absolute paths in .claude/settings.json (G-021/T-496).
-        _hook_name="${1:-}"
-        shift 2>/dev/null || true
-        # T-1437: --help / -h print usage, not treated as a hook name
-        # (would miss agents/context/--help.sh and log a spurious crash).
-        if [ -z "$_hook_name" ] || [ "$_hook_name" = "--help" ] || [ "$_hook_name" = "-h" ]; then
-            _hook_exit=1
-            [ "${_hook_name:-}" = "--help" ] || [ "${_hook_name:-}" = "-h" ] && _hook_exit=0
-            echo "Usage: fw hook <name> [args...]" >&2
-            # T-1186/G-042: Generate hook list from filesystem (single source of truth)
-            _hooks=$(ls "$AGENTS_DIR/context/"*.sh 2>/dev/null | xargs -I{} basename {} .sh | sort | tr '\n' ', ' | sed 's/,$//' | sed 's/,/, /g')
-            echo "Available hooks: $_hooks" >&2
-            exit $_hook_exit
-        fi
-        _hook_script="$AGENTS_DIR/context/${_hook_name}.sh"
-        if [ ! -f "$_hook_script" ]; then
-            # T-1360 / G-053-B: missing hook script = config drift, NOT a reason to
-            # block the agent's tool surface. Exit 2 would hard-block PreToolUse and
-            # cascade across every Bash/Write/Edit. Log once to hook-crashes.log so
-            # `fw doctor` can surface the drift, then exit 0 (allow).
-            echo "WARNING: Hook script not found: $_hook_script (degrading to allow — fix hook config)" >&2
-            if [ -n "${PROJECT_ROOT:-}" ] && [ -d "$PROJECT_ROOT/.context/working" ]; then
-                _crash_log="$PROJECT_ROOT/.context/working/.hook-crashes.log"
-                echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) missing-hook $_hook_name script=$_hook_script" >> "$_crash_log" 2>/dev/null || true
-            fi
-            # T-1628 (B-2 of T-1626): record the missing-hook event as a failure
-            # so .hook-failure-counter surfaces it. This is the exact witness
-            # scenario from T-1626 (ring20-dashboard 2026-04-30): a path-broken
-            # hook that "succeeds" with exit 0 was invisible to every health
-            # surface. By marking it as a fire with synthetic exit 127 (sh
-            # convention for command-not-found), B-3's threshold scan + doctor
-            # check have a deterministic signal to alert on.
-            if [ -f "$FW_LIB_DIR/hook-telemetry.sh" ]; then
-                # shellcheck disable=SC1091
-                source "$FW_LIB_DIR/hook-telemetry.sh"
-                fw_record_hook_fire "$_hook_name" 127 2>/dev/null || true
-            fi
-            exit 0
-        fi
-        export FRAMEWORK_ROOT PROJECT_ROOT
-        # T-863: Use bash explicitly — don't require -x (core.filemode=false drops execute bits)
-        # T-1628 (B-2 of T-1626): record per-hook fire + non-zero-exit telemetry to
-        # .context/working/.hook-counter / .hook-failure-counter. The original `exec`
-        # replaced this process; we now run-and-capture so post-exit telemetry can
-        # observe the exit code. Telemetry overhead is <0.2ms per fire (mapfile-based,
-        # no subprocess); the extra fork from non-exec is negligible vs. hook payload.
-        # Source is best-effort — if telemetry helper is missing, skip silently and
-        # fall back to plain exec (preserves behaviour on degraded installs).
-        if [ -f "$FW_LIB_DIR/hook-telemetry.sh" ]; then
-            # shellcheck disable=SC1091
-            source "$FW_LIB_DIR/hook-telemetry.sh"
-            bash "$_hook_script" "$@"
-            _hook_rc=$?
-            fw_record_hook_fire "$_hook_name" "$_hook_rc" 2>/dev/null || true
-            exit "$_hook_rc"
-        else
-            exec bash "$_hook_script" "$@"
-        fi
+        # fw hook <name> [args...] — the body lives in lib/hook-dispatch.sh (G-118, T-4303).
+        # bin/fw also runs it from the fast path near the top when this file does not parse.
+        source "$FW_LIB_DIR/hook-dispatch.sh"
+        fw_hook_run "$@"
         ;;
     hook-enable)
         # fw hook-enable — register a framework hook in .claude/settings.json (T-1189)
