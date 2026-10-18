@@ -10,17 +10,17 @@ description: >
   termlink key (changing fleet identity and TOFU state) has no carrier task. Original
   observation text is in .context/inbox.yaml under OBS-251.
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [observations]
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t842-commit-exemption-spelling-regression.sh]
 related_tasks: []
 created: 2026-10-13T16:20:48Z
-last_update: 2026-10-18T12:35:34Z
-date_finished:
+last_update: 2026-10-18T13:52:35Z
+date_finished: 2026-10-18T13:52:35Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -136,15 +136,15 @@ message content; anything outside this repo except read-only queries to TermLink
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Why you:** act-in-the-world — minting and signing with a new TermLink identity changes credentials on a hub other projects share (and what they can read of each other's DM traffic); and `fw inception decide` is the operator's
   **Steps:**
   1. Run: `fw task review T-1151` (opens Watchtower with recommendation, assumptions, research artifacts)
@@ -214,7 +214,11 @@ the read trust boundary by design.
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-1151 go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Operator 2026-10-18: GO, option 1 with the consultation safeguards. 832 signs with host key d1993c2c3ec44c94, shared with 126 sessions (termlink whoami); 28 DM rails and the read cursors are shared host-wide. TermLink source: strong transport auth and sender binding, hub as the read trust boundary, no encryption; its PL-166 names per-agent keys as the fix. Build: TERMLINK_IDENTITY_FILE (not DIR) at every 832 entry point, key in .context/secrets/ (ignored), absolute path, fail-closed launchers, per-entry-point coverage probe, both-fingerprint drain window, key backed up, fingerprint announced to AEF; feature request to TermLink for per-topic read control. Spike first, minting by runme job. Independent reviewer: option 1. Findings: docs/reports/T-1151-termlink-identity.md
+
+**Date**: 2026-10-18T13:52:34Z
 
 ## Updates
 
@@ -224,3 +228,42 @@ the read trust boundary by design.
 ### 2026-10-18T12:35:34Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+### 2026-10-18T13:52:34Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Operator 2026-10-18: GO, option 1 with the consultation safeguards. 832 signs with host key d1993c2c3ec44c94, shared with 126 sessions (termlink whoami); 28 DM rails and the read cursors are shared host-wide. TermLink source: strong transport auth and sender binding, hub as the read trust boundary, no encryption; its PL-166 names per-agent keys as the fix. Build: TERMLINK_IDENTITY_FILE (not DIR) at every 832 entry point, key in .context/secrets/ (ignored), absolute path, fail-closed launchers, per-entry-point coverage probe, both-fingerprint drain window, key backed up, fingerprint announced to AEF; feature request to TermLink for per-topic read control. Spike first, minting by runme job. Independent reviewer: option 1. Findings: docs/reports/T-1151-termlink-identity.md
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1311a21d
+- **Timestamp:** 2026-10-18T13:52:37Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 3
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-1
+     - evidence: `IW-1 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  3. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-4
+     - evidence: `IW-4 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-12cd071b
+- **Timestamp:** 2026-10-18T13:52:37Z
+- **Overall:** CONTRADICTED
+- **Claims:** 2
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `docs/reports/T-1151-termlink-identity.md` | file | ✓ pass |
+| `.context/secrets/termlink-identity.key` | file | ✗ fail — file not found at PROJECT_ROOT |
+
+### 2026-10-18T13:52:35Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO

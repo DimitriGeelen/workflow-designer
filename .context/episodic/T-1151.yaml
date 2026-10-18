@@ -1,0 +1,91 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1151: Decide: should 832 mint and sign with its own termlink identity? Shared root key d1993c2c3ec44c94 exposes other projects' DM traffic and cannot attribute our posts
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-18T13:52:47Z
+# ============================================================================
+
+task_id: T-1151
+task_name: "Decide: should 832 mint and sign with its own termlink identity? Shared root key d1993c2c3ec44c94 exposes other projects' DM traffic and cannot attribute our posts"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T16:20:48Z
+completed: 2026-10-18T13:52:35Z
+duration_days: 5
+updates_count: 2
+first_commit: 2026-10-18T14:40:19+02:00
+last_commit: 2026-10-18T15:40:45+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception research artifact (read-only) — identity shared with 126 sessions, 28 DM rails, shared read cursors; own key fixes attribution not confidentiality; framework supports it but the sidecar ignores RAIL_IDENTITY_FILE. questions disposed, go/no-go criteria evaluated, recommendation GO (own key everywhere + upstream DM access control). TermLink source and independent review recorded — hub has no per-topic read control and no encryption (confirmed from TermLink source, its own PL-166 names per-agent keys as the fix); reviewer: option 1 + safeguards (ignored key path, fail-closed launchers, coverage probe, both-fingerprint drain); AEF pending. recommendation refined with the consultation safeguards. runme job 042 — record the operator's GO (option 1 with safeguards); dry-run passed 6/6
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'TermLink source and independent review recorded — hub has no per-topic read control and no encryption (confirmed from TermLink source, its own PL-166 names per-agent keys as the fix); reviewer: option 1 + safeguards (ignored key path, fail-closed launchers, coverage probe, both-fingerprint drain); AEF pending'
+    source: git-mined
+  - description: 'inception research artifact (read-only) — identity shared with 126 sessions, 28 DM rails, shared read cursors; own key fixes attribution not confidentiality; framework supports it but the sidecar ignores RAIL_IDENTITY_FILE'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/042-decide-t1151-go/dryrun.ok'
+  - '.context/runme/042-decide-t1151-go/job.sh'
+  - 'docs/reports/T-1151-termlink-identity.md'
+  - '.tasks/active/T-1151-decide-should-832-mint-and-sign-with-its.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-18T14:40:19'
+    action: 'T-1151: inception research artifact (read-only) — identity shared with 126 sessions, 28 DM rails, shared read cursors; own key fixes attribution not confidentiality; framework supports it but the sidecar ignores RAIL_IDENTITY_FILE'
+  - time: '2026-10-18T14:40:50'
+    action: 'T-1151: questions disposed, go/no-go criteria evaluated, recommendation GO (own key everywhere + upstream DM access control)'
+  - time: '2026-10-18T15:35:13'
+    action: 'T-1151: TermLink source and independent review recorded — hub has no per-topic read control and no encryption (confirmed from TermLink source, its own PL-166 names per-agent keys as the fix); reviewer: option 1 + safeguards (ignored key path, fail-closed launchers, coverage probe, both-fingerprint drain); AEF pending'
+  - time: '2026-10-18T15:40:13'
+    action: 'T-1151: recommendation refined with the consultation safeguards'
+  - time: '2026-10-18T15:40:45'
+    action: 'T-1151: runme job 042 — record the operator''s GO (option 1 with safeguards); dry-run passed 6/6'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 7051 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [observations]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 7051
+  commits: 5
+  files_changed: 4
+  lines_added: 321
+  lines_removed: 31
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1151-decide-should-832-mint-and-sign-with-its.md
+generated_by: context-agent-hybrid

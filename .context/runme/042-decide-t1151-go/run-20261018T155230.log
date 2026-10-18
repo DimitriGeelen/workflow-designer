@@ -1,0 +1,178 @@
+runme  042-decide-t1151-go   sha 1cfa3653cf47   rehearsed 2026-10-18T13:40:38Z   log: /opt/832-Workflow-designer/.context/runme/042-decide-t1151-go/run-20261018T155230.log
+Job:   042-decide-t1151-go   (T-1151)
+What:  Record your GO on T-1151 (832 signs with its own TermLink key, option 1 with the consultation safeguards)
+       Your decision today ('1'). 832 signs with the host key that 126 other sessions share; TermLink's own
+       learnings (PL-166) name per-agent keys as the fix. GO means: a project key via TERMLINK_IDENTITY_FILE at every 832
+       entry point (not IDENTITY_DIR, which would also move the pinned hubs), stored in .context/secrets/ (gitignored),
+       fail-closed launchers, a coverage probe, a both-fingerprint drain window, the new fingerprint announced to AEF, and a
+       feature request to TermLink for per-topic read control. This step only RECORDS the decision: no key is minted here.
+       Minting and the first registration with the new identity get their own jobs, with your y/N.
+       Findings: docs/reports/T-1151-termlink-identity.md.
+Steps (each asks y/N first):
+  1. Record GO on T-1151: fw inception decide T-1151 go --rationale '…'
+
+ok    on bleeding-edge
+ok    T-1151 is an active inception
+ok    T-1151 has no decision recorded yet
+ok    the agent recommendation is GO
+ok    the hypothesis is in the three-part form the decide gate requires
+ok    the research report is committed
+
+Step 1/1: Record GO on T-1151: fw inception decide T-1151 go --rationale '…'
+  runs: do_decide
+Run step 1/1? [y/N] 
+=== Task Update ===
+Task:    T-1151 ("Decide: should 832 mint and sign with its own termlink identity? Shared root)
+File:    /opt/832-Workflow-designer/.tasks/active/T-1151-decide-should-832-mint-and-sign-with-its.md
+  position: HOP frw_1_start -> agt_2_perform
+  position: HOP agt_2_perform -> frw_gw_outcome
+  position: HOP frw_gw_outcome -> agt_3_request
+  position: HOP agt_3_request -> frw_3_run
+  position: NODE frw_3_run task-lifecycle (walked 4 hop(s), recorded in .tasks/active/T-1151-decide-should-832-mint-and-sign-with-its.md)
+Acceptance criteria: 3/3 checked ✓
+Human: 1/1 checked ✓
+
+=== Verification Gate (P-011) ===
+  Verification: 0 commands — the section is present but yielded none.
+  Nothing was verified. Most likely the block holds only comments.
+  Note: work-completed → started-work is not a valid transition, so this
+  gate cannot be re-run on this task once it closes.
+
+  ⚠ 46 tracked file(s) modified and not committed:
+      .framework.yaml
+      .playwright-mcp/t1177-1024-open.png
+      .playwright-mcp/t1177-1024-palette-folded.png
+      .playwright-mcp/t1177-1024-props-folded.png
+      .playwright-mcp/t1177-1024-resized.png
+      ... and 41 more
+
+  After this transition they can no longer be committed under T-1151:
+  focus here refuses all writes, focus elsewhere trips focus-drift on the
+  subject line, and work-completed is terminal. Every way out is a Tier-2
+  bypass, which is the operator's to grant. See G-047.
+
+  The cadence that avoids it: COMMIT BEFORE YOU COMPLETE.
+
+Disposition gate: all Open Questions disposed ✓
+Inception decision: recorded ✓
+Inception GO-scope trace: all decisions have reachable ships_in ✓
+
+Reviewer static-scan (T-1443 v1.0, non-blocking)...
+  ## Reviewer Verdict (v1.5)
+  
+  - **Scan ID:** R-1311a21d
+  - **Timestamp:** 2026-10-18T13:52:37Z
+  - **Catalogue:** v1.3-seed
+  - **Overall:** CONCERN
+  - **Needs Human:** no
+  - **Findings:** 3
+  
+  **Verification-level findings:**
+  
+    1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-1
+       - evidence: `IW-1 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+    2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+       - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+    3. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-4
+       - evidence: `IW-4 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  
+  ## Recommendation Verdict (v1.0)
+  
+  - **Scan ID:** RC-12cd071b
+  - **Timestamp:** 2026-10-18T13:52:37Z
+  - **Overall:** CONTRADICTED
+  - **Claims:** 2
+  
+  | Claim | Type | Status |
+  |-------|------|--------|
+  | `docs/reports/T-1151-termlink-identity.md` | file | ✓ pass |
+  | `.context/secrets/termlink-identity.key` | file | ✗ fail — file not found at PROJECT_ROOT |
+  
+Status:  started-work → work-completed
+
+date_finished set to 2026-10-18T13:52:35Z
+Moved to completed/
+  position: HOP frw_3_run -> frw_gw_all
+  position: HOP frw_gw_all -> frw_gw_human
+  position: HOP frw_gw_human -> frw_5_finalize
+  position: HOP frw_5_finalize -> frw_end_task
+  position: NODE frw_end_task task-lifecycle (walked 4 hop(s), recorded in .tasks/completed/T-1151-decide-should-832-mint-and-sign-with-its.md)
+  ↳ rename staged in index; episodic added below (untracked)
+  ↳ next: git add .context/episodic/T-1151.yaml && git commit -m 'T-1151: close ...' && git push
+Focus cleared (task completed). Set new focus: fw work-on T-XXX
+Components: 2 resolved from git history
+
+=== Auto-trigger: Episodic Generation ===
+=== episodic-gen invocation: 2026-10-18T13:52:46Z ===
+task_id: T-1151
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-1151.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Decide: should 832 mint and sign with its own termlink identity? Shared root key d1993c2c3ec44c94 exposes other projects' DM traffic and cannot attribute our posts
+  Duration: 5 days (7051 min)
+  Updates: 2
+  Commits: 5
+  Lines: +321 -31 across 4 files
+  Outcomes: 4 AC checked
+  Challenges: 2 detected from git
+  Artifacts: 4 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-1151-decide-should-832-mint-and-sign-with-its.md
+--- exit code: 0 ---
+
+=== Update Complete ===
+
+Inception decision recorded
+Task: T-1151
+Decision: GO
+
+══════════════════════════════════════════
+  Inception Review: T-1151
+  1/1 checked
+
+  http://192.168.10.107:3013/inception/T-1151
+
+█▀▀▀▀▀▀▀█▀█▀█▀▀█▀███▀▀█▀▀▀▀▀▀▀█
+█ █▀▀▀█ ██ █ ▄▄ ▀ ▀▄▄ █ █▀▀▀█ █
+█ █   █ █ █  ▄ █ █▀ █ █ █   █ █
+█ ▀▀▀▀▀ █ █ ▄ ▄▀█ █ █ █ ▀▀▀▀▀ █
+█▀███▀█▀▀ ██▄▀█  █ ▄ ▀▀▀▀▀▀██▀█
+█▀▀ ▄▄▄▀ ▀ █ ▀▄█ ▀▄  ██▄▄▄▄▄▄ █
+█ █▀ ▀ ▀ █▀█ ▄▀ ▄▀ █▀▀ ▀ ▀▀█ ▄█
+█▀▄▄▀▀ ▀  ▀█▀▄▀ ▀▄█▄▀██▀██▄▄▄ █
+█ █▀██▄▀▄█▀ ▄█ █▀█ ▄▀█▄█ ██▄ ▄█
+█▄█▄█▄▄▀ ██▀▄ ▄▄ ▀▀ ▄ ▀██▀▀▀▄ █
+█▀▀▄▄ ▀▀▄▀▄█▄▄▀ ▀█ ▄   ▀▀  ▄▄ █
+█▀▀▀▀▀▀▀█ █▀▄▀▀▀ ▄▀█  █▀█ ▀ █ █
+█ █▀▀▀█ █▀█    █▀█ █  ▀▀▀ ▄▄ ▄█
+█ █   █ ██▀ ▀▄█▄ ▄▀▀█ ▀ ▄▄▄ ▀▀█
+█ ▀▀▀▀▀ █▀▀▀▄ ▄  ▄ ██  ▄  ▀▀ ▄█
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+
+  Open: http://192.168.10.107:3013/inception/T-1151
+  Artifacts: (in docs/reports/)
+    T-1151-termlink-identity.md
+
+  Scan QR or open link above
+
+  CLI: cd /opt/832-Workflow-designer &&
+    fw inception decide T-1151 go \
+    --rationale "GO"
+
+══════════════════════════════════════════
+
+  Review marker created: .context/working/.reviewed-T-1151
+  (unblocks fw inception decide T-1151 — T-973 gate)
+
+  → Decide: http://192.168.10.107:3013/inception/T-1151
+
+Next: Create build tasks for implementation
+ok    step 1/1
+
+DONE: 042-decide-t1151-go — all 1 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/042-decide-t1151-go/run-20261018T155230.log)
