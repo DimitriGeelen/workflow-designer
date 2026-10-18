@@ -103,8 +103,25 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
   RAIL_IDENTITY_FILE re-stored as the relative path after 046 step 2 stopped (b66924f9); receiver restarted by job
   047 (pid 599615, env set). Coverage after 047: 6 OK / 1 FAIL — only the MCP server started before the switch
   (pid 3456583), which picks the key up when the Claude session restarts. Tick this after the restart's check.
+  "Refuses to start when missing" holds for the runme signal only (it skips the post). A Claude session, its MCP
+  server and the receiver take the path from static config and termlink mints at a missing path, so for them the
+  guard is DETECTION: the key then resolves to a new fingerprint and the coverage check FAILs `key file` at the
+  next session start. Restore from the backup (`/root/.termlink-project-keys/832-Workflow-designer.key`).
 - [ ] A coverage probe signs one post from each entry point and fails if any carries the host fingerprint; wired as a standing check
+  — standing check (2026-10-18): `tools/session-start-alerts.py` `identity_coverage()` prints one `TermLink identity:`
+  line every session (OK n / FAIL n with the failing entry points). It reads environments and never posts, so a
+  session start does not write to the hub. Signed-post probe on topic `832-identity-probe`: offset 0 from session
+  Bash, signer `05c467b46a0bdf5e`; offset 1 from the MCP server (pid 3456583, pre-switch), signer `d1993c2c3ec44c94`,
+  the host key. The probe sees the same gap the env check reports. Runme signal: runme-832 offset 301, signer
+  05c467b46a0bdf5e. Receiver: its env is checked; it posts only when it delivers. Re-probe the MCP server after the restart.
+  Seen on the way: AEF's `check-rail-mcp-label` block text suggests `from_project: "832-workflow-designer"` (lower
+  case), and 832's `_t420` gate refuses that spelling and wants `832-Workflow-designer`. Reported to AEF.
 - [ ] DMs on both fingerprints are drained for a transition window; the new fingerprint is announced to AEF; a feature request for per-topic read control goes to TermLink
+  — 2026-10-18: announced to AEF on `832-t1151-termlink-identity` (msg 34fd848e, RECEIVED). The message carries the fingerprint, the public
+  key, the MCP gap, the `fw rail status` ambient-env quirk and the from_project label-case hint. Feature request to
+  010-termlink (msg 8dd1ba95, RECEIVED): per-topic read ACL or dm payload encryption, plus a no-create env mode and a
+  serving-process whoami. Still open: the drain window, which ends at the first session start where both
+  fingerprints show no unread DMs. Tick then.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

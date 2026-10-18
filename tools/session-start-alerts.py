@@ -305,6 +305,24 @@ def stale_review_docs():
     print("Stale [REVIEW] docs: %s" % line)
 
 
+def identity_coverage():
+    """T-1203: does every entry point sign with 832's own TermLink key? One line; never fails the run."""
+    tool = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "_t1203-identity-coverage.sh")
+    try:
+        r = subprocess.run(["bash", tool], capture_output=True, text=True, timeout=60)
+        lines = r.stdout.strip().splitlines() or ["(no output)"]
+        if r.returncode == 0:
+            line = lines[-1]
+        elif r.returncode == 1:
+            fails = [l.split(None, 1)[1].strip() for l in lines if l.lstrip().startswith("FAIL ")]
+            line = "%d FAIL — %s — run: bash tools/_t1203-identity-coverage.sh" % (len(fails), "; ".join(fails))
+        else:
+            line = "NOT CHECKED — " + lines[-1]
+    except (OSError, subprocess.TimeoutExpired) as e:
+        line = "NOT CHECKED — %s" % e
+    print("TermLink identity: %s" % line)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=10)
@@ -315,6 +333,7 @@ def main(argv=None):
     rc_topics = watched_topics(a.mark_seen)
     aef_pin()
     stale_review_docs()
+    identity_coverage()
     return max(rc_mail, rc_topics)
 
 
