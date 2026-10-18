@@ -10,7 +10,10 @@
     },
     "termlink": {
       "command": "termlink",
-      "args": ["mcp", "serve"]
+      "args": ["mcp", "serve"],
+      "env": {
+        "TERMLINK_IDENTITY_FILE": "/opt/832-Workflow-designer/.context/secrets/termlink-identity.key"
+      }
     },
     "fw": {
       "command": "python3",

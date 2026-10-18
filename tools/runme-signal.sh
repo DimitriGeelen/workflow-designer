@@ -24,15 +24,20 @@
 RUNME_EVENTS_FILE="${RUNME_EVENTS_FILE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." 2>/dev/null && pwd)/.context/working/runme.events}"
 RUNME_SIGNAL_TOPIC="${RUNME_SIGNAL_TOPIC:-runme-832}"
 RUNME_RUN_ID="${RUNME_RUN_ID:-runme-$(date +%Y%m%dT%H%M%S)-$$}"
+# T-1203: the post is signed with 832's own key, not the host key every co-resident session shares. The launcher
+# runs in the operator's terminal, which has no project env, so the key is chosen here. FAIL CLOSED: TermLink
+# CREATES a key at a missing TERMLINK_IDENTITY_FILE path, so with no key file the hub copy is skipped, never minted.
+RUNME_SIGNAL_KEY="${RUNME_SIGNAL_KEY:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." 2>/dev/null && pwd)/.context/secrets/termlink-identity.key}"
 
 runme_signal() {  # runme_signal <event> <text...>
     local ev="$1"; shift
     local line
     line="$(date -u +%Y-%m-%dT%H:%M:%SZ) $RUNME_RUN_ID $ev $*"
     { mkdir -p "$(dirname "$RUNME_EVENTS_FILE")" && printf '%s\n' "$line" >> "$RUNME_EVENTS_FILE"; } 2>/dev/null || true
-    if [ "${RUNME_SIGNAL_NO_TERMLINK:-0}" != 1 ] && command -v termlink >/dev/null 2>&1; then
-        ( setsid timeout 5 termlink channel post "$RUNME_SIGNAL_TOPIC" --ensure-topic \
-              --msg-type runme-event --payload "$line" >/dev/null 2>&1 & ) 2>/dev/null || true
+    if [ "${RUNME_SIGNAL_NO_TERMLINK:-0}" != 1 ] && command -v termlink >/dev/null 2>&1 \
+            && [ -f "$RUNME_SIGNAL_KEY" ]; then
+        ( TERMLINK_IDENTITY_FILE="$RUNME_SIGNAL_KEY" setsid timeout 5 termlink channel post "$RUNME_SIGNAL_TOPIC" \
+              --ensure-topic --msg-type runme-event --payload "$line" >/dev/null 2>&1 & ) 2>/dev/null || true
     fi
     return 0
 }
