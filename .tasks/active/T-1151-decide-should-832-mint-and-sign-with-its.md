@@ -193,6 +193,14 @@ checked by `fw rail status` = project, then the new fingerprint announced to AEF
 DM access control, because an own key gives attribution, not privacy. Detail:
 `docs/reports/T-1151-termlink-identity.md`.
 
+**Refined after consultation (TermLink source + independent reviewer, 2026-10-18):** use `TERMLINK_IDENTITY_FILE`,
+not `TERMLINK_IDENTITY_DIR` (DIR also moves the pinned-hub store, so hubs would be re-trusted from scratch); key at
+`.context/secrets/termlink-identity.key` (the only ignored location; check before minting); absolute path and
+fail-closed launchers (a missing file must stop the launcher, never mint); a coverage probe from every entry point
+failing on the host fingerprint; a both-fingerprint DM drain window; one key, minted once and backed up. The
+upstream ask to TermLink is a feature request (per-topic read control or encryption): its source shows the hub is
+the read trust boundary by design.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
