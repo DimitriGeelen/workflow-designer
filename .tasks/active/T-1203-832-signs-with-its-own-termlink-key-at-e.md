@@ -85,6 +85,13 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
   to `/root/.termlink-project-keys/832-Workflow-designer.key` (mode 600, identical) and recorded the public
   fingerprint and key in `.context/termlink-identity.fingerprint` (public key add70a32…f47c).
 - [ ] Every 832 entry point that runs termlink sets `TERMLINK_IDENTITY_FILE` to the absolute key path and refuses to start when the file is missing (never mints); `RAIL_IDENTITY_FILE` set; `fw rail status` reads `state: project`
+  — entry-point map (2026-10-18, read-only): (1) Claude sessions and their hooks/Bash calls; (2) the TermLink MCP
+  server (`.mcp.json` `termlink mcp serve`, started by the session); (3) the sidecar receiver daemon
+  (`lib/sidecar/http_server.py`, pid 4156345, parent 1, started 2026-10-17 15:16; env has only HOME and
+  TERMLINK_RUNTIME_DIR, so it inherits its starter's env and must be RESTARTED after the switch); (4) the runme
+  launcher in the operator's terminal (`tools/runme-signal.sh` posts to `runme-832`) and the watchers
+  (`tools/runme-watch.sh`, `tools/sidecar-mail-watch.sh`); (5) `fw termlink dispatch` workers; (6) the cron audit
+  (`/etc/cron.d/agentic-audit-832-workflow-designer`), to check whether it posts. Design waits on AEF's answer (a).
 - [ ] A coverage probe signs one post from each entry point and fails if any carries the host fingerprint; wired as a standing check
 - [ ] DMs on both fingerprints are drained for a transition window; the new fingerprint is announced to AEF; a feature request for per-topic read control goes to TermLink
 
