@@ -1,0 +1,26 @@
+[
+  {
+    "element": "send-payment-reminder",
+    "category": "invented",
+    "severity": "major",
+    "source_evidence": "source is silent",
+    "problem": "The task 'Send payment reminder' is supported by nothing in the source, and its documentation quotes a sentence that does not exist in SOURCE.md (\"The ERP sends a payment reminder after seven days.\").",
+    "correction": "Delete the task send-payment-reminder, its flowNodeRef in Lane_erp and both flows (generate-and-send-invoice--send-payment-reminder, send-payment-reminder--accepted-order-fulfilled), and connect generate-and-send-invoice directly to accepted-order-fulfilled."
+  },
+  {
+    "element": "quality-inspection",
+    "category": "undeclared-unknown",
+    "severity": "major",
+    "source_evidence": "The warehouse also does quality inspection and labelling for each order, but nobody could\nsay whether those happen before or after packing, or in which order relative to each other.",
+    "problem": "The map fixes quality inspection between picking and packing (pick-parts -> quality-inspection -> pack-order), hiding exactly the order the source declares unknown, while labelling is correctly left unconnected and annotated.",
+    "correction": "Remove the flows pick-parts--quality-inspection and quality-inspection--pack-order, restore a direct flow pick-parts -> pack-order, leave quality-inspection unconnected in the Warehouse lane with an order-unknown annotation mirroring Note_labelling, and keep the resulting W-XML-DISCONNECTED/UNREACHABLE/DEADEND warnings."
+  },
+  {
+    "element": "Lane_warehouse",
+    "category": "wrong-authority",
+    "severity": "major",
+    "source_evidence": "For accepted orders the warehouse picks the parts, packs the order and books a carrier.",
+    "problem": "The Warehouse lane declares authority=\"authority\" (automated agent owner) although the source names the warehouse as a human department performing the picking, packing, inspection and labelling, which the ruleset maps to sovereignty like the sales, credit-control and manager lanes.",
+    "correction": "Change Lane_warehouse's aef:laneMeta authority from \"authority\" to \"sovereignty\"."
+  }
+]

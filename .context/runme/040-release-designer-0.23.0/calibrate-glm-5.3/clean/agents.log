@@ -1,0 +1,71 @@
+[0m
+> build · glm-5.3
+[0m
+[0m→ [0mRead kit/REVIEW.md
+[0m✗ [0mRead kit/SOURCE.md failed
+[91m[1mError: [0mFile not found: /opt/832-Workflow-designer/.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean/kit/SOURCE.md
+[0m→ [0mRead kit/RUBRIC.md
+[0m
+[0m$ [0mls -la /opt/832-Workflow-designer/.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean /opt/832-Workflow-designer/.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean/kit
+/opt/832-Workflow-designer/.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean:
+total 32
+drwxrwxr-x+ 1 root root    76 Oct 18 11:42 .
+drwxrwxr-x+ 1 root root    10 Oct 18 11:42 ..
+-rw-rw-r--+ 1 root root   273 Oct 18 11:42 agents.log
+drwxrwxr-x+ 1 root root   196 Oct 18 11:42 kit
+-rw-rw-r--+ 1 root root    59 Oct 18 11:42 LOOP.txt
+-rw-r--r--+ 1 root root 19744 Oct 18 11:42 map.bpmn
+-rw-r--r--+ 1 root root   823 Oct 18 11:42 SOURCE.md
+
+/opt/832-Workflow-designer/.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean/kit:
+total 176
+drwxrwxr-x+ 1 root root    196 Oct 18 11:42 .
+drwxrwxr-x+ 1 root root     76 Oct 18 11:42 ..
+-rw-r--r--+ 1 root root  19740 Oct 18 11:42 AUTHORING.md
+-rw-r--r--+ 1 root root  10201 Oct 18 11:42 CONFORMANCE.md
+-rw-r--r--+ 1 root root    841 Oct 18 11:42 CORRECT.md
+-rw-r--r--+ 1 root root  15848 Oct 18 11:42 exemplar.bpmn
+-rw-r--r--+ 1 root root    535 Oct 18 11:42 GENERATE.md
+-rw-r--r--+ 1 root root    783 Oct 18 11:42 REVIEW.md
+-rw-r--r--+ 1 root root   5037 Oct 18 11:42 RUBRIC.md
+-rw-r--r--+ 1 root root 106995 Oct 18 11:42 validate-workflow.py
+[0m
+[0m→ [0mRead LOOP.txt
+[0m→ [0mRead map.bpmn
+[0m→ [0mRead SOURCE.md
+Now let me read the kit's AUTHORING.md and CONFORMANCE.md, which the rubric references:
+[0m→ [0mRead kit/CONFORMANCE.md
+[0m→ [0mRead kit/AUTHORING.md
+I've read the brief, the rubric, the authoring guide, the conformance list, the source and the map. Now let me run the validator (as the brief permits) and cross-check every element against the source:
+[0m
+[0m$ [0mpython3 kit/validate-workflow.py map.bpmn; echo "exit=$?"
+WARN  [W-XML-GW-AMBIGUOUS] exclusiveGateway 'credit-limit-exceeded': gw_ambiguous: exclusiveGateway has 2 outgoing flows without a conditionExpression (credit-limit-exceeded--decide-whether-to-accept-order-anyway, credit-limit-exceeded--pick-parts); at most one may be the default
+WARN  [W-XML-GW-AMBIGUOUS] exclusiveGateway 'accept-order-anyway': gw_ambiguous: exclusiveGateway has 2 outgoing flows without a conditionExpression (accept-order-anyway--close-rejected-order, accept-order-anyway--pick-parts); at most one may be the default
+WARN  [W-XML-UNREACHABLE] node 'labelling': node is not reachable from any startEvent
+WARN  [W-XML-UNREACHABLE] node 'quality-inspection': node is not reachable from any startEvent
+WARN  [W-XML-DEADEND] node 'labelling': no endEvent is reachable from this node: either control is trapped, or the source does not record what follows it
+WARN  [W-XML-DEADEND] node 'quality-inspection': no endEvent is reachable from this node: either control is trapped, or the source does not record what follows it
+WARN  [W-XML-DISCONNECTED] <process>: the flow graph falls into 3 disconnected parts: 16 node(s) [order-arrives-by-email -> accepted-order-fulfilled, order-rejected]; 1 node(s) [no start -> no end]; 1 node(s) [no start -> no end]. Either these are separate processes sharing one pool, or some steps have no recorded place in one process (then annotate them, do not connect them)
+WARN  [W-LANE-NO-OWNER] node 'close-rejected-order': this task's authority 'none' names no owner; mapping-v1 §3 derives a task's owner from its lane, so this task has no derivable owner. Declared unknown is honest: do not guess one
+WARN  [W-LANE-NO-OWNER] node 'tell-customer': this task's authority 'none' names no owner; mapping-v1 §3 derives a task's owner from its lane, so this task has no derivable owner. Declared unknown is honest: do not guess one
+INFO  [I-XML-LANE-GEOMETRY-SKIP] laneSet: lane/geometry agreement not evaluated: 18 of 18 flow node(s) carry no <aef:position> y (e.g. accept-order-anyway, accepted-order-fulfilled, book-carrier). Geometry that does not exist cannot disagree with the declared lanes — this map is SKIPPED by lane_geometry, not passed by it
+WARN  map.bpmn -- 0 error(s), 9 warning(s), 1 note(s)
+exit=1
+[0m
+Validator: 0 errors; all 9 warnings and the info note are exactly the findings the rubric's "Do not report" list covers for an honest map (GW-AMBIGUOUS on source-worded branches, UNREACHABLE/DEADEND/DISCONNECTED on the declared-unknown inspection/labelling order, LANE-NO-OWNER on the declared-unknown performer, geometry-skip).
+
+My element-by-element review against the source:
+
+- **Authorities** — sales employee / credit control / sales manager / warehouse are named roles or departments → `sovereignty` ✓; carrier is outside the organisation → `external` ✓; the ERP is the actor of "the ERP generates and sends the invoice automatically" (not merely supporting) → `authority` ✓; "a rejected order is closed and the customer is told" is passive voice → `none` lane ✓.
+- **Citations** — verbatim on every lane, node and event, multi-line quotes wrapped exactly as in the source, unstated cases declared (`source: unstated - …`) ✓.
+- **Unknowns declared** — quality inspection and labelling unconnected with annotations; the accepted-path end event unnamed, cited unstated, with a note ✓.
+- **Edges/orders** — pick→pack→book matches the blessed prose sequence; the fork at collect-parcel (deliver + invoice, plain converging into the end, no join) is what "collects… delivers… After shipment the ERP generates…" states; both gateways carry stated conditionals with the source's words on branches and an unlabelled default ✓.
+- **Missed / scope** — every source statement is mapped; returns are kept as a note, not modelled as a step ✓.
+
+I find nothing the rubric calls a defect. Writing the review:
+[0m← [0mWrite REVIEW.json
+Wrote file successfully.
+[0m
+Review complete: `REVIEW.json` written as `[]` — no findings.
+
+The map is faithful to the source: every lane authority matches the rubric's table (including ERP as `authority`, since the source makes it the actor of the invoicing step, and the passive-voice close/tell steps in a `none` lane), all citations are verbatim, both conditionals are source-stated with source-worded branch labels and an unlabelled default, the inspection/labelling order-unknown and the unnamed end outcome are properly declared, and the fork at parcel collection with plain converging flows is exactly what "After shipment…" supports. All validator findings are on the rubric's "Do not report" list for an honest map.

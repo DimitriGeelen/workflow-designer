@@ -1,0 +1,65 @@
+[0m
+> build · glm-5.3
+[0m
+[0m→ [0mRead kit/REVIEW.md
+[0m
+[0m$ [0mls -la ./kit/ && ls -la .
+total 176
+drwxrwxr-x+ 1 root root    196 Oct 18 11:46 .
+drwxrwxr-x+ 1 root root     76 Oct 18 11:46 ..
+-rw-r--r--+ 1 root root  19740 Oct 18 11:46 AUTHORING.md
+-rw-r--r--+ 1 root root  10201 Oct 18 11:46 CONFORMANCE.md
+-rw-r--r--+ 1 root root    841 Oct 18 11:46 CORRECT.md
+-rw-r--r--+ 1 root root  15848 Oct 18 11:46 exemplar.bpmn
+-rw-r--r--+ 1 root root    535 Oct 18 11:46 GENERATE.md
+-rw-r--r--+ 1 root root    783 Oct 18 11:46 REVIEW.md
+-rw-r--r--+ 1 root root   5037 Oct 18 11:46 RUBRIC.md
+-rw-r--r--+ 1 root root 106995 Oct 18 11:46 validate-workflow.py
+total 32
+drwxrwxr-x+ 1 root root    76 Oct 18 11:46 .
+drwxrwxr-x+ 1 root root    24 Oct 18 11:46 ..
+-rw-rw-r--+ 1 root root    60 Oct 18 11:46 agents.log
+drwxrwxr-x+ 1 root root   196 Oct 18 11:46 kit
+-rw-rw-r--+ 1 root root    59 Oct 18 11:46 LOOP.txt
+-rw-r--r--+ 1 root root 19826 Oct 18 11:46 map.bpmn
+-rw-r--r--+ 1 root root   823 Oct 18 11:46 SOURCE.md
+[0m
+[0m→ [0mRead SOURCE.md
+[0m→ [0mRead kit/RUBRIC.md
+[0m→ [0mRead map.bpmn
+[0m→ [0mRead kit/GENERATE.md
+[0m→ [0mRead kit/CORRECT.md
+[0m→ [0mRead kit/CONFORMANCE.md
+[0m→ [0mRead kit/AUTHORING.md
+[0m
+[0m$ [0mpython3 ./kit/validate-workflow.py map.bpmn; echo "EXIT: $?"
+WARN  [W-XML-GW-AMBIGUOUS] exclusiveGateway 'credit-limit-exceeded': gw_ambiguous: exclusiveGateway has 2 outgoing flows without a conditionExpression (credit-limit-exceeded--decide-whether-to-accept-order-anyway, credit-limit-exceeded--pick-parts); at most one may be the default
+WARN  [W-XML-GW-AMBIGUOUS] exclusiveGateway 'accept-order-anyway': gw_ambiguous: exclusiveGateway has 2 outgoing flows without a conditionExpression (accept-order-anyway--close-rejected-order, accept-order-anyway--pick-parts); at most one may be the default
+WARN  [W-XML-UNREACHABLE] node 'labelling': node is not reachable from any startEvent
+WARN  [W-XML-DEADEND] node 'labelling': no endEvent is reachable from this node: either control is trapped, or the source does not record what follows it
+WARN  [W-XML-DISCONNECTED] <process>: the flow graph falls into 2 disconnected parts: 18 node(s) [order-arrives-by-email -> accepted-order-fulfilled, order-rejected]; 1 node(s) [no start -> no end]. Either these are separate processes sharing one pool, or some steps have no recorded place in one process (then annotate them, do not connect them)
+WARN  [W-LANE-NO-OWNER] node 'close-rejected-order': this task's authority 'none' names no owner; mapping-v1 §3 derives a task's owner from its lane, so this task has no derivable owner. Declared unknown is honest: do not guess one
+WARN  [W-LANE-NO-OWNER] node 'tell-customer': this task's authority 'none' names no owner; mapping-v1 §3 derives a task's owner from its lane, so this task has no derivable owner. Declared unknown is honest: do not guess one
+INFO  [I-XML-LANE-GEOMETRY-SKIP] laneSet: lane/geometry agreement not evaluated: 19 of 19 flow node(s) carry no <aef:position> y (e.g. accept-order-anyway, accepted-order-fulfilled, book-carrier). Geometry that does not exist cannot disagree with the declared lanes — this map is SKIPPED by lane_geometry, not passed by it
+WARN  map.bpmn -- 0 error(s), 7 warning(s), 1 note(s)
+EXIT: 1
+[0m
+[0m✱ [0mGrep "endEvent|startEvent|lane id=|authority"[90m in kit/exemplar.bpmn · 100 matches[0m
+The validator's 7 warnings are all in the rubric's "Do not report" keep-list (ambiguous gateways labelled in source words, declared-unknown owner/order). Cross-reading the map against SOURCE.md, I found three real defects: an invented "Send payment reminder" task with a fabricated citation, quality inspection wired into a fixed position the source explicitly leaves unknown, and the Warehouse lane (a human department) typed as an automated `authority`.
+[0m
+[0m← [0mWrite REVIEW.json
+Wrote file successfully.
+[0m
+[0m$ [0mpython3 -c "import json; d=json.load(open('REVIEW.json')); print(len(d), 'findings'); [print('-', f['element'], f['category'], f['severity']) for f in d]"
+3 findings
+- send-payment-reminder invented major
+- quality-inspection undeclared-unknown major
+- Lane_warehouse wrong-authority major
+[0m
+Review complete. `REVIEW.json` written with 3 major findings:
+
+1. **`send-payment-reminder` / invented** — task has no source basis; its citation "The ERP sends a payment reminder after seven days." is fabricated (not in SOURCE.md).
+2. **`quality-inspection` / undeclared-unknown** — wired as `pick-parts → quality-inspection → pack-order` although the source says nobody could say whether it happens before or after packing (labelling is handled honestly; inspection is not).
+3. **`Lane_warehouse` / wrong-authority** — declared `authority="authority"` (automated agent) though the warehouse is a named human department → should be `sovereignty`.
+
+Validator warnings (ambiguous gateways, unowned/unconnected declared unknowns) are all on the rubric's keep-list and were not reported.

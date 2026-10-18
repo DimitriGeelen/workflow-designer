@@ -1,0 +1,133 @@
+runme  040-release-designer-0.23.0   sha 76a28c008e31   rehearsed 2026-10-18T09:29:00Z   log: /opt/832-Workflow-designer/.context/runme/040-release-designer-0.23.0/run-20261018T113915.log
+Job:   040-release-designer-0.23.0   (T-1202)
+What:  Release designer 0.23.0: calibrate the kit (codex, GLM-5.3), then cut, commit, tag designer-v0.23.0, push
+       Your 'release 0.23.0' (2026-10-18). 0.23.0 (minor): the designer is unchanged apart from its version; the
+       authoring kit gains the CONVENTIONAL class and a basis column (T-1200, your T-1165 GO), so 15 rules about graph shape
+       stop being labelled universal. Validator findings are unchanged. Notes: docs/releases/RELEASE-NOTES-0.23.0.md.
+       Steps 1-2 run live reviewers on the 0.23.0 kit (codex, then GLM-5.3): a few minutes each and model time. The kit text
+       changed, so this calibration is a real one. If one does not PASS the job stops and nothing is released. Steps 6-7 are
+       outward: the tag is permanent, step 7 pushes bleeding-edge and the tag. Afterwards the agent re-pins Watchtower and
+       tells AEF.
+Steps (each asks y/N first):
+  1. Calibrate with codex (OpenAI): build the 0.23.0 kit, loop.sh --calibrate, record the result
+  2. Calibrate with GLM-5.3 (Z.AI, opencode): build the 0.23.0 kit, loop.sh --calibrate, record the result
+  3. Release gate: the 0.23.0 kit carries a PASS calibration of its exact bytes
+  4. Cut release 0.23.0: scripts/release-designer.sh (render gate ON, announce ON; writes dist/)
+  5. Commit dist/aef-workflow-designer-0.23.0.html, dist/aef-authoring-kit-0.23.0, dist/MANIFEST.yaml and the calibration record
+  6. Tag designer-v0.23.0 (annotated) on the release commit
+  7. Push bleeding-edge and designer-v0.23.0 to origin
+
+ok    on bleeding-edge
+ok    ./VERSION is 0.23.0
+ok    APP_VERSION in src matches VERSION (T-808)
+ok    the release inputs are committed
+ok    release notes exist and are committed
+ok    the dialect axis passes (the kit's class column comes from it)
+ok    tag designer-v0.23.0 does not exist locally
+ok    tag designer-v0.23.0 does not exist on origin
+ok    no 0.23.0 artifact or kit in dist/ yet
+ok    no 0.23.0 calibration record yet (this job makes it)
+ok    the kit for 0.23.0 builds
+ok    codex is installed
+ok    opencode is installed and lists zai-coding-plan/glm-5.3
+
+Step 1/7: Calibrate with codex (OpenAI): build the 0.23.0 kit, loop.sh --calibrate, record the result
+  runs: do_calibrate codex openai "$CODEX_CMD"
+Run step 1/7? [y/N] kit: /tmp/t1202-kit-codex.EIakNY/kit (sha256 of SHA256SUMS 3818ea6568d390e1...), reviewer: codex exec --skip-git-repo-check --sandbox workspace-write
+review prompt ~6597 tokens (reviewer context not declared)
+review prompt ~6618 tokens (reviewer context not declared)
+recall: 3/3 planted defects caught
+  caught invented/citation                  send-payment-reminder
+  caught undeclared-unknown/invented        quality-inspection
+  caught wrong-authority                    Lane_warehouse
+false findings: 0 on the clean map, 0 on unplanted elements
+CALIBRATION: PASS
+0.23.0: codex PASS (openai) recall 3/3, false on clean 0
+CALIBRATION: PASS
+ok    step 1/7
+
+Step 2/7: Calibrate with GLM-5.3 (Z.AI, opencode): build the 0.23.0 kit, loop.sh --calibrate, record the result
+  runs: do_calibrate glm-5.3 zai "$GLM_CMD"
+Run step 2/7? [y/N] kit: /tmp/t1202-kit-glm-5.3.m6sgUf/kit (sha256 of SHA256SUMS 3818ea6568d390e1...), reviewer: opencode run -m zai-coding-plan/glm-5.3
+review prompt ~6597 tokens (reviewer context not declared)
+review prompt ~6618 tokens (reviewer context not declared)
+recall: 3/3 planted defects caught
+  caught invented/citation                  send-payment-reminder
+  caught undeclared-unknown/invented        quality-inspection
+  caught wrong-authority                    Lane_warehouse
+false findings: 0 on the clean map, 0 on unplanted elements
+CALIBRATION: PASS
+0.23.0: glm-5.3 PASS (zai) recall 3/3, false on clean 0
+CALIBRATION: PASS
+ok    step 2/7
+
+Step 3/7: Release gate: the 0.23.0 kit carries a PASS calibration of its exact bytes
+  runs: do_gate
+Run step 3/7? [y/N] # Calibration record for kit 0.23.0 (tools/kit-calibration-gate.py, T-1008). Bound to the
+# kit bytes by kit_sha256; any change to the kit voids it.
+version: 0.23.0
+kit_sha256: 3818ea6568d390e10255c0c6d2a83b0b1879f8788cfba694a03c5cecc4b424f5
+reviewers:
+- result: PASS
+  recall: 3/3
+  false_on_clean: 0
+  false_on_unplanted: 0
+  reviewer: codex
+  vendor: openai
+  at: '2026-10-18T09:41:14Z'
+- result: PASS
+  recall: 3/3
+  false_on_clean: 0
+  false_on_unplanted: 0
+  reviewer: glm-5.3
+  vendor: zai
+  at: '2026-10-18T09:49:12Z'
+kit 0.23.0 calibrated: codex (openai) 3/3, glm-5.3 (zai) 3/3
+ok    step 3/7
+
+Step 4/7: Cut release 0.23.0: scripts/release-designer.sh (render gate ON, announce ON; writes dist/)
+  runs: do_cut
+Run step 4/7? [y/N] ok: APP_VERSION and VERSION agree (0.23.0)
+kit 0.23.0 calibrated: codex (openai) 3/3, glm-5.3 (zai) 3/3
+authoring kit 0.23.0: would be created at /opt/832-Workflow-designer/dist/aef-authoring-kit-0.23.0
+Render gate: python3 tests/test_designer_render.py
+PASS: designer render-check (0.23.0) — render, T-177 markers, inspector dropdowns, and console all OK (whitelisted probes: /api/health, /favicon.ico, /api/instances)
+authoring kit 0.23.0: built at /opt/832-Workflow-designer/dist/aef-authoring-kit-0.23.0
+Released designer 0.23.0
+  artifact: dist/aef-workflow-designer-0.23.0.html
+  sha256:   431cc5114d86b061ba12a92b8f2bcfa7c8d766bbc79a390803f561492b3857ee
+  bytes:    1171433
+  kit:      dist/aef-authoring-kit-0.23.0 (SHA256SUMS 3818ea6568d390e10255c0c6d2a83b0b1879f8788cfba694a03c5cecc4b424f5)
+Announced 0.23.0 to dm:0e7ee6cad65137fc:6a646ce8b1bc6560 (offset 15, cv_key=designer-release)
+
+WARNING: release 0.23.0 is NOT TAGGED — tag 'designer-v0.23.0' does not exist.
+WARNING: the release is INCOMPLETE. dist/ and the rail announcement name a
+WARNING: sha, but nothing names a REF it can be fetched at, and a branch tip
+WARNING: is not a release. AEF fetch the artifact by tag (rail 483).
+WARNING:
+WARNING: The tag must be applied AFTER the release commit exists — tagging
+WARNING: now would name the previous commit, which carries neither this
+WARNING: VERSION nor this artifact. So: commit first, then tag HEAD:
+WARNING:   cd /opt/832-Workflow-designer && git tag -a designer-v0.23.0 -m "designer 0.23.0 (sha256 431cc5114d86b061ba12a92b8f2bcfa7c8d766bbc79a390803f561492b3857ee)" && git push origin designer-v0.23.0
+WARNING:
+WARNING: Verify with: cd /opt/832-Workflow-designer && python3 tools/_t382-release-lag.py
+Release 0.23.0: CUT and ANNOUNCED — NOT YET TAGGED
+ok  artifact == src, kit verifies
+ok    step 4/7
+
+Step 5/7: Commit dist/aef-workflow-designer-0.23.0.html, dist/aef-authoring-kit-0.23.0, dist/MANIFEST.yaml and the calibration record
+  runs: do_commit
+Run step 5/7? [y/N] 
+FABRIC: 7 new file(s) without component cards: dist/aef-authoring-kit-0.23.0/SHA256SUMS, dist/aef-authoring-kit-0.23.0/calibration/clean.bpmn, dist/aef-authoring-kit-0.23.0/calibration/planted.bpmn, dist/aef-authoring-kit-0.23.0/exemplar.bpmn, dist/aef-authoring-kit-0.23.0/loop.sh, dist/aef-authoring-kit-0.23.0/validate-workflow.py, dist/aef-workflow-designer-0.23.0.html
+  Register: fw fabric register <path>
+ok  release commit 7bf5ffee
+ok    step 5/7
+
+Step 6/7: Tag designer-v0.23.0 (annotated) on the release commit
+  runs: do_tag
+Run step 6/7? [y/N] ok  tagged designer-v0.23.0 on 7bf5ffee
+ok    step 6/7
+
+Step 7/7: Push bleeding-edge and designer-v0.23.0 to origin
+  runs: do_push
+Run step 7/7? [y/N] STOPPED: not confirmed at step 7/7; steps before it ran, nothing after

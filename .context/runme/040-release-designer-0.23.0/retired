@@ -1,0 +1,3 @@
+Steps 1-6 ran on 2026-10-18 (codex PASS, GLM-5.3 PASS, gate, cut, release commit 7bf5ffee, tag designer-v0.23.0
+local); step 7 (push) was not confirmed. Re-running is impossible by design (its preflight refuses an existing tag),
+so the push alone is job 041-push-designer-0.23.0. Retired, not done: the job did not complete.
