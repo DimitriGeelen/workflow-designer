@@ -190,7 +190,6 @@ _t385-python-c-gate-bypass.sh
 _t386-drift-remedy-reachable.sh
 _t387-manifest-fields.sh
 _t389-release-envelope.sh
-_t390-capture-verbs-nulltask.sh
 _t391-p011-multiline-guard.sh
 _t396-release-tag-state.sh
 _t407-exporter-passthrough-cdp.mjs
@@ -261,3 +260,4 @@ _t597_arc0_clauses.py
 # library nothing imports although its header requires it; self-test green 11/11; likely the consumer was the dropped warn-uncontrolled-absence hook
 _t734_absence_guard.py
 # (_t770-delegation-boundary.py removed by T-1079: now a bridge leg of its own, --self-test)
+# (_t390-capture-verbs-nulltask.sh removed by T-1205: its teeth repaired and wired as a bridge leg)
