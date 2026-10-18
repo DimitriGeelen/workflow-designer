@@ -157,6 +157,17 @@ instead of deleting project lines, so 832's project-owned lines get the `<!-- pr
 
 ## Verification
 
+test "$(tr -d '[:space:]' < .agentic-framework/VERSION)" = 1.8.11
+grep -q '^version_sha: e42aa41bf4da2279376a30722e0462165ff8de7c$' .framework.yaml
+test -f .context/runme/048-upgrade-aef-v1.8.11/done
+test -f .context/runme/049-restart-watchtower-v1.8.11/done
+python3 tools/_t517-vendor-divergence.py
+bash -n .agentic-framework/agents/context/lib/safe-commands.sh
+bash tools/_t1047-session-start-alerts-gate.sh
+bash tools/_t632-read-only-misclassification.sh
+python3 tools/_t949-triage-completeness.py
+curl -sf --max-time 60 "$(cat .context/working/watchtower.url)/designer/open?load=%2Fapi%2Fversion%3Fid%3Daudit-process%26v%3D1" -o /dev/null
+
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
