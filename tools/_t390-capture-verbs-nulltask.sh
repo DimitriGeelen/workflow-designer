@@ -131,7 +131,10 @@ echo
 # time, so they cannot go stale.
 MUTDIR="$SANDBOX/mut"; mkdir -p "$MUTDIR/lib"
 cp "$HOOK" "$MUTDIR/check-active-task.sh"
-sed 's/^                        add-learning|add-pattern|add-decision|generate-episodic)/                        add-learning-DISABLED)/' \
+# T-1205: anchored on the capture verbs wherever they sit in the arm, not on the arm's first word. Upstream
+# prepended `status|focus|init|` to this arm and the old `^ +add-learning|` anchor matched nothing, so these
+# teeth were inert for a long stretch and the script said so only as a FAIL that nothing ran.
+sed -E 's/^([[:space:]]+([a-z-]+\|)*)add-learning\|add-pattern\|add-decision\|generate-episodic\)$/\1add-learning-DISABLED)/' \
     "$LIB" > "$MUTDIR/lib/safe-commands.sh"
 
 if ! grep -q 'add-learning-DISABLED' "$MUTDIR/lib/safe-commands.sh"; then

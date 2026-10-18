@@ -2872,6 +2872,27 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-390 / T-1205: capture verbs (fw context add-learning …) run with no active task, and the arm is load-bearing ──
+# Unwired until T-1205, so when upstream reshaped the arm its mutant stopped applying and nobody saw the teeth go inert.
+if bash "$ROOT/tools/_t390-capture-verbs-nulltask.sh" > "$TMP/leg-_t390-capture-verbs.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the no-task gate no longer admits the capture verbs, or the TEETH mutant stopped applying so the leg proves nothing (run 'bash tools/_t390-capture-verbs-nulltask.sh')"
+  show_output "$TMP/leg-_t390-capture-verbs.out" "_t390-capture-verbs-nulltask.sh"
+  fail=$((fail + 1))
+fi
+
+# ── T-640 / T-647 / T-1205: a fetch that writes a file is a write; every verdict the guard took away is priced ──
+# Unwired until T-1205, so upstream replacing 832's guard (T-3222) left its mutations inert unnoticed. rc 3 is
+# COULD-NOT-MEASURE (a mutation no longer applies), never a pass.
+if bash "$ROOT/tools/_t640-fetchers-that-write-are-writes.sh" > "$TMP/leg-_t640-fetchers.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a curl/wget download is admitted with no task, a reader is newly blocked without being priced, or a mutation stopped applying (run 'bash tools/_t640-fetchers-that-write-are-writes.sh'; rc 3 = could not measure)"
+  show_output "$TMP/leg-_t640-fetchers.out" "_t640-fetchers-that-write-are-writes.sh"
+  fail=$((fail + 1))
+fi
+
 # ── T-936 / T-1009: the bare-import gate refuses what its header promises, and nothing else ──
 # Its code had narrowed to line 1's first word while the header still promised && ; | newline.
 # 8 catches and 9 controls (both heredoc forms, python -c, grep/echo mentions, absolute path).

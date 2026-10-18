@@ -105,7 +105,10 @@ READERS=(
     'curl -s -o /dev/null -w "%{http_code}" https://example.com/:curl status probe, -o /dev/null'
     'curl https://example.com/ -H "x: y":curl with a header'
     'curl -s https://example.com/ | jq .:curl piped to jq'
-    'curl --output-dir /tmp https://example.com/:curl --output-dir alone (a directory option, not a write)'
+    # RETIRED by T-1205: 'curl --output-dir /tmp URL' (a directory option, not a write). Upstream T-3222's
+    # destination check, which replaced 832's guard, counts --output-dir as a write on its own. That over-blocks a
+    # reader, but it is upstream's stated failure direction ("toward TREATING IT AS A WRITE": the task gate then
+    # admits it whenever a task is active), and AEF's ruleset wins (PD-357). Priced in EXPECTED_NEWLY_BLOCKED below.
 )
 
 echo
@@ -126,32 +129,19 @@ done
 
 # ---------------------------------------------------------------------------
 echo
-echo "--- teeth: strip the two guards and the downloads must come straight back"
+echo "--- teeth: strip the guard and the downloads must come straight back"
 python3 - "$LIB" "$MUTANT_LIB" <<'PY'
 import sys
-# Located by scanning for the guard's OPENING line and deleting through its matching
-# `    fi`, rather than by one large regex. A regex over shell source has to re-encode
-# the guard's own backslashes (\bcurl\b) at two levels of quoting, and getting that
-# wrong is how the first draft of this mutation failed — loudly, but it still failed.
-lines = open(sys.argv[1]).read().splitlines(keepends=True)
-def drop_guard(lines, needle):
-    for i, ln in enumerate(lines):
-        if needle in ln and ln.lstrip().startswith("if "):
-            for j in range(i + 1, len(lines)):
-                if lines[j].rstrip("\n") == "    fi":
-                    return lines[:i] + lines[j + 1:], True
-            break
-    return lines, False
-out, got_curl = drop_guard(lines, r"grep -qE '\bcurl\b")
-out, got_wget = drop_guard(out,   r"grep -qE '\bwget\b'")
-if not (got_curl and got_wget):
-    sys.stderr.write("MUTATION FAILED: curl guard found=%s, wget guard found=%s.\n"
-                     "The guards' shape changed — fix this mutation rather than pinning a copy.\n"
-                     % (got_curl, got_wget))
+# T-1205: 832's own two grep guards (T-640) are gone; upstream T-3222 replaced them with one destination-aware
+# clause check, _fw_fetch_writes_file, called from the curl|wget arm of the allowlist. The pre-fix state is that
+# arm without the call: curl and wget admitted unconditionally, which is exactly what T-640 found.
+src = open(sys.argv[1]).read()
+call = '            _fw_fetch_writes_file "$cmd" && return 1\n'
+if src.count(call) != 1:
+    sys.stderr.write("MUTATION FAILED: %d occurrence(s) of the guard call in the curl|wget arm, expected 1.\n"
+                     "The guard's shape changed — fix this mutation rather than pinning a copy.\n" % src.count(call))
     sys.exit(1)
-if out == lines:
-    sys.stderr.write("MUTATION FAILED: replacement was a no-op.\n"); sys.exit(1)
-open(sys.argv[2], "w").write("".join(out))
+open(sys.argv[2], "w").write(src.replace(call, '            : # T-640 mutant: guard call removed\n', 1))
 PY
 [ $? -eq 0 ] || { echo "COULD-NOT-MEASURE: could not derive the pre-fix mutant from live source." >&2; exit 3; }
 
@@ -259,6 +249,9 @@ EXPECTED_NEWLY_BLOCKED=(
     'curl --output F https://example.com/x'
     'curl --output=F https://example.com/x'
     'curl --output-dir /tmp -O https://example.com/x'
+    # T-1205: the one entry whose answer is NO. It creates no file (no -O/-o; the body goes to stdout), but
+    # upstream T-3222 blocks it by design (fail toward the task gate). Priced here, deliberately, not hidden.
+    'curl --output-dir /tmp https://example.com/x'
     'curl --remote-name https://example.com/x'
     'wget https://example.com/x'
     'wget -q https://example.com/x'
@@ -306,19 +299,31 @@ T647_LIB="$CTX/lib/.t647-mutant-lib-$$.sh"
 T647_HOOK="$CTX/.t647-mutant-$$.sh"
 trap 'rm -f "$MUTANT" "$MUTANT_LIB" "$T647_LIB" "$T647_HOOK" 2>/dev/null; rm -rf "$SANDBOX" 2>/dev/null || true' EXIT INT TERM
 python3 - "$LIB" "$T647_LIB" <<'PY'
-import sys, re
+import sys
 src = open(sys.argv[1]).read()
-# 1. curl: drop `-` and the widened cluster anchor from the exemption alternation.
-curl_new = """(^|[[:space:]])(-[a-zA-Z]*o|--output)[[:space:]]*=?[[:space:]]*(/dev/null|-)([[:space:]]|$)"""
-curl_old = """(-o|--output)[[:space:]]*=?[[:space:]]*/dev/null([[:space:]]|$)"""
-if curl_new not in src:
-    sys.stderr.write("MUTATION FAILED: the T-647 curl exemption is not in the source as written.\n"); sys.exit(1)
-src = src.replace(curl_new, curl_old, 1)
-# 2. wget: collapse the nested reader check back to an unconditional `return 0`.
-m = re.search(r"\n(        # T-647:.*?\n        fi\n)", src, re.S)
-if not m:
-    sys.stderr.write("MUTATION FAILED: could not find the nested T-647 wget block.\n"); sys.exit(1)
-src = src.replace(m.group(1), "        return 0\n", 1)
+# T-1205: the stdout exemption T-647 added now lives in upstream's _fw_fetch_writes_file, as the `-` destination
+# handling. Revert exactly that: every stdout destination (`-`) becomes a write again, for both tools.
+# /dev/null stays exempt; it was never part of T-647.
+REVERTS = [
+    # curl -o - (separate value) and the bundled -o- form
+    ('*o)   [ "${1:-}" = "-" ] || [ "${1:-}" = "/dev/null" ] || return 0 ;;',
+     '*o)   [ "${1:-}" = "/dev/null" ] || return 0 ;;'),
+    ('*o-)  ;;', '*o-)  return 0 ;;'),
+    # --output=- / --output-document=-
+    ('--output=-|--output-document=-)   wget_stdout=1; continue ;;',
+     '--output=-|--output-document=-)   return 0 ;;'),
+    # --output - / --output-document - (separate value)
+    ('[ "${1:-}" = "-" ] || return 0\n                wget_stdout=1',
+     'return 0\n                wget_stdout=1'),
+    # wget -O - / -O- : the stdout tracker no longer exempts the default-write check
+    ('[ "$base" = wget ] && [ "$wget_stdout" -eq 0 ] && [ "$wget_nofetch" -eq 0 ]',
+     '[ "$base" = wget ] && [ "$wget_nofetch" -eq 0 ]'),
+]
+for old, new in REVERTS:
+    if src.count(old) != 1:
+        sys.stderr.write("MUTATION FAILED: %d occurrence(s) of %r, expected 1.\n" % (src.count(old), old))
+        sys.exit(1)
+    src = src.replace(old, new, 1)
 open(sys.argv[2], "w").write(src)
 PY
 if [ $? -ne 0 ]; then

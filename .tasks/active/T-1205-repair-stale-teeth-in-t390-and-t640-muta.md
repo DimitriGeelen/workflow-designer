@@ -1,13 +1,22 @@
 ---
 id: T-1205
-name: "Repair stale teeth in _t390 and _t640 (mutation targets moved upstream) and wire them into the bridge suite"
+name: "Repair stale teeth in _t390 and _t640 (mutation targets moved upstream) and
+  wire them into the bridge suite"
 description: >
-  Found in T-1204: tools/_t390-capture-verbs-nulltask.sh fails 'TEETH mutant did not apply' (its sed target add-learning|add-pattern... now follows status|focus|init| on the same line) and tools/_t640-fetchers-that-write-are-writes.sh exits 3 COULD-NOT-MEASURE (its curl/wget guard was replaced upstream by T-3222, and the --output-dir reader leg now fails). Both were already stale before the v1.8.11 upgrade (the code they target is identical in e98a4ccc) and neither is wired into tests/run-bridge-tests.sh, which is why nothing noticed. Repoint each mutation at the live shape (or retire the leg that upstream T-3222 now owns, recorded) and wire both into the suite.
+  Found in T-1204: tools/_t390-capture-verbs-nulltask.sh fails 'TEETH mutant did not
+  apply' (its sed target add-learning|add-pattern... now follows status|focus|init|
+  on the same line) and tools/_t640-fetchers-that-write-are-writes.sh exits 3 COULD-NOT-MEASURE
+  (its curl/wget guard was replaced upstream by T-3222, and the --output-dir reader
+  leg now fails). Both were already stale before the v1.8.11 upgrade (the code they
+  target is identical in e98a4ccc) and neither is wired into tests/run-bridge-tests.sh,
+  which is why nothing noticed. Repoint each mutation at the live shape (or retire
+  the leg that upstream T-3222 now owns, recorded) and wire both into the suite.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-18T21:41:41Z
-last_update: 2026-10-18T21:41:41Z
-date_finished: null
+last_update: 2026-10-18T22:40:10Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +59,52 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-18T22:40:11Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1205: Repair stale teeth in _t390 and _t640 (mutation targets moved upstream) and wire them into the bridge suite
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Found in T-1204. Both instruments were already stale before v1.8.11: the code they mutate is identical in
+e98a4ccc. Neither is wired into `tests/run-bridge-tests.sh`, so nothing noticed. A test whose mutation no longer
+applies is inert: it can never fail on the regression it exists for.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `_t390`: its TEETH mutant targets the live shape of the capture-verb line (`status|focus|init|add-learning|…`), applies, and turns the leg red; the script passes on the real source (FAIL=0)
+  — the sed is anchored on the capture verbs wherever they sit in the arm, keeping the `status|focus|init|` prefix.
+  PASS=12 FAIL=0, with the TEETH leg "removing the case arm DOES re-block add-learning".
+- [x] `_t640`: each leg either holds against the live guard (upstream T-3222's destination-aware curl/wget check) with a mutation that applies, or is retired with the reason written in the script; the `--output-dir` reader leg is resolved one way or the other with evidence; the script exits 0
+  — teeth 1 now removes the `_fw_fetch_writes_file` call (the pre-fix state): the mutant admits all 9 downloads.
+  Ordering: refused only with the guard. The T-647 teeth revert the `-` destination handling at 5 exact sites
+  (each asserted once), and the sweep then names the 10 stdout forms. The `--output-dir` reader leg is RETIRED:
+  upstream blocks it by design (fail toward the task gate; AEF wins), and it is priced in the NO-WIDENING
+  manifest as the one entry that creates no file. The sweep's first run caught it unpriced, which is the leg
+  working. 19 passed, 0 failed, rc=0.
+- [x] Both are wired into `tests/run-bridge-tests.sh`, so the next time the shape moves the suite goes red
+  — two legs after the T-931 leg; `bash -n` OK.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -112,6 +153,11 @@ date_finished: null
 -->
 
 ## Verification
+
+bash tools/_t390-capture-verbs-nulltask.sh
+bash tools/_t640-fetchers-that-write-are-writes.sh
+grep -q '_t390-capture-verbs-nulltask.sh' tests/run-bridge-tests.sh
+grep -q '_t640-fetchers-that-write-are-writes.sh' tests/run-bridge-tests.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -338,3 +384,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1205-repair-stale-teeth-in-t390-and-t640-muta.md
 - **Context:** Initial task creation
+
+### 2026-10-18T22:40:10Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
