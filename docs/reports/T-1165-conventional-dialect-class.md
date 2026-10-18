@@ -136,7 +136,19 @@ Additions this write-up missed, adopted for the build task if GO:
 
 **AEF** (consulted on conversation `832-t1165-dialect-class`, msg f0550119): which label serves them as kit
 consumer and co-owner of the standard, whether their compiler requires any of these graph properties, and whether
-they would rather the standard say something. Answer pending.
+they would rather the standard say something. **Answer (msg f1f5ef6f):**
+- Prefers **option 1**: "the standard is silent, our house style expects this shape" is a different statement from
+  "an optional carrier was omitted"; folding them would make DIALECT-RELATIVE mean two things, "the same kind of
+  mislabel you are fixing".
+- (a) AEF requires **none** of these graph properties: their `tools/bpmn_to_tasks.py` compiles maps with no start
+  event, unreachable or dead-end nodes without refusing (a task with no path from a start gets horizon "now" and no
+  related_tasks, ~line 672), and their corpus lint has no graph-shape rule. So none of the 13 stays UNIVERSAL on
+  AEF's account.
+- (b) Yes to a **non-normative v1.x note** in the standard: it does not constrain connectivity or start/end events,
+  and validators may flag them as conventions. That keeps the kit's UNIVERSAL gloss true.
+
+Net: the reviewer and AEF independently pick option 1; AEF closes the "fix upstream" alternative in favour of a
+clarifying note rather than a requirement.
 
 ## Dialogue log
 
