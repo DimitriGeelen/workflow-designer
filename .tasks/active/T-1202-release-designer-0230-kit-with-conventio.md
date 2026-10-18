@@ -65,10 +65,14 @@ and announces to AEF, and follows the pin until CURRENT (CLAUDE.md AEF rule).
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] VERSION and APP_VERSION are 0.23.0 (T-808 parity), and `docs/releases/RELEASE-NOTES-0.23.0.md` carries every item from `PENDING-next-release.md`, which is emptied
-- [ ] Runme job 040 is dry-run green and handed over; the operator's run calibrates both reviewers PASS, cuts, tags designer-v0.23.0 and pushes
-- [ ] After the tag: designer pin, `fw designer sync --from-tag`, `/designer/app` serves the 0.23.0 sha, and the divergence register's pin entry is updated
+- [x] VERSION and APP_VERSION are 0.23.0 (T-808 parity), and `docs/releases/RELEASE-NOTES-0.23.0.md` carries every item from `PENDING-next-release.md`, which is emptied
+- [x] Runme job 040 is dry-run green and handed over; the operator's run calibrates both reviewers PASS, cuts, tags designer-v0.23.0 and pushes
+  — job 040 ran steps 1-6 (codex PASS, GLM-5.3 PASS, gate, cut, release commit 7bf5ffee, tag) and stopped at the
+  unconfirmed push; retired with reason. Job 041 (the push alone) ran done rc=0; origin has the tag (490d6f6c).
+- [x] After the tag: designer pin, `fw designer sync --from-tag`, `/designer/app` serves the 0.23.0 sha, and the divergence register's pin entry is updated
+  — commit 77812a02; sync verified sha against pin and MANIFEST; served sha 431cc511…, APP_VERSION '0.23.0'; _t517 OK.
 - [ ] AEF is told (version, tag, sha256, bytes, the 15 class changes, nothing stored changes) and `tools/_t1187-aef-pin-lag.sh` reads CURRENT
+  — told 2026-10-18 (msg 590beaba, RECEIVED direct, thread 832-designer-repin-0.20.0); pin reads BEHIND 1 until AEF re-pins.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
