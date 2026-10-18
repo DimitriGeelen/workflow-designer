@@ -71,7 +71,8 @@ and announces to AEF, and follows the pin until CURRENT (CLAUDE.md AEF rule).
   unconfirmed push; retired with reason. Job 041 (the push alone) ran done rc=0; origin has the tag (490d6f6c).
 - [x] After the tag: designer pin, `fw designer sync --from-tag`, `/designer/app` serves the 0.23.0 sha, and the divergence register's pin entry is updated
   — commit 77812a02; sync verified sha against pin and MANIFEST; served sha 431cc511…, APP_VERSION '0.23.0'; _t517 OK.
-- [ ] AEF is told (version, tag, sha256, bytes, the 15 class changes, nothing stored changes) and `tools/_t1187-aef-pin-lag.sh` reads CURRENT
+- [x] AEF is told (version, tag, sha256, bytes, the 15 class changes, nothing stored changes) and `tools/_t1187-aef-pin-lag.sh` reads CURRENT
+  — CURRENT at 2026-10-18 17:09 UTC: "AEF serves designer 0.23.0, 832's latest release".
   — told 2026-10-18 (msg 590beaba, RECEIVED direct, thread 832-designer-repin-0.20.0); pin reads BEHIND 1 until AEF re-pins.
   AEF re-pinned under **AEF T-4310** (msg 141b5568: commit e936b5adf, sync --from-tag, sha and bytes verified,
   Watchtower serves 0.23.0, their designer id tests and corpus lint green); public pin follows at their next push.
@@ -123,6 +124,12 @@ and announces to AEF, and follows the pin until CURRENT (CLAUDE.md AEF rule).
 -->
 
 ## Verification
+
+git rev-parse -q --verify refs/tags/designer-v0.23.0
+git ls-remote --exit-code --tags origin designer-v0.23.0
+test "$(git show designer-v0.23.0:dist/aef-workflow-designer-0.23.0.html | sha256sum | cut -c1-64)" = 431cc5114d86b061ba12a92b8f2bcfa7c8d766bbc79a390803f561492b3857ee
+grep -q 'version: "0.23.0"' .agentic-framework/policy/designer-pin.yaml
+bash tools/_t1187-aef-pin-lag.sh | grep -q '^CURRENT'
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
