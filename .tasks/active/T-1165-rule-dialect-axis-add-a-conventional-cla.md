@@ -1,19 +1,25 @@
 ---
 id: T-1165
-name: "Rule-dialect axis: add a CONVENTIONAL class for predicates on properties the standard neither requires nor forbids (W-XML-DISCONNECTED)"
+name: "Rule-dialect axis: add a CONVENTIONAL class for predicates on properties the
+  standard neither requires nor forbids (W-XML-DISCONNECTED)"
 description: >
-  Promoted from OBS-467 by T-1149 (observation triage, 2026-10-13). T-967 (active, line ~99) records the gap and proposes a fourth CONVENTIONAL class. No task owns building it, and grep for CONVENTIONAL outside inbox.yaml finds nothing. W-XML-DISCONNECTED is still classified UNIVERSAL. Original observation text is in .context/inbox.yaml under OBS-467.
+  Promoted from OBS-467 by T-1149 (observation triage, 2026-10-13). T-967 (active,
+  line ~99) records the gap and proposes a fourth CONVENTIONAL class. No task owns
+  building it, and grep for CONVENTIONAL outside inbox.yaml finds nothing. W-XML-DISCONNECTED
+  is still classified UNIVERSAL. Original observation text is in .context/inbox.yaml
+  under OBS-467.
 
-status: captured
+status: started-work
 workflow_type: inception
+current_node: frw_1_start
 owner: agent
-horizon: later
+horizon: now
 tags: [observations]
 components: []
 related_tasks: []
 created: 2026-10-13T16:21:23Z
-last_update: 2026-10-13T16:21:23Z
-date_finished: null
+last_update: 2026-10-17T23:56:58Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -22,17 +28,58 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-10-17T23:56:58Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F2: 2
+      F4: 2
+      F3: 2
+      F1: 2
+    rationale: D1=2 (voi:open-question~'assumption'); D2=2 
+      (voi:open-question~'assumption'); D3=2 (voi:open-question~'assumption'); 
+      D4=2 (voi:open-question~'assumption'); F-RECALL=2 
+      (voi:open-question~'assumption'); F2=2 (voi:open-question~'assumption'); 
+      F4=2 (voi:open-question~'assumption'); F3=2 
+      (voi:open-question~'assumption'); F1=2 (voi:open-question~'assumption')
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1165: Rule-dialect axis: add a CONVENTIONAL class for predicates on properties the standard neither requires nor forbids (W-XML-DISCONNECTED)
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+The validator labels every rule on a dialect axis (UNIVERSAL / DIALECT-RELATIVE / PRESENTATIONAL), derived from what
+the frozen standard (mapping-v1) says about the carrier a rule reads. OBS-467 (T-967): W-XML-DISCONNECTED fires on a
+global graph property (more than one weakly-connected component) that the standard neither requires nor forbids, yet
+the derivation calls it UNIVERSAL because sequenceFlow is a structure carrier. The authoring kit tells external
+authors (AEF first) that "any conformant document satisfies" a UNIVERSAL rule, so a convention of ours is presented
+as correctness: the 47-of-48 mistake again. Research artifact: `docs/reports/T-1165-conventional-dialect-class.md`.
+
+## Hypothesis
+
+<!-- Agent wording (2026-10-18), replacing the estimator draft; the operator may correct it. -->
+
+We believe that deriving a CONVENTIONAL class for structure-only rules with no normative basis
+will stop the authoring kit labelling house graph-shape rules as universal truths.
+We will know that we are successful when the axis test derives 13 rules CONVENTIONAL (tiers A+B in the artifact),
+every remaining structure-only UNIVERSAL rule carries a citation the test resolves in the standard, and the kit's
+CONFORMANCE.md prints those 13 as CONVENTIONAL.
 
 ## Assumptions
-
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-1165 -->
+
+- A-1: the standard is silent on graph shape. **Tested, holds**: §6 lists four conformance requirements, none about
+  connectivity, events, reachability or balance (artifact F1).
+- A-2: W-XML-DISCONNECTED is an isolated case. **Tested, false**: 31 of 63 rules read structure only, all UNIVERSAL;
+  13 rest on nothing normative (artifact F2).
+- A-3: the class can be derived without a new input. **Tested, false**: carrier class and polarity cannot express
+  "the standard backs this property"; a checked per-rule citation is needed (artifact F3).
 
 ## Open Questions
 
@@ -52,9 +99,28 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
 
+- **IW-1: Is UNIVERSAL actually wrong for W-XML-DISCONNECTED — is the frozen standard silent on flow-graph connectivity?**
+  confidence: 3
+  disposition: answered
+  rationale: yes, wrong. mapping-v1 §6 (lines 123-129) defines conformance by four requirements, none about graph shape; §3 maps elements without requiring presence or connection; the kit's CONFORMANCE.md (job 030) prints the rule UNIVERSAL (artifact F1)
+- **IW-2: How many current rules rest on a property the standard is silent about — one (W-XML-DISCONNECTED) or a population?**
+  confidence: 3
+  disposition: answered
+  rationale: a population. RULE_CARRIERS: 31/63 rules read STRUCTURE only, all UNIVERSAL; 5 absence rules (tier A) + 8 graph heuristics (tier B) have no normative basis; 18 well-formedness rules (tier C) do. T-970/T-977 show the cost (artifact F2)
+- **IW-3: Can CONVENTIONAL be DERIVED from an input the axis already has (T-323: derived, never asserted), or does it need a new declared input?**
+  confidence: 2
+  disposition: answered
+  rationale: needs one new input, a per-rule normative citation checked verbatim against the standard file (the UNRATIFIED/_bullet pattern); a missing citation derives CONVENTIONAL. The test proves a citation exists, not that it is apt — stated limit (artifact F3)
+- **IW-4: What changes for consumers (findings text, authoring kit, AEF's corpus) if a rule moves to CONVENTIONAL?**
+  confidence: 3
+  disposition: answered
+  rationale: kit CONFORMANCE.md table and legend (re-calibration before the next release); AEF announcement names 13 class changes, no stored data, no migration; designer does not consume the axis yet (src line 10713); validator severity/messages unchanged (artifact F4)
+
 ## Exploration Plan
 
-<!-- How will we validate assumptions? Spikes, prototypes, research? Time-box each. -->
+Research only (time-box: one session): read mapping-v1 §1-§6 for graph-shape requirements; measure the rule
+population with the axis module's own tables (scratch script, not committed); trace every consumer of the class.
+No prototype: the derivation change is small enough to scope from the code.
 
 ## Technical Constraints
 
@@ -66,7 +132,8 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Scope Fence
 
-<!-- What's IN scope for this exploration? What's explicitly OUT? -->
+IN: whether the axis needs the class, its population, how to derive it, who is affected. OUT: changing any rule's
+predicate or severity; the designer consuming the axis; building anything before a GO.
 
 ## Acceptance Criteria
 
@@ -93,12 +160,15 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 <!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
 **GO if:**
-- Root cause identified with bounded fix path
-- Fix is scoped, testable, and reversible
+- The standard is silent on the properties at issue (so UNIVERSAL is a false claim): **met**, F1
+- The class can be derived from a checked input, not asserted (T-323): **met with a stated limit**, F3
+- The build is bounded (one test, one generator, one legend), reversible (a label, no stored data) and assertable
+  (13 moves, 18 citations): **met**, F2/F4
 
 **NO-GO if:**
-- Problem requires fundamental redesign or unbounded scope
-- Fix cost exceeds benefit given current evidence
+- A normative source backs graph shape after all (then UNIVERSAL is right): not found
+- The fix requires changing rule predicates or the designer: not required
+- The cost (kit re-calibration, AEF notice) exceeds the benefit: no, re-calibration already runs every release
 
 ## Verification
 
@@ -113,9 +183,17 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Recommendation
 
-**Recommendation:** DEFER
+**Recommendation:** GO
 
-**Rationale:** Not yet explored: captured from OBS-467 by the T-1149 triage. Evidence gap: no exploration has been done, so there is nothing to recommend GO or NO-GO on yet.
+**Rationale:** The standard is silent on graph shape (mapping-v1 §6), yet 31 of 63 rules derive UNIVERSAL from
+structure alone, and 13 of them (W-XML-DISCONNECTED, the four start/end-event rules, and the eight reachability,
+dead-end and parallel-gateway heuristics across both forms) rest on nothing normative. The kit therefore tells
+external authors that our house rules are universal truths; T-970/T-977 show outsiders finding exactly that. Fix:
+one new checked input (a per-rule citation the axis test resolves in the standard), CONVENTIONAL derived when it is
+missing, kit regenerated and re-calibrated, the 13 changes named in the next AEF announcement. Bounded, reversible,
+assertable. Option 1 (new CONVENTIONAL class) over option 2 (fold into DIALECT-RELATIVE): it keeps DIALECT-RELATIVE
+meaning one checkable thing; option 2 is acceptable if the operator prefers fewer words for authors. Detail:
+`docs/reports/T-1165-conventional-dialect-class.md`.
 
 ## Decisions
 
@@ -136,3 +214,7 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-10-17T23:56:58Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)

@@ -1,0 +1,113 @@
+# T-1165 — Does the rule-dialect axis need a CONVENTIONAL class?
+
+Inception research artifact (C-001). Origin: OBS-467 (T-967, 2026-10-01). Status: exploration complete, recommendation
+below, decision is the operator's (`fw inception decide T-1165 go|no-go`).
+
+## The question
+
+Every validator rule carries a dialect class, derived in `tests/test_rule_dialect_axis.py` from what the frozen
+standard (`docs/standards/aef-bpmn-mapping-v1.md`) says about the carrier the rule reads:
+
+| class | derivation (`classify()`, axis line ~356) | what the kit tells authors |
+|---|---|---|
+| PRESENTATIONAL | every carrier is §1 Presentational | "layout only" |
+| DIALECT-RELATIVE | REQUIRES polarity over a SEMANTIC_OPTIONAL carrier | "house convention, not the standard" |
+| UNIVERSAL | everything else | "any conformant document satisfies it" |
+
+W-XML-DISCONNECTED fires when the flow graph falls into more than one weakly-connected component. The standard
+nowhere requires connectivity, yet the derivation returns UNIVERSAL, because `sequenceFlow` is a STRUCTURE carrier
+and no branch of `classify()` looks at whether the standard backs a structural property at all.
+
+## Findings
+
+### F1 — The standard is silent on graph shape (IW-1: answered, confidence 3)
+
+mapping-v1 §6 defines v1-conformance by four requirements: the §1 partition is honoured, the §2 meta-keys
+round-trip, `aef:uid` is stable (§5), and presentational edits are no-ops. None of them concerns connectivity,
+start/end events, reachability, dead ends or gateway balance. §3 maps elements to concepts ("sequence flow = ordering
+dependency", "startEvent / endEvent = process boundary markers, no task") without requiring any of them to be
+present or connected. BPMN 2.0 itself admits a process with no start event and with disconnected fragments.
+
+So the authoring kit currently tells every external author that a disconnected map, or one without a start event,
+fails something "any conformant document satisfies". That is false (see the kit's `CONFORMANCE.md` rows, last
+generated for calibration job 030: all seven graph-shape WARNs print `UNIVERSAL`).
+
+### F2 — It is a population, not one rule (IW-2: answered, confidence 3)
+
+Measured over `RULE_CARRIERS` (63 rules: 55 UNIVERSAL, 4 DIALECT-RELATIVE, 4 PRESENTATIONAL): **31 rules read
+STRUCTURE carriers only, and all 31 derive UNIVERSAL.** By what actually backs them:
+
+| tier | rules | backed by | today | honest class |
+|---|---|---|---|---|
+| A — absence of a structural feature | W-XML-DISCONNECTED; W-NO-START-EVENT, W-NO-END-EVENT, and their XML twins (5) | nothing: standard and BPMN silent; the axis file itself already flags all five as "the OBS-467 model gap" | UNIVERSAL | CONVENTIONAL |
+| B — graph-quality heuristics | W-UNREACHABLE, W-DEADEND, W-PGW-NOOP, W-PGW-UNBALANCED, and their XML twins (8) | nothing normative: house expectations about well-formed flows | UNIVERSAL | CONVENTIONAL |
+| C — well-formedness | the 18 E-* structural rules (dangling refs, duplicate ids, unparseable document, missing lane, node type, …) | XML / BPMN schema validity (ID/IDREF, element vocabulary) or mapping-v1 §3 (a lane is the owner) | UNIVERSAL | UNIVERSAL, each with its citation |
+
+Tier C is not uniformly safe either. E-XML-GW-OUTGOING refused the ordinary BPMN converging XOR gateway as an ERROR
+until T-977, found by an external reviewer using the authoring kit (T-975 X7), the same class as T-970. Its remaining
+refusal (a 1-in/1-out gateway) is defensible as "decides nothing" but is still a house rule, not BPMN. That history
+is the cost of this gap made concrete: rules labelled universal that refuse standard BPMN get found by outsiders.
+
+Expected outcome if built: 13 rules (tiers A+B) move to CONVENTIONAL; the 18 tier-C rules stay UNIVERSAL with a
+cited basis, and any that cannot cite one surface as a finding rather than staying silently universal.
+
+### F3 — It can be derived, but needs one new declared input (IW-3: answered, confidence 2)
+
+`classify()` has no input that says whether the standard backs a structural property; carrier class and polarity
+cannot express it (that is exactly why W-XML-DISCONNECTED came out UNIVERSAL). So the derivation needs a new input,
+and T-323's rule ("derived, never asserted") constrains its shape:
+
+- a per-rule `basis` for STRUCTURE-only rules: a citation of a normative source, either a mapping-v1 anchor (a
+  section plus a quoted phrase the test finds verbatim in the standard file, the same way `_bullet()` already
+  reads §1) or a named well-formedness ground (`xml-id`, `xml-idref`, `bpmn-schema`);
+- `classify()` then derives: a STRUCTURE-only rule with a resolving citation is UNIVERSAL; with none it is
+  CONVENTIONAL. A citation that does not resolve fails the test, so the class cannot be asserted by typing a
+  label. This is the same pattern as the existing `UNRATIFIED` carrier list: declared, but checked against the
+  standard's own text every run.
+
+Confidence 2, not 3: the citation check is mechanical, but whether a quoted phrase really *requires* the property
+is still a reading. The test can prove a citation exists, not that it is apt. That limit should be printed by the
+test, as the axis already prints what it does not prove.
+
+### F4 — Who sees the change (IW-4: answered, confidence 3)
+
+- **Authoring kit** (`tools/build-authoring-kit.py`): the CONFORMANCE.md rule table and its class legend. A changed
+  table changes the kit's bytes, so the kit calibration gate (codex + GLM-5.3, `tools/kit-calibration-gate.py`)
+  must be re-run before the next designer release.
+- **AEF**: receives the kit with every release; 13 rows change class. No AEF-stored data changes (classes are not
+  written into maps), so no migration, but the announcement must say so.
+- **Designer**: does not consume the axis yet (stand-in comment at `src/aef-workflow-designer.html:10713`), so no
+  UI change. When it does, the class is what decides whether a finding is shown as a defect or a convention, which is
+  where this matters most.
+- **Validator output**: unchanged. Severity and messages stay; only the class label moves.
+
+## Options
+
+1. **Fourth class, CONVENTIONAL** (OBS-467's remedy). Keeps DIALECT-RELATIVE meaning one precise thing (an optional
+   carrier was omitted: fix by adding it, or ignore it as the peer's dialect), and gives graph-shape house rules
+   their own label (fix by restructuring, or ignore as our style). Cost: one more word in the kit legend.
+2. **Fold into DIALECT-RELATIVE.** The kit already glosses that class as "house convention, not the standard", so
+   authors would read the same message. Cheaper, but it blurs the derivation: DIALECT-RELATIVE would mean either
+   "optional carrier absent" or "unbacked structure", and the polarity hinge that makes the axis checkable
+   (REQUIRES vs CONSTRAINS on one carrier) no longer explains the class.
+3. **Do nothing.** Keeps a false claim in every kit we ship and every finding a future designer surfaces.
+
+## Recommendation
+
+**GO, option 1**, as one bounded build task:
+- add `basis` to the axis for the 31 structure-only rules, derive CONVENTIONAL from a missing basis, and fail on a
+  citation that does not resolve;
+- regenerate the kit; re-run kit calibration; ship with the next designer release and name the 13 class changes in
+  the AEF announcement;
+- out of scope: changing any rule's severity or predicate, and the designer consuming the axis (its own task).
+
+Bounded: one test file, one generator, one legend; reversible (a label, no stored data); testable (the axis test
+already derives and counts every class, so 13 moves and 18 citations are assertable).
+
+The choice between option 1 and option 2 is a vocabulary decision for map authors, so it is the operator's.
+Option 2 is a fine answer too; both beat option 3.
+
+## Dialogue log
+
+- 2026-10-18: operator "proceed as you see fit" (backlog work delegated); this inception was chosen by the agent,
+  research only, no build artifacts. No operator dialogue on the question itself yet.
