@@ -73,6 +73,8 @@ and announces to AEF, and follows the pin until CURRENT (CLAUDE.md AEF rule).
   — commit 77812a02; sync verified sha against pin and MANIFEST; served sha 431cc511…, APP_VERSION '0.23.0'; _t517 OK.
 - [ ] AEF is told (version, tag, sha256, bytes, the 15 class changes, nothing stored changes) and `tools/_t1187-aef-pin-lag.sh` reads CURRENT
   — told 2026-10-18 (msg 590beaba, RECEIVED direct, thread 832-designer-repin-0.20.0); pin reads BEHIND 1 until AEF re-pins.
+  AEF re-pinned under **AEF T-4310** (msg 141b5568: commit e936b5adf, sync --from-tag, sha and bytes verified,
+  Watchtower serves 0.23.0, their designer id tests and corpus lint green); public pin follows at their next push.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
