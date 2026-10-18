@@ -69,13 +69,15 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
 - [x] `.context/secrets/` is confirmed gitignored for the key path before anything is minted (`git check-ignore`), and `tools/tracked-secret-artifacts.py` is clean
   — 2026-10-18: `.gitignore:43 .context/secrets/` matches `.context/secrets/termlink-identity.key`; scan ok over
   12210 tracked files, no key material.
-- [ ] Spike (operator job): one throwaway session with a scratch key authenticates to the hub and delivers one sidecar message to AEF; the scratch key is then removed; result recorded here
+- [x] Spike (operator job): one throwaway session with a scratch key authenticates to the hub and delivers one sidecar message to AEF; the scratch key is then removed; result recorded here
   — job 043 (2026-10-18, done rc=0): scratch key created at mode 600, fingerprint 16334dd785b7e868 (not the host
   key); the hub accepted the probe on `spike:832-t1203` (offset 0) and stored it with `sender_id` 16334dd785b7e868,
   so hub auth is independent of the signing key, as TermLink documents. Sidecar send under the scratch key:
   `HUB_ACCEPTED, delivered: true`, over the HUB route, where today's normal sends went DIRECT (`RECEIVED`): the
   route changed with the key, to be explained. Key and dir removed; this shell still resolves the host key.
-  Open: AEF's confirmation that the probe reached them, and which fingerprint they saw.
+  AEF confirmed (msg bc818fa9): probe received at their inbox offset 1505 as a normal `sidecar.consult` from
+  circuit `//dimitrimintdev/cacc73ea32b121dd/832-Workflow-designer`, hub `sender_id` 16334dd785b7e868 (not the host
+  key), surfaced normally; "nothing on our side keyed on your old fingerprint" (answers consult question b).
 - [ ] Mint (operator job): exactly one project key at `.context/secrets/termlink-identity.key`, mode 600, backed up; its fingerprint recorded here
 - [ ] Every 832 entry point that runs termlink sets `TERMLINK_IDENTITY_FILE` to the absolute key path and refuses to start when the file is missing (never mints); `RAIL_IDENTITY_FILE` set; `fw rail status` reads `state: project`
 - [ ] A coverage probe signs one post from each entry point and fails if any carries the host fingerprint; wired as a standing check
