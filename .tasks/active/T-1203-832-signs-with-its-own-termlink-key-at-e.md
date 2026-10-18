@@ -85,7 +85,7 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
   matched the base `user::` line); retired with reason. Job 045 (done rc=0) re-verified the key (8/8), backed it up
   to `/root/.termlink-project-keys/832-Workflow-designer.key` (mode 600, identical) and recorded the public
   fingerprint and key in `.context/termlink-identity.fingerprint` (public key add70a32…f47c).
-- [ ] Every 832 entry point that runs termlink sets `TERMLINK_IDENTITY_FILE` to the absolute key path and refuses to start when the file is missing (never mints); `RAIL_IDENTITY_FILE` set; `fw rail status` reads `state: project`
+- [x] Every 832 entry point that runs termlink sets `TERMLINK_IDENTITY_FILE` to the absolute key path and refuses to start when the file is missing (never mints); `RAIL_IDENTITY_FILE` set; `fw rail status` reads `state: project`
   — entry-point map (2026-10-18, read-only): (1) Claude sessions and their hooks/Bash calls; (2) the TermLink MCP
   server (`.mcp.json` `termlink mcp serve`, started by the session); (3) the sidecar receiver daemon
   (`lib/sidecar/http_server.py`, pid 4156345, parent 1, started 2026-10-17 15:16; env has only HOME and
@@ -120,7 +120,8 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
   session start does not write to the hub. Signed-post probe on topic `832-identity-probe`: offset 0 from session
   Bash, signer `05c467b46a0bdf5e`; offset 1 from the MCP server (pid 3456583, pre-switch), signer `d1993c2c3ec44c94`,
   the host key. The probe sees the same gap the env check reports. Runme signal: runme-832 offset 301, signer
-  05c467b46a0bdf5e. Receiver: its env is checked; it posts only when it delivers. Re-probe the MCP server after the restart.
+  05c467b46a0bdf5e. Receiver: its env is checked; it posts only when it delivers. Re-probe after the restart:
+  offset 2, from the MCP server, signer **05c467b46a0bdf5e**.
   Seen on the way: AEF's `check-rail-mcp-label` block text suggests `from_project: "832-workflow-designer"` (lower
   case), and 832's `_t420` gate refuses that spelling and wants `832-Workflow-designer`. Reported to AEF.
 - [ ] DMs on both fingerprints are drained for a transition window; the new fingerprint is announced to AEF; a feature request for per-topic read control goes to TermLink
