@@ -103,6 +103,15 @@ bvp_scores_proposed:
 - [x] CDP test tools/_t1127-element-details-cdp.mjs covers the above (control: 0.17.0 has no details view); wired into tests/run-bridge-tests.sh; B1/B2/T-1128 tests unchanged
 - [x] Screenshots of the details view (a service task with some fields filled, one hidden by the profile) read and recorded under ## Visual Verification
 
+### Human
+- [ ] [REVIEW] The element details view shows every field of the element, legibly, at narrow, normal and wide widths
+  **Steps:**
+  1. Open `docs/reports/T-1209-evidence/t1127-details-1024.png`, `t1127-details-1440.png` and `t1127-details-1920.png` (designer 0.23.0 plus the T-1209 fix; a service task with Endpoint and Side effect filled and Horizon hidden in the side panel by the project profile)
+  2. In each, check control by control: the title "Call the service — details" and the Close button; the element header; the BPMN section (Name, Slug, Display ID, UID, Lane); the Extensions fields in two columns, filled and empty alike; the Tier buttons; the orange "hidden in the side panel by this project" mark on Horizon; nothing clipped, overlapping or off-screen
+  3. In `t1127-details-1920.png` also check the "Other extensions" section below (read-only, with "Suggest as a field")
+  **Expected:** every listed control is visible, reachable and unclipped at all three widths, and the view uses the space in two columns
+  **If not:** name the screenshot and the control, and what is wrong with it
+
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.
@@ -119,6 +128,12 @@ node tools/_t308-bare-catch-render-cdp.mjs
   to a two-column grid of fields inside each section, read again: balanced, no clipping.
 - `docs/reports/T-1127-evidence/t1127-details-1024.png` — fits the 1024×768 viewport; body scrolls; the edited Side
   effect ("writes the ledger") shows. Read: legible.
+- 2026-10-19, against the UI rule (three widths plus an independent reviewer; operator, 2026-10-14): re-shot at
+  1024/1440/1920 on designer 0.23.0 (`docs/reports/T-1127-evidence/2026-10-19/`). Every reopen started about 155 px
+  down, hiding the header and Name/Slug: bug T-1209, fixed, after-shots in `docs/reports/T-1209-evidence/`. Read
+  control by control there: Close, the header, BPMN, the two-column Extensions, Tier, the Horizon mark, and Other
+  extensions at 1920, all visible and unclipped. Agent type now shows empty when unset (the "primary" note below
+  no longer reproduces). Independent review: the `[REVIEW]` criterion above.
 - Seen while reading: Agent type displays "primary" on a task that never set it — the select has no empty option
   (pre-existing, also in the side panel). Filed separately (one bug = one task), not fixed here.
 
