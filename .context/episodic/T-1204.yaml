@@ -1,0 +1,231 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1204: Upgrade AEF 956f05f36 -> v1.8.11 and field-test T-4303, T-4264, T-4232
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-18T22:19:47Z
+# ============================================================================
+
+task_id: T-1204
+task_name: "Upgrade AEF 956f05f36 -> v1.8.11 and field-test T-4303, T-4264, T-4232"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-18T20:07:58Z
+completed: 2026-10-18T22:19:27Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-18T22:10:46+02:00
+last_commit: 2026-10-19T00:18:11+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  v1.8.11 upgrade notes read and dry-run against 832 (no CLAUDE.md refusal, identity settings kept); job 048 rehearsed. pristine vendor commit — AEF v1.8.11 (e42aa41bf) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.11 commit (re-vendor protocol step 2, T-1000). re-apply 832's local fixes onto pristine AEF v1.8.11 (re-vendor protocol step 3, T-1000). v1.8.11 upgrade done (job 048), local fixes re-applied, field tests T-4303/T-4264/T-4232 WORKS sent to AEF. job 049 — restart Watchtower on v1.8.11 with the re-applied fixes (rehearsed). AEF filed T-4335, T-4336 from 832's round-11 field tests. verification commands; job 049 restarted Watchtower on v1.8.11 (rc=0); follow-up T-1205 for the stale _t390/_t640 teeth. post-v1.8.11 bridge triage — fixtures and guards follow the new framework; launcher exports 832's key. job 050 — restart the sidecar stack on 832's key (job 048's upgrade restarted it unkeyed; rehearsed). T-509 sweep run alone finds no regression (only _t581 abstains, same golden as T-358); triage recorded
+
+# Key outcomes
+outcomes:
+  - 'The v1.8.11 upgrade notes are read, and the steps that apply to 832 are listed here before the job is written (CLAUDE.md markers, the ufw Watchtower rule check, anything else)'
+  - 'The tag''s commit is resolved and checked: 956f05f36 is its ancestor (no rollback), or the gap is reported before the upgrade'
+  - 'An operator job upgrades 832 to v1.8.11 under the T-1188 protocol (doctor before and after, pristine vendor commit, divergence baseline, crontab check, re-vendor gate), dry-run and committed'
+  - 'After the run, local fixes reported STALE by `tools/_t517` are re-applied or retired, the `.bak` backups are diffed and handled (CLAUDE.md rule), and the template sync `tools/_t1192-upgrade-templates.sh --commit --task T-1204` exits 0'
+  - 'WORKS/FAILS on T-4303, T-4264 and T-4232 goes to AEF, each with the command run and its output'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'post-v1.8.11 bridge triage — fixtures and guards follow the new framework; launcher exports 832''s key'
+    source: git-mined
+  - description: 'job 049 — restart Watchtower on v1.8.11 with the re-applied fixes (rehearsed)'
+    source: git-mined
+  - description: 'v1.8.11 upgrade done (job 048), local fixes re-applied, field tests T-4303/T-4264/T-4232 WORKS sent to AEF'
+    source: git-mined
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.11 (re-vendor protocol step 3, T-1000)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/audit/unit-suite.sh'
+  - '.agentic-framework/agents/context/budget-gate.sh'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/check-project-boundary.sh'
+  - '.agentic-framework/agents/context/check-tier0.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/designer/designer.sh'
+  - '.agentic-framework/agents/dispatch/preamble.md'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/agents/termlink/termlink.sh'
+  - '.agentic-framework/bin/claude-fw'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/bin/watchtower.sh'
+  - '.agentic-framework/.context/designer/projects/aef-audit-cron/v1.bpmn'
+  - '.agentic-framework/.context/designer/projects/aef-dispatch-loop/v1.bpmn'
+  - '.agentic-framework/.context/designer/projects/aef-dispatch-loop/v2.bpmn'
+  - '.agentic-framework/.context/designer/projects/aef-dispatch-loop/v3.bpmn'
+  - '.agentic-framework/.context/designer/projects/aef-existing-project-onboarding/v1.bpmn'
+  - '.agentic-framework/.context/designer/projects/aef-greenfield-onboarding/v1.bpmn'
+  - '.agentic-framework/.context/designer/projects/aef-greenfield-onboarding/v2.bpmn'
+  - '.agentic-framework/.context/designer/projects/aef-inception-flow/v1.bpmn'
+  - '.agentic-framework/.context/designer/projects/aef-session-lifecycle/v1.bpmn'
+  - '.agentic-framework/.context/designer/projects/aef-task-lifecycle/v1.bpmn'
+  - '.agentic-framework/.context/designer/projects/aef-task-lifecycle/v2.bpmn'
+  - '.agentic-framework/.context/designer/projects/aef-task-lifecycle/v3.bpmn'
+  - '.agentic-framework/.context/designer/projects/aef-tier0-escalation/v1.bpmn'
+  - '.agentic-framework/docs/releases/v1.8.11-upgrade-notes.md'
+  - '.agentic-framework/docs/reports/field-test-v1.8.11-results.md'
+  - '.agentic-framework/docs/reports/T-3083-doctor-profile.md'
+  - '.agentic-framework/docs/reports/T-4224-inputs/T-1189-aef-node-id-map-0.21.0.md'
+  - '.agentic-framework/docs/reports/T-4224-inputs/table.json'
+  - '.agentic-framework/docs/reports/T-4237-inputs/aef-greenfield-install-prompt-v2.1.md'
+  - '.agentic-framework/docs/reports/T-4237-inputs/aef-greenfield-install-prompt-v2.2.1.md'
+  - '.agentic-framework/docs/reports/T-4237-inputs/P-016-feature-proposal.yaml'
+  - '.agentic-framework/docs/reports/T-4237-inputs/P-017-feature-proposal.yaml'
+  - '.agentic-framework/docs/reports/T-4237-inputs/P-020-feature-proposal.yaml'
+  - '.agentic-framework/docs/reports/T-4237-inputs/P-021-feature-proposal.yaml'
+  - '.agentic-framework/docs/reports/T-4237-inputs/T-121-greenfield-v2.1-changes-and-onboarding-evaluation.md'
+  - '.agentic-framework/docs/reports/T-4246-full-suite-comparison.md'
+  - '.agentic-framework/docs/reports/T-4253-greenfield-run-triage.md'
+  - '.agentic-framework/docs/reports/T-4299-greenfield-orchestrator.md'
+  - '.agentic-framework/docs/reports/T-4309-agent-profile-v1.md'
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/lib/arc_membership.py'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/budget_ladder.py'
+  - '.agentic-framework/lib/bvp_outcomes.py'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/config.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/estate_ingest.py'
+  - '.agentic-framework/lib/estate_push.py'
+  - '.agentic-framework/lib/firewall.sh'
+  - '.agentic-framework/lib/hook-dispatch.sh'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/init.sh'
+  - '.agentic-framework/lib/pickup.sh'
+  - '.agentic-framework/lib/render_surface.sh'
+  - '.agentic-framework/lib/reviewer/judge_cli.py'
+  - '.agentic-framework/lib/shell_write_scan.py'
+  - '.agentic-framework/lib/sidecar-audit.sh'
+  - '.agentic-framework/lib/sidecar_cli.py'
+  - '.agentic-framework/lib/sidecar/dm.py'
+  - '.agentic-framework/lib/sidecar/inject.py'
+  - '.agentic-framework/lib/sidecar/lifecycle.py'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/task_commits.py'
+  - '.agentic-framework/lib/templates/claude-project.md'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/upgrade.sh'
+  - '.agentic-framework/lib/verdict_ledger.py'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/lib/wm_tasks.sh'
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/tools/port3000_hygiene.py'
+  - '.agentic-framework/vendor/designer/aef-workflow-designer-0.23.0.html'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/config.py'
+  - '.agentic-framework/web/blueprints/core.py'
+  - '.agentic-framework/web/blueprints/cron.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/embeddings.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/inception.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/decide_runner.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/_ac_list.html'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - 'CLAUDE.md'
+  - '.context/handovers/S-2026-1019-0013.md'
+  - '.context/runme/048-upgrade-aef-v1.8.11/dryrun.ok'
+  - '.context/runme/048-upgrade-aef-v1.8.11/job.sh'
+  - '.context/runme/049-restart-watchtower-v1.8.11/dryrun.ok'
+  - '.context/runme/049-restart-watchtower-v1.8.11/job.sh'
+  - '.context/runme/050-rekey-receiver-after-upgrade/dryrun.ok'
+  - '.context/runme/050-rekey-receiver-after-upgrade/job.sh'
+  - '.framework.yaml'
+  - '.tasks/active/T-1204-upgrade-aef-956f05f36---v1811-and-field-.md'
+  - '.tasks/active/T-1205-repair-stale-teeth-in-t390-and-t640-muta.md'
+  - 'tests/test_t1055_runme_launcher.py'
+  - 'tools/runme-launcher.sh'
+  - 'tools/_t614-budget-threshold-drift.py'
+  - 'tools/_t654-archiving-a-partial-complete-task-must-null-its-horizon.sh'
+  - 'tools/_t931-delegate-owner-follows-criteria.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-18T22:10:46'
+    action: 'T-1204: v1.8.11 upgrade notes read and dry-run against 832 (no CLAUDE.md refusal, identity settings kept); job 048 rehearsed'
+  - time: '2026-10-18T22:43:08'
+    action: 'T-1204: pristine vendor commit — AEF v1.8.11 (e42aa41bf) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-18T22:44:22'
+    action: 'T-1204: advance the divergence baseline to the pristine AEF v1.8.11 commit (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-18T23:08:56'
+    action: 'T-1204: re-apply 832''s local fixes onto pristine AEF v1.8.11 (re-vendor protocol step 3, T-1000)'
+  - time: '2026-10-18T23:19:10'
+    action: 'T-1204: v1.8.11 upgrade done (job 048), local fixes re-applied, field tests T-4303/T-4264/T-4232 WORKS sent to AEF'
+  - time: '2026-10-18T23:19:43'
+    action: 'T-1204: job 049 — restart Watchtower on v1.8.11 with the re-applied fixes (rehearsed)'
+  - time: '2026-10-18T23:21:20'
+    action: 'T-1204: AEF filed T-4335, T-4336 from 832''s round-11 field tests'
+  - time: '2026-10-18T23:42:27'
+    action: 'T-1204: verification commands; job 049 restarted Watchtower on v1.8.11 (rc=0); follow-up T-1205 for the stale _t390/_t640 teeth'
+  - time: '2026-10-19T00:10:08'
+    action: 'T-1204: post-v1.8.11 bridge triage — fixtures and guards follow the new framework; launcher exports 832''s key'
+  - time: '2026-10-19T00:10:57'
+    action: 'T-1204: job 050 — restart the sidecar stack on 832''s key (job 048''s upgrade restarted it unkeyed; rehearsed)'
+  - time: '2026-10-19T00:18:11'
+    action: 'T-1204: T-509 sweep run alone finds no regression (only _t581 abstains, same golden as T-358); triage recorded'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 11 commit(s), 131 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 131
+  commits: 11
+  files_changed: 127
+  lines_added: 13277
+  lines_removed: 4718
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1204-upgrade-aef-956f05f36---v1811-and-field-.md
+generated_by: context-agent-hybrid
