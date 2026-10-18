@@ -51,7 +51,11 @@ APP = FW / "web" / "app.py"
 # The value `Config.PORT` falls back to when FW_PORT is unset — i.e. the name
 # the BROKEN code path would emit regardless of what it bound.
 DEFAULT_PORT = 3000
-BOOT_TIMEOUT_S = 25
+# T-1210: since AEF v1.8.11 a cold instance listens after ~2 s but its FIRST /approvals takes ~13 s (measured
+# 13.4 s; then 1.3 s). With 3 s per try the probe gave up on every attempt while each abandoned request kept doing
+# the cold work, and the leg REFUSED. One patient request (REQUEST_TIMEOUT_S) inside a boot budget with margin.
+BOOT_TIMEOUT_S = 90
+REQUEST_TIMEOUT_S = 60
 
 
 def refuse(msg):
@@ -114,7 +118,7 @@ def main():
                        "measured" % proc.returncode)
             try:
                 with urllib.request.urlopen(
-                        "http://127.0.0.1:%d/approvals" % port, timeout=3) as r:
+                        "http://127.0.0.1:%d/approvals" % port, timeout=REQUEST_TIMEOUT_S) as r:
                     raw_headers = r.headers
                     break
             except (urllib.error.URLError, ConnectionError, OSError):
