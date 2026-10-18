@@ -1,0 +1,174 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1202: Release designer 0.23.0: kit with CONVENTIONAL class + basis column (T-1200), to AEF
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-18T17:09:54Z
+# ============================================================================
+
+task_id: T-1202
+task_name: "Release designer 0.23.0: kit with CONVENTIONAL class + basis column (T-1200), to AEF"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-18T09:26:03Z
+completed: 2026-10-18T17:09:27Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-18T11:28:19+02:00
+last_commit: 2026-10-18T19:09:24+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  0.23.0 — VERSION and APP_VERSION bumped (parity ok), release notes (kit: CONVENTIONAL class + basis column, 15 class changes, T-1200); pending list emptied into them. runme job 040 — release designer 0.23.0 (calibrate codex + GLM-5.3, cut, tag, push); dry-run passed 13/13. release designer 0.23.0 — authoring kit: CONVENTIONAL class and basis column (T-1200), 15 graph-shape rules re-classed; designer unchanged; kit calibrated on its bytes. job 040 ran steps 1-6 (both calibrations PASS, cut, commit 7bf5ffee, tag local) and stopped unconfirmed at the push; retired with reason; job 041 is the push alone, dry-run passed. re-pinned 0.22.0 -> 0.23.0 (fw designer sync --from-tag: sha verified against pin and MANIFEST; /designer/app serves 431cc511); divergence register entry updated, _t517 OK. released, re-pinned, served and announced; open until AEF's pin reads CURRENT. AEF re-pinned 0.23.0 under their T-4310; public pin pending their push. AEF pin CURRENT at 0.23.0
+
+# Key outcomes
+outcomes:
+  - 'VERSION and APP_VERSION are 0.23.0 (T-808 parity), and `docs/releases/RELEASE-NOTES-0.23.0.md` carries every item from `PENDING-next-release.md`, which is emptied'
+  - 'Runme job 040 is dry-run green and handed over; the operator''s run calibrates both reviewers PASS, cuts, tags designer-v0.23.0 and pushes'
+  - 'After the tag: designer pin, `fw designer sync --from-tag`, `/designer/app` serves the 0.23.0 sha, and the divergence register''s pin entry is updated'
+  - 'AEF is told (version, tag, sha256, bytes, the 15 class changes, nothing stored changes) and `tools/_t1187-aef-pin-lag.sh` reads CURRENT'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/clean/agents.log'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/clean/kit/AUTHORING.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/clean/kit/CONFORMANCE.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/clean/kit/CORRECT.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/clean/kit/exemplar.bpmn'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/clean/kit/GENERATE.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/clean/kit/REVIEW.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/clean/kit/RUBRIC.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/clean/kit/validate-workflow.py'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/clean/LOOP.txt'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/clean/map.bpmn'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/clean/REVIEW.json'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/clean/SOURCE.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex.out'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/planted/agents.log'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/planted/kit/AUTHORING.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/planted/kit/CONFORMANCE.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/planted/kit/CORRECT.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/planted/kit/exemplar.bpmn'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/planted/kit/GENERATE.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/planted/kit/REVIEW.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/planted/kit/RUBRIC.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/planted/kit/validate-workflow.py'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/planted/LOOP.txt'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/planted/map.bpmn'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/planted/REVIEW.json'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-codex/planted/SOURCE.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean/agents.log'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean/kit/AUTHORING.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean/kit/CONFORMANCE.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean/kit/CORRECT.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean/kit/exemplar.bpmn'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean/kit/GENERATE.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean/kit/REVIEW.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean/kit/RUBRIC.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean/kit/validate-workflow.py'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean/LOOP.txt'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean/map.bpmn'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean/REVIEW.json'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/clean/SOURCE.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3.out'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/planted/agents.log'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/planted/kit/AUTHORING.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/planted/kit/CONFORMANCE.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/planted/kit/CORRECT.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/planted/kit/exemplar.bpmn'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/planted/kit/GENERATE.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/planted/kit/REVIEW.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/planted/kit/RUBRIC.md'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/planted/kit/validate-workflow.py'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/planted/LOOP.txt'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/planted/map.bpmn'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/planted/REVIEW.json'
+  - '.context/runme/040-release-designer-0.23.0/calibrate-glm-5.3/planted/SOURCE.md'
+  - '.context/runme/040-release-designer-0.23.0/dryrun.ok'
+  - '.context/runme/040-release-designer-0.23.0/job.sh'
+  - '.context/runme/040-release-designer-0.23.0/retired'
+  - '.context/runme/040-release-designer-0.23.0/run-20261018T113915.log'
+  - '.context/runme/041-push-designer-0.23.0/dryrun.ok'
+  - '.context/runme/041-push-designer-0.23.0/job.sh'
+  - 'dist/aef-authoring-kit-0.23.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.23.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.23.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.23.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.23.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.23.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.23.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.23.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.23.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.23.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.23.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.23.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.23.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.23.0/validate-workflow.py'
+  - 'dist/aef-workflow-designer-0.23.0.html'
+  - 'dist/MANIFEST.yaml'
+  - 'docs/authoring-kit/calibration-records/0.23.0.yaml'
+  - 'docs/releases/PENDING-next-release.md'
+  - 'docs/releases/RELEASE-NOTES-0.23.0.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1202-release-designer-0230-kit-with-conventio.md'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-18T11:28:19'
+    action: 'T-1202: 0.23.0 — VERSION and APP_VERSION bumped (parity ok), release notes (kit: CONVENTIONAL class + basis column, 15 class changes, T-1200); pending list emptied into them'
+  - time: '2026-10-18T11:29:08'
+    action: 'T-1202: runme job 040 — release designer 0.23.0 (calibrate codex + GLM-5.3, cut, tag, push); dry-run passed 13/13'
+  - time: '2026-10-18T12:17:51'
+    action: 'T-1202: release designer 0.23.0 — authoring kit: CONVENTIONAL class and basis column (T-1200), 15 graph-shape rules re-classed; designer unchanged; kit calibrated on its bytes'
+  - time: '2026-10-18T12:28:24'
+    action: 'T-1202: job 040 ran steps 1-6 (both calibrations PASS, cut, commit 7bf5ffee, tag local) and stopped unconfirmed at the push; retired with reason; job 041 is the push alone, dry-run passed'
+  - time: '2026-10-18T14:10:52'
+    action: 'T-1202: re-pinned 0.22.0 -> 0.23.0 (fw designer sync --from-tag: sha verified against pin and MANIFEST; /designer/app serves 431cc511); divergence register entry updated, _t517 OK'
+  - time: '2026-10-18T14:12:22'
+    action: 'T-1202: released, re-pinned, served and announced; open until AEF''s pin reads CURRENT'
+  - time: '2026-10-18T16:02:08'
+    action: 'T-1202: AEF re-pinned 0.23.0 under their T-4310; public pin pending their push'
+  - time: '2026-10-18T19:09:24'
+    action: 'T-1202: AEF pin CURRENT at 0.23.0'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 463 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 463
+  commits: 8
+  files_changed: 84
+  lines_added: 33754
+  lines_removed: 37
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1202-release-designer-0230-kit-with-conventio.md
+generated_by: context-agent-hybrid
