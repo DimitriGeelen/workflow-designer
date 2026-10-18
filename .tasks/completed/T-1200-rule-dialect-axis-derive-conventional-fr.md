@@ -4,12 +4,13 @@ name: "Rule-dialect axis: derive CONVENTIONAL from a checked per-rule basis; kit
 description: >
   Rule-dialect axis: derive CONVENTIONAL from a checked per-rule basis; kit basis column (T-1165 GO)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/test_rule_dialect_axis.py, tools/build-authoring-kit.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-18T09:01:36Z
-last_update: 2026-10-18T09:01:36Z
-date_finished: null
+last_update: 2026-10-18T09:08:58Z
+date_finished: 2026-10-18T09:08:58Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -388,3 +389,25 @@ grep -q 'E-XML-GW-OUTGOING' docs/releases/PENDING-next-release.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1200-rule-dialect-axis-derive-conventional-fr.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-c273237b
+- **Timestamp:** 2026-10-18T09:09:25Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 2
+     - evidence: `python3 tests/test_rule_dialect_axis.py | grep -c '15 conventional' | grep -qx 1`
+
+### 2026-10-18T09:08:58Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
