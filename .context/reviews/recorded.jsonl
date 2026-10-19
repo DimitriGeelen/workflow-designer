@@ -60,3 +60,4 @@
 {"ac":1,"outcome":"green","task":"T-1127","ts":"2026-10-18T23:23:53Z","verdict_id":"V-20261018-d83ceca7"}
 {"ac":1,"outcome":"green","task":"T-1127","ts":"2026-10-19T00:43:19Z","verdict_id":"V-20261019-18fe0c6e"}
 {"ac":1,"outcome":"green","task":"T-347","ts":"2026-10-19T09:59:54Z","verdict_id":"V-20261019-772fb32a"}
+{"ac":1,"outcome":"escalate","task":"T-732","ts":"2026-10-19T10:00:32Z","verdict_id":"V-20261019-55e219da"}
