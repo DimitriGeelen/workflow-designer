@@ -107,8 +107,39 @@ _fw_chain_split() {
 # Failure direction is asymmetric and this errs the safe way: misjudging a safe
 # chain as unsafe merely sends it to the task gate, which allows it whenever a
 # task is active; misjudging an unsafe chain as safe skips every gate there is.
+# T-4343: advance the tracked cwd (_FW_GIT_CWD, a local of is_bash_safe_command)
+# past one chain segment that changes directory. Only a literal `cd <path>` whose
+# base is known moves it. Any other directory-changing segment (bare cd, cd -,
+# cd $VAR, pushd, source, eval) leaves it unknown, and so does a cd to something
+# that is not an existing directory: the shell would have stayed put, so the next
+# command's directory cannot be known. A relative -C then fails closed.
+_fw_track_cwd() {
+    _fw_segment_may_change_dir "$1" || return 0
+    local _s="$1" _t="" _base="${_FW_GIT_CWD:-}" _abs=""
+    _s="${_s#"${_s%%[![:space:]]*}"}"
+    if [[ "$_s" =~ ^cd[[:space:]]+([^[:space:]]+)[[:space:]]*$ ]]; then
+        _t="${BASH_REMATCH[1]}"
+    fi
+    _FW_GIT_CWD=""
+    [ -n "$_t" ] && [[ "$_t" =~ ^[A-Za-z0-9._/+:@%,=-]+$ ]] && [[ "$_t" != -* ]] || return 0
+    if [[ "$_t" == /* ]]; then
+        _abs="$_t"
+    elif [[ "$_base" == /* ]]; then
+        _abs="$_base/$_t"
+    else
+        return 0
+    fi
+    _abs="$(realpath -m -- "$_abs" 2>/dev/null)" || return 0
+    [ -d "$_abs" ] && _FW_GIT_CWD="$_abs"
+    return 0
+}
+
 is_bash_safe_command() {
     local _cmd="$1" _seg _n=0
+    # T-4343: the cwd the git arm resolves -C / --git-dir against. Top level starts at
+    # the shell's cwd from the hook payload. A nested call (F-15 `X=$(...)`) inherits
+    # the caller's value, and `local` keeps a cd inside it from leaking back out.
+    local _FW_GIT_CWD="${_FW_GIT_CWD-${_FW_PAYLOAD_CWD:-$PWD}}"
     local -a _segs=() _kept=()
     # T-3223: `-d ''`. mapfile -t here read the splitter's NUL stream as lines,
     # so a segment containing a newline arrived as several bogus segments.
@@ -122,6 +153,7 @@ is_bash_safe_command() {
     if [ "$_n" -gt 1 ]; then
         for _seg in "${_kept[@]}"; do
             _fw_single_command_is_safe "$_seg" || return 1
+            _fw_track_cwd "$_seg"
         done
         return 0
     fi
@@ -256,16 +288,53 @@ _fw_strip_env_prefixes() {
 # unknown global, a value option with no value) returns non-zero: fail closed.
 # `-c` is the one that can run code: `-c core.fsmonitor=CMD status` executes CMD,
 # so keys that name a program are refused here rather than admitted as read-only.
+# T-4343: -C / --git-dir / --work-tree choose the repository git reads, and that
+# repository's config can run commands (core.fsmonitor, core.pager, diff.external,
+# filters). So a value is accepted only when it resolves inside PROJECT_ROOT.
+# _fw_git_dir_is_project <value> <base> prints the resolved path when VALUE lies in
+# PROJECT_ROOT. A relative VALUE resolves against BASE, the absolute effective cwd.
+# Fail closed: a quoted, variable, ~ or glob word (this is no shell, nothing is
+# expanded), a leading -, an unknown base, an unset or missing PROJECT_ROOT, or a
+# path that realpath puts outside it (`..` and symlinks included).
+_fw_git_dir_is_project() {
+    local _v="$1" _base="$2" _pr _abs
+    [[ "$_v" =~ ^[A-Za-z0-9._/+:@%,=-]+$ ]] || return 1
+    [[ "$_v" == -* ]] && return 1
+    if [[ "$_v" == /* ]]; then
+        _abs="$_v"
+    elif [[ "$_base" == /* ]]; then
+        _abs="$_base/$_v"
+    else
+        return 1
+    fi
+    [ -n "${PROJECT_ROOT:-}" ] || return 1
+    _pr="$(realpath -e -- "$PROJECT_ROOT" 2>/dev/null)" || return 1
+    _abs="$(realpath -m -- "$_abs" 2>/dev/null)" || return 1
+    case "$_abs" in "$_pr"|"$_pr"/*) printf '%s' "$_abs" ;; *) return 1 ;; esac
+}
+
 _fw_git_skip_globals() {
     local -a words
     read -ra words <<< "$1"
-    local i=1 n=${#words[@]} tok key
+    local i=1 n=${#words[@]} tok key _cwd="${_FW_GIT_CWD:-}" _p
     while [ "$i" -lt "$n" ]; do
         tok="${words[$i]}"
         case "$tok" in
-            -C|--git-dir|--work-tree|--namespace)
+            # T-4343: -C moves the cwd for every later relative value, exactly as git
+            # does, so the next value is judged against the resolved one.
+            -C)
+                _p="$(_fw_git_dir_is_project "${words[$((i + 1))]:-}" "$_cwd")" || return 1
+                _cwd="$_p"
                 i=$((i + 2)) ;;
-            --git-dir=*|--work-tree=*|--namespace=*|-P|--no-pager)
+            --git-dir|--work-tree)
+                _fw_git_dir_is_project "${words[$((i + 1))]:-}" "$_cwd" >/dev/null || return 1
+                i=$((i + 2)) ;;
+            --git-dir=*|--work-tree=*)
+                _fw_git_dir_is_project "${tok#*=}" "$_cwd" >/dev/null || return 1
+                i=$((i + 1)) ;;
+            --namespace)
+                i=$((i + 2)) ;;
+            --namespace=*|-P|--no-pager)
                 i=$((i + 1)) ;;
             # -c k=v is never read-only: too many config keys run a program
             # (pager, fsmonitor, textconv, filters, ssh/askpass, aliases, ...)
@@ -276,19 +345,6 @@ _fw_git_skip_globals() {
     done
     [ "$i" -lt "$n" ] || return 1
     echo "git ${words[*]:$i}"
-}
-
-# 832 T-1047: is $1 THIS project's scripts/session-start-alerts.sh? The /resume skill's step 7
-# (AEF T-3327) runs it at session START, before any task is focused, so the no-task gate must
-# admit it or the unseen-mail check never runs when it matters. It reads the inbox; --mark-seen
-# writes only .context/working/.alerts-seen-offset (framework state, like `fw context`). Only a
-# relative scripts/ path or $PROJECT_ROOT/scripts/ is admitted — never a same-named file
-# elsewhere. Redirects on the line are still judged by has_bash_write_pattern on the original.
-_fw_is_session_start_alerts() {
-    case "$1" in
-        scripts/session-start-alerts.sh|./scripts/session-start-alerts.sh) return 0 ;;
-    esac
-    [ -n "${PROJECT_ROOT:-}" ] && [ "$1" = "$PROJECT_ROOT/scripts/session-start-alerts.sh" ]
 }
 
 # Single (non-compound) command classification. This is the original
@@ -610,12 +666,6 @@ _fw_single_command_is_safe() {
                     return 0
                     ;;
             esac
-            ;;
-
-        # 832 T-1047: /resume's mail check, this project's copy only (see _fw_is_session_start_alerts).
-        # The `bash scripts/session-start-alerts.sh` spelling is admitted in the bash|sh arm.
-        session-start-alerts.sh)
-            _fw_is_session_start_alerts "$(echo "$cmd" | awk '{print $1}')" && return 0
             ;;
 
         # Category 2: File reading
@@ -977,15 +1027,6 @@ _fw_single_command_is_safe() {
                     # of why it fired.
                     return 0
                     ;;
-                fix-learned)
-                    # 832 T-650 (restored by T-1037 on 1.7.740): `fw fix-learned T-XXX "text"`
-                    # IS `fw context add-learning "text" --task T-XXX --source P-001` (bin/fw's
-                    # branch execs exactly that), and add-learning is admitted above. The
-                    # completion prompt prints THIS spelling, so refusing it refuses the
-                    # framework's own advice. An allowlist of effects must not be indexed by
-                    # spelling; tools/_t650-*.sh asserts alias/target parity pairwise.
-                    return 0
-                    ;;
                 handover)
                     # T-2878: session handover is the Session End Protocol's
                     # mandatory step; it runs precisely when no task is active.
@@ -1073,8 +1114,6 @@ _fw_single_command_is_safe() {
             if echo "$cmd" | grep -qE '^\s*(ba)?sh\s+-n\b'; then
                 return 0
             fi
-            # 832 T-1047: `bash scripts/session-start-alerts.sh …` (see the arm of that name)
-            _fw_is_session_start_alerts "$(echo "$cmd" | awk '{print $2}')" && return 0
             ;;
 
         # Special: echo without redirect is safe (diagnostic output)
@@ -1130,43 +1169,6 @@ _fw_single_command_is_safe() {
 }
 
 # Check if a command contains file-write patterns
-# 832 T-636 (re-applied on 1.7.740 by T-1005): framework verbs whose quoted arguments are
-# PROSE the framework stores, not shell it runs. Only for these may a verb named inside quotes
-# (`fw note "tee writes a copy"`) be ignored by the rm/tee checks below.
-_sc_is_framework_prose_verb() {
-    local c="$1" tok1 tok2 tok3 rest
-    rest="${c#"${c%%[![:space:]]*}"}"          # ltrim
-    tok1="${rest%%[[:space:]]*}"
-    case "$tok1" in
-        fw|*/fw) ;;
-        *) return 1 ;;
-    esac
-    rest="${rest#"$tok1"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
-    tok2="${rest%%[[:space:]]*}"
-    rest="${rest#"$tok2"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
-    tok3="${rest%%[[:space:]]*}"
-    case "$tok2" in
-        note) return 0 ;;
-        # T-650: the alias needs its OWN entry here, not just in _sc_simple_is_safe.
-        # The two lists answer different questions — "is this verb safe with no task?"
-        # and "does this verb take free prose that must not be read as shell?" — and
-        # `fw fix-learned T-XXX "<sentence>"` needs a yes from both. With only the first,
-        # the command is admitted and then trips on its own argument the moment a learning
-        # contains `>` or `&&`, which is exactly the kind of sentence a bugfix learning is.
-        fix-learned) return 0 ;;
-        context)
-            case "$tok3" in add-learning|add-pattern|add-decision) return 0 ;; esac
-            ;;
-        task)
-            case "$tok3" in create) return 0 ;; esac
-            ;;
-        git)
-            case "$tok3" in commit) return 0 ;; esac
-            ;;
-    esac
-    return 1
-}
-
 has_bash_write_pattern() {
     local cmd="$1"
 
@@ -1178,17 +1180,7 @@ has_bash_write_pattern() {
     # and stay writes, and any OTHER redirect on the line still bites below.
     # (The T-3344 strip in is_bash_safe_command covers the allowlist side only;
     # check-active-task consults THIS scan first.)
-    # 832 T-404/T-632 (re-applied on 1.7.740 by T-1005): judge REDIRECTS on shell structure,
-    # not on characters inside quotes. `grep -n "a\\|>>\\|b" f`, `echo "a > b"` and
-    # `python3 -c "...>= 50..."` are reads; the raw-text scan called them writes and the
-    # no-task gate refused them. Uses upstream's _fw_strip_quoted. Conservative fallbacks to
-    # the RAW text: unbalanced quotes (strip fails), or any command substitution, since
-    # stripping a double-quoted "$(cmd > f)" would hide a real write.
-    local _rview="$cmd"
-    if [[ "$cmd" != *'$('* && "$cmd" != *'`'* ]] && declare -F _fw_strip_quoted >/dev/null 2>&1; then
-        _rview="$(_fw_strip_quoted "$cmd")" || _rview="$cmd"
-    fi
-    local _scan="$_rview" _sprev=""
+    local _scan="$cmd" _sprev=""
     while [ "$_scan" != "$_sprev" ]; do
         _sprev="$_scan"
         _scan=$(printf '%s' "$_scan" | sed -E 's#(^|[^>&0-9])([0-9]|&)?>>?[[:space:]]*/dev/null([[:space:];|&)]|$)#\1 \3#')
@@ -1226,45 +1218,8 @@ has_bash_write_pattern() {
         return 0
     fi
 
-    # 832 T-632/T-640 (re-applied on 1.7.740 by T-1005). Three writes the checks above miss,
-    # each on a verb the allowlist ADMITS, so a miss here is an unguarded write without a task:
-    #   2> FILE / &> FILE   the redirect test above skips every fd-2 and &> form (to keep 2>&1);
-    #                       /dev/null targets were already stripped from $_scan
-    #   sed ... w FILE      sed's w flag / w command writes without -i
-    #   sort -o / --output  sort writes its output file itself
-    if echo "$_scan" | grep -qE '(^|[^>&0-9])(2|&)>>?[[:space:]]*[^&[:space:]]'; then
-        return 0
-    fi
-    if echo "$cmd" | grep -qE "\bsed\b.*[^[:alnum:]]w[[:space:]]+[^[:space:]'\"]"; then
-        return 0
-    fi
-    if echo "$cmd" | grep -qE '\bsort\b.*(^|[[:space:]])(-o([[:space:]]|$)|--output)'; then
-        return 0
-    fi
-    # 832 T-640 (re-applied on 1.7.740 by T-1005). Upstream ALLOWLISTS awk and uniq; ours kept
-    # them gated because each can write without a shell redirect. So the write check must see it:
-    #   awk/gawk/mawk  `print > "f"`, `print | cmd`, `system(...)` live INSIDE the quoted program,
-    #                  which the quote-aware redirect scan above (rightly) ignores — judged on RAW
-    #   uniq IN OUT    the second file operand is an output file
-    if echo "$cmd" | grep -qE '(^|[^[:alnum:]_-])[gm]?awk\b' \
-       && echo "$cmd" | grep -qE '>|system[[:space:]]*\(|print[^|]*\|'; then
-        return 0
-    fi
-    if echo "$_rview" | grep -qE '(^|[;&|[:space:]])uniq\b'; then
-        local _uw _un=0 _after=0
-        for _uw in $(printf '%s' "$cmd" | sed -E 's/.*(^|[;&|[:space:]])uniq\b//; s/[;&|].*//'); do
-            case "$_uw" in -*) ;; *) _un=$((_un + 1)) ;; esac
-        done
-        [ "$_un" -ge 2 ] && return 0
-    fi
-
     # Destructive file operations (already caught by Tier 0 but belt-and-suspenders)
-    # T-636 (re-applied by T-1005): verbs named INSIDE a quoted argument of a framework PROSE
-    # verb are text, not commands. Any other command keeps the raw view: `bash -c "rm -rf x"`
-    # executes its quotes.
-    local _pview="$cmd"
-    if [ "$_rview" != "$cmd" ] && _sc_is_framework_prose_verb "$cmd"; then _pview="$_rview"; fi
-    if echo "$_pview" | grep -qE '\b(rm|rmdir)\b'; then
+    if echo "$cmd" | grep -qE '\b(rm|rmdir)\b'; then
         return 0
     fi
 
@@ -1274,7 +1229,7 @@ has_bash_write_pattern() {
     fi
 
     # tee (writes to file)
-    if echo "$_pview" | grep -qE '\btee\b'; then
+    if echo "$cmd" | grep -qE '\btee\b'; then
         return 0
     fi
 
