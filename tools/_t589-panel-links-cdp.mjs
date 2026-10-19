@@ -106,7 +106,7 @@ const PLAIN_DOC = FIXTURE
 const SNAP = `(function(){
   function byUid(u){ return (state.nodes||[]).find(function(x){ return x.uid===u; }); }
   var n1 = byUid('u-t589-1'), n2 = byUid('u-t589-2'), n3 = byUid('u-t589-3');
-  if (!n1 || !n2 || !n3) return { err: 'fixture absent; uids = ' + JSON.stringify((state.nodes||[]).map(function(x){return x.uid;})) };
+  if (!n1 || !n2 || !n3) return { err: 'fixture absent (deep link settled=' + window._deepLinkSettled + '); uids = ' + JSON.stringify((state.nodes||[]).map(function(x){return x.uid;})) };
 
   // Render the panel for a given node and describe it. selection.id is the node's .id
   // (NOT its uid) — see the shift-click handler; anchoring on uid here would select
@@ -227,9 +227,18 @@ async function main() {
     const { cmd } = cl;
     await cmd('Page.enable'); await cmd('Runtime.enable');
 
+    // T-1224: wait for the fixture itself, not only for readiness flags. The pre-change baseline build predates
+    // _deepLinkSettled, so waitReady cannot wait for its ?load fetch, and a snapshot 500 ms later sometimes saw the
+    // default map (2 of 7 standalone runs). A load that never arrives still fails SNAP, now naming the settle state.
     const load = async (html, bpmn) => {
       await cmd('Page.navigate', { url: `${BASE}/${html}?load=` + encodeURIComponent('rendered/' + bpmn) });
-      await waitReady(cmd); await sleep(500);
+      await waitReady(cmd);
+      const t0 = Date.now();
+      while (!(await ev(cmd, `(state.nodes||[]).some(function(x){ return x.uid === 'u-t589-1'; })`).catch(() => false))) {
+        if (Date.now() - t0 > (+process.env.CDP_READY_MS || 25000)) break;
+        await sleep(150);
+      }
+      await sleep(500);
     };
 
     // ── Control arm: the PRE-CHANGE build, same fixture, same node.
