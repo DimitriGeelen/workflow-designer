@@ -146,7 +146,7 @@ We will know that we are successful when we see <measurable signal>.
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [ ] Go/no-go on the exploration findings (reviewer-judged, `fw reviewer judge T-1215 --criterion 1`; an intake-compatibility choice, not a sovereignty or direction call; the reviewer may escalate)
   **Steps:**
   1. Run: `fw task review T-1215` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
