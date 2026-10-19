@@ -10,21 +10,21 @@ description: >
   49 unregistered source files. Real tracked source population is 115, of which 15
   are carded.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: agt_2_perform
+current_node: frw_end_task
 owner: agent
-horizon: later
+horizon: null
 tags: []
-components: []
+components: [tools/_t344-watch-set-denominator.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:15:56Z
-last_update: '2026-09-26T09:06:21Z'
-date_finished:
+last_update: 2026-10-19T18:04:12Z
+date_finished: 2026-10-19T18:04:12Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -521,3 +521,21 @@ bash -n .agentic-framework/agents/audit/audit.sh
 ### 2026-08-23T10:24:10Z — status-update [task-update-agent]
 - **Change:** horizon: now → later
 - **Change:** status: preserved at started-work (T-1589 shipping evidence)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-20f31b2a
+- **Timestamp:** 2026-10-19T18:05:39Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — `.fabric/watch-patterns.yaml` describes this repo: patterns that expand to a non-empty
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=fabric/watch-patterns.yaml in: `.fabric/watch-patterns.yaml` describes this repo: patterns that expand to a non-empty`
+
+### 2026-10-19T18:04:12Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Reviewer verdict green; checks re-anchored to v1.8.12 in T-1221

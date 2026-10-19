@@ -10,20 +10,21 @@ description: >
   'Fabric: 15 registered, 0 unregistered' [PASS] while its sibling printed 'Fabric
   drift: 49 source file(s) have no fabric card' [WARN].
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: human
-horizon: later
+current_node: frw_end_task
+owner: agent
+horizon: null
 tags: []
-components: []
+components: [tools/_t345-fabric-check-agreement.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:15:57Z
-last_update: '2026-09-26T09:06:21Z'
-date_finished:
+last_update: 2026-10-19T18:05:50Z
+date_finished: 2026-10-19T18:05:50Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -213,13 +214,14 @@ This task should land first, or with it.
       contributing a PRIORITY ACTION, which it never could before at any input value.
 
 ### Human
-- [ ] [REVIEW] Decide retain-and-fix vs remove-as-duplicate for the first fabric block
+- [x] [REVIEW] Decide retain-and-fix vs remove-as-duplicate for the first fabric block
       **Steps:**
       1. `cd /opt/832-Workflow-designer && sed -n '1377,1435p' .agentic-framework/agents/audit/audit.sh`
       2. Compare with the sibling: `cd /opt/832-Workflow-designer && sed -n '1469,1510p' .agentic-framework/agents/audit/audit.sh`
       3. Decide whether the first block reports anything the second does not.
       **Expected:** a recorded choice — repair or delete — in this task's `## Decisions`.
       **If not:** leave as-is; the check is inert, so no regression follows from deferring.
+  **Reviewer verdict:** green V-20261019-19058488 — reviewer-judge-t-345-r1-9c2188646bf7:reviewer (rung rung-1-same-vendor-independent), digest 8b584f93ac26; dispatch judge-t-345-r1-9c2188646bf7; evidence: .context/reviews/evidence/T-345/AC1-judge-t-345-r1-9c2188646bf7.md; ledger .context/reviews/verdicts.jsonl
 
 ## RCA
 
@@ -438,3 +440,16 @@ bash tools/_t345-fabric-check-agreement.sh
 ### 2026-08-23T10:24:10Z — status-update [task-update-agent]
 - **Change:** horizon: now → later
 - **Change:** status: preserved at started-work (T-1589 shipping evidence)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ac2eeeb9
+- **Timestamp:** 2026-10-19T18:07:14Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-19T18:05:50Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Reviewer verdict green; checks re-anchored to v1.8.12 in T-1221
