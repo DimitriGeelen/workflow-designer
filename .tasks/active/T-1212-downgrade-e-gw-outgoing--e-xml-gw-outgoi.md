@@ -17,7 +17,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: agt_2_perform
+current_node: frw_3_run
 owner: agent
 horizon: now
 tags: []
@@ -117,6 +117,14 @@ requirement, so all of it becomes a warning. The ids carry the severity (E-/W-),
   (codex and opencode, rung 5).
 
 ### Human
+<!-- 2026-10-19: three green verdicts are in the ledger (rung-5 panel: claude-code, codex, opencode; digest
+     f5a097a1b861), but `fw reviewer verdict apply` ticks nothing. Cause (verdict_ledger._run_fault): a render
+     criterion judged by a panel needs its review run to carry the framework's own multi-width captures (`visual`,
+     from `fw ux shots`); this run has visual=None, pages={}. `fw ux shots` captures URLs only, and the state
+     under review (a map loaded AND Check pressed) has no URL: the designer reads only id/instance/load from its
+     query string. Not bypassed, not reworded. Reported to AEF (conversation 832-render-evidence). Ways forward: a
+     designer URL that runs Check (e.g. ?check=1) so fw ux shots can reach the state, or AEF accepting
+     tool-produced captures. -->
 - [ ] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1212 --criterion 1`): the designer shows a 1-in/1-out exclusive gateway as a WARNING, legibly, at three widths
   **Steps:**
   1. Open `docs/reports/T-1212-evidence/t1212-check-1024.png`, `t1212-check-1440.png` and `t1212-check-1920.png` (the warn fixture `tests/fixtures/warn/W-XML-GW-OUTGOING.xml` loaded into designer 0.23.0 plus T-1212, Check pressed, served with the real validator)
