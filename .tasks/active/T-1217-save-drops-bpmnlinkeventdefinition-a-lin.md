@@ -1,13 +1,18 @@
 ---
 id: T-1217
-name: "Save drops bpmn:linkEventDefinition: a link throw/catch becomes a plain intermediate event (aef-greenfield-test T-240, 25 kit maps)"
+name: "Save drops bpmn:linkEventDefinition: a link throw/catch becomes a plain intermediate
+  event (aef-greenfield-test T-240, 25 kit maps)"
 description: >
-  Reported by aef-greenfield-test on DM rail offset 95 (2026-10-19): buildBpmnXml does not write <bpmn:linkEventDefinition id name>, so a link throw/catch pair loses its BPMN meaning on save. Present since 0.14. Repro in the report. Keep id and name on round trip.
+  Reported by aef-greenfield-test on DM rail offset 95 (2026-10-19): buildBpmnXml
+  does not write <bpmn:linkEventDefinition id name>, so a link throw/catch pair loses
+  its BPMN meaning on save. Present since 0.14. Repro in the report. Keep id and name
+  on round trip.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [bug, consumer-report, bpmn-roundtrip]
 components: []
 related_tasks: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T16:55:37Z
-last_update: 2026-10-19T16:55:37Z
-date_finished: null
+last_update: 2026-10-19T19:03:34Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +55,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-19T19:03:35Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1217: Save drops bpmn:linkEventDefinition: a link throw/catch becomes a plain intermediate event (aef-greenfield-test T-240, 25 kit maps)
@@ -78,11 +104,19 @@ So the defect is worse than the report: our own `aef:link` encoding is not fille
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Reproduced first: a fixture with a link throw and its catch (`<bpmn:linkEventDefinition id name>`, the
+- [x] Reproduced first: a fixture with a link throw and its catch (`<bpmn:linkEventDefinition id name>`, the
       reporter's repro) loses the definition after load + `buildBpmnXml`, shown by a failing leg before the fix.
-- [ ] After the fix the save keeps each `linkEventDefinition` with its `id` and `name` on both throw and catch;
+      (`tools/_t1217-native-link-definition-cdp.mjs` against the pre-fix src: rc 1, legs 1, 2, 3, 5 red.)
+- [x] After the fix the save keeps each `linkEventDefinition` with its `id` and `name` on both throw and catch;
       `aef:targetWorkflow` still survives; a map with no link events saves byte-identical to before.
-- [ ] The leg is wired into the bridge suite and shown to bite (reverting the fix reddens it).
+      (6/6 legs: id and name kept, linkId seeded from the name, written after incoming/outgoing, second save
+      identical, a linkId rename renames both definitions, a link event without a native definition emits none.
+      The aef:link emitter is untouched, so targetWorkflow/workflowRef are carried as before; round-trip,
+      export-contract, structured-parity, T-259 and T-308 tests rc 0. Third-party goldens: the only difference is
+      kitchen-sink.bpmn's two native link definitions coming back (its empty `name=""` is not written); re-recorded,
+      11 identical. Our own corpus carries no native definition, so its bytes are unchanged.)
+- [x] The leg is wired into the bridge suite and shown to bite (reverting the fix reddens it).
+      (run-bridge-tests.sh beside the T-1218 leg; bite = the pre-fix run above.)
 - [ ] The reporter (aef-greenfield-test, DM rail offset 95) is told the release that carries it; AEF is told with
       the release, per the AEF-release rule.
 
@@ -133,6 +167,10 @@ So the defect is worse than the report: our own `aef:link` encoding is not fille
 -->
 
 ## Verification
+
+timeout 300 node tools/_t1217-native-link-definition-cdp.mjs > /tmp/.t1217.out 2>&1 && head -2 /tmp/.t1217.out | grep -q '"ok": true'
+timeout 300 node tools/_t358-byteid-thirdparty.mjs > /tmp/.t1217-358.out 2>&1 && grep -q '0 drifted' /tmp/.t1217-358.out
+grep -q 'linkEventDefinition id="LinkEventDefinition_0xn074p"' tests/goldens/third-party/kitchen-sink.bpmn.golden
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -334,6 +372,18 @@ So the defect is worse than the report: our own `aef:link` encoding is not fille
 
 ## Decisions
 
+### 2026-10-19 — fix shape: keep the native definition when the file brought one
+- **Chose:** (a), narrowed: a native `<bpmn:linkEventDefinition>` that a file brings is kept on the node and written
+  back (id, and a name that follows the linkId); its name seeds linkId when no `aef:link` names one. Maps the
+  designer authored still carry only `aef:link`.
+- **Why:** it stops destroying third-party data (Portability) without revisiting T-190 IW-1 for our own maps: no
+  corpus bytes change, no AEF-pinned fixture moves. Writing a native definition for every link event would be the
+  wider (a) and would change every corpus map with a link event; that is a design decision for another day.
+- **Rejected:** (b) carry all unknown native children verbatim: wider than the report and harder to keep ordered.
+- **Found, not fixed here:** kitchen-sink.bpmn also carries a `signalEventDefinition`; other native event
+  definitions (signal, and message/timer/error outside the T-204 aef:eventDef channel) are likely dropped the same
+  way. Reported in this task for a follow-up, not widened into this fix.
+
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
@@ -359,3 +409,7 @@ So the defect is worse than the report: our own `aef:link` encoding is not fille
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1217-save-drops-bpmnlinkeventdefinition-a-lin.md
 - **Context:** Initial task creation
+
+### 2026-10-19T19:03:34Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

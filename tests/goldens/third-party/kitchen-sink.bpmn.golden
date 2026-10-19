@@ -330,6 +330,7 @@
         <aef:uid value="u30"/>
         <aef:position x="1152.0" y="652.0"/>
       </bpmn:extensionElements>
+      <bpmn:linkEventDefinition id="LinkEventDefinition_0xn074p"/>
     </bpmn:intermediateThrowEvent>
 
     <bpmn:intermediateThrowEvent id="lan_link_event_9" name="Event_0d3edlz">
@@ -379,6 +380,7 @@
         <aef:uid value="u37"/>
         <aef:position x="702.0" y="652.0"/>
       </bpmn:extensionElements>
+      <bpmn:linkEventDefinition id="LinkEventDefinition_0eu3m1j"/>
     </bpmn:intermediateCatchEvent>
 
     <bpmn:intermediateCatchEvent id="lan_link_event" name="Event_0cvqzwg">

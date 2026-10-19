@@ -12574,6 +12574,12 @@ function buildBpmnXml(s) {
     if (aefBlock) lines.push(aefBlock.trimEnd());
     if (incoming) lines.push(incoming);
     if (outgoing) lines.push(outgoing);
+    // T-1217: the kept native link definition, named by the current linkId so an edit in the panel
+    // keeps throw and catch paired in both encodings.
+    if (n.linkDef && (n.type === 'linkEventThrow' || n.type === 'linkEventCatch')) {
+      const ldName = (n.aef && n.aef.linkId) || n.linkDef.name;
+      lines.push(`      <bpmn:linkEventDefinition${n.linkDef.id ? ` id="${escAttr(n.linkDef.id)}"` : ''}${ldName ? ` name="${escAttr(ldName)}"` : ''}/>`);
+    }
     // T-1096: the task's kept data content, after incoming/outgoing in tActivity's order
     const kd = s.dataKept && s.dataKept.perNode && s.dataKept.perNode[n.uid];
     if (kd) for (const t of DATA_TASK_TAGS) for (const x of kd[t] || []) lines.push(`      ${x}`);
@@ -13429,6 +13435,18 @@ function parseBpmnXml(text) {
         aef.targetWorkflow = linkEl.getAttribute('targetWorkflow') || '';
         aef.linkId = linkEl.getAttribute('linkId') || '';
       }
+      // T-1217: a link event marked the standard way (<bpmn:linkEventDefinition id name>, as bpmn.io and a
+      // third-party author write it) keeps that element: the save writes it back. Its name is BPMN's pairing
+      // key between throw and catch, so it seeds our linkId when no aef:link names one. Maps the designer
+      // authored carry no native definition and are unchanged (T-190 IW-1 stands for them).
+      let linkDef = null;
+      if (type === 'linkEventThrow' || type === 'linkEventCatch') {
+        const nativeLink = Array.from(el.children).find(c => c.localName === 'linkEventDefinition');
+        if (nativeLink) {
+          linkDef = { id: nativeLink.getAttribute('id') || '', name: nativeLink.getAttribute('name') || '' };
+          if (!aef.linkId && linkDef.name) aef.linkId = linkDef.name;
+        }
+      }
       // T-204: typed intermediate event — <aef:eventDef> disambiguates the shared
       // intermediateCatchEvent tag (which also decodes to linkEventCatch) into the
       // specific typed-event node type, and restores the kind-specific binding
@@ -13568,6 +13586,7 @@ function parseBpmnXml(text) {
         aef, io,
         ...(documentation.length ? { documentation } : {}),
         ...(foreignTag ? { foreignTag } : {}),
+        ...(linkDef ? { linkDef } : {}),
       });
       displayIdToUid.set(displayId, uid);
     }

@@ -1072,6 +1072,18 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1217: a native bpmn:linkEventDefinition (third-party link pairing) survives open and save ──
+# The designer encodes link events as aef:link (T-190 IW-1) and dropped the native element, losing the pairing
+# (aef-greenfield-test, 25 maps). Red against the pre-T-1217 source (legs 1, 2, 3, 5).
+if node "$ROOT/tools/_t1217-native-link-definition-cdp.mjs" > "$TMP/leg-_t1217.out" 2>&1 \
+   && head -2 "$TMP/leg-_t1217.out" | grep -q '"ok": true'; then
+  pass=$((pass + 1))
+else
+  report FAIL "a native linkEventDefinition is dropped or misplaced on save again, its name no longer seeds or follows the linkId, a second save differs, or a link event without one now emits one (run 'node tools/_t1217-native-link-definition-cdp.mjs'; T-1217)"
+  show_output "$TMP/leg-_t1217.out" "_t1217-native-link-definition-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # ── T-1218: an unnamed start/end event stays unnamed through open and save, with its display id unchanged ──
 # The import used the id as the name, so the canvas showed "StartEvent_1" and the save wrote it back
 # (aef-greenfield-test, 41 maps). Red against the pre-T-1218 source (legs 1 and 6).
