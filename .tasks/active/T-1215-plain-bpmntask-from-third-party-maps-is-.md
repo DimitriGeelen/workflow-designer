@@ -42,6 +42,12 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 AEF is willing to take option (a): on our decision they file the intake side as a TYPE_TO_TAG addition with
 round-trip, like callActivity in T-4374. That makes (a) cheap on their side, the main unknown behind the DEFER.
 
+**Evidence (2026-10-19, read-only count):** 5 of the 11 third-party fixtures (`tests/fixtures/third-party/`) carry a
+plain `bpmn:task`. So do the maps OTHER MODELS generated from 832's own authoring kit in the calibration runs (jobs
+026/027: codex, glm-5.3), 68 map files in all outside tests/dist. Plain task is common, including in what our kit's
+users produce. That points to (a): AEF accepts `bpmn:task` round-trip. Converting it in the designer (b) would
+rewrite the very maps the kit invites.
+
 ## Problem Statement
 
 <!-- What problem are we exploring? For whom? Why now? -->
