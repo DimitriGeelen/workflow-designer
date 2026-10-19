@@ -39,57 +39,46 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+aef-greenfield-test (their T-276, owner GO 2026-10-19) generates each step's inputs and outputs from its ontology as
+traceable fields (`system:Object.field`, e.g. `sfdc:Opportunity.OwnerId`) and wants them on `aef:input`/`aef:output`
+as `ref`, `role`, `cardinality` and a business data type. The designer's save writes only `name`, `type`, `required`,
+so anything else is destroyed on the first save: the consumer cannot round-trip its own maps through the designer.
+Why now: the consumer is building the generator this month and asked before we build anything.
 
 ## Hypothesis
 
-<!-- REQUIRED before a GO decision (T-866, arc-004). Fill the three blanks below and
-     delete this comment. Keep the three phrases — the gate looks for them.
-
-     NOT EVERY INCEPTION HAS ONE, and that is fine. "Research how X works" produces
-     understanding, not a delivered outcome, and forcing it into "we will achieve
-     <outcome>" would manufacture a fake claim to satisfy a gate — which teaches
-     authors to write fiction and is worse than no gate at all.
-
-     If this is that kind of inception, set in the frontmatter:
-
-         inception_kind: research
-
-     and delete this section. The gate then passes. Declare it NOW, while framing the
-     work — not later at the decision, when you know whether the hypothesis would have
-     been inconvenient. The count of research inceptions is reported, so if the
-     exemption quietly becomes the default that is visible rather than silent.
-
-     This is the form the BVP scoring method expects. Every support score in this
-     task's value-driver table is an ARGUMENT ABOUT THIS SENTENCE: "support 5 on
-     Reliability" means something only once the sentence says what success looks
-     like. Without it a score can rank but cannot be wrong, because there is no
-     claim for it to be wrong about.
-
-     THE THIRD CLAUSE IS THE ONE THAT BITES. It has to be checkable by someone who
-     was not in the room and who reads this in three months. A number, a count, a
-     threshold, a named state.
-
-       no  — "...when the system is better"
-       no  — "...when the team is more productive"
-       yes — "...when 5 consecutive fire-suppression tests pass at every equipped site"
-       yes — "...when fw audit reports 0 failures for 3 consecutive nightly runs"
-       yes — "...when the importer no longer fabricates a lane for input that has none"
-
-     Writing it is genuinely hard. You are not expected to start from blank: the
-     estimator drafts one from this task's own text, and you correct it. Your
-     correction is sticky — set `hypothesis_source: human` in the frontmatter and no
-     automatic pass will ever overwrite it. -->
-
-We believe that <change>,
-we will achieve <outcome>.
-We will know that we are successful when we see <measurable signal>.
+We believe that keeping unknown `aef:` attributes on `aef:input`/`aef:output` through open and save, and adding
+designer fields only for what AEF's v1.1 revision (T-4415) defines,
+we will achieve a designer that round-trips a consumer's traceable data elements without inventing a dialect of its own.
+We will know that we are successful when we see `tools/_t1220-io-extra-attrs-cdp.mjs` green in the bridge suite (an
+input carrying ref/role/cardinality/dataType plus an unknown attribute saves them back unchanged, twice) and no
+designer field for those attributes exists before T-4415 is ruled on.
 
 ## Assumptions
 
-<!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-1219 -->
+- A-1: AEF does not object to the designer preserving attributes it does not define. **Validated** (AEF msg 42018c4e).
+- A-2: the new fields belong in the shared standard, not in a designer-only extension. **Validated** (AEF filed T-4415
+  for mapping-v1.1, msg 42018c4e; adopted the requester's counter-points, msg e9f02fa0).
+- A-3: preserving the attributes changes no committed map. **Validated**: no `.bpmn`/`.golden`/`.xml` in the repo
+  carries an attribute beyond name/type/required on aef:input/aef:output (survey, T-1220).
 
 ## Open Questions
+
+- **IW-1: Does the standard allow unknown `aef:` attributes on `aef:input`/`aef:output`, and does our validator flag them?**
+  confidence: 3
+  disposition: answered
+  rationale: v1 does not define them, but AEF has no objection to preserving them (msg 42018c4e); built as T-1220,
+  which adds no validator rule.
+- **IW-2: Which of ref/role/cardinality/dataType does AEF want in the standard, and in what shape?**
+  confidence: 3
+  disposition: answered
+  rationale: all four, as optional attributes, dataType separate from type, role per input/output (AEF T-4415,
+  msgs 42018c4e, e9f02fa0); the revision itself is AEF's operator's ruling.
+- **IW-3: What does the designer show for them (panel fields, read-only, hover)?**
+  confidence: 1
+  disposition: deferred
+  rationale: waits for AEF's operator to rule on T-4415; a build task is filed when the ruling exists. The CURIE
+  prefix → URL map for the hover link is in v1.1 scope (msg 53eb5724).
 
 <!-- T-2190 (T-2186 Slice 4): every IW-N question must be disposed before
      --status work-completed. Disposition gate (agents/task-create/update-task.sh
@@ -121,7 +110,9 @@ We will know that we are successful when we see <measurable signal>.
 
 ## Scope Fence
 
-<!-- What's IN scope for this exploration? What's explicitly OUT? -->
+IN: whether and how the designer keeps and later shows traceable data elements on `aef:io`; the round-trip property
+(built as T-1220). OUT: defining the attributes (AEF's v1.1, T-4415); any validator rule for them; the requester's
+ontology and generator; reading `aef:io` in AEF's compiler (part of T-4415).
 
 ## Acceptance Criteria
 
@@ -148,12 +139,12 @@ We will know that we are successful when we see <measurable signal>.
 
 <!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
 **GO if:**
-- Root cause identified with bounded fix path
-- Fix is scoped, testable, and reversible
+- The round-trip half can be built without interpreting anything and without changing committed maps (it was: T-1220)
+- The field half has an owner and a path in the shared standard (it has: AEF T-4415)
 
 **NO-GO if:**
-- Problem requires fundamental redesign or unbounded scope
-- Fix cost exceeds benefit given current evidence
+- AEF objected to preserving undefined attributes, or wanted the fields kept out of the standard (neither happened)
+- Supporting the fields would force a designer-only dialect
 
 ## Verification
 
@@ -176,7 +167,7 @@ We will know that we are successful when we see <measurable signal>.
 traceable data elements on `aef:io` for a consumer that generates them from its ontology. The answer splits in two,
 and both halves are settled with the parties who own them. Keeping unknown `aef:` attributes through a save is a
 round-trip property the designer should have anyway; AEF has no objection ("preserving is not interpreting"), so it
-was built as T-1220 and ships in 0.24.0. The new fields themselves (`ref`, `role`, `cardinality`, `dataType`) belong
+was built as T-1220 and is planned for 0.24.0 (T-1223, not yet released). The new fields themselves (`ref`, `role`, `cardinality`, `dataType`) belong
 in the shared standard, not in 832 alone: AEF filed inception T-4415 for a mapping-v1.1 revision, adopted the
 requester's three counter-points, and put a CURIE prefix → URL map in scope. 832 builds designer fields only after
 AEF's operator rules on T-4415; that build task is filed when the ruling exists.
