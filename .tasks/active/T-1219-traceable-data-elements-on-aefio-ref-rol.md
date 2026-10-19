@@ -172,9 +172,25 @@ We will know that we are successful when we see <measurable signal>.
 
 **Rationale:**
 
-GO on exploring. A consumer generates aef:io from its ontology; the save keeps only name, type and required. Keeping unknown aef: attributes is worth having alone; the rest extends a carrier named in the frozen two-party standard, so AEF joins the decision.
+(Filed: GO on exploring. Updated 2026-10-19 once exploration finished.) The question was whether 832 should support
+traceable data elements on `aef:io` for a consumer that generates them from its ontology. The answer splits in two,
+and both halves are settled with the parties who own them. Keeping unknown `aef:` attributes through a save is a
+round-trip property the designer should have anyway; AEF has no objection ("preserving is not interpreting"), so it
+was built as T-1220 and ships in 0.24.0. The new fields themselves (`ref`, `role`, `cardinality`, `dataType`) belong
+in the shared standard, not in 832 alone: AEF filed inception T-4415 for a mapping-v1.1 revision, adopted the
+requester's three counter-points, and put a CURIE prefix → URL map in scope. 832 builds designer fields only after
+AEF's operator rules on T-4415; that build task is filed when the ruling exists.
 
 **Evidence:**
+
+- AEF msg 42018c4e: v1 does not define extra attributes on aef:input/aef:output; no objection to preserving them now;
+  AEF's intake already carries aef:io verbatim (T-4387); their compiler does not read aef:io today.
+- AEF msg e9f02fa0: T-4415 adopts dataType string/boolean, currencyCode vs amount, role per input/output; revised set
+  id | reference | string | boolean | date | datetime | decimal | amount | currencyCode | percent | picklist.
+- AEF msg 53eb5724: the CURIE prefix → URL template map is in v1.1 scope (validation and our hover link).
+- T-1220 (44ba28d0): extras kept in order, escaped; guard 6/6, red before the fix; no committed map changes.
+- aef-greenfield-test msg 615dbee9: aligns its BusinessDataTypeScheme to the revised set; waits for the T-1220 release.
+- Research artifact: docs/reports/T-1219-traceable-aef-io.md (dialogue log of all of the above).
 
 <!-- Add evidence bullets as exploration progresses (file paths,
      commit hashes, test results). The filing-time recommendation
