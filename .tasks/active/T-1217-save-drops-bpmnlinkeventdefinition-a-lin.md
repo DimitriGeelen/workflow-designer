@@ -56,7 +56,18 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Reported by aef-greenfield-test (DM rail `dm:90d4553895d5a9a6:d1993c2c3ec44c94`, offset 95, 2026-10-19).
+
+**It is a design consequence, not an accident.** `TYPE_TAG` (src ~11992) says link events ride `<aef:link>` and
+"NO native bpmn:*EventDefinition" (T-190 IW-1, built in T-204, mirrored for error/timer/message). That works for
+maps the designer authored. A third-party map that marks its link events the standard way
+(`<bpmn:linkEventDefinition id name>`) loses that marking on save, which breaks the Portability directive for
+exactly the maps we did not write.
+
+**Fix shape to decide before building (one lock):** (a) import recognises a native `linkEventDefinition` as a link
+event, and the save writes it back (id + name) beside `aef:link` — additive, standard BPMN stays readable by bpmn.io;
+or (b) carry unknown native child elements through verbatim. (a) revisits T-190 IW-1 for one element only and should
+be recorded as a Decision here, with the same question asked for error/timer/message definitions (T-204).
 
 ## Acceptance Criteria
 
