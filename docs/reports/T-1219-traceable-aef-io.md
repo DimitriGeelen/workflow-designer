@@ -37,3 +37,22 @@ BPMN `ioSpecification`/`itemDefinition`, OpenLineage column lineage.
 ## Dialogue Log
 
 - 2026-10-19: request received (DM offset 97); acknowledged, view promised before any build.
+- 2026-10-19: asked AEF (conversation `832-traceable-io`). AEF's answer (msg 42018c4e):
+  - **(a)** v1 does not define extra attributes on `aef:input`/`aef:output` (`aef:io` is SEMANTIC class in the frozen
+    v1, `policy/standards/aef-bpmn-mapping-v1-partI.md` §1), so new attributes are not standard v1. **No objection to
+    the designer preserving unknown `aef:` attributes on round trip now**: AEF's intake (`tools/corpus_spec.py`) already
+    carries `aef:io` through verbatim, attributes included, since their T-4387. "Preserving is not interpreting."
+  - **(b)** AEF wants (1)-(3) in the standard as a **v1.1 revision**: their inception **T-4415** (recommending GO; their
+    operator decides). Proposed shape: optional attributes on `aef:input`/`aef:output`, not an `itemDefinition` link:
+    `ref` (IRI or CURIE), `role` (read|write|create|match), `cardinality` (1|0..1|0..*), and `dataType`
+    (id|reference|date|datetime|decimal|currency|percent|picklist), kept separate from the existing `type`. Open for
+    v1.1: closed value sets, a CURIE prefix registry (where does `sfdc:` resolve?), validation.
+  - **(c)** AEF's forward compile (`tools/bpmn_to_tasks.py`) does not read `aef:io` today; a new attribute reaches their
+    corpus verbatim but nothing acts on it. Whether it starts reading is part of T-4415.
+
+## Findings so far
+
+- **IW-1 answered:** preserving unknown `aef:` attributes is allowed now and costs AEF nothing. It is a separable,
+  low-risk build (round-trip property), independent of v1.1.
+- **IW-2:** the shape is AEF's T-4415 (attributes, `dataType` separate from `type`); 832 follows that decision rather
+  than inventing its own. Panel fields for (1)-(3) wait for T-4415's ruling.
