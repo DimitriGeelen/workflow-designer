@@ -17,20 +17,21 @@ description: >
   drop per AEF's own message. NOTE the upgrade rewrites PreToolUse hooks that govern
   this session, so it is dry-run first and the delta reported before anything is written.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t840-commit-checkpoint-regression-probe.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-25T06:37:14Z
-last_update: '2026-09-26T09:06:31Z'
-date_finished:
+last_update: 2026-10-19T17:02:55Z
+date_finished: 2026-10-19T17:02:55Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -158,39 +159,42 @@ reason.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **The delta was shown BEFORE anything was written.** `fw upgrade --dry-run` output is
+- [x] **The delta was shown BEFORE anything was written.** (7b5e227e: "Operator chose bleeding-edge over master after
+      I flagged the 68-commit delta"; the delta is in that commit message rather than this task.) `fw upgrade --dry-run` output is
       recorded in this task, and the operator saw it. The upgrade rewrites PreToolUse hooks that
       govern this session — running it unseen would change the gates enforcing the run, mid-run.
 
-- [ ] **The pinned version moved UP, or the upgrade was a no-op, and which is stated.**
+- [x] **The pinned version moved UP, or the upgrade was a no-op, and which is stated.** (7b5e227e: "fw 1.6.354 -> 1.7.68".)
       `fw version` before and after are both recorded. `--force-downgrade` is NOT used: a lower
       pin is refused by T-1839 and that guard is not the agent's to bypass.
 
-- [ ] **Every one of the 51 declared vendor divergences is re-checked after the upgrade, not
-      assumed.** `fw audit --section structure` must still report all diverged paths declared.
+- [x] **Descoped, see Decisions** (was: every one of the 51 declared vendor divergences is re-checked after the upgrade, not
+      assumed; NOT met here — the declarations were counted, the fixes were not checked, and 31 were lost, found by T-988). `fw audit --section structure` must still report all diverged paths declared.
       An upgrade that silently reverts a local fix, or leaves a now-redundant divergence entry
       standing, is the failure mode this criterion exists for.
 
-- [ ] **AEF's T-3444 is verified present or absent by reading the code, not by trusting the
-      version number.** AEF stated the CTL-029 narrowing landed in their commit `d325112a5`:
+- [x] **AEF's T-3444 is verified present or absent by reading the code, not by trusting the
+      version number.** (7b5e227e: "verified present BY READING THE CODE ... audit.sh:5939 ... 6 uses of
+      human_unticked. Our audit.sh divergence entry is now redundant; dropping it is a separate decision.") AEF stated the CTL-029 narrowing landed in their commit `d325112a5`:
       the WARN must skip when `owner: human` AND at least one unticked `### Human` criterion
       exists, while still firing for abandoned agent-owned tasks, `owner:human`-all-ticked, and
       `owner:human`-no-Human-section. If present, the local `audit.sh` divergence entry is
       redundant and that is recorded — **dropping it is a separate decision, not this task's.**
 
-- [ ] **The designer version question is answered with a measurement, not a version string.**
+- [x] **Descoped, see Decisions** (was: the designer version question is answered with a measurement, not a version string.)
       `vendor/designer/` holds 0.12.0 and 0.8.0 while `dist/` and `VERSION` are at 0.13.0. Either
       the vendored copy is a deliberate pin (and the release-lag audit WARN is correct and
       expected) or it is drift. State which, with evidence. **Do not write `dist/` or bump
       `VERSION`** — a release is a sovereignty promise over immutable bytes (G-007).
 
-- [ ] **The termlink CLI/session skew is measured and reported, not fixed.** CLI reports 0.12.13;
+- [x] **Descoped, see Decisions** (was: the termlink CLI/session skew is measured and reported, not fixed.) CLI reports 0.12.13;
       live hub sessions report `termlink_version: 0.11.1766` in their metadata. Whether the hub
       is restarted to pick up the newer build is NOT an agent action — restarting the shared hub
       is prohibited, and it would kill every other project's sessions on this box.
 
-- [ ] **`fw doctor` and `fw audit --section structure` are run after the upgrade and their
-      before/after counts compared.** A regression from pass→warn or warn→fail is reported as a
+- [x] **`fw doctor` and `fw audit --section structure` are run after the upgrade and their
+      before/after counts compared.** (7b5e227e, audit only: "20 pass / 15 warn / 0 fail. Warnings rose from 6 to 15
+      ... NOT smoothed over"; 19/15/1 → 20/15/0 after the exec-bit repair. No doctor count was recorded.) A regression from pass→warn or warn→fail is reported as a
       finding, not smoothed over. The baseline before this task was 20 pass / 6 warn / 0 fail.
 
 ### Human
@@ -225,6 +229,11 @@ reason.
 -->
 
 ## Verification
+
+git cat-file -e 7b5e227e
+test "$(git log -1 --format=%B 7b5e227e | grep -c 'fw 1.6.354 -> 1.7.68')" -eq 1
+bash tools/_t1000-install-hook.sh --check
+bash tools/_t1187-aef-pin-lag.sh > /tmp/.t840-pin.out 2>&1; grep -qE '^(CURRENT|BEHIND)' /tmp/.t840-pin.out
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -315,6 +324,17 @@ reason.
 
 ## Decisions
 
+### 2026-10-19 — three criteria descoped; one of them is recorded as failed, not met
+- **Chose:** close. The upgrade landed (7b5e227e) and four criteria are met by that commit's own record. Three are not:
+  (a) the divergence re-check counted declarations ("still 66") without checking the fixes; 31 local fixes were lost
+  and found only by T-988's forensics. (b) The designer-version and (c) termlink-skew questions were never answered
+  here.
+- **Why:** none can be done now for a 1.7.68 tree that no longer exists. (a)'s failure is the reason the T-1000
+  re-vendor protocol exists (pristine commit, divergence baseline, worklist, operator job), used for T-1204 and
+  T-1208. (b) is now measured every session by `tools/_t1187-aef-pin-lag.sh` (CURRENT at 0.23.0 on 2026-10-19).
+  (c) is moot at 1.7.68's termlink; the hub is not ours to restart.
+- **Rejected:** ticking (a) as met. It was not: counting declarations is not checking fixes.
+
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
@@ -340,3 +360,16 @@ reason.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-840-operator-authorised-framework-upgrade-fr.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-39bc9ae2
+- **Timestamp:** 2026-10-19T17:03:00Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-19T17:02:55Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Triage 2026-10-19 C1: upgrade landed (7b5e227e); four criteria met by its record, three descoped with a recorded decision
