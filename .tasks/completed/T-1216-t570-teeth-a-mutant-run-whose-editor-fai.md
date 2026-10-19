@@ -14,13 +14,13 @@ description: >
   _t535-trend-key-teeth takes about 3 min alone and exceeds the sweep's 90 s cap ('did
   not finish'), a cost question per the sweep's own advice.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: agt_2_perform
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t566-note-field-cdp.mjs, tools/_t570-meta-carriage-cdp.mjs, tools/_t570-meta-carriage-teeth.py, tools/_t573-emits-panel-shape-cdp.mjs, tools/_t589-panel-links-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -49,8 +49,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T16:01:42Z
-last_update: 2026-10-19T20:55:45Z
-date_finished:
+last_update: 2026-10-19T22:04:20Z
+date_finished: 2026-10-19T22:04:20Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -400,3 +400,21 @@ grep -q 'T-1216: a mutant run whose control leg is red' tests/run-bridge-tests.s
 ### 2026-10-19T20:55:45Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2157c449
+- **Timestamp:** 2026-10-19T22:05:09Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-19T22:04:20Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** root cause fixed (verdict before cleanup), guard kept as backstop

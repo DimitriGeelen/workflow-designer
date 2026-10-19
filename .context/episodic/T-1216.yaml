@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1216: _t570 teeth: a mutant run whose editor fails to load reads as 'reddened every leg' (FAIL) instead of COULD-NOT-MEASURE
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T22:05:20Z
+# ============================================================================
+
+task_id: T-1216
+task_name: "_t570 teeth: a mutant run whose editor fails to load reads as 'reddened every leg' (FAIL) instead of COULD-NOT-MEASURE"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-19T16:01:42Z
+completed: 2026-10-19T22:04:20Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-19T18:02:00+02:00
+last_commit: 2026-10-20T00:04:19+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture — _t570 teeth read a mutant that failed to load as 'reddened every leg' (FAIL); _t535 exceeds the sweep cap. _t570 teeth no longer score a broken measurement as an over-killing mutant. the real cause — the probe deleted its temp dirs before printing its verdict, and ENOTEMPTY from a still-writing Chromium ended it with no verdict lines
+
+# Key outcomes
+outcomes:
+  - 'A mutant run whose control leg `reproduce-drop` is red is not scored: it is retried once, and if still red the'
+  - 'The teeth still discriminate: the unmutated control and mutants A-D give the same verdicts as before (5/5 green).'
+  - 'The broken-measurement path is exercised, not assumed: a probe stand-in that reports every leg red makes the'
+  - '`_t572` (same structure, no COULD-NOT-MEASURE path) is recorded here as the same weakness, for its own task if it'
+  - 'The cause is found, not only contained. (2026-10-20, when the close gate''s own run hit the new path: the probe''s'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1216-t570-teeth-a-mutant-run-whose-editor-fai.md'
+  - 'tests/fixtures/t1216/probe-broken-measurement.mjs'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t566-note-field-cdp.mjs'
+  - 'tools/_t570-meta-carriage-cdp.mjs'
+  - 'tools/_t570-meta-carriage-teeth.py'
+  - 'tools/_t573-emits-panel-shape-cdp.mjs'
+  - 'tools/_t589-panel-links-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T18:02:00'
+    action: 'T-1216: capture — _t570 teeth read a mutant that failed to load as ''reddened every leg'' (FAIL); _t535 exceeds the sweep cap'
+  - time: '2026-10-19T22:57:35'
+    action: 'T-1216: _t570 teeth no longer score a broken measurement as an over-killing mutant'
+  - time: '2026-10-20T00:04:19'
+    action: 'T-1216: the real cause — the probe deleted its temp dirs before printing its verdict, and ENOTEMPTY from a still-writing Chromium ended it with no verdict lines'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 362 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 362
+  commits: 3
+  files_changed: 8
+  lines_added: 475
+  lines_removed: 28
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1216-t570-teeth-a-mutant-run-whose-editor-fai.md
+generated_by: context-agent-hybrid
