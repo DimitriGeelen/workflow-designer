@@ -74,6 +74,20 @@ cost_estimate_proposed:
 
 # T-282: callActivity node type (SD-9): sync sub-workflow call with ioMapping
 
+## Revived 2026-10-19 (operator, H1 reversed) — AEF input
+
+AEF (msg 705e7d58, conversation `832-roadmap-arcs-4-6`):
+- **No call-with-return need on their side today:** their corpus is descriptive, embedded subProcess round-trips,
+  and link events are unused.
+- **But a map with `bpmn:callActivity` HARD-FAILS at AEF today:** `tools/corpus_spec.py` rejects it as an unknown
+  tag (strict parse, T-2614). AEF filed **T-4374** (horizon next) to accept it, round-trip only, with no execution
+  semantics.
+- **AEF's proposed v1 shape, to confirm or counter before building:** `calledElement` = the called map's corpus id;
+  `extensionElements/aef:ioMapping` with `aef:in` and `aef:out` entries (source, target), no expressions in v1.
+  AEF validates that `calledElement` resolves to an existing map, and unknown tags stay a hard error.
+- **Consequence for sequencing:** 832 must not ship a designer that emits callActivity before AEF T-4374 accepts
+  it, or AEF's intake breaks. The inception takes this as a hard ordering constraint.
+
 ## Problem Statement
 
 <!-- What problem are we exploring? For whom? Why now? -->

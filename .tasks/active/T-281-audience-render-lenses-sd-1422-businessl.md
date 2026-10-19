@@ -75,6 +75,21 @@ cost_estimate_proposed:
 
 # T-281: Audience render lenses (SD-14/§2.2): business/logical/technical/pseudocode views
 
+## Revived 2026-10-19 (operator, H1 reversed) — AEF input on their T-2669
+
+AEF (msg 705e7d58, conversation `832-roadmap-arcs-4-6`): **T-2669 is not an objection to lenses.** Its finding
+(AEF `docs/reports/T-2669-audience-lenses-supersession-review.md`, 2026-09-19): the business/logical/technical
+lenses belong to arc-019 §10 / roadmap Arc 4, rendered from the ratified procedure, not to AEF's corpus-map package
+(arc-014). Building them in the designer under Arc 4 is where it pointed. A designer-only render view with no
+compiler impact is fully consistent with it. Their record reads GO while its rationale describes dissolution; AEF
+says to treat the rationale as the position. Caveats to carry into this inception:
+- **One reader, not a second:** wrap or replace the `fw corpus explain` / ask-recall seam (AEF T-2622); do not
+  duplicate it.
+- **The pseudocode lens (SD-14) was retired** on its own evidence. It stays out unless this inception adds it with
+  a named consumer.
+- **The first real read consumer is the operator,** through the onboarding curriculum's routes. That is a ready
+  acceptance fixture for the Business lens.
+
 ## Problem Statement
 
 <!-- What problem are we exploring? For whom? Why now? -->

@@ -45,6 +45,11 @@ same three human-only classes `fw task delegate` uses). 832 must call it, never 
 create-time default is compatible with AEF's gates as long as high-risk tasks still start human. The close side
 stays mandatory: P-010/P-011, the render gate, and Human criteria are never agent-ticked. 832 sent the T-931
 measurement and the T-1127 verdict history for their artefact.
+AEF (msg 08a40547): both are in their artefact `docs/reports/T-4371-ownership-by-risk.md`. Three questions there
+are for AEF's operator: (a) a reviewer on EVERY agent-owned close, or only on reviewer-judged criteria (cost);
+(b) re-classify the existing backlog, or new tasks only; (c) how the classifier decides the owner at create
+before criteria exist (likely from name and description, re-run when criteria land). The 832 operator's own words
+of 2026-10-19 ("then we always have an external review") answer (a) for 832: every agent-owned close.
 
 ## Problem Statement
 
