@@ -56,7 +56,12 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Released 2026-10-19** (AEF msg b211c566): tag v1.8.12 = `ee1d6fcfe6d6758156b74c82c083ae5e5ca2ff66`. It is v1.8.11
+plus T-4343 (`git -C` / `--git-dir` / `--work-tree` are read-only only inside the project root) and T-4344 (the
+boundary read scanner no longer skips the word after a no-value flag). Upgrade path: a plain
+`.agentic-framework/bin/fw upgrade` works from v1.8.11. Notes: `docs/releases/v1.8.12-notes.md` at the tag.
+832 carries local patches on `safe-commands.sh` (T-1047, T-632/T-640, T-636, T-650; merged 3-way in T-1204), so
+expect a 3-way merge there. Operator job on the T-1204 protocol; the launcher keeps the TermLink key (T-1204).
 
 ## Acceptance Criteria
 
