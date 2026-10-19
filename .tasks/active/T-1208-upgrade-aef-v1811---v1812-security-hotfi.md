@@ -1,13 +1,22 @@
 ---
 id: T-1208
-name: "Upgrade AEF v1.8.11 -> v1.8.12 (security hotfix: safe-commands.sh, shell_write_scan.py; T-4343, T-4344)"
+name: "Upgrade AEF v1.8.11 -> v1.8.12 (security hotfix: safe-commands.sh, shell_write_scan.py;
+  T-4343, T-4344)"
 description: >
-  AEF msg 892ee58a: v1.8.12 = v1.8.11 + two files (safe-commands.sh, shell_write_scan.py) with their vendored copies and tests. T-4343 makes git -C/--git-dir/--work-tree read-only only inside the project; T-4344 changes the free-text option table. A plain fw upgrade works again from v1.8.11. 832 carries local patches on safe-commands.sh (T-1047, T-632/T-640, T-636, T-650; 3-way merged in T-1204), so expect a 3-way merge. Start when the v1.8.12 tag exists (not yet at 2026-10-19). Same protocol as T-1204 (operator job, the launcher now keeps the TermLink key), then re-run _t390, _t632, _t636, _t640, _t650, _t1047 and the bridge suite.
+  AEF msg 892ee58a: v1.8.12 = v1.8.11 + two files (safe-commands.sh, shell_write_scan.py)
+  with their vendored copies and tests. T-4343 makes git -C/--git-dir/--work-tree
+  read-only only inside the project; T-4344 changes the free-text option table. A
+  plain fw upgrade works again from v1.8.11. 832 carries local patches on safe-commands.sh
+  (T-1047, T-632/T-640, T-636, T-650; 3-way merged in T-1204), so expect a 3-way merge.
+  Start when the v1.8.12 tag exists (not yet at 2026-10-19). Same protocol as T-1204
+  (operator job, the launcher now keeps the TermLink key), then re-run _t390, _t632,
+  _t636, _t640, _t650, _t1047 and the bridge suite.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-18T23:01:48Z
-last_update: 2026-10-18T23:01:48Z
-date_finished: null
+last_update: 2026-10-19T12:34:38Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +59,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-19T12:34:38Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 2
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=2 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L2:keyword=termlink);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1208: Upgrade AEF v1.8.11 -> v1.8.12 (security hotfix: safe-commands.sh, shell_write_scan.py; T-4343, T-4344)
@@ -66,9 +96,17 @@ expect a 3-way merge there. Operator job on the T-1204 protocol; the launcher ke
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The v1.8.12 tag is resolved and checked: v1.8.11 (e42aa41bf) is its ancestor, and a dry run of v1.8.12's `fw upgrade` against 832 is read and summarised here before the job is handed over
+  — tag ee1d6fcf; e42aa41bf is its ancestor; 9 files changed. Dry run: CLAUDE.md already up to date; settings
+  hooks, `.mcp.json` and the enforcement baseline OK, no change; version 1.8.11 → 1.8.12; 37 local framework fixes
+  would be overwritten (re-applied afterwards via `tools/_t1000-revendor-worklist.py`); `inception.md.upstream`
+  for `_t1192`.
+- [x] An operator job upgrades 832 to v1.8.12 under the T-1204 protocol (doctor before and after, pristine vendor commit, divergence baseline, crontab check, re-vendor gate, TermLink settings kept), dry-run and committed
+  — job 051, derived from job 048 with only the versions and task id changed; its dry run passes (8/8 checks).
+  Not run yet: the operator runs it.
+- [ ] After the run, the local fixes reported STALE by `tools/_t517` are re-applied or retired (expect a 3-way merge in `safe-commands.sh` against T-4343/T-4344); the `.bak` backups are diffed and handled; `tools/_t1192-upgrade-templates.sh --commit --task T-1208` exits 0
+- [ ] The safe-commands regression tools pass (`_t390`, `_t632`, `_t636`, `_t640`, `_t650`, `_t1047`); after the upgrade the sidecar receiver still carries 832's key (`tools/_t1203-identity-coverage.sh` 0 FAIL); a full bridge run is green
+- [ ] Field check of T-4343 against our merged safe-commands.sh (`git -C` inside the project is read-only, outside it is gated) reported to AEF
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -117,6 +155,12 @@ expect a 3-way merge there. Operator job on the T-1204 protocol; the launcher ke
 -->
 
 ## Verification
+
+test "$(tr -d '[:space:]' < .agentic-framework/VERSION)" = 1.8.12
+python3 tools/_t517-vendor-divergence.py
+bash tools/_t1047-session-start-alerts-gate.sh
+bash tools/_t640-fetchers-that-write-are-writes.sh
+bash tools/_t1203-identity-coverage.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -343,3 +387,7 @@ expect a 3-way merge there. Operator job on the T-1204 protocol; the launcher ke
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1208-upgrade-aef-v1811---v1812-security-hotfi.md
 - **Context:** Initial task creation
+
+### 2026-10-19T12:34:38Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
