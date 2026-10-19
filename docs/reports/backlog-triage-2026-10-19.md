@@ -35,6 +35,22 @@
 - T-402 build human '2026-09-2 agent-open=0/6 human-open=1
 - T-1212 build agent 2026-10-19 agent-open=0/6 human-open=1
 
+## C1. Group C tasks already resolved or superseded (evidence, 2026-10-19)
+
+Each still goes through the close gate (its own criteria ticked against this evidence; Verification re-runs).
+- T-749 (T-708 completable, not closed): T-708 is completed.
+- T-750 (T-723) and T-709 (T-041): both are in group A; they resolve when group A closes.
+- T-741 (vendored tree omits tools/): `.agentic-framework/tools` now holds 52 files; fixed upstream.
+- T-1000 (gate re-vendoring): `tools/_t1000-install-hook.sh --check` installed; used in the T-1204 and T-1208 upgrades.
+- T-1003 (runme signals the agent): `tools/runme-signal.sh` and `tools/runme-watch.sh` built and used throughout.
+- T-669 (uncontrolled absence assertions 78→90): `_t560` census PASS at baseline 74.
+- T-944 (16 standing bridge failures): bridge suite 299 passed, 0 failed (2026-10-19).
+- T-700 (unshipped change 23 days old): releases through 0.23.0 since; AEF pin CURRENT.
+- T-840, T-988 (old framework upgrades), T-981 (sidecar check after a bleeding-edge upgrade): superseded by
+  T-1188, T-1204, T-1208.
+
+Still to read: T-758, T-897, T-874, T-922, T-811, T-575, T-784, T-979, T-969, T-968, T-989, and the October ones.
+
 ## C. Agent criteria still open (oldest first)
 
 - T-758 refactor agent 2026-09-21 agent-open=4/4 human-open=0
