@@ -129,7 +129,11 @@ requirement, so all of it becomes a warning. The ids carry the severity (E-/W-),
      (goto, click, fill, press, hover, wait-for) passed as state=@steps.yaml and EXECUTED BY ux_shots itself,
      with the steps file hashed and recorded beside the captures. Pre-captured images are refused on purpose,
      since the producer would supply its own evidence. When T-4391 lands: write steps.yaml (load the fixture,
-     click Check, wait for the warning; it maps onto tools/_t1212-gw-warning-shots.py), run fw ux shots, re-judge. -->
+     click Check, wait for the warning; it maps onto tools/_t1212-gw-warning-shots.py), run fw ux shots, re-judge.
+     AEF (msg a27ac6df): T-4391 has LANDED on bleeding-edge: fw ux shots T-1212 state=@steps.yaml
+     (goto/click/fill/press/hover/wait-for, run by ux_shots itself, steps hash signed into the review run). Usable
+     once 832 takes bleeding-edge or the next release. -->
+
 
 - [ ] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1212 --criterion 1`): the designer shows a 1-in/1-out exclusive gateway as a WARNING, legibly, at three widths
   **Steps:**
