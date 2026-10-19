@@ -13,10 +13,11 @@ description: >
   AEF-side packaging (do_vendor omits tools/), same class as T-422 where AEF instructed
   us not to hand-add.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -25,8 +26,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-20T21:19:54Z
-last_update: '2026-09-26T09:06:28Z'
-date_finished:
+last_update: 2026-10-19T16:39:08Z
+date_finished: 2026-10-19T16:39:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -156,8 +157,14 @@ an observation about the heuristic, **not** acted on: the score stands as the sc
       baseline commit and not only HEAD.
 - [x] The reason no task carried it is measured, not asserted — the fabric-coverage →
       blast-radius → quadrant chain, with the numbers.
-- [ ] **BLOCKED on the Sovereign question below** — remedy applied and the five verbs return
+- [x] **BLOCKED on the Sovereign question below** — remedy applied and the five verbs return
       non-error on a real corpus fixture.
+      (2026-10-19: remedied upstream. The vendored tree has carried `tools/` since the AEF 1.7.68 upgrade (T-840,
+      7b5e227e, 2026-09-25), and it was kept through every later upgrade (T-1188, T-1204, T-1208). Run on v1.8.12
+      against `examples/aef-processes/rendered/arc-lifecycle.bpmn`: `fw bpmn compile` rc 0 (task skeletons);
+      `fw bpmn promote all` runs and refuses cleanly with "no staged proposals" (dry-run default, rc 1 by design);
+      `fw corpus lint` rc 0 ("scanned 8 map(s) CLEAN"); `fw corpus explain --search lifecycle` rc 0; the
+      corpus_spec route `fw corpus --help` rc 0 (`derive/generate/canon/diff/prove`).)
 
 <!-- The first four ACs are diagnosis and are complete. The fifth is the repair, and it is
      not the agent's to perform: see the RCA. A task whose repair is blocked should look
@@ -165,26 +172,15 @@ an observation about the heuristic, **not** acted on: the score stands as the sc
 
 ## Verification
 
-# Diagnosis legs only. The repair leg is absent by design — there is nothing to verify until
-# the Sovereign question is ruled on, and a green leg asserting nothing is the T-486/PL-178 trap.
-
-# The absent directory is still absent (the premise of the whole task).
-test ! -d .agentic-framework/tools
-
-# fw bpmn compile still fails closed on a real corpus fixture, with the documented message.
-.agentic-framework/bin/fw bpmn compile examples/aef-processes/rendered/arc-lifecycle.bpmn > /tmp/.t741.out 2>&1; test $? -eq 1 && grep -q "compiler not found" /tmp/.t741.out
-
-# The guard that produces that exit is where this task says it is.
+# T-1208 triage, 2026-10-19: the diagnosis legs asserted the BROKEN state (tools/ absent, compile exits 1). The
+# remedy arrived upstream (AEF 1.7.68, 7b5e227e), so they are replaced by the repaired state; the guard stays.
+test -f .agentic-framework/tools/bpmn_to_tasks.py && test -f .agentic-framework/tools/bpmn_promote.py
+test -f .agentic-framework/tools/corpus_lint.py && test -f .agentic-framework/tools/corpus_explain.py && test -f .agentic-framework/tools/corpus_spec.py
+.agentic-framework/bin/fw bpmn compile examples/aef-processes/rendered/arc-lifecycle.bpmn > /tmp/.t741.out 2>&1
+timeout 120 .agentic-framework/bin/fw corpus lint > /tmp/.t741-lint.out 2>&1
+timeout 60 .agentic-framework/bin/fw corpus --help > /tmp/.t741-spec.out 2>&1 && grep -q 'derive' /tmp/.t741-spec.out
+# The guard that fails closed if tools/ ever goes missing again is where this task says it is.
 grep -q 'compiler not found at' .agentic-framework/agents/bpmn/bpmn.sh
-
-# The unguarded corpus routes still point into the absent directory.
-grep -q 'FRAMEWORK_ROOT/tools/corpus_lint.py' .agentic-framework/bin/fw
-
-# The silent-degradation site still swallows the failure.
-grep -q 'corpus_explain.py" --search' .agentic-framework/bin/fw
-
-# The scorability finding: the file carrying the defect still has no fabric card.
-sh -c '! grep -rlq "agents/bpmn/bpmn.sh" .fabric/components/ 2>/dev/null'
 
 ## RCA
 
@@ -241,3 +237,16 @@ floating heading-less block under ## Decisions until this fix restored the ancho
 
 ### 2026-09-20T21:22:06Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e64f6b68
+- **Timestamp:** 2026-10-19T16:39:11Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-19T16:39:08Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Triage 2026-10-19 C1: remedied upstream (tools/ vendored since AEF 1.7.68); five verbs run on v1.8.12

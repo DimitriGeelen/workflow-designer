@@ -1,0 +1,94 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1000: Gate re-vendoring: an upgrade is not committed while _t517 reports STALE local fixes (applies to T-988 now)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T16:40:26Z
+# ============================================================================
+
+task_id: T-1000
+task_name: "Gate re-vendoring: an upgrade is not committed while _t517 reports STALE local fixes (applies to T-988 now)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-02T16:38:22Z
+completed: 2026-10-19T16:40:13Z
+duration_days: 17
+updates_count: 2
+first_commit: 2026-10-02T18:46:32+02:00
+last_commit: 2026-10-02T19:57:18+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  design — the divergence baseline is two re-vendors old (T-276, v1.6.763), so a STALE-count gate is blind to T-988's losses; proposed re-vendor protocol with moving baseline + worklist (G1-G3); T-995 GO recorded and build tasks T-997..T-1002 created. re-vendor protocol built (operator chose A) — gate G1/G2 in pre-commit (test 9/9), idempotent installer with --check, worklist tool (T-840 self-test: 10 lost fixes found, incl. T-568/T-569, all 10 patches apply to today's tree). first real use recorded — T-988 landed via the protocol, 0 unrecorded / 51 STALE named, 4+1 re-applied, 47 left as T-1005. G4 — refuse an ordinary commit that changes or adds an undeclared vendored path (T-1005 found the protocol blind to undeclared fixes and additions); gate test 12/12
+
+# Key outcomes
+outcomes:
+  - 'Gate script (project-owned, tools/_t1000-revendor-gate.sh): G1 refuses a commit that changes .agentic-framework/VERSION and stages any path outside .agentic-framework/; G2 refuses every commit right after a pristine-vendor commit (HEAD changed VERSION) unless it advances .vendor-divergence.yaml baseline_commit to HEAD; both refusals name the protocol step to take'
+  - 'Installer (tools/_t1000-install-hook.sh) adds one marked line to .git/hooks/pre-commit, idempotent; the framework hook has no extension point, so a hook reinstall removes it — stated, B3 (T-999) flags its absence, U1 asked AEF for the seam'
+  - 'Worklist tool (tools/_t1000-revendor-worklist.py): after the baseline advance, lists every STALE entry with task/reason, the local commits that touched it, and a patch from the pre-upgrade tree, written under build/ (not committed)'
+  - 'Tested in a scratch git repo: G1 refuses a mixed upgrade commit and passes a pristine one; G2 refuses an ordinary commit after a pristine commit and passes the baseline-advance commit; ordinary commits with no upgrade pass (each leg shown to bite)'
+  - 'docs/reports/T-1000-revendor-gate.md records the protocol, the operator''s choice, and how T-988 lands under it (runme.sh sequence prepared, dry-run only)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'G4 — refuse an ordinary commit that changes or adds an undeclared vendored path (T-1005 found the protocol blind to undeclared fixes and additions); gate test 12/12'
+    source: git-mined
+  - description: 're-vendor protocol built (operator chose A) — gate G1/G2 in pre-commit (test 9/9), idempotent installer with --check, worklist tool (T-840 self-test: 10 lost fixes found, incl. T-568/T-569, all 10 patches apply to today''s tree)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-1000-revendor-gate.md'
+  - '.tasks/active/T-1000-gate-re-vendoring-an-upgrade-is-not-comm.md'
+  - '.tasks/active/T-1005-re-vendor-step-3-for-17740-re-apply-or-r.md'
+  - '.tasks/completed/T-995-why-did-the-bridge-suite-slide-from-7-to.md'
+  - 'tests/test_t1000_revendor_gate.sh'
+  - 'tools/_t1000-install-hook.sh'
+  - 'tools/_t1000-revendor-gate.sh'
+  - 'tools/_t1000-revendor-worklist.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-02T18:46:32'
+    action: 'T-1000: design — the divergence baseline is two re-vendors old (T-276, v1.6.763), so a STALE-count gate is blind to T-988''s losses; proposed re-vendor protocol with moving baseline + worklist (G1-G3); T-995 GO recorded and build tasks T-997..T-1002 created'
+  - time: '2026-10-02T19:00:33'
+    action: 'T-1000: re-vendor protocol built (operator chose A) — gate G1/G2 in pre-commit (test 9/9), idempotent installer with --check, worklist tool (T-840 self-test: 10 lost fixes found, incl. T-568/T-569, all 10 patches apply to today''s tree)'
+  - time: '2026-10-02T19:25:54'
+    action: 'T-1000: first real use recorded — T-988 landed via the protocol, 0 unrecorded / 51 STALE named, 4+1 re-applied, 47 left as T-1005'
+  - time: '2026-10-02T19:57:18'
+    action: 'T-1000: G4 — refuse an ordinary commit that changes or adds an undeclared vendored path (T-1005 found the protocol blind to undeclared fixes and additions); gate test 12/12'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 24481 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 24481
+  commits: 4
+  files_changed: 8
+  lines_added: 1088
+  lines_removed: 7
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1000-gate-re-vendoring-an-upgrade-is-not-comm.md
+generated_by: context-agent-hybrid

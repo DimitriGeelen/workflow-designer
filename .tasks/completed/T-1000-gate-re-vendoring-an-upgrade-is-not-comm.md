@@ -7,10 +7,11 @@ description: >
   upgrade sits uncommitted with the T-952 rail already erased. From inception T-995
   (GO 2026-10-02), docs/reports/T-995-bridge-suite-slide.md.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -41,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-02T16:38:22Z
-last_update: 2026-10-02T17:57:18Z
-date_finished:
+last_update: 2026-10-19T16:40:13Z
+date_finished: 2026-10-19T16:40:13Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -87,11 +88,11 @@ unrecorded, 2 reclassified. The upgrade must not land until each STALE fix is re
 Operator chose option A (2026-10-02): the re-vendor protocol with a moving baseline, enforced by
 hooks; "this is what AEF needs to adopt in the framework" (sent: conversation revendor-protocol).
 
-- [ ] Gate script (project-owned, tools/_t1000-revendor-gate.sh): G1 refuses a commit that changes .agentic-framework/VERSION and stages any path outside .agentic-framework/; G2 refuses every commit right after a pristine-vendor commit (HEAD changed VERSION) unless it advances .vendor-divergence.yaml baseline_commit to HEAD; both refusals name the protocol step to take
-- [ ] Installer (tools/_t1000-install-hook.sh) adds one marked line to .git/hooks/pre-commit, idempotent; the framework hook has no extension point, so a hook reinstall removes it — stated, B3 (T-999) flags its absence, U1 asked AEF for the seam
-- [ ] Worklist tool (tools/_t1000-revendor-worklist.py): after the baseline advance, lists every STALE entry with task/reason, the local commits that touched it, and a patch from the pre-upgrade tree, written under build/ (not committed)
-- [ ] Tested in a scratch git repo: G1 refuses a mixed upgrade commit and passes a pristine one; G2 refuses an ordinary commit after a pristine commit and passes the baseline-advance commit; ordinary commits with no upgrade pass (each leg shown to bite)
-- [ ] docs/reports/T-1000-revendor-gate.md records the protocol, the operator's choice, and how T-988 lands under it (runme.sh sequence prepared, dry-run only)
+- [x] Gate script (project-owned, tools/_t1000-revendor-gate.sh): G1 refuses a commit that changes .agentic-framework/VERSION and stages any path outside .agentic-framework/; G2 refuses every commit right after a pristine-vendor commit (HEAD changed VERSION) unless it advances .vendor-divergence.yaml baseline_commit to HEAD; both refusals name the protocol step to take
+- [x] Installer (tools/_t1000-install-hook.sh) adds one marked line to .git/hooks/pre-commit, idempotent; the framework hook has no extension point, so a hook reinstall removes it — stated, B3 (T-999) flags its absence, U1 asked AEF for the seam
+- [x] Worklist tool (tools/_t1000-revendor-worklist.py): after the baseline advance, lists every STALE entry with task/reason, the local commits that touched it, and a patch from the pre-upgrade tree, written under build/ (not committed)
+- [x] Tested in a scratch git repo: G1 refuses a mixed upgrade commit and passes a pristine one; G2 refuses an ordinary commit after a pristine commit and passes the baseline-advance commit; ordinary commits with no upgrade pass (each leg shown to bite)
+- [x] docs/reports/T-1000-revendor-gate.md records the protocol, the operator's choice, and how T-988 lands under it (runme.sh sequence prepared, dry-run only)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -125,6 +126,13 @@ hooks; "this is what AEF needs to adopt in the framework" (sent: conversation re
 -->
 
 ## Verification
+
+# T-1208 triage, 2026-10-19: built 2026-10-02 (operator chose A, report §Decision); used for the T-1204 and T-1208
+# upgrades (ac6adbe0, f308076d, 6239f2a7, 5291e098). Its hook line is checked every bridge run since T-1161.
+bash -n tools/_t1000-revendor-gate.sh && bash -n tools/_t1000-install-hook.sh && python3 -m py_compile tools/_t1000-revendor-worklist.py
+bash tools/_t1000-install-hook.sh --check
+timeout 300 bash tests/test_t1000_revendor_gate.sh > /tmp/.t1000.out 2>&1 && grep -qE '[0-9]+ passed, 0 failed' /tmp/.t1000.out
+grep -q 'Operator chose A' docs/reports/T-1000-revendor-gate.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -351,3 +359,16 @@ hooks; "this is what AEF needs to adopt in the framework" (sent: conversation re
 
 ### 2026-10-02T16:44:02Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3d20d5d9
+- **Timestamp:** 2026-10-19T16:40:16Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-19T16:40:13Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Triage 2026-10-19 C1: built 2026-10-02 and used for two upgrades; criteria ticked with evidence, gate re-run
