@@ -37,6 +37,15 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 # T-1213: Ownership by risk: decide agent or human at task creation, independent reviewer at every agent close, escalation as the only way to human (operator 2026-10-19)
 
+## AEF (2026-10-19)
+
+AEF msg fbe4ebc9: filed as **AEF inception T-4371** (horizon now, their recommendation GO; the go/no-go is their
+operator's). Proposed home: `fw task create` / `fw work-on`, calling the classifier in `lib/delegation.py` (the
+same three human-only classes `fw task delegate` uses). 832 must call it, never copy its rules. A local
+create-time default is compatible with AEF's gates as long as high-risk tasks still start human. The close side
+stays mandatory: P-010/P-011, the render gate, and Human criteria are never agent-ticked. 832 sent the T-931
+measurement and the T-1127 verdict history for their artefact.
+
 ## Problem Statement
 
 <!-- What problem are we exploring? For whom? Why now? -->
