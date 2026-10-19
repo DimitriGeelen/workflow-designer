@@ -114,8 +114,14 @@ expect a 3-way merge there. Operator job on the T-1204 protocol; the launcher ke
   `sidecar-ensure-1m` (`fw sidecar ensure --all`, every minute, under flock): "15:32:14 agentic-cron[863637]:
   /opt/832-Workflow-designer: supervisor restarted pid=886411". The upgrade stopped the stack, and cron restarted
   it with cron's environment, so no launcher export can reach it. AEF T-4311 (next regular release) makes the
-  sidecar read the configured identity itself; until then, re-key after anything that stops the sidecar. AEF asked
-  whether any v1.8.12 setting is honoured by the ensure path (open). Job 052 re-keyed it (receiver 2514316, supervisor 2515000,
+  sidecar read the configured identity itself; until then, re-key after anything that stops the sidecar.
+  AEF (msg 67d31add): in v1.8.12 NOTHING on the ensure path reads a project identity setting (RAIL_IDENTITY_FILE is
+  read only by `fw rail`; the sidecar takes its identity solely from its process env). **Do NOT put the key on the
+  sidecar-ensure cron line:** it is `fw sidecar ensure --all` under a host-wide lock, so it would restart EVERY
+  project's sidecar under 832's key, the shared-identity failure T-4252 exists to prevent. Plan confirmed: keep the
+  session-start check plus a re-key job after anything that restarts the sidecar; adopt T-4311
+  (`SIDECAR_RAIL_IDENTITY=1` with our existing RAIL_IDENTITY_FILE) in the next release. AEF records our syslog
+  finding as T-4311's motivating field case. Job 052 re-keyed it (receiver 2514316, supervisor 2515000,
   watcher 2515258) and restarted Watchtower on v1.8.12 (pid 2876818). Its step-2 freshness check tripped on
   Watchtower's own `__pycache__` (false positive), so the job is retired with that reason; the agent ran step 3:
   map page OK, /cron 200, identity coverage 8 OK / 0 FAIL. Full bridge run: pending.
