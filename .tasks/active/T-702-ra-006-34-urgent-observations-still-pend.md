@@ -128,8 +128,12 @@ Dismissing a recorded finding is a judgement about whether it matters. The agent
   1. Open http://192.168.10.107:3013/review/T-702; read the census at the top of `docs/reports/T-702-urgent-named.md`
   2. The three orphans are yours alone: OBS-249 (CLAUDE.md budget ladder — T-614 has since rewritten the ladder in percentages; if you agree it is resolved, it is the first candidate for dismissal once the verb records a reason), OBS-251 (mint a project termlink key — the same question OBS-248 raised), OBS-256 (bridge suite: schedule it via /etc/cron.d, or make it deterministic first)
   3. Choose: **A** — accept the enumeration as the closure of RA-006 and let T-703's ruling govern the drain; **B** — rule on the three orphans here and now (one letter each: dismiss / promote / hold) and have the agent execute after T-703 A lands
+  **Update 2026-10-19 (census regenerated after the reviewer's escalation asked for it):** `docs/reports/T-702-urgent-named.md`
+  now reads **0 urgent pending** (2 pending of 299, none urgent). No orphan is left, so B has nothing to rule on; A is
+  the only live option, and choosing it confirms the drain already happened rather than authorising one.
   **Expected:** a letter on this task; under B, three sub-rulings
   **If not:** RA-006 re-files at the next remediation sweep with a larger number
+  **Reviewer escalation (V-20261019-29bab9be, reviewer-judge-t-702-r1-c29bc62f61d5:reviewer, rung rung-1-same-vendor-independent):** Operator decision: whether named-with-reason closes RA-006 (A/B) and dismiss/promote/hold on orphans is a project-direction call, and OBS-251 concerns minting a credential. Before presenting it: the AC text names orphans OBS-249/251/256 (36 items: 25 completed/7 active/1 dangling), but the committed census docs/reports/T-702-urgent-named.md (2026-09-28) lists 28 rows: 25 active and orphans OBS-251, OBS-398 and OBS-407. The agent should regenerate the census, then update AC#1 step 2 and the Decisions rationale so the operator rules on the actual orphans.
 
 ## Verification
 

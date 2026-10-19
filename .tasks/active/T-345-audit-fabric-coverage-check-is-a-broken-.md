@@ -395,6 +395,17 @@ bash tools/_t345-fabric-check-agreement.sh
 
 ## Decisions
 
+### 2026-10-19 — remove-as-duplicate, already done upstream
+- **Chose:** remove (as the Recommendation said). Nothing to do here: AEF removed the first block's coverage verdict
+  itself (AEF T-2735, vendored with 1.7.68, 7b5e227e). In v1.8.12 that block only counts cards and orphans
+  (`audit.sh` ~2665-2673, comment "Coverage verdict belongs to the drift check below (T-2735)"), and the single
+  coverage verdict is the drift check (~2837), which WARNs on unregistered > 0.
+- **Why:** the question this task asked (two checks over one question, one unable to fail) no longer exists in the
+  vendored tree.
+- **Rejected:** retain-and-fix: inapplicable, the block it would fix is gone. The 2026-08-08 provisional repair was
+  overwritten by the 1.7.68 re-vendor and is not re-applied.
+- Prompted by reviewer verdict red (judge-t-345-r1-5d3070834c26): no choice had been recorded here.
+
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:

@@ -273,7 +273,7 @@ rests on a dated measurement rather than a dated reading.
     written (measured 2026-08-12, T-470).** The task C asks you to file is **T-212**
     (`work-completed`, commit `39f69bcb`), which pins both fixture shas and asserts the
     `aef:eventDef` shape in pure stdlib Python so it runs browser-less; it is wired into
-    `tests/run-bridge-tests.sh:203` and is green today:
+    `tests/run-bridge-tests.sh` (line ~306 on 2026-10-19) and is green today:
     `python3 tests/test_typed_event_fixture_contract.py` → rc 0,
     `typed-events.bpmn (sha 5467071b3a39), boundary-events.bpmn (sha 37eec1b0f10a)`.
     **C therefore prescribes no work that is not already done, and collapses into A.**
@@ -298,10 +298,12 @@ rests on a dated measurement rather than a dated reading.
   1. `python3 tests/test_promote_contract.py && python3 tests/test_two_lane_joint_contract.py`
   2. Confirm both print `OK:` and exit 0
   3. Record the decision:
-     `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw context add-decision "T-209 offset-78 proposal: C" --task T-209 --rationale "producer-input contract already met by T-206+T-208, re-measured green; AEF-OUTPUT half stays in their bats per T-559; file typed-event byte-exact cross-validation as its own task"`
+     `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw context add-decision "T-209 offset-78 proposal: A" --task T-209 --rationale "producer-input contract already met by T-206+T-208, re-measured green; AEF-OUTPUT half stays in their bats per T-559; the typed-event gap is already covered by T-212 (39f69bcb)"`
+     (corrected 2026-10-19 after reviewer verdict amber, judge-t-209-r5: the command said C and asked for a task that
+     T-212 already is.)
 
-  **Expected:** a decision recorded against T-209. The agent then posts the rail reply
-  and files the typed-event task; T-209 closes.
+  **Expected:** a decision recorded against T-209. The agent then posts the rail reply citing T-212; no new task is
+  filed (T-212 exists); T-209 closes.
 
   **If not:** if you want the reply worded differently, or want the typed-event gap left
   unfiled for now, say so in the rationale — the agent will not send a rail message
