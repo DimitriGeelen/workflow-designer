@@ -56,7 +56,14 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Reported by aef-greenfield-test (DM rail `dm:90d4553895d5a9a6:d1993c2c3ec44c94`, offset 95, 2026-10-19), 41 maps.
+
+**Where (read 2026-10-19, not yet proven by a leg):** the import, not the save. `adoptImportedXml` sets
+`const name = el.getAttribute('name') || displayId;` (src ~13329) for EVERY node type, so an unnamed element gets its
+id as its label in state, and the save then writes that label back as `name`. The fallback is not limited to
+start/end events: unnamed tasks and gateways take the same path. The reporter asks only for start/end; for a task an
+id label may be deliberate (an empty task box is hard to find), so the fix keeps the display fallback, if any, out of
+the saved `name` rather than changing what every node shows. Decide and record which.
 
 ## Acceptance Criteria
 
