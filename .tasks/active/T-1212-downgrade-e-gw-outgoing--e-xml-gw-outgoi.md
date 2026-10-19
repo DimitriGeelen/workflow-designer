@@ -17,7 +17,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
+current_node: agt_2_perform
 owner: agent
 horizon: now
 tags: []
@@ -98,12 +98,21 @@ requirement, so all of it becomes a warning. The ids carry the severity (E-/W-),
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Both rules report as warnings under `W-GW-OUTGOING` / `W-XML-GW-OUTGOING`, with the finding text and the converging-gateway exemption unchanged; a map whose only finding is one of them now passes the check (exit code as for any warning) instead of failing
-- [ ] Every reference is updated: the dialect axis (`tests/test_rule_dialect_axis.py`: no uncited ERRORs left, `EXPECTED_UNCITED_ERRORS` empty, the rule rows renamed), the form-parity, anchorability and cross-form tests, the fixtures, `docs/authoring-kit/AUTHORING.md` and `tools/README.md`, the authoring kit's rule table (regenerated, not hand-edited); a repo-wide search for the old ids finds only history (release notes, reports, closed tasks)
-- [ ] A test pins the new behaviour: a 1-in/1-out gateway yields `W-GW-OUTGOING` and no error, in both forms; the converging gateway still yields nothing
+- [x] Both rules report as warnings under `W-GW-OUTGOING` / `W-XML-GW-OUTGOING`, with the finding text and the converging-gateway exemption unchanged; a map whose only finding is one of them now passes the check (exit code as for any warning) instead of failing
+  — `self.warn(...)` at both sites, messages unchanged; the warn fixtures exit 1 (warning), no longer 2.
+- [x] Every reference is updated: the dialect axis (`tests/test_rule_dialect_axis.py`: no uncited ERRORs left, `EXPECTED_UNCITED_ERRORS` empty, the rule rows renamed), the form-parity, anchorability and cross-form tests, the fixtures, `docs/authoring-kit/AUTHORING.md` and `tools/README.md`, the authoring kit's rule table (regenerated, not hand-edited); a repo-wide search for the old ids finds only history (release notes, reports, closed tasks)
+  — all renamed; `EXPECTED_UNCITED_ERRORS = ()`. The kit's CONFORMANCE.md is generated from the validator by
+  `tools/build-authoring-kit.py` at release, so the next kit carries WARN without a hand edit. The released kits
+  under `dist/` keep the old ids as history. AUTHORING.md no longer names the retired id (T-974 check, 16/16).
+  `git grep` outside history: one deliberate note in the axis test's comment.
+- [x] A test pins the new behaviour: a 1-in/1-out gateway yields `W-GW-OUTGOING` and no error, in both forms; the converging gateway still yields nothing
+  — the fixtures moved to `tests/fixtures/warn/W-GW-OUTGOING.yaml` and `W-XML-GW-OUTGOING.xml` (must warn, exit 1,
+  rule present); `valid/gw-converging.workflow.yaml` stays clean; `run-validator-tests.sh` 69/69.
 - [ ] Every affected test passes, and a full bridge run is green
-- [ ] `docs/releases/PENDING-next-release.md` lists it, with the old→new id map and a note for AEF that a check which failed on these now warns
-- [ ] The designer's Check shows the finding as a warning, asserted and shot at 1024, 1440 and 1920 by `tools/_t1212-gw-warning-shots.py` (`docs/reports/T-1212-evidence/`), read control by control under `## Visual Verification`
+- [x] `docs/releases/PENDING-next-release.md` lists it, with the old→new id map and a note for AEF that a check which failed on these now warns
+- [x] The designer's Check shows the finding as a warning, asserted and shot at 1024, 1440 and 1920 by `tools/_t1212-gw-warning-shots.py` (`docs/reports/T-1212-evidence/`), read control by control under `## Visual Verification`
+  — all three asserted (the API returns only `W-XML-GW-OUTGOING:WARN`); independent review green from two seats
+  (codex and opencode, rung 5).
 
 ### Human
 - [ ] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1212 --criterion 1`): the designer shows a 1-in/1-out exclusive gateway as a WARNING, legibly, at three widths
