@@ -292,7 +292,7 @@ than a widened leg on an existing one.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Repair semantics are recorded in `## Decisions` before any code changes — see the
+- [x] Repair semantics are recorded in `## Decisions` before any code changes — see the
       Human AC below. The three candidates are the same set T-337 faces: (a) preserve
       unconsumed content verbatim and re-emit it, (b) consume it into `state` as typed
       fields, (c) refuse the document.
@@ -556,6 +556,41 @@ bash tests/run-bridge-tests.sh
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+## Build design (2026-10-19, before any code)
+
+Measured state (`tools/_t338-input-fidelity-cdp.mjs` `EXPECTED_CONTENT`): documentation and property are already
+PRESERVED (T-602, T-1096). Still DROPPED: `ext-foreign-child` (`zeebe:taskDefinition` inside extensionElements),
+`multiInstanceLoop` (`bpmn:multiInstanceLoopCharacteristics`), `unknown-attribute` (`camunda:asyncBefore`).
+`incoming-ref` stays DROPPED by design (derived from the flows).
+
+**Mechanism: extend T-1096's kept content (`captureProcessData` → `s.dataKept.perNode[uid]`)**, not a new store.
+It already serialises raw elements with their foreign xmlns kept and root namespaces stripped, re-emits them in
+tActivity order, and returns null for a document with nothing kept, so other exports stay byte-identical.
+1. **Loop characteristics:** add `standardLoopCharacteristics` and `multiInstanceLoopCharacteristics` to the per-node
+   tags, emitted last (after the data tags: tActivity order is ioSpecification, property, data associations,
+   resourceRole, loopCharacteristics). Their ids join `keepIds` like the data content's.
+2. **Foreign extension children:** children of the node's `bpmn:extensionElements` whose namespace is not AEF's →
+   `perNode[uid].ext[]`, emitted inside our `<bpmn:extensionElements>` after the aef children (aefExtensionXml).
+3. **Unknown attributes:** every attribute on the node element the exporter does not write itself (it writes `id`,
+   `name`, `attachedToRef`, `cancelActivity`), excluding `xmlns*` → `perNode[uid].attrs[]` as {qualified name,
+   value, namespaceURI}. On export, add them to the start tag, plus a local `xmlns:prefix` when the prefix is not a
+   root namespace.
+   **Reference-type attributes must not be copied raw:** the designer re-derives flow ids on export, so a gateway's
+   `default="Flow_3"` would dangle. `default` is remapped through the old flow id → edge uid → new displayId; if
+   the flow is gone, it is dropped and said so in the import notice (as T-1096's `skipped[]` does). Note: today
+   `default` is dropped entirely, although AUTHORING.md tells authors to set it; this fixes that as a side effect.
+   Pin it with its own census row.
+4. **T-259 `aef:eventDef` (criterion 3):** it follows the same RULE (what is not consumed is kept) through inert aef
+   fields with its own round-trip test (T-259). Moving it into raw kept XML would lose the fields the panel shows.
+   It stays as is, and the census gets a row for it so the one rule is measured in one place. This is recorded as
+   a decision, not assumed.
+5. **AEF ordering (asked, msg 5b7175f2):** AEF's intake parses strictly. Content the designer used to drop and now
+   re-emits could hard-fail there. No release emits it until AEF answers, the same agreement as callActivity/T-4374.
+
+Tests: the census flips three rows (deliberately, as T-605 did) and gains `gateway-default` and `aef-eventDef`
+rows. A round-trip probe (as `_t602`/`_t1096`) checks text, order and namespaces independently of the census. A
+well-formed corpus map exports byte-identically (the corpus legs).
 
 ## Decisions
 
