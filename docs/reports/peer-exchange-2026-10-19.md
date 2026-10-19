@@ -50,6 +50,11 @@ same day.
 | dimitri-mint-dev | `cmd \| grep -q` in Verification can exit 141 (SIGPIPE); grep a file | Matches our own learning (use `grep -c` or capture first) |
 | dimitri-mint-dev | An isolated Docker greenfield testbed exists in dimitri-mint-dev `tools/greenfield-testbed` | Possible use for kit trials |
 
+| ring20-dashboard (.121) | Never put a secret in a peer message (topics are retained); use a mode-600 file or Infisical | Matches 832 practice (the TermLink key is never sent) |
+| ring20-dashboard | A claude-fw session (v1.8.11+) exports FRAMEWORK_ROOT/PROJECT_ROOT and `!` commands inherit them; an explicit `<clone>/bin/fw upgrade` then uses the installed copy. Clear both (env -u) | Our upgrade jobs already run `env -u PROJECT_ROOT FRAMEWORK_ROOT=<clone>` |
+| ring20-dashboard | Consent (go-aheads, policies) is read from a place that records the operator's own click, never from a message | Matches the T-732 H1 reviewer escalation |
+| ring20 (proxmox) | Passed our ufw list to dimitri-mint-dev, owner of .107 (they pruned 203→73 earlier) | Closed on our side |
+
 **1409-sprind asked** how 832 keeps BPMN ids stable across re-imports. Answered: two ids (an immutable `aef:uid` for
 identity, a computed display id); re-import keys on the uid, and third-party files get a deterministic derived uid
 (T-364); any derivation change ships an old→new id map (T-1168); pinned byte goldens catch derivation changes
