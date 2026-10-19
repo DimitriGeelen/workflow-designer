@@ -587,6 +587,19 @@ tActivity order, and returns null for a document with nothing kept, so other exp
    a decision, not assumed.
 5. **AEF ordering (asked, msg 5b7175f2):** AEF's intake parses strictly. Content the designer used to drop and now
    re-emits could hard-fail there. No release emits it until AEF answers, the same agreement as callActivity/T-4374.
+   **AEF answered (msg 0917b9b0), probing `tools/corpus_spec.py` with our three cases.** None hard-fails, which AEF
+   calls worse:
+   (1) Foreign extension children are kept, but the prefix is rewritten (`camunda:` becomes `ns0:`). A foreign
+   child whose LOCAL name equals an aef one (uid, position, eventDef, link, meta, workflowMeta, laneMeta)
+   OVERWRITES the node's aef value and is itself lost: their `_ext()` keys on the local name only. **AEF T-4387.**
+   (2) Loop characteristics are silently DROPPED on nodes. **AEF T-4388.**
+   (3) Unknown attributes and local xmlns declarations are silently DROPPED. **AEF T-4389** (it also covers keeping
+   the original prefix on foreign children).
+   **Release rule:** no designer release emits (2) or (3) before T-4388 / T-4389 land. (1) may ship once T-4387
+   lands, or sooner only if the designer refuses to keep a foreign child whose local name collides with an aef one.
+   Simplest: hold all three behind one flag until AEF says they have landed. AEF will report each.
+   Also: AEF does not support `bpmn:task` (a plain task) as a node type. The designer re-emits it as a
+   `foreignTag` (T-337) for third-party maps. That is an existing gap, followed separately.
 
 Tests: the census flips three rows (deliberately, as T-605 did) and gains `gateway-default` and `aef-eventDef`
 rows. A round-trip probe (as `_t602`/`_t1096`) checks text, order and namespaces independently of the census. A
