@@ -34,11 +34,12 @@
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="lan_start_startevent" name="StartEvent_1">
+    <bpmn:startEvent id="lan_start_startevent">
       <bpmn:documentation>A start event.</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="u1"/>
         <aef:position x="179.0" y="99.0"/>
+        <aef:meta slug="startevent"/>
       </bpmn:extensionElements>
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>

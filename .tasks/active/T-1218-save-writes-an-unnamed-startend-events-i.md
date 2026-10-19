@@ -1,13 +1,17 @@
 ---
 id: T-1218
-name: "Save writes an unnamed start/end event's id as its name, so the canvas shows Start_8 / End_10 (aef-greenfield-test T-240, 41 maps)"
+name: "Save writes an unnamed start/end event's id as its name, so the canvas shows
+  Start_8 / End_10 (aef-greenfield-test T-240, 41 maps)"
 description: >
-  Reported by aef-greenfield-test on DM rail offset 95 (2026-10-19): when a start or end event has no name (absent or empty), the save writes its id as name; the label then shows the id. Leave the name empty instead. Present since 0.14.
+  Reported by aef-greenfield-test on DM rail offset 95 (2026-10-19): when a start
+  or end event has no name (absent or empty), the save writes its id as name; the
+  label then shows the id. Leave the name empty instead. Present since 0.14.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [bug, consumer-report, bpmn-roundtrip]
 components: []
 related_tasks: []
@@ -38,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T16:55:46Z
-last_update: 2026-10-19T16:55:46Z
-date_finished: null
+last_update: 2026-10-19T18:51:57Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +54,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-19T18:51:57Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=gateway); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=2 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1218: Save writes an unnamed start/end event's id as its name, so the canvas shows Start_8 / End_10 (aef-greenfield-test T-240, 41 maps)
@@ -73,16 +98,34 @@ as `name` (`name="Start_8"`, ..., `name="Task_1"`). Confirms the import fallback
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Reproduced first: a start and an end event with no `name` attribute, and one with `name=""`, come back from
+- [x] Reproduced first: a start and an end event with no `name` attribute, and one with `name=""`, come back from
       load + `buildBpmnXml` carrying their id as `name` (failing leg before the fix).
-- [ ] After the fix an unnamed start/end event saves with no name (attribute omitted), and the canvas label is empty;
+      (`tools/_t1218-unnamed-event-name-cdp.mjs` against the pre-fix src: rc 1, legs 1 and 6 red.)
+- [x] After the fix an unnamed start/end event saves with no name (attribute omitted), and the canvas label is empty;
       named events are unchanged. Whether other node types do the same is checked and reported in this task.
-- [ ] The leg is wired into the bridge suite and shown to bite (reverting the fix reddens it).
-- [ ] Screenshots of an unnamed start/end before and after, at 1024 / 1440 / 1920, read control by control and judged
-      by an independent reviewer (UI rule, 2026-10-14).
+      (6/6 legs. Display ids are unchanged: the slug still derives from the id on first open and is then carried as
+      `<aef:meta slug>` while the event stays unnamed, because re-deriving it from the saved id renamed the event on
+      every save (caught by leg 5 in the first attempt). Third-party goldens re-recorded: the only differences across
+      7 fixtures are 33 events losing their id-as-name and gaining `aef:meta slug`; no id changed. Other node types:
+      tasks and gateways also took the id as name; kept on purpose (an empty task box cannot be found), see Decisions.)
+- [x] The leg is wired into the bridge suite and shown to bite (reverting the fix reddens it).
+      (run-bridge-tests.sh before the T-1220 leg; bite = the pre-fix run above.)
+- [x] Screenshots of an unnamed start/end before and after, at 1024 / 1440 / 1920, read control by control
+      (UI rule, 2026-10-14). See `## Visual Verification`; `tools/_t1218-unnamed-event-shots.py` asserts the labels.
 - [ ] The reporter (aef-greenfield-test, DM rail offset 95) is told the release that carries it; AEF is told with the release.
 
 ### Human
+- [ ] An independent reviewer judges the screenshots (UI rule, 2026-10-14; reviewer-judged render criterion, judged by
+  `fw reviewer judge T-1218 --criterion 1`, who may escalate).
+  **Steps:**
+  1. Open `docs/reports/T-1218-evidence/t1218-before-{1024,1440,1920}{,-detail}.png` and the same six `after` files.
+  2. In each `-detail` pair: BEFORE shows "StartEvent_1" / "Event_1ijl6th" under the two circles; AFTER shows no
+     label there, while the grey display ids (`lan_start_startevent`, `lan_end_event`), both task boxes, arrows
+     and warning marks are identical.
+  3. In each full page: toolbar, palette, properties panel and canvas controls are all visible and unclipped,
+     and nothing differs between BEFORE and AFTER except the two labels.
+  **Expected:** the two id labels are gone and nothing else moved.
+  **If not:** name the screenshot and the control that differs.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -129,6 +172,26 @@ as `name` (`name="Start_8"`, ..., `name="Task_1"`). Confirms the import fallback
 -->
 
 ## Verification
+
+timeout 300 node tools/_t1218-unnamed-event-name-cdp.mjs > /tmp/.t1218.out 2>&1 && head -2 /tmp/.t1218.out | grep -q '"ok": true'
+timeout 300 node tools/_t358-byteid-thirdparty.mjs > /tmp/.t1218-358.out 2>&1 && grep -q '0 drifted' /tmp/.t1218-358.out
+grep -q "T-1218: an unnamed start/end event carries its slug" src/aef-workflow-designer.html
+test "$(ls docs/reports/T-1218-evidence/*.png | wc -l)" -eq 12
+
+## Visual Verification
+
+Screenshots by `tools/_t1218-unnamed-event-shots.py` (fixture `tests/fixtures/third-party/zeebe-service-task.bpmn`,
+unnamed `StartEvent_1` and `Event_1ijl6th`), in `docs/reports/T-1218-evidence/`, before (HEAD source) and after, at
+1024 / 1440 / 1920, full page and a 2× close-up of the diagram. Read by the agent, 2026-10-19:
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| canvas, unnamed start event | label under circle | ok | ok | ok | before: "StartEvent_1"; after: none |
+| canvas, unnamed end event | label under circle | ok | ok | ok | before: "Event_1ijl6th"; after: none |
+| canvas | grey display ids | ok | ok | ok | unchanged: lan_start_startevent, lan_1_activity, lan_2_activity, lan_end_event |
+| canvas | task boxes, arrows, "no auth" marks | ok | ok | ok | identical before/after |
+| toolbar | all buttons (Open project … Save) | ok | ok | ok | 1024 wraps to two rows, as before; nothing clipped |
+| palette, properties panel | all fields | ok | ok | ok | unchanged |
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -330,6 +393,16 @@ as `name` (`name="Start_8"`, ..., `name="Task_1"`). Confirms the import fallback
 
 ## Decisions
 
+### 2026-10-19 — scope and id stability
+- **Chose:** only start and end events stay unnamed; their display id is kept by deriving the slug from the id on first
+  open (as before) and carrying it as `<aef:meta slug>` while the event is unnamed.
+- **Why:** the reporter asked for start/end (41 maps). A task or gateway without a name would be an empty box on the
+  canvas that nobody can find, so it keeps its id as label. Ids must not move: AEF stores them, and an id change needs
+  a shipped old→new map (T-1168). A fixed slug ('start'/'end') was tried first and renamed `lan_start_startevent` to
+  `lan_start_start` in 7 third-party goldens; re-deriving from the saved id renamed the event on every save.
+- **Rejected:** all node types (empty task boxes); a fixed kind slug (moves ids); writing `name=""` (the reporter
+  asked for the name to be left empty, and no committed map carries `name=""`).
+
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
@@ -355,3 +428,7 @@ as `name` (`name="Start_8"`, ..., `name="Task_1"`). Confirms the import fallback
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1218-save-writes-an-unnamed-startend-events-i.md
 - **Context:** Initial task creation
+
+### 2026-10-19T18:51:57Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

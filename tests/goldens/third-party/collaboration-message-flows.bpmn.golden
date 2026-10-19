@@ -39,10 +39,11 @@
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:endEvent id="lan_end_endevent" name="EndEvent_1">
+    <bpmn:endEvent id="lan_end_endevent">
       <bpmn:extensionElements>
         <aef:uid value="u1"/>
         <aef:position x="653.0" y="178.0"/>
+        <aef:meta slug="endevent"/>
       </bpmn:extensionElements>
     </bpmn:endEvent>
 

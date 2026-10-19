@@ -99,87 +99,99 @@
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="lan_start_event" name="Event_1l5ozbh">
+    <bpmn:startEvent id="lan_start_event">
       <bpmn:extensionElements>
         <aef:uid value="u1"/>
         <aef:position x="402.0" y="472.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_11" name="Event_1h3k36g">
+    <bpmn:startEvent id="lan_start_event_11">
       <bpmn:extensionElements>
         <aef:uid value="u2"/>
         <aef:position x="552.0" y="472.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_3" name="Event_1p4tub5">
+    <bpmn:startEvent id="lan_start_event_3">
       <bpmn:extensionElements>
         <aef:uid value="u3"/>
         <aef:position x="402.0" y="532.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_8" name="Event_16k3ggm">
+    <bpmn:startEvent id="lan_start_event_8">
       <bpmn:extensionElements>
         <aef:uid value="u4"/>
         <aef:position x="552.0" y="532.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_2" name="Event_139t55w">
+    <bpmn:startEvent id="lan_start_event_2">
       <bpmn:extensionElements>
         <aef:uid value="u5"/>
         <aef:position x="402.0" y="592.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_9" name="Event_1q5v0sf">
+    <bpmn:startEvent id="lan_start_event_9">
       <bpmn:extensionElements>
         <aef:uid value="u6"/>
         <aef:position x="552.0" y="592.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_5" name="Event_1g4mqp3">
+    <bpmn:startEvent id="lan_start_event_5">
       <bpmn:extensionElements>
         <aef:uid value="u7"/>
         <aef:position x="402.0" y="712.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_12" name="Event_1f81cds">
+    <bpmn:startEvent id="lan_start_event_12">
       <bpmn:extensionElements>
         <aef:uid value="u8"/>
         <aef:position x="552.0" y="712.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_6" name="Event_19ahha0">
+    <bpmn:startEvent id="lan_start_event_6">
       <bpmn:extensionElements>
         <aef:uid value="u9"/>
         <aef:position x="402.0" y="772.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_4" name="Event_00h2mai">
+    <bpmn:startEvent id="lan_start_event_4">
       <bpmn:extensionElements>
         <aef:uid value="u10"/>
         <aef:position x="402.0" y="832.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_10" name="Event_0eql2pf">
+    <bpmn:startEvent id="lan_start_event_10">
       <bpmn:extensionElements>
         <aef:uid value="u11"/>
         <aef:position x="552.0" y="832.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_7" name="Event_09uyr4s">
+    <bpmn:startEvent id="lan_start_event_7">
       <bpmn:extensionElements>
         <aef:uid value="u12"/>
         <aef:position x="402.0" y="952.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:startEvent>
 
@@ -190,73 +202,83 @@
       </bpmn:extensionElements>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_2" name="Event_0az045q">
+    <bpmn:startEvent id="lan_start_event_2">
       <bpmn:extensionElements>
         <aef:uid value="u14"/>
         <aef:position x="252.0" y="532.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event" name="Event_1faweyu">
+    <bpmn:startEvent id="lan_start_event">
       <bpmn:extensionElements>
         <aef:uid value="u15"/>
         <aef:position x="252.0" y="592.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_3" name="Event_0jf1q45">
+    <bpmn:startEvent id="lan_start_event_3">
       <bpmn:extensionElements>
         <aef:uid value="u16"/>
         <aef:position x="252.0" y="712.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="lan_end_event_5" name="Event_00twu86">
+    <bpmn:endEvent id="lan_end_event_5">
       <bpmn:extensionElements>
         <aef:uid value="u17"/>
         <aef:position x="1302.0" y="472.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:endEvent>
 
-    <bpmn:endEvent id="lan_end_event_3" name="Event_0mf406j">
+    <bpmn:endEvent id="lan_end_event_3">
       <bpmn:extensionElements>
         <aef:uid value="u18"/>
         <aef:position x="1302.0" y="712.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:endEvent>
 
-    <bpmn:endEvent id="lan_end_event_4" name="Event_1tb0m8u">
+    <bpmn:endEvent id="lan_end_event_4">
       <bpmn:extensionElements>
         <aef:uid value="u19"/>
         <aef:position x="1302.0" y="772.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:endEvent>
 
-    <bpmn:endEvent id="lan_end_event_2" name="Event_1lhkn4m">
+    <bpmn:endEvent id="lan_end_event_2">
       <bpmn:extensionElements>
         <aef:uid value="u20"/>
         <aef:position x="1302.0" y="832.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:endEvent>
 
-    <bpmn:endEvent id="lan_end_event_6" name="Event_0tlcssq">
+    <bpmn:endEvent id="lan_end_event_6">
       <bpmn:extensionElements>
         <aef:uid value="u21"/>
         <aef:position x="1302.0" y="892.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:endEvent>
 
-    <bpmn:endEvent id="lan_end_event" name="Event_1d1oeak">
+    <bpmn:endEvent id="lan_end_event">
       <bpmn:extensionElements>
         <aef:uid value="u22"/>
         <aef:position x="1302.0" y="952.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:endEvent>
 
-    <bpmn:endEvent id="lan_end_event" name="Event_1cutsq6">
+    <bpmn:endEvent id="lan_end_event">
       <bpmn:extensionElements>
         <aef:uid value="u23"/>
         <aef:position x="1302.0" y="1092.0"/>
+        <aef:meta slug="event"/>
       </bpmn:extensionElements>
     </bpmn:endEvent>
 

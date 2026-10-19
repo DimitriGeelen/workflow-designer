@@ -12111,7 +12111,9 @@ function aefExtensionXml(node) {
     // `name` rides <aef:link> and only alongside a workflowRef. Excluded rather than
     // carried because aef.name on a non-link node would shadow node.name on re-import,
     // and the corpus census found it on no <aef:meta> element (0 of 823 values).
-    'name']);
+    'name',
+    // T-1218: written below from node.slug, only for an unnamed start/end event; never carried as stale state.
+    'slug']);
   // The kind-specific binding is emitted by <aef:eventDef> ONLY for a typed event node.
   // On any other type it has no emitter, so it must be carried rather than skipped.
   if (EVENT_KIND[node.type] && EVENT_BINDING_FIELD[node.type]) scalarHandled.add(EVENT_BINDING_FIELD[node.type]);
@@ -12121,8 +12123,11 @@ function aefExtensionXml(node) {
 
   // Known keys in metaKeys order, carried keys sorted after them — a fixed order so
   // re-exporting an unchanged document twice yields identical bytes.
-  const metaAttrs = [...metaKeys.filter(k => aefKeys.includes(k)), ...carriedKeys]
-    .map(k => `${k}="${escAttr(aef[k])}"`).join(' ');
+  // T-1218: an unnamed start/end event carries its slug, so its display id survives the next open.
+  const slugAttr = (node.type === 'startEvent' || node.type === 'endEvent') && !node.name && node.slug
+    ? [`slug="${escAttr(node.slug)}"`] : [];
+  const metaAttrs = [...[...metaKeys.filter(k => aefKeys.includes(k)), ...carriedKeys]
+    .map(k => `${k}="${escAttr(aef[k])}"`), ...slugAttr].join(' ');
   if (metaAttrs) out += `        <aef:meta ${metaAttrs}/>\n`;
   if (aef.endpoint) out += `        <aef:endpoint>${escText(aef.endpoint)}</aef:endpoint>\n`;
   if (aef.contextReads) out += `        <aef:contextReads paths="${escAttr(aef.contextReads)}"/>\n`;
@@ -12555,7 +12560,8 @@ function buildBpmnXml(s) {
     const incoming = s.edges.filter(e => e.target === n.id).map(e => `      <bpmn:incoming>${displayIdOf(e)}</bpmn:incoming>`).join('\n');
     const outgoing = s.edges.filter(e => e.source === n.id).map(e => `      <bpmn:outgoing>${displayIdOf(e)}</bpmn:outgoing>`).join('\n');
     lines.push(``);
-    lines.push(`    <bpmn:${tag} id="${escAttr(nodeDisplayId)}" name="${escAttr(n.name)}"${boundaryAttrs}>`);
+    // T-1218: no name is written as no name attribute, not as name="" (no committed map carries name="").
+    lines.push(`    <bpmn:${tag} id="${escAttr(nodeDisplayId)}"${n.name ? ` name="${escAttr(n.name)}"` : ''}${boundaryAttrs}>`);
     // T-602: documentation first — the BPMN XSD orders tBaseElement as
     // documentation* then extensionElements?, so emitting it after the aef block
     // would produce a schema-invalid element.
@@ -13340,7 +13346,15 @@ function parseBpmnXml(text) {
   {
     for (const [tag, el, foreignTag] of nodeWork) {
       const displayId = el.getAttribute('id') || '';
-      const name = el.getAttribute('name') || displayId;
+      // T-1218: an unnamed start or end event stays unnamed. The id used to stand in as its name, so the
+      // canvas showed "Start_8" and the save wrote it back as name="Start_8" (aef-greenfield-test, 41 maps).
+      // Other node types keep the id as their label: an empty task box cannot be found on the canvas.
+      // An unnamed event's slug still derives from its id the first time (StartEvent_1 -> 'startevent', so its
+      // display id is the one it always had), and is then carried as <aef:meta slug> while the event stays
+      // unnamed: re-deriving it from the id it is saved under (lan_start_startevent -> 'lan') would rename it on
+      // every save. See aefExtensionXml.
+      const unnamedEvent = !el.getAttribute('name') && (tag === 'startEvent' || tag === 'endEvent');
+      const name = el.getAttribute('name') || (unnamedEvent ? '' : displayId);
       // let, not const: <aef:eventDef> below can override the shared
       // intermediateCatchEvent tag to a specific typed-event node type (T-204).
       let type = REVERSE_TYPE[tag] || 'serviceTask';
@@ -13533,8 +13547,9 @@ function parseBpmnXml(text) {
           return entry;
         });
 
-      // Derive slug from name if not encoded
-      const slug = deriveSlug(name);
+      // Derive slug from name if not encoded (T-1218: an unnamed start/end event reads its carried slug, else its id)
+      const slug = unnamedEvent ? (aef.slug || deriveSlug(displayId)) : deriveSlug(name);
+      if (tag === 'startEvent' || tag === 'endEvent') delete aef.slug;
 
       // Default position if none was encoded — simple flow layout per lane
       if (x == null || isNaN(x) || y == null || isNaN(y)) {

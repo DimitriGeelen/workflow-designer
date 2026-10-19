@@ -46,19 +46,21 @@
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="lan_start_id" name="Id_8582749e-b374-4721-b307-743d473e76db">
+    <bpmn:startEvent id="lan_start_id">
       <bpmn:documentation></bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="u1"/>
         <aef:position x="136.0" y="115.0"/>
+        <aef:meta slug="id"/>
       </bpmn:extensionElements>
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="lan_end_id" name="Id_e673ec36-e00a-4857-b74d-bcd82c4eeff5">
+    <bpmn:endEvent id="lan_end_id">
       <bpmn:extensionElements>
         <aef:uid value="u2"/>
         <aef:position x="392.0" y="115.0"/>
+        <aef:meta slug="id"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_2</bpmn:incoming>
     </bpmn:endEvent>

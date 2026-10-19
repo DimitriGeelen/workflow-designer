@@ -1072,6 +1072,18 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1218: an unnamed start/end event stays unnamed through open and save, with its display id unchanged ──
+# The import used the id as the name, so the canvas showed "StartEvent_1" and the save wrote it back
+# (aef-greenfield-test, 41 maps). Red against the pre-T-1218 source (legs 1 and 6).
+if node "$ROOT/tools/_t1218-unnamed-event-name-cdp.mjs" > "$TMP/leg-_t1218.out" 2>&1 \
+   && head -2 "$TMP/leg-_t1218.out" | grep -q '"ok": true'; then
+  pass=$((pass + 1))
+else
+  report FAIL "an unnamed start/end event is saved with a name again (its id), its display id moved, a second save renames it, a named event lost its name, or a cleared name saved as name=\"\" (run 'node tools/_t1218-unnamed-event-name-cdp.mjs'; T-1218)"
+  show_output "$TMP/leg-_t1218.out" "_t1218-unnamed-event-name-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # ── T-1220: attributes on aef:input/aef:output beyond name/type/required survive open and save ──
 # aef-greenfield-test generates aef:io from its ontology (ref/role/cardinality/dataType, AEF T-4415); the
 # save used to keep only the named attributes. Red against the pre-T-1220 source (legs 1, 3, 6).
