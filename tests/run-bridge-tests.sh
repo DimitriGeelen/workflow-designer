@@ -1025,7 +1025,7 @@ fi
 # filled or empty, profile-hidden ones marked; edits land on the element; Esc/Close/backdrop close it; a handoff
 # keeps its double-click jump; fits 1024x768.
 if node "$ROOT/tools/_t1127-element-details-cdp.mjs" > "$TMP/leg-_t1127.out" 2>&1 \
-   && grep -q "T-1127: 7/7" "$TMP/leg-_t1127.out"; then
+   && awk -F'[ /]' '/^T-1127: [0-9]+\/[0-9]+$/ { if ($2 == $3 && $2 > 0) ok = 1 } END { exit !ok }' "$TMP/leg-_t1127.out"; then   # all legs, however many (T-1209 added G)
   pass=$((pass + 1))
 else
   report FAIL "the element details view no longer opens, no longer shows every field, writes elsewhere than the panel, leaks keys to the canvas, or broke the handoff jump (run 'node tools/_t1127-element-details-cdp.mjs'; T-1127)"
@@ -3127,23 +3127,27 @@ for _entry in "${T1013_GUARDS[@]}"; do
   _tool="${_entry%%|*}"; _tool="${_tool#tools/}"; _why="${_entry#*|}"
   # T-1168: an entry may carry arguments after the tool name ('tools/x.mjs --check|why').
   _args=(); case "$_tool" in *" "*) read -r _tool _rest <<< "$_tool"; read -r -a _args <<< "$_rest" ;; esac
+  # T-1204: an entry outside tools/ (tests/test_t1159_…) keeps its own directory, and its output file name is
+  # flattened. Before, it ran as tools/tests/… and wrote to a path with a '/', so that leg never ran at all.
+  case "$_tool" in */*) _path="$ROOT/$_tool" ;; *) _path="$ROOT/tools/$_tool" ;; esac
   case "$_tool" in
-    *.py)  _cmd=(python3 "$ROOT/tools/$_tool" "${_args[@]}") ;;
-    *.sh)  _cmd=(bash "$ROOT/tools/$_tool" "${_args[@]}") ;;
-    *.mjs|*.js) _cmd=(node "$ROOT/tools/$_tool" "${_args[@]}") ;;
+    *.py)  _cmd=(python3 "$_path" "${_args[@]}") ;;
+    *.sh)  _cmd=(bash "$_path" "${_args[@]}") ;;
+    *.mjs|*.js) _cmd=(node "$_path" "${_args[@]}") ;;
     *) _cmd=(false) ;;
   esac
-  if (cd "$ROOT" && timeout 600 "${_cmd[@]}") > "$TMP/leg-t1013-$_tool.out" 2>&1; then
+  _out="$TMP/leg-t1013-${_tool//\//_}.out"
+  if (cd "$ROOT" && timeout 600 "${_cmd[@]}") > "$_out" 2>&1; then
     pass=$((pass + 1))
-  elif grep -qE '^(CANNOT RUN|COULD NOT MEASURE)' "$TMP/leg-t1013-$_tool.out"; then
+  elif grep -qE '^(CANNOT RUN|COULD NOT MEASURE)' "$_out"; then
     # T-1060: still red (nothing was verified), but named for what it is — the guard never got to
     # look, which is an environment/harness problem, not a regression in what it guards.
-    report FAIL "standing guard $_tool COULD NOT RUN (not a verdict on the code — $(grep -m1 -E '^(CANNOT RUN|COULD NOT MEASURE)' "$TMP/leg-t1013-$_tool.out" | cut -c1-120)): $_why (run '${_cmd[0]} tools/$_tool'; wired by T-1013)"
-    show_output "$TMP/leg-t1013-$_tool.out" "$_tool"
+    report FAIL "standing guard $_tool COULD NOT RUN (not a verdict on the code — $(grep -m1 -E '^(CANNOT RUN|COULD NOT MEASURE)' "$_out" | cut -c1-120)): $_why (run '${_cmd[0]} ${_path#"$ROOT"/}'; wired by T-1013)"
+    show_output "$_out" "$_tool"
     fail=$((fail + 1))
   else
-    report FAIL "standing guard $_tool failed: $_why (run '${_cmd[0]} tools/$_tool'; wired by T-1013)"
-    show_output "$TMP/leg-t1013-$_tool.out" "$_tool"
+    report FAIL "standing guard $_tool failed: $_why (run '${_cmd[0]} ${_path#"$ROOT"/}'; wired by T-1013)"
+    show_output "$_out" "$_tool"
     fail=$((fail + 1))
   fi
 done
