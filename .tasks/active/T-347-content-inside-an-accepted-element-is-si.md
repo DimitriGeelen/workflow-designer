@@ -605,6 +605,10 @@ tActivity order, and returns null for a document with nothing kept, so other exp
    e.g. a gateway's `default`, and loose text in a node. Since `default` is standard BPMN and this design keeps it
    (remapped), AEF is asked to keep it too. Release evidence AEF wants: a WORKS/BROKEN per item from our
    designer round-trip.
+   AEF filed **T-4399** (msg e9572bbf, horizon now): keep `default` on exclusive/inclusive/complex gateways and on
+   activities through parse and emit, and validate that it names a sequenceFlow in the same process whose sourceRef
+   is that node (error otherwise). The designer's remap must therefore keep `default` pointing at an OUTGOING flow
+   of the same node; a `default` whose flow was deleted is dropped with a notice, never left dangling.
    Also: AEF does not support `bpmn:task` (a plain task) as a node type. The designer re-emits it as a
    `foreignTag` (T-337) for third-party maps. That is an existing gap, followed separately.
 
