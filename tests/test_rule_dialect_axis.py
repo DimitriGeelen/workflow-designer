@@ -232,7 +232,7 @@ RULE_CARRIERS = {
     "E-UID-DUP":                (("aef:uid",), CONSTRAINS),
     "E-EDGE-FIELD":             (("edges",), STRUCTURAL),
     "E-EDGE-DANGLING":          (("edges",), STRUCTURAL),
-    "E-GW-OUTGOING":            (("edges",), STRUCTURAL),
+    "W-GW-OUTGOING":            (("edges",), STRUCTURAL),
     "W-GW-AMBIGUOUS":           (("edge condition",), REQUIRES),
     "W-PGW-CONDITION":          (("edge condition",), CONSTRAINS),
     "W-PGW-NOOP":               (("edges",), STRUCTURAL),
@@ -314,7 +314,7 @@ RULE_CARRIERS = {
     # rather than hand-classified: classify() computes the class from the carrier map, so
     # adding a rule here cannot quietly assert a class the carrier does not support.
     "E-XML-ABBR-DUP":           (("aef:laneMeta/@abbr",), CONSTRAINS),
-    "E-XML-GW-OUTGOING":        (("sequenceFlow",), STRUCTURAL),
+    "W-XML-GW-OUTGOING":        (("sequenceFlow",), STRUCTURAL),
     "W-XML-GW-AMBIGUOUS":       (("conditionExpression",), REQUIRES),
     # T-891: promoted WARN -> ERROR and renamed. Same carrier, same axis — what changed is
     # severity, because the editor no longer silently repairs the state (it used to default
@@ -408,15 +408,18 @@ RULE_BASIS = {
     "E-XML-LANEREF-DANGLING": ("ground", "xml-idref"),
     "E-XML-LANES-EMPTY":      _OWNER_IS_LANE,
     "E-XML-NODE-UNASSIGNED":  _OWNER_IS_LANE,
-    # NOT declared, deliberately: E-GW-OUTGOING / E-XML-GW-OUTGOING (an exclusive gateway needs >= 2 outgoing
+    # NOT declared, deliberately: W-GW-OUTGOING / W-XML-GW-OUTGOING (an exclusive gateway needs >= 2 outgoing
     # flows unless it converges). mapping-v1 §3 says "outgoing edges = branches", with no requirement keyword, and
-    # BPMN admits the shape. They derive CONVENTIONAL while carrying ERROR severity: a finding, pinned below, not a
-    # basis invented to keep them universal. Nor the 13 graph-shape WARNs (T-1165 tiers A+B): nothing backs them.
+    # BPMN admits the shape, so they derive CONVENTIONAL. Until T-1212 they carried ERROR severity (E-GW-OUTGOING /
+    # E-XML-GW-OUTGOING), pinned below as the two uncited errors; the operator ruled them warnings on 2026-10-19.
+    # Nor the 13 graph-shape WARNs (T-1165 tiers A+B): nothing backs them.
 }
 _REQUIREMENT_RE = re.compile(r"\b(MUST|SHALL|REQUIRED)\b")
-# Pinned so a basis added or dropped is a decision, not drift (T-1165: 13 graph-shape WARNs + 2 uncited ERRORs).
+# Pinned so a basis added or dropped is a decision, not drift (T-1165: 13 graph-shape WARNs + the 2 gateway rules,
+# warnings since T-1212).
 EXPECTED_CONVENTIONAL = 15
-EXPECTED_UNCITED_ERRORS = ("E-GW-OUTGOING", "E-XML-GW-OUTGOING")
+# T-1212: none left. An ERROR that rests on no basis refuses documents the standard admits; a new one is a decision.
+EXPECTED_UNCITED_ERRORS = ()
 
 
 def _structure_only(carriers):
@@ -874,7 +877,7 @@ def negative_controls():
 
     def _no_declaration():
         globals()["RULE_CARRIERS"] = {k: v for k, v in RULE_CARRIERS.items()
-                                      if k != "E-GW-OUTGOING"}
+                                      if k != "W-GW-OUTGOING"}
     _control("an emitted rule with no carrier declaration", _no_declaration, fails)
 
     def _unclassified_carrier():
@@ -912,7 +915,7 @@ def negative_controls():
 
     def _descriptive_quote():
         globals()["RULE_BASIS"] = dict(RULE_BASIS, **{
-            "E-XML-GW-OUTGOING": ("mapping-v1", "outgoing edges = branches")})
+            "W-XML-GW-OUTGOING": ("mapping-v1", "outgoing edges = branches")})
     _control("a basis quoting real but non-requiring text (no MUST/SHALL/REQUIRED)", _descriptive_quote, fails)
 
     def _unknown_ground():

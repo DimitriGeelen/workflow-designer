@@ -89,7 +89,7 @@ ANCHOR = {
     "E-XML-FLOW-DANGLING":       "DROPPED",
     "E-XML-LANES-EMPTY":         "DOC",
     "E-XML-LANEREF-DANGLING":    "REFERENT",
-    "E-XML-GW-OUTGOING":         "NODE",
+    "W-XML-GW-OUTGOING":         "NODE",
     "W-XML-GW-AMBIGUOUS":        "NODE",
     # T-990: renamed from W-XML-NODE-UNASSIGNED when T-891 promoted it to an ERROR; the old row
     # named a rule the validator no longer emits. Location names the node itself.

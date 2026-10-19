@@ -1,7 +1,7 @@
 # T-977 BOUNDARY fixture, YAML form: an exclusive SPLIT (2 conditioned branches) followed by an
 # exclusive MERGE (2 incoming, 1 outgoing). The merge is standard BPMN and must validate CLEAN.
 # Before T-977 the merge raised E-GW-OUTGOING ("requires >= 2 outgoing"). The 1-in/1-out case,
-# which still must fail, is pinned by tests/fixtures/invalid/E-GW-OUTGOING.yaml.
+# which still must be flagged (a warning since T-1212), is pinned by tests/fixtures/warn/W-GW-OUTGOING.yaml.
 workflowMeta:
   id: gw-converging
   version: 1

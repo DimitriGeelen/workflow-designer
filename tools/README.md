@@ -48,12 +48,12 @@ tables in §3/§4.1/§5/§6.1:
 | `E-EDGE-DANGLING` | Edge `source`/`target` does not resolve to a node `uid` |
 | `E-NODE-LANE` | Node `lane` does not match any declared lane `id` |
 | `E-ABBR-DUP` | Two lanes share the same `abbr` |
-| `E-GW-OUTGOING` | An `exclusiveGateway` has fewer than two outgoing edges |
 
 Convention rules (WARN, exit 1) — usable but flagged:
 
 | Rule | Meaning |
 |---|---|
+| `W-GW-OUTGOING` | An `exclusiveGateway` has fewer than two outgoing edges and does not converge (an error, `E-GW-OUTGOING`, until T-1212) |
 | `W-GW-AMBIGUOUS` | An `exclusiveGateway` has more than one unconditioned outgoing edge (only one may be the default) |
 | `W-IO-INPUT` | A required `io.input` has no upstream node emitting a matching-name output |
 
@@ -70,13 +70,13 @@ Hard rules (ERROR, exit 2) — the §7.3 rules expressed on the XML structure
 | `E-XML-UID-DUP` | An `aef:uid` is not unique in the document |
 | `E-XML-FLOW-DANGLING` | A `sequenceFlow` `sourceRef`/`targetRef` does not resolve to a flow-node `bpmn:id` |
 | `E-XML-LANEREF-DANGLING` | A lane `flowNodeRef` does not resolve to a flow-node `bpmn:id` |
-| `E-XML-GW-OUTGOING` | An `exclusiveGateway` has fewer than two outgoing sequence flows |
 
-Convention rule (WARN, exit 1):
+Convention rules (WARN, exit 1):
 
 | Rule | Meaning |
 |---|---|
 | `W-XML-NODE-UNASSIGNED` | A flow node is not assigned to any lane |
+| `W-XML-GW-OUTGOING` | An `exclusiveGateway` has fewer than two outgoing sequence flows and does not converge (an error, `E-XML-GW-OUTGOING`, until T-1212) |
 
 Note: in the YAML canonical form, edges reference node **`uid`**s; in the XML
 export, flow references use **`bpmn:id`** (displayId) while `aef:uid` carries

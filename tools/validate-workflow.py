@@ -574,11 +574,14 @@ class Validator:
             ]
             # section 7.3: at least two outgoing edges, unless it is a CONVERGING gateway
             # (>= 2 incoming, exactly 1 outgoing): the standard BPMN merge (T-977, paired
-            # with E-XML-GW-OUTGOING so the two forms do not diverge).
+            # with W-XML-GW-OUTGOING so the two forms do not diverge).
+            # T-1212 (operator, 2026-10-19): a WARNING, no longer an error. Nothing requires it:
+            # mapping-v1 §3 says "outgoing edges = branches" with no MUST/SHALL, BPMN admits the
+            # shape, and the T-1200 axis derives it CONVENTIONAL. Renamed from E-GW-OUTGOING.
             converging = len(outgoing) == 1 and len(incoming) >= 2
             if len(outgoing) < 2 and not converging:
-                self.err(
-                    "E-GW-OUTGOING",
+                self.warn(
+                    "W-GW-OUTGOING",
                     loc,
                     "exclusiveGateway has %d outgoing edge(s); requires >= 2"
                     % len(outgoing),
@@ -1268,14 +1271,17 @@ class XmlValidator:
         # T-977: a CONVERGING gateway (>= 2 incoming, exactly 1 outgoing) is the standard BPMN
         # merge and was refused here as an ERROR, so a vendor drawing an ordinary XOR merge got a
         # hard error (found by an external reviewer using the authoring kit, T-975 X7). Same
-        # class as T-970: refusing standard BPMN. Still an error: 0 outgoing (a dead end that
+        # class as T-970: refusing standard BPMN. Still reported: 0 outgoing (a dead end that
         # claims to decide), and 1-in/1-out (a gateway that decides nothing).
+        # T-1212 (operator, 2026-10-19): reported as a WARNING, no longer an error. Nothing
+        # requires it (no MUST/SHALL in mapping-v1 §3, BPMN admits the shape), so refusing the
+        # document was a house rule. Renamed from E-XML-GW-OUTGOING.
         for gid in gateways:
             count = outgoing_count.get(gid, 0)
             converging = count == 1 and incoming_count.get(gid, 0) >= 2
             if count < 2 and not converging:
-                self.err(
-                    "E-XML-GW-OUTGOING",
+                self.warn(
+                    "W-XML-GW-OUTGOING",
                     "exclusiveGateway '%s'" % gid,
                     "exclusiveGateway has %d outgoing flow(s); requires >= 2"
                     % count,

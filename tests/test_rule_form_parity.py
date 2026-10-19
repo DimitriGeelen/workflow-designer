@@ -151,7 +151,7 @@ PARITY = {
     "E-EDGE-FIELD":         (PAIRED, "E-XML-STRUCTURE"),
     "E-NODE-LANE":          (PAIRED, "E-XML-LANEREF-DANGLING"),
     "E-EDGE-DANGLING":      (PAIRED, "E-XML-FLOW-DANGLING"),
-    "E-GW-OUTGOING":        (PAIRED, "E-XML-GW-OUTGOING"),
+    "W-GW-OUTGOING":        (PAIRED, "W-XML-GW-OUTGOING"),
     "E-UID-DUP":            (PAIRED, "E-XML-UID-DUP"),
     # T-329 built the direct counterpart. The old note pointed at
     # E-INCEPTION-NOT-SOVEREIGN, which reads the same attribute but asks a
@@ -238,7 +238,7 @@ PARITY = {
     "E-XML-WORKFLOW-KIND":  (PAIRED, "E-WORKFLOW-KIND (T-875/T-903)"),
     "E-XML-ABBR-DUP":       (PAIRED, "E-ABBR-DUP (T-816)"),
     "E-XML-FLOW-DANGLING":  (PAIRED, "E-EDGE-DANGLING"),
-    "E-XML-GW-OUTGOING":    (PAIRED, "E-GW-OUTGOING"),
+    "W-XML-GW-OUTGOING":    (PAIRED, "W-GW-OUTGOING"),
     "E-XML-UID-DUP":        (PAIRED, "E-UID-DUP"),
     "W-XML-DEADEND":        (PAIRED, "W-DEADEND"),
     "W-XML-UNREACHABLE":    (PAIRED, "W-UNREACHABLE"),

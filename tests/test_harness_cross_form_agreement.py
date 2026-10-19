@@ -82,7 +82,7 @@ PAIRS = {
     # ERROR; the stale name made a real agreement read as a NEW DISAGREEMENT.
     "E-NODE-LANE":          {"E-XML-LANEREF-DANGLING", "E-XML-NODE-UNASSIGNED"},
     "E-EDGE-DANGLING":      {"E-XML-FLOW-DANGLING"},
-    "E-GW-OUTGOING":        {"E-XML-GW-OUTGOING"},
+    "W-GW-OUTGOING":        {"W-XML-GW-OUTGOING"},
     "E-UID-DUP":            {"E-XML-UID-DUP"},
     # T-329 built the direct counterpart. E-INCEPTION-NOT-SOVEREIGN reads the
     # same attribute but asks whether the inception boundary is sovereignty-

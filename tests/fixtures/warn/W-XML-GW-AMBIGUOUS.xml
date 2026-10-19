@@ -4,7 +4,7 @@
      -> W-XML-GW-AMBIGUOUS (WARN). Parity with the YAML path's W-GW-AMBIGUOUS.
 
      Deliberately three rather than two, so the count in the message is not
-     confusable with the >= 2 boundary of E-XML-GW-OUTGOING: this fixture must
+     confusable with the >= 2 boundary of W-XML-GW-OUTGOING (E- before T-1212): this fixture must
      fail for ambiguity, not for arity. The silent-at-exactly-one boundary is
      covered by tests/fixtures/valid/gw-single-default.xml.
 

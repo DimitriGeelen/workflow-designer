@@ -214,8 +214,8 @@ will make up what the source does not say. Do not.
   rather than inventing words for it. Do not infer a default merely because wording is missing.
 - **Merging branches:** use a converging exclusive gateway (two or more incoming flows, exactly
   one outgoing), or route the branches straight into the next step. Both are valid. An exclusive
-  gateway with one incoming and one outgoing flow decides nothing and is refused
-  (`E-XML-GW-OUTGOING`).
+  gateway with one incoming and one outgoing flow decides nothing and is flagged with a warning
+  (`W-XML-GW-OUTGOING`; an error named `E-XML-GW-OUTGOING` before designer 0.24, see T-1212).
 - **Prose order is evidence, not proof.** "Picks, packs and books a carrier" is a reasonable
   sequence; "inspection and labelling also happen" is not. When in doubt, it is unknown.
 

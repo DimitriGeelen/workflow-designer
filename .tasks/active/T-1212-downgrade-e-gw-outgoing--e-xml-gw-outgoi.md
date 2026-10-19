@@ -1,13 +1,25 @@
 ---
 id: T-1212
-name: "Downgrade E-GW-OUTGOING / E-XML-GW-OUTGOING to warnings (operator decision 2026-10-19, option 1)"
+name: "Downgrade E-GW-OUTGOING / E-XML-GW-OUTGOING to warnings (operator decision
+  2026-10-19, option 1)"
 description: >
-  Operator decision 2026-10-19 ('1'): both gateway rules (an exclusive gateway with 1 in / 1 out 'decides nothing') become WARNINGS instead of errors. Why: they cannot cite a requirement (mapping-v1 §3 'outgoing edges = branches' has no MUST/SHALL; BPMN admits the shape; AEF's accepted mapping-v1 note says 'Graph shape is not constrained'), so the T-1200 axis derives them CONVENTIONAL while they refused maps as errors (pinned as EXPECTED_UNCITED_ERRORS). Build: designer src change (rule ids and severity, keeping the finding text), update tests/test_rule_dialect_axis.py (EXPECTED_UNCITED_ERRORS becomes empty, EXPECTED_CONVENTIONAL stays consistent), the authoring kit, and any probe that expects the error; screenshots of a finding at 3 widths plus an independent review (UI rule); list in PENDING-next-release with an explicit note to AEF that their compiler may have relied on the error.
+  Operator decision 2026-10-19 ('1'): both gateway rules (an exclusive gateway with
+  1 in / 1 out 'decides nothing') become WARNINGS instead of errors. Why: they cannot
+  cite a requirement (mapping-v1 §3 'outgoing edges = branches' has no MUST/SHALL;
+  BPMN admits the shape; AEF's accepted mapping-v1 note says 'Graph shape is not constrained'),
+  so the T-1200 axis derives them CONVENTIONAL while they refused maps as errors (pinned
+  as EXPECTED_UNCITED_ERRORS). Build: designer src change (rule ids and severity,
+  keeping the finding text), update tests/test_rule_dialect_axis.py (EXPECTED_UNCITED_ERRORS
+  becomes empty, EXPECTED_CONVENTIONAL stays consistent), the authoring kit, and any
+  probe that expects the error; screenshots of a finding at 3 widths plus an independent
+  review (UI rule); list in PENDING-next-release with an explicit note to AEF that
+  their compiler may have relied on the error.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +50,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T09:43:17Z
-last_update: 2026-10-19T09:43:17Z
-date_finished: null
+last_update: 2026-10-19T10:00:27Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +62,47 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-19T10:00:28Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 3
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=gateway); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=3 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L3:keyword=compile)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1212: Downgrade E-GW-OUTGOING / E-XML-GW-OUTGOING to warnings (operator decision 2026-10-19, option 1)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Operator decision 2026-10-19 (option 1 of 3, after background on T-1165/T-1200 and T-975/T-977). The rules live in
+`tools/validate-workflow.py` (canvas form ~line 580, XML form ~line 1278). They fire on a non-converging exclusive
+gateway with fewer than 2 outgoing flows: 1-in/1-out ("decides nothing") and 0 outgoing. None of that cites a
+requirement, so all of it becomes a warning. The ids carry the severity (E-/W-), so they are renamed
+`W-GW-OUTGOING` / `W-XML-GW-OUTGOING`. AEF stores finding ids, so the rename is announced with an old→new map.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Both rules report as warnings under `W-GW-OUTGOING` / `W-XML-GW-OUTGOING`, with the finding text and the converging-gateway exemption unchanged; a map whose only finding is one of them now passes the check (exit code as for any warning) instead of failing
+- [ ] Every reference is updated: the dialect axis (`tests/test_rule_dialect_axis.py`: no uncited ERRORs left, `EXPECTED_UNCITED_ERRORS` empty, the rule rows renamed), the form-parity, anchorability and cross-form tests, the fixtures, `docs/authoring-kit/AUTHORING.md` and `tools/README.md`, the authoring kit's rule table (regenerated, not hand-edited); a repo-wide search for the old ids finds only history (release notes, reports, closed tasks)
+- [ ] A test pins the new behaviour: a 1-in/1-out gateway yields `W-GW-OUTGOING` and no error, in both forms; the converging gateway still yields nothing
+- [ ] Every affected test passes, and a full bridge run is green
+- [ ] `docs/releases/PENDING-next-release.md` lists it, with the old→new id map and a note for AEF that a check which failed on these now warns
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -112,6 +151,14 @@ date_finished: null
 -->
 
 ## Verification
+
+python3 tests/test_rule_dialect_axis.py
+python3 tests/test_rule_form_parity.py
+python3 tests/test_finding_anchorability.py
+python3 tests/test_harness_cross_form_agreement.py
+grep -q 'W-GW-OUTGOING' tools/validate-workflow.py
+! grep -q '"E-GW-OUTGOING"\|"E-XML-GW-OUTGOING"' tools/validate-workflow.py
+grep -q 'T-1212' docs/releases/PENDING-next-release.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -338,3 +385,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1212-downgrade-e-gw-outgoing--e-xml-gw-outgoi.md
 - **Context:** Initial task creation
+
+### 2026-10-19T10:00:27Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
