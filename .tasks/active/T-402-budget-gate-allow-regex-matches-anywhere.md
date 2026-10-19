@@ -201,6 +201,7 @@ both sides, so it goes to the operator rather than being taken by initiative.
       **If not:** the task stays open; nothing is patched, which is outcome A by default
       — and "A by choice" and "A by nobody deciding" are the same observable, which is
       the reason this is being asked rather than assumed.
+  **Reviewer escalation (V-20261019-5dbcf194, reviewer-judge-t-402-r3-b51042fff95d:reviewer, rung rung-3-termlink-single-reviewer):** No A/B/C decision is recorded on T-402; the Decisions sections hold only the template. Choosing containment for an enforcement gate (wait, carry a fork, or accept the risk) is the operator's sovereignty/risk call. Facts for the operator: tools/_t402-gate-drive-probe.py re-run now PASSES 11/11, so upstream's AEF T-2919/T-2923 fix is vendored, all 5 bypass shapes are blocked, and no local fork exists. A therefore costs nothing. The operator needs to reply with a letter, which is then recorded on the task.
 
 ## Findings
 

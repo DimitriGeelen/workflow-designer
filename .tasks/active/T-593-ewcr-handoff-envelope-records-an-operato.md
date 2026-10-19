@@ -380,8 +380,8 @@ delivery. H2 is still open and still yours — that is the point.
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-3ad11e35
-- **Timestamp:** 2026-10-14T19:32:03Z
+- **Scan ID:** R-a9f2c989
+- **Timestamp:** 2026-10-19T05:02:32Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

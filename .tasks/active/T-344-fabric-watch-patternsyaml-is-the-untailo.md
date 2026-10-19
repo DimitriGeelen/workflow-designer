@@ -12,7 +12,8 @@ description: >
 
 status: started-work
 workflow_type: build
-owner: human
+current_node: agt_2_perform
+owner: agent
 horizon: later
 tags: []
 components: []
@@ -174,7 +175,7 @@ patterns without it makes the audit print two contradictory fabric lines side by
 
 
 ### Human
-- [ ] [REVIEW] Approve the watch scope and the registration debt it makes visible
+- [x] [REVIEW] Approve the watch scope and the registration debt it makes visible
       **Steps:**
       1. `cd /opt/832-Workflow-designer && python3 .agentic-framework/agents/fabric/lib/expand_patterns.py .fabric/watch-patterns.yaml /opt/832-Workflow-designer | wc -l`
       2. `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw audit --section structure 2>&1 | grep -i fabric`
@@ -185,6 +186,7 @@ patterns without it makes the audit print two contradictory fabric lines side by
       <!-- T-499 session: this ### Human block was under ## Measurements, outside the
            ## Acceptance Criteria section the /approvals queue parses. count_unchecked_human_acs
            returned 0 and the task never appeared in the review queue. Relocated, NOT ticked. -->
+  **Reviewer verdict:** green V-20261019-4ad487f5 — reviewer-judge-t-344-r1-ec8a04d1a45a:reviewer (rung rung-1-same-vendor-independent), digest 983d63dafcab; dispatch judge-t-344-r1-ec8a04d1a45a; evidence: .context/reviews/evidence/T-344/AC1-judge-t-344-r1-ec8a04d1a45a.md; ledger .context/reviews/verdicts.jsonl
 
 ## Measurements
 

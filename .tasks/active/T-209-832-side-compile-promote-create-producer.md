@@ -308,6 +308,7 @@ rests on a dated measurement rather than a dated reading.
   **If not:** if you want the reply worded differently, or want the typed-event gap left
   unfiled for now, say so in the rationale — the agent will not send a rail message
   declining a peer's proposal without this decision recorded.
+  **Reviewer escalation (V-20261019-ef0c462b, reviewer-judge-t-209-r5-codex-e0c108991bac:codex, rung rung-5-panel:codex):** The human should select and record the ruling against T-209. If A is selected, the authorized agent can send the rail reply citing the existing suites and T-212, then close T-209 without filing a duplicate task.
 
 
 ## Recommendation

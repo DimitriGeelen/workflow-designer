@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1214: T-264 leg4 (focus kept while typing) flakes in a full bridge run: headless focus lost under load
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T17:36:42Z
+# ============================================================================
+
+task_id: T-1214
+task_name: "T-264 leg4 (focus kept while typing) flakes in a full bridge run: headless focus lost under load"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-19T12:12:41Z
+completed: 2026-10-19T17:36:26Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-19T14:12:52+02:00
+last_commit: 2026-10-19T18:01:25+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture — T-264 leg4 (focus kept while typing) flakes under full-suite load; passes alone. T-264 probe emulates page focus, so leg4 measures the designer's commit-on-blur guard, not the host window under load; teeth hold (reverted guard reddens legs 1-5)
+
+# Key outcomes
+outcomes:
+  - 'The T-264 probe enables CDP focus emulation (`Emulation.setFocusEmulationEnabled`) before its legs, so leg4 measures the designer''s focus handling, not the host window''s focus; the reason is written beside it'
+  - 'leg4 still bites: with the designer''s commit-on-blur guard reverted in a scratch copy, the leg goes red (the emulation does not make it pass by itself)'
+  - 'The probe passes alone, and in two full bridge runs in a row the T-264 leg is green (it failed in 2 of the last 4 runs before the fix)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'T-264 probe emulates page focus, so leg4 measures the designer''s commit-on-blur guard, not the host window under load; teeth hold (reverted guard reddens legs 1-5)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1214-t-264-leg4-focus-kept-while-typing-flake.md'
+  - 'tools/_t264-save-target-guards-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T14:12:52'
+    action: 'T-1214: capture — T-264 leg4 (focus kept while typing) flakes under full-suite load; passes alone'
+  - time: '2026-10-19T18:01:25'
+    action: 'T-1214: T-264 probe emulates page focus, so leg4 measures the designer''s commit-on-blur guard, not the host window under load; teeth hold (reverted guard reddens legs 1-5)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 323 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 323
+  commits: 2
+  files_changed: 2
+  lines_added: 395
+  lines_removed: 11
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1214-t-264-leg4-focus-kept-while-typing-flake.md
+generated_by: context-agent-hybrid

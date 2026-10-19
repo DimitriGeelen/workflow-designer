@@ -12,13 +12,13 @@ description: >
   so the leg measures the guard, not the host's window focus; or re-focus and retry
   once with the reason recorded. One defect, one change.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t264-save-target-guards-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -47,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T12:12:41Z
-last_update: 2026-10-19T15:59:53Z
-date_finished:
+last_update: 2026-10-19T17:36:26Z
+date_finished: 2026-10-19T17:36:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -95,7 +95,10 @@ bvp_scores_proposed:
 - [x] leg4 still bites: with the designer's commit-on-blur guard reverted in a scratch copy, the leg goes red (the emulation does not make it pass by itself)
   — mutant `if (false && opts.deferred)` (per-keystroke commit, the pre-T-264 shape), run through the new test-only
   `T1214_SRC` override: legs 1-5 red, including leg4_focusKept; legs 6-8 (other guards) green. Unmutated: 0 legs false.
-- [ ] The probe passes alone, and in two full bridge runs in a row the T-264 leg is green (it failed in 2 of the last 4 runs before the fix)
+- [x] The probe passes alone, and in two full bridge runs in a row the T-264 leg is green (it failed in 2 of the last 4 runs before the fix)
+  — run 2 of 2 (2026-10-19, HEAD code unchanged since ad21f535): T-264 leg green, same OK line. That run was 297/2; the two
+  failures are unrelated to T-264 and were caused by task-file changes made during it (T-1219's template box for
+  `_t1066`; T-723's close unwiring `_t723` for `_t451`), fixed or being fixed separately.
   — run 1 of 2: full bridge run on code ad21f535 (2026-10-19, finished ~16:40Z), 299 passed / 0 failed; T-264 leg
   "OK: save-target guard legs green (T-264 — collision notice, commit-on-blur/Enter + focus, load-source mismatch confirm + BITE)".
 
@@ -379,3 +382,21 @@ grep -q 'setFocusEmulationEnabled' tools/_t264-save-target-guards-cdp.mjs
 ### 2026-10-19T15:59:53Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8b7d4588
+- **Timestamp:** 2026-10-19T17:36:30Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-19T17:36:26Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** T-264 leg green in two consecutive full bridge runs after the focus-emulation fix
