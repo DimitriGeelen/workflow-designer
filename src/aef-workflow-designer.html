@@ -12123,12 +12123,13 @@ function aefExtensionXml(node) {
 
   // Known keys in metaKeys order, carried keys sorted after them — a fixed order so
   // re-exporting an unchanged document twice yields identical bytes.
+  const metaAttrs = [...metaKeys.filter(k => aefKeys.includes(k)), ...carriedKeys]
+    .map(k => `${k}="${escAttr(aef[k])}"`).join(' ');
   // T-1218: an unnamed start/end event carries its slug, so its display id survives the next open.
   const slugAttr = (node.type === 'startEvent' || node.type === 'endEvent') && !node.name && node.slug
-    ? [`slug="${escAttr(node.slug)}"`] : [];
-  const metaAttrs = [...[...metaKeys.filter(k => aefKeys.includes(k)), ...carriedKeys]
-    .map(k => `${k}="${escAttr(aef[k])}"`), ...slugAttr].join(' ');
-  if (metaAttrs) out += `        <aef:meta ${metaAttrs}/>\n`;
+    ? `slug="${escAttr(node.slug)}"` : '';
+  const metaLine = [metaAttrs, slugAttr].filter(Boolean).join(' ');
+  if (metaLine) out += `        <aef:meta ${metaLine}/>\n`;
   if (aef.endpoint) out += `        <aef:endpoint>${escText(aef.endpoint)}</aef:endpoint>\n`;
   if (aef.contextReads) out += `        <aef:contextReads paths="${escAttr(aef.contextReads)}"/>\n`;
   if (aef.artifactsWrites) out += `        <aef:artifactsWrites paths="${escAttr(aef.artifactsWrites)}"/>\n`;

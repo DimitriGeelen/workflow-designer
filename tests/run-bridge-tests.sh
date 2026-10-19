@@ -1096,6 +1096,16 @@ else
   fail=$((fail + 1))
 fi
 
+# T-1218's rendered side: the canvas labels of the two unnamed events read their ids BEFORE (HEAD's source) and are
+# empty AFTER, at 1024/1440/1920. Screenshots go to the run's temp dir, never into docs/.
+if timeout 600 python3 "$ROOT/tools/_t1218-unnamed-event-shots.py" "$TMP/t1218-shots" > "$TMP/leg-_t1218-shots.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the canvas shows an unnamed start/end event's id as its label again, or HEAD no longer reproduces the old label (run 'python3 tools/_t1218-unnamed-event-shots.py /tmp/x'; T-1218)"
+  show_output "$TMP/leg-_t1218-shots.out" "_t1218-unnamed-event-shots.py"
+  fail=$((fail + 1))
+fi
+
 # ── T-1220: attributes on aef:input/aef:output beyond name/type/required survive open and save ──
 # aef-greenfield-test generates aef:io from its ontology (ref/role/cardinality/dataType, AEF T-4415); the
 # save used to keep only the named attributes. Red against the pre-T-1220 source (legs 1, 3, 6).

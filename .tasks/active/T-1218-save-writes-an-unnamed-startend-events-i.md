@@ -176,7 +176,8 @@ as `name` (`name="Start_8"`, ..., `name="Task_1"`). Confirms the import fallback
 timeout 300 node tools/_t1218-unnamed-event-name-cdp.mjs > /tmp/.t1218.out 2>&1 && head -2 /tmp/.t1218.out | grep -q '"ok": true'
 timeout 300 node tools/_t358-byteid-thirdparty.mjs > /tmp/.t1218-358.out 2>&1 && grep -q '0 drifted' /tmp/.t1218-358.out
 grep -q "T-1218: an unnamed start/end event carries its slug" src/aef-workflow-designer.html
-test "$(ls docs/reports/T-1218-evidence/*.png | wc -l)" -eq 12
+ls docs/reports/T-1218-evidence/t1218-before-{1024,1440,1920}{,-detail}.png docs/reports/T-1218-evidence/t1218-after-{1024,1440,1920}{,-detail}.png
+timeout 600 python3 tools/_t1218-unnamed-event-shots.py /tmp/.t1218-shots > /tmp/.t1218-shots.out 2>&1 && grep -q 'all asserted' /tmp/.t1218-shots.out
 
 ## Visual Verification
 

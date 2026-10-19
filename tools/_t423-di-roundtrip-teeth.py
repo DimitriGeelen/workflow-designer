@@ -99,8 +99,9 @@ def case(name, mutate, expect_rc, expect_in_output=None):
         shutil.rmtree(d, ignore_errors=True)
 
 
+# T-1218 re-pointed: an empty name is now written as no name attribute, so the emit is conditional.
 NODE_NAME = ('lines.push(`    <bpmn:${tag} id="${escAttr(nodeDisplayId)}"'
-             ' name="${escAttr(n.name)}"${boundaryAttrs}>`);')
+             '${n.name ? ` name="${escAttr(n.name)}"` : \'\'}${boundaryAttrs}>`);')
 BOUNDS = ('lines.push(`        <dc:Bounds x="${n.x.toFixed(1)}" y="${n.y.toFixed(1)}"'
           ' width="${def.w}" height="${def.h}"/>`);')
 WAYPOINT = 'lines.push(`        <di:waypoint x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}"/>`);'
@@ -121,7 +122,7 @@ def _accumulating_name(body):
     return body.replace(
         NODE_NAME,
         'lines.push(`    <bpmn:${tag} id="${escAttr(nodeDisplayId)}"'
-        ' name="${escAttr(n.name)}."${boundaryAttrs}>`);', 1)
+        '${n.name ? ` name="${escAttr(n.name)}."` : \'\'}${boundaryAttrs}>`);', 1)
 
 
 def _converging_precision(body):

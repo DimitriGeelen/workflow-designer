@@ -4,7 +4,7 @@
 Loads a real third-party fixture whose start and end events carry no name
 (tests/fixtures/third-party/zeebe-service-task.bpmn: StartEvent_1, Event_1ijl6th) into the real designer, served
 by the gallery server T-962 uses, and screenshots the page at the three review widths (the UI review rule,
-2026-10-14) for the source at HEAD ("before") and for the working tree ("after").
+2026-10-14) for the source just before the fix ("before", BEFORE_REF) and for the working tree ("after").
 
 Asserted per width: BEFORE, the canvas labels of the two events read their ids (the reported defect);
 AFTER, no node label on the canvas equals either id, and the service task's label is unchanged.
@@ -23,6 +23,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIXTURE = os.path.join(ROOT, "tests", "fixtures", "third-party", "zeebe-service-task.bpmn")
 OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "docs", "reports", "T-1218-evidence")
 IDS = ["StartEvent_1", "Event_1ijl6th"]
+BEFORE_REF = os.environ.get("T1218_BEFORE_REF", "036e5403~1")
 
 spec = importlib.util.spec_from_file_location("t962", os.path.join(ROOT, "tests", "test_t962_findings_on_map.py"))
 t962 = importlib.util.module_from_spec(spec)
@@ -90,7 +91,8 @@ def main():
         return 3
     xml = open(FIXTURE, encoding="utf-8").read()
     os.makedirs(OUT, exist_ok=True)
-    before = subprocess.run(["git", "-C", ROOT, "show", "HEAD:src/aef-workflow-designer.html"],
+    # The parent of the T-1218 fix commit (036e5403): HEAD carries the fix from then on.
+    before = subprocess.run(["git", "-C", ROOT, "show", BEFORE_REF + ":src/aef-workflow-designer.html"],
                             capture_output=True, check=True).stdout
     after = open(os.path.join(ROOT, "src", "aef-workflow-designer.html"), "rb").read()
     fails = []
