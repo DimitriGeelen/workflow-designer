@@ -59,7 +59,8 @@ const FIND_FIELD = `function __find(label){
 async function main() {
   const doc = mkdtempSync(join(tmpdir(), 't264-doc-'));
   const repo = mkdtempSync(join(tmpdir(), 't264-repo-'));
-  copyFileSync(join(REPO, 'src/aef-workflow-designer.html'), join(doc, 'designer.html'));
+  // T1214_SRC: test-only override, so the teeth can run this probe against a mutated designer.
+  copyFileSync(process.env.T1214_SRC || join(REPO, 'src/aef-workflow-designer.html'), join(doc, 'designer.html'));
   mkdirSync(join(doc, 'rendered'), { recursive: true });
   const port = await freePort();
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
@@ -79,6 +80,10 @@ async function main() {
     const page = { webSocketDebuggerUrl: await pageWsUrl(dp) };
     cl = cdp(page.webSocketDebuggerUrl); await cl.ready; const { cmd } = cl;
     await cmd('Page.enable'); await cmd('Runtime.enable');
+    // T-1214: the page keeps focus whatever the host window does. Under full-suite load the headless window lost
+    // focus mid-typing and leg4 read document.activeElement as the body (2 of 4 runs), which measured the host,
+    // not the designer's commit-on-blur guard. With focus emulated, only a real blur in the page moves focus.
+    await cmd('Emulation.setFocusEmulationEnabled', { enabled: true });
     await cmd('Page.navigate', { url: `${BASE}/designer.html` });
     await waitReady(cmd); await sleep(300);
 

@@ -1,13 +1,22 @@
 ---
 id: T-1214
-name: "T-264 leg4 (focus kept while typing) flakes in a full bridge run: headless focus lost under load"
+name: "T-264 leg4 (focus kept while typing) flakes in a full bridge run: headless
+  focus lost under load"
 description: >
-  Full bridge run 2026-10-19 (bridge7): 298 passed, 1 failed, tests/test_t264_save_target_guards.py leg4_focusKept: focusKept false, idUnchangedMidType false, midValue 't264-typed'. The same test passes alone (0 legs false). The leg asserts document.activeElement stays on the id input during CDP Input.insertText. Under suite load the headless page lost focus. Same family as T-1211 (an environment-sensitive assertion), different mechanism (focus, not a time budget). Fix candidates: emulate focus (CDP Emulation.setFocusEmulationEnabled) so the leg measures the guard, not the host's window focus; or re-focus and retry once with the reason recorded. One defect, one change.
+  Full bridge run 2026-10-19 (bridge7): 298 passed, 1 failed, tests/test_t264_save_target_guards.py
+  leg4_focusKept: focusKept false, idUnchangedMidType false, midValue 't264-typed'.
+  The same test passes alone (0 legs false). The leg asserts document.activeElement
+  stays on the id input during CDP Input.insertText. Under suite load the headless
+  page lost focus. Same family as T-1211 (an environment-sensitive assertion), different
+  mechanism (focus, not a time budget). Fix candidates: emulate focus (CDP Emulation.setFocusEmulationEnabled)
+  so the leg measures the guard, not the host's window focus; or re-focus and retry
+  once with the reason recorded. One defect, one change.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T12:12:41Z
-last_update: 2026-10-19T12:12:41Z
-date_finished: null
+last_update: 2026-10-19T15:59:53Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +59,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-19T15:59:53Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1214: T-264 leg4 (focus kept while typing) flakes in a full bridge run: headless focus lost under load
@@ -61,9 +91,11 @@ date_finished: null
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The T-264 probe enables CDP focus emulation (`Emulation.setFocusEmulationEnabled`) before its legs, so leg4 measures the designer's focus handling, not the host window's focus; the reason is written beside it
+- [x] leg4 still bites: with the designer's commit-on-blur guard reverted in a scratch copy, the leg goes red (the emulation does not make it pass by itself)
+  — mutant `if (false && opts.deferred)` (per-keystroke commit, the pre-T-264 shape), run through the new test-only
+  `T1214_SRC` override: legs 1-5 red, including leg4_focusKept; legs 6-8 (other guards) green. Unmutated: 0 legs false.
+- [ ] The probe passes alone, and in two full bridge runs in a row the T-264 leg is green (it failed in 2 of the last 4 runs before the fix)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -112,6 +144,9 @@ date_finished: null
 -->
 
 ## Verification
+
+python3 tests/test_t264_save_target_guards.py
+grep -q 'setFocusEmulationEnabled' tools/_t264-save-target-guards-cdp.mjs
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -338,3 +373,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1214-t-264-leg4-focus-kept-while-typing-flake.md
 - **Context:** Initial task creation
+
+### 2026-10-19T15:59:53Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
