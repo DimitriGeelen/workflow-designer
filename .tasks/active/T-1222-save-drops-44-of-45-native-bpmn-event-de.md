@@ -330,6 +330,23 @@ fixtures: 47/47 kept, all outputs well-formed. Open: (1) definitions name root e
 
 ## Decisions
 
+### 2026-10-20 — proposed shape (draft, for the reviewer before building)
+- **Found while scoping:** the import maps every `intermediateCatchEvent` / `intermediateThrowEvent` tag to
+  `linkEventCatch` / `linkEventThrow` (REVERSE_TYPE, src ~13253, S2/T-225), so a third-party timer, message or signal
+  intermediate event is shown and saved as a LINK event, not only stripped of its definition. Only an `<aef:eventDef>`
+  overrides that (T-204), and third-party files carry none.
+- **Proposed:** two parts, one task.
+  1. Preserve: every native `*EventDefinition` an event carries is kept as the XML it arrived as and written back after
+     incoming/outgoing (the prototype: 47/47), together with any root-level message/signal/error/escalation it names.
+  2. Type from the definition where the designer has a type: timer → eventTimer, message → eventMessage,
+     error → eventError (T-204), link → link (T-1217). The definition stays the carrier; no `aef:eventDef` is added to
+     a third-party file, so its bytes change only by what was dropped coming back.
+  For signal, escalation, conditional, compensate, cancel, terminate the designer has no type. They keep their
+  definition (part 1) and need a neutral intermediate-event rendering instead of a link one; whether that is a new
+  generic type or a plain catch/throw is the open design question.
+- **Not proposed:** emitting native definitions for maps the designer authors (its own maps keep `aef:eventDef`;
+  T-190 IW-1 stands), or converting a native definition into `aef:eventDef`.
+
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
