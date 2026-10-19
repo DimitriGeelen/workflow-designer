@@ -78,7 +78,16 @@ designer switch (A) driven by it; then the explain reader reads the same file (A
 - **IW-3:** Which onboarding-route maps are the acceptance fixture, and does the operator read them in the
   designer or as text? Needs the operator. (Confidence 0.)
 - **IW-4:** Does AEF want to own the lens definition file (it is about reading THEIR process maps) or should 832?
-  (Confidence 0; ask AEF.)
+  **Answered (AEF msg 77dcf341):** AEF owns it. It lives next to `tools/corpus_spec.py`; `tools/` is vendored to
+  consumers again since AEF T-4392, so the designer reads the same file from the vendored framework, not a copy.
+  AEF validates that every field a lens names exists in the corpus spec; 832 proposes changes by message. Filed
+  as **AEF T-4402** (horizon next; it waits for this inception and builds after we confirm the shape). The lens
+  applies to `fw corpus explain --lens`; the ask/recall index stays lens-free (retrieval is not filtered by
+  audience) unless this inception finds a reason. (Confidence 3.)
+- **IW-3 input from AEF:** first business-lens fixtures `aef-task-lifecycle` (referenced 6 times from the
+  onboarding curriculum, the most-read map) and `aef-session-lifecycle` (4); second tier
+  `aef-greenfield-onboarding` and `aef-existing-project-onboarding` (2 each), the first maps a newcomer meets. Still
+  open for the operator: read them in the designer, as text, or both.
 
 ## Hypothesis (draft)
 
