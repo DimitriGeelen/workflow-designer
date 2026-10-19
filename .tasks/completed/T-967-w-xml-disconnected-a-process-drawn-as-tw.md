@@ -4,12 +4,13 @@ name: "W-XML-DISCONNECTED: a process drawn as two independent flows in one pool 
 description: >
   W-XML-DISCONNECTED: a process drawn as two independent flows in one pool is reported by nobody, because each fragment brings its own start event
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/test_rule_dialect_axis.py, tools/validate-workflow.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T12:56:42Z
-last_update: 2026-10-01T13:00:34Z
-date_finished: null
+last_update: 2026-10-19T16:24:27Z
+date_finished: 2026-10-19T16:24:27Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -275,7 +276,9 @@ python3 tools/validate-workflow.py examples/aef-processes/rendered/error-escalat
 # The message is actionable, not merely true.
 grep -q 'disconnected parts' /tmp/.t967a.out
 # Classified on the way in, and the count pins that exactly one rule was added.
-timeout 120 python3 tests/test_rule_dialect_axis.py > /tmp/.t967c.out 2>&1 && grep -q '57 validator rules classified' /tmp/.t967c.out
+timeout 120 python3 tests/test_rule_dialect_axis.py > /tmp/.t967c.out 2>&1 && grep -qE '[0-9]+ validator rules classified' /tmp/.t967c.out && grep -q 'W-XML-DISCONNECTED' /tmp/.t967c.out
+# T-1208 triage, 2026-10-19: was "57 validator rules classified", a live count (63 today: T-970, T-1212 and others
+# added rules); the invariant is that the test passes and classifies W-XML-DISCONNECTED (T-3326 mutable-corpus rule).
 grep -q 'W-XML-DISCONNECTED' tests/test_rule_dialect_axis.py
 
 ## RCA
@@ -377,9 +380,13 @@ grep -q 'W-XML-DISCONNECTED' tests/test_rule_dialect_axis.py
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-e2b0498c
-- **Timestamp:** 2026-10-01T13:00:14Z
+- **Scan ID:** R-901641cb
+- **Timestamp:** 2026-10-19T16:24:30Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no
 - **Findings:** none
+
+### 2026-10-19T16:24:27Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Triage 2026-10-19 group A: every Agent criterion ticked; stale Verification lines retargeted (recorded in the section), gate re-run

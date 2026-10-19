@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-966: runme.sh's served-page check pipes curl into grep -q under pipefail, so SIGPIPE turns a present feature into a refusal
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T16:24:22Z
+# ============================================================================
+
+task_id: T-966
+task_name: "runme.sh's served-page check pipes curl into grep -q under pipefail, so SIGPIPE turns a present feature into a refusal"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T12:31:36Z
+completed: 2026-10-19T16:24:12Z
+duration_days: 18
+updates_count: 1
+first_commit: 2026-10-01T14:33:53+02:00
+last_commit: 2026-10-01T14:33:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  my served-page check piped curl into grep under pipefail, so SIGPIPE refused a healthy page
+
+# Key outcomes
+outcomes:
+  - 'The served-page check uses the **file form** — `curl … -o <file> && grep -q … <file>` —'
+  - '**No `curl | grep` remains anywhere in `runme.sh`**, asserted rather than eyeballed. One'
+  - '**Proven against a live server at real size**, not a fixture: the fixed check returns 0'
+  - 'The check still **fails** when the feature is genuinely absent, proven by pointing it at'
+  - 'The temp file is per-run and cleaned up, so a stale page from an earlier run can never'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - 'runme.sh'
+  - '.tasks/active/T-966-runmeshs-served-page-check-pipes-curl-in.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T14:33:53'
+    action: 'T-966: my served-page check piped curl into grep under pipefail, so SIGPIPE refused a healthy page'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 26152 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 26152
+  commits: 1
+  files_changed: 3
+  lines_added: 409
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-966-runmeshs-served-page-check-pipes-curl-in.md
+generated_by: context-agent-hybrid

@@ -4,12 +4,13 @@ name: "Our validator rejects plain BPMN <task> as an unknown element, 86% of all
 description: >
   Our validator rejects plain BPMN <task> as an unknown element, 86% of all findings on the Evergreen corpus, against our own standard's lane-wins warn-not-refuse clause
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/fixtures/aef-bpmn/plain-task-default-ns.bpmn, tools/_t969-post-bytes.sh, tools/_t970-evergreen-intake.py, tools/validate-workflow.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T16:10:20Z
-last_update: 2026-10-01T16:13:44Z
-date_finished: null
+last_update: 2026-10-19T16:24:39Z
+date_finished: 2026-10-19T16:24:39Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -272,7 +273,9 @@ timeout 20 python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/plain-task
 # it DOES fire, so this silence means the rule did not fire rather than that my pattern
 # never matched.
 timeout 20 python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/plain-task-default-ns.bpmn > /tmp/.t970c.out 2>&1; ! grep -q 'E-XML-NODE-TYPE' /tmp/.t970c.out
-timeout 120 python3 tests/test_rule_dialect_axis.py > /tmp/.t970b.out 2>&1 && grep -q '57 validator rules classified' /tmp/.t970b.out
+timeout 120 python3 tests/test_rule_dialect_axis.py > /tmp/.t970b.out 2>&1 && grep -qE '[0-9]+ validator rules classified' /tmp/.t970b.out
+# T-1208 triage, 2026-10-19: was "57 validator rules classified", a live count (63 today); the invariant is that the
+# test passes (its own exit code), not how many rules exist (T-3326 mutable-corpus rule).
 
 ## RCA
 
@@ -373,9 +376,13 @@ timeout 120 python3 tests/test_rule_dialect_axis.py > /tmp/.t970b.out 2>&1 && gr
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-953622de
-- **Timestamp:** 2026-10-01T16:13:13Z
+- **Scan ID:** R-97ad1702
+- **Timestamp:** 2026-10-19T16:24:42Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no
 - **Findings:** none
+
+### 2026-10-19T16:24:39Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Triage 2026-10-19 group A: every Agent criterion ticked; stale Verification lines retargeted (recorded in the section), gate re-run

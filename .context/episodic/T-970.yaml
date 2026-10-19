@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-970: Our validator rejects plain BPMN <task> as an unknown element, 86% of all findings on the Evergreen corpus, against our own standard's lane-wins warn-not-refuse clause
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T16:24:51Z
+# ============================================================================
+
+task_id: T-970
+task_name: "Our validator rejects plain BPMN <task> as an unknown element, 86% of all findings on the Evergreen corpus, against our own standard's lane-wins warn-not-refuse clause"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T16:10:20Z
+completed: 2026-10-19T16:24:39Z
+duration_days: 18
+updates_count: 1
+first_commit: 2026-10-01T18:13:35+02:00
+last_commit: 2026-10-01T18:14:09+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  we were rejecting plain BPMN <task> — 86% of every finding on the first corpus we did not author. register fabric cards for the intake tooling and the plain-task fixture
+
+# Key outcomes
+outcomes:
+  - '`task` is accepted as a flow-node element by the XML validator, with the mapping-v1 §3'
+  - '**Measured on the Evergreen corpus**: `E-XML-NODE-TYPE` drops from 94 to 0 and the total'
+  - '**No regression on our own corpus**: still 8 findings across 25 maps, and'
+  - '**The acceptance is falsifiable**: a genuinely unknown element still raises'
+  - 'Evergreen is told the result, since they reported it and it is their evidence.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'register fabric cards for the intake tooling and the plain-task fixture'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tests-fixtures-aef-bpmn-plain-task-default-ns.yaml'
+  - '.fabric/components/tools-_t969-post-bytes.yaml'
+  - '.fabric/components/tools-_t970-evergreen-intake.yaml'
+  - '.gitignore'
+  - '.tasks/active/T-969-discharge-the-10-day-old-aef-request-pos.md'
+  - '.tasks/active/T-970-our-validator-rejects-plain-bpmn-task-as.md'
+  - 'tests/fixtures/aef-bpmn/plain-task-default-ns.bpmn'
+  - 'tools/_t969-post-bytes.sh'
+  - 'tools/_t970-evergreen-intake.py'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T18:13:35'
+    action: 'T-970: we were rejecting plain BPMN <task> — 86% of every finding on the first corpus we did not author'
+  - time: '2026-10-01T18:14:09'
+    action: 'T-970: register fabric cards for the intake tooling and the plain-task fixture'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 25934 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 25934
+  commits: 2
+  files_changed: 10
+  lines_added: 1019
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-970-our-validator-rejects-plain-bpmn-task-as.md
+generated_by: context-agent-hybrid

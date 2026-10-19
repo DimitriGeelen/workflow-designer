@@ -1,0 +1,91 @@
+# ============================================================================
+# EPISODIC MEMORY - T-972: The boundary cannot state its own requirements: no rule fires on absent laneMeta or workflowMeta, so 26 maps with no authority-of-record passed 130 saves silently
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T16:20:06Z
+# ============================================================================
+
+task_id: T-972
+task_name: "The boundary cannot state its own requirements: no rule fires on absent laneMeta or workflowMeta, so 26 maps with no authority-of-record passed 130 saves silently"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T16:51:54Z
+completed: 2026-10-19T16:19:48Z
+duration_days: 18
+updates_count: 1
+first_commit: 2026-10-01T18:53:35+02:00
+last_commit: 2026-10-01T19:23:45+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  repair my own blind spot — plain <task> was silently exempt from every ownership check. the boundary now states its own requirements — absent lane authority and absent workflowMeta speak
+
+# Key outcomes
+outcomes:
+  - '**My T-970 defect is fixed first:** plain `task` participates in ownership checks rather'
+  - '`W-XML-LANE-NO-AUTHORITY` fires on a lane with **no `aef:laneMeta` at all**, naming what'
+  - '`W-XML-NO-WORKFLOWMETA` fires on a document with no `aef:workflowMeta`, because without'
+  - '**Measured against the real corpus, not a fixture:** the Evergreen maps go from 16'
+  - '**No regression on ours:** our own 25 maps still produce 8 findings, because they carry'
+  - 'Both rules classified in `tests/test_rule_dialect_axis.py` on the way in, derived rather'
+  - 'WARN, not ERROR, and no conformance clause cited beyond §3''s own words — the operator''s'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-972-the-boundary-cannot-state-its-own-requir.md'
+  - 'tests/fixtures/valid/gw-single-default.xml'
+  - 'tests/fixtures/valid/investigate.bpmn'
+  - 'tests/fixtures/warn/W-XML-LANE-NO-AUTHORITY.xml'
+  - 'tests/fixtures/warn/W-XML-NO-WORKFLOWMETA.xml'
+  - 'tests/test_finding_anchorability.py'
+  - 'tests/test_rule_dialect_axis.py'
+  - 'tests/test_rule_form_parity.py'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T18:53:35'
+    action: 'T-972: repair my own blind spot — plain <task> was silently exempt from every ownership check'
+  - time: '2026-10-01T19:23:45'
+    action: 'T-972: the boundary now states its own requirements — absent lane authority and absent workflowMeta speak'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 25887 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 25887
+  commits: 2
+  files_changed: 10
+  lines_added: 591
+  lines_removed: 12
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-972-the-boundary-cannot-state-its-own-requir.md
+generated_by: context-agent-hybrid

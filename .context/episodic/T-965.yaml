@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-965: runme.sh blocks the operator's terminal with no exit, and its post-build assertion is void because the serve step deletes what it verified
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T16:25:30Z
+# ============================================================================
+
+task_id: T-965
+task_name: "runme.sh blocks the operator's terminal with no exit, and its post-build assertion is void because the serve step deletes what it verified"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T12:15:06Z
+completed: 2026-10-19T16:25:17Z
+duration_days: 18
+updates_count: 1
+first_commit: 2026-10-01T14:20:44+02:00
+last_commit: 2026-10-01T14:20:44+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the script hung, and the check it made was void because the serve step deleted what it verified
+
+# Key outcomes
+outcomes:
+  - '**The script returns.** The server starts detached, the terminal comes back, and the'
+  - '**The docroot is built exactly once.** The serve step must not re-invoke'
+  - '**The assertion is made against what is actually served**, not against a directory that is'
+  - '**No 404 window.** The URL is printed only after the server answers a real request for'
+  - '**Re-running is safe.** A second run while a server is already on that port must refuse'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'runme.sh'
+  - '.tasks/active/T-965-runmesh-blocks-the-operators-terminal-wi.md'
+  - 'tools/gallery-serve.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T14:20:44'
+    action: 'T-965: the script hung, and the check it made was void because the serve step deleted what it verified'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 26170 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 26170
+  commits: 1
+  files_changed: 3
+  lines_added: 467
+  lines_removed: 30
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-965-runmesh-blocks-the-operators-terminal-wi.md
+generated_by: context-agent-hybrid

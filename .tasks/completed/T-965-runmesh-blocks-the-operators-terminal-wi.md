@@ -4,12 +4,13 @@ name: "runme.sh blocks the operator's terminal with no exit, and its post-build 
 description: >
   runme.sh blocks the operator's terminal with no exit, and its post-build assertion is void because the serve step deletes what it verified
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/gallery-serve.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T12:15:06Z
-last_update: 2026-10-01T12:20:45Z
-date_finished: null
+last_update: 2026-10-19T16:25:17Z
+date_finished: 2026-10-19T16:25:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -259,16 +260,22 @@ So:
 # Verification block and cannot distinguish a comment from a command, and a
 # destructive literal sitting in an executable block is one careless uncomment
 # away from being real. Precision kept, the hazard removed.
-test "$(grep -cE '^bash "\$PROJ/tools/serve-gallery.sh"' runme.sh)" -eq 1
-grep -qE '^bash "\$PROJ/tools/serve-gallery.sh" "\$PORT" --build-only' runme.sh
+#
+# T-1208 triage, 2026-10-19: the serve-and-verify runme.sh this task fixed was a per-job script, rewritten after
+# 1f119b53 and then replaced by the fixed launcher (T-1055, 6cee36d7), which serves nothing. The fix is checked
+# where it was delivered (6c7ad26d); the property that outlives it (the launcher runs no foreground server, so the
+# operator's terminal comes back) on the successor.
+test "$(git show 6c7ad26d:runme.sh | grep -cE '^bash "\$PROJ/tools/serve-gallery.sh"')" -eq 1
+git show 6c7ad26d:runme.sh | grep -qE '^bash "\$PROJ/tools/serve-gallery.sh" "\$PORT" --build-only'
 # The server is detached and its pid is recorded, so the terminal comes back.
-grep -q 'nohup python3' runme.sh && grep -q 'gallery-serve.pid' runme.sh
+git show 6c7ad26d:runme.sh | grep -q 'nohup python3' && git show 6c7ad26d:runme.sh | grep -q 'gallery-serve.pid'
 # The feature is asserted against what is SERVED, not against a file on disk.
-grep -q 'verified over HTTP' runme.sh
-# The stale repro instruction is gone and the correct one is in its place.
-bash runme.sh --dry-run > /tmp/.t965-dry.out 2>&1 && grep -q 'DRY RUN' /tmp/.t965-dry.out
-grep -q 'W-XML-LANE-CAPACITY' /tmp/.t965-dry.out
-! grep -q 'Ctrl-C stops the server' /tmp/.t965-dry.out
+git show 6c7ad26d:runme.sh | grep -q 'verified over HTTP'
+# The stale repro instruction is gone.
+! git show 6c7ad26d:runme.sh | grep -q 'Ctrl-C stops the server'
+# T-1014 PATTERN control: the same search finds the serve step in the runme.sh that had it (6c7ad26d)
+git show 6c7ad26d:runme.sh | grep -cE 'serve-gallery|http\.server|Ctrl-C stops'
+! grep -qE 'serve-gallery|http\.server|Ctrl-C stops' runme.sh tools/runme-launcher.sh
 # T-1014 PATTERN control: the same search finds the phrase in runme.sh before T-965 removed it (6c7ad26d)
 git show 6c7ad26d~1:runme.sh | grep -q 'Ctrl-C stops the server'
 grep -q 'api/validate' tools/gallery-serve.py
@@ -373,9 +380,26 @@ bash -n runme.sh
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-3620f333
-- **Timestamp:** 2026-10-01T12:20:13Z
+- **Scan ID:** R-34d26a4c
+- **Timestamp:** 2026-10-19T16:25:19Z
 - **Catalogue:** v1.3-seed
-- **Overall:** PASS
+- **Overall:** CONCERN
 - **Needs Human:** no
-- **Findings:** none
+- **Findings:** 5
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 150
+     - evidence: `git show 6c7ad26d:runme.sh | grep -qE '^bash "\$PROJ/tools/serve-gallery.sh" "\$PORT" --build-only'`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 152
+     - evidence: `git show 6c7ad26d:runme.sh | grep -q 'nohup python3' && git show 6c7ad26d:runme.sh | grep -q 'gallery-serve.pid'`
+  3. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 154
+     - evidence: `git show 6c7ad26d:runme.sh | grep -q 'verified over HTTP'`
+  4. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 156
+     - evidence: `! git show 6c7ad26d:runme.sh | grep -q 'Ctrl-C stops the server'`
+  5. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 161
+     - evidence: `git show 6c7ad26d~1:runme.sh | grep -q 'Ctrl-C stops the server'`
+
+### 2026-10-19T16:25:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Triage 2026-10-19 group A: every Agent criterion ticked; stale Verification lines retargeted (recorded in the section), gate re-run

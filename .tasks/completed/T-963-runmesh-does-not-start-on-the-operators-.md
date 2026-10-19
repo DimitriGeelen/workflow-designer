@@ -4,10 +4,11 @@ name: "runme.sh does not start on the operator's side: no log is created, twice,
 description: >
   runme.sh does not start on the operator's side: no log is created, twice, though the log opens on line 1
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T11:36:14Z
-last_update: 2026-10-01T11:38:51Z
-date_finished: null
+last_update: 2026-10-19T16:23:59Z
+date_finished: 2026-10-19T16:23:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -252,12 +253,18 @@ monitor instruction names.
 # The guard must precede `set -o pipefail`, because that line is what kills the
 # script under sh, and a guard after it would never run.
 
-test "$(grep -n 'exec bash "\$0"' runme.sh | cut -d: -f1)" -lt "$(grep -n '^set -uo pipefail' runme.sh | cut -d: -f1)"
-# Both invocations must now start AND log. `sh` is the one that was silently dying.
-sh runme.sh --dry-run > /tmp/.t963-sh.out 2>&1 && grep -q 'DRY RUN' /tmp/.t963-sh.out
-bash runme.sh --dry-run > /tmp/.t963-ba.out 2>&1 && grep -q 'DRY RUN' /tmp/.t963-ba.out
-grep -q 'cannot create a log file' runme.sh
-bash -n runme.sh
+# T-1208 triage, 2026-10-19: runme.sh was replaced by a fixed stub + tools/runme-launcher.sh (T-1055, 6cee36d7), so
+# the original lines (guard before `set -uo pipefail`, 'cannot create a log file') read a file that no longer has
+# them. The fix is checked where it was delivered (89b05124); the same properties on the successor. `--list`
+# replaces `--dry-run`, because a dry-run now rehearses (and makes read-only) any pending job.
+git show 89b05124:runme.sh | grep -q 'cannot create a log file'
+test "$(grep -n 'exec bash "\$0"' runme.sh | head -1 | cut -d: -f1)" -lt "$(grep -n '^exec bash .*runme-launcher.sh' runme.sh | cut -d: -f1)"
+grep -q '\[ -z "${BASH_VERSION:-}" \] && exec bash "$0"' tools/runme-launcher.sh
+# Both invocations must start. `sh` is the one that was silently dying.
+sh runme.sh --list > /tmp/.t963-sh.out 2>&1
+bash runme.sh --list > /tmp/.t963-ba.out 2>&1
+grep -q 'fail "cannot write $LOG"' tools/runme-launcher.sh
+bash -n runme.sh && bash -n tools/runme-launcher.sh
 
 ## RCA
 
@@ -358,9 +365,18 @@ bash -n runme.sh
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-aedf92af
-- **Timestamp:** 2026-10-01T11:38:38Z
+- **Scan ID:** R-ef32baeb
+- **Timestamp:** 2026-10-19T16:24:01Z
 - **Catalogue:** v1.3-seed
-- **Overall:** PASS
+- **Overall:** CONCERN
 - **Needs Human:** no
-- **Findings:** none
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 138
+     - evidence: `git show 89b05124:runme.sh | grep -q 'cannot create a log file'`
+
+### 2026-10-19T16:23:59Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Triage 2026-10-19 group A: every Agent criterion ticked; stale Verification lines retargeted (recorded in the section), gate re-run

@@ -4,12 +4,13 @@ name: "The marker allowlist silently omits the two picture-disagrees-with-the-fi
 description: >
   The marker allowlist silently omits the two picture-disagrees-with-the-file rules, which are the ones the feature exists for
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/test_t962_findings_on_map.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T11:44:14Z
-last_update: 2026-10-01T11:48:27Z
-date_finished: null
+last_update: 2026-10-19T16:25:30Z
+date_finished: 2026-10-19T16:25:30Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -260,13 +261,16 @@ on it. `E-XML-NODE-UNASSIGNED` comes from IMPORTED documents, not from drawing.
 grep -q 'const FINDING_MARKER_EXCLUDED' src/aef-workflow-designer.html
 test "$(grep -c 'FINDING_MARKER_RULES' src/aef-workflow-designer.html)" -eq 0
 # T-1014 PATTERN control: the same search finds the old name in the file before it was removed (1b4f4a38)
-git show 1b4f4a38~1:src/aef-workflow-designer.html | grep -q 'FINDING_MARKER_RULES'
+test "$(git show 1b4f4a38~1:src/aef-workflow-designer.html | grep -c 'FINDING_MARKER_RULES')" -gt 0
+# (T-1208 triage, 2026-10-19: was `| grep -q`, which exits early and SIGPIPEs `git show` on a file this size, rc 141 — L-387)
 # Exactly one exclusion, and it is the measured-noisy one. A denylist that grows
 # quietly is an allowlist wearing a different name.
 test "$(sed -n '/const FINDING_MARKER_EXCLUDED/,/\]);/p' src/aef-workflow-designer.html | grep -cE "^  '[EW]-")" -eq 1
 grep -q "'W-XML-GW-AMBIGUOUS'," src/aef-workflow-designer.html
 timeout 300 python3 tests/test_t962_findings_on_map.py > /tmp/.t964-t.out 2>&1 && grep -q '11 passed, 0 failed' /tmp/.t964-t.out
-grep -q 'flagged as not-on-the-map' /tmp/.t964-t.out
+grep -q 'lane-anchored findings are LISTED, anchored to their lane' /tmp/.t964-t.out
+# T-1208 triage, 2026-10-19: was 'flagged as not-on-the-map'. T-1164 (710e5690) closed that gap: a lane-anchored
+# finding now marks its lane, so the leg asserts the stronger property; the row is still listed, never dropped.
 
 ## RCA
 
@@ -367,9 +371,13 @@ grep -q 'flagged as not-on-the-map' /tmp/.t964-t.out
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-67246706
-- **Timestamp:** 2026-10-01T11:48:11Z
+- **Scan ID:** R-4e97f1fb
+- **Timestamp:** 2026-10-19T16:25:35Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no
 - **Findings:** none
+
+### 2026-10-19T16:25:30Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Triage 2026-10-19 group A: every Agent criterion ticked; stale Verification lines retargeted (recorded in the section), gate re-run
