@@ -10,10 +10,11 @@ description: >
   consult; a consult to 999-Agentic-Engineering-Framework gets a reply visible in
   fw sidecar inbox. If any fails, reopen with AEF citing docs/reports/T-980-sidecar-rca.md.
 
-status: started-work
+status: work-completed
 workflow_type: test
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: [T-980]
@@ -28,8 +29,8 @@ related_tasks: [T-980]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T19:25:02Z
-last_update: 2026-10-01T21:33:12Z
-date_finished:
+last_update: 2026-10-19T16:58:54Z
+date_finished: 2026-10-19T16:58:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -76,9 +77,12 @@ bvp_scores_proposed:
 - [x] The consumer sweep job `sidecar-sweep-5m` is in `.context/cron-registry.yaml` and in the
       generated crontab (D4); installing it into `/etc/cron.d` is the operator's step (host state),
       handed over as a `runme.sh`.
-- [ ] A consult sent to 999-Agentic-Engineering-Framework gets a reply that `fw sidecar inbox`
+- [x] A consult sent to 999-Agentic-Engineering-Framework gets a reply that `fw sidecar inbox`
       shows here, or the task records that AEF has not yet replied and stays open on that one
       criterion rather than closing on three of four.
+      (2026-10-19, v1.8.12: our message on conversation `832-backlog-triage` (client id 8b992e21) got AEF's reply
+      36d796c4 ("Taken as AEF T-4410"), delivered by the receiver and listed by the session-start mail check; AEF's
+      9d51bb77 on the same conversation likewise. The sidecar round trip works here.)
 
 **Evidence (2026-10-01, framework 1.7.740, no override):** `fw sidecar whoami` -> 832-Workflow-designer;
 the hook is in settings.json and surfaced all 79 consults at turn start; a consult sent with the
@@ -119,6 +123,11 @@ the operator (runme.sh, 1 line added), and SEEN RUNNING: journal 23:48:02 "swept
 -->
 
 ## Verification
+
+.agentic-framework/bin/fw sidecar whoami > /tmp/.t981-who.out 2>&1 && grep -q '832-Workflow-designer' /tmp/.t981-who.out
+grep -q 'sidecar-inbox' .claude/settings.json
+grep -q 'sidecar-sweep-5m' .context/cron-registry.yaml
+grep -q '36d796c4' .context/sidecar/inbox-state.json
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -346,3 +355,16 @@ the operator (runme.sh, 1 line added), and SEEN RUNNING: journal 23:48:02 "swept
 ### 2026-10-01T21:33:12Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9ca48c56
+- **Timestamp:** 2026-10-19T16:58:57Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-19T16:58:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Triage 2026-10-19 C1: sidecar round trip with AEF proven on v1.8.12

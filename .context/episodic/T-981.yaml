@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-981: Verify the sidecar works here after the bleeding-edge upgrade (T-980 hypothesis): whoami, hook installed and non-empty, live AEF round trip, no override
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T16:59:12Z
+# ============================================================================
+
+task_id: T-981
+task_name: "Verify the sidecar works here after the bleeding-edge upgrade (T-980 hypothesis): whoami, hook installed and non-empty, live AEF round trip, no override"
+workflow_type: test
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T19:25:02Z
+completed: 2026-10-19T16:58:54Z
+duration_days: 18
+updates_count: 2
+first_commit: 2026-10-01T21:25:16+02:00
+last_commit: 2026-10-01T23:49:20+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  register post-upgrade verification of the T-980 hypothesis (horizon later). sidecar verified after the 1.7.740 upgrade (whoami, hook installed, hook surfaces 79 consults, all with NO override); sweep job added to the registry by hand; runme.sh installs it. OBS-471 hazard — fw termlink cleanup ignores its arguments on 1.7.740 (rm -rf of uncollected worker results); avoid until fixed upstream. D4 verified live — sweep ran at 23:48 and reposted our 3 unacked consults; three of four criteria met, AEF reply pending
+
+# Key outcomes
+outcomes:
+  - 'With NO `FRAMEWORK_ROOT` override, `fw sidecar whoami` prints `832-Workflow-designer` (D1).'
+  - '`.claude/settings.json` carries the `sidecar-inbox` UserPromptSubmit hook (D2), and it prints'
+  - 'The consumer sweep job `sidecar-sweep-5m` is in `.context/cron-registry.yaml` and in the'
+  - 'A consult sent to 999-Agentic-Engineering-Framework gets a reply that `fw sidecar inbox`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'OBS-471 hazard — fw termlink cleanup ignores its arguments on 1.7.740 (rm -rf of uncollected worker results); avoid until fixed upstream'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/cron/agentic-audit.crontab'
+  - '.context/cron-registry.yaml'
+  - '.context/inbox.yaml'
+  - 'runme.sh'
+  - '.tasks/active/T-981-verify-the-sidecar-works-here-after-the-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T21:25:16'
+    action: 'T-981: register post-upgrade verification of the T-980 hypothesis (horizon later)'
+  - time: '2026-10-01T23:36:59'
+    action: 'T-981: sidecar verified after the 1.7.740 upgrade (whoami, hook installed, hook surfaces 79 consults, all with NO override); sweep job added to the registry by hand; runme.sh installs it'
+  - time: '2026-10-01T23:38:20'
+    action: 'T-981: OBS-471 hazard — fw termlink cleanup ignores its arguments on 1.7.740 (rm -rf of uncollected worker results); avoid until fixed upstream'
+  - time: '2026-10-01T23:49:20'
+    action: 'T-981: D4 verified live — sweep ran at 23:48 and reposted our 3 unacked consults; three of four criteria met, AEF reply pending'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 25773 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 25773
+  commits: 4
+  files_changed: 5
+  lines_added: 411
+  lines_removed: 80
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-981-verify-the-sidecar-works-here-after-the-.md
+generated_by: context-agent-hybrid
