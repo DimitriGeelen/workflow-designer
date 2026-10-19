@@ -1,0 +1,153 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1127: Element detail view: clicking an element opens a larger, zoomed view showing all its information, editable in place
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T08:14:35Z
+# ============================================================================
+
+task_id: T-1127
+task_name: "Element detail view: clicking an element opens a larger, zoomed view showing all its information, editable in place"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-11T17:06:05Z
+completed: 2026-10-19T08:14:08Z
+duration_days: 8
+updates_count: 2
+first_commit: 2026-10-11T19:07:36+02:00
+last_commit: 2026-10-19T02:43:19+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception captured — element detail view (operator 2026-10-11): a larger, zoomed view of a clicked element showing all its information, editable there; DEFER until explored. element details view — double-click (handoffs keep their jump) or the panel's '⤢ All details' opens every field of the element, filled or empty, profile-hidden ones marked; one renderer for panel and details; Esc/Close/backdrop close it and canvas keys are held while open; two-column field grid, fits 1024x768. Test 7/7 wired; B1 10/10, B2 9/9, T-1128 9/9, T-308/T-889/editor-behavior pass. runme job 016 — close T-1127 (operator W1=A) and restart Watchtower (W3=A), dry-run passed (sha a23c57ea); the after-check compares the new process with .agentic-framework/web because 'fw watchtower current' looks in <project>/web and always says current in a vendored project (filed T-1139, for AEF). job 022 — operator closes T-1127 (option 1; the agent session may not close or re-own a human-owned task, R-033/T-3586); commit step stages only T-1127's files. retire job 022 — R-033 refuses a CLI close of a human-owned task even from the operator's terminal (as job 016 showed); Watchtower approval is the only route. learning — check earlier jobs before writing a runme job (022 repeated 016's R-033 refusal). re-verified on 0.23.0 at three widths (found T-1209); [REVIEW] criterion for the independent screenshot review. reviewer verdict. top and bottom shots at 1024/1440/1920 (reviewer amber: the lower fields and Other extensions were never shown); criterion points at the full set
+
+# Key outcomes
+outcomes:
+  - 'Double-clicking a flow element (task, event, gateway, sub-process) opens a large details view of it; a handoff keeps its double-click jump (T-160) and, like every element, has an "All details" button in the properties panel header that opens the same view'
+  - 'The details view shows ALL of the element''s configuration: BPMN basics, every Extensions field filled or empty (ignoring the panel''s folding and any project/map hide), the read-only "Other extensions", Constituents and the I/O contract — everything editable that the side panel can edit'
+  - 'A field hidden in the panel by the project/map profile is marked in the details view ("hidden in the panel by this project/map"), so the operator sees why it is absent from the side panel'
+  - 'Edits in the details view change the same element as the side panel (one model, Ctrl+Z works as in the panel); after closing, the side panel shows the new values; nothing in the export changes merely by opening or closing it'
+  - 'Closes on Esc, the close button and a click on the backdrop; while open, canvas shortcuts (Delete, Ctrl+Z on the canvas) do not act behind it'
+  - 'Layout uses the larger space (two columns where it fits), legible at 1400×900 and at 1024×768'
+  - 'CDP test tools/_t1127-element-details-cdp.mjs covers the above (control: 0.17.0 has no details view); wired into tests/run-bridge-tests.sh; B1/B2/T-1128 tests unchanged'
+  - 'Screenshots of the details view (a service task with some fields filled, one hidden by the profile) read and recorded under ## Visual Verification'
+  - 'Independent screenshot review (reviewer-judged, `fw reviewer judge T-1127 --criterion 1`): the element details view shows every field of the element, legibly, at narrow, normal and wide widths'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-11 — converted from inception to build'
+    chose: 'build directly, no go/no-go round.'
+    rationale: 'the operator gave the design: "filtering plus details page, but all config with all options. Once I double click or whatever ... I get the option to get all options" and objected to shelving it ("build quality in here, not to can it and put it on the shelf"). The inception''s exploration questions were answered by that.'
+  - decision: '2026-10-11 — how it opens'
+    chose: 'double-click on any element except a handoff; an "⤢ All details" button in every element''s panel.'
+    rationale: 'a handoff''s double-click already jumps to its target workflow (T-160) — keeping it avoids breaking a shipped behaviour; the button gives every element (handoffs included) the same way in.'
+    alternatives_rejected: ['double-click everywhere (breaks the handoff jump); button only (operator asked for double-click).']
+  - decision: '2026-10-11 — one renderer for panel and details'
+    chose: 'the side panel''s renderer draws both, with a `details` flag (all fields, no fold, no profile hide, hidden ones marked); no delete button inside the details view.'
+    rationale: 'two renderers would drift in which fields they offer and how they write.'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - '.context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-6560498db8c5.md'
+  - '.context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-c0e166e3c4f4.md'
+  - '.context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-c0e166e3c4f4-t1127-details-1024-bottom.png'
+  - '.context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-c0e166e3c4f4-t1127-details-1024.png'
+  - '.context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-c0e166e3c4f4-t1127-details-1440-bottom.png'
+  - '.context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-c0e166e3c4f4-t1127-details-1440.png'
+  - '.context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-c0e166e3c4f4-t1127-details-1920-bottom.png'
+  - '.context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-c0e166e3c4f4-t1127-details-1920.png'
+  - '.context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-f62a2812363c-details-1024-bottom.png'
+  - '.context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-f62a2812363c-details-1024.png'
+  - '.context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-f62a2812363c-details-1440-bottom.png'
+  - '.context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-f62a2812363c-details-1440.png'
+  - '.context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-f62a2812363c-details-1920-bottom.png'
+  - '.context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-f62a2812363c-details-1920.png'
+  - '.context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-f62a2812363c.md'
+  - '.context/reviews/evidence/T-1127/t1127-details-1024.png'
+  - '.context/reviews/evidence/T-1127/t1127-details-1440.png'
+  - '.context/reviews/evidence/T-1127/t1127-details-1920.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.context/runme/016-close-t1127-restart-watchtower/dryrun.ok'
+  - '.context/runme/016-close-t1127-restart-watchtower/job.sh'
+  - '.context/runme/022-close-t1127/dryrun.ok'
+  - '.context/runme/022-close-t1127/job.sh'
+  - '.context/runme/022-close-t1127/retired'
+  - '.context/runme/022-close-t1127/run-20261013T170054.log'
+  - 'docs/reports/T-1127-evidence/2026-10-19-full/t1127-details-1024-bottom.png'
+  - 'docs/reports/T-1127-evidence/2026-10-19-full/t1127-details-1024.png'
+  - 'docs/reports/T-1127-evidence/2026-10-19-full/t1127-details-1400.png'
+  - 'docs/reports/T-1127-evidence/2026-10-19-full/t1127-details-1440-bottom.png'
+  - 'docs/reports/T-1127-evidence/2026-10-19-full/t1127-details-1440.png'
+  - 'docs/reports/T-1127-evidence/2026-10-19-full/t1127-details-1920-bottom.png'
+  - 'docs/reports/T-1127-evidence/2026-10-19-full/t1127-details-1920.png'
+  - 'docs/reports/T-1127-evidence/t1127-details-1024.png'
+  - 'docs/reports/T-1127-evidence/t1127-details-1400.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1127-element-detail-view-clicking-an-element-.md'
+  - '.tasks/active/T-1138-field-test-aef-bleeding-edge-ed683536a-v.md'
+  - '.tasks/active/T-1139-aef-bug-fw-watchtower-current-and-the-au.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1127-element-details-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-11T19:07:36'
+    action: 'T-1127: inception captured — element detail view (operator 2026-10-11): a larger, zoomed view of a clicked element showing all its information, editable there; DEFER until explored'
+  - time: '2026-10-11T19:41:57'
+    action: 'T-1127: element details view — double-click (handoffs keep their jump) or the panel''s ''⤢ All details'' opens every field of the element, filled or empty, profile-hidden ones marked; one renderer for panel and details; Esc/Close/backdrop close it and canvas keys are held while open; two-column field grid, fits 1024x768. Test 7/7 wired; B1 10/10, B2 9/9, T-1128 9/9, T-308/T-889/editor-behavior pass'
+  - time: '2026-10-12T13:45:26'
+    action: 'T-1127: runme job 016 — close T-1127 (operator W1=A) and restart Watchtower (W3=A), dry-run passed (sha a23c57ea); the after-check compares the new process with .agentic-framework/web because ''fw watchtower current'' looks in <project>/web and always says current in a vendored project (filed T-1139, for AEF)'
+  - time: '2026-10-13T16:52:27'
+    action: 'T-1127: job 022 — operator closes T-1127 (option 1; the agent session may not close or re-own a human-owned task, R-033/T-3586); commit step stages only T-1127''s files'
+  - time: '2026-10-13T17:01:19'
+    action: 'T-1127: retire job 022 — R-033 refuses a CLI close of a human-owned task even from the operator''s terminal (as job 016 showed); Watchtower approval is the only route'
+  - time: '2026-10-13T17:01:29'
+    action: 'T-1127: learning — check earlier jobs before writing a runme job (022 repeated 016''s R-033 refusal)'
+  - time: '2026-10-19T01:16:34'
+    action: 'T-1127: re-verified on 0.23.0 at three widths (found T-1209); [REVIEW] criterion for the independent screenshot review'
+  - time: '2026-10-19T01:17:58'
+    action: 'T-1127: reviewer verdict'
+  - time: '2026-10-19T01:21:39'
+    action: 'T-1127: top and bottom shots at 1024/1440/1920 (reviewer amber: the lower fields and Other extensions were never shown); criterion points at the full set'
+  - time: '2026-10-19T01:24:04'
+    action: 'T-1127: reviewer verdict'
+  - time: '2026-10-19T02:43:19'
+    action: 'T-1127: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 11 commit(s), 10988 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 10988
+  commits: 11
+  files_changed: 43
+  lines_added: 1478
+  lines_removed: 80
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1127-element-detail-view-clicking-an-element-.md
+generated_by: context-agent-hybrid

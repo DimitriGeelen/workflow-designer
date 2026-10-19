@@ -6,17 +6,17 @@ description: >
   Inception: Element detail view: clicking an element opens a larger, zoomed view
   showing all its information, editable in place
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_run
-owner: human
-horizon: now
+current_node: frw_end_task
+owner: agent
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 created: 2026-10-11T17:06:05Z
-last_update: 2026-10-13T15:01:29Z
-date_finished:
+last_update: 2026-10-19T08:14:08Z
+date_finished: 2026-10-19T08:14:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -104,13 +104,14 @@ bvp_scores_proposed:
 - [x] Screenshots of the details view (a service task with some fields filled, one hidden by the profile) read and recorded under ## Visual Verification
 
 ### Human
-- [ ] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1127 --criterion 1`): the element details view shows every field of the element, legibly, at narrow, normal and wide widths
+- [x] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1127 --criterion 1`): the element details view shows every field of the element, legibly, at narrow, normal and wide widths
   **Steps:**
   1. Open the six shots in `docs/reports/T-1127-evidence/2026-10-19-full/`: `t1127-details-{1024,1440,1920}.png` (the view as it opens, at the top) and `t1127-details-{1024,1440,1920}-bottom.png` (the same view scrolled to the bottom). Designer 0.23.0 plus the T-1209 fix; a service task with Endpoint and Side effect filled and Horizon hidden in the side panel by the project profile
   2. In each TOP shot, check control by control: the title "Call the service — details" and the Close button; the element header; the BPMN section (Name, Slug, Display ID, UID, Lane); the Extensions fields in two columns, filled and empty alike; the Tier buttons; the orange "hidden in the side panel by this project" mark on Horizon; nothing clipped, overlapping or off-screen
   3. In each BOTTOM shot: the lower Extensions fields (Fabric component, Links, Note, Owner); the "Other extensions" section with its read-only key row (customKey = kept) and the "Suggest as a field" control; the I/O contract with "+ add input" / "+ add output"; nothing clipped
   **Expected:** every listed control is visible, reachable and unclipped at all three widths, and the view uses the space in two columns
   **If not:** name the screenshot and the control, and what is wrong with it
+  **Reviewer verdict:** green V-20261019-18fe0c6e — reviewer-judge-t-1127-r3-f62a2812363c:reviewer (rung rung-3-termlink-single-reviewer), digest 5202041dfe93; dispatch judge-t-1127-r3-f62a2812363c; evidence: .context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-f62a2812363c.md, .context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-f62a2812363c-details-1024.png, .context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-f62a2812363c-details-1024-bottom.png, .context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-f62a2812363c-details-1440.png, .context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-f62a2812363c-details-1440-bottom.png, .context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-f62a2812363c-details-1920.png, .context/reviews/evidence/T-1127/AC1-judge-t-1127-r3-f62a2812363c-details-1920-bottom.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -170,3 +171,20 @@ node tools/_t308-bare-catch-render-cdp.mjs
 
 ### 2026-10-11T17:34:55Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-bae84a1d
+- **Timestamp:** 2026-10-19T08:14:28Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#7 (Agent)** — CDP test tools/_t1127-element-details-cdp.mjs covers the above (control: 0.17.0 has no details view); wired into tests/run-bridge-tests.sh; B1/B2/T-1128 tests unchanged
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/run-bridge-tests.sh in: CDP test tools/_t1127-element-details-cdp.mjs covers the above (control: 0.17.0 has no details view); wired into tests/run-bridge-tests.sh; B1/B2/T-11`
+
+### 2026-10-19T08:14:08Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
