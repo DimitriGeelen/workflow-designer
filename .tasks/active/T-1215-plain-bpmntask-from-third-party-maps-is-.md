@@ -37,6 +37,11 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 # T-1215: Plain bpmn:task from third-party maps is re-emitted as-is (T-337 foreignTag), but AEF's intake does not support bpmn:task
 
+## AEF (msg abc0de1e, 2026-10-19)
+
+AEF is willing to take option (a): on our decision they file the intake side as a TYPE_TO_TAG addition with
+round-trip, like callActivity in T-4374. That makes (a) cheap on their side, the main unknown behind the DEFER.
+
 ## Problem Statement
 
 <!-- What problem are we exploring? For whom? Why now? -->
