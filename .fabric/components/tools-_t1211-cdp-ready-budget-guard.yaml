@@ -1,0 +1,21 @@
+id: tools/_t1211-cdp-ready-budget-guard.sh
+name: _t1211-cdp-ready-budget-guard
+type: script
+subsystem: instruments
+location: tools/_t1211-cdp-ready-budget-guard.sh
+tags: []
+
+purpose: "_t1211-cdp-ready-budget-guard.sh — every CDP probe's editor-readiness budget reads CDP_READY_MS (832 T-1211)."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-19
+created_by: unknown
