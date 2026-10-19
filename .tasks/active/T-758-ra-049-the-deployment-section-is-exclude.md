@@ -115,7 +115,9 @@ Parent of RA-042/T-751, RA-043/T-752, RA-044/T-753, RA-045/T-754 — all four li
 - [x] The intent behind the `[ -n "$SECTIONS" ]` guard is established from history (`git log -S` on that line, or the task that introduced it) rather than inferred from the code alone.
       (2026-10-19, v1.8.12: the section header names its origin, AEF T-275 "Pre-deploy quality gates", and says
       "Only runs when explicitly requested (--section deployment) / Not included in default full audit or
-      pre-push checks", `audit.sh` ~8313-8316. Deliberate.)
+      pre-push checks", `audit.sh` ~8313-8316. Deliberate.) The help text still says "(default: all)": AEF took
+      that as T-4410 (msg 36d796c4, 2026-10-19), "help and header will say '(default: all except deployment)'".
+      The third criterion closes when T-4410 reaches a release 832 runs.
 - [ ] If the guard is deliberate, the section is made *explicitly* not-applicable for this project through a named mechanism a reader can find — not left silently skipped. If it is accidental, the guard is removed and the four FAILs become visible findings with owners.
 - [ ] Either way, `fw audit --help` or the section list states which sections a bare `fw audit` actually runs. Today it advertises nineteen and runs eighteen.
 - [ ] No check is weakened and no scaffolding is created to silence the four FAILs. Whether this project deploys at all is SQ-1 and stays with the operator.

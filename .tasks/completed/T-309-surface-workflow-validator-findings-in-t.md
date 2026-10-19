@@ -4,16 +4,17 @@ name: "Surface workflow validator findings in the designer"
 description: >
   Inception: Surface workflow validator findings in the designer
 
-status: started-work
+status: work-completed
 workflow_type: inception
+current_node: frw_end_task
 owner: agent
-horizon: later
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tests/test_check_pass_reachability.py, tests/test_harness_cross_form_agreement.py, tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tests/test_validate_iw9.py, tools/validate-workflow.py]
 related_tasks: []
 created: 2026-07-29T20:09:10Z
-last_update: 2026-10-01T06:34:04Z
-date_finished:
+last_update: 2026-10-19T16:35:54Z
+date_finished: 2026-10-19T16:35:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -145,7 +146,8 @@ We will know that we are successful when we see 40% of ERRORs.
 - **IW-1: Where do findings surface — live gutter markers on the canvas, an on-demand panel, or a
   save-time gate?**
   confidence: 3
-  disposition: PRICED, NOT DECIDED — anchorability measured over all 23 XmlValidator rules
+  disposition: answered (decided after the pricing below; evidence: operator ruling 2026-10-01 quoted in T-962 Context, findings shown ON the map plus a docked list; built as T-962, extended by T-964 and T-1164, src/aef-workflow-designer.html:708-740, 10599 Check button). Original text follows —
+    PRICED, NOT DECIDED — anchorability measured over all 23 XmlValidator rules
     (2026-08-02, spike 3); the choice among the three surfaces is a product call reserved to the
     operator.
   rationale: Two of the three options require every finding to name something that exists on the
@@ -170,7 +172,10 @@ We will know that we are successful when we see 40% of ERRORs.
        or advises (Authority Model — operator's call). The corpus cannot answer any of it: 25
        documents, 7 findings, 1 of 23 rules, 24/25 clean. -->
 
-- **IW-1 addendum: the `location` field is prose, not a reference.** `"node 'wrk_2_context'"`,
+- **IW-1 addendum: the `location` field is prose, not a reference.**
+  disposition: answered — structured `location` was not made a prerequisite; T-962 parses the id out of the prose (`findingNodeId` src/aef-workflow-designer.html:10746, `findingLaneId` :10762, T-1164), verified against real validator output, and unresolvable findings go to the list so none are dropped (T-962 AC "markers + list rows == total findings").
+  rationale: `docs/` T-962 (.tasks/active/T-962-*.md ACs) and T-964 (marker allowlist fix); the `'?'` degradations fall to the list, not a marker.
+  `"node 'wrk_2_context'"`,
   `"lane '%s' -> lane '%s'"`, `"<bpmn:laneSet>"` — any surface that points at something must parse
   the id back out of a sentence, and two rules (`E-XML-NODE-TYPE`, `E-XML-AUTHORITY`) degrade to
   `'?'` for exactly the malformed element the author most needs pointed at. If a surface other than
@@ -179,7 +184,7 @@ We will know that we are successful when we see 40% of ERRORs.
 - **IW-2: How do the Python rules reach the browser — port them to JS in the designer, call the
   existing validator over HTTP via the gallery sidecar, or compile/share a single rule spec?**
   confidence: 3
-  disposition: PRICED, NOT DECIDED — the routes carry measured costs (2026-08-02, spike 2); the
+  disposition: answered — sidecar HTTP route chosen and built: T-955 (`POST /api/validate`, tools/gallery-serve.py:1064; completed; commits a174a106, a2caf43c), consumed by T-961 and the designer fetch at src/aef-workflow-designer.html:10653. Original text follows — PRICED, NOT DECIDED — the routes carry measured costs (2026-08-02, spike 2); the
     choice between them is an architecture call reserved to the operator.
   rationale: Port surface is XmlValidator alone — 681 lines / 20 rule ids, not 1636 / 46 — and the
     rules are pure (one open() in the file, at the CLI entry; no os/subprocess/network), with the
@@ -198,7 +203,7 @@ We will know that we are successful when we see 40% of ERRORs.
 
 - **IW-3: Are findings ever blocking, or always advisory?**
   confidence: 3
-  disposition: PRICED, NOT DECIDED — blocking vs advisory is an Authority Model call reserved to the
+  disposition: answered — operator ruled "advisory plus friction, never a hard block", recorded in docs/reports/T-956-process-maturity-model.md:50 (T-956, commit 4080e5e9) and inherited by T-962. Original text follows — PRICED, NOT DECIDED — blocking vs advisory is an Authority Model call reserved to the
     operator (2026-08-02, spike 4). What is now measured is what a gate would actually police.
   rationale: Only ERROR rules are blocking candidates, so the prior question is whether a document
     violating each can reach the editor at all. Measured over three channels (editor operation /
@@ -256,7 +261,7 @@ We will know that we are successful when we see 40% of ERRORs.
 - **IW-4: Does the rule set need the missing XOR-with-identical-targets rule before or after the
   surfacing work?**
   confidence: 3
-  disposition: RESOLVED — NO. Closed as T-319, DECLINED (not deferred) on measurement, not taste.
+  disposition: answered — RESOLVED — NO. Closed as T-319, DECLINED (not deferred) on measurement, not taste.
   rationale: Predicate questions were posed on the rail before any source edit; AEF measured their
     live corpus at 2 strict hits, both already caught by W-XML-GW-AMBIGUOUS, so T-319-unique = 0.
     Their keeper: a predicate that only pays off in the form you cannot justify is a predicate to
@@ -268,7 +273,7 @@ We will know that we are successful when we see 40% of ERRORs.
 
 - **IW-5: What happens when the corpus already violates the rules?**
   confidence: 3
-  disposition: RESOLVED — nothing lights up. 112 maps measured (24 rendered BPMN + 25 YAML sources
+  disposition: answered — RESOLVED — nothing lights up. 112 maps measured (24 rendered BPMN + 25 YAML sources
     + 63 .editor-versions snapshots), zero findings on both paths. No alarm-fatigue risk.
   rationale: Measured 2026-07-29, recorded in docs/reports/T-309-validator-surfacing.md. The green
     is falsifiable, not a broken harness — control injections fire (dropping a sequenceFlow gives
@@ -375,6 +380,11 @@ triggering example exposed (XOR with identical targets).
 - Fix cost exceeds benefit given current evidence
 
 ## Verification
+
+# T-1208 triage, 2026-10-19: the inception's outputs are the reports, the recorded GO, and the build slices it spawned.
+test -f docs/reports/T-309-validator-surfacing.md && test -f docs/reports/T-309-iw1-where-findings-surface.md
+grep -q '^\*\*Decision\*\*: GO' .tasks/active/T-309-*.md
+ls .tasks/*/T-962-t-309-slice-3-show-findings-on-the-map--.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -626,3 +636,35 @@ established the value and left the cost open.
 
 ### 2026-09-29T17:23:03Z — status-update [task-update-agent]
 - **Change:** owner: human → agent
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-f9f746e8
+- **Timestamp:** 2026-10-19T16:35:57Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-146b343b
+- **Timestamp:** 2026-10-19T16:35:58Z
+- **Overall:** CONFIRMED
+- **Claims:** 9
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `tools/validate-workflow.py:302` | file_line | ✓ pass |
+| `docs/reports/T-309-validator-surfacing.md` | file | ✓ pass |
+| `examples/aef-processes/rendered/task-lifecycle.bpmn` | file | ✓ pass |
+| `tools/validate-workflow.py` | file | ✓ pass |
+| `tools/gallery-serve.py` | file | ✓ pass |
+| `docs/reports/T-956-process-maturity-model.md` | file | ✓ pass |
+| `T-955` | task | ✓ pass |
+| `T-956` | task | ✓ pass |
+| `T-925` | task | ✓ pass |
+
+### 2026-10-19T16:35:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Triage 2026-10-19 group A: GO recorded, open questions disposed with evidence, follow-up builds exist; gate re-run

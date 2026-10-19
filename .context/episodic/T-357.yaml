@@ -1,0 +1,150 @@
+# ============================================================================
+# EPISODIC MEMORY - T-357: Adopt BPMN DI as the designer geometry and retire aef-position
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T16:35:54Z
+# ============================================================================
+
+task_id: T-357
+task_name: "Adopt BPMN DI as the designer geometry and retire aef-position"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-03T13:14:20Z
+completed: 2026-10-19T16:35:41Z
+duration_days: 77
+updates_count: 4
+first_commit: 2026-08-03T15:14:34+02:00
+last_commit: 2026-08-10T22:25:32+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception filed — adopt BPMN DI as the designer geometry and retire aef:position. inception template filled + spikes 1-3 — why aef:position exists is RECORDED, and it is a demo-stage deferral naming AEF as the DI owner. G-021 registered [high] — exported bytes carry an unverified claim about a PEER system, and a two-party incident about that exact string never asked whether it was true. spike 4 — T-225 splits the task in two, and has never been exercised on the half that matters. record AEF's rail-417 answer — the inception's blocking question is answered. IW-1b answered NO — the named downstream owner does not exist. T-363 complete — P-011 3/3 green; focus restored to the DI inception. inception decision GO (via Watchtower). post-GO decomposition — the three nested increments existed only as prose in the decision field (PL-145/G-030 shape), now tracked: T-423 (step 2, emit DI additively, first seam-touching step), T-424 (step 3, retire aef:position, owner human, needs T-225 ruling + v1.1 standard revision), T-425 (DI_TRAILER ships an unverified claim about AEF in every export, 10 releases, blocked on A-020). No duplicate for step 1 — T-340 IS the step-1 task; flagged there that the approved GO rationale names it by name, without treating the implication as a ruling
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-10.yaml'
+  - '.context/audits/cron/2026-08-03-1530.yaml'
+  - '.context/audits/cron/2026-08-03-1545.yaml'
+  - '.context/audits/cron/2026-08-03-1600.yaml'
+  - '.context/audits/cron/2026-08-03-1615.yaml'
+  - '.context/audits/cron/2026-08-03-1630.yaml'
+  - '.context/audits/cron/2026-08-03-1645.yaml'
+  - '.context/audits/cron/2026-08-03-1700.yaml'
+  - '.context/audits/cron/2026-08-03-1715.yaml'
+  - '.context/audits/cron/2026-08-03-1730.yaml'
+  - '.context/audits/cron/2026-08-03-1745.yaml'
+  - '.context/audits/cron/2026-08-10-2215.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/episodic/T-361.yaml'
+  - '.context/episodic/T-363.yaml'
+  - '.context/episodic/T-420.yaml'
+  - '.context/handovers/S-2026-0803-1529.md'
+  - '.context/locks/T-361.lock'
+  - '.context/locks/T-363.lock'
+  - '.context/locks/T-422.lock'
+  - '.context/project/assumptions.yaml'
+  - '.context/project/concerns.yaml'
+  - '.context/project/decisions.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.checkpoint.handover.stderr'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-361.log'
+  - '.context/working/episodic-gen/T-363.log'
+  - '.context/working/episodic-gen/T-420.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.gate-bypass-log.yaml'
+  - '.context/working/.handover-cooldown'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.restart-requested'
+  - '.context/working/.reviewed-T-357'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - 'docs/reports/T-357-di-adoption.md'
+  - '.tasks/active/T-209-832-side-compile-promote-create-producer.md'
+  - '.tasks/active/T-340-standard-bpmn-di-is-silently-discarded-o.md'
+  - '.tasks/active/T-357-adopt-bpmn-di-as-the-designer-geometry-a.md'
+  - '.tasks/active/T-422-check-arc-id-register-the-hook-or-delete.md'
+  - '.tasks/active/T-423-t-357-step-2-emit-bpmn-di-additively-alo.md'
+  - '.tasks/active/T-424-t-357-step-3-retire-aefposition.md'
+  - '.tasks/active/T-425-every-exported-bpmn-ships-an-unverified-.md'
+  - '.tasks/completed/T-361-exported-bytes-assert-aef-generates-di-f.md'
+  - '.tasks/completed/T-363-rail-ack-frontier-set--g-022-prevention-.md'
+  - '.tasks/completed/T-420-rail-attribution-gate-refuse-an-mcp-term.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-08-03T15:14:34'
+    action: 'T-357: inception filed — adopt BPMN DI as the designer geometry and retire aef:position'
+  - time: '2026-08-03T15:38:38'
+    action: 'T-357: inception template filled + spikes 1-3 — why aef:position exists is RECORDED, and it is a demo-stage deferral naming AEF as the DI owner'
+  - time: '2026-08-03T15:40:44'
+    action: 'T-357: G-021 registered [high] — exported bytes carry an unverified claim about a PEER system, and a two-party incident about that exact string never asked whether it was true'
+  - time: '2026-08-03T17:58:04'
+    action: 'T-357: spike 4 — T-225 splits the task in two, and has never been exercised on the half that matters'
+  - time: '2026-08-03T23:49:50'
+    action: 'T-357: record AEF''s rail-417 answer — the inception''s blocking question is answered'
+  - time: '2026-08-03T23:50:13'
+    action: 'T-357: IW-1b answered NO — the named downstream owner does not exist'
+  - time: '2026-08-04T08:27:31'
+    action: 'T-357: T-363 complete — P-011 3/3 green; focus restored to the DI inception'
+  - time: '2026-08-10T22:08:37'
+    action: 'T-357: inception decision GO (via Watchtower)'
+  - time: '2026-08-10T22:25:32'
+    action: 'T-357: post-GO decomposition — the three nested increments existed only as prose in the decision field (PL-145/G-030 shape), now tracked: T-423 (step 2, emit DI additively, first seam-touching step), T-424 (step 3, retire aef:position, owner human, needs T-225 ruling + v1.1 standard revision), T-425 (DI_TRAILER ships an unverified claim about AEF in every export, 10 releases, blocked on A-020). No duplicate for step 1 — T-340 IS the step-1 task; flagged there that the approved GO rationale names it by name, without treating the implication as a ruling'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 9 commit(s), 111081 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 111081
+  commits: 9
+  files_changed: 57
+  lines_added: 4075
+  lines_removed: 422
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-357-adopt-bpmn-di-as-the-designer-geometry-a.md
+generated_by: context-agent-hybrid

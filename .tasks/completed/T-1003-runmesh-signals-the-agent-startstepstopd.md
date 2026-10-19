@@ -4,10 +4,11 @@ name: "runme.sh signals the agent: start/step/stop/done flags on a TermLink topi
 description: >
   Operator 2026-10-02: when the operator starts runme.sh from a plain command prompt, the agent should get a signal immediately and monitor; then send the pattern to AEF for the framework's standing runme rule. Design: tools/runme-signal.sh sourced by every runme.sh posts one short line per event to TermLink topic runme-832 (best effort, never blocks) and appends to .context/working/runme.events; tools/runme-watch.sh is the agent's background watcher that exits on the first new event.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-02T17:13:45Z
-last_update: 2026-10-03T11:05:17Z
-date_finished: null
+last_update: 2026-10-19T16:34:11Z
+date_finished: 2026-10-19T16:34:11Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -64,11 +65,15 @@ include in the standing wrap-things-in-runme tools".
 ## Acceptance Criteria
 
 ### Agent
-- [ ] tools/runme-signal.sh (sourced by runme.sh): runme_signal <event> <text> appends one line to .context/working/runme.events and posts it to TermLink topic runme-832 (best effort: short timeout, never fails or blocks the script, works from a plain terminal); runme_signal_trap records STOPPED/rc on any exit, including Ctrl-C
-- [ ] tools/runme-watch.sh (agent side): run in the background, exits with the event line as soon as a NEW event appears in the file or on the topic (whichever first); a timeout exit says so
-- [ ] Tested: a fake runme that sources the helper emits started / step / done and a failing one emits STOPPED; the watcher, started before it, exits on the first event in both; with the hub unreachable the file path still works and the script is not slowed
-- [ ] CLAUDE.md runme rule says every runme.sh sources the helper and the agent arms the watcher when handing a script over
-- [ ] Pattern sent to AEF (framework agent) for the framework's standing runme guidance
+- [x] tools/runme-signal.sh (sourced by runme.sh): runme_signal <event> <text> appends one line to .context/working/runme.events and posts it to TermLink topic runme-832 (best effort: short timeout, never fails or blocks the script, works from a plain terminal); runme_signal_trap records STOPPED/rc on any exit, including Ctrl-C
+      (c4bac092; since T-1055 sourced by tools/runme-launcher.sh:223, which runme.sh execs; post detached with `timeout 5`.)
+- [x] tools/runme-watch.sh (agent side): run in the background, exits with the event line as soon as a NEW event appears in the file or on the topic (whichever first); a timeout exit says so
+      (an optional `[timeout-seconds]` argument, exit 3 on timeout; the default became 0 = no limit in T-1117, 61f0118b.)
+- [x] Tested: a fake runme that sources the helper emits started / step / done and a failing one emits STOPPED; the watcher, started before it, exits on the first event in both; with the hub unreachable the file path still works and the script is not slowed
+      (`tests/test_t1003_runme_signal.sh`: 11 passed, 0 failed on 2026-10-19; legs 7-8 added in c344c63e, 44e0140b.)
+- [x] CLAUDE.md runme rule says every runme.sh sources the helper and the agent arms the watcher when handing a script over
+      (CLAUDE.md "It signals the agent (T-1003)", reworded for the launcher by T-1055.)
+- [x] Pattern sent to AEF (framework agent) for the framework's standing runme guidance (c4bac092, "sent to AEF"; AEF's own `fw runme watch` followed, T-3675.)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -102,6 +107,11 @@ include in the standing wrap-things-in-runme tools".
 -->
 
 ## Verification
+
+bash -n tools/runme-signal.sh && bash -n tools/runme-watch.sh
+grep -q '^\. "$PROJ/tools/runme-signal.sh"' tools/runme-launcher.sh
+timeout 300 bash tests/test_t1003_runme_signal.sh > /tmp/.t1003.out 2>&1 && grep -qE '[0-9]+ passed, 0 failed' /tmp/.t1003.out
+grep -q 'It signals the agent (T-1003)' CLAUDE.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -325,3 +335,21 @@ include in the standing wrap-things-in-runme tools".
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1003-runmesh-signals-the-agent-startstepstopd.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-bd73b654
+- **Timestamp:** 2026-10-19T16:35:04Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — tools/runme-signal.sh (sourced by runme.sh): runme_signal <event> <text> appends one line to .context/working/runme.events and posts it to TermLink topic runme-832 (best effort: short timeout, never f
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=context/working/runme.events in: tools/runme-signal.sh (sourced by runme.sh): runme_signal <event> <text> appends one line to .context/working/runme.events and posts it to TermLink to`
+
+### 2026-10-19T16:34:11Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Triage 2026-10-19 C1: built and in use since 2026-10-03; criteria ticked with evidence, gate re-run

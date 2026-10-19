@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1003: runme.sh signals the agent: start/step/stop/done flags on a TermLink topic + local file, and a standing watcher
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T16:35:13Z
+# ============================================================================
+
+task_id: T-1003
+task_name: "runme.sh signals the agent: start/step/stop/done flags on a TermLink topic + local file, and a standing watcher"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-02T17:13:45Z
+completed: 2026-10-19T16:34:11Z
+duration_days: 17
+updates_count: 1
+first_commit: 2026-10-02T19:19:57+02:00
+last_commit: 2026-10-03T13:05:17+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  runme.sh signals the agent — runme-signal.sh (started/step/done/STOPPED to runme.events + TermLink topic runme-832, detached; EXIT/INT/TERM/HUP traps), runme-watch.sh (background watcher, exits on first event), runme_confirm drops typeahead; tests 9/9 + pty confirm test; CLAUDE.md rule; sent to AEF. runme-watch counts only this project's posts on the topic — 055-agentic-fleet-cockpit posted 'STOPPED rc=1' to runme-832 (a copy with the topic baked in) and woke us for a run that was not ours; TermLink labels posts by project; test leg 7, 10/10. runme-signal's default events file follows the script's location, not the caller's cwd — the 0.15.3 release ran from another directory and its events reached only the topic; test leg 8, 11/11
+
+# Key outcomes
+outcomes:
+  - 'tools/runme-signal.sh (sourced by runme.sh): runme_signal <event> <text> appends one line to .context/working/runme.events and posts it to TermLink topic runme-832 (best effort: short timeout, never fails or blocks the script, works from a plain terminal); runme_signal_trap records STOPPED/rc on any exit, including Ctrl-C'
+  - 'tools/runme-watch.sh (agent side): run in the background, exits with the event line as soon as a NEW event appears in the file or on the topic (whichever first); a timeout exit says so'
+  - 'Tested: a fake runme that sources the helper emits started / step / done and a failing one emits STOPPED; the watcher, started before it, exits on the first event in both; with the hub unreachable the file path still works and the script is not slowed'
+  - 'CLAUDE.md runme rule says every runme.sh sources the helper and the agent arms the watcher when handing a script over'
+  - 'Pattern sent to AEF (framework agent) for the framework''s standing runme guidance (c4bac092, "sent to AEF"; AEF''s own `fw runme watch` followed, T-3675.)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'CLAUDE.md'
+  - '.tasks/active/T-1003-runmesh-signals-the-agent-startstepstopd.md'
+  - 'tests/test_t1003_runme_signal.sh'
+  - 'tools/runme-signal.sh'
+  - 'tools/runme-watch.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-02T19:19:57'
+    action: 'T-1003: runme.sh signals the agent — runme-signal.sh (started/step/done/STOPPED to runme.events + TermLink topic runme-832, detached; EXIT/INT/TERM/HUP traps), runme-watch.sh (background watcher, exits on first event), runme_confirm drops typeahead; tests 9/9 + pty confirm test; CLAUDE.md rule; sent to AEF'
+  - time: '2026-10-03T11:57:49'
+    action: 'T-1003: runme-watch counts only this project''s posts on the topic — 055-agentic-fleet-cockpit posted ''STOPPED rc=1'' to runme-832 (a copy with the topic baked in) and woke us for a run that was not ours; TermLink labels posts by project; test leg 7, 10/10'
+  - time: '2026-10-03T13:05:17'
+    action: 'T-1003: runme-signal''s default events file follows the script''s location, not the caller''s cwd — the 0.15.3 release ran from another directory and its events reached only the topic; test leg 8, 11/11'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 24440 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 24440
+  commits: 3
+  files_changed: 5
+  lines_added: 523
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1003-runmesh-signals-the-agent-startstepstopd.md
+generated_by: context-agent-hybrid

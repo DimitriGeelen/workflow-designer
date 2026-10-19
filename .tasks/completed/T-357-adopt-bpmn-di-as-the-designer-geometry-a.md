@@ -4,16 +4,17 @@ name: "Adopt BPMN DI as the designer geometry and retire aef-position"
 description: >
   Inception: Adopt BPMN DI as the designer geometry and retire aef-position
 
-status: started-work
+status: work-completed
 workflow_type: inception
+current_node: frw_end_task
 owner: agent
-horizon: later
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-08-03T13:14:20Z
-last_update: 2026-09-29T17:23:04Z
-date_finished:
+last_update: 2026-10-19T16:35:41Z
+date_finished: 2026-10-19T16:35:41Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -189,7 +190,7 @@ Registered via `fw assumption add`:
 
 - **IW-3: Can DI carry everything the designer currently persists as geometry, including lane bands and edge waypoints?**
   confidence: 2
-  disposition: <!-- PARTIAL — leaning no; anchors/aef:waypoint unclassified -->
+  disposition: answered — NO, DI cannot carry all of it (intent extensions must be retained alongside). Settled by T-477 (completed 2026-08-12), which classified the two remaining elements (anchors, aef:waypoint) as authored intent; see docs/reports/T-357-di-adoption.md §Spike 3 "completed 2026-08-12". Consumed by T-423/T-424 (emit DI additively, keep intent; retire gated on this gap).
   rationale: The question is the standard's **eight-element** presentational family,
   not `aef:position` alone, and all are live in `src` (`routingHint` 22,
   `anchors` 19, `forceStraight` 12, `loopDetour` 9). DI maps *results* richly
@@ -342,6 +343,11 @@ must not become T-340's blocker.
 - Fix cost exceeds benefit given current evidence
 
 ## Verification
+
+# T-1208 triage, 2026-10-19: the inception's outputs are the report, the recorded GO, and the build task it spawned.
+test -f docs/reports/T-357-di-adoption.md
+grep -q '^\*\*Decision\*\*: GO' .tasks/active/T-357-*.md
+ls .tasks/*/T-424-t-357-step-3-retire-aefposition.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -603,3 +609,38 @@ a no — see G-021 on absence.
 
 ### 2026-09-29T17:23:04Z — status-update [task-update-agent]
 - **Change:** owner: human → agent
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-854054a2
+- **Timestamp:** 2026-10-19T16:35:43Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-3
+     - evidence: `IW-3 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-e6a9183d
+- **Timestamp:** 2026-10-19T16:35:43Z
+- **Overall:** CONTRADICTED
+- **Claims:** 7
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `docs/reports/T-357-di-adoption.md` | file | ✓ pass |
+| `docs/standards/aef-bpmn-mapping-v1.md:42-45` | file | ✗ fail — file not found at PROJECT_ROOT |
+| `T-475` | task | ✓ pass |
+| `T-225` | task | ✓ pass |
+| `T-340` | task | ✓ pass |
+| `T-2682` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
+| `T-2683` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
+
+### 2026-10-19T16:35:41Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Triage 2026-10-19 group A: GO recorded, open questions disposed with evidence, follow-up builds exist; gate re-run
