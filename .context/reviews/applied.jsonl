@@ -19,3 +19,4 @@
 {"kind":"verdict-apply","open_human_remaining":0,"owner_after":"agent","owner_before":"human","recited":[],"task":"T-1127","ticked":[{"ac":1,"reviewer":"reviewer-judge-t-1127-r3-f62a2812363c:reviewer","verdict_id":"V-20261019-18fe0c6e"}],"ts":"2026-10-19T08:14:13Z","withdrawn":[]}
 {"ac":1,"kind":"escalate","owner_after":"human","owner_before":"human","task":"T-732","ts":"2026-10-19T10:00:32Z","verdict_id":"V-20261019-55e219da"}
 {"ac":1,"kind":"escalate","owner_after":"human","owner_before":"human","task":"T-702","ts":"2026-10-19T17:13:18Z","verdict_id":"V-20261019-29bab9be"}
+{"ac":1,"kind":"escalate","owner_after":"human","owner_before":"human","task":"T-402","ts":"2026-10-19T17:19:11Z","verdict_id":"V-20261019-5dbcf194"}
