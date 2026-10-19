@@ -110,8 +110,12 @@ expect a 3-way merge there. Operator job on the T-1204 protocol; the launcher ke
   `inception.md.upstream` SUPERSEDED, removed. Commit 105e3242.
 - [ ] The safe-commands regression tools pass (`_t390`, `_t632`, `_t636`, `_t640`, `_t650`, `_t1047`); after the upgrade the sidecar receiver still carries 832's key (`tools/_t1203-identity-coverage.sh` 0 FAIL); a full bridge run is green
   — tools: `_t1047` 24/24, `_t390` 12/12, `_t632` 36/36, `_t636` 18/18, `_t640` 19/19, `_t650` 17/17.
-  Identity: the upgrade restarted the sidecar stack UNKEYED again (13:32Z, a login-shell env; the restarter is not
-  in fw upgrade's own code; reported to AEF for T-4311). Job 052 re-keyed it (receiver 2514316, supervisor 2515000,
+  Identity: the sidecar stack came back UNKEYED again (13:32Z). **Cause confirmed by syslog:** the host cron job
+  `sidecar-ensure-1m` (`fw sidecar ensure --all`, every minute, under flock): "15:32:14 agentic-cron[863637]:
+  /opt/832-Workflow-designer: supervisor restarted pid=886411". The upgrade stopped the stack, and cron restarted
+  it with cron's environment, so no launcher export can reach it. AEF T-4311 (next regular release) makes the
+  sidecar read the configured identity itself; until then, re-key after anything that stops the sidecar. AEF asked
+  whether any v1.8.12 setting is honoured by the ensure path (open). Job 052 re-keyed it (receiver 2514316, supervisor 2515000,
   watcher 2515258) and restarted Watchtower on v1.8.12 (pid 2876818). Its step-2 freshness check tripped on
   Watchtower's own `__pycache__` (false positive), so the job is retired with that reason; the agent ran step 3:
   map page OK, /cron 200, identity coverage 8 OK / 0 FAIL. Full bridge run: pending.
