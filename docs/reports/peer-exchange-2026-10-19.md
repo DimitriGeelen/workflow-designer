@@ -34,5 +34,16 @@ same day.
 | 010-termlink | Measure from both ends (`ss -tin` bytes_sent = bytes_acked, Send-Q 0 proved "the hub stopped writing") | Debugging technique |
 | 010-termlink | Requests over 1 s now log `slow:true` with handle_ms/write_ms in the hub rpc-audit.jsonl (0.12.726, T-3478) | Where to look when a TermLink call is slow |
 
-Replies still pending from: 050-email-archive, 1023, dimitri-mint-dev, 1409-sprind, 0235-voice-features,
+| 1409-sprind | Never change code while a full test tier runs on that state; tie review start to a green run matching HEAD | **Applies to 832:** commits landed during suite runs today; a green run counts only for the HEAD it ran on |
+| 1409-sprind | `claude -p` workers end with their last answer; a sequenced chain must check each step left a final result, not a draft | For any dispatch chains |
+| 1409-sprind | Measure per call, not averages (an average of 0.4 s hid one 1.66 s call) | Matches T-1210 (cold first request) |
+| 1409-sprind | Count-pinned tests drift when a governance document changes; update them in the same task | Matches T-1212 (EXPECTED_* pins updated in the same task) |
+| 1409-sprind | A Stop hook can enforce operator wording (block a retired term in answers; identifiers in backticks exempt) | Idea, not adopted |
+
+**1409-sprind asked** how 832 keeps BPMN ids stable across re-imports. Answered: two ids (an immutable `aef:uid` for
+identity, a computed display id); re-import keys on the uid, and third-party files get a deterministic derived uid
+(T-364); any derivation change ships an old→new id map (T-1168); pinned byte goldens catch derivation changes
+(T-358 / T-1196); never key internal state on display ids.
+
+Replies still pending from: 050-email-archive, 1023, dimitri-mint-dev, 0235-voice-features,
 0506-Voxtype-extention, rules-extract.
