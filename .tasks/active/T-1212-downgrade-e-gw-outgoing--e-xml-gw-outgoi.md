@@ -103,8 +103,15 @@ requirement, so all of it becomes a warning. The ids carry the severity (E-/W-),
 - [ ] A test pins the new behaviour: a 1-in/1-out gateway yields `W-GW-OUTGOING` and no error, in both forms; the converging gateway still yields nothing
 - [ ] Every affected test passes, and a full bridge run is green
 - [ ] `docs/releases/PENDING-next-release.md` lists it, with the old→new id map and a note for AEF that a check which failed on these now warns
+- [ ] The designer's Check shows the finding as a warning, asserted and shot at 1024, 1440 and 1920 by `tools/_t1212-gw-warning-shots.py` (`docs/reports/T-1212-evidence/`), read control by control under `## Visual Verification`
 
 ### Human
+- [ ] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1212 --criterion 1`): the designer shows a 1-in/1-out exclusive gateway as a WARNING, legibly, at three widths
+  **Steps:**
+  1. Open `docs/reports/T-1212-evidence/t1212-check-1024.png`, `t1212-check-1440.png` and `t1212-check-1920.png` (the warn fixture `tests/fixtures/warn/W-XML-GW-OUTGOING.xml` loaded into designer 0.23.0 plus T-1212, Check pressed, served with the real validator)
+  2. In each, check: the Validator dock line reads "1 finding · 0 errors, 1 warning · 1 on the map"; the row shows WARN (not ERROR), the rule id `W-XML-GW-OUTGOING` and its message; the dock's close button and the toolbar's Check button are visible and unclipped; the gateway on the map carries its finding marker where the map is drawn large enough to see it
+  **Expected:** all three show the finding as a warning, with no error, and nothing clipped
+  **If not:** name the screenshot and the control, and what is wrong with it
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -159,6 +166,23 @@ python3 tests/test_harness_cross_form_agreement.py
 grep -q 'W-GW-OUTGOING' tools/validate-workflow.py
 ! grep -q '"E-GW-OUTGOING"\|"E-XML-GW-OUTGOING"' tools/validate-workflow.py
 grep -q 'T-1212' docs/releases/PENDING-next-release.md
+bash tests/run-validator-tests.sh
+python3 tests/test_t962_findings_on_map.py
+python3 tools/_t1212-gw-warning-shots.py /tmp/t1212-verify-shots
+
+## Visual Verification
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| Check pressed, 1-in/1-out gateway | Validator dock line "0 errors, 1 warning" | ok | ok | ok | |
+| Check pressed | finding row: WARN label, W-XML-GW-OUTGOING, message | ok | ok | ok | message keeps "requires >= 2" (text deliberately unchanged) |
+| Check pressed | dock close button | ok | ok | ok | |
+| Check pressed | toolbar Check button | ok | ok | ok | wraps to a 2nd row at 1024 (existing) |
+| Check pressed | gateway finding marker on the map | ok | ok | ok | map drawn small at 1024 (existing fit behaviour) |
+
+Shots: `docs/reports/T-1212-evidence/t1212-check-{1024,1440,1920}.png`, asserted by `tools/_t1212-gw-warning-shots.py`
+(the API returns exactly `W-XML-GW-OUTGOING:WARN`, no ERROR). Read: the dock reads "1 finding · 0 errors, 1 warning ·
+1 on the map" at all three widths; the row shows WARN in orange, the id and the message; close and Check visible.
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
