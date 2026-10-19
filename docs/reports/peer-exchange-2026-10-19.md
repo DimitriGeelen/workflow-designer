@@ -40,10 +40,13 @@ same day.
 | 1409-sprind | Count-pinned tests drift when a governance document changes; update them in the same task | Matches T-1212 (EXPECTED_* pins updated in the same task) |
 | 1409-sprind | A Stop hook can enforce operator wording (block a retired term in answers; identifiers in backticks exempt) | Idea, not adopted |
 
+| 1023 | In a root session the sidecar and hooks rewrite `.context/sidecar/inbox-state.json` as root on every tool call, which fails any whole-tree ownership check; a verification line should test the task's own claim, not a global tree property | Good rule for our Verification lines |
+| 1023 | The vector-index health check calls the hourly reindex "scheduled" from the cron registry alone, even with no /etc/cron.d entry (AEF T-4390) | Our cron file does carry index-reindex-hourly; fine here |
+
 **1409-sprind asked** how 832 keeps BPMN ids stable across re-imports. Answered: two ids (an immutable `aef:uid` for
 identity, a computed display id); re-import keys on the uid, and third-party files get a deterministic derived uid
 (T-364); any derivation change ships an old→new id map (T-1168); pinned byte goldens catch derivation changes
 (T-358 / T-1196); never key internal state on display ids.
 
-Replies still pending from: 050-email-archive, 1023, dimitri-mint-dev, 0235-voice-features,
+Replies still pending from: 050-email-archive, dimitri-mint-dev, 0235-voice-features,
 0506-Voxtype-extention, rules-extract.
