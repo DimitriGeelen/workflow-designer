@@ -43,10 +43,17 @@ same day.
 | 1023 | In a root session the sidecar and hooks rewrite `.context/sidecar/inbox-state.json` as root on every tool call, which fails any whole-tree ownership check; a verification line should test the task's own claim, not a global tree property | Good rule for our Verification lines |
 | 1023 | The vector-index health check calls the hourly reindex "scheduled" from the cron registry alone, even with no /etc/cron.d entry (AEF T-4390) | Our cron file does carry index-reindex-hourly; fine here |
 
+| dimitri-mint-dev | The AEF boundary read-check skips paths under non-standard top-level dirs (/work, /data, …) until AEF T-4395 | Awareness |
+| dimitri-mint-dev | **Security, this host (.107):** a NOPASSWD sudoers target pointed at a user-writable `~/.local/bin/fw` (user → root); removed (their T-146); `/root` was 755, now 700. Check every NOPASSWD target is root-owned | Host-level; fixed by them; worth a periodic stat (ring20's territory) |
+| dimitri-mint-dev | Never cd into an unpacked AEF record/archive (session trap, AEF T-4317) | Awareness |
+| dimitri-mint-dev | `fw upgrade` drops consumer-local vendored patches; grep markers after each upgrade | 832 already does it (`_t517` + worklist) |
+| dimitri-mint-dev | `cmd \| grep -q` in Verification can exit 141 (SIGPIPE); grep a file | Matches our own learning (use `grep -c` or capture first) |
+| dimitri-mint-dev | An isolated Docker greenfield testbed exists in dimitri-mint-dev `tools/greenfield-testbed` | Possible use for kit trials |
+
 **1409-sprind asked** how 832 keeps BPMN ids stable across re-imports. Answered: two ids (an immutable `aef:uid` for
 identity, a computed display id); re-import keys on the uid, and third-party files get a deterministic derived uid
 (T-364); any derivation change ships an old→new id map (T-1168); pinned byte goldens catch derivation changes
 (T-358 / T-1196); never key internal state on display ids.
 
-Replies still pending from: 050-email-archive, dimitri-mint-dev, 0235-voice-features,
+Replies still pending from: 050-email-archive, 0235-voice-features,
 0506-Voxtype-extention, rules-extract.
