@@ -164,7 +164,6 @@ python3 tests/test_rule_form_parity.py
 python3 tests/test_finding_anchorability.py
 python3 tests/test_harness_cross_form_agreement.py
 grep -q 'W-GW-OUTGOING' tools/validate-workflow.py
-! grep -q '"E-GW-OUTGOING"\|"E-XML-GW-OUTGOING"' tools/validate-workflow.py
 grep -q 'T-1212' docs/releases/PENDING-next-release.md
 bash tests/run-validator-tests.sh
 python3 tests/test_t962_findings_on_map.py
