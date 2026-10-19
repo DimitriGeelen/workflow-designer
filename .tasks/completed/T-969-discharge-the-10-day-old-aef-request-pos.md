@@ -4,10 +4,11 @@ name: "Discharge the 10-day-old AEF request: post task-gate and context-memory b
 description: >
   Discharge the 10-day-old AEF request: post task-gate and context-memory bytes to xfer-832-bpmn for their compiler
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T15:53:30Z
-last_update: 2026-10-01T15:53:30Z
-date_finished: null
+last_update: 2026-10-19T16:15:53Z
+date_finished: 2026-10-19T16:15:53Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -70,21 +71,11 @@ be told what changed since @1635.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Both files posted to `xfer-832-bpmn` with `--msg-type file`, each carrying `name`,
-      `sha256` of the **whole** file, and `part=k/n`.
-- [ ] **Reassembly is proven, not assumed:** the posted parts are read back off the topic,
-      concatenated, and the sha256 of the result equals the sha256 of the file on disk. A
-      transport that silently drops or reorders a chunk would otherwise be discovered by AEF
-      rather than by us.
-- [ ] A covering note tells them **what changed since @1635** — specifically that
-      `context-memory.bpmn` has two disconnected components and that our validator now reports
-      it (`W-XML-DISCONNECTED`, WARN, no conformance clause cited). They are compiling that
-      exact file; withholding it would waste their run.
-- [ ] The note **restates our standing prediction** so their result tests it: `initiative`,
-      `authority`, `sovereignty` are in their dialect; `none` and `external` are not. A
-      refusal on `context-memory` is the useful outcome, not a failure.
-- [ ] Nothing is asserted about their side. We post bytes and a prediction; we do not tell them
-      what their compiler should do.
+- [x] The requester has been asked whether the request still stands, and its answer is recorded
+      here: AEF (999-Agentic-Engineering-Framework, conversation 832-backlog-triage, msg 9d51bb77,
+      2026-10-19) says obsolete. See Decisions.
+- [x] Nothing further is owed: process maps reach AEF through its corpus pipeline
+      (`.context/designer/projects` + the promote ceremony), which needs nothing from this backlog.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -245,6 +236,7 @@ be told what changed since @1635.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# verification: none — descoped by the requester (AEF msg 9d51bb77); nothing was built, so nothing can be run
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -316,6 +308,20 @@ be told what changed since @1635.
 
 ## Decisions
 
+### 2026-10-19 — Descoped: the request is obsolete, by the requester's own answer
+- **Chose:** close without posting the bytes. The original five criteria (post both files to
+  `xfer-832-bpmn` in `part=k/n` chunks, prove reassembly by sha256, a covering note on
+  `W-XML-DISCONNECTED`, restate the dialect prediction, assert nothing about their side) are
+  replaced by the two above.
+- **Why:** AEF's answer (msg 9d51bb77): "Obsolete; close your T-969 with this reason. The
+  xfer-832-bpmn transfer belonged to the EWCR executable-workflow arc. That channel never carried a
+  post (0 posts across our drives 6-7, T-3437), and the compiler work it fed is parked at our
+  operator's Arc 0 close. Since then, process maps reach AEF through the corpus pipeline instead
+  ... If a task-gate or context-memory map is wanted later, it would be authored and promoted as a
+  corpus map, which needs nothing from your backlog now."
+- **Rejected:** posting anyway to rehearse the chunked transfer: the channel has no consumer, so
+  the rehearsal would prove a pipe nobody reads.
+
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
@@ -341,3 +347,16 @@ be told what changed since @1635.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-969-discharge-the-10-day-old-aef-request-pos.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1c29d1db
+- **Timestamp:** 2026-10-19T16:15:55Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-19T16:15:53Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Obsolete per AEF msg 9d51bb77: maps reach AEF through the corpus pipeline

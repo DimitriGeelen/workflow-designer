@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-969: Discharge the 10-day-old AEF request: post task-gate and context-memory bytes to xfer-832-bpmn for their compiler
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T16:16:07Z
+# ============================================================================
+
+task_id: T-969
+task_name: "Discharge the 10-day-old AEF request: post task-gate and context-memory bytes to xfer-832-bpmn for their compiler"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-01T15:53:30Z
+completed: 2026-10-19T16:15:53Z
+duration_days: 18
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Discharge the 10-day-old AEF request: post task-gate and context-memory bytes to xfer-832-bpmn for their compiler
+
+# Key outcomes
+outcomes:
+  - 'The requester has been asked whether the request still stands, and its answer is recorded'
+  - 'Nothing further is owed: process maps reach AEF through its corpus pipeline'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-19 — Descoped: the request is obsolete, by the requester''s own answer'
+    chose: 'close without posting the bytes. The original five criteria (post both files to `xfer-832-bpmn` in `part=k/n` chunks, prove reassembly by sha256, a covering note on `W-XML-DISCONNECTED`, restate the dialect prediction, assert nothing about their side) are replaced by the two above.'
+    rationale: 'AEF''s answer (msg 9d51bb77): "Obsolete; close your T-969 with this reason. The xfer-832-bpmn transfer belonged to the EWCR executable-workflow arc. That channel never carried a post (0 posts across our drives 6-7, T-3437), and the compiler work it fed is parked at our operator''s Arc 0 close. Since then, process maps reach AEF through the corpus pipeline instead ... If a task-gate or context-memory map is wanted later, it would be authored and promoted as a corpus map, which needs nothing from your backlog now."'
+    alternatives_rejected: ['posting anyway to rehearse the chunked transfer: the channel has no consumer, so the rehearsal would prove a pipe nobody reads.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 25942 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 25942
+  commits: 1
+  files_changed: 1
+  lines_added: 0
+  lines_removed: 0
+  footprint_refreshed_at: '2026-10-19T16:16:16Z'
+  footprint_refreshed_by_commit: 30685b29
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-969-discharge-the-10-day-old-aef-request-pos.md
+generated_by: context-agent-hybrid
