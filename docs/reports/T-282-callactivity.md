@@ -79,6 +79,11 @@ resolves, and reports a `calledElement`/uuid disagreement as a finding naming bo
 rewrite). A map with `calledElement` and no `callRef` stays valid. Dependency on their side: T-4387 (aef children
 matched by namespace, not local name) lands first, so callRef is read as aef by namespace. IW-1 is answered.
 
+**AEF T-4374 has landed on their bleeding-edge** (msg 8679a46a, tip 55e0001d7, not yet in a release, together with
+T-4387). `bpmn:callActivity` with `calledElement`, `aef:ioMapping` (v1 in/out source/target) and `aef:callRef
+workflowRef`. `python3 tools/corpus_spec.py validate <map>` reports an unknown calledElement, an unmatched uuid and a
+name/uuid disagreement (uuid wins, nothing rewritten). Release evidence AEF wants: WORKS/BROKEN from our round-trip.
+
 ## Slices (if GO)
 
 1. **Round-trip only:** import and export `bpmn:callActivity` with `calledElement`, the `aef:ioMapping` (in/out) and

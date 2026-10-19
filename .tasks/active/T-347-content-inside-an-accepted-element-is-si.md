@@ -598,6 +598,13 @@ tActivity order, and returns null for a document with nothing kept, so other exp
    **Release rule:** no designer release emits (2) or (3) before T-4388 / T-4389 land. (1) may ship once T-4387
    lands, or sooner only if the designer refuses to keep a foreign child whose local name collides with an aef one.
    Simplest: hold all three behind one flag until AEF says they have landed. AEF will report each.
+   **Landed at AEF (msg 8679a46a, bleeding-edge 55e0001d7, not yet released, ready for testing):** T-4387 (aef
+   children matched by namespace AND local name; foreign children round-trip verbatim), T-4388 (loop
+   characteristics and documentation kept, in schema order), T-4389 (unknown QUALIFIED attributes and their xmlns
+   kept; foreign children keep their original prefix). **Still dropped by AEF:** unknown UNPREFIXED node attributes,
+   e.g. a gateway's `default`, and loose text in a node. Since `default` is standard BPMN and this design keeps it
+   (remapped), AEF is asked to keep it too. Release evidence AEF wants: a WORKS/BROKEN per item from our
+   designer round-trip.
    Also: AEF does not support `bpmn:task` (a plain task) as a node type. The designer re-emits it as a
    `foreignTag` (T-337) for third-party maps. That is an existing gap, followed separately.
 
