@@ -1,0 +1,181 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1211: CDP tools: one readiness budget instead of 87 hard-coded 20 s waits (suite flakes under load)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T08:51:59Z
+# ============================================================================
+
+task_id: T-1211
+task_name: "CDP tools: one readiness budget instead of 87 hard-coded 20 s waits (suite flakes under load)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-19T01:29:39Z
+completed: 2026-10-19T08:51:47Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-19T03:29:50+02:00
+last_commit: 2026-10-19T10:51:47+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture — CDP probes share one readiness budget (87 hard-coded 20 s waits flake under suite load). one editor-readiness budget for all 95 CDP probes (CDP_READY_MS, each keeps its own default); the suite sets 90 s; a guard with teeth keeps new probes from hard-coding it. component card for the readiness-budget guard. full bridge run 299 passed, 0 failed; criteria ticked
+
+# Key outcomes
+outcomes:
+  - 'Every CDP probe''s editor-readiness budget reads one environment variable, `CDP_READY_MS`, and falls back to its current default when unset (standalone runs behave exactly as before); the inventory of every variant (the common 20 s form, the 25 s ones, and any other shape) is recorded here, with any probe left out named and the reason given'
+  - '`tests/run-bridge-tests.sh` sets `CDP_READY_MS` higher for the whole run (a value with margin over the slowest cold load measured), stated with its reason'
+  - 'A guard (`tools/_t1211-cdp-ready-budget-guard.sh`) fails when a probe hard-codes an "editor not ready" budget without reading `CDP_READY_MS`; it bites on a scratch copy with one probe reverted, and it is wired into the suite'
+  - '`_t1194` and `_t1060` (the two that flaked) pass with `CDP_READY_MS` set; then one full bridge run with nothing else running reports its result here (green, or each remaining failure explained)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t1211-cdp-ready-budget-guard.yaml'
+  - '.tasks/active/T-1211-cdp-tools-one-readiness-budget-instead-o.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_align-distribute-diag.mjs'
+  - 'tools/_bridge-seam-roundtrip-cdp.mjs'
+  - 'tools/_edge-straighten-verify-cdp.mjs'
+  - 'tools/_editor-behavior-verify-cdp.mjs'
+  - 'tools/_endpoint-hover-verify-cdp.mjs'
+  - 'tools/_endpoint-overlap-verify-cdp.mjs'
+  - 'tools/gen-rendered-thumbs.mjs'
+  - 'tools/_horizontal-spacing-verify-cdp.mjs'
+  - 'tools/_roundtrip-serialization-cdp.mjs'
+  - 'tools/_saveproject-verify-cdp.mjs'
+  - 'tools/_selection-align-verify-cdp.mjs'
+  - 'tools/_t1067-side-label-wrap-cdp.mjs'
+  - 'tools/_t1078-advisory-overlap-cdp.mjs'
+  - 'tools/_t1088-lane-abbr-unique-cdp.mjs'
+  - 'tools/_t1089-save-loaded-as-version-cdp.mjs'
+  - 'tools/_t1090-cross-lane-l-routing-cdp.mjs'
+  - 'tools/_t1091-sticky-lanes-cdp.mjs'
+  - 'tools/_t1092-authority-summary-cdp.mjs'
+  - 'tools/_t1096-data-objects-roundtrip-cdp.mjs'
+  - 'tools/_t1109-deeplink-project-load-cdp.mjs'
+  - 'tools/_t1119-collaboration-roundtrip-cdp.mjs'
+  - 'tools/_t1120-collab-pools-drawn-cdp.mjs'
+  - 'tools/_t1124-hide-empty-fields-cdp.mjs'
+  - 'tools/_t1125-field-profile-cdp.mjs'
+  - 'tools/_t1126-field-suggestions-cdp.mjs'
+  - 'tools/_t1127-element-details-cdp.mjs'
+  - 'tools/_t1128-field-defaults-settings-cdp.mjs'
+  - 'tools/_t1129-optional-select-empty-cdp.mjs'
+  - 'tools/_t1131-dangling-refs-thirdparty-cdp.mjs'
+  - 'tools/_t1134-portal-without-endpoints-cdp.mjs'
+  - 'tools/_t1154-pool-label-fit-cdp.mjs'
+  - 'tools/_t1155-doc-title-verify-cdp.mjs'
+  - 'tools/_t1164-lane-findings-cdp.mjs'
+  - 'tools/_t1168-node-id-map.mjs'
+  - 'tools/_t1168-step-numbers-verify-cdp.mjs'
+  - 'tools/_t1176-toolbar-reach-cdp.mjs'
+  - 'tools/_t1177-panels-cdp.mjs'
+  - 'tools/_t1193-slug-readonly-cdp.mjs'
+  - 'tools/_t1194-slug-task-id-cdp.mjs'
+  - 'tools/_t1211-cdp-ready-budget-guard.sh'
+  - 'tools/_t125-lane-compaction-cdp.mjs'
+  - 'tools/_t249-spike-zoom-cdp.mjs'
+  - 'tools/_t259-eventdef-preservation-cdp.mjs'
+  - 'tools/_t263-save-target-cdp.mjs'
+  - 'tools/_t264-save-target-guards-cdp.mjs'
+  - 'tools/_t308-bare-catch-render-cdp.mjs'
+  - 'tools/_t308-export-byte-identity-cdp.mjs'
+  - 'tools/_t310-lane-position-conflict-cdp.mjs'
+  - 'tools/_t311-doc-comment-roundtrip-cdp.mjs'
+  - 'tools/_t315-lane-grow-on-import-cdp.mjs'
+  - 'tools/_t338-input-fidelity-cdp.mjs'
+  - 'tools/_t341-orphan-lane-probe.mjs'
+  - 'tools/_t347-accepted-element-content-cdp.mjs'
+  - 'tools/_t356-third-party-fidelity-cdp.mjs'
+  - 'tools/_t358-byteid-thirdparty.mjs'
+  - 'tools/_t358-empty-lanes-blast-radius.mjs'
+  - 'tools/_t358-export-determinism.mjs'
+  - 'tools/_t358-lane-provenance-cdp.mjs'
+  - 'tools/_t358-repair-options-cdp.mjs'
+  - 'tools/_t364-aef-ext-roundtrip.mjs'
+  - 'tools/_t364-tie-permutes-ids.mjs'
+  - 'tools/_t366-uid-shape-agnostic.mjs'
+  - 'tools/_t367-aef-injection-footprint.mjs'
+  - 'tools/_t372-aef-cycle-roundtrip.mjs'
+  - 'tools/_t406-doc-comment-provenance-cdp.mjs'
+  - 'tools/_t407-exporter-passthrough-cdp.mjs'
+  - 'tools/_t423-additive-export-cdp.mjs'
+  - 'tools/_t423-carrier-agreement-cdp.mjs'
+  - 'tools/_t423-di-roundtrip-idempotence-cdp.mjs'
+  - 'tools/_t479-endpoint-roundtrip-cdp.mjs'
+  - 'tools/_t482-scalar-projection-falsify.mjs'
+  - 'tools/_t483-structured-projection-falsify.mjs'
+  - 'tools/_t485-unknown-extension-survival.mjs'
+  - 'tools/_t511-unwired-node-roundtrip.mjs'
+  - 'tools/_t513-thirdparty-identity-roundtrip.mjs'
+  - 'tools/_t515-external-uid-conformance.mjs'
+  - 'tools/_t518-uid-collision.mjs'
+  - 'tools/_t520-uid-xml-safety.mjs'
+  - 'tools/_t523-subprocess-nesting.mjs'
+  - 'tools/_t562-workflow-id-helpers-cdp.mjs'
+  - 'tools/_t563-fallback-id-derivation-cdp.mjs'
+  - 'tools/_t565-workflowmeta-emission-census.mjs'
+  - 'tools/_t566-note-field-cdp.mjs'
+  - 'tools/_t570-meta-carriage-cdp.mjs'
+  - 'tools/_t573-emits-panel-shape-cdp.mjs'
+  - 'tools/_t589-panel-links-cdp.mjs'
+  - 'tools/_t618-determinism-roundtrip-cdp.mjs'
+  - 'tools/_t821-fault-surface-cdp.mjs'
+  - 'tools/_t884-instance-overlay-cdp.mjs'
+  - 'tools/_t889-authority-first-class-cdp.mjs'
+  - 'tools/_t892-lane-default-cdp.mjs'
+  - 'tools/_t893-authority-marker-shots.mjs'
+  - 'tools/_t911-kind-badge-verify-cdp.mjs'
+  - 'tools/_typed-events-cdp.mjs'
+  - 'tools/_undo-verify-cdp.mjs'
+  - 'tools/_versions-verify-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T03:29:50'
+    action: 'T-1211: capture — CDP probes share one readiness budget (87 hard-coded 20 s waits flake under suite load)'
+  - time: '2026-10-19T10:17:47'
+    action: 'T-1211: one editor-readiness budget for all 95 CDP probes (CDP_READY_MS, each keeps its own default); the suite sets 90 s; a guard with teeth keeps new probes from hard-coding it'
+  - time: '2026-10-19T10:17:56'
+    action: 'T-1211: component card for the readiness-budget guard'
+  - time: '2026-10-19T10:51:47'
+    action: 'T-1211: full bridge run 299 passed, 0 failed; criteria ticked'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 442 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 442
+  commits: 4
+  files_changed: 99
+  lines_added: 591
+  lines_removed: 111
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1211-cdp-tools-one-readiness-budget-instead-o.md
+generated_by: context-agent-hybrid

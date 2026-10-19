@@ -11,13 +11,13 @@ description: >
   from a shared helper rather than 87 copies. A guard keeps new probes from hard-coding
   it again. One defect class, one change.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_align-distribute-diag.mjs, tools/_bridge-seam-roundtrip-cdp.mjs, tools/_edge-straighten-verify-cdp.mjs, tools/_editor-behavior-verify-cdp.mjs, tools/_endpoint-hover-verify-cdp.mjs, tools/_endpoint-overlap-verify-cdp.mjs, tools/_horizontal-spacing-verify-cdp.mjs, tools/_roundtrip-serialization-cdp.mjs, tools/_saveproject-verify-cdp.mjs, tools/_selection-align-verify-cdp.mjs, tools/_t1091-sticky-lanes-cdp.mjs, tools/_t1154-pool-label-fit-cdp.mjs, tools/_t1164-lane-findings-cdp.mjs, tools/_t1193-slug-readonly-cdp.mjs, tools/_t1194-slug-task-id-cdp.mjs, tools/_t1211-cdp-ready-budget-guard.sh, tools/_t125-lane-compaction-cdp.mjs, tools/_t249-spike-zoom-cdp.mjs, tools/_t259-eventdef-preservation-cdp.mjs, tools/_t263-save-target-cdp.mjs, tools/_t264-save-target-guards-cdp.mjs, tools/_t308-bare-catch-render-cdp.mjs, tools/_t308-export-byte-identity-cdp.mjs, tools/_t310-lane-position-conflict-cdp.mjs, tools/_t311-doc-comment-roundtrip-cdp.mjs, tools/_t315-lane-grow-on-import-cdp.mjs, tools/_t338-input-fidelity-cdp.mjs, tools/_t341-orphan-lane-probe.mjs, tools/_t347-accepted-element-content-cdp.mjs, tools/_t356-third-party-fidelity-cdp.mjs, tools/_t358-byteid-thirdparty.mjs, tools/_t358-empty-lanes-blast-radius.mjs, tools/_t358-export-determinism.mjs, tools/_t358-lane-provenance-cdp.mjs, tools/_t358-repair-options-cdp.mjs, tools/_t364-aef-ext-roundtrip.mjs, tools/_t364-tie-permutes-ids.mjs, tools/_t366-uid-shape-agnostic.mjs, tools/_t367-aef-injection-footprint.mjs, tools/_t372-aef-cycle-roundtrip.mjs, tools/_t406-doc-comment-provenance-cdp.mjs, tools/_t407-exporter-passthrough-cdp.mjs, tools/_t423-additive-export-cdp.mjs, tools/_t423-carrier-agreement-cdp.mjs, tools/_t423-di-roundtrip-idempotence-cdp.mjs, tools/_t479-endpoint-roundtrip-cdp.mjs, tools/_t482-scalar-projection-falsify.mjs, tools/_t483-structured-projection-falsify.mjs, tools/_t485-unknown-extension-survival.mjs, tools/_t511-unwired-node-roundtrip.mjs, tools/_t513-thirdparty-identity-roundtrip.mjs, tools/_t515-external-uid-conformance.mjs, tools/_t518-uid-collision.mjs, tools/_t520-uid-xml-safety.mjs, tools/_t523-subprocess-nesting.mjs, tools/_t562-workflow-id-helpers-cdp.mjs, tools/_t563-fallback-id-derivation-cdp.mjs, tools/_t565-workflowmeta-emission-census.mjs, tools/_t566-note-field-cdp.mjs, tools/_t570-meta-carriage-cdp.mjs, tools/_t573-emits-panel-shape-cdp.mjs, tools/_t589-panel-links-cdp.mjs, tools/_t618-determinism-roundtrip-cdp.mjs, tools/_t821-fault-surface-cdp.mjs, tools/_t884-instance-overlay-cdp.mjs, tools/_t889-authority-first-class-cdp.mjs, tools/_t892-lane-default-cdp.mjs, tools/_t893-authority-marker-shots.mjs, tools/_typed-events-cdp.mjs, tools/_undo-verify-cdp.mjs, tools/_versions-verify-cdp.mjs, tools/gen-rendered-thumbs.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T01:29:39Z
-last_update: 2026-10-19T08:14:42Z
-date_finished:
+last_update: 2026-10-19T08:51:47Z
+date_finished: 2026-10-19T08:51:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -388,3 +388,20 @@ CDP_READY_MS=60000 node tools/_t1194-slug-task-id-cdp.mjs
 ### 2026-10-19T08:14:42Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b9db94bf
+- **Timestamp:** 2026-10-19T08:51:51Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-19T08:51:47Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
