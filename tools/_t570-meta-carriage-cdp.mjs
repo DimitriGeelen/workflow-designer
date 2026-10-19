@@ -262,20 +262,21 @@ async function main() {
     try { cl && cl.close(); } catch (_) {}
     br.kill(); py.kill();
     await sleep(400);
-    for (const d of [doc, repo, udd]) rmSync(d, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 });
+    for (const d of [doc, repo, udd]) { try { rmSync(d, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 }); } catch (_) {} }
     return 2;
   } finally {
     try { cl && cl.close(); } catch (_) {}
     br.kill(); py.kill();
   }
-  // Chromium keeps writing to the user-data-dir for a beat after SIGTERM; an ENOTEMPTY here
-  // would crash the probe AFTER its verdict, turning a real result into a stack trace.
-  await sleep(400);
-  for (const d of [doc, repo, udd]) rmSync(d, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 });
-
+  // T-1216: the verdict is printed BEFORE cleanup, and cleanup is best-effort. Chromium keeps writing to the
+  // user-data-dir for a beat after SIGTERM, and under load rmSync still threw ENOTEMPTY after its 20 retries; the
+  // uncaught throw ended the process before these lines, so the teeth saw every leg MISSING (red) and scored a
+  // mutant as over-killing (seen 2026-10-19: 'ENOTEMPTY ... rmdir /tmp/t570-udd-*/Default').
   console.log(out.join('\n'));
   console.log(`\n${npass} passed, ${nfail} failed`);
   if (nfail === 0) console.log(`${npass}/${npass} T-570 legs passed`);
+  await sleep(400);
+  for (const d of [doc, repo, udd]) { try { rmSync(d, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 }); } catch (_) {} }
   return nfail === 0 ? 0 : 1;
 }
 

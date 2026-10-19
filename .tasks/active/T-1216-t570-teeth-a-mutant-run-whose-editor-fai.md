@@ -16,7 +16,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
+current_node: agt_2_perform
 owner: agent
 horizon: now
 tags: []
@@ -111,6 +111,13 @@ same script passes 5/5 standalone on the same source. Separately, `_t535` exceed
       ever flakes; `_t535` vs the 90s sweep cap is recorded, not changed here.
       (`_t572` has not flaked in any run today. Run 5 also had `_t423`, `_t534`, `_t535` killed by the sweep's 90s cap
       while browser work ran beside it and AEF ran its own v1.8.13 tests on the host; learning recorded under T-1217.)
+- [x] The cause is found, not only contained. (2026-10-20, when the close gate's own run hit the new path: the probe's
+      output ended in "code: 'ENOTEMPTY', syscall: 'rmdir', path: '/tmp/t570-udd-*/Default'". The probe deleted its temp
+      dirs BEFORE printing its verdicts; Chromium still writing to its profile after SIGTERM made rmSync throw even
+      after its 20 retries, and the uncaught throw ended the process with no verdict lines, every leg MISSING. Fixed in
+      tools/_t570-meta-carriage-cdp.mjs: verdicts first, cleanup best-effort. The same unguarded cleanup-before-verdict
+      sat in _t589, _t573 and _t566 and is guarded the same way; _t572's probe already guarded it, which is why it never
+      flaked. After the fix: teeth 5/5 three runs in a row; _t573 8/8, _t566 6/6, _t589 10/10.)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

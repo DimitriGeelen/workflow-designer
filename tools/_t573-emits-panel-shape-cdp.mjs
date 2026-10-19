@@ -256,14 +256,14 @@ async function main() {
     try { cl && cl.close(); } catch (_) {}
     br.kill(); py.kill();
     await sleep(400);
-    for (const d of [doc, repo, udd]) rmSync(d, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 });
+    for (const d of [doc, repo, udd]) { try { rmSync(d, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 }); } catch (_) {} }   // T-1216: best-effort, never ends the process before its verdict
     return 2;
   } finally {
     try { cl && cl.close(); } catch (_) {}
     br.kill(); py.kill();
   }
   await sleep(400);
-  for (const d of [doc, repo, udd]) rmSync(d, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 });
+  for (const d of [doc, repo, udd]) { try { rmSync(d, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 }); } catch (_) {} }   // T-1216: best-effort, never ends the process before its verdict
 
   console.log(out.join('\n'));
   console.log(`\n${npass} passed, ${nfail} failed`);
