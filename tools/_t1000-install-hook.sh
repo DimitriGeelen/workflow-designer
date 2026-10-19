@@ -15,11 +15,19 @@ HOOK="$ROOT/.git/hooks/pre-commit"
 MARK="# 832-T-1000-revendor-gate"
 LINE="bash \"\$(git rev-parse --show-toplevel)/tools/_t1000-revendor-gate.sh\" || exit 1  $MARK"
 
+# T-1208: the boundary-inventory gate (T-1161) lives in the same hook and is erased by the same reinstall; it
+# was lost after both the v1.8.11 and the v1.8.12 upgrade. Every upgrade job already runs this installer right
+# after `fw upgrade`, so it installs (and checks) that gate too; one call covers every 832 line in the hook.
+T1161="$ROOT/tools/_t1161-install-hook.sh"
+
 if [ "${1:-}" = "--check" ]; then
-    grep -qF "$MARK" "$HOOK" 2>/dev/null && { echo "revendor gate: installed in $HOOK"; exit 0; }
-    echo "revendor gate: NOT installed in $HOOK (a hook reinstall removes it; run tools/_t1000-install-hook.sh)"
-    exit 1
+    rc=0
+    if grep -qF "$MARK" "$HOOK" 2>/dev/null; then echo "revendor gate: installed in $HOOK"
+    else echo "revendor gate: NOT installed in $HOOK (a hook reinstall removes it; run tools/_t1000-install-hook.sh)"; rc=1; fi
+    [ -f "$T1161" ] && { bash "$T1161" --check || rc=1; }
+    exit $rc
 fi
+[ -f "$T1161" ] && bash "$T1161" >/dev/null
 [ -f "$HOOK" ] || { echo "no $HOOK: run fw git install-hooks first" >&2; exit 2; }
 if grep -qF "$MARK" "$HOOK"; then echo "already installed"; exit 0; fi
 # Directly after the shebang, so no early `exit 0` in the framework hook can skip it.
