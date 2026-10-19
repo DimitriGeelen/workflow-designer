@@ -135,9 +135,10 @@ We will know that we are successful when we see <measurable signal>.
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [ ] Go/no-go judged by an independent reviewer, who may escalate to the operator (inception-decision class,
+  reviewer-judgeable per `fw task delegate T-1219 --dry-run`). Any change to the frozen standard is decided with AEF, not here.
   **Steps:**
-  1. Run: `fw task review T-1219` (opens Watchtower with recommendation, assumptions, research artifacts)
+  1. Run: `fw reviewer judge T-1219 --criterion 1` (or `fw task review T-1219` to read recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
   3. Record decision via the Watchtower form or the command shown alongside the QR code
   **Expected:** Decision recorded, task completed
