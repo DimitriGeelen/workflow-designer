@@ -45,7 +45,8 @@ import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "src", "aef-workflow-designer.html")
-PROBE = os.path.join(ROOT, "tools", "_t570-meta-carriage-cdp.mjs")
+# T570_PROBE: T-1216 substitutes a stand-in that reports a broken measurement, to exercise COULD NOT MEASURE.
+PROBE = os.environ.get("T570_PROBE") or os.path.join(ROOT, "tools", "_t570-meta-carriage-cdp.mjs")
 LEGS = ("reproduce-drop", "carriage-roundtrip", "carried-escaping", "no-acquisition",
         "no-double-emit", "structured-untouched", "scalar-emits-survives",
         "deterministic-order")
@@ -92,6 +93,23 @@ def verdicts(out):
     return {leg: v.get(leg, "MISSING") for leg in LEGS}
 
 
+def measure(src_path, label):
+    """T-1216: run the probe on a mutant and return its verdicts. `reproduce-drop` reads only the pre-fix rule the
+    probe reconstructs itself, which no mutant touches, so a red there means the measurement broke (seen under
+    load: every leg red, the mutant 'reddening' all eight). That is retried once and then raised as
+    COULD-NOT-MEASURE with the probe's own output, never scored as a mutant that over-kills."""
+    for attempt in (1, 2):
+        _, out = run_probe(src_path)
+        v = verdicts(out)
+        if v.get("reproduce-drop") == "PASS":
+            if attempt == 2:
+                print("NOTE  mutant %s: first run's control leg was red; the retry measured cleanly" % label)
+            return v
+    tail = " | ".join(out.strip().splitlines()[-6:])[:600]
+    raise CouldNotMeasure("mutant %s: the control leg reproduce-drop was red twice, so the probe did not measure "
+                          "(output tail: %s)" % (label, tail))
+
+
 def reddened(v):
     return sorted([k for k, s in v.items() if s != "PASS"])
 
@@ -135,7 +153,7 @@ def main():
         a = os.path.join(scratch, "A.html")
         shutil.copyfile(SRC, a)
         patch(a, NEW_METAATTRS, OLD_METAATTRS, "A")
-        red = reddened(verdicts(run_probe(a)[1]))
+        red = reddened(measure(a, "A"))
         want = ["carriage-roundtrip", "carried-escaping", "deterministic-order",
                 "scalar-emits-survives"]
         report(red == want, "mutant A killed (carriage removed, as shipped)",
@@ -147,7 +165,7 @@ def main():
         patch(d, METAKEYS_TAIL,
               "    'authority', 'determinism', 'sideEffect'];", "D")
         patch(d, NEW_METAATTRS, OLD_METAATTRS, "D2")
-        red = reddened(verdicts(run_probe(d)[1]))
+        red = reddened(measure(d, "D"))
         want = ["carriage-roundtrip", "deterministic-order", "scalar-emits-survives"]
         report(red == want, "mutant D killed (metaKeys widened by the census, no carriage)",
                "reddened %s (want %s — carried-escaping stays GREEN, which is what "
@@ -158,7 +176,7 @@ def main():
         shutil.copyfile(SRC, b)
         patch(b, CARRIED_LINE,
               "  const carriedKeys = aefKeys.filter(k => !scalarHandled.has(k)).sort();", "B")
-        red = reddened(verdicts(run_probe(b)[1]))
+        red = reddened(measure(b, "B"))
         want = ["structured-untouched"]
         report(red == want, "mutant B killed (arrays flattened into the meta bag)",
                "reddened %s (want %s)" % (red, want))
@@ -168,7 +186,7 @@ def main():
         shutil.copyfile(SRC, c)
         patch(c, ENDPOINT_LINE,
               "    'contextReads', 'artifactsWrites', 'decisionInput', 'decisionOutputs',", "C")
-        red = reddened(verdicts(run_probe(c)[1]))
+        red = reddened(measure(c, "C"))
         want = ["no-double-emit"]
         report(red == want, "mutant C killed (endpoint emitted twice)",
                "reddened %s (want %s — the value still round-trips, which is the trap)" % (red, want))

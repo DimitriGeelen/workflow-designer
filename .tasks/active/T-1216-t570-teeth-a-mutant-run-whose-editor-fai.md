@@ -1,13 +1,24 @@
 ---
 id: T-1216
-name: "_t570 teeth: a mutant run whose editor fails to load reads as 'reddened every leg' (FAIL) instead of COULD-NOT-MEASURE"
+name: "_t570 teeth: a mutant run whose editor fails to load reads as 'reddened every
+  leg' (FAIL) instead of COULD-NOT-MEASURE"
 description: >
-  Seen 2026-10-19 twice (in the bridge sweep and once run directly, then green on the next direct run): mutant B ('arrays flattened into the meta bag') expected to redden only structured-untouched, but reddened every leg including reproduce-drop and the control-like legs. That pattern means the mutant's editor did not load (all legs fail together), not that the mutant was mis-killed. The teeth report it as FAIL, so a load hiccup becomes a red sweep. Fix: when a mutant run reddens EVERY leg (or its probe reports editor-not-ready), report COULD-NOT-MEASURE for that mutant and retry once, never PASS. Check the probe reads CDP_READY_MS (T-1211). Also note: _t535-trend-key-teeth takes about 3 min alone and exceeds the sweep's 90 s cap ('did not finish'), a cost question per the sweep's own advice.
+  Seen 2026-10-19 twice (in the bridge sweep and once run directly, then green on
+  the next direct run): mutant B ('arrays flattened into the meta bag') expected to
+  redden only structured-untouched, but reddened every leg including reproduce-drop
+  and the control-like legs. That pattern means the mutant's editor did not load (all
+  legs fail together), not that the mutant was mis-killed. The teeth report it as
+  FAIL, so a load hiccup becomes a red sweep. Fix: when a mutant run reddens EVERY
+  leg (or its probe reports editor-not-ready), report COULD-NOT-MEASURE for that mutant
+  and retry once, never PASS. Check the probe reads CDP_READY_MS (T-1211). Also note:
+  _t535-trend-key-teeth takes about 3 min alone and exceeds the sweep's 90 s cap ('did
+  not finish'), a cost question per the sweep's own advice.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +49,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T16:01:42Z
-last_update: 2026-10-19T16:01:42Z
-date_finished: null
+last_update: 2026-10-19T20:55:45Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +61,56 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-19T20:55:46Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=editor)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1216: _t570 teeth: a mutant run whose editor fails to load reads as 'reddened every leg' (FAIL) instead of COULD-NOT-MEASURE
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Seen three times on 2026-10-19 (mutant B twice, mutant C once in run 5 on c646fc8a): a mutant run reported every
+one of the eight legs red, including `reproduce-drop`, which reads only the pre-fix rule the probe reconstructs itself
+and which no mutant touches (the file's own header: it "must stay GREEN"). So the measurement broke (load: other
+browser work and AEF's own test runs share the host) and was scored as a mutant that over-kills, a false FAIL. The
+same script passes 5/5 standalone on the same source. Separately, `_t535` exceeds the sweep's 90s cap under load.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A mutant run whose control leg `reproduce-drop` is red is not scored: it is retried once, and if still red the
+      script exits 3 COULD NOT MEASURE with the probe's output tail, which the suite already reports as such (T-1060).
+      (`measure()` in tools/_t570-meta-carriage-teeth.py; mutants A-D route through it; a clean retry prints a NOTE.)
+- [x] The teeth still discriminate: the unmutated control and mutants A-D give the same verdicts as before (5/5 green).
+      (Real probe, 2026-10-19: "5 passed, 0 failed", rc 0.)
+- [x] The broken-measurement path is exercised, not assumed: a probe stand-in that reports every leg red makes the
+      script exit 3 with COULD NOT MEASURE, not 1.
+      (tests/fixtures/t1216/probe-broken-measurement.mjs via T570_PROBE: rc 3. The pre-fix script with the same
+      stand-in: rc 1, "1 passed, 4 failed", the false FAIL. Wired as a suite leg, no browser.)
+- [x] `_t572` (same structure, no COULD-NOT-MEASURE path) is recorded here as the same weakness, for its own task if it
+      ever flakes; `_t535` vs the 90s sweep cap is recorded, not changed here.
+      (`_t572` has not flaked in any run today. Run 5 also had `_t423`, `_t534`, `_t535` killed by the sweep's 90s cap
+      while browser work ran beside it and AEF ran its own v1.8.13 tests on the host; learning recorded under T-1217.)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -112,6 +159,10 @@ date_finished: null
 -->
 
 ## Verification
+
+T570_PROBE=tests/fixtures/t1216/probe-broken-measurement.mjs python3 tools/_t570-meta-carriage-teeth.py > /tmp/.t1216-s.out 2>&1; test $? -eq 3 && grep -q '^COULD NOT MEASURE: mutant A' /tmp/.t1216-s.out
+timeout 900 python3 tools/_t570-meta-carriage-teeth.py > /tmp/.t1216-r.out 2>&1 && grep -q '5/5 teeth legs passed' /tmp/.t1216-r.out
+grep -q 'T-1216: a mutant run whose control leg is red' tests/run-bridge-tests.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -338,3 +389,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1216-t570-teeth-a-mutant-run-whose-editor-fai.md
 - **Context:** Initial task creation
+
+### 2026-10-19T20:55:45Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

@@ -3363,6 +3363,18 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1216: a mutant run whose control leg is red is a broken measurement, not an over-killing mutant ──
+# A stand-in probe passes on the real source and reddens every leg (reproduce-drop included) on any mutant; the
+# _t570 teeth must answer COULD NOT MEASURE (exit 3), not FAIL (exit 1). No browser: it runs in a second.
+T1216_RC=0; T570_PROBE="$ROOT/tests/fixtures/t1216/probe-broken-measurement.mjs" python3 "$ROOT/tools/_t570-meta-carriage-teeth.py" > "$TMP/leg-_t1216.out" 2>&1 || T1216_RC=$?
+if [ "$T1216_RC" = 3 ] && grep -q '^COULD NOT MEASURE: mutant A: the control leg reproduce-drop was red twice' "$TMP/leg-_t1216.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "the T-570 teeth scored a broken measurement (control leg red under a mutant) as a verdict again (rc=$T1216_RC, want 3; run 'T570_PROBE=tests/fixtures/t1216/probe-broken-measurement.mjs python3 tools/_t570-meta-carriage-teeth.py'; T-1216)"
+  show_output "$TMP/leg-_t1216.out" "_t570-meta-carriage-teeth.py (stand-in)"
+  fail=$((fail + 1))
+fi
+
 # ── T-1221: guards whose only caller was an active task's Verification, wired before those tasks close ──
 # _t723 stated the review-queue residue (signed-off tasks left unflipped; >30d rows each carrying a reason) only
 # from T-723's Verification, so closing T-723 left it unwired (_t451 ratchet 84 -> 85). _t345 is retired to
