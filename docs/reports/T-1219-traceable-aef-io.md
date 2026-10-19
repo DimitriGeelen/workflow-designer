@@ -53,6 +53,15 @@ BPMN `ioSpecification`/`itemDefinition`, OpenLineage column lineage.
 - 2026-10-19: AEF (msg 53eb5724): a CURIE prefix -> URL template map is in v1.1's scope (T-4415), for validation and
   for our hover link; our plan (preserve now in T-1220, fields after their operator rules on v1.1) matches theirs.
 
+- 2026-10-19: aef-greenfield-test (msg 50ac8f46): T-1220 is what they need first; they start emitting
+  ref/role/cardinality/dataType once we name the release. Counter-points for T-4415, forwarded to AEF as theirs:
+  (a) dataType lacks `string` and `boolean`; (b) `currency` is ambiguous (they mean an ISO currency code;
+  an amount is decimal + currency): `currencyCode` vs `amount`; (c) `role` per input/output, not per step.
+  832 told AEF (a) and (b) look right and per-input role fits our carriers.
+- 2026-10-19: AEF (msg e9f02fa0) adopted all three into T-4415's proposed shape. Revised `dataType` set:
+  id | reference | string | boolean | date | datetime | decimal | amount | currencyCode | percent | picklist;
+  `role` per `aef:input`/`aef:output`. Direct route for the requester: AEF conversation `t4415-traceable-io` (passed on).
+
 ## Findings so far
 
 - **IW-1 answered:** preserving unknown `aef:` attributes is allowed now and costs AEF nothing. It is a separable,

@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1221: Re-wire guards the triage closures orphaned: wire _t723, re-anchor _t344, retire _t345 (AEF T-2735)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T18:48:23Z
+# ============================================================================
+
+task_id: T-1221
+task_name: "Re-wire guards the triage closures orphaned: wire _t723, re-anchor _t344, retire _t345 (AEF T-2735)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-19T17:36:54Z
+completed: 2026-10-19T18:45:54Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-19T20:04:05+02:00
+last_commit: 2026-10-19T20:09:05+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  re-anchor _t344 to v1.8.12's single coverage check (AEF T-2735), leg 8 now audit vs an independent count; _t550 teeth feed that count (5/5); _t345 retired to _t344 leg 8 as a delegate; _t723 and _t345 wired as suite legs (_t451 ratchet back to 84). T-344 and T-345 closed (reviewer green; their checks re-anchored/retired in f5c99b05), guards still at baseline. T-344/T-345 closure content (completes ee86bc84)
+
+# Key outcomes
+outcomes:
+  - '`tools/_t723-review-queue-residue.py --check` runs as a bridge-suite leg, so the T-723 close no longer leaves it'
+  - '`tools/_t344-watch-set-denominator.sh` re-anchored to v1.8.12''s `audit.sh`, where the coverage verdict moved into'
+  - '`tools/_t345-fabric-check-agreement.sh` retired: its premise (two coverage checks that must agree) is gone upstream.'
+  - 'A full bridge run on the resulting HEAD is green, run alone with no commits during it.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-344.yaml'
+  - '.context/episodic/T-345.yaml'
+  - '.tasks/completed/T-344-fabric-watch-patternsyaml-is-the-untailo.md'
+  - '.tasks/completed/T-345-audit-fabric-coverage-check-is-a-broken-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t344-watch-set-denominator.sh'
+  - 'tools/_t345-fabric-check-agreement.sh'
+  - 'tools/_t550-audit-parse-anchor-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T20:04:05'
+    action: 'T-1221: re-anchor _t344 to v1.8.12''s single coverage check (AEF T-2735), leg 8 now audit vs an independent count; _t550 teeth feed that count (5/5); _t345 retired to _t344 leg 8 as a delegate; _t723 and _t345 wired as suite legs (_t451 ratchet back to 84)'
+  - time: '2026-10-19T20:07:38'
+    action: 'T-1221: T-344 and T-345 closed (reviewer green; their checks re-anchored/retired in f5c99b05), guards still at baseline'
+  - time: '2026-10-19T20:09:05'
+    action: 'T-1221: T-344/T-345 closure content (completes ee86bc84)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 69 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 69
+  commits: 3
+  files_changed: 9
+  lines_added: 374
+  lines_removed: 234
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1221-re-wire-guards-the-triage-closures-orpha.md
+generated_by: context-agent-hybrid

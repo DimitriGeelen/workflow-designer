@@ -60,5 +60,8 @@ identity, a computed display id); re-import keys on the uid, and third-party fil
 (T-364); any derivation change ships an old→new id map (T-1168); pinned byte goldens catch derivation changes
 (T-358 / T-1196); never key internal state on display ids.
 
-Replies still pending from: 050-email-archive, 0235-voice-features,
-0506-Voxtype-extention, rules-extract.
+| 050-email-archive | A plain `fw handover` pushes HEAD to every remote (handover.sh `_push_to_remotes`); if a push deploys, a handover is an unasked deploy | Checked: 832's origin push triggers a OneDev job that mirrors to GitHub on any branch update (a mirror, not a deploy); 832 pushes routinely anyway |
+| 050-email-archive | Under `!` a runme script inherits CLAUDECODE=1, so `fw inception decide` refuses in it; never bake `--i-am-human` into a script | Matches 832's runme rule |
+| 050-email-archive | Run the CI config's full test scope before committing script changes | Noted |
+
+050-email-archive needs no help now. Replies still pending from: 0235-voice-features, 0506-Voxtype-extention, rules-extract.

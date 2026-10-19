@@ -4,12 +4,13 @@ name: "Re-wire guards the triage closures orphaned: wire _t723, re-anchor _t344,
 description: >
   Re-wire guards the triage closures orphaned: wire _t723, re-anchor _t344, retire _t345 (AEF T-2735)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t344-watch-set-denominator.sh, tools/_t345-fabric-check-agreement.sh, tools/_t550-audit-parse-anchor-teeth.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T17:36:54Z
-last_update: 2026-10-19T17:36:54Z
-date_finished: null
+last_update: 2026-10-19T18:45:54Z
+date_finished: 2026-10-19T18:45:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -62,14 +63,20 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `tools/_t723-review-queue-residue.py --check` runs as a bridge-suite leg, so the T-723 close no longer leaves it
+- [x] `tools/_t723-review-queue-residue.py --check` runs as a bridge-suite leg, so the T-723 close no longer leaves it
       without a caller; `python3 tools/_t451-unwired-guard-census.py --ratchet` is back at its baseline (84), without
-      editing the baseline upward.
-- [ ] `tools/_t344-watch-set-denominator.sh` re-anchored to v1.8.12's `audit.sh`, where the coverage verdict moved into
+      editing the baseline upward. (f5c99b05: T1221_GUARDS block in run-bridge-tests.sh; ratchet "baseline 84, current
+      findings 84", also after T-344/T-345 closed.)
+- [x] `tools/_t344-watch-set-denominator.sh` re-anchored to v1.8.12's `audit.sh`, where the coverage verdict moved into
       the drift check (AEF T-2735): it passes on the live tree and still goes red when the watch set is empty (teeth shown).
-- [ ] `tools/_t345-fabric-check-agreement.sh` retired: its premise (two coverage checks that must agree) is gone upstream.
+      (9/9 live; leg 8 is now audit vs an independent count, 102 of 603 agreeing. Teeth: empty watch set → legs 1-2 red,
+      rc 1; an audit copy whose empty-set WARN became PASS → block 2 red, rc 1. `_t550` teeth updated to feed the count, 5/5.
+      One unexplained `8 passed, 2 failed` run under the `_t345` delegate, not reproduced in 7 further runs or the suite.)
+- [x] `tools/_t345-fabric-check-agreement.sh` retired: its premise (two coverage checks that must agree) is gone upstream.
       Retired with the reason in the file header and the T-345 Decisions, not silently deleted; no other caller breaks.
-- [ ] A full bridge run on the resulting HEAD is green, run alone with no commits during it.
+      (Delegates to `_t344`, failing if it is missing or red; wired as a suite leg like `_t639`.)
+- [x] A full bridge run on the resulting HEAD is green, run alone with no commits during it.
+      (HEAD 0b45ce84, 2026-10-19: 301 passed, 0 failed; nothing committed during it.)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -118,6 +125,13 @@ date_finished: null
 -->
 
 ## Verification
+
+bash tools/_t344-watch-set-denominator.sh > /tmp/.t1221-344.out 2>&1 && grep -q 'coverage checks agree:' /tmp/.t1221-344.out
+bash tools/_t345-fabric-check-agreement.sh > /tmp/.t1221-345.out 2>&1 && grep -q 'RETIRED (T-1221)' /tmp/.t1221-345.out
+timeout 900 python3 tools/_t550-audit-parse-anchor-teeth.py > /tmp/.t1221-550.out 2>&1 && grep -q '5/5 legs passed' /tmp/.t1221-550.out
+python3 tools/_t723-review-queue-residue.py --check
+python3 tools/_t451-unwired-guard-census.py --ratchet > /tmp/.t1221-451.out 2>&1; grep -qE 'RATCHET: baseline ([0-9]+), current findings \1$' /tmp/.t1221-451.out
+grep -q 'T1221_GUARDS=' tests/run-bridge-tests.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -344,3 +358,21 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1221-re-wire-guards-the-triage-closures-orpha.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b3cd8a6d
+- **Timestamp:** 2026-10-19T18:48:15Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-19T18:45:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Guards re-wired/re-anchored/retired; full bridge run 301/0 on 0b45ce84
