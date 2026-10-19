@@ -4,12 +4,13 @@ name: "_t589 probe snapshots the pre-change baseline before its map loads: the b
 description: >
   _t589 probe snapshots the pre-change baseline before its map loads: the baseline build predates _deepLinkSettled, so readiness never waits for ?load
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t589-panel-links-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T21:55:15Z
-last_update: 2026-10-19T21:55:15Z
-date_finished: null
+last_update: 2026-10-19T21:58:33Z
+date_finished: 2026-10-19T21:58:33Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -364,3 +365,21 @@ build into the same `waitReady` share the exposure; none flaked in today's runs.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1224-t589-probe-snapshots-the-pre-change-base.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a50010c6
+- **Timestamp:** 2026-10-19T21:58:51Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-19T21:58:33Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** probe race fixed; 10/10 standalone
