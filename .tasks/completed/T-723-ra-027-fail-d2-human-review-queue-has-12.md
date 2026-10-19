@@ -6,12 +6,13 @@ description: >
   and 2 are signed off awaiting only the status flip. 22 more wait over 14 days. Human
   ACs are the operator's alone to tick.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [arc-003, audit-remediation, RA-027]
-components: []
+components: [tools/_t723-review-queue-residue.py]
 related_tasks: []
 arc_id: arc-003
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -19,8 +20,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:26:05Z
-last_update: 2026-09-29T17:23:05Z
-date_finished:
+last_update: 2026-10-19T16:28:21Z
+date_finished: 2026-10-19T16:28:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -261,6 +262,22 @@ grep -q "signed off, awaiting only the status flip" .agentic-framework/agents/au
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** `fw audit` D2 FAILed: 12 tasks had waited over 30 days for a Human criterion (oldest 73 days), and two
+of them were already signed off, needing only the status flip.
+
+**Root cause:** every Human criterion was routed to the operator by default, whatever it asked for, so taste and
+deterministic checks queued behind one person; and a signed-off task needed a second, separate action (the status
+flip) that nothing prompted, so it sat in the same queue and was counted as review backlog.
+
+**Why structurally allowed:** D2 reported one number for two different states (awaiting judgement vs awaiting a
+flip), so the backlog looked like a review problem only, and no rule said who else may judge a Human criterion.
+
+**Prevention:** the residue is checked by `tools/_t723-review-queue-residue.py --check` (Verification), which states
+the two counts separately and fails on any signed-off task left unflipped; routing now follows AEF's ruleset
+(PD-357, `lib/delegation.py`): only act-in-the-world, tier-0/bypass and sovereignty criteria stay with the operator,
+everything else goes to `fw reviewer judge`, and since 2026-10-19 ownership is set by an initial risk assessment
+rather than defaulting to the human.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -284,6 +301,13 @@ grep -q "signed off, awaiting only the status flip" .agentic-framework/agents/au
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-10-19 — what the backlog turned out to be
+- **What changed:** the FAIL read as a review backlog; part of it was unflipped statuses (T-093, T-178), and most
+  of the rest was criteria that never needed the operator at all.
+- **Plan impact:** closing the queue by asking the operator faster would not have held; routing had to change.
+- **Triggered:** PD-357 (review routing follows AEF's ruleset), T-1079/T-1080 (`_t770` routes through
+  `fw task classify-ac`), and the 2026-10-19 ownership-by-risk ruling; this task's own residue check stays in Verification.
 
 ## Decisions
 
@@ -318,3 +342,16 @@ grep -q "signed off, awaiting only the status flip" .agentic-framework/agents/au
 
 ### 2026-09-29T17:23:05Z — status-update [task-update-agent]
 - **Change:** owner: human → agent
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-c0a64a09
+- **Timestamp:** 2026-10-19T16:28:24Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-19T16:28:21Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Triage 2026-10-19 group A: Agent criteria ticked, RCA and Evolution written, gate re-run

@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-105: Baked corpus regression: aligned gateways collide their edge-labels (verification-gate)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T16:30:11Z
+# ============================================================================
+
+task_id: T-105
+task_name: "Baked corpus regression: aligned gateways collide their edge-labels (verification-gate)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T17:30:00Z
+completed: 2026-10-19T16:29:55Z
+duration_days: 106
+updates_count: 2
+first_commit: 2026-07-05T20:09:14+02:00
+last_commit: 2026-07-06T01:20:06+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Capture baked-corpus regression — verification-gate gateway labels collide. Persist PL-014 — node-cut census + Clean-rebake-gated-on-T-105 learning. Correct root cause — horizontal name overcrowding, not align-rows co-linearity. Fix gateway/event NAME label collision via conditional wrapping
+
+# Key outcomes
+outcomes:
+  - 'Cause confirmed empirically (headless): the align-rows/edge-label hypothesis was'
+  - 'Decision recorded: fix in the editor''s node-label rendering via CONDITIONAL'
+  - 'Fix implemented — `deCollideBelowLabels()` post-pass. Corpus metric (headless,'
+  - 'Corpus geometry did NOT change (render-only fix — no re-bake needed); suites green'
+  - 'Change synced byte-identical to `build/gallery/designer.html`'
+  - 'Before/after screenshots of verification-gate AND git-commit-flow READ, confirming'
+  - '[REVIEW] verification-gate (and neighbours) open with readable, non-overlapping'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Fix gateway/event NAME label collision via conditional wrapping'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-06 — Fix locus: conditional node-label wrapping'
+    chose: 'Wrap gateway/event NAME labels, but ONLY the ones that actually collide with a neighbouring below-label (`deCollideBelowLabels()` post-pass, measure → wrap colliders tighter → re-measure, bounded iterations).'
+    rationale: 'The collision is node-name ∩ node-name (edge-labels were already 0, so the T-082/T-089 edge-label machinery was the wrong locus). Wrapping shrinks the horizontal footprint so adjacent names clear. Conditional (not global) wrapping is the key: it leaves every uncontested label single-line, so densely packed maps gain no new vertical collisions.'
+    alternatives_rejected: ['(a) Unconditional wrapping of all gateway/event names — measured to fix the 2 target overlaps but introduce 4 NEW collisions (taller blocks in tight maps, relocated into each other by adjustLabelPlacements). (b) Making Clean/align-rows label-aware — the geometry was never the cause. (c) Shortening names in the YAML — loses information; a rendering fix generalises to any long name.']
+  - decision: '2026-07-06 — Out of scope: name ∩ node-box overlaps'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-105-baked-verification-gate-gateway-label-collision.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-07-05T20:09:14'
+    action: 'T-105: Capture baked-corpus regression — verification-gate gateway labels collide'
+  - time: '2026-07-05T22:54:21'
+    action: 'T-105: Persist PL-014 — node-cut census + Clean-rebake-gated-on-T-105 learning'
+  - time: '2026-07-06T00:19:49'
+    action: 'T-105: Correct root cause — horizontal name overcrowding, not align-rows co-linearity'
+  - time: '2026-07-06T01:20:06'
+    action: 'T-105: Fix gateway/event NAME label collision via conditional wrapping'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 152579 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [ui, editor, bug, corpus]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 152579
+  commits: 4
+  files_changed: 3
+  lines_added: 275
+  lines_removed: 23
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-105-baked-verification-gate-gateway-label-collision.md
+generated_by: context-agent-hybrid

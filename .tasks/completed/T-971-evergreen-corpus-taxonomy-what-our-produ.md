@@ -4,10 +4,11 @@ name: "Evergreen corpus taxonomy: what our product let them produce, and which o
 description: >
   Evergreen corpus taxonomy: what our product let them produce, and which of it we must not straighten
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T16:24:18Z
-last_update: 2026-10-01T16:26:56Z
-date_finished: null
+last_update: 2026-10-19T16:29:21Z
+date_finished: 2026-10-19T16:29:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -314,6 +315,17 @@ test "$(git ls-files | grep -c 'docs/views/bpmn')" -eq 0
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
 
+**Recommendation:** GO (close: the taxonomy is delivered)
+**Rationale:** The deliverable is the report, and it is complete: it classifies what the corpus contains and
+names what must not be straightened, with the reason (a disconnected map can be honest missing knowledge, as in
+`bo-production`). Whether Evergreen work continues at all is a separate operator question (T-968/T-989, keep or
+drop) and does not depend on this task staying open.
+**Evidence:**
+- `docs/reports/T-971-evergreen-corpus-taxonomy.md` has the Class A.. sections, "Could the designer have
+  prevented", and "Do not touch" (Verification lines 2-4, all PASS on 2026-10-19).
+- No Evergreen map was committed: `git ls-files build/evergreen-intake` is empty (Verification line 5).
+- All 6 Agent criteria ticked; no Human criterion (`fw task delegate T-971 --dry-run`: 0 open).
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -344,13 +356,13 @@ test "$(git ls-files | grep -c 'docs/views/bpmn')" -eq 0
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-ff73151c
-- **Timestamp:** 2026-10-01T16:26:40Z
+- **Scan ID:** R-ec3db088
+- **Timestamp:** 2026-10-19T16:29:23Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
-- **Needs Human:** yes
+- **Needs Human:** no
 - **Findings:** none
 
-- **Layer-1 escalations:** 1
-  1. **destructive-action** (high) — Destructive operation in verification or AC
-     - matched: `destroy`
+### 2026-10-19T16:29:21Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Triage 2026-10-19 group A: report delivered, all criteria ticked, gate re-run

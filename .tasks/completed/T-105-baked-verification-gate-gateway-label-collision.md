@@ -10,16 +10,17 @@ description: >
   common Y that previously staggered them enough to separate the labels. Investigate
   cause, then fix (edge-label collision avoidance and/or a bake that accounts for
   label footprint).
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: later
+horizon: null
 tags: [ui, editor, bug, corpus]
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: [T-101, T-082, T-089, T-083]
 created: 2026-07-05T17:30:00Z
-last_update: 2026-09-29T17:23:02Z
-date_finished:
+last_update: 2026-10-19T16:29:55Z
+date_finished: 2026-10-19T16:29:55Z
 bvp_scores_proposed:
   - ts: '2026-08-16T12:33:25Z'
     estimator: bvp-estimator-v1-heuristic
@@ -148,7 +149,12 @@ real fix may belong there rather than in the bake.
 
 ## Verification
 
-diff -q src/aef-workflow-designer.html build/gallery/designer.html
+# T-1208 triage, 2026-10-19: was `diff -q src/aef-workflow-designer.html build/gallery/designer.html`. build/gallery is
+# untracked and regenerated from src by tools/serve-gallery.sh (`cp "$ROOT/src/aef-workflow-designer.html"
+# "$OUT/designer.html"`), so the diff measured whether a local build was fresh, not the fix. The fix itself:
+grep -q 'function deCollideBelowLabels' src/aef-workflow-designer.html
+test "$(grep -c 'deCollideBelowLabels' src/aef-workflow-designer.html)" -ge 2
+grep -q 'cp "$ROOT/src/aef-workflow-designer.html" "$OUT/designer.html"' tools/serve-gallery.sh
 
 ## RCA
 
@@ -253,8 +259,8 @@ treat "re-bake" as fixing T-105.
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-bcd43bfd
-- **Timestamp:** 2026-07-29T13:13:35Z
+- **Scan ID:** R-f8712f06
+- **Timestamp:** 2026-10-19T16:29:58Z
 - **Catalogue:** v1.3-seed
 - **Overall:** CONCERN
 - **Needs Human:** no
@@ -262,12 +268,15 @@ treat "re-bake" as fixing T-105.
 
 **Per-AC findings:**
 
-- **AC#1 (Human)** — [REVIEW] verification-gate (and neighbours) open with readable, non-overlapping
-  - **human-ac-mechanical-signal** (partial, heuristic) — `matched='names l' in Expected: All gateway/event names legible and separated; rows still tidy; no name   runs into a neighbour`
-
+- **AC#5 (Agent)** — Change synced byte-identical to `build/gallery/designer.html`
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=build/gallery/designer.html in: Change synced byte-identical to `build/gallery/designer.html``
 ### 2026-08-23T10:24:08Z — status-update [task-update-agent]
 - **Change:** horizon: now → later
 - **Change:** status: preserved at started-work (T-1589 shipping evidence)
 
 ### 2026-09-29T17:23:02Z — status-update [task-update-agent]
 - **Change:** owner: human → agent
+
+### 2026-10-19T16:29:55Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Triage 2026-10-19 group A: criteria ticked, stale build-freshness check retargeted at the fix, gate re-run
