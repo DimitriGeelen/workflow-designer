@@ -82,13 +82,19 @@ def transcript(coverage_line, drift_line, trend=True):
     return "\n".join(parts) + "\n"
 
 
-def run_guard(text):
-    """Run the real guard over a recorded report. Returns its leg-8 line."""
+def run_guard(text, independent=None):
+    """Run the real guard over a recorded report. Returns its leg-8 line.
+
+    T-1221: since AEF T-2735 the audit prints ONE coverage count, and the guard compares it with an
+    independent count of its own; `independent` ("<unregistered> <watched>") stands in for that count
+    beside a recorded transcript, as the transcript stands in for the audit."""
     fd, path = tempfile.mkstemp(prefix="t550-transcript-", suffix=".txt")
     try:
         with os.fdopen(fd, "w") as fh:
             fh.write(text)
         env = dict(os.environ, T344_AUDIT_TRANSCRIPT=path)
+        if independent is not None:
+            env["T344_INDEPENDENT"] = independent
         p = subprocess.run(["bash", GUARD], cwd=ROOT, env=env,
                            capture_output=True, text=True, timeout=600, check=False)
         out = p.stdout + p.stderr
@@ -130,13 +136,15 @@ def main():
             print("  FAIL  %s%s" % (name, ("\n        " + detail) if detail else ""))
 
     LIVE = "[WARN] Fabric: 59 registered, 199 unregistered (of 255 watched — 23% covered, cards flat since earlier today (59))"
-    DRIFT199 = "[WARN] Fabric drift: 199 source file(s) have no fabric card"
-    DRIFT150 = "[WARN] Fabric drift: 150 source file(s) have no fabric card"
+    # T-1221: the audit no longer prints a "Fabric drift: N source file(s)" line (AEF T-2735 folded the two
+    # checks into one), so the second number comes from the guard's independent count, supplied here.
+    AGREE = "199 255"
+    DIFFER = "150 255"
 
     # ── leg 1: the reported defect ─────────────────────────────────────────────────────────
     # Live finding says 199/255. A trend echo in the old shape says 185/222. The guard must
     # read the live one and conclude agreement.
-    line, out = leg1 = run_guard(transcript(LIVE, DRIFT199))
+    line, out = leg1 = run_guard(transcript(LIVE, None), AGREE)
     leg("1 a trend echo of the OLD message shape does not become today's number",
         "agree" in line and "199" in line and "255" in line and "185" not in line,
         "leg 8 said: %r. This is the T-550 defect verbatim: the live finding is 199 of 255 and "
@@ -145,8 +153,8 @@ def main():
 
     # ── leg 2: the guard still catches a REAL disagreement ─────────────────────────────────
     # Without this, leg 1 is satisfied by a guard that has stopped comparing anything.
-    line, _ = run_guard(transcript(LIVE, DRIFT150))
-    leg("2 a genuine disagreement between the two live findings is still reported",
+    line, _ = run_guard(transcript(LIVE, None), DIFFER)
+    leg("2 a genuine disagreement between the live finding and the independent count is still reported",
         "DISAGREE" in line and "199" in line and "150" in line,
         "leg 8 said: %r. A repair that made the guard agreeable rather than accurate would "
         "pass leg 1 and be worse than the defect." % line)
@@ -154,7 +162,7 @@ def main():
     # ── leg 3: a stale anchor must abstain, not fall through ───────────────────────────────
     # No live coverage finding at all, trend echo present. The old code would have matched the
     # echo; the requirement is that the guard says its anchor is stale.
-    line, out = run_guard(transcript(None, DRIFT199))
+    line, out = run_guard(transcript(None, None), AGREE)
     leg("3 no live coverage finding ABSTAINS loudly instead of matching the trend echo",
         "anchor has gone stale" in out and "185" not in line,
         "leg 8 said: %r. With no current finding the only text resembling one is the "
@@ -163,11 +171,11 @@ def main():
 
     # ── leg 4: full coverage is read from a finding, not from anywhere ─────────────────────
     line, _ = run_guard(transcript(
-        "[PASS] Fabric: 59 registered, 0 unregistered (of 255 watched)", None))
+        "[PASS] Fabric: 59 registered, 0 unregistered (of 255 watched)", None), "0 255")
     leg("4 full coverage is recognised, and from a severity-marked finding",
-        "full coverage" in line,
-        "leg 8 said: %r. Zero unregistered is the one legitimate reason the drift count is "
-        "absent, and it must still be read off the audit's own verdict." % line)
+        "agree" in line and "0 unregistered of 255" in line,
+        "leg 8 said: %r. Zero unregistered must be read off the audit's own verdict and "
+        "still be compared with the independent count (T-1221)." % line)
 
     # ── leg 5: the fixtures still resemble the real report ─────────────────────────────────
     # Legs 1-4 are only worth their green while the transcripts look like what the audit

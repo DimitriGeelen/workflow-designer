@@ -69,42 +69,44 @@ fi
 # re-introducing it here would be invisible to a one-armed test.
 drive() { # <branch-text> <env assignments...>
   local branch="$1"; shift
-  env "$@" bash -c "pass(){ echo \"PASS|\$1\"; }; warn(){ echo \"WARN|\$1\"; }; fail(){ echo \"FAIL|\$1\"; }; $branch" 2>&1
+  env "$@" bash -c "pass(){ echo \"PASS|\$1\"; }; warn(){ echo \"WARN|\$1\"; }; fail(){ echo \"FAIL|\$1\"; }; pass_over(){ echo \"PASS|\$3\"; }; $branch" 2>&1
 }
 
-# T-374 moved this branch head: the expander-unavailable arm was inserted ahead of
-# the empty-watch-set arm, so the anchor is now FABRIC_EXPAND_OK. This probe caught
-# that as "it moved; re-anchor" rather than passing over a branch it could no longer
-# find — which is the whole reason the branch is extracted instead of restated.
-# FABRIC_EXPAND_OK=1 in both drives keeps the EMPTY-SET arm the one under test;
-# without it the new first arm would answer, and this leg would silently change
-# subject while still looking green.
-b1=$(awk '/^        if \[ "\$\{FABRIC_EXPAND_OK:-1\}" -eq 0 \]; then$/{f=1} f{print} f && /^        fi$/{exit}' "$AUDIT")
+# T-1221: since AEF T-2735 (vendored with 1.7.68) audit.sh has ONE coverage check, the drift block in
+# check_fabric_coverage. Its verdict chain is extracted as block 1, and the empty-watch-set signal that
+# follows it as block 2. The anchors before T-1221 (FABRIC_EXPAND_OK, `drift_watched:-0 -eq 0`) named
+# the two pre-T-2735 blocks and reported "it moved" from v1.7.68 on, which is the extraction doing its job.
+b1=$(awk '/^    if ! \[\[ "\$drift_unreg" =~ \^\[0-9\]\+\$ \]\]; then$/{f=1} f{print} f && /^    fi$/{exit}' "$AUDIT")
 if [ -z "$b1" ]; then
-  bad "could not extract the 'Fabric:' verdict branch from audit.sh — it moved; re-anchor"
+  bad "could not extract the 'Fabric:' coverage verdict chain from audit.sh — it moved; re-anchor"
 else
-  empty=$(drive "$b1" FABRIC_EXPAND_OK=1 fabric_watched=0 fabric_unreg=0 fabric_registered=17)
-  full=$(drive "$b1" FABRIC_EXPAND_OK=1 fabric_watched=146 fabric_unreg=0 fabric_registered=17)
-  case "$empty" in
-    WARN*UNMEASURED*) ok "block 1: watched=0 raises WARN naming coverage UNMEASURED" ;;
-    *)                bad "block 1: watched=0 emits: $empty" ;;
+  broken=$(drive "$b1" drift_unreg=ERR drift_total=17 drift_watched=0 CONTEXT_DIR=/nonexistent)
+  gap=$(drive "$b1" drift_unreg=40 drift_total=17 drift_watched=146 CONTEXT_DIR=/nonexistent)
+  full=$(drive "$b1" drift_unreg=0 drift_total=17 drift_watched=146 CONTEXT_DIR=/nonexistent)
+  case "$broken" in
+    FAIL*UNMEASURED*) ok "block 1: a failed expander raises FAIL naming coverage UNMEASURED" ;;
+    *)                bad "block 1: a failed expander emits: $broken" ;;
   esac
-  if [ "$empty" != "$full" ]; then
-    ok "block 1: watched=0 and watched=146 emit DIFFERENT verdicts — not constant"
+  case "$gap" in
+    WARN*"40 unregistered (of 146 watched"*) ok "block 1: unregistered files raise WARN with the count and its denominator" ;;
+    *)                                        bad "block 1: 40 of 146 unregistered emits: $gap" ;;
+  esac
+  if [ "$broken" != "$full" ] && [ "$gap" != "$full" ]; then
+    ok "block 1: broken, gap and full coverage emit three DIFFERENT verdicts — not constant"
   else
-    bad "block 1: an empty watch set is indistinguishable from a full one: $empty"
+    bad "block 1: verdicts collapse (broken=$broken | gap=$gap | full=$full)"
   fi
 fi
 
-b2=$(awk '/^    if \[ "\$\{drift_watched:-0\}" -eq 0 \] 2>\/dev\/null; then$/{f=1} f{print} f && /^    fi$/{exit}' "$AUDIT")
+b2=$(awk '/^    if \[\[ "\$drift_watched" =~ \^\[0-9\]\+\$ \]\] && \[ "\$drift_watched" -eq 0 \] \\$/{f=1} f{print} f && /^    fi$/{exit}' "$AUDIT")
 if [ -z "$b2" ]; then
-  bad "could not extract the 'Fabric drift:' verdict branch from audit.sh — it moved"
+  bad "could not extract the empty-watch-set branch from audit.sh — it moved; re-anchor"
 else
-  empty=$(drive "$b2" drift_watched=0 drift_unreg=0 drift_total=17)
-  full=$(drive "$b2" drift_watched=146 drift_unreg=0 drift_total=17)
+  empty=$(drive "$b2" drift_watched=0 drift_total=17 drift_carded_unwatched=0)
+  full=$(drive "$b2" drift_watched=146 drift_total=17 drift_carded_unwatched=0)
   case "$empty" in
-    WARN*"nothing was checked"*) ok "block 2: watched=0 raises WARN naming that nothing was checked" ;;
-    *)                           bad "block 2: watched=0 emits: $empty" ;;
+    WARN*"matches 0 files"*) ok "block 2: watched=0 with cards present raises WARN naming the empty watch set" ;;
+    *)                       bad "block 2: watched=0 emits: $empty" ;;
   esac
   if [ "$empty" != "$full" ]; then
     ok "block 2: watched=0 and watched=146 emit DIFFERENT verdicts — not constant"
@@ -174,7 +176,27 @@ else
 fi
 findings=$(printf '%s\n' "$audit_out" | grep -E '^\[(PASS|WARN|FAIL|INFO)\]' || true)
 c1=$(printf '%s\n' "$findings" | sed -n 's/^\[[A-Z]*\] Fabric: [0-9]\+ registered, \([0-9]\+\) unregistered (of \([0-9]\+\) watched.*/\1 \2/p' | head -1)
-c2=$(printf '%s\n' "$findings" | sed -n 's/^\[[A-Z]*\] Fabric drift: \([0-9]\+\) source file(s) have no fabric card.*/\1/p' | head -1)
+# T-1221: since AEF T-2735 the audit has ONE coverage count, so the second number is no longer the audit's
+# old "Fabric drift:" line but an INDEPENDENT count made here: watched files (expand_patterns.py) that no
+# card in .fabric/components names as its location. T344_INDEPENDENT ("<unregistered> <watched>") stands in
+# for it beside a recorded transcript, so the T-550 teeth can present both sides without this tree.
+if [ -n "${T344_INDEPENDENT:-}" ]; then
+  ind="$T344_INDEPENDENT"
+else
+  ind=$(cd "$REPO" && python3 "$EXPANDER" "$WATCH" "$REPO" 2>/dev/null | python3 -c "
+import sys, glob, yaml
+locs = set()
+for p in glob.glob('.fabric/components/*.yaml'):
+    try:
+        d = yaml.safe_load(open(p))
+    except Exception:
+        continue
+    if isinstance(d, dict) and d.get('location'):
+        locs.add(d['location'])
+w = [l.strip() for l in sys.stdin if l.strip()]
+print(len([f for f in w if f not in locs]), len(w))")
+fi
+c2=$(echo "$ind" | awk '{print $1}'); d2=$(echo "$ind" | awk '{print $2}')
 n1=$(echo "$c1" | awk '{print $1}'); d1=$(echo "$c1" | awk '{print $2}')
 if [ -z "$n1" ] || [ -z "$c2" ]; then
   # Full coverage is the one legitimate reason a count is absent, and it too must be read off
@@ -188,12 +210,12 @@ if [ -z "$n1" ] || [ -z "$c2" ]; then
     bad "      TREND ANALYSIS reprints old findings verbatim, so a widened anchor silently"
     bad "      matches a historical aggregate and reports it as today (T-550)."
   fi
-elif [ "$n1" = "$c2" ] && [ "${d1:-0}" -gt 0 ]; then
-  ok "audit's two coverage checks agree: $n1 unregistered of $d1 watched"
+elif [ "$n1" = "$c2" ] && [ "$d1" = "$d2" ] && [ "${d1:-0}" -gt 0 ]; then
+  ok "audit and the independent count: coverage checks agree: $n1 unregistered of $d1 watched"
 else
-  bad "the two coverage checks DISAGREE ($n1 vs $c2, denominator $d1) — this is the"
-  bad "      T-345 defect, and it is only visible over a non-empty watch set."
-  bad "      Both numbers were read from severity-marked findings in this run's own"
+  bad "coverage checks DISAGREE (audit $n1 of $d1, independent $c2 of $d2) — the T-345"
+  bad "      defect class, visible only over a non-empty watch set."
+  bad "      The audit's number was read from a severity-marked finding in this run's own"
   bad "      output, so this is a live disagreement and not a trend echo (T-550)."
 fi
 

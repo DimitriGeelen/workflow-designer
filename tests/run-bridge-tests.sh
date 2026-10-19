@@ -3317,6 +3317,28 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1221: guards whose only caller was an active task's Verification, wired before those tasks close ──
+# _t723 stated the review-queue residue (signed-off tasks left unflipped; >30d rows each carrying a reason) only
+# from T-723's Verification, so closing T-723 left it unwired (_t451 ratchet 84 -> 85). _t345 is retired to
+# _t344 leg 8 (AEF T-2735 left one coverage check) and stays wired as a delegate, like _t639.
+T1221_GUARDS=(
+  'python3|tools/_t723-review-queue-residue.py --check|the review-queue residue: a signed-off task is left unflipped, or a >30d row has no reason (T-723)'
+  'bash|tools/_t345-fabric-check-agreement.sh|RETIRED to _t344 leg 8 (audit coverage count vs an independent count); fails if its successor is missing or red (T-345, T-1221)'
+)
+for _entry in "${T1221_GUARDS[@]}"; do
+  _run="${_entry%%|*}"; _rest="${_entry#*|}"; _cmd="${_rest%%|*}"; _why="${_rest#*|}"
+  _tool="${_cmd%% *}"; _tool="${_tool#tools/}"
+  _args=""; case "$_cmd" in *" "*) _args="${_cmd#* }" ;; esac
+  # shellcheck disable=SC2086
+  if (cd "$ROOT" && timeout 600 $_run "$ROOT/tools/$_tool" $_args) > "$TMP/leg-t1221-$_tool.out" 2>&1; then
+    pass=$((pass + 1))
+  else
+    report FAIL "guard $_tool failed: $_why (run '$_run $_cmd'; T-1221)"
+    show_output "$TMP/leg-t1221-$_tool.out" "$_tool"
+    fail=$((fail + 1))
+  fi
+done
+
 echo
 echo "== A cheaper stimulus is not a deleted test (T-549) =="
 
