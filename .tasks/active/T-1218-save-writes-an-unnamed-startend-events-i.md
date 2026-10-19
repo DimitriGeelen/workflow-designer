@@ -65,6 +65,10 @@ start/end events: unnamed tasks and gateways take the same path. The reporter as
 id label may be deliberate (an empty task box is hard to find), so the fix keeps the display fallback, if any, out of
 the saved `name` rather than changing what every node shows. Decide and record which.
 
+**Reproduced 2026-10-19 (scratch probe, src at 4008ed51, not yet a wired leg):** `Start_8` (no name), `Start_9`
+(`name=""`), `End_10` (no name) and an unnamed `<bpmn:task id="Task_1">` all come back from parse + save with their id
+as `name` (`name="Start_8"`, ..., `name="Task_1"`). Confirms the import fallback, for tasks too.
+
 ## Acceptance Criteria
 
 ### Agent

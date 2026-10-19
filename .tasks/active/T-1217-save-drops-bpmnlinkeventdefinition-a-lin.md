@@ -69,6 +69,11 @@ event, and the save writes it back (id + name) beside `aef:link` — additive, s
 or (b) carry unknown native child elements through verbatim. (a) revisits T-190 IW-1 for one element only and should
 be recorded as a Decision here, with the same question asked for error/timer/message definitions (T-204).
 
+**Reproduced 2026-10-19 (scratch probe, src at 4008ed51, not yet a wired leg):** a throw and a catch each carrying
+`<bpmn:linkEventDefinition name="Purchasing">` import as `linkEventThrow` / `linkEventCatch` (type kept), but the save
+writes neither `linkEventDefinition` nor `aef:link`: the pairing name is lost completely, not just its native form.
+So the defect is worse than the report: our own `aef:link` encoding is not filled from the native one either.
+
 ## Acceptance Criteria
 
 ### Agent
