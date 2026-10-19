@@ -50,6 +50,9 @@ BPMN `ioSpecification`/`itemDefinition`, OpenLineage column lineage.
   - **(c)** AEF's forward compile (`tools/bpmn_to_tasks.py`) does not read `aef:io` today; a new attribute reaches their
     corpus verbatim but nothing acts on it. Whether it starts reading is part of T-4415.
 
+- 2026-10-19: AEF (msg 53eb5724): a CURIE prefix -> URL template map is in v1.1's scope (T-4415), for validation and
+  for our hover link; our plan (preserve now in T-1220, fields after their operator rules on v1.1) matches theirs.
+
 ## Findings so far
 
 - **IW-1 answered:** preserving unknown `aef:` attributes is allowed now and costs AEF nothing. It is a separable,
