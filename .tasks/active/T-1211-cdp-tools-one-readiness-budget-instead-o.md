@@ -91,10 +91,20 @@ real hang. The budget is the time a probe allows the editor to become ready; it 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Every CDP probe's editor-readiness budget reads one environment variable, `CDP_READY_MS`, and falls back to its current default when unset (standalone runs behave exactly as before); the inventory of every variant (the common 20 s form, the 25 s ones, and any other shape) is recorded here, with any probe left out named and the reason given
-- [ ] `tests/run-bridge-tests.sh` sets `CDP_READY_MS` higher for the whole run (a value with margin over the slowest cold load measured), stated with its reason
-- [ ] A guard (`tools/_t1211-cdp-ready-budget-guard.sh`) fails when a probe hard-codes an "editor not ready" budget without reading `CDP_READY_MS`; it bites on a scratch copy with one probe reverted, and it is wired into the suite
-- [ ] `_t1194` and `_t1060` (the two that flaked) pass with `CDP_READY_MS` set; then one full bridge run with nothing else running reports its result here (green, or each remaining failure explained)
+- [x] Every CDP probe's editor-readiness budget reads one environment variable, `CDP_READY_MS`, and falls back to its current default when unset (standalone runs behave exactly as before); the inventory of every variant (the common 20 s form, the 25 s ones, and any other shape) is recorded here, with any probe left out named and the reason given
+  — inventory, 95 probes: 87 `Date.now() - t0 > 20000`; 4 at 25000; 3 at 20000 with a longer message (`_t125`,
+  `_t821-fault-surface`, `_endpoint-overlap-verify`). Those 94 changed to `(+process.env.CDP_READY_MS || N)`, one line
+  each, all pass `node --check`. Plus `_t1067`: 200 turns of 150 ms, now time-based with a 30 s default. Left out,
+  on purpose: the 15 s devtools port-file wait (`waitPortFile`, 101 files). It is a different wait (the browser
+  starting, not the editor) and never flaked.
+- [x] `tests/run-bridge-tests.sh` sets `CDP_READY_MS` higher for the whole run (a value with margin over the slowest cold load measured), stated with its reason
+  — `export CDP_READY_MS="${CDP_READY_MS:-90000}"` beside TMPDIR, with the reason; an operator's own value wins.
+- [x] A guard (`tools/_t1211-cdp-ready-budget-guard.sh`) fails when a probe hard-codes an "editor not ready" budget without reading `CDP_READY_MS`; it bites on a scratch copy with one probe reverted, and it is wired into the suite
+  — 95 scanned, 0 hard-coded; teeth: a reverted copy of `_t1194` is reported HARD-CODED. Wired as a bridge leg; the
+  `_t451` ratchet shows no movement.
+- [x] `_t1194` and `_t1060` (the two that flaked) pass with `CDP_READY_MS` set; then one full bridge run with nothing else running reports its result here (green, or each remaining failure explained)
+  — `_t1194` 24/24, `_t1060` 3/3 (also `_t1067` 6/6, `_t1127` 8/8). Full bridge run, nothing else running
+  (2026-10-19): **299 passed, 0 failed**, rc=0. The first fully green run since the v1.8.11 upgrade (11 failures then).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
