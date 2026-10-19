@@ -1,0 +1,102 @@
+# ============================================================================
+# EPISODIC MEMORY - T-344: fabric watch-patterns.yaml is the untailored fw context init default and expands to zero files
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T18:05:49Z
+# ============================================================================
+
+task_id: T-344
+task_name: "fabric watch-patterns.yaml is the untailored fw context init default and expands to zero files"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-02T11:15:56Z
+completed: 2026-10-19T18:04:12Z
+duration_days: 78
+updates_count: 3
+first_commit: 2026-08-08T14:17:52+02:00
+last_commit: 2026-10-19T19:22:57+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the fabric coverage denominator was empty, so 0 unregistered meant unmeasured. the operator ruling I have been citing for weeks was invisible to the queue, because its Human AC sat outside the section the queue parses.. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - '`.fabric/watch-patterns.yaml` describes this repo: patterns that expand to a non-empty'
+  - 'The expansion count is recorded in this task alongside the resulting unregistered'
+  - 'A guard fails if the watch set ever expands to zero again — a coverage check whose'
+  - 'The audit''s new standing verdict (pass/warn/fail totals) is reported before and after.'
+  - '[REVIEW] Approve the watch scope and the registration debt it makes visible'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-08 — WARN, not FAIL, for an empty watch set'
+    chose: 'the empty-denominator guard raises WARN in both audit blocks; the FAIL-capable assertion lives in `tools/_t344-watch-set-denominator.sh` (exit 1), which is a P-011 verification line here.'
+    rationale: 'measured the consequence before choosing. `git/lib/hooks.sh:~843` blocks `git push` on audit exit 2, and the bypass is `--no-verify`, which is Tier 0. A freshly-initialised project is in the empty-expansion state *by construction* — `fw context init` stamps out patterns for a Python/Rust layout — so FAIL would make a new project unpushable before it had been told the config exists. The defect being repaired is a check that could not recruit attention; WARN recruits it, and the WARN text names the inertness rather than printing a flattering zero.'
+    alternatives_rejected: ['FAIL gated on `cards > 0 && watched == 0` (project adopted the fabric, then lost its denominator). That is non-circular and strictly better than a bare FAIL, and it is deliberately *not* taken here: this file is vendored and goes upstream as G-008, and severity for another project''s push gate is that operator''s call, not mine. Named in the code comment so the choice is available rather than invisible.']
+  - decision: '2026-08-08 — broad watch scope (147) over durable-source-only (61)'
+    chose: 'watch all authored code including the 85 one-shot `_t###-*` task probes. Standing debt: 133 unregistered.'
+    rationale: 'the probes are the *dependents* of the product file. `fw fabric blast-radius` on `src/aef-workflow-designer.html` is meant to answer "what exercises this", and the probe set is that answer. The registry already agrees — 6 of the 17 existing cards are `_`-prefixed probes, so excluding them would put the watch set at odds with the registry it is compared against.'
+    alternatives_rejected: ['narrowing to 61 watched / 53 unregistered. Defensible — 133 is large enough to become wallpaper, which is how the `13/17 cards have no edges` WARN has been treated. This is the [REVIEW] Human AC; narrowing is a one-line edit and the number is stated above so the choice is made against evidence.']
+  - decision: '2026-08-08 — no `exclude:` key, exclusions named in comments instead'
+    chose: 'express the scope entirely in include globs; name the excluded categories (`.agentic-framework/`, `dist/`, `vendor/`, `docs/`, `examples/`, `.editor-versions/`, `tests/fixtures/`) in comments.'
+    rationale: '`exclude:` is honored by `expand_patterns.py` (which `fw fabric drift` and `fw fabric scan` use) and **silently ignored by both audit.sh blocks**. Measured on one config: `tools/**/*.mjs` with `exclude: ["tools/_*"]` gives **1** from the expander and **50** from the audit''s logic. Writing excludes today would hand the operator a config where the two surfaces disagree 50-fold — and narrowing the scope is exactly the [REVIEW] action they are most likely to take. Filed separately as its own bug.'
+    alternatives_rejected: ['writing the excludes anyway as belt-and-braces. Under a precise include set they would exclude nothing today, so they would be inert entries that read as protection — a guard that cannot discriminate is worse than a comment, because it invites trust.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.context/reviews/evidence/T-344/AC1-judge-t-344-r1-ec8a04d1a45a.md'
+  - '.context/reviews/evidence/T-344/AC1-judge-t-344-r1-fb23bf9dbcb8.md'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.fabric/watch-patterns.yaml'
+  - '.tasks/active/T-344-fabric-watch-patternsyaml-is-the-untailo.md'
+  - 'tools/_t344-watch-set-denominator.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-08-08T14:17:52'
+    action: 'T-344: the fabric coverage denominator was empty, so 0 unregistered meant unmeasured'
+  - time: '2026-08-25T08:44:07'
+    action: 'T-344: the operator ruling I have been citing for weeks was invisible to the queue, because its Human AC sat outside the section the queue parses.'
+  - time: '2026-10-19T19:21:02'
+    action: 'T-344: reviewer verdict'
+  - time: '2026-10-19T19:22:57'
+    action: 'T-344: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 112728 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 112728
+  commits: 4
+  files_changed: 8
+  lines_added: 511
+  lines_removed: 44
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-344-fabric-watch-patternsyaml-is-the-untailo.md
+generated_by: context-agent-hybrid

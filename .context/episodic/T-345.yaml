@@ -1,0 +1,106 @@
+# ============================================================================
+# EPISODIC MEMORY - T-345: audit fabric coverage check is a broken duplicate of its own sibling and cannot report non-zero
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T18:07:24Z
+# ============================================================================
+
+task_id: T-345
+task_name: "audit fabric coverage check is a broken duplicate of its own sibling and cannot report non-zero"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-02T11:15:57Z
+completed: 2026-10-19T18:05:50Z
+duration_days: 78
+updates_count: 3
+first_commit: 2026-08-08T10:04:55+02:00
+last_commit: 2026-10-19T19:23:07+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the fabric check that could not report non-zero, and the fix leg that could not prove itself. audit re-baseline artifacts. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'The first fabric block either resolves patterns identically to the sibling at :1499'
+  - 'If retained: the `unregistered > 0` branch no longer reports `pass`. The severity'
+  - 'Teeth: with the shipped watch patterns widened to a set that matches real files, the'
+  - 'The audit''s own PASS/WARN/FAIL totals are re-baselined and the change to the standing'
+  - '[REVIEW] Decide retain-and-fix vs remove-as-duplicate for the first fabric block'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the fabric check that could not report non-zero, and the fix leg that could not prove itself'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-19 — remove-as-duplicate, already done upstream'
+    chose: 'remove (as the Recommendation said). Nothing to do here: AEF removed the first block''s coverage verdict itself (AEF T-2735, vendored with 1.7.68, 7b5e227e). In v1.8.12 that block only counts cards and orphans (`audit.sh` ~2665-2673, comment "Coverage verdict belongs to the drift check below (T-2735)"), and the single coverage verdict is the drift check (~2837), which WARNs on unregistered > 0.'
+    rationale: 'the question this task asked (two checks over one question, one unable to fail) no longer exists in the vendored tree.'
+    alternatives_rejected: ['retain-and-fix: inapplicable, the block it would fix is gone. The 2026-08-08 provisional repair was overwritten by the 1.7.68 re-vendor and is not re-applied. - Prompted by reviewer verdict red (judge-t-345-r1-5d3070834c26): no choice had been recorded here.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.context/audits/2026-08-08.yaml'
+  - '.context/audits/cron/2026-08-08-1000.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/locks/T-345.lock'
+  - '.context/project/metrics-history.yaml'
+  - '.context/reviews/evidence/T-345/AC1-judge-t-345-r1-5d3070834c26.md'
+  - '.context/reviews/evidence/T-345/AC1-judge-t-345-r1-9c2188646bf7.md'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.new-file-counter'
+  - '.tasks/active/T-345-audit-fabric-coverage-check-is-a-broken-.md'
+  - 'tools/_t345-fabric-check-agreement.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-08-08T10:04:55'
+    action: 'T-345: the fabric check that could not report non-zero, and the fix leg that could not prove itself'
+  - time: '2026-08-08T10:05:08'
+    action: 'T-345: audit re-baseline artifacts'
+  - time: '2026-10-19T19:17:59'
+    action: 'T-345: reviewer verdict'
+  - time: '2026-10-19T19:23:07'
+    action: 'T-345: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 112729 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 112729
+  commits: 4
+  files_changed: 19
+  lines_added: 1208
+  lines_removed: 57
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-345-audit-fabric-coverage-check-is-a-broken-.md
+generated_by: context-agent-hybrid
