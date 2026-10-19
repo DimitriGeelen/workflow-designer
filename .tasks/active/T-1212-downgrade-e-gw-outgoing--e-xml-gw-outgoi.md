@@ -108,7 +108,9 @@ requirement, so all of it becomes a warning. The ids carry the severity (E-/W-),
 - [x] A test pins the new behaviour: a 1-in/1-out gateway yields `W-GW-OUTGOING` and no error, in both forms; the converging gateway still yields nothing
   — the fixtures moved to `tests/fixtures/warn/W-GW-OUTGOING.yaml` and `W-XML-GW-OUTGOING.xml` (must warn, exit 1,
   rule present); `valid/gw-converging.workflow.yaml` stays clean; `run-validator-tests.sh` 69/69.
-- [ ] Every affected test passes, and a full bridge run is green
+- [x] Every affected test passes, and a full bridge run is green
+  — full bridge run 2026-10-19 (bridge8): **299 passed, 0 failed**. The run before it (298/1) failed only T-264 leg4,
+  a focus flake under load that passes alone and is unrelated to the validator; filed as T-1214.
 - [x] `docs/releases/PENDING-next-release.md` lists it, with the old→new id map and a note for AEF that a check which failed on these now warns
 - [x] The designer's Check shows the finding as a warning, asserted and shot at 1024, 1440 and 1920 by `tools/_t1212-gw-warning-shots.py` (`docs/reports/T-1212-evidence/`), read control by control under `## Visual Verification`
   — all three asserted (the API returns only `W-XML-GW-OUTGOING:WARN`); independent review green from two seats
