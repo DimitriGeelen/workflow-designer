@@ -145,6 +145,7 @@ We will know that we are successful when we see <measurable signal>.
 ### Human
 <!-- @auto-tick-on-decide -->
 - [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+  **Why you:** sovereignty-field — this changes the governance default of who owns a task, which only the operator sets (operator, 2026-10-19).
   **Steps:**
   1. Run: `fw task review T-1213` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
