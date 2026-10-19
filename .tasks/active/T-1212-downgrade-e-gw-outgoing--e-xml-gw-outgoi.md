@@ -124,7 +124,13 @@ requirement, so all of it becomes a warning. The ids carry the severity (E-/W-),
      under review (a map loaded AND Check pressed) has no URL: the designer reads only id/instance/load from its
      query string. Not bypassed, not reworded. Reported to AEF (conversation 832-render-evidence). Ways forward: a
      designer URL that runs Check (e.g. ?check=1) so fw ux shots can reach the state, or AEF accepting
-     tool-produced captures. -->
+     tool-produced captures.
+     AEF (msg c2b3d81b) confirmed the gap and filed T-4391 (horizon now): a declarative per-state step list
+     (goto, click, fill, press, hover, wait-for) passed as state=@steps.yaml and EXECUTED BY ux_shots itself,
+     with the steps file hashed and recorded beside the captures. Pre-captured images are refused on purpose,
+     since the producer would supply its own evidence. When T-4391 lands: write steps.yaml (load the fixture,
+     click Check, wait for the warning; it maps onto tools/_t1212-gw-warning-shots.py), run fw ux shots, re-judge. -->
+
 - [ ] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1212 --criterion 1`): the designer shows a 1-in/1-out exclusive gateway as a WARNING, legibly, at three widths
   **Steps:**
   1. Open `docs/reports/T-1212-evidence/t1212-check-1024.png`, `t1212-check-1440.png` and `t1212-check-1920.png` (the warn fixture `tests/fixtures/warn/W-XML-GW-OUTGOING.xml` loaded into designer 0.23.0 plus T-1212, Check pressed, served with the real validator)
