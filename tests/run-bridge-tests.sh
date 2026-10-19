@@ -1072,6 +1072,18 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1220: attributes on aef:input/aef:output beyond name/type/required survive open and save ──
+# aef-greenfield-test generates aef:io from its ontology (ref/role/cardinality/dataType, AEF T-4415); the
+# save used to keep only the named attributes. Red against the pre-T-1220 source (legs 1, 3, 6).
+if node "$ROOT/tools/_t1220-io-extra-attrs-cdp.mjs" > "$TMP/leg-_t1220.out" 2>&1 \
+   && head -2 "$TMP/leg-_t1220.out" | grep -q '"ok": true'; then
+  pass=$((pass + 1))
+else
+  report FAIL "extra attributes on aef:input/aef:output are dropped or reordered on save again, an edited input lost them, a deleted input left them behind, a plain map changed, or a value was not escaped (run 'node tools/_t1220-io-extra-attrs-cdp.mjs'; T-1220)"
+  show_output "$TMP/leg-_t1220.out" "_t1220-io-extra-attrs-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # T-589 / T-1132: the panel's fabric link and URL list — clickable, round-trip, no contract key added, and a map
 # carrying neither field exports identically with the two fields ablated (it went stale unwired; now scheduled).
 if node "$ROOT/tools/_t589-panel-links-cdp.mjs" > "$TMP/leg-_t589.out" 2>&1 \

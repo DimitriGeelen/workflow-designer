@@ -1,13 +1,18 @@
 ---
 id: T-1220
-name: "Keep unknown aef: attributes on aef:input/aef:output through open and save (T-1219 IW-1; AEF: allowed now, msg 42018c4e)"
+name: "Keep unknown aef: attributes on aef:input/aef:output through open and save
+  (T-1219 IW-1; AEF: allowed now, msg 42018c4e)"
 description: >
-  Today buildBpmnXml writes only name, type, required for aef:input/aef:output and drops every other attribute. AEF confirmed preserving unknown aef: attributes is allowed now (preserving is not interpreting; their intake carries aef:io verbatim since T-4387). Requested by aef-greenfield-test (T-276). No new fields, no interpretation.
+  Today buildBpmnXml writes only name, type, required for aef:input/aef:output and
+  drops every other attribute. AEF confirmed preserving unknown aef: attributes is
+  allowed now (preserving is not interpreting; their intake carries aef:io verbatim
+  since T-4387). Requested by aef-greenfield-test (T-276). No new fields, no interpretation.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [bpmn-roundtrip, consumer-report]
 components: []
 related_tasks: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T17:26:54Z
-last_update: 2026-10-19T17:26:54Z
-date_finished: null
+last_update: 2026-10-19T18:48:38Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +55,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-19T18:48:38Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 3
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=3 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L3:keyword=validator rule); F3=0
+      (basis: task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1220: Keep unknown aef: attributes on aef:input/aef:output through open and save (T-1219 IW-1; AEF: allowed now, msg 42018c4e)
@@ -62,14 +88,22 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Reproduced first: an `aef:input` and an `aef:output` carrying extra attributes (e.g. `ref="sfdc:Opportunity.OwnerId"`,
+- [x] Reproduced first: an `aef:input` and an `aef:output` carrying extra attributes (e.g. `ref="sfdc:Opportunity.OwnerId"`,
       `role="read"`, `cardinality="0..1"`, `dataType="id"`, plus one unknown `x-foo`) lose them after parse + `buildBpmnXml`
       (failing leg before the fix).
-- [ ] After the fix every attribute on `aef:input`/`aef:output` survives open, save, and a second save byte-identically,
+      (`tools/_t1220-io-extra-attrs-cdp.mjs` against the pre-fix src, 2026-10-19: rc 1, legs 1, 3 and 6 red.)
+- [x] After the fix every attribute on `aef:input`/`aef:output` survives open, save, and a second save byte-identically,
       in its original order; `name`, `type`, `required` behave as before; a map without extra attributes saves unchanged.
-- [ ] Editing the input/output in the panel (rename, type change) keeps the extra attributes; deleting the input drops them.
-- [ ] Nothing interprets them: no new panel field, no validator rule (AEF msg 42018c4e: "preserving is not interpreting").
-- [ ] The leg is wired into the bridge suite and shown to bite (reverting the fix reddens it).
+      (Legs 1, 2, 5 green. The extras keep their relative order and follow the named ones. No committed map carries an
+      extra attribute (survey of every .bpmn/.golden/.xml: only name/type/required), so no golden moves; round-trip,
+      export-contract, structured-parity and T-259 tests rc 0.)
+- [x] Editing the input/output in the panel (rename, type change) keeps the extra attributes; deleting the input drops them.
+      (Legs 3, 4, at state level: the panel's name and type fields assign `item.name` / `item.type` on the same object
+      (src ~8065, ~8077) and delete splices it out, so `extra` rides with the item.)
+- [x] Nothing interprets them: no new panel field, no validator rule (AEF msg 42018c4e: "preserving is not interpreting").
+      (The patch touches only parse, build and two helpers; nothing renders, so no screenshots.)
+- [x] The leg is wired into the bridge suite and shown to bite (reverting the fix reddens it).
+      (run-bridge-tests.sh after the T-1096 leg; bite = the pre-fix run above.)
 - [ ] aef-greenfield-test and AEF are told the release that carries it.
 
 ### Human
@@ -345,3 +379,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1220-keep-unknown-aef-attributes-on-aefinputa.md
 - **Context:** Initial task creation
+
+### 2026-10-19T18:48:38Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
