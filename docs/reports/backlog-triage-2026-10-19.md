@@ -49,7 +49,18 @@ Each still goes through the close gate (its own criteria ticked against this evi
 - T-840, T-988 (old framework upgrades), T-981 (sidecar check after a bleeding-edge upgrade): superseded by
   T-1188, T-1204, T-1208.
 
-Still to read: T-758, T-897, T-874, T-922, T-811, T-575, T-784, T-979, T-969, T-968, T-989, and the October ones.
+Checked further (2026-10-19):
+- **T-811 still real:** `_t810` census reports 30 corpus values the panel cannot edit (text 18, attrs 6,
+  children 6). Since T-1127 they are visible read-only under "Other extensions", but not editable. Keep it open
+  as an inception needing field definitions.
+- **T-758 answered by design:** the deployment audit section still runs only when named, but v1.8.12 says so on
+  purpose (`audit.sh` ~8315 "Only runs when explicitly requested (--section deployment)"). Close with that
+  evidence: documented intent, not a defect.
+- **T-969 (18-day-old AEF request for task-gate bytes):** likely obsolete; AEF asked before closing.
+- **T-575** (drain the parked backlog): superseded by this triage.
+
+Still to read: T-897, T-922 (autonomous-round experiments), and the October ones. Operator calls: T-874, T-784,
+T-979, T-968/T-989 (Evergreen).
 
 ## C. Agent criteria still open (oldest first)
 
