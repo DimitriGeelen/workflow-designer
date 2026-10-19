@@ -70,7 +70,9 @@ the cookie NAME, not page speed, so a slow first page must not turn its leg into
   first wording assumed a mutant leg; the probe has none. It is mutation-sensitive by construction, as its header
   states.)
 - [x] The 13 s cold first `/approvals` (1.3 s warm; `/cron` 1.4 s cold) goes to AEF as a measurement, asking for their task id
-  — msg 84051d77 on `832-designer-repin-0.20.0`.
+  — msg 84051d77 on `832-designer-repin-0.20.0`. AEF (msg 08bf9e18) took it as **T-4363**, linked to T-3765 (which
+  left 4 cold-start readers uncached) and T-4223, and called the wider probe the right stopgap. Follow T-4363; once it
+  ships, the probe's timeouts can come back down.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
