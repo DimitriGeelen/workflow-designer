@@ -9,12 +9,12 @@ description: >
 status: captured
 workflow_type: inception
 owner: human
-horizon: later
+horizon: next
 tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
 created: 2026-07-28T14:52:45Z
-last_update: '2026-08-16T14:33:00Z'
+last_update: 2026-10-19T10:09:52Z
 date_finished:
 revisit_at: 2026-12-01
 revisit_evidence_needed: "A real cross-process query nobody can answer - e.g. which processes break if this one changes"
@@ -209,3 +209,6 @@ We will know that we are successful when we see [NEEDS YOU: name something a per
 | Claim | Type | Status |
 |-------|------|--------|
 | `T-2654` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
+
+### 2026-10-19T10:09:52Z — status-update [task-update-agent]
+- **Change:** horizon: later → next

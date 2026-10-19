@@ -11,12 +11,12 @@ description: >
 status: captured
 workflow_type: inception
 owner: human
-horizon: later
+horizon: next
 tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
 created: 2026-07-28T14:52:46Z
-last_update: '2026-08-16T14:33:00Z'
+last_update: 2026-10-19T10:09:52Z
 date_finished:
 revisit_at: 2027-01-15
 revisit_evidence_needed: "A non-technical reader who needs to read a map and cannot"
@@ -208,3 +208,6 @@ We will know that we are successful when we see [NEEDS YOU: name something a per
 - **Overall:** UNVERIFIED
 - **Claims:** 0
 - No verifiable claims found in ## Recommendation
+
+### 2026-10-19T10:09:52Z — status-update [task-update-agent]
+- **Change:** horizon: later → next

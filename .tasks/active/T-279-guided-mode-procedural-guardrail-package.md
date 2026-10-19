@@ -10,12 +10,12 @@ description: >
 status: captured
 workflow_type: inception
 owner: human
-horizon: later
+horizon: next
 tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
 created: 2026-07-28T14:52:30Z
-last_update: '2026-08-16T14:33:00Z'
+last_update: 2026-10-19T10:09:51Z
 date_finished:
 revisit_at: 2026-09-15
 revisit_evidence_needed: "Operator decision to raise the enforcement ladder with AEF, or a third instance of a prose process being re-interpreted and a fix not locking in"
@@ -231,3 +231,6 @@ duplicates and should be withdrawn. Recorded here so the relationship is visible
 too, and not only from the new arc's scope document.
 
 Scope: `docs/reports/arc-005-process-instances-scope.md` §3 S2/S3 and §5.
+
+### 2026-10-19T10:09:51Z — status-update [task-update-agent]
+- **Change:** horizon: later → next

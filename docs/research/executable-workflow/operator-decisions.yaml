@@ -47,10 +47,25 @@ questions:
     status: resolved
     blocks_arc_0_exit: true
     decided_by: operator
-    decided_at: "2026-09-21"
+    decided_at: "2026-10-19"
     chosen: >
+      REVERSED 2026-10-19: Roadmap Arcs 4–6 DO supersede the DEFERs. All four are revived and
+      built: T-279 guided-mode guardrail, T-280 Workflow Fabric, T-281 audience lenses, T-282
+      callActivity. Order: callActivity (T-282) first; lenses (T-281) are raised with AEF,
+      whose T-2669 NO-GO covers the same idea on their side.
+    ruling_2026_10_19: >
+      Given by the operator in session on 2026-10-19 (832 T-732), after the agent laid out the
+      background, options A-D, a scoring and steelman/strawman for each side. The operator
+      wrote "So definitely want all this stuff that we discussed here, absolutely. If you can
+      build it, that would be great."; the agent read that back as option B (revive all four
+      and build, callActivity first, raise lenses with AEF) and asked to confirm; the operator
+      replied "1" (= that option). The agent had recommended A (keep them parked); the
+      operator chose otherwise. The independent reviewer had escalated the 2026-09-21
+      transcription (V-20261019-55e219da) because it lacked the operator's own signature; this
+      entry quotes the operator's own words of 2026-10-19.
+    superseded_ruling_2026_09_21: >
       The DEFERs (T-279/280/281/282) and AEF's T-2669 NO-GO STAND. Roadmap Arcs 4–6 do
-      NOT supersede them.
+      NOT supersede them. (Verbal, 2026-09-21; kept here as history.)
     source_of_truth:
       file: docs/research/executable-workflow/operator-decisions.yaml
       path: decisions[id=H1].chosen
@@ -77,7 +92,7 @@ questions:
       paraphrase a recorded recommendation; the wording above is the operator's decision,
       not a restatement of the recommendation below it).
     operative_state: >
-      The DEFERs and the NO-GO STAND — now by ruling, previously by default. T-587's
+      Since 2026-10-19: the four are REVIVED by ruling (see chosen). Until then: the DEFERs and the NO-GO STAND — now by ruling, previously by default. T-587's
       recorded GO decided the scope of one narrow
       Arc-0 slice and explicitly declined to reverse them — its rationale names the
       absence directly: "without a superseding decision. Scheduling those would reverse

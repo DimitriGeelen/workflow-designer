@@ -10,12 +10,12 @@ description: >
 status: captured
 workflow_type: inception
 owner: human
-horizon: later
+horizon: now
 tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
 created: 2026-07-28T14:53:00Z
-last_update: '2026-08-16T14:33:00Z'
+last_update: 2026-10-19T10:09:51Z
 date_finished:
 revisit_at: 2026-12-01
 revisit_evidence_needed: "A corpus map or AEF compile case needing call-with-return semantics that link events cannot express"
@@ -210,3 +210,6 @@ We will know that we are successful when we see [NEEDS YOU: name something a per
 | Claim | Type | Status |
 |-------|------|--------|
 | `T-081` | task | ✓ pass |
+
+### 2026-10-19T10:09:51Z — status-update [task-update-agent]
+- **Change:** horizon: later → now
