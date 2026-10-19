@@ -104,9 +104,20 @@ expect a 3-way merge there. Operator job on the T-1204 protocol; the launcher ke
 - [x] An operator job upgrades 832 to v1.8.12 under the T-1204 protocol (doctor before and after, pristine vendor commit, divergence baseline, crontab check, re-vendor gate, TermLink settings kept), dry-run and committed
   — job 051, derived from job 048 with only the versions and task id changed; its dry run passes (8/8 checks).
   Not run yet: the operator runs it.
-- [ ] After the run, the local fixes reported STALE by `tools/_t517` are re-applied or retired (expect a 3-way merge in `safe-commands.sh` against T-4343/T-4344); the `.bak` backups are diffed and handled; `tools/_t1192-upgrade-templates.sh --commit --task T-1208` exits 0
+- [x] After the run, the local fixes reported STALE by `tools/_t517` are re-applied or retired (expect a 3-way merge in `safe-commands.sh` against T-4343/T-4344); the `.bak` backups are diffed and handled; `tools/_t1192-upgrade-templates.sh --commit --task T-1208` exits 0
+  — job 051 ran 13:27–13:37Z, rc=0 (VERSION 1.8.12, pristine 6239f2a7, baseline 5291e098). All 37 patches applied
+  cleanly; no 3-way was needed (T-4343/T-4344 touch other hunks). `_t517` OK. No `.bak` left. `_t1192`:
+  `inception.md.upstream` SUPERSEDED, removed. Commit 105e3242.
 - [ ] The safe-commands regression tools pass (`_t390`, `_t632`, `_t636`, `_t640`, `_t650`, `_t1047`); after the upgrade the sidecar receiver still carries 832's key (`tools/_t1203-identity-coverage.sh` 0 FAIL); a full bridge run is green
-- [ ] Field check of T-4343 against our merged safe-commands.sh (`git -C` inside the project is read-only, outside it is gated) reported to AEF
+  — tools: `_t1047` 24/24, `_t390` 12/12, `_t632` 36/36, `_t636` 18/18, `_t640` 19/19, `_t650` 17/17.
+  Identity: the upgrade restarted the sidecar stack UNKEYED again (13:32Z, a login-shell env; the restarter is not
+  in fw upgrade's own code; reported to AEF for T-4311). Job 052 re-keyed it (receiver 2514316, supervisor 2515000,
+  watcher 2515258) and restarted Watchtower on v1.8.12 (pid 2876818). Its step-2 freshness check tripped on
+  Watchtower's own `__pycache__` (false positive), so the job is retired with that reason; the agent ran step 3:
+  map page OK, /cron 200, identity coverage 8 OK / 0 FAIL. Full bridge run: pending.
+- [x] Field check of T-4343 against our merged safe-commands.sh (`git -C` inside the project is read-only, outside it is gated) reported to AEF
+  — 9/9: read-only for git status, `-C <project>`, `-C .`, `--git-dir=<project>/.git`; gated for `-C` AEF, `-C /tmp`,
+  `--git-dir` outside, `--work-tree` outside, and `-c`. Sent to AEF on `aef-v1812-release` (msg 46dad1d5).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
