@@ -5,10 +5,11 @@ description: >
   Audit reports [WARN] CTL-029: T-708 has all Agent ACs ticked but status='started-work'.
   T-708 is itself arc-003 remediation task RA-012.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [audit-remediation, cycle-1]
 components: [.tasks/active/T-708-ra-012-ctl-029-two-stuck-partial-complet.md]
 related_tasks: [T-750, T-713, T-715]
@@ -18,8 +19,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T07:59:03Z
-last_update: 2026-09-24T22:00:29Z
-date_finished:
+last_update: 2026-10-19T16:43:38Z
+date_finished: 2026-10-19T16:43:38Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -90,11 +91,21 @@ One class of four, same root cause. Siblings: T-747 (RA-006), T-748 (RA-007), T-
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] T-708 reaches a terminal state through the proper verb — closed by the operator, or re-opened with a named outstanding criterion. The agent does not close it and does not change its ownership away from human.
-- [ ] `fw audit --section quality` no longer reports T-708 under CTL-029.
-- [ ] The generic defect is stated separately from this instance: whether an agent-produced task should ever be born `owner: human` with zero Human ACs, which is the condition that produced all four of this cycle's CTL-029 findings. If that needs an architectural ruling, it is filed as a Sovereign question, not decided here.
+- [x] T-708 reaches a terminal state through the proper verb — closed by the operator, or re-opened with a named outstanding criterion. The agent does not close it and does not change its ownership away from human.
+      (2026-10-19: T-708 is `work-completed` (2026-09-30T11:12:20Z, `fw task update`). Its owner went human → agent on
+      2026-09-29 under the operator's ruling in T-931 ("owner: human is a sovereignty claim only while" a Human
+      criterion is open), applied by the T-931 cleanup (ddd9f48e), not on agent initiative.)
+- [x] `fw audit --section quality` no longer reports T-708 under CTL-029. (2026-10-19 run: 0 mentions of T-708.)
+- [x] The generic defect is stated separately from this instance (2026-09-24 Updates entry; the architectural
+      question was ruled by the operator on 2026-09-29, T-931, and superseded by the 2026-10-19 ownership-by-risk ruling, T-1213): whether an agent-produced task should ever be born `owner: human` with zero Human ACs, which is the condition that produced all four of this cycle's CTL-029 findings. If that needs an architectural ruling, it is filed as a Sovereign question, not decided here.
 
 ## Verification
+
+ls .tasks/completed/T-708-ra-012-ctl-029-two-stuck-partial-complet.md
+grep -q '^status: work-completed' .tasks/completed/T-708-ra-012-ctl-029-two-stuck-partial-complet.md
+grep -q 'Operator ruling 2026-09-29' .tasks/*/T-931-*.md
+# The audit's CTL-029 list no longer names T-708 (positive control: it still names other completable tasks)
+timeout 900 .agentic-framework/bin/fw audit --section quality > /tmp/.t749-q.out 2>&1; grep -q 'CTL-029' /tmp/.t749-q.out && ! grep -q 'CTL-029: T-708 ' /tmp/.t749-q.out
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -183,6 +194,13 @@ One class of four, same root cause. Siblings: T-747 (RA-006), T-748 (RA-007), T-
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-10-19 — the instance was closed by a rule, not by a person
+- **What changed:** the task assumed only the operator could move T-708. The operator instead ruled the general case
+  (T-931, 2026-09-29): `owner: human` with no open Human criterion is a stale claim, so it came off and T-708 closed.
+- **Plan impact:** AC1's "closed by the operator" path was not the one taken; the outcome it guarded (no agent
+  acting on initiative against a sovereignty field) held, because the change was the ruling's.
+- **Triggered:** none new; the rule was later superseded by ownership-by-risk (T-1213, 2026-10-19).
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -236,3 +254,16 @@ One class of four, same root cause. Siblings: T-747 (RA-006), T-748 (RA-007), T-
 - **Left as:** `started-work`, parked pending the operator closing T-708 (or T-708 acquiring
   a real Human AC). Not completed by the agent — AC1 cannot be satisfied under agent
   initiative by design.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-125ed5a4
+- **Timestamp:** 2026-10-19T16:43:45Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-19T16:43:38Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Triage 2026-10-19 C1: T-708 completed under the operator's T-931 ruling; audit no longer reports it

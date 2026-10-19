@@ -12,11 +12,11 @@ description: >
   (operator job, the launcher now keeps the TermLink key), then re-run _t390, _t632,
   _t636, _t640, _t650, _t1047 and the bridge suite.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -47,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-18T23:01:48Z
-last_update: 2026-10-19T12:34:38Z
-date_finished:
+last_update: 2026-10-19T16:49:18Z
+date_finished: 2026-10-19T16:49:18Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -108,8 +108,11 @@ expect a 3-way merge there. Operator job on the T-1204 protocol; the launcher ke
   — job 051 ran 13:27–13:37Z, rc=0 (VERSION 1.8.12, pristine 6239f2a7, baseline 5291e098). All 37 patches applied
   cleanly; no 3-way was needed (T-4343/T-4344 touch other hunks). `_t517` OK. No `.bak` left. `_t1192`:
   `inception.md.upstream` SUPERSEDED, removed. Commit 105e3242.
-- [ ] The safe-commands regression tools pass (`_t390`, `_t632`, `_t636`, `_t640`, `_t650`, `_t1047`); after the upgrade the sidecar receiver still carries 832's key (`tools/_t1203-identity-coverage.sh` 0 FAIL); a full bridge run is green
-  — tools: `_t1047` 24/24, `_t390` 12/12, `_t632` 36/36, `_t636` 18/18, `_t640` 19/19, `_t650` 17/17.
+- [x] The safe-commands regression tools pass (`_t390`, `_t632`, `_t636`, `_t640`, `_t650`, `_t1047`); after the upgrade the sidecar receiver still carries 832's key (`tools/_t1203-identity-coverage.sh` 0 FAIL); a full bridge run is green
+  — **2026-10-19T16:44Z, closing evidence:** full bridge run on code ad21f535 (run alone, no code commit during it;
+  only `docs/reports/backlog-triage-2026-10-19.md` changed since): **299 passed, 0 failed**, rc 0. Re-run the same
+  minute: the six tools 12/12, 36/36, 18/18, 19/19, 17/17, 24/24; `_t1203-identity-coverage.sh` OK 8 / FAIL 0.
+  — earlier: tools `_t1047` 24/24, `_t390` 12/12, `_t632` 36/36, `_t636` 18/18, `_t640` 19/19, `_t650` 17/17.
   Identity: the sidecar stack came back UNKEYED again (13:32Z). **Cause confirmed by syslog:** the host cron job
   `sidecar-ensure-1m` (`fw sidecar ensure --all`, every minute, under flock): "15:32:14 agentic-cron[863637]:
   /opt/832-Workflow-designer: supervisor restarted pid=886411". The upgrade stopped the stack, and cron restarted
@@ -328,6 +331,26 @@ bash tools/_t1203-identity-coverage.sh
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** two defects. (1) Upstream, fixed by this hotfix: v1.8.11's safe-commands.sh treated `git -C`,
+`--git-dir` and `--work-tree` as read-only wherever they pointed (AEF T-4343), and its free-text option table let some
+writes pass as reads (T-4344). (2) Here, found during the upgrade: after the upgrade the sidecar stack came back
+without 832's TermLink key (as it had after T-1204), and the T-1161 boundary gate line was gone from the pre-commit hook.
+
+**Root cause:** (1) is AEF's (see their T-4343/T-4344). (2a) The host cron job `sidecar-ensure-1m`
+(`fw sidecar ensure --all`) restarts any stopped sidecar with cron's environment, and in v1.8.12 the sidecar reads its
+identity only from its process environment, so no export from our launcher can reach a cron restart (syslog
+15:32:14, `supervisor restarted pid=886411`). (2b) `fw upgrade` rewrites `.git/hooks/pre-commit`, which erases every
+project-added hook line; only the re-vendor gate's line was re-installed by our protocol, not the boundary gate's.
+
+**Why structurally allowed:** the identity check ran only at session start, not as an upgrade step, and the hook
+re-install covered one of the two lines 832 adds.
+
+**Prevention:** `tools/_t1000-install-hook.sh` now installs and checks BOTH lines (re-vendor gate and T-1161 boundary
+gate), and the bridge suite runs its `--check` every run; `tools/_t1203-identity-coverage.sh` is a standing
+session-start check and an upgrade-job step; AEF T-4311 (`SIDECAR_RAIL_IDENTITY=1`) makes the sidecar read the
+configured identity itself in their next release; the hook-erasure is AEF T-4403. The ensure cron line is
+deliberately NOT given our key (it is host-wide; T-4252).
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -412,3 +435,23 @@ bash tools/_t1203-identity-coverage.sh
 ### 2026-10-19T12:34:38Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ab404431
+- **Timestamp:** 2026-10-19T16:51:06Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — After the run, the local fixes reported STALE by `tools/_t517` are re-applied or retired (expect a 3-way merge in `safe-commands.sh` against T-4343/T-4344); the `.bak` backups are diffed and handled; 
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t1192-upgrade-templates.sh in: After the run, the local fixes reported STALE by `tools/_t517` are re-applied or retired (expect a 3-way merge in `safe-commands.sh` against T-4343/T-`
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-19T16:49:18Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** v1.8.12 live; full bridge run 299/0 on ad21f535; safe-commands tools and identity coverage green

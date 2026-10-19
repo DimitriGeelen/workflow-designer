@@ -1,0 +1,73 @@
+# ============================================================================
+# EPISODIC MEMORY - T-749: RA-040: CTL-029 arc-003 task T-708 is completable but not closed
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T16:43:53Z
+# ============================================================================
+
+task_id: T-749
+task_name: "RA-040: CTL-029 arc-003 task T-708 is completable but not closed"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T07:59:03Z
+completed: 2026-10-19T16:43:38Z
+duration_days: 28
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Audit reports [WARN] CTL-029: T-708 has all Agent ACs ticked but status='started-work'. T-708 is itself arc-003 remediation task RA-012.
+
+# Key outcomes
+outcomes:
+  - 'T-708 reaches a terminal state through the proper verb — closed by the operator, or re-opened with a named outstanding criterion. The agent does not close it and does not change its ownership away from human.'
+  - '`fw audit --section quality` no longer reports T-708 under CTL-029. (2026-10-19 run: 0 mentions of T-708.)'
+  - 'The generic defect is stated separately from this instance (2026-09-24 Updates entry; the architectural'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 40844 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [audit-remediation, cycle-1]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 40844
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-749-ra-040-ctl-029-arc-003-task-t-708-is-com.md
+generated_by: context-agent-hybrid

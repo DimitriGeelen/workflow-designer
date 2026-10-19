@@ -96,6 +96,8 @@ bvp_scores_proposed:
   — mutant `if (false && opts.deferred)` (per-keystroke commit, the pre-T-264 shape), run through the new test-only
   `T1214_SRC` override: legs 1-5 red, including leg4_focusKept; legs 6-8 (other guards) green. Unmutated: 0 legs false.
 - [ ] The probe passes alone, and in two full bridge runs in a row the T-264 leg is green (it failed in 2 of the last 4 runs before the fix)
+  — run 1 of 2: full bridge run on code ad21f535 (2026-10-19, finished ~16:40Z), 299 passed / 0 failed; T-264 leg
+  "OK: save-target guard legs green (T-264 — collision notice, commit-on-blur/Enter + focus, load-source mismatch confirm + BITE)".
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

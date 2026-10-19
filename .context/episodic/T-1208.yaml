@@ -1,0 +1,212 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1208: Upgrade AEF v1.8.11 -> v1.8.12 (security hotfix: safe-commands.sh, shell_write_scan.py; T-4343, T-4344)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-19T16:51:17Z
+# ============================================================================
+
+task_id: T-1208
+task_name: "Upgrade AEF v1.8.11 -> v1.8.12 (security hotfix: safe-commands.sh, shell_write_scan.py; T-4343, T-4344)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-18T23:01:48Z
+completed: 2026-10-19T16:49:18Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-19T01:02:08+02:00
+last_commit: 2026-10-19T18:40:35+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture the v1.8.12 security-hotfix upgrade (waits on the tag; safe-commands.sh 3-way expected). v1.8.12 released (tag ee1d6fcf) — unblocked; plan noted. v1.8.12 dry run read (clean); job 051 rehearsed (from job 048, versions only). pristine vendor commit — AEF v1.8.12 (ee1d6fcf) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.12 commit (re-vendor protocol step 2, T-1000). re-apply 832's 37 local fixes onto pristine AEF v1.8.12 (all clean, no 3-way); _t517 OK; safe-commands regression tools all green. job 052 — re-key the sidecar (restarted unkeyed during the v1.8.12 upgrade) and restart Watchtower on the new code (rehearsed). job 052 retired with its reason — re-key and Watchtower restart took effect; step 2's freshness check tripped on Watchtower's own __pycache__ (false positive); step 3 checked by the agent: map page, /cron, identity 8/0. re-apply and T-4343 field check ticked; identity re-keyed via job 052; full bridge run pending. the unkeyed restart is the host cron sidecar-ensure-1m (syslog 13:32Z) — not reachable by launcher exports; T-4311 ends it. triage group C1 — 13 tasks resolved or superseded, with evidence (closed through the gate after the suite). AEF — no v1.8.12 setting reaches the ensure path; never put the key on the host-wide ensure cron line (T-4252); re-key until T-4311. the re-vendor gate installer also (re)installs and checks the T-1161 boundary gate — lost after both the v1.8.11 and v1.8.12 hook reinstalls; every upgrade job already runs it (proved: line removed -> check rc=1 -> one install -> rc=0). peer exchange 2026-10-19 — what 832 shared, learnings back from AEF, 055 and TermLink, ring20 check-in answered. peer exchange — 1409-sprind learnings; their BPMN id-stability question answered. peer exchange — 1023 learnings. peer exchange — dimitri-mint-dev learnings (incl. a host sudoers finding, fixed by them). peer exchange — ring20-dashboard and ring20 replies. triage — T-811 still real (30 unreachable values), T-758 by design in v1.8.12, T-969 asked of AEF, T-575 superseded. triage group A — T-963/964/965/966/967/970/972 closed through the gate. group A closures — task content and episodics (completes 3e686585). triage group A — T-723 (RCA + Evolution written), T-971 (Recommendation written), T-105 (build-freshness check retargeted at the fix) closed through the gate. triage — T-357, T-309 (open questions disposed with evidence, by a TermLink worker, spot-checked) and T-1003 (C1: built and in use) closed through the gate; T-758 records AEF T-4410. triage C1 — T-741 (tools/ vendored since AEF 1.7.68; five verbs run on v1.8.12) and T-1000 (re-vendor gate built, used for two upgrades) closed through the gate
+
+# Key outcomes
+outcomes:
+  - 'The v1.8.12 tag is resolved and checked: v1.8.11 (e42aa41bf) is its ancestor, and a dry run of v1.8.12''s `fw upgrade` against 832 is read and summarised here before the job is handed over'
+  - 'An operator job upgrades 832 to v1.8.12 under the T-1204 protocol (doctor before and after, pristine vendor commit, divergence baseline, crontab check, re-vendor gate, TermLink settings kept), dry-run and committed'
+  - 'After the run, the local fixes reported STALE by `tools/_t517` are re-applied or retired (expect a 3-way merge in `safe-commands.sh` against T-4343/T-4344); the `.bak` backups are diffed and handled; `tools/_t1192-upgrade-templates.sh --commit --task T-1208` exits 0'
+  - 'The safe-commands regression tools pass (`_t390`, `_t632`, `_t636`, `_t640`, `_t650`, `_t1047`); after the upgrade the sidecar receiver still carries 832''s key (`tools/_t1203-identity-coverage.sh` 0 FAIL); a full bridge run is green'
+  - 'Field check of T-4343 against our merged safe-commands.sh (`git -C` inside the project is read-only, outside it is gated) reported to AEF'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'triage group A — T-723 (RCA + Evolution written), T-971 (Recommendation written), T-105 (build-freshness check retargeted at the fix) closed through the gate'
+    source: git-mined
+  - description: 'peer exchange — dimitri-mint-dev learnings (incl. a host sudoers finding, fixed by them)'
+    source: git-mined
+  - description: 're-apply 832''s 37 local fixes onto pristine AEF v1.8.12 (all clean, no 3-way); _t517 OK; safe-commands regression tools all green'
+    source: git-mined
+  - description: 'capture the v1.8.12 security-hotfix upgrade (waits on the tag; safe-commands.sh 3-way expected)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/shell_write_scan.py'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.context/episodic/T-1000.yaml'
+  - '.context/episodic/T-1003.yaml'
+  - '.context/episodic/T-105.yaml'
+  - '.context/episodic/T-309.yaml'
+  - '.context/episodic/T-357.yaml'
+  - '.context/episodic/T-723.yaml'
+  - '.context/episodic/T-741.yaml'
+  - '.context/episodic/T-963.yaml'
+  - '.context/episodic/T-964.yaml'
+  - '.context/episodic/T-965.yaml'
+  - '.context/episodic/T-966.yaml'
+  - '.context/episodic/T-967.yaml'
+  - '.context/episodic/T-970.yaml'
+  - '.context/episodic/T-971.yaml'
+  - '.context/episodic/T-972.yaml'
+  - '.context/runme/051-upgrade-aef-v1.8.12/dryrun.ok'
+  - '.context/runme/051-upgrade-aef-v1.8.12/job.sh'
+  - '.context/runme/052-rekey-and-restart-v1.8.12/dryrun.ok'
+  - '.context/runme/052-rekey-and-restart-v1.8.12/job.sh'
+  - '.context/runme/052-rekey-and-restart-v1.8.12/retired'
+  - 'docs/reports/backlog-triage-2026-10-19.md'
+  - 'docs/reports/peer-exchange-2026-10-19.md'
+  - '.framework.yaml'
+  - '.tasks/active/T-1208-upgrade-aef-v1811---v1812-security-hotfi.md'
+  - '.tasks/active/T-758-ra-049-the-deployment-section-is-exclude.md'
+  - '.tasks/completed/T-1000-gate-re-vendoring-an-upgrade-is-not-comm.md'
+  - '.tasks/completed/T-1003-runmesh-signals-the-agent-startstepstopd.md'
+  - '.tasks/completed/T-105-baked-verification-gate-gateway-label-collision.md'
+  - '.tasks/completed/T-309-surface-workflow-validator-findings-in-t.md'
+  - '.tasks/completed/T-357-adopt-bpmn-di-as-the-designer-geometry-a.md'
+  - '.tasks/completed/T-723-ra-027-fail-d2-human-review-queue-has-12.md'
+  - '.tasks/completed/T-741-vendored-tree-omits-tools-entirely--5-ve.md'
+  - '.tasks/completed/T-963-runmesh-does-not-start-on-the-operators-.md'
+  - '.tasks/completed/T-964-the-marker-allowlist-silently-omits-the-.md'
+  - '.tasks/completed/T-965-runmesh-blocks-the-operators-terminal-wi.md'
+  - '.tasks/completed/T-966-runmeshs-served-page-check-pipes-curl-in.md'
+  - '.tasks/completed/T-967-w-xml-disconnected-a-process-drawn-as-tw.md'
+  - '.tasks/completed/T-970-our-validator-rejects-plain-bpmn-task-as.md'
+  - '.tasks/completed/T-971-evergreen-corpus-taxonomy-what-our-produ.md'
+  - '.tasks/completed/T-972-the-boundary-cannot-state-its-own-requir.md'
+  - 'tools/_t1000-install-hook.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T01:02:08'
+    action: 'T-1208: capture the v1.8.12 security-hotfix upgrade (waits on the tag; safe-commands.sh 3-way expected)'
+  - time: '2026-10-19T14:33:59'
+    action: 'T-1208: v1.8.12 released (tag ee1d6fcf) — unblocked; plan noted'
+  - time: '2026-10-19T14:36:18'
+    action: 'T-1208: v1.8.12 dry run read (clean); job 051 rehearsed (from job 048, versions only)'
+  - time: '2026-10-19T15:36:01'
+    action: 'T-1208: pristine vendor commit — AEF v1.8.12 (ee1d6fcf) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-19T15:36:04'
+    action: 'T-1208: advance the divergence baseline to the pristine AEF v1.8.12 commit (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-19T15:42:04'
+    action: 'T-1208: re-apply 832''s 37 local fixes onto pristine AEF v1.8.12 (all clean, no 3-way); _t517 OK; safe-commands regression tools all green'
+  - time: '2026-10-19T15:42:39'
+    action: 'T-1208: job 052 — re-key the sidecar (restarted unkeyed during the v1.8.12 upgrade) and restart Watchtower on the new code (rehearsed)'
+  - time: '2026-10-19T15:52:19'
+    action: 'T-1208: job 052 retired with its reason — re-key and Watchtower restart took effect; step 2''s freshness check tripped on Watchtower''s own __pycache__ (false positive); step 3 checked by the agent: map page, /cron, identity 8/0'
+  - time: '2026-10-19T15:52:56'
+    action: 'T-1208: re-apply and T-4343 field check ticked; identity re-keyed via job 052; full bridge run pending'
+  - time: '2026-10-19T16:04:02'
+    action: 'T-1208: the unkeyed restart is the host cron sidecar-ensure-1m (syslog 13:32Z) — not reachable by launcher exports; T-4311 ends it'
+  - time: '2026-10-19T16:07:07'
+    action: 'T-1208: triage group C1 — 13 tasks resolved or superseded, with evidence (closed through the gate after the suite)'
+  - time: '2026-10-19T16:08:40'
+    action: 'T-1208: AEF — no v1.8.12 setting reaches the ensure path; never put the key on the host-wide ensure cron line (T-4252); re-key until T-4311'
+  - time: '2026-10-19T16:58:42'
+    action: 'T-1208: the re-vendor gate installer also (re)installs and checks the T-1161 boundary gate — lost after both the v1.8.11 and v1.8.12 hook reinstalls; every upgrade job already runs it (proved: line removed -> check rc=1 -> one install -> rc=0)'
+  - time: '2026-10-19T17:33:03'
+    action: 'T-1208: peer exchange 2026-10-19 — what 832 shared, learnings back from AEF, 055 and TermLink, ring20 check-in answered'
+  - time: '2026-10-19T17:33:43'
+    action: 'T-1208: peer exchange — 1409-sprind learnings; their BPMN id-stability question answered'
+  - time: '2026-10-19T17:34:25'
+    action: 'T-1208: peer exchange — 1023 learnings'
+  - time: '2026-10-19T17:35:03'
+    action: 'T-1208: peer exchange — dimitri-mint-dev learnings (incl. a host sudoers finding, fixed by them)'
+  - time: '2026-10-19T17:38:29'
+    action: 'T-1208: peer exchange — ring20-dashboard and ring20 replies'
+  - time: '2026-10-19T18:05:23'
+    action: 'T-1208: triage — T-811 still real (30 unreachable values), T-758 by design in v1.8.12, T-969 asked of AEF, T-575 superseded'
+  - time: '2026-10-19T18:25:55'
+    action: 'T-1208: triage group A — T-963/964/965/966/967/970/972 closed through the gate'
+  - time: '2026-10-19T18:26:04'
+    action: 'T-1208: group A closures — task content and episodics (completes 3e686585)'
+  - time: '2026-10-19T18:30:19'
+    action: 'T-1208: triage group A — T-723 (RCA + Evolution written), T-971 (Recommendation written), T-105 (build-freshness check retargeted at the fix) closed through the gate'
+  - time: '2026-10-19T18:36:18'
+    action: 'T-1208: triage — T-357, T-309 (open questions disposed with evidence, by a TermLink worker, spot-checked) and T-1003 (C1: built and in use) closed through the gate; T-758 records AEF T-4410'
+  - time: '2026-10-19T18:40:35'
+    action: 'T-1208: triage C1 — T-741 (tools/ vendored since AEF 1.7.68; five verbs run on v1.8.12) and T-1000 (re-vendor gate built, used for two upgrades) closed through the gate'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 24 commit(s), 1067 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1067
+  commits: 24
+  files_changed: 75
+  lines_added: 6991
+  lines_removed: 3911
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1208-upgrade-aef-v1811---v1812-security-hotfi.md
+generated_by: context-agent-hybrid
