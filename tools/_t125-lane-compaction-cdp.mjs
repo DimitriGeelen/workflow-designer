@@ -118,7 +118,7 @@ async function main() {
     for (;;) {
       const ok = await ev(cmd, `(typeof cleanLayout==='function'&&typeof compactLanesFit==='function'&&typeof adoptImportedXml==='function'&&!!state)`).catch(() => false);
       if (ok) break;
-      if (Date.now() - t0 > 20000) throw new Error('editor not ready (compactLanesFit missing?)');
+      if (Date.now() - t0 > (+process.env.CDP_READY_MS || 20000)) throw new Error('editor not ready (compactLanesFit missing?)');
       await sleep(150);
     }
     await ev(cmd, `(window.alert=window.confirm=window.prompt=function(){return true;},true)`);

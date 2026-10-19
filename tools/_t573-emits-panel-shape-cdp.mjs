@@ -48,7 +48,7 @@ async function ev(cmd, e) { const r = await cmd('Runtime.evaluate', { expression
 // T-1060/T-1061: 'ready' includes the editor's deep link having SETTLED (_deepLinkSettled set). _appReady flips at
 // the end of Init, but the deep-link fetch is async and lands later; a fixed sleep after it lost that
 // race on a busy host ('fixture node absent', counted as a failed guard).
-async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof parseBpmnXml==='function'&&typeof buildBpmnXml==='function'&&_appReady===true&&(typeof _deepLinkSettled==='undefined'||_deepLinkSettled!==null))`).catch(() => false); if (ok) return; if (Date.now() - t0 > 25000) throw new Error('editor not ready'); await sleep(150); } }
+async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof parseBpmnXml==='function'&&typeof buildBpmnXml==='function'&&_appReady===true&&(typeof _deepLinkSettled==='undefined'||_deepLinkSettled!==null))`).catch(() => false); if (ok) return; if (Date.now() - t0 > (+process.env.CDP_READY_MS || 25000)) throw new Error('editor not ready'); await sleep(150); } }
 
 // E1 carries a SCALAR emits — the shape tests/fixtures/valid/investigate.bpmn and the
 // editor's own seed template use, and the shape Array.isArray silently skips.

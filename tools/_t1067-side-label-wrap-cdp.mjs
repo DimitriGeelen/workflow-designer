@@ -80,9 +80,10 @@ async function measure(editorPath, tag) {
     const ev = async e => { const r = await cmd('Runtime.evaluate', { expression: e, returnByValue: true }); return r.result.value; };
     await cmd('Page.enable'); await cmd('Runtime.enable');
     await cmd('Page.navigate', { url: 'file://' + editorPath });
-    for (let i = 0; ; i++) {
+    // T-1211: time-based like every other probe (was 200 turns of 150 ms, about 30 s), and the same CDP_READY_MS.
+    for (const t0 = Date.now(); ;) {
       if (await ev("typeof _appReady!=='undefined'&&_appReady===true&&(typeof _deepLinkSettled==='undefined'||_deepLinkSettled!==null)").catch(() => false)) break;
-      if (i > 200) throw new Error('editor not ready');
+      if (Date.now() - t0 > (+process.env.CDP_READY_MS || 30000)) throw new Error('editor not ready');
       await sleep(150);
     }
     const out = {};

@@ -1,13 +1,21 @@
 ---
 id: T-1211
-name: "CDP tools: one readiness budget instead of 87 hard-coded 20 s waits (suite flakes under load)"
+name: "CDP tools: one readiness budget instead of 87 hard-coded 20 s waits (suite
+  flakes under load)"
 description: >
-  87 tools/*.mjs CDP probes copy waitReady() with a fixed 20000 ms budget ('editor not ready'). In a full bridge run on a busy host, a different one misses it each time: _t1060 (its _t570 leg) on one run, _t1194 on the next (2026-10-19, 297 passed / 1 failed); both pass directly. Proposal: one budget read from the environment (e.g. CDP_READY_MS, default 20000), set higher by tests/run-bridge-tests.sh, ideally from a shared helper rather than 87 copies. A guard keeps new probes from hard-coding it again. One defect class, one change.
+  87 tools/*.mjs CDP probes copy waitReady() with a fixed 20000 ms budget ('editor
+  not ready'). In a full bridge run on a busy host, a different one misses it each
+  time: _t1060 (its _t570 leg) on one run, _t1194 on the next (2026-10-19, 297 passed
+  / 1 failed); both pass directly. Proposal: one budget read from the environment
+  (e.g. CDP_READY_MS, default 20000), set higher by tests/run-bridge-tests.sh, ideally
+  from a shared helper rather than 87 copies. A guard keeps new probes from hard-coding
+  it again. One defect class, one change.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T01:29:39Z
-last_update: 2026-10-19T01:29:39Z
-date_finished: null
+last_update: 2026-10-19T08:14:42Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +58,43 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-19T08:14:43Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=editor)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1211: CDP tools: one readiness budget instead of 87 hard-coded 20 s waits (suite flakes under load)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Operator, 2026-10-19: "then T-1211". The aim is a reliably green bridge suite on a loaded host, without hiding a
+real hang. The budget is the time a probe allows the editor to become ready; it is not what the probe asserts.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Every CDP probe's editor-readiness budget reads one environment variable, `CDP_READY_MS`, and falls back to its current default when unset (standalone runs behave exactly as before); the inventory of every variant (the common 20 s form, the 25 s ones, and any other shape) is recorded here, with any probe left out named and the reason given
+- [ ] `tests/run-bridge-tests.sh` sets `CDP_READY_MS` higher for the whole run (a value with margin over the slowest cold load measured), stated with its reason
+- [ ] A guard (`tools/_t1211-cdp-ready-budget-guard.sh`) fails when a probe hard-codes an "editor not ready" budget without reading `CDP_READY_MS`; it bites on a scratch copy with one probe reverted, and it is wired into the suite
+- [ ] `_t1194` and `_t1060` (the two that flaked) pass with `CDP_READY_MS` set; then one full bridge run with nothing else running reports its result here (green, or each remaining failure explained)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -112,6 +143,11 @@ date_finished: null
 -->
 
 ## Verification
+
+bash tools/_t1211-cdp-ready-budget-guard.sh
+grep -q 'CDP_READY_MS' tests/run-bridge-tests.sh
+grep -q '_t1211-cdp-ready-budget-guard.sh' tests/run-bridge-tests.sh
+CDP_READY_MS=60000 node tools/_t1194-slug-task-id-cdp.mjs
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -338,3 +374,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1211-cdp-tools-one-readiness-budget-instead-o.md
 - **Context:** Initial task creation
+
+### 2026-10-19T08:14:42Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

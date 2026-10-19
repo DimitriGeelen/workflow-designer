@@ -22,6 +22,12 @@ TMP="$(mktemp -d)"
 # their folders in the host's shared /tmp: 1877 Chromium folders in 3 days.
 export TMPDIR="$TMP"
 
+# T-1211: one editor-readiness budget for every CDP probe (each reads CDP_READY_MS, else its own 20-30 s default).
+# A full run keeps the host busy and a different probe used to miss its fixed 20 s each time (_t1060, then _t1194),
+# while each passed alone. 90 s is several times the slowest cold load seen, and still a bound: a real hang fails.
+# An operator's own value wins.
+export CDP_READY_MS="${CDP_READY_MS:-90000}"
+
 # T-1081: no leg reads the suite's stdin. When the suite runs under an agent or a pipe, that stdin
 # is a pipe nobody closes, and any stray reader (a fileless `sed`, an accidental command
 # substitution in heredoc prose) blocks until the leg's timeout — a 600 s hang reported as a red
@@ -2869,6 +2875,15 @@ if python3 "$ROOT/tools/_t931-delegate-owner-follows-criteria.py" > "$TMP/leg-_t
 else
   report FAIL "fw task delegate no longer makes ownership follow the open Human criteria — a task with nothing open keeps owner: human, or one with an open criterion lost it (run 'python3 tools/_t931-delegate-owner-follows-criteria.py'; rc 2 means the CLI could not be run, not a pass)"
   show_output "$TMP/leg-_t931-delegate-owner.out" "_t931-delegate-owner-follows-criteria.py"
+  fail=$((fail + 1))
+fi
+
+# ── T-1211: every CDP probe's readiness budget reads CDP_READY_MS (set above), so one value governs the whole run ──
+if bash "$ROOT/tools/_t1211-cdp-ready-budget-guard.sh" > "$TMP/leg-_t1211-ready-budget.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a CDP probe hard-codes its editor-readiness budget instead of reading CDP_READY_MS, so under load it flakes on its own clock (run 'bash tools/_t1211-cdp-ready-budget-guard.sh'; rc 2 = could not measure)"
+  show_output "$TMP/leg-_t1211-ready-budget.out" "_t1211-cdp-ready-budget-guard.sh"
   fail=$((fail + 1))
 fi
 
