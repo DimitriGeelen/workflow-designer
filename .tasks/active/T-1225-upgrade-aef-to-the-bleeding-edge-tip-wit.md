@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T22:32:25Z
-last_update: 2026-10-20T15:44:56Z
+last_update: 2026-10-20T15:48:14Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -93,10 +93,24 @@ bvp_scores_proposed:
       and after, pristine vendor commit, divergence baseline, local fixes re-applied via the worklist, `_t1192` templates),
       after designer 0.24.0 is released (T-1223); the sidecar keeps 832's key afterwards (`_t1203` 0 FAIL) and the
       T-1000/T-1161 hook lines are back (`tools/_t1000-install-hook.sh --check`).
-- [ ] T-4421: `fw fabric register` registers tools/_t1217-native-link-definition-cdp.mjs, _t1218-unnamed-event-name-cdp.mjs
+      — Status 2026-10-20 (be.3, not the tip: AEF's pinned pre-release v1.8.14-be.3, 346c4ed33, job 059 replacing
+      057): ran 15:18-15:28Z, 7/7 steps, rc=0; pristine 5e5f68b7, baseline 6e349d77; 38 local fixes re-applied
+      (9119b772: 33 clean, 5 by 3-way); `_t517` OK; templates 3125012b; hook lines back (`--check`: both installed).
+      NOT YET: the upgrade restarted the sidecar receiver with a clean env (15:25:11Z, no TERMLINK_IDENTITY_FILE), so
+      `_t1203` reads 2 FAIL (receiver; this session's registration). Operator job 061 turns on AEF T-4311's
+      SIDECAR_RAIL_IDENTITY=1 and restarts it; the registration clears when the session is relaunched via claude-fw.
+- [x] T-4421: `fw fabric register` registers tools/_t1217-native-link-definition-cdp.mjs, _t1218-unnamed-event-name-cdp.mjs
       and _t1220-io-extra-attrs-cdp.mjs (each a `//` header after a shebang). WORKS / DOES NOT WORK recorded.
-- [ ] T-3924: `fw config set` of a key the commit-msg hook reads takes effect on the next commit. WORKS / DOES NOT WORK.
-- [ ] T-4399: a gateway carrying the standard `default` attribute keeps it through `fw corpus derive`. WORKS / DOES NOT WORK.
+      **WORKS** (2026-10-20, be.3): _t1217 and _t1218 registered, purpose read from the `//` line after the shebang;
+      _t1220 already had a card.
+- [x] T-3924: `fw config set` of a key the commit-msg hook reads takes effect on the next commit. WORKS / DOES NOT WORK.
+      **WORKS**: `fw config set INCEPTION_COMMIT_LIMIT 16`, then the hook's own reader (`fw_config` from
+      lib/config.sh, hooks.sh:268) returned 16; set back to 15, read 15.
+- [x] T-4399: a gateway carrying the standard `default` attribute keeps it through `fw corpus derive`. WORKS / DOES NOT WORK.
+      **WORKS**: a minimal map, exclusiveGateway default="F_no": derive gives `default: F_no`, generate gives
+      `<bpmn:exclusiveGateway ... default="F_no">` back. Side findings for AEF: (a) kitchen-sink.bpmn stops derive at
+      `bpmn:businessRuleTask` (unsupported tag); (b) generate on a spec with `id: null` crashes
+      (AttributeError at corpus_spec.py:593) instead of saying the map needs an id.
 - [ ] The three verdicts are sent to AEF on conversation `aef-fixes-landed`; a full bridge run on the upgraded tree is green.
 
 ### Human

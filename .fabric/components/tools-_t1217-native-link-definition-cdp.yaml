@@ -1,0 +1,21 @@
+id: tools/_t1217-native-link-definition-cdp.mjs
+name: _t1217-native-link-definition-cdp
+type: script
+subsystem: browser-harness
+location: tools/_t1217-native-link-definition-cdp.mjs
+tags: []
+
+purpose: "_t1217-native-link-definition-cdp.mjs — T-1217: a link event marked the standard way keeps that marking. A third-party map pairs a link throw with its catch by <bpmn:linkEventDefinition name>."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-20
+created_by: unknown
