@@ -74,6 +74,9 @@ date_finished: null
       (Job 053, sha 27b828a3c50c; the operator ran it 2026-10-19 22:32-22:50Z, all 7 steps rc 0: codex 3/3 and GLM-5.3
       3/3, release commit 912f8d3e, tag designer-v0.24.0 on origin. Watchtower re-pinned c1d29a25, serves a42f16b3.
       AEF told c859278f, aef-greenfield-test told d1c3f215 (they pin it and start emitting the new attributes).)
+      AEF re-pin task: **AEF T-4448** (msg 5f19f8a7; same pull-at-tag procedure as T-4310; they grep for the old E- ids
+      and exit-2 expectations first). aef-greenfield-test could not pull over ssh; operator: "they should pull it from
+      github" — tag and sha256 verified on the GitHub mirror and passed on (2eb8e0e5).
 - [ ] After the operator's run: the tag is on origin, Watchtower serves 0.24.0, and AEF and aef-greenfield-test are told
       (version, tag, sha256, bytes, what changes in stored maps); AEF's pin is followed until it reads CURRENT.
 
