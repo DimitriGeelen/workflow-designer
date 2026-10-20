@@ -1,19 +1,28 @@
 ---
 id: T-1215
-name: "Plain bpmn:task from third-party maps is re-emitted as-is (T-337 foreignTag), but AEF's intake does not support bpmn:task"
+name: "Plain bpmn:task from third-party maps is re-emitted as-is (T-337 foreignTag),
+  but AEF's intake does not support bpmn:task"
 description: >
-  AEF msg 0917b9b0 (2026-10-19): bpmn:task (a plain task) is not a supported node type in AEF's tools/corpus_spec.py. The designer imports a third-party plain task as a foreignTag node (drawn as a serviceTask rectangle, T-337) and re-emits <bpmn:task> verbatim, so such a map would not pass AEF's intake. Options to decide: (a) AEF accepts bpmn:task; (b) the designer offers to convert it to a supported type on import, with a notice (never silently); (c) leave it and say so in the export notice. Ask AEF which they prefer; a conversion changes semantics and needs the operator or the reviewer.
+  AEF msg 0917b9b0 (2026-10-19): bpmn:task (a plain task) is not a supported node
+  type in AEF's tools/corpus_spec.py. The designer imports a third-party plain task
+  as a foreignTag node (drawn as a serviceTask rectangle, T-337) and re-emits <bpmn:task>
+  verbatim, so such a map would not pass AEF's intake. Options to decide: (a) AEF
+  accepts bpmn:task; (b) the designer offers to convert it to a supported type on
+  import, with a notice (never silently); (c) leave it and say so in the export notice.
+  Ask AEF which they prefer; a conversion changes semantics and needs the operator
+  or the reviewer.
 
-status: captured
+status: started-work
 workflow_type: inception
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
 created: 2026-10-19T12:37:49Z
-last_update: 2026-10-19T12:37:49Z
-date_finished: null
+last_update: 2026-10-20T09:52:48Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -33,6 +42,29 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-10-20T09:52:48Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 3
+      D2: 3
+      D3: 3
+      D4: 3
+      F-RECALL: 3
+      F2: 3
+      F4: 3
+      F3: 3
+      F1: 3
+    rationale: D1=3 (voi:decision-with-alternatives~'go/no-go'); D2=3 
+      (voi:decision-with-alternatives~'go/no-go'); D3=3 
+      (voi:decision-with-alternatives~'go/no-go'); D4=3 
+      (voi:decision-with-alternatives~'go/no-go'); F-RECALL=3 
+      (voi:decision-with-alternatives~'go/no-go'); F2=3 
+      (voi:decision-with-alternatives~'go/no-go'); F4=3 
+      (voi:decision-with-alternatives~'go/no-go'); F3=3 
+      (voi:decision-with-alternatives~'go/no-go'); F1=3 
+      (voi:decision-with-alternatives~'go/no-go')
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1215: Plain bpmn:task from third-party maps is re-emitted as-is (T-337 foreignTag), but AEF's intake does not support bpmn:task
@@ -175,7 +207,7 @@ itself (their task, filed on our decision); any designer conversion code (not pr
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] Go/no-go on the exploration findings (reviewer-judged, `fw reviewer judge T-1215 --criterion 1`; an intake-compatibility choice, not a sovereignty or direction call; the reviewer may escalate)
+- [ ] Go/no-go on the exploration findings (reviewer-judged, `fw reviewer judge T-1215 --criterion 1`; an intake-compatibility choice between AEF accepting bpmn:task and the designer converting it; the reviewer may escalate)
   **Steps:**
   1. Run: `fw task review T-1215` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -238,3 +270,7 @@ rewrite the maps our own kit invites; an export notice would leave those maps un
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-10-20T09:52:48Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
