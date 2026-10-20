@@ -11,7 +11,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_3_run
 owner: agent
 horizon: now
 tags: [bug, runme, security]
@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-20T15:20:52Z
-last_update: 2026-10-20T18:22:06Z
+last_update: 2026-10-20T18:22:17Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -152,7 +152,7 @@ launcher `source`s job.sh into its own shell, so a job can redefine the very fun
 
 python3 tests/test_t1055_runme_launcher.py > /tmp/.t1231a 2>&1 && grep -q 'all legs passed' /tmp/.t1231a && grep -q 'PASS  33 ' /tmp/.t1231a
 bash tests/test_t1003_runme_signal.sh > /tmp/.t1231b 2>&1 && grep -q ', 0 failed' /tmp/.t1231b
-! grep -nE '^[[:space:]]*source "\$f"' tools/runme-launcher.sh
+grep -q 'cd "$PROJ" && job_shell "${STEP_C\[$i\]}"' tools/runme-launcher.sh
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
