@@ -1,5 +1,13 @@
 # Pick up here (written at the context limit, 2026-10-20)
 
+**0. FIRST: push is blocked (local commits not on origin).** The pre-push audit FAILs on the verdict ledger:
+`V-20261020-2c550c7f (T-1215)` was introduced by commit c2ba7be91 (made by the agent, not by the reviewer worker
+reviewer-judge-t-1215-r3-ce5c8564a414): an uncommitted reviewer row was swept into an agent commit. Fix per the audit:
+`python3 .agentic-framework/lib/verdict_ledger.py audit`, then re-record by a real review dispatch
+(`fw reviewer judge T-1215 --criterion 1` — the later green verdict may already cover it) or
+`fw reviewer verdict acknowledge`; then `git push`. Never --no-verify. Lesson: never `git add .context/reviews/`
+in an agent commit; reviewer rows are committed by the reviewer.
+
 Drafts on disk in the previous session's scratchpad (plain files, readable):
   S=/tmp/claude-0/-opt-832-Workflow-designer/572fe488-2aab-419e-ab67-999e6c4a77db/scratchpad
 
