@@ -125,6 +125,26 @@ session scratchpad; summaries below.
   only attributes). For v1.1: an optional `typeRef`/`schemaRef` + `sourceSystem`/`targetSystem`; flat `name`/`type`
   must stay valid (their maps VZN-T1 v26, WT-01).
 
+### AEF, as the corpus_spec reader (msg b1d5beca, 2026-10-20)
+
+Routed to AEF T-4415 (mapping v1.1 inception) as its IW-1; nothing decided until AEF's operator rules. AEF's view:
+(a) the common case INLINE, in the small frozen grammar with named, versioned types and JSON Schema semantics (a map
+stays self-contained and diffable); (b) `schemaRef` accepted for anything richer, carried verbatim as an opaque
+reference; (c) readers preserve child elements or refuse naming them, never drop. Placement: v1.1 beside
+ref/role/cardinality/dataType if additive (old maps valid, no field changes meaning), else v1.2. Takes the six
+reviewer-agreed points as given.
+
+**Tension settled (AEF msg 9fb1413f, T-4415 IW-1 addendum 752932d2a):** after greenfield's answer AEF no longer asks
+for inline as primary: "the producer is the authority on what it will write", so **referenced named types lead and
+inline is the fallback**. Both forms have equal standing in the standard (inline grammar with named types;
+typeRef/schemaRef carried verbatim), and the designer leads on references. Which form the authoring kit leads with
+goes to AEF's operator in T-4415. Child elements of `aef:io` in AEF's intake: AEF T-4518 (msg bc02bcbb) checked:
+`corpus_spec` already kept unknown `aef:io` children verbatim, but silently dropped extension content in five other
+places (children, text and repeats of structured aef elements; extra plain attributes; unknown elements at process and
+lane level). Now fixed: unknown elements at node, flow, process and lane level round-trip verbatim at any depth, extra
+attributes round-trip, and where verbatim is impossible `derive` refuses, naming the element and node. Lands with
+AEF's next push.
+
 ### Synthesis (agent)
 
 **Agreed by both:** source and target as **references into a system catalogue**, on each io with an optional step
