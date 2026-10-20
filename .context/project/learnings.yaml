@@ -2875,3 +2875,15 @@ learnings:
   task: T-1230
   date: 2026-10-20
   context: Added via context agent
+- id: PL-415
+  learning: "A runme job's preflight must run the target command's own non-mutating readiness check where one exists (for fw inception decide: fw task review's handoff-readiness check); job 056 passed its dry run and was refused live by the T-866 hypothesis gate (T-1228 addendum, 2026-10-20)"
+  source: P-001
+  task: T-1228
+  date: 2026-10-20
+  context: Added via context agent
+- id: PL-416
+  learning: "In a runme batch, a job that leaves the index dirty (fw inception decide stages the move to completed/) makes the NEXT job fail its 'nothing staged' preflight; end such jobs with a commit step, and the launcher should name the job that left changes behind (T-1228 addendum, 2026-10-20)"
+  source: P-001
+  task: T-1228
+  date: 2026-10-20
+  context: Added via context agent
