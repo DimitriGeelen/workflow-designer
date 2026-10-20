@@ -2887,3 +2887,9 @@ learnings:
   task: T-1228
   date: 2026-10-20
   context: Added via context agent
+- id: PL-417
+  learning: "Don't send TermLink files or run other heavy work during a full bridge run: the instrument sweep's 90s per-probe cap is load-sensitive, and the be.3 run lost one probe to it while 8 fixtures were being sent (standalone sweep: 105/105) (T-1225)"
+  source: P-001
+  task: T-1225
+  date: 2026-10-20
+  context: Added via context agent
