@@ -2863,3 +2863,9 @@ learnings:
   task: T-1222
   date: 2026-10-20
   context: Added via context agent
+- id: PL-413
+  learning: "Before every commit check 'git diff --cached --name-only' for .context/reviews/: a reviewer worker whose own commit was refused leaves its verdict row staged, and an agent commit then carries it, which the append-only ledger can never undo (only acknowledge against a fixed framework defect)"
+  source: P-001
+  task: T-1226
+  date: 2026-10-20
+  context: Added via context agent
