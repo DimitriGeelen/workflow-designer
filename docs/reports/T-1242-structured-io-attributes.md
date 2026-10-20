@@ -108,6 +108,23 @@ session scratchpad; summaries below.
   bpmn.io and Flowable largely ignore it); prior art OpenAPI `components/schemas` + `$ref` is D done well; versioning
   of named types; reuse T-1219's `cardinality` for lists; sample values/defaults help pseudocode and tests.
 
+### aef-greenfield-test (the first producer, msg e6caaa76, 2026-10-20)
+
+- **Today:** each `aef:input`/`aef:output` is ONE field, `name` = a system path (`sf:Opportunity.Id`,
+  `tacton:Account.companyName`), `ref` = an ontology IRI, plus `role` and `dataType` (T-1219). The structure (type,
+  mandatory, index, picklist values, owning object) already lives in their ontology (~1,300 `ntl:DataAttribute`s,
+  real Salesforce and Tacton metadata), and `ntl:AttributeMapping` (with a transformation type) links source and
+  target fields.
+- **Shapes they need:** objects (Salesforce Opportunity/Account/Contact/Quote; Tacton Account/Opportunity/Solution);
+  lists (Solution line items incl. TradeIn, QuoteLineItems, OpportunityContactRoles). Today flattened to field paths;
+  a list-of-object io would help for line items.
+- **Preference: REFERENCED, not inline.** The io points at a named type by IRI/QName (`schemaRef`-like); source/target
+  as system references (they have system ids); ontology to JSON Schema export is easy for them. An inline frozen
+  grammar is acceptable as a fallback for producers without a catalogue, but they would not author it.
+- **Agrees** with agreed points 1-6; asks the designer to keep unknown CHILD elements of `aef:io` through a save (not
+  only attributes). For v1.1: an optional `typeRef`/`schemaRef` + `sourceSystem`/`targetSystem`; flat `name`/`type`
+  must stay valid (their maps VZN-T1 v26, WT-01).
+
 ### Synthesis (agent)
 
 **Agreed by both:** source and target as **references into a system catalogue**, on each io with an optional step
@@ -123,11 +140,16 @@ to JSON Schema, `ref` for anything richer. The common ground is **D (named, vers
 the semantics; the open choice is whether the shape is authored INLINE in a small grammar that compiles to JSON
 Schema, or authored AS JSON Schema in files beside the map.
 
-**Leaning (agent, for the operator and AEF):** named types (D) with JSON Schema semantics, authored inline in a tiny
-frozen `aef:attr` grammar for the common case (so the map stays one readable artifact, as the designer and greenfield
-work today) with a guaranteed export to JSON Schema, and a `schemaRef` for anything the grammar cannot say. This takes
-GLM's authoring model inside Codex's semantics and drift guards (versioned types, export/import/validate tests). A
-third opinion (Antigravity) would settle the inline-vs-files split if the operator wants it.
+**Leaning (agent, revised after greenfield's input):** **referenced named types** as the primary form: an optional
+`typeRef`/`schemaRef` on the io pointing at a named, versioned type (a catalogue entry: greenfield's ontology IRI, or
+a JSON Schema), plus `sourceSystem`/`targetSystem` as system references, with flat `name`/`type` still valid. This is
+Codex's recommendation, and it is what the first real producer already has and wants. GLM's small inline grammar
+stays only as an optional fallback for producers without a catalogue (greenfield would not author it), so it is not
+needed for v1.1. Independent of the ruling, the designer must keep unknown `aef:io` CHILD elements through a save
+(both reviewers and greenfield ask for it; filed as its own build task, the same "preserving is not interpreting"
+reasoning AEF gave for T-1220).
+
+*(First leaning, before greenfield answered: inline tiny grammar with JSON Schema export. Superseded above.)*
 
 ## Dialogue Log
 
