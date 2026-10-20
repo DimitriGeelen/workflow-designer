@@ -17,7 +17,7 @@ tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
 created: 2026-07-28T14:52:46Z
-last_update: 2026-10-20T19:46:13Z
+last_update: 2026-10-20T19:47:27Z
 date_finished:
 revisit_at: 2027-01-15
 revisit_evidence_needed: "A non-technical reader who needs to read a map and cannot"
