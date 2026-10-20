@@ -424,6 +424,15 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
   coverage check's "MCP server env set" is evidence of configuration, not of what the server signs with.
 - Do NOT use termlink_agent_identity to check: it reads (and would create) ~/.termlink/identity.json, the host key,
   regardless of TERMLINK_IDENTITY_FILE.
+- **Answered (010-termlink msg 9cb9d263):** not expected; registration reads TERMLINK_IDENTITY_FILE with the same
+  precedence as signing (FILE > DIR > TERMLINK_AGENT_ID > host key, registration.rs:58). The registering process is
+  AEF's `bin/claude-fw` (`TERMLINK_SESSION="claude-master-$$"`), which never sets TERMLINK_IDENTITY_FILE, so a session
+  started by it registers under the host key unless the launching shell exported the variable. Reported to AEF as a
+  claude-fw fix (conversation 832-claude-fw-identity): read RAIL_IDENTITY_FILE and export it before registering, only
+  when the key file exists.
+- **Gap in our own check:** `_t1203-identity-coverage.sh` has no leg for the session REGISTRATION, so it read OK 8/0
+  through this. To add (after the running suite closes finish): a leg reading `termlink whoami --json` for this session
+  and failing when its identity_fingerprint is not 05c467b46a0bdf5e.
 
 ### 2026-10-18T13:52:55Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
