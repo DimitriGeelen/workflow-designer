@@ -1,11 +1,21 @@
 ---
 id: T-1241
-name: "Business lens in the designer (T-281 GO, slice 1): lens switch in the toolbar, business lens first"
+name: "Business lens in the designer (T-281 GO, slice 1): lens switch in the toolbar,
+  business lens first"
 description: >
-  Build slice 1 of inception T-281 (GO 2026-10-20, operator job 063). A toolbar switch business / logical / technical / all; the business lens hides technical badges, ids and fields outside the business set in the panel, the details view and on the canvas. Driven by the lens definition AEF owns (AEF T-4402; until it lands, a local file of the same shape, swapped for AEF's when it ships). Success clause from T-281: on aef-task-lifecycle in the business lens 0 technical badges and 0 fields outside the business set visible (test), 0 bytes changed in the saved BPMN when switching lenses, 0 fields shown that the field profile hides, and the operator can follow the map. Screenshots at 1024/1440/1920 + independent reviewer.
+  Build slice 1 of inception T-281 (GO 2026-10-20, operator job 063). A toolbar switch
+  business / logical / technical / all; the business lens hides technical badges,
+  ids and fields outside the business set in the panel, the details view and on the
+  canvas. Driven by the lens definition AEF owns (AEF T-4402; until it lands, a local
+  file of the same shape, swapped for AEF's when it ships). Success clause from T-281:
+  on aef-task-lifecycle in the business lens 0 technical badges and 0 fields outside
+  the business set visible (test), 0 bytes changed in the saved BPMN when switching
+  lenses, 0 fields shown that the field profile hides, and the operator can follow
+  the map. Screenshots at 1024/1440/1920 + independent reviewer.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +48,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-20T20:41:29Z
-last_update: 2026-10-20T21:14:33Z
-date_finished: null
+last_update: 2026-10-20T23:44:08Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +60,61 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-20T23:42:19Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=canvas)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1241: Business lens in the designer (T-281 GO, slice 1): lens switch in the toolbar, business lens first
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Slice 1 of inception T-281 (GO 2026-10-20, operator job 063). Design and evidence:
+`docs/reports/T-281-audience-lenses.md`. The lens definition is AEF's (their T-4402); until it ships, a local file of
+the same shape, swapped for AEF's when it lands.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] A lens definition (data, not code) names per lens the fields and the canvas decorations it shows; the designer
+      reads it like the field profile, and works without it (all fields, as today)
+- [ ] A toolbar switch business / logical / technical / all; the business lens drives the side panel, the details view
+      and the canvas decoration at once
+- [ ] Test on `aef-task-lifecycle` in the business lens: 0 technical badges and 0 fields outside the business set
+      visible; 0 fields shown that the field profile hides
+- [ ] Switching lenses changes 0 bytes of the saved BPMN (export before == export after, every lens)
+- [ ] Screenshots of each lens at 1024, 1440 and 1920, read control by control in `## Visual Verification`
+- [ ] The full bridge run stays green
+
+### Human
+- [ ] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1241 --criterion 1`): each lens is
+      legible, nothing clipped or overlapping, the business lens reads as a business view
+  **Steps:** 1. Open the screenshot paths listed under `## Visual Verification`. 2. Check each lens at 1024/1440/1920.
+  **Expected:** every control reachable and unclipped; the business lens shows the flow without ids or technical badges.
+  **If not:** name the screenshot and the control; the agent fixes and re-shoots.
+- [ ] [REVIEW] The operator opens `aef-task-lifecycle` in the designer in the business lens and can follow it
+  **Why you:** act-in-the-world — T-281's success clause names the operator as the reader who must follow the map.
+  **Steps:** 1. Open the map in Watchtower's designer. 2. Switch the toolbar lens to Business. 3. Read the flow.
+  **Expected:** you can follow what happens and who decides, without technical noise.
+  **If not:** say what got in the way; it becomes a fix in this task.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -345,3 +396,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1241-business-lens-in-the-designer-t-281-go-s.md
 - **Context:** Initial task creation
+
+### 2026-10-20T23:42:18Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

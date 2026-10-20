@@ -178,6 +178,8 @@ We will know that we are successful when we see <measurable signal>.
 ### Human
 <!-- @auto-tick-on-decide -->
 - [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+  **Why you:** tier0 — recording an inception's go/no-go (`fw inception decide`) is Tier 0, and the standard this
+  changes is ruled by AEF's operator (T-4415) and then ours.
   **Steps:**
   1. Run: `fw task review T-1242` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation

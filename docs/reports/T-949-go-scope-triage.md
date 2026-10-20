@@ -136,6 +136,9 @@ operator rulings, not on filing).
   harness, and was closed 2026-09-30 at 5/5 ACs and 5/5 verification. Only its `status:`
   field said otherwise. Moved to `SHIPPED-UNLINKED` above. Struck rather than deleted,
   because the reasoning that produced the wrong verdict is the useful part.
+- **T-281** — *Audience render lenses* (GO 2026-10-20, operator job 063: slice 1, the business lens in the designer).
+  The slice is filed as **T-1241** (horizon now, not started), so the decision propagated and the delivery has not.
+  Evidence: `docs/reports/T-281-audience-lenses.md`. Added when the triage checker flagged it (2026-10-21).
 - **T-103** — *Adopt the T-101 CDP harness as editor-test substrate.* Slice T-105 is
   `started-work`, and separately carries a 72-day lifecycle anomaly in the audit.
 
