@@ -1106,6 +1106,25 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1222: native BPMN event definitions survive a save; third-party boundary events stay boundary events ──
+# Saves every third-party fixture through the real designer and counts *EventDefinition per kind (49 -> 3 before),
+# checks referenced root elements resolve, hosts keep their tag, boundaries keep attachedToRef, and no aef:eventDef
+# is added by an unedited save. The shots tool asserts the canvas (types, boundaries on hosts) at three widths.
+if timeout 900 python3 "$ROOT/tools/_t1222-event-definitions-kept.py" > "$TMP/leg-_t1222.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a native event definition is lost, misplaced or dangling on save again, a boundary event lost its attachment, or an unedited save added aef:eventDef (run 'python3 tools/_t1222-event-definitions-kept.py'; T-1222)"
+  show_output "$TMP/leg-_t1222.out" "_t1222-event-definitions-kept.py"
+  fail=$((fail + 1))
+fi
+if timeout 600 python3 "$ROOT/tools/_t1222-event-shots.py" "$TMP/t1222-shots" > "$TMP/leg-_t1222-shots.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "third-party event kinds render wrong again: a boundary event is not on its host, a timer/message catch lost its type, or a plain event became a link (run 'python3 tools/_t1222-event-shots.py /tmp/x'; T-1222)"
+  show_output "$TMP/leg-_t1222-shots.out" "_t1222-event-shots.py"
+  fail=$((fail + 1))
+fi
+
 # ── T-1220: attributes on aef:input/aef:output beyond name/type/required survive open and save ──
 # aef-greenfield-test generates aef:io from its ontology (ref/role/cardinality/dataType, AEF T-4415); the
 # save used to keep only the named attributes. Red against the pre-T-1220 source (legs 1, 3, 6).

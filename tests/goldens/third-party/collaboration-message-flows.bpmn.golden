@@ -45,6 +45,7 @@
         <aef:position x="653.0" y="178.0"/>
         <aef:meta slug="endevent"/>
       </bpmn:extensionElements>
+      <bpmn2:messageEventDefinition xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" id="MessageEventDefinition_2"/>
     </bpmn:endEvent>
 
     <bpmn:task id="lan_1_task" name="Task_1">

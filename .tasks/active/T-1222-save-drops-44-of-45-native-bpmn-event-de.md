@@ -107,18 +107,47 @@ fixtures: 47/47 kept, all outputs well-formed. Open: (1) definitions name root e
       earlier 47 was a looser grep; 10 losses, all of kitchen-sink's nine kinds plus one message in
       collaboration-message-flows. It also fails on any dangling messageRef/signalRef/errorRef/escalationRef. Wired into
       the bridge suite together with the fix, not before, so the suite stays green meanwhile.)
-- [ ] Decided and recorded in `## Decisions` before building: keep the definitions verbatim (preservation only), or also
+- [x] Decided and recorded in `## Decisions` before building: keep the definitions verbatim (preservation only), or also
       map timer/message/error onto the designer's typed events (`aef:eventDef`, T-190/T-204), and why.
-- [ ] After the fix every native event definition survives open and save, and any root-level message / signal / error /
+      (Both, scoped: preserve every definition; type catch hosts only; plain catch/throw otherwise. Reviewer green after
+      three ambers, judge-t-1222, 2026-10-20.)
+- [x] After the fix every native event definition survives open and save, and any root-level message / signal / error /
       escalation it references is carried with it, so the export references no id it does not contain (T-1131 leg green).
-- [ ] Maps the designer authored save byte-identically; third-party goldens change only by the definitions (and their
+      (`_t1222`: 49 -> 49, 0 dangling, 0 misplaced; captureEventRoots keeps referenced root elements, deduplicated
+      against the collaboration capture.)
+- [x] Maps the designer authored save byte-identically; third-party goldens change only by the definitions (and their
       referenced root elements) coming back, by third-party boundary events being restored as `bpmn:boundaryEvent`
       with their `attachedToRef` (and the `cancelActivity="true"` the designer writes for them), and by catch hosts
       taking their designer type; an unedited open-and-save adds no `aef:eventDef` (it appears only once a binding is
       set); reviewed diff by diff before re-recording.
-- [ ] The guard is wired into the bridge suite and shown to bite.
+      **Amended after building (2026-10-20), and named rather than absorbed:** three further consequences of the same
+      restoration also change the goldens: display ids renumber (boundary events no longer count as numbered steps,
+      typed catches take their type word); layout follows (a boundary event is drawn on its host's perimeter, so its
+      position and the auto-sized lane height move); and `aef:boundaryPos` is added where more than one third-party
+      boundary event shares a host (they were drawn on top of each other). Diffs reviewed: collaboration-message-flows
+      (1 line: the message definition), boundary-events and kitchen-sink (the above, plus the definitions). The 8 other
+      third-party goldens and every designer-authored round trip are unchanged (round-trip, export-contract, T-259,
+      T-308 tests rc 0; _t581 byte-identity teeth 5/5).
+- [x] The guard is wired into the bridge suite and shown to bite.
+      (Legs `_t1222-event-definitions-kept.py` and `_t1222-event-shots.py`; against the pre-fix source the guard is red:
+      49 -> 3, boundary events with attachedToRef 3 -> 0 and 14 -> 0; against the keep-everything prototype it is red
+      on 28 definitions moved from boundaryEvent to serviceTask.)
 
 ### Human
+- [ ] An independent reviewer judges the screenshots of the build (UI rule, 2026-10-14; reviewer-judged render
+  criterion, `fw reviewer judge T-1222 --criterion 1`, who may escalate).
+  **Steps:**
+  1. Open `docs/reports/T-1222-evidence/t1222-{before,after}-{1024,1440,1920}{,-detail}.png` (fixture
+     tests/fixtures/t1222/native-event-kinds.bpmn; before = released 0.24.0).
+  2. BEFORE: three boundary events drawn as task boxes over their hosts; "Announce shipped" with the link chevron.
+     AFTER: "Order changed" a message event on "Check order"; "Interrupted" (plain) and "Escalate" (plain, dashed
+     non-interrupting ring) spread along "Ship order"'s bottom edge; "Wait one day" with the timer glyph; "Stock low" and
+     "Announce shipped" plain events, no chevron.
+  3. Full pages: toolbar, palette and properties panel visible and unclipped at each width; nothing else differs.
+  4. Known and reported: a boundary circle covers part of its host's grey display id, and two boundary id labels under one
+     host crowd each other; this is how the designer already draws its own boundary events.
+  **Expected:** green, or what has to change.
+  **If not:** name the screenshot and the control.
 - [ ] The proposed shape in `## Decisions` (2026-10-20) is judged before building by an independent reviewer, who may
   escalate (`fw reviewer judge T-1222 --criterion 1`).
   **Steps:**
@@ -419,6 +448,20 @@ timeout 900 python3 tools/_t1222-event-definitions-kept.py > /tmp/.t1222.out 2>&
   conditional, compensate, cancel, terminate; and any throw) renders as a plain catch or throw event, keeping its
   original tag and its verbatim definition, with no link semantics. Not a new generic type.
 - **Guard tightened:** `_t1222` also fails when a kept definition sits inside an element that is not an event.
+
+### 2026-10-20 — found while building
+- **Definition-less boundary events.** The first build restored boundary semantics only for events that kept a
+  definition, so boundary-events.bpmn's three bare boundaries (batman, superman, wonder woman) still lost their
+  attachment, and the guard passed because it follows definitions. **Chose:** any catch imported from a
+  `bpmn:boundaryEvent` keeps its host (`isPlainBoundary`: link-type catch, no link definition, `hostRef` present — a
+  designer-made link event never carries hostRef). The guard now also counts boundary events with `attachedToRef`,
+  fixture vs save (old source: 3→0 and 14→0, red).
+- **Id word of a restored plain boundary is `link`** (`lan_link_batman`), the word bare catch events have carried since
+  T-308. Changing it would rename every existing bare catch on its next save; kept.
+- **First-save ids of third-party maps move:** boundary events stop counting as numbered steps, so the tasks after
+  them renumber (boundary-events: lan_6_task → lan_3_task), and typed catches take the typed word. Maps already saved by
+  0.24.0 lost the attachment then and keep their ids. Layout follows: a boundary event is drawn on its host's
+  perimeter, so its position and the auto-sized lane height change (kitchen-sink lane 1060 → 1050).
 
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.

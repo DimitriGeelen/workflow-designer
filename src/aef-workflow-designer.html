@@ -3941,8 +3941,19 @@ function text(s) { const t = document.createTextNode(s); return t; }
 // a host-relative perimeter point, not at free x/y"). boundaryHostOf resolves the host
 // (or null for an in-flow event / dangling ref); boundaryPerimeterPoint walks the host
 // rect clockwise from top-left by the boundaryPos fraction (default: bottom-centre).
+// T-1222: a third-party event the designer has no type for (it keeps its native definition) is a PLAIN event:
+// rendered as a plain catch/throw, never with link semantics (reviewer ruling, 2026-10-20).
+function isPlainEvent(n) {
+  return !!n && (n.type === 'linkEventCatch' || n.type === 'linkEventThrow') && !n.linkDef
+    && (n.nativeEventDefs || []).length > 0;
+}
+// T-1222: a catch imported from a third-party bpmn:boundaryEvent keeps its host, with or without a definition (a
+// designer-made link event never carries hostRef: that field belongs to the typed-event schema).
+function isPlainBoundary(n) {
+  return !!n && n.type === 'linkEventCatch' && !n.linkDef && !!(n.aef && n.aef.hostRef);
+}
 function boundaryHostOf(n) {
-  if (!EVENT_KIND[n.type] || !n.aef || !n.aef.hostRef) return null;
+  if (!(EVENT_KIND[n.type] || isPlainBoundary(n)) || !n.aef || !n.aef.hostRef) return null;
   return findNode(n.aef.hostRef) || null;
 }
 function boundaryPerimeterPoint(host, frac) {
@@ -4106,6 +4117,20 @@ function renderNodes() {
       const stroke = 'var(--text-faint)';
       g.appendChild(el('circle', { cx, cy, r, class: 'node-shape', fill: 'var(--surface-2)', stroke, 'stroke-width': '1.5' }));
       g.appendChild(el('circle', { cx, cy, r: r - 3.5, fill: 'none', stroke, 'stroke-width': '1.2' }));
+      // T-1222: a plain third-party boundary catch keeps the BPMN boundary ring (dashed when non-interrupting).
+      if (boundaryHostOf(n)) {
+        const ringAttrs = { cx, cy, r: r + 3, fill: 'none', stroke, 'stroke-width': '1.2' };
+        if (n.aef.interrupting === 'false') ringAttrs['stroke-dasharray'] = '3 2';
+        g.appendChild(el('circle', ringAttrs));
+      }
+    } else if (isPlainEvent(n) && n.type === 'linkEventThrow') {
+      // T-1222: plain throw event — the document names a kind the designer does not model (signal, escalation,
+      // message, compensate, ...). Plain intermediate event in the muted palette, the inner ring filled for a
+      // throw; no link chevron, because it is not a link.
+      const cx = n.x + def.w / 2, cy = n.y + def.h / 2, r = def.w / 2;
+      const stroke = 'var(--text-faint)';
+      g.appendChild(el('circle', { cx, cy, r, class: 'node-shape', fill: 'var(--surface-2)', stroke, 'stroke-width': '1.5' }));
+      g.appendChild(el('circle', { cx, cy, r: r - 3.5, fill: 'var(--text-faint)', 'fill-opacity': '0.35', stroke, 'stroke-width': '1.2' }));
     } else if (n.type === 'linkEventThrow' || n.type === 'linkEventCatch') {
       // Off-page connector: hollow circle with a chevron arrow inside.
       // Throw = chevron pointing right (data leaves); catch = chevron pointing left (data enters).
@@ -12161,6 +12186,9 @@ function aefExtensionXml(node) {
   if (EVENT_KIND[node.type]) {
     const bindField = EVENT_BINDING_FIELD[node.type];
     const binding = bindField ? (aef[bindField] || '') : '';
+    // T-1222: a node typed from its native definition carries its kind there; <aef:eventDef> is added only once a
+    // binding is set, so an unedited open-and-save adds nothing and a user's binding edit is never dropped.
+    if (binding || !(node.nativeEventDefs || []).length)
     out += `        <aef:eventDef kind="${escAttr(EVENT_KIND[node.type])}" binding="${escAttr(binding)}"/>\n`;
   } else if (aef.eventDefKind) {
     // T-259 (T-257 GO): re-emit the preservation passthrough captured at import
@@ -12548,7 +12576,8 @@ function buildBpmnXml(s) {
     // in-flow form. hostRef stores the host uid (resolved to its displayId here). A
     // dangling hostRef (host deleted) degrades to the plain in-flow tag.
     let boundaryAttrs = '';
-    if (EVENT_KIND[n.type] && n.aef && n.aef.hostRef) {
+    // T-1222: widened to a third-party boundary catch (exports as boundaryEvent + attachedToRef + cancelActivity).
+    if ((EVENT_KIND[n.type] || isPlainBoundary(n)) && n.aef && n.aef.hostRef) {
       const host = findNode(n.aef.hostRef);
       if (host) {
         tag = 'boundaryEvent';
@@ -12581,6 +12610,9 @@ function buildBpmnXml(s) {
       const ldName = (n.aef && n.aef.linkId) || n.linkDef.name;
       lines.push(`      <bpmn:linkEventDefinition${n.linkDef.id ? ` id="${escAttr(n.linkDef.id)}"` : ''}${ldName ? ` name="${escAttr(ldName)}"` : ''}/>`);
     }
+    // T-1222: the other kept native definitions, verbatim, in their original order (eventDefinition follows
+    // incoming/outgoing in tCatchEvent/tThrowEvent).
+    for (const x of n.nativeEventDefs || []) lines.push(`      ${x}`);
     // T-1096: the task's kept data content, after incoming/outgoing in tActivity's order
     const kd = s.dataKept && s.dataKept.perNode && s.dataKept.perNode[n.uid];
     if (kd) for (const t of DATA_TASK_TAGS) for (const x of kd[t] || []) lines.push(`      ${x}`);
@@ -12650,6 +12682,8 @@ function buildBpmnXml(s) {
   lines.push(`  </bpmn:process>`);
   // T-1119: the processes behind the other pools and the messages the kept flows name, verbatim.
   if (s.collab) for (const x of [...(s.collab.processes || []), ...(s.collab.messages || [])]) { lines.push(``); lines.push(`  ${x}`); }
+  // T-1222: the root elements kept native event definitions name, verbatim.
+  for (const x of s.eventRoots || []) { lines.push(``); lines.push(`  ${x}`); }
   lines.push(``);
   // SUPERSEDED 2026-08-23 (T-423). This block previously read:
   //
@@ -12825,6 +12859,24 @@ const DATA_PROC_TAGS = new Set(['dataObject', 'dataObjectReference', 'dataStoreR
 // task output -> process output) — keeping the association without it would write a dangling reference.
 const DATA_TASK_TAGS = ['ioSpecification', 'property', 'dataInputAssociation', 'dataOutputAssociation'];
 const DATA_ASSOC_TAGS = new Set(['dataInputAssociation', 'dataOutputAssociation']);
+// T-1222: a kept native event definition can name a root-level element (messageRef, signalRef, errorRef,
+// escalationRef). Keep each such element verbatim so the export never points at an id it does not contain;
+// a message the collaboration capture already keeps (T-1119) is not kept twice. Empty for every map without them.
+function captureEventRoots(doc, nodes, collab) {
+  const refs = new Set();
+  for (const n of nodes) for (const x of n.nativeEventDefs || []) {
+    for (const m of x.matchAll(/\b(?:messageRef|signalRef|errorRef|escalationRef)="([^"]+)"/g)) refs.add(m[1]);
+  }
+  if (!refs.size) return [];
+  const kept = new Set(((collab && collab.messages) || []).map(x => (x.match(/\bid="([^"]+)"/) || [])[1]));
+  const ROOT_KINDS = new Set(['message', 'signal', 'error', 'escalation']);
+  const BPMN = 'http://www.omg.org/spec/BPMN/20100524/MODEL';
+  return Array.from(doc.documentElement.children)
+    .filter(c => c.namespaceURI === BPMN && ROOT_KINDS.has(c.localName) && refs.has(c.getAttribute('id')) && !kept.has(c.getAttribute('id')))
+    .map(c => new XMLSerializer().serializeToString(c)
+      .replace(/ xmlns(:bpmn)?="http:\/\/www\.omg\.org\/spec\/BPMN\/20100524\/MODEL"/g, ''));
+}
+
 function captureProcessData(doc, proc, displayIdToUid) {
   const ROOT_NS = { bpmn: 'http://www.omg.org/spec/BPMN/20100524/MODEL', bpmndi: 'http://www.omg.org/spec/BPMN/20100524/DI',
                     dc: 'http://www.omg.org/spec/DD/20100524/DC', di: 'http://www.omg.org/spec/DD/20100524/DI',
@@ -13254,6 +13306,10 @@ function parseBpmnXml(text) {
   REVERSE_TYPE['intermediateCatchEvent'] = 'linkEventCatch';
   REVERSE_TYPE['linkEventThrow'] = 'linkEventThrow';
   REVERSE_TYPE['linkEventCatch'] = 'linkEventCatch';
+  // T-1222: a boundaryEvent is a CATCH event. Without this it fell back to serviceTask, so a third-party boundary
+  // event (no <aef:eventDef> to type it) was saved as a task and lost its attachedToRef. The designer's own
+  // boundary events carry <aef:eventDef> and are typed below as before.
+  REVERSE_TYPE['boundaryEvent'] = 'linkEventCatch';
 
   const nodes = [];
   const displayIdToUid = new Map(); // for resolving sourceRef/targetRef on edges
@@ -13448,6 +13504,13 @@ function parseBpmnXml(text) {
           if (!aef.linkId && linkDef.name) aef.linkId = linkDef.name;
         }
       }
+      // T-1222: every other native event definition (message, timer, signal, error, escalation, conditional,
+      // compensate, cancel, terminate) is kept as the XML it arrived as and written back after incoming/outgoing.
+      // Before, a save dropped 46 of the 49 in the third-party fixtures (tools/_t1222-event-definitions-kept.py).
+      const nativeDefEls = Array.from(el.children)
+        .filter(c => c.namespaceURI === BPMN_NS && /EventDefinition$/.test(c.localName) && c.localName !== 'linkEventDefinition');
+      const nativeEventDefs = nativeDefEls.map(c => new XMLSerializer().serializeToString(c)
+        .replace(/ xmlns(:bpmn)?="http:\/\/www\.omg\.org\/spec\/BPMN\/20100524\/MODEL"/g, ''));
       // T-204: typed intermediate event — <aef:eventDef> disambiguates the shared
       // intermediateCatchEvent tag (which also decodes to linkEventCatch) into the
       // specific typed-event node type, and restores the kind-specific binding
@@ -13471,6 +13534,14 @@ function parseBpmnXml(text) {
           if (bindField) aef[bindField] = eventDefEl.getAttribute('binding') || '';
           _eventDefConsumed = true;
         }
+      }
+      // T-1222: a third-party catch (intermediate catch or boundary) whose one native definition is a kind the
+      // designer models (timer, message, error) takes that type. The native definition stays the carrier: no
+      // <aef:eventDef> is written for it until a binding is set (aefExtensionXml). Start and throw hosts are never
+      // typed (typed events export as catches, T-237); they keep their tag and definition as plain events.
+      if (!eventDefEl && !linkDef && _catchHost && type === 'linkEventCatch' && nativeDefEls.length === 1) {
+        const k = nativeDefEls[0].localName.replace(/EventDefinition$/, '');
+        if (EVENT_KIND_TYPE[k]) type = EVENT_KIND_TYPE[k];
       }
       // T-259 (T-257 GO): preservation passthrough. Any <aef:eventDef> the
       // typed-catch override did NOT consume (startEvent / intermediateThrowEvent
@@ -13588,6 +13659,7 @@ function parseBpmnXml(text) {
         ...(documentation.length ? { documentation } : {}),
         ...(foreignTag ? { foreignTag } : {}),
         ...(linkDef ? { linkDef } : {}),
+        ...(nativeEventDefs.length ? { nativeEventDefs } : {}),
       });
       displayIdToUid.set(displayId, uid);
     }
@@ -13601,6 +13673,33 @@ function parseBpmnXml(text) {
       const hostUid = displayIdToUid.get(n.aef._hostDisplayId);
       if (hostUid) n.aef.hostRef = hostUid;
       delete n.aef._hostDisplayId;
+    }
+  }
+  // T-1222: third-party boundary events carry no <aef:boundaryPos>, so every one on a host landed at the default
+  // bottom-centre point and two on the same host drew on top of each other. When more than one such event shares a
+  // host, spread them evenly along the host's bottom edge. Only events that came from a third-party file (a plain
+  // boundary, or one typed from its native definition) are placed: the designer's own boundary events, with or
+  // without a position, are untouched, so its own maps save byte-identically.
+  {
+    const byHost = new Map();
+    for (const n of nodes) {
+      if (!n.aef || !n.aef.hostRef || n.aef.boundaryPos) continue;
+      const thirdParty = (n.type === 'linkEventCatch' && !n.linkDef) || (n.nativeEventDefs || []).length > 0;
+      if (!thirdParty) continue;
+      if (!byHost.has(n.aef.hostRef)) byHost.set(n.aef.hostRef, []);
+      byHost.get(n.aef.hostRef).push(n);
+    }
+    for (const [hostUid, evs] of byHost) {
+      if (evs.length < 2) continue;
+      const host = nodes.find(h => h.uid === hostUid);
+      const hd = (host && NODE_DEFAULTS[host.type]) || NODE_DEFAULTS.serviceTask;
+      const P = 2 * (hd.w + hd.h);
+      // bottom edge runs right-to-left in the perimeter walk: d from w+h (bottom-right) to 2w+h (bottom-left);
+      // spread across 10%..90% of it so the labels under neighbouring events have room
+      evs.forEach((n, i) => {
+        const t = 0.1 + 0.8 * i / (evs.length - 1);
+        n.aef.boundaryPos = ((hd.w + hd.h + hd.w * t) / P).toFixed(4);
+      });
     }
   }
 
@@ -13657,6 +13756,7 @@ function parseBpmnXml(text) {
   const partEl = _parts.find(p => p.getAttribute('processRef') === proc.getAttribute('id')) || _parts[0];
   const collab = captureCollaboration(doc, proc, partEl, displayIdToUid);   // T-1119
   const dataKept = captureProcessData(doc, proc, displayIdToUid);         // T-1096
+  const eventRoots = captureEventRoots(doc, nodes, collab);              // T-1222
 
   // Snap y-coords to lane centers for nodes that lacked explicit positions
   const result = {
@@ -13687,6 +13787,8 @@ function parseBpmnXml(text) {
     ...(collab ? { collab } : {}),
     // T-1096: data objects/stores and the tasks' data associations, kept verbatim (null: byte-identical).
     ...(dataKept ? { dataKept } : {}),
+    // T-1222: root-level message/signal/error/escalation elements a kept native event definition names, verbatim.
+    ...(eventRoots.length ? { eventRoots } : {}),
   };
   // Use a temporary state so laneCenterY() resolves correctly during patching
   const prev = state;
