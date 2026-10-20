@@ -30,6 +30,20 @@ def counts(text):
     return Counter(DEF.findall(text))
 
 
+def hosts_by_def_id(text):
+    """{definition id: (host local name, host has attachedToRef)} for every *EventDefinition that carries an id."""
+    try:
+        tree = ET.fromstring(text.encode("utf-8"))
+    except ET.ParseError:
+        return {}
+    out = {}
+    for host in tree.iter():
+        for el in host:
+            if el.tag.rsplit("}", 1)[-1].endswith("EventDefinition") and el.get("id"):
+                out[el.get("id")] = (host.tag.rsplit("}", 1)[-1], bool(host.get("attachedToRef")))
+    return out
+
+
 def main():
     with tempfile.TemporaryDirectory(prefix="t1222-") as out:
         env = dict(os.environ, T358_GOLDENDIR=out)
@@ -67,6 +81,18 @@ def main():
                         host = parent[el].tag.rsplit("}", 1)[-1] if el in parent else "(root)"
                         if not host.endswith("Event"):
                             misplaced.append("%s: <%s> inside <%s>" % (f, local, host))
+                # Second amber (2026-10-20): each definition keeps its HOST TAG (matched by the definition's id: a typed
+                # start or throw must not come back as a catch), and every boundary host keeps its attachedToRef.
+                src_hosts = hosts_by_def_id(src)
+                for did, (s_host, _) in src_hosts.items():
+                    d = hosts_by_def_id(dst).get(did)
+                    if d is None:
+                        continue  # a loss, already counted above
+                    d_host, d_attached = d
+                    if d_host != s_host:
+                        misplaced.append("%s: definition %s moved from <%s> to <%s>" % (f, did, s_host, d_host))
+                    elif d_host == "boundaryEvent" and not d_attached:
+                        misplaced.append("%s: boundary event of definition %s lost its attachedToRef" % (f, did))
             ids = set(re.findall(r'\bid="([^"]+)"', dst))
             for attr, ref in REF.findall(dst):
                 if ref not in ids:

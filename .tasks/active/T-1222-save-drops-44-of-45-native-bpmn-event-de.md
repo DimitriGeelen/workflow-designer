@@ -112,7 +112,9 @@ fixtures: 47/47 kept, all outputs well-formed. Open: (1) definitions name root e
 - [ ] After the fix every native event definition survives open and save, and any root-level message / signal / error /
       escalation it references is carried with it, so the export references no id it does not contain (T-1131 leg green).
 - [ ] Maps the designer authored save byte-identically; third-party goldens change only by the definitions (and their
-      referenced root elements) coming back, reviewed diff by diff before re-recording.
+      referenced root elements) coming back, by third-party boundary events being restored as `bpmn:boundaryEvent`
+      with their `attachedToRef` (and the `cancelActivity="true"` the designer writes for them), and by catch hosts
+      taking their designer type; reviewed diff by diff before re-recording.
 - [ ] The guard is wired into the bridge suite and shown to bite.
 
 ### Human
@@ -400,9 +402,13 @@ timeout 900 python3 tools/_t1222-event-definitions-kept.py > /tmp/.t1222.out 2>&
   `attachedToRef` (T-204 slice 2 already models boundary events natively), and keeps its definition. **Rejected:**
   carrying the whole element through the foreignTag passthrough: it would keep the bytes but leave the event
   uneditable and detached on the canvas.
-- **Typing is for catch hosts only (T-237):** the designer's typed events export as `intermediateCatchEvent`, so typing
-  a third-party message THROW would flip it to a catch. Part 2 applies to catch hosts (intermediate catch, start,
-  boundary); throws keep their tag and definition untyped.
+- **Typing is for catch hosts only (T-237):** the designer's typed events export as `intermediateCatchEvent`
+  (src ~12017-12019), so typing a third-party THROW or START event would flip it to a catch. Part 2 applies only to
+  `intermediateCatchEvent` and `boundaryEvent` hosts (`_catchHost`, src ~13467); start events (8 timer/message/error
+  in kitchen-sink) and throws keep their tag and definition untyped. (Second amber, 2026-10-20.)
+- **An untyped boundary event** (a "plain catch" on a boundary host) exports as `bpmn:boundaryEvent` with its
+  `attachedToRef` and `cancelActivity`: the boundary export condition (src ~12550) widens beyond EVENT_KIND to any
+  node that came in as a boundary event.
 - **Open question, ruled by the reviewer:** an event whose definition the designer has no type for (signal, escalation,
   conditional, compensate, cancel, terminate; and any throw) renders as a plain catch or throw event, keeping its
   original tag and its verbatim definition, with no link semantics. Not a new generic type.
