@@ -42,7 +42,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-20T13:44:37Z
-last_update: 2026-10-20T15:30:52Z
+last_update: 2026-10-20T15:35:47Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -91,7 +91,11 @@ picker, parallel). The batch and picker are built (T-1227); parallel is written 
 - [x] `docs/reports/runme-job-queue-for-aef.md` covers problem, operator side, agent side, job format, safeguards with
       code, batches and the picker, signal, watcher, tests, the comparison with `fw runme`, and a proposal with the
       further improvements (parallel, resume, batch events)
-- [ ] Sent to AEF (999) asking for inclusion and their task id; their task id recorded here when it comes
+- [x] Sent to AEF (999) asking for inclusion and their task id; their task id recorded here when it comes
+      → AEF inception **T-4470**, decided **GO (adapt, not port)** by AEF's operator (msg 9a3576af, 2026-10-20);
+      slices AEF T-4491 (fixed command, menu, lifecycle on out-of-process declarative jobs), T-4492 (sha manifest +
+      per-step confirm), T-4493 (ordered batches). Addendum 1 sent 15:31Z (sha 492ea7bf). Our six review fixes:
+      T-1231..T-1236.
       (sent 2026-10-20, conversation 832-runme-job-queue, msg ff397b49; local path at 7c1bea00, mirror after the push)
       AEF task: **inception T-4470** (msg 92d8ed41). All 8 files sent by TermLink file transfer and verified by AEF
       against our sha256 list (msg 71ffe6e4), stored as AEF docs/reports/T-4470-inputs/; three isolated external
