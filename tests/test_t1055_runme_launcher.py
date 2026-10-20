@@ -371,6 +371,22 @@ def main():
         leg(not b.made("stolen"), "33 a step cannot read the launcher's answers (fd 3)",
             "stolen=%r" % (open(os.path.join(b.out, "stolen")).read() if b.made("stolen") else None))
 
+        # 34 (T-1234, AEF T-4470 review finding 4) before its y/N a step shows the code it runs: the body of every
+        # job helper its command reaches, transitively, not just the helper's name
+        b = Box(tmp, "l34")
+        b.job("001-helpers", '''JOB_TITLE="Helpers"
+JOB_TASK="T-1234"
+JOB_WHY="test job"
+steps() { step "outer" 'do_x'; }
+do_x() { : MARK_X_BODY; do_y; }
+do_y() { : MARK_Y_BODY; touch @OUT@/s1; }
+''')
+        b.run("--dry-run")
+        rc, out = b.run(answers="y\n")
+        ask_at = out.find("Run step 1/1?")
+        leg(rc == 0 and b.made("s1") and -1 < out.find("MARK_X_BODY") < ask_at and -1 < out.find("MARK_Y_BODY") < ask_at,
+            "34 a step shows its helpers' bodies (do_x and the do_y it calls) before the y/N")
+
     print("\n%d failed leg(s)" % len(fails) if fails else "\nall legs passed")
     return 1 if fails else 0
 

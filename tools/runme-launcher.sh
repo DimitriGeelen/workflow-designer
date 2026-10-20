@@ -55,7 +55,7 @@ say()  { printf '%s\n' "$*"; }
 fail() { say "STOPPED: $*"; exit 1; }
 
 # ---------------------------------------------------------------- job loading
-CHECK_T=(); CHECK_C=(); STEP_T=(); STEP_C=()
+CHECK_T=(); CHECK_C=(); STEP_T=(); STEP_C=(); declare -A FN_BODY=()
 check() { CHECK_T+=("$1"); CHECK_C+=("$2"); }
 step()  { STEP_T+=("$1"); STEP_C+=("$2"); }
 
@@ -78,7 +78,7 @@ load_job() {  # load_job <dir>  — refuses anything but a definitions-only job
     # NUL-separated records, which this shell reads as data. Whatever the job defines dies with that child.
     JOB_FILE=$f
     JOB_TITLE=""; JOB_TASK=""; JOB_WHY=""
-    CHECK_T=(); CHECK_C=(); STEP_T=(); STEP_C=()
+    CHECK_T=(); CHECK_C=(); STEP_T=(); STEP_C=(); FN_BODY=()
     local kind a b has_steps=0
     while IFS= read -r -d '' kind; do
         case "$kind" in
@@ -88,12 +88,18 @@ load_job() {  # load_job <dir>  — refuses anything but a definitions-only job
             N) has_steps=1 ;;
             C) IFS= read -r -d '' a; IFS= read -r -d '' b; CHECK_T+=("$a"); CHECK_C+=("$b") ;;
             S) IFS= read -r -d '' a; IFS= read -r -d '' b; STEP_T+=("$a"); STEP_C+=("$b") ;;
+            F) IFS= read -r -d '' a; IFS= read -r -d '' b; FN_BODY[$a]=$b ;;
         esac
     done < <("$BASH" --norc --noprofile -c '
         exec 4>&1 1>/dev/null      # records go to fd 4 only, so nothing the job prints can forge one
         check() { builtin printf "C\0%s\0%s\0" "$1" "$2" >&4; }
         step()  { builtin printf "S\0%s\0%s\0" "$1" "$2" >&4; }
+        __pre=" $(compgen -A function | tr "\n" " ") "
         source "$1" || exit 97
+        for __f in $(compgen -A function); do   # T-1234: the body of every function the JOB defines
+            case "$__pre" in *" $__f "*) continue ;; esac
+            builtin printf "F\0%s\0%s\0" "$__f" "$(declare -f "$__f")" >&4
+        done
         builtin printf "T\0%s\0K\0%s\0W\0%s\0" "${JOB_TITLE:-}" "${JOB_TASK:-}" "${JOB_WHY:-}" >&4
         declare -F steps >/dev/null || exit 0
         builtin printf "N\0" >&4
@@ -107,6 +113,21 @@ load_job() {  # load_job <dir>  — refuses anything but a definitions-only job
 job_shell() {  # job_shell <command>: runs one check or step in a child bash that sources the job (so its helpers
     # work), never in this shell, and with the answers fd (3) closed, so a step cannot read the operator's answers
     "$BASH" --norc --noprofile -c 'check() { :; }; step() { :; }; source "$1" || exit 97; eval "$2"' _ "$JOB_FILE" "$1" 3<&-
+}
+
+step_code() {  # step_code <command>: T-1234 (AEF T-4470 finding 4): print the body of every job function the command
+    # reaches, transitively, each once, so the operator confirms the code that runs, not only a helper's name
+    local todo=("$1") seen=" " text w
+    while [ "${#todo[@]}" -gt 0 ]; do
+        text=${todo[0]}; todo=("${todo[@]:1}")
+        for w in $(printf '%s\n' "$text" | tr -c 'A-Za-z0-9_' ' '); do
+            [ -n "${FN_BODY[$w]+x}" ] || continue
+            case "$seen" in *" $w "*) continue ;; esac
+            seen="$seen$w "
+            printf '%s\n' "${FN_BODY[$w]}" | sed 's/^/        | /'
+            todo+=("${FN_BODY[$w]}")
+        done
+    done
 }
 
 run_checks() {  # every check runs; any failure fails the whole preflight
@@ -405,6 +426,7 @@ run_one() {  # run_one <job dir> — one job, end to end; runs in a subshell so 
         say
         say "Step $((i + 1))/$n: ${STEP_T[$i]}"
         say "  runs: ${STEP_C[$i]}"
+        step_code "${STEP_C[$i]}"
         confirm "Run step $((i + 1))/$n?" || fail "not confirmed at step $((i + 1))/$n; steps before it ran, nothing after"
         runme_signal step "$((i + 1))/$n ${STEP_T[$i]}"
         (cd "$PROJ" && job_shell "${STEP_C[$i]}") || fail "step $((i + 1))/$n failed (rc=$?); later steps not run"
