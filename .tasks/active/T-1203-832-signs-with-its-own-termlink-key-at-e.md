@@ -431,6 +431,12 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
   claude-fw fix (conversation 832-claude-fw-identity): read RAIL_IDENTITY_FILE and export it before registering, only
   when the key file exists. **Taken as AEF T-4454** (msg 39d18297): claude-fw resolves it via lib/rail-identity.sh
   like the other paths; a worker is building it.
+- **No-create mode built (010-termlink msg c3d05d52, their T-3467, on termlink main, not yet deployed):**
+  `TERMLINK_IDENTITY_NO_CREATE=1` makes every load-or-create path (CLI posts, register, MCP signing key) fail with "no
+  identity key at <path> ..." instead of minting a key; an existing key loads as before. When the version is deployed:
+  set it on every 832 entry point (`.claude/settings.json` env and `.mcp.json` env are operator-job changes, B-005;
+  runme launcher; sidecar) and add a leg to the coverage check. This replaces the standing rule "never point
+  TERMLINK_IDENTITY_FILE at a guessed path" with a structural refusal.
 - **Gap in our own check:** `_t1203-identity-coverage.sh` has no leg for the session REGISTRATION, so it read OK 8/0
   through this. To add (after the running suite closes finish): a leg reading `termlink whoami --json` for this session
   and failing when its identity_fingerprint is not 05c467b46a0bdf5e.
