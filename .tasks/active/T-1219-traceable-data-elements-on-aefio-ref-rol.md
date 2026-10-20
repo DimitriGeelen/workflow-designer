@@ -15,7 +15,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-10-19T16:56:20Z
-last_update: 2026-10-20T11:44:10Z
+last_update: 2026-10-20T13:48:32Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -103,7 +103,8 @@ designer field for those attributes exists before T-4415 is ruled on.
 - **IW-3: What does the designer show for them (panel fields, read-only, hover)?**
   confidence: 1
   disposition: deferred
-  rationale: waits for AEF's operator to rule on T-4415; a build task is filed when the ruling exists. The CURIE
+  rationale: deferred to T-1229 (local build task, horizon later), which waits for AEF's operator to rule on
+  AEF T-4415. The CURIE
   prefix → URL map for the hover link is in v1.1 scope (msg 53eb5724).
 
 <!-- T-2190 (T-2186 Slice 4): every IW-N question must be disposed before
