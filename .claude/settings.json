@@ -1,6 +1,7 @@
 {
   "env": {
-    "TERMLINK_IDENTITY_FILE": "/opt/832-Workflow-designer/.context/secrets/termlink-identity.key"
+    "TERMLINK_IDENTITY_FILE": "/opt/832-Workflow-designer/.context/secrets/termlink-identity.key",
+    "TERMLINK_IDENTITY_NO_CREATE": "1"
   },
   "hooks": {
     "PreCompact": [
