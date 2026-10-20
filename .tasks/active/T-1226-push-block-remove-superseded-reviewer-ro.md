@@ -42,7 +42,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-20T13:34:54Z
-last_update: 2026-10-20T13:37:57Z
+last_update: 2026-10-20T14:33:23Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -96,6 +96,10 @@ file stays; only the ledger row goes. Operator's go to proceed: 2026-10-20 ("Pro
       "ledger integrity" check (tried 2026-10-20, restored at once). The honest remedy is
       `fw reviewer verdict acknowledge V-20261020-2c550c7f --fixed-by <AEF task> --reason ...` once AEF fixes the
       inception gate refusing verdict commits (`agents/git/lib/hooks.sh:269-293`, v1.8.12); reported to AEF.
+      AEF ruling (msgs 6107e3fe, 57b39a59): taken as AEF T-4469. In a consumer, `--fixed-by` resolves against OUR
+      `.tasks/completed/`, so: once a release or pre-release carrying T-4469 is vendored, acknowledge with
+      `--fixed-by <our completed upgrade task that vendored it>` and a `--reason` naming AEF T-4469, the refused
+      verdict-only commit and c2ba7be9. Never create a local T-4469. Upstream references in acknowledge: AEF T-4471.
 - [ ] The row is acknowledged against AEF's fix; `python3 .agentic-framework/lib/verdict_ledger.py audit` reports 0 failures
 - [ ] `git push` succeeds without --no-verify; origin/bleeding-edge equals HEAD
 

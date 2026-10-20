@@ -88,11 +88,15 @@ picker, parallel). The batch and picker are built (T-1227); parallel is written 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `docs/reports/runme-job-queue-for-aef.md` covers problem, operator side, agent side, job format, safeguards with
+- [x] `docs/reports/runme-job-queue-for-aef.md` covers problem, operator side, agent side, job format, safeguards with
       code, batches and the picker, signal, watcher, tests, the comparison with `fw runme`, and a proposal with the
       further improvements (parallel, resume, batch events)
 - [ ] Sent to AEF (999) asking for inclusion and their task id; their task id recorded here when it comes
-- [ ] Each code excerpt is real code from the committed source, marked as condensed where lines were joined or cut
+      (sent 2026-10-20, conversation 832-runme-job-queue, msg ff397b49; local path at 7c1bea00, mirror after the push)
+      AEF task: **inception T-4470** (msg 92d8ed41). All 8 files sent by TermLink file transfer and verified by AEF
+      against our sha256 list (msg 71ffe6e4), stored as AEF docs/reports/T-4470-inputs/; three isolated external
+      reviews running, then their synthesis and operator decision. Patch afterwards, one item per task.
+- [x] Each code excerpt is real code from the committed source, marked as condensed where lines were joined or cut
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
