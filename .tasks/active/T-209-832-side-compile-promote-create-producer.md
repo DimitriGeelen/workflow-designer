@@ -26,7 +26,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-19T15:42:35Z
-last_update: '2026-09-26T09:06:19Z'
+last_update: 2026-10-20T19:28:53Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -241,6 +241,16 @@ rests on a dated measurement rather than a dated reading.
       withdrawn before the operator is asked to act on it.
 
 ### Human
+- [ ] [REVIEW] Judge whether 832 already satisfies the compile->promote->create producer contract that AEF
+  proposed at rail offset 78, from the tests and evidence cited in the Recommendation (a verdict on the evidence
+  only; replying to AEF stays with the operator)
+  **Steps:** 1. Read AEF's offset-78 proposal rows (quoted under Context) and the Recommendation.
+  2. Run `python3 tests/test_promote_contract.py` and `python3 tests/test_two_lane_joint_contract.py`.
+  3. For each proposal row, decide: asserted by those tests / an AEF output 832 must not assert (T-559) / missing.
+  **Expected:** every producer-input row asserted; the rest are AEF outputs; nothing missing.
+  **If not:** name the missing row(s); the recommendation becomes B (build the test).
+  *(Added 2026-10-20: the operator asked for an external review of this ruling before deciding; the criterion
+  below is act-in-the-world and is never dispatched to a reviewer, so the judgment was split out.)*
 - [ ] [REVIEW] Decline AEF's offset-78 producer-contract proposal as already satisfied?
 
   **This ruling has existed since the task was filed — as prose in `## Context`, not as
