@@ -1320,13 +1320,3 @@ entries:
       012, T-1118). Adds a hypothesis-unready blocker, asked only when the recommendation is GO and
       only when audit_inception_hypothesis is loaded (NO-GO/DEFER stay decidable). tools/_t1123 8/8
       (2 fail on the old code). Sent as an addendum to patch 0010 (docs/upstream-pickups/I-t1123-handoff-hypothesis-gate).
-
-  - path: .agentic-framework/policy/designer-pin.yaml
-    kind: content
-    task: T-1223
-    upstream: local-config
-    reason: >-
-      Our own Watchtower's designer pin, ahead of AEF's vendored copy until AEF re-pins on its side (this entry
-      was T-1007's; it dropped out at the v1.8.11 baseline because AEF's pin then matched ours at 0.23.0).
-      0.23.0 -> 0.24.0 on 2026-10-20 (T-1223) by the canonical intake, fw designer sync --from-tag: sha256
-      a42f16b3 and 1176028 bytes from the designer-v0.24.0 tag blob, equal to its MANIFEST.

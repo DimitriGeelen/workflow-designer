@@ -99,6 +99,36 @@ def _str_safe_load(text):
     return yaml.load(text, Loader=_L)
 
 
+# T-856 (832-local, re-applied on 1.7.740 under T-1005): telemetry for scores an
+# agent confirms. Upstream T-3487 made the confirm gate opt-in, which carries the
+# operator's 2026-09-25 ruling "scoring just happens"; the second half of that
+# ruling -- "we want to have telemetry about it ... collect data so we can analyze
+# it and improve it" -- is this ledger, which upstream does not have.
+def _telemetry(event):
+    """Append one JSONL row per agent-confirmed score. Append-only, and written
+    ONLY on the agent path -- logging a human-approved action as automatic would
+    make the ledger unable to answer the question it exists for. Never raises:
+    telemetry that can break the verb it observes is worse than none."""
+    import json as _json
+    try:
+        # FW_BVP_TELEMETRY_PATH exists so a TEST never writes into the ledger the
+        # operator analyses: an append-only ledger cannot be cleaned up afterwards.
+        override = os.environ.get('FW_BVP_TELEMETRY_PATH')
+        if override:
+            path = Path(override)
+            path.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            d = PROJECT_ROOT / '.context' / 'telemetry'
+            d.mkdir(parents=True, exist_ok=True)
+            path = d / 'bvp-auto-approval.jsonl'
+        row = dict(event)
+        row.setdefault('ts', _utc_now())
+        with open(path, 'a') as fh:
+            fh.write(_json.dumps(row, sort_keys=True) + "\n")
+    except Exception as exc:  # pragma: no cover - never break the verb
+        print(f"WARN: auto-approval telemetry not written ({exc})", file=sys.stderr)
+
+
 # ----------------------------------------------------------- §ACD agent gate
 def acd_gate(verb, args, refusal_hint=""):
     """T-1671 §ACD shape: refuse under $CLAUDECODE=1 unless --i-am-human or
@@ -1152,6 +1182,41 @@ def cmd_confirm(args):
             print(_sticky.format_summary(skipped=1, written=0))
             return 0
 
+    # T-856: capture the proposal BEFORE it is cleared, so telemetry can compare
+    # what the estimator said against what was written.
+    _proposed_scores = {}
+    if proposed:
+        _latest = proposed[-1] if isinstance(proposed, list) else proposed
+        if isinstance(_latest, dict):
+            _src = _latest.get('scores') if 'scores' in _latest else _latest
+            _proposed_scores = {k: v for k, v in (_src or {}).items()
+                                if isinstance(v, (int, float)) and not isinstance(v, bool)}
+    # T-1156 (OBS-391): keep EVERY proposal, not just the latest -- confirm clears the list below, and
+    # with it the estimator's reasoning. Two proposals that disagree are the signal: "exact" against
+    # the latest alone reads as right-first-time when it was right the second time. Values are
+    # stringified where YAML gave a non-JSON type (timestamps), so the row is never lost to a dump error.
+    def _jsonable(v):
+        if isinstance(v, dict):
+            return {str(k): _jsonable(x) for k, x in v.items()}
+        if isinstance(v, (list, tuple)):
+            return [_jsonable(x) for x in v]
+        if v is None or isinstance(v, (bool, int, float, str)):
+            return v
+        return str(v)
+    _history = []
+    for _entry in (proposed if isinstance(proposed, list) else ([proposed] if proposed else [])):
+        if not isinstance(_entry, dict):
+            continue
+        _scores = _entry.get('scores') if 'scores' in _entry else {
+            k: v for k, v in _entry.items() if isinstance(v, (int, float)) and not isinstance(v, bool)}
+        _history.append(_jsonable({
+            'ts': _entry.get('ts', _entry.get('at')),
+            'estimator': _entry.get('estimator'),
+            'scores': _scores or {},
+            'rationale': _entry.get('rationale'),
+            'rubric_sha': _entry.get('rubric_sha'),
+        }))
+
     fm['bvp_scores'] = confirmed
     fm['bvp_scores_proposed'] = []  # M3 — cleared; estimator may re-populate next sweep.
     fm['confirmed_by'] = os.environ.get('USER', 'unknown')
@@ -1179,6 +1244,33 @@ def cmd_confirm(args):
 
     new_body = raw[:m.start(1)] + new_fm_text + raw[m.end(1):]
     _atomic_write_text(task_path, new_body)
+
+    # T-856 telemetry -- written AFTER the write succeeds, so the ledger records
+    # what actually landed. Agent path only (T-3487's confirmed_via).
+    if confirmed_via == 'agent':
+        _delta = {k: (confirmed.get(k) - _proposed_scores.get(k))
+                  for k in sorted(set(confirmed) & set(_proposed_scores))
+                  if confirmed.get(k) != _proposed_scores.get(k)}
+        _telemetry({
+            'event': 'bvp_confirm_auto',
+            'verb': 'confirm',
+            'switch': 'T-3487 (FW_REQUIRE_BVP_CONFIRM_APPROVAL unset)',
+            'target': task_id,
+            'task_file': str(task_path.relative_to(PROJECT_ROOT)),
+            'proposal_existed': bool(_proposed_scores),
+            'proposed': _proposed_scores,
+            'confirmed': confirmed,
+            'overrides': overrides or {},
+            'delta_vs_proposed': _delta,
+            'proposer_exact': bool(_proposed_scores) and not _delta and not overrides,
+            # T-1156: the whole proposal trail, and whether the FIRST proposal was already right.
+            'proposal_count': len(_history),
+            'proposal_history': _history,
+            'proposer_exact_first': bool(_history) and not overrides
+                                    and {k: int(v) for k, v in (_history[0].get('scores') or {}).items()
+                                         if isinstance(v, (int, float)) and not isinstance(v, bool)} == confirmed,
+            'os_user': os.environ.get('USER', 'unknown'),
+        })
 
     print(f"OK: confirmed bvp_scores for {task_id}")
     print(f"  Scores: {confirmed}")
