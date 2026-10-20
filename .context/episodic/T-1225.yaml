@@ -1,0 +1,303 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1225: Upgrade AEF to the bleeding-edge tip with T-4399, T-4421, T-3924 and report WORKS / DOES NOT WORK per fix
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-20T18:10:39Z
+# ============================================================================
+
+task_id: T-1225
+task_name: "Upgrade AEF to the bleeding-edge tip with T-4399, T-4421, T-3924 and report WORKS / DOES NOT WORK per fix"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-19T22:32:25Z
+completed: 2026-10-20T18:10:24Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-20T10:47:19+02:00
+last_commit: 2026-10-20T20:10:22+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  operator job 055 — upgrade AEF v1.8.12 -> bleeding-edge 89c4823f3 (T-4399, T-4421, T-3924 inside; v1.8.12 its ancestor), re-vendor protocol as job 051; agent dry-ran the tip's fw upgrade (CLAUDE.md, hooks, .mcp.json, baseline unchanged); job dry-run passed. operator job 057 — upgrade AEF v1.8.12 -> v1.8.14-be.2 (tag c80a8261d: T-4399, T-4421, T-3924, T-4454); dry-run passed; job 055 retired (superseded). pristine vendor commit — AEF v1.8.14-be.3 (346c4ed33) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.14-be.3 commit (re-vendor protocol step 2, T-1000). re-apply 832's local fixes onto pristine AEF v1.8.14-be.3 (re-vendor protocol step 3, T-1000) — 33 clean, 5 by 3-way merge: safe-commands.sh kept upstream T-4367 + our T-1047; hooks.sh upstream has the T-686 key fix, our T-659 guard kept; update-task.sh upstream T-4094 hint + our T-658 frw_end_task walk; app.py clean on -3; designer-pin.yaml now equals upstream (AEF pins 0.24.0 itself, register entry dropped as at v1.8.11). _t517 OK, safe-commands regressions _t390/_t632/_t636/_t640/_t650/_t1047 all pass. commit the task template(s) fw upgrade synced, identical to the vendored copy: .tasks/templates/default.md. .framework.yaml records the be.3 upgrade (version 1.8.13+320.g346c4ed33, version_sha 346c4ed33, upgraded_from 1.8.12). be.3 field verdicts — T-4421, T-3924, T-4399 all WORK (two side findings for AEF); the upgrade restarted the sidecar without 832's key: operator job 061 (SIDECAR_RAIL_IDENTITY=1, AEF T-4311, then restart) rehearsed. _t638 tooth cds into its own sandbox project, not the real repo — since AEF T-4409 (be.3) git's cwd is tracked through cd and must lie inside PROJECT_ROOT, so the old form was rightly refused; 17/17. learning — no TermLink sends or other heavy work during a full bridge run. all criteria met — be.3 vendored, local fixes back, sidecar on 832's key (061: 7/0), three AEF fixes WORK, bridge 308/0 at 094a0df8
+
+# Key outcomes
+outcomes:
+  - 'An operator job upgrades 832 to the AEF bleeding-edge tip under the T-1000 re-vendor protocol (doctor before'
+  - 'T-4421: `fw fabric register` registers tools/_t1217-native-link-definition-cdp.mjs, _t1218-unnamed-event-name-cdp.mjs'
+  - 'T-3924: `fw config set` of a key the commit-msg hook reads takes effect on the next commit. WORKS / DOES NOT WORK.'
+  - 'T-4399: a gateway carrying the standard `default` attribute keeps it through `fw corpus derive`. WORKS / DOES NOT WORK.'
+  - 'The three verdicts are sent to AEF on conversation `aef-fixes-landed`; a full bridge run on the upgraded tree is green.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'all criteria met — be.3 vendored, local fixes back, sidecar on 832''s key (061: 7/0), three AEF fixes WORK, bridge 308/0 at 094a0df8'
+    source: git-mined
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.14-be.3 (re-vendor protocol step 3, T-1000) — 33 clean, 5 by 3-way merge: safe-commands.sh kept upstream T-4367 + our T-1047; hooks.sh upstream has the T-686 key fix, our T-659 guard kept; update-task.sh upstream T-4094 hint + our T-658 frw_end_task walk; app.py clean on -3; designer-pin.yaml now equals upstream (AEF pins 0.24.0 itself, register entry dropped as at v1.8.11). _t517 OK, safe-commands regressions _t390/_t632/_t636/_t640/_t650/_t1047 all pass'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/audit/plugin-audit.sh'
+  - '.agentic-framework/agents/audit/self-audit.sh'
+  - '.agentic-framework/agents/audit/unit-suite.sh'
+  - '.agentic-framework/agents/audit/unit_tier.py'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/check-human-ac-tick.py'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/check-project-boundary.sh'
+  - '.agentic-framework/agents/context/context.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/context/post-compact-resume.sh'
+  - '.agentic-framework/agents/context/sidecar-autostart.sh'
+  - '.agentic-framework/agents/context/sidecar-inbox.sh'
+  - '.agentic-framework/agents/fabric/lib/describe.py'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/fabric/lib/underpopulated.py'
+  - '.agentic-framework/agents/git/lib/bypass.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/git/lib/secret-scan.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/agents/ux-review/ux_shots.py'
+  - '.agentic-framework/bin/claude-fw'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/bin/watchtower.sh'
+  - '.agentic-framework/docs/releases/v1.8.11-upgrade-notes.md'
+  - '.agentic-framework/docs/releases/v1.8.12-notes.md'
+  - '.agentic-framework/docs/releases/v1.8.13-notes.md'
+  - '.agentic-framework/docs/reports/field-test-v1.8.11-results.md'
+  - '.agentic-framework/docs/reports/field-test-v1.8.13-results.md'
+  - '.agentic-framework/docs/reports/field-test-v1.8.14-results.md'
+  - '.agentic-framework/docs/reports/T-4039-inbound-github-issues.md'
+  - '.agentic-framework/docs/reports/T-4339-github-issue-retro.md'
+  - '.agentic-framework/docs/reports/T-4345-hotfix-v1812.md'
+  - '.agentic-framework/docs/reports/T-4371-ownership-by-risk.md'
+  - '.agentic-framework/docs/reports/T-4375-structure-audit-cost.md'
+  - '.agentic-framework/docs/reports/T-4376-reviews/codex.md'
+  - '.agentic-framework/docs/reports/T-4376-reviews/opencode.md'
+  - '.agentic-framework/docs/reports/T-4376-test-suite-measurement.md'
+  - '.agentic-framework/docs/reports/T-4376-test-suite-refactor.md'
+  - '.agentic-framework/docs/reports/T-4380-prune-candidates.md'
+  - '.agentic-framework/docs/reports/T-4382-bimodal-triage.md'
+  - '.agentic-framework/docs/reports/T-4385-baseline-triage.md'
+  - '.agentic-framework/docs/reports/T-4386-doctor-profile.md'
+  - '.agentic-framework/docs/reports/T-4393-termlink-pickup-verbatim.md'
+  - '.agentic-framework/docs/reports/T-4414-inputs/seat_ask.py.txt'
+  - '.agentic-framework/docs/reports/T-4414-inputs/seat-chrome.sh.txt'
+  - '.agentic-framework/docs/reports/T-4414-inputs/T-151-perplexity-seat-for-aef.md'
+  - '.agentic-framework/docs/reports/T-4414-perplexity-seat.md'
+  - '.agentic-framework/docs/reports/T-4420-hotfix-v1813.md'
+  - '.agentic-framework/docs/reports/T-4435-reviews/claude.md'
+  - '.agentic-framework/docs/reports/T-4435-reviews/codex.md'
+  - '.agentic-framework/docs/reports/T-4435-reviews/opencode-contaminated.md'
+  - '.agentic-framework/docs/reports/T-4435-reviews/opencode.md'
+  - '.agentic-framework/docs/reports/T-4435-shared-worker-contract.md'
+  - '.agentic-framework/docs/reports/T-4439-reviews/termlink-v0.1.md'
+  - '.agentic-framework/docs/reports/T-4463-termlink-carry-map.md'
+  - '.agentic-framework/docs/reports/T-4470-inputs/runme-job-queue-for-aef.md.txt'
+  - '.agentic-framework/docs/reports/T-4470-inputs/runme-launcher.sh.txt'
+  - '.agentic-framework/docs/reports/T-4470-inputs/runme-new.sh.txt'
+  - '.agentic-framework/docs/reports/T-4470-inputs/runme.sh.txt'
+  - '.agentic-framework/docs/reports/T-4470-inputs/runme-signal.sh.txt'
+  - '.agentic-framework/docs/reports/T-4470-inputs/runme-watch.sh.txt'
+  - '.agentic-framework/docs/reports/T-4470-inputs/SHA256SUMS.txt'
+  - '.agentic-framework/docs/reports/T-4470-inputs/test_t1003_runme_signal.sh.txt'
+  - '.agentic-framework/docs/reports/T-4470-inputs/test_t1055_runme_launcher.py.txt'
+  - '.agentic-framework/docs/reports/T-4470-reviews/claude.md'
+  - '.agentic-framework/docs/reports/T-4470-reviews/codex.md'
+  - '.agentic-framework/docs/reports/T-4470-reviews/opencode.md'
+  - '.agentic-framework/docs/reports/T-4470-runme-job-queue.md'
+  - '.agentic-framework/docs/reports/T-4472-inputs/341-lib_arc.sh.diff'
+  - '.agentic-framework/docs/reports/T-4472-inputs/342-bin_claude-fw.diff'
+  - '.agentic-framework/docs/reports/T-4472-inputs/343-web_blueprints_discovery.py.diff'
+  - '.agentic-framework/docs/reports/T-4472-inputs/344-web_embeddings.py.diff'
+  - '.agentic-framework/docs/reports/T-4472-inputs/345-agents_context_check-active-task.sh.diff'
+  - '.agentic-framework/docs/reports/T-4472-inputs/346-agents_handover_handover.sh.diff'
+  - '.agentic-framework/docs/reports/T-4472-inputs/347-agents_termlink_bvp-estimator_estimator.py.diff'
+  - '.agentic-framework/docs/reports/T-4472-inputs/348-lib_bvp.sh.diff'
+  - '.agentic-framework/docs/reports/T-4472-inputs/349-agents_context_lib_safe-commands.sh.diff'
+  - '.agentic-framework/docs/reports/T-4472-inputs/350-lib_pickup.sh.diff'
+  - '.agentic-framework/docs/reports/T-4472-termlink-proposals-triage.md'
+  - '.agentic-framework/docs/specs/shared-worker-contract-transitions.md'
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/config-file.sh'
+  - '.agentic-framework/lib/config.sh'
+  - '.agentic-framework/lib/costs.sh'
+  - '.agentic-framework/lib/cron_dry_run.py'
+  - '.agentic-framework/lib/cron-registry.sh'
+  - '.agentic-framework/lib/cron_schedule.py'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/design_register.py'
+  - '.agentic-framework/lib/doctor-hook-exercise.py'
+  - '.agentic-framework/lib/firewall.sh'
+  - '.agentic-framework/lib/fs-root-guard.sh'
+  - '.agentic-framework/lib/hook-crashes.sh'
+  - '.agentic-framework/lib/human_ac_ticks.py'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/init.sh'
+  - '.agentic-framework/lib/issues_lag.py'
+  - '.agentic-framework/lib/issues.py'
+  - '.agentic-framework/lib/paths.sh'
+  - '.agentic-framework/lib/release.sh'
+  - '.agentic-framework/lib/release-tags.sh'
+  - '.agentic-framework/lib/resolver.py'
+  - '.agentic-framework/lib/reviewer/judge_cli.py'
+  - '.agentic-framework/lib/runme.sh'
+  - '.agentic-framework/lib/shell_write_scan.py'
+  - '.agentic-framework/lib/sidecar/addressing.py'
+  - '.agentic-framework/lib/sidecar/alerts.py'
+  - '.agentic-framework/lib/sidecar-audit.sh'
+  - '.agentic-framework/lib/sidecar_cli.py'
+  - '.agentic-framework/lib/sidecar/delivery.py'
+  - '.agentic-framework/lib/sidecar/direct.py'
+  - '.agentic-framework/lib/sidecar/dm.py'
+  - '.agentic-framework/lib/sidecar/hooks.py'
+  - '.agentic-framework/lib/sidecar/http_server.py'
+  - '.agentic-framework/lib/sidecar/identity.py'
+  - '.agentic-framework/lib/sidecar/inbox.py'
+  - '.agentic-framework/lib/sidecar/inject.py'
+  - '.agentic-framework/lib/sidecar/outbox.py'
+  - '.agentic-framework/lib/sidecar/retry.py'
+  - '.agentic-framework/lib/sidecar/runtime_dir.py'
+  - '.agentic-framework/lib/sidecar/termlink_transport.py'
+  - '.agentic-framework/lib/sidecar/waiting.py'
+  - '.agentic-framework/lib/sidecar/watcher.py'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/task_debt.py'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/upgrade.sh'
+  - '.agentic-framework/lib/upgrade_template_shipped.py'
+  - '.agentic-framework/lib/vector_index_health.py'
+  - '.agentic-framework/lib/verdict_ledger.py'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/lib/verify_queue.py'
+  - '.agentic-framework/lib/version.sh'
+  - '.agentic-framework/lib/watchtower.sh'
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/policy/issue-areas.yaml'
+  - '.agentic-framework/.tasks/templates/default.md'
+  - '.agentic-framework/tools/bats-test-isolation-lint.py'
+  - '.agentic-framework/tools/corpus_lint.py'
+  - '.agentic-framework/tools/corpus_spec.py'
+  - '.agentic-framework/tools/port3000_hygiene.py'
+  - '.agentic-framework/tools/shellcheck-sc2006-cached.py'
+  - '.agentic-framework/vendor/designer/aef-workflow-designer-0.24.0.html'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/approvals.py'
+  - '.agentic-framework/web/blueprints/arcs.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/config.py'
+  - '.agentic-framework/web/blueprints/cron.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/discovery.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/inception.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/embeddings.py'
+  - '.agentic-framework/web/search.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/smoke_test.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/arc_close.html'
+  - '.agentic-framework/web/templates/arc_review.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/templates/_partials/search_results.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.agentic-framework/web/warmup.py'
+  - '.agentic-framework/web/wsgi.py'
+  - '.context/project/learnings.yaml'
+  - '.context/runme/055-upgrade-aef-be-89c4823f3/dryrun.ok'
+  - '.context/runme/055-upgrade-aef-be-89c4823f3/job.sh'
+  - '.context/runme/055-upgrade-aef-be-89c4823f3/retired'
+  - '.context/runme/057-upgrade-aef-v1.8.14-be.2/dryrun.ok'
+  - '.context/runme/057-upgrade-aef-v1.8.14-be.2/job.sh'
+  - '.context/runme/061-sidecar-own-key-structural/coverage.txt'
+  - '.context/runme/061-sidecar-own-key-structural/done'
+  - '.context/runme/061-sidecar-own-key-structural/dryrun.ok'
+  - '.context/runme/061-sidecar-own-key-structural/job.sh'
+  - '.context/runme/061-sidecar-own-key-structural/run-20261020T184359.log'
+  - '.context/runme/061-sidecar-own-key-structural/run-20261020T184405.log'
+  - '.fabric/components/tools-_t1217-native-link-definition-cdp.yaml'
+  - '.fabric/components/tools-_t1218-unnamed-event-name-cdp.yaml'
+  - '.framework.yaml'
+  - '.tasks/active/T-1225-upgrade-aef-to-the-bleeding-edge-tip-wit.md'
+  - '.tasks/templates/default.md'
+  - 'tools/_t638-commit-exemption-is-clause-scoped.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-20T10:47:19'
+    action: 'T-1225: operator job 055 — upgrade AEF v1.8.12 -> bleeding-edge 89c4823f3 (T-4399, T-4421, T-3924 inside; v1.8.12 its ancestor), re-vendor protocol as job 051; agent dry-ran the tip''s fw upgrade (CLAUDE.md, hooks, .mcp.json, baseline unchanged); job dry-run passed'
+  - time: '2026-10-20T15:47:41'
+    action: 'T-1225: operator job 057 — upgrade AEF v1.8.12 -> v1.8.14-be.2 (tag c80a8261d: T-4399, T-4421, T-3924, T-4454); dry-run passed; job 055 retired (superseded)'
+  - time: '2026-10-20T17:26:59'
+    action: 'T-1225: pristine vendor commit — AEF v1.8.14-be.3 (346c4ed33) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-20T17:27:09'
+    action: 'T-1225: advance the divergence baseline to the pristine AEF v1.8.14-be.3 commit (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-20T17:43:34'
+    action: 'T-1225: re-apply 832''s local fixes onto pristine AEF v1.8.14-be.3 (re-vendor protocol step 3, T-1000) — 33 clean, 5 by 3-way merge: safe-commands.sh kept upstream T-4367 + our T-1047; hooks.sh upstream has the T-686 key fix, our T-659 guard kept; update-task.sh upstream T-4094 hint + our T-658 frw_end_task walk; app.py clean on -3; designer-pin.yaml now equals upstream (AEF pins 0.24.0 itself, register entry dropped as at v1.8.11). _t517 OK, safe-commands regressions _t390/_t632/_t636/_t640/_t650/_t1047 all pass'
+  - time: '2026-10-20T17:43:42'
+    action: 'T-1225: commit the task template(s) fw upgrade synced, identical to the vendored copy: .tasks/templates/default.md'
+  - time: '2026-10-20T17:44:56'
+    action: 'T-1225: .framework.yaml records the be.3 upgrade (version 1.8.13+320.g346c4ed33, version_sha 346c4ed33, upgraded_from 1.8.12)'
+  - time: '2026-10-20T17:48:14'
+    action: 'T-1225: be.3 field verdicts — T-4421, T-3924, T-4399 all WORK (two side findings for AEF); the upgrade restarted the sidecar without 832''s key: operator job 061 (SIDECAR_RAIL_IDENTITY=1, AEF T-4311, then restart) rehearsed'
+  - time: '2026-10-20T18:38:40'
+    action: 'T-1225: _t638 tooth cds into its own sandbox project, not the real repo — since AEF T-4409 (be.3) git''s cwd is tracked through cd and must lie inside PROJECT_ROOT, so the old form was rightly refused; 17/17'
+  - time: '2026-10-20T18:38:48'
+    action: 'T-1225: learning — no TermLink sends or other heavy work during a full bridge run'
+  - time: '2026-10-20T20:10:22'
+    action: 'T-1225: all criteria met — be.3 vendored, local fixes back, sidecar on 832''s key (061: 7/0), three AEF fixes WORK, bridge 308/0 at 094a0df8'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 11 commit(s), 1177 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [framework-upgrade, aef]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1177
+  commits: 11
+  files_changed: 203
+  lines_added: 18599
+  lines_removed: 4547
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1225-upgrade-aef-to-the-bleeding-edge-tip-wit.md
+generated_by: context-agent-hybrid
