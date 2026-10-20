@@ -9,20 +9,21 @@ description: >
   can be evaded by appending an allowlisted clause. Discovered during T-401: my own
   first post-compact call slipped the gate because it contained 'git log'.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: human
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t402-budget-gate-match-probe.py, tools/_t402-gate-drive-probe.py, tools/_t402-gate-drive-teeth.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-09T07:49:37Z
-last_update: '2026-09-26T09:06:22Z'
-date_finished:
+last_update: 2026-10-20T23:37:51Z
+date_finished: 2026-10-20T23:37:51Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -186,7 +187,7 @@ both sides, so it goes to the operator rather than being taken by initiative.
      `count_unchecked_human_acs` scopes to, so the queue predicate returned 0 and
      neither /approvals nor `fw review-queue` ever showed it. Moved here VERBATIM —
      no word of the criterion is changed and the box is not ticked. -->
-- [ ] [REVIEW] **Decide local containment while upstream fixes it.**
+- [x] [REVIEW] **Decide local containment while upstream fixes it.**
       **Steps:**
       1. Read the probe table in this task's `## Findings` section (added by the agent).
       2. Pick one:
@@ -486,3 +487,16 @@ git diff --quiet HEAD -- .agentic-framework/agents/context/budget-gate.sh
 
 ### 2026-08-11T11:42:12Z — status-update [task-update-agent]
 - **Change:** owner: agent → human
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9c01a37e
+- **Timestamp:** 2026-10-20T23:37:54Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-20T23:37:51Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Completed via Watchtower UI (human action)

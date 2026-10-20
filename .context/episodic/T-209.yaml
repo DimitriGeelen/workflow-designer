@@ -1,0 +1,153 @@
+# ============================================================================
+# EPISODIC MEMORY - T-209: 832-side compile->promote->create producer-contract test (AEF rail offset 78 proposal)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-20T23:38:29Z
+# ============================================================================
+
+task_id: T-209
+task_name: "832-side compile->promote->create producer-contract test (AEF rail offset 78 proposal)"
+workflow_type: test
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-07-19T15:42:35Z
+completed: 2026-10-20T23:38:09Z
+duration_days: 93
+updates_count: 4
+first_commit: 2026-07-28T00:15:12+02:00
+last_commit: 2026-10-21T01:34:04+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  owner → human (was empty) — Context carries the full offset-78 decomposition + DEFER recommendation (producer inputs already covered by T-206+T-208); declining a peer proposal is Dimitri's call. re-measure the premise, then file the ruling that was sitting in prose. register G-030 — a ruling filed as prose is invisible to every instrument that looks for rulings. G-030 closure field renamed to decision_trigger — the register's convention, and the only one audit.sh reads. rail 519/520 — reciprocal measurement reframes T-421, and AEF corrects my model of detector failure. session churn — audit/metrics/working memory, task timestamp touches from the review-URL and completion attempts (clean tree at session end). reviewer verdict. reviewer verdict (codex seat codex, recorded by the runtime). the operator asked for an external review before ruling; the judgment (is offset-78 already satisfied?) is split into its own reviewer-judged criterion, the decline to AEF stays the operator's. reviewer verdict (antigravity seat antigravity, recorded by the runtime). reviewer verdict V-20261020-5792c770 applied (green: offset-78's producer-input rows are already asserted by our contract suites); the decline to AEF stays the operator's
+
+# Key outcomes
+outcomes:
+  - '**The coverage table is RE-MEASURED, not re-read.** The assessment above concluded'
+  - '**The T-559 side-split is re-checked against the CURRENT seam.** The assessment'
+  - 'Whatever the re-measurement finds is written into the task as a dated result with'
+  - '[REVIEW] Judge whether 832 already satisfies the compile->promote->create producer contract that AEF'
+  - '[REVIEW] Decline AEF''s offset-78 producer-contract proposal as already satisfied?'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-10.yaml'
+  - '.context/audits/cron/2026-08-10-2200.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/inbox.yaml'
+  - '.context/locks/T-420.lock'
+  - '.context/project/concerns.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-209/AC1-judge-t-209-r5-antigravity-71dca0f41ebf.md'
+  - '.context/reviews/evidence/T-209/AC1-judge-t-209-r5-claude-code-5409bf109d52.md'
+  - '.context/reviews/evidence/T-209/AC1-judge-t-209-r5-claude-code-5eb77922fc41.md'
+  - '.context/reviews/evidence/T-209/AC1-judge-t-209-r5-claude-code-b3f9d9df9875.md'
+  - '.context/reviews/evidence/T-209/AC1-judge-t-209-r5-claude-code-c967cbbb17db.md'
+  - '.context/reviews/evidence/T-209/AC1-judge-t-209-r5-claude-code-d3eda8259ab5.md'
+  - '.context/reviews/evidence/T-209/AC1-judge-t-209-r5-claude-code-eb8efd9874b7.md'
+  - '.context/reviews/evidence/T-209/AC1-judge-t-209-r5-claude-code-f270c1ae378a.md'
+  - '.context/reviews/evidence/T-209/AC1-judge-t-209-r5-codex-2a05b15d258f.md'
+  - '.context/reviews/evidence/T-209/AC1-judge-t-209-r5-codex-2adda0c765d7.md'
+  - '.context/reviews/evidence/T-209/AC1-judge-t-209-r5-codex-6e4c33a8f32b.md'
+  - '.context/reviews/evidence/T-209/AC1-judge-t-209-r5-codex-e0c108991bac.md'
+  - '.context/reviews/human-ac-ticks.jsonl'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.hook-counter'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-209-832-side-compile-promote-create-producer.md'
+  - '.tasks/active/T-293-endpoint-reconnect-drag-hand-often-fails.md'
+  - '.tasks/active/T-420-rail-attribution-gate-refuse-an-mcp-term.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-07-28T00:15:12'
+    action: 'T-209: owner → human (was empty) — Context carries the full offset-78 decomposition + DEFER recommendation (producer inputs already covered by T-206+T-208); declining a peer proposal is Dimitri''s call'
+  - time: '2026-08-10T21:42:50'
+    action: 'T-209: re-measure the premise, then file the ruling that was sitting in prose'
+  - time: '2026-08-10T21:43:50'
+    action: 'T-209: register G-030 — a ruling filed as prose is invisible to every instrument that looks for rulings'
+  - time: '2026-08-10T21:46:58'
+    action: 'T-209: G-030 closure field renamed to decision_trigger — the register''s convention, and the only one audit.sh reads'
+  - time: '2026-08-10T21:57:14'
+    action: 'T-209: rail 519/520 — reciprocal measurement reframes T-421, and AEF corrects my model of detector failure'
+  - time: '2026-08-10T22:01:29'
+    action: 'T-209: session churn — audit/metrics/working memory, task timestamp touches from the review-URL and completion attempts (clean tree at session end)'
+  - time: '2026-10-19T19:14:32'
+    action: 'T-209: reviewer verdict'
+  - time: '2026-10-19T19:24:16'
+    action: 'T-209: reviewer verdict'
+  - time: '2026-10-19T19:25:06'
+    action: 'T-209: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-10-20T21:28:53'
+    action: 'T-209: the operator asked for an external review before ruling; the judgment (is offset-78 already satisfied?) is split into its own reviewer-judged criterion, the decline to AEF stays the operator''s'
+  - time: '2026-10-20T21:35:59'
+    action: 'T-209: reviewer verdict'
+  - time: '2026-10-20T21:37:57'
+    action: 'T-209: reviewer verdict'
+  - time: '2026-10-20T21:42:48'
+    action: 'T-209: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-10-20T21:50:33'
+    action: 'T-209: reviewer verdict'
+  - time: '2026-10-20T22:04:47'
+    action: 'T-209: reviewer verdict'
+  - time: '2026-10-20T22:06:45'
+    action: 'T-209: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-10-20T22:10:50'
+    action: 'T-209: reviewer verdict'
+  - time: '2026-10-20T22:13:07'
+    action: 'T-209: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-10-20T22:17:29'
+    action: 'T-209: reviewer verdict (antigravity seat antigravity, recorded by the runtime)'
+  - time: '2026-10-21T01:34:04'
+    action: 'T-209: reviewer verdict V-20261020-5792c770 applied (green: offset-78''s producer-input rows are already asserted by our contract suites); the decline to AEF stays the operator''s'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 20 commit(s), 134395 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [aef, arc, seam, producer-contract]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 134395
+  commits: 20
+  files_changed: 38
+  lines_added: 1265
+  lines_removed: 104
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-209-832-side-compile-promote-create-producer.md
+generated_by: context-agent-hybrid

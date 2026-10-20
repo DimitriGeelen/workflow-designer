@@ -14,10 +14,11 @@ description: >
   this is an extension of those or a genuinely new test before building. If serialization
   diverges, AEF offered byte-exact cross-validation (T-2535/T-2536 pattern).
 
-status: started-work
+status: work-completed
 workflow_type: test
+current_node: frw_end_task
 owner: human
-horizon: later
+horizon: null
 tags: [aef, arc, seam, producer-contract]
 components: []
 related_tasks: []
@@ -26,8 +27,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-19T15:42:35Z
-last_update: 2026-10-20T23:34:03Z
-date_finished:
+last_update: 2026-10-20T23:38:09Z
+date_finished: 2026-10-20T23:38:09Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -252,7 +253,7 @@ rests on a dated measurement rather than a dated reading.
   *(Added 2026-10-20: the operator asked for an external review of this ruling before deciding; the criterion
   below is act-in-the-world and is never dispatched to a reviewer, so the judgment was split out.)*
   **Reviewer verdict:** green V-20261020-5792c770 — reviewer-judge-t-209-r5-antigravity-71dca0f41ebf:antigravity (rung rung-5-panel:antigravity), digest 21db4a3b0a59; dispatch judge-t-209-r5-antigravity-71dca0f41ebf; evidence: .context/reviews/evidence/T-209/AC1-judge-t-209-r5-antigravity-71dca0f41ebf.md; ledger .context/reviews/verdicts.jsonl
-- [ ] [REVIEW] Decline AEF's offset-78 producer-contract proposal as already satisfied?
+- [x] [REVIEW] Decline AEF's offset-78 producer-contract proposal as already satisfied?
 
   **This ruling has existed since the task was filed — as prose in `## Context`, not as
   an AC.** So a task waiting on your decision has been reading as in-progress agent
@@ -491,3 +492,16 @@ test 0 -eq "$(grep -cE '<aef:(provenance)|status="captured"' src/aef-workflow-de
 ### 2026-08-23T10:24:09Z — status-update [task-update-agent]
 - **Change:** horizon: now → later
 - **Change:** status: preserved at started-work (T-1589 shipping evidence)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-17bd708c
+- **Timestamp:** 2026-10-20T23:38:17Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-10-20T23:38:09Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Completed via Watchtower UI (human action)

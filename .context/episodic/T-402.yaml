@@ -1,0 +1,114 @@
+# ============================================================================
+# EPISODIC MEMORY - T-402: budget-gate allow-regex matches anywhere in the command string: a compound command is allowlisted by any substring
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-20T23:38:06Z
+# ============================================================================
+
+task_id: T-402
+task_name: "budget-gate allow-regex matches anywhere in the command string: a compound command is allowlisted by any substring"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-09T07:49:37Z
+completed: 2026-10-20T23:37:51Z
+duration_days: 72
+updates_count: 3
+first_commit: 2026-08-11T13:42:04+02:00
+last_commit: 2026-10-19T19:19:11+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  budget-gate's allowlist matches ENGLISH, not shell structure — measured, reported upstream, deliberately not patched. Probe with the allow-expression EXTRACTED from the shipping file at run time (a retyped copy tests my transcription, not the gate): 5 of 9 misclassified, both negative controls hold. Wider than the ticket said — it was filed as a compound-command defect, but the match also fires on an allowlisted phrase inside a COMMENT and inside a STRING LITERAL, neither of which is a compound command. Bounded honestly rather than alarmed: classification is consulted ONLY at critical (:331), ok/warn/urgent exit 0 regardless, so with CONTEXT_WINDOW=300000 the window is the last 5% — total inside it, irrelevant outside it — and the realistic failure is accidental self-evasion (exactly how T-401 found it, its first post-compact call carrying 'git log'), not an attacker. Ownership taken from the T-427 instrument and not from the path: vendored import, blame ebf0c721, breadth 1367. The path test would have agreed here BY COINCIDENCE and would have been wrong for 86a256fd. So: no edit to the vendored file under agent initiative (asserted in Verification), reported to AEF at DM offset 526 with the probe table and no dependency on their answer, and local containment (wait / carry-a-patch / accept) put to the operator as A/B/C because 'wait by choice' and 'wait because nobody decided' are the same observable. The finding is committed as an executable probe rather than prose: a claim about someone else's code that we cannot fix locally is exactly the kind that rots, and exit 1 after a future re-vendor is the fix ARRIVING, not a regression. drive the real gate instead of the expression it uses — the old probe's close condition could not fire on the fix that is actually coming. AEF's T-2919 (f1b1023f0) replaces the single allow-regex with segment-splitting in lib/cmd_classify.py, so the extraction regex finds nothing and the probe exits 2 'cannot answer' at exactly the moment it was built to speak. The defect in it is mention-vs-instance, the class we have been trading all week: it asks does this regex match when the question is does the gate block this command — and my own AC carries the same slip, saying 'against the real classifier' then defining that as 'feed the allow-expression'. New probe runs budget-gate.sh as Claude Code runs it (PreToolUse JSON on stdin, verdict from the exit code), sandboxed via PROJECT_ROOT so the T-2403 restart signal lands in scratch and never arms a real relaunch. Baseline: 9/9 as documented, this tree is pre-fix. Teeth 18/18 including all seven transitions AEF pre-registered at DM 532, reproduced against a SIMULATED anchor (their file is not vendored here — evidence their transitions follow from their design, not a test of their implementation), plus cannot-answer legs for missing/uniform/crashing gates. A-013 validated with the basis stated — the forward compile target exists (AEF DM 532 section 3: tools/bpmn_to_tasks.py via 'fw bpmn compile|promote', uid-keyed, idempotent, flow order preserved through _task_tier/_nearest_task_preds). The compiler is not vendored here and I will not run their tooling, so its existence is ATTESTED by its owner rather than measured by me, and the evidence says so instead of blurring it. What was checkable here was checked: their related_tasks ceiling reproduces against the vendored copy, and lib/task_pair_acd.py:96 is a THIRD consumer of that field they did not name — arc membership, compiled precedence and hand-authored see-also are already indistinguishable to every reader, today, before my compiler writes into it. OBS-026: A-014 is child-3's premise (T-184, operator-DEFERRED 2026-07-11, revisit trigger not fired), not the anchor's — so two of the three assumptions I carried as arc blockers were not blockers, because 'blocking' was read as a property of the assumption when it is a property of the assumption plus the schedule. add the two rows AEF's T-2923 incident proves were missing. They shipped T-2919 and it refused their own wrap-up commit — 'git commit -F - <<EOF' splits on newlines outside quotes, a heredoc body IS newline-separated text outside quotes, so every line of the commit MESSAGE became a segment judged as a command and the gate quoted the message back as its reason. Neither their wrap-up legs nor mine could have caught it: we both wrote them in the bare -m form, the shape the gate ADVERTISES in its own block message rather than the shape a session actually runs. Two regression sentinels added (heredoc commit, and a commit whose BODY reads as a dangerous command) — both must STAY allowed, so they fail only when a fix for the anywhere-match overshoots. Teeth 26/26: M1 now simulates T-2919 WITH its defect and reproduces the incident (7 rows move, both sentinels strand), M2 adds T-2923's heredoc stripping and moves them back while all five bypasses stay shut. Only the pair moving in opposite directions is the correct outcome. M2's first draft injected a double-quoted regex into the gate's python3 -c block, ending the bash string and crashing the gate on every row — the probe refused to score it (exit 2) rather than reporting, which is the only reason the mistake was visible. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - '**The bypass is demonstrated by PROBE against the real classifier**, not argued'
+  - '**A negative control is included**: at least one command that must classify as'
+  - '**The exposure is bounded honestly**: state what the gate does with `allowed` at'
+  - '**Ownership recorded from the T-427 instrument''s output**, with the blame commit'
+  - '**Reported to AEF on the DM topic** (`dm:0e7ee6cad65137fc:6a646ce8b1bc6560`, the'
+  - '**No edit to the vendored file under agent initiative.** This AC is satisfied by'
+  - '[REVIEW] **Decide local containment while upstream fixes it.**'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'add the two rows AEF''s T-2923 incident proves were missing. They shipped T-2919 and it refused their own wrap-up commit — ''git commit -F - <<EOF'' splits on newlines outside quotes, a heredoc body IS newline-separated text outside quotes, so every line of the commit MESSAGE became a segment judged as a command and the gate quoted the message back as its reason. Neither their wrap-up legs nor mine could have caught it: we both wrote them in the bare -m form, the shape the gate ADVERTISES in its own block message rather than the shape a session actually runs. Two regression sentinels added (heredoc commit, and a commit whose BODY reads as a dangerous command) — both must STAY allowed, so they fail only when a fix for the anywhere-match overshoots. Teeth 26/26: M1 now simulates T-2919 WITH its defect and reproduces the incident (7 rows move, both sentinels strand), M2 adds T-2923''s heredoc stripping and moves them back while all five bypasses stay shut. Only the pair moving in opposite directions is the correct outcome. M2''s first draft injected a double-quoted regex into the gate''s python3 -c block, ending the bash string and crashing the gate on every row — the probe refused to score it (exit 2) rather than reporting, which is the only reason the mistake was visible'
+    source: git-mined
+  - description: 'drive the real gate instead of the expression it uses — the old probe''s close condition could not fire on the fix that is actually coming. AEF''s T-2919 (f1b1023f0) replaces the single allow-regex with segment-splitting in lib/cmd_classify.py, so the extraction regex finds nothing and the probe exits 2 ''cannot answer'' at exactly the moment it was built to speak. The defect in it is mention-vs-instance, the class we have been trading all week: it asks does this regex match when the question is does the gate block this command — and my own AC carries the same slip, saying ''against the real classifier'' then defining that as ''feed the allow-expression''. New probe runs budget-gate.sh as Claude Code runs it (PreToolUse JSON on stdin, verdict from the exit code), sandboxed via PROJECT_ROOT so the T-2403 restart signal lands in scratch and never arms a real relaunch. Baseline: 9/9 as documented, this tree is pre-fix. Teeth 18/18 including all seven transitions AEF pre-registered at DM 532, reproduced against a SIMULATED anchor (their file is not vendored here — evidence their transitions follow from their design, not a test of their implementation), plus cannot-answer legs for missing/uniform/crashing gates'
+    source: git-mined
+  - description: 'budget-gate''s allowlist matches ENGLISH, not shell structure — measured, reported upstream, deliberately not patched. Probe with the allow-expression EXTRACTED from the shipping file at run time (a retyped copy tests my transcription, not the gate): 5 of 9 misclassified, both negative controls hold. Wider than the ticket said — it was filed as a compound-command defect, but the match also fires on an allowlisted phrase inside a COMMENT and inside a STRING LITERAL, neither of which is a compound command. Bounded honestly rather than alarmed: classification is consulted ONLY at critical (:331), ok/warn/urgent exit 0 regardless, so with CONTEXT_WINDOW=300000 the window is the last 5% — total inside it, irrelevant outside it — and the realistic failure is accidental self-evasion (exactly how T-401 found it, its first post-compact call carrying ''git log''), not an attacker. Ownership taken from the T-427 instrument and not from the path: vendored import, blame ebf0c721, breadth 1367. The path test would have agreed here BY COINCIDENCE and would have been wrong for 86a256fd. So: no edit to the vendored file under agent initiative (asserted in Verification), reported to AEF at DM offset 526 with the probe table and no dependency on their answer, and local containment (wait / carry-a-patch / accept) put to the operator as A/B/C because ''wait by choice'' and ''wait because nobody decided'' are the same observable. The finding is committed as an executable probe rather than prose: a claim about someone else''s code that we cannot fix locally is exactly the kind that rots, and exit 1 after a future re-vendor is the fix ARRIVING, not a regression'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/assumptions.yaml'
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-402/AC1-judge-t-402-r3-b51042fff95d.md'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-402-budget-gate-allow-regex-matches-anywhere.md'
+  - '.tasks/completed/T-427-t-421-provenance-collapses-re-vendor-imp.md'
+  - 'tools/_t402-budget-gate-match-probe.py'
+  - 'tools/_t402-gate-drive-probe.py'
+  - 'tools/_t402-gate-drive-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-08-11T13:42:04'
+    action: 'T-402: budget-gate''s allowlist matches ENGLISH, not shell structure — measured, reported upstream, deliberately not patched. Probe with the allow-expression EXTRACTED from the shipping file at run time (a retyped copy tests my transcription, not the gate): 5 of 9 misclassified, both negative controls hold. Wider than the ticket said — it was filed as a compound-command defect, but the match also fires on an allowlisted phrase inside a COMMENT and inside a STRING LITERAL, neither of which is a compound command. Bounded honestly rather than alarmed: classification is consulted ONLY at critical (:331), ok/warn/urgent exit 0 regardless, so with CONTEXT_WINDOW=300000 the window is the last 5% — total inside it, irrelevant outside it — and the realistic failure is accidental self-evasion (exactly how T-401 found it, its first post-compact call carrying ''git log''), not an attacker. Ownership taken from the T-427 instrument and not from the path: vendored import, blame ebf0c721, breadth 1367. The path test would have agreed here BY COINCIDENCE and would have been wrong for 86a256fd. So: no edit to the vendored file under agent initiative (asserted in Verification), reported to AEF at DM offset 526 with the probe table and no dependency on their answer, and local containment (wait / carry-a-patch / accept) put to the operator as A/B/C because ''wait by choice'' and ''wait because nobody decided'' are the same observable. The finding is committed as an executable probe rather than prose: a claim about someone else''s code that we cannot fix locally is exactly the kind that rots, and exit 1 after a future re-vendor is the fix ARRIVING, not a regression'
+  - time: '2026-08-11T18:43:39'
+    action: 'T-402: drive the real gate instead of the expression it uses — the old probe''s close condition could not fire on the fix that is actually coming. AEF''s T-2919 (f1b1023f0) replaces the single allow-regex with segment-splitting in lib/cmd_classify.py, so the extraction regex finds nothing and the probe exits 2 ''cannot answer'' at exactly the moment it was built to speak. The defect in it is mention-vs-instance, the class we have been trading all week: it asks does this regex match when the question is does the gate block this command — and my own AC carries the same slip, saying ''against the real classifier'' then defining that as ''feed the allow-expression''. New probe runs budget-gate.sh as Claude Code runs it (PreToolUse JSON on stdin, verdict from the exit code), sandboxed via PROJECT_ROOT so the T-2403 restart signal lands in scratch and never arms a real relaunch. Baseline: 9/9 as documented, this tree is pre-fix. Teeth 18/18 including all seven transitions AEF pre-registered at DM 532, reproduced against a SIMULATED anchor (their file is not vendored here — evidence their transitions follow from their design, not a test of their implementation), plus cannot-answer legs for missing/uniform/crashing gates'
+  - time: '2026-08-11T18:46:12'
+    action: 'T-402: A-013 validated with the basis stated — the forward compile target exists (AEF DM 532 section 3: tools/bpmn_to_tasks.py via ''fw bpmn compile|promote'', uid-keyed, idempotent, flow order preserved through _task_tier/_nearest_task_preds). The compiler is not vendored here and I will not run their tooling, so its existence is ATTESTED by its owner rather than measured by me, and the evidence says so instead of blurring it. What was checkable here was checked: their related_tasks ceiling reproduces against the vendored copy, and lib/task_pair_acd.py:96 is a THIRD consumer of that field they did not name — arc membership, compiled precedence and hand-authored see-also are already indistinguishable to every reader, today, before my compiler writes into it. OBS-026: A-014 is child-3''s premise (T-184, operator-DEFERRED 2026-07-11, revisit trigger not fired), not the anchor''s — so two of the three assumptions I carried as arc blockers were not blockers, because ''blocking'' was read as a property of the assumption when it is a property of the assumption plus the schedule'
+  - time: '2026-08-11T22:19:04'
+    action: 'T-402: add the two rows AEF''s T-2923 incident proves were missing. They shipped T-2919 and it refused their own wrap-up commit — ''git commit -F - <<EOF'' splits on newlines outside quotes, a heredoc body IS newline-separated text outside quotes, so every line of the commit MESSAGE became a segment judged as a command and the gate quoted the message back as its reason. Neither their wrap-up legs nor mine could have caught it: we both wrote them in the bare -m form, the shape the gate ADVERTISES in its own block message rather than the shape a session actually runs. Two regression sentinels added (heredoc commit, and a commit whose BODY reads as a dangerous command) — both must STAY allowed, so they fail only when a fix for the anywhere-match overshoots. Teeth 26/26: M1 now simulates T-2919 WITH its defect and reproduces the incident (7 rows move, both sentinels strand), M2 adds T-2923''s heredoc stripping and moves them back while all five bypasses stay shut. Only the pair moving in opposite directions is the correct outcome. M2''s first draft injected a double-quoted regex into the gate''s python3 -c block, ending the bash string and crashing the gate on every row — the probe refused to score it (exit 2) rather than reporting, which is the only reason the mistake was visible'
+  - time: '2026-10-19T19:19:11'
+    action: 'T-402: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 104628 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 104628
+  commits: 5
+  files_changed: 22
+  lines_added: 755
+  lines_removed: 52
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-402-budget-gate-allow-regex-matches-anywhere.md
+generated_by: context-agent-hybrid
