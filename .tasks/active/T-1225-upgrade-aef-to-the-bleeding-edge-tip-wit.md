@@ -1,13 +1,19 @@
 ---
 id: T-1225
-name: "Upgrade AEF to the bleeding-edge tip with T-4399, T-4421, T-3924 and report WORKS / DOES NOT WORK per fix"
+name: "Upgrade AEF to the bleeding-edge tip with T-4399, T-4421, T-3924 and report
+  WORKS / DOES NOT WORK per fix"
 description: >
-  AEF msg 78c79032 (2026-10-19): three fixes 832 reported are on bleeding-edge (tip 89c4823f3, not released): T-4399 corpus_spec keeps BPMN 'default'; T-4421 fw fabric register reads .mjs headers and skips a shebang; T-3924 fw config set writes the key the commit-msg hook reads. AEF releases them on our per-fix verdict. After designer 0.24.0 (T-1223).
+  AEF msg 78c79032 (2026-10-19): three fixes 832 reported are on bleeding-edge (tip
+  89c4823f3, not released): T-4399 corpus_spec keeps BPMN 'default'; T-4421 fw fabric
+  register reads .mjs headers and skips a shebang; T-3924 fw config set writes the
+  key the commit-msg hook reads. AEF releases them on our per-fix verdict. After designer
+  0.24.0 (T-1223).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [framework-upgrade, aef]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T22:32:25Z
-last_update: 2026-10-19T22:32:25Z
-date_finished: null
+last_update: 2026-10-20T08:46:58Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-20T08:46:59Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 1
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=1 (body/components:component-fabric-incidental);
+      F4=1 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L1:keyword=gateway); F3=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal); F1=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1225: Upgrade AEF to the bleeding-edge tip with T-4399, T-4421, T-3924 and report WORKS / DOES NOT WORK per fix
@@ -345,3 +372,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1225-upgrade-aef-to-the-bleeding-edge-tip-wit.md
 - **Context:** Initial task creation
+
+### 2026-10-20T08:46:58Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
