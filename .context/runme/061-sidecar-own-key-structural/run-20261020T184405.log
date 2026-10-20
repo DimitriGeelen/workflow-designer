@@ -1,0 +1,65 @@
+runme  061-sidecar-own-key-structural   sha ee79107f90b3   rehearsed 2026-10-20T15:47:48Z   log: /opt/832-Workflow-designer/.context/runme/061-sidecar-own-key-structural/run-20261020T184405.log
+Job:   061-sidecar-own-key-structural   (T-1203)
+What:  Sidecar keeps 832's own TermLink key by itself (SIDECAR_RAIL_IDENTITY=1, AEF T-4311), then restart it on that key
+       Job 059's upgrade restarted the sidecar receiver at 15:25 UTC with a clean environment (no
+       TERMLINK_IDENTITY_FILE at all), so AEF mail is signed with the shared host key again: the same regression as job 048
+       (T-1204), and a per-job export cannot prevent it. be.3 brings the structural fix, AEF T-4311: with
+       SIDECAR_RAIL_IDENTITY=1 the sidecar itself signs with RAIL_IDENTITY_FILE (already set in .framework.yaml to 832's
+       key), whatever environment it was started from, and keeps reading DMs addressed to the old host key
+       (SIDECAR_HOST_DM_TRANSITION, default on), so nothing addressed to the old fingerprint is lost. 832 already signs
+       with this key everywhere else, so this changes no address AEF uses. Step 1 sets the switch and commits it; step 2
+       restarts the receiver, supervisor and watcher and checks each runs with the key; step 3 is the coverage check.
+       Mail arriving in the seconds the receiver is down falls back to the hub inbox. Nothing is pushed.
+Steps (each asks y/N first):
+  1. Set SIDECAR_RAIL_IDENTITY=1 (fw config set) and commit .framework.yaml
+  2. Restart the sidecar receiver (stops the supervisor and watcher first); verify all three carry the key
+  3. Run the coverage check (only this Claude session may still FAIL, until you restart it through claude-fw)
+
+ok    on bleeding-edge
+ok    nothing staged
+ok    no uncommitted edits to .framework.yaml
+ok    the key exists, mode 600, and resolves to 05c467b46a0bdf5e without creating anything
+ok    .framework.yaml RAIL_IDENTITY_FILE points at that key
+ok    the vendored sidecar has the T-4311 switch (lib/sidecar/identity.py)
+ok    this launcher exports the key to job steps (T-1204)
+ok    the sidecar receiver is running (it will be restarted)
+
+Step 1/3: Set SIDECAR_RAIL_IDENTITY=1 (fw config set) and commit .framework.yaml
+  runs: do_switch
+Run step 1/3? [y/N] Set SIDECAR_RAIL_IDENTITY = 1
+748559a8 T-1203: SIDECAR_RAIL_IDENTITY=1 — the sidecar signs with RAIL_IDENTITY_FILE itself (AEF T-4311), whatever env it is started from (operator job 061)
+ok    step 1/3
+
+Step 2/3: Restart the sidecar receiver (stops the supervisor and watcher first); verify all three carry the key
+  runs: do_restart
+Run step 2/3? [y/N] receiver stopped: was pid=204963
+receiver started: agent=832-Workflow-designer pid=1433276 port=41897
+  url:    http://127.0.0.1:41897
+  token:  /opt/832-Workflow-designer/.context/sidecar/receiver.token (mode 0600)
+  inject: enabled
+inbox topic: exists inbox:cacc73ea32b121dd/832-Workflow-designer
+watcher started: supervisor pid=1433309 tick=30s termlink=present
+ok    receiver pid 1433276 runs with 832's key
+ok    supervisor pid 1433309 runs with 832's key
+ok    watcher pid 1433311 runs with 832's key
+ok    step 2/3
+
+Step 3/3: Run the coverage check (only this Claude session may still FAIL, until you restart it through claude-fw)
+  runs: do_coverage
+Run step 3/3? [y/N] === T-1203 identity coverage: every entry point must sign as 05c467b46a0bdf5e (host key: d1993c2c3ec44c94) ===
+  OK           key file                     mode 600, no extended ACL, resolves to 05c467b46a0bdf5e
+  OK           sessions (settings env)      TERMLINK_IDENTITY_FILE set
+  NOT RUNNING  this session (live)          not run from a Claude session
+  NOT RUNNING  session registration         not run from a Claude session
+  OK           MCP server (.mcp.json)       TERMLINK_IDENTITY_FILE set
+  OK           MCP server pid 670095 (live) env set
+  OK           sidecar receiver pid 1433276 env set
+  OK           runme signal                 posts with TERMLINK_IDENTITY_FILE=/opt/832-Workflow-designer/.context/secrets/termlink-identity.key (skips the post if the key is missing)
+  OK           fw rail                      state: project
+
+OK 7 / FAIL 0
+
+Expected: FAIL only for this Claude session (its registration, or its MCP server), until you restart it through claude-fw.
+ok    step 3/3
+
+DONE: 061-sidecar-own-key-structural — all 3 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/061-sidecar-own-key-structural/run-20261020T184405.log)

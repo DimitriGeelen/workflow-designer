@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T22:32:25Z
-last_update: 2026-10-20T16:38:48Z
+last_update: 2026-10-20T18:10:22Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -89,7 +89,7 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] An operator job upgrades 832 to the AEF bleeding-edge tip under the T-1000 re-vendor protocol (doctor before
+- [x] An operator job upgrades 832 to the AEF bleeding-edge tip under the T-1000 re-vendor protocol (doctor before
       and after, pristine vendor commit, divergence baseline, local fixes re-applied via the worklist, `_t1192` templates),
       after designer 0.24.0 is released (T-1223); the sidecar keeps 832's key afterwards (`_t1203` 0 FAIL) and the
       T-1000/T-1161 hook lines are back (`tools/_t1000-install-hook.sh --check`).
@@ -99,6 +99,10 @@ bvp_scores_proposed:
       NOT YET: the upgrade restarted the sidecar receiver with a clean env (15:25:11Z, no TERMLINK_IDENTITY_FILE), so
       `_t1203` reads 2 FAIL (receiver; this session's registration). Operator job 061 turns on AEF T-4311's
       SIDECAR_RAIL_IDENTITY=1 and restarts it; the registration clears when the session is relaunched via claude-fw.
+      DONE 16:44Z: job 061 ran 3/3 (748559a8); receiver, supervisor and watcher run with 832's key; its `_t1203`
+      run reads **OK 7 / FAIL 0** (`.context/runme/061-sidecar-own-key-structural/coverage.txt`). The one item left
+      is THIS agent session's hub registration (host key, registered by the pre-T-4454 claude-fw): it clears at
+      the operator's next claude-fw launch, and is not a property of the upgraded tree.
 - [x] T-4421: `fw fabric register` registers tools/_t1217-native-link-definition-cdp.mjs, _t1218-unnamed-event-name-cdp.mjs
       and _t1220-io-extra-attrs-cdp.mjs (each a `//` header after a shebang). WORKS / DOES NOT WORK recorded.
       **WORKS** (2026-10-20, be.3): _t1217 and _t1218 registered, purpose read from the `//` line after the shebang;
@@ -111,7 +115,11 @@ bvp_scores_proposed:
       `<bpmn:exclusiveGateway ... default="F_no">` back. Side findings for AEF: (a) kitchen-sink.bpmn stops derive at
       `bpmn:businessRuleTask` (unsupported tag); (b) generate on a spec with `id: null` crashes
       (AttributeError at corpus_spec.py:593) instead of saying the map needs an id.
-- [ ] The three verdicts are sent to AEF on conversation `aef-fixes-landed`; a full bridge run on the upgraded tree is green.
+- [x] The three verdicts are sent to AEF on conversation `aef-fixes-landed`; a full bridge run on the upgraded tree is green.
+      Sent 2026-10-20 (msg dbd05180); AEF recorded all three as WORKS and filed the findings as T-4494 (landed),
+      T-4495, T-4496 (msg 2f7055a9). Bridge on the upgraded tree: **308 passed, 0 failed** at 094a0df8 (third run;
+      the first two were 306/2: a stale _t638 tooth fixed in the tree, a probe over its cap while files were being
+      sent, the T-949 checker's 3-digit id bug T-1237, and a flaky editor leg filed as T-1238).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -161,6 +169,10 @@ bvp_scores_proposed:
 
 ## Verification
 
+grep -q '^version_sha: 346c4ed330ff14afc60d215ea9b117efe94489cc$' .framework.yaml
+python3 tools/_t517-vendor-divergence.py > /tmp/.t1225a 2>&1 && grep -q '^OK' /tmp/.t1225a
+bash tools/_t1000-install-hook.sh --check > /tmp/.t1225b 2>&1 && grep -q 'revendor gate: installed' /tmp/.t1225b
+grep -q 'OK 7 / FAIL 0' .context/runme/061-sidecar-own-key-structural/coverage.txt
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
