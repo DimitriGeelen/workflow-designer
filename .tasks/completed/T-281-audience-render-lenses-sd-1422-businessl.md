@@ -8,17 +8,17 @@ description: >
   deterministic byte-stable pseudocode output. Evidence: docs/proposals/aef-workflow-process-layer-2026-07-02/INSTRUCTIONS
   §2.2, SD-14.
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: human
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
 created: 2026-07-28T14:52:46Z
-last_update: 2026-10-20T19:47:27Z
-date_finished:
+last_update: 2026-10-20T20:25:48Z
+date_finished: 2026-10-20T20:25:48Z
 revisit_at: 2027-01-15
 revisit_evidence_needed: "A non-technical reader who needs to read a map and cannot"
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
@@ -158,15 +158,15 @@ file), so the designer must read it the way it reads the field profile (`/api/fi
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-281` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -228,7 +228,11 @@ tasks; the pseudocode lens stays out.
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Operator GO (2026-10-20). The earlier DEFER waited for a real consumer; one exists since 2026-10-19: the operator via the onboarding curriculum (AEF msg 705e7d58), fixtures aef-task-lifecycle / aef-session-lifecycle, read in the designer. AEF T-2669 places lenses in the designer as a render-only view; AEF owns the shared lens definition (T-4402). Slice 1: lens definition shape + business lens.
+
+**Date**: 2026-10-20T20:25:46Z
 
 ## Updates
 
@@ -237,24 +241,47 @@ tasks; the pseudocode lens stays out.
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-0e1a5c27
-- **Timestamp:** 2026-07-29T13:13:45Z
+- **Scan ID:** R-1055f94a
+- **Timestamp:** 2026-10-20T20:25:51Z
 - **Catalogue:** v1.3-seed
-- **Overall:** PASS
+- **Overall:** CONCERN
 - **Needs Human:** no
-- **Findings:** none
+- **Findings:** 2
 
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-3
+     - evidence: `IW-3 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
 ## Recommendation Verdict (v1.0)
 
-- **Scan ID:** RC-3448782b
-- **Timestamp:** 2026-07-29T13:13:45Z
-- **Overall:** UNVERIFIED
-- **Claims:** 0
-- No verifiable claims found in ## Recommendation
+- **Scan ID:** RC-5af35d75
+- **Timestamp:** 2026-10-20T20:25:51Z
+- **Overall:** CONTRADICTED
+- **Claims:** 7
 
+| Claim | Type | Status |
+|-------|------|--------|
+| `docs/reports/T-281-audience-lenses.md` | file | ✓ pass |
+| `T-2669` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
+| `T-4402` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
+| `T-1125` | task | ✓ pass |
+| `T-1128` | task | ✓ pass |
+| `T-1124` | task | ✓ pass |
+| `T-1127` | task | ✓ pass |
 ### 2026-10-19T10:09:52Z — status-update [task-update-agent]
 - **Change:** horizon: later → next
 
 ### 2026-10-20T19:32:05Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-20T20:25:46Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Operator GO (2026-10-20). The earlier DEFER waited for a real consumer; one exists since 2026-10-19: the operator via the onboarding curriculum (AEF msg 705e7d58), fixtures aef-task-lifecycle / aef-session-lifecycle, read in the designer. AEF T-2669 places lenses in the designer as a render-only view; AEF owns the shared lens definition (T-4402). Slice 1: lens definition shape + business lens.
+
+### 2026-10-20T20:25:48Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO

@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-281: Audience render lenses (SD-14/§2.2): business/logical/technical/pseudocode views
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-20T20:26:02Z
+# ============================================================================
+
+task_id: T-281
+task_name: "Audience render lenses (SD-14/§2.2): business/logical/technical/pseudocode views"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-07-28T14:52:46Z
+completed: 2026-10-20T20:25:48Z
+duration_days: 84
+updates_count: 0
+first_commit: 2026-10-19T17:27:11+02:00
+last_commit: 2026-10-20T21:47:27+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  research artefact — lenses as one shared definition driving a designer switch and the explain reader (option C); business lens first, operator as first reader; pseudocode out. AEF owns the lens definition (next to corpus_spec.py, vendored; AEF T-4402), corpus explain --lens, recall lens-free; first fixtures aef-task-lifecycle and aef-session-lifecycle. inception brought up to its research — problem, countable hypothesis (business lens on aef-task-lifecycle: 0 technical badges/fields, 0 bytes changed on export, 0 profile-hidden fields, operator can follow it), IW-1..4 answered (IW-3: operator reads in the designer), scope fence, GO criteria met; recommendation GO for slice 1; handoff-ready. operator job 063 — record the GO (slice 1, business lens in the designer); preflight runs the decide gate's own readiness check, step 2 commits the closed task; dry-run passed
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'AEF owns the lens definition (next to corpus_spec.py, vendored; AEF T-4402), corpus explain --lens, recall lens-free; first fixtures aef-task-lifecycle and aef-session-lifecycle'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/063-decide-t281-go/dryrun.ok'
+  - '.context/runme/063-decide-t281-go/job.sh'
+  - 'docs/reports/T-281-audience-lenses.md'
+  - '.tasks/active/T-281-audience-render-lenses-sd-1422-businessl.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T17:27:11'
+    action: 'T-281: research artefact — lenses as one shared definition driving a designer switch and the explain reader (option C); business lens first, operator as first reader; pseudocode out'
+  - time: '2026-10-19T17:30:27'
+    action: 'T-281: AEF owns the lens definition (next to corpus_spec.py, vendored; AEF T-4402), corpus explain --lens, recall lens-free; first fixtures aef-task-lifecycle and aef-session-lifecycle'
+  - time: '2026-10-20T21:46:13'
+    action: 'T-281: inception brought up to its research — problem, countable hypothesis (business lens on aef-task-lifecycle: 0 technical badges/fields, 0 bytes changed on export, 0 profile-hidden fields, operator can follow it), IW-1..4 answered (IW-3: operator reads in the designer), scope fence, GO criteria met; recommendation GO for slice 1; handoff-ready'
+  - time: '2026-10-20T21:47:27'
+    action: 'T-281: operator job 063 — record the GO (slice 1, business lens in the designer); preflight runs the decide gate''s own readiness check, step 2 commits the closed task; dry-run passed'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 121293 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 121293
+  commits: 4
+  files_changed: 4
+  lines_added: 231
+  lines_removed: 42
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-281-audience-render-lenses-sd-1422-businessl.md
+generated_by: context-agent-hybrid
