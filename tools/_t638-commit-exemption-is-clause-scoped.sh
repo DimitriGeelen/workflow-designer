@@ -99,7 +99,10 @@ print(json.dumps({'tool_name':'Bash','cwd':sys.argv[1],'tool_input':{'command':s
 # --status work-completed nulls focus. The fix must not cost any of them.
 LEGIT=(
     'git commit -m "T-x: y"'
-    'cd /opt/832-Workflow-designer && git commit -m "T-x: y"'
+    # cd into THIS project (the sandbox is PROJECT_ROOT here). Since AEF T-4409 (v1.8.14-be.3) git's cwd is
+    # tracked through cd clauses and must lie inside PROJECT_ROOT, so cd-ing into another repo to commit is
+    # refused, rightly; the old form cd'd into the real project from the sandbox (T-1225).
+    'cd '"$SANDBOX"' && git commit -m "T-x: y"'
     'git add -A && git commit -m "T-x: y"'
     'git commit -m "T-x: msg with ; a semicolon"'
     'git commit -m "T-x: y" && git push'
