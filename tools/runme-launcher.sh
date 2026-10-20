@@ -338,6 +338,9 @@ run_one() {  # run_one <job dir> — one job, end to end; runs in a subshell so 
     # MINTS a key at a missing TERMLINK_IDENTITY_FILE path (T-1151), so a lost key unsets it instead.
     RUNME_KEY="${RUNME_IDENTITY_KEY:-$PROJ/.context/secrets/termlink-identity.key}"   # override: tests only
     if [ -f "$RUNME_KEY" ]; then export TERMLINK_IDENTITY_FILE="$RUNME_KEY"; else unset TERMLINK_IDENTITY_FILE; fi
+    # T-1203: termlink >= 0.12.786 (010 T-3467) refuses to mint ANY key under this, the host key included; an
+    # existing key loads as before. Set whatever the key file says, so no step can create an identity by accident.
+    export TERMLINK_IDENTITY_NO_CREATE=1
     say "runme  $(basename "$d")   sha ${sha:0:12}   rehearsed $dat   log: $LOG"
     show_plan "$d"
     say

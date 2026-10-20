@@ -39,7 +39,7 @@ unlocks_inception_decision: ["T-1151:own-key-identity-file"]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-18T13:52:55Z
-last_update: 2026-10-18T13:52:55Z
+last_update: 2026-10-20T13:52:51Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -437,6 +437,11 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
   set it on every 832 entry point (`.claude/settings.json` env and `.mcp.json` env are operator-job changes, B-005;
   runme launcher; sidecar) and add a leg to the coverage check. This replaces the standing rule "never point
   TERMLINK_IDENTITY_FILE at a guessed path" with a structural refusal.
+- **Deployed (010-termlink msg 68513618, termlink 0.12.786, 2026-10-20 12:15Z), and set:** the runme launcher exports
+  `TERMLINK_IDENTITY_NO_CREATE=1` for every step and the signal library posts with it (test leg 15b); the two
+  operator-owned files get it from operator job 058 (dry-run passed; run after 057). The coverage check now has the
+  registration leg: it reads FAIL `claude-master-3178191 registered as d1993c2c3ec44c94` until 057 installs AEF
+  T-4454 and the session is relaunched through claude-fw.
 - **Gap in our own check:** `_t1203-identity-coverage.sh` has no leg for the session REGISTRATION, so it read OK 8/0
   through this. To add (after the running suite closes finish): a leg reading `termlink whoami --json` for this session
   and failing when its identity_fingerprint is not 05c467b46a0bdf5e.

@@ -195,7 +195,7 @@ def main():
 
         # 15 (T-1204) steps run with 832's TermLink key exported when the key file exists, and with the
         #    variable UNSET when it does not (termlink mints a key at a missing path, T-1151)
-        envjob = TWO_STEPS.replace("'touch @OUT@/s1'", "'printf %s \"${TERMLINK_IDENTITY_FILE-UNSET}\" > @OUT@/key'")
+        envjob = TWO_STEPS.replace("'touch @OUT@/s1'", "'printf %s \"${TERMLINK_IDENTITY_FILE-UNSET}\" > @OUT@/key; printf %s \"${TERMLINK_IDENTITY_NO_CREATE-UNSET}\" > @OUT@/nocreate'")
         b = Box(tmp, "l15")
         b.job("001-env", envjob)
         b.run("--dry-run")
@@ -216,6 +216,8 @@ def main():
         finally:
             os.environ.pop("RUNME_IDENTITY_KEY", None)
             os.environ.pop("TERMLINK_IDENTITY_FILE", None)
+        nc = [open(os.path.join(x.out, "nocreate")).read() if x.made("nocreate") else None for x in (b, b2)]
+        leg(nc == ["1", "1"], "15b (T-1203) steps run with TERMLINK_IDENTITY_NO_CREATE=1, key present or not", repr(nc))
         leg(got_present == fake_key and got_missing == "UNSET" and not os.path.exists(os.path.join(tmp, "missing.key")),
             "15 steps inherit the key when it exists; the variable is unset (nothing minted) when it is missing",
             "present=%r missing=%r" % (got_present, got_missing))

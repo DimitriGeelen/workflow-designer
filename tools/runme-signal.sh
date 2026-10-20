@@ -36,7 +36,7 @@ runme_signal() {  # runme_signal <event> <text...>
     { mkdir -p "$(dirname "$RUNME_EVENTS_FILE")" && printf '%s\n' "$line" >> "$RUNME_EVENTS_FILE"; } 2>/dev/null || true
     if [ "${RUNME_SIGNAL_NO_TERMLINK:-0}" != 1 ] && command -v termlink >/dev/null 2>&1 \
             && [ -f "$RUNME_SIGNAL_KEY" ]; then
-        ( TERMLINK_IDENTITY_FILE="$RUNME_SIGNAL_KEY" setsid timeout 5 termlink channel post "$RUNME_SIGNAL_TOPIC" \
+        ( TERMLINK_IDENTITY_FILE="$RUNME_SIGNAL_KEY" TERMLINK_IDENTITY_NO_CREATE=1 setsid timeout 5 termlink channel post "$RUNME_SIGNAL_TOPIC" \
               --ensure-topic --msg-type runme-event --payload "$line" >/dev/null 2>&1 & ) 2>/dev/null || true
     fi
     return 0

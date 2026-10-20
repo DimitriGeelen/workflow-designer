@@ -48,6 +48,28 @@ if [ -n "${CLAUDECODE:-}" ]; then
 else
     down "this session (live)" "not run from a Claude session"
 fi
+# 1b. the session's REGISTRATION on the hub (2026-10-20): a session can SIGN with the project key while it is
+# REGISTERED under the host key, because the process that registers it (AEF's bin/claude-fw) may not have
+# TERMLINK_IDENTITY_FILE in its environment (010-termlink msg 9cb9d263: registration reads it with the same precedence
+# as signing). The legs above read configuration and signing; only `termlink whoami` reads the registration.
+if [ -n "${CLAUDECODE:-}" ]; then
+    reg=$(timeout 20 termlink whoami --json 2>/dev/null | python3 -c "import json,sys
+try:
+    d = json.load(sys.stdin); s = d.get('session') or {}
+    print('%s %s' % (s.get('identity_fingerprint', ''), s.get('display_name', '')))
+except Exception:
+    print('')" 2>/dev/null)
+    rfp=${reg%% *}; rname=${reg#* }
+    if [ -z "$rfp" ]; then
+        down "session registration" "termlink whoami resolved no session for this process"
+    elif [ "$rfp" = "$FP" ]; then
+        ok "session registration" "$rname registered as $FP"
+    else
+        bad "session registration" "$rname registered as $rfp (the registering launcher lacked TERMLINK_IDENTITY_FILE; AEF T-4454 fixes bin/claude-fw)"
+    fi
+else
+    down "session registration" "not run from a Claude session"
+fi
 
 # 2. TermLink MCP server: .mcp.json env (config) + live processes rooted here
 v=$(python3 -c "import json;print(((json.load(open('.mcp.json'))['mcpServers'].get('termlink') or {}).get('env') or {}).get('TERMLINK_IDENTITY_FILE',''))" 2>/dev/null)
