@@ -149,7 +149,13 @@ operator rulings, not on filing).
   the only one of the 27 whose GO supersedes an earlier DEFER — the operator changed their
   mind toward action, and nothing followed.
 
-### SUPERSEDED-UPSTREAM (2) — not this project's to land
+### SUPERSEDED-UPSTREAM (3) — not this project's to land
+
+- **T-1215** — *Plain bpmn:task from third-party maps* (GO 2026-10-20, operator job 056). Option (a) was
+  chosen: AEF's intake accepts `bpmn:task` with a round trip, and the designer changes nothing, because it
+  already re-emits `bpmn:task` as authored. The delivering slice is AEF's T-4488 (corpus_spec TYPE_TO_TAG +
+  lane occupancy), fed with our 8 fixtures; evidence and success clause in `docs/reports/T-1215-plain-bpmn-task.md`.
+  Added after the fact, when the triage checker flagged it (2026-10-20).
 
 - **T-006** — *`fw vendor` should ship `orchestrator-mcp-baseline.yaml` to consumers.*
   Only artifact is T-010, which `"added docs/reports/T-006-*.md"` — the research record, not

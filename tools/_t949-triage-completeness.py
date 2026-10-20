@@ -34,7 +34,7 @@ TRIAGE = Path(os.environ.get(
 
 VERDICTS = ("SHIPPED-UNLINKED", "PARTIAL", "UNDONE", "SUPERSEDED-UPSTREAM")
 # another task id, a docs path, or a commit-ish hash
-EVIDENCE = re.compile(r"T-\d{3}\b|docs/[\w./-]+|\b[0-9a-f]{8}\b")
+EVIDENCE = re.compile(r"T-\d{3,}\b|docs/[\w./-]+|\b[0-9a-f]{8}\b")
 
 
 def die_unmeasurable(msg):
@@ -84,8 +84,8 @@ def verdict_sections(text):
             continue
 
         # a table row whose first cell is the id, or a bullet naming it in bold
-        row = re.match(r"^\|\s*\**(T-\d{3})\**\s*\|", line)
-        bul = re.match(r"^[-*]\s+\**(T-\d{3})\**", line)
+        row = re.match(r"^\|\s*\**(T-\d{3,})\**\s*\|", line)
+        bul = re.match(r"^[-*]\s+\**(T-\d{3,})\**", line)
         hit = row or bul
         if hit:
             subject = hit.group(1)

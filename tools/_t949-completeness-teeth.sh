@@ -75,6 +75,27 @@ else
     fi
 fi
 
+# --- leg 1b: a 4-digit id (T-1237) --------------------------------------------
+# The checker matched T-\d{3}, so the first 4-digit inception the audit flagged (T-1215) could never be
+# covered: its verdict was invisible and the leg failed for a reason no triage could fix. With a report that
+# flags T-1215, the real document must pass, and removing T-1215's bullet must fail COVERAGE.
+REPORT4="$TMP/report4.md"
+{ cat "$REPORT"; echo "- T-1215 — .tasks/completed/T-1215-x.md"; } > "$REPORT4"
+rc4=$(T949_AUDIT_REPORT="$REPORT4" T949_TRIAGE="$TMP/clean.md" python3 "$CHECKER" >"$TMP/out" 2>&1; echo $?)
+python3 - "$TMP/clean.md" "$TMP/no-t1215.md" <<'PY'
+import re, sys
+src = open(sys.argv[1]).read()
+out = re.sub(r"^- \*\*T-1215\*\*.*?(?=\n- |\n#|\n\n)", "", src, flags=re.S | re.M)
+assert out != src, "mutation did not land: the T-1215 bullet was not matched"
+open(sys.argv[2], "w").write(out)
+PY
+rc4m=$(T949_AUDIT_REPORT="$REPORT4" T949_TRIAGE="$TMP/no-t1215.md" python3 "$CHECKER" >"$TMP/out4" 2>&1; echo $?)
+if [ "$rc4" -eq 0 ] && [ "$rc4m" -ne 0 ] && grep -q 'COVERAGE.*T-1215' "$TMP/out4"; then
+    ok "a 4-digit inception's verdict is seen (T-1215), and removing it fails COVERAGE"
+else
+    bad "4-digit id: with verdict rc=$rc4 (want 0), without rc=$rc4m (want non-0, COVERAGE naming T-1215)"
+fi
+
 # --- leg 2: VOCABULARY ------------------------------------------------------
 # Rename a verdict heading to something undeclared. Coverage then also breaks, so
 # assert specifically that the ids under it stop being classified.
