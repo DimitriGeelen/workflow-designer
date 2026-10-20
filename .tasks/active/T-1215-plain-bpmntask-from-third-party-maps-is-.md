@@ -50,7 +50,11 @@ rewrite the very maps the kit invites.
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+A plain `<bpmn:task>` (BPMN's untyped activity) is what bpmn.io and most authors write by default. The designer keeps it
+through a save (T-337 foreignTag: drawn as a task, re-emitted as `bpmn:task`), but AEF's intake (`tools/corpus_spec.py`)
+does not accept `bpmn:task`, so such a map cannot be promoted into AEF's corpus. Who: anyone who brings a third-party
+map, and the other models that write maps with our authoring kit. Why now: AEF raised it (msg 0917b9b0) while maps
+from outside are starting to reach their corpus.
 
 ## Hypothesis
 
@@ -92,13 +96,23 @@ rewrite the very maps the kit invites.
      correction is sticky — set `hypothesis_source: human` in the frontmatter and no
      automatic pass will ever overwrite it. -->
 
-We believe that <change>,
-we will achieve <outcome>.
-We will know that we are successful when we see <measurable signal>.
+We believe that AEF's intake accepting `bpmn:task` with a round trip (option a), while the designer keeps re-emitting it
+unchanged,
+we will achieve third-party and kit-authored maps reaching AEF's corpus without the designer rewriting what their
+authors wrote.
+We will know that we are successful when we see a map containing `<bpmn:task>`, saved by the designer, pass AEF's intake
+and come back from `corpus_spec` with every `bpmn:task` still a `bpmn:task` (AEF's TYPE_TO_TAG test, as for callActivity in
+T-4374), and no conversion code in the designer.
 
 ## Assumptions
 
-<!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-1215 -->
+- A-1: plain `bpmn:task` is common in the maps that reach AEF. **Validated:** 5 of the 11 third-party fixtures, and
+  68 map files other models (codex, GLM-5.3) wrote with our authoring kit in calibration jobs 026/027.
+- A-2: accepting it is cheap on AEF's side. **Validated:** AEF msg abc0de1e — a TYPE_TO_TAG addition with round trip,
+  like callActivity in T-4374, filed on our decision.
+- A-3: converting it in the designer (option b) changes meaning. **Holds:** `bpmn:task` says "an activity of no stated
+  kind"; turning it into serviceTask or userTask invents an executor the author did not name, and rewrites exactly the
+  maps our kit invites authors to write.
 
 ## Open Questions
 
@@ -118,6 +132,20 @@ We will know that we are successful when we see <measurable signal>.
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
 
+- **IW-1: How common is plain `bpmn:task` in what reaches AEF?**
+  confidence: 3
+  disposition: answered
+  rationale: 5/11 third-party fixtures and 68 kit-authored maps from calibration jobs 026/027 (read-only count, 2026-10-19).
+- **IW-2: Is accepting it cheap on AEF's side?**
+  confidence: 3
+  disposition: answered
+  rationale: AEF msg abc0de1e: TYPE_TO_TAG addition with round trip, like T-4374, on our decision.
+- **IW-3: Should the designer convert it instead (option b), or only say so on export (option c)?**
+  confidence: 2
+  disposition: answered
+  rationale: no. (b) invents an executor and rewrites authors' maps (A-3); (c) leaves the map unpromotable. (a) needs
+  no designer change: it already keeps `bpmn:task` (T-337).
+
 ## Exploration Plan
 
 <!-- How will we validate assumptions? Spikes, prototypes, research? Time-box each. -->
@@ -132,7 +160,8 @@ We will know that we are successful when we see <measurable signal>.
 
 ## Scope Fence
 
-<!-- What's IN scope for this exploration? What's explicitly OUT? -->
+IN: which of (a) AEF accepts, (b) designer converts, (c) export notice; the evidence for it. OUT: AEF's intake change
+itself (their task, filed on our decision); any designer conversion code (not proposed).
 
 ## Acceptance Criteria
 
@@ -157,13 +186,12 @@ We will know that we are successful when we see <measurable signal>.
 ## Go/No-Go Criteria
 
 <!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
-**GO if:**
-- Root cause identified with bounded fix path
-- Fix is scoped, testable, and reversible
+**GO (on option a) if:**
+- plain `bpmn:task` is common in what reaches AEF (it is: A-1), and
+- AEF can accept it with a round trip at bounded cost (it can: A-2)
 
 **NO-GO if:**
-- Problem requires fundamental redesign or unbounded scope
-- Fix cost exceeds benefit given current evidence
+- AEF would only accept a conversion, or plain tasks were rare enough that an export notice (c) costs less
 
 ## Verification
 
@@ -178,9 +206,18 @@ We will know that we are successful when we see <measurable signal>.
 
 ## Recommendation
 
-**Recommendation:** DEFER
+**Recommendation:** GO (option a: AEF accepts `bpmn:task` with a round trip; the designer changes nothing)
 
-**Rationale:** Not yet evidenced: no measurement of how many third-party maps that reach AEF carry a plain bpmn:task, and AEF has not said whether accepting it (option a) is cheap on their side. Ask AEF first; decide after.
+**Rationale:** (Filed DEFER for two evidence gaps; both are closed, 2026-10-19.) Plain `bpmn:task` is common in what
+reaches AEF (5/11 third-party fixtures, 68 kit-authored maps), and AEF can accept it cheaply (TYPE_TO_TAG with round
+trip, like callActivity in T-4374). Converting it in the designer would invent an executor the author did not name and
+rewrite the maps our own kit invites; an export notice would leave those maps unpromotable. The designer already keeps
+`bpmn:task` through a save (T-337), so (a) needs no change on our side.
+
+**Evidence:**
+- AEF msg 0917b9b0 (the problem) and abc0de1e (option a cheap, filed on our decision).
+- Read-only count 2026-10-19: tests/fixtures/third-party (5/11 carry `bpmn:task`); calibration jobs 026/027 maps (68 files).
+- T-337: foreignTag round trip keeps `bpmn:task` byte-identical (third-party goldens).
 
 ## Decisions
 
