@@ -74,10 +74,10 @@ bvp_scores_proposed:
 AEF is willing to take option (a): on our decision they file the intake side as a TYPE_TO_TAG addition with
 round-trip, like callActivity in T-4374. That makes (a) cheap on their side, the main unknown behind the DEFER.
 
-**Evidence (2026-10-19, read-only count):** 5 of the 11 third-party fixtures (`tests/fixtures/third-party/`) carry a
-plain `bpmn:task`. So do the maps OTHER MODELS generated from 832's own authoring kit in the calibration runs (jobs
-026/027: codex, glm-5.3), 68 map files in all outside tests/dist. Plain task is common, including in what our kit's
-users produce. That points to (a): AEF accepts `bpmn:task` round-trip. Converting it in the designer (b) would
+**Evidence (corrected 2026-10-20; the 2026-10-19 version said 5/11 and cited 68 "model-written" maps, both wrong — see
+A-1):** 8 of the 11 third-party fixtures (`tests/fixtures/third-party/`) carry a plain `bpmn:task`, and our own
+authoring kit's example is one (AUTHORING.md:65; 12 in its calibration clean map). Plain task is common, including in
+what our kit teaches. That points to (a): AEF accepts `bpmn:task` round-trip. Converting it in the designer (b) would
 rewrite the very maps the kit invites.
 
 ## Problem Statement
@@ -138,8 +138,11 @@ T-4374), and no conversion code in the designer.
 
 ## Assumptions
 
-- A-1: plain `bpmn:task` is common in the maps that reach AEF. **Validated:** 5 of the 11 third-party fixtures, and
-  68 map files other models (codex, GLM-5.3) wrote with our authoring kit in calibration jobs 026/027.
+- A-1: plain `bpmn:task` is common in the maps that reach AEF. **Validated:** 8 of the 11 third-party fixtures carry one
+  (6 prefixed bpmn:/bpmn2:, 2 unprefixed); our own authoring kit's example is a `bpmn:task`
+  (docs/authoring-kit/AUTHORING.md:65), and its calibration clean map carries 12. (Corrected 2026-10-20 per reviewer
+  amber: the first count, 5/11, missed unprefixed tasks, and the "68 maps other models wrote with our kit" claim was
+  false — those files are copies of our two calibration fixtures, which the models reviewed, not wrote.)
 - A-2: accepting it is cheap on AEF's side. **Validated:** AEF msg abc0de1e — a TYPE_TO_TAG addition with round trip,
   like callActivity in T-4374, filed on our decision.
 - A-3: converting it in the designer (option b) changes meaning. **Holds:** `bpmn:task` says "an activity of no stated
@@ -167,7 +170,8 @@ T-4374), and no conversion code in the designer.
 - **IW-1: How common is plain `bpmn:task` in what reaches AEF?**
   confidence: 3
   disposition: answered
-  rationale: 5/11 third-party fixtures and 68 kit-authored maps from calibration jobs 026/027 (read-only count, 2026-10-19).
+  rationale: 8/11 third-party fixtures (re-counted 2026-10-20, prefixed and unprefixed); the kit's own example
+  (AUTHORING.md:65) and 12 plain tasks in its calibration clean map.
 - **IW-2: Is accepting it cheap on AEF's side?**
   confidence: 3
   disposition: answered
@@ -241,14 +245,16 @@ itself (their task, filed on our decision); any designer conversion code (not pr
 **Recommendation:** GO (option a: AEF accepts `bpmn:task` with a round trip; the designer changes nothing)
 
 **Rationale:** (Filed DEFER for two evidence gaps; both are closed, 2026-10-19.) Plain `bpmn:task` is common in what
-reaches AEF (5/11 third-party fixtures, 68 kit-authored maps), and AEF can accept it cheaply (TYPE_TO_TAG with round
+reaches AEF (8/11 third-party fixtures; our kit's own example is one), and AEF can accept it cheaply (TYPE_TO_TAG with round
 trip, like callActivity in T-4374). Converting it in the designer would invent an executor the author did not name and
 rewrite the maps our own kit invites; an export notice would leave those maps unpromotable. The designer already keeps
 `bpmn:task` through a save (T-337), so (a) needs no change on our side.
 
 **Evidence:**
 - AEF msg 0917b9b0 (the problem) and abc0de1e (option a cheap, filed on our decision).
-- Read-only count 2026-10-19: tests/fixtures/third-party (5/11 carry `bpmn:task`); calibration jobs 026/027 maps (68 files).
+- Re-count 2026-10-20: tests/fixtures/third-party, 8/11 carry a plain task (6 prefixed, 2 unprefixed);
+  docs/authoring-kit/AUTHORING.md:65 (the kit's example); 12 plain tasks in the kit's calibration clean map.
+  (Corrected per reviewer amber; the earlier 5/11 and "68 model-written maps" were wrong.)
 - T-337: foreignTag round trip keeps `bpmn:task` byte-identical (third-party goldens).
 
 ## Decisions
