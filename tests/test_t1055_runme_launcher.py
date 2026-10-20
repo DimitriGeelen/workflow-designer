@@ -352,6 +352,25 @@ def main():
         leg(menu and all(len(l) <= 59 for l in menu), "29 picker lines fit a 60-column terminal",
             "longest %d" % max((len(l) for l in menu), default=-1))
 
+        # 30-33 (T-1231, AEF T-4470 review finding 1) a job cannot defeat the y/N: whatever it defines lives in a child
+        # shell, never in the shell that asks. Each job answers "n" and must leave its marker unmade.
+        for i, (fn, body) in enumerate((("confirm", "confirm() { return 0; }"),
+                                        ("ask", "ask() { REPLY=y; }"),
+                                        ("fail", "fail() { :; }"))):
+            b = Box(tmp, "l3%d" % i)
+            b.job("001-" + fn, TWO_STEPS.replace("preflight()", body + "\npreflight()"))
+            b.run("--dry-run")
+            rc, out = b.run(answers="n\n")
+            leg(rc != 0 and not b.made("s1") and not b.made("s2"),
+                "3%d a job redefining %s() cannot skip the y/N: 'n' runs nothing" % (i, fn), "rc=%d" % rc)
+        # 33 a step cannot read the answers: fd 3 is closed in the step's shell
+        b = Box(tmp, "l33")
+        b.job("001-steal", TWO_STEPS.replace("'touch @OUT@/s1'", "'read -r x <&3 && printf %s \"$x\" > @OUT@/stolen; true'"))
+        b.run("--dry-run")
+        rc, out = b.run(answers="y\nTHE-NEXT-ANSWER\ny\n")
+        leg(not b.made("stolen"), "33 a step cannot read the launcher's answers (fd 3)",
+            "stolen=%r" % (open(os.path.join(b.out, "stolen")).read() if b.made("stolen") else None))
+
     print("\n%d failed leg(s)" % len(fails) if fails else "\nall legs passed")
     return 1 if fails else 0
 

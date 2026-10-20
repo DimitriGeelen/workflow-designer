@@ -72,22 +72,47 @@ load_job() {  # load_job <dir>  — refuses anything but a definitions-only job
     if grep -q 'command not found\|No such file' <<<"$probe"; then
         fail "$(basename "$d")/job.sh runs a command when it is loaded; a job may only define JOB_* variables and functions ($(head -1 <<<"$probe"))"
     fi
-    unset JOB_TITLE JOB_WHY JOB_TASK
-    unset -f preflight steps 2>/dev/null
-    # shellcheck source=/dev/null
-    source "$f"
-    [ -n "${JOB_TITLE:-}" ] || fail "$(basename "$d")/job.sh sets no JOB_TITLE"
-    declare -F steps >/dev/null || fail "$(basename "$d")/job.sh defines no steps()"
+    # T-1231 (AEF T-4470 review, finding 1): the job is NEVER sourced in this shell. Sourced here, a job could
+    # define confirm() { return 0; } (or ask, fail, say ...) and every y/N below would pass unasked. A child bash
+    # sources it and only DECLARES: it prints the title, task, why and each registered check and step as
+    # NUL-separated records, which this shell reads as data. Whatever the job defines dies with that child.
+    JOB_FILE=$f
+    JOB_TITLE=""; JOB_TASK=""; JOB_WHY=""
     CHECK_T=(); CHECK_C=(); STEP_T=(); STEP_C=()
-    declare -F preflight >/dev/null && preflight
-    steps
+    local kind a b has_steps=0
+    while IFS= read -r -d '' kind; do
+        case "$kind" in
+            T) IFS= read -r -d '' JOB_TITLE ;;
+            K) IFS= read -r -d '' JOB_TASK ;;
+            W) IFS= read -r -d '' JOB_WHY ;;
+            N) has_steps=1 ;;
+            C) IFS= read -r -d '' a; IFS= read -r -d '' b; CHECK_T+=("$a"); CHECK_C+=("$b") ;;
+            S) IFS= read -r -d '' a; IFS= read -r -d '' b; STEP_T+=("$a"); STEP_C+=("$b") ;;
+        esac
+    done < <("$BASH" --norc --noprofile -c '
+        exec 4>&1 1>/dev/null      # records go to fd 4 only, so nothing the job prints can forge one
+        check() { builtin printf "C\0%s\0%s\0" "$1" "$2" >&4; }
+        step()  { builtin printf "S\0%s\0%s\0" "$1" "$2" >&4; }
+        source "$1" || exit 97
+        builtin printf "T\0%s\0K\0%s\0W\0%s\0" "${JOB_TITLE:-}" "${JOB_TASK:-}" "${JOB_WHY:-}" >&4
+        declare -F steps >/dev/null || exit 0
+        builtin printf "N\0" >&4
+        declare -F preflight >/dev/null && preflight
+        steps' _ "$f" </dev/null 3<&- 2>/dev/null)
+    [ -n "$JOB_TITLE" ] || fail "$(basename "$d")/job.sh sets no JOB_TITLE"
+    [ "$has_steps" = 1 ] || fail "$(basename "$d")/job.sh defines no steps()"
     [ "${#STEP_T[@]}" -gt 0 ] || fail "$(basename "$d")/job.sh steps() registers no step"
+}
+
+job_shell() {  # job_shell <command>: runs one check or step in a child bash that sources the job (so its helpers
+    # work), never in this shell, and with the answers fd (3) closed, so a step cannot read the operator's answers
+    "$BASH" --norc --noprofile -c 'check() { :; }; step() { :; }; source "$1" || exit 97; eval "$2"' _ "$JOB_FILE" "$1" 3<&-
 }
 
 run_checks() {  # every check runs; any failure fails the whole preflight
     local i bad=0
     for i in "${!CHECK_T[@]}"; do
-        if (cd "$PROJ" && eval "${CHECK_C[$i]}") >/dev/null 2>&1; then
+        if (cd "$PROJ" && job_shell "${CHECK_C[$i]}") >/dev/null 2>&1; then
             say "ok    ${CHECK_T[$i]}"
         else
             say "FAIL  ${CHECK_T[$i]}"; bad=1
@@ -382,7 +407,7 @@ run_one() {  # run_one <job dir> — one job, end to end; runs in a subshell so 
         say "  runs: ${STEP_C[$i]}"
         confirm "Run step $((i + 1))/$n?" || fail "not confirmed at step $((i + 1))/$n; steps before it ran, nothing after"
         runme_signal step "$((i + 1))/$n ${STEP_T[$i]}"
-        (cd "$PROJ" && eval "${STEP_C[$i]}") || fail "step $((i + 1))/$n failed (rc=$?); later steps not run"
+        (cd "$PROJ" && job_shell "${STEP_C[$i]}") || fail "step $((i + 1))/$n failed (rc=$?); later steps not run"
         say "ok    step $((i + 1))/$n"
     done
     chmod u+w "$d" 2>/dev/null
