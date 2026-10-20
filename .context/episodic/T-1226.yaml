@@ -1,0 +1,91 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1226: Push block: remove superseded reviewer row swept into agent commit
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-20T18:26:27Z
+# ============================================================================
+
+task_id: T-1226
+task_name: "Push block: remove superseded reviewer row swept into agent commit"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-20T13:34:54Z
+completed: 2026-10-20T18:26:06Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-20T15:37:57+02:00
+last_commit: 2026-10-20T20:26:05+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  push block traced — the inception gate refused the reviewer's own verdict commit, the row stayed staged and our next commit carried it; ledger is append-only, so the exit is an acknowledge against AEF's fix (reported); learning recorded. acknowledge V-20261020-2c550c7f against T-1225 (vendored AEF be.3, which carries T-4469: verdict-only commits exempt from the inception gates), as AEF ruled (msgs 6107e3fe, 57b39a59). regenerate the project crontab with be.3's fw cron generate (one job's minute 20 -> 39); the pre-push audit refused the push on registry/crontab drift. operator job 062 — install the regenerated crontab into /etc/cron.d (one minute, 20 -> 39, verified as the only difference); dry-run passed. acknowledged against T-1225 and pushed; all criteria met
+
+# Key outcomes
+outcomes:
+  - 'Why the worker did not commit its own row is found and written under RCA'
+  - 'The row is acknowledged against AEF''s fix; `python3 .agentic-framework/lib/verdict_ledger.py audit` reports 0 failures'
+  - '`git push` succeeds without --no-verify; origin/bleeding-edge equals HEAD'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'push block traced — the inception gate refused the reviewer''s own verdict commit, the row stayed staged and our next commit carried it; ledger is append-only, so the exit is an acknowledge against AEF''s fix (reported); learning recorded'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/cron/agentic-audit.crontab'
+  - '.context/project/learnings.yaml'
+  - '.context/reviews/acknowledged-refusals.jsonl'
+  - '.context/runme/062-cron-install-be3/dryrun.ok'
+  - '.context/runme/062-cron-install-be3/job.sh'
+  - '.tasks/active/T-1226-push-block-remove-superseded-reviewer-ro.md'
+  - '.tasks/active/T-1227-runme-menu-batch-selection-in-the-operat.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-20T15:37:57'
+    action: 'T-1226: push block traced — the inception gate refused the reviewer''s own verdict commit, the row stayed staged and our next commit carried it; ledger is append-only, so the exit is an acknowledge against AEF''s fix (reported); learning recorded'
+  - time: '2026-10-20T20:12:01'
+    action: 'T-1226: acknowledge V-20261020-2c550c7f against T-1225 (vendored AEF be.3, which carries T-4469: verdict-only commits exempt from the inception gates), as AEF ruled (msgs 6107e3fe, 57b39a59)'
+  - time: '2026-10-20T20:15:46'
+    action: 'T-1226: regenerate the project crontab with be.3''s fw cron generate (one job''s minute 20 -> 39); the pre-push audit refused the push on registry/crontab drift'
+  - time: '2026-10-20T20:18:48'
+    action: 'T-1226: operator job 062 — install the regenerated crontab into /etc/cron.d (one minute, 20 -> 39, verified as the only difference); dry-run passed'
+  - time: '2026-10-20T20:26:05'
+    action: 'T-1226: acknowledged against T-1225 and pushed; all criteria met'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 291 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 291
+  commits: 5
+  files_changed: 7
+  lines_added: 782
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1226-push-block-remove-superseded-reviewer-ro.md
+generated_by: context-agent-hybrid
