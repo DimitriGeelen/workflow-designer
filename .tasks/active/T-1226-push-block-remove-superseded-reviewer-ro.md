@@ -42,7 +42,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-20T13:34:54Z
-last_update: 2026-10-20T18:18:48Z
+last_update: 2026-10-20T18:26:05Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -92,7 +92,7 @@ file stays; only the ledger row goes. Operator's go to proceed: 2026-10-20 ("Pro
 
 ### Agent
 - [x] Why the worker did not commit its own row is found and written under RCA
-- [ ] ~~Row removed~~ NOT POSSIBLE: the ledger is append-only; deleting a committed row fails the audit's
+- (criterion withdrawn, replaced by the next one) ~~Row removed~~ NOT POSSIBLE: the ledger is append-only; deleting a committed row fails the audit's
       "ledger integrity" check (tried 2026-10-20, restored at once). The honest remedy is
       `fw reviewer verdict acknowledge V-20261020-2c550c7f --fixed-by <AEF task> --reason ...` once AEF fixes the
       inception gate refusing verdict commits (`agents/git/lib/hooks.sh:269-293`, v1.8.12); reported to AEF.
@@ -100,8 +100,11 @@ file stays; only the ledger row goes. Operator's go to proceed: 2026-10-20 ("Pro
       `.tasks/completed/`, so: once a release or pre-release carrying T-4469 is vendored, acknowledge with
       `--fixed-by <our completed upgrade task that vendored it>` and a `--reason` naming AEF T-4469, the refused
       verdict-only commit and c2ba7be9. Never create a local T-4469. Upstream references in acknowledge: AEF T-4471.
-- [ ] The row is acknowledged against AEF's fix; `python3 .agentic-framework/lib/verdict_ledger.py audit` reports 0 failures
-- [ ] `git push` succeeds without --no-verify; origin/bleeding-edge equals HEAD
+- [x] The row is acknowledged against AEF's fix; `python3 .agentic-framework/lib/verdict_ledger.py audit` reports 0 failures
+      (acknowledged --fixed-by T-1225, which vendored be.3 = T-4469; audit: 90 rows, 0 failures, 1 acknowledged)
+- [x] `git push` succeeds without --no-verify; origin/bleeding-edge equals HEAD
+      (0123ea1c..bb4ce05d, then ..b91f1a2b; a second ref-scoped FAIL on the way, cron registry vs generated
+      crontab after be.3, fixed by `fw cron generate`; the deployed copy is operator job 062)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
