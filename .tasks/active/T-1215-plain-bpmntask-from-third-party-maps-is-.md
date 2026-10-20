@@ -21,7 +21,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-10-19T12:37:49Z
-last_update: 2026-10-20T09:52:48Z
+last_update: 2026-10-20T15:11:50Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -132,9 +132,10 @@ We believe that AEF's intake accepting `bpmn:task` with a round trip (option a),
 unchanged,
 we will achieve third-party and kit-authored maps reaching AEF's corpus without the designer rewriting what their
 authors wrote.
-We will know that we are successful when we see a map containing `<bpmn:task>`, saved by the designer, pass AEF's intake
-and come back from `corpus_spec` with every `bpmn:task` still a `bpmn:task` (AEF's TYPE_TO_TAG test, as for callActivity in
-T-4374), and no conversion code in the designer.
+We will know that we are successful when we see all 8 of the 8 third-party fixtures that carry a plain `<bpmn:task>`
+(of the 11 in `tests/fixtures/third-party/`), each saved by the designer, pass AEF's intake with 0 refusals, and come
+back from `corpus_spec` with the same count of `bpmn:task` elements as went in (0 converted to another type; AEF's
+TYPE_TO_TAG test, as for callActivity in T-4374), and 0 lines of bpmn:task conversion code in the designer.
 
 ## Assumptions
 
