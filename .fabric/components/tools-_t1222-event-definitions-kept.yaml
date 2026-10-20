@@ -1,0 +1,21 @@
+id: tools/_t1222-event-definitions-kept.py
+name: _t1222-event-definitions-kept
+type: script
+subsystem: instruments
+location: tools/_t1222-event-definitions-kept.py
+tags: []
+
+purpose: "T-1222: every native BPMN event definition a third-party map carries survives a save, per kind."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-20
+created_by: unknown

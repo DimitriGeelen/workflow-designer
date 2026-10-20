@@ -116,6 +116,16 @@ fixtures: 47/47 kept, all outputs well-formed. Open: (1) definitions name root e
 - [ ] The guard is wired into the bridge suite and shown to bite.
 
 ### Human
+- [ ] The proposed shape in `## Decisions` (2026-10-20) is judged before building by an independent reviewer, who may
+  escalate (`fw reviewer judge T-1222 --criterion 1`).
+  **Steps:**
+  1. Read `## Context` (measured losses, prototype notes) and the proposed shape under `## Decisions`.
+  2. Check the two parts against the evidence: preservation (47/47 in the prototype; referenced root elements must
+     come too) and typing from the definition (every third-party intermediate event imports as a link event today).
+  3. Judge the open question: for signal, escalation, conditional, compensate, cancel and terminate, which have no
+     designer type, a new generic intermediate-event type, or a plain catch/throw rendering.
+  **Expected:** green with a ruling on the open question, or amber/red with what is missing.
+  **If not:** name the part that does not hold and why.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.

@@ -1,0 +1,21 @@
+id: tools/_t1218-unnamed-event-shots.py
+name: _t1218-unnamed-event-shots
+type: script
+subsystem: instruments
+location: tools/_t1218-unnamed-event-shots.py
+tags: []
+
+purpose: "T-1218 screenshots: an unnamed start/end event on the canvas, before and after the fix, at 1024/1440/1920."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-19
+created_by: unknown
