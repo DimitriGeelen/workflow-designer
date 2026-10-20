@@ -413,6 +413,18 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
 
 ## Updates
 
+### 2026-10-20 — a view the coverage check does not have
+- 010-termlink (msg b93841b2): our request "MCP server reports which identity fingerprint it signs with" is live in
+  termlink 0.12.775. Our running MCP server is 0.12.705 (termlink_info), started before the upgrade; read it after the
+  next session restart.
+- Meanwhile `termlink_whoami` shows THIS session's registration (claude-master, tl-insjkixo) under the HOST key
+  d1993c2c3ec44c94, `identity_shared_with: 100`, while `_t1203-identity-coverage.sh` reports OK 8/0 (it checks that the
+  MCP server's env carries the key, and that CLI signing resolves to 05c467b46a0bdf5e). Asked 010-termlink whether a
+  session registration is expected to carry the host key while posts sign with the env key. Until answered, the
+  coverage check's "MCP server env set" is evidence of configuration, not of what the server signs with.
+- Do NOT use termlink_agent_identity to check: it reads (and would create) ~/.termlink/identity.json, the host key,
+  regardless of TERMLINK_IDENTITY_FILE.
+
 ### 2026-10-18T13:52:55Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1203-832-signs-with-its-own-termlink-key-at-e.md
