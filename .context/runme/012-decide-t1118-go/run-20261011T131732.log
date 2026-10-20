@@ -23,7 +23,7 @@ Run step 1/1? [y/N] No review was emitted for T-1118 yet — showing it now (T-9
   Inception Review: T-1118
   0/1 checked
 
-  http://192.168.10.107:3013/inception/T-1118
+  http://<dev-host>:3013/inception/T-1118
 
 █▀▀▀▀▀▀▀███▀▀███▀▀███▀█▀▀▀▀▀▀▀█
 █ █▀▀▀█ ██  █▀█▀▄▀ ▀█▀█ █▀▀▀█ █
@@ -42,7 +42,7 @@ Run step 1/1? [y/N] No review was emitted for T-1118 yet — showing it now (T-9
 █ ▀▀▀▀▀ █▀▄▀▄▄██ █ █▄  █   ▀ ██
 ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 
-  Open: http://192.168.10.107:3013/inception/T-1118
+  Open: http://<dev-host>:3013/inception/T-1118
   Artifacts: (in docs/reports/)
     T-1118-fields-on-approval-and-visibility.md
 
@@ -57,7 +57,7 @@ Run step 1/1? [y/N] No review was emitted for T-1118 yet — showing it now (T-9
   Review marker created: .context/working/.reviewed-T-1118
   (unblocks fw inception decide T-1118 — T-973 gate)
 
-  → Decide: http://192.168.10.107:3013/inception/T-1118
+  → Decide: http://<dev-host>:3013/inception/T-1118
 
 You have read the review above. Continue with the decision? [y/N] HYPOTHESIS: the success clause names nothing anyone could go and look at.
   Found: ...we will know that we are successful when we see [needs you: name something a person could go and look at — a count, a threshold, a named check, or a state that would visibly change].

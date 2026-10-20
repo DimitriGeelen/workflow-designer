@@ -70,7 +70,7 @@ BASELINE = os.path.join(ROOT, "tools", "verification-hygiene-baseline.json")
 # line one tool calls a carrier is a carrier to the other; the teeth assert they agree.
 RE_SERVE_DIFF_A = re.compile(r"\b(diff|cmp)\b.*build/gallery")
 RE_SERVE_DIFF_B = re.compile(r"build/gallery.*\b(diff|cmp)\b")
-# A port literal is either host-qualified (`http://192.168.10.107:3000`, `localhost:8834`,
+# A port literal is either host-qualified (`http://<dev-host>:3000`, `localhost:8834`,
 # `127.0.0.1:8834`) or bare (`:3000`, `:8834`). The original `:(\d{2,5})\b` matched the
 # colon-number in ANY context, which is fine for prose but these are EXECUTABLE lines, and
 # there the same characters occur in shapes that are not ports at all:

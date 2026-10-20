@@ -155,7 +155,7 @@ spot recorded on T-741.
 -->
 
 - [ ] **[REVIEW] The 0.12.0 editor is the one you want to be using.**
-      **Steps:** 1. Open `http://192.168.10.107:3013/designer/app` and hard-reload
+      **Steps:** 1. Open `http://<dev-host>:3013/designer/app` and hard-reload
       (Ctrl+Shift+R) — the bundle's B1 autosave restores your last local draft, so a cached
       0.8.0 page can look unchanged even after a correct intake. 2. Exercise the surfaces
       you actually use: lanes, connect mode, save to project.

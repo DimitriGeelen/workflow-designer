@@ -94,7 +94,7 @@ Prerequisite lesson (T-358): Human AC steps must start from the operator's real 
 ### Agent
 - [x] Bytes actually served over HTTP at :8834/designer.html contain the T-251 zoom controls and match current src — served sha256 787e4025… == src sha, btn-zoom-fit marker present (3 lines, grep -c = LINES)
 - [x] Rendered corpus maps in the serve root refreshed from examples/aef-processes/rendered — NOTE (finding): `draft-trigger-handling` is an AEF-side corpus map, not ours; it runs on their pinned 0.4.0 instance and gets zoom only via the next release + their re-pin. Largest LOCAL map (harvest-pipeline, 26 elements) substituted for the test URL.
-- [x] Server healthy after refresh: index 200, designer.html 200 (879243 B), rendered/harvest-pipeline.bpmn 200; test URL given to operator (http://192.168.10.107:8834/designer.html?load=rendered%2Fharvest-pipeline.bpmn)
+- [x] Server healthy after refresh: index 200, designer.html 200 (879243 B), rendered/harvest-pipeline.bpmn 200; test URL given to operator (http://<dev-host>:8834/designer.html?load=rendered%2Fharvest-pipeline.bpmn)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

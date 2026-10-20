@@ -22,10 +22,10 @@ Run step 1/1? [y/N] [watchtower] Stopping Watchtower (PID 92537)...
 
 Watchtower is running
   Local:  http://localhost:3013
-  LAN:    http://192.168.10.107:3013
+  LAN:    http://<dev-host>:3013
   PID:    3032316
   Log:    /opt/832-Workflow-designer/.context/working/watchtower.log
-ok  Watchtower restarted (pid 3032316), newer than its web code, answering at http://192.168.10.107:3013
+ok  Watchtower restarted (pid 3032316), newer than its web code, answering at http://<dev-host>:3013
 ok    step 1/1
 
 DONE: 020-restart-watchtower-ed683536a — all 1 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/020-restart-watchtower-ed683536a/run-20261012T235859.log)

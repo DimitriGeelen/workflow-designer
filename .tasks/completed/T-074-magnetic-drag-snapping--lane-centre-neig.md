@@ -107,7 +107,7 @@ data.
 ### Human
 - [x] [REVIEW] Snapping feels helpful, not sticky
   **Steps:**
-  1. Open http://192.168.10.107:8834/designer.html?load=rendered/healing-loop.bpmn
+  1. Open http://<dev-host>:8834/designer.html?load=rendered/healing-loop.bpmn
   2. Drag a task slowly near another task's row — watch for the guide line and the gentle pull
   3. Keep dragging past it — the node should release without fighting you
   4. Drop a node on a neighbour's centre line, check the connecting line is dead straight

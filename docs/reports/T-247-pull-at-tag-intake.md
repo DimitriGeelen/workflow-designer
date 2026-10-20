@@ -34,7 +34,7 @@ sha against the MANIFEST at the same tag?
    them, 1:1, and hand them bytes", which does not scale past one consumer.
 
 5. **One link unvalidated (IW-4):** whether AEF's host can read origin
-   (`ssh://git@192.168.10.201:6611/workflow-designer`). ssh authorization is git-server
+   (`ssh://git@<git-host>:6611/workflow-designer`). ssh authorization is git-server
    config, operator-owned. Test posted to AEF at rail 183 (`git ls-remote … 'refs/tags/designer-v*'`,
    expect 5 lines). Failure mode is soft: Dimitri grants access, file_send covers any interim.
 

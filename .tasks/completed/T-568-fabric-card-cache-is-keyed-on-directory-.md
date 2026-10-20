@@ -208,7 +208,7 @@ bash tests/run-bridge-tests.sh > /tmp/.t568-suite 2>&1 && python3 -c "import re,
 YAML on disk — `subsystem: unknown`, "TODO: describe what this component does" — and keeps
 rendering it for the life of the server process. HTTP 200, no warning, no log line.
 Reported by 001-CashWeb-Lightspeed-Ecwid-integration; reproduced here against our own
-running Watchtower at `http://192.168.10.107:3013` before anything was changed.
+running Watchtower at `http://<dev-host>:3013` before anything was changed.
 
 **Root cause.** `_load_components()` keyed its cache on `os.stat(COMP_DIR).st_mtime` —
 the mtime of the **directory**, while the data being cached is the **contents of the files

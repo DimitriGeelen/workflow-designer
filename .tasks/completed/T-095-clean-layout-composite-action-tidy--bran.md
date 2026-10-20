@@ -129,7 +129,7 @@ T-092 GO, Phase A option 9. Building blocks already shipped: `tidyLane` (row sna
 
 - [x] [REVIEW] One Clean click reads well end-to-end
   **Steps:**
-  1. Open http://192.168.10.107:8834/designer.html?load=rendered/audit-process.bpmn
+  1. Open http://<dev-host>:8834/designer.html?load=rendered/audit-process.bpmn
   2. Click "✨ Clean layout" in the top toolbar
   3. Look at the whole map, then press Ctrl+Z once
   **Expected:** Branch stack spreads out, rows straighten, nothing lands on top of anything; Ctrl+Z restores the original layout in one step

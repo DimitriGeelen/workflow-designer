@@ -11,14 +11,14 @@ What:  Greenfield hub credential: add TermLink profile greenfield-132 from the s
        termlink remote profile remove greenfield-132 (and delete its secrets file).
 Steps (each asks y/N first):
   1. Check /root/greenfield-hub.secret (exists, root-owned, mode 600, exactly 64 hex chars) and copy it into /root/.termlink/secrets/greenfield-132.hex (0600)
-  2. Add profile greenfield-132 -> 192.168.10.132:9100 using /root/.termlink/secrets/greenfield-132.hex
+  2. Add profile greenfield-132 -> <lan-host>:9100 using /root/.termlink/secrets/greenfield-132.hex
   3. Delete the drop file /root/greenfield-hub.secret (shred)
   4. Connect to greenfield-132 (first use pins its certificate) and show the pinned fingerprint to compare with Greenfield
   5. Send a sidecar test message to Greenfield on conversation evergreen-trial
   6. Audit the secrets store (perms, size, referenced by a profile)
 
 ok    no TermLink profile named greenfield-132 yet
-ok    Greenfield hub 192.168.10.132:9100 answers on TCP
+ok    Greenfield hub <lan-host>:9100 answers on TCP
 ok    the TermLink secrets store exists (files in it are 0600 each)
 
 Step 1/6: Check /root/greenfield-hub.secret (exists, root-owned, mode 600, exactly 64 hex chars) and copy it into /root/.termlink/secrets/greenfield-132.hex (0600)

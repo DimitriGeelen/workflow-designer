@@ -113,7 +113,7 @@ cost_estimate_proposed:
       real caller, with the caller named
       → negative control run in place, triple backed up + trap-restored:
         with pid=8448 (dead) and url=AEF's :3000,
-          `fw watchtower url`  → http://192.168.10.107:3000, **rc=0**
+          `fw watchtower url`  → http://<dev-host>:3000, **rc=0**
           /resume skill's curl → "running at ...:3000"
         both wrong, neither refused. Callers of the unverified accessor:
         handover.sh:16, designer.sh:221+239, ux-review.py.

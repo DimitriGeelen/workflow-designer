@@ -130,9 +130,9 @@ T-092 Phase B, option 10 (operator "go phase B" 2026-07-05, GO recorded on T-092
 -->
 - [x] [REVIEW] Fan/join corridors read cleanly — branch edges fan out in parallel channels instead of a crossing tangle
   **Steps:**
-  1. Open http://192.168.10.107:8834/designer.html?load=rendered/audit-process.bpmn
+  1. Open http://<dev-host>:8834/designer.html?load=rendered/audit-process.bpmn
   2. Look at the parallel block (the 5-branch fan-out/join in the middle of the map)
-  3. Repeat with http://192.168.10.107:8834/designer.html?load=rendered/harvest-pipeline.bpmn (6-branch block)
+  3. Repeat with http://<dev-host>:8834/designer.html?load=rendered/harvest-pipeline.bpmn (6-branch block)
   **Expected:** Branch edges leave/enter the gateways as an ordered parallel bundle — no edge crosses a sibling of its own block; the corridor reads like a bus, not a knot
   **If not:** Note which map and which gateway still shows crossing branch edges; screenshot it
 

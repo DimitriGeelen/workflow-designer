@@ -21,7 +21,7 @@ last_commit: 2026-07-27T22:45:35+02:00
 
 # Summary (auto-generated from git commit messages)
 summary: |
-  file annotation-seam v0 build task (T-250 GO shape A, operator-ratified) — ratification announced to AEF at rail 216 (overlay v0 unblocked); T-257 IW-3 seam-risk half closed w/ AEF rail-215 evidence (eventDef accepted host-agnostic, lint start=neutral); fixture byte-check confirmed exact both files. annotation seam v0 build — aef:ready re-handshake per renderAll + aef:annotate read-only badge layer (parent-source-gated, text-node-only, unknown-uid silent-ignore); thumbnails stripped via _stripAnnotationLayer; MANIFEST gains capabilities.annotation_seam (T-246 trigger); protocol doc §Annotation seam; iframe-host CDP harness (spoof probe via sibling frame) + suite legs registered (T-258+T-259) — 39/39; visual verification read: badges legible, tones distinct. Human AC steps fixed — badge screenshot now SERVED at http://192.168.10.107:8834/t258-annotation-badges.png (gallery docroot, sha-verified 4b617a51) instead of an unviewable repo path; review page has no image rendering and no repo-file route (operator-reported). Steps no longer circular; optional live-overlay check added. L-record — operator-reachability learning (Human AC artifacts must be browser-dereferenceable; T-253 port class, T-258 file class)
+  file annotation-seam v0 build task (T-250 GO shape A, operator-ratified) — ratification announced to AEF at rail 216 (overlay v0 unblocked); T-257 IW-3 seam-risk half closed w/ AEF rail-215 evidence (eventDef accepted host-agnostic, lint start=neutral); fixture byte-check confirmed exact both files. annotation seam v0 build — aef:ready re-handshake per renderAll + aef:annotate read-only badge layer (parent-source-gated, text-node-only, unknown-uid silent-ignore); thumbnails stripped via _stripAnnotationLayer; MANIFEST gains capabilities.annotation_seam (T-246 trigger); protocol doc §Annotation seam; iframe-host CDP harness (spoof probe via sibling frame) + suite legs registered (T-258+T-259) — 39/39; visual verification read: badges legible, tones distinct. Human AC steps fixed — badge screenshot now SERVED at http://<dev-host>:8834/t258-annotation-badges.png (gallery docroot, sha-verified 4b617a51) instead of an unviewable repo path; review page has no image rendering and no repo-file route (operator-reported). Steps no longer circular; optional live-overlay check added. L-record — operator-reachability learning (Human AC artifacts must be browser-dereferenceable; T-253 port class, T-258 file class)
 
 # Key outcomes
 outcomes:
@@ -35,7 +35,7 @@ outcomes:
 
 # Challenges (auto-detected from git: commits with fix/revert/bug/error)
 challenges:
-  - description: 'Human AC steps fixed — badge screenshot now SERVED at http://192.168.10.107:8834/t258-annotation-badges.png (gallery docroot, sha-verified 4b617a51) instead of an unviewable repo path; review page has no image rendering and no repo-file route (operator-reported). Steps no longer circular; optional live-overlay check added'
+  - description: 'Human AC steps fixed — badge screenshot now SERVED at http://<dev-host>:8834/t258-annotation-badges.png (gallery docroot, sha-verified 4b617a51) instead of an unviewable repo path; review page has no image rendering and no repo-file route (operator-reported). Steps no longer circular; optional live-overlay check added'
     source: git-mined
   - description: 'file annotation-seam v0 build task (T-250 GO shape A, operator-ratified) — ratification announced to AEF at rail 216 (overlay v0 unblocked); T-257 IW-3 seam-risk half closed w/ AEF rail-215 evidence (eventDef accepted host-agnostic, lint start=neutral); fixture byte-check confirmed exact both files'
     source: git-mined
@@ -99,7 +99,7 @@ git_timeline:
   - time: "2026-07-27T21:10:26"
     action: "T-258: annotation seam v0 build — aef:ready re-handshake per renderAll + aef:annotate read-only badge layer (parent-source-gated, text-node-only, unknown-uid silent-ignore); thumbnails stripped via _stripAnnotationLayer; MANIFEST gains capabilities.annotation_seam (T-246 trigger); protocol doc §Annotation seam; iframe-host CDP harness (spoof probe via sibling frame) + suite legs registered (T-258+T-259) — 39/39; visual verification read: badges legible, tones distinct"
   - time: "2026-07-27T22:44:32"
-    action: "T-258: Human AC steps fixed — badge screenshot now SERVED at http://192.168.10.107:8834/t258-annotation-badges.png (gallery docroot, sha-verified 4b617a51) instead of an unviewable repo path; review page has no image rendering and no repo-file route (operator-reported). Steps no longer circular; optional live-overlay check added"
+    action: "T-258: Human AC steps fixed — badge screenshot now SERVED at http://<dev-host>:8834/t258-annotation-badges.png (gallery docroot, sha-verified 4b617a51) instead of an unviewable repo path; review page has no image rendering and no repo-file route (operator-reported). Steps no longer circular; optional live-overlay check added"
   - time: "2026-07-27T22:45:35"
     action: "T-258: L-record — operator-reachability learning (Human AC artifacts must be browser-dereferenceable; T-253 port class, T-258 file class)"
 

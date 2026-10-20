@@ -107,7 +107,7 @@ untouched, works with both attach modes (middle/spread).
 ### Human
 - [x] [REVIEW] Straightened routing reads calmer on the live gallery
   **Steps:**
-  1. Open http://192.168.10.107:8834/ and click healing-loop, then task-lifecycle
+  1. Open http://<dev-host>:8834/ and click healing-loop, then task-lifecycle
   2. Look at edges between near-aligned elements (previously 2-corner jogs)
   **Expected:** Near-aligned connections render as single straight lines; diagrams read calmer, no edges overlapping node bodies that didn't before
   **If not:** Note which map + which edge, screenshot it, and report back

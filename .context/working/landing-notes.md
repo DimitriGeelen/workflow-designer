@@ -406,7 +406,7 @@ that release agent work; the rest close tasks that are otherwise finished.
 Its single unticked Human AC is the DI repair-semantics ruling. T-423 (BPMN DI emission,
 6 of 8 ACs already done) cannot start until it lands, and T-341's three remaining ACs are
 all marked blocked on the same class of ruling.
-    http://192.168.10.107:3013/review/T-340
+    http://<dev-host>:3013/review/T-340
 
 **2 · T-619 — retry-safety go/no-go.** Filed NO-GO on unilateral authorship; overturns to GO
 the moment AEF returns a vocabulary. Their answer is pending at rail offset 636.
@@ -415,18 +415,18 @@ the moment AEF returns a vocabulary. Their answer is pending at rail offset 636.
 **3 · T-402 — A/B/C containment ruling**, coupled: the recommendation is A (wait for upstream)
 only if T-433's bump is actually coming. A ruling of A with T-433 unresolved is
 A-by-nobody-deciding wearing a decision's clothes.
-    http://192.168.10.107:3013/review/T-402
+    http://<dev-host>:3013/review/T-402
 
 **4 · Rubber-stamps — evidence already recorded in each task's `## Recommendation`.**
-    http://192.168.10.107:3013/review/T-586   worktree deny rules applied; guard green 3/3
-    http://192.168.10.107:3013/review/T-609   review cards render; attribution → T-622
+    http://<dev-host>:3013/review/T-586   worktree deny rules applied; guard green 3/3
+    http://<dev-host>:3013/review/T-609   review cards render; attribution → T-622
 
 **5 · Arc 0 ratifications and the two reclassified tasks.**
-    http://192.168.10.107:3013/review/T-596   ratifies clause 3's definition
-    http://192.168.10.107:3013/review/T-597   2 unticked — SEE DEAD-PREMISE WARNING BELOW
-    http://192.168.10.107:3013/review/T-590   3 unticked
-    http://192.168.10.107:3013/review/T-537   (a) upstream or (b) standardise
-    http://192.168.10.107:3013/review/T-540   three driver proposals, each add needs a drop
+    http://<dev-host>:3013/review/T-596   ratifies clause 3's definition
+    http://<dev-host>:3013/review/T-597   2 unticked — SEE DEAD-PREMISE WARNING BELOW
+    http://<dev-host>:3013/review/T-590   3 unticked
+    http://<dev-host>:3013/review/T-537   (a) upstream or (b) standardise
+    http://<dev-host>:3013/review/T-540   three driver proposals, each add needs a drop
 
 **DEAD-PREMISE WARNING on T-597.** Its second criterion asks whether to authorise contact
 with AEF. That premise was dissolved by the operator's own T-610 correction — *"Collaboration
@@ -819,7 +819,7 @@ TWO OF THE SEVEN ARE MINE, FROM EARLIER SESSIONS:
    ago. I was misled by my own undeclared patch.
 
 2. verification-hygiene: 2 G-015 carriers in .tasks/completed/T-616-*.md, both
-   hard-coded http://192.168.10.107:3013 in ## Verification. Mine, commit 8c0123c2.
+   hard-coded http://<dev-host>:3013 in ## Verification. Mine, commit 8c0123c2.
    CLAUDE.md says never hard-code the port — the triple file is the source of truth.
    NOT fixed: the task is in completed/, and rewriting a completed task's verification
    is not obviously mine to do. Surfaced instead.

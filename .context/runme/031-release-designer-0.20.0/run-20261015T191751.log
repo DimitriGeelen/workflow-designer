@@ -196,7 +196,7 @@ remote:
 remote: Create a pull request for 'bleeding-edge' by visiting:        
 remote:     https://onedev.docker.ring20.geelenandcompany.com/workflow-designer/~pulls/new?target=45:master&source=45:bleeding-edge        
 remote:          
-To ssh://192.168.10.201:6611/workflow-designer
+To ssh://<git-host>:6611/workflow-designer
    4be2af5b..ae41d0c2  bleeding-edge -> bleeding-edge
 VERSION is tracked — not stamped (fw release is its only writer, T-3821)
 
@@ -321,7 +321,7 @@ AUDIT-SCOPE: fails=0 ref=0 worktree=0
 WARNING: Audit has warnings (push allowed)
 Consider addressing the issues above.
 
-To ssh://192.168.10.201:6611/workflow-designer
+To ssh://<git-host>:6611/workflow-designer
  * [new tag]           designer-v0.20.0 -> designer-v0.20.0
 DONE: release 0.20.0 cut, committed, tagged designer-v0.20.0 and pushed.
 ok    step 4/4

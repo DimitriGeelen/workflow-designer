@@ -128,8 +128,8 @@ Operator decision (2026-07-05 dialogue on auto-tidy): option 2 of three. Opt-in 
 -->
 - [x] [REVIEW] Clean-on-import feels right
   **Steps:**
-  1. Open http://192.168.10.107:8834/designer.html — Settings → View → enable "Clean layout when opening a file"
-  2. Open http://192.168.10.107:8834/designer.html?load=rendered/task-lifecycle.bpmn
+  1. Open http://<dev-host>:8834/designer.html — Settings → View → enable "Clean layout when opening a file"
+  2. Open http://<dev-host>:8834/designer.html?load=rendered/task-lifecycle.bpmn
   **Expected:** Map opens already tidied (toolbar briefly shows "Cleaned N nodes — Ctrl+Z reverts"); Ctrl+Z restores the raw file layout; with the setting off, files open untouched as before
   **If not:** Note whether it cleaned when off, or failed to clean when on; screenshot
 

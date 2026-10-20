@@ -98,7 +98,7 @@ Consumers of designer releases (today: AEF; tomorrow: possibly more) have no sel
 - **IW-2: Which pull source — GitHub mirror or LAN git server?**
   confidence: 3
   disposition: answered
-  rationale: AEF answer at rail 182: read-only LAN origin 192.168.10.201:6611/workflow-designer, preferred over the github mirror (same LAN, no external dependency). Matches our lean at rail 178.
+  rationale: AEF answer at rail 182: read-only LAN origin <git-host>:6611/workflow-designer, preferred over the github mirror (same LAN, no external dependency). Matches our lean at rail 178.
 
 - **IW-3: Are the existing tags sound dry-run targets (artifact + MANIFEST frozen at-tag, shas matching the pins)?**
   confidence: 3
@@ -116,7 +116,7 @@ No spikes needed — the mechanism already exists (release tags carry frozen art
 
 ## Technical Constraints
 
-- Origin is ssh-only (`ssh://git@192.168.10.201:6611`) — read access requires the git server to authorize AEF's host key (or an anonymous-read transport being enabled). Server config is operator-owned; NOT agent-reachable from 832.
+- Origin is ssh-only (`ssh://git@<git-host>:6611`) — read access requires the git server to authorize AEF's host key (or an anonymous-read transport being enabled). Server config is operator-owned; NOT agent-reachable from 832.
 - Standing security constraint unchanged: no push token in termlink; the github remote stays mirror-only (PushRepository) and is NOT the pull source.
 - Release artifacts must remain committed at their tags (already release-designer.sh behavior; the immutability guard protects released bytes).
 

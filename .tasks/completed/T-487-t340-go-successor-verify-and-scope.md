@@ -92,7 +92,7 @@ window. Three routes to record it were attempted and each was refused by a diffe
 
     fw inception decide T-340 go                 -> Tier 0 hook: hand it to the human
     same, run by the human via the ! prefix      -> refused: CLAUDECODE=1, agents must not
-    http://192.168.10.107:3000/inception/T-340   -> page not found
+    http://<dev-host>:3000/inception/T-340   -> page not found
 
 That third URL was **inferred by the agent from an error message's wording and was wrong**.
 The URL the tooling itself printed, twice, is `/review/T-340`. The operator's final message

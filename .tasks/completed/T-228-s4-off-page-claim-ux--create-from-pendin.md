@@ -126,7 +126,7 @@ S1→S2→**S4**. See `docs/plans/T-220-offpage-seam-editor-build-decomposition.
 ### Human
 - [x] [REVIEW] The "create from pending ref" picker reads clearly and the suggest-only affordance is unambiguous
   **Steps:**
-  1. `cd /opt/832-Workflow-designer && nohup tools/serve-gallery.sh 8834 >/dev/null 2>&1 &` then open http://192.168.10.107:8834/designer.html
+  1. `cd /opt/832-Workflow-designer && nohup tools/serve-gallery.sh 8834 >/dev/null 2>&1 &` then open http://<dev-host>:8834/designer.html
   2. Open the picker (control added by this task); with `s4-e2e-probe`'s pending refs in the store, review the ghost list (uuid, name, referrer count)
   3. Pick a ghost whose name matches an existing live map; confirm the same-named map is shown only as a *suggestion*, not auto-adopted
   **Expected:** The list is legible; selecting seeds a new map adopting the ghost uuid; any name-match is offered, never applied silently

@@ -100,7 +100,7 @@ It is the **live** signing key, not a stale artifact:
 | audit verdict | `[PASS] Secret scan: tracked tree clean` |
 
 So the key that signs `fw_session_3000` and the CSRF token inside it is published to
-every reader of this repository — `origin` (OneDev `192.168.10.201:6611`) and, per
+every reader of this repository — `origin` (OneDev `<git-host>:6611`) and, per
 D-701, the OneDev-side `PushRepository` mirror to GitHub.
 
 What that key authorises, if the endpoint is reachable: Watchtower's mutating routes.

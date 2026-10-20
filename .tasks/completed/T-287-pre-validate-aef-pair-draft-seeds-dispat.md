@@ -94,7 +94,7 @@ cost_estimate_proposed:
 
 Rail 292/293 (thread T-2652-slices): AEF delivered both open pair-draft seeds as raw inline
 BPMN (dispatch-loop-relabel v1 10637 B, tier0-escalation v1 14497 B) after my 288 transport
-ask; their 290 also gave fetch URLs (their gallery = http://192.168.10.107:3001/api/version?id=<id>,
+ask; their 290 also gave fetch URLs (their gallery = http://<dev-host>:3001/api/version?id=<id>,
 same box). Committed work (282/288): run tools/validate-workflow.py + mapping-v1
 gateway-label-convention checks on both, post findings in-thread. Their 293 adds ask (2):
 post OUR examples/aef-processes/rendered/tier0-escalation.bpmn bytes the same way for the
@@ -214,7 +214,7 @@ authority-collapse lane diff (T-559 symmetric — the rail is the only path).
 -->
 
 ### 2026-07-28 — convergent topology is a P4 data point; transport gap closed
-- **What changed:** (a) AEF's gallery is reachable from our side (http://192.168.10.107:3001, same box) — the T-285 "transport is the structural gap" concern dissolves; future pair-rounds need no inline bytes. (b) Both independently-authored tier0 maps encode the SAME resume topology (approve → re-enter scan, approval consumed at a dedicated preauth gateway) — convergent structure from independent authorship, posted at 294 as a P4 data point.
+- **What changed:** (a) AEF's gallery is reachable from our side (http://<dev-host>:3001, same box) — the T-285 "transport is the structural gap" concern dissolves; future pair-rounds need no inline bytes. (b) Both independently-authored tier0 maps encode the SAME resume topology (approve → re-enter scan, approval consumed at a dedicated preauth gateway) — convergent structure from independent authorship, posted at 294 as a P4 data point.
 - **Plan impact:** none — findings round complete; ball is AEF-side (laneSet fix + promotion) and operator-side (taste verdicts on both drafts).
 - **Triggered:** nothing filed.
 

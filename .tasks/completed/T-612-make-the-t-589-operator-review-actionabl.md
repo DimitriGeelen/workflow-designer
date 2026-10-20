@@ -65,7 +65,7 @@ cost_estimate_proposed:
 - [x] Both files are reachable over HTTP from the LAN address, measured by fetching them and
       checking the bytes — not by `ls` on the docroot and not by a 200 (PL-198: HTTP 200 is
       the shape of the right answer, not evidence of identity).
-      <br>**Evidence:** fetched from `192.168.10.107`, not `127.0.0.1` —
+      <br>**Evidence:** fetched from `<dev-host>`, not `127.0.0.1` —
       `designer.html` 993,710 bytes (sha `fc78717d399b`), `harvest-pipeline.bpmn` 20,617
       (`b517c566b4a5`), `arc-lifecycle.bpmn` 12,295 (`1203756c3476`).
       <br>**The identity check is the one that matters here:** `cmp` says the served page is
@@ -76,7 +76,7 @@ cost_estimate_proposed:
       broken. A 200 cannot tell those two apart.
 - [x] The exact URL handed to the operator is recorded here verbatim, and the map filename
       is named so step 2 of T-589's Human AC ("open any map") has a concrete referent.
-      <br>**Evidence:** `http://192.168.10.107:44005/designer.html`, map
+      <br>**Evidence:** `http://<dev-host>:44005/designer.html`, map
       `harvest-pipeline.bpmn`, node `frw_9_read` (a serviceTask, so it offers both fields).
 
 ### Human

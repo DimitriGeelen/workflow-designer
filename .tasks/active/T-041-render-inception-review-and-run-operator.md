@@ -129,7 +129,7 @@ missed? Agent-side is producing the viewable artifact + steps; the verdict is th
 - [x] [REVIEW] The rendered `inception-review` diagram faithfully matches the real flow you just experienced (A-4 fidelity pilot)
   **Steps:**
   1. Start the gallery (if not already running): `cd /opt/832-Workflow-designer && tools/serve-gallery.sh 8834`
-  2. In a browser open http://192.168.10.107:8834/ and click **inception-review** (opens the designer with the map loaded — no file picker needed)
+  2. In a browser open http://<dev-host>:8834/ and click **inception-review** (opens the designer with the map loaded — no file picker needed)
   3. Compare the three lanes + flow to what happened when you ran `fw task review T-038` → decided GO
   (Fallback: open `src/aef-workflow-designer.html` via `file://` and Load `examples/aef-processes/rendered/inception-review.bpmn` manually)
   **Expected:** lanes (agent→initiative, framework→authority, human→sovereignty), the readiness→fix loop, and the go/no-go/defer decision all match reality
@@ -250,7 +250,7 @@ out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 fai
 **Rationale:** All 6 Agent ACs verified: full 24-map corpus rendered warn-free (was 6/24), gallery serve root assembled, `?load` deep-link verified visually via Playwright screenshot. The remaining Human AC is the A-4 fidelity judgment (does the rendered inception-review match the flow you experienced) — genuinely yours, everything needed is one click away.
 **Evidence:**
 - `examples/aef-processes/rendered/inception-review.bpmn` exists, bridge-generated, validates clean
-- Gallery LIVE at http://192.168.10.107:8834/ (re-verified 2026-07-22) — click **inception-review**
+- Gallery LIVE at http://<dev-host>:8834/ (re-verified 2026-07-22) — click **inception-review**
 - 24/24 corpus maps rendered warn-free; serve-gallery.sh since hardened (T-231, lifecycle test 9/9)
 
 ## Decisions

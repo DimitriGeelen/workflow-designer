@@ -101,7 +101,7 @@ T-082 gave edge labels a measured, bbox-hugging theme-background halo. Node id b
 ### Human
 - [x] [REVIEW] Badges and edge labels stay legible where lines must pass under them
   **Steps:**
-  1. Open http://192.168.10.107:8834/ and view context-memory
+  1. Open http://<dev-host>:8834/ and view context-memory
   2. Look at "3+ applications -> graduate" / prj_2_add and the verification-gate mid gateway chain
   **Expected:** Text sits on a small background pad that masks the line beneath; no large blank boxes
   **If not:** Note map + badge; screenshot the spot

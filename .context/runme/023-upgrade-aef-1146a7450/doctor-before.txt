@@ -46,7 +46,7 @@
   [0;32mOK[0m  usage: recall: 6 of 148 queries in 7d could not run
   [0;32mOK[0m  disk: no orphan index scratch; free space covers the next reindex
   [0;36mSKIP[0m  recall usage: web.recall_telemetry not importable here (ModuleNotFoundError)
-  [0;32mOK[0m  Watchtower running (http://192.168.10.107:3013, pid 3032316)
+  [0;32mOK[0m  Watchtower running (http://<dev-host>:3013, pid 3032316)
   [0;32mOK[0m  Watchtower secret key is owner-only (mode 600)
   [0;36mSKIP[0m  Session supervision (not inside a Claude Code session)
   [0;32mOK[0m  Continuous-run wrapper last recorded ARMED (start, restarts=0, 2026-10-13T15:50:50Z)

@@ -96,6 +96,6 @@ Audit saved to: /opt/832-Workflow-designer/.context/audits/2026-09-21-structure.
 WARNING: Audit has warnings (push allowed)
 Consider addressing the issues above.
 
-To ssh://192.168.10.201:6611/workflow-designer
+To ssh://<git-host>:6611/workflow-designer
    97392b95..192c5d5c  HEAD -> master
   Pushed to origin ✓

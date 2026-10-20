@@ -1,1 +1,1 @@
-Superseded 2026-10-13: step 1 refused by the R-033 sovereignty gate even from the operator's terminal (a human-owned task closes only via Watchtower approval, as job 016 already showed). Nothing changed. Route: http://192.168.10.107:3013/review/T-1127
+Superseded 2026-10-13: step 1 refused by the R-033 sovereignty gate even from the operator's terminal (a human-owned task closes only via Watchtower approval, as job 016 already showed). Nothing changed. Route: http://<dev-host>:3013/review/T-1127

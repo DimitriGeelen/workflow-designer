@@ -109,7 +109,7 @@ Vertical lane-header names longer than the lane height bled across neighbouring 
 ### Human
 - [x] [REVIEW] Lane names read naturally in the header strip across the corpus
   **Steps:**
-  1. Open http://192.168.10.107:8834/ and view context-memory — check all three lane headers wrap into two columns inside their lanes
+  1. Open http://<dev-host>:8834/ and view context-memory — check all three lane headers wrap into two columns inside their lanes
   2. Open the editor settings (gear button) → Labels → toggle "Fit lane names" off and on; confirm the headers revert/refit live
   **Expected:** Two-column names fit their lanes, read top-to-bottom left-column-first; toggle works
   **If not:** Note map + lane; screenshot the header strip

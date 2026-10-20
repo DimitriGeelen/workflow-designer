@@ -116,7 +116,7 @@ reads correctly". The judgement below is real, and it is the one I cannot make f
 - [ ] [REVIEW] The approvals surface now reads the way it was written — and you rule on the
       one thing I deliberately did not fix
   **Steps:**
-  1. Open http://192.168.10.107:3013/approvals
+  1. Open http://<dev-host>:3013/approvals
   2. Look at any card's **Steps** / **Expected** block. Commands should appear as inline
      code, emphasis as bold, task refs as links — not as `&lt;code&gt;` text.
   3. Now look at the AC *headline* line (the bold sentence beside the Review badge) on the

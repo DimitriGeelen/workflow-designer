@@ -105,7 +105,7 @@ Build authorized by T-068 GO (recorded 2026-07-04 via Watchtower). Design: docs/
 ### Human
 - [x] [REVIEW] Collapsed subProcess glyph reads clearly
   **Steps:**
-  1. Open http://192.168.10.107:8834/ and view verification-gate and session-capture maps
+  1. Open http://<dev-host>:8834/ and view verification-gate and session-capture maps
   2. Look at the migrated nodes (g_gates, n_capture): box with [+] marker and constituent-count badge
   3. In the editor, click a subProcess node and check the properties panel lists its constituents
   **Expected:** The composite nature is visible at a glance; constituent list readable in props panel

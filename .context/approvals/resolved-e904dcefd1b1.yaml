@@ -1,6 +1,6 @@
 command_hash: e904dcefd1b1b7b58c7b68b8a7c7bcf836b2cad09aa0067f71b383957fa0758a
 command_preview: set -u; cd /tmp/claude-0/t938-purge/repo && git remote add origin
-  ssh://git@192.168.10.201:6611/workflow-designer 2>/dev/null; git remote -v | head
+  ssh://git@<git-host>:6611/workflow-designer 2>/dev/null; git remote -v | head
   -2; echo; echo "=== attempting the force-push (expec
 origin:
   ancestry:

@@ -104,7 +104,7 @@ Edge labels are the last label class rendered single-line at full width (lane la
 ### Human
 - [x] [REVIEW] The 3 wrapped edge labels read cleanly on the live gallery and nothing else regressed
   **Steps:**
-  1. Open http://192.168.10.107:8834/ and view the task-gate map — "started-work + / real ACs" should be 2 centered lines with a halo covering both, clear of its line
+  1. Open http://<dev-host>:8834/ and view the task-gate map — "started-work + / real ACs" should be 2 centered lines with a halo covering both, clear of its line
   2. View error-escalation-ladder — "worth codifying / -> Level D" likewise
   3. View verification-gate — "all verify / cmds exit 0" sits in the known over-dense mid-chain; judge whether the 2-line form reads better than the old single line did (both collide there; the corridor itself is documented T-082 residue)
   4. Skim context-memory for regressions — its labels are intentionally NOT wrapped (wrap only fires where it measures strictly better)

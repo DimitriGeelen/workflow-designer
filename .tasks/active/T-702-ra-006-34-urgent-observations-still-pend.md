@@ -125,7 +125,7 @@ Dismissing a recorded finding is a judgement about whether it matters. The agent
 
 - [x] [REVIEW] Confirm that "named with reason" closes RA-006, or direct a drain
   **Steps:**
-  1. Open http://192.168.10.107:3013/review/T-702; read the census at the top of `docs/reports/T-702-urgent-named.md`
+  1. Open http://<dev-host>:3013/review/T-702; read the census at the top of `docs/reports/T-702-urgent-named.md`
   2. The three orphans are yours alone: OBS-249 (CLAUDE.md budget ladder — T-614 has since rewritten the ladder in percentages; if you agree it is resolved, it is the first candidate for dismissal once the verb records a reason), OBS-251 (mint a project termlink key — the same question OBS-248 raised), OBS-256 (bridge suite: schedule it via /etc/cron.d, or make it deterministic first)
   3. Choose: **A** — accept the enumeration as the closure of RA-006 and let T-703's ruling govern the drain; **B** — rule on the three orphans here and now (one letter each: dismiss / promote / hold) and have the agent execute after T-703 A lands
   **Update 2026-10-19 (census regenerated after the reviewer's escalation asked for it):** `docs/reports/T-702-urgent-named.md`

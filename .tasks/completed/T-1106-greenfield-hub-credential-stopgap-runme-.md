@@ -97,7 +97,7 @@ replying by DM. The permanent model is T-1107.
 - [x] After the operator's run: our sidecar -> Greenfield is delivered (not REFUSED), and Greenfield acks on `evergreen-trial`
   (2026-10-10: `--hub greenfield` send HUB_ACCEPTED, msg ac704e99; Greenfield's ACK 355eadee "round trip proven both ways", their T-175 closed)
 - [x] `termlink fleet secrets-audit` shows the new secret file 0600 and referenced by profile greenfield-132; no drop file left at /root/greenfield-hub.secret
-  (as provisioned by dimitri-mint-dev instead of our job: profile `greenfield` -> 192.168.10.132:9100, secret
+  (as provisioned by dimitri-mint-dev instead of our job: profile `greenfield` -> <lan-host>:9100, secret
   /root/.termlink/secrets/greenfield.hex 0600, audit status ok; no drop file was ever created — jobs 008/009 never fetched)
 
 ### Human

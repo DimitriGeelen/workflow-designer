@@ -5,7 +5,7 @@ JOB_WHY="Replaces job 008, which needed a key file you place by hand. Your direc
 local account dimitri-mint-dev. Step 1 shows Greenfield's ssh host-key fingerprint and records it for
 dimitri-mint-dev (first run stopped on 'Host key verification failed': that account had never connected).
 Step 2 checks, without fetching anything, that dimitri-mint-dev can ssh to
-Greenfield's machine (192.168.10.132) with no password prompt and run sudo there without one; if not, the
+Greenfield's machine (<lan-host>) with no password prompt and run sudo there without one; if not, the
 job stops and nothing has changed. Step 3 reads /var/lib/termlink/hub.secret over that ssh and writes it
 directly into root's TermLink secrets store (0600): never printed, never in a shared or temporary file,
 never through TermLink. Then: add profile greenfield-132, connect (pins and shows their hub certificate
@@ -15,8 +15,8 @@ owner said the hand-over was parked: run this only if that owner agrees (or is y
 Undo: termlink remote profile remove greenfield-132 and delete /root/.termlink/secrets/greenfield-132.hex."
 
 NAME=greenfield-132
-ADDR=192.168.10.132:9100
-HOST=192.168.10.132
+ADDR=<lan-host>:9100
+HOST=<lan-host>
 VIA=dimitri-mint-dev
 REMOTE_SECRET=/var/lib/termlink/hub.secret
 STORE=/root/.termlink/secrets/$NAME.hex

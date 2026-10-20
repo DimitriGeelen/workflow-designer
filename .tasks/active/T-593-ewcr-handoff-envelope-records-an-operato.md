@@ -87,7 +87,7 @@ which is what it always was.
       command shows `to_project` UNRESOLVED with H2 named as the blocker
 - [x] [REVIEWER] H2 itself remains yours to answer — it is unchanged by this task
 
-  **Steps:** answer H2 on T-590 as already queued: http://192.168.10.107:3013/review/T-590
+  **Steps:** answer H2 on T-590 as already queued: http://<dev-host>:3013/review/T-590
   **Expected:** T-590's H2 AC is where the counterparty gets named. This task deliberately
   did **not** name it.
   **If not:** if you would rather decide H2 inline here, say so and I will move it.

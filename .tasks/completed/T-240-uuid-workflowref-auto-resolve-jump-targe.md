@@ -138,7 +138,7 @@ the AEF-suggested contract); a uuid matching zero live maps (ghost) stays unreso
 - [x] [REVIEW] The auto-resolved readout reads clearly in the properties panel
       **Steps:**
       1. `cd /opt/832-Workflow-designer && python3 tools/gallery-serve.py --port 8834` (if not already running)
-      2. Open http://192.168.10.107:8834/aef-workflow-designer.html?load=arc-lifecycle.bpmn (or any map with a uuid link node), click a link event whose ref is a uuid
+      2. Open http://<dev-host>:8834/aef-workflow-designer.html?load=arc-lifecycle.bpmn (or any map with a uuid link node), click a link event whose ref is a uuid
       **Expected:** Target workflow shows the resolved map id with an "auto-resolved" note, jump button enabled; one click lands on the target map
       **If not:** Screenshot the properties panel and note what reads wrong
 <!--

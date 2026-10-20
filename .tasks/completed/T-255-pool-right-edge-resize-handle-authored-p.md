@@ -128,7 +128,7 @@ Operator request 2026-07-26 ("scale the horizontal end of a page, same as swimmi
 
 - [x] [REVIEW] Dragging the page's right edge feels natural and useful
   **Steps:**
-  1. Open http://192.168.10.107:8834/designer.html?load=rendered%2Fharvest-pipeline.bpmn (the gallery already serves this build — sha-verified)
+  1. Open http://<dev-host>:8834/designer.html?load=rendered%2Fharvest-pipeline.bpmn (the gallery already serves this build — sha-verified)
   2. Hover the thin right border of the pool (the page's right edge) — cursor becomes ↔ and a small accent grip appears at mid-height
   3. Drag it to the right: the page widens with empty space (the diagram re-fits smaller); release, edit nodes, confirm the width sticks
   4. Drag the edge back left past the last node: the page snaps back to auto-fit (hugging the content again)
@@ -230,7 +230,7 @@ python3 tests/test_designer_render.py > /tmp/.t255render 2>&1
 - Suite 7/7 legs incl. new t255-pool-width driving the handle with real trusted CDP input (probes w0–w6: baseline no-attr, drag grows, render survival, round-trip, T-043 floor invariant, inward-clear, undo restore)
 - bridge 37/37, corpus geometry 24 clean, render gate PASS (P-011 re-ran all of these green, 6/6)
 - 4 screenshots read (`.playwright-mcp/t255-*.png`): grip renders in lane-grip visual language; widened canvas spans correctly; cleared state pixel-identical to baseline
-- Implementation commit dda0587; live at http://192.168.10.107:8834/designer.html (served copy sha == src, verified over HTTP)
+- Implementation commit dda0587; live at http://<dev-host>:8834/designer.html (served copy sha == src, verified over HTTP)
 
 ## Visual Verification
 

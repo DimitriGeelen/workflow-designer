@@ -3,7 +3,7 @@
 Domain not delegated to G1–G5: what the **operator** can actually see and do about the
 workflow → program → execution chain. Facts only, no classification.
 
-Snapshot: 2026-09-20, Watchtower live at `http://192.168.10.107:3013`
+Snapshot: 2026-09-20, Watchtower live at `http://<dev-host>:3013`
 (`.context/working/watchtower.url`). All probes are read-only HTTP GETs.
 
 ## 1. Operator route inventory

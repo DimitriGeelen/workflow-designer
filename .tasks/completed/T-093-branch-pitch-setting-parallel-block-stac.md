@@ -131,7 +131,7 @@ T-092 GO, Phase A option 1 (docs/reports/T-092-routing-layout-survey.md, Finding
 
 - [x] [REVIEW] Branch stacks read cleanly after Tidy at the default pitch
   **Steps:**
-  1. Open http://192.168.10.107:8834/designer.html?load=rendered/audit-process.bpmn
+  1. Open http://<dev-host>:8834/designer.html?load=rendered/audit-process.bpmn
   2. Click the "agent" lane header, then Tidy in the lane properties panel
   3. Look at the 5-branch stack mid-canvas; repeat for harvest-pipeline
   **Expected:** Stacked branch tasks no longer touch/overlap — clear gaps between all boxes; nothing else moved unexpectedly

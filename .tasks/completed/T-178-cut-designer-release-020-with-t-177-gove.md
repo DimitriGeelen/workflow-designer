@@ -99,7 +99,7 @@ Release-then-repin cycle per `docs/aef-designer-integration-protocol.md`.
 - [x] [REVIEW] T-177 governance fields live on `:3001/designer` after AEF re-pins
       **Steps:**
       1. Advance the AEF session to re-pin: it runs `fw designer sync` against the delivered `0.2.0` (sha256-verifies).
-      2. Signal 832 when re-pin is done — the agent will run a Playwright check on `http://192.168.10.107:3001/designer`.
+      2. Signal 832 when re-pin is done — the agent will run a Playwright check on `http://<dev-host>:3001/designer`.
       3. (Or check yourself:) open a task node's inspector → EXTENSIONS shows Horizon / Workflow type / Owner dropdowns.
       **Expected:** the three dropdowns appear on task-like nodes; `AEF_FIELDS.scriptTask` includes `horizon`.
       **If not:** the re-pin didn't take — confirm AEF's pin sha256 == `dist/MANIFEST.yaml` sha256 for 0.2.0.

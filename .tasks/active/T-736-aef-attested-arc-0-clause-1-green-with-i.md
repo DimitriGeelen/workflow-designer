@@ -102,7 +102,7 @@ answers the one thing that was asked of us, and routes the ruling.
   **Steps:**
   1. Read @1539 (or the `counterparty_response_superseding` block in
      `docs/research/executable-workflow/arc-0-exit-clauses.yaml`, which quotes it).
-  2. Open http://192.168.10.107:3013/review/T-732 — H1/H3/H5/H6 are already queued
+  2. Open http://<dev-host>:3013/review/T-732 — H1/H3/H5/H6 are already queued
      there, and this ruling belongs alongside them because H3 gates the same handoff.
   3. Decide clause 1. Pick one:
      **A — Ratify.** Set `attestation:` to cite @1539 / their commit `174f31777` and

@@ -80,7 +80,7 @@ cost_estimate_proposed:
 
 ## Context
 
-Operator: "when http://192.168.10.107:8834/designer.html?load=rendered%2Fharvest-pipeline.bpmn nothing happens." T-252 verified the served bytes sha-match src over HTTP, so hypotheses: (1) client-side runtime failure only manifesting outside the hermetic harness, (2) operator browser caching the Jul-22 copy (gallery server may send no cache-validation-busting headers), (3) something environment-specific on the load path. Hypothesis-driven: probe the LIVE URL in an isolated headless browser first — it discriminates server-side from client-side.
+Operator: "when http://<dev-host>:8834/designer.html?load=rendered%2Fharvest-pipeline.bpmn nothing happens." T-252 verified the served bytes sha-match src over HTTP, so hypotheses: (1) client-side runtime failure only manifesting outside the hermetic harness, (2) operator browser caching the Jul-22 copy (gallery server may send no cache-validation-busting headers), (3) something environment-specific on the load path. Hypothesis-driven: probe the LIVE URL in an isolated headless browser first — it discriminates server-side from client-side.
 
 ## Acceptance Criteria
 

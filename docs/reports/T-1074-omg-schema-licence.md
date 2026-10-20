@@ -10,7 +10,7 @@ Not legal advice: a reading of the published terms against our facts, so the ope
 - **Used by:** our own validation only — `tools/_t423-di-schema-validate.py` (bridge suite) validates exported
   maps against the BPMN 2.0 DI schema. Not shipped in the designer build.
 - **Notice:** the files carry **no copyright or permission notice**, and PROVENANCE.md quotes none.
-- **Where the repo lives:** one remote, `origin = ssh://git@192.168.10.201:6611/workflow-designer` (our internal
+- **Where the repo lives:** one remote, `origin = ssh://git@<git-host>:6611/workflow-designer` (our internal
   OneDev). No public mirror of this repository.
 
 ## The terms (source: ScanCode LicenseDB, "OMG BPMN 2.0", category *Proprietary Free* —

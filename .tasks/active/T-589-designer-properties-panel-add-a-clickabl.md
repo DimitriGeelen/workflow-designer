@@ -225,7 +225,7 @@ that seam is the operator's call. Filed as evidence, not as scope.
   1. `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw serve-src` is NOT the route —
      `/designer` serves a pinned build without this change. Instead run this single line and
      open the URL it prints:
-     `cd /opt/832-Workflow-designer && P=$(python3 -c "import socket;s=socket.socket();s.bind(('127.0.0.1',0));print(s.getsockname()[1])") && D=$(mktemp -d) && cp src/aef-workflow-designer.html "$D/designer.html" && (python3 tools/gallery-serve.py $P --repo "$(mktemp -d)" --docroot "$D" --bind 0.0.0.0 &) && sleep 2 && echo "http://192.168.10.107:$P/designer.html"`
+     `cd /opt/832-Workflow-designer && P=$(python3 -c "import socket;s=socket.socket();s.bind(('127.0.0.1',0));print(s.getsockname()[1])") && D=$(mktemp -d) && cp src/aef-workflow-designer.html "$D/designer.html" && (python3 tools/gallery-serve.py $P --repo "$(mktemp -d)" --docroot "$D" --bind 0.0.0.0 &) && sleep 2 && echo "http://<dev-host>:$P/designer.html"`
   2. Open any map, click a serviceTask, scroll the right-hand panel to **Links**.
   3. Type two URLs on separate lines and click elsewhere to commit.
   **Expected:** the textarea keeps the raw text you typed; the clickable anchors render

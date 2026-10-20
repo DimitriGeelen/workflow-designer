@@ -21,7 +21,7 @@ last_commit: 2026-07-27T23:46:58+02:00
 
 # Summary (auto-generated from git commit messages)
 summary: |
-  WIP checkpoint at budget gate — field() opts.deferred commit-on-blur/Enter branch + _idRenameNotice declaration landed (both INERT: no caller passes deferred yet, notice unused; zero behavior change, suite unaffected); real ACs written (G-020 clean); full continuation plan in task Context. save-target guard set complete — ID-field collision notice (one-shot, names the id), commit-on-blur/Enter with focus retention (deferred:true, Title stays live), saveToProject load-source mismatch confirm (state-driven: _loadSrcKey===activeKey + _loadSrcStem vs id); 8-leg CDP harness + suite leg (40/40 green), collision notice screenshot READ + published :8834; reviewer PASS; zero seam surface — agent ACs 5/5, partial-complete (human REVIEW: prompt wording). owner agent → human — partial-complete handoff; review at http://192.168.10.107:8834/designer.html (steps in task Human AC), collision-notice screenshot http://192.168.10.107:8834/t264-collision-notice.png
+  WIP checkpoint at budget gate — field() opts.deferred commit-on-blur/Enter branch + _idRenameNotice declaration landed (both INERT: no caller passes deferred yet, notice unused; zero behavior change, suite unaffected); real ACs written (G-020 clean); full continuation plan in task Context. save-target guard set complete — ID-field collision notice (one-shot, names the id), commit-on-blur/Enter with focus retention (deferred:true, Title stays live), saveToProject load-source mismatch confirm (state-driven: _loadSrcKey===activeKey + _loadSrcStem vs id); 8-leg CDP harness + suite leg (40/40 green), collision notice screenshot READ + published :8834; reviewer PASS; zero seam surface — agent ACs 5/5, partial-complete (human REVIEW: prompt wording). owner agent → human — partial-complete handoff; review at http://<dev-host>:8834/designer.html (steps in task Human AC), collision-notice screenshot http://<dev-host>:8834/t264-collision-notice.png
 
 # Key outcomes
 outcomes:
@@ -55,7 +55,7 @@ git_timeline:
   - time: '2026-07-27T23:46:18'
     action: 'T-264: save-target guard set complete — ID-field collision notice (one-shot, names the id), commit-on-blur/Enter with focus retention (deferred:true, Title stays live), saveToProject load-source mismatch confirm (state-driven: _loadSrcKey===activeKey + _loadSrcStem vs id); 8-leg CDP harness + suite leg (40/40 green), collision notice screenshot READ + published :8834; reviewer PASS; zero seam surface — agent ACs 5/5, partial-complete (human REVIEW: prompt wording)'
   - time: '2026-07-27T23:46:58'
-    action: 'T-264: owner agent → human — partial-complete handoff; review at http://192.168.10.107:8834/designer.html (steps in task Human AC), collision-notice screenshot http://192.168.10.107:8834/t264-collision-notice.png'
+    action: 'T-264: owner agent → human — partial-complete handoff; review at http://<dev-host>:8834/designer.html (steps in task Human AC), collision-notice screenshot http://<dev-host>:8834/t264-collision-notice.png'
 
 # What worked well (requires judgment — [TODO] if enrichment_status is pending)
 successes:

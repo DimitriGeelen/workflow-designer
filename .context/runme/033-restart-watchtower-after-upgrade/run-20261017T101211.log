@@ -26,15 +26,15 @@ Run step 1/2? [y/N] [watchtower] Stopping Watchtower (PID 912519)...
 
 Watchtower is running
   Local:  http://localhost:3013
-  LAN:    http://192.168.10.107:3013
+  LAN:    http://<dev-host>:3013
   PID:    1342454
   Log:    /opt/832-Workflow-designer/.context/working/watchtower.log
-ok  Watchtower restarted (pid 1342454), answering at http://192.168.10.107:3013
+ok  Watchtower restarted (pid 1342454), answering at http://<dev-host>:3013
 ok    step 1/2
 
 Step 2/2: Check the inline map page answers and carries the full-width rule
   runs: do_check
-Run step 2/2? [y/N] ok  http://192.168.10.107:3013/designer/open answers with the full-width inline page
+Run step 2/2? [y/N] ok  http://<dev-host>:3013/designer/open answers with the full-width inline page
 ok    step 2/2
 
 DONE: 033-restart-watchtower-after-upgrade — all 2 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/033-restart-watchtower-after-upgrade/run-20261017T101211.log)

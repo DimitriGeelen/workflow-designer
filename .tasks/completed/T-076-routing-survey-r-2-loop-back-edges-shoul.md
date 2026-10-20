@@ -99,7 +99,7 @@ Survey R-2 (docs/reports/T-041-routing-readability-survey.md): loop-back cross-b
 ### Human
 - [x] [REVIEW] Loop-backs read as calm periphery detours on the live gallery
   **Steps:**
-  1. Open http://192.168.10.107:8834/ and open the task-lifecycle map
+  1. Open http://<dev-host>:8834/ and open the task-lifecycle map
   2. Follow the "gate failed — rework" return edge from "All gates pass?" back to "Perform the work" — it should swing below the content and re-enter from the right
   3. Spot-check a couple of dense maps (audit-process, git-commit-flow) for loops that cut through boxes or label text
   **Expected:** Loop cross-bars run around the content (above/below the nodes in their span), not through node labels or the mid-diagram band. (healing-loop's drop through its own gateway label is known and deferred to T-077 — label placement, not routing)

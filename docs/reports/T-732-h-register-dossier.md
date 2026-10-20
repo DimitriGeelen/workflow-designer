@@ -6,7 +6,7 @@ with `blocks_arc_0_exit: true`. Every recommendation below is **quoted verbatim 
 register** (PL-323 — never paraphrase a clause the operator is about to rule on). Nothing here
 is a decision; this is the packet the decision is made against.
 
-**Approvals route:** http://192.168.10.107:3013/approvals
+**Approvals route:** http://<dev-host>:3013/approvals
 
 > **Currency — 2026-10-18 (832 T-1201).** Two of the four questions below were ruled after this dossier was
 > assembled, and the register is the source of truth:

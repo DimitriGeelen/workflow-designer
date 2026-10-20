@@ -46,7 +46,7 @@
   [0;32mOK[0m  usage: recall: 6 of 144 queries in 7d could not run
   [0;32mOK[0m  disk: no orphan index scratch; free space covers the next reindex
   [0;36mSKIP[0m  recall usage: web.recall_telemetry not importable here (ModuleNotFoundError)
-  [0;32mOK[0m  Watchtower running (http://192.168.10.107:3013, pid 3032316)
+  [0;32mOK[0m  Watchtower running (http://<dev-host>:3013, pid 3032316)
   [1;33mWARN[0m  Watchtower process predates its own source (187 file(s) newer than pid 3032316)
          - /opt/832-Workflow-designer/.agentic-framework/web/blueprints/__init__.py
          - /opt/832-Workflow-designer/.agentic-framework/web/blueprints/api.py

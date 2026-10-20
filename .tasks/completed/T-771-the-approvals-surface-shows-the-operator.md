@@ -92,7 +92,7 @@ cost_estimate_proposed:
       renders the element as `<details class="ac-overflow" ... open>`:
 
       ```
-      http://192.168.10.107:3013/approvals?expand=verifications
+      http://<dev-host>:3013/approvals?expand=verifications
       ```
 
       And per-task, bypassing the list entirely: `/tasks/T-736`, `/tasks/T-732`,
@@ -115,7 +115,7 @@ cost_estimate_proposed:
 
 - [x] [REVIEWER] **The expanded view renders the Arc-0 rulings, and keeps rendering them
       after the poll cycle.** Driven in a real browser at
-      `http://192.168.10.107:3013/approvals?expand=verifications`, probed twice with a
+      `http://<dev-host>:3013/approvals?expand=verifications`, probed twice with a
       13-second wait between — longer than the 10s poll interval that T-772 fixed.
 
       | property | at load | after poll |

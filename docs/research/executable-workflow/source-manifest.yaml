@@ -85,7 +85,7 @@ correlation:
 documents:
   - id: architecture-dossier
     title: Executable Workflow Contract Runtime
-    declared_source_url: http://192.168.10.107:3001/file/docs/architecture/executable-workflow-contract-runtime.md
+    declared_source_url: http://<dev-host>:3001/file/docs/architecture/executable-workflow-contract-runtime.md
     expected_sha256: c9070637b09493a24abc99982ae966a3b3ae8cd4a358a44fdceb59bdceb6ac2d
     observed_sha256: c9070637b09493a24abc99982ae966a3b3ae8cd4a358a44fdceb59bdceb6ac2d
     hash_match: true
@@ -106,7 +106,7 @@ documents:
 
   - id: delivery-roadmap
     title: Executable Workflow Runtime — Research and Delivery Roadmap
-    declared_source_url: http://192.168.10.107:3001/file/docs/architecture/executable-workflow-runtime-delivery-roadmap.md
+    declared_source_url: http://<dev-host>:3001/file/docs/architecture/executable-workflow-runtime-delivery-roadmap.md
     expected_sha256: 5be23719b976e37a6461b4b1f6f309985b5ba033ef0b801769edd2627fbae5b8
     observed_sha256: 5be23719b976e37a6461b4b1f6f309985b5ba033ef0b801769edd2627fbae5b8
     hash_match: true

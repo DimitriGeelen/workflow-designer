@@ -104,7 +104,7 @@ nothing enters the document format or the bridge seam.
 ### Human
 - [x] [REVIEW] Settings dialog is clear and the knobs do what they say
   **Steps:**
-  1. Open http://192.168.10.107:8834/designer.html?load=rendered/healing-loop.bpmn
+  1. Open http://<dev-host>:8834/designer.html?load=rendered/healing-loop.bpmn
   2. Click the Settings button in the header
   3. Flip attach mode to spread and back — watch the arrows fan out / converge
   4. Set straightening tolerance to 0 — near-aligned lines get their corners back; set it back to 16

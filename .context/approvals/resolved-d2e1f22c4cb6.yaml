@@ -1,6 +1,6 @@
 command_hash: d2e1f22c4cb60723f9008aeef3a69fdcf6eb5080b6c9c874f1e25983c954c608
 command_preview: set -u; cd /tmp/claude-0/t938-purge/repo && git remote add origin
-  ssh://git@192.168.10.201:6611/workflow-designer 2>/dev/null; git push --force origin
+  ssh://git@<git-host>:6611/workflow-designer 2>/dev/null; git push --force origin
   bleeding-edge:bleeding-edge 2>&1 | tail -12
 origin:
   ancestry:

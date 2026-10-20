@@ -198,8 +198,8 @@ test -f .agentic-framework/policy/anti-patterns.yaml
 test -f .agentic-framework/policy/escalation-patterns.yaml
 test ! -f lib/dispatch_pause.py
 test ! -f policy/anti-patterns.yaml
-curl -sf -o /dev/null http://192.168.10.107:3000/review/T-125
-curl -sf -o /dev/null http://192.168.10.107:3000/approvals
+curl -sf -o /dev/null http://<dev-host>:3000/review/T-125
+curl -sf -o /dev/null http://<dev-host>:3000/approvals
 test -d .agentic-framework.rollback
 
 ## RCA

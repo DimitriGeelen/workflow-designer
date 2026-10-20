@@ -29,7 +29,7 @@ The human must review and approve via Watchtower:
   Human AC Review: T-1127
   0/0 checked
 
-  http://192.168.10.107:3013/review/T-1127
+  http://<dev-host>:3013/review/T-1127
 
 █▀▀▀▀▀▀▀██▀▀▀▀▀▀█▀▀▀█▀█▀▀▀▀▀▀▀█
 █ █▀▀▀█ █▄███▀▀  ▄▄▄▄██ █▀▀▀█ █
@@ -48,7 +48,7 @@ The human must review and approve via Watchtower:
 █ ▀▀▀▀▀ █▀ ▄██▀▄▀      ▀  ▄▀ ▀█
 ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 
-  Open: http://192.168.10.107:3013/review/T-1127
+  Open: http://<dev-host>:3013/review/T-1127
   Scan QR or open link above
 
 ══════════════════════════════════════════
@@ -56,6 +56,6 @@ The human must review and approve via Watchtower:
   Review marker created: .context/working/.reviewed-T-1127
   (unblocks fw inception decide T-1127 — T-973 gate)
 
-  → Decide: http://192.168.10.107:3013/review/T-1127
+  → Decide: http://<dev-host>:3013/review/T-1127
 
 STOPPED: step 1/2 failed (rc=1); later steps not run

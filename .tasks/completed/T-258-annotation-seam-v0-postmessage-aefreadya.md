@@ -128,12 +128,12 @@ rail 210). DOM key: `g[data-id]` IS the node uid (node.id = node.uid, src :1986)
 ### Human
 - [x] [REVIEW] Badge look-and-feel reads right
   **Steps:**
-  1. Open the badge screenshot in your browser: http://192.168.10.107:8834/t258-annotation-badges.png
+  1. Open the badge screenshot in your browser: http://<dev-host>:8834/t258-annotation-badges.png
      — a green "running" pill above a start event and a red "blocked" pill above a
      task node (same bytes as the repo's .playwright-mcp/t258-annotation-badges.png,
      sha 4b617a51, served from the ufw-open gallery port)
   2. Optional live check: AEF's overlay now runs this seam end-to-end at
-     http://192.168.10.107:3001/designer/overlay?id=aef-task-lifecycle (5 live badges)
+     http://<dev-host>:3001/designer/overlay?id=aef-task-lifecycle (5 live badges)
   **Expected:** Pills legible, tones distinct, placement doesn't obscure node names
   **If not:** Note what reads wrong (size/placement/color) — pill geometry is one
   function (`aefApplyAnnotations`), trivially adjustable before the release cut

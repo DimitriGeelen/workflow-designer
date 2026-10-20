@@ -102,7 +102,7 @@ bvp_scores_proposed:
 - Then: re-run bridge, dry-run job 019 (.context/runme/019-release-designer-0.19.1, written, NOT dry-run), hand to the
   operator; operator's W5 answer A: release 0.19.1 FIRST, then job 018 (field test, dry-run sha 8685ea15).
 - Unread: the Greenfield watcher fired at the end (new post on dm:90d4553895d5a9a6:d1993c2c3ec44c94 after offset 77) — read first.
-- Operator still to do: close T-1127 on http://192.168.10.107:3013/review/T-1127 (W1), then commit it.
+- Operator still to do: close T-1127 on http://<dev-host>:3013/review/T-1127 (W1), then commit it.
 
 ## Acceptance Criteria
 

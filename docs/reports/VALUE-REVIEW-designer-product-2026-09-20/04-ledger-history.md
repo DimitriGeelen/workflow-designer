@@ -208,7 +208,7 @@ The gradient runs data-contract → geometry/visual. G-003 (`concerns.yaml`, `wa
 | Agent ACs | **6/6 ticked** | AC parse |
 | Human ACs | **1/3 ticked** | AC parse |
 | Recorded recommendation | `**Recommendation:** GO` — "All 6 Agent ACs verified… The remaining Human AC is the A-4 fidelity judgment (does the rendered inception-review match the flow you experienced) — genuinely yours, everything needed is one click away." | task `## Recommendation` |
-| Recorded evidence of readiness | "Gallery LIVE at http://192.168.10.107:8834/ (re-verified **2026-07-22**) — click **inception-review**"; "24/24 corpus maps rendered warn-free" | same |
+| Recorded evidence of readiness | "Gallery LIVE at http://<dev-host>:8834/ (re-verified **2026-07-22**) — click **inception-review**"; "24/24 corpus maps rendered warn-free" | same |
 
 ---
 

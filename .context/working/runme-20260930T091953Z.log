@@ -148,7 +148,7 @@ AUDIT-SCOPE: fails=0 ref=0 worktree=0
 WARNING: Audit has warnings (push allowed)
 Consider addressing the issues above.
 
-To ssh://192.168.10.201:6611/workflow-designer
+To ssh://<git-host>:6611/workflow-designer
    045f6073..1f9df457  bleeding-edge -> master
   + git branch -f master bleeding-edge
   ok   tracked files untouched by the push (343 modified, unchanged)

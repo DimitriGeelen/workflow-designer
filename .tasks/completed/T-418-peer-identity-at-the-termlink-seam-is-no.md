@@ -117,7 +117,7 @@ Envelope metadata across the two DM topics shows the same single fingerprint car
     999-agentic-engineering-framework   (rail 506, 509 — AEF)
     <no metadata at all>                (cohort DM 2, 3, 8; rail 508)
 
-`observed_addr` does not separate them either — every one is `192.168.10.107`, which
+`observed_addr` does not separate them either — every one is `<dev-host>`, which
 is also this project's own host.
 
 Two consequences worth recording:

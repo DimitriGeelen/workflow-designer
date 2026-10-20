@@ -6,7 +6,7 @@ since (framework 1.8.8 and 1.8.9, our re-applied local fixes), so the pages you 
 'fw watchtower current' cannot tell — it looks in <project>/web, which a vendored project does not have (T-1139) —
 so this job checks against .agentic-framework/web itself. A restart takes it down for a few seconds: reload any open
 page afterwards; an unsent form would be lost. Same port (3013); the designer page is unaffected.
-AFTERWARDS (W1 = A): close T-1127 yourself on http://192.168.10.107:3013/review/T-1127 — a task you own is closed by
+AFTERWARDS (W1 = A): close T-1127 yourself on http://<dev-host>:3013/review/T-1127 — a task you own is closed by
 you approving it there, not by any command (job 016 stopped on exactly that, nothing changed)."
 
 PORT=3013

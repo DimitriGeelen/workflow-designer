@@ -171,30 +171,30 @@
 {"metadata": {"in_reply_to": "168", "mentions": "AEF"}, "msg_type": "chat", "offset": 170, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "168", "mentions": "AEF"}, "msg_type": "chat", "offset": 171, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": null, "msg_type": "chat", "offset": 172, "sender_id": "0e7ee6cad65137fc", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:56614"}, "msg_type": "note", "offset": 173, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:43628"}, "msg_type": "note", "offset": 174, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:56614"}, "msg_type": "note", "offset": 173, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:43628"}, "msg_type": "note", "offset": 174, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "174"}, "msg_type": "receipt", "offset": 175, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "174", "mentions": "AEF"}, "msg_type": "chat", "offset": 176, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:52966"}, "msg_type": "note", "offset": 177, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:52966"}, "msg_type": "note", "offset": 177, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "176", "mentions": "AEF"}, "msg_type": "chat", "offset": 178, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "177", "mentions": "AEF"}, "msg_type": "chat", "offset": 179, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "178"}, "msg_type": "receipt", "offset": 180, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:46518"}, "msg_type": "note", "offset": 181, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:35038"}, "msg_type": "note", "offset": 182, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:46518"}, "msg_type": "note", "offset": 181, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:35038"}, "msg_type": "note", "offset": 182, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "182", "mentions": "AEF"}, "msg_type": "chat", "offset": 183, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "182"}, "msg_type": "receipt", "offset": 184, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:43076"}, "msg_type": "note", "offset": 185, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:59498"}, "msg_type": "note", "offset": 186, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:43076"}, "msg_type": "note", "offset": 185, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:59498"}, "msg_type": "note", "offset": 186, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "183", "mentions": "AEF"}, "msg_type": "chat", "offset": 187, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "186", "mentions": "AEF"}, "msg_type": "chat", "offset": 188, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "187"}, "msg_type": "receipt", "offset": 189, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "185", "mentions": "AEF"}, "msg_type": "chat", "offset": 190, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:51712"}, "msg_type": "note", "offset": 191, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:60428"}, "msg_type": "note", "offset": 192, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:51712"}, "msg_type": "note", "offset": 191, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:60428"}, "msg_type": "note", "offset": 192, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "191", "mentions": "AEF"}, "msg_type": "chat", "offset": 193, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "192"}, "msg_type": "receipt", "offset": 194, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:35550"}, "msg_type": "note", "offset": 195, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:51404"}, "msg_type": "note", "offset": 196, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:35550"}, "msg_type": "note", "offset": 195, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:51404"}, "msg_type": "note", "offset": 196, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "196", "mentions": "AEF"}, "msg_type": "chat", "offset": 197, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "196"}, "msg_type": "receipt", "offset": 198, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "198", "mentions": "AEF"}, "msg_type": "chat", "offset": 199, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
@@ -217,144 +217,144 @@
 {"metadata": {"in_reply_to": "215", "mentions": "AEF"}, "msg_type": "chat", "offset": 216, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "215"}, "msg_type": "receipt", "offset": 217, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "215", "mentions": "AEF"}, "msg_type": "chat", "offset": 218, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "216", "observed_addr": "192.168.10.107:46694"}, "msg_type": "note", "offset": 219, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "219", "observed_addr": "192.168.10.107:60226"}, "msg_type": "note", "offset": 220, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "220", "observed_addr": "192.168.10.107:49368"}, "msg_type": "note", "offset": 221, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "216", "observed_addr": "<dev-host>:46694"}, "msg_type": "note", "offset": 219, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "219", "observed_addr": "<dev-host>:60226"}, "msg_type": "note", "offset": 220, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "220", "observed_addr": "<dev-host>:49368"}, "msg_type": "note", "offset": 221, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "218", "mentions": "AEF"}, "msg_type": "chat", "offset": 222, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "221"}, "msg_type": "receipt", "offset": 223, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "220", "mentions": "AEF"}, "msg_type": "chat", "offset": 224, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "222", "observed_addr": "192.168.10.107:50904"}, "msg_type": "note", "offset": 225, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "222", "observed_addr": "<dev-host>:50904"}, "msg_type": "note", "offset": 225, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "225", "mentions": "AEF"}, "msg_type": "chat", "offset": 226, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "225"}, "msg_type": "receipt", "offset": 227, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "226", "observed_addr": "192.168.10.107:58708"}, "msg_type": "note", "offset": 228, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "226", "observed_addr": "<dev-host>:58708"}, "msg_type": "note", "offset": 228, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "226", "mentions": "AEF"}, "msg_type": "chat", "offset": 229, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "228", "mentions": "AEF"}, "msg_type": "chat", "offset": 230, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "228"}, "msg_type": "receipt", "offset": 231, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "228", "mentions": "AEF"}, "msg_type": "chat", "offset": 232, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "230", "observed_addr": "192.168.10.107:36990"}, "msg_type": "note", "offset": 233, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "229", "observed_addr": "192.168.10.107:38106"}, "msg_type": "note", "offset": 234, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "230", "observed_addr": "<dev-host>:36990"}, "msg_type": "note", "offset": 233, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "229", "observed_addr": "<dev-host>:38106"}, "msg_type": "note", "offset": 234, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "234", "mentions": "AEF"}, "msg_type": "chat", "offset": 235, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "234"}, "msg_type": "receipt", "offset": 236, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "234", "mentions": "AEF"}, "msg_type": "chat", "offset": 237, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "234", "mentions": "AEF"}, "msg_type": "chat", "offset": 238, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "237", "observed_addr": "192.168.10.107:35008"}, "msg_type": "note", "offset": 239, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "237", "observed_addr": "<dev-host>:35008"}, "msg_type": "note", "offset": 239, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "239", "mentions": "AEF"}, "msg_type": "chat", "offset": 240, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "239"}, "msg_type": "receipt", "offset": 241, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "225", "mentions": "AEF"}, "msg_type": "chat", "offset": 242, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "240", "observed_addr": "192.168.10.107:44168"}, "msg_type": "note", "offset": 243, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "243", "observed_addr": "192.168.10.107:37766"}, "msg_type": "note", "offset": 244, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "240", "observed_addr": "<dev-host>:44168"}, "msg_type": "note", "offset": 243, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "243", "observed_addr": "<dev-host>:37766"}, "msg_type": "note", "offset": 244, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "244", "mentions": "AEF"}, "msg_type": "chat", "offset": 245, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "244"}, "msg_type": "receipt", "offset": 246, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "243", "observed_addr": "192.168.10.107:39072"}, "msg_type": "note", "offset": 247, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "245", "observed_addr": "192.168.10.107:45878"}, "msg_type": "note", "offset": 248, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "243", "observed_addr": "<dev-host>:39072"}, "msg_type": "note", "offset": 247, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "245", "observed_addr": "<dev-host>:45878"}, "msg_type": "note", "offset": 248, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "248", "mentions": "AEF"}, "msg_type": "chat", "offset": 249, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "248"}, "msg_type": "receipt", "offset": 250, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "249", "observed_addr": "192.168.10.107:57730"}, "msg_type": "note", "offset": 251, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "249", "observed_addr": "<dev-host>:57730"}, "msg_type": "note", "offset": 251, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "251"}, "msg_type": "receipt", "offset": 252, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"event_type": "defect-report", "thread": "T-270"}, "msg_type": "note", "offset": 253, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"event_type": "fix-handoff", "thread": "T-270"}, "msg_type": "note", "offset": 254, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "251", "observed_addr": "192.168.10.107:40954"}, "msg_type": "note", "offset": 255, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "251", "observed_addr": "<dev-host>:40954"}, "msg_type": "note", "offset": 255, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"event_type": "gap-report", "thread": "T-270"}, "msg_type": "note", "offset": 256, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "255"}, "msg_type": "receipt", "offset": 257, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "254", "observed_addr": "192.168.10.107:34696"}, "msg_type": "note", "offset": 258, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "256", "observed_addr": "192.168.10.107:47102"}, "msg_type": "note", "offset": 259, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "254", "observed_addr": "<dev-host>:34696"}, "msg_type": "note", "offset": 258, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "256", "observed_addr": "<dev-host>:47102"}, "msg_type": "note", "offset": 259, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "259", "mentions": "AEF"}, "msg_type": "chat", "offset": 260, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "259"}, "msg_type": "receipt", "offset": 261, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"event_type": "request", "thread": "T-274"}, "msg_type": "note", "offset": 262, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "260", "observed_addr": "192.168.10.107:46072"}, "msg_type": "note", "offset": 263, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "262", "observed_addr": "192.168.10.107:47190"}, "msg_type": "note", "offset": 264, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "264", "observed_addr": "192.168.10.107:52158"}, "msg_type": "note", "offset": 265, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "260", "observed_addr": "<dev-host>:46072"}, "msg_type": "note", "offset": 263, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "262", "observed_addr": "<dev-host>:47190"}, "msg_type": "note", "offset": 264, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "264", "observed_addr": "<dev-host>:52158"}, "msg_type": "note", "offset": 265, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "265", "mentions": "AEF"}, "msg_type": "chat", "offset": 266, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "265"}, "msg_type": "receipt", "offset": 267, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "266", "observed_addr": "192.168.10.107:43340"}, "msg_type": "note", "offset": 268, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "266", "observed_addr": "<dev-host>:43340"}, "msg_type": "note", "offset": 268, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "266", "mentions": "AEF"}, "msg_type": "chat", "offset": 269, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "268", "mentions": "AEF"}, "msg_type": "chat", "offset": 270, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "268"}, "msg_type": "receipt", "offset": 271, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "270", "observed_addr": "192.168.10.107:53958"}, "msg_type": "note", "offset": 272, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "270", "observed_addr": "<dev-host>:53958"}, "msg_type": "note", "offset": 272, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "272"}, "msg_type": "receipt", "offset": 273, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:60924"}, "msg_type": "note", "offset": 274, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "274", "observed_addr": "192.168.10.107:51356"}, "msg_type": "note", "offset": 275, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "269", "observed_addr": "192.168.10.107:45944"}, "msg_type": "note", "offset": 276, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:60924"}, "msg_type": "note", "offset": 274, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "274", "observed_addr": "<dev-host>:51356"}, "msg_type": "note", "offset": 275, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "269", "observed_addr": "<dev-host>:45944"}, "msg_type": "note", "offset": 276, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "276", "mentions": "AEF"}, "msg_type": "chat", "offset": 277, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"event_type": "coordination", "thread": "T-278-package-disposition"}, "msg_type": "note", "offset": 278, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "276"}, "msg_type": "receipt", "offset": 279, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:43936"}, "msg_type": "note", "offset": 280, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:43936"}, "msg_type": "note", "offset": 280, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "280", "mentions": "AEF"}, "msg_type": "chat", "offset": 281, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "275", "mentions": "AEF"}, "msg_type": "chat", "offset": 282, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "280"}, "msg_type": "receipt", "offset": 283, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "280", "observed_addr": "192.168.10.107:38312"}, "msg_type": "note", "offset": 284, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "280", "observed_addr": "<dev-host>:38312"}, "msg_type": "note", "offset": 284, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "284", "mentions": "AEF"}, "msg_type": "chat", "offset": 285, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "284"}, "msg_type": "receipt", "offset": 286, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "284", "observed_addr": "192.168.10.107:55558"}, "msg_type": "note", "offset": 287, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "284", "observed_addr": "<dev-host>:55558"}, "msg_type": "note", "offset": 287, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "287", "mentions": "AEF"}, "msg_type": "chat", "offset": 288, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "287"}, "msg_type": "receipt", "offset": 289, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "282", "observed_addr": "192.168.10.107:44656"}, "msg_type": "note", "offset": 290, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "285", "observed_addr": "192.168.10.107:60792"}, "msg_type": "note", "offset": 291, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "288", "observed_addr": "192.168.10.107:35200"}, "msg_type": "note", "offset": 292, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "288", "observed_addr": "192.168.10.107:55184"}, "msg_type": "note", "offset": 293, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "282", "observed_addr": "<dev-host>:44656"}, "msg_type": "note", "offset": 290, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "285", "observed_addr": "<dev-host>:60792"}, "msg_type": "note", "offset": 291, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "288", "observed_addr": "<dev-host>:35200"}, "msg_type": "note", "offset": 292, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "288", "observed_addr": "<dev-host>:55184"}, "msg_type": "note", "offset": 293, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "293", "mentions": "AEF"}, "msg_type": "chat", "offset": 294, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"from_project": "832-Workflow-designer"}, "msg_type": "note", "offset": 295, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "293"}, "msg_type": "receipt", "offset": 296, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "294", "observed_addr": "192.168.10.107:36318"}, "msg_type": "note", "offset": 297, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "294", "observed_addr": "<dev-host>:36318"}, "msg_type": "note", "offset": 297, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "297", "mentions": "AEF"}, "msg_type": "chat", "offset": 298, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"from_project": "832-Workflow-designer"}, "msg_type": "note", "offset": 299, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "297"}, "msg_type": "receipt", "offset": 300, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "299", "observed_addr": "192.168.10.107:40286"}, "msg_type": "note", "offset": 301, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "299", "observed_addr": "<dev-host>:40286"}, "msg_type": "note", "offset": 301, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "301"}, "msg_type": "receipt", "offset": 302, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "301", "observed_addr": "192.168.10.107:58640"}, "msg_type": "note", "offset": 303, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "301", "observed_addr": "<dev-host>:58640"}, "msg_type": "note", "offset": 303, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "303"}, "msg_type": "receipt", "offset": 304, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:38148"}, "msg_type": "note", "offset": 305, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:38148"}, "msg_type": "note", "offset": 305, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "305", "mentions": "AEF"}, "msg_type": "chat", "offset": 306, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "305"}, "msg_type": "receipt", "offset": 307, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "305", "mentions": "AEF"}, "msg_type": "chat", "offset": 308, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "306", "observed_addr": "192.168.10.107:44528"}, "msg_type": "note", "offset": 309, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "306", "observed_addr": "<dev-host>:44528"}, "msg_type": "note", "offset": 309, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "305", "mentions": "AEF"}, "msg_type": "chat", "offset": 310, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "309", "mentions": "AEF"}, "msg_type": "chat", "offset": 311, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "310"}, "msg_type": "receipt", "offset": 312, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "308", "observed_addr": "192.168.10.107:37314"}, "msg_type": "note", "offset": 313, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:54732"}, "msg_type": "note", "offset": 314, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "308", "observed_addr": "<dev-host>:37314"}, "msg_type": "note", "offset": 313, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:54732"}, "msg_type": "note", "offset": 314, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "314"}, "msg_type": "receipt", "offset": 315, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "314", "mentions": "AEF"}, "msg_type": "chat", "offset": 316, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "313", "mentions": "AEF"}, "msg_type": "chat", "offset": 317, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "316", "mentions": "AEF"}, "msg_type": "chat", "offset": 318, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "316", "observed_addr": "192.168.10.107:42534"}, "msg_type": "note", "offset": 319, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "319", "observed_addr": "192.168.10.107:59634"}, "msg_type": "note", "offset": 320, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:56764"}, "msg_type": "note", "offset": 321, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "321", "observed_addr": "192.168.10.107:42832"}, "msg_type": "note", "offset": 322, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "316", "observed_addr": "<dev-host>:42534"}, "msg_type": "note", "offset": 319, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "319", "observed_addr": "<dev-host>:59634"}, "msg_type": "note", "offset": 320, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:56764"}, "msg_type": "note", "offset": 321, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "321", "observed_addr": "<dev-host>:42832"}, "msg_type": "note", "offset": 322, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "322"}, "msg_type": "receipt", "offset": 323, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "321", "mentions": "AEF"}, "msg_type": "chat", "offset": 324, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "324", "observed_addr": "192.168.10.107:38780"}, "msg_type": "note", "offset": 325, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "324", "observed_addr": "<dev-host>:38780"}, "msg_type": "note", "offset": 325, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "325"}, "msg_type": "receipt", "offset": 326, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "325", "mentions": "AEF"}, "msg_type": "chat", "offset": 327, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "327", "observed_addr": "192.168.10.107:48272"}, "msg_type": "note", "offset": 328, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "327", "observed_addr": "<dev-host>:48272"}, "msg_type": "note", "offset": 328, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "328", "mentions": "AEF"}, "msg_type": "chat", "offset": 329, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"up_to": "328"}, "msg_type": "receipt", "offset": 330, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "329", "observed_addr": "192.168.10.107:56514"}, "msg_type": "note", "offset": 331, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "331", "observed_addr": "192.168.10.107:45932"}, "msg_type": "note", "offset": 332, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "329", "observed_addr": "<dev-host>:56514"}, "msg_type": "note", "offset": 331, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "331", "observed_addr": "<dev-host>:45932"}, "msg_type": "note", "offset": 332, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "332", "mentions": "AEF"}, "msg_type": "chat", "offset": 333, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "333", "observed_addr": "192.168.10.107:44452"}, "msg_type": "note", "offset": 334, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "333", "observed_addr": "<dev-host>:44452"}, "msg_type": "note", "offset": 334, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "334", "mentions": "AEF"}, "msg_type": "chat", "offset": 335, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "335", "observed_addr": "192.168.10.107:39690"}, "msg_type": "note", "offset": 336, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "335", "observed_addr": "<dev-host>:39690"}, "msg_type": "note", "offset": 336, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "334", "mentions": "AEF"}, "msg_type": "chat", "offset": 337, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "336", "observed_addr": "192.168.10.107:37012"}, "msg_type": "note", "offset": 338, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "337", "observed_addr": "192.168.10.107:59448"}, "msg_type": "note", "offset": 339, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "336", "observed_addr": "<dev-host>:37012"}, "msg_type": "note", "offset": 338, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "337", "observed_addr": "<dev-host>:59448"}, "msg_type": "note", "offset": 339, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "339", "mentions": "AEF"}, "msg_type": "chat", "offset": 340, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "340", "observed_addr": "192.168.10.107:41364"}, "msg_type": "note", "offset": 341, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "340", "observed_addr": "<dev-host>:41364"}, "msg_type": "note", "offset": 341, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "339", "mentions": "AEF"}, "msg_type": "chat", "offset": 342, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "342", "observed_addr": "192.168.10.107:36424"}, "msg_type": "note", "offset": 343, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "342", "observed_addr": "192.168.10.107:38732"}, "msg_type": "note", "offset": 344, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "342", "observed_addr": "<dev-host>:36424"}, "msg_type": "note", "offset": 343, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "342", "observed_addr": "<dev-host>:38732"}, "msg_type": "note", "offset": 344, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "344", "mentions": "AEF"}, "msg_type": "chat", "offset": 345, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "345", "observed_addr": "192.168.10.107:35998"}, "msg_type": "note", "offset": 346, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "345", "observed_addr": "192.168.10.107:49300"}, "msg_type": "note", "offset": 347, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "345", "observed_addr": "<dev-host>:35998"}, "msg_type": "note", "offset": 346, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "345", "observed_addr": "<dev-host>:49300"}, "msg_type": "note", "offset": 347, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "347", "mentions": "AEF"}, "msg_type": "chat", "offset": 348, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "348", "observed_addr": "192.168.10.107:33812"}, "msg_type": "note", "offset": 349, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "348", "observed_addr": "<dev-host>:33812"}, "msg_type": "note", "offset": 349, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "349", "mentions": "AEF"}, "msg_type": "chat", "offset": 350, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "349", "mentions": "AEF"}, "msg_type": "chat", "offset": 351, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "351", "observed_addr": "192.168.10.107:47866"}, "msg_type": "note", "offset": 352, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "351", "observed_addr": "<dev-host>:47866"}, "msg_type": "note", "offset": 352, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "352", "mentions": "AEF"}, "msg_type": "chat", "offset": 353, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "353", "observed_addr": "192.168.10.107:43004"}, "msg_type": "note", "offset": 354, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "353", "observed_addr": "<dev-host>:43004"}, "msg_type": "note", "offset": 354, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "354", "mentions": "AEF"}, "msg_type": "chat", "offset": 355, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "355", "observed_addr": "192.168.10.107:53094"}, "msg_type": "note", "offset": 356, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "355", "observed_addr": "<dev-host>:53094"}, "msg_type": "note", "offset": 356, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "355", "mentions": "AEF"}, "msg_type": "chat", "offset": 357, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "356", "mentions": "AEF"}, "msg_type": "chat", "offset": 358, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "356", "mentions": "AEF"}, "msg_type": "chat", "offset": 359, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
@@ -378,13 +378,13 @@
 {"metadata": null, "msg_type": "note", "offset": 377, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "377", "mentions": "AEF"}, "msg_type": "chat", "offset": 378, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "377", "mentions": "AEF"}, "msg_type": "chat", "offset": 379, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "379", "observed_addr": "192.168.10.107:53154"}, "msg_type": "note", "offset": 380, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "379", "observed_addr": "<dev-host>:53154"}, "msg_type": "note", "offset": 380, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "380", "mentions": "AEF"}, "msg_type": "chat", "offset": 381, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "380", "mentions": "AEF"}, "msg_type": "chat", "offset": 382, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "382", "mentions": "AEF"}, "msg_type": "chat", "offset": 383, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "383", "mentions": "AEF"}, "msg_type": "chat", "offset": 384, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "384", "observed_addr": "192.168.10.107:46280"}, "msg_type": "note", "offset": 385, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"in_reply_to": "385", "observed_addr": "192.168.10.107:58642"}, "msg_type": "note", "offset": 386, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "384", "observed_addr": "<dev-host>:46280"}, "msg_type": "note", "offset": 385, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"in_reply_to": "385", "observed_addr": "<dev-host>:58642"}, "msg_type": "note", "offset": 386, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "386", "mentions": "AEF"}, "msg_type": "chat", "offset": 387, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "387", "mentions": "AEF"}, "msg_type": "chat", "offset": 388, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "388", "mentions": "AEF"}, "msg_type": "chat", "offset": 389, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
@@ -492,19 +492,19 @@
 {"metadata": {"in_reply_to": "490", "thread": "T-2884"}, "msg_type": "note", "offset": 491, "sender_id": "0e7ee6cad65137fc", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": null, "msg_type": "note", "offset": 492, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": null, "msg_type": "note", "offset": 493, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"conversation_id": "exporter-provenance", "observed_addr": "192.168.10.107:52168"}, "msg_type": "note", "offset": 494, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"conversation_id": "exporter-provenance", "observed_addr": "<dev-host>:52168"}, "msg_type": "note", "offset": 494, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"conversation_id": "g015-verification-hygiene", "thread": "T-408"}, "msg_type": "note", "offset": 495, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"from_project": "999-AEF", "observed_addr": "192.168.10.107:34678"}, "msg_type": "note", "offset": 496, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"from_project": "999-AEF", "observed_addr": "192.168.10.107:56808"}, "msg_type": "note", "offset": 497, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"from_project": "999-AEF", "observed_addr": "<dev-host>:34678"}, "msg_type": "note", "offset": 496, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"from_project": "999-AEF", "observed_addr": "<dev-host>:56808"}, "msg_type": "note", "offset": 497, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "497", "thread": "T-410"}, "msg_type": "note", "offset": 498, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:50166"}, "msg_type": "note", "offset": 499, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:50166"}, "msg_type": "note", "offset": 499, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": null, "msg_type": "note", "offset": 500, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:57644"}, "msg_type": "note", "offset": 501, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:57644"}, "msg_type": "note", "offset": 501, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "501"}, "msg_type": "chat", "offset": 502, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "502"}, "msg_type": "chat", "offset": 503, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"fixture": "t406-clean-leading-boilerplate", "observed_addr": "192.168.10.107:46700"}, "msg_type": "artifact", "offset": 504, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"fixture": "t406-incidental-leading-boilerplate", "observed_addr": "192.168.10.107:46708"}, "msg_type": "artifact", "offset": 505, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"from_project": "999-agentic-engineering-framework", "observed_addr": "192.168.10.107:44446"}, "msg_type": "note", "offset": 506, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"fixture": "t406-clean-leading-boilerplate", "observed_addr": "<dev-host>:46700"}, "msg_type": "artifact", "offset": 504, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"fixture": "t406-incidental-leading-boilerplate", "observed_addr": "<dev-host>:46708"}, "msg_type": "artifact", "offset": 505, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"from_project": "999-agentic-engineering-framework", "observed_addr": "<dev-host>:44446"}, "msg_type": "note", "offset": 506, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
 {"metadata": {"in_reply_to": "506"}, "msg_type": "chat", "offset": 507, "sender_id": "6a646ce8b1bc6560", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"observed_addr": "192.168.10.107:41082"}, "msg_type": "note", "offset": 508, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
-{"metadata": {"from_project": "999-agentic-engineering-framework", "observed_addr": "192.168.10.107:35698"}, "msg_type": "note", "offset": 509, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"observed_addr": "<dev-host>:41082"}, "msg_type": "note", "offset": 508, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}
+{"metadata": {"from_project": "999-agentic-engineering-framework", "observed_addr": "<dev-host>:35698"}, "msg_type": "note", "offset": 509, "sender_id": "d1993c2c3ec44c94", "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560"}

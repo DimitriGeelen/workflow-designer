@@ -65,7 +65,7 @@ date_finished: 2026-10-06T08:38:48Z
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] What /approvals renders is fetched and counted, and compared with the 69 human-owned tasks that have open Human ACs: ALL 69 are on the page, in the lower group "Verifications — Human Acceptance Criteria (84 across 74 tasks)"; the top group "Decisions — Inception Decisions" holds 11 pending inceptions (the DEFER items the operator saw)
 - [x] The cause established from the rendered page, not inferred: nothing drops the GO tasks — the Verifications group renders collapsed behind "Expand all 74 ↓" and sits below the Decisions group, so a reader of the top of the page sees only inception decisions. No code defect. The working view is /approvals?expand=verifications (fetched: 78 cards, 59 GO badges); each task's /review/T-XXX answers 200
-- [x] The operator gets a working route for every task waiting on them: http://192.168.10.107:3013/approvals?expand=verifications#section-verifications (no vendored change needed). Agent error recorded: I pointed the operator at /approvals without fetching it first — the PL-260 class again
+- [x] The operator gets a working route for every task waiting on them: http://<dev-host>:3013/approvals?expand=verifications#section-verifications (no vendored change needed). Agent error recorded: I pointed the operator at /approvals without fetching it first — the PL-260 class again
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

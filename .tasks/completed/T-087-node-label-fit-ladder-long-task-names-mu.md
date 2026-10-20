@@ -136,7 +136,7 @@ Operator-raised 2026-07-04 (screenshot: session-handover, frw_5_write "Write han
 -->
 - [x] [REVIEW] Long task names read well inside their boxes
   **Steps:**
-  1. Open http://192.168.10.107:8834/ and view session-handover
+  1. Open http://<dev-host>:8834/ and view session-handover
   2. Look at "Write handover doc + LATEST.md (Where We Are, Suggested Action)" (frw_5_write) — previously clipped top and bottom
   3. Hover a truncated label — tooltip should show the full name
   4. In Settings, switch Label size to L and re-check the same node

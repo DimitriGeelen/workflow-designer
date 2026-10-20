@@ -108,7 +108,7 @@ Operator scoping message 2026-07-04: extend the T-075 settings modal with view c
 ### Human
 - [x] [REVIEW] View controls feel right on real maps
   **Steps:**
-  1. Open http://192.168.10.107:8834/ and open any dense map (e.g. verification-gate)
+  1. Open http://<dev-host>:8834/ and open any dense map (e.g. verification-gate)
   2. Open Settings — try density tight/normal/wide, hide/show each label class, switch label size S/M/L
   3. Reload the page — confirm your choices stuck
   **Expected:** Diagram stays stable while toggling (nothing jumps except the toggled labels); size L stays legible without labels colliding badly; settings persist across reload

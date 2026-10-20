@@ -313,7 +313,7 @@ phase-2 deferred pending real demand.
   is realised. Phase-2 (server/corpus/tenancy) remains the arc `designer-authoring-surface` program (T-175).
 
 ### 2026-07-10T15:50Z — VISUAL VERIFICATION (renders, not just serves) [visual-verification]
-- **Method:** Playwright loaded the AEF-served page `http://192.168.10.107:3001/designer` (the vendored
+- **Method:** Playwright loaded the AEF-served page `http://<dev-host>:3001/designer` (the vendored
   copy, NOT a local file), screenshot read by the agent. Evidence:
   `docs/reports/assets/T-173-designer-live-render.png`.
 - **Rendered output confirmed:** the editor DRAWS the AEF `investigate` workflow across three swimlanes —

@@ -131,7 +131,7 @@ T-092 GO, Phase A option 6 (docs/reports/T-092-routing-layout-survey.md, Finding
 
 - [x] [REVIEW] Aligned chains read straight, nothing looks displaced
   **Steps:**
-  1. Open http://192.168.10.107:8834/designer.html?load=rendered/task-lifecycle.bpmn
+  1. Open http://<dev-host>:8834/designer.html?load=rendered/task-lifecycle.bpmn
   2. Click the "framework" lane header, then "⇥ Align rows" in the panel
   3. Look at the main gateway/task chain; press Ctrl+Z once and confirm it returns
   **Expected:** The chain's boxes and diamonds sit on one visual centre line after aligning; Ctrl+Z restores the previous wobble

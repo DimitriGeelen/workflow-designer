@@ -125,7 +125,7 @@ Operator decision (2026-07-05 dialogue on auto-tidy): option 1 of three (2 = T-0
 ### Human
 - [x] [REVIEW] Shipped corpus maps open tidy in the served designer, and the Clean nudge no longer fires on them
   **Steps:**
-  1. Open http://192.168.10.107:3000/designer (ufw-allowed; serves the 0.8.0 pin — the old :8834 gallery link is LAN-blocked, T-253 class, do NOT use it)
+  1. Open http://<dev-host>:3000/designer (ufw-allowed; serves the 0.8.0 pin — the old :8834 gallery link is LAN-blocked, T-253 class, do NOT use it)
   2. Click the **t101-review-task-lifecycle**, **t101-review-audit-process**, **t101-review-harvest-pipeline**, **t101-review-verification-gate** cards (v2 = the T-300 re-baked corpus bytes)
   3. Confirm rows read tidy (aligned lane rows, no wavy same-lane stacks) and NO "✨ could use Clean layout" nudge appears on load
   **Expected:** Maps open already-tidy; nudge stays quiet on all four
@@ -304,7 +304,7 @@ parity OK, 24 clean; regen 0/24 drift; screenshots `.playwright-mcp/t101-*`.
 
 ### 2026-07-29 — corpus had drifted un-Clean; re-baked via T-300; Human AC repointed to :3000
 - **Action:** Pre-handover probe found the T-100 nudge FIRING on harvest-pipeline + verification-gate in the served 0.8.0 editor, and `bake-clean-layout.py --check` at 0/24 fixpoints — Clean logic evolved after the July-5 bake (T-125 lane compaction et al.). Running the documented re-bake then proved DESTRUCTIVE (regen step clobbered the T-288 editor-saved dialect corpus-wide; reverted pre-commit). Registered G-012, fixed the tool under T-300 (dialect-preserving editor-save write-back, byte-stability --check, store-version minting), re-baked all 24 maps: --check 24/24, bridge 42/42, sweep 24 clean, adopt-verify 11/11, nudge probe 4/4 quiet.
-- **Output:** Human AC steps repointed from the LAN-blocked :8834 gallery (T-253 class) + nonexistent `bin/fw` to the four t101-review-* v2 cards at http://192.168.10.107:3000/designer.
+- **Output:** Human AC steps repointed from the LAN-blocked :8834 gallery (T-253 class) + nonexistent `bin/fw` to the four t101-review-* v2 cards at http://<dev-host>:3000/designer.
 - **Context:** Task stays owner:human awaiting the tidiness feel-check via the new links.
 
 ### 2026-07-05T10:39:42Z — task-created [task-create-agent]

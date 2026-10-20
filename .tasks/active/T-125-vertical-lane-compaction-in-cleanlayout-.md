@@ -139,7 +139,7 @@ operator-sequenced.
 ### Human
 - [x] [REVIEW] Compacted layouts match your correction taste (pairs 1–3)
   **Steps:**
-  1. Open http://192.168.10.107:8834/designer.html?load=rendered/task-lifecycle.bpmn
+  1. Open http://<dev-host>:8834/designer.html?load=rendered/task-lifecycle.bpmn
      and run Clean layout (toolbar) — compare against your hand-corrected version
      (your image #9): AGENT row snug under FRAMEWORK, no empty band
   2. Repeat for ?load=rendered/promotion-pipeline.bpmn and
@@ -197,9 +197,9 @@ bash tests/check-corpus-geometry.sh
   content, rows inside fitted bands, cross-lane edges as short hops, no empty
   inter-lane bands, no clipped nodes or labels. Promotion-pipeline's "Warn early
   promotion" satellite sits roughly inline (Pair 2's secondary delta). Published:
-  http://192.168.10.107:8834/t125-task-lifecycle-clean.png
-  http://192.168.10.107:8834/t125-promotion-pipeline-clean.png
-  http://192.168.10.107:8834/t125-arc-lifecycle-clean.png
+  http://<dev-host>:8834/t125-task-lifecycle-clean.png
+  http://<dev-host>:8834/t125-promotion-pipeline-clean.png
+  http://<dev-host>:8834/t125-arc-lifecycle-clean.png
 
 ## Decisions
 

@@ -83,7 +83,7 @@ cost_estimate_proposed:
 ## Context
 
 AEF opened pair round #3 (rail 314, their T-2666, dogfood #3 of 4): draft-task-creation v2
-at http://192.168.10.107:3001/api/version?id=draft-task-creation (14 nodes / 20 flows / 3 lanes),
+at http://<dev-host>:3001/api/version?id=draft-task-creation (14 nodes / 20 flows / 3 lanes),
 modelling the task-creation ceremony (fw work-on → create-task.sh path, T-555 validation,
 ID keylock, 7-way workflow-type gateway, G-020 readiness gate). They applied the T-2665-round
 dialect teaching at seed. Asks: (1) validator over the draft bytes; (2) pair against our

@@ -148,7 +148,7 @@ AUDIT-SCOPE: fails=0 ref=0 worktree=0
 WARNING: Audit has warnings (push allowed)
 Consider addressing the issues above.
 
-To ssh://192.168.10.201:6611/workflow-designer
+To ssh://<git-host>:6611/workflow-designer
    9f7b6846..69a0ac73  bleeding-edge -> master
   + git branch -f master bleeding-edge
   ok   tracked files untouched by the push (345 modified, unchanged)
@@ -351,7 +351,7 @@ AUDIT-SCOPE: fails=0 ref=0 worktree=0
 WARNING: Audit has warnings (push allowed)
 Consider addressing the issues above.
 
-To ssh://192.168.10.201:6611/workflow-designer
+To ssh://<git-host>:6611/workflow-designer
  * [new tag]           designer-v0.14.0 -> designer-v0.14.0
 
 [1m── 6/6  Announce on the rail so AEF can answer 'am I current?' (G-024)[0m

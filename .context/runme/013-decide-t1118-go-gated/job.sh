@@ -6,7 +6,7 @@ workflow (a filled field is never hidden), B3 suggest-as-field approved by you v
 fw inception decide: the ## Hypothesis success clause was still the estimator's placeholder, and 012's
 rehearsal never ran that gate. The hypothesis now names checkable signals (on the 42 service tasks in examples/:
 at most 4 field rows shown by default, today 13; 0 filled fields hidden; every non-default field backed by an
-approval record). Please read it in the task (or http://192.168.10.107:3013/inception/T-1118); if the wording
+approval record). Please read it in the task (or http://<dev-host>:3013/inception/T-1118); if the wording
 is yours too, the agent marks it hypothesis_source: human afterwards on your word. This job's checks run the
 framework's OWN predicates (lib/task-audit.sh audit_inception_hypothesis, lib/inception-readiness.sh
 inception_handoff_blockers), so a pass here means decide will not refuse on them. Decide asks once more

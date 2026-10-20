@@ -19,7 +19,7 @@ Both hashes were verified **before** copying and re-verified **after** storage
 checksum file: `source-manifest.sha256`
 (`sha256sum -c docs/research/executable-workflow/source-manifest.sha256`).
 
-Transport note: HTTP retrieval from `192.168.10.107:3001` was not possible in
+Transport note: HTTP retrieval from `<dev-host>:3001` was not possible in
 this session (`curl` denied). Bytes were taken from the authoring project's
 working tree, an explicitly configured additional working directory. The pinned
 hash is the trust boundary and it matched exactly — the same argument

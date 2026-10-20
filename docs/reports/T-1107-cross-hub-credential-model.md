@@ -4,7 +4,7 @@
 
 ## Question
 
-Two independently operated TermLink hubs (ours, 192.168.10.107; Greenfield's, 192.168.10.132), each
+Two independently operated TermLink hubs (ours, <dev-host>; Greenfield's, <lan-host>), each
 run by a different operator, need their agents to message each other in both directions. Today the
 only credential TermLink offers for this is the **whole-hub secret**: a 32-byte shared key that grants
 everything on that hub. Scoped capability tokens exist but are per session and short-lived (1 h default),

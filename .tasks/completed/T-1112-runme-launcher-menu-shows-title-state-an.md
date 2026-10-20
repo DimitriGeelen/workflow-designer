@@ -89,7 +89,7 @@ bvp_scores_proposed:
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] The job menu (several pending) and `--list` show per job: its title (JOB_TITLE, read without running the job), its state (ready / CHANGED since dry-run / NOT REHEARSED) and its last outcome (never run / completed / STOPPED with the reason line, and when)
-  (on the real queue: 009 shows "STOPPED 10-09 22:28: step 2/7 failed … — dimitri-mint-dev cannot ssh to 192.168.10.132 …")
+  (on the real queue: 009 shows "STOPPED 10-09 22:28: step 2/7 failed … — dimitri-mint-dev cannot ssh to <lan-host> …")
 - [x] A `retired` marker hides a job from the queue without a `done`: never offered, never run; `--list --all` names it as retired with its reason. Job 008 converted from its explanatory `done` to `retired`
 - [x] `tests/test_t1055_runme_launcher.py` gains legs for both (menu line content after a STOPPED run; retired job not offered and not runnable) and all legs pass (14/14; wired in the bridge suite already)
 

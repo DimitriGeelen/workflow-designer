@@ -215,7 +215,7 @@ treat "re-bake" as fixing T-105.
 **Rationale:** Root cause was empirically pinned (first hypothesis DISPROVEN and documented; real cause = two long gateway name-labels overlapping under 48px diamonds), and the chosen fix (conditional below-label wrapping, only where labels actually collide) is recorded with rejected alternatives. All 6 Agent ACs checked. The Human AC is pure visual legibility on the two fixed maps.
 **Evidence:**
 - Investigation findings + Decision recorded in this task (hypothesis-driven, not shotgun)
-- Fixed maps live: http://192.168.10.107:8834/designer.html?load=rendered/verification-gate.bpmn and git-commit-flow
+- Fixed maps live: http://<dev-host>:8834/designer.html?load=rendered/verification-gate.bpmn and git-commit-flow
 - Unconditional wrapping rejected after measurement (grew 4 new collisions in dense maps)
 
 ## Decisions

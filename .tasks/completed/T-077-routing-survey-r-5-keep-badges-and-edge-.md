@@ -99,7 +99,7 @@ cost_estimate_proposed:
 ### Human
 - [x] [REVIEW] Relocated labels read naturally on the live gallery
   **Steps:**
-  1. Open http://192.168.10.107:8834/ and open the healing-loop map
+  1. Open http://<dev-host>:8834/ and open the healing-loop map
   2. Find the "Human acts on the advice?" gateway — its label should sit beside the diamond, clear of the vertical edge below it
   3. Skim two or three other maps (task-lifecycle, audit-process) for gateway/event labels that look awkwardly placed or orphaned from their shape
   **Expected:** Labels beside shapes still read as belonging to them; no label sits on top of an edge line or another node

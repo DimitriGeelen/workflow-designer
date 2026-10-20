@@ -100,10 +100,10 @@ Then the same for T-185, T-186, T-277, T-279, T-280, T-281, T-282, T-498, T-619 
 record each decision on the Watchtower page for that task:
 
 ```
-http://192.168.10.107:3013/inception/T-184
+http://<dev-host>:3013/inception/T-184
 ```
 
-Queue view: **http://192.168.10.107:3013/approvals**
+Queue view: **http://<dev-host>:3013/approvals**
 
 Also genuinely due, and separate from the ten: **T-155** carries a recorded DEFER whose
 revisit date (2026-08-21) fired nine days ago. It needs closing, not deciding.

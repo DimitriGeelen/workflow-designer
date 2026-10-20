@@ -11,7 +11,7 @@ Greenfield's hub (the same kind of access they already hold for ours). Remove la
 termlink remote profile remove greenfield-132 (and delete its secrets file)."
 
 NAME=greenfield-132
-ADDR=192.168.10.132:9100
+ADDR=<lan-host>:9100
 DROP=/root/greenfield-hub.secret
 STORE=/root/.termlink/secrets/$NAME.hex
 PEER=aef925c6d2f4ac54/aef-greenfield-test

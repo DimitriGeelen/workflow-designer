@@ -104,7 +104,7 @@ Edge labels are placed by `edgeLabelPos()` (src/aef-workflow-designer.html:3181)
 ### Human
 - [x] [REVIEW] Edge labels read cleanly on the live gallery — no label sitting on top of a line, badge, or another label at the hotspots from your 2026-07-04 evaluation
   **Steps:**
-  1. Open http://192.168.10.107:8834/ and view the context-memory map
+  1. Open http://<dev-host>:8834/ and view the context-memory map
   2. Check the previous hotspots: "agent captures knowledge during work" near e_03, "learning" near the gateway, "3+ applications -> graduate"
   3. Skim 2-3 other maps (task-lifecycle, git-commit-flow) for new label collisions
   **Expected:** Edge labels sit in clear space beside/above their edge; halo rect hugs the text

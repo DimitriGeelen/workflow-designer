@@ -45,10 +45,10 @@ Run step 4/4? [y/N] [watchtower] Stopping Watchtower (PID 3032316)...
 
 Watchtower is running
   Local:  http://localhost:3013
-  LAN:    http://192.168.10.107:3013
+  LAN:    http://<dev-host>:3013
   PID:    1390000
   Log:    /opt/832-Workflow-designer/.context/working/watchtower.log
-ok  Watchtower restarted (pid 1390000), newer than its web code, answering at http://192.168.10.107:3013
+ok  Watchtower restarted (pid 1390000), newer than its web code, answering at http://<dev-host>:3013
 ok    step 4/4
 
 DONE: 024-upgrade-aef-1146a7450-finish — all 4 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/024-upgrade-aef-1146a7450-finish/run-20261013T200755.log)

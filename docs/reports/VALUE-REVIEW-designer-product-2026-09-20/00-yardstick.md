@@ -57,7 +57,7 @@ F-RECALL 6 · D3 Usability 5 · D4 Portability 3.
 | **Per-item coverage** | **expected ABSENT** | no coverage tooling detected; to be confirmed by a gatherer |
 | Execution traces per node | **ABSENT** | needs `fw workflow run`; T-740 established it does not exist |
 | BVP realization log | **ABSENT** | `.context/audits/bvp-realization.jsonl` — "did it deliver?" data has never existed |
-| Watchtower | **EXISTS** | `http://192.168.10.107:3013`, serving |
+| Watchtower | **EXISTS** | `http://<dev-host>:3013`, serving |
 
 ## Contradiction found at Phase 0 (carried into the review, not yet classified)
 

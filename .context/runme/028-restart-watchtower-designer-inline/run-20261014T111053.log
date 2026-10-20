@@ -25,15 +25,15 @@ Run step 1/2? [y/N] [watchtower] Stopping Watchtower (PID 1783905)...
 
 Watchtower is running
   Local:  http://localhost:3013
-  LAN:    http://192.168.10.107:3013
+  LAN:    http://<dev-host>:3013
   PID:    348241
   Log:    /opt/832-Workflow-designer/.context/working/watchtower.log
-ok  Watchtower restarted (pid 348241), answering at http://192.168.10.107:3013
+ok  Watchtower restarted (pid 348241), answering at http://<dev-host>:3013
 ok    step 1/2
 
 Step 2/2: Check the live pages: /designer has the fly-out, a map opens inline at /designer/open
   runs: do_check
-Run step 2/2? [y/N] ok  open http://192.168.10.107:3013/designer — hover a thumbnail, click Open; the ⛶ button goes fullscreen
+Run step 2/2? [y/N] ok  open http://<dev-host>:3013/designer — hover a thumbnail, click Open; the ⛶ button goes fullscreen
 ok    step 2/2
 
 DONE: 028-restart-watchtower-designer-inline — all 2 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/028-restart-watchtower-designer-inline/run-20261014T111053.log)

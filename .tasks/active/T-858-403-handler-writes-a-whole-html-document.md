@@ -72,7 +72,7 @@ date_finished: 2026-09-25T22:19:38Z
   proof of a string is not proof of a rendered message.
 
   **Steps:**
-  1. Open `http://192.168.10.107:3013/approvals` in a browser tab and leave it open.
+  1. Open `http://<dev-host>:3013/approvals` in a browser tab and leave it open.
   2. In a second tab, open the same Watchtower and log the first tab's session stale — the original
      repro was simply two tabs, where the second tab's cookie rotation invalidates the first tab's
      CSRF token. If that no longer reproduces, clear cookies for that host in the first tab only.

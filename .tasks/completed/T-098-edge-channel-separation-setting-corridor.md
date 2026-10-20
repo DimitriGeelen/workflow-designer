@@ -128,7 +128,7 @@ T-092 Phase B option 2 (operator "go phase B"). T-097 built the corridor channel
 -->
 - [x] [REVIEW] Channel separation control feels right on real maps
   **Steps:**
-  1. Open http://192.168.10.107:8834/designer.html?load=rendered/audit-process.bpmn
+  1. Open http://<dev-host>:8834/designer.html?load=rendered/audit-process.bpmn
   2. Open Settings (gear) -> Routing -> Channel separation; switch off -> tight -> roomy
   **Expected:** off = branch arrows converge/overlap on one line (old look); tight/roomy = parallel channels with growing gaps; change applies immediately
   **If not:** Note which value misbehaves; screenshot the fan block

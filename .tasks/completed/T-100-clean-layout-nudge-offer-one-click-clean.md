@@ -132,7 +132,7 @@ Operator decision (2026-07-05 dialogue on auto-tidy): option 3 of three. Complem
 - [x] [REVIEW] Nudge is helpful, not naggy
   **Steps:**
   1. Ensure Settings → View → "Clean layout when opening a file" is OFF
-  2. Open http://192.168.10.107:8834/designer.html?load=rendered/task-lifecycle.bpmn
+  2. Open http://<dev-host>:8834/designer.html?load=rendered/task-lifecycle.bpmn
   3. Try the nudge's Clean button, and (reload) try its ✕ dismiss
   **Expected:** A small "This map could use Clean layout" prompt appears on a messy map; Clean tidies it and the prompt vanishes; ✕ dismisses without changing the map; already-tidy maps show no prompt
   **If not:** Note whether it nagged on a clean map or failed to appear on a messy one; screenshot

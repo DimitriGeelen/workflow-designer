@@ -124,7 +124,7 @@ Same boundary as RA-006. Note that this arc's own 35 tasks do not enter this reg
 
 - [ ] [REVIEW] Rule on the drain path for the 82 carried-by-completed-task items (the bulk of the residue)
   **Steps:**
-  1. Open http://192.168.10.107:3013/review/T-703 and read `## Recommendation`
+  1. Open http://<dev-host>:3013/review/T-703 and read `## Recommendation`
   2. Open `docs/reports/T-703-inbox-residue.md` — the reason census at the top is the whole picture; the per-item table is for spot checks
   3. Choose: **A** — fix the vendored dismiss verb first (persist reason/actor/timestamp, G-008 in-tree + upstream), THEN authorise agents to dismiss `carried-by-completed-task` items citing the episodic that carries the thread; **B** — operator dismisses in bulk via `fw note triage` and accepts that the register records no reason (the current verb's behaviour); **C** — leave the register as an archive: retire RA-006/RA-007 as audit findings (threshold or scope change in audit.sh) rather than draining
   **Expected:** a letter recorded on this task; under A, a one-bug task is filed for the verb (recommended — the fix is ~10 lines and OBS-290 has waited 34 days for it)

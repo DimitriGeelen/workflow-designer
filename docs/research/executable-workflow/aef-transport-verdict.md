@@ -1,6 +1,6 @@
 # AEF transport verdict — T-680
 
-**Measured:** 2026-09-05, hub `workstation-107-public` (192.168.10.107:9100)
+**Measured:** 2026-09-05, hub `workstation-107-public` (<dev-host>:9100)
 **Probe:** `tools/_t680-aef-reachability.py`
 **Verdict:** the 999-AEF seam is **live**. It was recorded as unreachable. That record was wrong.
 
@@ -80,9 +80,9 @@ ring20's disjointness claim reproduces independently with our own numbers:
 | hub | address | rows | max offset | producers |
 |---|---|---|---|---|
 | local-test | 127.0.0.1:9100 | 896 | 1095 | 18 |
-| workstation-107-public | 192.168.10.107:9100 | 896 | 1095 | 18 |
-| ring20-management | 192.168.10.122:9100 | 1000 | 2715 | 6 |
-| ring20-dashboard | 192.168.10.121:9100 | 922 | 994 | 6 |
+| workstation-107-public | <dev-host>:9100 | 896 | 1095 | 18 |
+| ring20-management | <lan-host>:9100 | 1000 | 2715 | 6 |
+| ring20-dashboard | <lan-host>:9100 | 922 | 994 | 6 |
 
 Two independent logs under one topic name, confirmed. **This does not affect the AEF seam** —
 AEF posts to the same `.107` hub we read, so federation was never in that path.

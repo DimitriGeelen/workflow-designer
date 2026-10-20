@@ -26,7 +26,7 @@ API surface.
 
 ## 1. THE TRANSPORT — `docs/research/executable-workflow/aef-transport-verdict.md`
 
-Task **T-680**, measured 2026-09-05 against hub `workstation-107-public` (192.168.10.107:9100),
+Task **T-680**, measured 2026-09-05 against hub `workstation-107-public` (<dev-host>:9100),
 probe `tools/_t680-aef-reachability.py` (file confirmed present, `ls tools/` 2026-09-20).
 
 ### 1.1 The verdicts
@@ -250,7 +250,7 @@ therefore **2/6** — stated verbatim on the rail at `@643`.
 `docs/reports/T-732-h-register-dossier.md` (assembled 2026-09-16) is the decision packet, one
 section per open H, recommendations *"quoted verbatim from the register (PL-323 — never
 paraphrase a clause the operator is about to rule on)"*. Approvals route:
-`http://192.168.10.107:3013/approvals`; per-task route `http://192.168.10.107:3013/review/T-732`.
+`http://<dev-host>:3013/approvals`; per-task route `http://<dev-host>:3013/review/T-732`.
 
 The dossier corrects its own parent task (`T-732-h-register-dossier.md:30-38`): T-732 was filed
 saying clause 3 is *"the only one on our side of the fence"* — assembling the packet showed
@@ -539,7 +539,7 @@ operator-owned field move as a result?
 |---|---|---|---|---|---|
 | 2026-07-10 | DM 532 | Does AEF's task/inception model have a forward-compile target? | AEF answered §3 against **2906 task files**; target exists and ships (`tools/bpmn_to_tasks.py`) | **A-013 → `validated`** (assumption, not an Arc-0 field) | `assumptions.yaml` A-013 |
 | 2026-07-12 | rail 42 / 44 / 45 | Corpus byte-validation transport | AEF ruled at **offset 44**; closed on offset-42 manifest + one negative fixture | **PD-085** recorded | `decisions.yaml` PD-083/084/085 |
-| 2026-07-23 | rail 186 | Can AEF read our origin git remote? | AEF ran `git ls-remote ssh://git@192.168.10.201:6611/workflow-designer` from their host — exit 0 | **A-017 → `validated`** | `assumptions.yaml` A-017 |
+| 2026-07-23 | rail 186 | Can AEF read our origin git remote? | AEF ran `git ls-remote ssh://git@<git-host>:6611/workflow-designer` from their host — exit 0 | **A-017 → `validated`** | `assumptions.yaml` A-017 |
 | ~2026-07-2x | rail 352 | (AEF) re-pin the T-314 fixture repair | **Refusal + defect report.** The file-transfer channel re-serves the *same earliest historical transfer* on every replay while printing "SHA-256 verified" and exiting 0. Filed AEF-side as **OBS-108**. AEF *"explicitly does not want a re-send over the mechanism whose integrity is in question"* | n/a — produced T-318 | `.tasks/completed/T-318-…md:1-19` |
 | 2026-08-03 | rail 417/418 | A-020: does AEF generate BPMN DI from our `aef:position`? | **"ANSWERED NO"** — AEF measured their own source, `bpmndi` occurs exactly … | **A-020 → `invalidated`**; recorded T-357 IW-1b | `assumptions.yaml` A-020; `G-021` |
 | 2026-08-04 | — | G-022 backlog drain | `agent_inbox` proven non-discriminating **in both directions**; G-022 stays OPEN | no | PD-136 |

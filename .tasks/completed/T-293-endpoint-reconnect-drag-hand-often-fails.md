@@ -138,7 +138,7 @@ coordinate transforms, capture-phase preempt). Hypothesis-driven debugging, max
 ### Human
 - [x] [REVIEW] Endpoint reconnect drag feels right at frw_11_harvest
       **Steps:**
-      1. Open http://192.168.10.107:3000/designer and click the **t293-retest-harvest** card
+      1. Open http://<dev-host>:3000/designer and click the **t293-retest-harvest** card
          (:3000 is ufw-allowed and now serves the 0.8.0 bundle with this fix; the old
          :8834 link is LAN-blocked — no ufw rule, T-253 class — do NOT use it)
       2. Click the edge from the "Fan out" gateway into "Harvest CLAUDE.md additions" (frw_11_harvest)

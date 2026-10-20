@@ -137,7 +137,7 @@ Decision: GO
   Inception Review: T-1165
   1/1 checked
 
-  http://192.168.10.107:3013/inception/T-1165
+  http://<dev-host>:3013/inception/T-1165
 
 █▀▀▀▀▀▀▀██▀▀▀▀██▀▀███▀█▀▀▀▀▀▀▀█
 █ █▀▀▀█ ██▀ ▀██▀▄▀ ▀█▀█ █▀▀▀█ █
@@ -156,7 +156,7 @@ Decision: GO
 █ ▀▀▀▀▀ █▀▄▄██ ▀ █ █▄  █   ▀ ██
 ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 
-  Open: http://192.168.10.107:3013/inception/T-1165
+  Open: http://<dev-host>:3013/inception/T-1165
   Artifacts: (in docs/reports/)
     T-1165-conventional-dialect-class.md
 
@@ -171,7 +171,7 @@ Decision: GO
   Review marker created: .context/working/.reviewed-T-1165
   (unblocks fw inception decide T-1165 — T-973 gate)
 
-  → Decide: http://192.168.10.107:3013/inception/T-1165
+  → Decide: http://<dev-host>:3013/inception/T-1165
 
 Next: Create build tasks for implementation
 ok    step 1/1

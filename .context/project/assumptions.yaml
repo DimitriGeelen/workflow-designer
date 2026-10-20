@@ -177,12 +177,12 @@ assumptions:
   resolved_date: null
 - id: A-017
   statement: AEF host can (or will be granted) read-only git access to origin workflow-designer
-    repo at 192.168.10.201:6611 — the only unvalidated link in the accepted pull-at-tag
+    repo at <git-host>:6611 — the only unvalidated link in the accepted pull-at-tag
     intake
   status: validated
   validation_method: TBD
   evidence:
-  - outcome: 'AEF rail 186: ran git ls-remote ssh://git@192.168.10.201:6611/workflow-designer
+  - outcome: 'AEF rail 186: ran git ls-remote ssh://git@<git-host>:6611/workflow-designer
       ''refs/tags/designer-v*'' from their host — exit 0, all 5 tags returned (v0.1.0-v0.3.2,
       annotated+peeled; v0.3.2 tag obj 131528d4, peeled 99431de6). Host key already
       authorized, no grant needed. Pull path live.'

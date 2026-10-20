@@ -1,9 +1,9 @@
 Gallery root: /opt/832-Workflow-designer/build/gallery (24 maps)
 Local:  http://localhost:8834/
-LAN:    http://192.168.10.107:8834/
+LAN:    http://<dev-host>:8834/
 gallery-serve (write-capable) docroot=/opt/832-Workflow-designer/build/gallery repo=/opt/832-Workflow-designer
 Local:  http://localhost:8834/
-LAN:    http://192.168.10.107:8834/
+LAN:    http://<dev-host>:8834/
 API:    /api/health /api/list /api/save /api/delete /api/versions /api/version /api/thumb
 [gallery-serve] "GET /api/list HTTP/1.1" 200 -
 [gallery-serve] "GET /api/list HTTP/1.1" 200 -

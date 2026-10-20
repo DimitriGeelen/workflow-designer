@@ -133,7 +133,7 @@ Operator feedback on T-074 snapping (2026-07-04, revisit-due-scan screenshot): a
 -->
 - [x] [REVIEW] Sub-row snapping and tidy-lane feel right in tall lanes
   **Steps:**
-  1. Open http://192.168.10.107:8834/designer.html?load=rendered/task-lifecycle.bpmn (or any map with a tall lane)
+  1. Open http://<dev-host>:8834/designer.html?load=rendered/task-lifecycle.bpmn (or any map with a tall lane)
   2. Drag a task slowly up/down inside a tall lane — dashed row guides should appear at ~1.5-box-height intervals and the node should settle onto them gently
   3. Drag a node far horizontally from a row-mate, then vertically near its height — it should snap to the row-mate's midline even at long horizontal distance
   4. Invoke the tidy-lane action on a messy lane, then press Ctrl+Z

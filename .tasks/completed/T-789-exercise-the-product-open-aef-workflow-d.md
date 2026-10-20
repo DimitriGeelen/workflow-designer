@@ -299,7 +299,7 @@ grep -q 'OBS-371' .context/inbox.yaml
 **Verification-level findings:**
 
   1. **empty-output-success** (partial, heuristic) @ Verification:line 49
-     - evidence: `curl -sf "http://192.168.10.107:3013/designer/app" > /dev/null`
+     - evidence: `curl -sf "http://<dev-host>:3013/designer/app" > /dev/null`
 
 ### 2026-09-22T07:50:23Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed

@@ -36,7 +36,7 @@ v1.6.763).
 
 Three independent confirmations:
 
-1. `GET http://192.168.10.107:3100/api/health` returns exactly
+1. `GET http://<dev-host>:3100/api/health` returns exactly
    `{"ok":true,"store":".context/designer/projects"}` — the literal emitted at
    `designer_api.py:108` (`_ok(store=".context/designer/projects")`).
 2. That file's own docstring: *"This blueprint is the AEF side of that contract"*,

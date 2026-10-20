@@ -118,7 +118,7 @@ Decision: NO-GO
   Inception Review: T-937
   1/1 checked
 
-  http://192.168.10.107:3013/inception/T-937
+  http://<dev-host>:3013/inception/T-937
 
 █▀▀▀▀▀▀▀█▀▀█▀█▀██▀█▀▀▀█▀▀▀▀▀▀▀█
 █ █▀▀▀█ █▀▀▀▀  █▀  ▄▀██ █▀▀▀█ █
@@ -137,7 +137,7 @@ Decision: NO-GO
 █ ▀▀▀▀▀ █▀█  ▀▀▄█▀███ █▀█ ▀▀█▀█
 ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 
-  Open: http://192.168.10.107:3013/inception/T-937
+  Open: http://<dev-host>:3013/inception/T-937
   Artifacts: (in docs/reports/)
     T-937-operator-decision-production-rate.md
 
@@ -152,7 +152,7 @@ Decision: NO-GO
   Review marker created: .context/working/.reviewed-T-937
   (unblocks fw inception decide T-937 — T-973 gate)
 
-  → Decide: http://192.168.10.107:3013/inception/T-937
+  → Decide: http://<dev-host>:3013/inception/T-937
 
 Next: Capture learnings from exploration (fw context add-learning)
 

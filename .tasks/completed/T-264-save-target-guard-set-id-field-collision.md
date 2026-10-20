@@ -167,7 +167,7 @@ of the collision notice, READ it (visual verification); (g) full bridge suite gr
 ### Human
 - [x] [REVIEW] Guard prompts read right (wording + non-naggy feel)
   **Steps:**
-  1. Open the editor at http://192.168.10.107:8834/designer.html (gallery serve of
+  1. Open the editor at http://<dev-host>:8834/designer.html (gallery serve of
      current src; if 404, ask the agent to refresh the gallery docroot first)
   2. Click empty canvas (no selection) → in the right panel, edit the ID field to an
      existing map's id and press Enter → a hint appears naming the collision
@@ -222,7 +222,7 @@ python3 tests/test_t264_save_target_guards.py
   red `.id-rename-notice` renders between the reverted ID field and Title, text
   `id "task-lifecycle" already exists in this library — rename not applied`, hint shows
   "Enter/blur applies", no overlap/regression in adjacent fields.
-  Published for operator: http://192.168.10.107:8834/t264-collision-notice.png
+  Published for operator: http://<dev-host>:8834/t264-collision-notice.png
   (sha256 557d2b1730df8937dfe9275534968c691bc5e659e5047acfe57faedec618ae6f)
 
 # Shell commands that MUST pass before work-completed. One per line.

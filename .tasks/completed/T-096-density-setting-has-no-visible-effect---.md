@@ -126,7 +126,7 @@ Operator report 2026-07-05 (screenshot): setting Density to "tight" "does not ha
 
 - [x] [REVIEW] Density now visibly does something
   **Steps:**
-  1. Open http://192.168.10.107:8834/designer.html?load=rendered/task-lifecycle.bpmn
+  1. Open http://<dev-host>:8834/designer.html?load=rendered/task-lifecycle.bpmn
   2. Open ⚙ Settings, change Density to tight — an "✨ Apply now — Clean layout" button appears below Branch pitch
   3. Click it, close the modal, look at the map
   **Expected:** Rows pack tighter after applying; the hint explains prefs guide Tidy/Clean/drag-snap

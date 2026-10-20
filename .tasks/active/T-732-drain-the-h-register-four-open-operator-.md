@@ -157,7 +157,7 @@ Sources: `arc-0-exit-clauses.yaml`, `operator-decisions.yaml`, `.tasks/active/T-
   as history). T-282 horizon now; T-279/280/281 next. AEF informed (conversation `832-roadmap-arcs-4-6`).
   **Steps:**
   1. `cd /opt/832-Workflow-designer && cat docs/reports/T-732-h-register-dossier.md`
-  2. Open http://192.168.10.107:3013/approvals
+  2. Open http://<dev-host>:3013/approvals
   3. Record the ruling against H1
   **Expected:** `operator-decisions.yaml` H1 carries `status: resolved` and a `source_of_truth`
   **If not:** the four tasks named above stay parked at a flat BVP 126 with nothing distinguishing them
