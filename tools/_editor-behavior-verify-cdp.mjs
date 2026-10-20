@@ -620,6 +620,29 @@ async function main() {
       const r = document.querySelector('.pool-resize-handle .lane-resize-hit').getBoundingClientRect();
       return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
     })()`);
+    // T-1238: under full-suite load the leg read too early. A drag that grows the page re-lays the canvas a
+    // frame or two later, so the handle measured right after it can still be at its old place and the next
+    // press lands on empty canvas (w5 then saw no change, and undo() undid the wrong gesture). So: measure the
+    // handle only once two frames agree on it, and after each gesture wait for the state the next reading
+    // asserts (capped; the assertions below still decide, so a real defect still fails, just not early).
+    const frames = () => ev(cmd, `new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => r(true))))`);
+    const settledHandle = async () => {
+      let prev = null;
+      for (let i = 0; i < 40; i++) {
+        await frames();
+        const p = await handlePt();
+        if (prev && p.x === prev.x && p.y === prev.y) return p;
+        prev = p;
+      }
+      return prev;
+    };
+    const waitState = async (expr) => {
+      const t0 = Date.now();
+      while (Date.now() - t0 < 5000) {
+        if (await ev(cmd, `!!(${expr})`)) return;
+        await sleep(50);
+      }
+    };
     const w0 = await ev(cmd, `(function(){
       const xml = buildBpmnXml(state);
       return { pw: state.workflowMeta.pageWidth || null, edge: Math.round(contentRightEdge()),
@@ -628,9 +651,9 @@ async function main() {
                attrInXml: /pageWidth="/.test(xml),
                nodeX: state.nodes[0] ? state.nodes[0].x : null };
     })()`);
-    const h1 = await handlePt();
+    const h1 = await settledHandle();
     await mDrag(h1.x, h1.y, h1.x + 300, h1.y);
-    await sleep(150);
+    await waitState(`state.workflowMeta.pageWidth`);
     const w1 = await ev(cmd, `({ pw: state.workflowMeta.pageWidth || null, edge: Math.round(contentRightEdge()), nodeX: state.nodes[0] ? state.nodes[0].x : null })`);
     // survives a full re-render (edit simulation)
     const w2 = await ev(cmd, `(function(){ renderAll(); return { pw: state.workflowMeta.pageWidth || null, edge: Math.round(contentRightEdge()) }; })()`);
@@ -650,13 +673,13 @@ async function main() {
       return { grew, authoredEdge, restored: Math.round(contentRightEdge()) };
     })()`);
     // drag far inward: clears the authored floor (back to auto-fit, attribute gone)
-    const h2 = await handlePt();
-    await mDrag(h2.x, h2.y, Math.max(60, h2.x - 900), h2.y);
-    await sleep(150);
+    const h2 = await settledHandle();
+    if (!process.env.T1238_SKIP_INWARD) await mDrag(h2.x, h2.y, Math.max(60, h2.x - 900), h2.y);   // skip = bite control
+    await waitState(`!state.workflowMeta.pageWidth`);
     const w5 = await ev(cmd, `({ pw: state.workflowMeta.pageWidth || null, edge: Math.round(contentRightEdge()), attrInXml: /pageWidth="/.test(buildBpmnXml(state)) })`);
     // T-132: one undo step per gesture — undo restores the authored width the inward drag cleared
     await ev(cmd, `undo()`);
-    await sleep(150);
+    await waitState(`state.workflowMeta.pageWidth === ${w1.pw === null ? 'null' : w1.pw}`);
     const w6 = await ev(cmd, `({ pw: state.workflowMeta.pageWidth || null })`);
     const leg10 = w0.handle && w0.pw === null && !w0.attrInXml && w0.edge === w0.natural
       && w1.pw !== null && w1.edge > w0.edge + 100 && w1.edge === w0.poolX + w1.pw && w1.nodeX === w0.nodeX
