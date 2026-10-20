@@ -55,3 +55,9 @@ runme-*.log
 # them in our git history forever. Analysed in place, never committed.
 build/evergreen-intake/
 docs/learning-ledger.yaml.lock
+
+# T-1239: Watchtower runtime state (live address, pid, port, log); never committed, the repo is mirrored publicly
+.context/working/watchtower.url
+.context/working/watchtower.pid
+.context/working/watchtower.port
+.context/working/watchtower.log
