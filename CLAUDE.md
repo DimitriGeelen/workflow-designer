@@ -40,7 +40,10 @@ becomes a JOB, and the operator always runs exactly:
 The launcher shows the operator the job name, sha and rehearsal time; refuses a job with no
 dry-run or changed since it; re-runs the checks; asks y/N before every step (terminal only);
 logs to `run-<ts>.log` in the job dir; writes `done`; never runs a done job again; asks which
-job when several are pending, each menu line showing title, state and last outcome (T-1112). A changed job
+job when several are pending, each menu line showing title, state and last outcome (T-1112).
+Several can run as one BATCH in the operator's order (T-1227): arrow keys and space mark jobs (the number beside
+each is its place in the sequence), or typed `3,1,2`, `x = all`; each job keeps its y/N per step, the batch is refused
+up front if any chosen job is unrehearsed or changed, and it stops at the first job that does not complete. A changed job
 needs a new dry-run, never an edit after hand-over. A superseded job gets a `retired` file (its text = the
 reason), never a `done`: it leaves the queue without claiming it completed (`--list --all` shows it).
 

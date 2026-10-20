@@ -2,10 +2,14 @@
 id: T-1227
 name: "runme menu: batch selection in the operator's order"
 description: >
-  Operator request 2026-10-20: in the runme menu, x/all runs every pending job in listed order; 3,1,2 runs those jobs in the typed order; each job keeps y/N per step; batch refused up front if any chosen job is unready; stops at the first job that does not complete; BATCH summary line.
+  Operator request 2026-10-20: in the runme menu, x/all runs every pending job in
+  listed order; 3,1,2 runs those jobs in the typed order; each job keeps y/N per step;
+  batch refused up front if any chosen job is unready; stops at the first job that
+  does not complete; BATCH summary line.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-20T13:34:59Z
-last_update: 2026-10-20T13:34:59Z
-date_finished: null
+last_update: 2026-10-20T13:42:53Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +54,51 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-20T13:38:26Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1227: runme menu: batch selection in the operator's order
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Operator, 2026-10-20: run several runme jobs as one batch, in an order the operator sets: "x" for all, "3,1,2"
+typed, and (second message) by moving through the list with the arrow keys and marking jobs, their position in
+the sequence shown beside them. Parallel runs were also raised; held back (per-step y/N on one terminal would
+interleave, and most jobs change the same repo) and written up for AEF as a proposal instead.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Typed batch: `x`/`all` runs every pending job in listed order; `3,1,2` / `3 1 2` / `3, 1` in the typed order;
+      out-of-range or repeated numbers run nothing (test legs 16, 17, 20)
+- [x] A batch stops at the first job that does not complete (leg 18), and is refused before anything runs when
+      any chosen job is not rehearsed or changed since its dry-run, with a STOPPED event (leg 19)
+- [x] Arrow-key picker on a real terminal: up/down moves, space marks/unmarks (its number in the sequence shows),
+      `a` marks all, Enter runs the marked jobs in marked order (the highlighted one alone if none is marked),
+      `t` falls back to typing numbers, `q`/Esc stops with nothing run (legs 21-25, keys fed as bytes)
+- [x] Each job in a batch still asks y/N per step, keeps its own log, `done` and events; one BATCH summary line
+- [x] All legs of `tests/test_t1055_runme_launcher.py` and `tests/test_t1003_runme_signal.sh` pass in the repo
+- [x] CLAUDE.md's runme rule names the batch selection
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -73,7 +108,17 @@ date_finished: null
      ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
      If your Expected clause is grep-able / file-exists / structural (a deterministic
      shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
+     command in `## Evidence
+
+- `tests/test_t1055_runme_launcher.py`: 26 legs, all pass (16-20 typed batch, 21-25 picker); leg 12 also passes in the
+  repo (it failed on the scratch copy only because that sat outside git). Mutation: with `pick_jobs` forced to
+  "type instead", legs 21-24 fail; 25 (stop, nothing runs) passes either way, as a negative leg should.
+- `tests/test_t1003_runme_signal.sh`: 11 passed, 0 failed.
+- Real terminal (pty, TERM=xterm, no RUNME_TTY/RUNME_PICKER): screens rendered after each key. Down, down, space
+  shows `[ 1]` on job 3; up, up, space shows `[ 2]` on job 1; Enter prints "Chosen, in this order: 3 1", then job 3
+  and job 1 each ask y/N, and "BATCH: 2 of 2 completed (003-... 001-...)" closes it. Both markers made, job 2 untouched.
+
+## Verification` instead of a Human AC here. Only keep [REVIEW] if
      verification genuinely needs human taste (tone, feel, layout rhythm).
      See CLAUDE.md §AC Classification Guidance for the conversion rule.
 
@@ -113,6 +158,9 @@ date_finished: null
 
 ## Verification
 
+python3 tests/test_t1055_runme_launcher.py > /tmp/.t1227a 2>&1 && grep -q 'all legs passed' /tmp/.t1227a
+bash tests/test_t1003_runme_signal.sh > /tmp/.t1227b 2>&1 && ! grep -q '^FAIL' /tmp/.t1227b
+grep -q 'x = all' CLAUDE.md
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -338,3 +386,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1227-runme-menu-batch-selection-in-the-operat.md
 - **Context:** Initial task creation
+
+### 2026-10-20T13:38:25Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

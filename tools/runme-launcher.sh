@@ -22,7 +22,8 @@
 # THE SAFEGUARDS (all here, none in the job):
 #   --dry-run [name]  the agent's rehearsal: loads the job, runs every check, prints the plan, then
 #                     records the job's sha256 in dryrun.ok and makes job.sh read-only.
-#   real run          lists pending jobs (numbered choice when several), shows name + sha + dry-run
+#   real run          lists pending jobs; when several, the operator picks one or a BATCH in their own order
+#                     (T-1227: arrow keys + space on a terminal, or typed: 3,1,2 / x = all), shows name + sha + dry-run
 #                     time, REFUSES a job with no dry-run or changed since it, re-runs the checks,
 #                     asks y/N (from the terminal only, typeahead discarded) before EVERY step,
 #                     logs to the job dir, signals the agent (runme-signal.sh: events + topic, so
@@ -148,6 +149,91 @@ ask() {  # ask <prompt> -> REPLY ; discards typeahead from a real terminal first
 }
 confirm() { ask "$1 [y/N]"; [ "$REPLY" = y ] || [ "$REPLY" = Y ]; }
 
+# T-1227 (operator 2026-10-20): choose a batch with the arrow keys. up/down (or k/j) moves; space marks or unmarks
+# the highlighted job, and its place in the sequence shows beside it; a marks all in listed order; Enter runs the
+# marked jobs in marked order (the highlighted one alone when none is marked); t = type numbers instead; q or Esc
+# stops. Sets chosen=(); returns 2 for "type instead", 1 for stop. Keys come from fd 3 like every other answer.
+use_picker() {
+    case "${RUNME_PICKER:-}" in
+        0) return 1 ;;
+        1) return 0 ;;   # tests: keys fed as bytes through RUNME_TTY
+    esac
+    [ "$TTY" = /dev/tty ] && [ -t 1 ] && [ "${TERM:-dumb}" != dumb ]
+}
+pick_jobs() {
+    local n=${#todo[@]} cur=0 i k rest pos mark lines=() order=() new _junk
+    for i in "${!todo[@]}"; do lines+=("$(job_line "${todo[$i]}")"); done
+    if [ "$TTY" = /dev/tty ]; then
+        while read -r -t 0.05 -n 10000 _junk <&3 2>/dev/null; do :; done
+    fi
+    say "Pending jobs: up/down move, space = add to / remove from the batch (the number is its place in the order),"
+    say "  a = all in this order, Enter = run (the highlighted job alone if none is marked), t = type numbers, q = stop"
+    draw() {
+        for i in "${!todo[@]}"; do
+            pos=""
+            for k in "${!order[@]}"; do [ "${order[$k]}" = "$i" ] && pos=$((k + 1)); done
+            [ "$i" = "$cur" ] && mark=">" || mark=" "
+            printf '\033[2K%s [%2s] %d. %s\n' "$mark" "$pos" "$((i + 1))" "${lines[$i]}"
+        done
+    }
+    draw
+    while :; do
+        IFS= read -rsn1 -d '' k <&3 || return 1
+        case "$k" in
+            $'\033')
+                rest=""; IFS= read -rsn2 -t 0.1 -d '' rest <&3
+                case "$rest" in
+                    '[A') k=up ;; '[B') k=down ;;
+                    '') return 1 ;;   # Esc alone
+                    *) continue ;;
+                esac ;;
+        esac
+        case "$k" in
+            up|k)   [ "$cur" -gt 0 ] && cur=$((cur - 1)) ;;
+            down|j) [ "$cur" -lt $((n - 1)) ] && cur=$((cur + 1)) ;;
+            ' ')    new=(); for i in "${order[@]}"; do [ "$i" = "$cur" ] || new+=("$i"); done
+                    [ "${#new[@]}" -eq "${#order[@]}" ] && new+=("$cur")
+                    order=("${new[@]}") ;;
+            a|A)    order=(); for i in "${!todo[@]}"; do order+=("$i"); done ;;
+            $'\n'|$'\r')
+                    [ "${#order[@]}" -gt 0 ] || order=("$cur")
+                    chosen=(); for i in "${order[@]}"; do chosen+=("${todo[$i]}"); done
+                    say "Chosen, in this order: $(for i in "${order[@]}"; do printf '%d ' "$((i + 1))"; done)"
+                    return 0 ;;
+            t|T)    return 2 ;;
+            q|Q)    return 1 ;;
+            *)      continue ;;
+        esac
+        printf '\033[%dA' "$n"
+        draw
+    done
+}
+
+# T-1227: the typed form. "x" (or all) runs every pending job in this order; "3,1,2" (or "3 1 2", "3, 1") runs exactly
+# those, in the order typed; one number runs that job alone. Each job still asks y/N per step.
+type_jobs() {
+    local i p sel seen picks
+    say "Pending jobs:"
+    for i in "${!todo[@]}"; do say "  $((i + 1)). $(job_line "${todo[$i]}")"; done
+    ask "Which job? [1-${#todo[@]}; several in your order, e.g. 3,1,2; x = all in this order; anything else = stop]"
+    sel=$(tr 'A-Z' 'a-z' <<<"$REPLY" | sed -E 's/[[:space:];,]+/,/g; s/^,+//; s/,+$//')
+    chosen=()
+    if [ "$sel" = x ] || [ "$sel" = all ] || [ "$sel" = '*' ]; then
+        chosen=("${todo[@]}")
+    elif [[ "$sel" =~ ^[0-9]+(,[0-9]+)*$ ]]; then
+        IFS=, read -ra picks <<<"$sel"
+        seen=" "
+        for p in "${picks[@]}"; do
+            p=$((10#$p))
+            { [ "$p" -ge 1 ] && [ "$p" -le "${#todo[@]}" ]; } || fail "there is no job $p in the list; nothing run"
+            case "$seen" in *" $p "*) fail "job $p was chosen twice; nothing run" ;; esac
+            seen="$seen$p "; chosen+=("${todo[$((p - 1))]}")
+        done
+    else
+        fail "no job chosen; nothing run"
+    fi
+}
+
 # ---------------------------------------------------------------- modes
 mode=run; name=""
 case "${1:-}" in
@@ -203,51 +289,84 @@ fi
 mapfile -t todo < <(pending)
 [ "${#todo[@]}" -gt 0 ] || { say "Nothing to run: no pending job in $JOBS."; exit 0; }
 open_tty
+chosen=()
 if [ "${#todo[@]}" -eq 1 ]; then
-    d=${todo[0]}
+    chosen=("${todo[0]}")
 else
-    say "Pending jobs:"
-    for i in "${!todo[@]}"; do say "  $((i + 1)). $(job_line "${todo[$i]}")"; done
-    ask "Which job? [1-${#todo[@]}, anything else = stop]"
-    [[ "$REPLY" =~ ^[0-9]+$ ]] && [ "$REPLY" -ge 1 ] && [ "$REPLY" -le "${#todo[@]}" ] || fail "no job chosen; nothing run"
-    d=${todo[$((REPLY - 1))]}
+    # The arrow-key picker on a real terminal (T-1227); typed numbers otherwise, or when the operator presses t.
+    prc=2
+    if use_picker; then pick_jobs; prc=$?; [ "$prc" = 1 ] && fail "no job chosen; nothing run"; fi
+    [ "$prc" = 2 ] && type_jobs
 fi
 
-# Log and signal BEFORE the refusals below, so a refused run still wakes the agent (STOPPED event).
-sha=$(job_sha "$d")
-TS=$(date +%Y%m%dT%H%M%S)
-LOG="$d/run-$TS.log"
-chmod u+w "$d" 2>/dev/null
-touch "$LOG" 2>/dev/null || fail "cannot write $LOG"
-exec > >(tee -a "$LOG") 2>&1
-. "$PROJ/tools/runme-signal.sh"
-runme_signal_init "$(basename "$d") [sha ${sha:0:12}]" "$LOG"
+# T-1227: a batch is refused BEFORE anything runs when any chosen job is not rehearsed or changed since its dry run,
+# so it can never stop half way for a reason that was knowable at the start.
+if [ "${#chosen[@]}" -gt 1 ]; then
+    bad=""
+    for d in "${chosen[@]}"; do
+        if [ ! -f "$d/dryrun.ok" ]; then bad="$bad $(basename "$d") (not rehearsed);"
+        elif [ "$(sed -n 's/^sha=//p' "$d/dryrun.ok")" != "$(job_sha "$d")" ]; then bad="$bad $(basename "$d") (CHANGED since its dry-run);"; fi
+    done
+    if [ -n "$bad" ]; then
+        . "$PROJ/tools/runme-signal.sh"; runme_signal STOPPED "batch refused:$bad"
+        fail "batch refused before anything ran:$bad the agent must dry-run those jobs again."
+    fi
+    say "Batch of ${#chosen[@]}, in this order: $(for d in "${chosen[@]}"; do printf '%s ' "$(basename "$d")"; done)"
+    say "Each job still asks y/N before every step; the batch stops at the first job that does not complete."
+fi
 
-[ -f "$d/dryrun.ok" ] || fail "$(basename "$d") has not been rehearsed (no dryrun.ok). Nothing run. The agent runs: bash runme.sh --dry-run $(basename "$d")"
-dsha=$(sed -n 's/^sha=//p' "$d/dryrun.ok"); dat=$(sed -n 's/^at=//p' "$d/dryrun.ok")
-[ "$sha" = "$dsha" ] || fail "$(basename "$d")/job.sh CHANGED since its dry-run (now ${sha:0:12}, rehearsed ${dsha:0:12}). Nothing run; the agent must dry-run it again."
-load_job "$d"
-# T-1204: steps sign with 832's own TermLink key (T-1203). A job can restart a daemon that then inherits this
-# shell's env: job 048's fw upgrade restarted the sidecar receiver on 2026-10-18 from a terminal without the
-# variable, and mail went out under the shared host key again. Exported only when the key file EXISTS: termlink
-# MINTS a key at a missing TERMLINK_IDENTITY_FILE path (T-1151), so a lost key unsets it instead.
-RUNME_KEY="${RUNME_IDENTITY_KEY:-$PROJ/.context/secrets/termlink-identity.key}"   # override: tests only
-if [ -f "$RUNME_KEY" ]; then export TERMLINK_IDENTITY_FILE="$RUNME_KEY"; else unset TERMLINK_IDENTITY_FILE; fi
-say "runme  $(basename "$d")   sha ${sha:0:12}   rehearsed $dat   log: $LOG"
-show_plan "$d"
-say
-run_checks || fail "preflight failed (state changed since the dry-run?); nothing run"
-n=${#STEP_T[@]}
-for i in "${!STEP_T[@]}"; do
+run_one() {  # run_one <job dir> — one job, end to end; runs in a subshell so its own stop/exit ends only it
+    local d=$1 sha dsha dat i n
+    RUNME_RUN_ID="runme-$(date +%Y%m%dT%H%M%S)-$BASHPID"   # one id per job, also inside a batch
+    # Log and signal BEFORE the refusals below, so a refused run still wakes the agent (STOPPED event).
+    sha=$(job_sha "$d")
+    TS=$(date +%Y%m%dT%H%M%S)
+    LOG="$d/run-$TS.log"
+    chmod u+w "$d" 2>/dev/null
+    touch "$LOG" 2>/dev/null || fail "cannot write $LOG"
+    exec > >(tee -a "$LOG") 2>&1
+    . "$PROJ/tools/runme-signal.sh"
+    runme_signal_init "$(basename "$d") [sha ${sha:0:12}]" "$LOG"
+
+    [ -f "$d/dryrun.ok" ] || fail "$(basename "$d") has not been rehearsed (no dryrun.ok). Nothing run. The agent runs: bash runme.sh --dry-run $(basename "$d")"
+    dsha=$(sed -n 's/^sha=//p' "$d/dryrun.ok"); dat=$(sed -n 's/^at=//p' "$d/dryrun.ok")
+    [ "$sha" = "$dsha" ] || fail "$(basename "$d")/job.sh CHANGED since its dry-run (now ${sha:0:12}, rehearsed ${dsha:0:12}). Nothing run; the agent must dry-run it again."
+    load_job "$d"
+    # T-1204: steps sign with 832's own TermLink key (T-1203). A job can restart a daemon that then inherits this
+    # shell's env: job 048's fw upgrade restarted the sidecar receiver on 2026-10-18 from a terminal without the
+    # variable, and mail went out under the shared host key again. Exported only when the key file EXISTS: termlink
+    # MINTS a key at a missing TERMLINK_IDENTITY_FILE path (T-1151), so a lost key unsets it instead.
+    RUNME_KEY="${RUNME_IDENTITY_KEY:-$PROJ/.context/secrets/termlink-identity.key}"   # override: tests only
+    if [ -f "$RUNME_KEY" ]; then export TERMLINK_IDENTITY_FILE="$RUNME_KEY"; else unset TERMLINK_IDENTITY_FILE; fi
+    say "runme  $(basename "$d")   sha ${sha:0:12}   rehearsed $dat   log: $LOG"
+    show_plan "$d"
     say
-    say "Step $((i + 1))/$n: ${STEP_T[$i]}"
-    say "  runs: ${STEP_C[$i]}"
-    confirm "Run step $((i + 1))/$n?" || fail "not confirmed at step $((i + 1))/$n; steps before it ran, nothing after"
-    runme_signal step "$((i + 1))/$n ${STEP_T[$i]}"
-    (cd "$PROJ" && eval "${STEP_C[$i]}") || fail "step $((i + 1))/$n failed (rc=$?); later steps not run"
-    say "ok    step $((i + 1))/$n"
+    run_checks || fail "preflight failed (state changed since the dry-run?); nothing run"
+    n=${#STEP_T[@]}
+    for i in "${!STEP_T[@]}"; do
+        say
+        say "Step $((i + 1))/$n: ${STEP_T[$i]}"
+        say "  runs: ${STEP_C[$i]}"
+        confirm "Run step $((i + 1))/$n?" || fail "not confirmed at step $((i + 1))/$n; steps before it ran, nothing after"
+        runme_signal step "$((i + 1))/$n ${STEP_T[$i]}"
+        (cd "$PROJ" && eval "${STEP_C[$i]}") || fail "step $((i + 1))/$n failed (rc=$?); later steps not run"
+        say "ok    step $((i + 1))/$n"
+    done
+    chmod u+w "$d" 2>/dev/null
+    printf 'at=%s\nsha=%s\nlog=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$sha" "$(basename "$LOG")" > "$d/done"
+    say
+    say "DONE: $(basename "$d") — all $n step(s) ran. rc=0  (log: $LOG)"
+}
+
+completed=(); rc=0; stopped=""
+for d in "${chosen[@]}"; do
+    ( run_one "$d" ); rc=$?
+    if [ "$rc" -ne 0 ]; then stopped=$(basename "$d"); break; fi
+    completed+=("$(basename "$d")")
 done
-chmod u+w "$d" 2>/dev/null
-printf 'at=%s\nsha=%s\nlog=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$sha" "$(basename "$LOG")" > "$d/done"
-say
-say "DONE: $(basename "$d") — all $n step(s) ran. rc=0  (log: $LOG)"
+if [ "${#chosen[@]}" -gt 1 ]; then
+    sleep 0.2   # let the last job's log tee flush before the summary
+    say
+    say "BATCH: ${#completed[@]} of ${#chosen[@]} completed${completed[*]:+ (${completed[*]})}${stopped:+; STOPPED at $stopped, the rest not started}."
+fi
+exit $rc

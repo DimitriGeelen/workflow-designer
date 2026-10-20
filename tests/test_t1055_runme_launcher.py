@@ -12,7 +12,7 @@ import subprocess
 import sys
 import tempfile
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.environ.get("T1055_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RUNME = os.path.join(ROOT, "runme.sh")
 # runme.sh execs this; named here so a broken stub fails as itself (leg 0), not as missing output.
 LAUNCHER = os.path.join(ROOT, "tools", "runme-launcher.sh")
@@ -45,11 +45,11 @@ class Box:
             fh.write(body.replace("@OUT@", self.out))
         return d
 
-    def run(self, *args, answers=""):
+    def run(self, *args, answers="", picker=False):
         with open(self.answers, "w") as fh:
             fh.write(answers)
         env = dict(os.environ, RUNME_JOBS_DIR=self.jobs, RUNME_EVENTS_FILE=self.events,
-                   RUNME_SIGNAL_NO_TERMLINK="1", RUNME_TTY=self.answers)
+                   RUNME_SIGNAL_NO_TERMLINK="1", RUNME_TTY=self.answers, RUNME_PICKER="1" if picker else "0")
         r = subprocess.run(["bash", RUNME] + list(args), capture_output=True, text=True, env=env, timeout=60)
         return r.returncode, r.stdout + r.stderr
 
@@ -219,6 +219,104 @@ def main():
         leg(got_present == fake_key and got_missing == "UNSET" and not os.path.exists(os.path.join(tmp, "missing.key")),
             "15 steps inherit the key when it exists; the variable is unset (nothing minted) when it is missing",
             "present=%r missing=%r" % (got_present, got_missing))
+
+        # 16 (T-1227) batch "x": every pending job, in the listed order; each still asks y/N per step
+        b = Box(tmp, "l16")
+        for n, t in (("001-a", "a"), ("002-b", "b"), ("003-c", "c")):
+            b.job(n, TWO_STEPS.replace("s1", t + "1").replace("s2", t + "2"))
+        b.run("--dry-run")
+        rc, out = b.run(answers="x\ny\ny\ny\ny\ny\ny\n")
+        order = [l for l in out.splitlines() if l.startswith("DONE: ")]
+        leg(rc == 0 and all(b.made(m) for m in ("a1", "a2", "b1", "b2", "c1", "c2"))
+            and [l.split()[1] for l in order] == ["001-a", "002-b", "003-c"] and "BATCH: 3 of 3 completed" in out,
+            "16 x -> all three ran in listed order, each with its own y/N, one summary", " ".join(order))
+
+        # 17 (T-1227) batch "3,1": exactly those, in the order typed; 2 is not started
+        b = Box(tmp, "l17")
+        for n, t in (("001-a", "a"), ("002-b", "b"), ("003-c", "c")):
+            b.job(n, TWO_STEPS.replace("s1", t + "1").replace("s2", t + "2"))
+        b.run("--dry-run")
+        rc, out = b.run(answers="3, 1\ny\ny\ny\ny\n")
+        order = [l.split()[1] for l in out.splitlines() if l.startswith("DONE: ")]
+        leg(rc == 0 and order == ["003-c", "001-a"] and not b.made("b1") and "BATCH: 2 of 2 completed" in out,
+            "17 '3, 1' -> job 3 then job 1, job 2 not started", " ".join(order))
+
+        # 18 (T-1227) a batch stops at the first job that does not complete; later jobs are not started
+        b = Box(tmp, "l18")
+        b.job("001-a", TWO_STEPS.replace("s1", "a1").replace("s2", "a2"))
+        b.job("002-fails", TWO_STEPS.replace("'touch @OUT@/s1'", "'false'"))
+        b.job("003-c", TWO_STEPS.replace("s1", "c1").replace("s2", "c2"))
+        b.run("--dry-run")
+        rc, out = b.run(answers="x\ny\ny\ny\ny\ny\ny\n")
+        leg(rc != 0 and b.made("a2") and not b.made("c1") and "STOPPED at 002-fails" in out
+            and os.path.exists(os.path.join(b.jobs, "001-a", "done")) and not os.path.exists(os.path.join(b.jobs, "003-c", "done")),
+            "18 batch stops at the failing job; the job after it is not started; the one before stays done")
+
+        # 19 (T-1227) a batch with a job changed since its dry-run is refused BEFORE anything runs
+        b = Box(tmp, "l19")
+        b.job("001-a", TWO_STEPS.replace("s1", "a1").replace("s2", "a2"))
+        d2 = b.job("002-b", TWO_STEPS.replace("s1", "b1").replace("s2", "b2"))
+        b.run("--dry-run")
+        os.chmod(os.path.join(d2, "job.sh"), 0o644)
+        with open(os.path.join(d2, "job.sh"), "a") as fh:
+            fh.write("# edited\n")
+        rc, out = b.run(answers="1,2\ny\ny\ny\ny\n")
+        leg(rc != 0 and "batch refused before anything ran" in out and "002-b (CHANGED" in out and not b.made("a1")
+            and "STOPPED batch refused" in b.events_text(), "19 a changed job in the batch -> whole batch refused up front, STOPPED event")
+
+        # 20 (T-1227) a bad choice runs nothing: an index out of range, or the same job twice
+        b = Box(tmp, "l20")
+        b.job("001-a", TWO_STEPS.replace("s1", "a1").replace("s2", "a2"))
+        b.job("002-b", TWO_STEPS.replace("s1", "b1").replace("s2", "b2"))
+        b.run("--dry-run")
+        rc1, out1 = b.run(answers="1,5\n")
+        rc2, out2 = b.run(answers="2,2\n")
+        leg(rc1 != 0 and "no job 5" in out1 and rc2 != 0 and "chosen twice" in out2 and not b.made("a1") and not b.made("b1"),
+            "20 '1,5' and '2,2' -> refused, nothing ran")
+
+        # 21-25 (T-1227) the arrow-key picker; keys fed as bytes (UP/DOWN are the terminal's escape sequences)
+        UP, DOWN = "\x1b[A", "\x1b[B"
+
+        def three(tag):
+            b = Box(tmp, tag)
+            for n, t in (("001-a", "a"), ("002-b", "b"), ("003-c", "c")):
+                b.job(n, TWO_STEPS.replace("s1", t + "1").replace("s2", t + "2"))
+            b.run("--dry-run")
+            return b
+
+        def done_order(out):
+            return [l.split()[1] for l in out.splitlines() if l.startswith("DONE: ")]
+
+        # 21 mark job 3, then job 1 (space marks), Enter: they run in MARKED order, job 2 not started
+        b = three("l21")
+        rc, out = b.run(answers=DOWN + DOWN + " " + UP + UP + " \n" + "y\n" * 4, picker=True)
+        leg(rc == 0 and done_order(out) == ["003-c", "001-a"] and not b.made("b1") and "Chosen, in this order: 3 1" in out
+            and "BATCH: 2 of 2 completed" in out, "21 picker: mark 3 then 1, Enter -> 3 then 1, job 2 not started",
+            " ".join(done_order(out)))
+
+        # 22 a marks all, in listed order
+        b = three("l22")
+        rc, out = b.run(answers="a\n" + "y\n" * 6, picker=True)
+        leg(rc == 0 and done_order(out) == ["001-a", "002-b", "003-c"], "22 picker: a, Enter -> all three in listed order")
+
+        # 23 Enter with nothing marked runs the highlighted job alone; space twice unmarks
+        b = three("l23")
+        rc, out = b.run(answers=" " + " " + DOWN + "\n" + "y\n" * 2, picker=True)
+        leg(rc == 0 and done_order(out) == ["002-b"] and not b.made("a1") and not b.made("c1"),
+            "23 picker: mark+unmark 1, move to 2, Enter -> job 2 alone", " ".join(done_order(out)))
+
+        # 24 t falls back to typed numbers
+        b = three("l24")
+        rc, out = b.run(answers="t2,1\n" + "y\n" * 4, picker=True)
+        leg(rc == 0 and done_order(out) == ["002-b", "001-a"] and "Which job?" in out, "24 picker: t -> typed '2,1' works")
+
+        # 25 q and a lone Esc stop with nothing run; so does running out of keys
+        b = three("l25")
+        rcq, outq = b.run(answers=" q", picker=True)
+        rce, oute = b.run(answers=" \x1b", picker=True)
+        rcn, outn = b.run(answers=DOWN, picker=True)
+        leg(rcq != 0 and rce != 0 and rcn != 0 and all("no job chosen" in o for o in (outq, oute, outn))
+            and not any(b.made(m) for m in ("a1", "b1", "c1")), "25 picker: q / Esc / no more keys -> stop, nothing ran")
 
     print("\n%d failed leg(s)" % len(fails) if fails else "\nall legs passed")
     return 1 if fails else 0
