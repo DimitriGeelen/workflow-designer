@@ -1,19 +1,22 @@
 ---
 id: T-1219
-name: "Traceable data elements on aef:io (ref, role, cardinality, business types, keep unknown aef: attributes) for aef-greenfield-test T-276"
+name: "Traceable data elements on aef:io (ref, role, cardinality, business types,
+  keep unknown aef: attributes) for aef-greenfield-test T-276"
 description: >
-  Inception: Traceable data elements on aef:io (ref, role, cardinality, business types, keep unknown aef: attributes) for aef-greenfield-test T-276
+  Inception: Traceable data elements on aef:io (ref, role, cardinality, business types,
+  keep unknown aef: attributes) for aef-greenfield-test T-276
 
-status: captured
+status: started-work
 workflow_type: inception
+current_node: frw_3_run
 owner: human
 horizon: now
 tags: []
 components: []
 related_tasks: []
 created: 2026-10-19T16:56:20Z
-last_update: 2026-10-19T16:56:20Z
-date_finished: null
+last_update: 2026-10-20T11:44:10Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -33,6 +36,29 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-10-20T11:44:12Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 3
+      D2: 3
+      D3: 3
+      D4: 3
+      F-RECALL: 3
+      F2: 3
+      F4: 3
+      F3: 3
+      F1: 3
+    rationale: D1=3 (voi:decision-with-alternatives~'go/no-go'); D2=3 
+      (voi:decision-with-alternatives~'go/no-go'); D3=3 
+      (voi:decision-with-alternatives~'go/no-go'); D4=3 
+      (voi:decision-with-alternatives~'go/no-go'); F-RECALL=3 
+      (voi:decision-with-alternatives~'go/no-go'); F2=3 
+      (voi:decision-with-alternatives~'go/no-go'); F4=3 
+      (voi:decision-with-alternatives~'go/no-go'); F3=3 
+      (voi:decision-with-alternatives~'go/no-go'); F1=3 
+      (voi:decision-with-alternatives~'go/no-go')
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1219: Traceable data elements on aef:io (ref, role, cardinality, business types, keep unknown aef: attributes) for aef-greenfield-test T-276
@@ -118,15 +144,15 @@ ontology and generator; reading `aef:io` in AEF's compiler (part of T-4415).
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] Go/no-go judged by an independent reviewer, who may escalate to the operator (inception-decision class,
+- [x] Go/no-go judged by an independent reviewer, who may escalate to the operator (inception-decision class,
   reviewer-judgeable per `fw task delegate T-1219 --dry-run`). Any change to the frozen standard is decided with AEF, not here.
   **Steps:**
   1. Run: `fw reviewer judge T-1219 --criterion 1` (or `fw task review T-1219` to read recommendation, assumptions, research artifacts)
@@ -200,9 +226,22 @@ AEF's operator rules on T-4415; that build task is filed when the ruling exists.
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-1219 go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Reviewer green (2026-10-19). Preservation of unknown aef: attributes is built as T-1220 (planned for 0.24.0, T-1223); the fields ref/role/cardinality/dataType follow AEF's mapping-v1.1 inception T-4415 and get designer fields only after AEF's operator rules on it.
+
+**Date**: 2026-10-20T11:44:05Z
 
 ## Updates
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-10-20T11:44:05Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Reviewer green (2026-10-19). Preservation of unknown aef: attributes is built as T-1220 (planned for 0.24.0, T-1223); the fields ref/role/cardinality/dataType follow AEF's mapping-v1.1 inception T-4415 and get designer fields only after AEF's operator rules on it.
+
+### 2026-10-20T11:44:10Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Reason:** Inception decision in progress
