@@ -4032,7 +4032,12 @@ function renderNodes() {
   }
   const authDeclared = mapDeclaresAuthority();      // T-1092
   const authCount = { missing: 0, total: 0 };
-  for (const n of state.nodes) {
+  // T-1222: boundary events are drawn after every other node, so a boundary circle always sits on top of its host.
+  // The designer's own boundaries got that by being created after their hosts; an imported file can list a boundary
+  // event before its host, and the host box then hid the top half of the circle. Draw order only: state.nodes (and
+  // so the saved element order) is untouched.
+  const drawOrder = [...state.nodes.filter(n => !boundaryHostOf(n)), ...state.nodes.filter(n => boundaryHostOf(n))];
+  for (const n of drawOrder) {
     const def = NODE_DEFAULTS[n.type];
     const isPrimary = selection?.kind === 'node' && selection.id === n.id;
     const isInMulti = multiSelect.has(n.id);
