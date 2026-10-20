@@ -100,6 +100,9 @@ business lens and says they could follow it, and `fw corpus explain --lens busin
 
 - 2026-10-19, operator: revived T-279/280/281/282, confirmed "1" (build all four; lenses raised with AEF).
 - 2026-10-19, AEF: T-2669 points the lenses at Arc 4 in the designer; three conditions (above).
+- 2026-10-20, operator: T-281 ruled **GO** (asked with the agent's then-standing DEFER as the recommended option).
+- 2026-10-20, operator, IW-3: reads the fixture maps **in the designer**. The hypothesis and recommendation in the
+  task were updated to slice 1 accordingly; the decision itself is recorded by the operator's job.
 
 ## Recommendation (draft)
 

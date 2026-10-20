@@ -8,15 +8,16 @@ description: >
   deterministic byte-stable pseudocode output. Evidence: docs/proposals/aef-workflow-process-layer-2026-07-02/INSTRUCTIONS
   §2.2, SD-14.
 
-status: captured
+status: started-work
 workflow_type: inception
+current_node: frw_1_start
 owner: human
-horizon: next
+horizon: now
 tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
 created: 2026-07-28T14:52:46Z
-last_update: 2026-10-19T10:09:52Z
+last_update: 2026-10-20T19:46:13Z
 date_finished:
 revisit_at: 2027-01-15
 revisit_evidence_needed: "A non-technical reader who needs to read a map and cannot"
@@ -92,52 +93,66 @@ says to treat the rationale as the position. Caveats to carry into this inceptio
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+One process map is read by three kinds of reader: a business reader (what happens, who decides), a logical reader
+(the flow and its rules) and a technical reader (ids, bindings, authority, findings). The designer shows every
+reader everything at once: technical badges, ids and Extensions fields bury the flow for the business reader. The
+first real reader is the operator, through the onboarding curriculum's routes (AEF, msg 705e7d58). Full research:
+`docs/reports/T-281-audience-lenses.md`.
 
 ## Hypothesis
 
-<!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
+We believe that a named, switchable lens in the designer (business / logical / technical / all), defined once in a
+lens-definition file that AEF owns and the explain reader can share (AEF T-4402),
+we will achieve one map that each reader can follow at their level, instead of a map plus a separately written
+summary.
+We will know that we are successful when we see 0 technical badges and 0 fields outside the business set visible
+in the business lens on `aef-task-lifecycle` (measured by a test), 0 bytes changed in the saved BPMN when switching
+lenses (export before == export after), 0 fields shown that the project's field profile hides, and the operator,
+having opened that map in the designer in the business lens, confirm they can follow it.
 
-We believe that audience render lenses (SD-14/§2.2): business/logical/technical/pseudocode views,
-we will achieve Inception: decide whether to build audience-filtered lens rendering in the designer (functional/logical/technical + derived pseudocode) per package §2.2/SD-14, including deterministic byte-stable pseudocode output.
-We will know that we are successful when we see [NEEDS YOU: name something a person could go and look at — a count, a threshold, a named check, or a state that would visibly change].
+## Open Questions
+
+- **IW-1: Is a lens a per-reader view, a document, or both?**
+  confidence: 2
+  disposition: answered
+  rationale: both from one definition (report §Design options, option C): the designer switch first (slice 1),
+  the explain reader on the same file later (AEF T-4402 / T-2622 seam).
+- **IW-2: How does a lens relate to the field profile?**
+  confidence: 2
+  disposition: answered
+  rationale: the profile is project policy (what may be shown), the lens a per-reader selection inside it, never
+  showing a field the profile hides (report §Open questions; asserted by the success clause).
+- **IW-3: Which maps are the acceptance fixture, and where does the operator read them?**
+  confidence: 3
+  disposition: answered
+  rationale: `aef-task-lifecycle` then `aef-session-lifecycle` (AEF); the operator reads them IN THE DESIGNER
+  (operator, 2026-10-20, chat).
+- **IW-4: Who owns the lens-definition file?**
+  confidence: 3
+  disposition: answered
+  rationale: AEF, next to tools/corpus_spec.py, read by the designer from the vendored framework (AEF msg
+  77dcf341, their T-4402).
+
+## Scope Fence
+
+IN: slice 1, the lens definition's shape and the business lens in the designer (toolbar switch; panel, details
+view and canvas decoration follow the lens). Later build tasks: logical and technical lenses; `fw corpus explain
+--lens` on the same definition (AEF). OUT: the pseudocode lens (SD-14, retired; no named consumer); any change to
+the saved BPMN or to the compiler.
 
 ## Assumptions
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-XXX -->
 
-## Open Questions
-
-<!-- T-2190 (T-2186 Slice 4): every IW-N question must be disposed before
-     --status work-completed. Disposition gate (agents/task-create/update-task.sh
-     check_disposition_gate) refuses on under-disposed inceptions.
-
-     Per-question shape:
-
-       - **IW-1: <question text>**
-         confidence: 0-3      (your confidence in your current answer; 0=guess, 3=verified)
-         disposition: answered | deferred | dissolved
-         rationale: <one-line evidence — file:line, decision id, dialogue ref>
-
-     Never bare yes/no — the gate refuses bare checkboxes. See 050-Inceptions.md
-     §Disposition Gate. Bypass: --skip-disposition-gate "rationale" (direct) or
-     FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
--->
-
 ## Exploration Plan
 
-<!-- How will we validate assumptions? Spikes, prototypes, research? Time-box each. -->
+Done as desk research (no spike needed for the decision): inventory of what the designer already has, AEF's
+position and ownership, design options and slices, all in `docs/reports/T-281-audience-lenses.md`.
 
 ## Technical Constraints
 
-<!-- What platform, browser, network, or hardware constraints apply?
-     For web apps: HTTPS requirements, browser API restrictions, CORS, device support.
-     For hardware APIs (mic, camera, GPS, Bluetooth): access requirements, permissions model.
-     For infrastructure: network topology, firewall rules, latency bounds.
-     Fill this BEFORE building. Discovering constraints after implementation wastes sessions. -->
-
-## Scope Fence
-
-<!-- What's IN scope for this exploration? What's explicitly OUT? -->
+The designer is one self-contained HTML file; the lens definition comes from the vendored framework (AEF-owned
+file), so the designer must read it the way it reads the field profile (`/api/field-profile`), and work without it
+(all fields, as today).
 
 ## Acceptance Criteria
 
@@ -163,12 +178,13 @@ We will know that we are successful when we see [NEEDS YOU: name something a per
 
 <!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
 **GO if:**
-- Root cause identified with bounded fix path
-- Fix is scoped, testable, and reversible
+- A named first reader exists (met: the operator, via the onboarding curriculum; AEF msg 705e7d58)
+- The lens is a render-only view: no change to saved BPMN or to the compiler (met by design; asserted by a test)
+- One definition serves the designer and the explain reader, so there is no second reader (met: AEF owns it, T-4402)
 
 **NO-GO if:**
-- Problem requires fundamental redesign or unbounded scope
-- Fix cost exceeds benefit given current evidence
+- The lens would need its own copy of the field list or a second explain reader
+- The pseudocode lens is required without a named consumer
 
 ## Verification
 
@@ -183,9 +199,21 @@ We will know that we are successful when we see [NEEDS YOU: name something a per
 
 ## Recommendation
 
-**Recommendation:** DEFER
+**Recommendation:** GO (slice 1: lens definition shape + business lens in the designer)
 
-**Rationale:** Package §2.2 three lenses + SD-14 pseudocode lens (one-way derived, deterministic/diffable) have no counterpart: the designer has view controls (density/labels) but no audience-filtered rendering, and V2/V8 business-legibility criteria were never formally tested. Pure 832-side designer surface. DEFER until a real business-stakeholder consumer exists; the 24-map corpus would be the test bed.
+**Rationale:** The earlier DEFER (2026-08) waited for "a real business-stakeholder consumer". Since 2026-10-19 one
+exists: the operator, through the onboarding curriculum's routes (AEF msg 705e7d58), with fixtures named by AEF
+and read in the designer (operator, 2026-10-20). AEF's T-2669 places the lenses in the designer as a render-only
+view, and AEF owns the shared lens definition (T-4402), so the GO criteria are met. The operator ruled GO on
+2026-10-20 (chat). Logical and technical lenses and the explain-reader integration follow as their own build
+tasks; the pseudocode lens stays out.
+
+**Evidence:**
+- `docs/reports/T-281-audience-lenses.md` (existing pieces: field profile T-1125/T-1128, hide-empty T-1124,
+  details view T-1127; design options A/B/C; slices)
+- AEF msgs 705e7d58 (T-2669 position, three conditions) and 77dcf341 (AEF owns the definition, T-4402)
+
+*(Earlier recommendation, 2026-08: DEFER until a real business-stakeholder consumer exists. Superseded above.)*
 
 ## Decisions
 
@@ -226,3 +254,7 @@ We will know that we are successful when we see [NEEDS YOU: name something a per
 
 ### 2026-10-19T10:09:52Z — status-update [task-update-agent]
 - **Change:** horizon: later → next
+
+### 2026-10-20T19:32:05Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
