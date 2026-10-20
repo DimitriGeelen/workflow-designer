@@ -1,0 +1,21 @@
+id: tools/_t1222-event-shots.py
+name: _t1222-event-shots
+type: script
+subsystem: instruments
+location: tools/_t1222-event-shots.py
+tags: []
+
+purpose: "T-1222 screenshots: third-party native event kinds on the canvas, before and after the fix, at 1024/1440/1920."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-20
+created_by: unknown
