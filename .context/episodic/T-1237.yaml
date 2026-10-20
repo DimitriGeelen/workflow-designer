@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1237: T-949 triage checker only reads 3-digit task ids, so a 4-digit inception (T-1215) can never be triaged
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-20T17:24:27Z
+# ============================================================================
+
+task_id: T-1237
+task_name: "T-949 triage checker only reads 3-digit task ids, so a 4-digit inception (T-1215) can never be triaged"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-20T17:22:29Z
+completed: 2026-10-20T17:24:16Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-20T19:24:15+02:00
+last_commit: 2026-10-20T19:24:15+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-949 triage checker reads task ids of any width (T-\d{3,}); T-1215 triaged SUPERSEDED-UPSTREAM (its build is AEF T-4488); teeth leg 1b with a 4-digit id fails on the old regex
+
+# Key outcomes
+outcomes:
+  - 'Verdict rows, bullets and evidence ids match task ids of 3 or more digits (`T-\d{3,}`)'
+  - '`python3 tools/_t949-triage-completeness.py` passes with T-1215''s verdict in the triage doc'
+  - 'A teeth leg in `tools/_t949-completeness-teeth.sh` shows a 4-digit id''s verdict is seen, and that removing'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-949-go-scope-triage.md'
+  - '.tasks/active/T-1237-t-949-triage-checker-only-reads-3-digit-.md'
+  - 'tools/_t949-completeness-teeth.sh'
+  - 'tools/_t949-triage-completeness.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-20T19:24:15'
+    action: 'T-1237: T-949 triage checker reads task ids of any width (T-\d{3,}); T-1215 triaged SUPERSEDED-UPSTREAM (its build is AEF T-4488); teeth leg 1b with a 4-digit id fails on the old regex'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1
+  commits: 1
+  files_changed: 4
+  lines_added: 423
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1237-t-949-triage-checker-only-reads-3-digit-.md
+generated_by: context-agent-hybrid
