@@ -34,6 +34,7 @@ from lib.sidecar import addressing, circuit, delivery, dm, e2e, inbox, outbox, r
 from lib.sidecar import termlink_transport as transport, receiver, lifecycle, adapter, direct, inject  # noqa: E402
 from lib.sidecar import latency as latency_mod, receipts, watcher  # noqa: E402
 from lib.sidecar import waiting as waiting_mod  # noqa: E402
+from lib.sidecar import identity  # noqa: E402
 
 
 def cmd_whoami(args) -> int:
@@ -82,7 +83,7 @@ def _send_direct(args, entry: dict) -> int:
                       urgent=args.urgent,
                       in_reply_to=receipts.base_id(args.in_reply_to) if args.in_reply_to else None,
                       handover_deadline_s=args.handover_deadline,
-                      retries=args.retries)
+                      retries=args.retries, notice=args.notice)
     ok = row["state"] == direct.RECEIVED
     payload = {"client_msg_id": row["client_msg_id"], "state": row["state"],
                "delivered": ok, "reason": row.get("error"), "path": "direct",
@@ -144,6 +145,33 @@ def cmd_send(args) -> int:
     return rc
 
 
+def _explicit_circuit_ok(args, target: str, hub) -> bool:
+    """T-4418: an explicit circuit is used verbatim, so check that something reads
+    it. ring20: 14 consults to `<hub>/ring20-manager`, a hub nickname, all reported
+    delivered. Prints peer-directory circuits the send contradicts; with no evidence
+    WARNs and, without --force, refuses naming the known candidates."""
+    ev = addressing.explicit_circuit_evidence(target, hub)
+    for k in ev["known_circuits"]:
+        print(f"send: known circuit: {k} (peer directory) — this send addresses {target}",
+              file=sys.stderr)
+    if ev["known"]:
+        return True
+    hid = circuit.parse_circuit(target).get("hub")
+    why = (f"no evidence anything reads {circuit.topic_for_circuit(target)} on hub {hid}: not in "
+           f"the peer directory, no receiver known on this host, and the hub "
+           + ("could not be asked" if ev["hub_unreadable"] else "reports no fetch since its last post")
+           + f". Known candidates on that hub: {', '.join(ev['candidates']) or 'none'}")
+    if getattr(args, "force", False):
+        print(f"send: WARNING {why} — sending anyway (--force)", file=sys.stderr)
+        return True
+    if args.json:
+        print(json.dumps({"delivered": False, "state": "REFUSED", "reason": why,
+                          "candidates": ev["candidates"]}))
+    print(f"send: REFUSED, nothing posted — {why}. Address one of those, or pass --force "
+          f"if this circuit is right (T-4418)", file=sys.stderr)
+    return False
+
+
 def _cmd_send(args) -> int:
     # T-3693: a peer with a registered receiver is called directly (D-645 §2).
     # The hub topic path below stays as the fallback when no receiver was ever
@@ -168,12 +196,15 @@ def _cmd_send(args) -> int:
         print(f"send: REFUSED, nothing posted — {exc}", file=sys.stderr)
         return 2
     target, hub = where["circuit"], where["hub"]
+    if str(where.get("how", "")).startswith("explicit circuit") and not _explicit_circuit_ok(args, target, hub):
+        return 2   # T-4418: refused before anything is written or posted
 
     client_msg_id = outbox.write_message(
         from_id=inbox.agent_id(), to=target, body=args.body,
         conversation_id=args.conversation or f"consult-{args.to}",
         urgent=args.urgent, hub=hub,
-        in_reply_to=receipts.base_id(args.in_reply_to) if args.in_reply_to else None)
+        in_reply_to=receipts.base_id(args.in_reply_to) if args.in_reply_to else None,
+        notice=args.notice)
 
     result = delivery.deliver(client_msg_id, transport.termlink_transport,
                               transport.probe_hub)
@@ -284,21 +315,45 @@ def cmd_inbox(args) -> int:
                     print(f"receipt for {m.get('client_msg_id')} failed: {e}", file=sys.stderr)
 
 
+def _orphan_lines(orphans) -> list[str]:
+    """T-4418: unread inboxes on our hub that nothing reads (mail sent to a nickname)."""
+    if orphans is None:
+        return ["orphan inboxes: NOT CHECKED (the hub could not be asked)"]
+    lines = [f"orphan inbox: {o['topic']} holds {o['count']} unread post(s) no known agent reads "
+             f"(a nickname address? tell the senders the real circuit)" for o in orphans]
+    return lines
+
+
+def cmd_orphan_inboxes(args) -> int:
+    """T-4418: exit 0 none, 1 found, 2 the hub could not be asked."""
+    rows = addressing.orphan_inboxes() if __import__("shutil").which("termlink") else None
+    if args.json:
+        print(json.dumps(rows))
+    else:
+        print("\n".join(_orphan_lines(rows)) or "orphan inboxes: none")
+    return 2 if rows is None else (1 if rows else 0)
+
+
 def cmd_alerts(args) -> int:
     """T-3856: session-start mail check — both routes, read-only, never silent."""
     from lib.sidecar import alerts
+    import shutil
+    orphans = addressing.orphan_inboxes() if shutil.which("termlink") else []
     try:
         rows = alerts.collect(limit=args.limit)
     except Exception as e:
         reason = str(e) or type(e).__name__
         if args.json:
-            print(json.dumps({"checked": False, "reason": reason}))
+            print(json.dumps({"checked": False, "reason": reason, "orphan_inboxes": orphans}))
         else:
             print(f"NOT CHECKED: {reason}")
+            for line in _orphan_lines(orphans):
+                print(line)
         return 3
     if args.json:
         print(json.dumps({"checked": True, "mail": [
-            {k: v for k, v in r.items() if not k.startswith("_")} for r in rows]}, indent=2))
+            {k: v for k, v in r.items() if not k.startswith("_")} for r in rows],
+            "orphan_inboxes": orphans}, indent=2))
     elif not rows:
         print("peer mail: nothing unseen")
     else:
@@ -308,6 +363,9 @@ def cmd_alerts(args) -> int:
             print(f"  - {flag}{_who(r['from'])} [{_meta(r['conversation_id'])}] "
                   f"{_meta(r['id'][:12])} ({_meta(r['route'])}):")
             print(_framed(r["first_line"]))
+    if not args.json:
+        for line in _orphan_lines(orphans):
+            print(line)
     if args.mark_seen and rows:
         alerts.mark_seen(rows)
     return 0
@@ -366,6 +424,8 @@ def _print_inbox(args, messages) -> int:
         print(f"--- consult @{_meta(msg.get('offset'))} from {_who(sender)} "
               f"[{_meta(msg.get('conversation_id'))}] ---")
         print(_framed(msg.get("body", "")))
+        if msg.get("notice"):
+            print("(notice — no reply expected)")   # T-4348
         print()
     if dm_rows or dm_posts:
         print(f"NOTE: {DM_SCOPE_NOTE}")
@@ -400,7 +460,7 @@ def _inbound_or_unknown() -> dict:
     """
     try:
         return inbox.unread_summary()
-    except circuit.CircuitError as exc:
+    except (circuit.CircuitError, inbox.Unreadable) as exc:  # T-4452: a timeout is unknown, not 0
         return {"unread": None, "topics": [], "reason": str(exc)}
 
 
@@ -683,7 +743,7 @@ def cmd_inbox_stale(args) -> int:
     mistake "I could not look" for "nothing is waiting"."""
     try:
         rows = inbox.unread_stale(min_age_hours=args.threshold_hours)
-    except circuit.CircuitError as exc:
+    except (circuit.CircuitError, inbox.Unreadable) as exc:  # T-4452
         print(f"consult-inbox backlog check could not run: {exc}", file=sys.stderr)
         return 2
     if args.json:
@@ -797,7 +857,7 @@ def _start_receiver(agent: str, port, no_inject: bool, quiet: bool) -> tuple[int
     lifecycle.write_config(inject=not no_inject)
 
     root = str(receiver._root().resolve())
-    env = dict(os.environ, PROJECT_ROOT=root)
+    env = identity.respawn_env(root=root)   # T-4416: never the caller's pane/agent id
     log = open(receiver._receiver_dir() / "server.log", "ab")
     server_py = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sidecar", "http_server.py")
     proc = subprocess.Popen(
@@ -868,6 +928,26 @@ def _ensure_inbox_topic(agent: str | None, quiet: bool) -> dict:
     return row
 
 
+def _refuse_persist(agent: str, args) -> bool:
+    """T-4423: True (refusal printed) when this start would persist `agent` in
+    enabled.json and must not. A dispatched worker never persists anything —
+    the project's ensure would replay its id after it exits. Any other agent id
+    than the project's needs --force / --i-am-human."""
+    if os.environ.get("FW_DISPATCHED_WORKER") == "1":
+        print("sidecar: refusing to start — FW_DISPATCHED_WORKER=1: a dispatched worker never "
+              "starts the project sidecar (it would persist its own agent id in enabled.json, "
+              "T-4423). Start it from the project's own session.", file=sys.stderr)
+        return True
+    own = watcher.project_agent()
+    if agent != own and not (getattr(args, "force", False) or getattr(args, "i_am_human", False)):
+        print(f"sidecar: refusing to persist agent {agent!r} — this project's agent is {own!r} "
+              f"(T-4423: ensure would restart the receiver as {agent!r} for good). "
+              f"Run without --agent / FW_SIDECAR_AGENT_ID, or pass --force if {agent!r} "
+              f"really is this project's sidecar.", file=sys.stderr)
+        return True
+    return False
+
+
 def cmd_receiver_start(args) -> int:
     """Start the per-agent receiver (T-3693) and, unless --no-watcher, its
     supervised watcher (T-3684/T-3685).
@@ -879,6 +959,8 @@ def cmd_receiver_start(args) -> int:
     """
     agent = args.agent or _agent_or_none()
     if not agent:
+        return 2
+    if not args.no_watcher and _refuse_persist(agent, args):   # T-4423
         return 2
     rc, _info = _start_receiver(agent, args.port, args.no_inject, args.quiet)
     if rc != 2:
@@ -893,6 +975,8 @@ def cmd_start(args) -> int:
     Exit 0 when both are up (already-running counts), 2 on failure."""
     agent = args.agent or _agent_or_none()
     if not agent:
+        return 2
+    if _refuse_persist(agent, args):   # T-4423
         return 2
     rc, info = _start_receiver(agent, args.port, args.no_inject, args.quiet)
     if rc == 2:
@@ -935,6 +1019,14 @@ def cmd_ensure(args) -> int:
             for r in rows:
                 print(f"{r.get('project_root')}: {r.get('action') or r.get('error')}")
         return 0
+    # T-4416: a dispatched worker (or a session addressed as another agent) never
+    # (re)starts the project's sidecar — its pane and agent id would outlive it.
+    skip = watcher.foreign_session_reason()
+    if skip:
+        watcher.record_event("ENSURE_SKIPPED_WORKER", reason=skip)
+        row = {"enabled": watcher.read_enabled() is not None, "action": f"skipped: {skip}"}
+        print(json.dumps(row) if args.json else row["action"])
+        return 0
     cfg = watcher.read_enabled()
     row = {"enabled": cfg is not None}
     if cfg is None and args.autostart and not watcher.stopped_marker().exists():
@@ -951,7 +1043,15 @@ def cmd_ensure(args) -> int:
                          if watcher.stopped_marker().exists()
                          else "not enabled (fw sidecar start enables it)")
     else:
-        agent = str(cfg.get("agent") or _agent_or_none() or "")
+        # T-4423: never the persisted id when it is not the project's agent — a
+        # worker's start once wrote its own id there; it is recorded, not replayed.
+        agent = watcher.receiver_agent(cfg, "ensure")
+        bad = watcher.persisted_agent_mismatch(cfg)
+        if bad:
+            row["agent_mismatch"] = {"persisted": bad, "used": agent}
+            print(f"sidecar: ENSURE_AGENT_MISMATCH — enabled.json persists agent {bad!r}; "
+                  f"started as this project's agent {agent!r} instead (T-4423). Fix: "
+                  f"fw sidecar stop && fw sidecar start", file=sys.stderr)
         rc, info = _start_receiver(agent, None, _ensure_no_inject(cfg), True)
         row["receiver"] = {0: "restarted", 1: "running", 2: "FAILED"}[rc]
         if rc == 1 and info is None:
@@ -973,7 +1073,8 @@ def cmd_ensure(args) -> int:
     # T-3803: every ensure (cron, @reboot, SessionStart) also makes sure the
     # owner's inbox topic exists, enabled or not — `fw sidecar inbox` reads it
     # either way, and an absent topic otherwise stays absent until a peer posts.
-    t = _ensure_inbox_topic((cfg or {}).get("agent") or None, True)
+    t = _ensure_inbox_topic((watcher.project_agent() if cfg and watcher.persisted_agent_mismatch(cfg)
+                             else (cfg or {}).get("agent")) or None, True)
     row["inbox_topic"] = {"topic": t["topic"], "action": t["action"], "reason": t["reason"]}
     if args.json:
         print(json.dumps(row))
@@ -1232,11 +1333,19 @@ def build_parser() -> argparse.ArgumentParser:
                       help="direct path: inject even if the peer agent is busy (R5)")
     send.add_argument("--in-reply-to", default=None,
                       help="client_msg_id this message answers (direct path: REPLIED)")
+    send.add_argument("--notice", action="store_true",
+                      help="FYI / status / done / thanks: no reply expected (T-4348). "
+                           "Delivered and surfaced like any message, labelled 'notice — no "
+                           "reply expected' by the receiver, and never chased: no re-post "
+                           "after delivery, no nudge, no warn/overdue push, no dead-letter "
+                           "for want of a reply. An older receiver shows it as an ordinary message")
     send.add_argument("--handover-deadline", type=int,
                       default=direct.DEFAULT_HANDOVER_DEADLINE_S,
                       help="direct path: seconds until a missing HANDED_OVER is ESCALATED")
     send.add_argument("--retries", type=int, default=direct.DEFAULT_RETRIES,
                       help="direct path: attempts before UNDELIVERABLE")
+    send.add_argument("--force", action="store_true",
+                      help="send to an explicit circuit nothing is known to read (T-4418)")
     send.add_argument("--json", action="store_true")
     send.set_defaults(func=cmd_send)
 
@@ -1255,6 +1364,12 @@ def build_parser() -> argparse.ArgumentParser:
     al.add_argument("--mark-seen", action="store_true",
                     help="record the listed messages as shown (prompt hook will not repeat them)")
     al.set_defaults(func=cmd_alerts)
+
+    oi = sub.add_parser("orphan-inboxes", help="unread project-level inboxes on this hub that "
+                        "no known agent reads — mail sent to a nickname (T-4418; exit 1 found, "
+                        "2 the hub could not be asked)")
+    oi.add_argument("--json", action="store_true")
+    oi.set_defaults(func=cmd_orphan_inboxes)
 
     st = sub.add_parser("status", help="out-of-band channel status from our own "
                         "outbox/ledger/inbox state; never asks the hub")
@@ -1341,6 +1456,9 @@ def build_parser() -> argparse.ArgumentParser:
                             help="receiver only; do not start the supervised watcher (T-3684)")
     recv_start.add_argument("--tick", type=float, default=None,
                             help="watcher tick seconds (default SIDECAR_TICK, 30)")
+    recv_start.add_argument("--force", action="store_true",
+                            help="persist an --agent that is not this project's agent (T-4423)")
+    recv_start.add_argument("--i-am-human", action="store_true", dest="i_am_human")
     recv_start.set_defaults(func=cmd_receiver_start)
 
     recv_stop = recv_sub.add_parser("stop", help="stop the receiver")
@@ -1374,6 +1492,9 @@ def build_parser() -> argparse.ArgumentParser:
                      help="store and confirm, never inject (negative control)")
     st_.add_argument("--quiet", action="store_true")
     st_.add_argument("--json", action="store_true")
+    st_.add_argument("--force", action="store_true",
+                     help="persist an --agent that is not this project's agent (T-4423)")
+    st_.add_argument("--i-am-human", action="store_true", dest="i_am_human")
     st_.set_defaults(func=cmd_start)
 
     sp_ = sub.add_parser("stop", help="stop and disable the watcher and the receiver")
@@ -1439,6 +1560,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv=None) -> int:
+    identity.apply()  # T-4311: sign as the project key when configured
     args = build_parser().parse_args(argv)
     return args.func(args)
 

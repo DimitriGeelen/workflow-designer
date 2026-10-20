@@ -70,6 +70,28 @@ _watchtower_identity_matches() {
     [ "$_svc" = "watchtower" ] && [ -n "$_our_root" ] && [ "$_proot" = "$_our_root" ]
 }
 
+# _watchtower_identity_state URL
+#
+# T-4460: one /api/_identity probe, three answers on stdout: "ours" (service is
+# watchtower and project_root is ours), "foreign" (something answered the
+# endpoint with 200 but is not us), "none" (no answer yet). The start loop polls
+# this instead of GET /, which renders the whole home page (68 s under load).
+_watchtower_identity_state() {
+    local _u="$1" _json _svc _proot _our_root
+    if ! _json=$(curl -sf --max-time 2 "${_u}/api/_identity" 2>/dev/null); then
+        printf 'none'
+        return 0
+    fi
+    _our_root=$(_watchtower_our_root) || _our_root=""
+    _svc=$(printf '%s' "$_json" | grep -oE '"service"[[:space:]]*:[[:space:]]*"[^"]*"' | sed -E 's/.*"([^"]*)"$/\1/') || _svc=""
+    _proot=$(printf '%s' "$_json" | grep -oE '"project_root"[[:space:]]*:[[:space:]]*"[^"]*"' | sed -E 's/.*"([^"]*)"$/\1/') || _proot=""
+    if [ "$_svc" = "watchtower" ] && [ -n "$_our_root" ] && [ "$_proot" = "$_our_root" ]; then
+        printf 'ours'
+    else
+        printf 'foreign'
+    fi
+}
+
 # _watchtower_bound_host
 #
 # T-4041 (GitHub #88): the address Watchtower was told to bind (FW_HOST — read by
@@ -381,4 +403,22 @@ watchtower_rotate_log() {
         [ -e "$log.$i" ] && mv -f "$log.$i" "$log.$((i + 1))"
     done
     mv -f "$log" "$log.1"
+}
+
+# T-4459: is the running server writing its output into a deleted file? The server
+# holds watchtower.log open from start; anything that replaces the file (git once
+# rewrote it on every merge, while it was tracked) leaves the process writing to an
+# unlinked inode, so its tracebacks are readable nowhere. Prints "fd N -> target"
+# for each of stdout/stderr that points at a deleted file.
+# Exit: 0 = at least one deleted, 1 = none, 2 = cannot tell (no /proc entry).
+watchtower_log_fd_deleted() {
+    local pid="$1" fd target found=1
+    [ -n "$pid" ] && [ -d "/proc/$pid/fd" ] || return 2
+    for fd in 1 2; do
+        target=$(readlink "/proc/$pid/fd/$fd" 2>/dev/null) || continue
+        case "$target" in
+            *" (deleted)") echo "fd $fd -> $target"; found=0 ;;
+        esac
+    done
+    return "$found"
 }

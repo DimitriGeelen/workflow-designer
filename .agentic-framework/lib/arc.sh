@@ -658,46 +658,6 @@ else:  # T-3577: an unquoted trailing ' # comment' is not part of the value
 print(v)
 PY
 )"
-    # T-679 (832-local, re-applied on 1.7.740 under T-1005): consult the SAME UNION
-    # the readers do. The check below reads only arc_id:, but lib/arc_membership.py
-    # unions arc_id: with the legacy `arc:<slug>` tag, so a task whose membership is
-    # recorded ONLY in the tag was invisible to the reassignment refusal -- measured:
-    # `fw arc tag designer-authoring-surface T-590` exited 0 on a task already in
-    # ewcr-governed-delivery. Runs BEFORE any write, so a refusal changes nothing.
-    # Only the frontmatter `tags:` line is scanned: `arc:` also appears in prose.
-    if [ -z "$existing_arc_id" ]; then
-        local legacy_rc=0
-        python3 - "$tf" "$id" "$tid" <<'PY' || legacy_rc=$?
-import re, sys
-fn, arc_id, tid = sys.argv[1], sys.argv[2], sys.argv[3]
-text = open(fn).read()
-try:
-    fm = text[:text.index("\n---", 4)]
-except ValueError:
-    fm = text
-tags_line = re.search(r'^tags:.*$', fm, re.MULTILINE)
-tagged = sorted(set(re.findall(r'arc:([A-Za-z0-9._-]+)', tags_line.group(0)))) if tags_line else []
-if len(tagged) > 1:
-    sys.stderr.write("%s carries %d arc tags (%s); arc_id: holds one\n" % (tid, len(tagged), ", ".join(tagged)))
-    sys.exit(12)
-if tagged and tagged[0] != arc_id:
-    sys.stderr.write("%s already belongs to %s via its legacy arc: tag\n" % (tid, tagged[0]))
-    sys.exit(11)
-# A legacy tag naming THIS arc falls through on purpose: writing arc_id: is the upgrade path.
-PY
-        case "$legacy_rc" in
-            0) ;;
-            11) echo "Error: refusing to tag $tid into '$id' -- its legacy arc: tag already places it in another arc." >&2
-                echo "  A task belongs to one arc at a time (T-1849); reassign deliberately by editing tags:/arc_id:." >&2
-                return 1 ;;
-            12) echo "Error: $tid carries multiple legacy arc: tags (see above)." >&2
-                echo "  arc_id: is single-valued -- collapsing them would drop a membership." >&2
-                echo "  Decide which arc owns it, then edit tags:/arc_id: deliberately." >&2
-                return 1 ;;
-            *) echo "Error: legacy-membership check failed (rc=$legacy_rc); not tagging $tid." >&2
-               return 1 ;;
-        esac
-    fi
     if [ -n "$existing_arc_id" ]; then
         local existing_norm
         existing_norm="$(_arc_normalize_input "$existing_arc_id")"
@@ -1393,7 +1353,32 @@ arc_review() {
         # shellcheck source=lib/task-audit.sh
         source "${FRAMEWORK_ROOT:-${PROJECT_ROOT:-.}}/lib/task-audit.sh" 2>/dev/null || true
     fi
-    if [ -z "$rec_file" ] || ! audit_inception_recommendation "$rec_file" 2>/dev/null; then
+    # T-4320: only CLOSE / KEEP-OPEN is a close verdict. An anchor inception's GO
+    # (or NO-GO / DEFER) decided whether to START the arc; accepting it here let
+    # that day-one verdict stand in for a close recommendation nobody had filed.
+    local rec_verdict=""
+    if [ -n "$rec_file" ] && audit_inception_recommendation "$rec_file" 2>/dev/null; then
+        rec_verdict=$(awk '
+            /^## Recommendation[[:space:]]*$/ { in_rec=1; next }
+            in_rec && /^#{2,} / { exit }
+            in_rec && /<!--/ { in_c=1 }
+            in_rec && !in_c && /^[[:space:]]*[-*]?[[:space:]]*\*\*Recommendation:\*\*/ {
+                sub(/^[[:space:]]*[-*]?[[:space:]]*\*\*Recommendation:\*\*[[:space:]]*\**/, "")
+                match($0, /^[A-Za-z_-]+/)
+                v = toupper(substr($0, RSTART, RLENGTH)); gsub(/_/, "-", v)
+                print v; exit
+            }
+            in_rec && /-->/ { in_c=0 }
+        ' "$rec_file")
+        rec_verdict="${rec_verdict%-}"
+    fi
+    local wrong_verdict=""
+    case "$rec_verdict" in
+        CLOSE|KEEP-OPEN) ;;
+        "") ;;
+        *) wrong_verdict="$rec_verdict" ;;
+    esac
+    if [ -z "$rec_file" ] || [ -z "$rec_verdict" ] || [ -n "$wrong_verdict" ]; then
         if [ "${FW_ALLOW_EMPTY_RECOMMENDATION:-}" = "1" ]; then
             if ! declare -F _log_empty_recommendation_bypass >/dev/null 2>&1; then
                 # shellcheck source=lib/review.sh
@@ -1405,7 +1390,12 @@ arc_review() {
             echo "NOTE: arc '$id' has no close recommendation — emitting anyway (FW_ALLOW_EMPTY_RECOMMENDATION=1, logged)." >&2
         else
             echo "BLOCKED: arc '$id' has no close recommendation — no close URL emitted." >&2
-            if [ -n "$rec_task" ]; then
+            if [ -n "$wrong_verdict" ]; then
+                echo "  $rec_task holds **Recommendation:** $wrong_verdict — a decision about starting the arc, not a close verdict (CLOSE or KEEP-OPEN)." >&2
+            fi
+            if [ -n "$wrong_verdict" ] && [ -z "$close_task" ]; then
+                echo "  Agent action: set close_task: T-XXX in $arc_path (the close-out task) and write it there:" >&2
+            elif [ -n "$rec_task" ]; then
                 local _src="anchor_task"
                 [ -n "$close_task" ] && _src="close_task"
                 echo "  Write it in the ## Recommendation section of $rec_task ($_src):" >&2

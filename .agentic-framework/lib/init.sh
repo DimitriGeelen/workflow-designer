@@ -104,6 +104,9 @@ do_init() {
         echo -e "${RED}ERROR: Directory does not exist: $target_dir${NC}" >&2
         return 1
     }
+    # T-4406: `fw init /` would scaffold policy/, .context/, .tasks/ … at the filesystem root.
+    source "$(dirname "${BASH_SOURCE[0]}")/fs-root-guard.sh"
+    fw_refuse_fs_root "fw init target" "$target_dir" || return 1
 
     # Check if already initialized
     if [ -f "$target_dir/.framework.yaml" ] && [ "${force:-false}" != true ]; then
@@ -870,7 +873,13 @@ CYAML
         # (currently none), so this stays the framework's own tracking surface.
         git -C "$target_dir" add -A >/dev/null 2>&1 || true
         _bootstrap_n=$(git -C "$target_dir" diff --cached --name-only 2>/dev/null | wc -l | tr -d ' ')
-        if _bootstrap_err=$(GIT_AUTHOR_NAME="fw init" GIT_AUTHOR_EMAIL="fw-init@localhost" \
+        # T-4427: the pre-commit secret scan records its own time here (outside
+        # the project, so it is never staged); printed below so a field test
+        # can measure the scan separately from the whole install.
+        local _scan_timing
+        _scan_timing=$(mktemp "${TMPDIR:-/tmp}/fw-init-scan-timing.XXXXXX" 2>/dev/null) || _scan_timing=""
+        if _bootstrap_err=$(FW_SECRET_SCAN_TIMING_FILE="$_scan_timing" \
+            GIT_AUTHOR_NAME="fw init" GIT_AUTHOR_EMAIL="fw-init@localhost" \
             GIT_COMMITTER_NAME="fw init" GIT_COMMITTER_EMAIL="fw-init@localhost" \
             git -C "$target_dir" commit --allow-empty -q \
                 -m "T-000: fw init bootstrap commit (framework scaffolding — gives the project a resolvable HEAD with a non-empty tree)" 2>&1); then
@@ -886,6 +895,10 @@ CYAML
             echo -e "  ${YELLOW}⚠${NC}   Bootstrap commit failed — HEAD remains unresolved:"
             echo "       run manually: cd \"$target_dir\" && git add -A && git commit -m \"T-000: bootstrap\""
             [ -n "$_bootstrap_err" ] && echo "$_bootstrap_err" | sed 's/^/      /' >&2
+        fi
+        if [ -n "$_scan_timing" ]; then
+            [ -s "$_scan_timing" ] && echo "       $(head -1 "$_scan_timing")"
+            rm -f "$_scan_timing"
         fi
     fi
 

@@ -67,7 +67,7 @@ if __package__ in (None, ""):
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
     __package__ = "lib.sidecar"
 
-from . import circuit, direct, inbox, inject, lifecycle, receipts, receiver  # noqa: E402
+from . import circuit, direct, identity, inbox, inject, lifecycle, receipts, receiver, runtime_dir  # noqa: E402
 
 DEFAULT_TICK_S = 30
 STALL_TICKS = 2          # IW-2: seq not advanced for 2 ticks = not live
@@ -189,6 +189,50 @@ def _agent() -> str:
         return receiver._root().name
 
 
+def project_agent() -> str:
+    """The agent id that OWNS this project's sidecar (T-4416): the project id from
+    project config (RAIL_PROJECT_LABEL, else the root's basename) — never a
+    session's FW_SIDECAR_AGENT_ID."""
+    try:
+        return circuit.project_id()
+    except circuit.CircuitError:
+        return receiver._root().name
+
+
+def foreign_session_reason(environ=None) -> str | None:
+    """Why the calling session must not (re)start this project's sidecar, or None
+    (T-4416). A dispatched worker, or any session addressed as another agent,
+    would otherwise respawn the project's processes under its own pane/id."""
+    environ = os.environ if environ is None else environ
+    if environ.get("FW_DISPATCHED_WORKER") == "1":
+        return "FW_DISPATCHED_WORKER=1 (a dispatched worker never owns the project sidecar)"
+    own = environ.get("FW_SIDECAR_AGENT_ID")
+    if own and own != project_agent():
+        return (f"FW_SIDECAR_AGENT_ID={own!r} is not this project's agent "
+                f"{project_agent()!r}")
+    return None
+
+
+def persisted_agent_mismatch(cfg: dict | None) -> str | None:
+    """The agent id enabled.json persists when it is NOT this project's agent, else
+    None (T-4423). A dispatched worker's `fw sidecar start` once wrote its own id
+    there ('w4315'), and every later ensure would have replayed it."""
+    agent = str((cfg or {}).get("agent") or "")
+    return agent if agent and agent != project_agent() else None
+
+
+def receiver_agent(cfg: dict | None, via: str) -> str:
+    """The agent id an ensure / supervisor restart starts the receiver as (T-4423):
+    always the project's own. A persisted foreign id is recorded as
+    ENSURE_AGENT_MISMATCH and left in enabled.json for the operator to see
+    (doctor/audit WARN) rather than rewritten silently."""
+    own = project_agent()
+    bad = persisted_agent_mismatch(cfg)
+    if bad:
+        record_event("ENSURE_AGENT_MISMATCH", persisted=bad, project=own, via=via)
+    return own
+
+
 # ── enable / disable ────────────────────────────────────────────────────────
 
 def enable(agent: str, tick: float | None, inject_on: bool) -> dict:
@@ -275,6 +319,8 @@ def ingest_hub(reader=None) -> dict:
             "hub_offset": m.get("offset"),
             "hub_ts": m.get("ts"),
         }
+        if m.get("notice"):
+            envelope["notice"] = True   # T-4348; absent otherwise, so old digests hold
         ok, err = receiver.store_message(mid, envelope)
         if not ok and err.startswith("conflict"):
             # Same id, DIFFERENT content: a second message, not a duplicate
@@ -510,7 +556,17 @@ def liveness_verdict(now: datetime | None = None) -> dict:
     now = now or _now()
     live = read_liveness()
     enabled = read_enabled()
-    v = {"enabled": enabled is not None, "liveness": live, "reasons": []}
+    v = {"enabled": enabled is not None, "liveness": live, "reasons": [], "warnings": []}
+    # T-4423: a foreign agent id persisted in enabled.json. ensure and the
+    # supervisor start the receiver as the project agent regardless, so this is
+    # a WARN (state unaffected), not a deaf sidecar — but the value is wrong.
+    bad = persisted_agent_mismatch(enabled)
+    if bad:
+        v["warnings"].append(
+            f"enabled.json persists agent {bad!r}, not this project's agent "
+            f"{project_agent()!r} (written by a worker's start, T-4423; ensure uses the "
+            f"project agent) — remedy: from the project's own session run "
+            f"`fw sidecar stop && fw sidecar start`")
     if live is None:
         if enabled is None:
             v["state"] = "absent"
@@ -531,6 +587,17 @@ def liveness_verdict(now: datetime | None = None) -> dict:
                             f"(> {STALL_TICKS} ticks of {tick:g}s)")
     if live.get("last_probe_ok") is False:
         v["reasons"].append(f"self-probe failed: {live.get('last_probe_reason') or 'unknown'}")
+    # T-4416: ticking under another agent's identity is not this project's
+    # sidecar — injection targets that agent's (likely gone) session.
+    own = project_agent()
+    # T-4423: enabled.json alone is a warning (above); a TICKING foreign identity
+    # is the deaf case.
+    foreign = sorted({str(x) for x in (live.get("identity"),) if x and str(x) != own})
+    if foreign:
+        v["reasons"].append(
+            f"identity {', '.join(foreign)} is not this project's agent {own!r} (a dispatched "
+            f"worker restarted it, T-4416) — remedy: from the project's own session run "
+            f"`fw sidecar stop && fw sidecar start`")
     if enabled is None:
         # Not started, or stopped on purpose: what liveness.yaml holds is history.
         v["state"] = "absent"
@@ -789,7 +856,7 @@ def _spawn(args: list[str], log_name: str) -> subprocess.Popen:
     log = open(_dir() / log_name, "ab")
     return subprocess.Popen([sys.executable, os.path.abspath(__file__), *args],
                             stdin=subprocess.DEVNULL, stdout=log, stderr=log, cwd=root,
-                            env=dict(os.environ, PROJECT_ROOT=root), start_new_session=True)
+                            env=identity.respawn_env(root=root), start_new_session=True)
 
 
 def _receiver_down() -> bool:
@@ -802,11 +869,11 @@ def _restart_receiver(cfg: dict) -> None:
     its inject setting. Done through the CLI so there is one start path."""
     cli = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "sidecar_cli.py")
     argv = [sys.executable, cli, "receiver", "start", "--quiet", "--no-watcher",
-            "--agent", str(cfg.get("agent") or _agent())]
+            "--agent", receiver_agent(cfg, "supervisor")]   # T-4423
     if not cfg.get("inject", True):
         argv.append("--no-inject")
     root = str(receiver._root().resolve())
-    proc = subprocess.run(argv, cwd=root, env=dict(os.environ, PROJECT_ROOT=root),
+    proc = subprocess.run(argv, cwd=root, env=identity.respawn_env(root=root),
                           capture_output=True, text=True, timeout=60)
     record_event("RECEIVER_RESTARTED", rc=proc.returncode,
                  detail=(proc.stdout + proc.stderr).strip()[-300:] or None)
@@ -939,8 +1006,30 @@ def is_stale(pid) -> bool:
     return started is not None and started < code_mtime()
 
 
-def stop_processes(timeout: float = 10.0) -> dict:
+def _cmdline(pid: int) -> str | None:
+    try:
+        raw = Path(f"/proc/{pid}/cmdline").read_bytes()
+    except OSError:
+        return None
+    return raw.replace(b"\0", b" ").decode("utf-8", "replace").strip()[:500] or None
+
+
+def stop_caller() -> dict:
+    """T-4315: who is asking for the stop. WATCHER_STOPPED is written by the
+    watcher itself, which never learns who sent the SIGTERM; three explicit
+    stops on 2026-10-18 could not be attributed. Recorded with every stop request."""
+    ppid = os.getppid()
+    return {"caller_pid": os.getpid(), "caller_ppid": ppid,
+            "caller_argv": " ".join(sys.argv)[:500],
+            "caller_parent": _cmdline(ppid),
+            "caller_project_root": os.environ.get("PROJECT_ROOT") or "(unset)",
+            "caller_cwd": os.getcwd(),
+            "caller_test": os.environ.get("PYTEST_CURRENT_TEST") or os.environ.get("BATS_TEST_FILENAME")}
+
+
+def stop_processes(timeout: float = 10.0, reason: str = "restart") -> dict:
     """Stop supervisor and watcher WITHOUT disabling (a restart)."""
+    record_event("STOP_REQUESTED", reason=reason, **stop_caller())
     stopped = {}
     for which in ("supervisor", "watcher"):
         pid = read_pid(which)
@@ -961,7 +1050,7 @@ def stop_all(timeout: float = 10.0) -> dict:
     orphan)."""
     disable()
     stopped_marker().write_text(_now().isoformat(), encoding="utf-8")
-    return stop_processes(timeout)
+    return stop_processes(timeout, reason="explicit stop")
 
 
 def project_launcher(root: Path) -> list[str] | None:
@@ -1004,8 +1093,9 @@ def ensure_all() -> list[dict]:
             continue
         # The child must not inherit this copy's framework location: the project's
         # own launcher resolves its own tree from its own location.
-        env = {k: v for k, v in os.environ.items() if k != "FRAMEWORK_ROOT"}
-        env["PROJECT_ROOT"] = str(root)
+        # T-4416: nor the caller's session identity (pane, agent id, worker flags).
+        env = {k: v for k, v in identity.respawn_env(root=str(root), signing=False).items()
+               if k != "FRAMEWORK_ROOT"}
         proc = subprocess.run([*launcher, "sidecar", "ensure", "--json"], cwd=str(root),
                               env=env, capture_output=True, text=True, timeout=120)
         try:
@@ -1019,6 +1109,10 @@ def ensure_all() -> list[dict]:
 
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else argv
+    identity.apply()  # T-4311: sign as the project key when configured
+    if argv[:1] in (["run"], ["supervise"]):
+        rdir, source = runtime_dir.apply()   # T-4482: same dir the hub registers sessions in
+        record_event("RUNTIME_DIR", dir=rdir or "(termlink default)", source=source)
     if argv[:1] == ["run"]:
         tick = None
         if len(argv) >= 3 and argv[1] == "--tick":

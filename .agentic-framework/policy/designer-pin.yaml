@@ -159,10 +159,10 @@ protocol: "docs/aef-designer-integration-protocol.md" # 832 side (pull → sha25
 # T-4310 (2026-10-18): re-pinned 0.22.0 -> 0.23.0 (832 announce 590beaba, 832 T-1202). Only the version string
 #   changes in the designer; the authoring kit's CONFORMANCE.md gains a CONVENTIONAL rule class (832 T-1165).
 #   No node ids, fields, validator findings or migration change.
-# 832 T-1223 (2026-10-20): 0.23.0 -> 0.24.0 locally (832's own Watchtower; AEF re-pins on its side). Saving keeps what
-#   third-party maps brought (T-1217 native link definitions, T-1218 unnamed start/end events stay unnamed with
-#   <aef:meta slug>, T-1220 extra aef:io attributes); E-/E-XML-GW-OUTGOING become W- warnings (T-1212). No node id
-#   changes. sha+bytes from the designer-v0.24.0 tag blob, equal to its MANIFEST.
+# T-4448 (2026-10-20): re-pinned 0.23.0 -> 0.24.0 (832 announce c859278f). Extra aef:input/aef:output attributes
+#   preserved (832 T-1220); link events kept; unnamed start/end gain an aef:meta slug on next save (no element id
+#   change); the one-way exclusive-gateway finding is now W-GW-OUTGOING/W-XML-GW-OUTGOING (was the E- prefixed
+#   id), FAIL->WARN (exit 2 -> 1). AEF grep for the old ids and for an exit-2 expectation: none.
 vendored_path: "vendor/designer/aef-workflow-designer-0.24.0.html"
 
 # Offline-hardened (832 T-176): web fonts are embedded as base64 woff2 — ZERO network

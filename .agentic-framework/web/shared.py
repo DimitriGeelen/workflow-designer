@@ -10,7 +10,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Iterable, TypeVar
 
-from markupsafe import Markup, escape
 import yaml
 from flask import g, has_request_context, render_template, request
 
@@ -1074,22 +1073,14 @@ def protect_path_underscores(text: str) -> str:
     return "".join(parts)
 
 
-def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
+def render_markdown_safe(text: str, extras: list[str] | None = None) -> str:
     """Render Markdown to HTML with safe_mode='escape', auto-link T-XXX refs
     and bare http(s) URLs.
 
     Used by /review and any blueprint that needs to render an arbitrary chunk
     of task-body markdown (rationale, evidence, etc.) without piping through
-    tasks.py's AC-specific helpers. Returns '' for empty input.
-
-    T-606: returns markupsafe.Markup, so callers no longer have to remember
-    `| safe`. Recommended by 010-termlink (rail 563) and correct — but note it
-    was NOT sufficient for the reported symptom: /approvals' AC fields never
-    reach this function, they come from tasks.py's _render_md_inline. The
-    docstring below claims the blueprint-private parser pattern was broken by
-    promoting this helper here; the promotion happened and the private pair
-    survived. Both are now fixed. A contract with two definitions is one
-    definition and one impostor, and the impostor is where the bug lives.
+    tasks.py's AC-specific helpers. Returns '' for empty input. Caller must
+    mark returned string `| safe` in templates.
 
     Origin: T-1575 — /review surface dumped raw markdown into a `<pre>` block.
     Promoted here (rather than reused from tasks.py) to break the blueprint-
@@ -1101,24 +1092,11 @@ def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
     ``extras=None`` is the previous behaviour exactly.
     """
     if not text:
-        return Markup("")
+        return ""
     try:
         import markdown2
     except ImportError:
-        # T-569: ESCAPE on the degradation path. Every caller marks this `| safe` — that is
-        # stated three lines up in this docstring — so returning the raw text handed
-        # unescaped, attacker-influenced content straight into the page whenever markdown2
-        # was missing. It was latent only because the import has always succeeded here.
-        # A fallback that silently turns escaping off is the same shape as the rest of this
-        # week's defects: the failure renders as health, and nothing in the output says the
-        # renderer degraded.
-        from markupsafe import escape as _escape
-        # T-606: was str(_escape(text)) — correct only because every caller then
-        # applied `| safe`. Now that this function owns the safety, return the
-        # Markup escape() already produced: the entities stay visible as literal
-        # text and are NOT re-escaped into &amp;lt;. The degradation path must keep
-        # escaping; it must not inherit the happy path's trust.
-        return _escape(text)
+        return text  # graceful degradation
     text = _TASK_REF_RE_SHARED.sub(r"[\1](/tasks/\1)", text)
     text = protect_path_underscores(text)
     text = _BARE_URL_RE_SHARED.sub(lambda m: f"[{m.group(1).rstrip('.,;:!?')}]({m.group(1).rstrip('.,;:!?')})", text)
@@ -1137,7 +1115,7 @@ def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
     # become clickable /file/ links. Existence-gated; same rendering-layer
     # contract as the T-1575 URL/T-NNNN shape — agent need not pre-format.
     html = _auto_link_files(html)
-    return Markup(html)
+    return html
 
 
 _REC_MARKER_RE = re_mod.compile(
@@ -1546,15 +1524,140 @@ _READINESS_CACHE: dict[str, tuple[int, tuple, tuple]] = {}
 _LEDGER_CACHE: dict[str, tuple] = {}
 
 
+# T-4394: committed inputs the verdict validator reads independently of the task (ledgers it
+# replays from git, the cost ledger, policy/backends/worker settings, fabric cards for the rung,
+# the vendored copies of the committed blobs it reads (policy/, agents/termlink/ - not the whole
+# vendored tree, which a vendor sync rewrites on most commits here) and .framework.yaml for the
+# T-4013 fallback, and the files `start` hashes). A commit touching one of these drops every
+# ledger-consulting entry; any other commit drops only the entries of the tasks it names
+# (message) or whose task file it touches.
+_GLOBAL_GIT_INPUTS = (".context/reviews/", ".context/costs/", ".context/secrets/", "policy/",
+                      ".fabric/", ".framework.yaml", ".agentic-framework/policy/",
+                      ".agentic-framework/agents/termlink/", "agents/termlink/",
+                      "CLAUDE.md", "CLAUDE.local.md", ".claude/", ".mcp.json")
+_TASK_REF_RE = re_mod.compile(r"T-(\d+)", re_mod.I)
+_TASK_PATH_RE = re_mod.compile(r"^\.tasks/[^/]+/T-(\d+)-")
+_GIT_GEN: dict[str, dict] = {}
+
+
+def _git_refs(root: Path) -> dict | None:
+    """{ref: sha} for every ref plus HEAD, or None when git cannot answer."""
+    try:
+        cp = subprocess.run(["git", "for-each-ref", "--format=%(objectname) %(refname)"],
+                            cwd=str(root), capture_output=True, text=True, timeout=30)
+        hd = subprocess.run(["git", "rev-parse", "-q", "--verify", "HEAD"],
+                            cwd=str(root), capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if cp.returncode != 0:
+        return None
+    refs = {r: s for s, r in (ln.split(" ", 1) for ln in cp.stdout.splitlines() if " " in ln)}
+    refs["HEAD"] = hd.stdout.strip() if hd.returncode == 0 else ""
+    return refs
+
+
+def _git(root: Path, *args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", *args], cwd=str(root), capture_output=True, text=True,
+                          timeout=120)
+
+
+def _changed_task_ids(old: dict, new: dict, root: Path) -> set[str] | None:
+    """Task-id digits the commits between two ref snapshots concern, or None when the change
+    may concern every task (dropped history, a ref or HEAD off its line, a task-independent
+    input touched, or git could not answer). Only the refs that moved are walked: listing
+    too many commits only over-invalidates, which is safe."""
+    moved = [r for r in set(old) | set(new) if old.get(r) != new.get(r)]
+    try:
+        for r in moved:
+            o, n = old.get(r, ""), new.get(r, "")
+            if o and (not n or _git(root, "merge-base", "--is-ancestor", o, n).returncode):
+                return None  # a reset, a deleted or rewritten ref, HEAD leaving its line
+        heads = [n for r in moved if (n := new.get(r))]
+        if not heads:
+            return set()
+        # exclude what was already reachable from the moved refs and the everyday namespaces
+        # (refs/replace alone is thousands of refs here and is not needed for correctness)
+        base = sorted({s for r, s in old.items() if s and (r in moved or r == "HEAD"
+                       or r.startswith(("refs/heads/", "refs/remotes/", "refs/tags/")))})
+        ranges = [[*heads, *(["--not", *base] if base else [])]]
+        oh, nh = old.get("HEAD", ""), new.get("HEAD", "")
+        if oh != nh:
+            if not oh:
+                return None  # first commit: everything is new at HEAD
+            # history read AT HEAD changes even when another ref already carried these commits
+            ranges.append([f"{oh}..{nh}"])
+        out = []
+        for rng in ranges:
+            cp = _git(root, "log", "-m", "--name-only", "--format=%x1e%B%x1d", *rng, "--")
+            if cp.returncode != 0:
+                return None
+            out.append(cp.stdout)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    tasks: set[str] = set()
+    for rec in "".join(out).split("\x1e")[1:]:
+        msg, _, paths = rec.partition("\x1d")
+        for p in paths.split("\n"):
+            p = p.strip()
+            if p.startswith(_GLOBAL_GIT_INPUTS):
+                return None
+            m = _TASK_PATH_RE.match(p)
+            if m:
+                tasks.add(m.group(1))
+        tasks.update(_TASK_REF_RE.findall(msg))
+    return tasks
+
+
+def _git_generation(root: Path) -> tuple:
+    """(epoch, global) generation of the git history verdicts read; the per-task part is
+    ``_task_git_generation``. Re-derived only when the repo's ref state moved (verdict_ledger._git_state_token);
+    when git cannot be read the epoch is fresh on every call, so nothing ledger-derived is
+    served from cache."""
+    key = str(root)
+    st = _GIT_GEN.get(key)
+    try:
+        import verdict_ledger as _vl
+        token = _vl._git_state_token(root)
+    except Exception:
+        token = None
+    if st is None or token is None or st["token"] != token:
+        refs = _git_refs(root)
+        if refs is None:
+            _GIT_GEN.pop(key, None)
+            return (object(), 0)
+        if st is None:
+            st = _GIT_GEN[key] = {"token": token, "refs": refs, "global": 0, "tasks": {}}
+        elif refs != st["refs"]:
+            changed = _changed_task_ids(st["refs"], refs, root)
+            if changed is None:
+                st["global"] += 1
+            for digits in changed or ():
+                # the validator's `git log --grep=T-12` is a substring match, so a commit
+                # naming T-1234 also concerns T-12 and T-123: bump every prefix.
+                for i in range(1, len(digits) + 1):
+                    k = "T-" + digits[:i]
+                    st["tasks"][k] = st["tasks"].get(k, 0) + 1
+            st["refs"] = refs
+        st["token"] = token
+    return (0, st["global"])
+
+
+def _task_git_generation(root: Path, task_id: str) -> int:
+    """How many ref moves so far brought commits that concern ``task_id`` (read after
+    ``_git_generation`` has caught the state up)."""
+    st = _GIT_GEN.get(str(root))
+    return st["tasks"].get(task_id.upper(), 0) if st else 0
+
+
 def _readiness_stamp(root: Path) -> tuple:
-    """What the verdict ledger's verdict depends on besides the task file: the ledger
-    file and the commit history it is verified against."""
-    out = []
-    for rel in (".context/reviews/verdicts.jsonl", ".git/logs/HEAD"):
-        try:
-            out.append((root / rel).stat().st_mtime_ns)
-        except OSError:
-            out.append(0)
+    """What the verdict ledger depends on for every task: the ledger files and the
+    task-independent part of the commit history it is verified against (T-4394; the
+    per-task part is ``_task_git_generation``)."""
+    out: list = [_git_generation(root)]
+    try:
+        out.append((root / ".context/reviews/verdicts.jsonl").stat().st_mtime_ns)
+    except OSError:
+        out.append(0)
     # T-4133: the other ledgers a verdict is validated against (completions, dispatch
     # registry, acknowledgements...) - an uncommitted edit to one changes the verdict too.
     try:
@@ -1641,6 +1744,9 @@ def review_readiness(task_id: str, status: str, body: str,
     root = Path(PROJECT_ROOT)
     p = Path(path) if path else None
     stamp = _readiness_stamp(root)
+    # T-4394: an entry that consulted the ledger is keyed on the ledger-wide stamp plus the
+    # commits that concern THIS task, not on every commit in the repo.
+    tstamp = stamp + (_task_git_generation(root, task_id),)
     mtime = 0
     if p is not None:
         try:
@@ -1651,12 +1757,12 @@ def review_readiness(task_id: str, status: str, body: str,
         hit = _READINESS_CACHE.get(str(p))
         # T-4133: an entry that never consulted the ledger is stored with stamp None - it
         # depends on the task file alone, so a commit elsewhere does not invalidate it.
-        if hit and hit[0] == mtime and (hit[1] is None or hit[1] == stamp):
+        if hit and hit[0] == mtime and (hit[1] is None or hit[1] == tstamp):
             return hit[2][0], list(hit[2][1])
     used: list = []
     state, reasons = _compute_readiness(task_id, body, root, p, stamp, used)
     if p is not None:
-        _READINESS_CACHE[str(p)] = (mtime, stamp if used else None, (state, reasons))
+        _READINESS_CACHE[str(p)] = (mtime, tstamp if used else None, (state, reasons))
     return state, list(reasons)
 
 
@@ -2155,30 +2261,14 @@ def load_latest_audit():
 
 
 def linkify_tasks(text):
-    r"""Convert T-XXX references to clickable Watchtower links (T-851).
-
-    T-646: ESCAPE FIRST, THEN LINKIFY. The result is declared trusted HTML by the
-    Jinja filter in app.py, and a function may only vouch for markup it created
-    itself. Before this, the substitution ran over the RAW string and the whole
-    result was wrapped in Markup(), so every `<` in the source prose was published
-    as a tag. The source is not incidental: timeline narratives are read out of
-    committed handover markdown (blueprints/timeline.py:159), so the text is prose
-    that sessions wrote, and sessions write about HTML. Measured on the live
-    /timeline: two `<html` tags reaching the browser from a paragraph *discussing*
-    fragments. Injection-shaped rather than an open door — the input is our own
-    repository — but the ordering is wrong either way, and the fix is one line.
-
-    escape() is applied to the whole input; the anchors are then inserted into
-    already-escaped text, so they are the only markup this function vouches for.
-    T-\d{3,} contains no escapable character, so escaping cannot disturb the match.
-    """
+    """Convert T-XXX references to clickable Watchtower links (T-851)."""
     if not text:
         return text
-    return Markup(re_mod.sub(
+    return re_mod.sub(
         r'\b(T-\d{3,})\b',
         r'<a href="/tasks/\1">\1</a>',
-        str(escape(text)),
-    ))
+        str(text),
+    )
 
 
 _FRAGMENT_CONVENTION_VIOLATION = (

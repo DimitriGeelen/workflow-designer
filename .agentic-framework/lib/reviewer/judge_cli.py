@@ -286,7 +286,54 @@ _rung_label = review_policy.rung_label
 # ── evidence: screenshots of the pages the task touched ──────────────────────
 
 _ROUTE_RE = re.compile(r"""@\w+\.route\(\s*["'](/[^"'<>]*)["']""")
-_URL_TOKEN_RE = re.compile(r"`(/[a-z][\w/.-]*)`")
+# T-4455: a criterion names pages as a backticked path with a query (`/search?q=a b`) or as
+# a full URL on this project's Watchtower, backticked or bare (http://<host>:3000/cron).
+_BACKTICK_RE = re.compile(r"`([^`\n]+)`")
+_PATH_QUERY_RE = re.compile(r"/[a-z][\w/.-]*(?:\?.*)?")
+_FULL_URL_RE = re.compile(r"https?://(?:<watchtower>|[\w.-]+)(?::\d+)?(?:/[^\s`<>()\[\]'\"]*)?")
+_LOCAL_HOSTS = {"localhost", "127.0.0.1", "<watchtower>"}
+
+
+def _page_of(path: str, query: str) -> str:
+    from urllib.parse import quote
+    page = path or "/"
+    if query:
+        page += "?" + quote(query.strip(), safe="=&+%/:,;@!$'*~-._")
+    return page
+
+
+def _own_page(url: str, own_netloc: str, own_port: str) -> str | None:
+    """Path+query of `url` when its origin is this project's Watchtower, else None (never foreign)."""
+    m = re.match(r"https?://((?:<watchtower>|[\w.-]+))(?::(\d+))?(/[^?#]*)?(?:\?([^#]*))?", url.strip())
+    if not m:
+        return None
+    host, port, path, query = m.group(1), m.group(2) or "", m.group(3) or "/", m.group(4) or ""
+    netloc = f"{host}:{port}" if port else host
+    if not (netloc == own_netloc or (host in _LOCAL_HOSTS and port == own_port)):
+        return None
+    return _page_of(path, query)
+
+
+def _criterion_pages(root: Path, body: str) -> list[str]:
+    from urllib.parse import urlsplit
+    own = urlsplit(_watchtower_url(root))
+    own_netloc = own.netloc
+    own_port = str(own.port) if own.port else review_policy.config_value(root, "PORT", "3000")
+    pages: list[str] = []
+    for span in _BACKTICK_RE.findall(body):
+        span = span.strip()
+        if _PATH_QUERY_RE.fullmatch(span):
+            path, _, query = span.partition("?")
+            pages.append(_page_of(path, query))
+        elif re.match(r"https?://", span):
+            p = _own_page(span, own_netloc, own_port)
+            if p:
+                pages.append(p)
+    for url in _FULL_URL_RE.findall(_BACKTICK_RE.sub(" ", body)):
+        p = _own_page(url.rstrip(".,;:!?"), own_netloc, own_port)
+        if p:
+            pages.append(p)
+    return pages
 
 
 def _changed_web_files(root: Path, task_id: str, text: str) -> list[str]:
@@ -305,7 +352,7 @@ def _pages_for(root: Path, task_id: str, task_text: str, criteria: list[dict]) -
     changed blueprints and of the blueprints rendering the changed templates."""
     pages: list[str] = []
     for c in criteria:
-        pages += _URL_TOKEN_RE.findall(c["body"])
+        pages += _criterion_pages(root, c["body"])
     changed = _changed_web_files(root, task_id, task_text)
     bp_dir = root / "web" / "blueprints"
     if bp_dir.is_dir():
@@ -402,13 +449,48 @@ def _gather_visual(root: Path, task_id: str, task_data: dict) -> dict:
         visual_checklist.section_body(task_data["text"]) or "")
     states = list(dict.fromkeys(cells[0] for cells in rows if cells and cells[0]))
     shots = []
+    problems = visual_checklist.check(task_data["path"], root, task_id, widths)
     for st in states:
+        steps, recorded = _steps_record(root, task_id, st, problems)
         for w in widths:
             f = root / VISUAL_DIR / task_id / f"{st}@{w}.png"
-            shots.append({"state": st, "width": w, "path": f"{VISUAL_DIR}/{task_id}/{st}@{w}.png",
-                          "sha256": vl._hash_path(f) if f.is_file() else ""})
-    problems = visual_checklist.check(task_data["path"], root, task_id, widths)
+            sh = {"state": st, "width": w, "path": f"{VISUAL_DIR}/{task_id}/{st}@{w}.png",
+                  "sha256": vl._hash_path(f) if f.is_file() else ""}
+            if steps:
+                # T-4391: an interaction state carries the hash of the steps that produced it, and
+                # its shot must be the one `fw ux shots` recorded for those steps.
+                sh["steps_sha256"] = steps
+                if sh["sha256"] and recorded.get(w) != sh["sha256"]:
+                    problems.append(f"state '{st}': {sh['path']} is not the one `fw ux shots` captured "
+                                    f"from its steps file at {w}px — re-run fw ux shots")
+            shots.append(sh)
     return {"widths": widths, "shots": shots, "problems": problems}
+
+
+def _steps_record(root: Path, task_id: str, state: str, problems: list[str]) -> tuple[str, dict]:
+    """T-4391: (steps_sha256, {width: shot sha256}) from the state's `fw ux shots` capture manifest
+    when it was captured from a steps file; ('', {}) for a URL state or no manifest. A manifest
+    that cannot be read, or whose steps file no longer hashes to the recorded value, is a problem."""
+    m = root / VISUAL_DIR / task_id / f"{state}.capture.json"
+    if not m.is_file():
+        return "", {}
+    try:
+        rec = json.loads(m.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        problems.append(f"state '{state}': capture manifest {m.name} is unreadable ({e})")
+        return "", {}
+    if rec.get("source") != "steps":
+        return "", {}
+    want = str(rec.get("steps_sha256") or "")
+    sf = Path(str(rec.get("steps_file") or ""))
+    sf = sf if sf.is_absolute() else root / sf
+    have = vl._hash_path(sf) if sf.is_file() else ""
+    if not want or have != want:
+        problems.append(f"state '{state}': steps file {rec.get('steps_file')!r} "
+                        + ("is missing" if not have else "changed since capture")
+                        + " — re-run fw ux shots")
+    shots = {int(x.get("width", 0)): str(x.get("sha256") or "") for x in rec.get("shots") or []}
+    return want or "missing", shots
 
 
 def _gather_evidence(root: Path, task_id: str, task_data: dict, criteria: list[dict],
@@ -547,6 +629,11 @@ def _build_brief(task_id: str, criteria: list[dict], *, rung: int = 1, rung_reas
             lines += ["", "### Visual evidence (every checklist state at every configured width)", ""]
             shots = vis.get("shots") or []
             lines += [f"- `{s['path']}`" if s["sha256"] else f"- MISSING: `{s['path']}`" for s in shots]
+            # T-4391: an interaction state names the steps that produced its shots.
+            stepped = {s["state"]: s["steps_sha256"] for s in shots if s.get("steps_sha256")}
+            lines += [f"State `{st}` was captured by `fw ux shots` from a steps file, sha256 `{h}` "
+                      f"(the steps are in `{VISUAL_DIR}/{task_id}/{st}.capture.json`)."
+                      for st, h in stepped.items()]
             if vis.get("problems") or any(not s["sha256"] for s in shots):
                 why = "; ".join(vis.get("problems") or ["a screenshot is missing"])
                 lines.append(f"**The Visual Verification evidence does NOT pass: {why}.** You MUST NOT "
@@ -736,20 +823,46 @@ def _unavailable_reason(dispatch_id: str) -> str:
     except OSError:
         code = ""
     text = ""
-    for name in ("result.jsonl", "stderr.log"):
+    # result.md: antigravity prints its whole output (and its refusal) to stdout.
+    for name in ("result.jsonl", "stderr.log", "result.md"):
         try:
             text += (w / name).read_text(errors="replace").lower()
         except OSError:
             pass
+    # T-4456: a headless harness that needed a tool permission it cannot prompt for exits 0 with
+    # no verdict; say that, not a bare "exit 0".
     limit = ("usage limit" if "usage limit" in text else
-             "rate limit" if ("rate limit" in text or "429" in text) else "")
+             "rate limit" if ("rate limit" in text or "429" in text) else
+             "tool permission auto-denied (headless)" if "auto-denied" in text else "")
     if limit and code:
         return f"{limit} (exit {code})"
     if limit:
         return limit
     if code:
-        return f"exit {code}"
+        # T-4457: a harness that fails with a provider error prints it as {"type":"error",
+        # "error":{"name":..,"data":{"message":..}}}; name it rather than a bare "exit 1".
+        err = _stream_error(w / "result.jsonl")
+        return f"exit {code}: {err}" if err else f"exit {code}"
     return "no completion"
+
+
+def _stream_error(path: Path) -> str:
+    """The provider error a worker's JSON event stream carries (opencode shape), capped at 100
+    characters; '' when there is none."""
+    try:
+        lines = path.read_text(errors="replace").splitlines()
+    except OSError:
+        return ""
+    for line in reversed(lines):
+        try:
+            ev = json.loads(line)
+        except ValueError:
+            continue
+        err = ev.get("error") if isinstance(ev, dict) and ev.get("type") == "error" else None
+        if isinstance(err, dict):
+            msg = str(((err.get("data") or {}).get("message")) or err.get("name") or "")
+            return " ".join(msg.split())[:100]
+    return ""
 
 
 def _collect(root: Path, task_id: str, dispatch_id: str, criteria: list[dict],
