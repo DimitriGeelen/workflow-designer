@@ -12,8 +12,9 @@ Skipped, and named in the report:
   .context/reviews/     append-only ledgers; a rewritten committed row fails the ledger's own integrity check
 
   python3 tools/scrub-lan-addresses.py --dry-run   # counts per directory, writes nothing
-  python3 tools/scrub-lan-addresses.py             # rewrites in place (run by the operator's job: task files may
-                                                   # not be shell-written by the agent)
+  python3 tools/scrub-lan-addresses.py             # stages the scrubbed COMMITTED content of each file and scrubs
+                                                   # its worktree copy (run by the operator's job: task files may
+                                                   # not be shell-written by the agent); then commit the index
   python3 tools/scrub-lan-addresses.py --stdin     # filter stdin to stdout (the pre-commit gate's rewrite)
 Exit 0 = done (or nothing to do); 1 = a file could not be rewritten.
 """
@@ -34,8 +35,14 @@ def placeholder(m):
 
 
 def tracked_with_addresses():
-    r = subprocess.run(["git", "grep", "-lIE", r"192\.168\.[0-9]+\.[0-9]+"], cwd=ROOT, capture_output=True, text=True)
-    return [p for p in r.stdout.splitlines() if p]
+    """Paths whose COMMITTED content (HEAD) carries an address. The working tree is not the source: it can hold
+    unrelated uncommitted edits, which this tool must neither commit nor lose."""
+    r = subprocess.run(["git", "grep", "-lIE", r"192\.168\.[0-9]+\.[0-9]+", "HEAD"], cwd=ROOT, capture_output=True, text=True)
+    return [p.split(":", 1)[1] for p in r.stdout.splitlines() if ":" in p]
+
+
+def git(*args, data=None):
+    return subprocess.run(["git", *args], cwd=ROOT, input=data, capture_output=True, check=True).stdout
 
 
 def area(path):
@@ -53,10 +60,9 @@ def main():
         if rel.startswith(SKIP):
             skipped[rel.split("/")[0] + ("/reviews" if rel.startswith(".context/reviews/") else "")] += 1
             continue
-        p = ROOT / rel
         try:
-            text = p.read_text(encoding="utf-8")
-        except (UnicodeDecodeError, OSError) as e:
+            text = git("show", "HEAD:" + rel).decode("utf-8")
+        except (UnicodeDecodeError, subprocess.CalledProcessError) as e:
             bad.append("%s (%s)" % (rel, e.__class__.__name__))
             continue
         new, n = ADDR.subn(placeholder, text)
@@ -64,11 +70,19 @@ def main():
             continue
         files[area(rel)] += 1
         hits[area(rel)] += n
-        if not dry:
-            try:
-                p.write_text(new, encoding="utf-8")
-            except OSError as e:
-                bad.append("%s (%s)" % (rel, e))
+        if dry:
+            continue
+        try:
+            # The index gets the scrubbed COMMITTED content, so the commit holds the scrub and nothing else; the
+            # worktree copy is scrubbed in place, keeping any unrelated uncommitted edit uncommitted.
+            mode = git("ls-files", "-s", "--", rel).decode().split()[0]
+            blob = git("hash-object", "-w", "--stdin", data=new.encode("utf-8")).decode().strip()
+            git("update-index", "--cacheinfo", "%s,%s,%s" % (mode, blob, rel))
+            p = ROOT / rel
+            if p.is_file():
+                p.write_text(ADDR.sub(placeholder, p.read_text(encoding="utf-8")), encoding="utf-8")
+        except (subprocess.CalledProcessError, OSError, UnicodeDecodeError, IndexError) as e:
+            bad.append("%s (%s)" % (rel, e))
     print("%s: %d file(s), %d address(es)" % ("would rewrite" if dry else "rewrote", sum(files.values()), sum(hits.values())))
     for a, n in files.most_common():
         print("  %-28s %5d file(s) %7d address(es)" % (a, n, hits[a]))
