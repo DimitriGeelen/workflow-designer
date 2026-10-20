@@ -114,7 +114,8 @@ fixtures: 47/47 kept, all outputs well-formed. Open: (1) definitions name root e
 - [ ] Maps the designer authored save byte-identically; third-party goldens change only by the definitions (and their
       referenced root elements) coming back, by third-party boundary events being restored as `bpmn:boundaryEvent`
       with their `attachedToRef` (and the `cancelActivity="true"` the designer writes for them), and by catch hosts
-      taking their designer type; reviewed diff by diff before re-recording.
+      taking their designer type; an unedited open-and-save adds no `aef:eventDef` (it appears only once a binding is
+      set); reviewed diff by diff before re-recording.
 - [ ] The guard is wired into the bridge suite and shown to bite.
 
 ### Human
@@ -406,6 +407,11 @@ timeout 900 python3 tools/_t1222-event-definitions-kept.py > /tmp/.t1222.out 2>&
   (src ~12017-12019), so typing a third-party THROW or START event would flip it to a catch. Part 2 applies only to
   `intermediateCatchEvent` and `boundaryEvent` hosts (`_catchHost`, src ~13467); start events (8 timer/message/error
   in kitchen-sink) and throws keep their tag and definition untyped. (Second amber, 2026-10-20.)
+- **`aef:eventDef` on a typed third-party event (third amber, 2026-10-20):** aefExtensionXml always emits
+  `<aef:eventDef>` for an EVENT_KIND node (src ~12157-12164). **Rule:** for a node that carries a native event
+  definition, `aef:eventDef` is omitted while its binding (timerSpec / busTopic / errorStatus) is empty, so the native
+  definition carries the type, and written once a binding is set, so a user's binding edit is never dropped. An
+  unedited open-and-save of a third-party map therefore adds no `aef:eventDef`; the guard checks that.
 - **An untyped boundary event** (a "plain catch" on a boundary host) exports as `bpmn:boundaryEvent` with its
   `attachedToRef` and `cancelActivity`: the boundary export condition (src ~12550) widens beyond EVENT_KIND to any
   node that came in as a boundary event.

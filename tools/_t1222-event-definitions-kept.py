@@ -93,6 +93,11 @@ def main():
                         misplaced.append("%s: definition %s moved from <%s> to <%s>" % (f, did, s_host, d_host))
                     elif d_host == "boundaryEvent" and not d_attached:
                         misplaced.append("%s: boundary event of definition %s lost its attachedToRef" % (f, did))
+            # Third amber (2026-10-20): an unedited open-and-save adds no <aef:eventDef>; the native definition carries
+            # the type until a binding is set.
+            added = len(re.findall(r"<aef:eventDef\b", dst)) - len(re.findall(r"<aef:eventDef\b", src))
+            if added > 0:
+                misplaced.append("%s: an unedited save added %d <aef:eventDef> element(s)" % (f, added))
             ids = set(re.findall(r'\bid="([^"]+)"', dst))
             for attr, ref in REF.findall(dst):
                 if ref not in ids:
