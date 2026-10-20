@@ -392,6 +392,22 @@ timeout 900 python3 tools/_t1222-event-definitions-kept.py > /tmp/.t1222.out 2>&
 - **Not proposed:** emitting native definitions for maps the designer authors (its own maps keep `aef:eventDef`;
   T-190 IW-1 stands), or converting a native definition into `aef:eventDef`.
 
+### 2026-10-20 — reviewer amber (judge-t-1222-r?), shape amended
+- **Boundary events (missed host):** kitchen-sink's 14 definitions on `bpmn:boundaryEvent` hosts: third-party boundary
+  events import as serviceTask today (src ~13367; kitchen-sink golden ~393, no attachedToRef kept), so part 1 as first
+  written would have put event definitions inside `bpmn:serviceTask`, invalid BPMN that the guard would have passed.
+  **Chose:** restore the host — a third-party `boundaryEvent` imports as the designer's boundary event with its
+  `attachedToRef` (T-204 slice 2 already models boundary events natively), and keeps its definition. **Rejected:**
+  carrying the whole element through the foreignTag passthrough: it would keep the bytes but leave the event
+  uneditable and detached on the canvas.
+- **Typing is for catch hosts only (T-237):** the designer's typed events export as `intermediateCatchEvent`, so typing
+  a third-party message THROW would flip it to a catch. Part 2 applies to catch hosts (intermediate catch, start,
+  boundary); throws keep their tag and definition untyped.
+- **Open question, ruled by the reviewer:** an event whose definition the designer has no type for (signal, escalation,
+  conditional, compensate, cancel, terminate; and any throw) renders as a plain catch or throw event, keeping its
+  original tag and its verbatim definition, with no link semantics. Not a new generic type.
+- **Guard tightened:** `_t1222` also fails when a kept definition sits inside an element that is not an event.
+
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
