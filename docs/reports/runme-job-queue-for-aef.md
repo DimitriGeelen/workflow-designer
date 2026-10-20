@@ -39,8 +39,8 @@ What they see, when several jobs are pending:
     Which job? [1-3; several in your order, e.g. 3,1,2; x = all in this order; anything else = stop]
 
 On a real terminal the operator does not even type: an **arrow-key picker** (T-1227) shows the same list with a
-cursor. Up/down moves, space adds the highlighted job to the batch or takes it out, and the number in its brackets
-is its place in the sequence; `a` marks all; Enter runs the marked jobs in marked order (the highlighted one alone
+cursor. Up/down moves, space adds the highlighted job to the batch or takes it out, a digit 1-9 puts it at that
+place (T-1230), and the number in its brackets is its place in the sequence; `a` marks all; Enter runs the marked jobs in marked order (the highlighted one alone
 if none is marked); `t` switches to typing numbers; `q` or Esc stops. Captured from a real terminal after
 down, down, space, up, up, space:
 
@@ -49,6 +49,11 @@ down, down, space, up, up, space:
       [ 1] 3. 003-decide-t1215 — ...      [ready; last: never run]
 
 Enter then prints `Chosen, in this order: 3 1` and runs job 3, then job 1.
+
+The first version was flaky on the operator's terminal (T-1230): job lines wider than the terminal wrapped, so the
+in-place redraw (`ESC [ n A`) moved up too few rows, and arrows sent as `ESC O A` (application cursor mode, usual over
+ssh or tmux) were ignored. Now every key repaints the whole menu (`ESC [ H ESC [ J`), each line is cut to the width
+from `stty size`, both arrow encodings are read, and the cursor is hidden while picking and restored on every exit.
 
 **Batches, in the operator's order (T-1227, operator request 2026-10-20).** One number runs one job, as before.
 `x` (or `all`) runs every pending job in the listed order. `3,1,2` (also `3 1 2` or `3, 1`) runs those jobs in the

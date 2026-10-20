@@ -320,6 +320,38 @@ def main():
         leg(rcq != 0 and rce != 0 and rcn != 0 and all("no job chosen" in o for o in (outq, oute, outn))
             and not any(b.made(m) for m in ("a1", "b1", "c1")), "25 picker: q / Esc / no more keys -> stop, nothing ran")
 
+        # 26-28 (T-1230, operator found the picker flaky) both arrow encodings, digit priorities, removal
+        # 26 arrows sent as ESC O B / ESC O A (application cursor mode, common over ssh/tmux) move like ESC [ B / A
+        b = three("l26")
+        rc, out = b.run(answers="\x1bOB\x1bOB\x1bOA\n" + "y\n" * 2, picker=True)
+        leg(rc == 0 and done_order(out) == ["002-b"], "26 picker: ESC O B, ESC O B, ESC O A, Enter -> job 2", " ".join(done_order(out)))
+
+        # 27 digits set the place: job 1 '2', job 3 '1', job 2 '1' -> order 2, 3, 1 (the others move along)
+        b = three("l27")
+        rc, out = b.run(answers="2" + DOWN + DOWN + "1" + UP + "1" + "\n" + "y\n" * 6, picker=True)
+        leg(rc == 0 and done_order(out) == ["002-b", "003-c", "001-a"] and "Batch, in this order: 2 3 1" in out,
+            "27 picker: digits put the highlighted job at that place -> 2, 3, 1", " ".join(done_order(out)))
+
+        # 28 0 (and Backspace) take a job out again; a digit past the end appends
+        b = three("l28")
+        rc, out = b.run(answers="a" + "0" + DOWN + "\x7f" + DOWN + "9" + "\n" + "y\n" * 2, picker=True)
+        leg(rc == 0 and done_order(out) == ["003-c"] and not b.made("a1") and not b.made("b1"),
+            "28 picker: a, then 0 on job 1 and Backspace on job 2 -> only job 3 runs", " ".join(done_order(out)))
+
+        # 29 every menu line is cut to the terminal width, so nothing wraps (RUNME_COLS stands in for stty size)
+        b = Box(tmp, "l29")
+        for n in ("001-a", "002-b"):
+            b.job(n, TWO_STEPS.replace("Two steps", "A very long title " * 12))
+        b.run("--dry-run")
+        os.environ["RUNME_COLS"] = "60"
+        try:
+            rc, out = b.run(answers="q", picker=True)
+        finally:
+            os.environ.pop("RUNME_COLS", None)
+        menu = [l for l in out.splitlines() if l.startswith(("> [", "  [")) and ". 00" in l]
+        leg(menu and all(len(l) <= 59 for l in menu), "29 picker lines fit a 60-column terminal",
+            "longest %d" % max((len(l) for l in menu), default=-1))
+
     print("\n%d failed leg(s)" % len(fails) if fails else "\nall legs passed")
     return 1 if fails else 0
 

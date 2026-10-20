@@ -2869,3 +2869,9 @@ learnings:
   task: T-1226
   date: 2026-10-20
   context: Added via context agent
+- id: PL-414
+  learning: "A terminal UI is checked on a real pty at a narrow width (80 columns) with real-length content and with both arrow encodings (ESC [ A and ESC O A); short demo lines and key-fed tests hid a redraw that broke on wrapped lines (T-1230)"
+  source: P-001
+  task: T-1230
+  date: 2026-10-20
+  context: Added via context agent

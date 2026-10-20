@@ -149,10 +149,12 @@ ask() {  # ask <prompt> -> REPLY ; discards typeahead from a real terminal first
 }
 confirm() { ask "$1 [y/N]"; [ "$REPLY" = y ] || [ "$REPLY" = Y ]; }
 
-# T-1227 (operator 2026-10-20): choose a batch with the arrow keys. up/down (or k/j) moves; space marks or unmarks
-# the highlighted job, and its place in the sequence shows beside it; a marks all in listed order; Enter runs the
-# marked jobs in marked order (the highlighted one alone when none is marked); t = type numbers instead; q or Esc
-# stops. Sets chosen=(); returns 2 for "type instead", 1 for stop. Keys come from fd 3 like every other answer.
+# T-1227 (operator 2026-10-20): choose a batch with the arrow keys; T-1230 made it robust after the operator found it
+# flaky. Up/down (or k/j) moves; space adds the highlighted job to the end of the order or takes it out; a digit 1-9
+# puts it at that place (the others move along); 0 or Backspace takes it out; a = all in listed order; Enter runs the
+# order (the highlighted job alone when nothing is chosen); t = type numbers instead; q or Esc stops. Every key
+# repaints the whole menu, each line cut to the terminal width (T-1230: wrapped lines broke the in-place redraw),
+# and arrows are read in both encodings, ESC [ A and ESC O A. Sets chosen=(); returns 2 for "type", 1 for stop.
 use_picker() {
     case "${RUNME_PICKER:-}" in
         0) return 1 ;;
@@ -161,50 +163,78 @@ use_picker() {
     [ "$TTY" = /dev/tty ] && [ -t 1 ] && [ "${TERM:-dumb}" != dumb ]
 }
 pick_jobs() {
-    local n=${#todo[@]} cur=0 i k rest pos mark lines=() order=() new _junk
-    for i in "${!todo[@]}"; do lines+=("$(job_line "${todo[$i]}")"); done
-    if [ "$TTY" = /dev/tty ]; then
+    local n=${#todo[@]} cur=0 i k rest pos cols lines=() order=() new _junk real=0 rc
+    [ "$TTY" = /dev/tty ] && real=1
+    cols=${RUNME_COLS:-}
+    [ -n "$cols" ] || cols=$(stty size <&3 2>/dev/null | awk '{print $2}')
+    [ "${cols:-0}" -ge 40 ] 2>/dev/null || cols=100
+    for i in "${!todo[@]}"; do
+        lines+=("$(basename "${todo[$i]}")  [$(job_state "${todo[$i]}"); last: $(last_outcome "${todo[$i]}")]  $(job_title "${todo[$i]}")")
+    done
+    if [ "$real" = 1 ]; then
         while read -r -t 0.05 -n 10000 _junk <&3 2>/dev/null; do :; done
+        printf '\033[?25l'
+        trap 'printf "\033[?25h\n"; exit 130' INT
     fi
-    say "Pending jobs: up/down move, space = add to / remove from the batch (the number is its place in the order),"
-    say "  a = all in this order, Enter = run (the highlighted job alone if none is marked), t = type numbers, q = stop"
     draw() {
+        local row
+        [ "$real" = 1 ] && printf '\033[H\033[J'
+        say "Pending jobs - choose the batch and its order:"
+        say "  up/down move    space add/remove    1-9 put it at that place    0 remove"
+        say "  a all           Enter run           t type numbers instead      q stop"
+        say
         for i in "${!todo[@]}"; do
-            pos=""
+            pos=" "
             for k in "${!order[@]}"; do [ "${order[$k]}" = "$i" ] && pos=$((k + 1)); done
-            [ "$i" = "$cur" ] && mark=">" || mark=" "
-            printf '\033[2K%s [%2s] %d. %s\n' "$mark" "$pos" "$((i + 1))" "${lines[$i]}"
+            [ "$i" = "$cur" ] && row="> " || row="  "
+            row=$(printf '%s[%s] %d. %s' "$row" "$pos" "$((i + 1))" "${lines[$i]}")
+            say "${row:0:$((cols - 1))}"
         done
+        say
+        if [ "${#order[@]}" -gt 0 ]; then
+            say "Batch, in this order: $(for i in "${order[@]}"; do printf '%d ' "$((i + 1))"; done)"
+        else
+            say "Batch: nothing chosen yet (Enter runs the highlighted job alone)"
+        fi
     }
+    put_at() {  # put_at <place, 0 = remove> : the highlighted job leaves the order, then goes in at that place
+        new=(); for i in "${order[@]}"; do [ "$i" = "$cur" ] || new+=("$i"); done
+        if [ "$1" -gt 0 ]; then
+            k=$(( $1 - 1 )); [ "$k" -gt "${#new[@]}" ] && k=${#new[@]}
+            new=("${new[@]:0:$k}" "$cur" "${new[@]:$k}")
+        fi
+        order=("${new[@]}")
+    }
+    picker_done() { [ "$real" = 1 ] && { printf '\033[?25h'; trap - INT; }; return "$1"; }
     draw
     while :; do
-        IFS= read -rsn1 -d '' k <&3 || return 1
-        case "$k" in
-            $'\033')
-                rest=""; IFS= read -rsn2 -t 0.1 -d '' rest <&3
-                case "$rest" in
-                    '[A') k=up ;; '[B') k=down ;;
-                    '') return 1 ;;   # Esc alone
-                    *) continue ;;
-                esac ;;
-        esac
+        IFS= read -rsn1 -d '' k <&3 || { picker_done 1; return; }
+        if [ "$k" = $'\033' ]; then
+            rest=""; IFS= read -rsn2 -t 0.3 -d '' rest <&3
+            case "$rest" in
+                '[A'|'OA') k=up ;;
+                '[B'|'OB') k=down ;;
+                '') picker_done 1; return ;;   # Esc alone
+                *) continue ;;                 # other keys (left/right, F-keys): ignored
+            esac
+        fi
         case "$k" in
             up|k)   [ "$cur" -gt 0 ] && cur=$((cur - 1)) ;;
             down|j) [ "$cur" -lt $((n - 1)) ] && cur=$((cur + 1)) ;;
-            ' ')    new=(); for i in "${order[@]}"; do [ "$i" = "$cur" ] || new+=("$i"); done
-                    [ "${#new[@]}" -eq "${#order[@]}" ] && new+=("$cur")
-                    order=("${new[@]}") ;;
+            ' ')    pos=0; for i in "${order[@]}"; do [ "$i" = "$cur" ] && pos=1; done
+                    if [ "$pos" = 1 ]; then put_at 0; else put_at $(( ${#order[@]} + 1 )); fi ;;
+            [1-9])  put_at "$k" ;;
+            0|$'\177'|$'\b') put_at 0 ;;
             a|A)    order=(); for i in "${!todo[@]}"; do order+=("$i"); done ;;
             $'\n'|$'\r')
                     [ "${#order[@]}" -gt 0 ] || order=("$cur")
                     chosen=(); for i in "${order[@]}"; do chosen+=("${todo[$i]}"); done
                     say "Chosen, in this order: $(for i in "${order[@]}"; do printf '%d ' "$((i + 1))"; done)"
-                    return 0 ;;
-            t|T)    return 2 ;;
-            q|Q)    return 1 ;;
+                    picker_done 0; return ;;
+            t|T)    picker_done 2; return ;;
+            q|Q)    picker_done 1; return ;;
             *)      continue ;;
         esac
-        printf '\033[%dA' "$n"
         draw
     done
 }
