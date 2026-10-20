@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1228: Write-up for AEF: the runme job queue (launcher, batches, signal, watcher) for inclusion in the framework
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-20T15:36:16Z
+# ============================================================================
+
+task_id: T-1228
+task_name: "Write-up for AEF: the runme job queue (launcher, batches, signal, watcher) for inclusion in the framework"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-20T13:44:37Z
+completed: 2026-10-20T15:35:57Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-20T15:46:29+02:00
+last_commit: 2026-10-20T17:35:47+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  write-up for AEF — the runme job queue (launcher, batches and the arrow picker, signal, watcher, tests, comparison with fw runme) and a proposal incl. parallel runs, resume and batch events. addendum 1 for AEF T-4470 — what the first real batch day taught (picker flaky on a real terminal, row vs priority numbers, rehearsal missed the decide gate's own check, a job's staged leftover blocked the next, sha bound job.sh only, retire-and-replace, the six review findings mapped to T-1231..T-1236, file transfer); two learnings. AEF's operator decided GO on T-4470 (adapt); slices T-4491..T-4493 recorded
+
+# Key outcomes
+outcomes:
+  - '`docs/reports/runme-job-queue-for-aef.md` covers problem, operator side, agent side, job format, safeguards with'
+  - 'Sent to AEF (999) asking for inclusion and their task id; their task id recorded here when it comes'
+  - 'Each code excerpt is real code from the committed source, marked as condensed where lines were joined or cut'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - 'docs/reports/runme-job-queue-for-aef-addendum-1.md'
+  - 'docs/reports/runme-job-queue-for-aef.md'
+  - '.tasks/active/T-1228-write-up-for-aef-the-runme-job-queue-lau.md'
+  - '.tasks/completed/T-1227-runme-menu-batch-selection-in-the-operat.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-20T15:46:29'
+    action: 'T-1228: write-up for AEF — the runme job queue (launcher, batches and the arrow picker, signal, watcher, tests, comparison with fw runme) and a proposal incl. parallel runs, resume and batch events'
+  - time: '2026-10-20T17:30:53'
+    action: 'T-1228: addendum 1 for AEF T-4470 — what the first real batch day taught (picker flaky on a real terminal, row vs priority numbers, rehearsal missed the decide gate''s own check, a job''s staged leftover blocked the next, sha bound job.sh only, retire-and-replace, the six review findings mapped to T-1231..T-1236, file transfer); two learnings'
+  - time: '2026-10-20T17:35:47'
+    action: 'T-1228: AEF''s operator decided GO on T-4470 (adapt); slices T-4491..T-4493 recorded'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 111 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 111
+  commits: 4
+  files_changed: 6
+  lines_added: 821
+  lines_removed: 6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1228-write-up-for-aef-the-runme-job-queue-lau.md
+generated_by: context-agent-hybrid
