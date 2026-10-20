@@ -1,0 +1,91 @@
+# ============================================================================
+# EPISODIC MEMORY - T-102: mapMessiness false-positive: branch-stack pitch offsets fire Clean nudge spuriously
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-20T10:43:13Z
+# ============================================================================
+
+task_id: T-102
+task_name: "mapMessiness false-positive: branch-stack pitch offsets fire Clean nudge spuriously"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-07-05T16:49:08Z
+completed: 2026-10-20T10:42:59Z
+duration_days: 107
+updates_count: 2
+first_commit: 2026-07-05T18:53:13+02:00
+last_commit: 2026-08-09T13:11:01+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Fix mapMessiness false-positive on branch-stack pitch offsets. Finalize mapMessiness nudge false-positive — agent ACs verified, partial-complete (human REVIEW). OBS-008/OBS-009 — audit substring heuristic weak; G-013 second witness (visible 19/3/0 vs actual 124/29/60)
+
+# Key outcomes
+outcomes:
+  - '`mapMessiness()` excludes waves where either endpoint is a branch-stack member (uses the same `branchStacksInLane` set align-rows excludes); overlaps still count'
+  - 'Change made in `src/aef-workflow-designer.html` AND synced byte-identical to `build/gallery/designer.html` (`diff -q` clean)'
+  - 'After a Clean fixpoint, all 6 previously-residual maps (assumption-validation, audit-process, error-escalation-ladder, harvest-pipeline, inception-review, upgrade-process) score `mapMessiness() < 3` — verified headless (all → 0)'
+  - 'No regression on real mess: a map with genuine non-stack waves/overlaps still scores ≥3 (nudge still fires when Clean would help) — task-lifecycle 9, verification-gate 11, session-handover 8 still fire'
+  - '[REVIEW] Nudge stays quiet after Clean fully tidies a map, and still appears on a genuinely messy one'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Fix mapMessiness false-positive on branch-stack pitch offsets'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-09.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/inbox.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.hook-counter'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-102-mapmessiness-false-positive-branch-stack.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-07-05T18:53:13'
+    action: 'T-102: Fix mapMessiness false-positive on branch-stack pitch offsets'
+  - time: '2026-07-07T16:21:22'
+    action: 'T-102: Finalize mapMessiness nudge false-positive — agent ACs verified, partial-complete (human REVIEW)'
+  - time: '2026-08-09T13:11:01'
+    action: 'T-102: OBS-008/OBS-009 — audit substring heuristic weak; G-013 second witness (visible 19/3/0 vs actual 124/29/60)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 153713 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [ui, editor, bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 153713
+  commits: 3
+  files_changed: 9
+  lines_added: 812
+  lines_removed: 37
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-102-mapmessiness-false-positive-branch-stack.md
+generated_by: context-agent-hybrid

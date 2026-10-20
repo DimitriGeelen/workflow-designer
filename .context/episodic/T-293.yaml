@@ -1,0 +1,150 @@
+# ============================================================================
+# EPISODIC MEMORY - T-293: Endpoint reconnect drag (hand) often fails after T-286, worst at frw_11_harvest
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-20T10:42:41Z
+# ============================================================================
+
+task_id: T-293
+task_name: "Endpoint reconnect drag (hand) often fails after T-286, worst at frw_11_harvest"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-28T21:00:16Z
+completed: 2026-10-20T10:42:26Z
+duration_days: 84
+updates_count: 5
+first_commit: 2026-07-28T23:17:47+02:00
+last_commit: 2026-08-29T13:13:03+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  endpoint reconnect drag fixed — new interactive #g-handles layer above #g-nodes hosts the selected edge's grab halos/dots + port indicators (T-168 anchors endpoints ON the node border, so #g-edges-resident handles were shadowed: 3/4 centres node-drag, 1/4 dead under active-port dot; T-286 unmasked, didn't cause); port dots prepended below halos; repro+fix proven by real CDP mouse input (e2e reconnect n_h_claude→n_join), suite 42/42 incl. new standing T-293 reachability leg w/ teeth (G-003), geometry 24, cuts 0; :8834 relaunched, screenshot read+published; pre-existing port-pin click defect filed as T-294; partial-complete (human feel-check). session context churn (rail 303 acked at 304 — both pair-drafts promoted, P4 armed). field failure report — operator retest FAILS on :8834; served code verified current; status issues; hypotheses ranked (stale tab > zoom-state coords > selection path); zoom repro staged in scratchpad, blocked by budget gate at 293K. field-failure ROOT-CAUSED — environmental, not code (T-253 class): operator-reachable designers serve pinned 0.7.1 (predates T-286+T-293) and :8834 has no ufw allow; zoom hypothesis disproved (6/6 at 1.0/1.4/0.75) + served-page real-click disproved (8/8, exact operator path incl. scroll); status issues→started-work, healing pattern recorded; remedy = 0.8.0 release + re-pin (next task) + operator ufw option. fix healing-resolve YAML corruption in learnings.yaml — resolve.sh appended a 2-space-indented block under a column-0 list and minted duplicate id L-001; dedented + renumbered PL-059 (pre-push YAML gate caught it, T-1599 class). the reconnect leg aimed at the node's <g> — label included — so T-601's label move drifted the drop 0.4px outside SNAP_RADIUS and the editor was never broken. leg 5 rewritten so no character in it can close the shell string — the heredoc immunity from rail @751, in the one line P-011 allows. the SIGPIPE false-red needs an EARLY match, not just a big payload — the leg fails precisely when its evidence arrives soonest. session note — a test that aimed at the container describing the node, and a correction I had to correct. G-015 clean — my own comment tripped the port detector, T-616's two legs now resolve the host, and a cleaned file no longer reports as deleted. register G-044 — a ratchet armed to stop the 79th is at 84, because the only place it runs is a 13-minute suite nothing schedules. G-044 instance 4 — the revisit scan IS in cron, rooted at another project, and three ripe deferrals sat unseen. a blocked commit leaves the index populated, and the inception gate reads the message not the diff — so my refused T-619 edit shipped one commit later
+
+# Key outcomes
+outcomes:
+  - 'Failure reproduced headlessly (CDP, real Input.dispatchMouseEvent) on'
+  - 'Root cause established with before/after evidence (see RCA): pre-fix'
+  - 'Fix applied: new interactive #g-handles layer above #g-nodes (below'
+  - 'No regression: full suite 42/42 (was 41 + new T-293 leg), geometry sweep'
+  - 'Gallery :8834 relaunched serving the fix (g-handles ref-count matches'
+  - 'Prevention (G-003 class): standing suite leg added —'
+  - '[REVIEW] Endpoint reconnect drag feels right at frw_11_harvest'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'fix healing-resolve YAML corruption in learnings.yaml — resolve.sh appended a 2-space-indented block under a column-0 list and minted duplicate id L-001; dedented + renumbered PL-059 (pre-push YAML gate caught it, T-1599 class)'
+    source: git-mined
+  - description: 'field-failure ROOT-CAUSED — environmental, not code (T-253 class): operator-reachable designers serve pinned 0.7.1 (predates T-286+T-293) and :8834 has no ufw allow; zoom hypothesis disproved (6/6 at 1.0/1.4/0.75) + served-page real-click disproved (8/8, exact operator path incl. scroll); status issues→started-work, healing pattern recorded; remedy = 0.8.0 release + re-pin (next task) + operator ufw option'
+    source: git-mined
+  - description: 'field failure report — operator retest FAILS on :8834; served code verified current; status issues; hypotheses ranked (stale tab > zoom-state coords > selection path); zoom repro staged in scratchpad, blocked by budget gate at 293K'
+    source: git-mined
+  - description: 'endpoint reconnect drag fixed — new interactive #g-handles layer above #g-nodes hosts the selected edge''s grab halos/dots + port indicators (T-168 anchors endpoints ON the node border, so #g-edges-resident handles were shadowed: 3/4 centres node-drag, 1/4 dead under active-port dot; T-286 unmasked, didn''t cause); port dots prepended below halos; repro+fix proven by real CDP mouse input (e2e reconnect n_h_claude→n_join), suite 42/42 incl. new standing T-293 reachability leg w/ teeth (G-003), geometry 24, cuts 0; :8834 relaunched, screenshot read+published; pre-existing port-pin click defect filed as T-294; partial-complete (human feel-check)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-28 — where the reconnect chrome lives'
+    chose: 'New interactive #g-handles layer above #g-nodes; port dots prepended below the grab halos within it.'
+    rationale: 'Handles must both PAINT and HIT-TEST above node bodies (T-168 puts endpoints on the border); the badge layers (pointer-events:none) cannot host interactive chrome. Prepending port dots keeps the active-port dot from shadowing the halo — the pre-existing dead-click case.'
+    alternatives_rejected: ['Raising the whole selected edge group above #g-nodes (would put the LINE over node bodies — visual regression); pointer-events tricks on node shapes (would break node dragging near borders).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-28.yaml'
+  - '.context/audits/cron/2026-07-28-2215.yaml'
+  - '.context/audits/cron/2026-07-28-2230.yaml'
+  - '.context/audits/cron/2026-07-28-2245.yaml'
+  - '.context/audits/cron/2026-07-28-2300.yaml'
+  - '.context/audits/cron/2026-07-28-2315.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/locks/T-290.lock'
+  - '.context/locks/T-293.lock'
+  - '.context/project/concerns.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/project/patterns.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.checkpoint.handover.stderr'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/gallery-8834.log'
+  - '.context/working/.handover-cooldown'
+  - '.context/working/.hook-counter'
+  - '.context/working/landing-notes.md'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.restart-requested'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-293-endpoint-reconnect-drag-hand-often-fails.md'
+  - '.tasks/active/T-294-port-indicator-pin-click-does-not-regist.md'
+  - '.tasks/active/T-619-retry-safety-declaration-on-task-like-no.md'
+  - '.tasks/completed/T-616-verify-which-operator-surface-if-any-car.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t293_endpoint_reach.py'
+  - 'tools/_t293-endpoint-reach-cdp.mjs'
+  - 'tools/verification-hygiene.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-07-28T23:17:47'
+    action: 'T-293: endpoint reconnect drag fixed — new interactive #g-handles layer above #g-nodes hosts the selected edge''s grab halos/dots + port indicators (T-168 anchors endpoints ON the node border, so #g-edges-resident handles were shadowed: 3/4 centres node-drag, 1/4 dead under active-port dot; T-286 unmasked, didn''t cause); port dots prepended below halos; repro+fix proven by real CDP mouse input (e2e reconnect n_h_claude→n_join), suite 42/42 incl. new standing T-293 reachability leg w/ teeth (G-003), geometry 24, cuts 0; :8834 relaunched, screenshot read+published; pre-existing port-pin click defect filed as T-294; partial-complete (human feel-check)'
+  - time: '2026-07-28T23:19:02'
+    action: 'T-293: session context churn (rail 303 acked at 304 — both pair-drafts promoted, P4 armed)'
+  - time: '2026-07-29T07:32:12'
+    action: 'T-293: field failure report — operator retest FAILS on :8834; served code verified current; status issues; hypotheses ranked (stale tab > zoom-state coords > selection path); zoom repro staged in scratchpad, blocked by budget gate at 293K'
+  - time: '2026-07-29T08:09:17'
+    action: 'T-293: field-failure ROOT-CAUSED — environmental, not code (T-253 class): operator-reachable designers serve pinned 0.7.1 (predates T-286+T-293) and :8834 has no ufw allow; zoom hypothesis disproved (6/6 at 1.0/1.4/0.75) + served-page real-click disproved (8/8, exact operator path incl. scroll); status issues→started-work, healing pattern recorded; remedy = 0.8.0 release + re-pin (next task) + operator ufw option'
+  - time: '2026-07-29T08:10:15'
+    action: 'T-293: fix healing-resolve YAML corruption in learnings.yaml — resolve.sh appended a 2-space-indented block under a column-0 list and minted duplicate id L-001; dedented + renumbered PL-059 (pre-push YAML gate caught it, T-1599 class)'
+  - time: '2026-08-29T12:28:32'
+    action: 'T-293: the reconnect leg aimed at the node''s <g> — label included — so T-601''s label move drifted the drop 0.4px outside SNAP_RADIUS and the editor was never broken'
+  - time: '2026-08-29T12:30:20'
+    action: 'T-293: leg 5 rewritten so no character in it can close the shell string — the heredoc immunity from rail @751, in the one line P-011 allows'
+  - time: '2026-08-29T12:34:56'
+    action: 'T-293: the SIGPIPE false-red needs an EARLY match, not just a big payload — the leg fails precisely when its evidence arrives soonest'
+  - time: '2026-08-29T12:36:27'
+    action: 'T-293: session note — a test that aimed at the container describing the node, and a correction I had to correct'
+  - time: '2026-08-29T12:54:38'
+    action: 'T-293: G-015 clean — my own comment tripped the port detector, T-616''s two legs now resolve the host, and a cleaned file no longer reports as deleted'
+  - time: '2026-08-29T12:58:27'
+    action: 'T-293: register G-044 — a ratchet armed to stop the 79th is at 84, because the only place it runs is a 13-minute suite nothing schedules'
+  - time: '2026-08-29T13:11:54'
+    action: 'T-293: G-044 instance 4 — the revisit scan IS in cron, rooted at another project, and three ripe deferrals sat unseen'
+  - time: '2026-08-29T13:13:03'
+    action: 'T-293: a blocked commit leaves the index populated, and the inception gate reads the message not the diff — so my refused T-619 edit shipped one commit later'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 13 commit(s), 120342 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 120342
+  commits: 13
+  files_changed: 37
+  lines_added: 1664
+  lines_removed: 684
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-293-endpoint-reconnect-drag-hand-often-fails.md
+generated_by: context-agent-hybrid

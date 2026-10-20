@@ -4,20 +4,21 @@ name: "Endpoint reconnect drag (hand) often fails after T-286, worst at frw_11_h
 description: >
   Endpoint reconnect drag (hand) often fails after T-286, worst at frw_11_harvest
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tests/test_t293_endpoint_reach.py, tools/_t293-endpoint-reach-cdp.mjs, tools/verification-hygiene.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-28T21:00:16Z
-last_update: 2026-09-29T17:23:03Z
-date_finished:
+last_update: 2026-10-20T10:42:26Z
+date_finished: 2026-10-20T10:42:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -415,13 +416,12 @@ already approved in T-286, extended to the interactive chrome.
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-02102b4d
-- **Timestamp:** 2026-07-29T13:13:46Z
+- **Scan ID:** R-255fbf03
+- **Timestamp:** 2026-10-20T10:42:32Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no
 - **Findings:** none
-
 ### 2026-08-23T10:24:10Z — status-update [task-update-agent]
 - **Change:** horizon: now → later
 - **Change:** status: started-work → captured (auto-sync)
@@ -432,3 +432,7 @@ already approved in T-286, extended to the interactive chrome.
 
 ### 2026-09-29T17:23:03Z — status-update [task-update-agent]
 - **Change:** owner: human → agent
+
+### 2026-10-20T10:42:26Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Triage 2026-10-20 group A: every Agent criterion ticked, no Human criterion open; closed through the gate (Verification re-run)

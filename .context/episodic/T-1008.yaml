@@ -1,0 +1,148 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1008: Authoring kit 0.15.3: apply the 10 panel-confirmed lessons (L16-L18, L20, L22-L27) and recalibrate with three vendors
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-20T10:42:26Z
+# ============================================================================
+
+task_id: T-1008
+task_name: "Authoring kit 0.15.3: apply the 10 panel-confirmed lessons (L16-L18, L20, L22-L27) and recalibrate with three vendors"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-02T23:34:09Z
+completed: 2026-10-20T10:42:14Z
+duration_days: 18
+updates_count: 1
+first_commit: 2026-10-03T01:37:35+02:00
+last_commit: 2026-10-03T14:02:50+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  L20 — a link catch (no incoming flow) draws no W-(XML-)DEADEND of its own; a catch reached by flow is still assessed; 3 tests red without the fix, the over-broad mutant caught; validator parity/axis/anchorability scripts green. kit 0.15.3 inputs — 10 panel-confirmed lessons applied and promoted: guide L22-L26 (detailed-in, duplicate names, K2 for hand-overs, multi-quote citations, fork != join), rubric v5 corrects my own 0.15.2 sentence, calibration maps L18 (default flow) + L26 note on the join, CONFORMANCE declares the cross-map link convention (L27), loop.sh prompt placement (L17), release refuses a new kit without a hash-bound PASS calibration (L16, gate test 5/5); kit tests 16/16 + 18/18. first 0.15.3 calibration FAILED (codex and GLM: 3/3 caught, 1 false each — the join after shipment, which the source never supports and my own new rubric line says to flag); control maps fixed: join AND fork removed (the guide says a fork is plain flows; the validator wants a fork balanced by a join), delivery and invoicing converge on the end; planted reminder rewired, expected.json follows. second calibration: codex PASS (3/3, 0 false); GLM 3/3 + 1 on an unplanted element — the planted map kept the 'intentionally unconnected' note on the step defect 2 wires in; planting artefact removed (T-991 rule), scoring unchanged. 0.15.3 ready for the operator — third calibration PASS for codex (OpenAI) and GLM-5.3 (Z.AI): 3/3, 0 false, recorded hash-bound (kit 9f12486f); VERSION/APP_VERSION 0.15.3 (parity ok); release notes; runme.sh (release, with T-1003 signalling and the L16 calibration preflight). bridge suite held at 29 but moved — 3 fixed by this session (ratchet leg, fabric validate, gap gauge), 3 introduced by me, now fixed: my T-1006 rewrite of learning-ledger.py had silently changed norm() (repeated lessons duplicated) and save() (dropped keys above learnings:) — both restored verbatim; T-984 test moved to evidence+panel confirmation (9/9); new tests wired as bridge legs (T-1006 quorum, L20 catch, L16 gate). Render-check red until 0.15.3 is cut (VERSION bumped ahead of release). all agent ACs met; release 0.15.3 handed to the operator via runme.sh (dry-run green). release designer 0.15.3 — authoring kit revised from Evergreen iteration 2 (K9-K17; ledger L16-L18, L20, L22-L27, confirmed by three calibrated reviewer vendors). kit 0.15.3 delivered to Evergreen — tools/kit-publish.py posts manifest + chunks and refuses to call it delivered until the hub's bytes hash back (control: 0.15.2 re-verified; 0.15.3 VERIFIED, kit offsets 29-38, sha 9f128165); announced on corpus 27 + DM 11. our Watchtower serves 0.15.3 (canonical sync, sha 209d37bb); T-1005: AEF inbox page 2 triaged (most of our proposals ADOPTED: approval-in-terminal, T-996 marker, re-vendor protocol T-3737, sidecar RCA, divergence register T-3752; runme-signal in part; lesson-validation in principle), IW-1..4 answered, re-pin data sent; T-1009 widened to the T-1000 tooling pickup
+
+# Key outcomes
+outcomes:
+  - 'L20 validator: a link catch draws no W-DEADEND/W-XML-DEADEND of its own (both forms); a mid-flow catch reached by flow is still assessed; regression test covers both'
+  - 'L18 calibration: clean.bpmn AND planted.bpmn drop ''accepted orders'' and mark that flow the gateway''s default; AUTHORING branch-label rule gains the default-flow sentence'
+  - 'L22-L26 AUTHORING: detailed-in rule, duplicate display names, K2 for hand-overs, multi-quote citations, fork-vs-join correction (and the matching RUBRIC line)'
+  - 'L27: AUTHORING hand-over rule and generated CONFORMANCE.md declare cross-map links an AEF convention beyond BPMN 2.0.2, naming the message-flow alternative'
+  - 'L17: loop.sh header states the prompt-placement rule; L16: the release path refuses a kit version with no recorded PASS calibration'
+  - 'Each of the 10 lessons is promoted in the ledger with a marker present in its file (`learning-ledger.py check` clean)'
+  - 'Kit builds (build-authoring-kit.py --check), kit tests and validator tests pass; bridge suite not worse than 29 failures'
+  - 'Real calibration of the 0.15.3 kit with the calibrated reviewers: PASS (3/3 caught, 0 false on clean) recorded'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'bridge suite held at 29 but moved — 3 fixed by this session (ratchet leg, fabric validate, gap gauge), 3 introduced by me, now fixed: my T-1006 rewrite of learning-ledger.py had silently changed norm() (repeated lessons duplicated) and save() (dropped keys above learnings:) — both restored verbatim; T-984 test moved to evidence+panel confirmation (9/9); new tests wired as bridge legs (T-1006 quorum, L20 catch, L16 gate). Render-check red until 0.15.3 is cut (VERSION bumped ahead of release)'
+    source: git-mined
+  - description: 'first 0.15.3 calibration FAILED (codex and GLM: 3/3 caught, 1 false each — the join after shipment, which the source never supports and my own new rubric line says to flag); control maps fixed: join AND fork removed (the guide says a fork is plain flows; the validator wants a fork balanced by a join), delivery and invoicing converge on the end; planted reminder rewired, expected.json follows'
+    source: git-mined
+  - description: 'L20 — a link catch (no incoming flow) draws no W-(XML-)DEADEND of its own; a catch reached by flow is still assessed; 3 tests red without the fix, the over-broad mutant caught; validator parity/axis/anchorability scripts green'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - 'dist/aef-authoring-kit-0.15.3/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.15.3/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.15.3/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.15.3/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.15.3/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.15.3/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.15.3/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.15.3/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.15.3/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.15.3/loop.sh'
+  - 'dist/aef-authoring-kit-0.15.3/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.15.3/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.15.3/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.15.3/validate-workflow.py'
+  - 'dist/aef-workflow-designer-0.15.3.html'
+  - 'dist/MANIFEST.yaml'
+  - 'docs/authoring-kit/AUTHORING.md'
+  - 'docs/authoring-kit/calibration/clean.bpmn'
+  - 'docs/authoring-kit/calibration/expected.json'
+  - 'docs/authoring-kit/calibration/planted.bpmn'
+  - 'docs/authoring-kit/calibration-records/0.15.3.yaml'
+  - 'docs/authoring-kit/loop.sh'
+  - 'docs/authoring-kit/RUBRIC.md'
+  - 'docs/learning-ledger-controls.yaml'
+  - 'docs/learning-ledger.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.15.3.md'
+  - 'docs/reports/T-1005-aef-inbox-triage-2026-10-03-page2.md'
+  - 'docs/reports/T-989-evergreen-trial.md'
+  - 'runme.sh'
+  - 'scripts/release-designer.sh'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1008-authoring-kit-0153-apply-the-10-panel-co.md'
+  - '.tasks/active/T-1009-upstream-pickup-bundles-for-aef-t-931-st.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t1008_catch_no_deadend.py'
+  - 'tests/test_t1008_kit_calibration_gate.sh'
+  - 'tests/test_t984_learning_ledger.py'
+  - 'tools/build-authoring-kit.py'
+  - 'tools/kit-calibration-gate.py'
+  - 'tools/kit-publish.py'
+  - 'tools/learning-ledger.py'
+  - 'tools/validate-workflow.py'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-03T01:37:35'
+    action: 'T-1008: L20 — a link catch (no incoming flow) draws no W-(XML-)DEADEND of its own; a catch reached by flow is still assessed; 3 tests red without the fix, the over-broad mutant caught; validator parity/axis/anchorability scripts green'
+  - time: '2026-10-03T01:42:05'
+    action: 'T-1008: kit 0.15.3 inputs — 10 panel-confirmed lessons applied and promoted: guide L22-L26 (detailed-in, duplicate names, K2 for hand-overs, multi-quote citations, fork != join), rubric v5 corrects my own 0.15.2 sentence, calibration maps L18 (default flow) + L26 note on the join, CONFORMANCE declares the cross-map link convention (L27), loop.sh prompt placement (L17), release refuses a new kit without a hash-bound PASS calibration (L16, gate test 5/5); kit tests 16/16 + 18/18'
+  - time: '2026-10-03T01:52:10'
+    action: 'T-1008: first 0.15.3 calibration FAILED (codex and GLM: 3/3 caught, 1 false each — the join after shipment, which the source never supports and my own new rubric line says to flag); control maps fixed: join AND fork removed (the guide says a fork is plain flows; the validator wants a fork balanced by a join), delivery and invoicing converge on the end; planted reminder rewired, expected.json follows'
+  - time: '2026-10-03T02:00:34'
+    action: 'T-1008: second calibration: codex PASS (3/3, 0 false); GLM 3/3 + 1 on an unplanted element — the planted map kept the ''intentionally unconnected'' note on the step defect 2 wires in; planting artefact removed (T-991 rule), scoring unchanged'
+  - time: '2026-10-03T02:07:20'
+    action: 'T-1008: 0.15.3 ready for the operator — third calibration PASS for codex (OpenAI) and GLM-5.3 (Z.AI): 3/3, 0 false, recorded hash-bound (kit 9f12486f); VERSION/APP_VERSION 0.15.3 (parity ok); release notes; runme.sh (release, with T-1003 signalling and the L16 calibration preflight)'
+  - time: '2026-10-03T02:24:50'
+    action: 'T-1008: bridge suite held at 29 but moved — 3 fixed by this session (ratchet leg, fabric validate, gap gauge), 3 introduced by me, now fixed: my T-1006 rewrite of learning-ledger.py had silently changed norm() (repeated lessons duplicated) and save() (dropped keys above learnings:) — both restored verbatim; T-984 test moved to evidence+panel confirmation (9/9); new tests wired as bridge legs (T-1006 quorum, L20 catch, L16 gate). Render-check red until 0.15.3 is cut (VERSION bumped ahead of release)'
+  - time: '2026-10-03T02:25:10'
+    action: 'T-1008: all agent ACs met; release 0.15.3 handed to the operator via runme.sh (dry-run green)'
+  - time: '2026-10-03T12:53:16'
+    action: 'T-1008: release designer 0.15.3 — authoring kit revised from Evergreen iteration 2 (K9-K17; ledger L16-L18, L20, L22-L27, confirmed by three calibrated reviewer vendors)'
+  - time: '2026-10-03T13:20:07'
+    action: 'T-1008: kit 0.15.3 delivered to Evergreen — tools/kit-publish.py posts manifest + chunks and refuses to call it delivered until the hub''s bytes hash back (control: 0.15.2 re-verified; 0.15.3 VERIFIED, kit offsets 29-38, sha 9f128165); announced on corpus 27 + DM 11'
+  - time: '2026-10-03T14:02:50'
+    action: 'T-1008: our Watchtower serves 0.15.3 (canonical sync, sha 209d37bb); T-1005: AEF inbox page 2 triaged (most of our proposals ADOPTED: approval-in-terminal, T-996 marker, re-vendor protocol T-3737, sidecar RCA, divergence register T-3752; runme-signal in part; lesson-validation in principle), IW-1..4 answered, re-pin data sent; T-1009 widened to the T-1000 tooling pickup'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 10 commit(s), 25148 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 25148
+  commits: 10
+  files_changed: 45
+  lines_added: 17426
+  lines_removed: 252
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1008-authoring-kit-0153-apply-the-10-panel-co.md
+generated_by: context-agent-hybrid
