@@ -2815,3 +2815,51 @@ learnings:
   task: T-1187
   date: 2026-10-17
   context: Added via context agent
+- id: PL-405
+  learning: "Before asking the operator to tick a [REVIEW] box, run fw task delegate T-XXX --dry-run: if it says reviewer-judgeable, dispatch fw reviewer judge instead. On 2026-10-19 the agent asked the operator to tick T-347 and T-732, whose rulings were already the operator's and recorded; both were reviewer-judgeable, and the operator called it the friction point to remove (T-1213)."
+  source: unknown
+  task: T-1213
+  date: 2026-10-19
+  context: Added via context agent
+- id: PL-406
+  learning: "A Watchtower freshness check (process start time vs newest file under .agentic-framework/web) must exclude __pycache__: Watchtower compiles .pyc files 1-2 s after it starts, so after any .py change the check fails on files the process wrote itself (job 052, 2026-10-19). Use: find web -type f ! -path '*/__pycache__/*'."
+  source: unknown
+  task: T-1208
+  date: 2026-10-19
+  context: Added via context agent
+- id: PL-407
+  learning: "In bats, '! cmd' in the middle of a test is inert (bats only fails on the last command's status); write '! cmd || false' (AEF T-4398, shared 2026-10-19). Also: a test that runs the live audit or doctor against its own repo can turn one red into a self-sustaining red through a ratchet (AEF T-4372)."
+  source: unknown
+  task: T-1208
+  date: 2026-10-19
+  context: Added via context agent
+- id: PL-408
+  learning: "Task files are bridge-suite inputs: _t1066 scans every active task, so creating a task mid-run (here: fw inception start, whose template Human box is a bare [REVIEW] with no Why-you line) reddens the running suite. Rewrite the inception go/no-go box for the reviewer right after fw inception start, and file tasks between runs, not during one."
+  source: P-001
+  task: T-1219
+  date: 2026-10-19
+  context: Added via context agent
+- id: PL-409
+  learning: "Closing a task changes bridge-suite inputs too: a tool whose only caller was an active task's Verification becomes unwired the moment that task closes, and _t451's ratchet goes red (T-723 -> _t723-review-queue-residue.py). Before closing a task, check whether its Verification is the last caller of a standing guard (python3 tools/_t451-unwired-guard-census.py) and wire that guard into the suite in the same change."
+  source: unknown
+  task: T-1214
+  date: 2026-10-19
+  context: Added via context agent
+- id: PL-410
+  learning: "Teeth scripts mutate the designer by exact-line anchors (T-423 node-name emit, T-570/T-572 metaAttrs). Rewriting such a line breaks the teeth even when behaviour is unchanged. Before committing a src change, run bash tools/_t509-instrument-sweep.sh and the _t570/_t572 teeth, or keep anchored lines byte-identical and add new behaviour in a separate statement."
+  source: unknown
+  task: T-1218
+  date: 2026-10-19
+  context: Added via context agent
+- id: PL-411
+  learning: "Browser work run in parallel with a full bridge run (headless chromium probes, golden records) slows the T-509 sweep's teeth past its 90s cap (_t423, _t534, _t535 killed, rc=124) and can flake the _t570 teeth. A full run that is to count must run with no other browser work on the host; do parallel work that is read-only or text-only."
+  source: unknown
+  task: T-1217
+  date: 2026-10-19
+  context: Added via context agent
+- id: PL-412
+  learning: "A byte golden records what the tool does, so a destructive behaviour recorded once reads as correct from then on (T-1222: 46 of 49 event definitions and every third-party boundary event lost on save, all recorded as expected bytes). A golden is evidence of stability, not of correctness; pair it with a per-element count of what a save keeps against what the file brought."
+  source: unknown
+  task: T-1222
+  date: 2026-10-20
+  context: Added via context agent

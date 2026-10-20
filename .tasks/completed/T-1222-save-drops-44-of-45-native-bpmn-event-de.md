@@ -11,13 +11,13 @@ description: >
   elements that the designer only keeps in narrow cases, so the fix must carry those
   too.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [bug, bpmn-roundtrip, portability]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t1222-event-definitions-kept.py, tools/_t1222-event-shots.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T20:57:50Z
-last_update: 2026-10-20T08:48:59Z
-date_finished:
+last_update: 2026-10-20T10:31:09Z
+date_finished: 2026-10-20T10:31:09Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -134,7 +134,7 @@ fixtures: 47/47 kept, all outputs well-formed. Open: (1) definitions name root e
       on 28 definitions moved from boundaryEvent to serviceTask.)
 
 ### Human
-- [ ] An independent reviewer judges the screenshots of the build (UI rule, 2026-10-14; reviewer-judged render
+- [x] An independent reviewer judges the screenshots of the build (UI rule, 2026-10-14; reviewer-judged render
   criterion, `fw reviewer judge T-1222 --criterion 1`, who may escalate).
   **Steps:**
   1. Open `docs/reports/T-1222-evidence/t1222-{before,after}-{1024,1440,1920}{,-detail}.png` (fixture
@@ -148,7 +148,8 @@ fixtures: 47/47 kept, all outputs well-formed. Open: (1) definitions name root e
      host crowd each other; this is how the designer already draws its own boundary events.
   **Expected:** green, or what has to change.
   **If not:** name the screenshot and the control.
-- [ ] The proposed shape in `## Decisions` (2026-10-20) is judged before building by an independent reviewer, who may
+  **Reviewer verdict:** green V-20261020-d7046d4d — reviewer-judge-t-1222-r3-4c963f386204:reviewer (rung rung-3-termlink-single-reviewer), digest 39e15d0c7c82; dispatch judge-t-1222-r3-4c963f386204; evidence: .context/reviews/evidence/T-1222/AC1-judge-t-1222-r3-4c963f386204.md, .context/reviews/evidence/T-1222/t1222-before-1920-detail-judge-t-1222-r3-4c963f386204.png, .context/reviews/evidence/T-1222/t1222-after-1920-detail-judge-t-1222-r3-4c963f386204.png, .context/reviews/evidence/T-1222/t1222-before-1440-detail-judge-t-1222-r3-4c963f386204.png, .context/reviews/evidence/T-1222/t1222-after-1440-detail-judge-t-1222-r3-4c963f386204.png; ledger .context/reviews/verdicts.jsonl
+- [x] The proposed shape in `## Decisions` (2026-10-20) is judged before building by an independent reviewer, who may
   escalate (`fw reviewer judge T-1222 --criterion 1`).
   **Steps:**
   1. Read `## Context` (measured losses, prototype notes) and the proposed shape under `## Decisions`.
@@ -202,6 +203,7 @@ fixtures: 47/47 kept, all outputs well-formed. Open: (1) definitions name root e
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261020-a67079da — reviewer-judge-t-1222-r3-23dffc705317:reviewer (rung rung-3-termlink-single-reviewer), digest 442f13a3aed4; dispatch judge-t-1222-r3-23dffc705317; evidence: .context/reviews/evidence/T-1222/AC2-judge-t-1222-r3-23dffc705317.md; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -352,6 +354,25 @@ timeout 900 python3 tools/_t1222-event-definitions-kept.py > /tmp/.t1222.out 2>&
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** a save of a third-party map dropped 46 of its 49 native event definitions (message, timer, signal, error,
+escalation, conditional, compensate, cancel, terminate), turned every `bpmn:boundaryEvent` into a `bpmn:serviceTask`
+without its `attachedToRef`, and showed every intermediate event as a link event.
+
+**Root cause:** the designer models events through its own encoding (`aef:link`, `aef:eventDef`; T-190 IW-1, T-204) and
+the importer read only that encoding. A native definition had no reader, so it never reached state, and the exporter
+writes only from state; `boundaryEvent` had no entry in REVERSE_TYPE, so it fell back to `serviceTask`; and every
+intermediate tag mapped to a link type.
+
+**Why structurally allowed:** every fixture that exercised events was designer-authored, carrying the designer's own
+encoding, and the third-party byte goldens recorded the losses as the expected output: a golden records what the tool
+does, so a destructive behaviour recorded once reads as correct from then on. No check counted what a save kept
+against what the file brought.
+
+**Prevention:** `tools/_t1222-event-definitions-kept.py` in the bridge suite: definitions per kind in vs out, references
+resolve, hosts keep their tag, boundary events keep `attachedToRef` (with or without a definition), and no `aef:eventDef`
+added by an unedited save; `tools/_t1222-event-shots.py` asserts the canvas. Learning: a byte golden is not evidence of
+correctness, only of stability; a per-element "what came in, what came out" count is.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -492,3 +513,21 @@ timeout 900 python3 tools/_t1222-event-definitions-kept.py > /tmp/.t1222.out 2>&
 ### 2026-10-20T08:48:59Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-12015337
+- **Timestamp:** 2026-10-20T10:31:20Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#4 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-20T10:31:09Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Native event definitions survive a save; third-party boundary events restored; reviewer green on design and screenshots; suite 308/0

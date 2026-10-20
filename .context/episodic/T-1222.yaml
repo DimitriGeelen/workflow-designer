@@ -1,0 +1,158 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1222: Save drops 44 of 45 native BPMN event definitions in the edited process (message, timer, signal, error, escalation, conditional, compensate, cancel, terminate)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-20T10:31:31Z
+# ============================================================================
+
+task_id: T-1222
+task_name: "Save drops 44 of 45 native BPMN event definitions in the edited process (message, timer, signal, error, escalation, conditional, compensate, cancel, terminate)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-19T20:57:50Z
+completed: 2026-10-20T10:31:09Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-19T22:58:14+02:00
+last_commit: 2026-10-20T12:30:02+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file it — a save drops 44 of 45 native BPMN event definitions in the edited process; measured per kind, prototype notes, criteria. the failing guard first — tools/_t1222-event-definitions-kept.py saves every third-party fixture through the real designer and counts event definitions per kind: 49 -> 3 today (rc 1); also fails on dangling messageRef/signalRef/errorRef/escalationRef. Wired into the suite with the fix. the proposed shape goes to an independent reviewer before building (criterion added); guard's fabric card. reviewer verdict. shape amended per reviewer amber (restore third-party boundaryEvent with attachedToRef; type catch hosts only; ruled: untyped events render as plain catch/throw keeping tag and definition); guard also fails on a definition outside an event element — the keep-everything prototype scores 49/49 kept and is still red for definitions inside a flattened serviceTask. second amber applied — typing only on intermediateCatchEvent/boundaryEvent hosts (not start, not throw); untyped boundary exports as boundaryEvent+attachedToRef+cancelActivity; AC#4 allows that; guard checks each definition keeps its host tag (by id) and boundary hosts keep attachedToRef (prototype: 49/49 kept, 28 misplaced -> red). third amber applied — rule recorded: on a node with a native definition, aef:eventDef is omitted while the binding is empty and written once set; AC#4 says so; guard fails if an unedited save adds any aef:eventDef. native BPMN event definitions survive a save; third-party boundary events are boundary events again. fabric card for the shots tool. boundary events drawn after every other node, so an imported boundary listed before its host is no longer half hidden by it (reviewer amber on the screenshots); draw order only, saved element order untouched; shots retaken
+
+# Key outcomes
+outcomes:
+  - 'Reproduced first: a guard leg counts native `*EventDefinition` elements per kind in the third-party fixtures and in'
+  - 'Decided and recorded in `## Decisions` before building: keep the definitions verbatim (preservation only), or also'
+  - 'After the fix every native event definition survives open and save, and any root-level message / signal / error /'
+  - 'Maps the designer authored save byte-identically; third-party goldens change only by the definitions (and their'
+  - 'The guard is wired into the bridge suite and shown to bite.'
+  - 'An independent reviewer judges the screenshots of the build (UI rule, 2026-10-14; reviewer-judged render'
+  - 'The proposed shape in `## Decisions` (2026-10-20) is judged before building by an independent reviewer, who may'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the failing guard first — tools/_t1222-event-definitions-kept.py saves every third-party fixture through the real designer and counts event definitions per kind: 49 -> 3 today (rc 1); also fails on dangling messageRef/signalRef/errorRef/escalationRef. Wired into the suite with the fix'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-20 — proposed shape (draft, for the reviewer before building)'
+  - decision: '2026-10-20 — reviewer amber (judge-t-1222-r?), shape amended'
+    chose: 'restore the host — a third-party `boundaryEvent` imports as the designer''s boundary event with its `attachedToRef` (T-204 slice 2 already models boundary events natively), and keeps its definition. **Rejected:** carrying the whole element through the foreignTag passthrough: it would keep the bytes but leave the event uneditable and detached on the canvas. - **Typing is for catch hosts only (T-237):** the designer''s typed events export as `intermediateCatchEvent` (src ~12017-12019), so typing a third-party THROW or START event would flip it to a catch. Part 2 applies only to `intermediateCatchEvent` and `boundaryEvent` hosts (`_catchHost`, src ~13467); start events (8 timer/message/error in kitchen-sink) and throws keep their tag and definition untyped. (Second amber, 2026-10-20.) - **`aef:eventDef` on a typed third-party event (third amber, 2026-10-20):** aefExtensionXml always emits `<aef:eventDef>` for an EVENT_KIND node (src ~12157-12164). **Rule:** for a node that carries a native event definition, `aef:eventDef` is omitted while its binding (timerSpec / busTopic / errorStatus) is empty, so the native definition carries the type, and written once a binding is set, so a user''s binding edit is never dropped. An unedited open-and-save of a third-party map therefore adds no `aef:eventDef`; the guard checks that. - **An untyped boundary event** (a "plain catch" on a boundary host) exports as `bpmn:boundaryEvent` with its `attachedToRef` and `cancelActivity`: the boundary export condition (src ~12550) widens beyond EVENT_KIND to any node that came in as a boundary event. - **Open question, ruled by the reviewer:** an event whose definition the designer has no type for (signal, escalation, conditional, compensate, cancel, terminate; and any throw) renders as a plain catch or throw event, keeping its original tag and its verbatim definition, with no link semantics. Not a new generic type.'
+  - decision: '2026-10-20 — found while building'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1222/AC1-judge-t-1222-r3-10f1db6d2acc.md'
+  - '.context/reviews/evidence/T-1222/AC1-judge-t-1222-r3-4c963f386204.md'
+  - '.context/reviews/evidence/T-1222/AC1-judge-t-1222-r3-8bc06788254b.md'
+  - '.context/reviews/evidence/T-1222/AC1-judge-t-1222-r3-afdd6af85a86.md'
+  - '.context/reviews/evidence/T-1222/AC1-judge-t-1222-r3-cceb9cd5d157.md'
+  - '.context/reviews/evidence/T-1222/AC1-judge-t-1222-r3-eaf12fa706a0.md'
+  - '.context/reviews/evidence/T-1222/AC2-judge-t-1222-r3-23dffc705317.md'
+  - '.context/reviews/evidence/T-1222/t1222-after-1440-detail-judge-t-1222-r3-4c963f386204.png'
+  - '.context/reviews/evidence/T-1222/t1222-after-1440-detail.png'
+  - '.context/reviews/evidence/T-1222/t1222-after-1920-detail-judge-t-1222-r3-4c963f386204.png'
+  - '.context/reviews/evidence/T-1222/t1222-after-1920-detail.png'
+  - '.context/reviews/evidence/T-1222/t1222-before-1440-detail-judge-t-1222-r3-4c963f386204.png'
+  - '.context/reviews/evidence/T-1222/t1222-before-1440-detail.png'
+  - '.context/reviews/evidence/T-1222/t1222-before-1920-detail-judge-t-1222-r3-4c963f386204.png'
+  - '.context/reviews/evidence/T-1222/t204-boundary-on-host.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - 'docs/releases/PENDING-next-release.md'
+  - 'docs/reports/T-1222-evidence/t1222-after-1024-detail.png'
+  - 'docs/reports/T-1222-evidence/t1222-after-1024.png'
+  - 'docs/reports/T-1222-evidence/t1222-after-1440-detail.png'
+  - 'docs/reports/T-1222-evidence/t1222-after-1440.png'
+  - 'docs/reports/T-1222-evidence/t1222-after-1920-detail.png'
+  - 'docs/reports/T-1222-evidence/t1222-after-1920.png'
+  - 'docs/reports/T-1222-evidence/t1222-before-1024-detail.png'
+  - 'docs/reports/T-1222-evidence/t1222-before-1024.png'
+  - 'docs/reports/T-1222-evidence/t1222-before-1440-detail.png'
+  - 'docs/reports/T-1222-evidence/t1222-before-1440.png'
+  - 'docs/reports/T-1222-evidence/t1222-before-1920-detail.png'
+  - 'docs/reports/T-1222-evidence/t1222-before-1920.png'
+  - '.fabric/components/tools-_t1218-unnamed-event-shots.yaml'
+  - '.fabric/components/tools-_t1220-io-extra-attrs-cdp.yaml'
+  - '.fabric/components/tools-_t1222-event-definitions-kept.yaml'
+  - '.fabric/components/tools-_t1222-event-shots.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1222-save-drops-44-of-45-native-bpmn-event-de.md'
+  - 'tests/fixtures/t1222/native-event-kinds.bpmn'
+  - 'tests/goldens/third-party/boundary-events.bpmn.golden'
+  - 'tests/goldens/third-party/collaboration-message-flows.bpmn.golden'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1222-event-definitions-kept.py'
+  - 'tools/_t1222-event-shots.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T22:58:14'
+    action: 'T-1222: file it — a save drops 44 of 45 native BPMN event definitions in the edited process; measured per kind, prototype notes, criteria'
+  - time: '2026-10-20T10:49:44'
+    action: 'T-1222: the failing guard first — tools/_t1222-event-definitions-kept.py saves every third-party fixture through the real designer and counts event definitions per kind: 49 -> 3 today (rc 1); also fails on dangling messageRef/signalRef/errorRef/escalationRef. Wired into the suite with the fix'
+  - time: '2026-10-20T10:50:11'
+    action: 'T-1222: the proposed shape goes to an independent reviewer before building (criterion added); guard''s fabric card'
+  - time: '2026-10-20T10:52:46'
+    action: 'T-1222: reviewer verdict'
+  - time: '2026-10-20T10:54:15'
+    action: 'T-1222: shape amended per reviewer amber (restore third-party boundaryEvent with attachedToRef; type catch hosts only; ruled: untyped events render as plain catch/throw keeping tag and definition); guard also fails on a definition outside an event element — the keep-everything prototype scores 49/49 kept and is still red for definitions inside a flattened serviceTask'
+  - time: '2026-10-20T10:56:57'
+    action: 'T-1222: reviewer verdict'
+  - time: '2026-10-20T10:59:45'
+    action: 'T-1222: second amber applied — typing only on intermediateCatchEvent/boundaryEvent hosts (not start, not throw); untyped boundary exports as boundaryEvent+attachedToRef+cancelActivity; AC#4 allows that; guard checks each definition keeps its host tag (by id) and boundary hosts keep attachedToRef (prototype: 49/49 kept, 28 misplaced -> red)'
+  - time: '2026-10-20T11:02:16'
+    action: 'T-1222: reviewer verdict'
+  - time: '2026-10-20T11:03:06'
+    action: 'T-1222: third amber applied — rule recorded: on a node with a native definition, aef:eventDef is omitted while the binding is empty and written once set; AC#4 says so; guard fails if an unedited save adds any aef:eventDef'
+  - time: '2026-10-20T11:04:45'
+    action: 'T-1222: reviewer verdict'
+  - time: '2026-10-20T11:36:25'
+    action: 'T-1222: native BPMN event definitions survive a save; third-party boundary events are boundary events again'
+  - time: '2026-10-20T11:36:34'
+    action: 'T-1222: fabric card for the shots tool'
+  - time: '2026-10-20T11:39:53'
+    action: 'T-1222: reviewer verdict'
+  - time: '2026-10-20T11:40:58'
+    action: 'T-1222: boundary events drawn after every other node, so an imported boundary listed before its host is no longer half hidden by it (reviewer amber on the screenshots); draw order only, saved element order untouched; shots retaken'
+  - time: '2026-10-20T11:42:12'
+    action: 'T-1222: reviewer verdict'
+  - time: '2026-10-20T12:30:02'
+    action: 'T-1222: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 17 commit(s), 813 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug, bpmn-roundtrip, portability]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 813
+  commits: 17
+  files_changed: 46
+  lines_added: 2027
+  lines_removed: 212
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1222-save-drops-44-of-45-native-bpmn-event-de.md
+generated_by: context-agent-hybrid
