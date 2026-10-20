@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1220: Keep unknown aef: attributes on aef:input/aef:output through open and save (T-1219 IW-1; AEF: allowed now, msg 42018c4e)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-20T07:53:35Z
+# ============================================================================
+
+task_id: T-1220
+task_name: "Keep unknown aef: attributes on aef:input/aef:output through open and save (T-1219 IW-1; AEF: allowed now, msg 42018c4e)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-19T17:26:54Z
+completed: 2026-10-20T07:53:19Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-19T20:50:30+02:00
+last_commit: 2026-10-19T20:50:30+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  keep extra attributes on aef:input/aef:output through open and save (AEF: preserving is not interpreting)
+
+# Key outcomes
+outcomes:
+  - 'Reproduced first: an `aef:input` and an `aef:output` carrying extra attributes (e.g. `ref="sfdc:Opportunity.OwnerId"`,'
+  - 'After the fix every attribute on `aef:input`/`aef:output` survives open, save, and a second save byte-identically,'
+  - 'Editing the input/output in the panel (rename, type change) keeps the extra attributes; deleting the input drops them.'
+  - 'Nothing interprets them: no new panel field, no validator rule (AEF msg 42018c4e: "preserving is not interpreting").'
+  - 'The leg is wired into the bridge suite and shown to bite (reverting the fix reddens it).'
+  - 'aef-greenfield-test and AEF are told the release that carries it.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1220-keep-unknown-aef-attributes-on-aefinputa.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1220-io-extra-attrs-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T20:50:30'
+    action: 'T-1220: keep extra attributes on aef:input/aef:output through open and save (AEF: preserving is not interpreting)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 866 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bpmn-roundtrip, consumer-report]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 866
+  commits: 1
+  files_changed: 4
+  lines_added: 230
+  lines_removed: 17
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1220-keep-unknown-aef-attributes-on-aefinputa.md
+generated_by: context-agent-hybrid

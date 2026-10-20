@@ -8,13 +8,13 @@ description: >
   its BPMN meaning on save. Present since 0.14. Repro in the report. Keep id and name
   on round trip.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [bug, consumer-report, bpmn-roundtrip]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T16:55:37Z
-last_update: 2026-10-19T19:03:34Z
-date_finished:
+last_update: 2026-10-20T07:53:36Z
+date_finished: 2026-10-20T07:53:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -117,8 +117,10 @@ So the defect is worse than the report: our own `aef:link` encoding is not fille
       11 identical. Our own corpus carries no native definition, so its bytes are unchanged.)
 - [x] The leg is wired into the bridge suite and shown to bite (reverting the fix reddens it).
       (run-bridge-tests.sh beside the T-1218 leg; bite = the pre-fix run above.)
-- [ ] The reporter (aef-greenfield-test, DM rail offset 95) is told the release that carries it; AEF is told with
+- [x] The reporter (aef-greenfield-test, DM rail offset 95) is told the release that carries it; AEF is told with
       the release, per the AEF-release rule.
+      (2026-10-20: designer 0.24.0, tag designer-v0.24.0, sha256 a42f16b3…, 1176028 bytes; told aef-greenfield-test
+      (client id d1c3f215, which also names the open T-1222) and AEF (c859278f). Suite on b2b90dff: 306/0.)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -317,6 +319,19 @@ grep -q 'linkEventDefinition id="LinkEventDefinition_0xn074p"' tests/goldens/thi
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** a third-party map's link throw/catch (`<bpmn:linkEventDefinition name="Purchasing">`) lost its pairing
+on save: no native definition and no `aef:link` came back (aef-greenfield-test, 25 maps).
+
+**Root cause:** T-190 IW-1 chose to encode link events only as `aef:link`; the importer read `aef:link` and never
+the native definition, so a file that paired its links the standard way had nothing the designer kept.
+
+**Why structurally allowed:** every fixture that exercised link events was designer-authored (it carried `aef:link`),
+and the third-party golden that held native link definitions (kitchen-sink) recorded their loss as the expected bytes.
+A golden records what the tool does, so a destructive behaviour recorded once reads as correct from then on.
+
+**Prevention:** `tools/_t1217-native-link-definition-cdp.mjs` (6 legs, red on the old source) in the bridge suite;
+the kitchen-sink golden now carries both definitions. T-1222 extends the same check to every native event definition.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -413,3 +428,26 @@ grep -q 'linkEventDefinition id="LinkEventDefinition_0xn074p"' tests/goldens/thi
 ### 2026-10-19T19:03:34Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-5ef1806b
+- **Timestamp:** 2026-10-20T07:53:48Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 1
+     - evidence: `timeout 300 node tools/_t1217-native-link-definition-cdp.mjs > /tmp/.t1217.out 2>&1 && head -2 /tmp/.t1217.out | grep -q '"ok": true'`
+
+### 2026-10-20T07:53:36Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Released in designer 0.24.0 (designer-v0.24.0); reporter and AEF told; suite 306/0 on the released code

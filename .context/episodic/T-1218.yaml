@@ -1,0 +1,126 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1218: Save writes an unnamed start/end event's id as its name, so the canvas shows Start_8 / End_10 (aef-greenfield-test T-240, 41 maps)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-20T08:00:12Z
+# ============================================================================
+
+task_id: T-1218
+task_name: "Save writes an unnamed start/end event's id as its name, so the canvas shows Start_8 / End_10 (aef-greenfield-test T-240, 41 maps)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-19T16:55:46Z
+completed: 2026-10-20T07:59:42Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-19T19:08:56+02:00
+last_commit: 2026-10-20T09:59:20+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  context — the id-as-name comes from the import fallback (name || displayId, src ~13329) for every node type. an unnamed start/end event stays unnamed through open and save; display ids unchanged. reviewer verdict. keep the metaAttrs line byte-identical (the T-570/T-572 teeth mutate it), slug written in its own statement; T-423 teeth re-pointed at the now-conditional name emit; shots tool wired (temp dir) with 'before' pinned to 036e5403~1; Verification names the 12 files instead of pinning a count (G-015)
+
+# Key outcomes
+outcomes:
+  - 'Reproduced first: a start and an end event with no `name` attribute, and one with `name=""`, come back from'
+  - 'After the fix an unnamed start/end event saves with no name (attribute omitted), and the canvas label is empty;'
+  - 'The leg is wired into the bridge suite and shown to bite (reverting the fix reddens it).'
+  - 'Screenshots of an unnamed start/end before and after, at 1024 / 1440 / 1920, read control by control'
+  - 'The reporter (aef-greenfield-test, DM rail offset 95) is told the release that carries it; AEF is told with the release.'
+  - 'An independent reviewer judges the screenshots (UI rule, 2026-10-14; reviewer-judged render criterion, judged by'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-19 — scope and id stability'
+    chose: 'only start and end events stay unnamed; their display id is kept by deriving the slug from the id on first open (as before) and carrying it as `<aef:meta slug>` while the event is unnamed.'
+    rationale: 'the reporter asked for start/end (41 maps). A task or gateway without a name would be an empty box on the canvas that nobody can find, so it keeps its id as label. Ids must not move: AEF stores them, and an id change needs a shipped old→new map (T-1168). A fixed slug (''start''/''end'') was tried first and renamed `lan_start_startevent` to `lan_start_start` in 7 third-party goldens; re-deriving from the saved id renamed the event on every save.'
+    alternatives_rejected: ['all node types (empty task boxes); a fixed kind slug (moves ids); writing `name=""` (the reporter asked for the name to be left empty, and no committed map carries `name=""`).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1218/AC1-judge-t-1218-r3-24c24bb37042.md'
+  - '.context/reviews/evidence/T-1218/AC1-judge-t-1218-r3-24c24bb37042-t1218-after-1440.png'
+  - '.context/reviews/evidence/T-1218/AC1-judge-t-1218-r3-24c24bb37042-t1218-before-1440.png'
+  - '.context/reviews/evidence/T-1218/AC1-judge-t-1218-r3-24c24bb37042-zoom-1920.png'
+  - '.context/reviews/evidence/T-1218/AC1-judge-t-1218-r3-8d1b5616e8e9.md'
+  - '.context/reviews/evidence/T-1218/t1218-after-1024-detail.png'
+  - '.context/reviews/evidence/T-1218/t1218-after-1920-detail.png'
+  - '.context/reviews/evidence/T-1218/t1218-before-1024-detail.png'
+  - '.context/reviews/evidence/T-1218/t1218-before-1920-detail.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - 'docs/reports/T-1218-evidence/t1218-after-1024-detail.png'
+  - 'docs/reports/T-1218-evidence/t1218-after-1024.png'
+  - 'docs/reports/T-1218-evidence/t1218-after-1440-detail.png'
+  - 'docs/reports/T-1218-evidence/t1218-after-1440.png'
+  - 'docs/reports/T-1218-evidence/t1218-after-1920-detail.png'
+  - 'docs/reports/T-1218-evidence/t1218-after-1920.png'
+  - 'docs/reports/T-1218-evidence/t1218-before-1024-detail.png'
+  - 'docs/reports/T-1218-evidence/t1218-before-1024.png'
+  - 'docs/reports/T-1218-evidence/t1218-before-1440-detail.png'
+  - 'docs/reports/T-1218-evidence/t1218-before-1440.png'
+  - 'docs/reports/T-1218-evidence/t1218-before-1920-detail.png'
+  - 'docs/reports/T-1218-evidence/t1218-before-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1218-save-writes-an-unnamed-startend-events-i.md'
+  - 'tests/goldens/third-party/bizagi-nested-ns.bpmn.golden'
+  - 'tests/goldens/third-party/boundary-events.bpmn.golden'
+  - 'tests/goldens/third-party/collaboration-message-flows.bpmn.golden'
+  - 'tests/goldens/third-party/i18n-documentation.bpmn.golden'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/goldens/third-party/nested-subprocesses.bpmn.golden'
+  - 'tests/goldens/third-party/zeebe-service-task.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1218-unnamed-event-name-cdp.mjs'
+  - 'tools/_t1218-unnamed-event-shots.py'
+  - 'tools/_t423-di-roundtrip-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T19:08:56'
+    action: 'T-1218: context — the id-as-name comes from the import fallback (name || displayId, src ~13329) for every node type'
+  - time: '2026-10-19T21:03:00'
+    action: 'T-1218: an unnamed start/end event stays unnamed through open and save; display ids unchanged'
+  - time: '2026-10-19T21:04:31'
+    action: 'T-1218: reviewer verdict'
+  - time: '2026-10-19T21:59:20'
+    action: 'T-1218: keep the metaAttrs line byte-identical (the T-570/T-572 teeth mutate it), slug written in its own statement; T-423 teeth re-pointed at the now-conditional name emit; shots tool wired (temp dir) with ''before'' pinned to 036e5403~1; Verification names the 12 files instead of pinning a count (G-015)'
+  - time: '2026-10-20T09:59:20'
+    action: 'T-1218: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 903 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug, consumer-report, bpmn-roundtrip]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 903
+  commits: 6
+  files_changed: 38
+  lines_added: 525
+  lines_removed: 61
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1218-save-writes-an-unnamed-startend-events-i.md
+generated_by: context-agent-hybrid

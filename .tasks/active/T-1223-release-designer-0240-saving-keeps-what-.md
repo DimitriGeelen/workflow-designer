@@ -62,12 +62,18 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] VERSION and APP_VERSION read 0.24.0 (`tools/_t808-version-parity.sh` passes); release notes
+- [x] VERSION and APP_VERSION read 0.24.0 (`tools/_t808-version-parity.sh` passes); release notes
       `docs/releases/RELEASE-NOTES-0.24.0.md` committed, naming T-1217, T-1218, T-1220, T-1212 (operator's go to
-      include it, 2026-10-19) and T-1209, and what changes in stored maps.
-- [ ] A full bridge run on the release-input HEAD is green, run alone with no other browser work on the host.
-- [ ] The release job (calibrate the kit with codex and GLM-5.3, cut, commit, tag, push) is written, dry-run, committed
+      include it, 2026-10-19) and T-1209, and what changes in stored maps. (efb234d9)
+- [x] A full bridge run on the release-input HEAD is green, run alone with no other browser work on the host.
+      (Run 6 on the inputs: 303/3, two of them by construction before the cut (render check needs the dist artifact;
+      the kit test needs the calibration record) and one probe race fixed as T-1224. Run 7 on the RELEASED code,
+      b2b90dff, alone: 306 passed, 0 failed.)
+- [x] The release job (calibrate the kit with codex and GLM-5.3, cut, commit, tag, push) is written, dry-run, committed
       and handed to the operator as one command; the runme watcher is armed.
+      (Job 053, sha 27b828a3c50c; the operator ran it 2026-10-19 22:32-22:50Z, all 7 steps rc 0: codex 3/3 and GLM-5.3
+      3/3, release commit 912f8d3e, tag designer-v0.24.0 on origin. Watchtower re-pinned c1d29a25, serves a42f16b3.
+      AEF told c859278f, aef-greenfield-test told d1c3f215 (they pin it and start emitting the new attributes).)
 - [ ] After the operator's run: the tag is on origin, Watchtower serves 0.24.0, and AEF and aef-greenfield-test are told
       (version, tag, sha256, bytes, what changes in stored maps); AEF's pin is followed until it reads CURRENT.
 
