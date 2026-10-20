@@ -8,7 +8,7 @@ import { tmpdir, homedir } from 'node:os';
 import { join } from 'node:path';
 import { pageWsUrl } from './_cdp-attach.mjs';
 
-const URL_UNDER_TEST = process.argv[2] || 'http://192.168.10.107:8834/designer.html?load=rendered%2Fharvest-pipeline.bpmn';
+const URL_UNDER_TEST = process.argv[2] || 'http://127.0.0.1:8834/designer.html?load=rendered%2Fharvest-pipeline.bpmn';   // this host (T-1239)
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
 async function waitPortFile(f) { const t0 = Date.now(); while (Date.now() - t0 < 15000) { if (existsSync(f)) { const t = readFileSync(f, 'utf8').split('\n'); if (t[0] && t[0].trim()) return parseInt(t[0].trim(), 10); } await sleep(100); } throw new Error('no devtools port'); }

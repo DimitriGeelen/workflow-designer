@@ -21,6 +21,7 @@ served bytes are parsed for the four types.
 Exit 0 = the operator can do the review. 1 = they cannot. 2 = cannot measure (NOT a pass).
 """
 import hashlib
+import os
 import re
 import sys
 import urllib.request
@@ -29,7 +30,19 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 PORT_FILE = Path("/tmp/claude-0/-opt-832-Workflow-designer/"
                  "500d44d9-1e04-4f5a-b40e-f29988622253/scratchpad/t611.port")
-HOST = "192.168.10.107"
+# The host the operator reaches this machine by, taken from Watchtower's own URL record (T-1239: no LAN address is
+# written into a tracked file); T612_HOST overrides, and without either the probe cannot measure.
+def _lan_host():
+    if os.environ.get("T612_HOST"):
+        return os.environ["T612_HOST"]
+    try:
+        from urllib.parse import urlparse
+        return urlparse((REPO / ".context/working/watchtower.url").read_text().strip()).hostname or ""
+    except OSError:
+        return ""
+
+
+HOST = _lan_host()
 MAP = "harvest-pipeline.bpmn"
 TASK_LIKE = ("serviceTask", "scriptTask", "subProcess", "userTask")
 
@@ -40,6 +53,10 @@ def fetch(url):
 
 
 def main():
+    if not HOST:
+        print("CANNOT MEASURE: no LAN host — set T612_HOST, or start Watchtower so "
+              ".context/working/watchtower.url exists")
+        return 2
     if not PORT_FILE.exists():
         print(f"CANNOT MEASURE: no port file at {PORT_FILE} — the review server was never "
               f"started, or its record is gone")

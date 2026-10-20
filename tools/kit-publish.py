@@ -87,7 +87,7 @@ def main():
     sub = ap.add_subparsers(dest='cmd', required=True)
     for name in ('publish', 'verify'):
         p = sub.add_parser(name); p.add_argument('--version', required=True); p.add_argument('--topic', required=True)
-        p.add_argument('--hub', default='192.168.10.107:9100')
+        p.add_argument('--hub', default=os.environ.get('KIT_PUBLISH_HUB', '127.0.0.1:9100'))   # the hub on this host (T-1239)
         if name == 'publish':
             p.add_argument('--supersedes', default=''); p.add_argument('--note', default='')
     a = ap.parse_args()
