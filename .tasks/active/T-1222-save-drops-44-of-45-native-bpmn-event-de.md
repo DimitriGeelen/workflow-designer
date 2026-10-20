@@ -1,13 +1,21 @@
 ---
 id: T-1222
-name: "Save drops 44 of 45 native BPMN event definitions in the edited process (message, timer, signal, error, escalation, conditional, compensate, cancel, terminate)"
+name: "Save drops 44 of 45 native BPMN event definitions in the edited process (message,
+  timer, signal, error, escalation, conditional, compensate, cancel, terminate)"
 description: >
-  Found while fixing T-1217 (2026-10-19): the third-party fixtures carry 47 native *EventDefinition elements; the recorded goldens (today's save) keep 3 (2 link via T-1217, 1 message only because it sits in a second, verbatim-carried process). None is converted to aef:eventDef either. A scratch prototype keeping them verbatim preserves 47/47 with well-formed output, but definitions reference root-level message/signal/error/escalation elements that the designer only keeps in narrow cases, so the fix must carry those too.
+  Found while fixing T-1217 (2026-10-19): the third-party fixtures carry 47 native
+  *EventDefinition elements; the recorded goldens (today's save) keep 3 (2 link via
+  T-1217, 1 message only because it sits in a second, verbatim-carried process). None
+  is converted to aef:eventDef either. A scratch prototype keeping them verbatim preserves
+  47/47 with well-formed output, but definitions reference root-level message/signal/error/escalation
+  elements that the designer only keeps in narrow cases, so the fix must carry those
+  too.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [bug, bpmn-roundtrip, portability]
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T20:57:50Z
-last_update: 2026-10-19T20:57:50Z
-date_finished: null
+last_update: 2026-10-20T08:48:59Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-20T08:48:59Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1222: Save drops 44 of 45 native BPMN event definitions in the edited process (message, timer, signal, error, escalation, conditional, compensate, cancel, terminate)
@@ -72,8 +101,12 @@ fixtures: 47/47 kept, all outputs well-formed. Open: (1) definitions name root e
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Reproduced first: a guard leg counts native `*EventDefinition` elements per kind in the third-party fixtures and in
+- [x] Reproduced first: a guard leg counts native `*EventDefinition` elements per kind in the third-party fixtures and in
       the designer's save of each, and is red today (47 in, 3 out).
+      (`tools/_t1222-event-definitions-kept.py`, 2026-10-20: rc 1, "total 49 -> 3" — its element regex is exact, the
+      earlier 47 was a looser grep; 10 losses, all of kitchen-sink's nine kinds plus one message in
+      collaboration-message-flows. It also fails on any dangling messageRef/signalRef/errorRef/escalationRef. Wired into
+      the bridge suite together with the fix, not before, so the suite stays green meanwhile.)
 - [ ] Decided and recorded in `## Decisions` before building: keep the definitions verbatim (preservation only), or also
       map timer/message/error onto the designer's typed events (`aef:eventDef`, T-190/T-204), and why.
 - [ ] After the fix every native event definition survives open and save, and any root-level message / signal / error /
@@ -129,6 +162,8 @@ fixtures: 47/47 kept, all outputs well-formed. Open: (1) definitions name root e
 -->
 
 ## Verification
+
+timeout 900 python3 tools/_t1222-event-definitions-kept.py > /tmp/.t1222.out 2>&1 && grep -q '^OK: every native event definition survives' /tmp/.t1222.out
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -372,3 +407,7 @@ fixtures: 47/47 kept, all outputs well-formed. Open: (1) definitions name root e
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1222-save-drops-44-of-45-native-bpmn-event-de.md
 - **Context:** Initial task creation
+
+### 2026-10-20T08:48:59Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
