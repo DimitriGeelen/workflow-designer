@@ -47,9 +47,9 @@
 # supersedes SOME of an entry's changes, keep `upstream:` as the verdict for what REMAINS owed
 # and record the rest under `superseded_changes:`. See agents/audit/audit.sh below.
 
-baseline_commit: 6239f2a70b6cbafbfbb72f80668f8d8fd4b31bfb
-baseline_note: "T-1208/T-1000 — pristine vendor commit of AEF v1.8.12 (ee1d6fcf; re-vendor protocol step 1). Every declared local fix the upgrade overwrote now shows STALE in tools/_t517; resolve each via tools/_t1000-revendor-worklist.py."
-baseline_note_previous: "T-1204/T-1000 — pristine vendor commit of AEF v1.8.11 (e42aa41bf; re-vendor protocol step 1). Every declared local fix the upgrade overwrote now shows STALE in tools/_t517; resolve each via tools/_t1000-revendor-worklist.py."
+baseline_commit: 5e5f68b700894fb1dc1910149995c2660230d622
+baseline_note: "T-1225/T-1000 — pristine vendor commit of AEF v1.8.14-be.3 (346c4ed33; re-vendor protocol step 1). Every declared local fix the upgrade overwrote now shows STALE in tools/_t517; resolve each via tools/_t1000-revendor-worklist.py."
+baseline_note_previous: "T-1208/T-1000 — pristine vendor commit of AEF v1.8.12 (ee1d6fcf; re-vendor protocol step 1). Every declared local fix the upgrade overwrote now shows STALE in tools/_t517; resolve each via tools/_t1000-revendor-worklist.py."
 entries:
 
   - path: .agentic-framework/lib/external_consult.py
