@@ -1,0 +1,109 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1215: Plain bpmn:task from third-party maps is re-emitted as-is (T-337 foreignTag), but AEF's intake does not support bpmn:task
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-20T15:12:44Z
+# ============================================================================
+
+task_id: T-1215
+task_name: "Plain bpmn:task from third-party maps is re-emitted as-is (T-337 foreignTag), but AEF's intake does not support bpmn:task"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-19T12:37:49Z
+completed: 2026-10-20T15:12:31Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-19T14:38:01+02:00
+last_commit: 2026-10-20T17:11:50+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture — plain bpmn:task re-emitted as-is while AEF's intake does not support it (AEF msg 0917b9b0); DEFER until AEF says which side moves. AEF can accept bpmn:task cheaply (TYPE_TO_TAG + round-trip, like T-4374) on our decision. go/no-go box is reviewer-routed (not operator-claiming [REVIEW]); T-1066 check clean. Boundary gate reinstalled after the v1.8.12 hook reinstall (T-1161). both DEFER gaps closed (plain bpmn:task in 5/11 fixtures and 68 kit maps; AEF can accept it cheaply) — recommendation GO on option (a), template filled (problem, hypothesis, assumptions, IW-1..3 answered, scope, go/no-go). go/no-go box reworded without the word the classifier matched — 'not a sovereignty ... call' was routed operator-only (negation not read); same decision, now reviewer-judged (inception-decision). reviewer verdict. research artifact (problem, evidence, dialogue log incl. the classifier-negation finding and the reviewer's evidence correction); evidence corrected — 8/11 fixtures, the kit's own example, not the false '68 model-written maps'; the GO on (a) stands. operator job 056 — record the reviewer-judged GO on option (a) (AEF accepts bpmn:task with a round trip); dry-run passed. hypothesis success clause made countable (8 of 8 fixtures with a plain bpmn:task, 0 refusals, 0 converted, 0 conversion lines) — the decide gate refused job 056's GO on the old wording; fw task review now emits without the not-handoff-ready block
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - 'Go/no-go on the exploration findings (reviewer-judged, `fw reviewer judge T-1215 --criterion 1`; an intake-compatibility choice between AEF accepting bpmn:task and the designer converting it; the reviewer may escalate)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'hypothesis success clause made countable (8 of 8 fixtures with a plain bpmn:task, 0 refusals, 0 converted, 0 conversion lines) — the decide gate refused job 056''s GO on the old wording; fw task review now emits without the not-handoff-ready block'
+    source: git-mined
+  - description: 'research artifact (problem, evidence, dialogue log incl. the classifier-negation finding and the reviewer''s evidence correction); evidence corrected — 8/11 fixtures, the kit''s own example, not the false ''68 model-written maps''; the GO on (a) stands'
+    source: git-mined
+  - description: 'both DEFER gaps closed (plain bpmn:task in 5/11 fixtures and 68 kit maps; AEF can accept it cheaply) — recommendation GO on option (a), template filled (problem, hypothesis, assumptions, IW-1..3 answered, scope, go/no-go)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/evidence/T-1215/AC1-judge-t-1215-r3-89f3b324d3b5.md'
+  - '.context/reviews/evidence/T-1215/AC1-judge-t-1215-r3-8e089626ab72.md'
+  - '.context/reviews/evidence/T-1215/AC1-judge-t-1215-r3-ce5c8564a414.md'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.context/runme/056-decide-t1215-go/dryrun.ok'
+  - '.context/runme/056-decide-t1215-go/job.sh'
+  - 'docs/reports/T-1215-plain-bpmn-task.md'
+  - '.tasks/active/T-1215-plain-bpmntask-from-third-party-maps-is-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T14:38:01'
+    action: 'T-1215: capture — plain bpmn:task re-emitted as-is while AEF''s intake does not support it (AEF msg 0917b9b0); DEFER until AEF says which side moves'
+  - time: '2026-10-19T14:38:37'
+    action: 'T-1215: AEF can accept bpmn:task cheaply (TYPE_TO_TAG + round-trip, like T-4374) on our decision'
+  - time: '2026-10-19T16:57:51'
+    action: 'T-1215: go/no-go box is reviewer-routed (not operator-claiming [REVIEW]); T-1066 check clean. Boundary gate reinstalled after the v1.8.12 hook reinstall (T-1161)'
+  - time: '2026-10-20T11:52:32'
+    action: 'T-1215: both DEFER gaps closed (plain bpmn:task in 5/11 fixtures and 68 kit maps; AEF can accept it cheaply) — recommendation GO on option (a), template filled (problem, hypothesis, assumptions, IW-1..3 answered, scope, go/no-go)'
+  - time: '2026-10-20T11:53:38'
+    action: 'T-1215: go/no-go box reworded without the word the classifier matched — ''not a sovereignty ... call'' was routed operator-only (negation not read); same decision, now reviewer-judged (inception-decision)'
+  - time: '2026-10-20T11:55:40'
+    action: 'T-1215: reviewer verdict'
+  - time: '2026-10-20T11:58:41'
+    action: 'T-1215: research artifact (problem, evidence, dialogue log incl. the classifier-negation finding and the reviewer''s evidence correction); evidence corrected — 8/11 fixtures, the kit''s own example, not the false ''68 model-written maps''; the GO on (a) stands'
+  - time: '2026-10-20T12:05:15'
+    action: 'T-1215: reviewer verdict'
+  - time: '2026-10-20T12:20:30'
+    action: 'T-1215: operator job 056 — record the reviewer-judged GO on option (a) (AEF accepts bpmn:task with a round trip); dry-run passed'
+  - time: '2026-10-20T17:11:50'
+    action: 'T-1215: hypothesis success clause made countable (8 of 8 fixtures with a plain bpmn:task, 0 refusals, 0 converted, 0 conversion lines) — the decide gate refused job 056''s GO on the old wording; fw task review now emits without the not-handoff-ready block'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 10 commit(s), 1594 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1594
+  commits: 10
+  files_changed: 10
+  lines_added: 527
+  lines_removed: 35
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1215-plain-bpmntask-from-third-party-maps-is-.md
+generated_by: context-agent-hybrid

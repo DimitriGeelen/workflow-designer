@@ -12,17 +12,17 @@ description: >
   Ask AEF which they prefer; a conversion changes semantics and needs the operator
   or the reviewer.
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-10-19T12:37:49Z
-last_update: 2026-10-20T15:11:50Z
-date_finished:
+last_update: 2026-10-20T15:12:31Z
+date_finished: 2026-10-20T15:12:31Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -204,15 +204,15 @@ itself (their task, filed on our decision); any designer conversion code (not pr
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] Go/no-go on the exploration findings (reviewer-judged, `fw reviewer judge T-1215 --criterion 1`; an intake-compatibility choice between AEF accepting bpmn:task and the designer converting it; the reviewer may escalate)
+- [x] Go/no-go on the exploration findings (reviewer-judged, `fw reviewer judge T-1215 --criterion 1`; an intake-compatibility choice between AEF accepting bpmn:task and the designer converting it; the reviewer may escalate)
   **Steps:**
   1. Run: `fw task review T-1215` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -271,7 +271,11 @@ rewrite the maps our own kit invites; an export notice would leave those maps un
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-1215 go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Reviewer green (2026-10-20, after evidence correction). Plain bpmn:task is common (8/11 third-party fixtures; the authoring kit's own example) and AEF can accept it cheaply with a round trip (msg abc0de1e); converting it in the designer would invent an executor and rewrite authors' maps. Option (a); no designer change.
+
+**Date**: 2026-10-20T15:12:30Z
 
 ## Updates
 
@@ -281,3 +285,33 @@ rewrite the maps our own kit invites; an export notice would leave those maps un
 ### 2026-10-20T09:52:48Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-20T15:12:30Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Reviewer green (2026-10-20, after evidence correction). Plain bpmn:task is common (8/11 third-party fixtures; the authoring kit's own example) and AEF can accept it cheaply with a round trip (msg abc0de1e); converting it in the designer would invent an executor and rewrite authors' maps. Option (a); no designer change.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-04b0ce32
+- **Timestamp:** 2026-10-20T15:12:35Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-62c11599
+- **Timestamp:** 2026-10-20T15:12:35Z
+- **Overall:** CONTRADICTED
+- **Claims:** 2
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `T-4374` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
+| `T-337` | task | ✓ pass |
+
+### 2026-10-20T15:12:31Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
