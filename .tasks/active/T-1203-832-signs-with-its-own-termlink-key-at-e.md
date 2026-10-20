@@ -429,7 +429,8 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
   AEF's `bin/claude-fw` (`TERMLINK_SESSION="claude-master-$$"`), which never sets TERMLINK_IDENTITY_FILE, so a session
   started by it registers under the host key unless the launching shell exported the variable. Reported to AEF as a
   claude-fw fix (conversation 832-claude-fw-identity): read RAIL_IDENTITY_FILE and export it before registering, only
-  when the key file exists.
+  when the key file exists. **Taken as AEF T-4454** (msg 39d18297): claude-fw resolves it via lib/rail-identity.sh
+  like the other paths; a worker is building it.
 - **Gap in our own check:** `_t1203-identity-coverage.sh` has no leg for the session REGISTRATION, so it read OK 8/0
   through this. To add (after the running suite closes finish): a leg reading `termlink whoami --json` for this session
   and failing when its identity_fingerprint is not 05c467b46a0bdf5e.
