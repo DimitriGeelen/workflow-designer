@@ -16,3 +16,4 @@ last_upgrade: 2026-10-20T15:24:20Z
 project_id: pid-6da630d5b53b170f
 MESSAGING_TOOLKIT: 1
 RAIL_IDENTITY_FILE: .context/secrets/termlink-identity.key
+SIDECAR_RAIL_IDENTITY: 1
