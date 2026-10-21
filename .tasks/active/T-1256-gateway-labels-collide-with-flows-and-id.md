@@ -46,7 +46,7 @@ related_tasks: [T-1241]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T20:23:36Z
-last_update: 2026-10-21T20:30:47Z
+last_update: 2026-10-21T21:18:50Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -123,6 +123,11 @@ to read. Pixel-identical in designer-v0.24.0. The operator chose to fix it befor
 - [ ] Screenshots of every lens at 1024/1440/1920, plus scrolled side-panel and details shots that show the lowest
   controls reachable, read control by control; the independent reviewer judges T-1241's criterion 1 again after this.
 - [ ] Harness as a bridge leg, red on the 0.24.0 placement; `_t1241`, `_t1176`, `_t1249` still pass; full suite green.
+- [ ] Sequence-flow labels too (reviewer amber 2026-10-21, judge-t-1241-r5-claude-code-31903aa3fd86): on
+  `aef-task-lifecycle` in every lens at 1440 and 1920, 0 flow labels crossed by another flow and 0 flow-label/label
+  overlaps (incl. "yes — status: issues", "next/later — backlog" over "shelved — …", and the flow through "shelved — …"
+  at 1440); corpus count of flow-label crossings does not rise for any map and falls in total; no label clipped
+  (descenders intact); measured by the harness, not by eye; 0 saved bytes change.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
