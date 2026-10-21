@@ -8208,7 +8208,7 @@ function procMetaInfo(s) {   // { mappingVersion, prefixes: [{name, iri, system,
 function v11ParseFragment(xmlParts) {   // kept child xml (aef: declared on the root, so not on the part) -> elements
   const src = Array.isArray(xmlParts) ? xmlParts.join('') : String(xmlParts || '');
   if (!src) return [];
-  const doc = new DOMParser().parseFromString(`<w xmlns:aef="${AEF_EXT_NS}">${src}</w>`, 'application/xml');
+  const doc = new DOMParser().parseFromString(`<w xmlns:aef="http://anchorpoint.framework/aef/extensions">${src}</w>`, 'application/xml');   // literal: T-044 checks every xmlns:aef value
   if (doc.getElementsByTagName('parsererror').length) return [];
   return Array.from(doc.documentElement.children);
 }

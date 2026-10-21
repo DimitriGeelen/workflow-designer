@@ -265,3 +265,5 @@ _t734_absence_guard.py
 _t1241-lens-shots.py
 # T-669's completion check (T-590 control level); its only caller was T-669's Verification, gone when T-669 closed (8c858a3f); one-shot by use (T-1245 suite triage)
 _t669-t590-control-level.py
+# screenshot generator for T-1249's Visual Verification (25 shots), not a guard; same class as _t1241-lens-shots
+_t1249-v11-io-shots.mjs

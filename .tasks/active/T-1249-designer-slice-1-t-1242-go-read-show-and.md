@@ -46,7 +46,7 @@ related_tasks: [T-1242]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T17:12:23Z
-last_update: 2026-10-21T18:19:10Z
+last_update: 2026-10-21T18:37:37Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -120,7 +120,7 @@ children); this slice makes the designer SHOW them, read-only. Editing is slices
 - [ ] Full bridge suite green; the release that carries it goes to AEF the day it is tagged.
 
 ### Human
-- [ ] [REVIEW] The read-only v1.1 io display is legible, compact and consistent with the panel at every width
+- [x] [REVIEW] The read-only v1.1 io display is legible, compact and consistent with the panel at every width
   **Why you:** render-surface judgement on new UI; reviewer-judged per AEF routing (PD-357), may escalate.
   **Steps:**
   1. Open the screenshots in `docs/reports/T-1249-evidence/`: `v11-step-{1024,1440,1920}-panel.png` (and
@@ -178,6 +178,7 @@ children); this slice makes the designer SHOW them, read-only. Editing is slices
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261021-e7c2ac2c — reviewer-judge-t-1249-r3-e9a86f1be12a:reviewer (rung rung-3-termlink-single-reviewer), digest e8d5cc334aeb; dispatch judge-t-1249-r3-e9a86f1be12a; evidence: .context/reviews/evidence/T-1249/AC1-judge-t-1249-r3-e9a86f1be12a.md, .context/reviews/evidence/T-1249/v11-step-1024-panel-judge-t-1249-r3-e9a86f1be12a.png, .context/reviews/evidence/T-1249/v11-step-1024-panel-end-judge-t-1249-r3-e9a86f1be12a.png, .context/reviews/evidence/T-1249/v11-step-1440-panel-judge-t-1249-r3-e9a86f1be12a.png, .context/reviews/evidence/T-1249/v11-step-1920-judge-t-1249-r3-e9a86f1be12a.png, .context/reviews/evidence/T-1249/workflow-1920-judge-t-1249-r3-e9a86f1be12a.png, .context/reviews/evidence/T-1249/v1-step-1440-judge-t-1249-r3-e9a86f1be12a.png, .context/reviews/evidence/T-1249/empty-step-1024-panel-judge-t-1249-r3-e9a86f1be12a.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
