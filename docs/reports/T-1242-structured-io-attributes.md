@@ -179,3 +179,38 @@ reasoning AEF gave for T-1220).
 - 2026-10-20, external panel: Codex and GLM-5.3 answered (above); they agree on catalogue references for
   source/target, recursion, read-only tree first, child-element preservation, and proposing to AEF first; they
   split on inline grammar vs JSON Schema files.
+- 2026-10-21, operator: prioritise; then chose to WAIT for AEF T-4415's ruling rather than build ahead (option 1).
+- 2026-10-21, AEF: T-4415 draft 1 received over TermLink (sha256 7be4c44f…, verified); 832's designer-side check below.
+
+## Check of AEF T-4415 draft 1, designer side (2026-10-21)
+
+Checked against the designer (`src/aef-workflow-designer.html`) and the maps tracked in this repo. greenfield's own
+maps were requested (VZN-T1 v26, WT-01) for the producer-side check; not in yet.
+
+1. **BLOCKING for additivity: section A's v1 `type` list is not v1.** Draft A lists `string | number | boolean | date |
+   object | list` as "v1 flat type, unchanged". The designer offers `string, number, boolean, ref, path, task_id,
+   arc_id, list, object` (`IO_TYPES`), and 54 tracked maps here use `ref`, `task_id` or `path` (io counts: string 167,
+   task_id 97, ref 38, list 24, enum 16, path 7, boolean 5, number 2, int 2, bool 1). As written, v1.1 would make those
+   maps non-conforming, so A is not additive (their review question 4). `date` is new (fine, additive) but not v1.
+   Proposal: A keeps the v1 set as it is in the corpus, and states how `enum`/`int`/`bool` (seen, not in IO_TYPES) are
+   read.
+2. **Two ways to name a single field.** greenfield's T-1219 request puts the field in `ref`
+   (`ref="sfdc:Opportunity.OwnerId"`); B puts it in `typeRef="sf:Opportunity"` + `<aef:field path="OwnerId"/>`. The
+   standard should say which is canonical, or how a reader treats a `ref` that names a field.
+3. **`ref` vs `type="ref"`.** A new attribute `ref` beside the existing type value `ref` will confuse authors and the
+   designer UI. Worth a different name (e.g. `objectRef`), or a sentence that they are unrelated.
+4. **`role` is circular.** "as T-1229 defines": 832 T-1229 is a captured follow-up that waits on this ruling, so it
+   defines nothing. The values need to be in the standard (greenfield asked for `read | write | create | match`).
+5. **`cardinality` vocabulary and overlap.** Draft: `one | optional | many`; greenfield asked `1 | 0..1 | 0..*`.
+   Also `required="false"` and `cardinality="optional"` say the same thing: one of them should win, or the
+   combination should be defined.
+6. **`oneOf` values comma-separated** breaks on values containing a comma; repeated `<aef:value>` children (or a
+   stated escape) avoid it.
+7. **Underspecified in C:** the comparison for `range` (number, date, string?) follows from which type; the regex
+   dialect for `pattern` (ECMAScript or XSD) is not named; how `path` steps through a `list` (`Lines.Amount` =
+   every line?) is not defined, for B as well.
+8. **Prefixes.** `sys:`, `sf:` and the other CURIE prefixes need the prefix map AEF put in v1.1 scope earlier
+   (T-1219, AEF msg on 6a2b98dd); the draft text does not show where it lives.
+9. **Designer cost (for the ruling, not an objection):** A and the step default are fields in the existing io editor;
+   B, C and D are child lists per io, which the designer now keeps verbatim (T-1243) and would show read-only first;
+   E reuses the tree. Nothing in A-E conflicts with what the designer stores.
