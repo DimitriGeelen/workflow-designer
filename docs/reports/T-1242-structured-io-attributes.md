@@ -186,6 +186,20 @@ reasoning AEF gave for T-1220).
   gains `delete` (needs a match key). 832 sent three small points (ref-as-field read rule needs a string-level test;
   present='false' vs the absent keyword; dataType id/reference mapping) and relayed AEF's write/delete question to
   greenfield. Open for AEF's ruling: ref as data-flow join key, typeRef version pinning, greenfield's full maps.
+- 2026-10-21, greenfield: their roles are FIELD-level (write = set the value on create or update alike). AEF
+  89e9cdb7a keeps `role` field-level with that meaning and adds `operation` (read | create | update | upsert |
+  delete) for the INSTANCE on typeRef/schemaRef ios. update, upsert and delete need a `role=match` field. H-042 is
+  the worked example.
+- 2026-10-21, full maps checked (point 10 above). AEF f1f7c30dd, section C2 (file sha256 bd461031…, verified):
+  - empty = `const=""`, not there = `absent=true`;
+  - no wildcard in v1.1, so `billing*` becomes an explicit `aef:field` list (greenfield agrees: the four Billing
+    address fields);
+  - both upsert forms are valid: `operation=upsert` is the contract and a linked detail map such as TRA-T1 is its
+    expansion;
+  - a `match` without fieldRef or path = key not yet determined: a lint warning, and generators refuse
+    update/upsert/delete code for it.
+
+  Draft 2 is complete from 832's and greenfield's side; it waits on AEF's operator ruling.
 
 ## Check of AEF T-4415 draft 1, designer side (2026-10-21)
 
