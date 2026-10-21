@@ -246,6 +246,29 @@ maps were requested (VZN-T1 v26, WT-01) for the producer-side check; not in yet.
      in C do not cover it, and draft 2 should say where it goes.
    - i. **Field-to-field transformations stay out of the map**, in their ontology (AttributeMapping). That is
      consistent with the draft.
-10. **Designer cost (for the ruling, not an objection):** A and the step default are fields in the existing io editor;
+10. **Full-map check (greenfield's VZN-T1 v29 and TRA-T1 v2, documentation stripped, sent with their operator's
+    approval; reassembled and sha256-verified, kept in an ignored folder, not in this repo).** Against draft 2:
+    - **VZN-T1 has 43 io in three styles:** 20 style A (all with `ref="nid:…"`, `role` and `dataType`), 12 style B
+      legacy lists, and 11 free-text ios ("Offerte (PDF) per solution", "verkoopordernummer"). `type="object"` is on
+      all 43, even a PDF and an order number, so the placeholder reading is confirmed.
+    - **`dataType` holds more tokens than id/reference:** id 4, string 4, reference 9, currencyCode 1, percent 1,
+      boolean 1. Draft 2's "informational only" rule covers all of them. `role`: read 9, write 7, create 2, match 2.
+    - **Style B names carry content that draft 2 has a construct for, so the migration is mechanical:**
+      - `Opportunity [StageName=Closed Won, …]` is a postcondition (`aef:expect path="StageName" const="Closed Won"`);
+      - `quoteNr (leeg)` is "empty", which needs a stated choice between `const=""` and `absent`;
+      - nested paths: `model.id`, `user.id`, `resource.type`;
+      - nested groups: `posities (lineNumber, vehicleType, …)`, which is a list path.
+    - **One form draft 2 has no construct for:** a wildcard selection, `billing*` (all billing fields). Either an
+      explicit field list or a stated pattern form.
+    - **TRA-T1 has NO io at all.** It is the detail map of VZN-T1's step h2_find, reached by `aef:link
+      targetWorkflow`. It models upsert as a STRUCTURE: per object (account, contact, opportunity) an "exists?"
+      gateway, then update or create, then merge. The key is named only in the gateway label (`crmExtId` = Salesforce
+      Account Id; `crmOppExtId`, 18 characters; the contact key is "still to be determined"). Draft 2 should say that
+      both forms are valid and how they relate: an upsert io (`match` + `create`) on the summary step, its expansion
+      as gateways in a detail map. A key known only in a label is invisible to a generator, and a `match` io without
+      a `fieldRef` (contact key unknown) needs a stated meaning.
+    - **No `aef:prefixes` and no `mappingVersion`,** as expected for v1 maps. The minimal migration (add prefixes with
+      `kind=field`) applies to the 20 style-A ios unchanged.
+11. **Designer cost (for the ruling, not an objection):** A and the step default are fields in the existing io editor;
    B, C and D are child lists per io, which the designer now keeps verbatim (T-1243) and would show read-only first;
    E reuses the tree. Nothing in A-E conflicts with what the designer stores.
