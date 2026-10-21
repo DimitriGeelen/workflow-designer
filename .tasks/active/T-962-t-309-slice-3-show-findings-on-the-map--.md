@@ -7,7 +7,7 @@ description: >
 status: work-completed
 workflow_type: build
 current_node: frw_4_partial
-owner: human
+owner: agent
 horizon: now
 tags: []
 components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tests/test_t962_findings_on_map.py]
@@ -23,7 +23,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T06:57:15Z
-last_update: 2026-10-01T08:39:28Z
+last_update: 2026-10-21T07:53:56Z
 date_finished: 2026-10-01T08:39:28Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -93,7 +93,7 @@ reusing existing selection rather than adding an interactive SVG layer.
       this can affect (theme, density, font) — recorded in `## Visual Verification` below.
 
 ### Human
-- [ ] [REVIEW] **One judgement call: does the finding marker duplicate the existing
+- [x] [REVIEW] **One judgement call: does the finding marker duplicate the existing
       "⚠ no authority" label, and should it?**
 
   Narrowed on the reviewer's `human-ac-mechanical-signal` finding, and it was right: the
@@ -117,6 +117,7 @@ reusing existing selection rather than adding an interactive SVG layer.
 
   **If not actionable:** if the two never appear together on your maps, say so and I will
   drop the question rather than engineer for a case that does not occur.
+  **Reviewer verdict:** green V-20261021-7874897a — reviewer-judge-t-962-r3-74bac7cd8b45:reviewer (rung rung-3-termlink-single-reviewer), digest 15d40fd0b086; dispatch judge-t-962-r3-74bac7cd8b45; evidence: .context/reviews/evidence/T-962/AC1-judge-t-962-r3-74bac7cd8b45.md, .context/reviews/evidence/T-962/AC1-judge-t-962-r3-74bac7cd8b45-unassigned.png, .context/reviews/evidence/T-962/AC1-judge-t-962-r3-74bac7cd8b45-dragged.png; ledger .context/reviews/verdicts.jsonl
 
 ## Visual Verification
 
