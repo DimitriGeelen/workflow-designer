@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T09:12:12Z
-last_update: 2026-10-06T09:23:59Z
+last_update: 2026-10-21T07:52:52Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -90,6 +90,7 @@ bvp_scores_proposed:
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] docs/reports/T-1065-operator-queue-triage.md classifies the 68 open ruling/decision criteria across 63 tasks: LIVE 42 · SETTLED 15 · MOOT 11, every SETTLED/MOOT with a citation (task, commit or decision id); unclear = LIVE (sub-agent, read-only; spot-checked: 22014fea = the operator's H1 ruling, 5b38a63a = T-392's hook change, PD-200 = the T-340 ruling "b" — all as cited)
+- [x] Re-run 2026-10-21 over EVERY open `### Human` criterion in `.tasks/active/` (78 across 69 tasks), routed per task by `fw task delegate T-XXX --dry-run --json` (all 69 exit 0, 78 routed): LIVE 19 · SETTLED 26 · REVIEWER 30 · PLACEHOLDER 3, LIVE listed first with question + recommended answer; picks up PD-356 (T-423), PD-399 (T-1213), PD-400 (T-279/280/282 now GO, T-732 #1)
 - [ ] The operator closes the batch-closable 23 (or says which not to), through the operator-only routes (inception decisions via a launcher job; Human criteria by the operator)
 
 ### Human
