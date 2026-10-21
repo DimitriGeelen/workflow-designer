@@ -46,7 +46,7 @@ related_tasks: [T-1242]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T17:12:23Z
-last_update: 2026-10-21T18:17:45Z
+last_update: 2026-10-21T18:19:10Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -94,21 +94,46 @@ children); this slice makes the designer SHOW them, read-only. Editing is slices
 ## Acceptance Criteria
 
 ### Agent
-- [ ] The io panel shows, read-only, every v1.1 construct on an `aef:input`/`aef:output`: fieldRef, typeRef or
+- [x] The io panel shows, read-only, every v1.1 construct on an `aef:input`/`aef:output`: fieldRef, typeRef or
   schemaRef, conceptRef, role, operation, cardinality, sourceSystem/targetSystem (with the step default and a
   prefix-derived system marked as derived), and the `aef:field` / `aef:expect` / `aef:example` children; the process
   `aef:prefixes` and `mappingVersion` are shown in the workflow panel. Unknown attributes and children still appear
   as they do today (T-1220/T-1243). No io field becomes editable in this slice.
-- [ ] Byte-exact round trip: every section-11 worked example of the v1.1 text, wrapped in a minimal map, opens and
+  **Evidence (2026-10-21):** `ioV11Block` / `wfV11Section` in the designer; `_t1249` leg d asserts 40 DOM strings
+  (every attribute, `derived · step default`, `derived · prefix sfdc`, field/when/expect keywords incl. enum and
+  ruleRef, example) on 7 v1.1 io and the workflow Mapping section, with 0 input/select inside the v1.1 display; leg e: a
+  v1 io has no v1.1 block and its row keeps [3, 2] controls. Also shown: 2.3 `ref` read as fieldRef (`derived · from
+  ref`) when a non-v1.1 map declares the prefix `kind="field"`. `ref`/`dataType`/other unknowns stay unshown, as today.
+- [x] Byte-exact round trip: every section-11 worked example of the v1.1 text, wrapped in a minimal map, opens and
   saves with 0 bytes changed in its io; the 54 tracked v1 maps that carry io and greenfield's VZN-T1 v29 (43 io, kept
   outside git) save with 0 bytes changed in their io. A CDP harness (`tools/_t1249-v11-io-cdp.mjs`) asserts this and
   the display, is red against the pre-change source, and runs as a bridge leg.
+  **Evidence (2026-10-21):** leg a: 5 maps (the 4 section-11 examples + AEF's FULL case, with the process `aef:meta`
+  mappingVersion + prefixes): io and process meta 0 bytes changed, second save identical. Leg b: every tracked .bpmn
+  with aef:input/output (84 files, 45 distinct contents, 136 io blocks; the "54" was the T-1242 type census): 0 changed,
+  none needs the new state. Leg c: VZN-T1 17 io blocks / 43 io: 0 changed (counts only, nothing printed). Red on the
+  pre-change source (legs a, c, d: nameless io dropped, process meta dropped, VZN's one-line io re-laid out) and with
+  `T1249_BITE=display` (leg d). Bridge leg added after T-1243 in `tests/run-bridge-tests.sh` (suite run by the orchestrator).
 - [ ] Screenshots of the io panel (a v1.1 step with fields and expectations; a v1 step; an empty step) at 1024, 1440
   and 1920, read control by control in `## Visual Verification`, and an independent reviewer judges them (`[REVIEW]`
   below) before close.
 - [ ] Full bridge suite green; the release that carries it goes to AEF the day it is tagged.
 
 ### Human
+- [ ] [REVIEW] The read-only v1.1 io display is legible, compact and consistent with the panel at every width
+  **Why you:** render-surface judgement on new UI; reviewer-judged per AEF routing (PD-357), may escalate.
+  **Steps:**
+  1. Open the screenshots in `docs/reports/T-1249-evidence/`: `v11-step-{1024,1440,1920}-panel.png` (and
+     `v11-step-1024-panel-end.png`), `v1-step-*-panel.png`, `empty-step-*-panel.png`, `workflow-*-panel.png`, and the
+     full views without `-panel`.
+  2. Read the `## Visual Verification` table in this task.
+  3. Check per shot: every v1.1 attribute and child is visible and unclipped; derived systems are labelled as derived;
+     a v1 io and an empty step look as before (no v1.1 block); the workflow panel's Mapping section shows
+     mappingVersion and the prefixes; nothing overlaps; the toolbar is unchanged. Note one known slice-1 limit: a
+     nameless v1.1 io still shows an empty name field and a `string` type select (editing is slice 2); judge whether
+     that misleads enough to fix now.
+  **Expected:** green, or amber naming the control and width that needs work.
+  **If not:** list each problem with the screenshot name; the agent fixes and re-shoots.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -291,6 +316,40 @@ children); this slice makes the designer SHOW them, read-only. Editing is slices
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+node tools/_t1249-v11-io-cdp.mjs > /tmp/.t1249-verify 2>&1 && head -2 /tmp/.t1249-verify | grep -q '"ok": true'
+node tools/_t1176-toolbar-reach-cdp.mjs > /tmp/.t1249-t1176 2>&1 && tail -2 /tmp/.t1249-t1176 | grep -q '"pass": true'
+
+## Visual Verification
+
+Screenshots: `docs/reports/T-1249-evidence/<state>-<width>.png` (full viewport) and `<state>-<width>-panel.png` (the
+properties panel scrolled to the section; `v11-step-1024-panel-end.png` is the rest at 1024x768), made by
+`node tools/_t1249-v11-io-shots.mjs` from AEF's section-11 examples + its FULL case only (no client material).
+States: **v11-step** (a step with 2 inputs + 3 outputs carrying fields, when, expect, example, explicit/derived systems),
+**v1-step** (plain v1 io), **empty-step** (no io), **workflow** (no selection: the new Mapping section). Widths
+1024x768, 1440x900, 1920x1080; the properties panel is 320 px wide at all three, so its content is laid out identically.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| toolbar | Open project / Pending refs / instances / zoom / fit / view toggles | ok | ok | ok | two rows at 1024, one at 1440/1920 |
+| toolbar | Add Lane, Reset, Clean layout, View XML, Settings, Load | ok | ok | ok | |
+| toolbar | Check, Versions, Save to project, Save | ok | ok | ok | all visible and unclipped; _t1176 toolbar guard 22/22 pass |
+| v11-step | input row `opp` (name, type select, req, ×) | ok | ok | ok | unchanged editable row |
+| v11-step | v1.1 block under `opp`: typeRef, conceptRef, cardinality, sourceSystem (explicit) | ok | ok | ok | key faint, value bright, pairs never split |
+| v11-step | `field LineItems[] cardinality many` + indented `when Kind const TradeIn` | ok | ok | ok | |
+| v11-step | `expect Status enum Won, Closed Won`; `expect Amount minimum … exclusiveMaximum … pattern …` | ok | ok | ok | second expect wraps to 2 lines at a pair boundary |
+| v11-step | `example Amount = 12500` | ok | ok | ok | |
+| v11-step | nameless input: `fieldRef sfdc:Opportunity.Id role read`, `sourceSystem sys:crm-default derived · step default` | ok | ok | ok | "derived · step default" italic, wraps under |
+| v11-step | outputs ×3: typeRef/operation, fields with role, `targetSystem sys:salesforce derived · prefix sfdc`, explicit targetSystem, `expect StageName const Closed Won` | ok | ok | ok | long fieldRefs push `role match` to the next line (whole pair) |
+| v11-step | + add input / + add output | ok | ok | ok | reachable; at 1024 + add output is in the -panel-end shot |
+| v11-step | no input/select inside any v1.1 block | ok | ok | ok | harness leg d: 0 editable controls |
+| v1-step | inputs owner/team, output assignment: name, type, req, × | ok | ok | ok | identical to before: no v1.1 block (leg e) |
+| empty-step | (no inputs) / (no outputs), + add input / + add output | ok | ok | ok | unchanged |
+| workflow | Workflow fields (ID … Kind) | ok | ok | ok | unchanged |
+| workflow | Mapping section: `mappingVersion 1.1`; `sfdc https://example.org/sfdc# · system sys:salesforce · kind field`; `tacton … · kind type` | ok | ok | ok | name column aligned, IRI wraps within its column |
+| workflow | Recently opened, Tips | ok | ok | ok | unchanged, below Mapping |
+
+Noted, not changed (existing behaviour, editing is slices 2-3): a v1.1 io with no `name`/`type` shows an empty name
+field and the type select at `string`; the step-level `aef:meta sourceSystem` also appears under Other extensions (T-1126).
 
 ## RCA
 

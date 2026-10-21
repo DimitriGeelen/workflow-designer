@@ -1137,6 +1137,19 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1249: every mapping v1.1 io construct is shown read-only and saved byte-exactly ──
+# Slice 1 of T-1242. AEF's section-11 examples (+ process aef:meta), every tracked map with io and greenfield's VZN-T1
+# (when present) keep their io bytes; the io panel shows each v1.1 construct, the workflow panel mappingVersion and the
+# prefixes; a v1 io shows nothing new. Red on the pre-T-1249 source and with the display disabled (T1249_BITE=display).
+if node "$ROOT/tools/_t1249-v11-io-cdp.mjs" > "$TMP/leg-_t1249.out" 2>&1 \
+   && head -2 "$TMP/leg-_t1249.out" | grep -q '"ok": true'; then
+  pass=$((pass + 1))
+else
+  report FAIL "a mapping v1.1 io construct is not shown read-only, a v1 io grew a v1.1 section, or open+save changed io or process aef:meta bytes (a nameless io dropped, attributes reordered, a producer's io layout rewritten) (run 'node tools/_t1249-v11-io-cdp.mjs'; T-1249)"
+  show_output "$TMP/leg-_t1249.out" "_t1249-v11-io-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
 # T-281 slice 1. Business lens: 0 technical badges, 0 fields outside the business set, 0 fields the profile hides;
 # switching lenses changes 0 bytes of buildBpmnXml; no lens definition = every field as before. Red on the pre-T-1241 source.

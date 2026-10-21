@@ -1193,6 +1193,20 @@ font-family: 'Outfit';
     transition: all 0.1s ease;
   }
   .io-add:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+  /* T-1249: mapping v1.1 io constructs, read-only, under their io row; and the workflow's mapping declaration */
+  .io-v11, .wf-v11 { font-family: var(--mono); font-size: 10px; line-height: 1.5; color: var(--text-dim); min-width: 0; }
+  .io-v11 { margin: -1px 0 3px 2px; padding: 2px 0 2px 7px; border-left: 2px solid var(--border); }
+  .io-v11-kv { line-height: 1.5; }
+  .io-v11 .kv, .wf-v11 .kv { display: inline-block; max-width: 100%; overflow-wrap: anywhere; margin-right: 4px; }
+  .io-v11-kid { overflow-wrap: anywhere; }
+  .io-v11 .k, .wf-v11 .k { color: var(--text-faint); }
+  .io-v11 .v, .wf-v11 .v { color: var(--text); }
+  .io-v11 .d { color: var(--text-faint); font-style: italic; margin-left: 4px; }
+  .io-v11-kid { padding-left: 2px; }
+  .io-v11-kid .tag { color: var(--accent); }
+  .io-v11-when { padding-left: 14px; }
+  .wf-v11 .wf-v11-pfx { display: grid; grid-template-columns: auto 1fr; gap: 0 8px; margin-top: 3px; }
+  .wf-v11 .wf-v11-pfx > span { overflow-wrap: anywhere; min-width: 0; }
 
   /* Routing section */
   .routing-info {
@@ -7221,6 +7235,8 @@ function _renderPropsInto(props, details) {
       // gloss lives on the canvas badge where there is room for it.
     }, 'unset · illustrative · actionable'));
     props.appendChild(sMeta);
+    const sMap = wfV11Section(state);   // T-1249: mappingVersion + aef:prefixes, read-only
+    if (sMap) props.appendChild(sMap);
 
     // Recently-opened section — quick view of all loaded workflows (T-159: operator
     // relabel, "Library" → "Recently opened"; the list IS the maps opened this session).
@@ -7932,8 +7948,8 @@ function _renderPropsInto(props, details) {
   if (ioSpec && (ioSpec.in || ioSpec.out) && lensSection('I/O contract')) {
     n.io = n.io || {};
     const sIo = section('I/O contract', true);
-    if (ioSpec.in)  sIo.appendChild(ioListField('inputs',  n.io.inputs  || (n.io.inputs  = []), true));
-    if (ioSpec.out) sIo.appendChild(ioListField('outputs', n.io.outputs || (n.io.outputs = []), false));
+    if (ioSpec.in)  sIo.appendChild(ioListField('inputs',  n.io.inputs  || (n.io.inputs  = []), true, n));
+    if (ioSpec.out) sIo.appendChild(ioListField('outputs', n.io.outputs || (n.io.outputs = []), false, n));
     props.appendChild(sIo);
   }
 }
@@ -8124,7 +8140,7 @@ function tierField(value, onInput) {
 
 // I/O list editor — renders a small label, then a list of {name, type, required?} rows,
 // then an "add" button. Mutates `items` in place and re-renders.
-function ioListField(kind /* 'inputs' | 'outputs' */, items, isInput) {
+function ioListField(kind /* 'inputs' | 'outputs' */, items, isInput, node) {
   const wrap = document.createElement('div');
   wrap.className = 'field io-block';
   const lbl = document.createElement('div');
@@ -8144,7 +8160,11 @@ function ioListField(kind /* 'inputs' | 'outputs' */, items, isInput) {
     empty.textContent = isInput ? '(no inputs)' : '(no outputs)';
     list.appendChild(empty);
   }
-  items.forEach((item, idx) => list.appendChild(ioRow(item, idx, items, isInput)));
+  items.forEach((item, idx) => {
+    list.appendChild(ioRow(item, idx, items, isInput));
+    const v11 = ioV11Block(item, isInput, node);   // T-1249: read-only
+    if (v11) list.appendChild(v11);
+  });
   wrap.appendChild(list);
 
   const addBtn = document.createElement('div');
@@ -8156,6 +8176,145 @@ function ioListField(kind /* 'inputs' | 'outputs' */, items, isInput) {
   };
   wrap.appendChild(addBtn);
   return wrap;
+}
+
+// ── T-1249 (slice 1 of T-1242): SHOW the mapping v1.1 io constructs, read-only ──
+// AEF's mapping v1.1 io text (T-4548): attributes fieldRef, typeRef|schemaRef, conceptRef, role, operation,
+// cardinality, sourceSystem/targetSystem on aef:input/aef:output; children aef:field (with aef:when), aef:expect
+// (with aef:value), aef:example; mappingVersion and aef:prefixes on the process-level aef:meta. Everything here reads
+// the data kept for the round trip (item.extra, item.children, state.procMetaKept) and writes nothing back; a v1 io
+// with none of it renders exactly as before (no block at all). Editing is slices 2-3.
+const IO_V11_ATTRS = ['fieldRef', 'typeRef', 'schemaRef', 'conceptRef', 'role', 'operation', 'cardinality', 'sourceSystem', 'targetSystem'];
+const IO_V11_KEYWORDS = ['const', 'minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum', 'pattern', 'present', 'absent', 'description'];
+const AEF_EXT_NS = 'http://anchorpoint.framework/aef/extensions';
+let _procMetaInfoCache = { key: null, info: null };
+function procMetaInfo(s) {   // { mappingVersion, prefixes: [{name, iri, system, kind}] } from the kept process aef:meta
+  const kept = (s && s.procMetaKept) || [];
+  const key = kept.join('\n');
+  if (_procMetaInfoCache.key === key) return _procMetaInfoCache.info;
+  const info = { mappingVersion: null, prefixes: [] };
+  for (const x of kept) {
+    const el = v11ParseFragment(x)[0];
+    if (!el) continue;
+    if (el.hasAttribute('mappingVersion')) info.mappingVersion = el.getAttribute('mappingVersion');
+    for (const p of el.getElementsByTagNameNS(AEF_EXT_NS, 'prefix')) {
+      info.prefixes.push({ name: p.getAttribute('name') || '', iri: p.getAttribute('iri') || '',
+                           system: p.getAttribute('system') || '', kind: p.getAttribute('kind') || '' });
+    }
+  }
+  _procMetaInfoCache = { key, info };
+  return info;
+}
+function v11ParseFragment(xmlParts) {   // kept child xml (aef: declared on the root, so not on the part) -> elements
+  const src = Array.isArray(xmlParts) ? xmlParts.join('') : String(xmlParts || '');
+  if (!src) return [];
+  const doc = new DOMParser().parseFromString(`<w xmlns:aef="${AEF_EXT_NS}">${src}</w>`, 'application/xml');
+  if (doc.getElementsByTagName('parsererror').length) return [];
+  return Array.from(doc.documentElement.children);
+}
+function v11Span(parent, k, v, derived) {
+  const sp = document.createElement('span');
+  sp.className = 'kv';
+  const ks = document.createElement('span'); ks.className = 'k'; ks.textContent = k + ' '; sp.appendChild(ks);
+  const vs = document.createElement('span'); vs.className = 'v'; vs.textContent = v; sp.appendChild(vs);
+  if (derived) { const d = document.createElement('span'); d.className = 'd'; d.textContent = derived; sp.appendChild(d); }
+  if (parent.childNodes.length) parent.appendChild(document.createTextNode(' '));
+  parent.appendChild(sp);
+  return sp;
+}
+function ioV11Block(item, isInput, node) {
+  const attrs = new Map(item.extra || []);
+  const kids = v11ParseFragment(item.children || []).filter(c => c.namespaceURI === AEF_EXT_NS &&
+    (c.localName === 'field' || c.localName === 'expect' || c.localName === 'example'));
+  const meta = procMetaInfo(state);
+  const pfx = q => { const m = /^([A-Za-z_][\w.-]*):/.exec(q || ''); return m ? meta.prefixes.find(p => p.name === m[1]) : null; };
+  // the system this io's direction names (2.5): the io's own attribute; else the step default on the step's aef:meta;
+  // else the system of the declared prefix of its fieldRef/typeRef. Only the first is written in the map.
+  const sysKey = isInput ? 'sourceSystem' : 'targetSystem';
+  let derivedSys = null;
+  if (!attrs.has(sysKey)) {
+    const stepDefault = node && node.aef && node.aef[sysKey];
+    const p = pfx(attrs.get('fieldRef')) || pfx(attrs.get('typeRef'));
+    if (stepDefault) derivedSys = [String(stepDefault), 'derived · step default'];
+    else if (p && p.system) derivedSys = [p.system, `derived · prefix ${p.name}`];
+  }
+  // 2.3: in a map that is not v1.1, a `ref` whose prefix is declared kind="field" reads as fieldRef
+  let refAsField = null;
+  if (meta.mappingVersion !== '1.1' && attrs.has('ref') && !attrs.has('fieldRef') && !attrs.has('typeRef')) {
+    const p = pfx(attrs.get('ref'));
+    if (p && p.kind === 'field') refAsField = attrs.get('ref');
+  }
+  const shown = IO_V11_ATTRS.filter(k => attrs.has(k));
+  if (!shown.length && !kids.length && !derivedSys && !refAsField) return null;
+
+  const box = document.createElement('div');
+  box.className = 'io-v11';
+  box.title = 'mapping v1.1 · read-only';
+  if (shown.length || derivedSys || refAsField) {
+    const kv = document.createElement('div');
+    kv.className = 'io-v11-kv';
+    if (refAsField) v11Span(kv, 'fieldRef', refAsField, 'derived · from ref');
+    for (const k of shown) v11Span(kv, k, attrs.get(k));
+    if (derivedSys) v11Span(kv, sysKey, derivedSys[0], derivedSys[1]);
+    box.appendChild(kv);
+  }
+  const addr = el => el.getAttribute('path') || el.getAttribute('fieldRef') || '(key not named)';
+  const keywords = el => {   // [[keyword, value], ...] of an aef:expect / aef:when (section 8)
+    const out = [];
+    for (const k of IO_V11_KEYWORDS) if (el.hasAttribute(k)) out.push([k, el.getAttribute(k)]);
+    const vals = Array.from(el.children).filter(c => c.localName === 'value').map(c => c.textContent);
+    if (vals.length) out.push(['enum', vals.join(', ')]);
+    if (el.hasAttribute('ruleRef')) out.push(['ruleRef', el.getAttribute('ruleRef') + (el.hasAttribute('ruleLanguage') ? ` (${el.getAttribute('ruleLanguage')})` : '')]);
+    return out;
+  };
+  const kidLine = (cls, tagText, address, pairs) => {
+    const line = document.createElement('div');
+    line.className = cls;
+    const head = document.createElement('span'); head.className = 'kv';
+    const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = tagText + ' '; head.appendChild(tag);
+    const a = document.createElement('span'); a.className = 'v'; a.textContent = address; head.appendChild(a);
+    line.appendChild(head);
+    for (const [k, v] of pairs) v11Span(line, k, v);
+    box.appendChild(line);
+  };
+  for (const c of kids) {
+    if (c.localName === 'field') {
+      const more = ['role', 'required', 'cardinality'].filter(k => c.hasAttribute(k)).map(k => [k, c.getAttribute(k)]);
+      if (c.hasAttribute('path') && c.hasAttribute('fieldRef')) more.unshift(['fieldRef', c.getAttribute('fieldRef')]);
+      kidLine('io-v11-kid', 'field', addr(c), more);
+      for (const w of Array.from(c.children).filter(x => x.localName === 'when')) kidLine('io-v11-kid io-v11-when', 'when', addr(w), keywords(w));
+    } else if (c.localName === 'expect') kidLine('io-v11-kid', 'expect', addr(c), keywords(c));
+    else kidLine('io-v11-kid', 'example', `${addr(c)} = ${c.getAttribute('value') || ''}`, []);   // documentation only (9.1)
+  }
+  return box;
+}
+// The workflow panel's read-only "Mapping" section: mappingVersion and the prefix map (name, iri, system, kind).
+function wfV11Section(s) {
+  const info = procMetaInfo(s);
+  if (!info.mappingVersion && !info.prefixes.length) return null;
+  const sec = section('Mapping', true);
+  const box = document.createElement('div');
+  box.className = 'wf-v11';
+  box.title = 'mapping v1.1 · read-only';
+  const kv = document.createElement('div');
+  kv.className = 'io-v11-kv';
+  v11Span(kv, 'mappingVersion', info.mappingVersion || '1.0', info.mappingVersion ? '' : '(not declared)');
+  box.appendChild(kv);
+  if (info.prefixes.length) {
+    const g = document.createElement('div');
+    g.className = 'wf-v11-pfx';
+    for (const p of info.prefixes) {
+      const n = document.createElement('span'); n.className = 'v'; n.textContent = p.name;
+      const r = document.createElement('span');
+      r.textContent = p.iri;
+      const extra = [p.system && `system ${p.system}`, p.kind && `kind ${p.kind}`].filter(Boolean).join(' · ');
+      if (extra) { const e = document.createElement('span'); e.className = 'k'; e.textContent = ' · ' + extra; r.appendChild(e); }
+      g.append(n, r);
+    }
+    box.appendChild(g);
+  }
+  sec.appendChild(box);
+  return sec;
 }
 
 function ioRow(item, idx, items, isInput) {
@@ -12115,6 +12274,47 @@ function ioChildXml(el) {
   }
   return parts.length ? parts : null;
 }
+// T-1249: a mapping v1.1 io often names no `name` or `type` (`<aef:output typeRef="sfdc:Account" operation="create">`),
+// writes `required` after a v1.1 attribute, or says `required="false"`. The canonical writer below would add
+// name=""/type="string", move `required` forward or drop it, and the nameless item was not written at all. `raw` keeps
+// the element's own attribute layout, and is set ONLY when the canonical write would differ, so every map the canonical
+// write already reproduces parses to exactly the state it always did. Used while name/type/required are unedited.
+function ioRawLayout(el, item, isInput) {
+  const order = Array.from(el.attributes).map(a => a.name).filter(n => XML_ATTR_NAME.test(n));
+  const canon = ['name', 'type'].concat(isInput && item.required ? ['required'] : [], (item.extra || []).map(([k]) => k));
+  const same = order.length === canon.length && order.every((n, i) => n === canon[i]) && el.hasAttribute('type');
+  if (same) return null;
+  return { order, name: el.getAttribute('name'), type: el.getAttribute('type'), required: el.getAttribute('required') };
+}
+function ioAttrsXml(i, isInput) {
+  const r = i.raw;
+  if (r && i.name === (r.name || '') && i.type === (r.type || 'string') && (!isInput || !!i.required === (r.required === 'true'))) {
+    const extra = new Map(i.extra || []);
+    return r.order.map(k => {
+      const v = k === 'name' ? r.name : k === 'type' ? r.type : (k === 'required' && isInput) ? r.required : extra.get(k);
+      return v == null ? '' : ` ${k}="${escAttr(v)}"`;
+    }).join('');
+  }
+  const reqAttr = isInput && i.required ? ' required="true"' : '';
+  return ` name="${escAttr(i.name)}" type="${escAttr(i.type)}"${reqAttr}${ioExtraAttrXml(i.extra)}`;
+}
+// T-1249: the whole <aef:io> as read is written back verbatim while its items are unedited. A producer lays io out its
+// own way (greenfield writes each aef:io on one line, the designer one item per line), and a save must not move those
+// bytes. `kept` is set only when the canonical block below differs from the source, so a map the designer wrote parses
+// to exactly the state it always did; any edit to an item (the signature changes) falls back to the canonical writer.
+function ioSig(io) { return JSON.stringify([io.inputs || [], io.outputs || []]); }
+function ioBlockXml(inputs, outputs) {
+  let out = `<aef:io>\n`;
+  for (const i of inputs) out += ioOpen(`          <aef:input${ioAttrsXml(i, true)}`, i.children);
+  for (const o of outputs) out += ioOpen(`          <aef:output${ioAttrsXml(o, false)}`, o.children);
+  return out + `        </aef:io>`;
+}
+function ioKeptXml(ioEl, io) {
+  const x = ioChildXml({ ownerDocument: ioEl.ownerDocument, childNodes: [ioEl] });
+  const src = x && x[0];
+  if (!src || src === ioBlockXml(io.inputs, io.outputs)) return null;
+  return { xml: src, sig: ioSig(io) };
+}
 function ioOpen(tagAndAttrs, children) {   // '<aef:input ...' + children -> self-closing, or open/children/close
   if (!children || !children.length) return `${tagAndAttrs}/>\n`;
   const tag = tagAndAttrs.trim().split(/\s/)[0].slice(1);
@@ -12163,8 +12363,8 @@ function aefExtensionXml(node) {
   const aef = node.aef || {};
   const io = node.io || {};
   const aefKeys = Object.keys(aef).filter(k => aef[k] !== '' && aef[k] != null);
-  const inputs = (io.inputs  || []).filter(i => i.name);
-  const outputs = (io.outputs || []).filter(i => i.name);
+  const inputs = (io.inputs  || []).filter(i => i.name || i.raw);   // T-1249: a nameless v1.1 io read from a file is kept
+  const outputs = (io.outputs || []).filter(i => i.name || i.raw);
   // Always emit the extension block to preserve the uid (so XML re-import keeps identity).
 
   let out = '      <bpmn:extensionElements>\n';
@@ -12314,15 +12514,8 @@ function aefExtensionXml(node) {
 
   // I/O data contract
   if (inputs.length || outputs.length) {
-    out += `        <aef:io>\n`;
-    for (const i of inputs) {
-      const reqAttr = i.required ? ' required="true"' : '';
-      out += ioOpen(`          <aef:input name="${escAttr(i.name)}" type="${escAttr(i.type)}"${reqAttr}${ioExtraAttrXml(i.extra)}`, i.children);
-    }
-    for (const o of outputs) {
-      out += ioOpen(`          <aef:output name="${escAttr(o.name)}" type="${escAttr(o.type)}"${ioExtraAttrXml(o.extra)}`, o.children);
-    }
-    out += `        </aef:io>\n`;
+    const kept = io.kept && io.kept.sig === ioSig(io) ? io.kept.xml : null;   // T-1249
+    out += `        ${kept || ioBlockXml(inputs, outputs)}\n`;
   }
 
   // T-063: structured aef values — dedicated child elements, in parity with the
@@ -12647,6 +12840,7 @@ function buildBpmnXml(s) {
   // exports byte-identically and the UNSET default stays genuinely inert.
   if (wm.kind) wmAttrs.push(`kind="${escAttr(wm.kind)}"`);
   lines.push(`      <aef:workflowMeta ${wmAttrs.join(' ')}/>`);
+  for (const x of s.procMetaKept || []) lines.push(`      ${x}`);   // T-1249: process-level aef:meta, verbatim
   lines.push(`    </bpmn:extensionElements>`);
   // T-1096: the process's own ioSpecification, kept — tCallableElement places it before the laneSet
   if (s.dataKept) for (const x of s.dataKept.procIo || []) lines.push(`    ${x}`);
@@ -13291,6 +13485,12 @@ function parseBpmnXml(text) {
   const procId = proc.getAttribute('id') || 'imported';
   const procName = proc.getAttribute('name') || procId.replace(/^Pool_/, '');
   const aefMetaEl = byAef(proc, 'workflowMeta')[0];
+  // T-1249: mapping v1.1 declares mappingVersion and the prefix map (aef:prefixes) on the PROCESS-level <aef:meta>, a
+  // direct child of the process's own extensionElements. The designer names none of it; it is kept verbatim, in order,
+  // and written back after aef:workflowMeta (it was dropped on save before). Read for display by procMetaInfo().
+  const procExt = Array.from(proc.children).find(c => c.localName === 'extensionElements');
+  const procMetaKept = procExt ? ioChildXml({ ownerDocument: proc.ownerDocument,
+    childNodes: Array.from(procExt.children).filter(c => c.localName === 'meta' && c.namespaceURI === AEF_NS) }) : null;
   const workflowMeta = {
     // T-563 (T-501 §Decision item 1). The chain was `authored id || procName || 'imported'`,
     // and procName is a DISPLAY LABEL — `proc.getAttribute('name')`, or procId minus a
@@ -13687,6 +13887,8 @@ function parseBpmnXml(text) {
           if (extra.length) item.extra = extra;
           const kids = ioChildXml(inp);   // T-1243
           if (kids) item.children = kids;
+          const raw = ioRawLayout(inp, item, true);   // T-1249
+          if (raw) item.raw = raw;
           io.inputs.push(item);
         }
         for (const out of byAef(ioEl, 'output')) {
@@ -13698,8 +13900,12 @@ function parseBpmnXml(text) {
           if (extra.length) item.extra = extra;
           const kids = ioChildXml(out);   // T-1243
           if (kids) item.children = kids;
+          const raw = ioRawLayout(out, item, false);   // T-1249
+          if (raw) item.raw = raw;
           io.outputs.push(item);
         }
+        const kept = ioKeptXml(ioEl, io);   // T-1249: the block as read, while unedited
+        if (kept) io.kept = kept;
       }
 
       // T-063: structured aef values — read back the dedicated child elements the
@@ -13898,6 +14104,8 @@ function parseBpmnXml(text) {
     ...(dataKept ? { dataKept } : {}),
     // T-1222: root-level message/signal/error/escalation elements a kept native event definition names, verbatim.
     ...(eventRoots.length ? { eventRoots } : {}),
+    // T-1249: the process-level <aef:meta> (mapping v1.1: mappingVersion, aef:prefixes), verbatim (null: byte-identical).
+    ...(procMetaKept ? { procMetaKept } : {}),
   };
   // Use a temporary state so laneCenterY() resolves correctly during patching
   const prev = state;
