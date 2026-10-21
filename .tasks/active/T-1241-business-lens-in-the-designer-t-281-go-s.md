@@ -48,7 +48,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-20T20:41:29Z
-last_update: 2026-10-21T11:58:48Z
+last_update: 2026-10-21T17:23:05Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -94,15 +94,19 @@ the same shape, swapped for AEF's when it lands.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] A lens definition (data, not code) names per lens the fields and the canvas decorations it shows; the designer
+- [x] A lens definition (data, not code) names per lens the fields and the canvas decorations it shows; the designer
       reads it like the field profile, and works without it (all fields, as today)
-- [ ] A toolbar switch business / logical / technical / all; the business lens drives the side panel, the details view
-      and the canvas decoration at once
-- [ ] Test on `aef-task-lifecycle` in the business lens: 0 technical badges and 0 fields outside the business set
-      visible; 0 fields shown that the field profile hides
-- [ ] Switching lenses changes 0 bytes of the saved BPMN (export before == export after, every lens)
-- [ ] Screenshots of each lens at 1024, 1440 and 1920, read control by control in `## Visual Verification`
-- [ ] The full bridge run stays green
+      (`lens-definition.interim.json` via `GET /api/lens-definition`; 404 = only "All", every field — _t1241 leg)
+- [x] A toolbar switch business / logical / technical / all; the business lens drives the side panel, the details view
+      and the canvas decoration at once (commit for T-1241 slice 1; header fit re-checked at 1024/1440/1894/1920)
+- [x] Test on `aef-task-lifecycle` in the business lens: 0 technical badges and 0 fields outside the business set
+      visible; 0 fields shown that the field profile hides (`tools/_t1241-business-lens-cdp.mjs`, green; red on the
+      pre-change source; a bridge leg since T-1245's suite triage)
+- [x] Switching lenses changes 0 bytes of the saved BPMN (export before == export after, every lens) (_t1241 leg)
+- [x] Screenshots of each lens at 1024, 1440 and 1920, read control by control in `## Visual Verification`
+      (24 lens shots + 10 toolbar-fit shots in docs/reports/T-1241-evidence/)
+- [x] The full bridge run stays green (2026-10-21: 311 passed; the 1 red was the _t344 cron-audit flake, fixed in
+      T-1254 and green after)
 
 ### Human
 - [ ] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1241 --criterion 1`): each lens is
