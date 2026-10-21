@@ -181,6 +181,11 @@ reasoning AEF gave for T-1220).
   split on inline grammar vs JSON Schema files.
 - 2026-10-21, operator: prioritise; then chose to WAIT for AEF T-4415's ruling rather than build ahead (option 1).
 - 2026-10-21, AEF: T-4415 draft 1 received over TermLink (sha256 7be4c44f…, verified); 832's designer-side check below.
+- 2026-10-21, AEF: draft 2 (AEF a9f9d677b, sha256 f13ab1ff…, confirmed by AEF) takes in 832 points 1-8 and greenfield
+  a-i; the v1 type vocabulary is adopted as the designer's nine values, open, int/bool as aliases, enum kept. `role`
+  gains `delete` (needs a match key). 832 sent three small points (ref-as-field read rule needs a string-level test;
+  present='false' vs the absent keyword; dataType id/reference mapping) and relayed AEF's write/delete question to
+  greenfield. Open for AEF's ruling: ref as data-flow join key, typeRef version pinning, greenfield's full maps.
 
 ## Check of AEF T-4415 draft 1, designer side (2026-10-21)
 
