@@ -323,11 +323,43 @@ def identity_coverage():
     print("TermLink identity: %s" % line)
 
 
+def mark_seen_ids(ids):
+    """T-1248: mark as shown ONLY the messages named (full id or a unique prefix of one listed now). A blanket
+    --mark-seen marks every listed message, read or not, and a shown message is withheld from the mail watcher
+    and the prompt hook: greenfield's T-4415 answer sat unseen that way. Prints each id it marked; an id that
+    matches nothing listed, or more than one, is refused (exit 2) and nothing is marked."""
+    try:
+        r = subprocess.run([FW, "sidecar", "alerts", "--limit", "0", "--json"], capture_output=True, text=True,
+                           timeout=180)
+        listed = [m["id"] for m in json.loads(r.stdout).get("mail", [])]
+    except (OSError, subprocess.TimeoutExpired, ValueError, KeyError) as e:
+        print("MARK NOT DONE: could not list mail: %s" % e)
+        return 2
+    chosen = []
+    for want in ids:
+        hits = [m for m in listed if m == want or m.startswith(want)]
+        if len(hits) != 1:
+            print("MARK NOT DONE: %r matches %d listed message(s); nothing marked" % (want, len(hits)))
+            return 2
+        chosen.append(hits[0])
+    sys.path.insert(0, os.path.join(ROOT, ".agentic-framework", "lib"))
+    from sidecar import receiver, seen
+    seen.mark_shown([(m, receiver.read_message(m)) for m in chosen], by="alerts")
+    for m in chosen:
+        print("marked shown: %s" % m)
+    return 0
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=10)
-    ap.add_argument("--mark-seen", action="store_true")
+    ap.add_argument("--mark-seen", action="store_true",
+                    help="marks EVERY listed message shown; prefer --mark-seen-ids with the ids you have read (T-1248)")
+    ap.add_argument("--mark-seen-ids", nargs="+", metavar="ID",
+                    help="mark only these messages shown (full id or unique prefix), then exit (T-1248)")
     a = ap.parse_args(argv)
+    if a.mark_seen_ids:
+        return mark_seen_ids(a.mark_seen_ids)
     print_runme()  # first, so a failed mail check below cannot hide it
     rc_mail = mail(a.limit, a.mark_seen)
     rc_topics = watched_topics(a.mark_seen)
