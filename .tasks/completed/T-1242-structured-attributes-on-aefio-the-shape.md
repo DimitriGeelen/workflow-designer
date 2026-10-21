@@ -6,17 +6,17 @@ description: >
   Inception: Structured attributes on aef:io: the shape of each input and output (nested
   attributes, allowed values), plus source and target system
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-10-20T21:08:18Z
-last_update: 2026-10-21T13:58:43Z
-date_finished:
+last_update: 2026-10-21T14:33:08Z
+date_finished: 2026-10-21T14:33:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -201,15 +201,15 @@ the data-flow join key and typeRef version pinning (open in AEF's build tasks).
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Why you:** tier0 — recording an inception's go/no-go (`fw inception decide`) is Tier 0, and the standard this
   changes is ruled by AEF's operator (T-4415) and then ours.
   **Steps:**
@@ -283,7 +283,11 @@ reviewable slices (see Scope Fence), read-only first, each reversible. It was ch
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-1242 go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: AEF T-4415 GO (operator ruling 2026-10-21, ruled DRAFT 2 at AEF f1f7c30dd, verified by 832 and greenfield incl. full maps); operator asked to prioritise; build in four slices, read-only first
+
+**Date**: 2026-10-21T14:33:07Z
 
 ## Updates
 
@@ -292,3 +296,45 @@ reviewable slices (see Scope Fence), read-only first, each reversible. It was ch
 
 ### 2026-10-20T21:09:23Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-10-21T14:33:07Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** AEF T-4415 GO (operator ruling 2026-10-21, ruled DRAFT 2 at AEF f1f7c30dd, verified by 832 and greenfield incl. full maps); operator asked to prioritise; build in four slices, read-only first
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-eeaac281
+- **Timestamp:** 2026-10-21T14:33:09Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 3
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-3
+     - evidence: `IW-3 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  3. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-6
+     - evidence: `IW-6 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-23a4eea8
+- **Timestamp:** 2026-10-21T14:33:09Z
+- **Overall:** CONTRADICTED
+- **Claims:** 5
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `docs/reports/T-1242-structured-io-attributes.md` | file | ✓ pass |
+| `T-4415` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
+| `T-1220` | task | ✓ pass |
+| `T-1243` | task | ✓ pass |
+| `T-4518` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
+
+### 2026-10-21T14:33:08Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO

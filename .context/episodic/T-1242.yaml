@@ -1,0 +1,112 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1242: Structured attributes on aef:io: the shape of each input and output (nested attributes, allowed values), plus source and target system
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-21T14:33:13Z
+# ============================================================================
+
+task_id: T-1242
+task_name: "Structured attributes on aef:io: the shape of each input and output (nested attributes, allowed values), plus source and target system"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-20T21:08:18Z
+completed: 2026-10-21T14:33:08Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-20T23:14:28+02:00
+last_commit: 2026-10-21T16:18:33+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception — structured attributes on aef:io (shape, nesting, allowed values, source/target system); research artifact with options A-D and IW-1..6; external panel asked (Codex, GLM). external advice recorded — Codex (named JSON Schema types, no private grammar) and GLM-5.3 (small inline grammar + named types + JSON Schema export); agreed points and the one split, with the agent's leaning. greenfield's producer input recorded (referenced named types via ontology IRI, system refs, list-of-object for line items; keep unknown child elements); leaning revised to referenced types; T-1243 filed for child-element preservation. AEF view and T-4518 result recorded; next-session note: suite 298/10 after the scrub, do not push until fixed. recommendation brought up to date — evidence in, all inputs converge on referenced named types; only AEF T-4415's ruling is open; operator asked to prioritise, AEF asked to move T-4415 up. designer-side check of AEF T-4415 draft 1 — A's 'v1 type' list drops ref/task_id/path used by 54 tracked maps (not additive as written), two ways to name a single field, ref vs type=ref, role circular via T-1229, cardinality vocabulary/overlap, oneOf comma split, range/pattern/list-path underspecified, prefix map not shown. producer check of AEF T-4415 draft 1 on greenfield's VZN-T1 v27 io fragments — their ref is a field IRI (= fieldRef), dataType holds technical tokens (id, reference), type=object is a placeholder, role read|write|create|match confirmed, systems come from the path prefix, style B maps onto aef:field, lists with line kinds are required, upsert expectations are behavioural. AEF T-4415 draft 2 read (a9f9d677b, f13ab1ff): our 8 points and greenfield's 9 taken in, v1 type vocabulary adopted; three small follow-ups sent; role delete question relayed to greenfield. gitignore the peer-document intake folder (AEF drafts, greenfield's maps) so received files never reach the repo or mirror. full-map check of AEF T-4415 draft 2 on greenfield's VZN-T1 v29 and TRA-T1 v2 (sha-verified, not stored in the repo): 43 io in three styles, type=object placeholder on all, dataType tokens covered by the informational rule, style B names carry expectations and nested/list paths, wildcard billing* has no construct, TRA-T1 models upsert as gateways with keys only in labels. draft 2 complete from the designer and producer side — role field-level + new operation attribute (AEF 89e9cdb7a), C2 decisions on empty/absent, no wildcard, both upsert forms, undetermined match key (AEF f1f7c30dd, verified); waits on AEF's operator ruling. GO recommendation after AEF T-4415's ruling — countable hypothesis (VZN-T1 43 io and 54 v1 maps 0 bytes changed, v1.1 example round-trip), IW-1..6 answered from the ruled text, scope fence with four build slices. operator job 073 — record GO on T-1242 now that AEF ruled T-4415 (designer build in four slices, read-only first)
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'producer check of AEF T-4415 draft 1 on greenfield''s VZN-T1 v27 io fragments — their ref is a field IRI (= fieldRef), dataType holds technical tokens (id, reference), type=object is a placeholder, role read|write|create|match confirmed, systems come from the path prefix, style B maps onto aef:field, lists with line kinds are required, upsert expectations are behavioural'
+    source: git-mined
+  - description: 'designer-side check of AEF T-4415 draft 1 — A''s ''v1 type'' list drops ref/task_id/path used by 54 tracked maps (not additive as written), two ways to name a single field, ref vs type=ref, role circular via T-1229, cardinality vocabulary/overlap, oneOf comma split, range/pattern/list-path underspecified, prefix map not shown'
+    source: git-mined
+  - description: 'AEF view and T-4518 result recorded; next-session note: suite 298/10 after the scrub, do not push until fixed'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/073-decide-t1242-go/dryrun.ok'
+  - '.context/runme/073-decide-t1242-go/job.sh'
+  - '.context/working/NEXT-SESSION-after-scrub.md'
+  - 'docs/reports/T-1242-structured-io-attributes.md'
+  - '.gitignore'
+  - '.tasks/active/T-1242-structured-attributes-on-aefio-the-shape.md'
+  - '.tasks/active/T-1243-designer-keeps-unknown-child-elements-in.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-20T23:14:28'
+    action: 'T-1242: inception — structured attributes on aef:io (shape, nesting, allowed values, source/target system); research artifact with options A-D and IW-1..6; external panel asked (Codex, GLM)'
+  - time: '2026-10-20T23:17:14'
+    action: 'T-1242: external advice recorded — Codex (named JSON Schema types, no private grammar) and GLM-5.3 (small inline grammar + named types + JSON Schema export); agreed points and the one split, with the agent''s leaning'
+  - time: '2026-10-20T23:21:29'
+    action: 'T-1242: greenfield''s producer input recorded (referenced named types via ontology IRI, system refs, list-of-object for line items; keep unknown child elements); leaning revised to referenced types; T-1243 filed for child-element preservation'
+  - time: '2026-10-21T00:31:30'
+    action: 'T-1242: AEF view and T-4518 result recorded; next-session note: suite 298/10 after the scrub, do not push until fixed'
+  - time: '2026-10-21T14:46:30'
+    action: 'T-1242: recommendation brought up to date — evidence in, all inputs converge on referenced named types; only AEF T-4415''s ruling is open; operator asked to prioritise, AEF asked to move T-4415 up'
+  - time: '2026-10-21T15:05:26'
+    action: 'T-1242: designer-side check of AEF T-4415 draft 1 — A''s ''v1 type'' list drops ref/task_id/path used by 54 tracked maps (not additive as written), two ways to name a single field, ref vs type=ref, role circular via T-1229, cardinality vocabulary/overlap, oneOf comma split, range/pattern/list-path underspecified, prefix map not shown'
+  - time: '2026-10-21T15:25:05'
+    action: 'T-1242: producer check of AEF T-4415 draft 1 on greenfield''s VZN-T1 v27 io fragments — their ref is a field IRI (= fieldRef), dataType holds technical tokens (id, reference), type=object is a placeholder, role read|write|create|match confirmed, systems come from the path prefix, style B maps onto aef:field, lists with line kinds are required, upsert expectations are behavioural'
+  - time: '2026-10-21T15:45:36'
+    action: 'T-1242: AEF T-4415 draft 2 read (a9f9d677b, f13ab1ff): our 8 points and greenfield''s 9 taken in, v1 type vocabulary adopted; three small follow-ups sent; role delete question relayed to greenfield'
+  - time: '2026-10-21T15:53:58'
+    action: 'T-1242: gitignore the peer-document intake folder (AEF drafts, greenfield''s maps) so received files never reach the repo or mirror'
+  - time: '2026-10-21T15:56:35'
+    action: 'T-1242: full-map check of AEF T-4415 draft 2 on greenfield''s VZN-T1 v29 and TRA-T1 v2 (sha-verified, not stored in the repo): 43 io in three styles, type=object placeholder on all, dataType tokens covered by the informational rule, style B names carry expectations and nested/list paths, wildcard billing* has no construct, TRA-T1 models upsert as gateways with keys only in labels'
+  - time: '2026-10-21T15:58:42'
+    action: 'T-1242: draft 2 complete from the designer and producer side — role field-level + new operation attribute (AEF 89e9cdb7a), C2 decisions on empty/absent, no wildcard, both upsert forms, undetermined match key (AEF f1f7c30dd, verified); waits on AEF''s operator ruling'
+  - time: '2026-10-21T16:18:06'
+    action: 'T-1242: GO recommendation after AEF T-4415''s ruling — countable hypothesis (VZN-T1 43 io and 54 v1 maps 0 bytes changed, v1.1 example round-trip), IW-1..6 answered from the ruled text, scope fence with four build slices'
+  - time: '2026-10-21T16:18:33'
+    action: 'T-1242: operator job 073 — record GO on T-1242 now that AEF ruled T-4415 (designer build in four slices, read-only first)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 13 commit(s), 1044 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1044
+  commits: 13
+  files_changed: 7
+  lines_added: 1050
+  lines_removed: 38
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1242-structured-attributes-on-aefio-the-shape.md
+generated_by: context-agent-hybrid
