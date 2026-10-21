@@ -15,3 +15,10 @@ author moves each item into `RELEASE-NOTES-<version>.md` and deletes it here. (T
   different display ids than 0.24.0 gave them (boundary events no longer count as numbered steps, typed catches take
   their type word); maps already saved by 0.24.0 keep their ids. Maps the designer authored are byte-identical.
   Guard: `tools/_t1222-event-definitions-kept.py`.
+- **T-1243: child elements inside `aef:input` / `aef:output` survive a save.** 0.24.0 kept unknown attributes on an
+  io (T-1220); a child element (a producer's nested `aef:attr` tree, a schema reference, a foreign-namespace
+  extension, an element with text) was dropped. Now every element child is kept verbatim, in order, adding no
+  namespace declarations, and a second save is byte-identical to the first. Preserving, not interpreting: the designer
+  shows nothing new (T-1242 decides the shape; AEF T-4415). **What changes in stored maps:** nothing for an io without
+  children (still self-closing, all goldens unchanged); an io with children keeps them. Asked by aef-greenfield-test,
+  who will re-run their VZN-T1 / WT-01 round trip on the release. Guard: `tools/_t1243-io-children-cdp.mjs`.

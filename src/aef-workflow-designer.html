@@ -12020,6 +12020,27 @@ function ioExtraAttrs(el, named) {
 function ioExtraAttrXml(extra) {
   return (extra || []).filter(([k]) => XML_ATTR_NAME.test(k)).map(([k, v]) => ` ${k}="${escAttr(v)}"`).join('');
 }
+// T-1243: CHILD elements inside <aef:input>/<aef:output> are kept the same way (a producer's nested attribute tree,
+// a schema reference, any extension; T-1242). The designer names no children of an io, so every element child is
+// kept, verbatim, in order. XMLSerializer re-declares a namespace on a subtree serialised alone; a declaration the
+// document root already makes with the same URI is redundant there and is dropped, so a save adds no xmlns noise and a
+// second save is byte-identical to the first.
+function ioChildXml(el) {
+  const doc = el.ownerDocument, root = doc && doc.documentElement, ser = new XMLSerializer(), parts = [];
+  for (const c of Array.from(el.childNodes)) {
+    if (c.nodeType !== 1) continue;
+    let x = ser.serializeToString(c);
+    x = x.replace(/^(<[^\s>\/]+)((?:\s+[^\s=>]+="[^"]*")*)/, (m, tag, attrs) => tag + attrs.replace(/\s+xmlns(?::([A-Za-z_][\w.-]*))?="([^"]*)"/g,
+      (d, pfx, uri) => (root && root.getAttribute(pfx ? 'xmlns:' + pfx : 'xmlns') === uri) ? '' : d));
+    parts.push(x);
+  }
+  return parts.length ? parts : null;
+}
+function ioOpen(tagAndAttrs, children) {   // '<aef:input ...' + children -> self-closing, or open/children/close
+  if (!children || !children.length) return `${tagAndAttrs}/>\n`;
+  const tag = tagAndAttrs.trim().split(/\s/)[0].slice(1);
+  return `${tagAndAttrs}>\n` + children.map(c => `            ${c}\n`).join('') + `          </${tag}>\n`;
+}
 // escText is deliberately NOT given the same treatment: normalisation applies to attribute
 // values only, and newlines in element text content are legal and preserved. Escaping them here
 // would invent a behaviour rather than restore one.
@@ -12217,10 +12238,10 @@ function aefExtensionXml(node) {
     out += `        <aef:io>\n`;
     for (const i of inputs) {
       const reqAttr = i.required ? ' required="true"' : '';
-      out += `          <aef:input name="${escAttr(i.name)}" type="${escAttr(i.type)}"${reqAttr}${ioExtraAttrXml(i.extra)}/>\n`;
+      out += ioOpen(`          <aef:input name="${escAttr(i.name)}" type="${escAttr(i.type)}"${reqAttr}${ioExtraAttrXml(i.extra)}`, i.children);
     }
     for (const o of outputs) {
-      out += `          <aef:output name="${escAttr(o.name)}" type="${escAttr(o.type)}"${ioExtraAttrXml(o.extra)}/>\n`;
+      out += ioOpen(`          <aef:output name="${escAttr(o.name)}" type="${escAttr(o.type)}"${ioExtraAttrXml(o.extra)}`, o.children);
     }
     out += `        </aef:io>\n`;
   }
@@ -13585,6 +13606,8 @@ function parseBpmnXml(text) {
           };
           const extra = ioExtraAttrs(inp, IO_NAMED_ATTRS.input);
           if (extra.length) item.extra = extra;
+          const kids = ioChildXml(inp);   // T-1243
+          if (kids) item.children = kids;
           io.inputs.push(item);
         }
         for (const out of byAef(ioEl, 'output')) {
@@ -13594,6 +13617,8 @@ function parseBpmnXml(text) {
           };
           const extra = ioExtraAttrs(out, IO_NAMED_ATTRS.output);
           if (extra.length) item.extra = extra;
+          const kids = ioChildXml(out);   // T-1243
+          if (kids) item.children = kids;
           io.outputs.push(item);
         }
       }

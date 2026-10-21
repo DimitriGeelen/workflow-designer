@@ -1,13 +1,21 @@
 ---
 id: T-1243
-name: "Designer keeps unknown child elements inside aef:input/aef:output through a save (T-1242 producer ask)"
+name: "Designer keeps unknown child elements inside aef:input/aef:output through a
+  save (T-1242 producer ask)"
 description: >
-  T-1220 (0.24.0) keeps unknown aef: ATTRIBUTES on aef:io through a save; unknown CHILD elements (e.g. a nested aef:attr tree, an aef:schema, any producer extension) are not covered. Asked by aef-greenfield-test (msg e6caaa76) and both external reviewers of T-1242 (Codex, GLM). Preserving is not interpreting (AEF's reasoning for T-1220), so this does not wait for AEF's v1.1 ruling: parse keeps the child XML verbatim, build re-emits it in place, byte-stable round trip; test with a fixture carrying nested unknown children; no UI.
+  T-1220 (0.24.0) keeps unknown aef: ATTRIBUTES on aef:io through a save; unknown
+  CHILD elements (e.g. a nested aef:attr tree, an aef:schema, any producer extension)
+  are not covered. Asked by aef-greenfield-test (msg e6caaa76) and both external reviewers
+  of T-1242 (Codex, GLM). Preserving is not interpreting (AEF's reasoning for T-1220),
+  so this does not wait for AEF's v1.1 ruling: parse keeps the child XML verbatim,
+  build re-emits it in place, byte-stable round trip; test with a fixture carrying
+  nested unknown children; no UI.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-20T21:20:29Z
-last_update: 2026-10-20T21:20:29Z
-date_finished: null
+last_update: 2026-10-21T01:07:57Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +58,49 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-21T00:53:35Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1243: Designer keeps unknown child elements inside aef:input/aef:output through a save (T-1242 producer ask)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Asked by aef-greenfield-test (msg e6caaa76) and both external reviewers of T-1242. T-1220 (0.24.0) keeps unknown
+ATTRIBUTES on aef:io; this keeps unknown CHILD elements of `aef:input`/`aef:output`. Preserving, not interpreting:
+no UI, no meaning given to them, no wait for AEF's v1.1 (AEF T-4518 made its intake keep them too).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Every element child of an `aef:input`/`aef:output` survives open -> save, in order, with its attributes, text
+      and nested children (a fixture with a 3-level nested `aef:attr` tree, a foreign-namespace child and text)
+- [x] Byte-stable: a second open -> save of the first save's output is byte-identical; the save adds no new
+      `xmlns` declarations (redundant re-declarations of a namespace the root already declares are dropped)
+- [x] An io WITHOUT children still serialises self-closing, byte-identical to before (all goldens unchanged)
+      (`_t358` third-party byte identity PASS; `_t1220` still ok; instrument sweep 105/105, regressed 0)
+- [ ] A browser harness (`tools/_t1243-io-children-cdp.mjs`) proves the above and fails on the 0.24.0 code; it is
+      wired into the bridge suite, and the full bridge run stays green
+      (harness 5/5 green on the fix, leg 1 red on HEAD's source; wired next to T-1220; full run pending)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -345,3 +382,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1243-designer-keeps-unknown-child-elements-in.md
 - **Context:** Initial task creation
+
+### 2026-10-21T00:53:35Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

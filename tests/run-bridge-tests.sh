@@ -1125,6 +1125,18 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1243: CHILD elements inside aef:input/aef:output survive open and save, adding no xmlns noise ──
+# A producer's nested attribute tree, a schema reference or any extension child was dropped (T-1220 kept only
+# attributes); asked by aef-greenfield-test and both external reviewers of T-1242. Red against the pre-T-1243 source.
+if node "$ROOT/tools/_t1243-io-children-cdp.mjs" > "$TMP/leg-_t1243.out" 2>&1 \
+   && head -2 "$TMP/leg-_t1243.out" | grep -q '"ok": true'; then
+  pass=$((pass + 1))
+else
+  report FAIL "child elements inside aef:input/aef:output are dropped, reordered or re-declared on save, a second save differs, an edited input lost them, or a plain io stopped being self-closing (run 'node tools/_t1243-io-children-cdp.mjs'; T-1243)"
+  show_output "$TMP/leg-_t1243.out" "_t1243-io-children-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # ── T-1220: attributes on aef:input/aef:output beyond name/type/required survive open and save ──
 # aef-greenfield-test generates aef:io from its ontology (ref/role/cardinality/dataType, AEF T-4415); the
 # save used to keep only the named attributes. Red against the pre-T-1220 source (legs 1, 3, 6).
