@@ -1,11 +1,19 @@
 ---
 id: T-1249
-name: "Designer slice 1 (T-1242 GO): read, show and keep every mapping v1.1 io construct, read-only"
+name: "Designer slice 1 (T-1242 GO): read, show and keep every mapping v1.1 io construct,
+  read-only"
 description: >
-  AEF T-4415 GO, ruled DRAFT 2 at AEF f1f7c30dd. The designer reads fieldRef/typeRef/schemaRef/conceptRef, role, operation, cardinality, sourceSystem/targetSystem, aef:field, aef:expect, aef:example, aef:prefixes and mappingVersion, shows each in the io panel read-only, and saves byte-exactly. Success: greenfield VZN-T1 v29 (43 io) and the 54 tracked v1 maps save with 0 bytes changed; a v1.1 example map with every construct round-trips with 0 bytes changed. Screenshots at 1024/1440/1920 plus an independent reviewer; release to AEF.
+  AEF T-4415 GO, ruled DRAFT 2 at AEF f1f7c30dd. The designer reads fieldRef/typeRef/schemaRef/conceptRef,
+  role, operation, cardinality, sourceSystem/targetSystem, aef:field, aef:expect,
+  aef:example, aef:prefixes and mappingVersion, shows each in the io panel read-only,
+  and saves byte-exactly. Success: greenfield VZN-T1 v29 (43 io) and the 54 tracked
+  v1 maps save with 0 bytes changed; a v1.1 example map with every construct round-trips
+  with 0 bytes changed. Screenshots at 1024/1440/1920 plus an independent reviewer;
+  release to AEF.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +46,8 @@ related_tasks: [T-1242]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T17:12:23Z
-last_update: 2026-10-21T17:12:23Z
-date_finished: null
+last_update: 2026-10-21T18:17:45Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +58,55 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-21T18:17:46Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 4
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=4 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L4:keyword=round-trip);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1249: Designer slice 1 (T-1242 GO): read, show and keep every mapping v1.1 io construct, read-only
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Slice 1 of T-1242 (GO 2026-10-21). The standard is AEF's mapping v1.1 io text (AEF T-4548,
+`policy/standards/aef-bpmn-mapping-v1.1-io.md` at AEF 29adf17f4, sha256 691fd2ed…, received verified, kept outside git
+in `.context/working/intake-t4415/v11/`); its section-11 worked examples are the cases AEF's corpus_spec round-trips
+(`test_t4549_aef_io_v11_roundtrip.py`, sha256 81d95937…). Preservation already exists (T-1220 attributes, T-1243
+children); this slice makes the designer SHOW them, read-only. Editing is slices 2-3.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] The io panel shows, read-only, every v1.1 construct on an `aef:input`/`aef:output`: fieldRef, typeRef or
+  schemaRef, conceptRef, role, operation, cardinality, sourceSystem/targetSystem (with the step default and a
+  prefix-derived system marked as derived), and the `aef:field` / `aef:expect` / `aef:example` children; the process
+  `aef:prefixes` and `mappingVersion` are shown in the workflow panel. Unknown attributes and children still appear
+  as they do today (T-1220/T-1243). No io field becomes editable in this slice.
+- [ ] Byte-exact round trip: every section-11 worked example of the v1.1 text, wrapped in a minimal map, opens and
+  saves with 0 bytes changed in its io; the 54 tracked v1 maps that carry io and greenfield's VZN-T1 v29 (43 io, kept
+  outside git) save with 0 bytes changed in their io. A CDP harness (`tools/_t1249-v11-io-cdp.mjs`) asserts this and
+  the display, is red against the pre-change source, and runs as a bridge leg.
+- [ ] Screenshots of the io panel (a v1.1 step with fields and expectations; a v1 step; an empty step) at 1024, 1440
+  and 1920, read control by control in `## Visual Verification`, and an independent reviewer judges them (`[REVIEW]`
+  below) before close.
+- [ ] Full bridge suite green; the release that carries it goes to AEF the day it is tagged.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -345,3 +388,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1249-designer-slice-1-t-1242-go-read-show-and.md
 - **Context:** Initial task creation
+
+### 2026-10-21T18:17:45Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
