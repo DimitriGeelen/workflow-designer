@@ -211,6 +211,36 @@ maps were requested (VZN-T1 v26, WT-01) for the producer-side check; not in yet.
    every line?) is not defined, for B as well.
 8. **Prefixes.** `sys:`, `sf:` and the other CURIE prefixes need the prefix map AEF put in v1.1 scope earlier
    (T-1219, AEF msg on 6a2b98dd); the draft text does not show where it lives.
-9. **Designer cost (for the ruling, not an objection):** A and the step default are fields in the existing io editor;
+9. **Producer check (greenfield's io fragments, VZN-T1 v27, msg f3760c56; full maps await their operator).** Two styles
+   in use today:
+   - **Style A, single field** (their target, 20 io on hand-over 2):
+     `<aef:input name="sfdc:Opportunity.Id" type="object" ref="nid:attr-salesforce-opportunity-id" role="read" dataType="id"/>`.
+   - **Style B, legacy object with a free-text field list:**
+     `<aef:output name="Account [Name, Phone, …, OwnerId]" type="object"/>`.
+
+   What it means for draft 2:
+   - a. **greenfield's `ref` is a FIELD IRI.** Their `ref` (`nid:attr-…`) names the attribute itself, which is what
+     the reviewers call `fieldRef`. Draft 2 must say how an existing `ref` holding a field IRI is read, or style A maps
+     stop meaning what they mean.
+   - b. **greenfield's `dataType` is a technical token, not a concept IRI.** It holds `id` and `reference`, not a
+     business-concept IRI. Renaming to `conceptRef` (reviewers) is right, but `dataType="id"` in existing maps needs a
+     stated reading. It sits closer to a value kind than to business meaning.
+   - c. **`type="object"` on a single field is a forced placeholder.** greenfield would drop it. `type` must become
+     optional when `fieldRef`/`typeRef` is present.
+   - d. **`role` is confirmed: read | write | create | match.** `match` also appears on an output
+     (`tacton:Opportunity.currency`), so its meaning (a lookup or join key) needs a definition.
+   - e. **Systems come from the path prefix today** (`sfdc:`, `tacton:`). Draft 2 can let `sourceSystem`/`targetSystem`
+     be derived from a declared prefix to system mapping in the prefix map, with the explicit attribute overriding.
+     The prefixes must be declared either way (the draft's examples use `sf:`; greenfield writes `sfdc:`).
+   - f. **Style B maps directly onto B** (`typeRef="sfdc:Account"` plus `<aef:field path="Name"/>` children). The
+     legacy free-text form must stay valid v1.
+   - g. **Lists are a must, not an edge case:** Solution line items including TradeIn lines, OpportunityContactRole,
+     QuoteLineItem. Draft 2 needs a list-path syntax and a way to select one KIND of line (TradeIn lines are a subset).
+   - h. **Their only expectations today are behavioural**, e.g. "one-to-one: update if exists else create"
+     (H-039/H-042). That is upsert semantics, which `role` (match + create) or a `ruleRef` carries. The value checks
+     in C do not cover it, and draft 2 should say where it goes.
+   - i. **Field-to-field transformations stay out of the map**, in their ontology (AttributeMapping). That is
+     consistent with the draft.
+10. **Designer cost (for the ruling, not an objection):** A and the step default are fields in the existing io editor;
    B, C and D are child lists per io, which the designer now keeps verbatim (T-1243) and would show read-only first;
    E reuses the tree. Nothing in A-E conflicts with what the designer stores.
