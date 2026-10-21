@@ -46,7 +46,7 @@ related_tasks: [T-1241]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T20:23:36Z
-last_update: 2026-10-21T21:18:50Z
+last_update: 2026-10-21T21:23:00Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -123,11 +123,17 @@ to read. Pixel-identical in designer-v0.24.0. The operator chose to fix it befor
 - [ ] Screenshots of every lens at 1024/1440/1920, plus scrolled side-panel and details shots that show the lowest
   controls reachable, read control by control; the independent reviewer judges T-1241's criterion 1 again after this.
 - [ ] Harness as a bridge leg, red on the 0.24.0 placement; `_t1241`, `_t1176`, `_t1249` still pass; full suite green.
-- [ ] Sequence-flow labels too (reviewer amber 2026-10-21, judge-t-1241-r5-claude-code-31903aa3fd86): on
+- [x] Sequence-flow labels too (reviewer amber 2026-10-21, judge-t-1241-r5-claude-code-31903aa3fd86): on
   `aef-task-lifecycle` in every lens at 1440 and 1920, 0 flow labels crossed by another flow and 0 flow-label/label
   overlaps (incl. "yes — status: issues", "next/later — backlog" over "shelved — …", and the flow through "shelved — …"
   at 1440); corpus count of flow-label crossings does not rise for any map and falls in total; no label clipped
   (descenders intact); measured by the harness, not by eye; 0 saved bytes change.
+  **2026-10-22 (re-verified):** `_t1256-label-clearance-cdp.mjs` exit 0: lifecycle elFlow 0 / ll 0 / clip 0 in all
+  8 lens×ids configs at 1440 and 1920, opened 3 ways (link, shot, shell) = 48/48; corpus flow labels crossed or
+  clipped 3 → 2 (verification-gate 3 → 2, the 2 left at 1440 "RCA/evolution/inception ok" × e_13; the other 23 maps
+  0 → 0); bytes 25/25 maps unchanged. On the 0.24.0 source (`T1256_SRC`, temp dir) exit 1: "yes — status: issues" ×
+  tl_e20, "shelved — …" × tl_e15/tl_e16, "next/later — backlog" clipped under tl_e19's pad, leg 2b 3 → 3 (0.24.0 has
+  no lenses, so only lens All is measured there).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -337,7 +343,7 @@ with id captions on/off; business = Business lens) and
 | canvas after, ids off | gateway names | ok | ok | ok | after-1920-noids: "ready to start now?" above, "issues encountered?" left-below, "unchecked Human ACs?" above its diamond; no line through any name |
 | canvas after, Business | gateway names | ok | ok | ok | after-1920-business, t1241-business-*-panel: same places as ids off; no id captions |
 | canvas at open | zoom readout, text size, reach | ok | ok | ok | 1024 and 1440 open at 70% (names ≥ 7px), 1920 at fit (7.6px); after-1024-*-scrolled-mid/end: every node reached by scroll, lane names pinned (T-1091); Fit still fits |
-| canvas | flow labels | ok | ok | ok | "yes — status: issues" / "shelved — …" touch a flow in some lenses exactly as in 0.24.0 (placed by the unchanged `adjustEdgeLabelPlacements`); harness: no flow label moved onto a line, corpus 0→0 |
+| canvas | flow labels (round 2, 2026-10-22) | n/a | ok | ok | true 2× renders (device scale 2, same tool, `/tmp`), cropped: `docs/reports/T-1256-evidence/flowlabels-2x-{business,logical,technical,all}-{1440,1920}.png`. (1) "yes — status: issues": left of the vertical flow into "healing loop" in every lens; two lines ("yes — status:" / "issues") in Business and Logical at 1920, one line elsewhere; no line through it. (2) "next/later — backlog" sits on its own row above "shelved — horizon next/later auto-demotes to captured (T-1068)", no overlap, "g" and "k" descenders whole. (3) "shelved — …" ends left of both arrows into "parked in backlog" at 1440 (Business and the rest) and at 1920; no flow through it. Harness: elFlow/ll/clip 0 in all 48 lifecycle configs |
 | toolbar | every control (lens select, zoom −/readout/+, Fit, panels, fullscreen, Add Lane … Save) | ok | ok | ok | two rows at 1024 and 1440, one at 1920; none clipped |
 | side panel | top (type header, All details, BPMN fields) | ok | ok | ok | t1241-*-panel |
 | side panel | bottom (Owner, Other extensions, + add input, + add output) | ok | ok | ok | t1241-*-panel-bottom: scrolled to the end, "+ add output" fully visible (Business has no I/O section and does not scroll) |

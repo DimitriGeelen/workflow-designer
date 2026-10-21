@@ -35,6 +35,9 @@ const MIN_PX = 7;   // the stated minimum rendered size of node and gateway text
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
+// The engine tools/_t1241-lens-shots.py (Playwright) draws with: its text metrics differ from chrome's by a pixel here
+// and there, and label places follow the metrics, so leg 5 measures in both.
+function findShell() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium_headless_shell-')) for (const x of [join(cache, d, 'chrome-linux', 'headless_shell'), join(cache, d, 'chrome-headless-shell-linux64', 'chrome-headless-shell')]) c.push(x); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; return null; }
 function freePort() { return new Promise((res, rej) => { const s = net.createServer(); s.listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => res(p)); }); s.on('error', rej); }); }
 async function waitPortFile(f) { const t0 = Date.now(); while (Date.now() - t0 < 15000) { if (existsSync(f)) { const t = readFileSync(f, 'utf8').split('\n'); if (t[0] && t[0].trim()) return parseInt(t[0].trim(), 10); } await sleep(100); } throw new Error('no devtools port'); }
 function cdp(ws) { const s = new WebSocket(ws); let id = 0; const p = new Map(); s.addEventListener('message', ev => { const m = JSON.parse(ev.data); if (m.id && p.has(m.id)) { p.get(m.id)(m); p.delete(m.id); } }); const ready = new Promise((res, rej) => { s.addEventListener('open', res); s.addEventListener('error', rej); }); const cmd = (me, pa = {}) => new Promise((res, rej) => { const mid = ++id; p.set(mid, m => m.error ? rej(new Error(me + ': ' + JSON.stringify(m.error))) : res(m.result)); s.send(JSON.stringify({ id: mid, method: me, params: pa })); }); return { ready, cmd, close: () => s.close() }; }
@@ -87,6 +90,18 @@ const MEASURE = `window.__t1256measure = function(){
     if (A.owner === B.owner || !inter(A.box, B.box)) continue;
     out.ll++; out.hits.push('ll "' + A.text + '" x "' + B.text + '"');
   }
+  // clip: a flow label's text under another flow's halo painted after it (the halo is the label's background pad,
+  // so a later one cuts the earlier text: the "backloq" descender the T-1241 reviewer saw).
+  out.clip = 0;
+  var els = Array.prototype.slice.call(gEdges.querySelectorAll('text.edge-label'));
+  var halos = Array.prototype.slice.call(gEdges.querySelectorAll('rect[data-elr]'));
+  els.forEach(function(t){ var b = boxOf(t); if (!b) return;
+    halos.forEach(function(h){ if (h.getAttribute('data-elr') === t.getAttribute('data-el')) return;
+      if (!(t.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_FOLLOWING)) return;
+      var hb = boxOf(h); if (!hb || !inter(b, hb)) return;
+      out.clip++; out.hits.push('clip "' + t.textContent + '" under the pad of ' + h.getAttribute('data-elr')); }); });
+  if (window.__t1256dump) out.dump = els.map(function(t){ var h = gEdges.querySelector('rect[data-elr="' + t.getAttribute('data-el') + '"]');
+    return [t.textContent, boxOf(t), h && boxOf(h)]; });
   out.labels = labels.length; out.segs = segs.length;
   return out;
 };`;
@@ -105,6 +120,30 @@ const RUN = `(async function(args){
     if (buildBpmnXml(state) !== base) res.bytesChanged.push(c.lens + (c.ids ? '+ids' : '-ids'));
   }
   labelPrefs.showIds = true; if (typeof setLens === 'function') setLens('all'); renderAll();
+  return res;
+})`;
+
+// Leg 5 (flow labels, T-1241 reviewer amber 2026-10-21): the map opened by ?load= as a person opens it, at the
+// opening zoom, a service task selected as in the T-1241 lens shots; each lens x ids on/off is measured as drawn.
+const OPEN_CFGS = `(async function(args){
+  var res = {};
+  for (var i = 0; i < args.cfgs.length; i++) {
+    var c = args.cfgs[i];
+    window.__t1256dump = args.dump;
+    if (typeof setLens === 'function') setLens(c.lens); else if (c.lens !== 'all') continue;
+    labelPrefs.showIds = c.ids;
+    if (args.xml) {   // as tools/_t1241-lens-shots.py opens it: adopt, render, opening zoom, lens
+      adoptImportedXml(args.xml, { userImport: true }); renderAll();
+      if (typeof openingZoom === 'function') openingZoom();
+      if (typeof setLens === 'function') setLens(c.lens);
+    }
+    var n = state.nodes.find(function(x){ return x.uid === args.pick; });
+    if (n) selection = { kind: 'node', id: n.id };
+    if (!args.xml) renderAll();
+    if (typeof renderProperties === 'function') renderProperties();
+    await new Promise(function(r){ requestAnimationFrame(function(){ requestAnimationFrame(function(){ r(); }); }); });
+    res[c.lens + (c.ids ? '+ids' : '-ids')] = window.__t1256measure();
+  }
   return res;
 })`;
 
@@ -127,7 +166,7 @@ const OPEN_VIEW = `(async function(){
            wrapW: wr.width, unreachable: unreachable, hidden: hidden };
 })`;
 
-async function session(src, width, height, fn, load) {
+async function session(src, width, height, fn, load, engine) {
   const doc = mkdtempSync(join(tmpdir(), 't1256-doc-'));
   const repo = mkdtempSync(join(tmpdir(), 't1256-repo-'));
   copyFileSync(src, join(doc, 'designer.html'));
@@ -139,7 +178,7 @@ async function session(src, width, height, fn, load) {
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
   const udd = makeProfileDir('t1256-udd-');
-  const br = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', `--window-size=${width},${height}`, '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
+  const br = spawn(engine || findChrome(), [...(engine ? [] : ['--headless=new']), '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', `--window-size=${width},${height}`, '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl;
   try {
     let up = false; for (let i = 0; i < 100; i++) { try { const r = await fetch(BASE + '/api/health'); if (r.ok) { up = true; break; } } catch (_) {} await sleep(100); }
@@ -179,6 +218,26 @@ async function main() {
   const errs = [], report = { ok: false, src: SRC, base: BASE_TAG, minPx: MIN_PX };
   try {
     const lcXml = readFileSync(LIFECYCLE, 'utf8');
+    // leg 5
+    report.flowLabels = {};
+    const lcCfgs = LENSES.flatMap(lens => [{ lens, ids: true }, { lens, ids: false }]);
+    const shell = findShell();
+    if (!shell) errs.push('leg5: no Playwright headless shell found (the engine the T-1241 lens shots draw with)');
+    const runs = [[1440, 900, 'link'], [1920, 1080, 'link'], [1440, 900, 'shot'], [1920, 1080, 'shot']];
+    if (shell) runs.push([1440, 900, 'shell'], [1920, 1080, 'shell']);
+    for (const [w, h, how] of runs) {
+      const args = { cfgs: lcCfgs, pick: 'tl_create', dump: !!process.env.T1256_DUMP, xml: how === 'link' ? null : lcXml };
+      const cfg = await session(SRC, w, h, cmd => ev(cmd, `(${OPEN_CFGS})(${JSON.stringify(args)})`), how === 'link' ? lcXml : null, how === 'shell' ? shell : null);
+      for (const [k0, m] of Object.entries(cfg)) {
+        const k = how + ' ' + k0;
+        const bad = m.hits.filter(x => x.startsWith('el') || x.startsWith('clip') || x.startsWith('ll'));
+        if (m.dump) report.dump = (report.dump || {}), report.dump[w + ' ' + k] = m.dump;
+        report.flowLabels[w + ' ' + k] = `elFlow ${m.elFlow}, ll ${m.ll}, clip ${m.clip}` + (bad.length ? ': ' + bad.join('; ') : '');
+        if (m.elFlow || m.ll || m.clip || m.gwFlow || m.idFlow) errs.push(`leg5: aef-task-lifecycle opened at ${w}, ${k}: ${m.hits.join('; ')}`);
+      }
+      if (Object.keys(cfg).length !== 8) errs.push(`leg5: ${how} at ${w} measured ${Object.keys(cfg).length} of 8 lens/id configurations`);
+    }
+    if (process.env.T1256_ONLY === 'leg5') throw new Error('T1256_ONLY=leg5: the other legs were not run');
     const corpusCfgs = [{ lens: 'all', ids: true }, { lens: 'all', ids: false }];
     const now = await session(SRC, 1920, 1080, async cmd => {
       const lc = await runMap(cmd, lcXml, LENSES.flatMap(lens => [{ lens, ids: true }, { lens, ids: false }]));
@@ -191,6 +250,13 @@ async function main() {
       for (const f of corpus) maps[f] = await runMap(cmd, readFileSync(join(CORPUS_DIR, f), 'utf8'), corpusCfgs);
       return { maps };
     });
+    // Flow labels at 1440 too (leg 2b): label places follow the text metrics, which followed the zoom before T-1256.
+    const corpusAt = src => session(src, 1440, 900, async cmd => {
+      const maps = {};
+      for (const f of corpus) maps[f] = await runMap(cmd, readFileSync(join(CORPUS_DIR, f), 'utf8'), corpusCfgs);
+      return maps;
+    });
+    const now1440 = await corpusAt(SRC), base1440 = await corpusAt(baseSrc);
     // leg 1
     report.lifecycle = {};
     for (const [k, m] of Object.entries(now.lc.cfg)) {
@@ -213,6 +279,20 @@ async function main() {
       tNow += b; tBase += a;
       if (b > a) errs.push(`leg2: ${f} label/caption-flow crossings rose ${a} -> ${b}: ${Object.values(now.maps[f].cfg).flatMap(m => m.hits.filter(h => !h.startsWith('ll') && !h.startsWith('el'))).join('; ')}`);
     }
+    // leg 2b: flow labels crossed by another flow, or cut by another label's pad, at 1920 and 1440: no map worse
+    // than the 0.24.0 placement, and fewer in total.
+    report.corpusFlowLabels = {};
+    const elSum = cfg => Object.values(cfg).reduce((s, m) => s + m.elFlow + m.clip, 0);
+    let fl = [0, 0];
+    for (const f of corpus) {
+      const a = elSum(base.maps[f].cfg) + elSum(base1440[f].cfg), b = elSum(now.maps[f].cfg) + elSum(now1440[f].cfg);
+      report.corpusFlowLabels[f] = `${a}->${b}` + (b ? ': ' + Object.entries(now.maps[f].cfg).map(([k, m]) => ['1920 ' + k, m]).concat(Object.entries(now1440[f].cfg).map(([k, m]) => ['1440 ' + k, m]))
+        .flatMap(([k, m]) => m.hits.filter(h => h.startsWith('el') || h.startsWith('clip')).map(h => k + ' ' + h)).join('; ') : '');
+      fl[0] += a; fl[1] += b;
+      if (b > a) errs.push(`leg2b: ${f} flow labels crossed or clipped rose ${a} -> ${b}: ${Object.values(now.maps[f].cfg).concat(Object.values(now1440[f].cfg)).flatMap(m => m.hits.filter(h => h.startsWith('el') || h.startsWith('clip'))).join('; ')}`);
+    }
+    report.corpusFlowLabelsTotal = `${fl[0]}->${fl[1]}`;
+    if (!(fl[1] < fl[0])) errs.push(`leg2b: corpus flow labels crossed or clipped not lower than ${BASE_TAG}: ${fl[0]} -> ${fl[1]}`);
     report.corpusTotal = `${tBase}->${tNow}`;
     report.corpusInfo = `label/label ${llTot[0]}->${llTot[1]}, flow labels crossed by another flow ${elTot[0]}->${elTot[1]} `;
     if (!(tNow < tBase)) errs.push(`leg2: corpus total not lower than ${BASE_TAG}: ${tBase} -> ${tNow}`);

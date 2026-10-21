@@ -810,6 +810,7 @@ font-family: 'Outfit';
     opacity: 0.7;
   }
   .edge-label { fill: var(--text-dim); font-family: var(--mono); font-size: 10px; pointer-events: none;
+    text-rendering: geometricPrecision; /* T-1256: unhinted, so a label's width does not change with zoom or engine */
     paint-order: stroke; stroke: var(--bg); stroke-width: 3px; stroke-linejoin: round; }
   .edge-hit { fill: none; stroke: transparent; stroke-width: 16; cursor: pointer; }
 
@@ -4377,6 +4378,7 @@ function renderNodes() {
   adjustEdgeLabelPlacements();
   clearLabelsOfFlows();     // T-1256: last, off every drawn flow and clear of the flow labels just placed
   adjustEdgeLabelPlacements();   // T-1256: a flow label still on a line may find room the moved names left; strictly better only
+  clearFlowLabels();             // T-1256: last word on flow labels: off other drawn flows and off every other label
   addIdBadgeHalos();
   layerIdBadges();
   fitPoolToLabels();   // T-1154: last, after every label and badge is placed; most renderNodes() calls bypass renderAll
@@ -4923,6 +4925,142 @@ function clearLabelsOfFlows() {
     if (best) { setLines(best.lines); put(els, best.x, best.b0, best.a); }
     else { setLines(origLines); els.forEach((t, i) => { t.setAttribute('x', orig[i][0]); t.setAttribute('y', orig[i][1]); t.setAttribute('text-anchor', orig[i][2]); }); }
   }
+}
+
+// Flow-label clearance (T-1256, second round; the T-1241 reviewer's amber of 2026-10-21 on aef-task-lifecycle:
+// "yes — status: issues" and "shelved — …" crossed by a vertical flow, "next/later — backlog" under the pad of
+// "shelved — …" with its descender cut). adjustEdgeLabelPlacements() judges a flow label against the flows'
+// _renderedPolyline bounding boxes and only against the labels placed BEFORE it in that run, so its second run (after
+// clearLabelsOfFlows) may put an early label on a later one, and a label it could not clear stays wherever its best
+// score was. This pass moves ONLY a flow label that a DRAWN segment of another flow (read off the path's `d`, so
+// manually routed flows count) or another label (flow label with its pad, gateway/event name, id caption) actually
+// overlaps, to the first place along its OWN flow (5..95% of each segment, longest first; above/below a run, beside a
+// drop, hugging the line then one line further out; as one line, then as two balanced lines) with the lowest cost:
+// another flow 10, another label 25 (text under a pad is lost, a line through it is not; closer than a word-space 2),
+// a shape 30, its own line 10.
+// A place is kept only when it is STRICTLY better, so a clear label is never touched. Every other label is an obstacle
+// where it stands now, so a move never lands on a label placed later in the order. Deterministic; render-only
+// (PD-044): nothing is written to the document. Flow labels measure with text-rendering: geometricPrecision (CSS
+// .edge-label): hinted metrics changed a label's width with the zoom and the engine (131 vs 114 units for
+// "next/later — backlog" at 1920 and 1440), so the same map got other places at each width; now it gets the same.
+function clearFlowLabels() {
+  const GAPX = 4, GAPY = 2;
+  const segsOf = new Map();
+  for (const p of gEdges.querySelectorAll('g.edge > path.edge-path')) {
+    const pl = polylineFromPath(p.getAttribute('d')), id = p.parentNode.getAttribute('data-id');
+    const list = segsOf.get(id) || [];
+    for (let i = 0; i < pl.length - 1; i++) list.push([pl[i], pl[i + 1]]);
+    segsOf.set(id, list);
+  }
+  const allSegs = [];
+  for (const [id, list] of segsOf) for (const s of list) allSegs.push([id, s[0], s[1]]);
+  if (!allSegs.length) return;
+  const segHits = (a, b, r) => {
+    let t0 = 0, t1 = 1;
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const P = [-dx, dx, -dy, dy], Q = [a.x - r.x1, r.x2 - a.x, a.y - r.y1, r.y2 - a.y];
+    for (let i = 0; i < 4; i++) {
+      if (P[i] === 0) { if (Q[i] < 0) return false; continue; }
+      const t = Q[i] / P[i];
+      if (P[i] < 0) { if (t > t1) return false; if (t > t0) t0 = t; }
+      else { if (t < t0) return false; if (t < t1) t1 = t; }
+    }
+    return true;
+  };
+  const inter = (a, b) => a.x1 < b.x2 && b.x1 < a.x2 && a.y1 < b.y2 && b.y1 < a.y2;
+  // The text's box with the room its pad (halo) takes, plus a little air, so two labels never touch.
+  const boxOf = t => { const b = t.getBBox(); return b.width ? { x1: b.x - 3, y1: b.y - 1, x2: b.x + b.width + 3, y2: b.y + b.height + 1 } : null; };
+  const shapes = state.nodes.map(n => { const d = NODE_DEFAULTS[n.type]; return { x1: n.x - 2, y1: n.y - 2, x2: n.x + d.w + 2, y2: n.y + d.h + 2 }; });
+  const nodeBoxes = Array.from(gNodes.querySelectorAll('text.node-label, text.node-id-badge, text.node-io-badge'))
+    .filter(t => !t.closest('#g-sticky-lanes')).map(boxOf).filter(Boolean);
+  const flowTexts = Array.from(gEdges.querySelectorAll('text.edge-label[data-el]'));
+  const edgeOf = t => state.edges.find(x => x.id === t.getAttribute('data-el'));
+  const grow = r => ({ x1: r.x1 - GAPX, y1: r.y1 - GAPY, x2: r.x2 + GAPX, y2: r.y2 + GAPY });
+  // Cost of t where it stands, against every other label where IT stands now.
+  const cost = t => {
+    const r = boxOf(t); if (!r) return { c: 0, hard: 0 };
+    const id = t.getAttribute('data-el');
+    let c = 0, hard = 0;
+    const crossed = new Set();
+    for (const [sid, a, b] of allSegs) if (segHits(a, b, r)) { if (sid === id) c += 10; else crossed.add(sid); }
+    c += 10 * crossed.size; hard += crossed.size;
+    // Pad on pad is an overlap (25, the label is moved for it); closer than a word-space of air only costs 2.
+    const near = o => { if (inter(r, o)) { c += 25; hard++; } else if (inter(r, grow(o))) c += 2; };
+    for (const o of nodeBoxes) near(o);
+    for (const o of flowTexts) if (o !== t) { const ob = boxOf(o); if (ob) near(ob); }
+    for (const s of shapes) if (inter(r, s)) c += 30;
+    return { c, hard };
+  };
+  const apply = (t, x, y, anchor) => {
+    t.setAttribute('x', x); t.setAttribute('y', y); t.setAttribute('text-anchor', anchor);
+    for (const ts of t.querySelectorAll('tspan')) ts.setAttribute('x', x);
+  };
+  const setLines = (t, lines) => {
+    t.textContent = '';
+    if (lines.length < 2) { t.textContent = lines[0]; return; }
+    lines.forEach((ln, i) => t.appendChild(el('tspan', { x: t.getAttribute('x'), dy: i ? 11 : 0 }, [text(ln)])));
+  };
+  const where = t => ({ x: t.getAttribute('x'), y: t.getAttribute('y'), a: t.getAttribute('text-anchor'),
+    lines: t.querySelector('tspan') ? Array.from(t.querySelectorAll('tspan')).map(ts => ts.textContent) : [t.textContent] });
+  const put = (t, p) => { setLines(t, p.lines); apply(t, p.x, p.y, p.a); };
+  // Every place along t's own flow, in a fixed order: one line, then two balanced lines.
+  const placesOf = t => {
+    const e = edgeOf(t), own = segsOf.get(t.getAttribute('data-el')) || [];
+    if (!e || !own.length) return [];
+    const segList = own.map(([a, b]) => ({ a, b, dx: Math.abs(b.x - a.x), dy: Math.abs(b.y - a.y) }))
+      .filter(s => Math.max(s.dx, s.dy) >= 16).map(s => ({ ...s, horiz: s.dx >= s.dy, len: Math.max(s.dx, s.dy) }));
+    segList.sort((s1, s2) => s2.len - s1.len);
+    const variants = [where(t).lines.length > 1 ? where(t).lines : [e.name]];
+    // Two lines halve the width a drop needs beside it (a short name too: "yes — status: issues" has 115 px between
+    // its drop and the next flow at 1920); kept only when strictly better, like T-089's wrap.
+    if (variants[0].length === 1 && e.name.length > 12 && e.name.includes(' ')) {
+      let max = Math.ceil(e.name.length / 2) + 2, lines = wrapText(e.name, max);
+      while (lines.length > 2) { max += 2; lines = wrapText(e.name, max); }
+      if (lines.length === 2) variants.push(lines);
+    }
+    const out = [];
+    for (const lines of variants) {
+      const lift = (lines.length - 1) * 11;
+      for (const [above, below, side] of [[-6 - lift, 13, 8], [-17 - lift, 24, 20]]) {
+        for (const s of segList) {
+          for (const f of [0.5, 0.3, 0.7, 0.15, 0.85, 0.05, 0.95]) {
+            const mx = s.a.x + (s.b.x - s.a.x) * f, my = s.a.y + (s.b.y - s.a.y) * f;
+            if (s.horiz) out.push({ lines, x: mx, y: my + above, a: 'middle' }, { lines, x: mx, y: my + below, a: 'middle' });
+            else out.push({ lines, x: mx + side, y: my + 3 - lift / 2, a: 'start' }, { lines, x: mx - side, y: my + 3 - lift / 2, a: 'end' });
+          }
+        }
+      }
+    }
+    return out;
+  };
+  // The cheapest place for t (the first of equals), measured; t is left where it was.
+  const search = t => {
+    const home = where(t);
+    let best = null;
+    for (const p of placesOf(t)) {
+      put(t, p);
+      const sc = cost(t);
+      if (!best || sc.c < best.c) best = { ...p, c: sc.c };
+      if (best.c === 0) break;
+    }
+    put(t, home);
+    return best;
+  };
+  const halo = t => {
+    const h = gEdges.querySelector(`rect[data-elr="${t.getAttribute('data-el')}"]`), bb = t.getBBox();
+    if (h && bb.width) { h.setAttribute('x', bb.x - 4); h.setAttribute('y', bb.y - 1); h.setAttribute('width', bb.width + 8); h.setAttribute('height', bb.height + 2); }
+  };
+  // The longest label first: it has the fewest places it fits, so a short one must not take its only room first.
+  // Ties keep the document order. A second sweep gives a label another chance at room an earlier move freed.
+  const order = flowTexts.map((t, i) => [t, i])
+    .sort((a, b) => (edgeOf(b[0])?.name || '').length - (edgeOf(a[0])?.name || '').length || a[1] - b[1]).map(p => p[0]);
+  for (const t of order.concat(order)) {
+    const now = cost(t);
+    if (!now.hard) continue;
+    const best = search(t);
+    if (best && best.c < now.c) put(t, best);
+  }
+  for (const t of flowTexts) halo(t);
 }
 
 // Post-pass over freshly rendered EDGE labels (T-082, survey R-5 slice 2).
