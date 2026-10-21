@@ -152,9 +152,11 @@ def _telemetry(event):
     telemetry that can break the verb it observes is worse than none."""
     import json as _json
     try:
-        # FW_BVP_TELEMETRY_PATH exists so a TEST never writes into the ledger the
+        # FW_BVP_AUTO_TELEMETRY_PATH exists so a TEST never writes into the ledger the
         # operator analyses: an append-only ledger cannot be cleaned up afterwards.
-        override = os.environ.get('FW_BVP_TELEMETRY_PATH')
+        # T-1245: its own name since be.2 — upstream's T-4478 confirmation ledger reads
+        # FW_BVP_TELEMETRY_PATH, and one override for both put two ledgers in one file.
+        override = os.environ.get('FW_BVP_AUTO_TELEMETRY_PATH')
         if override:
             path = Path(override)
             path.parent.mkdir(parents=True, exist_ok=True)

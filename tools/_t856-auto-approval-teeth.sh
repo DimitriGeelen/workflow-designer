@@ -28,7 +28,10 @@ FW=".agentic-framework/bin/fw"
 # redirect is why it cannot happen again.
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/t856.XXXXXX")"
 TEL="$WORK/bvp-auto-approval.jsonl"
-export FW_BVP_TELEMETRY_PATH="$TEL"
+export FW_BVP_AUTO_TELEMETRY_PATH="$TEL"
+# T-1245: since be.2 upstream keeps its own confirmation ledger (T-4478) behind FW_BVP_TELEMETRY_PATH; redirect it
+# too, to a separate file, so this test neither counts its rows nor writes into the real one.
+export FW_BVP_TELEMETRY_PATH="$WORK/bvp-confirmations.ndjson"
 FIXTURE_ID="T-9990"
 FIXTURE=".tasks/active/${FIXTURE_ID}-t856-auto-approval-fixture.md"
 
