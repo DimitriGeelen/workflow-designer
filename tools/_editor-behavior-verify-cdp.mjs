@@ -67,6 +67,9 @@ function freePort() { return new Promise((res, rej) => { const s = net.createSer
 async function waitPortFile(f) { const t0 = Date.now(); while (Date.now() - t0 < 15000) { if (existsSync(f)) { const t = readFileSync(f, 'utf8').split('\n'); if (t[0] && t[0].trim()) return parseInt(t[0].trim(), 10); } await sleep(100); } throw new Error('no devtools port'); }
 function cdp(ws) { const s = new WebSocket(ws); let id = 0; const p = new Map(); s.addEventListener('message', ev => { const m = JSON.parse(ev.data); if (m.id && p.has(m.id)) { p.get(m.id)(m); p.delete(m.id); } }); const ready = new Promise((res, rej) => { s.addEventListener('open', res); s.addEventListener('error', rej); }); const cmd = (me, pa = {}) => new Promise((res, rej) => { const mid = ++id; p.set(mid, m => m.error ? rej(new Error(me + ': ' + JSON.stringify(m.error))) : res(m.result)); s.send(JSON.stringify({ id: mid, method: me, params: pa })); }); return { ready, cmd, close: () => s.close() }; }
 async function ev(cmd, e) { const r = await cmd('Runtime.evaluate', { expression: e, returnByValue: true, awaitPromise: true }); if (r.exceptionDetails) throw new Error('eval: ' + JSON.stringify(r.exceptionDetails)); return r.result.value; }
+// T-1246: wait on the state an assertion reads, not on a fixed sleep. Polls `expr` every 100 ms until
+// pred(value) holds or capMs passes; `last` is the value seen on the final poll, so a red leg says what it saw.
+async function pollUntil(cmd, expr, pred, capMs) { const t0 = Date.now(); for (;;) { const last = await ev(cmd, expr).catch(e => ({ err: String(e.message || e) })); if (pred(last)) return { ok: true, last, waitedMs: Date.now() - t0 }; if (Date.now() - t0 > capMs) return { ok: false, last, waitedMs: Date.now() - t0 }; await sleep(100); } }
 async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof parseBpmnXml==='function'&&typeof buildBpmnXml==='function'&&typeof jumpToWorkflow==='function'&&_appReady===true&&(typeof _deepLinkSettled==='undefined'||_deepLinkSettled!==null))`).catch(() => false); if (ok) return; if (Date.now() - t0 > (+process.env.CDP_READY_MS || 20000)) throw new Error('editor not ready'); await sleep(150); } }
 
 // T-237 classification fixture — one map, four probe nodes, uid-keyed. The XML shape
@@ -412,12 +415,14 @@ async function main() {
     // ── Leg 2: same-map edit-restore (the legitimate branch the fix must keep) ──
     await ev(cmd, `localStorage.clear()`);
     await nav(LOAD_X);
-    const mut = await ev(cmd, `(function(){ var n=state.nodes[0]; n.y=(n.y||100)+41; renderAll(); return {nodeId:n.id, y:n.y}; })()`);
-    await sleep(1100);
+    const mut = await ev(cmd, `(function(){ var n=state.nodes[0]; n.y=(n.y||100)+41; renderAll(); return {nodeId:n.id, y:n.y, tMut: Date.now()}; })()`);
+    // T-1246: the autosave is a 700 ms debounce on the page's clock; a fixed 1100 ms sleep lost the write under
+    // load, and the reload then restored the pre-edit y. Wait until a record written AFTER the mutation exists.
+    const flush = await pollUntil(cmd, `(function(){ try { var s=JSON.parse(localStorage.getItem('aefAutosaveDoc')||'null'); return {ts: s?s.ts:null, tMut: ${mut.tMut}}; } catch(e){ return {err:String(e)}; } })()`, v => v.ts != null && v.ts >= v.tMut, 15000);
     await nav(LOAD_X);
     const rest = await ev(cmd, `(function(){ var n=state.nodes.filter(function(x){return x.id===${JSON.stringify(mut.nodeId)};})[0]; return {id: state.workflowMeta.id, y: n?n.y:null}; })()`);
-    const leg2 = rest.id === 'arc-lifecycle' && rest.y === mut.y;
-    verdict.legs.push({ leg: 'same-map-edit-restore', pass: leg2, got: { mut, rest } });
+    const leg2 = flush.ok && rest.id === 'arc-lifecycle' && rest.y === mut.y;
+    verdict.legs.push({ leg: 'same-map-edit-restore', pass: leg2, got: { mut, flush, rest } });
 
     // ── Legs 3-6: T-237 classification contract (in-page parse → build) ──
     await ev(cmd, `localStorage.clear()`);
@@ -430,12 +435,14 @@ async function main() {
     await ev(cmd, `localStorage.clear()`);
     await nav(BASE + '/designer.html?load=' + encodeURIComponent('rendered/t240-src.bpmn'));
     // the uuid index arrives async (detectSaveApi → refreshUuidIndex) — wait for it
-    { const t0 = Date.now(); for (;;) { const got = await ev(cmd, `(typeof _uuidIndex !== 'undefined' && _uuidIndex !== null)`).catch(() => false); if (got) break; if (Date.now() - t0 > 8000) break; await sleep(150); } }
+    const idx = await pollUntil(cmd, `(typeof _uuidIndex !== 'undefined' && _uuidIndex !== null)`, v => v === true, 8000);
     const t240 = await ev(cmd, T240_ASSERT);
-    await sleep(600);   // the assert's final act clicks the real jump button
-    const t240Landed = await ev(cmd, `({id: state.workflowMeta.id, nodes: state.nodes.length})`);
+    // T-1246: the assert's final act clicks the real jump button, which is async (/api/list, then the map fetch).
+    // A fixed 600 ms read the document before it switched under load; poll for the switch itself, capped.
+    const landed = await pollUntil(cmd, `({id: state.workflowMeta.id, nodes: state.nodes.length})`, v => v.id === 't240-target' && v.nodes > 0, 15000);
+    const t240Landed = landed.last;
     const leg7 = !!(t240 && t240.ok) && t240Landed.id === 't240-target' && t240Landed.nodes > 0;
-    verdict.legs.push({ leg: 't240-uuid-resolve', pass: leg7, got: { assert: t240, landed: t240Landed } });
+    verdict.legs.push({ leg: 't240-uuid-resolve', pass: leg7, got: { index: idx, assert: t240, landed: t240Landed, landedWaitedMs: landed.waitedMs } });
 
     // ── Leg 8 (T-245): view-chrome controls — panel toggles, persistence, focus mode ──
     // Real-affordance probes: every transition goes through the actual buttons
