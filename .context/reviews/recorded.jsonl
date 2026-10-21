@@ -106,3 +106,4 @@
 {"ac":2,"outcome":"red","task":"T-1241","ts":"2026-10-21T08:02:38Z","verdict_id":"V-20261021-cd03a8fe"}
 {"ac":1,"outcome":"escalate","task":"T-325","ts":"2026-10-21T08:04:20Z","verdict_id":"V-20261021-beb62994"}
 {"ac":1,"outcome":"escalate","task":"T-432","ts":"2026-10-21T08:05:44Z","verdict_id":"V-20261021-2ca23391"}
+{"ac":1,"outcome":"escalate","task":"T-449","ts":"2026-10-21T08:07:00Z","verdict_id":"V-20261021-cc140331"}
