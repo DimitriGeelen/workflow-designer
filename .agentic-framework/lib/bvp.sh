@@ -35,6 +35,7 @@ import os
 import sys
 import re
 import glob
+import json
 import statistics
 from pathlib import Path
 
@@ -99,34 +100,46 @@ def _str_safe_load(text):
     return yaml.load(text, Loader=_L)
 
 
-# T-856 (832-local, re-applied on 1.7.740 under T-1005): telemetry for scores an
-# agent confirms. Upstream T-3487 made the confirm gate opt-in, which carries the
-# operator's 2026-09-25 ruling "scoring just happens"; the second half of that
-# ruling -- "we want to have telemetry about it ... collect data so we can analyze
-# it and improve it" -- is this ledger, which upstream does not have.
-def _telemetry(event):
-    """Append one JSONL row per agent-confirmed score. Append-only, and written
-    ONLY on the agent path -- logging a human-approved action as automatic would
-    make the ledger unable to answer the question it exists for. Never raises:
-    telemetry that can break the verb it observes is worse than none."""
-    import json as _json
+# ------------------------------------------------- confirmation telemetry (T-4478)
+# Adapted from 010-termlink T-3176 (proposal 348). confirmed_via (T-3487) records WHO
+# confirmed; this ledger records how far the confirmed scores sit from what the
+# estimator proposed — the proposal itself is cleared on confirm (M3), so without it
+# the pair is gone. Append-only; the override env var exists so a fixture run never
+# writes into the real ledger, which could not be cleaned up afterwards.
+def _bvp_telemetry_path():
+    override = os.environ.get('FW_BVP_TELEMETRY_PATH')
+    if override:
+        return Path(override)
+    return PROJECT_ROOT / '.context' / 'telemetry' / 'bvp-confirmations.ndjson'
+
+
+def _count_no_signal(proposal_entry, confirmed_keys):
+    """How many drivers in this proposal were scored with NO evidence. An
+    all-no-signal proposal confirmed unchanged would otherwise log as
+    `proposer_exact` — the estimator agreeing with itself, recorded as accuracy.
+    Read from the rationale string, the only place the distinction survives.
+    Returns (count, driver_count); count is None when the rationale is missing —
+    "did not measure" must not render as "measured, none"."""
+    driver_count = len(confirmed_keys)
+    if not isinstance(proposal_entry, dict):
+        return None, driver_count
+    rationale = proposal_entry.get('rationale')
+    if not isinstance(rationale, str) or not rationale.strip():
+        return None, driver_count
+    return len(re.findall(r'no-signal', rationale)), driver_count
+
+
+def _append_confirmation_row(row):
+    """One NDJSON line per confirmation. Never raises; returns (ok, error_text).
+    A confirmation missing from the ledger must not be silent (G-063)."""
+    path = _bvp_telemetry_path()
     try:
-        # FW_BVP_TELEMETRY_PATH exists so a TEST never writes into the ledger the
-        # operator analyses: an append-only ledger cannot be cleaned up afterwards.
-        override = os.environ.get('FW_BVP_TELEMETRY_PATH')
-        if override:
-            path = Path(override)
-            path.parent.mkdir(parents=True, exist_ok=True)
-        else:
-            d = PROJECT_ROOT / '.context' / 'telemetry'
-            d.mkdir(parents=True, exist_ok=True)
-            path = d / 'bvp-auto-approval.jsonl'
-        row = dict(event)
-        row.setdefault('ts', _utc_now())
+        path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, 'a') as fh:
-            fh.write(_json.dumps(row, sort_keys=True) + "\n")
-    except Exception as exc:  # pragma: no cover - never break the verb
-        print(f"WARN: auto-approval telemetry not written ({exc})", file=sys.stderr)
+            fh.write(json.dumps(row, sort_keys=True) + "\n")
+        return True, None
+    except (OSError, TypeError, ValueError) as exc:
+        return False, str(exc)
 
 
 # ----------------------------------------------------------- §ACD agent gate
@@ -339,6 +352,27 @@ def value_axis_degenerate(bvp_vals):
     return statistics.median(bvp_vals) == min(bvp_vals)
 
 
+def _proposal_is_all_no_signal(fm):
+    """T-4486: True when EVERY driver in the latest proposal was scored with no evidence
+    (`Dn=0 (no-signal)` in the rationale). Returns False when it cannot tell (no
+    proposal, no scores, absent/empty rationale): "could not measure" must not render
+    as "measured, and empty" (T-3105), and wrongly keeping a task only leaves the old
+    behaviour."""
+    proposed = (fm or {}).get('bvp_scores_proposed')
+    if not proposed:
+        return False
+    latest = proposed[-1] if isinstance(proposed, list) else proposed
+    if not isinstance(latest, dict):
+        return False
+    scores = latest.get('scores')
+    if not isinstance(scores, dict) or not scores:
+        return False
+    rationale = latest.get('rationale')
+    if not isinstance(rationale, str) or not rationale.strip():
+        return False
+    return len(re.findall(r'no-signal', rationale)) >= len(scores)
+
+
 def quadrant(bvp_norm, cost, bvp_median, cost_median, degenerate=False):
     """Return one of hv-lc / hv-hc / lv-lc / lv-hc, QUAD_VALUE_WITHHELD for a
     degenerate-median tie, or '-' if either axis is missing."""
@@ -410,6 +444,7 @@ def cmd_rank(filter_quadrant=None, include_proposed=False, include_completed=Fal
             'cost': cost,
             'cost_src': src,
             'source': source,
+            'all_no_signal': _proposal_is_all_no_signal(fm) if source == 'proposed' else False,
         })
 
     if not rows:
@@ -421,16 +456,23 @@ def cmd_rank(filter_quadrant=None, include_proposed=False, include_completed=Fal
             print("Or pass `--include-proposed` to see estimator-proposed scores (advisory).")
         return 0
 
-    bvp_vals = [r['bvp_norm'] for r in rows]
+    # T-4486: a fully unassessed proposal is excluded from the thresholds AND from
+    # quadrant assignment; its score is untouched, but a task the estimator knew nothing
+    # about must not be ranked as work nor drag the median for everyone else.
+    _ranked = [r for r in rows if not r.get('all_no_signal')]
+    bvp_vals = [r['bvp_norm'] for r in _ranked]
     # Medians are taken over KNOWN costs only — an unknown-cost task must not shift
     # the threshold that decides everyone else's quadrant (T-3068).
-    cost_vals = [r['cost'] for r in rows if r['cost'] is not None]
+    cost_vals = [r['cost'] for r in _ranked if r['cost'] is not None]
     bvp_median = statistics.median(bvp_vals) if bvp_vals else 0.5
     cost_median = statistics.median(cost_vals) if cost_vals else 4.0
     # T-3485: degeneracy is a property of the whole distribution, computed once
     # per rank rather than per-row — see value_axis_degenerate() docstring.
     _value_degenerate = value_axis_degenerate(bvp_vals)
     for r in rows:
+        if r.get('all_no_signal'):  # T-4486
+            r['quadrant'] = '-'
+            continue
         r['quadrant'] = quadrant(r['bvp_norm'], r['cost'], bvp_median, cost_median,
                                   degenerate=_value_degenerate)
 
@@ -443,13 +485,30 @@ def cmd_rank(filter_quadrant=None, include_proposed=False, include_completed=Fal
     # expected state, not an anomaly, and the operator needs to see its size to
     # know how much weight the quadrant split can carry.
     _n_total = len(rows)
+    # T-4486: disclose the exclusion before the table — these tasks are UNASSESSED,
+    # not low-value, and a silent filter reads as full coverage.
+    _nosignal_ids = [r['id'] for r in rows if r.get('all_no_signal')]
+    if _nosignal_ids:
+        _pct_ns = 100.0 * len(_nosignal_ids) / _n_total
+        print(f"NOTE: {len(_nosignal_ids)}/{_n_total} task(s) ({_pct_ns:.0f}%) scored every "
+              f"driver no-signal — the estimator had nothing to read.")
+        print("      They are UNASSESSED, not low-value. Excluded from the quadrant and "
+              "from the thresholds (QUAD shows '-').")
+        print("      Scores are unchanged; write a Context/AC body and re-run the "
+              "estimator (T-4486).")
+        print("      Unassessed: " + ", ".join(_nosignal_ids))
+        print()
+
     _n_unknown = sum(1 for r in rows if r['cost'] is None)
     if _n_unknown:
         _pct = 100.0 * _n_unknown / _n_total if _n_total else 0.0
         print(f"NOTE: {_n_unknown}/{_n_total} task(s) ({_pct:.0f}%) have no known cost "
               f"— blast_radius unmeasured, so no quadrant (COST/QUAD show '-').")
-        print(f"      Quadrant thresholds are computed over the {_n_total - _n_unknown} "
-              f"task(s) that do have one.")
+        # T-4486: report the ACTUAL threshold population; total-minus-unknown
+        # over-reports once all-no-signal tasks are excluded too.
+        print(f"      Quadrant thresholds are computed over the {len(cost_vals)} "
+              f"task(s) that do have one"
+              + (" and were not excluded above." if _nosignal_ids else "."))
         print("      Cost becomes measurable once `components:` is resolved; see T-3068.")
         print()
 
@@ -1113,6 +1172,7 @@ def cmd_confirm(args):
     # Build the confirmed map. Proposed is a list of timestamped entries
     # (per T-1918 schema); take the newest entry's scores dict.
     confirmed = {}
+    latest = None
     if proposed:
         latest = proposed[-1] if isinstance(proposed, list) else proposed
         # latest is expected to have a 'scores' key per M3, or be the scores dict directly.
@@ -1121,6 +1181,8 @@ def cmd_confirm(args):
                 confirmed.update({k: int(v) for k, v in (latest.get('scores') or {}).items()})
             else:
                 confirmed.update({k: int(v) for k, v in latest.items() if isinstance(v, (int, float)) and not isinstance(v, bool)})
+    # T-4478: snapshot the proposal BEFORE overrides land — the telemetry row needs both.
+    proposed_scores = dict(confirmed)
     confirmed.update(overrides)
 
     if not confirmed:
@@ -1182,41 +1244,6 @@ def cmd_confirm(args):
             print(_sticky.format_summary(skipped=1, written=0))
             return 0
 
-    # T-856: capture the proposal BEFORE it is cleared, so telemetry can compare
-    # what the estimator said against what was written.
-    _proposed_scores = {}
-    if proposed:
-        _latest = proposed[-1] if isinstance(proposed, list) else proposed
-        if isinstance(_latest, dict):
-            _src = _latest.get('scores') if 'scores' in _latest else _latest
-            _proposed_scores = {k: v for k, v in (_src or {}).items()
-                                if isinstance(v, (int, float)) and not isinstance(v, bool)}
-    # T-1156 (OBS-391): keep EVERY proposal, not just the latest -- confirm clears the list below, and
-    # with it the estimator's reasoning. Two proposals that disagree are the signal: "exact" against
-    # the latest alone reads as right-first-time when it was right the second time. Values are
-    # stringified where YAML gave a non-JSON type (timestamps), so the row is never lost to a dump error.
-    def _jsonable(v):
-        if isinstance(v, dict):
-            return {str(k): _jsonable(x) for k, x in v.items()}
-        if isinstance(v, (list, tuple)):
-            return [_jsonable(x) for x in v]
-        if v is None or isinstance(v, (bool, int, float, str)):
-            return v
-        return str(v)
-    _history = []
-    for _entry in (proposed if isinstance(proposed, list) else ([proposed] if proposed else [])):
-        if not isinstance(_entry, dict):
-            continue
-        _scores = _entry.get('scores') if 'scores' in _entry else {
-            k: v for k, v in _entry.items() if isinstance(v, (int, float)) and not isinstance(v, bool)}
-        _history.append(_jsonable({
-            'ts': _entry.get('ts', _entry.get('at')),
-            'estimator': _entry.get('estimator'),
-            'scores': _scores or {},
-            'rationale': _entry.get('rationale'),
-            'rubric_sha': _entry.get('rubric_sha'),
-        }))
-
     fm['bvp_scores'] = confirmed
     fm['bvp_scores_proposed'] = []  # M3 — cleared; estimator may re-populate next sweep.
     fm['confirmed_by'] = os.environ.get('USER', 'unknown')
@@ -1245,39 +1272,44 @@ def cmd_confirm(args):
     new_body = raw[:m.start(1)] + new_fm_text + raw[m.end(1):]
     _atomic_write_text(task_path, new_body)
 
-    # T-856 telemetry -- written AFTER the write succeeds, so the ledger records
-    # what actually landed. Agent path only (T-3487's confirmed_via).
-    if confirmed_via == 'agent':
-        _delta = {k: (confirmed.get(k) - _proposed_scores.get(k))
-                  for k in sorted(set(confirmed) & set(_proposed_scores))
-                  if confirmed.get(k) != _proposed_scores.get(k)}
-        _telemetry({
-            'event': 'bvp_confirm_auto',
-            'verb': 'confirm',
-            'switch': 'T-3487 (FW_REQUIRE_BVP_CONFIRM_APPROVAL unset)',
-            'target': task_id,
-            'task_file': str(task_path.relative_to(PROJECT_ROOT)),
-            'proposal_existed': bool(_proposed_scores),
-            'proposed': _proposed_scores,
-            'confirmed': confirmed,
-            'overrides': overrides or {},
-            'delta_vs_proposed': _delta,
-            'proposer_exact': bool(_proposed_scores) and not _delta and not overrides,
-            # T-1156: the whole proposal trail, and whether the FIRST proposal was already right.
-            'proposal_count': len(_history),
-            'proposal_history': _history,
-            'proposer_exact_first': bool(_history) and not overrides
-                                    and {k: int(v) for k, v in (_history[0].get('scores') or {}).items()
-                                         if isinstance(v, (int, float)) and not isinstance(v, bool)} == confirmed,
-            'os_user': os.environ.get('USER', 'unknown'),
-        })
-
     print(f"OK: confirmed bvp_scores for {task_id}")
     print(f"  Scores: {confirmed}")
     if overrides:
         print(f"  Overrides applied: {overrides}")
     print(f"  Confirmed by: {fm['confirmed_by']}  at: {fm['confirmed_at']}  via: {fm['confirmed_via']}")
     print(f"  bvp_scores_proposed: cleared (M3 — estimator may re-propose if next pass diverges by ≥2)")
+
+    # T-4478: record the confirmation. Human confirmations are recorded too — a ledger
+    # of agent rows only cannot answer "is the estimator better or worse than the
+    # operator". A sticky skip returned above, so a skip never reaches here.
+    delta = {k: [proposed_scores.get(k), v] for k, v in confirmed.items()
+             if proposed_scores.get(k) != v}
+    no_signal, driver_count = _count_no_signal(latest, confirmed.keys())
+    row = {
+        'ts': fm['confirmed_at'],
+        'task': task_id,
+        'confirmed_via': confirmed_via,
+        'confirmed_by': fm['confirmed_by'],
+        'proposal_existed': bool(proposed_scores),
+        'proposed': proposed_scores,
+        'confirmed': dict(confirmed),
+        'overrides': dict(overrides),
+        'delta_vs_proposed': delta,
+        'proposer_exact': bool(proposed_scores) and not delta and not overrides,
+        'no_signal_count': no_signal,
+        'driver_count': driver_count,
+        'all_no_signal': (None if no_signal is None
+                          else bool(driver_count) and no_signal >= driver_count),
+        'estimator': latest.get('estimator') if isinstance(latest, dict) else None,
+        'rubric_sha': latest.get('rubric_sha') if isinstance(latest, dict) else None,
+    }
+    ok, err = _append_confirmation_row(row)
+    if not ok:
+        print(f"ERROR: scores were confirmed but the telemetry row could NOT be written: {err}",
+              file=sys.stderr)
+        print(f"  Ledger: {_bvp_telemetry_path()}", file=sys.stderr)
+        print(f"  {task_id} is confirmed on disk; the ledger is now incomplete.", file=sys.stderr)
+        return 1
     return 0
 
 

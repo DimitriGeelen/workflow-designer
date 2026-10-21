@@ -744,6 +744,52 @@ _self_vendor_tools() {
     return 0
 }
 
+# T-2661: self-vendor the framework's ROOT single-file payload — the files
+# do_vendor's includes list names at the repo root rather than as a tree:
+# .secret-scan-patterns / .secret-scan-allowlist (T-2656: the scanner's data,
+# without which a vendored scanner runs patternless), status-transitions.yaml
+# (T-2674) and metrics.sh. No sibling covered them, so the tracked
+# .agentic-framework/.secret-scan-allowlist sat 666 bytes behind its source
+# behind a green --check and a green audit. Same "would sync" wording as the
+# siblings, so --check and the T-2240 pre-push gate pick it up with no new regex.
+# Parity: agents/audit/audit.sh:check_self_vendor_drift scans the same list.
+#
+# Inputs:  $1 — dry_run ("true"/"false")
+# Return:  0 always (nothing to sync, or consumer-skip)
+_SELF_VENDOR_ROOT_DATA=".secret-scan-patterns .secret-scan-allowlist status-transitions.yaml metrics.sh"
+_self_vendor_root_data() {
+    local dry_run="${1:-false}"
+    local _self_vendor="$FRAMEWORK_ROOT/.agentic-framework"
+    # Consumer-safety mirror of the siblings: a consumer's vendored copy has no
+    # nested .agentic-framework/, so this is the early exit there.
+    [ -d "$_self_vendor" ] || return 0
+    local _svr_updated=0
+    local _svr_rel _svr_src _svr_dst
+    for _svr_rel in $_SELF_VENDOR_ROOT_DATA; do
+        _svr_src="$FRAMEWORK_ROOT/$_svr_rel"
+        _svr_dst="$_self_vendor/$_svr_rel"
+        [ -f "$_svr_src" ] || continue
+        # T-3165: real runs withhold a concurrent task's uncommitted files.
+        [ "$dry_run" = true ] || ! _sv_is_withheld "$_svr_src" || continue
+        _sv_scope_skip "$_svr_src" "$_svr_dst" && continue   # T-4419
+        if [ ! -f "$_svr_dst" ] || ! cmp -s "$_svr_src" "$_svr_dst"; then
+            if [ "$dry_run" != true ]; then
+                cp "$_svr_src" "$_svr_dst"
+                [ -x "$_svr_src" ] && chmod +x "$_svr_dst"
+            fi
+            _svr_updated=$((_svr_updated + 1))
+        fi
+    done
+    if [ "$_svr_updated" -gt 0 ]; then
+        if [ "$dry_run" = true ]; then
+            echo -e "  ${GREEN}Self-vendor:${NC} would sync $_svr_updated root data file(s) to .agentic-framework/"
+        else
+            echo -e "  ${GREEN}Self-vendor:${NC} synced $_svr_updated root data file(s) to .agentic-framework/"
+        fi
+    fi
+    return 0
+}
+
 # T-2793 (OBS-151): self-vendor the VERSION file. Seventh sibling of
 # _self_vendor_libs / _templates / _policy / _shim / _agents / _web.
 #
@@ -1525,6 +1571,38 @@ do_upgrade() {
         fi
         echo "ok"
 
+        # T-2756: the downgrade guards (T-1839 pin, T-1912 runtime) live in the
+        # child, and the child is whatever the upstream holds — a stale fork, an
+        # old tag, or a master that lags the consumer's bleeding-edge commit may
+        # predate them. Decide ahead/diverged here, in the fw that started the
+        # run, against the clone's history, before its code runs at all.
+        # foreign-source/undecidable stay with the child (shallow remedy, T-3886).
+        local _ac_pin _ac_sha _ac_ver
+        _ac_pin=$(grep "^version:" "$target_dir/.framework.yaml" 2>/dev/null | sed 's/^version:[[:space:]]*//' || true)
+        _ac_sha=$(grep "^version_sha:" "$target_dir/.framework.yaml" 2>/dev/null | sed 's/^version_sha:[[:space:]]*//' || true)
+        _ac_ver=$(git -C "$_tmpd/fw" describe --tags --match 'v[0-9]*' --exclude '*-be.*' 2>/dev/null) || _ac_ver=""
+        _ac_ver="${_ac_ver#v}"
+        if [ -z "$_ac_ver" ] && [ -f "$_tmpd/fw/VERSION" ]; then
+            _ac_ver=$(head -1 "$_tmpd/fw/VERSION")
+        fi
+        if [ -n "$_ac_pin" ] && [ "$force_downgrade" != true ]; then
+            # Bare call, not $(...) — the reason travels via a global (see lib/version-relation.sh).
+            fw_version_relation "$_ac_pin" "${_ac_ver:-unknown}" "$_ac_sha" "$_tmpd/fw" >/dev/null
+            case "$FW_VERSION_RELATION" in
+                ahead|diverged)
+                    echo -e "${RED}REFUSED${NC}  Consumer v$_ac_pin vs upstream clone v${_ac_ver:-unknown}: ${FW_VERSION_RELATION}." >&2
+                    echo -e "          ${FW_VERSION_RELATION_REASON}." >&2
+                    echo -e "          Handing off to the clone would downgrade the runtime (.agentic-framework/)" >&2
+                    echo -e "          and the pinned version; the clone's own fw may not guard against it." >&2
+                    echo -e "          Nothing was run from the clone and the consumer is unchanged." >&2
+                    echo -e "          To proceed anyway: re-run with ${BOLD}--force-downgrade${NC}." >&2
+                    rm -rf "$_tmpd"
+                    trap - EXIT INT TERM HUP
+                    return 1
+                    ;;
+            esac
+        fi
+
         echo -e "  ${GREEN}Handing off to upstream's bin/fw:${NC} ${_replay_shown% }"
         echo ""
         # T-2099 (fork-bomb fix, SEV-1): explicitly scope FRAMEWORK_ROOT + PROJECT_ROOT
@@ -1556,39 +1634,6 @@ do_upgrade() {
         fi
         # trap fires on return — tempdir cleaned up
         return $_rc
-    fi
-
-    # T-1217 / T-2095 (T-2078 V1-D, F2): self-vendor refresh.
-    # Inline call preserved by default for backward compat (T-1217 invariant).
-    # Operators who have wired `fw vendor self` into pre-push can opt out with
-    # --no-self-vendor to eliminate the per-upgrade redundancy. The helper
-    # itself is structurally consumer-safe: it early-returns when the framework
-    # vendored copy doesn't exist (consumer scenario).
-    if [ "$no_self_vendor" = true ]; then
-        echo -e "  ${YELLOW}Self-vendor skipped${NC} (--no-self-vendor)"
-    else
-        _self_vendor_libs "$dry_run"
-        # T-2241: sibling sync — templates drift class, same flag gates both
-        _self_vendor_templates "$dry_run"
-        # T-2263: sibling sync — BVP-policy drift class (arc-006 Slice 2C),
-        # same flag, same prefix → caught by T-2240 pre-push gate regex
-        _self_vendor_policy "$dry_run"
-        # T-2264: sibling sync — bin/fw shim drift class, same flag, same prefix
-        _self_vendor_shim "$dry_run"
-        # T-2266: sibling sync — agents/ drift class (5th class). Recursive over
-        # subdirs (audit/, context/, git/, ...) filtered to *.sh + *.py to mirror
-        # the audit drift scan's exact filter at agents/audit/audit.sh:1534.
-        _self_vendor_agents "$dry_run"
-        # T-2267: sibling sync — web/ drift class (6th and current-final class
-        # under the audit drift-scan shape). Same *.sh + *.py filter; templates
-        # and static assets stay untouched (out-of-scope per audit's filter).
-        _self_vendor_web "$dry_run"
-        # T-4392: sibling sync — tools/ (the tree do_vendor ships whole).
-        _self_vendor_tools "$dry_run"
-        # T-3064: sibling sync — pinned Workflow Designer build. Outside the
-        # audit drift-scan shape (that scans {bin,lib,agents,web} only), so this
-        # class is carried by `fw vendor self --check` and its own bats file.
-        _self_vendor_designer "$dry_run"
     fi
 
     local project_name
@@ -1635,7 +1680,7 @@ do_upgrade() {
     local _src_sha _src_tag
     _src_sha=$(git -C "$FRAMEWORK_ROOT" rev-parse --short=12 HEAD 2>/dev/null) || _src_sha=""
     if [ -n "$_src_sha" ]; then
-        _src_tag=$(git -C "$FRAMEWORK_ROOT" describe --tags --exact-match HEAD 2>/dev/null) || _src_tag=""
+        _src_tag=$(git -C "$FRAMEWORK_ROOT" describe --tags --exact-match --exclude '*-be.*' HEAD 2>/dev/null) || _src_tag=""
         echo "  Commit:    ${_src_sha}${_src_tag:+ ($_src_tag)}"
     fi
     if [ -n "$project_version" ]; then
@@ -1727,29 +1772,42 @@ do_upgrade() {
         fi
     fi
 
-    # ── 0. Directory skeleton (T-2758) ──
-    #
-    # Step 8 below has always created the .context/ subdirectories. It runs FIVE
-    # STEPS TOO LATE: step 3 copies seed files into .context/project/, and on a
-    # consumer that doesn't have that directory yet the cp fails, `fw upgrade`
-    # exits 1, and steps 4-10 — hooks, resume.md, shim, vendor — never run. The
-    # consumer is left half-upgraded, having already taken steps 1 and 2.
-    #
-    # The ordering was invisible because every consumer that reached step 3 had
-    # been through `fw init`, which creates the tree. The shape that breaks is a
-    # project holding .framework.yaml and little else — which is exactly what the
-    # tests construct, and why lib_upgrade.bats had three red tests attributed to
-    # resume.md drift when the run was dying long before resume.md.
-    #
-    # Creating the skeleton up front rather than adding a mkdir at the one line
-    # observed failing: the next step added below is written against a consumer
-    # that already has its directories, and would inherit the same bug.
-    if [ "$dry_run" != true ]; then
-        local _skel
-        for _skel in audits bus episodic handovers inbox project qa scans working; do
-            mkdir -p "$target_dir/.context/$_skel"
-        done
-        mkdir -p "$target_dir/.tasks/templates" "$target_dir/.claude/commands" "$target_dir/policy"
+    # T-1217 / T-2095 (T-2078 V1-D, F2): self-vendor refresh.
+    # T-4498: it WRITES (into $FRAMEWORK_ROOT/.agentic-framework/), so it runs only
+    # after every refusal above. It used to run before the T-1912 precheck: a shallow
+    # source refused as foreign-source had already synced 3 files (dimitri-mint-dev).
+    # Inline call preserved by default for backward compat (T-1217 invariant).
+    # Operators who have wired `fw vendor self` into pre-push can opt out with
+    # --no-self-vendor to eliminate the per-upgrade redundancy. The helper
+    # itself is structurally consumer-safe: it early-returns when the framework
+    # vendored copy doesn't exist (consumer scenario).
+    if [ "$no_self_vendor" = true ]; then
+        echo -e "  ${YELLOW}Self-vendor skipped${NC} (--no-self-vendor)"
+    else
+        _self_vendor_libs "$dry_run"
+        # T-2241: sibling sync — templates drift class, same flag gates both
+        _self_vendor_templates "$dry_run"
+        # T-2263: sibling sync — BVP-policy drift class (arc-006 Slice 2C),
+        # same flag, same prefix → caught by T-2240 pre-push gate regex
+        _self_vendor_policy "$dry_run"
+        # T-2264: sibling sync — bin/fw shim drift class, same flag, same prefix
+        _self_vendor_shim "$dry_run"
+        # T-2266: sibling sync — agents/ drift class (5th class). Recursive over
+        # subdirs (audit/, context/, git/, ...) filtered to *.sh + *.py to mirror
+        # the audit drift scan's exact filter at agents/audit/audit.sh:1534.
+        _self_vendor_agents "$dry_run"
+        # T-2267: sibling sync — web/ drift class (6th and current-final class
+        # under the audit drift-scan shape). Same *.sh + *.py filter; templates
+        # and static assets stay untouched (out-of-scope per audit's filter).
+        _self_vendor_web "$dry_run"
+        # T-4392: sibling sync — tools/ (the tree do_vendor ships whole).
+        _self_vendor_tools "$dry_run"
+        # T-2661: sibling sync — root single-file payload (secret-scan data, …).
+        _self_vendor_root_data "$dry_run"
+        # T-3064: sibling sync — pinned Workflow Designer build. Outside the
+        # audit drift-scan shape (that scans {bin,lib,agents,web} only), so this
+        # class is carried by `fw vendor self --check` and its own bats file.
+        _self_vendor_designer "$dry_run"
     fi
 
     # ── 1. CLAUDE.md — preserve project sections, update governance ──
@@ -1955,6 +2013,34 @@ $project_owned"
         echo -e "  ${YELLOW}SKIP${NC}  Template not found at $template_file"
         skipped=$((skipped + 1))
     fi
+
+    # ── 0. Directory skeleton (T-2758; placed after step 1's refusals, T-4503) ──
+    #
+    # Step 8 below has always created the .context/ subdirectories. It runs FIVE
+    # STEPS TOO LATE: step 3 copies seed files into .context/project/, and on a
+    # consumer that doesn't have that directory yet the cp fails, `fw upgrade`
+    # exits 1, and steps 4-10 — hooks, resume.md, shim, vendor — never run. The
+    # consumer is left half-upgraded, having already taken steps 1 and 2.
+    #
+    # The ordering was invisible because every consumer that reached step 3 had
+    # been through `fw init`, which creates the tree. The shape that breaks is a
+    # project holding .framework.yaml and little else — which is exactly what the
+    # tests construct, and why lib_upgrade.bats had three red tests attributed to
+    # resume.md drift when the run was dying long before resume.md.
+    #
+    # Creating the skeleton up front rather than adding a mkdir at the one line
+    # observed failing: the next step added below is written against a consumer
+    # that already has its directories, and would inherit the same bug.
+    if [ "$dry_run" != true ]; then
+        local _skel
+        for _skel in audits bus episodic handovers inbox project qa scans working; do
+            mkdir -p "$target_dir/.context/$_skel"
+        done
+        mkdir -p "$target_dir/.tasks/templates" "$target_dir/.claude/commands" "$target_dir/policy"
+    fi
+    # T-4503: this block used to run BEFORE step 1, so a CLAUDE.md refusal (T-3150
+    # marker, governance-deletion) had already created these dirs. Step 1 needs none
+    # of them; step 3 (first reader) comes after.
 
     # T-3955/T-3956: one decision per template-owned project file. Any difference from the
     # template used to mean "drift → replace (.bak)", which overwrote a consumer's customised
@@ -2566,6 +2652,34 @@ print(f'{len(fw_hooks)}|{len(consumer_hooks)}|{len(missing)}|{stale}|{missing_na
         else
             echo -e "  ${GREEN}OK${NC}  $consumer_total/$fw_total hooks present (all types matched)"
         fi
+        # T-2861: a hook-converged consumer never takes the regenerate branch above,
+        # so the template's worktree.bgIsolation=none default would never reach it.
+        # Add the key only when ABSENT — an explicit operator value is left alone.
+        if [ -f "$settings_file" ] && ! python3 -c "import json,sys; sys.exit(0 if 'bgIsolation' in (json.load(open(sys.argv[1])).get('worktree') or {}) else 1)" "$settings_file" 2>/dev/null; then
+            if [ "$dry_run" = true ]; then
+                echo -e "  ${CYAN}WOULD SET${NC}  worktree.bgIsolation=none (governance state is tracked; a background worktree forks it)"
+                changes=$((changes + 1))
+            elif python3 -c "
+import json, os, sys, tempfile
+p = sys.argv[1]
+doc = json.load(open(p))
+wt = doc.get('worktree')
+if not isinstance(wt, dict):
+    wt = {}
+wt['bgIsolation'] = 'none'
+doc = {'worktree': wt, **{k: v for k, v in doc.items() if k != 'worktree'}}
+fd, tmp = tempfile.mkstemp(dir=os.path.dirname(p))
+with os.fdopen(fd, 'w') as f:
+    json.dump(doc, f, indent=2)
+    f.write('\n')
+os.replace(tmp, p)
+" "$settings_file" 2>/dev/null; then
+                echo -e "  ${GREEN}SET${NC}  worktree.bgIsolation=none (governance state is tracked; a background worktree forks it)"
+                changes=$((changes + 1))
+            else
+                echo -e "  ${YELLOW}WARN${NC}  could not set worktree.bgIsolation=none in $settings_file (unparseable JSON?)"
+            fi
+        fi
         # T-3906: the consumer's own hooks are information, not a gap.
         local project_hook_count
         project_hook_count=$(echo "$hook_analysis" | cut -d'|' -f7)
@@ -2798,6 +2912,43 @@ MCPJSON
         fi
     fi
 
+    # T-3715: a server in .mcp.json that is not approved stops a restarted
+    # Claude Code on the "New MCP server found" prompt; an autonomous agent
+    # hangs there silently. Approve the framework's own servers in
+    # .claude/settings.local.json, and name any the operator has disabled.
+    local _mcp_appr _mcp_part
+    _mcp_appr=$(python3 "$FRAMEWORK_ROOT/lib/mcp_approve.py" "$target_dir" \
+        $([ "$dry_run" = true ] && echo --dry-run) 2>&1) || _mcp_appr="ERROR ${_mcp_appr:-helper failed}"
+    while IFS= read -r _mcp_part; do
+        case "$_mcp_part" in
+            APPROVED\ *)
+                changes=$((changes + 1))
+                if [ "$dry_run" = true ]; then
+                    echo -e "  ${CYAN}WOULD APPROVE${NC}  MCP servers in .claude/settings.local.json: ${_mcp_part#APPROVED }"
+                else
+                    echo -e "  ${GREEN}APPROVED${NC}  MCP servers in .claude/settings.local.json (enabledMcpjsonServers): ${_mcp_part#APPROVED }"
+                fi ;;
+            DISABLED\ *)
+                echo -e "  ${YELLOW}WARN${NC}  MCP servers disabled in .claude/settings.local.json: ${_mcp_part#DISABLED } — left off; their framework MCP tools will be absent" ;;
+            ERROR\ *)
+                echo -e "  ${YELLOW}WARN${NC}  could not pre-approve MCP servers (${_mcp_part#ERROR }) — a restarted Claude Code will ask \"New MCP server found\" and an unattended agent stalls there" ;;
+        esac
+    done <<< "${_mcp_appr//; /$'\n'}"
+
+    # T-3698: pin the live hub dir into the termlink server when it carries
+    # none (add-only; an existing value is never changed).
+    if source "$(dirname "${BASH_SOURCE[0]}")/termlink-runtime.sh" 2>/dev/null; then
+        local _tl_pin
+        _tl_pin=$(fw_mcp_pin_termlink_runtime "$mcp_file" "$(fw_termlink_mcp_runtime_dir)" \
+            "$([ "$dry_run" = true ] && echo 1)" 2>/dev/null) || true
+        case "$_tl_pin" in
+            would-pin\ *) changes=$((changes + 1))
+                echo -e "  ${CYAN}WOULD PIN${NC}  termlink TERMLINK_RUNTIME_DIR=${_tl_pin#would-pin } (T-3698)" ;;
+            pinned\ *) changes=$((changes + 1))
+                echo -e "  ${GREEN}UPDATED${NC}  termlink TERMLINK_RUNTIME_DIR=${_tl_pin#pinned } (T-3698)" ;;
+        esac
+    fi
+
     # ── 7. .claude/commands/resume.md ──
     # T-1383 (closes G-056): compare consumer file against shared template and
     # refresh on drift. Prior behavior preserved existing file regardless of
@@ -2910,6 +3061,27 @@ MCPJSON
         fi
     else
         echo -e "  ${GREEN}OK${NC}  All context subdirectories present"
+    fi
+
+    # T-3861: fw init's .context/working/.gitignore never named the vector index,
+    # and nothing rewrote that file afterwards — append the missing rules.
+    # shellcheck source=lib/vec-index-gitignore.sh
+    source "$FRAMEWORK_ROOT/lib/vec-index-gitignore.sh"
+    local _vec_added
+    if [ "$dry_run" = true ]; then
+        _vec_added=$(fw_vec_index_ensure_ignored "$target_dir" --dry-run)
+    else
+        _vec_added=$(fw_vec_index_ensure_ignored "$target_dir")
+    fi
+    if [ "${_vec_added:-0}" -gt 0 ]; then
+        changes=$((changes + 1))
+        if [ "$dry_run" = true ]; then
+            echo -e "  ${CYAN}WOULD ADD${NC}  $_vec_added vector-index ignore rule(s) to .context/working/.gitignore"
+        else
+            echo -e "  ${GREEN}ADDED${NC}  $_vec_added vector-index ignore rule(s) to .context/working/.gitignore"
+        fi
+    else
+        echo -e "  ${GREEN}OK${NC}  Vector index gitignored"
     fi
 
     # ── 9. Version tracking (.framework.yaml) ──
@@ -3167,8 +3339,34 @@ EOF
             # this is the one moment a pull-only propagation model gets to speak.
             _t3113_emit_worktree_advisory "$target_dir"
         fi
+        _t3862_recall_prereqs "$target_dir"
         _t4069_stale_wrapper_notice "$target_dir"
     fi
+}
+
+# T-3862: semantic-recall prerequisites (sqlite-vec, a reachable embed host), checked
+# at upgrade time so the operator learns what to install or configure now, not from
+# 7 FAILs in the next fw doctor. Advisory only: never changes the exit code.
+# $1 = project root. Silent-OK lines are printed too, so "checked" is visible.
+_t3862_recall_prereqs() {
+    local root="${1:-}" out verdict msg hint
+    [ -n "$root" ] && [ -f "${FRAMEWORK_ROOT:-}/lib/vector-index-health.sh" ] || return 0
+    out=$(PROJECT_ROOT="$root" bash -c '
+        source "$FRAMEWORK_ROOT/lib/config.sh" 2>/dev/null
+        source "$FRAMEWORK_ROOT/lib/vector-index-health.sh"
+        vector_recall_prereqs' 2>/dev/null) || true
+    [ -n "$out" ] || return 0
+    echo ""
+    echo -e "  ${BOLD}Semantic recall prerequisites (advisory):${NC}"
+    while IFS='|' read -r verdict msg hint; do
+        case "$verdict" in
+            OK)   echo -e "    ${GREEN}OK${NC}  $msg" ;;
+            SKIP) echo -e "    ${CYAN}SKIP${NC}  $msg" ;;
+            *)    echo -e "    ${YELLOW}${verdict}${NC}  $msg"
+                  [ -n "$hint" ] && echo "          $hint" ;;
+        esac
+    done <<< "$out"
+    return 0
 }
 
 # T-4069: end-of-run notice. A claude-fw wrapper started before bin/claude-fw

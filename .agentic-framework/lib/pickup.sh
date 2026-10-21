@@ -27,6 +27,9 @@ PICKUP_AUTO_DEFERRED="$PICKUP_DIR/auto-deferred"
 # T-3628: envelopes this project pushed to another hub. Kept out of the inbox (an
 # outgoing envelope is not incoming work) but still counted by pickup_next_id.
 PICKUP_SENT="$PICKUP_DIR/sent"
+# T-3763: envelopes whose delivery failed. Not the inbox — `fw pickup process`
+# would read our own outbound as incoming — and counted by pickup_next_id.
+PICKUP_UNDELIVERED="$PICKUP_DIR/undelivered"
 PICKUP_DEDUP_LOG="$PICKUP_DIR/dedup.log"
 
 # --- Directory setup ---
@@ -107,10 +110,28 @@ pickup_validate_envelope() {
 pickup_dedup_hash() {
     local file="$1"
 
+    # T-2687: the three greps below swallow every failure (`2>/dev/null || true`),
+    # so an absent/unreadable envelope used to extract three empty strings and hash
+    # to the CONSTANT digest sha256("||") =
+    # 565d240f5343e625ae579a4d45a770f1f02c6368b5ed4d06da4fbe6f47c28866. That constant
+    # collides across unrelated envelopes: once it lands in the dedup ledger, every
+    # later envelope that also fails to extract matches it and is silently dropped as
+    # a "duplicate". A fail-open detection path degrading into silent data loss.
+    # Refuse to produce a hash we cannot stand behind — callers handle non-zero.
+    if [ ! -r "$file" ]; then
+        echo "pickup_dedup_hash: envelope not readable: $file" >&2
+        return 1
+    fi
+
     local pickup_type source_project summary
     pickup_type=$({ grep "^type:" "$file" 2>/dev/null || true; } | head -1 | sed 's/^type:[[:space:]]*//' | tr -d '"' | tr -d "'")
     source_project=$({ grep "^  project:" "$file" 2>/dev/null || true; } | head -1 | sed 's/^  project:[[:space:]]*//' | tr -d '"' | tr -d "'")
     summary=$({ grep "^  summary:" "$file" 2>/dev/null || true; } | head -1 | sed 's/^  summary:[[:space:]]*//' | tr -d '"' | tr -d "'")
+
+    if [ -z "$pickup_type" ] && [ -z "$summary" ] && [ -z "$source_project" ]; then
+        echo "pickup_dedup_hash: all dedup fields (type, payload.summary, source.project) extracted empty from $file — refusing to emit the constant sha256(\"||\") digest" >&2
+        return 1
+    fi
 
     # Normalize: lowercase, collapse whitespace
     local normalized
@@ -124,7 +145,12 @@ pickup_dedup_check() {
     local cooldown_days="${2:-7}"
 
     local hash
-    hash=$(pickup_dedup_hash "$file")
+    # T-4480: an uncomputable hash is "not a duplicate" — matching it against the
+    # ledger is what let one bad envelope swallow every later one. Creation then
+    # refuses the envelope on its own terms and leaves it in the inbox.
+    if ! hash=$(pickup_dedup_hash "$file"); then
+        return 1
+    fi
 
     if [ ! -f "$PICKUP_DEDUP_LOG" ]; then
         return 1  # No log = not a dupe
@@ -149,7 +175,12 @@ pickup_dedup_check() {
 pickup_record_dedup() {
     local file="$1"
     local hash
-    hash=$(pickup_dedup_hash "$file")
+    # T-2687: never append a row we cannot compute — that is exactly how the
+    # constant sha256("||") poison entries got into the ledger.
+    if ! hash=$(pickup_dedup_hash "$file"); then
+        echo "pickup_record_dedup: refusing to record an uncomputable dedup hash for $file — ledger left unchanged" >&2
+        return 1
+    fi
     local ts
     ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
     echo "${ts}|${hash}|$(basename "$file")" >> "$PICKUP_DEDUP_LOG"
@@ -349,8 +380,9 @@ pickup_next_id() {
     # arriving envelope overwrote the parked one.
     #
     # sent/ for the same reason (T-3628): an id this project already sent is spent.
+    # undelivered/ too (T-3763): it holds outbound envelopes awaiting a resend.
     local dir
-    for dir in "$PICKUP_SENT" "$PICKUP_INBOX" "$PICKUP_PROCESSED" "$PICKUP_REJECTED" "$PICKUP_AUTO_DEFERRED"; do
+    for dir in "$PICKUP_SENT" "$PICKUP_UNDELIVERED" "$PICKUP_INBOX" "$PICKUP_PROCESSED" "$PICKUP_REJECTED" "$PICKUP_AUTO_DEFERRED"; do
         [ -d "$dir" ] || continue
         local f
         for f in "$dir"/*.yaml "$dir"/*.yml; do
@@ -377,6 +409,21 @@ pickup_create_inception() {
     source_project=$({ grep "^  project:" "$file" 2>/dev/null || true; } | head -1 | sed 's/^  project:[[:space:]]*//' | tr -d '"' | tr -d "'")
     summary=$({ grep "^  summary:" "$file" 2>/dev/null || true; } | head -1 | sed 's/^  summary:[[:space:]]*//' | tr -d '"' | tr -d "'")
     source_task=$({ grep "^  task_id:" "$file" 2>/dev/null || true; } | head -1 | sed 's/^  task_id:[[:space:]]*//' | tr -d '"' | tr -d "'")
+
+    # T-2687: refuse rather than mint a content-free task. Without this guard an
+    # extraction failure produced tasks literally named "Pickup:  (from )" with
+    # description "Source: . Type: ." — four of them reached the operator's register
+    # (T-2683..T-2686) and, being unscored-but-inception, ranked BVP 70 / hv-hc,
+    # displacing real work at the top of `fw bvp --quadrant hv-hc`.
+    if [ -z "$summary" ] || [ -z "$source_project" ]; then
+        local missing_fields=""
+        [ -z "$summary" ] && missing_fields="payload.summary"
+        [ -z "$source_project" ] && missing_fields="${missing_fields:+$missing_fields, }source.project"
+        echo "pickup_create_inception: refusing to create a task from $(basename "$file") — empty field(s): ${missing_fields}" >&2
+        echo "  The envelope passed key-presence validation but the value(s) extracted empty." >&2
+        echo "  Inspect the envelope and re-run \`fw pickup process\` once the field(s) carry a value." >&2
+        return 1
+    fi
 
     local task_name="Pickup: ${summary} (from ${source_project})"
 
@@ -503,7 +550,13 @@ pickup_process_one() {
     echo -e "${GREEN}PROCESS${NC} $basename_f — $summary"
 
     # Create inception task
-    pickup_create_inception "$file"
+    # T-2687: a refused creation must stop the pipeline here. Continuing would record
+    # a dedup row and mv the envelope to processed/, burying an envelope that produced
+    # nothing — the envelope stays in the inbox instead, inspectable and re-runnable.
+    if ! pickup_create_inception "$file"; then
+        echo -e "${RED}REFUSE${NC}  $basename_f — task creation refused; envelope left in inbox for inspection" >&2
+        return 1
+    fi
 
     # Notify human
     if type fw_notify >/dev/null 2>&1; then
@@ -540,6 +593,11 @@ pickup_process_one() {
 
 # --- Send (create envelope) ---
 
+# T-3763: the delivery seam — one function so tests can stand in for the hub.
+pickup_sidecar_send() {
+    "${FRAMEWORK_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/bin/fw" sidecar send "$@"
+}
+
 do_pickup_send() {
     local pickup_type="" summary="" detail="" priority="medium"
     local source_project="" task_id="" tags="" remote="" session=""
@@ -570,8 +628,8 @@ do_pickup_send() {
                 echo "  --source-project NAME Project name (default: basename of PROJECT_ROOT)"
                 echo "  --task-id T-NNN       Originating task ID"
                 echo "  --tags TAG1,TAG2      Comma-separated tags"
-                echo "  --remote HUB          Push via termlink remote push to HUB (hub address or profile)"
-                echo "  --session SESSION     Target session name or ID on the remote hub (required with --remote)"
+                echo "  --remote HUB          Deliver via fw sidecar send to HUB (hubs.toml profile or address)"
+                echo "  --session SESSION     Recipient agent id on the remote hub (required with --remote)"
                 echo "  -h, --help            Show this help"
                 return 0
                 ;;
@@ -597,7 +655,7 @@ do_pickup_send() {
     # so a misconfigured invocation doesn't leave a phantom file in the inbox.
     if [ -n "$remote" ] && [ -z "$session" ]; then
         echo -e "${RED}--remote requires --session SESSION (target session on the remote hub)${NC}" >&2
-        echo "  Discover sessions: termlink remote list <HUB>" >&2
+        echo "  SESSION is the recipient's agent id on that hub (fw sidecar send --to)" >&2
         return 1
     fi
 
@@ -704,25 +762,25 @@ PYEOF
     if [ -z "$remote" ]; then
         echo -e "${YELLOW}NOT delivered:${NC} saved locally in this project's inbox only." >&2
         echo "  To deliver: fw pickup send ... --remote HUB --session SESSION" >&2
-    elif ! command -v termlink >/dev/null 2>&1; then
-        echo -e "${YELLOW}NOT delivered:${NC} termlink not installed — envelope saved locally only" >&2
-        echo "  Install: brew install DimitriGeelen/termlink/termlink" >&2
-        echo "$filepath"
-        return 1
     else
-        echo -e "Pushing to ${BOLD}$remote${NC} (session ${BOLD}$session${NC}) via termlink..."
-        # T-4274: the host-shared inbox files by basename, and every project numbers
-        # its own envelopes from P-001 — so the bare name collides across projects.
-        # Push a copy that also carries the source project. The `P-NNN-` prefix is
-        # kept so `P-*.yaml` readers still match; the local name is unchanged.
-        local push_dir push_path push_rc=0
-        push_dir=$(mktemp -d "$PICKUP_DIR/push.XXXXXX")
-        push_path="$push_dir/${pickup_id}-${pickup_type}.${source_project//[^A-Za-z0-9._-]/_}.yaml"
-        cp "$filepath" "$push_path"
-        termlink remote push "$remote" "$session" "$push_path" 2>&1 || push_rc=$?
-        rm -rf "$push_dir"
+        # T-3763: deliver through the one channel (T-3631 GO, T-3758) — a sidecar
+        # notice to the recipient, body = the envelope. `termlink remote push`
+        # is deprecated: the hub allowlist refuses its `mkdir -p
+        # /tmp/termlink-inbox`, so nothing was delivered. The envelope carries
+        # pickup_id and source.project, so no basename can collide (T-4274).
+        echo -e "Sending to ${BOLD}$session${NC} on ${BOLD}$remote${NC} via fw sidecar..."
+        local push_rc=0
+        pickup_sidecar_send --to "$session" --hub "$remote" --notice \
+            --body "fw pickup envelope $pickup_id ($pickup_type) from $source_project
+$(cat "$filepath")" 2>&1 || push_rc=$?
         if [ "$push_rc" -ne 0 ]; then
-            echo -e "${RED}NOT delivered:${NC} termlink remote push exited $push_rc — envelope left in $PICKUP_INBOX" >&2
+            # Out of the inbox: `fw pickup process` would read it as incoming.
+            mkdir -p "$PICKUP_UNDELIVERED"
+            local undelivered_path
+            if undelivered_path=$(pickup_move_preserving "$filepath" "$PICKUP_UNDELIVERED"); then
+                filepath="$undelivered_path"
+            fi
+            echo -e "${RED}NOT delivered:${NC} fw sidecar send exited $push_rc — envelope kept in $PICKUP_UNDELIVERED" >&2
             echo "$filepath"
             return 1
         fi

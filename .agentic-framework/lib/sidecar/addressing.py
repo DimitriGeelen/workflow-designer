@@ -329,6 +329,16 @@ def _subagent_evidence(name: str, runner) -> str | None:
     return None
 
 
+def _project_inbox_read(own: str, name: str, runner) -> bool:
+    """Does `inbox:<own>/<name>` exist on our hub, read since its last write (T-4529)?"""
+    topic = circuit.topic_for_circuit(f"{own}/{name}")
+    try:
+        rows = hub_inbox_topics(own, None, runner) or []
+    except Exception:
+        return False
+    return any(r.get("name") == topic and topic_is_read(r) for r in rows)
+
+
 def _project_inboxes_on(hub: str, hub_id: str, runner) -> list[str] | None:
     """Project names with an inbox on a remote hub (`inbox:<hub_id>/<project>`,
     no deeper segment), or None when the hub could not be asked (T-3899)."""
@@ -435,6 +445,11 @@ def resolve(to: str, *, hub: str | None = None, level: str = "auto",
     why = _subagent_evidence(name, runner)
     if why:
         return out(f"{own}/{circuit.project_id()}/{name}", hub_arg, f"sub-agent: {why}")
+    if level == "auto" and _project_inbox_read(own, name, runner):
+        # T-4529: a project outside the numbering, registered on this hub —
+        # its inbox exists and something fetched it after its last write. A
+        # topic nobody reads (a nickname, T-4418) is not evidence.
+        return out(f"{own}/{name}", hub_arg, "project address on this hub, its inbox is read")
     raise AddressError(
         f"recipient {name!r} is not resolvable: not a project id on this hub, not in "
         f"the peer directory ({peers_path()}), and not a sub-agent of this agent "
@@ -576,11 +591,25 @@ def orphan_inboxes(*, runner=None) -> list[dict] | None:
     mine = set(inbox.read_topics())
     peer_circuits = {p.get("circuit") for p in load_peers()["peers"].values()}
     prefix = f"{circuit.TOPIC_PREFIX}{own}/"
+    own_project = f"{prefix}{circuit.project_id()}"
+    cursors = inbox.load_state().get("topics", {})
     out = []
     for r in rows:
         topic = str(r.get("name") or "")
         rest = topic[len(prefix):] if topic.startswith(prefix) else ""
         if not rest or "/" in rest or topic in mine or f"{own}/{rest}" in peer_circuits:
+            continue
+        if topic == own_project:
+            # T-4530: our own project address, and this session reads another
+            # topic (a session- or agent-scoped circuit). Judged by our cursor:
+            # the hub's unread_since_ms is cleared by any fetch, a peek included.
+            latest, count = r.get("latest_offset"), r.get("count") or 0
+            cur = (cursors.get(topic) or {}).get("cursor", 0)
+            unread = max(0, min(count, latest + 1 - cur)) if isinstance(latest, int) else 0
+            if unread:
+                out.append({"topic": topic, "count": unread, "own_project": True,
+                            "read_topic": inbox.inbox_topic(),
+                            "last_writer": (r.get("activity") or {}).get("last_writer")})
             continue
         if circuit.is_project_id(rest) or not topic_is_unread(r):
             continue

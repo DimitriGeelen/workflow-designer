@@ -697,8 +697,9 @@ def _build_brief(task_id: str, criteria: list[dict], *, rung: int = 1, rung_reas
         *[f"- Criterion {c['index']} → `--ac {c['ac_index']}`" for c in criteria],
         "",
         f"1. Write your evidence report to `{REPORT_DIR}/{task_id}/AC<N>-$FW_SIDECAR_AGENT_ID.md` "
-        "(what you checked and found). Copy any screenshot you cite into the same directory and "
-        "cite that copy.",
+        "(what you checked and found). Copy (`cp`) any screenshot you cite into the same directory "
+        "as `<name>-$FW_SIDECAR_AGENT_ID.png` and cite that copy. Files already in that directory "
+        "are other runs' recorded evidence: never move, rename, overwrite or delete them (T-4514).",
         f"2. Compute the digest you read: `bin/fw reviewer verdict digest {task_id} --ac <N>`",
         "3. Record it (replace <N>, <OUTCOME>, <DIGEST>, <REPORT>; run it exactly as written, so "
         "the shell expands `$FW_SIDECAR_AGENT_ID`):",
@@ -883,7 +884,12 @@ def _collect(root: Path, task_id: str, dispatch_id: str, criteria: list[dict],
     led = ctx.ledger
     rows = [(r, i) for r, i in led.entries()
             if r.get("task") == task_id and r.get("dispatch_id") == dispatch_id]
-    unavailable = "" if (rows or led.faults) else (_unavailable_reason(dispatch_id) or "no completion")
+    # T-4456: a harness seat whose printed verdict `record-for-worker` refused also leaves no row,
+    # but it judged: name the ledger's refusal, never `unavailable: exit 0`.
+    refused = {} if rows else {
+        r.get("ac"): str(r.get("reason") or "") for r in vl._read(vl.REFUSALS, root)
+        if r.get("task") == task_id and r.get("dispatch_id") == dispatch_id}
+    unavailable = "" if (rows or refused or led.faults) else (_unavailable_reason(dispatch_id) or "no completion")
     out = []
     for c in criteria:
         mine = [(r, i) for r, i in rows if r.get("ac") == c["ac_index"]]
@@ -904,16 +910,22 @@ def _collect(root: Path, task_id: str, dispatch_id: str, criteria: list[dict],
                 if f is None:
                     res["outcome"] = row["outcome"]
                 else:
-                    res.update(source="ledger-row-invalid", why=f"{f[0]}: {f[1]}")
+                    res.update(source="ledger-row-invalid", why=f"{f[0]}: {f[1]}", fault=f[0])
                     if f[0] == "unseen-page":
                         res["flag"] = f"green-on-unseen-page: {f[1]}"
+        elif c["ac_index"] in refused:
+            res.update(source="verdict-refused",
+                       why=f"verdict refused by the ledger: {refused[c['ac_index']] or 'no reason given'}")
         out.append(res)
     return out
 
 
-def _final(root: Path, task_id: str, judged: list[dict], dispatches: list[dict]) -> tuple[dict, dict]:
+def _final(root: Path, task_id: str, judged: list[dict], dispatches: list[dict],
+           degradable: bool = False) -> tuple[dict, dict]:
     """(outcomes, why) per criterion AFTER the whole run: green only if `satisfying_verdict` - the
-    check `apply` uses, which requires every required seat and vendor - accepts it."""
+    check `apply` uses, which requires every required seat and vendor - accepts it.
+    `degradable` (T-4490): an UNAVAILABLE seat neither decides nor stops; the ledger decides
+    whether the panel closes green-degraded."""
     path, _ = vl._find_task(root, task_id)
     ctx = vl._Ctx(root, task_id, path, path.read_text(encoding="utf-8", errors="replace")) if path else None
     crits = {c.index: c for c in human_criteria(ctx.text)} if ctx else {}
@@ -922,7 +934,8 @@ def _final(root: Path, task_id: str, judged: list[dict], dispatches: list[dict])
         seat_res = [r for d in dispatches if d.get("dispatch_id") for r in d["results"]
                     if r["ac"] == c["ac_index"]]
         # T-3986: the last seat that EVALUATED decides; not-evaluated seats only report.
-        evaluated = [r for r in seat_res if r["outcome"] != vl.NOT_EVALUATED]
+        evaluated = [r for r in seat_res if r["outcome"] != vl.NOT_EVALUATED
+                     and not (degradable and r.get("unavailable"))]
         last = (evaluated or seat_res or [{"outcome": UNKNOWN, "why": "no seat was dispatched"}])[-1]
         if last["outcome"] in _CLEARS:
             good, why = (vl.satisfying_verdict(ctx, crits[c["ac_index"]])
@@ -931,6 +944,10 @@ def _final(root: Path, task_id: str, judged: list[dict], dispatches: list[dict])
                                        vl.NOT_EVALUATED if why.startswith("not-evaluated") else UNKNOWN)
             if not good:
                 whys[c["ac_index"]] = why
+            elif degradable:
+                deg = vl.green_degraded_of(ctx, crits[c["ac_index"]], good)
+                if deg:
+                    whys[c["ac_index"]] = f"{vl.GREEN_DEGRADED}: {deg}"
         else:
             outcomes[c["ac_index"]] = last["outcome"]
             if last.get("why"):
@@ -1065,6 +1082,14 @@ def judge(task_id: str, root: Path, *, criterion_n: int | None = None, dry_run: 
     res["run_id"] = run_id
 
     res["dispatches"], res["cost_log_errors"], res["proposals"] = [], [], []
+    # T-4490: with green-degraded on, an UNAVAILABLE seat (no ledger row at all) does not stop a
+    # panel — it never dissents — so the remaining seats still sit and the ledger can judge whether
+    # the panel closes green-degraded. Amber, red, escalate and unknown rows still stop it.
+    degradable = rung >= 5 and vl.green_degraded_enabled(root)
+
+    def _stops(r: dict) -> bool:
+        return r["outcome"] not in _CLEARS and not (degradable and r.get("unavailable"))
+
     per_seat = RUNG_COST.get(rung, 2.0) / (PANEL_SIZE if rung >= 5 else 1)
     for s in plan["dispatch"]:
         seat = s["seat"]
@@ -1088,11 +1113,11 @@ def judge(task_id: str, root: Path, *, criterion_n: int | None = None, dry_run: 
                                   "dispatch_id": did, "results": results})
         # A panel is sequential and stops at the first seat that does not clear every criterion.
         # T-3986: a seat that could not evaluate does not stop it — the next seat may evaluate.
-        if any(r["outcome"] not in _CLEARS for r in results):
+        if any(_stops(r) for r in results):
             break
 
     # Seats no internal backend can fill: offer them to a paid backend, and WAIT. Never dispatched.
-    stopped = any(d.get("error") or any(r["outcome"] not in _CLEARS for r in d["results"])
+    stopped = any(d.get("error") or any(_stops(r) for r in d["results"])
                   for d in res["dispatches"])
     for s in plan["unfilled"]:
         if stopped:
@@ -1119,7 +1144,7 @@ def judge(task_id: str, root: Path, *, criterion_n: int | None = None, dry_run: 
         for r in entry["results"]:
             r["source"] = entry["status"]
         res["dispatches"].append(entry)
-    res["outcomes"], res["why"] = _final(root, task_id, judged, res["dispatches"])
+    res["outcomes"], res["why"] = _final(root, task_id, judged, res["dispatches"], degradable)
     res["code"] = 0
     # T-4010 (dimitri-mint-dev G-010): seats were dispatched but none left a ledger row — in a
     # consumer this is every run when the dispatch could not register (no launchable kind).
@@ -1132,7 +1157,24 @@ def judge(task_id: str, root: Path, *, criterion_n: int | None = None, dry_run: 
             f"— the dispatch likely could not register (check `fw termlink worker-kinds` and that "
             f"agents/termlink/termlink.sh and policy/review-backends.yaml are committed, T-4010)")
         res["code"] = 3
+    _flag_uncommitted(res)
     return res
+
+
+def _flag_uncommitted(res: dict) -> None:
+    """T-4033 (832 T-1114): a seat's verdict row that was appended but never committed never
+    counts, and the pre-push audit FAILs on it. The judge printed `unknown` and exited 0 — a
+    finished-looking run. Name every such row, with its commit error and the discard verb, and
+    exit 4 (unless an earlier error already set a code)."""
+    rows = [f"AC#{r['ac']} row {r.get('verdict_id') or '?'} — {r.get('why', '')}"
+            for d in res.get("dispatches") or [] for r in d.get("results") or []
+            if r.get("fault") == "uncommitted"]
+    if not rows:
+        res.pop("uncommitted", None)
+        return
+    res["uncommitted"] = rows
+    if not res.get("code"):
+        res["code"] = 4
 
 
 def _not_evaluated_kinds(res: dict, ac: int) -> set[str]:
@@ -1166,7 +1208,8 @@ def judge_with_reassign(task_id: str, root: Path, **kw) -> dict:
         return res
     res["reassigned"] = []
     for ac, outcome in list(res["outcomes"].items()):
-        if outcome != vl.NOT_EVALUATED and not _unavailable(res, ac):
+        # T-4490: a panel the ledger closed green-degraded is closed; it is not re-run.
+        if outcome == vl.GREEN or (outcome != vl.NOT_EVALUATED and not _unavailable(res, ac)):
             continue
         excluded = _not_evaluated_kinds(res, ac) | set(_unavailable(res, ac))
         unavailable = _unavailable(res, ac)
@@ -1218,6 +1261,7 @@ def judge_with_reassign(task_id: str, root: Path, **kw) -> dict:
         if names:
             res["no_seat_recorded"] += "; unavailable: " + ", ".join(
                 f"{k} ({v})" for k, v in sorted(names.items()))
+    _flag_uncommitted(res)
     return res
 
 
@@ -1261,6 +1305,9 @@ def _print_result(res: dict) -> None:
         print(f"  final AC#{ac}: {res['outcomes'][ac]} - {why}")
     if res.get("no_seat_recorded"):
         print(f"ERROR: {res['no_seat_recorded']}", file=sys.stderr)
+    for u in res.get("uncommitted") or []:
+        print(f"ERROR: verdict row left uncommitted (it does not count, and fw audit FAILs on it): "
+              f"{u}", file=sys.stderr)
 
 
 def main(argv: list[str] | None = None, *, dispatcher: Dispatcher | None = None,

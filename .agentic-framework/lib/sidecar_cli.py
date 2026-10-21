@@ -177,10 +177,14 @@ def _cmd_send(args) -> int:
     # The hub topic path below stays as the fallback when no receiver was ever
     # registered for the name. A registered-but-down receiver is NOT rerouted:
     # it spends the retry budget and is recorded UNDELIVERABLE.
+    # T-3762: the "no receiver" fact that picks the hub path is reported, not
+    # dropped — None when --hub skipped the registry (nothing was checked).
+    receiver_seen = None
     if not args.hub:
         entry = lifecycle.lookup(args.to)
         if entry is not None:
             return _send_direct(args, entry)
+        receiver_seen = "none-registered"
 
     # Resolve the address HERE rather than carrying a level flag through the
     # outbox: a resolved circuit is used verbatim by transport.topic_for, so
@@ -217,6 +221,7 @@ def _cmd_send(args) -> int:
         "topic": circuit.topic_for_circuit(target),
         "hub": hub or "local",
         "addressed_by": where["how"],
+        "receiver": receiver_seen,
     }
     if args.json:
         print(json.dumps(payload))
@@ -224,6 +229,10 @@ def _cmd_send(args) -> int:
         verdict = "delivered" if result.delivered else "NOT delivered"
         print(f"{verdict}: {result.state}  ->  {payload['topic']}  on hub {payload['hub']}")
         print(f"addressed by: {where['how']}")
+        if receiver_seen:
+            print(f"receiver: no receiver registered for {args.to} on this host — sent via "
+                  f"the hub, so HUB_ACCEPTED is the last state until {args.to} takes it off "
+                  f"the topic and sends a receipt (fw sidecar receipts)")
         print(f"client_msg_id: {result.client_msg_id}")
         if result.reason:
             print(f"reason: {result.reason}")
@@ -320,7 +329,13 @@ def _orphan_lines(orphans) -> list[str]:
     if orphans is None:
         return ["orphan inboxes: NOT CHECKED (the hub could not be asked)"]
     lines = [f"orphan inbox: {o['topic']} holds {o['count']} unread post(s) no known agent reads "
-             f"(a nickname address? tell the senders the real circuit)" for o in orphans]
+             f"(a nickname address? tell the senders the real circuit)" for o in orphans
+             if not o.get("own_project")]
+    # T-4530: this project's own address, unread because this session reads another topic.
+    lines += [f"orphan inbox: {o['topic']} (this project's address) holds {o['count']} post(s) "
+              f"past our cursor; this session reads {o['read_topic']}, not it. Read it with "
+              f"FW_SIDECAR_AGENT_ID, TERMLINK_SESSION and FW_FOCUS_SESSION_KEY unset"
+              for o in orphans if o.get("own_project")]
     return lines
 
 
@@ -386,6 +401,12 @@ DM_SHARED_NOTE = ("this project has no TermLink identity of its own, so it is si
                   "summaries only and no cursor moved. Consults on this agent's own inbox topic "
                   "are drained as usual.")
 
+#: T-4531: the same refusal for the host-keyed rails an identity transition (T-4311) keeps in view.
+DM_TRANSITION_NOTE = ("the dm rails listed as summaries are keyed by this host's shared TermLink "
+                      "identity (kept in view while SIDECAR_HOST_DM_TRANSITION is on). Every "
+                      "project on this host reads them, so they are not drained and no cursor "
+                      "moved; dm rails on this project's own identity are drained as usual.")
+
 
 def _print_inbox(args, messages) -> int:
     # T-3442: `--peek` shows DM rail SUMMARIES (count/cursor/unread, no hub
@@ -395,20 +416,26 @@ def _print_inbox(args, messages) -> int:
     # T-4252: ...unless our identity is the host-shared one. Every project on
     # the host sees those rails, so draining marks other projects' DMs read
     # (198 lost). Read-only summaries, the same shape --peek already uses.
+    # T-4531: with our own identity, the host-keyed rails a T-4311 transition
+    # keeps in view are just as shared — summaries too, only our key drains.
     shared = False if args.peek else dm.identity_is_host_shared()
     readonly = args.peek or shared
-    dm_rows = dm.summary() if readonly else []
+    dm_rows = dm.summary() if readonly else dm.shared_summary()
     dm_posts = [] if readonly else dm.pending(advance=True)
     if shared and not args.json:
         print(f"NOTE: {DM_SHARED_NOTE}", file=sys.stderr)
+    elif dm_rows and not readonly and not args.json:
+        print(f"NOTE: {DM_TRANSITION_NOTE}", file=sys.stderr)
 
     if args.json:
         payload = {"consults": messages}
         if shared:
             payload["dm_drain_refused"] = DM_SHARED_NOTE
-        if readonly:
+        elif dm_rows and not readonly:
+            payload["dm_drain_refused"] = DM_TRANSITION_NOTE
+        if readonly or dm_rows:
             payload["dm_rails"] = dm_rows
-        else:
+        if not readonly:
             payload["dm_posts"] = dm_posts
         if dm_rows or dm_posts:
             payload["dm_scope"] = "host-identity"
@@ -430,11 +457,10 @@ def _print_inbox(args, messages) -> int:
     if dm_rows or dm_posts:
         print(f"NOTE: {DM_SCOPE_NOTE}")
         print()
-    if readonly:
-        for row in dm_rows:
-            print(f"dm rail {_meta(row['topic'])}: count={row['count']} "
-                  f"cursor={row['cursor']} unread={row['unread']}")
-    else:
+    for row in dm_rows:
+        print(f"dm rail {_meta(row['topic'])}: count={row['count']} "
+              f"cursor={row['cursor']} unread={row['unread']}")
+    if not readonly:
         for msg in dm_posts:
             sender = msg.get("from") or inbox.UNATTRIBUTED
             print(f"--- dm @{_meta(msg.get('offset'))} on {_meta(msg.get('topic'))} "
@@ -888,13 +914,23 @@ def _start_receiver(agent: str, port, no_inject: bool, quiet: bool) -> tuple[int
     return 0, info
 
 
+def _stop_stale_watcher() -> None:
+    """Stop a supervisor or watcher running stale code (T-3685).
+
+    T-4482: call this BEFORE replacing a stale receiver too. A live stale
+    supervisor restarts the receiver we just stopped (it checks every
+    min(tick, 5) s), the two starts race for the triple file, ours returns 2,
+    and the stale supervisor is never replaced."""
+    if watcher.is_stale(watcher.read_pid("supervisor")) or watcher.is_stale(watcher.read_pid("watcher")):
+        watcher.stop_processes()
+        watcher.record_event("STALE_CODE_RESTART")
+
+
 def _start_watcher(agent: str, tick, no_inject: bool, quiet: bool) -> dict:
     """Enable + start the supervised watcher (T-3684/T-3685). A supervisor or
     watcher running stale code is replaced."""
     watcher.enable(agent, tick, inject_on=not no_inject)
-    if watcher.is_stale(watcher.read_pid("supervisor")) or watcher.is_stale(watcher.read_pid("watcher")):
-        watcher.stop_processes()
-        watcher.record_event("STALE_CODE_RESTART")
+    _stop_stale_watcher()
     res = watcher.start_supervisor()
     if not quiet:
         tl = "present" if __import__("shutil").which("termlink") else \
@@ -962,6 +998,8 @@ def cmd_receiver_start(args) -> int:
         return 2
     if not args.no_watcher and _refuse_persist(agent, args):   # T-4423
         return 2
+    if not args.no_watcher:   # --no-watcher is the supervisor's own restart call
+        _stop_stale_watcher()   # T-4482: before the receiver, or the two race
     rc, _info = _start_receiver(agent, args.port, args.no_inject, args.quiet)
     if rc != 2:
         _ensure_inbox_topic(agent, args.quiet)
@@ -978,6 +1016,7 @@ def cmd_start(args) -> int:
         return 2
     if _refuse_persist(agent, args):   # T-4423
         return 2
+    _stop_stale_watcher()   # T-4482: before the receiver, or the two race
     rc, info = _start_receiver(agent, args.port, args.no_inject, args.quiet)
     if rc == 2:
         return 2

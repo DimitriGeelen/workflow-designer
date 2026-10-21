@@ -24,7 +24,7 @@
 # PL-078 still applies: when you change the CONTENT of any hook template below,
 # bump this constant AND the `# VERSION=` literal in the commit-msg heredoc
 # together, so consumers' next install-hooks redeploys all four.
-COMMIT_MSG_HOOK_VERSION="1.20"
+COMMIT_MSG_HOOK_VERSION="1.21"
 
 # T-2813: verify a hook actually landed by reading state back from disk,
 # rather than trusting that the `cat`/`chmod` calls that wrote it didn't
@@ -74,8 +74,13 @@ _fw_hook_installed_block() {
 #   - an old framework hook keeps only the lines the template does not contain,
 #     after the block — the template lines are never duplicated;
 #   - a consumer's own sh/bash hook keeps its whole body, after the block;
-#   - a hook in another language, or a merge that does not parse, gets the block
-#     alone and a WARN naming the backup.
+#   - a hook in another language, or a merge that does not parse, is REFUSED:
+#     the installed file is left as it is and the function returns 2.
+# T-4515 (G-122): no line is ever commented out and no consumer hook is ever
+# replaced by the block alone. T-4403 did both, and 832's two pre-commit gates
+# stopped running for five hours while their marker text, still inside the
+# comment, made their own check read "installed". A stale framework line that
+# runs is loud; a consumer gate that silently stops is not.
 _fw_hook_compose() {
     local installed="$1" block="$2" out="$3"
     if [ ! -s "$installed" ]; then
@@ -95,29 +100,34 @@ _fw_hook_compose() {
     if grep -qE 'Agentic Engineering Framework|agents/git/git\.sh install-hooks|^# [<>]{3} agentic-framework hook' "$installed"; then
         # An old framework hook: lines the current template lacks are either the
         # consumer's or an OLDER template's, and nothing tells them apart. Keep
-        # them all, commented out, so no stale framework line runs unseen.
+        # them all ACTIVE (T-4515): a consumer gate must keep running.
         tail -n +2 "$installed" | grep -vxF -f "$block" | grep -v '^[[:space:]]*$' \
-            | grep -v '^# [<>]\{3\} agentic-framework hook' | sed 's/^/# /' > "$kept" || true
-        note="commented out — uncomment the lines that are yours"
+            | grep -v '^# [<>]\{3\} agentic-framework hook' > "$kept" || true
+        note="still active — delete any that came from an older framework hook"
     elif [[ "$first" =~ ^#!(/usr)?/bin/(env[[:space:]]+)?(ba)?sh([[:space:]]|$) ]]; then
         tail -n +2 "$installed" > "$kept"
         note="unchanged — they now run after the framework checks pass"
     else
-        : > "$kept"
-        echo -e "${YELLOW}WARN: $name is not a shell script ($first) — it cannot be merged with the framework block; your previous hook is $backup${NC}" >&2
+        rm -f "$kept"
+        echo -e "${RED}REFUSED: $name is not a shell script ($first) — it cannot be merged with the framework block, and replacing it would disable it. Left unchanged.${NC}" >&2
+        echo "  Fix: call your hook from a shell $name, then re-run fw git install-hooks." >&2
+        return 2
     fi
-    [ -s "$kept" ] || [ -z "$note" ] && cp -p "$installed" "$backup" 2>/dev/null
     { echo '#!/bin/bash'; cat "$block"
       if [ -s "$kept" ]; then
-          echo "# T-4403: kept from the previous $name by fw git install-hooks ($note); original: $(basename "$backup")"
+          echo "# T-4515: project lines kept ACTIVE from the previous $name by fw git install-hooks ($note); original: $(basename "$backup")"
           cat "$kept"
       fi; } > "$out"
     if [ -s "$kept" ] && ! bash -n "$out" 2>/dev/null; then
-        { echo '#!/bin/bash'; cat "$block"; } > "$out"
-        echo -e "${YELLOW}WARN: your lines from $name do not parse after the framework block — installed the block alone; your previous hook is $backup${NC}" >&2
-    elif [ -s "$kept" ]; then
-        echo -e "${YELLOW}$name: kept $(wc -l < "$kept") line(s) of the previous hook below the framework block ($note); previous file: $backup${NC}" >&2
+        echo -e "${RED}REFUSED: the lines of $name outside the framework template do not parse after the framework block — installing would disable them. $name left unchanged (its checks still run).${NC}" >&2
+        echo "  Lines:" >&2
+        sed 's/^/    | /' "$kept" | head -20 >&2
+        echo "  Fix: delete the lines that came from an older framework hook (or make the rest parse on its own), then re-run fw git install-hooks." >&2
+        rm -f "$kept" "$out"
+        return 2
     fi
+    [ -s "$kept" ] || [ -z "$note" ] && cp -p "$installed" "$backup" 2>/dev/null
+    [ -s "$kept" ] && echo -e "${YELLOW}$name: kept $(wc -l < "$kept") line(s) of the previous hook below the framework block ($note); previous file: $backup${NC}" >&2
     rm -f "$kept"
     return 0
 }
@@ -184,7 +194,7 @@ do_install_hooks() {
 # commit-msg hook - Task Reference Enforcement
 # Installed by: ./agents/git/git.sh install-hooks
 # Part of: Agentic Engineering Framework
-# VERSION=1.20
+# VERSION=1.21
 
 COMMIT_MSG_FILE="$1"
 COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
@@ -266,6 +276,17 @@ if [ -f "$FRAMEWORK_ROOT/lib/paths.sh" ]; then
     source "$FRAMEWORK_ROOT/lib/paths.sh"
 fi
 INCEPTION_COMMIT_LIMIT=$(fw_config "INCEPTION_COMMIT_LIMIT" 2 2>/dev/null || echo 2)
+
+# --- Foreign-delete guard (T-4528) ---
+# Refuse a commit that deletes files last committed by a DIFFERENT task unless the
+# message names that task: the signature of a stale scratch index built before
+# another worker's commit (290e149d6 deleted T-4520's suite). Here, not in
+# pre-commit, because only this hook sees the message. Inherits GIT_INDEX_FILE.
+# Override: FW_ALLOW_FOREIGN_DELETE=1 (Tier-2, logged).
+FOREIGN_DELETE_GUARD="$FRAMEWORK_ROOT/agents/git/lib/foreign-delete-guard.py"
+if [ -f "$FOREIGN_DELETE_GUARD" ] && command -v python3 >/dev/null 2>&1; then
+    PROJECT_ROOT="$PROJECT_ROOT" python3 "$FOREIGN_DELETE_GUARD" "$COMMIT_MSG_FILE" || exit 1
+fi
 
 # --- Inception commit classifier (T-2195) ---
 # An inception commit is "exploration" (counts toward budget) if its diff touches
@@ -466,42 +487,6 @@ if [ -f "$MASTER_GUARD" ]; then
     PROJECT_ROOT="$PROJECT_ROOT" bash "$MASTER_GUARD" check || exit 1
 fi
 
-# T-659: retention-sweep deletions are not the agent's to commit.
-#
-# A retention cron prunes .context/audits/cron/ and leaves the deletions pending in the
-# working tree indefinitely. Committing them is a housekeeping decision belonging to the
-# operator, not a side effect of whatever the agent was doing. Three sessions held this
-# line by staging explicit paths every time — until one `git add .context/` to pick up a
-# single episodic file swept 338 of them into the index. The rule lived in the agent's
-# head; the index does not consult it. Habit is what failed, so a habit is not the fix.
-#
-# Blocks only under agent control ($CLAUDECODE). The operator committing a retention
-# sweep deliberately is the intended path and is not obstructed.
-# 832 T-659 (re-applied on 1.7.740 by T-1005)
-if [ "${CLAUDECODE:-0}" = "1" ] && [ "${FW_ALLOW_RETENTION_SWEEP:-0}" != "1" ]; then
-    _rs_n=$(git diff --cached --name-only --diff-filter=D 2>/dev/null \
-            | grep -c '^\.context/audits/cron/' || true)
-    if [ "${_rs_n:-0}" -gt 0 ]; then
-        echo "" >&2
-        echo "ERROR: Commit blocked — $_rs_n retention-sweep deletion(s) staged (T-659)." >&2
-        echo "" >&2
-        echo "  .context/audits/cron/ is pruned by a retention cron. Those deletions are" >&2
-        echo "  the operator's to commit, not a byproduct of the current task." >&2
-        echo "" >&2
-        echo "  Almost always the cause: a directory-wide 'git add .context/' rather than" >&2
-        echo "  explicit paths. Unstage them and keep the rest of your work:" >&2
-        echo "" >&2
-        echo "    git reset HEAD .context/audits/" >&2
-        echo "" >&2
-        echo "  Then re-add only the files your task produced, by name." >&2
-        echo "" >&2
-        echo "  Operator, or a deliberate sweep: FW_ALLOW_RETENTION_SWEEP=1 git commit ..." >&2
-        echo "" >&2
-        exit 1
-    fi
-fi
-
-
 # FW-HOOK-BLOCK: t3110-corpus-guard
 # T-3110 (R7 leg L1, docs/design/task-corpus-concurrency-model.md): task-corpus
 # commit guard. Refuses a commit that stages any path under `.tasks/` when the
@@ -601,6 +586,13 @@ fi
 # historically landed without +x and silently fail-open under the older -x gate).
 _hits=$(PROJECT_ROOT="$PROJECT_ROOT" bash "$SCANNER" scan-staged 2>&1)
 _rc=$?
+
+# T-2661: a passing scan can still carry a warning (T-2656's "RUNNING WITHOUT
+# PATTERNS"). The 2>&1 capture above swallowed it on rc=0, so the fail-open
+# default was silent after all. Pass it through.
+if [ "$_rc" -eq 0 ] && [ -n "$_hits" ]; then
+    echo "$_hits" >&2
+fi
 
 if [ "$_rc" -ne 0 ]; then
     echo ""
@@ -1489,12 +1481,12 @@ else
 fi
 if [ -n "$_version" ]; then
     _version="${_version#v}"
-    if [[ "$_version" == *-*-* ]]; then
-        _base="${_version%%-*}"
-        _rest="${_version#*-}"
-        _commits="${_rest%%-*}"
-        _major_minor="${_base%.*}"
-        _stamped="${_major_minor}.${_commits}"
+    # T-2961: same grammar as bin/fw _derive_version (T-4055) — v1.8.9-92-gabc
+    # → 1.8.9+92.gabc. The old <major.minor>.<commits> form dropped the tag's
+    # patch, so the third field was a distance that reset at every tag and
+    # 1.8.92 read "newer" than 1.8.10 (T-2925).
+    if [[ "$_version" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-([0-9]+)-(g[0-9a-f]+)$ ]]; then
+        _stamped="${BASH_REMATCH[1]}+${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
     else
         _stamped="$_version"
     fi
@@ -1519,6 +1511,14 @@ echo ""
 # the whole point of the exit-75 branch below is that the pipeline's exit code must
 # not be substituted for the audit's.
 _t3126_out=$(mktemp -t fw-prepush-audit-XXXXXX 2>/dev/null || echo "")
+# T-4526: an interrupted push (Ctrl-C mid-audit) skipped every rm below and left
+# the capture behind. The rm calls stay; this covers the paths that miss them.
+# $BASHPID, not $$: the hook body runs in a ( ... ) subshell (T-4515).
+if [ -n "$_t3126_out" ]; then
+    trap 'rm -f "$_t3126_out"' EXIT
+    trap 'rm -f "$_t3126_out"; trap - INT; kill -INT $BASHPID' INT
+    trap 'rm -f "$_t3126_out"; trap - TERM; kill -TERM $BASHPID' TERM
+fi
 
 # T-3297: one audit attempt — shared by the first run and the bounded-wait
 # retries below. Sets $audit_exit; captures to $_t3126_out when available.
@@ -1784,8 +1784,13 @@ HOOK_EOF
         # State the difference, not a direction (T-2852): nothing here compares ordering.
         [ "$force" = true ] || [ -z "$_changed" ] || echo -e "${YELLOW}Hook content differs:${_changed} (marker installed: ${existing_version:-none}, template: $COMMIT_MSG_HOOK_VERSION) — reinstalling${NC}"
         failed_hooks=()
+        local _refused="" _rc
         for _n in $_differ; do
-            if _fw_hook_compose "$hooks_dir/$_n" "$stage_dir/$_n.block" "$stage_dir/$_n.new" \
+            _rc=0
+            _fw_hook_compose "$hooks_dir/$_n" "$stage_dir/$_n.block" "$stage_dir/$_n.new" || _rc=$?
+            if [ "$_rc" -eq 2 ]; then
+                _refused="$_refused $_n"   # T-4515: left as it is, never disabled
+            elif [ "$_rc" -eq 0 ] \
                 && cp "$stage_dir/$_n.new" "$hooks_dir/$_n" 2>/dev/null && chmod +x "$hooks_dir/$_n" \
                 && _fw_hook_installed_block "$hooks_dir/$_n" | cmp -s "$stage_dir/$_n.block" -; then
                 :
@@ -1793,6 +1798,10 @@ HOOK_EOF
                 install_failed=true; failed_hooks+=("$hooks_dir/$_n")
             fi
         done
+        if [ -n "$_refused" ] && [ "$install_failed" = false ]; then
+            echo -e "${RED}ERROR: hook(s) not installed:${_refused} — merging would have disabled lines that are not the framework's (see REFUSED above). They were left unchanged.${NC}" >&2
+            exit 1
+        fi
     fi
     commit_msg_hook="$hooks_dir/commit-msg"; pre_commit_hook="$hooks_dir/pre-commit"
     post_commit_hook="$hooks_dir/post-commit"; pre_push_hook="$hooks_dir/pre-push"

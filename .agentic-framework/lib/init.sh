@@ -381,6 +381,10 @@ tier0-approval
 # Unanchored on purpose: also covers the copy under .agentic-framework/.
 .fw-secret-key
 WGIT
+    # T-3861: vector index + scratch — one list shared with fw upgrade and fw audit.
+    # shellcheck source=lib/vec-index-gitignore.sh
+    source "$FRAMEWORK_ROOT/lib/vec-index-gitignore.sh"
+    fw_vec_index_ensure_ignored "$target_dir" >/dev/null
 
     echo -e "  ${GREEN}✓${NC}  Task system (.tasks/)"
     echo -e "  ${GREEN}✓${NC}  Context fabric (.context/)"
@@ -1059,8 +1063,16 @@ generate_claude_code_config() {
         fi
 
         # Use unquoted heredoc so $fw_prefix expands (T-663: framework-aware hook paths)
+        # T-2861: worktree.bgIsolation=none — governance state (.tasks/, .context/,
+        # docs/reports/) is tracked, so the harness's background-worktree guard forks
+        # it (T-2821/T-2822) and blocks the C-001 inception artifact. T-3263 set this
+        # in the framework repo's own settings.json only; consumers get it from here.
+        # An operator's explicit worktree.* value survives a regenerate (settings_merge.py).
         cat > "$dir/.claude/settings.json" << SJSON
 {
+  "worktree": {
+    "bgIsolation": "none"
+  },
   "hooks": {
     "PreCompact": [
       {
@@ -1442,6 +1454,14 @@ MCPJSON
         echo -e "  ${GREEN}OK${NC}  .mcp.json (MCP servers: context7, playwright, termlink, fw)"
     else
         echo -e "  ${YELLOW}SKIP${NC}  .mcp.json already exists"
+    fi
+    # T-3698: pin the live hub dir into the termlink server (add-only), so MCP
+    # channel posts reach the fleet hub even when Claude was launched without
+    # TERMLINK_RUNTIME_DIR.
+    if source "$(dirname "${BASH_SOURCE[0]}")/termlink-runtime.sh" 2>/dev/null; then
+        local _tl_pin
+        _tl_pin=$(fw_mcp_pin_termlink_runtime "$dir/.mcp.json" "$(fw_termlink_mcp_runtime_dir)" 2>/dev/null) || true
+        [ -n "$_tl_pin" ] && echo -e "  ${GREEN}OK${NC}  .mcp.json termlink server: TERMLINK_RUNTIME_DIR ${_tl_pin#pinned } (T-3698)"
     fi
 
     # --- .claude/commands/resume.md (project-specific /resume) ---

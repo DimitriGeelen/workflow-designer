@@ -343,6 +343,8 @@ FW_CONFIG_REGISTRY=(
     # 24h is a full day of missed runs, not jitter.
     "INDEX_MAX_AGE_HOURS|24|Hours since the vector index manifest was written before the vector-index health check FAILs (fw doctor, fw audit corpus-health, handover, operator push). The reindex cron runs hourly. T-3783."
     "INDEX_REINDEX_INTERVAL_HOURS|1|Hours between runs of the index-reindex-hourly cron job (1-24). 1 writes hour field '*', N writes '*/N'; read by fw cron generate (lib/cron_schedule.py). Raise for large, slowly changing indexes; keep it under INDEX_MAX_AGE_HOURS. The job's minute is derived per project unless the registry pins it. T-4351."
+    "EMBED_WORKERS|1|Concurrent embed requests the vector reindex sends to the bulk embedding host (web/embeddings.py:_embed_batches; order preserved). Match it to the server's OLLAMA_NUM_PARALLEL; 1 is serial. Measured 70 to 107 chunks/s at 3 on a 3-slot Ollama. Malformed or <1 means 1. T-4475."
+    "SEMANTIC_RECALL|1|1 = this host runs semantic recall (vector index, sqlite-vec, an embed host) and the vector-index health check FAILs when any of it is missing. 0 = deliberately absent on this host: the check reports one SKIP 'not configured on this host', fw index reindex does nothing, fw upgrade skips the prerequisite probe. Never inferred from a missing Ollama. T-3862."
     "INDEX_MAX_LAG|50|Task ids or learning ids on disk that the vector index has never seen before the vector-index health check FAILs. T-3783."
     "RECALL_FAIL_PCT_WARN|10|Percent of recall queries in 7 days that could not run (embed path failed mid-query) above which the vector-index health check WARNs. T-3783."
     # T-3028 (T-3025 GO, option 3). State dumps are 97.3% of a handover and the
@@ -361,6 +363,7 @@ FW_CONFIG_REGISTRY=(
     # This is the GRANT clock, not the request-staleness clock (how long a pending
     # card stays offerable: web/blueprints/approvals.py EXPIRY_SECONDS, T-3079).
     "TIER0_APPROVAL_TTL|300|Seconds a granted Tier 0 approval admits the command, for BOTH the 'fw tier0 approve' and Watchtower legs (agents/context/check-tier0.sh). Legacy TIER0_WATCHTOWER_TTL still wins when explicitly set. NOT the pending-request staleness window. T-3080."
+    "APPROVAL_PENDING_WARN_HOURS|24|Hours a pending Tier 0 approval card (.context/approvals/pending-*.yaml) may sit unanswered before fw doctor and fw audit WARN (lib/approval_queue_age.py). The request-staleness alarm, not the grant clock (TIER0_APPROVAL_TTL). Origin T-3079: three cards sat unseen for up to 3.5 months because only pull surfaces read them."
     # T-3127. AUDIT_TIMEOUT (section-scoped default 600, full-run default 3000
     # via FW_AUDIT_FULL_TIMEOUT, T-3070) is a pinned constant; the corpus a
     # full 'fw audit' scans grows with every task/learning/episodic/fabric
@@ -388,6 +391,9 @@ FW_CONFIG_REGISTRY=(
     # full mem/disk/cpu/net adaptive governor is slice S5b.
     "PROVISION_LOAD_MAX|0.8|Per-core normalized 1-minute loadavg threshold for the environmental governor's provisioning admission (lib/aef_governor.py). Under = allow, at/over = defer, at/over 2x = deny; bad values fall back to 0.8, logged. T-3311."
     "REVIEWER_JUDGE_WEEKLY_SPEND_CEILING|10000|Weekly USD spend ceiling for independent reviewer judgments via fw reviewer judge (T-3580, IW-7 rung selection). Estimated USD, read from the committed cost ledger (.context/costs/reviews.jsonl, reviewer-judge rows). When the due rung would pass it, the run is registered one rung lower; the SIGNED REVIEW RUN records the decision (due, granted, spend, ledger commit), the ticked criterion annotation shows rung granted/due/reason, and fw audit WARNs on every step-down. Floor 100: a value below it (0, negative, NaN, non-numeric) means no step-down, never always. T-3580."
+    # T-4490 (T-4466 GO, operator 2026-10-20). Project opt-out for green-degraded panel closes.
+    "BOUNDARY_EXTRA_READ_PATHS||Colon-separated absolute paths the project-boundary gate (agents/context/check-project-boundary.sh) lets Bash commands READ, on top of its built-in allowlist (which already covers \$HOME/.local and \$HOME/.claude of the running account). Writes are not widened. Relative entries and / are ignored. T-4361, GitHub #104."
+    "REVIEW_GREEN_DEGRADED|1|1 (default) lets a rung-5 review panel whose only missing seats were provably UNAVAILABLE (dispatched, started and completed by the signed runtime with no verdict) close a REVIEWER-JUDGES criterion as GREEN-DEGRADED when at least two seats of distinct vendors judged green and none dissented. Never for tier-0-or-bypass, act-in-the-world or sovereignty criteria. Each close is written on the criterion and WARNed by fw audit with a per-ISO-week count. Set 0 to opt out; any value other than 1/true/yes/on also means off (lib/verdict_ledger.py). T-4490."
 )
 
 # fw_config_registry — Print all known settings with current values
