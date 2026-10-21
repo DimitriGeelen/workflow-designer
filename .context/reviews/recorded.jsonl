@@ -113,3 +113,4 @@
 {"ac":1,"outcome":"amber","task":"T-647","ts":"2026-10-21T08:15:55Z","verdict_id":"V-20261021-5cfc13ec"}
 {"ac":1,"outcome":"amber","task":"T-671","ts":"2026-10-21T08:18:05Z","verdict_id":"V-20261021-a366b096"}
 {"ac":1,"outcome":"escalate","task":"T-695","ts":"2026-10-21T08:19:38Z","verdict_id":"V-20261021-db00312b"}
+{"ac":1,"outcome":"escalate","task":"T-733","ts":"2026-10-21T08:21:14Z","verdict_id":"V-20261021-f603e45d"}
