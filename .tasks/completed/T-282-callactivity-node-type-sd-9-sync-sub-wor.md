@@ -7,17 +7,17 @@ description: >
   editor, mapping-v1, and tools/validate-workflow.py. Evidence: docs/proposals/aef-workflow-process-layer-2026-07-02/INSTRUCTIONS
   §2.1/§2.3, EVALUATION §4 gap list.
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: human
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
 created: 2026-07-28T14:53:00Z
-last_update: 2026-10-21T09:15:45Z
-date_finished:
+last_update: 2026-10-21T09:34:04Z
+date_finished: 2026-10-21T09:34:04Z
 revisit_at: 2026-12-01
 revisit_evidence_needed: "A corpus map or AEF compile case needing call-with-return semantics that link events cannot express"
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
@@ -163,15 +163,15 @@ mapping shown in the panel (agent's wording from the report's draft, for the ope
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-282` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -220,7 +220,11 @@ mapping shown in the panel (agent's wording from the report's draft, for the ope
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: PD-400 (operator 2026-10-19, T-732): callActivity first; slice 1 round-trip per docs/reports/T-282-callactivity.md, AEF T-4374 accepts it
+
+**Date**: 2026-10-21T09:33:48Z
 
 ## Updates
 
@@ -229,26 +233,42 @@ mapping shown in the panel (agent's wording from the report's draft, for the ope
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-2adaff83
-- **Timestamp:** 2026-07-29T13:13:45Z
+- **Scan ID:** R-268dca44
+- **Timestamp:** 2026-10-21T09:34:06Z
 - **Catalogue:** v1.3-seed
-- **Overall:** PASS
+- **Overall:** CONCERN
 - **Needs Human:** no
-- **Findings:** none
+- **Findings:** 3
 
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-3
+     - evidence: `IW-3 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  3. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-4
+     - evidence: `IW-4 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
 ## Recommendation Verdict (v1.0)
 
-- **Scan ID:** RC-5d1610a7
-- **Timestamp:** 2026-07-29T13:13:45Z
+- **Scan ID:** RC-65261da5
+- **Timestamp:** 2026-10-21T09:34:07Z
 - **Overall:** CONFIRMED
 - **Claims:** 1
 
 | Claim | Type | Status |
 |-------|------|--------|
 | `T-081` | task | ✓ pass |
-
 ### 2026-10-19T10:09:51Z — status-update [task-update-agent]
 - **Change:** horizon: later → now
 
 ### 2026-10-21T09:15:45Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-10-21T09:33:48Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** PD-400 (operator 2026-10-19, T-732): callActivity first; slice 1 round-trip per docs/reports/T-282-callactivity.md, AEF T-4374 accepts it
+
+### 2026-10-21T09:34:04Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO

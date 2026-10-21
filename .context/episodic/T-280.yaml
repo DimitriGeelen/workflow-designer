@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-280: Workflow Fabric (SD-15): process-dependency graph — revive or retire
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-21T09:32:01Z
+# ============================================================================
+
+task_id: T-280
+task_name: "Workflow Fabric (SD-15): process-dependency graph — revive or retire"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-07-28T14:52:45Z
+completed: 2026-10-21T09:31:03Z
+duration_days: 85
+updates_count: 0
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Inception: decide whether SD-15 Workflow Fabric is worth reviving as an AEF-side phase with 832 ratification touchpoints, or retiring. Evidence: docs/proposals/aef-workflow-process-layer-2026-07-02/INSTRUCTIONS §2.6 incl. WF-A..E.
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 122078 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 122078
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-280-workflow-fabric-sd-15-process-dependency.md
+generated_by: context-agent-hybrid

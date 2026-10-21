@@ -7,17 +7,17 @@ description: >
   arc phase or formally retired. Evidence base: docs/proposals/aef-workflow-process-layer-2026-07-02/INSTRUCTIONS
   §0.3, §2.4 mode-gating rules, §3.2, Locks 3/6, V7.
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: human
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
 created: 2026-07-28T14:52:30Z
-last_update: 2026-10-21T09:19:38Z
-date_finished:
+last_update: 2026-10-21T09:28:19Z
+date_finished: 2026-10-21T09:28:19Z
 revisit_at: 2026-09-15
 revisit_evidence_needed: "Operator decision to raise the enforcement ladder with AEF,
   or a third instance of a prose process being re-interpreted and a fix not locking
@@ -162,15 +162,15 @@ slice from the package spec, for the operator's GO per PD-400).
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-279` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -219,7 +219,11 @@ slice from the package spec, for the operator's GO per PD-400).
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: PD-400 (operator 2026-10-19, T-732): revive and build the guided-mode guardrail; first slice per the hypothesis, runtime half raised with AEF
+
+**Date**: 2026-10-21T09:28:12Z
 
 ## Updates
 
@@ -228,21 +232,24 @@ slice from the package spec, for the operator's GO per PD-400).
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-66f1070b
-- **Timestamp:** 2026-07-29T13:13:45Z
+- **Scan ID:** R-8c9850ac
+- **Timestamp:** 2026-10-21T09:28:28Z
 - **Catalogue:** v1.3-seed
-- **Overall:** PASS
+- **Overall:** CONCERN
 - **Needs Human:** no
-- **Findings:** none
+- **Findings:** 1
 
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-1
+     - evidence: `IW-1 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
 ## Recommendation Verdict (v1.0)
 
-- **Scan ID:** RC-fbe9990a
-- **Timestamp:** 2026-07-29T13:13:45Z
+- **Scan ID:** RC-6d5e65ad
+- **Timestamp:** 2026-10-21T09:28:28Z
 - **Overall:** UNVERIFIED
 - **Claims:** 0
 - No verifiable claims found in ## Recommendation
-
 ## 2026-09-27 — SPLIT PROPOSED (T-874, arc-005). Nothing here is ticked, closed or reassigned.
 
 This task carries THREE Sovereign decisions — **SD-8** (advisory/guided/strict enforcement
@@ -273,3 +280,12 @@ Scope: `docs/reports/arc-005-process-instances-scope.md` §3 S2/S3 and §5.
 ### 2026-10-21T09:19:38Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-21T09:28:12Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** PD-400 (operator 2026-10-19, T-732): revive and build the guided-mode guardrail; first slice per the hypothesis, runtime half raised with AEF
+
+### 2026-10-21T09:28:19Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO

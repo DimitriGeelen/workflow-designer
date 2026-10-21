@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1213: Ownership by risk: decide agent or human at task creation, independent reviewer at every agent close, escalation as the only way to human (operator 2026-10-19)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-21T10:13:50Z
+# ============================================================================
+
+task_id: T-1213
+task_name: "Ownership by risk: decide agent or human at task creation, independent reviewer at every agent close, escalation as the only way to human (operator 2026-10-19)"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-19T09:52:04Z
+completed: 2026-10-21T10:13:32Z
+duration_days: 2
+updates_count: 2
+first_commit: 2026-10-19T11:53:08+02:00
+last_commit: 2026-10-21T09:55:54+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception — ownership by risk (operator decision 2026-10-19; supersedes T-931, differs from AEF T-4156; AEF asked with high priority, msg d9c04ae8). AEF filed T-4371 (GO recommended; create-time ownership via lib/delegation.py classify, high risk still starts human); evidence sent. the go/no-go criterion names why it is the operator's (sovereignty-field: a governance default); T-1066 check clean. countable hypothesis for PD-399 (ownership decided by risk at creation, reviewer at every agent close; 100%/100% and the operator's open Human criteria falling from 78 for 3 weekly counts) — handoff-ready for the decision job
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1213-ownership-by-risk-decide-agent-or-human-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T11:53:08'
+    action: 'T-1213: inception — ownership by risk (operator decision 2026-10-19; supersedes T-931, differs from AEF T-4156; AEF asked with high priority, msg d9c04ae8)'
+  - time: '2026-10-19T11:59:49'
+    action: 'T-1213: AEF filed T-4371 (GO recommended; create-time ownership via lib/delegation.py classify, high risk still starts human); evidence sent'
+  - time: '2026-10-19T12:20:02'
+    action: 'T-1213: the go/no-go criterion names why it is the operator''s (sovereignty-field: a governance default); T-1066 check clean'
+  - time: '2026-10-21T09:55:54'
+    action: 'T-1213: countable hypothesis for PD-399 (ownership decided by risk at creation, reviewer at every agent close; 100%/100% and the operator''s open Human criteria falling from 78 for 3 weekly counts) — handoff-ready for the decision job'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 2901 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2901
+  commits: 5
+  files_changed: 3
+  lines_added: 282
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1213-ownership-by-risk-decide-agent-or-human-.md
+generated_by: context-agent-hybrid

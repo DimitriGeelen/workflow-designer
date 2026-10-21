@@ -1,21 +1,24 @@
 ---
-id: T-498
-name: "scope the onboarding-experience arc iteration: which arcs, whose project, what
-  iteration"
+id: T-280
+name: "Workflow Fabric (SD-15): process-dependency graph — revive or retire"
 description: >
-  Inception: scope the onboarding-experience arc iteration: which arcs, whose project,
-  what iteration
+  Inception: decide whether SD-15 Workflow Fabric is worth reviving as an AEF-side
+  phase with 832 ratification touchpoints, or retiring. Evidence: docs/proposals/aef-workflow-process-layer-2026-07-02/INSTRUCTIONS
+  §2.6 incl. WF-A..E.
 
-status: captured
+status: work-completed
 workflow_type: inception
+current_node: frw_end_task
 owner: human
-horizon: later
-tags: []
+horizon: null
+tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
-created: 2026-08-14T11:31:38Z
-last_update: 2026-08-23T10:24:12Z
-date_finished:
+created: 2026-07-28T14:52:45Z
+last_update: 2026-10-21T09:31:03Z
+date_finished: 2026-10-21T09:31:03Z
+revisit_at: 2026-12-01
+revisit_evidence_needed: "A real cross-process query nobody can answer - e.g. which processes break if this one changes"
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -25,7 +28,7 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
 bvp_scores_proposed:
-  - ts: '2026-08-16T12:33:30Z'
+  - ts: '2026-08-16T12:33:26Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 2
@@ -41,7 +44,7 @@ bvp_scores_proposed:
       (no-signal); F-RECALL=2 (no-signal); F-AUTONOMY=2 (no-signal); F3=2 
       (no-signal); F1=2 (no-signal); F2=2 (no-signal)
     rubric_sha: e4a00f38e801
-  - ts: '2026-08-16T14:33:04Z'
+  - ts: '2026-08-16T14:33:00Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 2
@@ -58,18 +61,18 @@ bvp_scores_proposed:
       F3=2 (no-signal); F1=2 (no-signal)
     rubric_sha: e4a00f38e801
 cost_estimate_proposed:
-  - ts: '2026-08-16T13:57:13Z'
+  - ts: '2026-08-16T13:57:12Z'
     estimator: bvp-estimator-v1-heuristic
     cost_estimate:
       tier: 4
-      effort: 7
+      effort: 6
       blast_radius: 3
-    rationale: blast_radius=3 (no-signal); tier=4 (no-signal); effort=7 
+    rationale: blast_radius=3 (no-signal); tier=4 (no-signal); effort=6 
       (no-signal)
     rubric_sha: e4a00f38e801
 ---
 
-# T-498: scope the onboarding-experience arc iteration: which arcs, whose project, what iteration
+# T-280: Workflow Fabric (SD-15): process-dependency graph — revive or retire
 
 ## Problem Statement
 
@@ -79,65 +82,19 @@ cost_estimate_proposed:
 
 <!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
 
-We believe that scope the onboarding-experience arc iteration: which arcs, whose project, what iteration,
-we will achieve Inception: scope the onboarding-experience arc iteration: which arcs, whose project, what iteration.
-We will know that we are successful when we see 5 tasks.
+We believe that a Workflow Fabric (package SD-15: a queryable graph of how processes depend on each other: flow,
+call, handoff and link edges between maps, keyed on the uid/addressing conventions already frozen in mapping-v1),
+we will achieve answers to cross-process questions nobody can answer today (what calls this map, what breaks if it
+changes, which processes a role carries).
+We will know that we are successful when we see, on 832's corpus, a query that lists for a named map every map it
+calls, hands off to, links to or is called by, matching a hand count of those edges with 0 missing and 0 extra, and
+the same query answered by AEF's side once it serves the graph, which is mostly theirs (agent-drafted first slice from
+the package spec, for the operator's GO per PD-400).
 
 ## Assumptions
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-XXX -->
 
 ## Open Questions
-
-- **IW-1: Does this project have onboarding arcs at all, or is the operator's "4 arcs
-  for onboarding" recollection pointing at the AEF project?**
-  confidence: 3
-  disposition: answered
-  rationale: AEF-side. `ls .context/arcs/` here returns exactly one file —
-    designer-authoring-surface.yaml (arc-001, in-progress), matching today's audit
-    line "All 1 in-progress arc(s)". The FOUR arcs are AEF's, named in their rail
-    message at offset 621 §2 as the four that read zero-population under their
-    stale-arc membership bug: horizon-axis-hardening (5 tasks),
-    onboarding-shape-detection (3), onboarding-curriculum (4),
-    ladder-trigger-producer (1). Two of the four are literally "onboarding-*", which
-    is the likely source of the recollection. 18 files here mention "onboarding" but
-    they are our own T-001..T-015 bootstrap tasks, not an arc.
-
-- **IW-2: If the arcs are AEF-side, what may I legitimately do about them from here?**
-  confidence: 3
-  disposition: answered
-  rationale: Not much, and deliberately. T-559 forbids invoking AEF's tooling; the
-    832<->AEF seam is contract+fixture based. `fw arc` commands against their tree are
-    out. What IS sanctioned: reporting over the DM rail, and reading their SERVED HTTP
-    resources. So iterating those arcs is work for a session in THEIR project, not a
-    thing this session can do on their behalf.
-
-- **IW-3: "Iterate to improve the onboarding experience" — whose onboarding?**
-  A new human operator adopting the framework, a new agent session picking up context,
-  or a new consumer project adopting the designer. These have disjoint deliverables and
-  the phrase does not distinguish them.
-  confidence: 3
-  disposition: dissolved
-  rationale: The question had no subject. Operator withdrew the premise ("oh i was
-    confused") once IW-1 showed this project has one arc and the four onboarding-ish
-    arcs are AEF's. Dissolved rather than deferred: there is nothing to come back to
-    here, and a deferred question would sit in the register implying latent work.
-
-## Dialogue Log (C-001)
-
-### 2026-08-14 — the four arcs
-
-- **Operator:** "we have 4 arc i believe which we wanted to iterate to improve the
-  onboarding experience"
-- **Checked before answering:** `.context/arcs/` holds exactly one file
-  (designer-authoring-surface.yaml), consistent with today's audit "All 1 in-progress
-  arc(s)". The four arcs exist — in AEF's tree, named at rail offset 621 §2 as the four
-  that read zero-population under their stale-arc membership bug, two of them
-  `onboarding-*`.
-- **Outcome:** premise withdrawn. No work scoped, nothing built.
-- **Worth keeping:** the recollection was accurate about the NUMBER and the THEME and
-  wrong only about the PROJECT. Content arriving over the rail is indistinguishable, in
-  memory, from local state — the message that carried those four arc names was read here
-  an hour earlier. That is a cross-project context-bleed shape, not a slip.
 
 <!-- T-2190 (T-2186 Slice 4): every IW-N question must be disposed before
      --status work-completed. Disposition gate (agents/task-create/update-task.sh
@@ -154,6 +111,11 @@ We will know that we are successful when we see 5 tasks.
      §Disposition Gate. Bypass: --skip-disposition-gate "rationale" (direct) or
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
+
+- **IW-1: Which side builds the graph, and what is 832's part?**
+  confidence: 2
+  disposition: answered
+  rationale: the graph is AEF-side, a peer of their Component Fabric (Rationale; AEF's conformance registry T-2654 covers only a narrow slice); 832's part is the edge data the maps already carry (call/link/handoff via frozen uids) plus the hand-counted corpus fixture the success clause checks; the build starts by raising the slice with AEF.
 
 ## Exploration Plan
 
@@ -175,17 +137,17 @@ We will know that we are successful when we see 5 tasks.
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
-  1. Run: `fw task review T-498` (opens Watchtower with recommendation, assumptions, research artifacts)
+  1. Run: `fw task review T-280` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
   3. Record decision via the Watchtower form or the command shown alongside the QR code
   **Expected:** Decision recorded, task completed
@@ -217,15 +179,7 @@ We will know that we are successful when we see 5 tasks.
 
 **Recommendation:** DEFER
 
-**Rationale:**
-
-Cannot recommend before enumerating. Today's audit reports exactly ONE in-progress arc here (designer-authoring-surface, arc-001, 22 tasks). The arcs named 'onboarding-shape-detection' (3 tasks) and 'onboarding-curriculum' (4 tasks) appear in AEF's rail message at offset 621 as AEF-SIDE arcs surfaced by their stale-arc audit, not ours. The operator's recollection of four onboarding arcs may therefore point at the AEF project, which T-559 forbids me to touch with their tooling. DEFER until the arc set here is enumerated and the premise confirmed with the operator.
-
-**Evidence:**
-
-<!-- Add evidence bullets as exploration progresses (file paths,
-     commit hashes, test results). The filing-time recommendation
-     can be revised before fw inception decide. -->
+**Rationale:** Package SD-15 (INSTRUCTIONS §2.6): queryable process graph (flow/call/handoff/component/path/inferred-dataflow edges, role-level Sovereign-workload query, process blast-radius). Nothing exists either side; AEF's conformance registry (their T-2654, rail 272) covers only a narrow conformance slice. Surface is AEF-side (peer of Component Fabric); 832 exposure is addressing/uid conventions already frozen in mapping-v1. DEFER until the corpus or the forward bridge generates real cross-process queries nobody can answer.
 
 ## Decisions
 
@@ -240,16 +194,47 @@ Cannot recommend before enumerating. Today's audit reports exactly ONE in-progre
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: PD-400 (operator 2026-10-19, T-732): revive and build the Workflow Fabric; first slice per the hypothesis, graph raised with AEF
+
+**Date**: 2026-10-21T09:30:53Z
 
 ## Updates
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
 
-### 2026-08-14T11:31:49Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
+## Reviewer Verdict (v1.5)
 
-### 2026-08-23T10:24:12Z — status-update [task-update-agent]
-- **Change:** horizon: now → later
-- **Change:** status: started-work → captured (auto-sync)
+- **Scan ID:** R-d08f09a2
+- **Timestamp:** 2026-10-21T09:31:08Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-3abcbaa6
+- **Timestamp:** 2026-10-21T09:31:08Z
+- **Overall:** CONTRADICTED
+- **Claims:** 1
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `T-2654` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
+### 2026-10-19T10:09:52Z — status-update [task-update-agent]
+- **Change:** horizon: later → next
+
+### 2026-10-21T09:20:55Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-21T09:30:53Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** PD-400 (operator 2026-10-19, T-732): revive and build the Workflow Fabric; first slice per the hypothesis, graph raised with AEF
+
+### 2026-10-21T09:31:03Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO

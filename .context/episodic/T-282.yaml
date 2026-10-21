@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-282: callActivity node type (SD-9): sync sub-workflow call with ioMapping
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-21T09:34:37Z
+# ============================================================================
+
+task_id: T-282
+task_name: "callActivity node type (SD-9): sync sub-workflow call with ioMapping"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-07-28T14:53:00Z
+completed: 2026-10-21T09:34:04Z
+duration_days: 85
+updates_count: 0
+first_commit: 2026-10-19T15:36:16+02:00
+last_commit: 2026-10-19T15:36:16+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  research artefact (callActivity: intent, what exists, AEF shape C accepted — calledElement + aef:callRef uuid, slices, hypothesis); T-1215 evidence (plain task in 5/11 third-party fixtures and in kit-generated maps); backlog triage list (67 started-work tasks in three groups)
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'research artefact (callActivity: intent, what exists, AEF shape C accepted — calledElement + aef:callRef uuid, slices, hypothesis); T-1215 evidence (plain task in 5/11 third-party fixtures and in kit-generated maps); backlog triage list (67 started-work tasks in three groups)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/backlog-triage-2026-10-19.md'
+  - 'docs/reports/T-282-callactivity.md'
+  - '.tasks/active/T-1215-plain-bpmntask-from-third-party-maps-is-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T15:36:16'
+    action: 'T-282: research artefact (callActivity: intent, what exists, AEF shape C accepted — calledElement + aef:callRef uuid, slices, hypothesis); T-1215 evidence (plain task in 5/11 third-party fixtures and in kit-generated maps); backlog triage list (67 started-work tasks in three groups)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 122081 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 122081
+  commits: 2
+  files_changed: 4
+  lines_added: 220
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-282-callactivity-node-type-sd-9-sync-sub-wor.md
+generated_by: context-agent-hybrid

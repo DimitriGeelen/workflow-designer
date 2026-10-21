@@ -1,0 +1,104 @@
+# ============================================================================
+# EPISODIC MEMORY - T-498: scope the onboarding-experience arc iteration: which arcs, whose project, what iteration
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-21T12:14:08Z
+# ============================================================================
+
+task_id: T-498
+task_name: "scope the onboarding-experience arc iteration: which arcs, whose project, what iteration"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-14T11:31:38Z
+completed: 2026-10-21T12:13:58Z
+duration_days: 68
+updates_count: 6
+first_commit: 2026-08-14T13:33:46+02:00
+last_commit: 2026-08-14T13:33:46+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  premise dissolved — this project has one arc, the four onboarding-ish arcs are AEF's. Filed as an inception rather than starting work, because 'we have 4 arcs for onboarding' did not survive enumeration: .context/arcs/ holds exactly designer-authoring-surface.yaml, matching today's audit line 'All 1 in-progress arc(s)'. The four DO exist — in AEF's tree, named at rail offset 621 section 2 as the four that read zero-population under their stale-arc membership bug (horizon-axis-hardening 5, onboarding-shape-detection 3, onboarding-curriculum 4, ladder-trigger-producer 1). Two are literally onboarding-*. The recollection was right about the number and the theme and wrong only about the project, and the message carrying those names was read here an hour earlier: content arriving over the rail is indistinguishable in memory from local state. Recorded as a cross-project context-bleed shape rather than a slip. IW-1 and IW-2 answered, IW-3 dissolved rather than deferred so it does not sit in the register implying latent work. No source touched, nothing scoped, decision left to the operator per inception discipline
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'premise dissolved — this project has one arc, the four onboarding-ish arcs are AEF''s. Filed as an inception rather than starting work, because ''we have 4 arcs for onboarding'' did not survive enumeration: .context/arcs/ holds exactly designer-authoring-surface.yaml, matching today''s audit line ''All 1 in-progress arc(s)''. The four DO exist — in AEF''s tree, named at rail offset 621 section 2 as the four that read zero-population under their stale-arc membership bug (horizon-axis-hardening 5, onboarding-shape-detection 3, onboarding-curriculum 4, ladder-trigger-producer 1). Two are literally onboarding-*. The recollection was right about the number and the theme and wrong only about the project, and the message carrying those names was read here an hour earlier: content arriving over the rail is indistinguishable in memory from local state. Recorded as a cross-project context-bleed shape rather than a slip. IW-1 and IW-2 answered, IW-3 dissolved rather than deferred so it does not sit in the register implying latent work. No source touched, nothing scoped, decision left to the operator per inception discipline'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-08-14-1045.yaml'
+  - '.context/audits/cron/2026-08-14-1100.yaml'
+  - '.context/audits/cron/2026-08-14-1115.yaml'
+  - '.context/audits/cron/2026-08-14-1130.yaml'
+  - '.context/audits/cron/2026-08-14-1145.yaml'
+  - '.context/audits/cron/2026-08-14-1200.yaml'
+  - '.context/audits/cron/2026-08-14-1215.yaml'
+  - '.context/audits/cron/2026-08-14-1230.yaml'
+  - '.context/audits/cron/2026-08-14-1245.yaml'
+  - '.context/audits/cron/2026-08-14-1300.yaml'
+  - '.context/audits/cron/2026-08-14-1315.yaml'
+  - '.context/audits/cron/2026-08-14-1330.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/episodic/T-497.yaml'
+  - '.context/locks/T-497.lock'
+  - '.context/locks/T-498.lock'
+  - '.context/project/decisions.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-497.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.hook-counter'
+  - '.tasks/active/T-498-scope-the-onboarding-experience-arc-iter.md'
+  - '.tasks/completed/T-497-measure-the-shell-half-of-the-derived-ro.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-08-14T13:33:46'
+    action: 'T-498: premise dissolved — this project has one arc, the four onboarding-ish arcs are AEF''s. Filed as an inception rather than starting work, because ''we have 4 arcs for onboarding'' did not survive enumeration: .context/arcs/ holds exactly designer-authoring-surface.yaml, matching today''s audit line ''All 1 in-progress arc(s)''. The four DO exist — in AEF''s tree, named at rail offset 621 section 2 as the four that read zero-population under their stale-arc membership bug (horizon-axis-hardening 5, onboarding-shape-detection 3, onboarding-curriculum 4, ladder-trigger-producer 1). Two are literally onboarding-*. The recollection was right about the number and the theme and wrong only about the project, and the message carrying those names was read here an hour earlier: content arriving over the rail is indistinguishable in memory from local state. Recorded as a cross-project context-bleed shape rather than a slip. IW-1 and IW-2 answered, IW-3 dissolved rather than deferred so it does not sit in the register implying latent work. No source touched, nothing scoped, decision left to the operator per inception discipline'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 97962 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 97962
+  commits: 1
+  files_changed: 27
+  lines_added: 1450
+  lines_removed: 145
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-498-scope-the-onboarding-experience-arc-iter.md
+generated_by: context-agent-hybrid

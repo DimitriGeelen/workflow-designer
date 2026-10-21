@@ -6,17 +6,17 @@ description: >
   Inception: Ownership by risk: decide agent or human at task creation, independent
   reviewer at every agent close, escalation as the only way to human (operator 2026-10-19)
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-10-19T09:52:04Z
-last_update: 2026-10-21T07:55:54Z
-date_finished:
+last_update: 2026-10-21T10:13:32Z
+date_finished: 2026-10-21T10:13:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -168,15 +168,15 @@ with its risk reason, 100% of agent-owned closes carrying an independent reviewe
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Why you:** sovereignty-field — this changes the governance default of who owns a task, which only the operator sets (operator, 2026-10-19).
   **Steps:**
   1. Run: `fw task review T-1213` (opens Watchtower with recommendation, assumptions, research artifacts)
@@ -234,7 +234,11 @@ The operator decided the model on 2026-10-19: owner decided by an initial risk a
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-1213 go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: PD-399 (operator 2026-10-19, T-1203): ownership by risk assessment at creation, independent reviewer at every agent close, escalation the only route to the operator
+
+**Date**: 2026-10-21T10:13:32Z
 
 ## Updates
 
@@ -243,3 +247,34 @@ The operator decided the model on 2026-10-19: owner decided by an initial risk a
 
 ### 2026-10-21T07:55:21Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-10-21T10:13:32Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** PD-399 (operator 2026-10-19, T-1203): ownership by risk assessment at creation, independent reviewer at every agent close, escalation the only route to the operator
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-cec267b2
+- **Timestamp:** 2026-10-21T10:13:35Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-92ade5ea
+- **Timestamp:** 2026-10-21T10:13:35Z
+- **Overall:** CONFIRMED
+- **Claims:** 3
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `T-1209` | task | ✓ pass |
+| `T-1127` | task | ✓ pass |
+| `T-931` | task | ✓ pass |
+
+### 2026-10-21T10:13:32Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
