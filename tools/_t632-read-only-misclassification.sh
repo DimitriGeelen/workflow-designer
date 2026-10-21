@@ -86,8 +86,10 @@ n = 0
 #     `$(cat url 2>/dev/null)` is read-only. Take `)` out of the terminator class and a
 #     redirect to /dev/null inside a command substitution is a write again (the 832 T-632
 #     defect (a)).
-fixed_re = "([[:space:];|&)]|$)#\\1 \\3#"
-old_re   = "([[:space:];|&]|$)#\\1 \\3#"
+# RE-ANCHORED (T-1245) on v1.8.15-be.2: upstream T-4479 widened the sink to /dev/(null|stdout|stderr), one more
+# group, so the kept terminator is \4 (it was \3).
+fixed_re = "([[:space:];|&)]|$)#\\1 \\4#"
+old_re   = "([[:space:];|&]|$)#\\1 \\4#"
 if src.count(fixed_re) != 1:
     sys.stderr.write("MUTATION FAILED: /dev/null terminator anchor found %d times, expected 1\n" % src.count(fixed_re))
     sys.exit(1)
@@ -188,16 +190,23 @@ echo "--- the natural resume form: refused before the fix, allowed after"
 # discriminates. It is reported, not asserted. The natural form still does.
 CORPUS_FORM='WURL=$(cat url 2>/dev/null || echo "http://localhost:3000"); curl -sf "$WURL/" > /dev/null'
 NATURAL_FORM='WURL=$(cat url 2>/dev/null); curl -sf "$WURL/" > /dev/null'
-if gate_allows "$PREFIX_LIB" "$NATURAL_FORM"; then
-    bad "pre-fix: the natural form passes too — the mutant does not reproduce the defect"
+# T-1245 (v1.8.15-be.2): upstream T-4512 now counts a curl word that begins with an expansion ("$WURL/") as a
+# possible write unless the line assigned it a LITERAL (T-4536); content read from a file could be `-o…`. That
+# is a different rule from T-632's, so the natural form is reported, not asserted, as T-1039 did for the chained
+# form. T-632's own defect (a /dev/null redirect inside $(...) read as a write) is asserted on the same shape
+# with a literal URL, which no other rule refuses.
+T632_FORM='WURL=$(cat url 2>/dev/null); curl -sf "http://127.0.0.1:3013/" > /dev/null'
+if gate_allows "$PREFIX_LIB" "$T632_FORM"; then
+    bad "pre-fix: the substitution form passes too — the mutant does not reproduce the defect"
 else
-    ok "pre-fix: the natural form is REFUSED (the defect)"
+    ok "pre-fix: \$(cat url 2>/dev/null) is REFUSED (the defect)"
 fi
-if gate_allows "$LIB" "$NATURAL_FORM"; then
-    ok "live: the natural form is allowed"
+if gate_allows "$LIB" "$T632_FORM"; then
+    ok "live: \$(cat url 2>/dev/null) is allowed"
 else
-    bad "live: the natural resume form is still blocked"
+    bad "live: \$(cat url 2>/dev/null) is still blocked"
 fi
+gate_allows "$LIB" "$NATURAL_FORM" || echo "  NOTE  curl \"\$WURL/\" with WURL read from a file is refused by upstream's expansion rule (T-4512/T-4536); not a T-632 matter"
 gate_allows "$LIB" "$CORPUS_FORM" || echo "  NOTE  chained \$(a || b) substitution is refused by upstream's chain rule (live and pre-fix alike); not a T-632 matter"
 
 echo
@@ -246,7 +255,7 @@ if hook_rc 'make install'; then
     echo "COULD-NOT-MEASURE: no firing gate; the legs below would be vacuous." >&2
 else
     ok "hook control: a non-allowlisted command is refused with null focus"
-    for c in 'WURL=$(cat .context/working/watchtower.url 2>/dev/null); curl -sf "$WURL/" >/dev/null' \
+    for c in 'WURL=$(cat .context/working/watchtower.url 2>/dev/null); curl -sf "http://127.0.0.1:3013/" >/dev/null' \
              "sed -n '340,420p' .agentic-framework/agents/context/lib/safe-commands.sh"; do
         if hook_rc "$c"; then
             ok "hook: allowed with null focus — ${c:0:58}..."

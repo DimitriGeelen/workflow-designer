@@ -200,11 +200,17 @@ def designer():
                 "latest_v": latest_v,
                 "version_count": len(vlist),
                 "saved_h": time.strftime("%Y-%m-%d %H:%M", time.localtime(latest_ts)),
-                "open_url": "/designer/app?load=" + quote(src, safe=""),
+                # 832 T-1172: the inline page (Watchtower navigation + fullscreen toggle), not the bare bundle.
+                "open_url": "/designer/open?load=" + quote(src, safe=""),
                 # T-2623 draft mode: id prefix is the draft convention.
                 "is_draft": m["id"].startswith("draft-"),
                 # T-2630: live-overlay wrapper exists only for profiled maps.
                 "has_overlay": m["id"] in overlay_ids,
+                # 832 T-1048: the card's preview tile — the PNG the editor stored with the
+                # latest version, served by /api/thumb. Only offered when the file exists,
+                # so a card without one shows a placeholder instead of a broken image.
+                "thumb_url": (f"/api/thumb?id={quote(m['id'], safe='')}&v={latest_v}"
+                              if (d / f"v{latest_v}.png").is_file() else None),
             })
     if not projects:
         return _serve_bundle()
@@ -219,6 +225,41 @@ def designer():
         page_title="Workflow Designer — Corpus",
         projects=projects,
         ghost_count=ghost_count,
+    )
+
+
+@bp.route("/designer/open")
+def designer_open():
+    """832 T-1172: open a map INLINE in a Watchtower page, with a fullscreen toggle.
+
+    /designer/app is the bare bundle as the whole tab, so opening a map from the landing cards left Watchtower
+    with only the browser's Back to return (operator, 2026-10-14). This page keeps the navigation and frames
+    /designer/app with the SAME load value, so the deep-link and the T-2596/T-2599 nonce flow are untouched.
+    Without ?load it falls back to /designer (the landing grid).
+    """
+    from urllib.parse import parse_qs, quote as _q, urlsplit
+
+    from flask import redirect
+
+    load = request.args.get("load", "")
+    if not load:
+        return redirect("/designer", code=302)
+    q = parse_qs(urlsplit(load).query)
+    map_id = (q.get("id") or [""])[0]
+    title = map_id or "Workflow Designer"
+    try:
+        import web.blueprints.designer_api as designer_api
+        m = designer_api._read_meta(map_id) if map_id else None
+        if m:
+            title = m.get("title", map_id)
+    except Exception:
+        pass
+    return render_page(
+        "designer_open.html",
+        page_title="Workflow Designer — %s" % title,
+        map_title=title,
+        map_version=(q.get("v") or [""])[0],
+        editor_url="/designer/app?load=" + _q(load, safe=""),
     )
 
 
