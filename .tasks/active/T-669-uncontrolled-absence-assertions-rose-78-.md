@@ -19,7 +19,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-01T21:38:40Z
-last_update: 2026-09-29T08:17:50Z
+last_update: 2026-10-21T00:52:16Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -293,7 +293,7 @@ why the previous session stopped at the costing rather than starting.
       requires diffing the census output against the corpus at the commit that last set the
       baseline. A fix applied to "some absence assertions" cannot be shown to have addressed
       the ones that actually moved the number.
-- [ ] Each identified assertion is repaired in one of the two ways the census itself names:
+- [x] Each identified assertion is repaired in one of the two ways the census itself names:
       a companion leg greps the same pattern **where it IS present**, or the assertion is
       restated as a positive fact. Recorded per assertion, with which route was taken and why.
 - [x] **The baseline file is not raised.** `tools/_t560-absence-baseline.txt` holds a bare
@@ -307,14 +307,21 @@ why the previous session stopped at the costing rather than starting.
       `.tasks/completed/`. Whether a completed task's `## Verification` block may be edited at
       all is a real question — those blocks are the record of what was verified at completion
       — and this task records the answer it acted on instead of assuming one.
-- [ ] `python3 tools/_t560-absence-census-teeth.py` exits 0 with all five legs green, leg 5
+- [x] `python3 tools/_t560-absence-census-teeth.py` exits 0 with all five legs green, leg 5
       passing because the live corpus is back at or below baseline — not because the leg,
       the baseline, or the census population was weakened. Proven by `git diff` showing no
       change to `tools/_t560-absence-assertion-census.py` or its baseline other than a
       sanctioned lowering.
-- [ ] `bash tools/_t509-instrument-sweep.sh` reports `regressed 0`. This is the last of the
+- [x] `bash tools/_t509-instrument-sweep.sh` reports `regressed 0`. This is the last of the
       two regressions; `_t400` was cleared by T-668, and clearing this one unblocks the six
       tasks that run the bridge suite (T-041, T-093, T-101, T-125, T-264, T-293).
+
+**Closing evidence (2026-10-21):** the drain itself landed in b4c722f9 (2026-09-25: 103 legs to 74, baseline lowered
+to 74 in the same commit, the sanctioned direction); a worker re-measured on 2026-10-20 (census 74/74, active stratum
+0 uncontrolled, teeth 5/5). Two of this task's own Verification lines pinned the moving numbers 78/89 (T-3326 class)
+and were re-pinned to the invariant they stood for (baseline <= 78, current <= baseline); the first re-pin used
+`grep -v`, which the census itself flagged (75/74) and was rewritten as a positive extraction (back to 74/74). The
+instrument sweep passed inside the 2026-10-21 bridge run (306/2, both failures browser flakes, T-1244).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -403,8 +410,9 @@ grep -qE "conditionExpression|capability|secret|actionRef|action_ref|retry|compe
 # The control leg is actually present in T-590's Verification block.
 grep -q 'T-669: control for the absence assertion below' .tasks/active/T-590-ewcr-arc-0-designer-contract-inventory-a.md
 
-# The baseline was NOT raised. Asserted as an exact-value match, not as "no diff".
-grep -qx '78' tools/_t560-absence-baseline.txt
+# The baseline was NOT raised: at or below the 78 this task started from (b4c722f9 drained it to 74; re-pinned
+# 2026-10-21 from the moving exact value to the invariant it stood for, T-3326).
+test "$(sed -n 's/^\([0-9][0-9]*\)[[:space:]]*$/\1/p' tools/_t560-absence-baseline.txt)" -le 78
 
 # The census instrument is byte-identical to HEAD's copy — stated as a hash EQUALITY so
 # the leg fails loudly if the comparison itself breaks, rather than passing on an empty
@@ -417,7 +425,7 @@ test "$(git show HEAD:tools/_t560-absence-assertion-census.py | sha256sum | cut 
 # its `if (...)` subshell (T-352), so that rc is deliberately not the verdict here; the
 # grep is. This is the one place that blindness is wanted, so it is named rather than
 # relied on silently.
-python3 tools/_t560-absence-assertion-census.py > /tmp/.t669-census.out 2>&1; grep -q "RATCHET       baseline 78, current 89" /tmp/.t669-census.out
+python3 tools/_t560-absence-assertion-census.py > /tmp/.t669-census.out 2>&1; python3 -c "import re,sys; m=re.search(r'RATCHET\s+baseline (\d+), current (\d+)', open('/tmp/.t669-census.out').read()); sys.exit(0 if m and int(m.group(2)) <= int(m.group(1)) <= 78 else 1)"
 
 # T-590's repaired leg classifies as PATTERN. Asserted as an EQUALITY against the
 # census's own classifier rather than as "T-590 no longer appears in the output" —
