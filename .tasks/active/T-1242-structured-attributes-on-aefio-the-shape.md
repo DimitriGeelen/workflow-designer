@@ -15,7 +15,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-10-20T21:08:18Z
-last_update: 2026-10-20T22:31:29Z
+last_update: 2026-10-21T13:58:43Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -109,9 +109,15 @@ values) plus source and target system, shown per attribute in the designer, so p
      correction is sticky — set `hypothesis_source: human` in the frontmatter and no
      automatic pass will ever overwrite it. -->
 
-We believe that <change>,
-we will achieve <outcome>.
-We will know that we are successful when we see <measurable signal>.
+We believe that the designer reading, showing and saving the structured io of mapping v1.1 (AEF T-4415 GO, ruled
+text DRAFT 2 at AEF f1f7c30dd: fieldRef / typeRef / schemaRef / conceptRef, role, operation, cardinality,
+sourceSystem / targetSystem, aef:field, aef:expect, aef:example, aef:prefixes, mappingVersion),
+we will achieve steps whose inputs and outputs name real fields, types and systems, so pseudocode and tests can be
+generated from a map instead of from prose.
+We will know that we are successful when we see greenfield's VZN-T1 v29 open and save with 0 bytes changed in its 43
+io; a v1.1 example map using every construct of the ruled text (incl. operation=upsert with a role=match field, an
+aef:field list path with aef:when, and aef:expect const/enum/minimum/absent) show each attribute and child in the io
+panel and round-trip with 0 bytes changed; and 0 of the 54 tracked v1 maps here change a byte on open and save.
 
 ## Assumptions
 
@@ -137,17 +143,38 @@ We will know that we are successful when we see <measurable signal>.
 
 - **IW-1: Which form: nested aef:attr children (A), BPMN itemDefinition + structureRef to a schema (B), inline JSON
   Schema (C), or a named-type catalogue (D), or a mix?**
-  confidence: 0
+  confidence: 3
+  disposition: answered
+  rationale: AEF T-4415 GO (2026-10-21, ruled DRAFT 2 at f1f7c30dd): referenced named types (typeRef / schemaRef) lead;
+  inline aef:attr deferred to v1.2; BPMN itemDefinition only as a documented prior-art mapping.
 - **IW-2: How deep: one level or recursive; allowed values, formats, ranges in or out?**
-  confidence: 0
+  confidence: 3
+  disposition: answered
+  rationale: ruled text: structure lives in the referenced type (any depth); the step selects fields with aef:field
+  (dot and [] list paths, aef:when for line kinds) and states step expectations with aef:expect (JSON Schema keywords:
+  const, enum with child values, minimum/maximum, pattern ECMA-262, present/absent); type-level rules stay in the type.
 - **IW-3: Source and target system: free text or a reference into a catalogue; on the io or on the step?**
-  confidence: 0
+  confidence: 3
+  disposition: answered
+  rationale: ruled text: sourceSystem / targetSystem are catalogue references on the io, a step default on aef:meta,
+  and derivable from a declared prefix (aef:prefix system=...); never free text.
 - **IW-4: How does this relate to T-1219's ref / dataType (business types)?**
-  confidence: 1
+  confidence: 3
+  disposition: answered
+  rationale: ruled text: fieldRef names one field, conceptRef carries business meaning (replaces dataType); v1 ref keeps
+  its meaning except the kind=field read rule; v1 dataType tokens are informational only. T-1229's fields fold into
+  this task's build slices.
 - **IW-5: What must the designer show, and what must AEF's intake carry, so nothing is silently dropped?**
-  confidence: 1
+  confidence: 3
+  disposition: answered
+  rationale: readers preserve unknown attributes and children verbatim or refuse naming them (T-1220, T-1243 built;
+  AEF T-4518 for corpus_spec); the designer shows every v1.1 attribute and child of an io, read-only first.
 - **IW-6: What minimum shape lets a step's pseudocode name real fields?**
-  confidence: 0
+  confidence: 2
+  disposition: answered
+  rationale: fieldRef (or typeRef + aef:field) per io, role per field, operation per instance (update/upsert/delete need
+  a role=match field); checked against greenfield's VZN-T1 v29 (43 io) and TRA-T1 v2. Join key between steps (ref) and
+  typeRef version pinning stay open in AEF's build tasks.
 
 ## Exploration Plan
 
@@ -163,7 +190,12 @@ We will know that we are successful when we see <measurable signal>.
 
 ## Scope Fence
 
-<!-- What's IN scope for this exploration? What's explicitly OUT? -->
+IN (build, after GO, as separate build tasks): slice 1 read, show and preserve every v1.1 io construct in the
+designer (read-only in the io panel, byte-exact round trip); slice 2 edit the A attributes in the io editor (absorbs
+T-1229); slice 3 edit aef:field / aef:expect children; slice 4 designer-side lint surfacing AEF's v1.1 lint rules.
+Each slice: screenshots at 1024/1440/1920 plus an independent reviewer, release to AEF the day it is tagged.
+OUT: inline aef:attr (v1.2), wildcard selections (not in v1.1), field-to-field transformations (producer's ontology),
+the data-flow join key and typeRef version pinning (open in AEF's build tasks).
 
 ## Acceptance Criteria
 
@@ -211,18 +243,28 @@ We will know that we are successful when we see <measurable signal>.
 
 ## Recommendation
 
-**Recommendation:** DEFER
+**Recommendation:** GO
 
 **Rationale:**
 
-Updated 2026-10-21: the evidence is in, and only AEF's operator ruling in T-4415 (attribute names, v1.1 placement)
-is open. All inputs converge on referenced named types leading: an optional `typeRef`/`schemaRef` on
-`aef:input`/`aef:output` pointing at a named, versioned type, `sourceSystem`/`targetSystem` as system-catalogue
-references with an optional step default, flat `name`/`type` still valid, inline grammar only as a fallback. Stays
-DEFER until T-4415 is ruled; the operator asked to prioritise it (2026-10-21), so AEF was asked to move T-4415 up
-and whether the designer side may be built against the addendum's names ahead of the ruling.
+Updated 2026-10-21, after AEF's operator ruled T-4415 GO (AEF 69dd29362, d33d19d9f) on DRAFT 2 as of f1f7c30dd. 832
+and greenfield both verified that exact text (sha256 bd461031…). The shape is settled:
+- referenced named types (`typeRef` / `schemaRef`);
+- `fieldRef` for a single field;
+- `role` per field and `operation` per instance;
+- systems as catalogue references, derivable from the prefix map;
+- `aef:field` selection with list paths;
+- `aef:expect` with JSON Schema keywords;
+- old maps still valid.
+
+The designer side is bounded: preservation is already built (T-1220, T-1243), and the build splits into four
+reviewable slices (see Scope Fence), read-only first, each reversible. It was checked against the real producer's maps
+(VZN-T1 v29, TRA-T1 v2). What stays open (the join key, typeRef versioning) is outside the designer's slice 1.
 
 **Evidence:**
+- AEF T-4415 GO, ruled text DRAFT 2 at AEF f1f7c30dd; a verified copy is kept outside git.
+- 832 designer check (points 1-8) and producer checks (a-i, full maps) taken in: this report, sections "Check of AEF
+  T-4415 draft 1" and the dialogue log.
 - External advice (Codex, GLM-5.3), greenfield's view, AEF's view and synthesis: `docs/reports/T-1242-structured-io-attributes.md`.
 - AEF msg 9fb1413f (T-4415 IW-1 addendum 752932d2a): referenced named types lead, inline is the fallback.
 - Preservation, independent of the ruling: unknown aef: attributes kept (T-1220, done); unknown child elements of
