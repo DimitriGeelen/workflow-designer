@@ -37,3 +37,4 @@
 {"ac":1,"kind":"escalate","owner_after":"human","owner_before":"agent","task":"T-695","ts":"2026-10-21T08:19:38Z","verdict_id":"V-20261021-db00312b"}
 {"ac":1,"kind":"escalate","owner_after":"human","owner_before":"human","task":"T-733","ts":"2026-10-21T08:21:14Z","verdict_id":"V-20261021-f603e45d"}
 {"ac":1,"kind":"escalate","owner_after":"human","owner_before":"human","task":"T-742","ts":"2026-10-21T08:22:44Z","verdict_id":"V-20261021-550851f5"}
+{"ac":1,"kind":"escalate","owner_after":"human","owner_before":"agent","task":"T-1093","ts":"2026-10-21T08:24:19Z","verdict_id":"V-20261021-8b0be955"}
