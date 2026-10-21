@@ -1,0 +1,140 @@
+# ============================================================================
+# EPISODIC MEMORY - T-669: uncontrolled absence assertions rose 78 to 90 — _t560's ratchet is red and raising the baseline would defeat it
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-21T00:52:29Z
+# ============================================================================
+
+task_id: T-669
+task_name: "uncontrolled absence assertions rose 78 to 90 — _t560's ratchet is red and raising the baseline would defeat it"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-01T21:38:40Z
+completed: 2026-10-21T00:52:17Z
+duration_days: 50
+updates_count: 2
+first_commit: 2026-09-01T23:39:09+02:00
+last_commit: 2026-10-21T02:52:16+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file the second sweep regression with real ACs. _t560 legs 1-4 pass; leg 5 is red because uncontrolled absence assertions rose 78 to 90. Not started — the baseline is a bare number whose only sanctioned edit direction is down, most offenders live in completed tasks whose verification blocks are historical records, and identifying the 12 that moved needs a corpus diff. Sized, scoped, not guessed at.. the ratchet fires on throughput, not on defects — the entire 78→90 rise is in the frozen stratum nobody may repair.. first drain increment, 122 to 120, and the task's own premise corrected from 90 to 120. re-cost of the legacy absence-leg drain — 55 reachable, 48 structurally blocked, and the prize is a green ratchet. the ratchet is GREEN for the first time since 2026-09-01 — 103 uncontrolled absence legs to 74. capture the five learnings the closes could not file, and the reason they could not. OBS-444 — the close claim about _t560 teeth had a 25-minute shelf life. verification re-pinned from the moving 78/89 to the invariant (baseline <= 78, current <= baseline); census 74/74, teeth 5/5, sweep regressed 0; closing evidence recorded
+
+# Key outcomes
+outcomes:
+  - 'The **12 new assertions are identified individually** — task id, verification line,'
+  - 'Each identified assertion is repaired in one of the two ways the census itself names:'
+  - '**The baseline file is not raised.** `tools/_t560-absence-baseline.txt` holds a bare'
+  - 'Assertions living in **completed** tasks are handled explicitly rather than silently:'
+  - '`python3 tools/_t560-absence-census-teeth.py` exits 0 with all five legs green, leg 5'
+  - '`bash tools/_t509-instrument-sweep.sh` reports `regressed 0`. This is the last of the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-09-02 — completed tasks'' Verification blocks are not edited to clear the ratchet'
+    chose: 'repair the one uncontrolled leg in the repairable stratum (T-590:344) and leave the eight in `.tasks/completed/` untouched. The ratchet therefore stays red at 89 and this task does NOT reach its own AC 5/AC 6.'
+    rationale: 'a completed task''s `## Verification` block records what was verified at completion. P-011 ran those legs once, then; adding a control leg now would make the record assert a check that never executed. Editing eight of them would buy a green by falsifying eight records while leaving intact the reason the framework could not detect the problem — mitigation dressed as prevention (G-019). T-560 already ruled on this class in the baseline file''s own comment: "NOT a backlog anyone committed to burning down — the great majority sit in completed tasks and are historical record." That ruling is followed, not overturned.'
+    alternatives_rejected: ['raising the baseline 78→89 (one keystroke, destroys the only instrument measuring this class, and the tool header states the sanctioned direction is down); using `--force` on the verification gate (not delegated); arguing the alarm away via the classifier defects — measured and refused, since the rise survives the repair at +9.']
+  - decision: '2026-09-03 — OPERATOR APPROVED option 1; implementation parked, not abandoned'
+  - decision: '2026-09-02 — the classifier defects are reported, not silently patched'
+    chose: 'document the three defects with evidence and leave `tools/_t560-absence-assertion-census.py` byte-identical under this task. The repaired classifier exists only as a scratchpad measurement probe.'
+    rationale: 'AC 5 as written forbids changing the census, and it was written before measurement. The honest response to an AC whose premise measurement falsified is to surface the conflict, not to rewrite the AC into something that passes. Changing what a governance instrument counts is also the "widen the gate until it goes green" class even when each individual change is defensible — and here the changes are entangled with a population redesign that alters what the ratchet enforces. That is the operator''s call.'
+    alternatives_rejected: ['patching the census inside this task (would have moved 90→85 and looked like progress while the +9 finding — the thing that actually matters — went unstated).']
+  - decision: '2026-09-02 — per-assertion disposition of the 12'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.context/project/learnings.yaml'
+  - '.fabric/components/tools-_t669-t590-control-level.yaml'
+  - '.tasks/active/T-590-ewcr-arc-0-designer-contract-inventory-a.md'
+  - '.tasks/active/T-669-uncontrolled-absence-assertions-rose-78-.md'
+  - '.tasks/completed/T-042-fix-inception-review-diagram-layout-cong.md'
+  - '.tasks/completed/T-043-inception-review-diagram-exceeds-canvas-.md'
+  - '.tasks/completed/T-081-subprocess-node-type-phase-1-collapsed-o.md'
+  - '.tasks/completed/T-086-migrate-remaining-constituents-like-x--s.md'
+  - '.tasks/completed/T-108-vertical-spacing-control-and-density-bra.md'
+  - '.tasks/completed/T-154-open-project-vs-workflow-picker-dropdown.md'
+  - '.tasks/completed/T-161-replace-native-save-note-prompt-with-sty.md'
+  - '.tasks/completed/T-171-atomic-write-for-metrics-historyyaml-to-.md'
+  - '.tasks/completed/T-176-offline-harden-the-designer-inline-or-se.md'
+  - '.tasks/completed/T-211-propagate-g-009-fix-to-remaining-vendore.md'
+  - '.tasks/completed/T-237-eventdeflinkeventcatch-vocabulary-collis.md'
+  - '.tasks/completed/T-238-g-010-standing-shell-runnable-editor-beh.md'
+  - '.tasks/completed/T-251-canvas-navigation-build-zoom-controls--c.md'
+  - '.tasks/completed/T-273-rail-drain-aef-t-270-triage-receipt-iw-m.md'
+  - '.tasks/completed/T-300-make-bake-clean-layout-dialect-preservin.md'
+  - '.tasks/completed/T-326-flaky-gating-leg-bridge-seam-roundtrip-f.md'
+  - '.tasks/completed/T-361-exported-bytes-assert-aef-generates-di-f.md'
+  - '.tasks/completed/T-407-measure-what-our-export-does-to-a-foreig.md'
+  - '.tasks/completed/T-501-map-id-round-trip-defect-triage-aef-cons.md'
+  - '.tasks/completed/T-510-correct-a-published-claim-t364-t308-teet.md'
+  - '.tasks/completed/T-558-bridge-suite-went-red-in-one-session-and.md'
+  - '.tasks/completed/T-654-ctl-030-two-completed-tasks-kept-horizon.md'
+  - '.tasks/completed/T-661-probers-pin-an-exact-substitution-count-.md'
+  - '.tasks/completed/T-682-arc-2-boundary-enumeration-name-every-au.md'
+  - '.tasks/completed/T-738-46-of-128-tasks-carry-no-bvp-quadrant-an.md'
+  - '.tasks/completed/T-762-audit-remediation-cycle-3-re-run-verifie.md'
+  - '.tasks/completed/T-770-standing-instruction-an-external-reviewe.md'
+  - '.tasks/completed/T-778-quadrant-ordered-selection-runs-on-uncon.md'
+  - '.tasks/completed/T-841-give-f1f3f4-a-scoring-mechanism-the-thre.md'
+  - '.tasks/completed/T-842-pin-the-commit-checkpoint-exemption-the-.md'
+  - '.tasks/completed/T-849-g-087-guard-admits-level-ok-with-tokens-.md'
+  - '.tasks/completed/T-850-instrument-sweep-is-all-or-nothing-and-t.md'
+  - 'tools/_t560-absence-baseline.txt'
+  - 'tools/_t669-t590-control-level.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-01T23:39:09'
+    action: 'T-669: file the second sweep regression with real ACs. _t560 legs 1-4 pass; leg 5 is red because uncontrolled absence assertions rose 78 to 90. Not started — the baseline is a bare number whose only sanctioned edit direction is down, most offenders live in completed tasks whose verification blocks are historical records, and identifying the 12 that moved needs a corpus diff. Sized, scoped, not guessed at.'
+  - time: '2026-09-02T00:05:51'
+    action: 'T-669: the ratchet fires on throughput, not on defects — the entire 78→90 rise is in the frozen stratum nobody may repair.'
+  - time: '2026-09-25T11:14:59'
+    action: 'T-669: first drain increment, 122 to 120, and the task''s own premise corrected from 90 to 120'
+  - time: '2026-09-25T14:19:32'
+    action: 'T-669: re-cost of the legacy absence-leg drain — 55 reachable, 48 structurally blocked, and the prize is a green ratchet'
+  - time: '2026-09-25T17:19:41'
+    action: 'T-669: the ratchet is GREEN for the first time since 2026-09-01 — 103 uncontrolled absence legs to 74'
+  - time: '2026-09-25T18:08:41'
+    action: 'T-669: capture the five learnings the closes could not file, and the reason they could not'
+  - time: '2026-09-29T10:17:49'
+    action: 'T-669: OBS-444 — the close claim about _t560 teeth had a 25-minute shelf life'
+  - time: '2026-10-21T02:52:16'
+    action: 'T-669: verification re-pinned from the moving 78/89 to the invariant (baseline <= 78, current <= baseline); census 74/74, teeth 5/5, sweep regressed 0; closing evidence recorded'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 70753 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 70753
+  commits: 8
+  files_changed: 38
+  lines_added: 890
+  lines_removed: 19
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-669-uncontrolled-absence-assertions-rose-78-.md
+generated_by: context-agent-hybrid

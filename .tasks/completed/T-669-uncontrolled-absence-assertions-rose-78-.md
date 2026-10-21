@@ -7,20 +7,21 @@ description: >
   run over the live corpus) is red because uncontrolled absence assertions rose from
   the baseline 78 to 90. Blocks six task closures that run the bridge suite.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t669-t590-control-level.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-01T21:38:40Z
-last_update: 2026-10-21T00:52:16Z
-date_finished:
+last_update: 2026-10-21T00:52:17Z
+date_finished: 2026-10-21T00:52:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -638,3 +639,22 @@ the frozen stratum as a tamper-evident count. Neither is done under this task.
 
 ### 2026-09-01T21:54:24Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4787b540
+- **Timestamp:** 2026-10-21T00:52:19Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#5 (Agent)** — `python3 tools/_t560-absence-census-teeth.py` exits 0 with all five legs green, leg 5
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t560-absence-census-teeth.py in: `python3 tools/_t560-absence-census-teeth.py` exits 0 with all five legs green, leg 5`
+- **AC#6 (Agent)** — `bash tools/_t509-instrument-sweep.sh` reports `regressed 0`. This is the last of the
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t509-instrument-sweep.sh in: `bash tools/_t509-instrument-sweep.sh` reports `regressed 0`. This is the last of the`
+
+### 2026-10-21T00:52:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
