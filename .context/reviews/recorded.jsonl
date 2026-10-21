@@ -120,3 +120,4 @@
 {"ac":1,"outcome":"escalate","task":"T-811","ts":"2026-10-21T08:27:24Z","verdict_id":"V-20261021-6726f2dd"}
 {"ac":1,"outcome":"escalate","task":"T-898","ts":"2026-10-21T08:29:01Z","verdict_id":"V-20261021-ab343bb5"}
 {"ac":1,"outcome":"green","task":"T-1249","ts":"2026-10-21T18:39:31Z","verdict_id":"V-20261021-e7c2ac2c"}
+{"ac":1,"outcome":"amber","task":"T-1241","ts":"2026-10-21T20:16:00Z","verdict_id":"V-20261021-6a31b142"}
