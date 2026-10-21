@@ -172,7 +172,16 @@ fi
 if [ -n "${T344_AUDIT_TRANSCRIPT:-}" ]; then
   audit_out=$(cat "$T344_AUDIT_TRANSCRIPT")
 else
-  audit_out=$("$REPO/.agentic-framework/bin/fw" audit --section structure 2>&1)
+  # T-1254: the audit runs one instance at a time; while the half-hourly cron audit holds it, this call prints
+  # "Another audit is already running — exiting (no verdict produced)" and every leg below read that as a missing
+  # verdict (the suite flake of 2026-10-21). Wait for the running audit, bounded, and say so.
+  _t344_wait=0
+  for _t344_try in $(seq 1 60); do
+    audit_out=$("$REPO/.agentic-framework/bin/fw" audit --section structure 2>&1)
+    printf '%s\n' "$audit_out" | grep -q 'Another audit is already running' || break
+    _t344_wait=$((_t344_wait + 5)); sleep 5
+  done
+  [ "$_t344_wait" -gt 0 ] && echo "  NOTE  another audit was running; waited ${_t344_wait}s for it before reading (T-1254)"
 fi
 findings=$(printf '%s\n' "$audit_out" | grep -E '^\[(PASS|WARN|FAIL|INFO)\]' || true)
 c1=$(printf '%s\n' "$findings" | sed -n 's/^\[[A-Z]*\] Fabric: [0-9]\+ registered, \([0-9]\+\) unregistered (of \([0-9]\+\) watched.*/\1 \2/p' | head -1)
