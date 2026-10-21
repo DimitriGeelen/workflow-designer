@@ -1,0 +1,280 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1245: Push block: two killed reviewer workers' green rows (T-209) fail the verdict ledger as worker-failed
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-21T18:17:09Z
+# ============================================================================
+
+task_id: T-1245
+task_name: "Push block: two killed reviewer workers' green rows (T-209) fail the verdict ledger as worker-failed"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-21T00:48:25Z
+completed: 2026-10-21T18:16:45Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-21T09:52:54+02:00
+last_commit: 2026-10-21T20:15:04+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  AEF's ruling recorded (AEF T-4519: framework gap; WARN or supersede for worker-failed rows, no commit before exit 0). operator job 072 — upgrade AEF 346c4ed33 -> v1.8.15-be.2 (afe974124; ancestry checked in a full mirror clone), carrying T-4519 (killed-reviewer rows become WARN void: our push block) and AEF's other fixes for 832; re-vendor protocol. operator job 074 — finish the be.2 upgrade (job 072 stopped at step 4: the new foreign-delete guard, AEF T-4528, wants the pristine commit to name T-1225, the last owner of the one deleted vendored file). retire job 072 (steps 1-3 done; 074 finishes). pristine vendor commit (removes designer_open.html last committed by T-1225, our previous upgrade task; re-applied as a local fix next) — AEF v1.8.15-be.2 (afe974124) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.15-be.2 commit (re-vendor protocol step 2, T-1000). re-apply 832's local fixes onto pristine AEF v1.8.15-be.2 (re-vendor protocol step 3, T-1000) — 37 fixes: 32 clean, 1 by 3-way merge (handover.sh), 4 resolved by hand: audit.sh keeps upstream T-4490 + our T-873; update-task.sh upstream T-4465 apply_reviewer_verdicts + our T-522 phase marker; bvp.sh upstream T-4478 confirmation ledger + our T-856 auto-approval telemetry (separate functions, separate files); safe-commands.sh our T-404/T-636 quote-stripped views read through upstream T-4479's herestrings (also line 1858, the pipe form failed open). _t517 OK; verdict audit 2 WARN void, 0 failures (T-4519); safe-commands regressions _t390/_t636/_t640/_t650/_t1047 pass; _t632 re-anchored (T-4479 adds a sink group) and its resume-form leg moved to a literal URL: upstream T-4512 now refuses curl "$WURL/" with WURL read from a file, a different rule, reported as a NOTE. post-upgrade suite triage (304/6) — _t1158 teeth rewrite the new _cdp-profile.mjs import in their temp copy (T-1247 broke the control); today's five GOs get build tasks T-1249 (T-1242 slice 1, now), T-1250 (T-279), T-1251 (T-280), T-1252 (T-282), T-1253 (T-1213) and PARTIAL verdicts in the T-949 triage; _t1241-business-lens-cdp.mjs wired as a bridge leg; _t1241-lens-shots.py (shot generator) and _t669-t590-control-level.py (closed task's check) baselined with reasons. Toolbar wrap at 1920 (T-1241) is with a worker.. our T-856 auto-approval telemetry gets its own test override (FW_BVP_AUTO_TELEMETRY_PATH); since be.2 upstream's T-4478 confirmation ledger reads FW_BVP_TELEMETRY_PATH, and one override put both ledgers' rows in one file (_t856 saw 2 rows per confirm). _t856 redirects both, to separate files; 15/0. Both ledgers stay: ours keeps the full proposal history (T-1156), upstream's the delta and no-signal count. regenerate the project crontab with be.2's fw cron generate — each job line now ends '; exit ${PIPESTATUS[0]}' so cron sees the job's exit code, not logger's (the pre-push audit's cron-drift check flagged the stale file). operator job 075 — install the be.2-regenerated audit crontab into /etc/cron.d (differs only by the exit-code suffix)
+
+# Key outcomes
+outcomes:
+  - 'The cause is recorded (RCA) and a learning stops it recurring (never wrap `fw reviewer judge` in a timeout)'
+  - 'AEF''s sanctioned path for worker-failed rows is applied as AEF rules it (no row edits, no `--no-verify`)'
+  - '`python3 .agentic-framework/lib/verdict_ledger.py audit` reports 0 failures, and `git push` succeeds'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'operator job 075 — install the be.2-regenerated audit crontab into /etc/cron.d (differs only by the exit-code suffix)'
+    source: git-mined
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.15-be.2 (re-vendor protocol step 3, T-1000) — 37 fixes: 32 clean, 1 by 3-way merge (handover.sh), 4 resolved by hand: audit.sh keeps upstream T-4490 + our T-873; update-task.sh upstream T-4465 apply_reviewer_verdicts + our T-522 phase marker; bvp.sh upstream T-4478 confirmation ledger + our T-856 auto-approval telemetry (separate functions, separate files); safe-commands.sh our T-404/T-636 quote-stripped views read through upstream T-4479''s herestrings (also line 1858, the pipe form failed open). _t517 OK; verdict audit 2 WARN void, 0 failures (T-4519); safe-commands regressions _t390/_t636/_t640/_t650/_t1047 pass; _t632 re-anchored (T-4479 adds a sink group) and its resume-form leg moved to a literal URL: upstream T-4512 now refuses curl "$WURL/" with WURL read from a file, a different rule, reported as a NOTE'
+    source: git-mined
+  - description: 'pristine vendor commit (removes designer_open.html last committed by T-1225, our previous upgrade task; re-applied as a local fix next) — AEF v1.8.15-be.2 (afe974124) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+    source: git-mined
+  - description: 'operator job 072 — upgrade AEF 346c4ed33 -> v1.8.15-be.2 (afe974124; ancestry checked in a full mirror clone), carrying T-4519 (killed-reviewer rows become WARN void: our push block) and AEF''s other fixes for 832; re-vendor protocol'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/audit/unit-suite.sh'
+  - '.agentic-framework/agents/audit/unit_tree_guard.py'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/check-project-boundary.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/context/lib/status.sh'
+  - '.agentic-framework/agents/designer/designer.sh'
+  - '.agentic-framework/agents/docgen/generate_component.py'
+  - '.agentic-framework/agents/docgen/generate-component.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/foreign-delete-guard.py'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/govd/govd.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/metrics/api-usage.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/agents/termlink/termlink.sh'
+  - '.agentic-framework/bin/claude-fw'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/docs/deployment-runbook.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-test_doctor_litellm_ollama.md'
+  - '.agentic-framework/docs/operations/listener-heartbeat-systemd.md'
+  - '.agentic-framework/docs/releases/v1.8.14-notes.md'
+  - '.agentic-framework/docs/reports/field-test-v1.8.14-results.md'
+  - '.agentic-framework/docs/reports/G-121-bypass-probe.sh'
+  - '.agentic-framework/docs/reports/T-2721-ladder-trigger-design.md'
+  - '.agentic-framework/docs/reports/T-4380-phase2-evidence.md'
+  - '.agentic-framework/docs/reports/T-4415-reviews/claude-code.md'
+  - '.agentic-framework/docs/reports/T-4415-reviews/codex.md'
+  - '.agentic-framework/docs/reports/T-4415-reviews/independence.json'
+  - '.agentic-framework/docs/reports/T-4415-structured-io-attributes.md'
+  - '.agentic-framework/docs/reports/T-4420-hotfix-v1813.md'
+  - '.agentic-framework/docs/reports/T-4439-reviews/ring20-v0.2-answers.md'
+  - '.agentic-framework/docs/reports/T-4439-reviews/termlink-v0.2-input.md'
+  - '.agentic-framework/docs/reports/T-4470-inputs/runme-job-queue-for-aef-addendum-1.md.txt'
+  - '.agentic-framework/docs/reports/T-4470-inputs/SHA256SUMS.txt'
+  - '.agentic-framework/docs/reports/T-4470-runme-job-queue.md'
+  - '.agentic-framework/docs/reports/T-4489-hotfix.md'
+  - '.agentic-framework/docs/reports/T-4502-832-goldens-counts.md'
+  - '.agentic-framework/docs/reports/T-4508-cloud-prompts/job1-clean-room-unit-suite.md'
+  - '.agentic-framework/docs/reports/T-4508-cloud-prompts/job2-fresh-machine-upgrade.md'
+  - '.agentic-framework/docs/reports/T-4516-lan-address-inventory.md'
+  - '.agentic-framework/docs/reports/T-4525-inputs/dimitri-mint-dev-T-162-message.txt'
+  - '.agentic-framework/docs/reports/T-4525-inputs/T-162-shared-host-resource-etiquette.md'
+  - '.agentic-framework/docs/reports/T-4525-shared-host-guardrails.md'
+  - '.agentic-framework/docs/specs/shared-worker-contract-transitions.md'
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/lib/approval_queue_age.py'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/bvp_judge_dispatch_cli.py'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/config-file.sh'
+  - '.agentic-framework/lib/config.sh'
+  - '.agentic-framework/lib/conversation-holder.sh'
+  - '.agentic-framework/lib/cron_dry_run.py'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/delegation.py'
+  - '.agentic-framework/lib/doctor-drift.sh'
+  - '.agentic-framework/lib/exec-bit-drift.sh'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/init.sh'
+  - '.agentic-framework/lib/issues.py'
+  - '.agentic-framework/lib/mcp_approve.py'
+  - '.agentic-framework/lib/notify_dispatch.py'
+  - '.agentic-framework/lib/notify.sh'
+  - '.agentic-framework/lib/pending.sh'
+  - '.agentic-framework/lib/pickup-channel-bridge.sh'
+  - '.agentic-framework/lib/pickup.sh'
+  - '.agentic-framework/lib/publish-learning-to-bus.sh'
+  - '.agentic-framework/lib/rail-identity.sh'
+  - '.agentic-framework/lib/release.sh'
+  - '.agentic-framework/lib/release-tags.sh'
+  - '.agentic-framework/lib/review_cost.py'
+  - '.agentic-framework/lib/reviewer/dispatch_cli.py'
+  - '.agentic-framework/lib/reviewer/judge_cli.py'
+  - '.agentic-framework/lib/reviewer/static_scan.py'
+  - '.agentic-framework/lib/review_isolation.py'
+  - '.agentic-framework/lib/runme_queue.py'
+  - '.agentic-framework/lib/runme.sh'
+  - '.agentic-framework/lib/settings_merge.py'
+  - '.agentic-framework/lib/shell_write_scan.py'
+  - '.agentic-framework/lib/sidecar/addressing.py'
+  - '.agentic-framework/lib/sidecar/circuit.py'
+  - '.agentic-framework/lib/sidecar_cli.py'
+  - '.agentic-framework/lib/sidecar/dm.py'
+  - '.agentic-framework/lib/sidecar/http_server.py'
+  - '.agentic-framework/lib/sidecar/identity.py'
+  - '.agentic-framework/lib/sidecar/inbox.py'
+  - '.agentic-framework/lib/sidecar/waiting.py'
+  - '.agentic-framework/lib/sidecar/watcher.py'
+  - '.agentic-framework/lib/silent_zero_scan.py'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/templates/scripts/agent-conversation-list.sh'
+  - '.agentic-framework/lib/templates/scripts/agent-conversation-status.sh'
+  - '.agentic-framework/lib/templates/scripts/agent-respond.sh'
+  - '.agentic-framework/lib/templates/scripts/agent-send.sh'
+  - '.agentic-framework/lib/templates/scripts/chat-arc-broadcast.sh'
+  - '.agentic-framework/lib/templates/scripts/listener-heartbeat.sh'
+  - '.agentic-framework/lib/templates/scripts/rail-post.sh'
+  - '.agentic-framework/lib/templates/skills/broadcast-chat.md'
+  - '.agentic-framework/lib/templates/skills/recent-chat.md'
+  - '.agentic-framework/lib/termlink-runtime.sh'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/update.sh'
+  - '.agentic-framework/lib/upgrade.sh'
+  - '.agentic-framework/lib/vec-index-gitignore.sh'
+  - '.agentic-framework/lib/vector_index_health.py'
+  - '.agentic-framework/lib/vector-index-health.sh'
+  - '.agentic-framework/lib/vendor_preserve.py'
+  - '.agentic-framework/lib/verdict_ledger.py'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/lib/watchtower.sh'
+  - '.agentic-framework/policy/anti-patterns.yaml'
+  - '.agentic-framework/policy/lan-address-allowlist.yaml'
+  - '.agentic-framework/policy/review-backends.yaml'
+  - '.agentic-framework/tools/audit-live-repo-lint.py'
+  - '.agentic-framework/tools/bats-heredoc-test-lint.py'
+  - '.agentic-framework/tools/corpus_lint.py'
+  - '.agentic-framework/tools/corpus_spec.py'
+  - '.agentic-framework/tools/lan-address-lint.py'
+  - '.agentic-framework/tools/t1700-ollama-harness.sh'
+  - '.agentic-framework/tools/t1703-probe-matrix.sh'
+  - '.agentic-framework/tools/t1704-hermes3-probe.sh'
+  - '.agentic-framework/tools/t1706-tool-loop-probe.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/approvals.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/config.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/metrics.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/embeddings.py'
+  - '.agentic-framework/web/search.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/smoke_test.py'
+  - '.agentic-framework/web/static/ux-review/index.html'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/config.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/templates/settings.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.context/cron/agentic-audit.crontab'
+  - '.context/runme/072-upgrade-aef-v1.8.15-be.2/dryrun.ok'
+  - '.context/runme/072-upgrade-aef-v1.8.15-be.2/job.sh'
+  - '.context/runme/072-upgrade-aef-v1.8.15-be.2/retired'
+  - '.context/runme/074-finish-be2-upgrade/dryrun.ok'
+  - '.context/runme/074-finish-be2-upgrade/job.sh'
+  - '.context/runme/075-install-be2-crontab/dryrun.ok'
+  - '.context/runme/075-install-be2-crontab/job.sh'
+  - 'docs/reports/T-949-go-scope-triage.md'
+  - '.tasks/active/T-1245-push-block-two-killed-reviewer-workers-g.md'
+  - '.tasks/active/T-1249-designer-slice-1-t-1242-go-read-show-and.md'
+  - '.tasks/active/T-1250-guided-mode-guardrail-designer-half-t-27.md'
+  - '.tasks/active/T-1251-workflow-fabric-first-slice-t-280-go-pd-.md'
+  - '.tasks/active/T-1252-callactivity-slice-1-t-282-go-pd-400-one.md'
+  - '.tasks/active/T-1253-ownership-by-risk-t-1213-go-pd-399-decid.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1158-witness-per-verdict-teeth.sh'
+  - 'tools/_t632-read-only-misclassification.sh'
+  - 'tools/_t856-auto-approval-teeth.sh'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-21T09:52:54'
+    action: 'T-1245: AEF''s ruling recorded (AEF T-4519: framework gap; WARN or supersede for worker-failed rows, no commit before exit 0)'
+  - time: '2026-10-21T16:15:57'
+    action: 'T-1245: operator job 072 — upgrade AEF 346c4ed33 -> v1.8.15-be.2 (afe974124; ancestry checked in a full mirror clone), carrying T-4519 (killed-reviewer rows become WARN void: our push block) and AEF''s other fixes for 832; re-vendor protocol'
+  - time: '2026-10-21T17:41:43'
+    action: 'T-1245: operator job 074 — finish the be.2 upgrade (job 072 stopped at step 4: the new foreign-delete guard, AEF T-4528, wants the pristine commit to name T-1225, the last owner of the one deleted vendored file)'
+  - time: '2026-10-21T17:42:01'
+    action: 'T-1245: retire job 072 (steps 1-3 done; 074 finishes)'
+  - time: '2026-10-21T17:44:58'
+    action: 'T-1245: pristine vendor commit (removes designer_open.html last committed by T-1225, our previous upgrade task; re-applied as a local fix next) — AEF v1.8.15-be.2 (afe974124) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-21T17:52:02'
+    action: 'T-1245: advance the divergence baseline to the pristine AEF v1.8.15-be.2 commit (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-21T18:04:39'
+    action: 'T-1245: re-apply 832''s local fixes onto pristine AEF v1.8.15-be.2 (re-vendor protocol step 3, T-1000) — 37 fixes: 32 clean, 1 by 3-way merge (handover.sh), 4 resolved by hand: audit.sh keeps upstream T-4490 + our T-873; update-task.sh upstream T-4465 apply_reviewer_verdicts + our T-522 phase marker; bvp.sh upstream T-4478 confirmation ledger + our T-856 auto-approval telemetry (separate functions, separate files); safe-commands.sh our T-404/T-636 quote-stripped views read through upstream T-4479''s herestrings (also line 1858, the pipe form failed open). _t517 OK; verdict audit 2 WARN void, 0 failures (T-4519); safe-commands regressions _t390/_t636/_t640/_t650/_t1047 pass; _t632 re-anchored (T-4479 adds a sink group) and its resume-form leg moved to a literal URL: upstream T-4512 now refuses curl "$WURL/" with WURL read from a file, a different rule, reported as a NOTE'
+  - time: '2026-10-21T19:14:41'
+    action: 'T-1245: post-upgrade suite triage (304/6) — _t1158 teeth rewrite the new _cdp-profile.mjs import in their temp copy (T-1247 broke the control); today''s five GOs get build tasks T-1249 (T-1242 slice 1, now), T-1250 (T-279), T-1251 (T-280), T-1252 (T-282), T-1253 (T-1213) and PARTIAL verdicts in the T-949 triage; _t1241-business-lens-cdp.mjs wired as a bridge leg; _t1241-lens-shots.py (shot generator) and _t669-t590-control-level.py (closed task''s check) baselined with reasons. Toolbar wrap at 1920 (T-1241) is with a worker.'
+  - time: '2026-10-21T20:01:02'
+    action: 'T-1245: our T-856 auto-approval telemetry gets its own test override (FW_BVP_AUTO_TELEMETRY_PATH); since be.2 upstream''s T-4478 confirmation ledger reads FW_BVP_TELEMETRY_PATH, and one override put both ledgers'' rows in one file (_t856 saw 2 rows per confirm). _t856 redirects both, to separate files; 15/0. Both ledgers stay: ours keeps the full proposal history (T-1156), upstream''s the delta and no-signal count'
+  - time: '2026-10-21T20:13:22'
+    action: 'T-1245: regenerate the project crontab with be.2''s fw cron generate — each job line now ends ''; exit ${PIPESTATUS[0]}'' so cron sees the job''s exit code, not logger''s (the pre-push audit''s cron-drift check flagged the stale file)'
+  - time: '2026-10-21T20:15:04'
+    action: 'T-1245: operator job 075 — install the be.2-regenerated audit crontab into /etc/cron.d (differs only by the exit-code suffix)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 11 commit(s), 1048 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1048
+  commits: 11
+  files_changed: 178
+  lines_added: 15907
+  lines_removed: 4580
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1245-push-block-two-killed-reviewer-workers-g.md
+generated_by: context-agent-hybrid

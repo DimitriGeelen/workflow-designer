@@ -12,13 +12,13 @@ description: >
   for worker-failed rows, or a supersede verb; do not commit before the worker's exit
   is known). Resolution per AEF's answer; never --no-verify.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [bug]
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t1158-witness-per-verdict-teeth.sh, tools/_t632-read-only-misclassification.sh, tools/_t856-auto-approval-teeth.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -47,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T00:48:25Z
-last_update: 2026-10-21T16:04:39Z
-date_finished:
+last_update: 2026-10-21T18:16:45Z
+date_finished: 2026-10-21T18:16:45Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -96,8 +96,10 @@ agent killed with `timeout 120` on 2026-10-20. Reported to AEF (conversation 832
       (learning PL-418; AEF msg d6a0abd5: filed as AEF T-4519, a framework gap: (1) WARN grading or a supersede record
       pointing at V-20261020-5792c770, (2) no commit of a verdict row until the worker exits 0. AEF will send the exact
       command for both rows when it lands.)
-- [ ] AEF's sanctioned path for worker-failed rows is applied as AEF rules it (no row edits, no `--no-verify`)
-- [ ] `python3 .agentic-framework/lib/verdict_ledger.py audit` reports 0 failures, and `git push` succeeds
+- [x] AEF's sanctioned path for worker-failed rows is applied as AEF rules it (no row edits, no `--no-verify`)
+      (AEF T-4519 in v1.8.15-be.2, installed by operator jobs 072/074: the two rows grade WARN void; no row was edited)
+- [x] `python3 .agentic-framework/lib/verdict_ledger.py audit` reports 0 failures, and `git push` succeeds
+      (2026-10-21: audit 121 rows, 0 failures, 2 void, rc=3; push d397f289..8909a9b1 to origin, origin = HEAD)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -146,6 +148,9 @@ agent killed with `timeout 120` on 2026-10-20. Reported to AEF (conversation 832
 -->
 
 ## Verification
+
+{ python3 .agentic-framework/lib/verdict_ledger.py audit 2>&1 || true; } | grep -qE '^verdict ledger: .* 0 failure\(s\)'
+git merge-base --is-ancestor 8909a9b1009315472db0362618240acacc31e2fc origin/bleeding-edge
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -299,6 +304,22 @@ agent killed with `timeout 120` on 2026-10-20. Reported to AEF (conversation 832
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** every push from 2026-10-20 failed the pre-push audit: "Reviewer-verdict ledger: 2 row(s) do not
+verify", FAIL V-20261020-6ba9cb1c and V-20261020-5a4ff53f (T-209), "worker failed — the worker exited 143".
+
+**Root cause:** two `fw reviewer judge` runs for T-209 were wrapped in `timeout 120` by the agent. The timeout
+killed the reviewer workers (SIGTERM, exit 143) after they had already written green verdict rows, and those rows
+were committed. The ledger correctly refuses a green from a killed review, but at the time it graded such a row as
+FAIL with no supersede path, so one killed review blocked every later push.
+
+**Why structurally allowed:** (1) nothing stopped an agent from putting a time limit on a reviewer run, and the judge
+wrote its row before its worker exited 0; (2) the ledger had only FAIL for a worker-failed row, with no way to retire
+it short of editing an append-only file, which is forbidden.
+
+**Prevention:** learning PL-418 (never wrap or kill `fw reviewer judge`); AEF T-4519 in v1.8.15-be.2 grades a
+worker-failed row WARN void (it never counts, and a later verdict supersedes it) and no longer commits a verdict row
+before the worker exits 0. Verified after the upgrade: audit 121 rows, 0 failures, 2 void; push d397f289..8909a9b1.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -382,3 +403,25 @@ agent killed with `timeout 120` on 2026-10-20. Reported to AEF (conversation 832
 
 ### 2026-10-21T00:49:17Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-46817218
+- **Timestamp:** 2026-10-21T18:16:57Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 1
+     - evidence: `{ python3 .agentic-framework/lib/verdict_ledger.py audit 2>&1 || true; } | grep -qE '^verdict ledger: .* 0 failure\(s\)'`
+
+### 2026-10-21T18:16:45Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
