@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T09:11:13Z
-last_update: 2026-10-06T09:11:13Z
+last_update: 2026-10-21T07:52:51Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -293,6 +293,26 @@ date_finished: null
      for Human Review). If the artefact is complete and you still don't want to
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
+
+## Dispatch table (2026-10-21 round)
+
+Routing per AEF `fw task delegate T-XXX --dry-run --json` (REVIEWER-JUDGES only; OPERATOR-ONLY never dispatched).
+T-209 and T-702 skipped (already done). Verdict rows are written by the reviewer workers in `.context/reviews/verdicts.jsonl`.
+
+| Task | Criterion | Class (AEF) | Verdict | Dispatch id |
+|------|-----------|-------------|---------|-------------|
+| T-606 | 1 | render-surface | not-evaluated → operator (no page derivable: `<dev-host>` placeholder; Visual Verification lacks 3-width table; opencode seat server error; OBS-319 fix-vs-plain-text is a direction call) | judge-t-606-r3-4016f997b329 (claude), judge-t-606-r3-29b41777c618 (codex), judge-t-606-r3-5e691097a77c (opencode, unavailable) |
+| T-962 | 1 | unclassified | green (rung 3, claude-code seat) | judge-t-962-r3-74bac7cd8b45 |
+| T-310 | 2 | unclassified | NOT DISPATCHED: dry-run still briefs it as "Criterion 1 (Human AC#2)", the same AEF index bug that mis-recorded T-310#3 as `--ac 1`; would corrupt AC#1's row | — |
+| T-743 | 1 | unclassified | amber: superseded — /designer/app now serves 0.24.0 (pin moved 0.12→0.24, T-1007..T-1225); 0.12.0 renders headless with no page errors; needed: retire the AC as superseded or re-scope to 0.24 | judge-t-743-r3-db593ce3399d |
+
+**Not re-dispatched this round (verdict rows already exist):** T-308#1/#2 (green + codex-sandbox amber), T-893#1 (greens), T-1212#1 (3 greens, rung 5),
+T-589#2 (amber; re-judge after the next designer release reaches Watchtower), T-643#1 (amber; defect T-1070).
+**Not dispatched — agent criteria still open, nothing to judge yet:** T-1241#1/#2.
+**Remaining REVIEWER-JUDGES criteria, no verdict yet, all operator rulings rather than small visual checks (left for a later round or the orchestrator's call):**
+inception go/no-go T-1093, T-1107, T-1115, T-184, T-185, T-186, T-277, T-279, T-280, T-282, T-498, T-811, T-898, T-351, T-596, T-676;
+rulings T-325, T-347, T-353, T-368#1/#2, T-422, T-426, T-432, T-433, T-449, T-537, T-565, T-579, T-588, T-590#1/#2, T-592, T-647, T-671, T-695, T-732#2, T-733, T-736, T-742#1, T-986.
+`fw task delegate --json` returned no JSON for T-172, T-244, T-281, T-309, T-357, T-390, T-420, T-421, T-624, T-640 (not investigated).
 
 ## Decisions
 
