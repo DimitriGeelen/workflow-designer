@@ -9,7 +9,9 @@
 //      that carry values on this map, so the value-never-hidden rule would otherwise show them);
 //   3. logical and technical lenses are wider than business (data-driven: same file), 'all' draws every field again;
 //   4. switching lenses (and opening details) changes 0 bytes of buildBpmnXml output;
-//   5. no lens definition (404): the switch offers only All and every field shows, as before.
+//   5. no lens definition (404): the switch offers only All and every field shows, as before;
+//   6. a lens names the type in plain words in the panel and details headers ("Service task") and its own fields in the
+//      details subtitle; All keeps the BPMN token and "all fields, filled or empty".
 // T1241_SRC substitutes another designer file. Exit 0 = all legs green; 1 = a leg failed; 2 = misconfig.
 import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
@@ -115,6 +117,23 @@ const ASSERT = `(async function(){
     if (!(counts.business.fields < counts.logical.fields && counts.logical.fields < counts.technical.fields)) errs.push('leg3: field counts are not business < logical < technical: ' + JSON.stringify(counts));
     if (counts.all.fields < counts.technical.fields) errs.push('leg3: all shows fewer fields than technical: ' + JSON.stringify(counts));
     if (counts.all.badges !== allBadges) errs.push('leg3: returning to all draws ' + counts.all.badges + ' badges, not ' + allBadges);
+
+    // ---- leg 6: header type word and details subtitle follow the lens; All keeps the BPMN token and "all fields"
+    var svc = nodes.filter(function(n){ return n.type === 'serviceTask'; })[0];
+    function headSub(name){
+      setLens(name); pick(svc); openDetails(svc.id);
+      var r = { panel: document.querySelector('#properties .props-type-name').textContent,
+                details: document.querySelector('#details-body .props-type-name').textContent,
+                sub: document.querySelector('#details-modal .details-sub').textContent };
+      closeDetails(); return r;
+    }
+    var hb = headSub('business'), hl = headSub('logical'), ha = headSub('all');
+    info.heads = { business: hb, logical: hl, all: ha };
+    if (hb.panel !== 'Service task' || hb.details !== 'Service task') errs.push('leg6: business header type is ' + JSON.stringify(hb));
+    if (!/^business fields · /.test(hb.sub)) errs.push('leg6: business details subtitle is "' + hb.sub + '"');
+    if (!/^logical fields · /.test(hl.sub)) errs.push('leg6: logical details subtitle is "' + hl.sub + '"');
+    if (ha.panel !== 'serviceTask' || ha.details !== 'serviceTask') errs.push('leg6: all-lens header type changed: ' + JSON.stringify(ha));
+    if (ha.sub !== 'all fields, filled or empty · edits apply to the element') errs.push('leg6: all-lens subtitle changed: "' + ha.sub + '"');
 
     // ---- bytes
     ['business', 'logical', 'technical', 'all', 'business'].forEach(function(name){

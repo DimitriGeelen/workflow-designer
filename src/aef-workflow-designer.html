@@ -7151,6 +7151,9 @@ function renderDetails() {
   const n = findNode(_detailsUid);
   if (!n || !selection || selection.id !== _detailsUid) { closeDetails(); return; }
   $('details-title').textContent = (n.name || displayIdOf(n)) + ' — details';
+  // T-1241: "all fields" is only true under All; a lens names the fields it shows.
+  const l = lensSpec(), sub = document.querySelector('#details-modal .details-sub');
+  if (sub) sub.textContent = (l ? l.label.toLowerCase() + ' fields' : 'all fields, filled or empty') + ' · edits apply to the element';
   _renderPropsInto($('details-body'), true);
 }
 
@@ -7953,6 +7956,14 @@ function _renderPropsInto(props, details) {
     props.appendChild(sIo);
   }
 }
+// T-1241: under a lens (not All) the header names the element type in plain words instead of the BPMN token.
+// Not the palette names: those are terse button captions ("Start", "Exclusive (XOR)"), not a type word.
+const LENS_TYPE_WORD = {
+  startEvent: 'Start event', endEvent: 'End event', serviceTask: 'Service task', userTask: 'User task',
+  scriptTask: 'Script task', subProcess: 'Sub-process', exclusiveGateway: 'Gateway (one path)',
+  parallelGateway: 'Gateway (all paths)', linkEventThrow: 'Handoff out', linkEventCatch: 'Handoff in',
+  eventError: 'Error event', eventTimer: 'Timer event', eventMessage: 'Message event', intermediateEvent: 'Event',
+};
 function propsHeader(typeName, id, onDelete) {
   const h = document.createElement('div');
   h.className = 'props-header';
@@ -7963,7 +7974,7 @@ function propsHeader(typeName, id, onDelete) {
   info.className = 'props-type-info';
   const name = document.createElement('div');
   name.className = 'props-type-name';
-  name.textContent = typeName;
+  name.textContent = lensSpec() ? (LENS_TYPE_WORD[typeName] || typeName) : typeName;
   const idEl = document.createElement('div');
   idEl.className = 'props-type-id';
   idEl.textContent = id;

@@ -352,20 +352,39 @@ technical, all) x 3 widths (1024, 1440, 1920) x 2 states (panel = canvas + side 
 `python3 tools/_t1241-lens-shots.py` on `aef-task-lifecycle` (v3). Read by the author control by control; the
 independent read is the `[REVIEW]` criterion.
 
+**Re-shot 2026-10-21 against today's source** (reviewer r5 AMBER: the first 24 shots predated cba1f565's toolbar and
+a3a62820's panel). All 24 replaced; each read control by control:
+
 | state | control | 1024 | 1440 | 1920 | note |
 |-------|---------|------|------|------|------|
-| toolbar | Lens select ("Lens: Business" …) | ok | ok | ok | 1024: first control of row 2, beside Add Lane; 1440/1920 in row 1 after the view group |
-| toolbar | Check / Versions / Save to project / Save | ok | ok | ok | all reachable; at 1920 "Save to project" and "Save" now wrap to row 2 (the row was already full: the old toolbar ended at 1906 of 1920 px, no room for any new control) |
-| business panel | Name, Lane, Note, Owner | ok | ok | ok | no Slug, Display ID, UID, no id under the type name, no aef: tag, no I/O, no Other extensions |
-| business canvas | node labels, gateways, edge labels | ok | ok | ok | no id captions, no I/O or authority marker, pool label "AEF task lifecycle" without "workflow:aef-task-lifecycle" |
-| business details | BPMN (Name, Lane), Extensions (Note, Owner), Close | ok | ok | ok | two-column sheet, Close reachable |
-| logical panel | + Authority, Horizon, Workflow type, Determinism, I/O contract | ok | ok | ok | no ids, no Slug/UID |
-| logical details | the same, two-column | ok | ok | ok | |
-| technical panel | + Slug, Display ID, UID, id under the type name, aef: tags, Other extensions | ok | ok | ok | id captions back on the canvas |
-| all panel | as before the lens (every field, "+ N empty fields") | ok | ok | ok | identical to the pre-lens designer |
+| toolbar (every shot) | ◑ icon + lens select showing the lens name | ok | ok | ok | 1024: first control of row 2, before Add Lane; 1440/1920: row 1 after the view group; no "Lens: " prefix |
+| toolbar (every shot) | Open project, Pending refs, +, instances: n/a, − fit +, ⤢ ◧ ◨ ⛶, Add Lane, Reset, Clean layout, View XML, Settings, Load, Check, Versions, Save to project, Save | ok | ok | ok | 1920: one row, Save at the right edge, nothing clipped; 1440/1024: two rows, every control present, none clipped or overlapping |
+| business panel | header "Service task" (plain word, no id under it), × delete, All details, Name, Lane, Note, Owner | ok | ok | ok | no Slug/Display ID/UID, no AEF: tag, no I/O, no Other extensions |
+| business canvas | node labels, gateways, edge labels, pool label | ok | ok | ok | no id captions, no I/O/authority markers, pool label "AEF task lifecycle" without the workflow id |
+| business details | title, subtitle "business fields · edits apply to the element", Close, header "Service task", BPMN (Name, Lane), Extensions (Note, Owner) | ok | ok | ok | two-column sheet, Close reachable, nothing clipped |
+| logical panel | "Service task", Name, Lane, Note, Owner, "+4 empty fields", I/O contract (inputs/outputs, add input/output) | ok | ok | ok | no ids |
+| logical details | subtitle "logical fields · …", Authority, Horizon, Workflow type, Determinism, Note, Owner, I/O contract | ok | ok | ok | two-column, Close reachable |
+| technical panel | "Service task" + id agt_1_create under it, Slug, Display ID, UID, Lane, AEF: tag, "+12 empty fields", Other extensions (state, Suggest as a field), I/O contract | ok | ok | ok | id captions and workflow id back on the canvas |
+| technical details | subtitle "technical fields · …", every field incl. Tier T0–T3, Endpoint, Context reads, Links … | ok | ok | ok | sheet scrolls inside at 1024/1440 (as expected), Close reachable |
+| all panel / details | header "serviceTask", subtitle "all fields, filled or empty · edits apply to the element", every field | ok | ok | ok | unchanged from before the lens (T-1241 1a/1b apply only under a non-All lens) |
 
-Notes: at 1024 the map fits small (fit zoom), the id captions' absence is visible only at 1440/1920. The panel's Lane
-select still lists lane ids (`agent`) in every lens: a lane id is the lane's name here, left as is for slice 1.
+Notes: at 1024 the map fits small (fit zoom), the id captions' absence is visible only at 1440/1920.
+**Lane select (reviewer r5 point 2, 1c):** the Lane select still lists lane ids (`agent`) in every lens; deliberately
+left as is for slice 1 (a lane id is the lane's name on this map).
+
+**Canvas overlaps (reviewer r5 point 1 and the business "unchecked Human ACs?" crossing): pre-existing, not from the
+lens.** `aef-task-lifecycle` rendered at 1920 with the released designer (`git show designer-v0.24.0:src/…`, temp dir)
+and with today's source: with id captions on, the canvas region of `overlap-0.24.0-1920.png` and
+`overlap-now-1920.png` (All lens) is pixel-identical (PIL diff bbox None) — "issues encountered?" crossed by its flow,
+"unchecked Human ACs?" into the "pass" label, the arrow through "agt_6_completion" are all in 0.24.0. With id captions
+off (0.24.0, `overlap-0.24.0-noids-1920.png`) vs today's Business lens (`overlap-now-business-1920.png`) the canvas
+differs only in the pool label (workflow id hidden); the vertical flow through "unchecked Human ACs?" is in 0.24.0
+too. Not fixed here; for a separate task (gateway label placement vs flows).
+
+**Type word and subtitle (reviewer r5 point 2, 1a/1b):** under a non-All lens the panel and details header show a plain
+type word (`LENS_TYPE_WORD`: "Service task", "User task", "Gateway (one path)" …; the palette captions were not reused,
+they are terse buttons like "Start" / "Exclusive (XOR)"), and the details subtitle names the lens's fields ("business
+fields · edits apply to the element"). Under All both are byte-for-byte as before. Guarded by `_t1241` leg 6.
 
 ### Toolbar fit (2026-10-21)
 
