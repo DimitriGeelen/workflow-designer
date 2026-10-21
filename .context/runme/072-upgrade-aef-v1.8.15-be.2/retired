@@ -1,0 +1,1 @@
+Steps 1-3 ran (upgrade to afe974124, TermLink settings kept); step 4's commit was refused by the new foreign-delete guard (AEF T-4528). Job 074 runs steps 4-7 with the message naming T-1225.
