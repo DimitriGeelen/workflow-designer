@@ -340,6 +340,29 @@ the same shape, swapped for AEF's when it lands.
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Visual Verification
+
+Screenshots: `docs/reports/T-1241-evidence/t1241-<lens>-<width>-<panel|details>.png`, 4 lenses (business, logical,
+technical, all) x 3 widths (1024, 1440, 1920) x 2 states (panel = canvas + side panel with the service task
+"create task — fw work-on" selected; details = the element details view open on it) = 24 files, taken by
+`python3 tools/_t1241-lens-shots.py` on `aef-task-lifecycle` (v3). Read by the author control by control; the
+independent read is the `[REVIEW]` criterion.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| toolbar | Lens select ("Lens: Business" …) | ok | ok | ok | 1024: first control of row 2, beside Add Lane; 1440/1920 in row 1 after the view group |
+| toolbar | Check / Versions / Save to project / Save | ok | ok | ok | all reachable; at 1920 "Save to project" and "Save" now wrap to row 2 (the row was already full: the old toolbar ended at 1906 of 1920 px, no room for any new control) |
+| business panel | Name, Lane, Note, Owner | ok | ok | ok | no Slug, Display ID, UID, no id under the type name, no aef: tag, no I/O, no Other extensions |
+| business canvas | node labels, gateways, edge labels | ok | ok | ok | no id captions, no I/O or authority marker, pool label "AEF task lifecycle" without "workflow:aef-task-lifecycle" |
+| business details | BPMN (Name, Lane), Extensions (Note, Owner), Close | ok | ok | ok | two-column sheet, Close reachable |
+| logical panel | + Authority, Horizon, Workflow type, Determinism, I/O contract | ok | ok | ok | no ids, no Slug/UID |
+| logical details | the same, two-column | ok | ok | ok | |
+| technical panel | + Slug, Display ID, UID, id under the type name, aef: tags, Other extensions | ok | ok | ok | id captions back on the canvas |
+| all panel | as before the lens (every field, "+ N empty fields") | ok | ok | ok | identical to the pre-lens designer |
+
+Notes: at 1024 the map fits small (fit zoom), the id captions' absence is visible only at 1440/1920. The panel's Lane
+select still lists lane ids (`agent`) in every lens: a lane id is the lane's name here, left as is for slice 1.
+
 ## Recommendation
 
 <!-- T-2945: same shape as inception.md's block — the gate that reads it

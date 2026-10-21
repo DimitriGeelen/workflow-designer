@@ -307,6 +307,8 @@ font-family: 'Outfit';
   .actions { display: contents; }
   .tb-group { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
   .tb-group-zoom { margin-left: auto; }
+  /* T-1241: lens switch, one group like zoom and view so a narrow window never splits label from select */
+  #lens-select { font-size: 12px; background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 3px 4px; }
   header .btn, header .btn-icon { white-space: nowrap; }   /* T-1176: "Pending refs…" wrapped to 2 lines and overflowed */
   .btn {
     font-family: var(--sans);
@@ -1418,6 +1420,9 @@ font-family: 'Outfit';
       <button class="btn-icon" id="btn-toggle-props" title="Hide properties panel" aria-pressed="false">◨</button>
       <button class="btn-icon" id="btn-focus-mode" title="Focus mode — hide all panels and fill the screen (Esc exits)">⛶</button>
       </span>
+      <!-- T-1241: audience lens — business / logical / technical / all. Narrows the side panel, the details view and
+           the canvas decoration at once; a view only, saved bytes never change. Options come from /api/lens-definition. -->
+      <span class="tb-group tb-group-lens"><select id="lens-select" aria-label="Audience lens" title="Audience lens: which fields and canvas decorations you see. A view only — the saved map never changes."><option value="all">Lens: All</option></select></span>
       <button class="btn" id="btn-add-lane">+ Add Lane</button>
       <button class="btn" id="btn-reset">Reset</button>
       <button class="btn" id="btn-clean" title="Tidy + branch pitch + align rows on every lane — one click, Ctrl+Z reverts">✨ Clean layout</button>
@@ -3847,7 +3852,7 @@ function renderPool() {
 
   // pool header strip
   gPool.appendChild(el('rect', { x: px, y: py, width: pw, height: POOL_HEADER, fill: 'var(--surface-2)' }));
-  if (labelPrefs.showPool) gPool.appendChild(el('text', { x: px + 14, y: py + 21, class: 'pool-label' }, [text(state.pool.name + '  ·  workflow:' + state.workflowMeta.id)]));
+  if (labelPrefs.showPool) gPool.appendChild(el('text', { x: px + 14, y: py + 21, class: 'pool-label' }, [text(state.pool.name + (lensDeco('ids') ? '  ·  workflow:' + state.workflowMeta.id : ''))]));
 
   // lanes
   let yCursor = py + POOL_HEADER;
@@ -3878,7 +3883,7 @@ function renderPool() {
     // T-1164: a lane-anchored validator finding marks the header strip — severity on the strip's edge and a ✖/⚠ pill
     // at its top, the node marker's pill and glyph. Read from findingsView only (replaced on every check), so a mark
     // cannot outlive the check that made it. A marked lane's label is fitted below the pill.
-    const laneFnd = findingsView.byLane && findingsView.byLane.get(lane.id);
+    const laneFnd = lensDeco('findings') && findingsView.byLane && findingsView.byLane.get(lane.id);
     const PILL_ROOM = laneFnd ? 18 : 0;
     if (laneFnd) {
       const sev = laneFnd.severity === 'ERROR' ? 'ERROR' : 'WARN';
@@ -4022,7 +4027,7 @@ function renderNodes() {
   // explicit S port). Their id caption is centred under the box, so that flow would run
   // straight through it; those captions move just right of the line instead.
   const bottomFlow = new Set();
-  if (labelPrefs.showIds) {
+  if (labelPrefs.showIds && lensDeco('ids')) {
     for (const e of state.edges) {
       const s = findNode(e.source), t = findNode(e.target);
       const lp = lShapePorts(e, s, t);
@@ -4207,14 +4212,14 @@ function renderNodes() {
       const io = n.io || {};
       const inN = (io.inputs || []).filter(i => i.name).length;
       const outN = (io.outputs || []).filter(i => i.name).length;
-      if (inN || outN) {
+      if ((inN || outN) && lensDeco('io')) {
         const badge = `${inN}→${outN}`;
         const bw = badge.length * 5.4 + 8;
         g.appendChild(el('rect', { x: n.x + def.w - bw - 4, y: n.y + 4, width: bw, height: 12, rx: 2, fill: 'var(--surface-3)', stroke: 'var(--border)', 'stroke-width': '0.5' }));
         g.appendChild(el('text', { x: n.x + def.w - bw / 2 - 4, y: n.y + 12, class: 'node-io-badge', 'text-anchor': 'middle' }, [text(badge)]));
       }
       // ID below the rectangle, centered — or just right of a bottom-centre flow (T-1090)
-      if (labelPrefs.showIds) g.appendChild(el('text', bottomFlow.has(n.id)
+      if (labelPrefs.showIds && lensDeco('ids')) g.appendChild(el('text', bottomFlow.has(n.id)
         ? { x: lx + 6, y: n.y + def.h + 12, class: 'node-id-badge', 'text-anchor': 'start' }
         : { x: lx, y: n.y + def.h + 12, class: 'node-id-badge', 'text-anchor': 'middle' }, [text(displayIdOf(n))]));
     } else {
@@ -4224,14 +4229,14 @@ function renderNodes() {
       // labels stay single-line and tightly packed maps gain no new vertical collisions.
       g.appendChild(el('text', { x: lx, y: ly, class: 'node-label', 'text-anchor': 'middle', 'data-nl': n.uid }, [text(n.name)]));
       // ID below the name, in mono and lower contrast
-      if (labelPrefs.showIds) g.appendChild(el('text', { x: lx, y: ly + 12, class: 'node-id-badge', 'text-anchor': 'middle', 'data-nl': n.uid }, [text(displayIdOf(n))]));
+      if (labelPrefs.showIds && lensDeco('ids')) g.appendChild(el('text', { x: lx, y: ly + 12, class: 'node-id-badge', 'text-anchor': 'middle', 'data-nl': n.uid }, [text(displayIdOf(n))]));
     }
     // T-081: constituent-count badge — any node carrying aef.constituents
     // (FC-11 composites live on gateways too, not only subProcess). Bottom-left
     // corner of the bounding box: free on task rects, beside the diamond on
     // gateways, clear of the subProcess [+] marker at bottom-centre.
     const nConsts = Array.isArray(n.aef?.constituents) ? n.aef.constituents.length : 0;
-    if (nConsts) {
+    if (nConsts && lensDeco('constituents')) {
       const cbTxt = `▣${nConsts}`;
       const cbW = cbTxt.length * 6 + 8;
       g.appendChild(el('rect', { x: n.x + 3, y: n.y + def.h - 15, width: cbW, height: 12, rx: 2, fill: 'var(--purple-soft)', stroke: 'var(--purple)', 'stroke-width': '0.5' }));
@@ -4247,7 +4252,7 @@ function renderNodes() {
     // render); the full text is always the <title>, so a short form loses nothing on hover.
     // T-1092: Settings can hide all markers (default ON); on a map that declares no authority
     // anywhere, a 'missing' marker is not drawn per element but counted for the one summary.
-    if (labelPrefs.showAuthority) {
+    if (labelPrefs.showAuthority && lensDeco('authority')) {
       const lane = findLane(n.lane);
       let mstate = authorityMarkerState(n.aef?.authority, effectiveLaneDefault(lane));
       authCount.total++;
@@ -4304,7 +4309,7 @@ function renderNodes() {
     // by construction — findingsView is replaced wholesale on every check, and cleared to
     // 'unavailable' with an empty byNode when the validator could not be reached.
     {
-      const fnd = findingsView.byNode.get(n.id);
+      const fnd = lensDeco('findings') ? findingsView.byNode.get(n.id) : null;
       if (fnd) {
         const sev = (fnd.severity === 'ERROR') ? 'ERROR' : 'WARN';
         g.setAttribute('data-finding', sev);
@@ -6692,6 +6697,62 @@ function renderMultiSelectProps(props) {
 // reverted with zero signal — the T-263 / rail-225 "didn't rebind" trap.
 let _idRenameNotice = null;
 
+// T-1241 (T-281 slice 1): audience lenses. A lens is DATA (GET /api/lens-definition, the interim stand-in for
+// AEF's shared lens file, their T-4402): per lens the Extensions fields, BPMN-section fields, panel sections and
+// canvas decorations it shows; `extends` adds the parent lens's lists. It only NARROWS what the field profile
+// allows (never shows a field the profile hides) and is a view: no lens changes a byte of buildBpmnXml output.
+// No definition (404, standalone file, bad file) = no lens switch effect: every field, as before.
+var _lensDef = null;      // var, not let: hoisted, so a render before this line runs reads "no lens" instead of a TDZ error
+var _lensName = 'all';
+try { const l = localStorage.getItem('aefLens'); if (l) _lensName = l; } catch (e) { aefRecordFault('prefs-read:lens', e); }
+function _lensResolve(name, seen) {
+  const l = _lensDef && _lensDef.lenses && _lensDef.lenses[name];
+  if (!l) return null;
+  seen = seen || new Set();
+  if (seen.has(name)) return null;
+  seen.add(name);
+  const parent = l.extends ? _lensResolve(l.extends, seen) : null;
+  const u = k => Array.from(new Set(((parent && parent[k]) || []).concat(Array.isArray(l[k]) ? l[k] : [])));
+  return { label: l.label || name, fields: u('fields'), bpmn: u('bpmn'), sections: u('sections'), canvas: u('canvas') };
+}
+function lensSpec() { return _lensName === 'all' ? null : _lensResolve(_lensName); }
+function lensDeco(d) { const l = lensSpec(); return !l || l.canvas.includes(d); }          // canvas decoration shown?
+function lensField(k) { const l = lensSpec(); return !l || l.fields.includes(k); }         // Extensions field shown?
+function lensSection(t) { const l = lensSpec(); return !l || l.sections.includes(t); }     // panel section shown?
+function lensBpmn(label) { const l = lensSpec(); return !l || l.bpmn.includes(label); }    // BPMN-section field shown?
+function renderLensSelect() {
+  const sel = $('lens-select');
+  if (!sel) return;
+  const names = _lensDef && _lensDef.lenses ? (Array.isArray(_lensDef.order) ? _lensDef.order : Object.keys(_lensDef.lenses)).filter(n => _lensDef.lenses[n]) : [];
+  sel.innerHTML = '';
+  for (const n of names.concat(['all'])) {
+    const o = document.createElement('option');
+    o.value = n; o.textContent = 'Lens: ' + (n === 'all' ? 'All' : ((_lensDef.lenses[n] || {}).label || n));
+    sel.appendChild(o);
+  }
+  if (_lensName !== 'all' && !names.includes(_lensName)) _lensName = 'all';
+  sel.value = _lensName;
+  document.body.dataset.lens = _lensName;
+}
+function setLens(name) {
+  _lensName = name;
+  try { localStorage.setItem('aefLens', name); } catch (e) { aefRecordFault('prefs-persist:lens', e); }
+  renderLensSelect();
+  if (typeof renderAll === 'function') renderAll();
+  renderProperties();
+}
+async function loadLensDefinition() {
+  try {
+    const r = await fetch('/api/lens-definition', { cache: 'no-store' });
+    const ct = (r.headers && r.headers.get && r.headers.get('content-type')) || '';
+    const d = (r.ok || /json/i.test(ct)) ? await r.json().catch(() => null) : null;
+    _lensDef = (r.ok && d && d.ok && d.definition && d.definition.lenses) ? d.definition : null;
+  } catch (e) { _lensDef = null; aefRecordFault('lens-definition:load', e); }
+  renderLensSelect();
+  if (typeof renderAll === 'function' && lensSpec()) renderAll();
+  if (typeof renderProperties === 'function') renderProperties();
+}
+
 // T-1124 (T-1118 B1): which selection has its empty Extensions fields opened (null = none).
 let _emptyFieldsRevealed = null;
 // T-1125 (T-1118 B2): the project's field profile, from GET /api/field-profile (gallery-serve.py
@@ -7456,7 +7517,7 @@ function _renderPropsInto(props, details) {
   // T-308: a bare catch event is presented as the neutral intermediate event it
   // actually is — the underlying n.type is unchanged and still exports as
   // <bpmn:intermediateCatchEvent>.
-  props.appendChild(propsHeader(isBareCatchEvent(n) ? 'intermediateEvent' : n.type, displayIdOf(n),
+  props.appendChild(propsHeader(isBareCatchEvent(n) ? 'intermediateEvent' : n.type, lensDeco('ids') ? displayIdOf(n) : '',
     details ? null : () => deleteNode(n.id)));   // T-1127: no delete from inside the details view
   if (!details) {   // T-1127: every element can open its full details (a handoff's double-click jumps instead)
     const all = document.createElement('button');
@@ -7538,7 +7599,13 @@ function _renderPropsInto(props, details) {
     renderNodes(); renderEdges();
     renderProperties();
   }));
-  props.appendChild(sBpmn);
+  // T-1241: the lens narrows the BPMN section to the fields it names (matched on the label's own text, before its hint).
+  for (const f of Array.from(sBpmn.querySelectorAll(':scope > .field'))) {
+    const l = f.querySelector('.field-label');
+    const t = l && l.firstChild ? String(l.firstChild.textContent).trim() : '';
+    if (!lensBpmn(t)) f.remove();
+  }
+  if (lensSection('BPMN')) props.appendChild(sBpmn);
 
   // AEF extensions
   // T-308: a bare catch event has no aef:link, so the link schema's target fields
@@ -7546,7 +7613,7 @@ function _renderPropsInto(props, details) {
   // as a broken connector. Hide them, say what the node actually is, and offer an
   // explicit way to declare handoff intent (session-scoped — sessionAuthoredLinks).
   const bareCatch = isBareCatchEvent(n);
-  const aefFields = bareCatch ? [] : fieldPlanFor(n.type).keys;   // T-1126: built-in + approved fields
+  const aefFields = bareCatch ? [] : fieldPlanFor(n.type).keys.filter(lensField);   // T-1126: built-in + approved fields; T-1241: narrowed by the lens
   if (bareCatch) {
     // Not an aef: field group — this node has no aef: extensions at all, which is
     // the whole point. Passing isAef would badge it as one.
@@ -7572,7 +7639,7 @@ function _renderPropsInto(props, details) {
     // from under the author.
     sessionAuthoredLinks.add(n.uid);
   }
-  if (aefFields && aefFields.length) {
+  if (aefFields && aefFields.length && lensSection('Extensions')) {
     const sAef = section('Extensions', true);
     n.aef = n.aef || {};
     // T-1124 (T-1118 B1): an empty field is folded into one "+ N empty fields" row unless
@@ -7580,6 +7647,7 @@ function _renderPropsInto(props, details) {
     // A field with a value is always drawn — hiding only ever removes empty boxes, never data
     // (the T-566 lesson). `selection` is a fresh object on every click, so the opened state
     // ends when the author selects anything else.
+    const lensOn = !!lensSpec();   // T-1241: a lens never shows a field the profile hides — not even in the details view, not even with a value
     const revealed = details || viewPrefs.showAllFields
       || (_emptyFieldsRevealed && _emptyFieldsRevealed.sel === selection && _emptyFieldsRevealed.uid === n.uid);
     let foldedEmpty = 0;
@@ -7590,6 +7658,7 @@ function _renderPropsInto(props, details) {
       // T-1125: a field the project hides is not drawn and not offered under "+ N empty fields" —
       // unless it carries a value (value-never-hidden) or "Show all fields" is on.
       const profileHidden = plan.hidden.has(f) && !viewPrefs.showAllFields && !details;
+      if (lensOn && plan.hidden.has(f)) continue;
       if (profileHidden && !hasValue) continue;
       // T-1127: the details view draws it anyway and says why the side panel does not.
       const hiddenInPanel = details && plan.hidden.has(f);
@@ -7725,7 +7794,7 @@ function _renderPropsInto(props, details) {
     // derived value and the authority it came from so the collapse is legible;
     // it updates automatically when the Lane select above changes (which
     // re-renders the panel). external/none → "— none —" (no task).
-    if (OWNER_BEARING_TYPES.has(n.type)) {
+    if (OWNER_BEARING_TYPES.has(n.type) && lensField('owner')) {
       const ownerLane = findLane(n.lane);
       const ownerAuth = ownerLane ? ownerLane.authority : 'none';
       const derivedOwner = ownerFromAuthority(ownerAuth);
@@ -7796,6 +7865,7 @@ function _renderPropsInto(props, details) {
   shownKeys.add('constituents');
   const hiddenKeys = Object.keys(n.aef || {})
     .filter(k => !shownKeys.has(k))
+    .filter(() => lensSection('Other extensions'))   // T-1241: the lens may drop the whole section
     // Objects and arrays are structured payloads with their own surfaces, not scalars
     // to print. Empty strings are absence, not content.
     .filter(k => {
@@ -7834,7 +7904,7 @@ function _renderPropsInto(props, details) {
   // Always offered on subProcess; shown on any other node that already carries
   // them (composites live on gateways too). One line per entry: id | name | ref.
   const hasConsts = Array.isArray(n.aef?.constituents) && n.aef.constituents.length;
-  if (n.type === 'subProcess' || hasConsts) {
+  if ((n.type === 'subProcess' || hasConsts) && lensSection('Constituents')) {
     n.aef = n.aef || {};
     const sConst = section(`Constituents${hasConsts ? ' · ' + n.aef.constituents.length : ''}`, true);
     const toText = list => (list || []).map(c =>
@@ -7854,7 +7924,7 @@ function _renderPropsInto(props, details) {
 
   // I/O contract (data flowing through the workflow, not filesystem side-effects)
   const ioSpec = NODE_IO[n.type];
-  if (ioSpec && (ioSpec.in || ioSpec.out)) {
+  if (ioSpec && (ioSpec.in || ioSpec.out) && lensSection('I/O contract')) {
     n.io = n.io || {};
     const sIo = section('I/O contract', true);
     if (ioSpec.in)  sIo.appendChild(ioListField('inputs',  n.io.inputs  || (n.io.inputs  = []), true));
@@ -7914,7 +7984,7 @@ function section(title, isAef) {
   const t = document.createElement('div');
   t.className = 'props-section-title';
   t.textContent = title;
-  if (isAef) {
+  if (isAef && lensDeco('ns')) {
     const ns = document.createElement('span');
     ns.className = 'ns-tag';
     ns.textContent = 'aef:';
@@ -8353,6 +8423,7 @@ document.addEventListener('keydown', e => {
   if (!typing) e.stopPropagation();
 }, true);
 $('btn-close-details').onclick = () => closeDetails();
+$('lens-select').addEventListener('change', e => setLens(e.target.value));   // T-1241
 $('details-modal').addEventListener('mousedown', e => { if (e.target === $('details-modal')) closeDetails(); });
 $('set-attach-middle').addEventListener('change', () => setRoutingAttach('middle'));
 $('set-attach-spread').addEventListener('change', () => setRoutingAttach('spread'));
@@ -10630,6 +10701,7 @@ async function detectSaveApi() {
       if (bc) bc.style.display = '';
       refreshUuidIndex();   // T-240: bind uuid workflowRefs to live maps at startup
       loadFieldProfile();   // T-1125: the project's field profile (404 = designer default)
+      loadLensDefinition(); // T-1241: the audience lenses (404 = no lens, every field)
     }
   } catch (_) { /* static gallery — leave the button hidden */ }
 }

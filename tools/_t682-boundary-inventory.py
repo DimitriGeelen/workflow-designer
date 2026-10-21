@@ -162,6 +162,9 @@ ROUTE_SEMANTICS = {
                                          'fixed path; type/key must match the identifier pattern, counts '
                                          'and examples bounded, map id ID_RE (400, nothing written); temp + '
                                          'os.replace under a lock'),
+    # T-1241: the audience lenses — a read-only file (the interim stand-in for AEF's lens file).
+    ('GET', '/api/lens-definition'): ('none — reads <repo>/lens-definition.interim.json',
+                                      'n/a (fixed path, no id or path derived from input)'),
 }
 
 

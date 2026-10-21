@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "interim": "Stand-in for the shared lens file AEF owns (AEF T-4402, not shipped). Same shape; swap this file for AEF's when it lands. Source of the field sets: AEF process-layer INSTRUCTIONS section 2.2 (the three lenses).",
+  "order": ["business", "logical", "technical"],
+  "lenses": {
+    "business": {
+      "label": "Business",
+      "fields": ["owner", "decisionInput", "decisionOutputs", "decisionOwner", "note"],
+      "bpmn": ["Name", "Lane"],
+      "sections": ["BPMN", "Extensions"],
+      "canvas": []
+    },
+    "logical": {
+      "label": "Logical",
+      "extends": "business",
+      "fields": ["authority", "horizon", "workflowType", "determinism", "triggeredBy", "emits", "workflowRef", "name", "targetWorkflow", "linkId", "errorStatus", "timerSpec", "busTopic", "hostRef", "boundaryPos", "interrupting"],
+      "bpmn": [],
+      "sections": ["Constituents", "I/O contract"],
+      "canvas": ["io", "constituents", "authority"]
+    },
+    "technical": {
+      "label": "Technical",
+      "extends": "logical",
+      "fields": ["tier", "agentType", "endpoint", "contextReads", "artifactsWrites", "sideEffect", "fabricRef", "links", "scopeOf"],
+      "bpmn": ["Slug", "Display ID", "UID"],
+      "sections": ["Other extensions"],
+      "canvas": ["ids", "findings", "ns"]
+    }
+  }
+}

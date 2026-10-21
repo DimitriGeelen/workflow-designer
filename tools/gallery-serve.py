@@ -174,6 +174,26 @@ def read_field_profile(id_=None):
     return 200, {'ok': True, 'profile': prof, 'scope': scope, 'base': _profile_base(raw)}
 
 
+LENS_DEFINITION_NAME = 'lens-definition.interim.json'
+
+
+def read_lens_definition():
+    """T-1241: (http code, body) for GET /api/lens-definition. Read-only; shape checked lightly, a bad file is
+    refused whole (422) and the designer falls back to all fields."""
+    p = os.path.join(REPO, LENS_DEFINITION_NAME)
+    if not os.path.exists(p):
+        return 404, {'ok': False, 'error': 'no lens definition'}
+    try:
+        with open(p, 'rb') as f:
+            obj = json.loads(f.read().decode('utf-8'))
+    except (OSError, ValueError) as e:
+        return 422, {'ok': False, 'error': 'lens definition unreadable: %s' % e}
+    lenses = obj.get('lenses') if isinstance(obj, dict) else None
+    if not isinstance(lenses, dict) or not lenses or not all(isinstance(v, dict) for v in lenses.values()):
+        return 422, {'ok': False, 'error': 'lens definition refused: needs a non-empty "lenses" object'}
+    return 200, {'ok': True, 'definition': obj}
+
+
 _PROFILE_LOCK = threading.Lock()
 
 
@@ -895,6 +915,11 @@ class Handler(SimpleHTTPRequestHandler):
                 return self._json(200, {'ok': True, **read_suggestions()})
             except (OSError, ValueError) as e:
                 return self._json(500, {'ok': False, 'error': 'suggestions unreadable: %s' % e})
+        if route == '/api/lens-definition':
+            # T-1241: the audience lenses (business / logical / technical). Interim stand-in for AEF's shared
+            # lens file (their T-4402): <repo>/lens-definition.interim.json. 404 = none, the designer shows all fields.
+            code, obj = read_lens_definition()
+            return self._json(code, obj)
         if route == '/api/field-profile':
             # T-1125 (T-1118 B2): the project's field profile — which fields the properties panel shows;
             # T-1128: ?id=<map> reads that map's own profile (stored beside its versions).
