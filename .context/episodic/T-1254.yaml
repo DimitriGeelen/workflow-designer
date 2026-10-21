@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1254: _t344 fails when the half-hourly cron audit runs at the same time (suite flake: _t345 leg red twice on 2026-10-21)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-21T20:13:01Z
+# ============================================================================
+
+task_id: T-1254
+task_name: "_t344 fails when the half-hourly cron audit runs at the same time (suite flake: _t345 leg red twice on 2026-10-21)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-21T20:05:24Z
+completed: 2026-10-21T20:11:50Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-21T22:11:49+02:00
+last_commit: 2026-10-21T22:11:49+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  _t344 waits for a running cron audit instead of reading its single-instance refusal as a missing verdict (suite flake on _t345, reproduced 8/5 with a concurrent audit, 9/0 after; teeth _t345/_t550 pass)
+
+# Key outcomes
+outcomes:
+  - 'The cause is named: what a concurrent `fw audit` changes in the structure audit''s output that _t344 parses.'
+  - '`_t344` waits (bounded) for a running cron audit to finish before it takes its own audit reading, and says so;'
+  - 'Its teeth still bite: `_t345` and `_t550` (which drive _t344 with transcripts) pass. (_t345 PASS, _t550 5/5.)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1254-t344-fails-when-the-half-hourly-cron-aud.md'
+  - 'tools/_t344-watch-set-denominator.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-21T22:11:49'
+    action: 'T-1254: _t344 waits for a running cron audit instead of reading its single-instance refusal as a missing verdict (suite flake on _t345, reproduced 8/5 with a concurrent audit, 9/0 after; teeth _t345/_t550 pass)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 2
+  lines_added: 408
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1254-t344-fails-when-the-half-hourly-cron-aud.md
+generated_by: context-agent-hybrid
