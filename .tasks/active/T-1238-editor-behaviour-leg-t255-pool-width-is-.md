@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-20T17:26:14Z
-last_update: 2026-10-20T19:27:25Z
+last_update: 2026-10-21T07:52:53Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -295,6 +295,33 @@ reads state after a fixed `sleep(150)` (after each drag and after undo); under f
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+### Reproduction attempt on the OLD harness (2026-10-21, worker w-t1238)
+
+**Result: NOT reproduced.** Leg `t255-pool-width` passed in 18 of 18 old-harness runs (the other legs flaked; see below).
+
+Old harness = `git show 5912612c~1:tools/_editor-behavior-verify-cdp.mjs`, run from a scratch copy inside `tools/`
+(for its relative imports; removed afterwards), against the unchanged `src/` of that moment. The machine was already
+busy with other workers (load average 37 to 65 on 24 cores before I added anything).
+
+| attempt | conditions | runs | t255-pool-width |
+|---|---|---|---|
+| 1 | 24 CPU busy-loops, 3 `dd conv=fsync` writers, 4 other CDP harnesses looping (autosave, roundtrip, clean-layout, node-cuts); load average about 226 | 3 | not reached: `editor not ready` after the default 20 s readiness budget (harness-level, not the leg) |
+| 2 | 12 busy-loops, 1 `dd` fsync writer, 3 CDP harnesses looping, `CDP_READY_MS=120000`; load 90 to 130 | 10 | 10/10 pass |
+| 3 | as 2, plus the harness pinned to ONE core (`taskset -c 0`) shared with 6 busy-loops, `CDP_READY_MS=180000` | 8 | 8/8 pass |
+
+Under the same conditions OTHER legs did fail intermittently on the old harness: `t240-uuid-resolve` (7 of 21 runs
+that got that far) and `same-map-edit-restore` (2). Those are separate flakes, not this task's leg. `src/` was being
+edited by another worker during the window, so some of those may be real changes rather than load; not investigated.
+
+**Not run:** the fixed harness under these conditions, since the precondition (a reproduced failure to compare
+against) was not met. **Not tried:** CDP-level CPU throttling (`Emulation.setCPUThrottlingRate`), which slows only
+the page and would be the next lever; running the real full-suite order with the preceding legs' state.
+
+**Reading:** the old leg's `sleep(150)` race needs the page to take over about 150 ms to re-lay out after a drag.
+Whole-machine load, disk I/O and one-core starvation did not produce that in 18 tries. The race stays plausible by
+code reading (the committed fix removes it), but there is still no observed failure that the fix is proven to cure.
+The task should stay open, or be closed on the fix's code-reading argument only if the operator accepts that.
 
 ## Evolution
 
