@@ -30,3 +30,4 @@
 {"kind":"verdict-apply","open_human_remaining":1,"owner_after":"human","owner_before":"human","recited":[],"task":"T-209","ticked":[{"ac":1,"reviewer":"reviewer-judge-t-209-r5-antigravity-71dca0f41ebf:antigravity","verdict_id":"V-20261020-5792c770"}],"ts":"2026-10-20T23:33:50Z","withdrawn":[]}
 {"kind":"verdict-apply","open_human_remaining":0,"owner_after":"agent","owner_before":"human","recited":[],"task":"T-962","ticked":[{"ac":1,"reviewer":"reviewer-judge-t-962-r3-74bac7cd8b45:reviewer","verdict_id":"V-20261021-7874897a"}],"ts":"2026-10-21T07:53:44Z","withdrawn":[]}
 {"ac":1,"kind":"escalate","owner_after":"human","owner_before":"human","task":"T-325","ts":"2026-10-21T08:04:20Z","verdict_id":"V-20261021-beb62994"}
+{"ac":1,"kind":"escalate","owner_after":"human","owner_before":"human","task":"T-432","ts":"2026-10-21T08:05:44Z","verdict_id":"V-20261021-2ca23391"}
