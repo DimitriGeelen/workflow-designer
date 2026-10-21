@@ -1,13 +1,21 @@
 ---
 id: T-1256
-name: "Gateway labels collide with flows and id captions on aef-task-lifecycle (pre-existing in 0.24.0; found by the T-1241 reviewer)"
+name: "Gateway labels collide with flows and id captions on aef-task-lifecycle (pre-existing
+  in 0.24.0; found by the T-1241 reviewer)"
 description: >
-  With id captions on, gateway labels beside the diamonds collide: 'issues encountered?' crossed by its incoming flow, 'unchecked Human ACs?' runs into the 'pass' flow label, the arrow into 'completion gates' runs through its id caption agt_6_completion; and with ids off, the vertical flow to the human lane crosses 'unchecked Human ACs?'. Pixel-identical in designer-v0.24.0 (evidence: docs/reports/T-1241-evidence/overlap-0.24.0-1920.png, overlap-now-1920.png, overlap-0.24.0-noids-1920.png, overlap-now-business-1920.png). Found by the independent reviewer of T-1241 (amber, 2026-10-21).
+  With id captions on, gateway labels beside the diamonds collide: 'issues encountered?'
+  crossed by its incoming flow, 'unchecked Human ACs?' runs into the 'pass' flow label,
+  the arrow into 'completion gates' runs through its id caption agt_6_completion;
+  and with ids off, the vertical flow to the human lane crosses 'unchecked Human ACs?'.
+  Pixel-identical in designer-v0.24.0 (evidence: docs/reports/T-1241-evidence/overlap-0.24.0-1920.png,
+  overlap-now-1920.png, overlap-0.24.0-noids-1920.png, overlap-now-business-1920.png).
+  Found by the independent reviewer of T-1241 (amber, 2026-10-21).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: [T-1241]
@@ -38,8 +46,8 @@ related_tasks: [T-1241]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T20:23:36Z
-last_update: 2026-10-21T20:23:36Z
-date_finished: null
+last_update: 2026-10-21T20:29:49Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-21T20:29:50Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1256: Gateway labels collide with flows and id captions on aef-task-lifecycle (pre-existing in 0.24.0; found by the T-1241 reviewer)
@@ -62,8 +91,20 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Cause named: where a gateway's label and a node's id caption are placed, and why that placement ignores the flows
+  drawn next to them (with file:line).
+- [ ] On `aef-task-lifecycle` at 1920, in every lens and with id captions on and off: 0 gateway labels crossed by a
+  flow segment, 0 id captions crossed by a flow, 0 label/label overlaps (the four cases in the reviewer's notes are
+  among them). Measured by a CDP harness from the rendered SVG geometry (text bbox vs flow polylines), not by eye.
+- [ ] Across every map in `examples/aef-processes/rendered/`: the count of label/flow and caption/flow crossings does
+  not rise for any map, and falls in total (reported per map before/after).
+- [ ] Saved bytes: if label placement is not written to the map, 0 bytes change on any tracked map; if it is (BPMN DI
+  label bounds), the change is stated and shown, and the goldens are updated only for that reason.
+- [ ] Readable at 1024: fit zoom on `aef-task-lifecycle` at 1024 leaves node and gateway text at a stated minimum
+  rendered size (or the map opens at a readable zoom with the rest reachable by scroll), without hiding any element.
+- [ ] Screenshots of every lens at 1024/1440/1920, plus scrolled side-panel and details shots that show the lowest
+  controls reachable, read control by control; the independent reviewer judges T-1241's criterion 1 again after this.
+- [ ] Harness as a bridge leg, red on the 0.24.0 placement; `_t1241`, `_t1176`, `_t1249` still pass; full suite green.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -345,3 +386,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1256-gateway-labels-collide-with-flows-and-id.md
 - **Context:** Initial task creation
+
+### 2026-10-21T20:29:49Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
