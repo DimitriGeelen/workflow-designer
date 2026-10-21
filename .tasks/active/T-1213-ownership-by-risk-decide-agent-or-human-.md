@@ -1,19 +1,22 @@
 ---
 id: T-1213
-name: "Ownership by risk: decide agent or human at task creation, independent reviewer at every agent close, escalation as the only way to human (operator 2026-10-19)"
+name: "Ownership by risk: decide agent or human at task creation, independent reviewer
+  at every agent close, escalation as the only way to human (operator 2026-10-19)"
 description: >
-  Inception: Ownership by risk: decide agent or human at task creation, independent reviewer at every agent close, escalation as the only way to human (operator 2026-10-19)
+  Inception: Ownership by risk: decide agent or human at task creation, independent
+  reviewer at every agent close, escalation as the only way to human (operator 2026-10-19)
 
-status: captured
+status: started-work
 workflow_type: inception
+current_node: frw_1_start
 owner: human
 horizon: now
 tags: []
 components: []
 related_tasks: []
 created: 2026-10-19T09:52:04Z
-last_update: 2026-10-19T09:52:04Z
-date_finished: null
+last_update: 2026-10-21T07:55:54Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -33,6 +36,26 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-10-21T07:55:21Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 4
+      D4: 4
+      F-RECALL: 4
+      F2: 4
+      F4: 4
+      F3: 4
+      F1: 4
+    rationale: D1=4 (voi:unblocks-or-blocked~'gates'); D2=4 
+      (voi:unblocks-or-blocked~'gates'); D3=4 (voi:unblocks-or-blocked~'gates');
+      D4=4 (voi:unblocks-or-blocked~'gates'); F-RECALL=4 
+      (voi:unblocks-or-blocked~'gates'); F2=4 (voi:unblocks-or-blocked~'gates');
+      F4=4 (voi:unblocks-or-blocked~'gates'); F3=4 
+      (voi:unblocks-or-blocked~'gates'); F1=4 (voi:unblocks-or-blocked~'gates')
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1213: Ownership by risk: decide agent or human at task creation, independent reviewer at every agent close, escalation as the only way to human (operator 2026-10-19)
@@ -95,9 +118,13 @@ of 2026-10-19 ("then we always have an external review") answer (a) for 832: eve
      correction is sticky — set `hypothesis_source: human` in the frontmatter and no
      automatic pass will ever overwrite it. -->
 
-We believe that <change>,
-we will achieve <outcome>.
-We will know that we are successful when we see <measurable signal>.
+We believe that deciding each task's owner (agent or human) by a risk assessment at creation, with an independent
+reviewer at every agent close and escalation as the only route to the operator (PD-399, operator 2026-10-19),
+we will achieve an operator queue that holds only decisions that are genuinely the operator's, while no agent work
+closes unreviewed.
+We will know that we are successful when we see 100% of tasks created after adoption carrying an ownership decision
+with its risk reason, 100% of agent-owned closes carrying an independent reviewer verdict row, and the count of open
+`### Human` criteria in `.tasks/active/` (78 on 2026-10-21, T-1065) lower at each of the next 3 weekly counts.
 
 ## Assumptions
 
@@ -213,3 +240,6 @@ The operator decided the model on 2026-10-19: owner decided by an initial risk a
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-10-21T07:55:21Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
