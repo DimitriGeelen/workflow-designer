@@ -26,6 +26,7 @@
 //
 // Usage:  node tools/_t600-label-wrap.mjs [--self-test]
 // Exit:   0 pass · 1 leg failed · 2 driver/integrity error
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, readdirSync, mkdtempSync, existsSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -142,7 +143,7 @@ const sideProbeExpr = (name) => `(function(){ try{
 
 async function runProbes(editorPath) {
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 't600-chrome-'));
+  const udd = makeProfileDir('t600-chrome-');
   const proc = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
     '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let client;

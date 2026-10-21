@@ -10,6 +10,7 @@
 //   5. button op (Clean layout) → undo restores → redo re-applies
 //   6. multi-step: two drags, undo×2 back to origin, redo×2 forward
 // Screenshot written for the READ step. Exit 0 = pass.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -64,7 +65,7 @@ async function main() {
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 'undo-udd-'));
+  const udd = makeProfileDir('undo-udd-');
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1200,820', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl; const verdict = { steps: [] };
   const push = (n, p, g) => verdict.steps.push({ step: n, pass: !!p, got: g });

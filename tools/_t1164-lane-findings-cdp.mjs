@@ -7,6 +7,7 @@
 // Writes .playwright-mcp/t1164-<width>-{marked,sticky}.png at 1024/1440/1920 for the visual review.
 // T1164_DESIGNER=<file> runs it against another build (control: the pre-T-1164 designer must fail the marking legs).
 // Exit 0 = pass. Exit 1 = a step failed. Exit 2 = harness could not run.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -44,7 +45,7 @@ const PROBE = `(function(){
 })()`.replace('LANE_RULES_IN_PAGE', JSON.stringify(LANE_RULES));
 
 async function main() {
-  const doc = mkdtempSync(join(tmpdir(), 't1164-doc-')), repo = mkdtempSync(join(tmpdir(), 't1164-repo-')), udd = mkdtempSync(join(tmpdir(), 't1164-udd-'));
+  const doc = mkdtempSync(join(tmpdir(), 't1164-doc-')), repo = mkdtempSync(join(tmpdir(), 't1164-repo-')), udd = makeProfileDir('t1164-udd-');
   copyFileSync(process.env.T1164_DESIGNER || join(REPO, 'src/aef-workflow-designer.html'), join(doc, 'designer.html'));
   mkdirSync(join(doc, 'rendered'));
   copyFileSync(join(REPO, 'examples/aef-processes/rendered', MAP + '.bpmn'), join(doc, 'rendered', MAP + '.bpmn'));

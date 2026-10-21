@@ -3,6 +3,7 @@
 // Sidecar on a free port against a TEMP repo+docroot; editor driven in ISOLATED headless
 // chromium (own --user-data-dir; G-006). Saves v1 + v2, opens the modal, asserts 2 rows with
 // loaded thumbnails, reverts to v1, asserts the editor holds v1 geometry. Screenshots. Exit 0=pass.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -35,7 +36,7 @@ async function main() {
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 'vr-udd-'));
+  const udd = makeProfileDir('vr-udd-');
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1200,820', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl; const verdict = { steps: [] };
   const push = (n, p, g) => verdict.steps.push({ step: n, pass: !!p, got: g });

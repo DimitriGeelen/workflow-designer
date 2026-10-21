@@ -39,6 +39,7 @@
 //
 // Exit 0 = all legs pass. Exit 2 = a leg failed or setup broke.
 
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { readFileSync, existsSync, readdirSync, mkdtempSync, copyFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { tmpdir, homedir } from 'node:os';
@@ -159,7 +160,7 @@ const DRIVE_EXPR = `(() => {
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 't889-udd-'));
+  const udd = makeProfileDir('t889-udd-');
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1200,820', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl;
   try {

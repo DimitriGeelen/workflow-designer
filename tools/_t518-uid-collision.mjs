@@ -37,6 +37,7 @@
 // Exit 0 = measured, controls fired, behaviour matches the pin; 1 = behaviour changed or a
 // control is dead; 2 = REFUSAL (no corpus, no browser, or the fixture could not be made to
 // collide — an unmeasurable run must never read as green).
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -100,7 +101,7 @@ async function main() {
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
-  const udd = mkdtempSync(join(tmpdir(), 't518-udd-'));
+  const udd = makeProfileDir('t518-udd-');
   const br = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl;
   try {

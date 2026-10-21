@@ -14,6 +14,7 @@
 //       zero overlay, g.node count == state.nodes.length
 // Screenshots (element-level, scale 2): docs/reports/t884-shots/<state>-<s|m|l>.png (12) + picker.png.
 // Exit 0 = all legs pass; 2 otherwise.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { readFileSync, existsSync, readdirSync, mkdtempSync, copyFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { tmpdir, homedir } from 'node:os';
@@ -71,7 +72,7 @@ const COUNTS = `({ current: document.querySelectorAll('g.node[data-instance="cur
 
 (async () => {
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 't884-udd-'));
+  const udd = makeProfileDir('t884-udd-');
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1600,1000', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl, rc = 0; const servers = [];
   const shot = async (cmd, sel, file, pad) => {

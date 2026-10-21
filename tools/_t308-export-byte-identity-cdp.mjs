@@ -13,6 +13,7 @@
 // Usage:  node tools/_t308-export-byte-identity-cdp.mjs [git-ref]     (default HEAD)
 // Exit 0 = byte-identical for every map; 1 = drift (the drifting maps are named);
 // 2 = misconfig.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn, execFileSync } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, mkdirSync, writeFileSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -113,7 +114,7 @@ async function main() {
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 't308-bi-udd-'));
+  const udd = makeProfileDir('t308-bi-udd-');
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1200,820', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl;
   try {

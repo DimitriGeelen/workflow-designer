@@ -24,6 +24,7 @@
 // Isolation mirrors the typed-events harness: temp docroot served by
 // gallery-serve.py on a free port, isolated headless chromium (G-006).
 // Exit 0 = preserved + bites; 1 = assertion failed; 2 = misconfig.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -120,7 +121,7 @@ async function main() {
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 't259-udd-'));
+  const udd = makeProfileDir('t259-udd-');
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1200,820', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl;
   try {

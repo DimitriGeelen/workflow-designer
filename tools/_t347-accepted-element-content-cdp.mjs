@@ -33,6 +33,7 @@
 //
 // This is a MEASURING instrument. It pins no expectation and gates nothing.
 
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, copyFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -135,7 +136,7 @@ async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = awa
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
-  const udd = mkdtempSync(join(tmpdir(), 't347-udd-'));
+  const udd = makeProfileDir('t347-udd-');
   const br = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl, rows = [];
   try {

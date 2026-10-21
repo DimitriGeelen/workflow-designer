@@ -8,6 +8,7 @@
 // T-818: the gesture is NOT just the click. saveToProject() awaits promptSaveNote(), so the
 // probe must also fill and submit the #save-note-modal — see the note at that step.
 // Exit 0 = pass.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -49,7 +50,7 @@ async function main() {
   const BASE = `http://127.0.0.1:${port}`;
 
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 'sp-udd-'));
+  const udd = makeProfileDir('sp-udd-');
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1200,820', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl; const verdict = { steps: [], pass: false };
   const push = (name, pass, got) => verdict.steps.push({ step: name, pass: !!pass, got });

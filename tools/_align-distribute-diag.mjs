@@ -3,6 +3,7 @@
 // captures console errors + uncaught exceptions, then invokes each layout action and reports
 // whether it moved nodes or threw. Prints a JSON report. Used to reproduce the "distribute /
 // align broken" field report (T-134).
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -33,7 +34,7 @@ async function main() {
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
   const BASE = `http://127.0.0.1:${port}`;
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 'ad-udd-'));
+  const udd = makeProfileDir('ad-udd-');
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1200,820', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl; const report = { map: MAP, actions: {}, consoleErrors: [], exceptions: [] };
   try {

@@ -21,6 +21,7 @@
 //
 // Usage:  node tools/_t602-documentation-roundtrip.mjs [--self-test]
 // Exit:   0 pass · 1 leg failed · 2 driver/integrity error
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, readdirSync, mkdtempSync, existsSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -89,7 +90,7 @@ const PROBE = `(function(){ try{
 }catch(e){ return {ok:false, error:String(e && e.stack || e)}; } })()`;
 
 async function probe(editorPath) {
-  const udd = mkdtempSync(join(tmpdir(), 't602-chrome-'));
+  const udd = makeProfileDir('t602-chrome-');
   const proc = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
     '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let client;

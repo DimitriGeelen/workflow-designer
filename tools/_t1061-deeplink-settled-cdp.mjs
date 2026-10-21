@@ -10,6 +10,7 @@
 //   leg 3  ?load of a missing file (404)    -> 'failed' (the editor's alert is dismissed), never left null
 //   leg 4  null until settled: with the fetch held back, the value is null right after _appReady
 // exit 0 = all legs pass; 1 = a leg failed; 2 = CANNOT RUN
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, mkdirSync, copyFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -55,7 +56,7 @@ async function settledAfterReady(cmd, url, maxMs) {
 async function main() {
   const legs = []; const leg = (ok, name, d) => legs.push(`${ok ? 'PASS' : 'FAIL'}  ${name}${d ? ' — ' + d : ''}`);
   if (!existsSync(EDITOR)) { console.log('CANNOT RUN: editor missing: ' + EDITOR); return 2; }
-  const doc = mkdtempSync(join(tmpdir(), 't1061-doc-')), repo = mkdtempSync(join(tmpdir(), 't1061-repo-')), udd = mkdtempSync(join(tmpdir(), 't1061-udd-'));
+  const doc = mkdtempSync(join(tmpdir(), 't1061-doc-')), repo = mkdtempSync(join(tmpdir(), 't1061-repo-')), udd = makeProfileDir('t1061-udd-');
   // leg 4 needs a held-back fetch: a second editor copy whose ?load fetch waits 2 s
   const html = readFileSync(EDITOR, 'utf8');
   const hook = '    const res = await fetch(src);';

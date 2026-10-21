@@ -29,6 +29,7 @@
 // Usage:  node tools/_t515-external-uid-conformance.mjs
 // Exit 0 = conformant and the controls fired; 1 = a real failure or a dead control;
 // 2 = misconfig or the fixture stopped being externally-shaped.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -118,7 +119,7 @@ async function main() {
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
-  const udd = mkdtempSync(join(tmpdir(), 't515-udd-'));
+  const udd = makeProfileDir('t515-udd-');
   const br = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl;
   try {

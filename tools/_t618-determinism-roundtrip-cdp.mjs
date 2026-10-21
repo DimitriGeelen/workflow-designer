@@ -24,6 +24,7 @@
 // not appear, the verdict is 2 (cannot measure), never 0.
 //
 // Exit 0 = values survive. 1 = a value drifted or was dropped. 2 = cannot measure.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
 import { tmpdir, homedir } from 'node:os';
@@ -141,7 +142,7 @@ async function main() {
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
   let chrome; try { chrome = findChrome(); } catch (e) { console.log('CANNOT MEASURE: ' + e.message + ' — this is an ENVIRONMENT gap, not a pass'); py.kill(); process.exitCode = 2; return; }
-  const udd = mkdtempSync(join(tmpdir(), 't618-udd-'));
+  const udd = makeProfileDir('t618-udd-');
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
 
   let cl, failed = 0, measured = 0, totalValues = 0;

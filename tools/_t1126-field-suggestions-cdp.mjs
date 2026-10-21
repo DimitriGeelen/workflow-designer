@@ -12,6 +12,7 @@
 //   F  CLI reject: the button reads "Rejected"
 //   G  standalone (file://): the button is disabled with the reason
 // Exit 0 = pass; 1 = assertion failed; 2 = misconfig.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn, execFileSync } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, mkdirSync, copyFileSync, writeFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -72,7 +73,7 @@ async function main() {
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
-  const udd = mkdtempSync(join(tmpdir(), 't1126-udd-'));
+  const udd = makeProfileDir('t1126-udd-');
   const br = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1900,1000', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   const legs = []; const leg = (ok, name, detail) => legs.push({ ok: !!ok, name, detail });
   const post = async b => { const r = await fetch(BASE + '/api/field-suggestions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) }); return { code: r.status, body: await r.json().catch(() => null) }; };

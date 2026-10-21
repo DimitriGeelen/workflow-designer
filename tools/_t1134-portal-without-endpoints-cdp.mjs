@@ -9,6 +9,7 @@
 //   D  the panel itself still works: empty fields fold (B1 behaviour, designer default)
 //   node tools/_t1134-portal-without-endpoints-cdp.mjs [--designer PATH]   (0.19.0 must FAIL A and B)
 // Exit 0 = pass; 1 = assertion failed; 2 = misconfig.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, copyFileSync, writeFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -68,7 +69,7 @@ async function main() {
   const port = await freePort();
   const py = spawn('python3', [stub, String(port), doc], { stdio: ['ignore', 'ignore', 'pipe'] });
   const BASE = `http://127.0.0.1:${port}`;
-  const udd = mkdtempSync(join(tmpdir(), 't1134-udd-'));
+  const udd = makeProfileDir('t1134-udd-');
   const br = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1900,1000', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   const legs = []; const leg = (ok, name, detail) => legs.push({ ok: !!ok, name, detail });
   let cl;

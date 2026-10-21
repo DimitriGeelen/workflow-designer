@@ -5,6 +5,7 @@
 // renaming the step changes slug and id; an exported map reloads with the same ids.
 // Usage: node tools/_t1193-slug-readonly-cdp.mjs [designer.html]   (control: the pre-T-1193 designer fails leg 1)
 // Exit 0 = pass, 1 = a leg failed.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -37,7 +38,7 @@ const PROBE = `(function(){
 })()`;
 
 async function main() {
-  const doc = mkdtempSync(join(tmpdir(), 't1154m-doc-')), repo = mkdtempSync(join(tmpdir(), 't1154m-repo-')), udd = mkdtempSync(join(tmpdir(), 't1154m-udd-'));
+  const doc = mkdtempSync(join(tmpdir(), 't1154m-doc-')), repo = mkdtempSync(join(tmpdir(), 't1154m-repo-')), udd = makeProfileDir('t1154m-udd-');
   copyFileSync(DESIGNER, join(doc, 'designer.html')); mkdirSync(join(doc, 'rendered'));
   const files = readdirSync(DIR).filter(f => f.endsWith('.bpmn')).sort();
   for (const f of files) copyFileSync(join(DIR, f), join(doc, 'rendered', f));

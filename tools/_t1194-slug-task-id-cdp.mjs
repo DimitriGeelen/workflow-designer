@@ -5,6 +5,7 @@
 // harness as _t1091), plus one end-to-end leg: a node renamed "T-002: Your First Governed Commit" exports that slug.
 // T1194_DESIGNER=<file> runs it against another build (control: the pre-T-1194 designer fails the task-id cases).
 // Exit 0 = pass. Exit 1 = a case failed. Exit 2 = harness could not run.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -55,7 +56,7 @@ async function ev(cmd, e) { const r = await cmd('Runtime.evaluate', { expression
 async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof state==='object'&&!!state&&_appReady===true&&(typeof _deepLinkSettled==='undefined'||_deepLinkSettled!==null))`).catch(() => false); if (ok) return; if (Date.now() - t0 > (+process.env.CDP_READY_MS || 20000)) throw new Error('editor not ready'); await sleep(150); } }
 
 async function main() {
-  const doc = mkdtempSync(join(tmpdir(), 't1194-doc-')), repo = mkdtempSync(join(tmpdir(), 't1194-repo-')), udd = mkdtempSync(join(tmpdir(), 't1194-udd-'));
+  const doc = mkdtempSync(join(tmpdir(), 't1194-doc-')), repo = mkdtempSync(join(tmpdir(), 't1194-repo-')), udd = makeProfileDir('t1194-udd-');
   copyFileSync(process.env.T1194_DESIGNER || join(REPO, 'src/aef-workflow-designer.html'), join(doc, 'designer.html'));
   mkdirSync(join(doc, 'rendered'));
   copyFileSync(join(REPO, 'examples/aef-processes/rendered', MAP + '.bpmn'), join(doc, 'rendered', MAP + '.bpmn'));

@@ -34,6 +34,7 @@
 // counted and reported. A key with population 0 is reported as UNFALSIFIABLE, not as a pass.
 //
 // Exit 0 iff every key with a non-zero population is blind WITHOUT it and catching WITH it.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, mkdirSync, copyFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -163,7 +164,7 @@ async function main() {
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
-  const udd = mkdtempSync(join(tmpdir(), 't482-udd-'));
+  const udd = makeProfileDir('t482-udd-');
   const br = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1200,820', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
 
   let cl;

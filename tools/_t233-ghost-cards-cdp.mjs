@@ -23,6 +23,7 @@
 // would pass identically if the ghost branch ignored pickMode entirely, and the
 // defect that hides behind that — an off-page connector retargeted at a uuid with
 // no live map — is worse than the omission this task set out to fix.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readFileSync, readdirSync, mkdtempSync, existsSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -132,7 +133,7 @@ const STUB = `(function(){
 
 async function main() {
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 't233-leg-'));
+  const udd = makeProfileDir('t233-leg-');
   const proc = spawn(chrome, [
     '--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
     '--remote-debugging-port=0', `--user-data-dir=${udd}`, '--window-size=1600,1000', 'about:blank',

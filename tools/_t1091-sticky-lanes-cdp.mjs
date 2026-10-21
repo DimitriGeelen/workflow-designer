@@ -10,6 +10,7 @@
 // review (CLAUDE.md, T-1174). T1091_DESIGNER=<file> runs it against another build (the control: the pre-T-1091 designer
 // must fail the pinned-name legs).
 // Exit 0 = pass. Exit 1 = a step failed. Exit 2 = harness could not run.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -65,7 +66,7 @@ async function main() {
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
-  const udd = mkdtempSync(join(tmpdir(), 't1091-udd-'));
+  const udd = makeProfileDir('t1091-udd-');
   const br = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl; const steps = [], shots = [];
   const push = (n, p, g) => steps.push({ step: n, pass: !!p, got: g });

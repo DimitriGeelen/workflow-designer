@@ -17,6 +17,7 @@
 // EVERY LEG ASSERTS ITS OWN DENOMINATOR. Written after T-233, where three legs of a new
 // guard reported PASS while rendering zero cards, because `every()` over an empty array is
 // true. A leg that can be satisfied by an empty population is not a guard, it is a mood.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readFileSync, readdirSync, mkdtempSync, existsSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -103,7 +104,7 @@ function leg(name, ok, detail) {
 
 async function main() {
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 't355-leg-'));
+  const udd = makeProfileDir('t355-leg-');
   const proc = spawn(chrome, [
     '--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
     '--remote-debugging-port=0', `--user-data-dir=${udd}`, '--window-size=1600,1000', 'about:blank',

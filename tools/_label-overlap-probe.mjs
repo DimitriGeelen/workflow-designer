@@ -14,6 +14,7 @@
 //   node tools/_label-overlap-probe.mjs <file.bpmn> [file2.bpmn ...]
 //   node tools/_label-overlap-probe.mjs --stdin < map.bpmn   (label:"stdin")
 // Reuses the CDP boilerplate from tools/_node-cuts-cdp.mjs (PL-005: editor's own render).
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readFileSync, readdirSync, mkdtempSync, existsSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -108,7 +109,7 @@ async function main() {
   if (!jobs.length) { console.error('usage: _label-overlap-probe.mjs <file.bpmn> ...'); process.exit(2); }
 
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 'labelovl-chrome-'));
+  const udd = makeProfileDir('labelovl-chrome-');
   const proc = spawn(chrome, ['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--remote-debugging-port=0',`--user-data-dir=${udd}`,'about:blank'], { stdio: ['ignore','ignore','pipe'] });
   let stderr = ''; proc.stderr.on('data', d => stderr += d.toString());
   let client;

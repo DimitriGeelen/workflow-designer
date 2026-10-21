@@ -2,6 +2,7 @@
 // _t253-live-url-probe.mjs — read-only probe of the LIVE :8834 gallery URL the
 // operator reported dead. Own isolated headless chromium + fresh profile (G-006);
 // only GETs the served pages, writes nothing server-side.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -16,7 +17,7 @@ function cdp(ws) { const s = new WebSocket(ws); let id = 0; const p = new Map();
 async function ev(cmd, e) { const r = await cmd('Runtime.evaluate', { expression: e, returnByValue: true, awaitPromise: true }); if (r.exceptionDetails) return { __err: JSON.stringify(r.exceptionDetails).slice(0, 500) }; return r.result.value; }
 
 async function main() {
-  const udd = mkdtempSync(join(tmpdir(), 't253probe-udd-'));
+  const udd = makeProfileDir('t253probe-udd-');
   const br = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1400,900', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl;
   try {

@@ -5,6 +5,7 @@
 // asserts halo(r11)+dot(r6, pointer-events:none) structure, then does a REAL hover at a point
 // outside the visible dot but inside the halo and asserts the dot highlights (proving the
 // enlarged zone drives feedback). Screenshots the endpoint region for the READ step. Exit 0=pass.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -37,7 +38,7 @@ async function main() {
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 'ep-udd-'));
+  const udd = makeProfileDir('ep-udd-');
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1200,820', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl; const verdict = { steps: [] };
   const push = (n, p, g) => verdict.steps.push({ step: n, pass: !!p, got: g });

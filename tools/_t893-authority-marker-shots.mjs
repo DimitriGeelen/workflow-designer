@@ -6,6 +6,7 @@
 //   L2  rendering markers mutates nothing: buildBpmnXml before == after (clause 3)
 // Screenshots go to docs/reports/t893-shots/<state>-<size>.png for the task's Visual
 // Verification section. Exit 0 = both legs pass and 9 files written; 2 otherwise.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { readFileSync, existsSync, readdirSync, mkdtempSync, copyFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { tmpdir, homedir } from 'node:os';
@@ -43,7 +44,7 @@ function fixture() {
   const py = spawn('python3', ['-m', 'http.server', String(port), '--bind', '127.0.0.1', '--directory', doc], { stdio: ['ignore', 'ignore', 'ignore'] });
   const BASE = `http://127.0.0.1:${port}`;
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 't893-udd-'));
+  const udd = makeProfileDir('t893-udd-');
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1400,900', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl, rc = 0;
   try {

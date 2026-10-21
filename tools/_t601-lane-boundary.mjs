@@ -35,6 +35,7 @@
 //
 // Usage:  node tools/_t601-lane-boundary.mjs [--self-test]
 // Exit:   0 pass · 1 leg failed · 2 driver/integrity error
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, readdirSync, mkdtempSync, existsSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -137,7 +138,7 @@ const probeExpr = (name, where) => `(function(){ try{
 // DOM rects prove geometry; only a rendered image proves it LOOKS right, so the
 // same harness that measures also photographs, against the same build.
 async function shoot(editorPath, outFile) {
-  const udd = mkdtempSync(join(tmpdir(), 't601-shot-'));
+  const udd = makeProfileDir('t601-shot-');
   const proc = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
     '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let client;
@@ -199,7 +200,7 @@ async function shoot(editorPath, outFile) {
 }
 
 async function probe(editorPath) {
-  const udd = mkdtempSync(join(tmpdir(), 't601-chrome-'));
+  const udd = makeProfileDir('t601-chrome-');
   const proc = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
     '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let client;

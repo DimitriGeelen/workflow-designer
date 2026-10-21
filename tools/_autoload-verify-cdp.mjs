@@ -12,6 +12,7 @@
 //   4. keying: ?load=A → mutate → autosave → reload ?load=A → restored (mutation present);
 //      then load ?load=B (different map) → NOT clobbered by A's autosave (B's id loads)
 // Output: JSON verdict on stdout. Exit 0 = all pass.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -69,7 +70,7 @@ async function nav(cmd, url) { await cmd('Page.navigate', { url }); await waitRe
 
 async function main() {
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 'autoload-verify-'));
+  const udd = makeProfileDir('autoload-verify-');
   const proc = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let stderr = ''; proc.stderr.on('data', d => stderr += d.toString());
   let client; const verdict = { steps: [], pass: false };

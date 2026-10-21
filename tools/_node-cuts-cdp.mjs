@@ -20,6 +20,7 @@
 //
 // Usage:  node tools/_node-cuts-cdp.mjs [map1 map2 ...]
 //         (no args → all rendered/*.bpmn). Consumed by tests/check-corpus-node-cuts.sh.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readFileSync, readdirSync, mkdtempSync, existsSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -131,7 +132,7 @@ async function main() {
     : readdirSync(RENDERED).filter(f => f.endsWith('.bpmn')).sort().map(f => join(RENDERED, f));
 
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 'nodecuts-chrome-'));
+  const udd = makeProfileDir('nodecuts-chrome-');
   const proc = spawn(chrome, [
     '--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
     '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank',

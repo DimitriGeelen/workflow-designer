@@ -21,6 +21,7 @@
 //
 // --src <path> runs against an alternate editor build so a teeth harness can mutate a copy.
 // Exit 0 = all legs pass, 1 = a leg failed, 2 = misconfigured (NOT a pass).
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn, spawnSync } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, mkdirSync, copyFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -184,7 +185,7 @@ async function main() {
 
   const doc = mkdtempSync(join(tmpdir(), 't589-doc-'));
   const repo = mkdtempSync(join(tmpdir(), 't589-repo-'));
-  const udd = mkdtempSync(join(tmpdir(), 't589-udd-'));
+  const udd = makeProfileDir('t589-udd-');
   copyFileSync(EDITOR, join(doc, 'designer.html'));
 
   // The control arm: the editor as it stood BEFORE this task's change. Taken from git

@@ -16,6 +16,7 @@
 //
 // Usage:  node tools/_clean-layout-cdp.mjs [map1 map2 ...]
 //         (no args → all rendered/*.bpmn). Called by tools/bake-clean-layout.py.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readFileSync, readdirSync, mkdtempSync, existsSync, readFile } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -90,7 +91,7 @@ async function main() {
     : readdirSync(RENDERED).filter(f => f.endsWith('.bpmn')).sort().map(f => join(RENDERED, f));
 
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 'bake-chrome-'));
+  const udd = makeProfileDir('bake-chrome-');
   const proc = spawn(chrome, [
     '--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
     '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank',

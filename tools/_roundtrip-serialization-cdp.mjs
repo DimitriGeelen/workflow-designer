@@ -33,6 +33,7 @@
 // Isolation: serves the editor from a TEMP docroot via gallery-serve.py on a free port, and
 // drives it in an ISOLATED headless chromium with its own --user-data-dir — never the shared
 // browser (G-006). Empty/missing fixtures dir ⇒ exit 1, not a vacuous pass (PL-022).
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -1153,7 +1154,7 @@ async function main() {
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 'rt-udd-'));
+  const udd = makeProfileDir('rt-udd-');
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1200,820', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl; const verdict = { fixtures: [] };
   try {

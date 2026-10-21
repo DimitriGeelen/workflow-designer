@@ -21,6 +21,7 @@
 //                        regression ceilings (task-lifecycle 480, promotion-
 //                        pipeline 460, arc-lifecycle 500 vs 620/620/533 before
 //                        the rule; measured 392/376/420 at build)
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -103,7 +104,7 @@ const PROBE = text => `(function(){ try {
 async function main() {
   const maps = readdirSync(RENDERED).filter(f => f.endsWith('.bpmn')).sort();
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 't125-udd-'));
+  const udd = makeProfileDir('t125-udd-');
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl;
   const fails = [];

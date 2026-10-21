@@ -21,6 +21,7 @@
 //
 // Usage:  node tools/_t1069-authority-marker-clearance-cdp.mjs [--self-test]
 // Exit:   0 pass · 1 leg failed · 2 setup broken
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, readdirSync, mkdtempSync, existsSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -82,7 +83,7 @@ const FORCE = (mode) => `(function(){
 async function probe(editorPath) {
   const exe = chrome();
   if (!exe) throw new Error('no Playwright chromium under ~/.cache/ms-playwright');
-  const udd = mkdtempSync(join(tmpdir(), 't1069-'));
+  const udd = makeProfileDir('t1069-');
   const proc = spawn(exe, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
     '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: 'ignore' });
   let ws;

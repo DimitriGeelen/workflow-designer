@@ -4,6 +4,7 @@
 // Navigates an isolated headless Chromium to <base>/designer.html?load=rendered/task-lifecycle.bpmn&instance=<T-XXX>
 // (the base must be a gallery-serve.py instance, so /api/instances is live), asserts the overlay
 // and writes docs/reports/t884-shots/live-<T-XXX>-m.png (element) and live-<T-XXX>-map.png (canvas).
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { readFileSync, existsSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { tmpdir, homedir } from 'node:os';
@@ -20,7 +21,7 @@ async function waitPortFile(f) { const t0 = Date.now(); while (Date.now() - t0 <
 function cdp(ws) { const s = new WebSocket(ws); let id = 0; const p = new Map(); s.addEventListener('message', ev => { const m = JSON.parse(ev.data); if (m.id && p.has(m.id)) { p.get(m.id)(m); p.delete(m.id); } }); const ready = new Promise((res, rej) => { s.addEventListener('open', res); s.addEventListener('error', rej); }); const cmd = (me, pa = {}) => new Promise((res, rej) => { const mid = ++id; p.set(mid, m => m.error ? rej(new Error(me + ': ' + JSON.stringify(m.error))) : res(m.result)); s.send(JSON.stringify({ id: mid, method: me, params: pa })); }); return { ready, cmd, close: () => s.close() }; }
 async function ev(cmd, e) { const r = await cmd('Runtime.evaluate', { expression: e, returnByValue: true, awaitPromise: true }); if (r.exceptionDetails) throw new Error('eval: ' + JSON.stringify(r.exceptionDetails)); return r.result.value; }
 (async () => {
-  const udd = mkdtempSync(join(tmpdir(), 't884-live-udd-'));
+  const udd = makeProfileDir('t884-live-udd-');
   const br = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1600,1000', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let rc = 0;
   try {

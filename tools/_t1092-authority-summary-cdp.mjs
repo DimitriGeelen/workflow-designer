@@ -19,6 +19,7 @@
 //  11  the OFF choice survives a page reload (aefLabelPrefs), and the box is unticked
 //   node tools/_t1092-authority-summary-cdp.mjs [--designer PATH]   (the unchanged designer must FAIL)
 // Exit 0 = pass; 1 = assertion failed; 2 = misconfig.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, mkdirSync, copyFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -67,7 +68,7 @@ async function main() {
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
-  const udd = mkdtempSync(join(tmpdir(), 't1092-udd-'));
+  const udd = makeProfileDir('t1092-udd-');
   const br = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1400,900', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   const legs = []; const leg = (ok, name, detail) => legs.push({ ok: !!ok, name, detail });
   let cl;

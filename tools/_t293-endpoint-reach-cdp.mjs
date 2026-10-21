@@ -24,6 +24,7 @@
 // TEETH: against the pre-T-293 editor, legs 2 and 3 fail with the exact field
 // symptoms (3/4 centres resolve to node-shape, 1/4 to a port dot; the e2e drag
 // leaves edge.target unchanged).
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readFileSync, readdirSync, mkdtempSync, existsSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -90,7 +91,7 @@ function leg(name, ok, detail) {
 
 async function main() {
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 't293-leg-'));
+  const udd = makeProfileDir('t293-leg-');
   const proc = spawn(chrome, [
     '--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
     '--remote-debugging-port=0', `--user-data-dir=${udd}`, '--window-size=1600,1000', 'about:blank',

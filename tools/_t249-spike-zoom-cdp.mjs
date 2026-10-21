@@ -17,6 +17,7 @@
 // chromium with its own user-data-dir. Real trusted input via CDP Input.dispatchMouseEvent
 // (G-003: real hit-testing, not synthetic dispatchEvent).
 // Exit 0 = spike ran (verdict JSON on stdout, pass/fail per probe); 2 = misconfig.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, copyFileSync, mkdirSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -132,7 +133,7 @@ async function main() {
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 't249-udd-'));
+  const udd = makeProfileDir('t249-udd-');
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1200,820', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl; const verdict = { probes: [], pass: false };
   const probe = (name, pass, got) => { verdict.probes.push({ probe: name, pass: !!pass, got }); };

@@ -21,6 +21,7 @@
 //   exactly the ids the designer exports; any map with a renamed id is red (the corpus drifted from the
 //   designer's numbering, or the numbering changed again without a migration).
 // Exit 0 = every map's ids consistent (and, with --check, none renamed). 1 = not. 2 = harness could not run.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -98,7 +99,7 @@ async function main() {
   const port = await freePort();
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
   const BASE = `http://127.0.0.1:${port}`;
-  const udd = mkdtempSync(join(tmpdir(), 't1168m-udd-'));
+  const udd = makeProfileDir('t1168m-udd-');
   const br = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl; const result = { maps: {}, notPure: [] };
   try {

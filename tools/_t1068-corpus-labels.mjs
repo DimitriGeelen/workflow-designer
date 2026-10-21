@@ -24,6 +24,7 @@
 //
 // Usage:  node tools/_t1068-corpus-labels.mjs [--self-test]
 // Exit:   0 pass · 1 leg failed · 2 driver/integrity error
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, readdirSync, mkdtempSync, existsSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -74,7 +75,7 @@ const measure = (mode) => `(function(){
 async function probe(editorPath, modes = ['orig', 'start', 'all']) {
   const exe = chrome();
   if (!exe) throw new Error('no Playwright chromium under ~/.cache/ms-playwright');
-  const udd = mkdtempSync(join(tmpdir(), 't1068-corpus-'));
+  const udd = makeProfileDir('t1068-corpus-');
   const proc = spawn(exe, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
     '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'],
     // T-1183: Chromium's own org.chromium.Chromium.* temp folder lands inside the profile, so it goes with it

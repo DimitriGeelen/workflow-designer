@@ -18,6 +18,7 @@
 //   L6  the settings controls show the stored prefs on load (reviewer side finding), current editor only
 //   --shots DIR  also saves element screenshots of the label at sizes S/M/L, wrap on and off (visual check)
 // exit 0 = all legs pass; 1 = a leg failed; 2 = CANNOT RUN
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn, execFileSync } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -66,7 +67,7 @@ const probe = (name, wrap) => `(function(){ try {
 
 let shotsDir = null;
 async function measure(editorPath, tag) {
-  const udd = mkdtempSync(join(tmpdir(), 't1067-'));
+  const udd = makeProfileDir('t1067-');
   const br = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1600,1000',
     '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: 'ignore' });
   let ws;

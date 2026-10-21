@@ -43,6 +43,7 @@
 // store, or shared browser. localStorage is cleared between legs (T-237 verify
 // lesson: autosave restore masks fresh-fetch behavior otherwise).
 // Exit 0 = all legs pass; 1 = a leg failed; 2 = misconfig (missing editor/server).
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, mkdirSync, copyFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -379,7 +380,7 @@ async function main() {
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 'ebv-udd-'));
+  const udd = makeProfileDir('ebv-udd-');
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1200,820', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl; const verdict = { legs: [], pass: false };
   try {

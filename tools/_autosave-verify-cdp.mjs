@@ -10,6 +10,7 @@
 //   3. reload → assert the #restore-nudge banner appears; click Restore
 //      → assert the document came back (node count > 0, same id)
 // Output: JSON verdict on stdout. Exit 0 = all pass.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -64,7 +65,7 @@ async function waitReady(cmd) {
 
 async function main() {
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 'autosave-verify-'));
+  const udd = makeProfileDir('autosave-verify-');
   const proc = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let stderr = ''; proc.stderr.on('data', d => stderr += d.toString());
   let client; const verdict = { steps: [], pass: false };

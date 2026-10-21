@@ -3558,6 +3558,19 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1247: every CDP harness makes its Chrome profile dir with the shared helper (removed on signals, swept after SIGKILL) ──
+# A load run left 548 /tmp/nodecuts-chrome-* dirs (1.9 GB): `finally` never runs on a signal. Red when a harness
+# calls mkdtempSync for --user-data-dir itself; the test also kills a node process both ways and looks for leftovers.
+if bash "$ROOT/tools/_t1247-profile-census.sh" > "$TMP/leg-_t1247-census.out" 2>&1 \
+   && bash "$ROOT/tests/test_t1247_cdp_profile.sh" > "$TMP/leg-_t1247-test.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a CDP harness makes its Chrome profile dir without tools/_cdp-profile.mjs, or the helper no longer removes the dir on SIGTERM / sweeps a dead owner's dir (run 'bash tools/_t1247-profile-census.sh' and 'bash tests/test_t1247_cdp_profile.sh'; T-1247)"
+  show_output "$TMP/leg-_t1247-census.out" "_t1247-profile-census.sh"
+  show_output "$TMP/leg-_t1247-test.out" "test_t1247_cdp_profile.sh"
+  fail=$((fail + 1))
+fi
+
 echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

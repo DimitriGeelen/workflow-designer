@@ -42,6 +42,7 @@
 //
 // --src <path> / --bridge <path> run against alternate builds so the teeth harness can mutate
 // copies in a tmpdir. Exit 0 = all legs pass, 1 = a leg failed, 2 = misconfigured (NOT a pass).
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn, execFileSync } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, mkdirSync, copyFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -142,7 +143,7 @@ async function ev(cmd, e) { const r = await cmd('Runtime.evaluate', { expression
 if (!existsSync(EDITOR)) die('missing editor ' + EDITOR);
 if (!existsSync(SERVER)) die('missing server ' + SERVER);
 
-const doc = mkdtempSync(join(tmpdir(), 'd572-')), repoDir = mkdtempSync(join(tmpdir(), 'r572-')), udd = mkdtempSync(join(tmpdir(), 'u572-'));
+const doc = mkdtempSync(join(tmpdir(), 'd572-')), repoDir = mkdtempSync(join(tmpdir(), 'r572-')), udd = makeProfileDir('u572-');
 let py = null, br = null, cl = null;
 try {
   copyFileSync(EDITOR, join(doc, 'designer.html'));

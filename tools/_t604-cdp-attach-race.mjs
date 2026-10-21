@@ -10,6 +10,7 @@
 // what the helper believes about itself.
 //
 // Usage:  node tools/_t604-cdp-attach-race.mjs [--self-test] [--soak N]
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, readdirSync, existsSync, mkdtempSync, mkdirSync, copyFileSync } from 'node:fs';
@@ -73,7 +74,7 @@ async function realAttach(rounds) {
   const chrome = findChrome();
   let ok = 0; const fails = [];
   for (let i = 0; i < rounds; i++) {
-    const udd = mkdtempSync(join(tmpdir(), 't604-real-'));
+    const udd = makeProfileDir('t604-real-');
     const proc = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu',
       '--disable-dev-shm-usage', '--remote-debugging-port=0', '--user-data-dir=' + udd, 'about:blank'],
       { stdio: ['ignore', 'ignore', 'ignore'] });

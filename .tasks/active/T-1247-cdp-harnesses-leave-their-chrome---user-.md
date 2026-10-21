@@ -43,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T11:03:34Z
-last_update: 2026-10-21T11:54:53Z
+last_update: 2026-10-21T13:41:38Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -91,12 +91,12 @@ dimitri-mint-dev (msg 4c247fce-7a09, 2026-10-21) found 548 `/tmp/nodecuts-chrome
 ## Acceptance Criteria
 
 ### Agent
-- [ ] One shared helper (`tools/_cdp-profile.mjs`) makes the profile dir, writes the owner pid into it, and
+- [x] One shared helper (`tools/_cdp-profile.mjs`) makes the profile dir, writes the owner pid into it, and
   removes it on normal exit, on an uncaught error and on SIGINT/SIGTERM/SIGHUP (Chrome killed first, then the dir).
   At startup it removes stale dirs with its own prefix whose owner pid is dead, which covers SIGKILL.
-- [ ] Every harness under `tools/` that calls `mkdtempSync` for a Chrome `--user-data-dir` uses the helper
+- [x] Every harness under `tools/` that calls `mkdtempSync` for a Chrome `--user-data-dir` uses the helper
   (a census script lists any that do not, and the suite runs it).
-- [ ] A test proves it: a harness killed with SIGTERM leaves no profile dir; one killed with SIGKILL leaves one,
+- [x] A test proves it: a harness killed with SIGTERM leaves no profile dir; one killed with SIGKILL leaves one,
   and the next start removes it; a bite control (helper's cleanup disabled) turns the test red.
 - [ ] Operator job removes the leaked `/tmp/nodecuts-chrome-*` dirs and the empty `org.chromium.Chromium.*`
   dirs from the same window, skipping any dir a running process still uses; dimitri-mint-dev is told the result.
@@ -148,6 +148,16 @@ dimitri-mint-dev (msg 4c247fce-7a09, 2026-10-21) found 548 `/tmp/nodecuts-chrome
 -->
 
 ## Verification
+
+bash tools/_t1247-profile-census.sh
+bash tests/test_t1247_cdp_profile.sh
+bash -n tests/run-bridge-tests.sh
+node tools/_node-cuts-cdp.mjs > /dev/null
+node tools/_t1243-io-children-cdp.mjs > /dev/null
+# Evidence (agent, 2026-10-21): 122 harnesses migrated via a scripted one-line swap
+# (udd = mkdtempSync(join(tmpdir(), 'p-')) -> makeProfileDir('p-') + one import); census 122/0 offenders; test 10 legs ok
+# (SIGTERM, SIGINT+registerChrome, SIGKILL then sweep, live/ownerless dirs kept, bite control);
+# _node-cuts-cdp, _editor-behavior-verify-cdp, _t1243-io-children-cdp all rc=0 and left no new profile dir.
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.

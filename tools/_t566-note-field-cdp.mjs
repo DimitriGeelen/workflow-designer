@@ -23,6 +23,7 @@
 //
 // --src <path> runs against an alternate editor build so the teeth harness can mutate a copy
 // in a tmpdir. Exit 0 = all legs pass, 1 = a leg failed, 2 = misconfigured (NOT a pass).
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, mkdirSync, copyFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -130,7 +131,7 @@ async function main() {
 
   const doc = mkdtempSync(join(tmpdir(), 't566-doc-'));
   const repo = mkdtempSync(join(tmpdir(), 't566-repo-'));
-  const udd = mkdtempSync(join(tmpdir(), 't566-udd-'));
+  const udd = makeProfileDir('t566-udd-');
   copyFileSync(EDITOR, join(doc, 'designer.html'));
   mkdirSync(join(doc, 'rendered'), { recursive: true });
   writeFileSync(join(doc, 'rendered', 't566.bpmn'), FIXTURE);

@@ -30,6 +30,7 @@
 // --user-data-dir — never the shared browser (G-006). The editor is loaded from a temp docroot via
 // gallery-serve.py only to obtain a live editor runtime; no fixture is served.
 // Exit 0 = all workflows clean. Exit 1 = a drop/drift. Exit 2 = self-test failed (guard vacuous).
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn, spawnSync } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -147,7 +148,7 @@ async function main() {
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
   const BASE = `http://127.0.0.1:${port}`;
   const chrome = findChrome();
-  const udd = mkdtempSync(join(tmpdir(), 'seam-udd-'));
+  const udd = makeProfileDir('seam-udd-');
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1200,820', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl; const verdict = { workflows: [] };
   try {

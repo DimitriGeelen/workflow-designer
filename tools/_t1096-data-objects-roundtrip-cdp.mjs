@@ -7,6 +7,7 @@
 //   every *Ref in the export resolves to an id present in it (nothing dangling).
 //   node tools/_t1096-data-objects-roundtrip-cdp.mjs [--designer PATH]
 // Exit 0 = pass; 1 = something was dropped or dangles; 2 = misconfig.
+import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, mkdirSync, copyFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -52,7 +53,7 @@ async function main() {
   const port = await freePort();
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
   const BASE = `http://127.0.0.1:${port}`;
-  const udd = mkdtempSync(join(tmpdir(), 't1096-udd-'));
+  const udd = makeProfileDir('t1096-udd-');
   const br = spawn(findChrome(), ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1400,900', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   const legs = []; const leg = (ok, name, detail) => legs.push({ ok: !!ok, name, detail });
   let cl;
