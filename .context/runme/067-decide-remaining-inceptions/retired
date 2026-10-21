@@ -1,0 +1,1 @@
+Steps 1-4 ran (T-279, T-280, T-282, T-1213 GO recorded); step 5 (T-498 NO-GO) failed when T-498's status reverted to captured mid-decide; job 068 finishes T-498 and commits all five.
