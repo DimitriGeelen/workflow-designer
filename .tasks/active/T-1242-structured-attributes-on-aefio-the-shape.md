@@ -215,13 +215,18 @@ We will know that we are successful when we see <measurable signal>.
 
 **Rationale:**
 
-Evidence not gathered yet: the shape (aef: nested attributes vs BPMN 2.0 itemDefinition/structureRef to a schema) needs external cross-vendor advice (operator asked for it), AEF's view as owner of the mapping standard (its v1.1, AEF T-4415) and aef-greenfield-test's maps as the first producer. Today aef:input carries name/type/required and aef:output name/type, flat types only (string, list, ref, task_id).
+Updated 2026-10-21: the evidence is in, and only AEF's operator ruling in T-4415 (attribute names, v1.1 placement)
+is open. All inputs converge on referenced named types leading: an optional `typeRef`/`schemaRef` on
+`aef:input`/`aef:output` pointing at a named, versioned type, `sourceSystem`/`targetSystem` as system-catalogue
+references with an optional step default, flat `name`/`type` still valid, inline grammar only as a fallback. Stays
+DEFER until T-4415 is ruled; the operator asked to prioritise it (2026-10-21), so AEF was asked to move T-4415 up
+and whether the designer side may be built against the addendum's names ahead of the ruling.
 
 **Evidence:**
-
-<!-- Add evidence bullets as exploration progresses (file paths,
-     commit hashes, test results). The filing-time recommendation
-     can be revised before fw inception decide. -->
+- External advice (Codex, GLM-5.3), greenfield's view, AEF's view and synthesis: `docs/reports/T-1242-structured-io-attributes.md`.
+- AEF msg 9fb1413f (T-4415 IW-1 addendum 752932d2a): referenced named types lead, inline is the fallback.
+- Preservation, independent of the ruling: unknown aef: attributes kept (T-1220, done); unknown child elements of
+  aef:io kept through a save (T-1243, built); AEF's intake keeps them too (AEF T-4518).
 
 ## Decisions
 
