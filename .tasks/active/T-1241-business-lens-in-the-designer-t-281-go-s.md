@@ -363,6 +363,43 @@ independent read is the `[REVIEW]` criterion.
 Notes: at 1024 the map fits small (fit zoom), the id captions' absence is visible only at 1440/1920. The panel's Lane
 select still lists lane ids (`agent`) in every lens: a lane id is the lane's name here, left as is for slice 1.
 
+### Toolbar fit (2026-10-21)
+
+The lens select wrapped the 1920 header to two rows (`_t1176` leg "1920px: one 48px row" got 77). Fix in
+`src/aef-workflow-designer.html`: options show the lens name only ("All", "Business" …, no "Lens: " prefix) behind
+a 12px half-filled lens icon (`<label for="lens-select">`, aria-hidden; the select keeps aria-label and title
+"Audience lens"); a drawn 8px chevron instead of the native arrow; `#instancePicker` loses its extra 8px left margin;
+header gap 6px → 4px. No control removed or hidden, no font smaller. Width won at 1920 with the real lens list
+(widest option "Technical"): lens group 113 → 89 px, 8 px margin, ~46 px of gaps = ~78 px; the row now ends at 1906
+with 15 px to spare (35+ px when the server has no lens definition, as in the `_t1176` harness).
+
+Screenshots `docs/reports/T-1241-evidence/toolbar-fit-<width>-lens<all|business>.png` (real lens definition served),
+read control by control:
+
+| shot | checked |
+|------|---------|
+| 1920-lensall | ONE row: brand, version, fault dot, Open project, Pending refs, +, instances: unavailable, zoom − fit + ⤢, ◧ ◨ ⛶, lens icon + "All" ▾, Add Lane, Reset, Clean layout, View XML, Settings, Load, Check, Versions, Save to project, Save — all fully visible, none clipped or overlapping, Save ends at x=1906, inside the 14 px padding |
+| 1920-lensbusiness | same one row with "Business" ▾ (select is sized to "Technical", so no shift between lenses); lens icon legible (checked at 5× zoom) |
+| 1440-lensall / -lensbusiness | row 1 to View XML with the lens group after the view group; row 2 Settings … Save; nothing clipped; label and select never split |
+| 1024-lensall / -lensbusiness | row 1 to the view group, row 2 starts with the lens icon + select, then Add Lane … Save; all inside 1024; icon stays with its select |
+
+Not shot: the lens select open — a native `<select>` popup is not drawn in a headless CDP screenshot. Not
+re-measured: the Watchtower inline frame (1894 px at a 1920 screen) with the lens definition served is 26 px narrower,
+so with 15 px to spare at 1920 it is ~11 px short there and Save may still wrap to row 2 (estimate, not shot); `_t1176` (21/21) and `_t1241` (ok) pass.
+
+**Inline frame, measured (orchestrator, 2026-10-21).** With the lens definition served, the header at 1894 px was 75 px
+(two rows), confirming the estimate. Fix: the instance picker's unavailable label `instances: unavailable` →
+`instances: n/a` (~45 px; the picker's title still explains the overlay; `_t884` L6 updated, 6/6). Measured after, real
+lens list: 1894 px → 48 (one row), 1920 → 48, 1440 → 75 and 1024 → 75 (two rows, as before the lens; `_t1176` checks
+only reach there and passes). Shots `docs/reports/T-1241-evidence/toolbar-fit-n-a-<1024|1440|1894|1920>-lensall.png`:
+
+| shot | checked |
+|------|---------|
+| n-a-1894-lensall | ONE row at the inline width: brand, version, Open project, Pending refs, +, instances: n/a, − fit +, ⤢ ◧ ◨ ⛶, lens icon + "All", Add Lane, Reset, Clean layout, View XML, Settings, Load, Check, Versions, Save to project, Save; nothing clipped or overlapping |
+| n-a-1920-lensall | one row, same controls, more spare space before Save |
+| n-a-1440-lensall | two rows, every control present, none clipped |
+| n-a-1024-lensall | two rows: row 1 brand … view group + lens icon + "All"; row 2 Add Lane … Save; all inside 1024 |
+
 ## Recommendation
 
 <!-- T-2945: same shape as inception.md's block — the gate that reads it

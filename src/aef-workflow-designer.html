@@ -190,7 +190,8 @@ font-family: 'Outfit';
     justify-content: flex-start;
     min-height: 48px;
     box-sizing: border-box;
-    gap: 6px;   /* 8px left the inline frame at 1920 (1894px wide) one Save button short of a single row */
+    gap: 4px;   /* 8px left the inline frame at 1920 (1894px wide) one Save button short of a single row; 6px again once
+                   the T-1241 lens select arrived (T-1241 toolbar fit) */
     padding: 6px 14px;
     background: linear-gradient(180deg, #15192266 0%, transparent 100%), var(--surface);
     border-bottom: 1px solid var(--border);
@@ -308,7 +309,11 @@ font-family: 'Outfit';
   .tb-group { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
   .tb-group-zoom { margin-left: auto; }
   /* T-1241: lens switch, one group like zoom and view so a narrow window never splits label from select */
-  #lens-select { font-size: 12px; background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 3px 4px; }
+  /* Compact (toolbar fit): a half-filled lens icon and the lens name instead of "Lens: Technical", and a small drawn chevron instead
+     of the native arrow; aria-label and title still say "Audience lens". */
+  .tb-group-lens { gap: 3px; }
+  .lens-glyph { color: var(--text-dim); cursor: pointer; display: inline-flex; }
+  #lens-select { font-size: 12px; background: var(--surface-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%238b91a3'/%3E%3C/svg%3E") no-repeat right 5px center; color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 3px 16px 3px 5px; appearance: none; -webkit-appearance: none; cursor: pointer; }
   header .btn, header .btn-icon { white-space: nowrap; }   /* T-1176: "Pending refs…" wrapped to 2 lines and overflowed */
   .btn {
     font-family: var(--sans);
@@ -700,7 +705,7 @@ font-family: 'Outfit';
   /* The badge sits above the top-right corner, where incoming edges cross; a surface-coloured pill
      under the text keeps it legible over an edge line (read in the T-884 screenshots, not measured). */
   .node-instance-pill { fill: var(--surface); stroke: var(--border-strong); stroke-width: .5px; pointer-events: none; }
-  #instancePicker { margin-left: 8px; font-size: 12px; max-width: 260px; background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 1px 4px; }
+  #instancePicker { font-size: 12px; max-width: 260px; background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 1px 4px; }
   /* T-355: the real tag of a foreign (out-of-allowlist) flow node, drawn above the shape.
      Mono because it is a literal from the source document, not prose; --text-dim rather
      than --text-faint so it stays legible — this is the one mark that says what the
@@ -1422,7 +1427,7 @@ font-family: 'Outfit';
       </span>
       <!-- T-1241: audience lens — business / logical / technical / all. Narrows the side panel, the details view and
            the canvas decoration at once; a view only, saved bytes never change. Options come from /api/lens-definition. -->
-      <span class="tb-group tb-group-lens"><select id="lens-select" aria-label="Audience lens" title="Audience lens: which fields and canvas decorations you see. A view only — the saved map never changes."><option value="all">Lens: All</option></select></span>
+      <span class="tb-group tb-group-lens"><label for="lens-select" class="lens-glyph" aria-hidden="true" title="Audience lens"><svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6 1a5 5 0 0 1 0 10z" fill="currentColor"/></svg></label><select id="lens-select" aria-label="Audience lens" title="Audience lens: which fields and canvas decorations you see. A view only — the saved map never changes."><option value="all">All</option></select></span>
       <button class="btn" id="btn-add-lane">+ Add Lane</button>
       <button class="btn" id="btn-reset">Reset</button>
       <button class="btn" id="btn-clean" title="Tidy + branch pitch + align rows on every lane — one click, Ctrl+Z reverts">✨ Clean layout</button>
@@ -6727,7 +6732,7 @@ function renderLensSelect() {
   sel.innerHTML = '';
   for (const n of names.concat(['all'])) {
     const o = document.createElement('option');
-    o.value = n; o.textContent = 'Lens: ' + (n === 'all' ? 'All' : ((_lensDef.lenses[n] || {}).label || n));
+    o.value = n; o.textContent = (n === 'all' ? 'All' : ((_lensDef.lenses[n] || {}).label || n));
     sel.appendChild(o);
   }
   if (_lensName !== 'all' && !names.includes(_lensName)) _lensName = 'all';
@@ -10669,7 +10674,9 @@ function renderInstancePicker() {
   sel.innerHTML = '';
   const opt = (value, label, selected) => { const o = document.createElement('option'); o.value = value; o.textContent = label; if (selected) o.selected = true; sel.appendChild(o); };
   const v = instanceView;
-  if (v.available === false) opt('', 'instances: unavailable', !v.selected);
+  // T-1241: 'n/a', not 'unavailable': the 45 px it saves keep the header one row in the 1894 px inline frame with the
+  // lens select added; the picker's title still says what the overlay is and why it can be absent.
+  if (v.available === false) opt('', 'instances: n/a', !v.selected);
   else if (v.available === null) opt('', 'instances: loading…', !v.selected);
   else if (!v.instances.length) opt('', 'instances: none for ' + (v.template || 'this map'), !v.selected);
   else opt('', 'instance: none (' + v.instances.length + ' on ' + (v.template || 'this map') + ')', !v.selected);

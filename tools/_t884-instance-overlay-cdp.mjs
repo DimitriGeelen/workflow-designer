@@ -10,7 +10,7 @@
 //   L3  WRITES NOTHING: buildBpmnXml and every node's aef bag byte-identical before / with / after
 //   L4  deselect -> zero [data-instance]; select an unknown id -> "instance not found" option, zero overlay
 //   L5  refusal on the current node keeps data-instance="current" AND draws the refused badge (second fixture instance)
-//   L6  endpoint absent (second doc root without api/instances) -> picker reads "instances: unavailable",
+//   L6  endpoint absent (second doc root without api/instances) -> picker reads "instances: n/a" (was "unavailable"; shortened by T-1241 for the header width),
 //       zero overlay, g.node count == state.nodes.length
 // Screenshots (element-level, scale 2): docs/reports/t884-shots/<state>-<s|m|l>.png (12) + picker.png.
 // Exit 0 = all legs pass; 2 otherwise.
@@ -147,8 +147,8 @@ const COUNTS = `({ current: document.querySelectorAll('g.node[data-instance="cur
     await waitReady(cmd); await waitOverlayLoaded(cmd);
     const c6 = await ev(cmd, COUNTS);
     const p6 = await ev(cmd, `(() => { const s = document.getElementById('instancePicker'); return { available: instanceView.available, text: s.options[s.selectedIndex].textContent, n: s.options.length, notFound: instanceView.notFound }; })()`);
-    leg('L6', 'endpoint absent: picker reads "instances: unavailable", zero overlay, every node still drawn',
-        p6.available === false && p6.text === 'instances: unavailable' && c6.any === 0 && c6.nodes === c6.stateNodes && c6.nodes > 0,
+    leg('L6', 'endpoint absent: picker reads "instances: n/a", zero overlay, every node still drawn',
+        p6.available === false && p6.text === 'instances: n/a' && c6.any === 0 && c6.nodes === c6.stateNodes && c6.nodes > 0,
         JSON.stringify({ c6, p6 }));
 
     rc = legs.every(l => l.ok) ? 0 : 2;
