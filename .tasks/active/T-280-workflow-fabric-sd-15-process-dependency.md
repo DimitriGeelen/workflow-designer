@@ -6,15 +6,16 @@ description: >
   phase with 832 ratification touchpoints, or retiring. Evidence: docs/proposals/aef-workflow-process-layer-2026-07-02/INSTRUCTIONS
   §2.6 incl. WF-A..E.
 
-status: captured
+status: started-work
 workflow_type: inception
+current_node: frw_1_start
 owner: human
-horizon: next
+horizon: now
 tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
 created: 2026-07-28T14:52:45Z
-last_update: 2026-10-19T10:09:52Z
+last_update: 2026-10-21T09:20:55Z
 date_finished:
 revisit_at: 2026-12-01
 revisit_evidence_needed: "A real cross-process query nobody can answer - e.g. which processes break if this one changes"
@@ -81,9 +82,14 @@ cost_estimate_proposed:
 
 <!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
 
-We believe that workflow Fabric (SD-15): process-dependency graph — revive or retire,
-we will achieve Inception: decide whether SD-15 Workflow Fabric is worth reviving as an AEF-side phase with 832 ratification touchpoints, or retiring.
-We will know that we are successful when we see [NEEDS YOU: name something a person could go and look at — a count, a threshold, a named check, or a state that would visibly change].
+We believe that a Workflow Fabric (package SD-15: a queryable graph of how processes depend on each other: flow,
+call, handoff and link edges between maps, keyed on the uid/addressing conventions already frozen in mapping-v1),
+we will achieve answers to cross-process questions nobody can answer today (what calls this map, what breaks if it
+changes, which processes a role carries).
+We will know that we are successful when we see, on 832's corpus, a query that lists for a named map every map it
+calls, hands off to, links to or is called by, matching a hand count of those edges with 0 missing and 0 extra, and
+the same query answered by AEF's side once it serves the graph, which is mostly theirs (agent-drafted first slice from
+the package spec, for the operator's GO per PD-400).
 
 ## Assumptions
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-XXX -->
@@ -105,6 +111,11 @@ We will know that we are successful when we see [NEEDS YOU: name something a per
      §Disposition Gate. Bypass: --skip-disposition-gate "rationale" (direct) or
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
+
+- **IW-1: Which side builds the graph, and what is 832's part?**
+  confidence: 2
+  disposition: answered
+  rationale: the graph is AEF-side, a peer of their Component Fabric (Rationale; AEF's conformance registry T-2654 covers only a narrow slice); 832's part is the edge data the maps already carry (call/link/handoff via frozen uids) plus the hand-counted corpus fixture the success clause checks; the build starts by raising the slice with AEF.
 
 ## Exploration Plan
 
@@ -212,3 +223,7 @@ We will know that we are successful when we see [NEEDS YOU: name something a per
 
 ### 2026-10-19T10:09:52Z — status-update [task-update-agent]
 - **Change:** horizon: later → next
+
+### 2026-10-21T09:20:55Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

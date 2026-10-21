@@ -7,18 +7,21 @@ description: >
   arc phase or formally retired. Evidence base: docs/proposals/aef-workflow-process-layer-2026-07-02/INSTRUCTIONS
   §0.3, §2.4 mode-gating rules, §3.2, Locks 3/6, V7.
 
-status: captured
+status: started-work
 workflow_type: inception
+current_node: frw_1_start
 owner: human
-horizon: next
+horizon: now
 tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
 created: 2026-07-28T14:52:30Z
-last_update: 2026-10-19T10:09:51Z
+last_update: 2026-10-21T09:19:38Z
 date_finished:
 revisit_at: 2026-09-15
-revisit_evidence_needed: "Operator decision to raise the enforcement ladder with AEF, or a third instance of a prose process being re-interpreted and a fix not locking in"
+revisit_evidence_needed: "Operator decision to raise the enforcement ladder with AEF,
+  or a third instance of a prose process being re-interpreted and a fix not locking
+  in"
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -60,6 +63,28 @@ bvp_scores_proposed:
       (no-signal); F-RECALL=2 (no-signal); F2=2 (no-signal); F4=2 (no-signal); 
       F3=2 (no-signal); F1=2 (no-signal)
     rubric_sha: e4a00f38e801
+  - ts: '2026-10-21T09:19:39Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 3
+      D2: 3
+      D3: 3
+      D4: 3
+      F-RECALL: 3
+      F2: 3
+      F4: 3
+      F3: 3
+      F1: 3
+    rationale: D1=3 (voi:decision-with-alternatives~'go/no-go'); D2=3 
+      (voi:decision-with-alternatives~'go/no-go'); D3=3 
+      (voi:decision-with-alternatives~'go/no-go'); D4=3 
+      (voi:decision-with-alternatives~'go/no-go'); F-RECALL=3 
+      (voi:decision-with-alternatives~'go/no-go'); F2=3 
+      (voi:decision-with-alternatives~'go/no-go'); F4=3 
+      (voi:decision-with-alternatives~'go/no-go'); F3=3 
+      (voi:decision-with-alternatives~'go/no-go'); F1=3 
+      (voi:decision-with-alternatives~'go/no-go')
+    rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-08-16T13:57:12Z'
     estimator: bvp-estimator-v1-heuristic
@@ -82,9 +107,14 @@ cost_estimate_proposed:
 
 <!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
 
-We believe that guided-mode procedural guardrail (package P3, Locks 3+6): revive or retire,
-we will achieve Inception: decide whether the package's enforcement half (P3 guided mode + procedural guardrails, INSTRUCTIONS §0.3/§3.1.4/Locks 3+6) should be revived as a joint 832/AEF arc phase or formally retired.
-We will know that we are successful when we see [NEEDS YOU: name something a person could go and look at — a count, a threshold, a named check, or a state that would visibly change].
+We believe that a guided-mode guardrail (package P3, Locks 3+6: a map declares its enforcement level advisory /
+guided / strict; a task bound to the map can advance only along its flow, and in guided/strict only once the step's
+required inputs are set),
+we will achieve processes that lock in as modelled instead of being re-interpreted each run (the P4 diagnosis).
+We will know that we are successful when we see, on one bound map in guided mode, 0 of 5 attempted advances past a
+step with a required input unset succeed while 5 of 5 succeed once it is set; the designer round-trip the enforcement
+level with 0 bytes changed; and AEF ship the runtime half (bind/advance), which is mostly theirs (agent-drafted first
+slice from the package spec, for the operator's GO per PD-400).
 
 ## Assumptions
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-XXX -->
@@ -106,6 +136,11 @@ We will know that we are successful when we see [NEEDS YOU: name something a per
      §Disposition Gate. Bypass: --skip-disposition-gate "rationale" (direct) or
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
+
+- **IW-1: Who builds the runtime half (enforcement ladder, bind/advance, caged instance state)?**
+  confidence: 2
+  disposition: answered
+  rationale: AEF (verified absent in AEF v1.6.763, no workflow verb family; the surface is mostly AEF-side per the Rationale); the build starts by raising the slice with AEF; 832 builds the designer side (the enforcement level on the map, round-trip, display).
 
 ## Exploration Plan
 
@@ -234,3 +269,7 @@ Scope: `docs/reports/arc-005-process-instances-scope.md` §3 S2/S3 and §5.
 
 ### 2026-10-19T10:09:51Z — status-update [task-update-agent]
 - **Change:** horizon: later → next
+
+### 2026-10-21T09:19:38Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

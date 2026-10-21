@@ -7,15 +7,16 @@ description: >
   editor, mapping-v1, and tools/validate-workflow.py. Evidence: docs/proposals/aef-workflow-process-layer-2026-07-02/INSTRUCTIONS
   §2.1/§2.3, EVALUATION §4 gap list.
 
-status: captured
+status: started-work
 workflow_type: inception
+current_node: frw_1_start
 owner: human
 horizon: now
 tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
 created: 2026-07-28T14:53:00Z
-last_update: 2026-10-19T10:09:51Z
+last_update: 2026-10-21T09:15:45Z
 date_finished:
 revisit_at: 2026-12-01
 revisit_evidence_needed: "A corpus map or AEF compile case needing call-with-return semantics that link events cannot express"
@@ -96,9 +97,13 @@ AEF (msg 705e7d58, conversation `832-roadmap-arcs-4-6`):
 
 <!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
 
-We believe that callActivity node type (SD-9): sync sub-workflow call with ioMapping,
-we will achieve Inception: decide whether to ratify and build the callActivity node type per package SD-9/§2.3 (calledWorkflow resolution, ioMapping contracts, acyclicity) into the editor, mapping-v1, and tools/validate-workflow.py.
-We will know that we are successful when we see [NEEDS YOU: name something a person could go and look at — a count, a threshold, a named check, or a state that would visibly change].
+We believe that a round-trip `callActivity` (slice 1 of `docs/reports/T-282-callactivity.md`: `calledElement`, the
+`aef:ioMapping` in/out and the `aef:callRef` identity, drawn and editable, double-click jumps to the callee),
+we will achieve one place where an author refines a business step into a technical sub-workflow, with no second copy
+of the process.
+We will know that we are successful when we see at least 1 real caller/callee map pair round-trip through the
+designer and AEF's intake with 0 bytes changed and 0 refusals, the double-click jump open the callee, and the
+mapping shown in the panel (agent's wording from the report's draft, for the operator's GO per PD-400).
 
 ## Assumptions
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-XXX -->
@@ -120,6 +125,23 @@ We will know that we are successful when we see [NEEDS YOU: name something a per
      §Disposition Gate. Bypass: --skip-disposition-gate "rationale" (direct) or
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
+
+- **IW-1: How is the called map named: C (corpus id + uuid) or AEF's A?**
+  confidence: 3
+  disposition: answered
+  rationale: C, accepted by AEF with aef:callRef as a sibling of aef:ioMapping (AEF msg bddf222c, their T-4374); report §Design tension.
+- **IW-2: Who validates (resolution, mapping names, acyclicity): the designer, the Python validator, or both?**
+  confidence: 2
+  disposition: answered
+  rationale: both, in parity, as for every other rule (YAML/XML forms); slices 2-3 of the report.
+- **IW-3: Who is the first user, the caller/callee pair the success clause names?**
+  confidence: 1
+  disposition: answered
+  rationale: chosen in the slice-1 build from the operator's onboarding routes or 832's 21 link-event maps (a step that waits for a result); the success clause requires at least 1 real pair.
+- **IW-4: Expressions in mappings?**
+  confidence: 3
+  disposition: answered
+  rationale: none in v1 (AEF's position, accepted; report §Open questions).
 
 ## Exploration Plan
 
@@ -227,3 +249,6 @@ We will know that we are successful when we see [NEEDS YOU: name something a per
 
 ### 2026-10-19T10:09:51Z — status-update [task-update-agent]
 - **Change:** horizon: later → now
+
+### 2026-10-21T09:15:45Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
