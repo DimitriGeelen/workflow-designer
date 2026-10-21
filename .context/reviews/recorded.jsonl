@@ -104,3 +104,4 @@
 {"ac":1,"outcome":"amber","task":"T-743","ts":"2026-10-21T01:03:35Z","verdict_id":"V-20261021-88dd2235"}
 {"ac":1,"outcome":"amber","task":"T-1241","ts":"2026-10-21T07:59:59Z","verdict_id":"V-20261021-143673a8"}
 {"ac":2,"outcome":"red","task":"T-1241","ts":"2026-10-21T08:02:38Z","verdict_id":"V-20261021-cd03a8fe"}
+{"ac":1,"outcome":"escalate","task":"T-325","ts":"2026-10-21T08:04:20Z","verdict_id":"V-20261021-beb62994"}
