@@ -314,6 +314,35 @@ inception go/no-go T-1093, T-1107, T-1115, T-184, T-185, T-186, T-277, T-279, T-
 rulings T-325, T-347, T-353, T-368#1/#2, T-422, T-426, T-432, T-433, T-449, T-537, T-565, T-579, T-588, T-590#1/#2, T-592, T-647, T-671, T-695, T-732#2, T-733, T-736, T-742#1, T-986.
 `fw task delegate --json` returned no JSON for T-172, T-244, T-281, T-309, T-357, T-390, T-420, T-421, T-624, T-640 (not investigated).
 
+## Round 2 (2026-10-21)
+
+Routing per `fw task delegate T-XXX --dry-run`. Verdict rows are in `.context/reviews/verdicts.jsonl`; not applied (the orchestrator applies them). Judges ran one after another, each to completion, all exit 0.
+
+| Task | Criterion | Verdict | Dispatch id |
+|------|-----------|---------|-------------|
+| T-1241 | 1 (Human AC#1, screenshot review) | amber | judge-t-1241-r1-7b132af02e9c |
+| T-1241 | 2 (Human AC#2, act-in-the-world, see note) | red | judge-t-1241-r1-8ccc1cc16f3a |
+| T-325 | 1 | escalate | judge-t-325-r1-f82ac7f4ec74 |
+| T-432 | 1 | escalate | judge-t-432-r1-40a38402f3ab |
+| T-449 | 1 | escalate | judge-t-449-r3-2f8d06bc1498 |
+| T-537 | 1 | escalate | judge-t-537-r3-f5a696497bfa |
+| T-565 | 1 | escalate | judge-t-565-r3-fd016974bb2e |
+| T-590 | 1 | amber | judge-t-590-r5-claude-code-e7ce65de2aa6 |
+| T-647 | 1 | amber | judge-t-647-r5-claude-code-54e98ed387e1 |
+| T-671 | 1 | amber | judge-t-671-r3-dd90192e2fc6 |
+| T-695 | 1 | escalate | judge-t-695-r1-1401bf159b05 |
+| T-733 | 1 | escalate | judge-t-733-r1-ee76eab9a58e |
+| T-742 | 1 | escalate | judge-t-742-r5-claude-code-b80f04aac644 |
+| T-1093 | 1 (inception GO/NO-GO) | escalate | judge-t-1093-r3-851442bc6cae |
+| T-277 | 1 (inception) | escalate | judge-t-277-r3-3f52e15dc626 |
+| T-811 | 1 (inception) | escalate | judge-t-811-r3-7a2107f97074 |
+| T-898 | 1 (inception) | escalate | judge-t-898-r3-eb912fd46499 |
+
+**Notes:**
+- **T-1241 #1 and #2 were dispatched too early.** Its Agent ACs are still unchecked, and the round-1 note held it back for that reason. #2 is a "Why you: act-in-the-world" criterion, which AEF keeps with the operator. I queued both by mistake, and the loop ran them before I could stop it. Treat both rows (amber, red) as not applicable until the agent ACs are done and the operator decides #2.
+- **Not dispatched:** T-884 #1 (deterministic, converted to `fw reviewer`, not REVIEWER-JUDGES); T-735 #1 (agent-self, stays with the agent); T-590 #2 (not in the source row); T-589 #2 and T-643 #1 (verdict rows already exist); T-308, T-893, T-347, T-1212 (verdict rows already exist for the same criterion).
+- **Escalate** outcomes went to the operator for the ruling; the inception rows need a go/no-go decision from the operator.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.

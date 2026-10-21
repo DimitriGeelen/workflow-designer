@@ -8,7 +8,7 @@ status: captured
 workflow_type: inception
 target_blast_radius: 3
 voi_score: 0.5
-owner: agent
+owner: human
 horizon: later
 tags: [designer, seam]
 components: []
@@ -159,6 +159,7 @@ We will know that we are successful when we see <measurable signal>.
   3. Record decision via the Watchtower form or the command shown alongside the QR code
   **Expected:** Decision recorded, task completed
   **If not:** Ask agent for clarification on specific findings
+  **Reviewer escalation (V-20261021-ab343bb5, reviewer-judge-t-898-r3-eb912fd46499:reviewer, rung rung-3-termlink-single-reviewer):** Go/no-go/defer on a byte-pinned AEF serialisation seam is a project-direction call reserved to the human (the recommendation says so itself). Before deciding: the DEFER rationale says no map or exporter sets source=, but examples/app-processes/rendered/customer-refund.bpmn:9 carries it and tools/yaml-to-bpmn.py:197 emits it, so the revisit trigger may already be met. Ask the agent to re-measure. The task body is still template (hypothesis placeholders, empty problem statement and assumptions).
 
 ## Go/No-Go Criteria
 

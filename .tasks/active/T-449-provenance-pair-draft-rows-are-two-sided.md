@@ -210,6 +210,7 @@ task lands the facts and the correction; it does not pick the taxonomy.
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-449 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+  **Reviewer escalation (V-20261021-cc140331, reviewer-judge-t-449-r3-2f8d06bc1498:reviewer, rung rung-3-termlink-single-reviewer):** Definition ruling needed from the operator: pick (a) keep the pair-draft label and the 15/3 split, (b) relabel to AEF's contribution labels (832-authored / AEF-paired x2, 832-authored / AEF-specified for offpage-seam), or (c) byte-authorship only, giving 18/0 with the counterpart evidence in a footnote. This changes the headline count and how provenance is described across the AEF seam, so it is a project-direction call rather than a measurement. PROVENANCE.md as of 4f064c60 states both readings accurately and marks the question OPEN, so the file is not defective. If (b) or (c), open a follow-up task to apply it.
 
 ## Verification
 

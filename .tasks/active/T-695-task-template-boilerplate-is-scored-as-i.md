@@ -12,7 +12,7 @@ description: >
 
 status: captured
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -143,6 +143,7 @@ cost_estimate_proposed:
       2. Reply with A, B, C, or no-repair.
       **Expected:** one letter, recorded in this task's `## Decision`.
       **If not:** the three Agent ACs above stay BLOCKED and this task stays parked.
+  **Reviewer escalation (V-20261021-db00312b, reviewer-judge-t-695-r1-1401bf159b05:reviewer, rung rung-1-same-vendor-independent):** Human must choose A, B, C or no-repair after reading docs/reports/T-694-bvp-distinguishability.md section 1, and record it in T-695 ## Decision. This is a project-direction call: every option re-ranks the backlog autonomous runs select from. Nothing is recorded yet at 3d6e77da.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

@@ -284,6 +284,7 @@ believing the other is unresponsive while both are posting.**
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-537 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+  **Reviewer escalation (V-20261021-9f97f158, reviewer-judge-t-537-r3-f5a696497bfa:reviewer, rung rung-3-termlink-single-reviewer):** Human must choose (a) upstream to termlink owner or (b) standardise both projects on channel_* with explicit topic, then run: fw context add-decision "termlink chat_arc_recent: <a|b> — <reason>" --task T-537. No such decision exists in decisions.yaml yet; this is a cross-project direction call reserved for the human.
 
 ## Verification
 

@@ -6,6 +6,7 @@ description: >
 
 status: started-work
 workflow_type: build
+current_node: agt_2_perform
 owner: agent
 horizon: later
 tags: []

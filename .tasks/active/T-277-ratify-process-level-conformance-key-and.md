@@ -156,6 +156,7 @@ We will know that we are successful when we see 2652 inception.
   3. Record decision via the Watchtower form or the command shown alongside the QR code
   **Expected:** Decision recorded, task completed
   **If not:** Ask agent for clarification on specific findings
+  **Reviewer escalation (V-20261021-afa2603e, reviewer-judge-t-277-r3-3f52e15dc626:reviewer, rung rung-3-termlink-single-reviewer):** This is a go/no-go (DEFER) call on whether 832 ratifies schema keys with an external party (AEF), a project-direction call reserved for the human. The technical findings are accurate (the allowlist drop behaviour is confirmed in src; the cited line numbers are stale). The operator should run 'fw task review T-277' and record DEFER (or another decision) via 'fw inception decide'.
 
 ## Go/No-Go Criteria
 

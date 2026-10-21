@@ -140,6 +140,7 @@ Findings recorded in `docs/reports/T-309-validator-surfacing.md` (§ "IW-1b RESO
   3. (a) is a v1.1 standard edit and batches with the T-189/T-195 deltas already awaiting sign-off — the standard is frozen and I do not edit it under agent control. (b) is a rule change I can make on your GO, and it is a rail conversation with AEF because it changes what fires on their bytes.
   **Expected:** A recorded ruling on each. On GO for (b) I relax the predicate and re-run both suites; the dialect-relative count then drops from 3 to 1.
   **If not:** Leave partial-complete. The classification stands and the guard keeps both carriers PRINTED every run, so neither question can go quiet.
+  **Reviewer escalation (V-20261021-beb62994, reviewer-judge-t-325-r1-f82ac7f4ec74:reviewer, rung rung-1-same-vendor-independent):** Operator ruling required: (a) classify aef:laneMeta/@height and @abbr under mapping-v1 §1. This is a frozen-standard v1.1 edit, to batch with the T-189/T-195 sign-off. (b) GO or NO-GO on letting W-GW-AMBIGUOUS/W-XML-GW-AMBIGUOUS accept a branch name= label as a condition carrier, which needs a rail conversation with AEF. The supporting evidence is verified accurate at 289f41b0.
 
 ## Verification
 

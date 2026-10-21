@@ -91,6 +91,7 @@ cost_estimate_proposed:
       **Expected:** every finding carries a disposition; no finding is executed without one.
       **If not:** the report stays unruled and nothing is built from it. That is a valid
       resting state, not a failure — but it is the second such report in the queue.
+  **Reviewer escalation (V-20261021-550851f5, reviewer-judge-t-742-r5-claude-code-b80f04aac644:claude-code, rung rung-5-panel:claude-code):** None of F-01..F-22 has a disposition yet: there is no approve/reject/defer in the report, the task file or the decisions/approvals ledgers. Ruling them is the operator's project-direction call (each approval creates work; F-01/F-04/F-06/F-22 are tied to §12 sovereign Q1/Q10/Q3/Q6; F-17 is a DELETE), and the task reserves Phase 5 for the operator. The operator should record a disposition per finding. Leaving the report unruled is a valid resting state per the AC.
 
 - [ ] **[REVIEW] The 12 Sovereign questions in §12.**
       **Steps:** `cd /opt/832-Workflow-designer && sed -n '/^## 12\./,$p' docs/reports/VALUE-REVIEW-designer-product-2026-09-20.md`

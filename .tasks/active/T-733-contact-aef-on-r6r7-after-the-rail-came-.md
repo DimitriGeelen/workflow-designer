@@ -92,6 +92,7 @@ close H6 and nothing here ratifies anything.
   **Steps:** read the `rail_citation_integrity` block in `docs/research/executable-workflow/arc-0-exit-clauses.yaml`
   **Expected:** a ruling on recovery vs re-pinning clauses to quoted content only
   **If not:** the registers keep citing offsets that silently do not resolve
+  **Reviewer escalation (V-20261021-f603e45d, reviewer-judge-t-733-r1-ee76eab9a58e:reviewer, rung rung-1-same-vendor-independent):** Operator ruling required: which evidentiary standard applies to rail citations in the Arc-0 register (accept /tmp-backed hub, attempt recovery from a surviving copy, or re-pin clauses to quoted content only and drop offsets as identifiers). The register reserves this call to the operator, and recovery may touch shared host infrastructure outside this repo.
 
 ## Verification
 

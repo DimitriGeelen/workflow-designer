@@ -14,7 +14,7 @@ description: >
 
 status: started-work
 workflow_type: inception
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -275,6 +275,7 @@ before a GO. **OUT:** editing the frozen standard `docs/standards/aef-bpmn-mappi
   3. Record decision via the Watchtower form or the command shown alongside the QR code
   **Expected:** Decision recorded, task completed
   **If not:** Ask agent for clarification on specific findings
+  **Reviewer escalation (V-20261021-6726f2dd, reviewer-judge-t-811-r3-7a2107f97074:reviewer, rung rung-3-termlink-single-reviewer):** Operator decision needed: approve or override the DEFER recommendation via 'fw inception decide T-811 ...'. The decision depends on sovereign questions SQ-1 (endpoint three-way overload; AEF owns this under the frozen standard) and SQ-2 (whether read-only is enough; outside PD-302 delegation). The evidence package is coherent and ready.
 
 ## Go/No-Go Criteria
 

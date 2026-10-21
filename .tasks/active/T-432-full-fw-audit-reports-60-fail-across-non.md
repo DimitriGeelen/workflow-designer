@@ -142,6 +142,7 @@ cost_estimate_proposed:
       **Expected:** one of a/b/c recorded here, with a one-line reason
       **If not:** the gate stays as it is and the 60 stay unwatched, which is the status
       quo this task exists to make visible rather than to change unilaterally
+  **Reviewer escalation (V-20261021-2ca23391, reviewer-judge-t-432-r1-40a38402f3ab:reviewer, rung rung-1-same-vendor-independent):** Push-gate scope is an operator governance/sovereignty call (task reserves it; c1/c2 decides whether review-queue latency blocks pushes). Breakdown is present and corrected; operator must record a, b, or c (and c1/c2 if c) with a one-line reason in the Human AC.
 
 ## Findings
 

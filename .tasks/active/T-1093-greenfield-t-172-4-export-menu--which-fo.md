@@ -6,7 +6,7 @@ description: >
 
 status: captured
 workflow_type: inception
-owner: agent
+owner: human
 horizon: next
 tags: []
 components: []
@@ -88,6 +88,7 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
   3. Record decision via the Watchtower form or the command shown alongside the QR code
   **Expected:** Decision recorded, task completed
   **If not:** Ask agent for clarification on specific findings
+  **Reviewer escalation (V-20261021-8b0be955, reviewer-judge-t-1093-r3-851442bc6cae:reviewer, rung rung-3-termlink-single-reviewer):** Product-direction call (which export formats, in what order) and fw inception decide is operator-only: human must decide. Before deciding, note the inception sections (problem statement, assumptions, IW questions, tailored go/no-go criteria) are empty template; settle scope of optional JPEG/GIF and CSV/Markdown, PDF fit vs multi-page, Camunda 7 vs 8 target.
 
 ## Go/No-Go Criteria
 

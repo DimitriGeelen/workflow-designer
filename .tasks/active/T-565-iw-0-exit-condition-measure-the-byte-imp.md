@@ -218,6 +218,7 @@ that reach the id fallback chain.
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-565 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+  **Reviewer escalation (V-20261021-db7314a1, reviewer-judge-t-565-r3-fd016974bb2e:reviewer, rung rung-3-termlink-single-reviewer):** KEEP vs make-conditional <aef:workflowMeta> emission is a project-direction ruling the AC reserves for the operator. Evidence re-measured today: always-emit is shipped (19/19 movers gain the element, not 14). _t358-byteid-thirdparty now exits 0 because T-579 is completed, so the AC's 'gate is red' caveat is stale. 9 movers (5 aef-bpmn, 4 lane-provenance) are still unwatched by any gate. IW-0 is in .tasks/completed/T-501-*.md, not active/. Operator should run fw context add-decision and flip IW-0 themselves.
 
 ## Verification
 
