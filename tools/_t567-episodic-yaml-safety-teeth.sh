@@ -165,8 +165,12 @@ fi
 
 # ── leg 4: the live corpus parses AND its entries match git ───────────────────────
 python3 - "$ROOT" > "$SCRATCH/corpus.out" 2>&1 <<'PY'
-import sys, glob, yaml, subprocess, os
+import sys, glob, yaml, subprocess, os, re
 root = sys.argv[1]; os.chdir(root)
+# T-1239: the LAN-address scrub rewrote 192.168.x.y in episodic records, not in git history; an entry also matches
+# its subject under exactly that substitution (tools/scrub-lan-addresses.py), nothing looser.
+LAN = re.compile(r"\b192\.168\.(\d{1,3})\.(\d{1,3})\b")
+lan = lambda m: {"10.107": "<dev-host>", "10.201": "<git-host>"}.get("%s.%s" % (m.group(1), m.group(2)), "<lan-host>")
 bad = []; checked = 0; okc = 0
 for f in sorted(glob.glob('.context/episodic/*.yaml')):
     tid = os.path.basename(f)[:-5]
@@ -181,7 +185,7 @@ for f in sorted(glob.glob('.context/episodic/*.yaml')):
                           capture_output=True, text=True).stdout.splitlines()
     for a, s in zip(acts, subs):
         checked += 1
-        if a == s: okc += 1
+        if a == s or a == LAN.sub(lan, s): okc += 1
         else: bad.append((tid, 'timeline entry does not match git subject'))
 print("corpus: %d entries compared, %d byte-equal, %d problem(s)" % (checked, okc, len(bad)))
 for t, e in bad[:5]: print("   ", t, e[:70])

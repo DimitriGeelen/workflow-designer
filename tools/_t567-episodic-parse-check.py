@@ -28,8 +28,16 @@ import argparse
 import glob
 import json
 import os
+import re
 import subprocess
 import sys
+
+# T-1239: the same substitution tools/scrub-lan-addresses.py made (.107 -> <dev-host>, .201 -> <git-host>, else <lan-host>)
+_LAN = re.compile(r"\b192\.168\.(\d{1,3})\.(\d{1,3})\b")
+
+
+def _lan_placeholder(m):
+    return {"10.107": "<dev-host>", "10.201": "<git-host>"}.get("%s.%s" % (m.group(1), m.group(2)), "<lan-host>")
 
 import yaml
 
@@ -80,7 +88,9 @@ def main() -> int:
                 continue
             for a, s in zip(acts, subs):
                 compared += 1
-                if a != s:
+                # T-1239: the LAN-address scrub rewrote 192.168.x.y in episodic records but not git history, so an
+                # entry also matches the subject with the same placeholder substitution (and only that).
+                if a != s and a != _LAN.sub(_lan_placeholder, s):
                     mismatches.append((tid, a[:70], s[:70]))
 
     too_few = len(files) < args.min

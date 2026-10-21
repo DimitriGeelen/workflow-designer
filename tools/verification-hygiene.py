@@ -185,8 +185,13 @@ def carriers_in(line):
     return kinds
 
 
+# T-1239: the LAN-address scrub replaced 192.168.x.y with <dev-host>/<git-host>/<lan-host> in task files. A grandfathered
+# carrier line is the same line before and after, so the key ignores which form the address takes.
+_LAN = re.compile(r"\b192\.168\.\d{1,3}\.\d{1,3}\b|<(?:dev|git|lan)-host>")
+
+
 def line_key(line):
-    return hashlib.sha256(line.strip().encode("utf-8")).hexdigest()[:16]
+    return hashlib.sha256(_LAN.sub("<lan>", line.strip()).encode("utf-8")).hexdigest()[:16]
 
 
 def scan():
