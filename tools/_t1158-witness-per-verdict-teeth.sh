@@ -43,6 +43,11 @@ for old, new in (("const HERE = dirname(fileURLToPath(import.meta.url));", f"con
                  ("from './_cdp-attach.mjs';", f"from {root + '/tools/_cdp-attach.mjs'!r};")):
     if s.count(old) != 1: sys.exit(f"MUTATION SETUP FAILED: {old!r} found {s.count(old)}x")
     s = s.replace(old, new)
+# T-1247: the guard now also imports the shared profile helper; the copy lives in a temp dir, so that relative
+# import must point back at tools/ as well. Optional: rewritten only when the guard imports it.
+_prof = "from './_cdp-profile.mjs';"
+if s.count(_prof) > 1: sys.exit(f"MUTATION SETUP FAILED: {_prof!r} found {s.count(_prof)}x")
+s = s.replace(_prof, f"from {root + '/tools/_cdp-profile.mjs'!r};")
 if level == "clean":                            # path rewrites only: the control copy
     open(out, "w").write(s); sys.exit(0)
 if s.count(anchor) < 1: sys.exit(f"MUTATION SETUP FAILED: projection anchor not found: {anchor!r}")

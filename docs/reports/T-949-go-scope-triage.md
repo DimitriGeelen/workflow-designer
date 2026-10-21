@@ -127,7 +127,7 @@ Two carry an open tail, which does not change the verdict — the GO propagated:
 **T-038** (T-041, phase P4, `started-work`) and **T-685** (T-341/T-358, both blocked on
 operator rulings, not on filing).
 
-### PARTIAL (1) — the decision propagated, the delivery did not
+### PARTIAL (7) — the decision propagated, the delivery did not
 
 - ~~**T-263** — *Save-to-project target binding.* The slice **was filed**: T-264, and is
   still `captured`. Filed 2026-07-27, never started. **This is the one on the list most
@@ -139,6 +139,19 @@ operator rulings, not on filing).
 - **T-281** — *Audience render lenses* (GO 2026-10-20, operator job 063: slice 1, the business lens in the designer).
   The slice is filed as **T-1241** (horizon now, not started), so the decision propagated and the delivery has not.
   Evidence: `docs/reports/T-281-audience-lenses.md`. Added when the triage checker flagged it (2026-10-21).
+- **T-1242** — *Structured attributes on aef:io* (GO 2026-10-21, operator job 073, after AEF ruled T-4415 GO on DRAFT 2
+  at AEF f1f7c30dd). Slice 1 filed as **T-1249** (read, show and keep every v1.1 io construct; horizon now); slices 2-4
+  follow it. Evidence: `docs/reports/T-1242-structured-io-attributes.md`.
+- **T-279** — *Guided-mode guardrail* (GO 2026-10-21, operator job 067, PD-400). Designer half filed as **T-1250**
+  (horizon next); the runtime half is AEF's.
+- **T-280** — *Workflow Fabric* (GO 2026-10-21, operator job 067, PD-400). First slice filed as **T-1251** (horizon next).
+- **T-282** — *callActivity* (GO 2026-10-21, operator job 067, PD-400). Slice 1 filed as **T-1252** (horizon next);
+  evidence `docs/reports/T-282-callactivity.md`.
+- **T-1213** — *Ownership by risk* (GO 2026-10-21, operator job 067, PD-399). Filed as **T-1253** (horizon next); mostly a
+  framework ruleset change to raise with AEF.
+
+  These five were decided on 2026-10-21 and their builds filed the same day; the formal `unlocks_inception_decision`
+  link was not added because the decided inceptions carry no `inception_decisions:` ids (the T-1984 guard requires one).
 - **T-103** — *Adopt the T-101 CDP harness as editor-test substrate.* Slice T-105 is
   `started-work`, and separately carries a 72-day lifecycle anomaly in the audit.
 

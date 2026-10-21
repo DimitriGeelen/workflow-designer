@@ -1137,6 +1137,18 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
+# T-281 slice 1. Business lens: 0 technical badges, 0 fields outside the business set, 0 fields the profile hides;
+# switching lenses changes 0 bytes of buildBpmnXml; no lens definition = every field as before. Red on the pre-T-1241 source.
+if node "$ROOT/tools/_t1241-business-lens-cdp.mjs" > "$TMP/leg-_t1241.out" 2>&1 \
+   && head -2 "$TMP/leg-_t1241.out" | grep -q '"ok": true'; then
+  pass=$((pass + 1))
+else
+  report FAIL "the audience lens shows a field outside its set or one the field profile hides, a technical canvas decoration under the business lens, changes saved bytes, or breaks the no-definition case (run 'node tools/_t1241-business-lens-cdp.mjs'; T-1241)"
+  show_output "$TMP/leg-_t1241.out" "_t1241-business-lens-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # ── T-1220: attributes on aef:input/aef:output beyond name/type/required survive open and save ──
 # aef-greenfield-test generates aef:io from its ontology (ref/role/cardinality/dataType, AEF T-4415); the
 # save used to keep only the named attributes. Red against the pre-T-1220 source (legs 1, 3, 6).
