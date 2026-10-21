@@ -1,13 +1,20 @@
 ---
 id: T-1244
-name: "T-264 leg4_focusKept is flaky under full-suite load (failed once, passes standalone 2/2)"
+name: "T-264 leg4_focusKept is flaky under full-suite load (failed once, passes standalone
+  2/2)"
 description: >
-  Bridge run on the scrubbed tree (2026-10-21, 306/2): tests/test_t264_save_target_guards.py leg4_focusKept failed (focus kept on the id field while typing); standalone it passed twice in a row. Same class as T-1238 (a browser leg reading state under load). Find the timing assumption and make it wait on the state it asserts. Also the T-1050 runme-alerts leg failed in the same run and passes standalone: check whether it reads live watch/event files that the run itself touches.
+  Bridge run on the scrubbed tree (2026-10-21, 306/2): tests/test_t264_save_target_guards.py
+  leg4_focusKept failed (focus kept on the id field while typing); standalone it passed
+  twice in a row. Same class as T-1238 (a browser leg reading state under load). Find
+  the timing assumption and make it wait on the state it asserts. Also the T-1050
+  runme-alerts leg failed in the same run and passes standalone: check whether it
+  reads live watch/event files that the run itself touches.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [bug, flaky]
 components: []
 related_tasks: []
@@ -38,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T00:46:00Z
-last_update: 2026-10-21T00:46:00Z
-date_finished: null
+last_update: 2026-10-21T07:52:52Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +57,27 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-21T07:00:41Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1244: T-264 leg4_focusKept is flaky under full-suite load (failed once, passes standalone 2/2)
@@ -62,8 +90,8 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] T-264 leg4_focusKept waits on the state it asserts (no fixed-sleep race); all assertions kept; a bite control turns it red
+- [ ] T-1050 runme-alerts test uses only scratch state (no live .context/working files); passes 5/5 standalone and 5/5 under full CPU load
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -265,6 +293,41 @@ date_finished: null
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** under full-suite load `leg4_focusKept` (T-264) failed (midValue unchanged `t264-enter`, focus on BODY) and
+`tests/test_t1050_runme_alerts.py` failed (TimeoutExpired); both passed standalone.
+
+**Root cause (T-264 leg4):** NOT the host losing window focus (T-1214 already emulated that). Instrumented run (renderProperties
+stack + input events on the field): the editor's fire-and-forget boot fetches (`loadLensDefinition`, `loadFieldProfile`,
+`refreshUuidIndex`) each end in `renderProperties()`; under load they complete AFTER `waitReady` and after leg4 has focused the ID
+field, the panel is rebuilt, the field is detached (`connected:false`, `active:BODY`, one `blur`), and `Input.insertText` lands
+nowhere. A retry-only variant (re-focus, settle 150ms, 1 attempt) did NOT fix it (0/5 under load): the fix has to wait for the
+boot work. Note for the designer owner: a late async panel re-render destroying a focused field is a real (rare) UX defect on slow
+servers; not changed here (src/ is another worker's).
+**Root cause (T-1050):** two. (1) `tools/session-start-alerts.py` ran, in every one of ~12 calls, live probes unrelated to the
+test (AEF pin over the network, stale-review scan of every task, hub identity, live topic watch): 94s standalone, each call close to
+its 60s timeout under load. (2) real race in `tools/runme-watch.sh`: the arm record was written BEFORE the event baseline
+(`f0=$(lines)`), so an event appended after the record but before the baseline was counted as old and never reported (A2 hung to
+its 20s cap; with a 2s delay injected before the baseline the old order hangs deterministically).
+**Why structurally allowed:** legs read state at a fixed point/after a fixed sleep instead of waiting on the state they assert;
+the alerts test inherited live probes by default.
+**Prevention:** leg4 now quiesces (no fetch in flight, no panel render for 400ms, capped 20s, last-seen reported in the leg detail
+as `quiesce`) then focuses with a pre-typing retry (reports `attempts`); nothing after the first keystroke is retried. T-1050 test
+uses `ISOLATED` env (ALERTS_WATCHED=[], ALERTS_SKIP_LIVE_CHECKS=1, scratch seen-file), caps raised (watch 120s / wait 100s / record
+poll 30s). runme-watch.sh takes the baseline before the record.
+
+**Files:** tools/_t264-save-target-guards-cdp.mjs, tools/session-start-alerts.py (env switch `ALERTS_SKIP_LIVE_CHECKS`),
+tools/runme-watch.sh, tests/test_t1050_runme_alerts.py.
+
+**Evidence** (24 cores; busy loops = 24 `while :` subshells, PIDs recorded, killed by PID; the box also carried other workers' load):
+| test | before | after standalone | after under load |
+|------|--------|------------------|------------------|
+| t264 save-target guards | under load 1/4 pass (3 fails leg4) | 5/5 | 5/5 |
+| t1050 runme alerts | under load 2/3 pass (A2 TimeoutExpired); 94s/run | 5/5 (9s/run) | 5/5 (after the runme-watch fix; an earlier variant without it was 4/5) |
+Intermediate: t264 retry-only variant 0/5 under load (proves the quiesce is the needed part).
+Bite controls: `T1244_BITE=blur-mid-typing` (blurs the field between keystrokes) -> leg4_focusKept red, exit 1. t1050: scratch tree
+with `WATCH LOST` mutated -> B1 red, exit 1; scratch tree with the old runme-watch order + 2s delay -> A2 TimeoutExpired, exit 1,
+fixed order + same delay -> all legs passed.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -345,3 +408,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1244-t-264-leg4focuskept-is-flaky-under-full-.md
 - **Context:** Initial task creation
+
+### 2026-10-21T07:00:39Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

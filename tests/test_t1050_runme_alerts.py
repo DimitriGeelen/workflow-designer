@@ -23,6 +23,11 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WATCH_SH = os.path.join(ROOT, "tools", "runme-watch.sh")
 ALERTS = os.path.join(ROOT, "scripts", "session-start-alerts.sh")
 fails = []
+# T-1244: nothing here may read the live project. Topic watching (live termlink hub + the real seen-file) is turned off
+# and the three live probes (AEF pin over the network, stale-review scan of every task, hub identity) are skipped:
+# they are not what this test asserts, and under full-suite load their latency pushed a call past its timeout.
+ISOLATED = {"ALERTS_WATCHED": "[]", "ALERTS_SKIP_LIVE_CHECKS": "1",
+            "ALERTS_TOPICS_SEEN": os.path.join(tempfile.gettempdir(), "t1050-topics-seen-scratch.json")}
 
 
 def leg(ok, name, detail=""):
@@ -56,7 +61,8 @@ def alerts(tmp, events, watch=None, own="111", running="0", mail="own", tmux=Non
         with open(mw, "w") as fh:
             fh.write("watch_pid=6 claude_pid=%s armed=2026-10-10T10:00:00Z\n" % own if mail == "own" else mail)
     env = dict(os.environ, ALERTS_RUNME_EVENTS=ev, ALERTS_RUNME_WATCH=wf, ALERTS_OWN_CLAUDE=own,
-               ALERTS_RUNME_RUNNING=running, ALERTS_NO_PROCS="1", ALERTS_FW=fw, ALERTS_MAIL_WATCH=mw)
+               ALERTS_RUNME_RUNNING=running, ALERTS_NO_PROCS="1", ALERTS_FW=fw, ALERTS_MAIL_WATCH=mw,
+               **ISOLATED)
     env.pop("TMUX", None)
     if tmux:
         env["TMUX"] = tmux
@@ -75,8 +81,9 @@ def main():
         ev, wf = os.path.join(tmp, "w-events"), os.path.join(tmp, "w-record")
         open(ev, "w").close()
         env = dict(os.environ, RUNME_EVENTS_FILE=ev, RUNME_WATCH_FILE=wf, PATH="/usr/bin:/bin")  # no termlink: file leg only
-        p = subprocess.Popen(["bash", WATCH_SH, "30"], env=env, stdout=subprocess.PIPE, text=True)
-        for _ in range(50):
+        p = subprocess.Popen(["bash", WATCH_SH, "120"], env=env, stdout=subprocess.PIPE, text=True)
+        # T-1244: poll for the record up to 30s (was 5s) -- the watch is a separate process and starts late under load
+        for _ in range(300):
             if os.path.exists(wf):
                 break
             time.sleep(0.1)
@@ -85,7 +92,7 @@ def main():
             "A1 armed watch writes its record (watch pid, arming claude, time)", rec.strip())
         with open(ev, "a") as fh:
             fh.write("2026-10-05T15:00:00Z runme-X started test\n")
-        out, _ = p.communicate(timeout=20)
+        out, _ = p.communicate(timeout=100)   # T-1244: the watch polls every 3s; 20s was too tight under load
         leg(p.returncode == 0 and "runme-X started" in out and not os.path.exists(wf),
             "A2 an event is reported and the record is removed", "rc=%s" % p.returncode)
         p = subprocess.run(["bash", WATCH_SH, "1"], env=env, capture_output=True, text=True, timeout=20)
@@ -120,7 +127,7 @@ def main():
         # B6: the section is printed even when the mail check fails (the verb cannot be run)
         env = dict(os.environ, ALERTS_RUNME_EVENTS=os.path.join(tmp, "events"), ALERTS_RUNME_WATCH=os.path.join(tmp, "nowatch"),
                    ALERTS_OWN_CLAUDE="111", ALERTS_NO_PROCS="1", ALERTS_FW=os.path.join(tmp, "no-such-fw"),
-                   ALERTS_MAIL_WATCH=os.path.join(tmp, "mailwatch"))
+                   ALERTS_MAIL_WATCH=os.path.join(tmp, "mailwatch"), **ISOLATED)
         r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "session-start-alerts.py")],
                            capture_output=True, text=True, env=env, timeout=60)
         leg(r.returncode == 2 and "Runme / live agents:" in r.stdout and "MAIL CHECK FAILED" in r.stdout,

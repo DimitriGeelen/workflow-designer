@@ -84,6 +84,10 @@ async function main() {
     // focus mid-typing and leg4 read document.activeElement as the body (2 of 4 runs), which measured the host,
     // not the designer's commit-on-blur guard. With focus emulated, only a real blur in the page moves focus.
     await cmd('Emulation.setFocusEmulationEnabled', { enabled: true });
+    // T-1244: count the page's in-flight fetches from the first script on, so leg4 can wait for boot work to finish.
+    await cmd('Page.addScriptToEvaluateOnNewDocument', { source: `(function(){ var f = window.fetch; window.__t1244 = { pending: 0, lastEnd: Date.now(), lastRender: Date.now() };
+      window.fetch = function(){ window.__t1244.pending++; var d = function(){ window.__t1244.pending--; window.__t1244.lastEnd = Date.now(); };
+        var p = f.apply(this, arguments); p.then(d, d); return p; }; })()` });
     await cmd('Page.navigate', { url: `${BASE}/designer.html` });
     await waitReady(cmd); await sleep(300);
 
@@ -117,28 +121,67 @@ async function main() {
     assert('leg3_enterCommits', r3.ran && r3.after === 't264-enter' && r3.key === 't264-enter', r3);
 
     // ── leg4: REAL mid-typing keystrokes keep focus; blur then commits ──
-    const loc4 = await ev(cmd, `(function(){ ${FIND_FIELD}
-      var inp = __find('ID'); if (!inp) return { found:false };
-      inp.focus(); inp.select(); window.__t264_inp = inp;
-      return { found:true };
-    })()`);
-    if (loc4.found) {
+    // T-1244: focus() is not a promise that the field is still the focused one when the first keystroke lands. Under
+    // full-suite load the page's own late work (a deferred render after the leg3 commit) can replace the panel
+    // between focus() and Input.insertText, and the keystrokes then went to a detached field (midValue unchanged,
+    // focusKept false). That measured the host's scheduling, not the commit-on-blur guard. So: PRE-typing, poll
+    // until the field is connected AND focused AND stays so for a settle window (re-finding and re-focusing it
+    // when it is not), capped, reporting the last state seen. Nothing after the first keystroke is retried, so a
+    // real defect (a keystroke that commits and dumps focus) still fails the assertion below.
+    // Root cause (T-1244): the editor's boot fetches (lens-definition, field-profile, uuid-index) are fire-and-forget and
+    // each ends in renderProperties(), which rebuilds the panel. Under load they land AFTER waitReady and after the
+    // field is focused, so the focused ID input is detached mid-typing (RCA in the task). Wait for that boot work to
+    // be done: no fetch in flight and no panel render for a quiet window, capped; report what was last seen.
+    const quiesce = async () => {
+      await ev(cmd, `(function(){ if (window.__t1244.wrapped) return; window.__t1244.wrapped = true; var o = renderProperties;
+        renderProperties = function(){ window.__t1244.lastRender = Date.now(); return o.apply(this, arguments); }; })()`);
+      let seen = null; const t0 = Date.now();
+      while (Date.now() - t0 < 20000) {
+        seen = await ev(cmd, `({ pending: __t1244.pending, sinceFetch: Date.now() - __t1244.lastEnd, sinceRender: Date.now() - __t1244.lastRender })`);
+        if (seen.pending === 0 && seen.sinceFetch >= 400 && seen.sinceRender >= 400) return { ...seen, quiesceMs: Date.now() - t0 };
+        await sleep(100);
+      }
+      return { ...seen, quiesceMs: Date.now() - t0, timedOut: true };
+    };
+    const focusStable = async () => {
+      let last = null;
+      for (let attempt = 1; attempt <= 40; attempt++) {
+        last = await ev(cmd, `(function(){ ${FIND_FIELD}
+          var inp = __find('ID'); if (!inp) return { found:false };
+          inp.focus(); inp.select(); window.__t264_inp = inp;
+          return { found:true };
+        })()`);
+        if (last.found) {
+          await sleep(+process.env.T1244_SETTLE_MS || 150);
+          const st = await ev(cmd, `({ connected: window.__t264_inp.isConnected, focused: document.activeElement === window.__t264_inp })`);
+          last = { ...last, ...st, attempt };
+          if (st.connected && st.focused) return last;
+        }
+        await sleep(100);
+      }
+      return last;
+    };
+    const q4 = await quiesce();
+    const loc4 = await focusStable();
+    if (loc4 && loc4.found && loc4.connected && loc4.focused) {
       await cmd('Input.insertText', { text: 't264' });
       await sleep(100);
+      if (process.env.T1244_BITE === 'blur-mid-typing') await ev(cmd, `window.__t264_inp.blur()`); // bite control: a defect that dumps focus
       await cmd('Input.insertText', { text: '-typed' });
       await sleep(100);
       const r4a = await ev(cmd, `(function(){
         return { midValue: window.__t264_inp.value,
                  focusKept: document.activeElement === window.__t264_inp,
+                 connected: window.__t264_inp.isConnected, active: document.activeElement && document.activeElement.tagName,
                  idUnchangedMidType: state.workflowMeta.id === 't264-enter' };
       })()`);
       const r4b = await ev(cmd, `(function(){
         window.__t264_inp.blur();
         return { after: state.workflowMeta.id };
       })()`);
-      assert('leg4_focusKept', r4a.focusKept && r4a.idUnchangedMidType && r4a.midValue === 't264-typed' && r4b.after === 't264-typed', { ...r4a, ...r4b });
+      assert('leg4_focusKept', r4a.focusKept && r4a.idUnchangedMidType && r4a.midValue === 't264-typed' && r4b.after === 't264-typed', { ...r4a, ...r4b, attempts: loc4.attempt, quiesce: q4 });
     } else {
-      assert('leg4_focusKept', false, { ran: false, why: 'id input not found' });
+      assert('leg4_focusKept', false, { ran: false, why: 'id field never became connected+focused before typing', lastSeen: loc4, quiesce: q4 });
     }
 
     // ── leg5: collision renders the one-shot notice, state unchanged ──

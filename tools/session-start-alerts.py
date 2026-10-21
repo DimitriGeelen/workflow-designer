@@ -331,9 +331,13 @@ def main(argv=None):
     print_runme()  # first, so a failed mail check below cannot hide it
     rc_mail = mail(a.limit, a.mark_seen)
     rc_topics = watched_topics(a.mark_seen)
-    aef_pin()
-    stale_review_docs()
-    identity_coverage()
+    # T-1244: ALERTS_SKIP_LIVE_CHECKS=1 (tests only) skips the three read-only live probes below. They touch the
+    # network, every task file and the hub, take 5-10s each and have nothing to do with the runme/mail sections the
+    # runme-alerts test drives; under full-suite load they pushed one call past that test's subprocess timeout.
+    if os.environ.get("ALERTS_SKIP_LIVE_CHECKS") != "1":
+        aef_pin()
+        stale_review_docs()
+        identity_coverage()
     return max(rc_mail, rc_topics)
 
 

@@ -35,6 +35,11 @@ print(max(o)+1 if o else int(sys.argv[1]))' "${1:-0}" 2>/dev/null || echo "${1:-
 # re-armed. Removed when an event is reported (the agent then re-arms, writing a fresh one); left
 # in place on timeout or when killed, which is exactly the state the next session must see.
 WATCH="${RUNME_WATCH_FILE:-$ROOT/.context/working/runme.watch}"
+# T-1244: take the baseline BEFORE the record is written, so "a record exists" means "events from now on are seen".
+# The other order let an event written between the record and the baseline count as already seen and be lost (it
+# showed as a 100s hang in tests/test_t1050_runme_alerts.py A2 under load, which waits for the record, then appends).
+f0=$(lines)
+t0=0; command -v termlink >/dev/null 2>&1 && { t=$(topic_next 0); while [ "$t" != "$t0" ]; do t0=$t; t=$(topic_next "$t0"); done; }
 armer=""; p=$$
 while [ -n "$p" ] && [ "$p" -gt 1 ]; do
     [ "$(cat /proc/"$p"/comm 2>/dev/null)" = claude ] && { armer=$p; break; }
@@ -43,8 +48,6 @@ done
 mkdir -p "$(dirname "$WATCH")" 2>/dev/null
 printf 'watch_pid=%s claude_pid=%s armed=%s\n' "$$" "${armer:-none}" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$WATCH" 2>/dev/null
 
-f0=$(lines)
-t0=0; command -v termlink >/dev/null 2>&1 && { t=$(topic_next 0); while [ "$t" != "$t0" ]; do t0=$t; t=$(topic_next "$t0"); done; }
 start=$(date +%s)
 while [ "$LIMIT" -eq 0 ] || [ $(( $(date +%s) - start )) -lt "$LIMIT" ]; do
     f=$(lines)
