@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """T-1241 screenshots: each lens (business / logical / technical / all) on aef-task-lifecycle at 1024/1440/1920.
 
-Two states per lens and width: "panel" (a service task selected: canvas decoration + side panel) and "details"
-(the element details view open on the same task). Served by the gallery server T-962 uses (real repo, so the real
-interim lens file is read). Asserts only that every shot was taken and the lens select shows the lens; the
+Four states per lens and width: "panel" (a service task selected: canvas decoration + side panel), "panel-bottom"
+(the side panel scrolled to its end, T-1256: the lowest controls reachable), "details" (the element details view open
+on the same task) and "details-bottom" (the details body scrolled to its end). The map opens the way a person opens it,
+at openingZoom()'s readable zoom where fit would draw its text too small (T-1256). Served by the gallery server T-962
+uses (real repo, so the real interim lens file is read). Asserts only that every shot was taken and the lens select shows the lens; the
 reading of each shot, control by control, is in the task's ## Visual Verification (UI review rule, 2026-10-14).
 Usage: python3 tools/_t1241-lens-shots.py [outdir]   (default docs/reports/T-1241-evidence)
 Exit 0 = shots taken; 3 = could not measure.
@@ -29,6 +31,7 @@ spec.loader.exec_module(t962)
 JS_LOAD = """(args) => {
   adoptImportedXml(args.xml, { userImport: true });
   renderAll();
+  if (typeof openingZoom === 'function') openingZoom();   // T-1256: the view a person gets on opening the map
   setLens(args.lens);
   const n = state.nodes.find(x => x.uid === args.uid);
   selection = { kind: 'node', id: n.id };
@@ -63,9 +66,15 @@ def main():
                     got = page.evaluate(JS_LOAD, {"xml": xml, "lens": lens, "uid": PICK})
                     page.wait_for_timeout(400)
                     page.screenshot(path=os.path.join(OUT, "t1241-%s-%d-panel.png" % (lens, w)))
+                    page.evaluate("() => { const p = document.getElementById('properties'); p.scrollTop = p.scrollHeight; }")
+                    page.wait_for_timeout(200)
+                    page.screenshot(path=os.path.join(OUT, "t1241-%s-%d-panel-bottom.png" % (lens, w)))
                     page.evaluate("(uid) => openDetails(state.nodes.find(x => x.uid === uid).id)", PICK)
                     page.wait_for_timeout(300)
                     page.screenshot(path=os.path.join(OUT, "t1241-%s-%d-details.png" % (lens, w)))
+                    page.evaluate("() => { const b = document.getElementById('details-body'); b.scrollTop = b.scrollHeight; }")
+                    page.wait_for_timeout(200)
+                    page.screenshot(path=os.path.join(OUT, "t1241-%s-%d-details-bottom.png" % (lens, w)))
                     ok = got == lens
                     print("%s  %s %d: lens-select=%s" % ("ok  " if ok else "FAIL", lens, w, got))
                     if not ok:

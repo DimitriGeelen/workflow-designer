@@ -38,6 +38,20 @@ Guards: `tools/_t1249-v11-io-cdp.mjs`, `tools/_t1243-io-children-cdp.mjs`.
 
 Guard: `tools/_t1241-business-lens-cdp.mjs`.
 
+## Labels clear of flows; readable on narrow screens (T-1256)
+
+- **Gateway and event names and id captions move off the flows that cross them.** A last layout pass tries a fixed set
+  of positions (and a one- or two-line wrap) for any name or caption a drawn flow or another label crosses, and keeps
+  a move only when it is strictly better. Across the 24 rendered maps, label/flow crossings went from 134 to 1 and
+  label overlaps from 20 to 0, no map worse; `aef-task-lifecycle` is clear in every lens. Positions are a view: no
+  saved byte changes.
+- **A large map opens at a readable zoom.** When fitting the whole map would draw node text below 7 px, the map opens
+  at the zoom that gives 7 px, scrolled to the top left; the Fit button still fits everything. At 1920 most maps open
+  at fit as before; at 1024-1440 a large map opens zoomed in. **For AEF's embed:** the opening view of a large map
+  changes the same way.
+
+Guard: `tools/_t1256-label-clearance-cdp.mjs`.
+
 ## Native BPMN event definitions survive a save (T-1222)
 
 A save used to drop 46 of the 49 `*EventDefinition` elements in the third-party fixtures and flattened every

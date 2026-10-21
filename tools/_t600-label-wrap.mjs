@@ -239,6 +239,12 @@ async function main() {
     // repaired before L3 measured anything. The order is an invariant of every writer.
     { name: `B — wrapped lines appended AFTER the id badge (all ${src.split(ORDER).length - 1} writers)`, patched: src.replaceAll(ORDER, 'g.appendChild(t);'), mustFail: ['L3'] },
   ];
+  // T-1256: clearLabelsOfFlows() runs after every pass these arms weaken and moves a crossed block off its flows, so it
+  // repaired the poisoned placement before a leg measured it. Each arm switches it off too: the arm proves the leg
+  // can fail when the pass it names is gone, which the T-1256 pass would otherwise hide.
+  const T1256_CALL = "  clearLabelsOfFlows();     // T-1256: last, off every drawn flow and clear of the flow labels just placed\n";
+  if (!src.includes(T1256_CALL)) { console.log('SELF-TEST INTEGRITY FAIL — poison target T1256_CALL missing from the editor source'); process.exit(2); }
+  for (const arm of arms) arm.patched = arm.patched.replace(T1256_CALL, '  /* T-1256 clearance off under poison */\n');
   const dir = mkdtempSync(join(tmpdir(), 't600-poison-'));
   let armed = 0;
   for (const arm of arms) {

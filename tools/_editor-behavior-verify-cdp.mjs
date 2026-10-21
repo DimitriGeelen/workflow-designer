@@ -505,6 +505,7 @@ async function main() {
     };
     await ev(cmd, `localStorage.clear()`);
     await nav(LOAD_X);
+    await ev(cmd, `(setZoom(null), 1)`);   // T-1256: a large map can open zoomed to be readable; this leg starts from fit
     // oversize through the real content pipeline (viewBox recomputed from content)
     const z0 = await ev(cmd, `(function(){
       state.nodes.forEach(function(n, i){ n.x = 80 + (i % 10) * 520; });
@@ -624,6 +625,7 @@ async function main() {
     // drag-inward-clears-to-auto-fit behavior, and T-132 undo integration.
     await ev(cmd, `localStorage.clear()`);
     await nav(LOAD_X);
+    await ev(cmd, `(setZoom(null), 1)`);   // T-1256: start from fit, so the pool's right-edge handle is in view
     const handlePt = async () => await ev(cmd, `(function(){
       const r = document.querySelector('.pool-resize-handle .lane-resize-hit').getBoundingClientRect();
       return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };

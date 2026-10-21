@@ -46,7 +46,7 @@ related_tasks: [T-1241]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T20:23:36Z
-last_update: 2026-10-21T20:29:49Z
+last_update: 2026-10-21T20:30:47Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -85,22 +85,40 @@ bvp_scores_proposed:
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The T-1241 reviewer (codex seat, red, `.context/reviews/evidence/T-1241/AC1-judge-t-1241-r5-codex-75cb0e15cc62.md`) saw
+flows cross gateway labels and the `agt_6_completion` caption on aef-task-lifecycle, and fitted text at 1024 too small
+to read. Pixel-identical in designer-v0.24.0. The operator chose to fix it before releasing 0.25.0.
+
+**Cause** (all in `src/aef-workflow-designer.html`):
+- `adjustLabelPlacements()` (:4559), the only pass that moves a gateway/event name off a flow, skips every block of one
+  line: `if (els.length < 2) continue;` (:4671). It was written for the name+id pair, so with id captions off (and
+  in the Business lens, which hides ids) a single-line name like "issues encountered?" or "unchecked Human ACs?"
+  never moves, whatever crosses it.
+- Its side places stack the block centred on the shape's cy (:4686, `RIGHT()` :4697). A gateway's own E/W flows
+  leave at cy, so the right/left candidates are crossed by construction, and the score (:4664) weighs a crossed flow
+  at 1 against 3 for leaving the own lane, so a crossed place is often kept as "best".
+- A task's id caption is placed centred under the box (:4267) and dodges only a flow on its OWN bottom centre
+  (T-1090 `bottomFlow`); a flow arriving elsewhere (the arrow into "completion gates" through `agt_6_completion`,
+  three flows through `agt_4_do`) is never looked at.
+- The scorers read `e._renderedPolyline`, which `routePathFromPoints` stashes only for flows without manual
+  waypoints, so a manually routed flow is invisible to them (not the case on this map, but the same blindness).
+- Text size at 1024: fit scales the whole map into a 484px canvas (both side panels open), 0.243x; 11px names render
+  at 2.7px (5.0px at 1440, 7.6px at 1920).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Cause named: where a gateway's label and a node's id caption are placed, and why that placement ignores the flows
+- [x] Cause named: where a gateway's label and a node's id caption are placed, and why that placement ignores the flows
   drawn next to them (with file:line).
-- [ ] On `aef-task-lifecycle` at 1920, in every lens and with id captions on and off: 0 gateway labels crossed by a
+- [x] On `aef-task-lifecycle` at 1920, in every lens and with id captions on and off: 0 gateway labels crossed by a
   flow segment, 0 id captions crossed by a flow, 0 label/label overlaps (the four cases in the reviewer's notes are
   among them). Measured by a CDP harness from the rendered SVG geometry (text bbox vs flow polylines), not by eye.
-- [ ] Across every map in `examples/aef-processes/rendered/`: the count of label/flow and caption/flow crossings does
+- [x] Across every map in `examples/aef-processes/rendered/`: the count of label/flow and caption/flow crossings does
   not rise for any map, and falls in total (reported per map before/after).
-- [ ] Saved bytes: if label placement is not written to the map, 0 bytes change on any tracked map; if it is (BPMN DI
+- [x] Saved bytes: if label placement is not written to the map, 0 bytes change on any tracked map; if it is (BPMN DI
   label bounds), the change is stated and shown, and the goldens are updated only for that reason.
-- [ ] Readable at 1024: fit zoom on `aef-task-lifecycle` at 1024 leaves node and gateway text at a stated minimum
+- [x] Readable at 1024: fit zoom on `aef-task-lifecycle` at 1024 leaves node and gateway text at a stated minimum
   rendered size (or the map opens at a readable zoom with the rest reachable by scroll), without hiding any element.
 - [ ] Screenshots of every lens at 1024/1440/1920, plus scrolled side-panel and details shots that show the lowest
   controls reachable, read control by control; the independent reviewer judges T-1241's criterion 1 again after this.
@@ -290,6 +308,37 @@ bvp_scores_proposed:
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 
+node tools/_t1256-label-clearance-cdp.mjs > /tmp/.t1256.out 2>&1 && head -2 /tmp/.t1256.out | grep -q '"ok": true'
+node tools/_t1241-business-lens-cdp.mjs > /tmp/.t1241.out 2>&1 && head -2 /tmp/.t1241.out | grep -q '"ok": true'
+node tools/_t1176-toolbar-reach-cdp.mjs > /tmp/.t1176.out 2>&1
+node tools/_t1249-v11-io-cdp.mjs > /tmp/.t1249.out 2>&1
+node tools/_t600-label-wrap.mjs --self-test > /tmp/.t600.out 2>&1
+node tools/_t601-lane-boundary.mjs --self-test > /tmp/.t601.out 2>&1
+node tools/_t1068-corpus-labels.mjs --self-test > /tmp/.t1068.out 2>&1
+grep -q '_t1256-label-clearance-cdp.mjs' tests/run-bridge-tests.sh
+
+## Visual Verification
+
+Shots: `docs/reports/T-1256-evidence/` (`tools/_t1256-shots.py`: aef-task-lifecycle opened by `?load=`, canvas element,
+Clean-layout nudge dismissed with its ✕; `before-*` = designer-v0.24.0, `after-*` = this source; ids / noids = lens All
+with id captions on/off; business = Business lens) and
+`docs/reports/T-1241-evidence/t1241-{business,logical,technical,all}-{1024,1440,1920}-{panel,panel-bottom,details,details-bottom}.png`
+(`tools/_t1241-lens-shots.py`, 48 shots, the map opened with `openingZoom()` as a person gets it). Read control by control.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| canvas before (0.24.0) | gateway names, id captions | overlap | overlap | overlap | before-1920-noids: "ready to start now?", "issues encountered?", "unchecked Human ACs?" each crossed by a flow; before-1920-ids: `agt_6_completion`, `agt_4_do` on arrows; before-1024: names 2.7px, unreadable |
+| canvas after, ids on | gateway names, id captions | ok | ok | ok | after-1920-ids: "issues encountered?" right-below its diamond, "unchecked Human ACs?" left-above, `agt_6_completion` above its box clear of the arrow; no caption on a flow |
+| canvas after, ids off | gateway names | ok | ok | ok | after-1920-noids: "ready to start now?" above, "issues encountered?" left-below, "unchecked Human ACs?" above its diamond; no line through any name |
+| canvas after, Business | gateway names | ok | ok | ok | after-1920-business, t1241-business-*-panel: same places as ids off; no id captions |
+| canvas at open | zoom readout, text size, reach | ok | ok | ok | 1024 and 1440 open at 70% (names ≥ 7px), 1920 at fit (7.6px); after-1024-*-scrolled-mid/end: every node reached by scroll, lane names pinned (T-1091); Fit still fits |
+| canvas | flow labels | ok | ok | ok | "yes — status: issues" / "shelved — …" touch a flow in some lenses exactly as in 0.24.0 (placed by the unchanged `adjustEdgeLabelPlacements`); harness: no flow label moved onto a line, corpus 0→0 |
+| toolbar | every control (lens select, zoom −/readout/+, Fit, panels, fullscreen, Add Lane … Save) | ok | ok | ok | two rows at 1024 and 1440, one at 1920; none clipped |
+| side panel | top (type header, All details, BPMN fields) | ok | ok | ok | t1241-*-panel |
+| side panel | bottom (Owner, Other extensions, + add input, + add output) | ok | ok | ok | t1241-*-panel-bottom: scrolled to the end, "+ add output" fully visible (Business has no I/O section and does not scroll) |
+| details view | header, Close | ok | ok | ok | t1241-*-details |
+| details view | bottom (Note, Owner, Other extensions, I/O contract, + add input / output) | ok | ok | ok | t1241-*-details-bottom: scrolled to the end inside the sheet, Close still in its header |
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -305,6 +354,16 @@ bvp_scores_proposed:
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** on aef-task-lifecycle, flows run through "issues encountered?", "unchecked Human ACs?", "ready to start
+now?" and the `agt_6_completion` caption, in every lens; at 1024 the fitted map's text is 2.7px.
+**Root cause:** see Context: the one placement pass skips single-line names, centres side places on the gateway's own
+flow axis and prefers a crossed place to leaving the lane; task captions dodge only their own bottom-centre flow.
+**Why structurally allowed:** the label guards (T-600/T-601/T-1068) measure labels against shapes, lanes and the header
+strip; none counted a flow segment through a label, and none ran with id captions off.
+**Prevention:** `tools/_t1256-label-clearance-cdp.mjs` as a bridge leg, measured from the rendered SVG: lifecycle 0 in
+all 8 lens/id configurations, no corpus map worse than 0.24.0, no flow label pushed onto a line, bytes unchanged, 1024
+opens at ≥ 7px.
 
 ## Evolution
 
@@ -369,6 +428,32 @@ bvp_scores_proposed:
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-10-21 — where the fix lives
+- **Chose:** a new last pass, `clearLabelsOfFlows()`, after the flow labels are placed. It moves ONLY a name block or
+  id caption that a drawn flow segment (read off each `.edge-path`'s `d`, so manual routes count) or another label
+  crosses, to the cheapest of 12 fixed places (below / beside a vertical flow / beside the shape above or below its own
+  flow axis / above), the name also as one line or two, never on the lane header; kept only when strictly better. Then
+  one more `adjustEdgeLabelPlacements()` for a flow label still on a line (strictly better only).
+- **Why:** deterministic and local; an uncontested map is untouched; flow labels keep their 0.24.0 places. Corpus (lens
+  All, ids on+off): crossings 134 → 1, label/label 20 → 0, no map worse; lifecycle 0 in every lens.
+- **Rejected:** retuning `adjustLabelPlacements()`'s weights (three guards pin it, the weights encode lane semantics);
+  moving nodes or rerouting flows (out of scope, changes bytes).
+- **Guards adapted:** the T-600 and T-1068 self-test poison arms also switch the new pass off; otherwise it repairs the
+  poisoned placement and the self-test reports "asserts nothing". Live legs unchanged.
+
+### 2026-10-21 — readable at 1024: minimum opening zoom, 7px
+- **Chose:** `openingZoom()`: a map that is opened (deep link, Load, project/version open, autosave restore) and whose fit
+  would draw its smallest node/gateway name below `OPEN_MIN_TEXT_PX` = 7px opens at the zoom that draws it at 7px,
+  scrolled to the top-left; Fit still fits the whole map; a zoom the person chose is never overridden.
+- **Why:** measured fit sizes on this map: 2.7px at 1024, 5.0px at 1440, 7.6px at 1920. Both T-1241 reviewers read the
+  1920 shots; the codex reviewer called 1024 unreadable. So the floor sits just under what was read. Result: 1024 and
+  1440 open at 70%, 1920 unchanged (fit).
+- **Rejected:** leaving fit as is (fails the criterion); a floor on Fit itself (the overview the button promises would be
+  gone); hiding panels or elements (the criterion forbids hiding).
+- **Consequence:** harnesses whose premise was "a large map opens at fit" now press Fit first (`_editor-behavior-verify`
+  legs 9/10, `_t1091`, `_t249` spike); assertions unchanged. AEF's embed opens a large map zoomed in the same way; the
+  0.25.0 release note to AEF must say so.
 
 ## Decision
 

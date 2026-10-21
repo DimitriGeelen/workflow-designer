@@ -81,6 +81,7 @@ async function main() {
       if (clear) { await cmd('Page.navigate', { url: URL }); await sleep(300); await waitReady(cmd); await ev(cmd, `localStorage.removeItem('aefLabelPrefs'), localStorage.removeItem('aefViewPrefs'), 1`); }
       await cmd('Page.navigate', { url: URL });
       await sleep(300); await waitReady(cmd); await sleep(500);
+      await ev(cmd, `(setZoom(null), 1)`);   // T-1256: a large map can open zoomed to be readable; every check starts from fit
       await ev(cmd, `document.fonts.ready.then(function(){ return new Promise(function(r){ setTimeout(r, 250); }); })`);
     };
     // Zoom so the diagram is at least twice the wrap's width, anchored at the wrap's top-left.

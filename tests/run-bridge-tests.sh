@@ -1162,6 +1162,19 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1256: gateway/event names and id captions stand clear of the drawn flows; a large map opens readable ──
+# Measured from the rendered SVG (text boxes vs the flow paths' segments): aef-task-lifecycle 0 crossings and 0 label
+# overlaps in every lens with id captions on and off; no corpus map worse than designer-v0.24.0 and the total lower; 0
+# saved bytes change; at 1024 node text opens at >= 7px, every node reachable, Fit still fits. Red on the 0.24.0 source.
+if node "$ROOT/tools/_t1256-label-clearance-cdp.mjs" > "$TMP/leg-_t1256.out" 2>&1 \
+   && head -2 "$TMP/leg-_t1256.out" | grep -q '"ok": true'; then
+  pass=$((pass + 1))
+else
+  report FAIL "a gateway/event name or id caption is crossed by a drawn flow or overlaps another label on aef-task-lifecycle, a corpus map got worse than designer-v0.24.0, saved bytes changed, or the map does not open readable at 1024 (run 'node tools/_t1256-label-clearance-cdp.mjs'; T-1256)"
+  show_output "$TMP/leg-_t1256.out" "_t1256-label-clearance-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # ── T-1220: attributes on aef:input/aef:output beyond name/type/required survive open and save ──
 # aef-greenfield-test generates aef:io from its ontology (ref/role/cardinality/dataType, AEF T-4415); the
 # save used to keep only the named attributes. Red against the pre-T-1220 source (legs 1, 3, 6).

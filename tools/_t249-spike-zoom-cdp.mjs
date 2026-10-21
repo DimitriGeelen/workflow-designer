@@ -146,6 +146,7 @@ async function main() {
     await cmd('Page.enable'); await cmd('Runtime.enable');
     await cmd('Page.navigate', { url: BASE + '/designer.html?load=' + encodeURIComponent('rendered/' + MAP) });
     await waitReady(cmd); await sleep(400);
+    await ev(cmd, `(setZoom(null), 1)`);   // T-1256: the real editor may open a large map zoomed; the spike starts from fit
 
     // Oversize the loaded map through the REAL content pipeline: spread nodes wide+tall,
     // renderAll() recomputes the viewBox from the grown content (contentRightEdge etc).

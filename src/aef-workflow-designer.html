@@ -3328,12 +3328,38 @@ function setZoom(f, anchorX, anchorY) {
   const ay = anchorY != null ? anchorY : wr.top + canvasWrap.clientHeight / 2;
   const pt = clientToSvg(ax, ay);
   zoomFactor = f == null ? null : Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, f));
+  _zoomFromOpen = false;   // T-1256: a zoom the person chose stays across opens
   applyCanvasZoom();
   if (zoomFactor != null) {
     const vb = svg.viewBox.baseVal;
     canvasWrap.scrollLeft = (pt.x - vb.x) * zoomFactor - (ax - wr.left);
     canvasWrap.scrollTop = (pt.y - vb.y) * zoomFactor - (ay - wr.top);
   }
+  syncOverlayPin();
+}
+// T-1256: a map opens readable. Fit is the default view, but on a narrow canvas a large map fits only by drawing its
+// text too small to read (aef-task-lifecycle at 1024 behind both panels: 2.7px; 5.0px at 1440; 7.6px at 1920, which
+// both T-1241 reviewers read). When fit would draw the smallest node or gateway name below OPEN_MIN_TEXT_PX, the map
+// opens at the zoom that draws it at that size, scrolled to the top-left corner; the rest is reached by scroll,
+// nothing is hidden, and Fit still shows the whole map. Only on opening a document, and never over a zoom the person
+// chose (setZoom clears _zoomFromOpen); a zoom this function set is re-judged on the next open. View state only.
+const OPEN_MIN_TEXT_PX = 7;
+let _zoomFromOpen = false;
+function openingZoom() {
+  if (zoomFactor != null && !_zoomFromOpen) return;
+  zoomFactor = null; _zoomFromOpen = false;
+  applyCanvasZoom();
+  let fit = 1, min = Infinity;
+  try { fit = svg.getScreenCTM().a; } catch (_) { return; }
+  for (const t of gNodes.querySelectorAll('text.node-label')) {
+    const px = parseFloat(getComputedStyle(t).fontSize) * fit;
+    if (px > 0 && px < min) min = px;
+  }
+  if (!(min < OPEN_MIN_TEXT_PX) || !(fit > 0)) return;
+  zoomFactor = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.ceil(fit * OPEN_MIN_TEXT_PX / min * 100) / 100));
+  _zoomFromOpen = true;
+  applyCanvasZoom();
+  canvasWrap.scrollLeft = 0; canvasWrap.scrollTop = 0;
   syncOverlayPin();
 }
 // The status overlay and clean-nudge are absolutely positioned INSIDE the wrap,
@@ -4349,6 +4375,8 @@ function renderNodes() {
   deCollideBelowLabels();
   adjustLabelPlacements();
   adjustEdgeLabelPlacements();
+  clearLabelsOfFlows();     // T-1256: last, off every drawn flow and clear of the flow labels just placed
+  adjustEdgeLabelPlacements();   // T-1256: a flow label still on a line may find room the moved names left; strictly better only
   addIdBadgeHalos();
   layerIdBadges();
   fitPoolToLabels();   // T-1154: last, after every label and badge is placed; most renderNodes() calls bypass renderAll
@@ -4748,6 +4776,153 @@ function adjustLabelPlacements() {
   // "Investigation requested" on the default map sat 5-9px on the header strip that way (T-1068 F1).
   for (const n of state.nodes)
     if (isLabelBelow(n)) bboxScore(Array.from(gNodes.querySelectorAll(`text[data-nl="${n.uid}"]`)), n);
+}
+
+// Flow clearance (T-1256): the last word on where a gateway/event name block and a task's id caption sit.
+// adjustLabelPlacements() leaves three cases on the flows (the T-1241 reviewer, aef-task-lifecycle): it skips a
+// block of one line (a name with id captions off), its side places are centred on the shape's cy, which is where
+// a gateway's own E/W flows leave it, and it weighs a crossed flow (1) below hanging into the next lane (3), so
+// a crossed label is often its best. A task's id caption only ever dodged a flow on its own bottom centre
+// (T-1090). This pass moves ONLY a block that a DRAWN flow segment (the path the canvas shows, read off its `d`,
+// so manually routed flows count too) or another label actually crosses, to the first of a fixed list of places
+// (below, beside a vertical flow, beside the shape above or below its own flow axis, above), a name also as one
+// line or two balanced lines, with the lowest cost: a flow segment or another label (with a word-space beside it)
+// 10 each, a shape 30, outside its own lane 3, on the lane header 2, outside the pool 1. A place is kept only when
+// it is STRICTLY better, so an uncontested map is not touched. It runs after the flow labels are placed and keeps
+// clear of them, so every flow label stands where it stood before this pass (none is pushed onto a line). Deterministic;
+// render-only (PD-044): nothing here is written to the document (no BPMNLabel is emitted, see buildBpmnXml).
+function clearLabelsOfFlows() {
+  const PAD = 1, GAP = 6;
+  const segs = [];
+  for (const p of gEdges.querySelectorAll('g.edge > path.edge-path')) {
+    const pl = polylineFromPath(p.getAttribute('d'));
+    for (let i = 0; i < pl.length - 1; i++) segs.push([pl[i], pl[i + 1]]);
+  }
+  if (!segs.length) return;
+  // Liang-Barsky: does the segment a-b enter the box r?
+  const segHits = (a, b, r) => {
+    let t0 = 0, t1 = 1;
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const P = [-dx, dx, -dy, dy], Q = [a.x - r.x1, r.x2 - a.x, a.y - r.y1, r.y2 - a.y];
+    for (let i = 0; i < 4; i++) {
+      if (P[i] === 0) { if (Q[i] < 0) return false; continue; }
+      const t = Q[i] / P[i];
+      if (P[i] < 0) { if (t > t1) return false; if (t > t0) t0 = t; }
+      else { if (t < t0) return false; if (t < t1) t1 = t; }
+    }
+    return true;
+  };
+  const inter = (a, b) => a.x1 < b.x2 && b.x1 < a.x2 && a.y1 < b.y2 && b.y1 < a.y2;
+  const boxOf = t => { const b = t.getBBox(); return b.width ? { x1: b.x - PAD, y1: b.y - PAD, x2: b.x + b.width + PAD, y2: b.y + b.height + PAD } : null; };
+  const shapes = state.nodes.map(n => { const d = NODE_DEFAULTS[n.type]; return { x1: n.x - 2, y1: n.y - 2, x2: n.x + d.w + 2, y2: n.y + d.h + 2 }; });
+  const bandTop = POOL_Y + POOL_HEADER, lanes = [];
+  { let y = bandTop; for (const l of getLanes()) { lanes.push({ y1: y, y2: y + l.height }); y += l.height; } }
+  const pw = contentRightEdge() - POOL_X, ph = poolHeight();
+  const hasPool = lanes.length > 0 && pw > 0 && ph > 0;
+  const isBelow = n => n.type === 'startEvent' || n.type === 'endEvent' ||
+    n.type.endsWith('Gateway') || n.type.startsWith('linkEvent') || n.type.startsWith('event');
+  // [els, x, firstBaseline, anchor] for a block of k lines; LH as adjustLabelPlacements' side stack.
+  const LH = 12, ASC = 9, DESC = 3;
+  // T-1068 F1 holds here too: a block never starts on the lane header strip; it is nudged right by its overrun
+  // before it is judged, so it is judged where it will be drawn.
+  const headerEdge = POOL_X + LANE_HEADER + 1;
+  const put = (els, x, b0, anchor) => {
+    els.forEach((t, i) => { t.setAttribute('x', x); t.setAttribute('y', b0 + i * LH); t.setAttribute('text-anchor', anchor); });
+    if (!hasPool) return;
+    let x1 = Infinity;
+    for (const t of els) { const bb = t.getBBox(); if (bb.width) x1 = Math.min(x1, bb.x); }
+    if (x1 < headerEdge) for (const t of els) t.setAttribute('x', (+t.getAttribute('x') + headerEdge - x1).toFixed(1));
+  };
+  const blocks = [];
+  for (const n of state.nodes) {
+    const d = NODE_DEFAULTS[n.type];
+    let els;
+    if (isBelow(n)) els = Array.from(gNodes.querySelectorAll(`text[data-nl="${n.uid}"]`));
+    else {
+      const g = gNodes.querySelector(`g[data-id="${n.id}"]`);
+      els = g ? Array.from(g.querySelectorAll(':scope > text.node-id-badge')) : [];
+    }
+    if (els.length) blocks.push({ n, d, els });
+  }
+  for (const blk of blocks) {
+    const { n, d } = blk;
+    let els = blk.els;
+    const own = () => new Set(els);
+    // Another label counts with a word-space of room beside it, so two names never run on as one phrase. Flow
+    // labels are already placed (this pass runs after them) and stay where they are; a name keeps clear of them.
+    const mineAtStart = own();
+    const others = Array.from(gNodes.querySelectorAll('text')).filter(t => !mineAtStart.has(t) && !(t.getAttribute('data-nl') === n.uid))
+      .concat(Array.from(gEdges.querySelectorAll('text.edge-label'))).map(boxOf).filter(Boolean)
+      .map(r => ({ x1: r.x1 - GAP, y1: r.y1, x2: r.x2 + GAP, y2: r.y2 }));
+    const cy = n.y + d.h / 2, lane = lanes.find(b => cy >= b.y1 && cy < b.y2) || null;
+    const cost = () => {
+      let c = 0, hard = 0;
+      for (const t of els) {
+        const r = boxOf(t); if (!r) continue;
+        for (const [a, b] of segs) if (segHits(a, b, r)) { c += 10; hard++; }
+        for (const o of others) if (inter(r, o)) { c += 10; hard++; }
+        for (const s of shapes) if (inter(r, s)) c += 30;
+        if (hasPool) {
+          if (r.x1 < POOL_X || r.x2 > POOL_X + pw || r.y1 < bandTop || r.y2 > POOL_Y + ph) c += 1;
+          if (r.x1 < POOL_X + LANE_HEADER) c += 2;
+          if (lane && (r.y1 < lane.y1 - 1 || r.y2 > lane.y2 + 1)) c += 3;
+        }
+      }
+      return { c, hard };
+    };
+    const now = cost();
+    if (!now.hard) continue;                                   // nothing crosses it: leave it where it is
+    const orig = els.map(t => [t.getAttribute('x'), t.getAttribute('y'), t.getAttribute('text-anchor')]);
+    // A gateway/event name may also stand as one line or as two balanced lines (its id caption stays last).
+    const isName = t => t.getAttribute('class') === 'node-label';
+    const origLines = els.filter(isName).map(t => t.textContent);
+    const variants = [origLines];
+    if (isBelow(n) && origLines.length) {
+      const alt = [[n.name]];
+      if (labelPrefs.wrapNames && n.name.length > 12) alt.push(wrapText(n.name, Math.max(8, Math.ceil(n.name.length / 2) + 2)));
+      for (const v of alt) if (!variants.some(w => w.join('\n') === v.join('\n'))) variants.push(v);
+    }
+    const setLines = lines => {
+      const names = els.filter(isName), idEl = els.find(t => !isName(t));
+      if (names.map(t => t.textContent).join('\n') === lines.join('\n')) return;
+      const g = names[0].parentNode;
+      names.forEach(t => t.remove());
+      const made = lines.map(line => {
+        const t = el('text', { x: 0, y: 0, class: 'node-label', 'text-anchor': 'middle', 'data-nl': n.uid }, [text(line)]);
+        if (idEl && idEl.parentNode === g) g.insertBefore(t, idEl); else g.appendChild(t);
+        return t;
+      });
+      els = made.concat(idEl ? [idEl] : []);
+    };
+    const cx = n.x + d.w / 2, top = n.y, bot = n.y + d.h;
+    // Beside the shape, clear of its own E/W flow axis: just above it, or just below it. A diamond narrows
+    // away from its side corners, so the block starts a quarter in from the corner.
+    const inset = n.type.endsWith('Gateway') ? d.w / 4 : 0;
+    const candsFor = k => {
+      const h = (k - 1) * LH;
+      const below = bot + (isBelow(n) ? 14 : 12), above = top - 4 - DESC - h;
+      const sideUp = cy - 4 - DESC - h, sideDown = cy + 4 + ASC;
+      return [
+        [cx, below, 'middle'], [cx + 6, below, 'start'], [cx - 6, below, 'end'],
+        [n.x + d.w - inset + 4, sideUp, 'start'], [n.x + d.w - inset + 4, sideDown, 'start'],
+        [n.x + inset - 4, sideUp, 'end'], [n.x + inset - 4, sideDown, 'end'],
+        [cx, above, 'middle'], [cx + 6, above, 'start'], [cx - 6, above, 'end'],
+        [n.x + d.w + 8, below, 'start'], [n.x - 8, below, 'end'],
+      ];
+    };
+    let best = null;
+    search: for (const lines of variants) {
+      setLines(lines);
+      for (const [x, b0, a] of candsFor(els.length)) {
+        put(els, x, b0, a);
+        const sc = cost();
+        if (sc.c < now.c && (!best || sc.c < best.sc.c)) best = { lines, x, b0, a, sc };
+        if (best && best.sc.c === 0) break search;
+      }
+    }
+    if (best) { setLines(best.lines); put(els, best.x, best.b0, best.a); }
+    else { setLines(origLines); els.forEach((t, i) => { t.setAttribute('x', orig[i][0]); t.setAttribute('y', orig[i][1]); t.setAttribute('text-anchor', orig[i][2]); }); }
+  }
 }
 
 // Post-pass over freshly rendered EDGE labels (T-082, survey R-5 slice 2).
@@ -11375,6 +11550,7 @@ async function revertToVersion(id, v) {
     const bpmn = await res.text();
     closeVersionsModal();
     adoptImportedXml(bpmn, { userImport: false, replace: true, projectId: id });   // T-1089
+    openingZoom();   // T-1256
     setLoadedSavedVersion(v);   // T-157: now viewing snapshot vN
     // Accurate, action-free confirmation (T-148) — NOT the autosave-restore banner.
     if (typeof showToast === 'function') showToast(`↩ Reverted to ${id} v${v}.`);
@@ -11390,6 +11566,7 @@ async function openVersionInPlace(id, v) {
     const bpmn = await res.text();
     closeVersionsModal();
     adoptImportedXml(bpmn, { userImport: false, replace: true, projectId: id });   // T-1089
+    openingZoom();   // T-1256
     setLoadedSavedVersion(v);   // reflect that we're now viewing snapshot vN
     if (typeof showToast === 'function') showToast(`⤢ Opened ${id} v${v}.`);
   } catch (e) { aefRecordFault('open', e); alert('Open failed: ' + (e && e.message || e)); }
@@ -11644,6 +11821,7 @@ async function openProjectMap(m) {
     // replace: overwrite the in-memory entry for this id (no _v2). userImport: apply the
     // same clean-on-import/nudge behaviour a gallery ?load open has.
     adoptImportedXml(text, { replace: true, userImport: true, projectId: m.id });   // T-1089
+    openingZoom();   // T-1256
     // T-157: reflect the loaded snapshot (or clear for a rendered baseline).
     setLoadedSavedVersion(ot.kind === 'version' ? ot.v : null);
     loadInstanceSnapshot();   // T-884: the overlay follows the loaded template
@@ -12160,6 +12338,7 @@ $('btn-load').onclick = () => {
     const text = await file.text();
     try {
       adoptImportedXml(text, { userImport: true });
+      openingZoom();   // T-1256
     } catch (e) {
       console.error('Load failed:', e);
       aefRecordFault('workflow-parse', e);   // T-821: the alert is seen once and gone
@@ -12203,6 +12382,7 @@ function projectIdFromLoadSrc(src) {
     if (typeof _suppressDeepLink !== 'undefined' && _suppressDeepLink) { loadInstanceSnapshot(); settled = 'suppressed'; return; }
     const projectId = projectIdFromLoadSrc(src);   // T-1109
     adoptImportedXml(await res.text(), projectId ? { userImport: true, projectId } : { userImport: true });
+    openingZoom();             // T-1256: open readable
     _loadSrcKey = activeKey;   // T-234: remember which map identity this ?load adopted
     loadInstanceSnapshot();    // T-884: the overlay follows the loaded template
     settled = 'adopted';
@@ -14248,6 +14428,7 @@ function autoLoadStored() {
   // fetch for this same src is in flight, suppress it so it can't overwrite the restore.
   if (load && (s.src || null) === load) _suppressDeepLink = true;
   try { adoptImportedXml(s.xml, { userImport: false, replace: true }); } catch (e) { aefRecordFault('autosave-adopt', e); return; }
+  openingZoom();   // T-1256: a restored map opens readable too
   // T-234: a same-src restore means the restored document IS the deep-link's map —
   // track its identity so autosaveNow keeps stamping src for it (and stops after a jump).
   if (load && (s.src || null) === load) _loadSrcKey = activeKey;
