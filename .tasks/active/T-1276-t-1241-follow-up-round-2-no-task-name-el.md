@@ -96,12 +96,15 @@ green and the codex seat amber (evidence: `.context/reviews/evidence/T-1241/AC1-
       `_t1068 --self-test` (5 live / 6 failable, 4 arms), `_t1067` 6/6, `_t1078` 8, `_t1241-business-lens`, `_t1176`,
       `_t1249-v11-io`, `_t1256` (all legs; 1024 min text 7.02px ≥ 7), `_editor-behavior-verify`, `_t1091` 31/31,
       `_endpoint-overlap-verify`, `_t1274-note-box`.
-- [ ] **Shots:**
+- [x] **Shots:**
   - re-shoot all 48 T-1241 lens shots;
   - make 2x crops of both named nodes and a flow-label run in each lens at 1920 into
     `docs/reports/T-1276-evidence/`;
   - fill the `## Visual Verification` table control by control;
   - the orchestrator then reruns `fw reviewer judge T-1241 --criterion 1`.
+  **2026-10-23, met:** the rerun at 6d03c1b9 was amber from the codex seat on a new point, the arrowhead crossing,
+  handled by T-1277. After T-1278, the rerun at fc2c7339 was green on all three seats (claude-code, codex, opencode),
+  applied as V-20261022-73c28dd4.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

@@ -109,11 +109,12 @@ the same shape, swapped for AEF's when it lands.
       T-1254 and green after)
 
 ### Human
-- [ ] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1241 --criterion 1`): each lens is
+- [x] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1241 --criterion 1`): each lens is
       legible, nothing clipped or overlapping, the business lens reads as a business view
   **Steps:** 1. Open the screenshot paths listed under `## Visual Verification`. 2. Check each lens at 1024/1440/1920.
   **Expected:** every control reachable and unclipped; the business lens shows the flow without ids or technical badges.
   **If not:** name the screenshot and the control; the agent fixes and re-shoots.
+  **Reviewer verdict:** green V-20261022-73c28dd4 — reviewer-judge-t-1241-r5-opencode-179adf6e8d78:opencode (rung rung-5-panel:opencode), digest bcebf3c959cc; dispatch judge-t-1241-r5-opencode-179adf6e8d78; evidence: .context/reviews/evidence/T-1241/AC1-judge-t-1241-r5-opencode-179adf6e8d78.md; ledger .context/reviews/verdicts.jsonl
 - [ ] [REVIEW] The operator opens `aef-task-lifecycle` in the designer in the business lens and can follow it
   **Why you:** act-in-the-world — T-281's success clause names the operator as the reader who must follow the map.
   **Steps:** 1. Open the map in Watchtower's designer. 2. Switch the toolbar lens to Business. 3. Read the flow.

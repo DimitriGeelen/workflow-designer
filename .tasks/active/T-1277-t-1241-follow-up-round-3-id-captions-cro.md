@@ -133,12 +133,15 @@ This is the third follow-up from T-1241's AC1 review, after T-1274 and T-1276.
       `_t1249-v11-io`, `_editor-behavior-verify`, `_t1091` 31/31, `_endpoint-overlap-verify`, `_t1274-note-box`,
       `_t1276-name-fit`, and `_t1256` (all legs; 1024 min text 7.02px). After them only a comment line in the source
       changed.
-- [ ] **Shots:**
+- [x] **Shots:**
   - re-shoot all 48 T-1241 lens shots;
   - make 2x crops of both captions in the technical and all lenses at 1440 and 1920 into
     `docs/reports/T-1277-evidence/`;
   - fill the `## Visual Verification` table;
   - the orchestrator then reruns `fw reviewer judge T-1241 --criterion 1`.
+  **2026-10-23, met:** instead of an official rerun right after this round, a codex ADVISORY sweep read all 48 shots
+  (no crossings left; the other items went to T-1278). The official rerun at fc2c7339 was green on all three seats,
+  applied as V-20261022-73c28dd4.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

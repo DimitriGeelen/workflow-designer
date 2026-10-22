@@ -158,11 +158,13 @@ one amber per round.
       every width). In the first pass eight guards failed in 0-5 s with ENOSPC: other jobs had filled /tmp (8G tmpfs) to
       100%. Each was rerun once, alone, with TMPDIR in the project's ignored `build/`, and passed. Bytes: legs 1-3 of
       `_t1278-sweep` compare `buildBpmnXml` on all 25 maps; all are unchanged.
-- [ ] **Shots:**
+- [x] **Shots:**
   - re-shoot all 48 lens shots;
   - make crops for each fixed item;
   - fill `## Visual Verification`;
   - the orchestrator then reruns `fw reviewer judge T-1241 --criterion 1`.
+  **2026-10-23, met:** the rerun at fc2c7339 was **green on all three seats** (claude-code, codex, opencode), applied
+  by `fw reviewer verdict apply T-1241` as V-20261022-73c28dd4.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

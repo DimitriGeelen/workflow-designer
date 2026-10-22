@@ -48,7 +48,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-22T10:24:12Z
-last_update: 2026-10-22T12:53:02Z
+last_update: 2026-10-22T14:21:01Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -120,9 +120,12 @@ Also from that review: the side-panel Note box cuts its third line ("until real 
   `_t601` 6 live / 4 failable, `_t1068` 5 live / 4 arms, `_t1067` 6/6, `_t1078` 8, `_t1091` 31/31). `_t1256` hit a
   browser-attach failure once (CDP attach, nothing measured); rerun alone, it was green. Poison arms: no change needed
   (they remove the `clearLabelsOfFlows()` call, which this task does not touch).
-- [ ] Screenshots: the 48 T-1241 lens shots re-shot, plus 2x crops of the "issues encountered?" gateway at 1440/1920 in
+- [x] Screenshots: the 48 T-1241 lens shots re-shot, plus 2x crops of the "issues encountered?" gateway at 1440/1920 in
   every lens and of the Note box at 1024/1440/1920, read control by control in `## Visual Verification`; then
   `fw reviewer judge T-1241 --criterion 1` is run again.
+  **2026-10-23, met:** the reruns at 1fdffed4 and 6d03c1b9 were amber from the codex seat on new points (handled by
+  T-1276, T-1277, then the advisory sweep in T-1278). The rerun at fc2c7339 was **green on all three seats**
+  (claude-code, codex, opencode) and applied by `fw reviewer verdict apply T-1241` (V-20261022-73c28dd4).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
