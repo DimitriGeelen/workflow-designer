@@ -139,7 +139,12 @@ This follows the be.2 path (T-1245, jobs 072, 074 and 075).
      load timeouts as the morning's runs.
   3. `_t629` teeth could not build its mutant. be.3's T-4639 changed the exempt-path arm's body (`exit 0` became
      `[ -n "$_git_exec_path" ] || exit 0`). The anchor is now the pattern line only; 13/13, teeth fire.
-- [ ] **AEF has the field report:** WORKS or FAILS for each be.3 fix exercised, with paths.
+- [x] **AEF has the field report:** WORKS or FAILS for each be.3 fix exercised, with paths.
+  **2026-10-22, met:** sent on conversation `aef-v1815-be3` (client_msg_id 023c051c, RECEIVED).
+  - **WORKS:** upgrade, identity kept, T-4647 allow-list, 0.25.0 pin served, template sync, suite.
+  - **NOTES:** the `_t629` anchor broken by T-4639's arm body; `fw designer` NOT SYNCED until `fw designer install`;
+    the re-vendor counts; the designer_open.html deletion.
+  - **Pending:** the T-4454 claude-fw identity report, after the relaunch.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
