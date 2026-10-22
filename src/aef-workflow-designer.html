@@ -3351,7 +3351,7 @@ function openingZoom() {
   zoomFactor = null; _zoomFromOpen = false;
   applyCanvasZoom();
   let fit = 1, min = Infinity;
-  try { fit = svg.getScreenCTM().a; } catch (_) { return; }
+  try { fit = svg.getScreenCTM().a; } catch (e) { aefRecordFault('opening-zoom:ctm', e); return; }   // T-821: no CTM, the map stays at fit
   for (const t of gNodes.querySelectorAll('text.node-label')) {
     const px = parseFloat(getComputedStyle(t).fontSize) * fit;
     if (px > 0 && px < min) min = px;

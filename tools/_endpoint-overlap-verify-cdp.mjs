@@ -60,6 +60,7 @@ async function main() {
     await cmd('Emulation.setDeviceMetricsOverride', { width: 1200, height: 820, deviceScaleFactor: 1, mobile: false });
     await cmd('Page.navigate', { url: `${BASE}/designer.html?load=rendered/${MAP}.bpmn` });
     await waitReady(cmd); await sleep(500);
+    await ev(cmd, `(setZoom(null), 1)`);   // T-1256: a large map can open zoomed to be readable; the fork must be in view, so start from fit
 
     // Helpers injected in-page: map an SVG-user point to client (viewport CSS) px,
     // and find the closest point on a polyline to a point.

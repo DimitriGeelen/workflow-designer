@@ -35,7 +35,7 @@ const MIN_PX = 7;   // the stated minimum rendered size of node and gateway text
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
-// The engine tools/_t1241-lens-shots.py (Playwright) draws with: its text metrics differ from chrome's by a pixel here
+// The engine T-1241's lens-shot script (Playwright) draws with: its text metrics differ from chrome's by a pixel here
 // and there, and label places follow the metrics, so leg 5 measures in both.
 function findShell() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium_headless_shell-')) for (const x of [join(cache, d, 'chrome-linux', 'headless_shell'), join(cache, d, 'chrome-headless-shell-linux64', 'chrome-headless-shell')]) c.push(x); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; return null; }
 function freePort() { return new Promise((res, rej) => { const s = net.createServer(); s.listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => res(p)); }); s.on('error', rej); }); }
@@ -132,7 +132,7 @@ const OPEN_CFGS = `(async function(args){
     window.__t1256dump = args.dump;
     if (typeof setLens === 'function') setLens(c.lens); else if (c.lens !== 'all') continue;
     labelPrefs.showIds = c.ids;
-    if (args.xml) {   // as tools/_t1241-lens-shots.py opens it: adopt, render, opening zoom, lens
+    if (args.xml) {   // as T-1241's lens-shot script opens it: adopt, render, opening zoom, lens
       adoptImportedXml(args.xml, { userImport: true }); renderAll();
       if (typeof openingZoom === 'function') openingZoom();
       if (typeof setLens === 'function') setLens(c.lens);
