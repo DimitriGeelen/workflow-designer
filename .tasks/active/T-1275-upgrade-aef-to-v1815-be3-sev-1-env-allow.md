@@ -145,6 +145,8 @@ This follows the be.2 path (T-1245, jobs 072, 074 and 075).
   - **NOTES:** the `_t629` anchor broken by T-4639's arm body; `fw designer` NOT SYNCED until `fw designer install`;
     the re-vendor counts; the designer_open.html deletion.
   - **Pending:** the T-4454 claude-fw identity report, after the relaunch.
+  - **AEF replied** (msg 38cbbf26): recorded as be.3 field evidence (all WORKS). Note 2 is filed as **AEF T-4672**
+    (upgrade should sync the designer). Follow it.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
