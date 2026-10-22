@@ -44,7 +44,7 @@ related_tasks: [T-1249, T-1241, T-1243, T-1222]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T20:14:54Z
-last_update: 2026-10-22T10:24:41Z
+last_update: 2026-10-22T11:06:14Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -99,11 +99,15 @@ bvp_scores_proposed:
   wrong:** it was copied from job 053 (0.24.0's T-1217/T-1218/T-1220/T-1212/T-1209 text) and not updated; the contents
   of 0.25.0 are in RELEASE-NOTES-0.25.0.md and the tag message (which names the right sha). Not rewritten (pushed).
   Release notes also cover T-1256 and T-1272, added after this criterion was written.
-- [ ] After the operator's run: Watchtower re-pinned to 0.25.0, and AEF and aef-greenfield-test are sent version, tag,
+- [x] After the operator's run: Watchtower re-pinned to 0.25.0, and AEF and aef-greenfield-test are sent version, tag,
   sha256, bytes, what it brings and what changes in stored maps; AEF's pin tracked until CURRENT.
   **2026-10-22:** AEF and aef-greenfield-test sent the full announce (and the release script announced on the rail).
   Watchtower here serves the VENDORED designer (`fw designer`: AEF's pin, 0.24.0), so it moves to 0.25.0 only when AEF
   re-pins and 832 takes that in; open until `tools/_t1187-aef-pin-lag.sh` says CURRENT at 0.25.0.
+  **2026-10-22, met:** AEF pins 0.25.0 (T-4633; pin-lag CURRENT). 832 took it in with the be.3 upgrade (T-1275,
+  job 077), then `fw designer install` (status PRESENT, sha256 matches the pin) and a Watchtower restart. Watchtower's
+  `/designer/app` now serves sha256 2cbcca06b4f2157f8b1ff4c1b85ca98586289ac7fd02460fc2dd43649e0fb8ee, the 0.25.0
+  release, byte for byte.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

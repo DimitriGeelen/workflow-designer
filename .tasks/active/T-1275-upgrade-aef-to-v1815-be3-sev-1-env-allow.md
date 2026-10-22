@@ -102,16 +102,35 @@ This follows the be.2 path (T-1245, jobs 072, 074 and 075).
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **Job 077 ran to `done`:**
+- [x] **Job 077 ran to `done`:**
   - `.framework.yaml` version_sha is 2ec39ef8e;
   - pristine and baseline commits are present;
   - TermLink settings are kept;
   - the doctor before/after files are saved.
-- [ ] **832's local framework fixes are re-applied:** `tools/_t517` shows no STALE entry. Every `*.bak` the upgrade
+  **2026-10-22, met:**
+  - rc=0, 22:15, all 8 steps; VERSION 1.8.14+987.g2ec39ef8e;
+  - pristine 5ea5196c (132 vendored paths), baseline a424f2ac;
+  - doctor PASS before and after, with no FAIL. Watchtower smoke failures went 22/54 -> 3/53.
+  - The pristine commit's one deletion was our local `web/templates/designer_open.html`, not the designer 0.24.0
+    as predicted; that file is re-added by the local-fix commit below.
+- [x] **832's local framework fixes are re-applied:** `tools/_t517` shows no STALE entry. Every `*.bak` the upgrade
       left is diffed and then removed or reported (standing rule). The `_t1192` templates have exit 0.
+  **2026-10-22, met** (fa9f6dc9):
+  - 37 fixes re-applied: 32 clean, 1 by 3-way merge, 4 resolved by hand keeping both sides (the commit message names
+    each one);
+  - `_t517` OK (44 declared = 44 diverged); verdict audit 0 failures;
+  - `_t390`/`_t636`/`_t640`/`_t650`/`_t1047`/`_t632` pass;
+  - `CLAUDE.md.bak` was the only backup; every line only in it is superseded, so it was removed;
+  - `_t1192` (job step 7): inception.md.upstream was superseded and removed, with nothing for a person.
 - [ ] **Watchtower is restarted on be.3 and serves designer 0.25.0** (`fw designer` names 0.25.0), which closes
       T-1255 AC3. A spawned worker no longer inherits CONTEXT_DIR/TASKS_DIR from the tmux server (T-4647). The
       identity FAIL in the session-start alerts is cleared after a relaunch via `claude-fw` (T-4454).
+  **2026-10-22, partly met:**
+  - Watchtower was restarted (pid 2064035), and `fw designer install` reports PRESENT (sha256 matches the pin).
+  - `/designer/app` serves sha256 2cbcca06…, the 0.25.0 release, byte for byte.
+  - T-4647: with leaked CONTEXT_DIR/TASKS_DIR/FW_* exported, `fw_spawn_env` (`lib/spawn-env.sh`) passes none of
+    them; only allow-listed variables such as HOME and PATH get through. The tmux global env carries no project path.
+  - Still open: the identity FAIL, until the operator relaunches this session with the new `claude-fw`.
 - [ ] **Suite** (`tests/run-bridge-tests.sh`) shows no new failure against the 2026-10-22 baseline (305/8, all 8
       explained).
 - [ ] **AEF has the field report:** WORKS or FAILS for each be.3 fix exercised, with paths.
