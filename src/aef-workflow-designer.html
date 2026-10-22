@@ -4496,15 +4496,18 @@ function deCollideBelowLabels() {
 // MEASURES the rendered lines (PL-008) and, when the block overflows the rect
 // (too many lines for the height, or a line wider than the rect), walks:
 // (1) re-wrap one font step smaller (inline style — PL-009: presentation
-// attributes lose to class CSS); (2) clamp to the line budget at that step,
+// attributes lose to class CSS); (1b, T-1276) a tighter step whose lines are
+// wrapped by MEASURED width, not a char estimate, one more line in the same
+// rect (the T-1241 review read two lifecycle names cut at the floor; every
+// corpus name fits here); (2) clamp to the line budget at the last step,
 // trim the last line to measured width with an ellipsis, and attach the full
 // name as a <title> tooltip. Render-only: rect geometry is never mutated.
-// Ladder parameters follow the label-size pref (T-085).
+// Ladder parameters follow the label-size pref (T-085); no step below 8px.
 function fitNodeLabels() {
   const LADDER = {
-    s: [{ fs: null, lh: 12, ch: 16 }, { fs: 9, lh: 11, ch: 18 }],
-    m: [{ fs: null, lh: 13, ch: 14 }, { fs: 10, lh: 12, ch: 16 }],
-    l: [{ fs: null, lh: 15, ch: 12 }, { fs: 11, lh: 13, ch: 14 }],
+    s: [{ fs: null, lh: 12, ch: 16 }, { fs: 9, lh: 11, ch: 18 }, { fs: 8, lh: 9.5, ch: 21, measured: true }],
+    m: [{ fs: null, lh: 13, ch: 14 }, { fs: 10, lh: 12, ch: 16 }, { fs: 9, lh: 10.5, ch: 19, measured: true }],
+    l: [{ fs: null, lh: 15, ch: 12 }, { fs: 11, lh: 13, ch: 14 }, { fs: 10, lh: 11.5, ch: 16, measured: true }],
   }[labelPrefs.size];
   for (const n of state.nodes) {
     let texts = Array.from(gNodes.querySelectorAll(`text[data-fitn="${n.uid}"]`));
@@ -4528,14 +4531,41 @@ function fitNodeLabels() {
       });
       return texts;
     };
+    // Greedy wrap by rendered width at a step's font size. A word wider than
+    // the rect breaks after a separator inside it (/ | , ; > ), as CSS
+    // overflow-wrap would: "(--host/--task/--agent/…)" is one token; a piece
+    // still too wide keeps its own line and the floor trims it.
+    const wrapMeasured = step => {
+      const probe = el('text', { class: 'node-label', style: 'font-size:' + step.fs + 'px' });
+      g.appendChild(probe);
+      const width = s => { probe.textContent = s; return probe.getComputedTextLength(); };
+      const atoms = [];   // [piece, joins the previous piece with a space]
+      for (const w of n.name.split(' ').filter(Boolean)) {
+        const parts = width(w) > maxW ? w.split(/(?<=[\/|,;>)])/).filter(Boolean) : [w];
+        parts.forEach((p, i) => atoms.push([p, i === 0]));
+      }
+      const out = [];
+      let cur = '';
+      for (const [p, sp] of atoms) {
+        const cand = cur ? cur + (sp ? ' ' : '') + p : p;
+        if (cur && width(cand) > maxW) { out.push(cur); cur = p; }
+        else cur = cand;
+      }
+      if (cur) out.push(cur);
+      probe.remove();
+      return out;
+    };
+    const wrapAt = step => step.measured ? wrapMeasured(step) : wrapText(n.name, step.ch);
     if (fits(texts, LADDER[0])) continue;
-    const shrink = LADDER[1];
-    if (fits(make(wrapText(n.name, shrink.ch), shrink), shrink)) continue;
-    // Floor: clamp to the shrink-step budget; the last line absorbs the
+    let fitted = false;
+    for (const step of LADDER.slice(1)) if (fits(make(wrapAt(step), step), step)) { fitted = true; break; }
+    if (fitted) continue;
+    // Floor: clamp to the last step's budget; the last line absorbs the
     // remainder and every over-wide line is trimmed to measured width.
-    // rest === '' means the shrink tier failed on width alone (long
+    // rest === '' means the last tier failed on width alone (long
     // unbreakable token) — keep the lines and let the trim handle it.
-    const lines = wrapText(n.name, shrink.ch);
+    const shrink = LADDER[LADDER.length - 1];
+    const lines = wrapAt(shrink);
     const maxL = budget(shrink.lh);
     const rest = lines.slice(maxL - 1).join(' ');
     make(rest ? lines.slice(0, maxL - 1).concat(rest) : lines, shrink);

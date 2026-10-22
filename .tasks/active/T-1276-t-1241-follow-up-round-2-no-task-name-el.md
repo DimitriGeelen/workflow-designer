@@ -72,14 +72,30 @@ green and the codex seat amber (evidence: `.context/reviews/evidence/T-1241/AC1-
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **No task name is ellipsized on any corpus map** at the default label size, in all four lenses, at 1024, 1440
+- [x] **No task name is ellipsized on any corpus map** at the default label size, in all four lenses, at 1024, 1440
       and 1920. Saved bytes are unchanged: render-only, and the rect geometry in the DI is not mutated. A new harness
       leg counts the `fitNodeLabels` floor hits per map. It is red on the 0.25.0 source (lifecycle ≥ 2) and 0 after.
       Any render-only growth of a rect never overlaps another node, label or lane edge; this is counted by the
       existing T-1256 legs, which stay green.
-- [ ] **Flow-label text meets WCAG AA (≥ 4.5:1)** against the canvas background in every theme the designer ships.
+      **Evidence (2026-10-22):** `tools/_t1276-name-fit-cdp.mjs` leg 1 covers lifecycle + 24 corpus maps × 4 lenses ×
+      1024/1440/1920, 2076 task names measured. On 0.25.0: red, 204 floor hits (17 names; lifecycle `tl_verify` +
+      `tl_human_review` = 2 per lens per width, 8 per width). Now: **0** hits on every map. Every line is inside its rect
+      (0 misfits); the smallest name font is 9px (≥ 8). Name lines under an in-rect badge went 51 -> 42, all of them
+      pre-existing short names. No rect grows: the fix is a third in-rect ladder step (Decisions). Bytes: leg 3, 25/25
+      maps unchanged; `_t1256` leg 3 25/25 unchanged. The T-1256 legs are green: crossings 134->1, flow labels crossed
+      or clipped 3->2, near 31->10, label/label 20->0, the same as T-1274.
+- [x] **Flow-label text meets WCAG AA (≥ 4.5:1)** against the canvas background in every theme the designer ships.
       This is measured from computed styles by a harness leg that is red on 0.25.0 where the ratio is below 4.5.
-- [ ] **No guard regresses:** the 12 T-1274 guards plus `_t1274-note-box` stay green, run one at a time under nice 19.
+      **Evidence:** leg 2 of `_t1276-name-fit-cdp.mjs`. The designer ships one theme (`:root`; no `data-theme` or
+      `prefers-color-scheme` is styled; the leg finds and walks any that appear). Worst flow label: rgb(139,145,163) on
+      its halo rgb(13,15,19) = **6.1:1**, both before and after (0.25.0 is not below 4.5, so the leg is green there
+      and no token changed; see Decisions).
+- [x] **No guard regresses:** the 12 T-1274 guards plus `_t1274-note-box` stay green, run one at a time under nice 19.
+      **Evidence:** final source, one at a time under `nice -n 19`, every one exit 0, with no reruns needed:
+      `_t600 --self-test` (7 live / 4 failable, 2 poison arms), `_t601 --self-test` (6 live / 4 failable),
+      `_t1068 --self-test` (5 live / 6 failable, 4 arms), `_t1067` 6/6, `_t1078` 8, `_t1241-business-lens`, `_t1176`,
+      `_t1249-v11-io`, `_t1256` (all legs; 1024 min text 7.02px ≥ 7), `_editor-behavior-verify`, `_t1091` 31/31,
+      `_endpoint-overlap-verify`, `_t1274-note-box`.
 - [ ] **Shots:**
   - re-shoot all 48 T-1241 lens shots;
   - make 2x crops of both named nodes and a flow-label run in each lens at 1920 into
@@ -270,6 +286,31 @@ green and the codex seat amber (evidence: `.context/reviews/evidence/T-1241/AC1-
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+node tools/_t1276-name-fit-cdp.mjs
+node tools/_t1256-label-clearance-cdp.mjs
+node tools/_t1274-note-box-cdp.mjs
+test "$(ls docs/reports/T-1276-evidence/*-2x-*-1920.png | wc -l)" -eq 12
+
+## Visual Verification
+
+Shots: the 48 T-1241 lens shots were re-shot on this source (`tools/_t1241-lens-shots.py` →
+`docs/reports/T-1241-evidence/t1241-{business,logical,technical,all}-{1024,1440,1920}-{panel,panel-bottom,details,details-bottom}.png`,
+12/12 lens-select ok). True 2x crops (device_scale_factor 2, the lens-shot load: adopt, openingZoom, lens, `tl_create`
+selected; temp script, deleted) are in `docs/reports/T-1276-evidence/`:
+`name-verify-2x-{lens}-1920.png`, `name-human-review-2x-{lens}-1920.png`, `flow-labels-2x-{lens}-1920.png` (12).
+At 1024 and 1440 the two named nodes are right of the opening viewport (the canvas scrolls). There the harness (leg 1,
+every width) is the measure, and the cells say so.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| canvas, every lens | "completion gates: Agent ACs (P-010) + ## Verification commands (P-011)" (`tl_verify`) | ok | ok | ok | 1920 crops: whole name in 4 lines at 9px ("completion gates: Agent / ACs (P-010) + ## / Verification commands / (P-011)"), inside the rect, no "…"; technical/all: `agt_6_completion` caption right of the bottom flow, clear of it. 1024/1440: off the opening view, harness 0 floor hits |
+| canvas, every lens | "partial-complete: review Human ACs (Watchtower /review), tick, complete" (`tl_human_review`) | ok | ok | ok | 1920 crops: whole in 4 lines ("partial-complete: / review Human ACs / (Watchtower /review), / tick, complete"), the user glyph top-left is clear; technical/all `hum_1_partial` below the rect. Also whole in `t1241-business-1920-panel` |
+| canvas, every lens | flow labels: "blocked — unchecked AC / non-zero Verification; fix and retry", "no", "pass", "no — all ACs / agent-verifiable", "yes — status: issues", "resolved — back to work", "resolved at gate — complete directly (…)", "yes — partial-complete (owner: human)" | ok | ok | ok | 1920 crops: each label whole on its halo, none on a line, an arrow head or another label; the grey on near-black reads clearly at 2x (6.1:1). "heavy sub-work → dispatch" and the left task are cut only by the crop's edge. 1024/1440: `_t1256` leg 5 (0 crossed/clipped/near on lifecycle) |
+| canvas, technical/all | gateway names + id captions beside the run (`agt_gw_issues`, `agt_gw_gates`, `agt_gw_unchecked`) | n/a | n/a | ok | above or below their diamond, none on a flow label's row |
+| full shot, business 1920 | toolbar (Business lens, Check, Versions, Save to project, Save), side panel Name/Lane/Note/Owner | ok | ok | ok | t1241-business-1920-panel: one toolbar row complete; Note shows all three lines; both named nodes whole on the canvas. 1024 technical and 1440 all panels: toolbar wraps to two rows, every button visible |
+
+Review of these screenshots by an independent agent: rerun of `fw reviewer judge T-1241 --criterion 1` (criterion 4,
+left to the orchestrator).
 
 ## RCA
 
@@ -350,6 +391,48 @@ green and the codex seat amber (evidence: `.context/reviews/evidence/T-1241/AC1-
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-10-22 — how a long task name fits without the floor ellipsis
+- **Chose:** a third fit-ladder step inside the same rect (`fitNodeLabels`, T-087): at the default size 9px / 10.5px line
+  pitch, five lines in the 64px rect where step 2 (10px / 12px) had four. Its lines are wrapped by **measured** width
+  rather than the char estimate, and a token wider than the rect breaks after a separator inside it (`/ | , ; > )`), the
+  way CSS `overflow-wrap` does. Five of the 17 cut names were single tokens such as `(--host/--task/--agent/--summary/--result)`,
+  which no font size or extra line could fit. The `s` and `l` sizes get the same step (8px / 9.5, 10px / 11.5). The floor
+  (ellipsis + `<title>`) stays as the last resort for a pathological name; no corpus name reaches it.
+- **Why:** this is the only candidate that touches nothing outside the rect, so it cannot add an overlap, a crossing or a
+  lane-edge hit that the T-1256 legs count. It needs no new obstacle model, and it is a few lines in the one function
+  that already owns the fit. Measured: 0.25.0 had 204 floor hits (17 names × 4 lenses × 3 widths; lifecycle 2 per lens);
+  this source has 0. The smallest name font is 9px (≥ 8). Every line stays inside the rect (0 misfits). Name lines under
+  an in-rect badge went from 51 to 42, every remaining one a short default-step name that already overlapped in 0.25.0.
+- **Rejected:** (a) growing the rendered rect downward: it needs free-space search against the flows, labels, id
+  captions and lane edges below it, the flows' endpoints would no longer meet the drawn edge, and a rect that differs
+  from the DI misleads anyone reading the shape as the stored geometry. (b) The label strip below the rect: that is where
+  the id caption and bottom-centre flows sit (T-1090), so it creates the same near/overlap pairs T-1256/T-1274 just
+  removed. A name split between inside and below reads as two labels.
+
+### 2026-10-22 — flow-label contrast and canvas text size
+- **Chose:** no colour change. Measured from computed styles (`tools/_t1276-name-fit-cdp.mjs` leg 2): flow-label fill
+  `--text-dim` rgb(139,145,163) on its halo pad `--bg` rgb(13,15,19) = **6.1:1** in the one theme the designer ships
+  (`:root`; the source styles no `data-theme` and no `prefers-color-scheme`). That is the same on 0.25.0, so the leg is
+  green there: it is ≥ 4.5 and the instruction was to change the token only below AA.
+- **Why:** the reviewer's "low contrast" at 1920 is the fit zoom of a wide map. The 10px mono label renders at about
+  7px, and antialiasing thins it; the ratio itself is AA. Codex's "canvas text small at 1920" is out of scope per Context
+  §3: it is the fit zoom, and the user can zoom in.
+- **Rejected:** brightening `--text-dim` anyway: it is used by ~30 chrome controls, so it would shift the whole UI's
+  hierarchy to answer a size complaint, not a contrast failure.
+
+### 2026-10-22 — side effect on the opening zoom (orchestrator's review)
+- **Observed:**
+  - The re-shot `t1241-*-1920-*.png` open at **78%**, no longer at fit. `openingZoom()` (T-1256) measures the
+    smallest node-name font. The new 9px step brings fit at 1920 below `OPEN_MIN_TEXT_PX` (7), so the map opens at
+    the readable zoom, scrolled to the top-left.
+  - The pool's right edge, past the end event, is then reached by scrolling: it sits under the side panel and is
+    not hidden.
+- **Chose:** keep it.
+  - It is T-1256's designed behaviour: open readable, and Fit still shows the whole map.
+  - It answers the other half of codex's amber (canvas text too small at 1920) without a separate change.
+- **Rejected:** excluding the step-3 names from `openingZoom`'s minimum. The map would then open at fit, with those
+  names drawn below 7px, exactly what T-1256 set out to prevent.
 
 ## Decision
 
