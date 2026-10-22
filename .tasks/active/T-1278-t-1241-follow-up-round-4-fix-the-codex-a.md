@@ -102,24 +102,62 @@ one amber per round.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **Readable opening (items 6-7):** `OPEN_MIN_TEXT_PX` is 9. On `aef-task-lifecycle` the smallest node name,
+- [x] **Readable opening (items 6-7):** `OPEN_MIN_TEXT_PX` is 9. On `aef-task-lifecycle` the smallest node name,
       flow label, id caption and lane caption are drawn at 9 px or more on opening, at 1024, 1440 and 1920. A leg is
       red on 2015e17e and green after. Fit still shows the whole map.
-- [ ] **Reachability (items 1-3, 5):**
+      **Evidence:** `openingZoom()` measures all four classes (`OPEN_TEXT_SEL`). `_t1278-sweep` leg 1, every lens, at
+      1024/1440/1920: name 9.0, flow 10.0, id 9.0 (technical/all), lane 9.0 (business/logical) / 10.0 px. The opening
+      zoom goes 0.78 -> 1.00. Fit: zoomFactor null and the map fits the canvas. On 2015e17e (`T1278_SRC`): 42 leg-1
+      errors, e.g. "smallest name text ... drawn at 7.02px (< 9)". `_t1256` leg 4: minPx 9 at 1024/1440/1920,
+      fitStill, 0 unreachable.
+- [x] **Reachability (items 1-3, 5):**
   - with the side panel open, scrolling the canvas brings every node, label and the pool's right edge into view at
     1024 and 1440;
   - the left palette scrolls to its last control (LANES) at 1024/1440/1920;
   - a CDP leg asserts both, and new scrolled shots are in `docs/reports/T-1278-evidence/`;
   - if either is not reachable, fix it first.
-- [ ] **Name field (item 4):** grows to its content up to a cap, then scrolls, like the T-1274 Note box. Enter still
+  **Evidence:** both were already reachable, so nothing was changed (Decisions). `_t1278-sweep` leg 2, panel open, at
+  1024 and 1440 in all four lenses: 84 (business/logical) / 101 (technical/all) texts and shapes each scroll fully into
+  view with nothing covering them, 0 failures. At the furthest scroll the pool's right edge is at x 674 against the
+  visible edge 704 (1024), and 1090 against 1120 (1440). Palette: 23 controls, 0 unreachable; at the end "+ Add Lane"
+  (LANES) is inside at 1024/1440/1920 (`overflow-y: auto`). Green on 2015e17e too. Shots in
+  `docs/reports/T-1278-evidence/`: `reach-{business,all}-{1024,1440}-{left,mid,right}.png`,
+  `palette-end-business-{1024,1440,1920}.png`.
+- [x] **Name field (item 4):** grows to its content up to a cap, then scrolls, like the T-1274 Note box. Enter still
       commits and no newline is ever stored; saved bytes are unchanged. Leg: 0 cut Name values on the corpus,
       red on 2015e17e.
-- [ ] **Business-lens palette (item 10):** in the business lens the palette subtitles use business wording, not BPMN
+      **Evidence:** `field(..., { line: true, grow: true })` uses T-1274's `growToContent` (cap 240 px). `_t1278-sweep`
+      leg 3 at 1440: of 321 Name values (24 corpus maps plus the lifecycle map), **0 are cut**; on 2015e17e **99 are
+      cut**, 82 of them on corpus maps. At 1024 and 1920, 15/15 lifecycle values, 0 cut. Real CDP keys: "abc" stores "abc"
+      and keeps focus (on 2015e17e it stored "a" and focus fell to BODY: the per-keystroke re-render, fixed here, see
+      Decisions). A pasted "x\ny" stores "x y". Enter ends the edit with no newline. Bytes are identical after the name
+      is restored, and after every leg on every map.
+- [x] **Business-lens palette (item 10):** in the business lens the palette subtitles use business wording, not BPMN
       type names or execution terms. The other lenses are unchanged. Leg red on 2015e17e.
-- [ ] **Helper-text contrast (item 11):** measured. If below 4.5:1, the token is raised; if not, the figure is
+      **Evidence:** `PALETTE_WORDING.business` (8 entries) + `renderPaletteWording()`. `_t1278-sweep` leg 4: no business
+      subtitle matches the technical-word list (startEvent, Event, status:, cron, horizon, bus topic, composite, fork,
+      join, fw, ...); logical/technical/all show exactly the subtitle written in the palette HTML for all 13 items.
+      2015e17e: 7 leg-4 errors (e.g. `subtitle of startEvent is "startEvent"`).
+- [x] **Helper-text contrast (item 11):** measured. If below 4.5:1, the token is raised; if not, the figure is
       recorded.
-- [ ] **No guard regresses:** the T-1277 guard set stays green (13 guards, `_t1256`, `_t1274-note-box`,
+      **Evidence:** measured 2.84:1 (#5a6173 on #161922), below 4.5. A new token, `--text-hint` #80869a, gives 4.84:1.
+      `_t1278-sweep` leg 5: 76 drawn hints per width (side panel and details view, 4 lenses), minimum 4.84:1, 0 below
+      4.5 at 1024/1440/1920. On 2015e17e, 216 were below.
+      **Orchestrator's addition (sweep item 7, which the worker found still applies):** lane captions (`.lane-label`)
+      and id captions (`.node-id-badge`) used `--text-faint`, 3.1:1 on the canvas `--bg`. Both now use `--text-hint`
+      (5.29:1 on `--bg`, 4.84:1 on `--surface`); hover still brightens the lane label to `--text`. No guard pins the
+      colour, and `_t1278-sweep` and `_t1241-business-lens` are green after it. The 48 lens shots and the T-1278 evidence
+      were re-shot. The reach shots now also cover 1920: at the 9 px opening (zoom 1.00) the map is wider than the
+      canvas there too (`reach-*-1920-*.png`).
+- [x] **No guard regresses:** the T-1277 guard set stays green (13 guards, `_t1256`, `_t1274-note-box`,
       `_t1276-name-fit`), run one at a time under nice 19. Saved bytes are unchanged on every corpus map.
+      **Evidence:** one at a time under `nice -n 19`, all exit 0: `_t600 --self-test`, `_t601 --self-test`,
+      `_t1068 --self-test` (5 live legs, 4 poison arms), `_t1067` 6/6, `_t1078` 8 legs, `_t1241-business-lens`, `_t1176`,
+      `_t1249-v11-io`, `_editor-behavior-verify`, `_t1091` 31/31, `_endpoint-overlap-verify`, `_t1274-note-box`,
+      `_t1276-name-fit`, `_t1256` (all legs: corpus lens-shot 72->0, corpus 134->0, bytes unchanged, opening minPx 9 at
+      every width). In the first pass eight guards failed in 0-5 s with ENOSPC: other jobs had filled /tmp (8G tmpfs) to
+      100%. Each was rerun once, alone, with TMPDIR in the project's ignored `build/`, and passed. Bytes: legs 1-3 of
+      `_t1278-sweep` compare `buildBpmnXml` on all 25 maps; all are unchanged.
 - [ ] **Shots:**
   - re-shoot all 48 lens shots;
   - make crops for each fixed item;
@@ -309,6 +347,48 @@ one amber per round.
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+node tools/_t1278-sweep-cdp.mjs > /tmp/.t1278-sweep.out 2>&1 && grep -q '"ok": true' /tmp/.t1278-sweep.out
+node tools/_t1274-note-box-cdp.mjs > /tmp/.t1278-1274.out 2>&1
+node tools/_t1276-name-fit-cdp.mjs > /tmp/.t1278-1276.out 2>&1
+test -s docs/reports/T-1278-evidence/reach-all-1024-right.png && test -s docs/reports/T-1278-evidence/name-field-2x-business-1024.png
+
+## Visual Verification
+
+Shots: all 48 T-1241 lens shots re-shot on this source (`tools/_t1241-lens-shots.py`, 12/12 lens-select ok; the first
+run timed out on one screenshot at load average ~42 and was rerun once alone). The T-1278 evidence comes from
+`tools/_t1278-shots.py` (48 files) in `docs/reports/T-1278-evidence/`: scrolled reachability shots
+`reach-{business,all}-{1024,1440}-{left,mid,right}.png` and `palette-end-business-{1024,1440,1920}.png` (scale 1), and
+2x crops `open-text-2x-{lens}-{w}`, `name-field-2x-{business,all}-{w}`, `palette-2x`/`palette-end-2x-{business,logical}-{w}`
+and `helper-2x-all-{w}`.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| panel, every lens | Name field "create task — fw work-on (status: captured)" | ok | ok | ok | wraps to 2 lines, whole value shown (name-field-2x crops); details view: one line, whole |
+| canvas at opening | node names / flow labels / id captions / lane captions | ok | ok | ok | opening zoom 100%: 9 / 10 / 9 / 9-10 px (open-text-2x crops); "completion gates: … (P-011)" is still dense at 9 px |
+| canvas, panel open, scrolled | every node, label, pool right edge | ok | ok | — | reach-*-left/mid/right: "do the work", "Handoff → dispatch loop", "resolved at gate …", gates/unchecked/archive/end all in view at some scroll; at the shot's scroll 0 they run under the canvas edge (scroll, not hidden) |
+| canvas, scrolled right | pinned lane header (T-1091) | ok | ok | — | at 1024 right-end it covers the left part of "partial-complete"; whole at the mid scroll |
+| canvas at opening, 1920 | human-lane task "partial-complete" | — | — | ok | at 100% the map is wider than the 1920 canvas; the task sits at the right edge, reached by scroll |
+| left palette | every item, LANES "Add Lane", help text | ok | ok | ok | palette-end-business-*: scrolls to its end, LANES and the help text in view |
+| left palette, business | subtitles | ok | ok | ok | "where the work begins/ends", "framework · Authority", "a step made of steps", "paths run side by side", "when something goes wrong", "after a wait or at a set time", "when a message arrives"; two wrap to 2 lines |
+| left palette, logical/technical/all | subtitles | ok | ok | ok | unchanged: startEvent, endEvent, fw · Authority, collapsed composite, fork / join, on status:issues, cron / horizon, on bus topic |
+| panel + details | helper text (".field-hint") | ok | ok | ok | 4.84:1, visibly lighter than before (helper-2x crops); the crop is cut at 720 css px wide, not the UI |
+| toolbar, dialog Close | buttons | ok | ok | ok | contained, unchanged |
+
+My own reading of the 48 lens shots against the sweep's items 1-11:
+- **1-3** (map past the canvas edge at 1024/1440): the shots are at scroll 0, so the same parts still run under the canvas
+  edge. They are reachable by scroll (leg 2 and the reach-* shots). Not a defect.
+- **4** (Name clipped): no longer applies in any panel or details shot.
+- **5** (palette below the viewport): still below the fold in the panel shots; reachable (palette-end-* shots). Not a defect.
+- **6** (tiny names): improved, 7.02 -> 9 px. "completion gates: Agent ACs (P-010) + ## Verification commands (P-011)"
+  is still the densest box (4 lines at 9 px), legible at native resolution.
+- **7** (small, low-contrast captions): size fixed (9-10 px). The lane captions "AGENT · INITIATIVE" / "HUMAN
+  SOVEREIGNTY" and the id captions still use `--text-faint` (about 3:1), so the **low-contrast part still applies**. It is
+  outside this task's criteria; it needs a follow-up.
+- **8-9** (ids/commands in business names and the Note): still apply. This is AEF's map content (Decisions).
+- **10** (business palette terms): no longer applies.
+- **11** (helper contrast): no longer applies (4.84:1).
+
+The orchestrator then reruns `fw reviewer judge T-1241 --criterion 1` (criterion 7).
 
 ## RCA
 
@@ -389,6 +469,61 @@ one amber per round.
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-10-23 — which text the opening zoom measures (items 6-7)
+- **Chose:** `OPEN_MIN_TEXT_PX` 9, and `openingZoom()` takes its minimum over every drawn node name, flow label,
+  id caption and lane caption (`OPEN_TEXT_SEL`), skipping text that is not drawn (lens or ids toggle).
+- **Why:** measured at opening on 2015e17e (aef-task-lifecycle, 1024): names 7.02 px (9 px font), id captions 7.02
+  (9), lane captions 7.02 (9), flow labels 7.80 (10). No class is drawn smaller than the names on this map today,
+  but nothing guarantees it on another map; counting all four classes costs nothing and keeps the floor true for
+  every class. After: 9.0 / 9.0 / 9.0 / 10.0 px at 1024, 1440 and 1920 in all four lenses; Fit still shows the whole map.
+- **Rejected:** names only (as before): a smaller caption or flow label on another map would open under 9 px unseen.
+
+### 2026-10-23 — items 1-3 and 5 are scroll, not defects
+- **Chose:** no layout change; prove reachability with a CDP leg and scrolled shots.
+- **Why:** the side panel sits beside the canvas (grid column), not over it: at 1024 the canvas is x 220-704, the
+  panel 704-1024. The canvas scrolls (scrollWidth 1410 > clientWidth 484 at 1024; 900 at 1440). Every drawn text and
+  node shape (84 business/logical, 101 technical/all) scrolls fully into view and uncovered, and at the furthest
+  scroll the pool's right edge is at x 674 against the visible edge 704 (1024) and 1090 against 1120 (1440). The palette
+  is `overflow-y: auto` (scrollHeight 1285 > clientHeight 693/825/1032). All 23 controls scroll into view, and at the
+  end "+ Add Lane" (LANES) is inside at 1024/1440/1920. The leg is green on 2015e17e too, so nothing needed fixing.
+- **Rejected:** shrinking or overlaying the panel to show the whole map at 1024. That would undo T-1256's readable
+  opening; scroll is the design.
+
+### 2026-10-23 — items 8-9 (ids and commands in business names) are not changed here
+- **Chose:** leave "T-1068", "fw work-on T-XXX", "P-010", "## Verification commands", "P-011" and "G-020" as they are.
+- **Why:** they are words inside AEF's node names, flow names and the Note: map CONTENT that AEF authored. A lens
+  filters fields and decoration; rewriting words inside a name would change what a person reads per lens and
+  would put content edits in the designer. They are reported to AEF as content for their map.
+- **Rejected:** a business-lens text filter that strips id-like tokens from names: it guesses, and it would hide
+  words AEF chose to show.
+
+### 2026-10-23 — the Name field (item 4)
+- **Chose:** the node Name is a one-row textarea (`field(..., { line: true, grow: true })`) sized by T-1274's
+  `growToContent` (grows to the cap, then scrolls). Enter ends the edit (blur) and never inserts a newline; a pasted
+  line break becomes a space before the value reaches the model. Each keystroke updates the step and the canvas; the
+  panel re-renders when the edit ends.
+- **Why:** the single-line input cut the value ("captu…"): 99 of 321 named nodes were cut at 1440 across the corpus.
+  The T-1278 probe also found that the field re-rendered the panel on every keystroke, which rebuilt the box under
+  the cursor: typing "abc" stored "a" and focus fell to the page (the T-264 failure, never covered by a leg). Moving
+  the panel re-render to the end of the edit fixes both in the same field.
+- **Rejected:** a deferred commit (blur/Enter only, as the workflow ID): it loses the live canvas update while typing.
+
+### 2026-10-23 — business-lens palette wording (item 10)
+- **Chose:** a table, `PALETTE_WORDING[lens][data-create]`, applied by `renderPaletteWording()` from
+  `renderLensSelect()`. It holds only `business` (8 subtitles: start/end, script task "framework · Authority",
+  sub-process, parallel, error/timer/message events). Any item it does not name keeps the subtitle written in the
+  palette (kept in `data-meta`), so the other lenses are byte-for-byte the HTML's.
+- **Rejected:** putting the wording in the lens file: that file is AEF's shared definition (T-4402) and its shape is
+  theirs; a palette-wording key would need their agreement first.
+
+### 2026-10-23 — helper-text contrast (item 11)
+- **Chose:** a new token `--text-hint: #80869a` for `.field-label .field-hint` and `.suggest-row .field-hint`.
+- **Why:** measured `--text-faint` #5a6173 on the panel and details background `--surface` #161922 at **2.84:1**,
+  below 4.5:1, for all 76 drawn hints per width (9 px and 11 px). With `--text-hint` it is **4.84:1**. A hint stays
+  a step dimmer than its label (`--text-dim`, 5.58:1).
+- **Rejected:** raising `--text-faint` itself: 41 uses, including canvas glyph strokes and read-only fields, which
+  would change shapes on the map that no item asked about.
 
 ## Decision
 

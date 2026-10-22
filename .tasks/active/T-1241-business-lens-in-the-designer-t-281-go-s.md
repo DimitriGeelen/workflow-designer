@@ -48,7 +48,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-20T20:41:29Z
-last_update: 2026-10-21T17:23:05Z
+last_update: 2026-10-22T14:24:07Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -351,6 +351,25 @@ technical, all) x 3 widths (1024, 1440, 1920) x 2 states (panel = canvas + side 
 "create task — fw work-on" selected; details = the element details view open on it) = 24 files, taken by
 `python3 tools/_t1241-lens-shots.py` on `aef-task-lifecycle` (v3). Read by the author control by control; the
 independent read is the `[REVIEW]` criterion.
+
+**State after the follow-ups T-1274, T-1276, T-1277 and T-1278 (2026-10-23). Reviewer, read this first.** All 48 shots
+(`{panel,panel-bottom,details,details-bottom}`) were re-shot on the current source.
+- **The map opens at 100%,** the readable minimum: every name, flow label, id caption and lane caption is ≥ 9 px.
+  Fit (toolbar ⤢) still shows the whole map. At 100% the map is wider than the canvas at every width, so part of it
+  starts off-screen to the right. That part is reached by **scrolling the canvas**; the side panel sits beside the
+  canvas, not over it. Proof: `docs/reports/T-1278-evidence/reach-{business,all}-{1024,1440,1920}-{left,mid,right}.png`.
+  The `-right` shots show the rest of the flow, the human-lane task and the end event.
+- **The left palette scrolls** to its last control: `docs/reports/T-1278-evidence/palette-end-business-{1024,1440,1920}.png`.
+- **Fixed in these rounds:**
+  - no task name is cut (T-1276);
+  - no flow, arrowhead or label crosses a name or caption (T-1274, T-1277);
+  - the Name and Note fields grow to their text (T-1274, T-1278);
+  - the business-lens palette uses business wording (T-1278);
+  - lane captions, id captions and helper text meet AA contrast (T-1278).
+  Crops: `docs/reports/T-1276-evidence/`, `T-1277-evidence/`, `T-1278-evidence/`.
+- **Not changed, by decision:** "T-1068", "fw work-on T-XXX", "P-010/P-011" and "G-020" in the business view are words
+  INSIDE AEF's node names, flow names and the Note: map content, not ids or badges the lens can filter. They were
+  reported to AEF to reword (T-1278 Decisions).
 
 **Re-shot 2026-10-21 against today's source** (reviewer r5 AMBER: the first 24 shots predated cba1f565's toolbar and
 a3a62820's panel). All 24 replaced; each read control by control:

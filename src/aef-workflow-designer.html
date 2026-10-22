@@ -146,6 +146,7 @@ font-family: 'Outfit';
     --text: #e8eaef;
     --text-dim: #8b91a3;
     --text-faint: #5a6173;
+    --text-hint: #80869a;     /* T-1278: field helper text; --text-faint on --surface measured 2.84:1, this 4.84:1 (WCAG AA 4.5) */
     --accent: #c4ee54;
     --accent-soft: rgba(196,238,84,0.12);
     --blue: #6aa8ff;
@@ -606,7 +607,7 @@ font-family: 'Outfit';
   .pool-resize-handle:hover .lane-resize-grip { opacity: 1; fill: var(--accent); }
   .pool-resize-handle.dragging .lane-resize-grip { opacity: 1; fill: var(--accent); }
   .lane-label {
-    fill: var(--text-faint);
+    fill: var(--text-hint);   /* T-1278: --text-faint was 3.1:1 on --bg; --text-hint 5.29:1 (AA) */
     font-family: var(--mono);
     font-size: 10px;
     text-transform: uppercase;
@@ -679,7 +680,7 @@ font-family: 'Outfit';
   svg[data-lsize="s"] .lane-label { font-size: 9px; }
   svg[data-lsize="l"] .lane-label { font-size: 11.5px; }
   .node-io-badge { fill: var(--text-dim); font-family: var(--mono); font-size: 8px; pointer-events: none; }
-  .node-id-badge { fill: var(--text-faint); font-family: var(--mono); font-size: 9px; pointer-events: none; letter-spacing: 0.02em; }
+  .node-id-badge { fill: var(--text-hint); font-family: var(--mono); font-size: 9px; pointer-events: none; letter-spacing: 0.02em; }
   /* T-893 (T-888 clause 4): authority marker on the element. Two classes for two states that
      must read DIFFERENTLY — a differing authority is a choice (faint, like the id badge), a
      missing one is a hole (the orange token, the same one AUTHORITY_LABEL_COLOR uses for
@@ -959,7 +960,7 @@ font-family: 'Outfit';
   .field-hidden-tag { font-size: 10.5px; color: var(--orange, #d29922); margin: -2px 0 4px; }
   /* T-1126: the suggestion row under an "Other extensions" entry */
   .suggest-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 3px 0 2px; }
-  .suggest-row .field-hint { margin: 0; font-size: 11px; color: var(--text-faint); }
+  .suggest-row .field-hint { margin: 0; font-size: 11px; color: var(--text-hint); }
   .btn-suggest { font-size: 11px; padding: 2px 8px; white-space: nowrap; flex: none; }
   /* T-1128: Settings → Fields shown by default */
   .fd-scope { display: inline-flex; align-items: center; gap: 4px; margin-left: 10px; font-size: 12px; }
@@ -1071,7 +1072,7 @@ font-family: 'Outfit';
   .field-label .field-hint {
     font-family: var(--mono);
     font-size: 9px;
-    color: var(--text-faint);
+    color: var(--text-hint);
     font-weight: 400;
   }
   .field-input, .field-select, .field-textarea {
@@ -1093,6 +1094,15 @@ font-family: 'Outfit';
     resize: vertical;
     min-height: 50px;
     line-height: 1.4;
+  }
+  /* T-1278: a one-line value that wraps to show itself whole (the step Name); growToContent sizes it */
+  .field-input-line {
+    display: block;
+    resize: none;
+    overflow-y: hidden;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
   .field-select {
     appearance: none;
@@ -3344,7 +3354,11 @@ function setZoom(f, anchorX, anchorY) {
 // opens at the zoom that draws it at that size, scrolled to the top-left corner; the rest is reached by scroll,
 // nothing is hidden, and Fit still shows the whole map. Only on opening a document, and never over a zoom the person
 // chose (setZoom clears _zoomFromOpen); a zoom this function set is re-judged on the next open. View state only.
-const OPEN_MIN_TEXT_PX = 7;
+// T-1278: 7 -> 9 px (the codex sweep of the T-1241 shots still found names, flow labels and captions too small at 7),
+// and the minimum is over every class of map text a person reads, not node names alone: flow labels, id captions and
+// lane captions too (OPEN_TEXT_SEL), so none of them opens below the floor when it is drawn smaller than the names.
+const OPEN_MIN_TEXT_PX = 9;
+const OPEN_TEXT_SEL = 'text.node-label, text.edge-label, text.node-id-badge, text.lane-label';
 let _zoomFromOpen = false;
 function openingZoom() {
   if (zoomFactor != null && !_zoomFromOpen) return;
@@ -3352,7 +3366,8 @@ function openingZoom() {
   applyCanvasZoom();
   let fit = 1, min = Infinity;
   try { fit = svg.getScreenCTM().a; } catch (e) { aefRecordFault('opening-zoom:ctm', e); return; }   // T-821: no CTM, the map stays at fit
-  for (const t of gNodes.querySelectorAll('text.node-label')) {
+  for (const t of svg.querySelectorAll(OPEN_TEXT_SEL)) {
+    if (!t.getBoundingClientRect().width) continue;   // not drawn (a lens or the ids toggle hides it)
     const px = parseFloat(getComputedStyle(t).fontSize) * fit;
     if (px > 0 && px < min) min = px;
   }
@@ -7137,6 +7152,26 @@ function renderLensSelect() {
   if (_lensName !== 'all' && !names.includes(_lensName)) _lensName = 'all';
   sel.value = _lensName;
   document.body.dataset.lens = _lensName;
+  renderPaletteWording();
+}
+// T-1278: the palette subtitles a lens rewords (the T-1241 sweep: the business lens still showed "startEvent",
+// "endEvent", "on status:issues", "cron / horizon", "on bus topic"). Keyed by lens, then by data-create; an item the
+// table does not name keeps the subtitle written in the palette (kept in data-meta), so every other lens is unchanged.
+const PALETTE_WORDING = {
+  business: {
+    startEvent: 'where the work begins', endEvent: 'where the work ends', scriptTask: 'framework · Authority',
+    subProcess: 'a step made of steps',
+    parallelGateway: 'paths run side by side', eventError: 'when something goes wrong',
+    eventTimer: 'after a wait or at a set time', eventMessage: 'when a message arrives'
+  }
+};
+function renderPaletteWording() {
+  const words = PALETTE_WORDING[_lensName] || {};
+  for (const m of document.querySelectorAll('.palette-item[data-create] .palette-meta')) {
+    if (m.dataset.meta == null) m.dataset.meta = m.textContent;
+    const t = words[m.closest('.palette-item').dataset.create] || m.dataset.meta;
+    if (m.textContent !== t) m.textContent = t;
+  }
 }
 function setLens(name) {
   _lensName = name;
@@ -7941,14 +7976,17 @@ function _renderPropsInto(props, details) {
 
   // BPMN basics
   const sBpmn = section('BPMN');
+  // T-1278: the Name box grows to show the whole name and stays one line of data (field opts.line). Each keystroke
+  // updates the step and the canvas; the panel (slug, id preview) re-renders when the edit ends (Enter or blur).
+  // It used to re-render on every keystroke, which rebuilt this box under the cursor: typing "abc" stored "a" and
+  // focus fell to the page (the T-264 failure, found by the T-1278 probe).
   sBpmn.appendChild(field('Name', n.name, v => {
     n.name = v;
     // The slug follows the name (T-1193: it is no longer editable).
     n.slug = deriveUniqueSlug(n, v);
     refreshDisplayIds();
     renderNodes();
-    renderProperties();
-  }));
+  }, { line: true, grow: true }));
   // T-1193: the slug is SHOWN, not edited. It follows the name. A slug typed here was never saved (the export writes no
   // slug; the importer derives every slug from the name), so it reverted on reload and the next save changed the id
   // unasked. Rename the step to change it.
@@ -8423,10 +8461,25 @@ function field(label, value, onInput, opts = {}) {
     lbl.appendChild(h);
   }
   wrap.appendChild(lbl);
-  const inp = document.createElement(opts.textarea ? 'textarea' : 'input');
-  inp.className = opts.textarea ? 'field-textarea' : 'field-input';
+  const inp = document.createElement(opts.textarea || opts.line ? 'textarea' : 'input');
+  inp.className = opts.textarea ? 'field-textarea' : (opts.line ? 'field-input field-input-line' : 'field-input');
   inp.value = value;
   inp.spellcheck = false;
+  if (opts.line) {
+    // T-1278: a one-line value shown in a box that wraps and grows (the step Name: the T-1241 sweep found the single-
+    // line field cut "create task — fw work-on (status: captured)" after "captu"). It stays one line of data: Enter
+    // ends the edit (blur commits it) and never inserts a newline, and a pasted line break becomes a space, before
+    // the value reaches onInput, so no newline is ever stored.
+    inp.rows = 1;
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); if (!opts.deferred) inp.blur(); } });
+    inp.addEventListener('input', e => {
+      if (!/[\r\n]/.test(inp.value)) return;
+      const at = inp.selectionStart;
+      const before = inp.value.slice(0, at).replace(/\s*[\r\n]+\s*/g, ' ');
+      inp.value = before + inp.value.slice(at).replace(/\s*[\r\n]+\s*/g, ' ');
+      inp.setSelectionRange(before.length, before.length);
+    });   // registered before onInput's listener below, so onInput reads the cleaned value
+  }
   if (opts.deferred) {
     // T-264: commit once on blur/Enter. A live per-keystroke commit whose handler
     // re-renders the panel (workflow rename) destroys this input mid-typing —
@@ -8441,7 +8494,7 @@ function field(label, value, onInput, opts = {}) {
     inp.addEventListener('input', e => onInput(e.target.value));
     inp.addEventListener('blur', () => { renderProperties(); });
   }
-  if (opts.grow && opts.textarea) growToContent(inp);
+  if (opts.grow && (opts.textarea || opts.line)) growToContent(inp);
   wrap.appendChild(inp);
   return wrap;
 }
