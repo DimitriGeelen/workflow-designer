@@ -244,11 +244,13 @@ echo "--- teeth (mutate live source, assert the probe goes RED)"
 python3 - "$HOOK" "$MUT" <<'PYEOF'
 import sys
 src = open(sys.argv[1]).read()
-anchor = '    "$PROJECT_ROOT"/.context/*|"$PROJECT_ROOT"/.tasks/*|"$PROJECT_ROOT"/.claude/*|"$PROJECT_ROOT"/.git/*)\n        exit 0\n'
+# T-1275: anchored on the arm's pattern line only. AEF be.3 (T-4639) changed the arm's body from `exit 0` to
+# `[ -n "$_git_exec_path" ] || exit 0`, which broke the old two-line anchor; the mutation is the pattern anyway.
+anchor = '    "$PROJECT_ROOT"/.context/*|"$PROJECT_ROOT"/.tasks/*|"$PROJECT_ROOT"/.claude/*|"$PROJECT_ROOT"/.git/*)\n'
 if src.count(anchor) != 1:
     sys.stderr.write("MUTATION FAILED: exempt-path arm found %d times, expected 1 -- teeth cannot certify anything\n" % src.count(anchor))
     sys.exit(1)
-mutant = '    "$PROJECT_ROOT"/.context/*|"$PROJECT_ROOT"/.claude/*|"$PROJECT_ROOT"/.git/*)\n        exit 0\n'
+mutant = '    "$PROJECT_ROOT"/.context/*|"$PROJECT_ROOT"/.claude/*|"$PROJECT_ROOT"/.git/*)\n'
 open(sys.argv[2], "w").write(src.replace(anchor, mutant, 1))
 PYEOF
 mut_rc=$?

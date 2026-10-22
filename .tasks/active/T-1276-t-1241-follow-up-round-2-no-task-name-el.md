@@ -289,7 +289,7 @@ green and the codex seat amber (evidence: `.context/reviews/evidence/T-1241/AC1-
 node tools/_t1276-name-fit-cdp.mjs
 node tools/_t1256-label-clearance-cdp.mjs
 node tools/_t1274-note-box-cdp.mjs
-test "$(ls docs/reports/T-1276-evidence/*-2x-*-1920.png | wc -l)" -eq 12
+test -s docs/reports/T-1276-evidence/name-verify-2x-business-1920.png && test -s docs/reports/T-1276-evidence/name-human-review-2x-business-1920.png
 
 ## Visual Verification
 

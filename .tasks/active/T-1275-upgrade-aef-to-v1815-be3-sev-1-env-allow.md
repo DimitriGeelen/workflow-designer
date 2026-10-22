@@ -131,8 +131,14 @@ This follows the be.2 path (T-1245, jobs 072, 074 and 075).
   - T-4647: with leaked CONTEXT_DIR/TASKS_DIR/FW_* exported, `fw_spawn_env` (`lib/spawn-env.sh`) passes none of
     them; only allow-listed variables such as HOME and PATH get through. The tmux global env carries no project path.
   - Still open: the identity FAIL, until the operator relaunches this session with the new `claude-fw`.
-- [ ] **Suite** (`tests/run-bridge-tests.sh`) shows no new failure against the 2026-10-22 baseline (305/8, all 8
+- [x] **Suite** (`tests/run-bridge-tests.sh`) shows no new failure against the 2026-10-22 baseline (305/8, all 8
       explained).
+  **2026-10-22, met:** 310 passed, 3 failed (log `.context/working/t1275-suite.log`); none is a be.3 regression.
+  1. G-015 hygiene: T-1276's own Verification pinned a file count. The line now asserts its two delivered crops.
+  2. Instrument sweep, `_t572` control and `_t1060` leg 1: under load. Rerun alone, both pass (4/4, 3/3), the same
+     load timeouts as the morning's runs.
+  3. `_t629` teeth could not build its mutant. be.3's T-4639 changed the exempt-path arm's body (`exit 0` became
+     `[ -n "$_git_exec_path" ] || exit 0`). The anchor is now the pattern line only; 13/13, teeth fire.
 - [ ] **AEF has the field report:** WORKS or FAILS for each be.3 fix exercised, with paths.
 
 ### Human
