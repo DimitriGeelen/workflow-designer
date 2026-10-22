@@ -9,13 +9,13 @@ description: >
   11; prove reachability for 1-3 and 5 with shots (fix if not scrollable); 8-9 are
   AEF map content, recorded, not changed.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [designer, ui, T-1241]
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-22T22:21:12Z
-last_update: '2026-10-22T22:21:18Z'
-date_finished:
+last_update: 2026-10-22T23:41:04Z
+date_finished: 2026-10-22T23:41:04Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -408,6 +408,39 @@ The orchestrator then reruns `fw reviewer judge T-1241 --criterion 1` (criterion
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** four defects, all found by an independent screenshot review of `aef-task-lifecycle` (T-1241's codex
+sweep, items 4, 6-7, 10, 11) and one found by this task's own probe:
+- the side-panel Name field cut long names ("…captu"): 99 of 321 names on the corpus at 1440;
+- typing in the Name field kept only the first letter, and focus fell to the page;
+- canvas text opened at about 7 px;
+- the business-lens palette showed BPMN type names;
+- helper text, lane captions and id captions sat at 2.8-3.1:1 contrast.
+
+**Root cause:**
+- **Name field:** a single-line `<input>` for a free-text value of any length. The panel also re-rendered on every
+  keystroke, which rebuilt the field under the cursor (the T-264 failure class).
+- **Opening size:** T-1256's `openingZoom` measured only node names and set the floor at 7 px. Flow labels and
+  captions, drawn smaller, were never part of the minimum.
+- **Palette:** its subtitles were written for one audience (BPMN-literate) before lenses existed.
+- **Contrast:** `--text-faint` was chosen for "quiet" chrome and never measured, and it was reused for text a person
+  must read.
+
+**Why structurally allowed:**
+- No leg measured what a person sees in the panel: field overflow, a typed value surviving, or drawn text size per
+  class.
+- No leg measured contrast for any token except the flow-label one (T-1276).
+- The lens-shot review read layout, so each defect surfaced only one reviewer round at a time.
+
+**Prevention:**
+- `tools/_t1278-sweep-cdp.mjs` covers every item, red on 2015e17e (384 errors):
+  - Name overflow on the corpus;
+  - typed-value survival and focus;
+  - the smallest drawn size of names, flow labels, id captions and lane captions at opening (≥ 9 px);
+  - business palette wording;
+  - helper-text contrast.
+- The ADVISORY full sweep before an official review run is now the practice for UI review rounds (this task), so one
+  round lists everything instead of one amber per round.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -546,3 +579,20 @@ The orchestrator then reruns `fw reviewer judge T-1241 --criterion 1` (criterion
 
 ### 2026-10-22T22:21:17Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-39dbe101
+- **Timestamp:** 2026-10-22T23:44:06Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-22T23:41:04Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

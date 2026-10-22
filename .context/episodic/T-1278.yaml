@@ -1,0 +1,217 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1278: T-1241 follow-up round 4: fix the codex advisory sweep list (readable minimum 9px, Name field grows, business-lens palette wording, reachability evidence)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-22T23:44:17Z
+# ============================================================================
+
+task_id: T-1278
+task_name: "T-1241 follow-up round 4: fix the codex advisory sweep list (readable minimum 9px, Name field grows, business-lens palette wording, reachability evidence)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-22T22:21:12Z
+completed: 2026-10-22T23:41:04Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-23T00:22:13+02:00
+last_commit: 2026-10-23T01:04:52+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file the fourth T-1241 follow-up from the codex advisory sweep of all 48 shots at 2015e17e (10 blocking, 1 cosmetic, no crossings left), with the orchestrator's triage: fix readable minimum (7->9px), Name field growth, business-lens palette wording; prove reachability with scrolled shots; measure helper contrast; items 8-9 are AEF map content, recorded not changed. answer the codex advisory sweep in one round — opening minimum 7->9 px over names, flow labels, id and lane captions (smallest drawn 9/10/9/9 px, opening zoom 0.78->1.00, Fit unchanged); side-panel Name field grows to its text (0/321 cut, was 99; Enter commits, newline never stored; also fixes per-keystroke re-render that kept only the first letter); business-lens palette in business wording (8 subtitles, one table); --text-hint token for helper text (2.84->4.84:1) and for lane and id captions (3.1->5.29:1); reachability proven, not changed: canvas scrolls to the pool's right edge beside the open panel and the palette to its last control at 1024/1440/1920 (reach-/palette-end shots); items 8-9 are AEF map content, recorded and reported. _t1278-sweep red on 2015e17e (384) green now; 14 guards green; bytes unchanged; 48 lens shots re-shot; T-1241 Visual Verification gets a reviewer summary of the four rounds. baseline _t1278-shots.py in the unwired-guard census (an evidence-shot generator, not a guard; same class as _t1256-shots)
+
+# Key outcomes
+outcomes:
+  - '**Readable opening (items 6-7):** `OPEN_MIN_TEXT_PX` is 9. On `aef-task-lifecycle` the smallest node name,'
+  - '**Reachability (items 1-3, 5):**'
+  - '**Name field (item 4):** grows to its content up to a cap, then scrolls, like the T-1274 Note box. Enter still'
+  - '**Business-lens palette (item 10):** in the business lens the palette subtitles use business wording, not BPMN'
+  - '**Helper-text contrast (item 11):** measured. If below 4.5:1, the token is raised; if not, the figure is'
+  - '**No guard regresses:** the T-1277 guard set stays green (13 guards, `_t1256`, `_t1274-note-box`,'
+  - '**Shots:**'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'answer the codex advisory sweep in one round — opening minimum 7->9 px over names, flow labels, id and lane captions (smallest drawn 9/10/9/9 px, opening zoom 0.78->1.00, Fit unchanged); side-panel Name field grows to its text (0/321 cut, was 99; Enter commits, newline never stored; also fixes per-keystroke re-render that kept only the first letter); business-lens palette in business wording (8 subtitles, one table); --text-hint token for helper text (2.84->4.84:1) and for lane and id captions (3.1->5.29:1); reachability proven, not changed: canvas scrolls to the pool''s right edge beside the open panel and the palette to its last control at 1024/1440/1920 (reach-/palette-end shots); items 8-9 are AEF map content, recorded and reported. _t1278-sweep red on 2015e17e (384) green now; 14 guards green; bytes unchanged; 48 lens shots re-shot; T-1241 Visual Verification gets a reviewer summary of the four rounds'
+    source: git-mined
+  - description: 'file the fourth T-1241 follow-up from the codex advisory sweep of all 48 shots at 2015e17e (10 blocking, 1 cosmetic, no crossings left), with the orchestrator''s triage: fix readable minimum (7->9px), Name field growth, business-lens palette wording; prove reachability with scrolled shots; measure helper contrast; items 8-9 are AEF map content, recorded not changed'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-10-23 — which text the opening zoom measures (items 6-7)'
+    chose: '`OPEN_MIN_TEXT_PX` 9, and `openingZoom()` takes its minimum over every drawn node name, flow label, id caption and lane caption (`OPEN_TEXT_SEL`), skipping text that is not drawn (lens or ids toggle).'
+    rationale: 'measured at opening on 2015e17e (aef-task-lifecycle, 1024): names 7.02 px (9 px font), id captions 7.02 (9), lane captions 7.02 (9), flow labels 7.80 (10). No class is drawn smaller than the names on this map today, but nothing guarantees it on another map; counting all four classes costs nothing and keeps the floor true for every class. After: 9.0 / 9.0 / 9.0 / 10.0 px at 1024, 1440 and 1920 in all four lenses; Fit still shows the whole map.'
+    alternatives_rejected: ['names only (as before): a smaller caption or flow label on another map would open under 9 px unseen.']
+  - decision: '2026-10-23 — items 1-3 and 5 are scroll, not defects'
+    chose: 'no layout change; prove reachability with a CDP leg and scrolled shots.'
+    rationale: 'the side panel sits beside the canvas (grid column), not over it: at 1024 the canvas is x 220-704, the panel 704-1024. The canvas scrolls (scrollWidth 1410 > clientWidth 484 at 1024; 900 at 1440). Every drawn text and node shape (84 business/logical, 101 technical/all) scrolls fully into view and uncovered, and at the furthest scroll the pool''s right edge is at x 674 against the visible edge 704 (1024) and 1090 against 1120 (1440). The palette is `overflow-y: auto` (scrollHeight 1285 > clientHeight 693/825/1032). All 23 controls scroll into view, and at the end "+ Add Lane" (LANES) is inside at 1024/1440/1920. The leg is green on 2015e17e too, so nothing needed fixing.'
+    alternatives_rejected: ['shrinking or overlaying the panel to show the whole map at 1024. That would undo T-1256''s readable opening; scroll is the design.']
+  - decision: '2026-10-23 — items 8-9 (ids and commands in business names) are not changed here'
+    chose: 'leave "T-1068", "fw work-on T-XXX", "P-010", "## Verification commands", "P-011" and "G-020" as they are.'
+    rationale: 'they are words inside AEF''s node names, flow names and the Note: map CONTENT that AEF authored. A lens filters fields and decoration; rewriting words inside a name would change what a person reads per lens and would put content edits in the designer. They are reported to AEF as content for their map.'
+    alternatives_rejected: ['a business-lens text filter that strips id-like tokens from names: it guesses, and it would hide words AEF chose to show.']
+  - decision: '2026-10-23 — the Name field (item 4)'
+    chose: 'the node Name is a one-row textarea (`field(..., { line: true, grow: true })`) sized by T-1274''s `growToContent` (grows to the cap, then scrolls). Enter ends the edit (blur) and never inserts a newline; a pasted line break becomes a space before the value reaches the model. Each keystroke updates the step and the canvas; the panel re-renders when the edit ends.'
+    rationale: 'the single-line input cut the value ("captu…"): 99 of 321 named nodes were cut at 1440 across the corpus. The T-1278 probe also found that the field re-rendered the panel on every keystroke, which rebuilt the box under the cursor: typing "abc" stored "a" and focus fell to the page (the T-264 failure, never covered by a leg). Moving the panel re-render to the end of the edit fixes both in the same field.'
+    alternatives_rejected: ['a deferred commit (blur/Enter only, as the workflow ID): it loses the live canvas update while typing.']
+  - decision: '2026-10-23 — business-lens palette wording (item 10)'
+    chose: 'a table, `PALETTE_WORDING[lens][data-create]`, applied by `renderPaletteWording()` from `renderLensSelect()`. It holds only `business` (8 subtitles: start/end, script task "framework · Authority", sub-process, parallel, error/timer/message events). Any item it does not name keeps the subtitle written in the palette (kept in `data-meta`), so the other lenses are byte-for-byte the HTML''s.'
+    alternatives_rejected: ['putting the wording in the lens file: that file is AEF''s shared definition (T-4402) and its shape is theirs; a palette-wording key would need their agreement first.']
+  - decision: '2026-10-23 — helper-text contrast (item 11)'
+    chose: 'a new token `--text-hint: #80869a` for `.field-label .field-hint` and `.suggest-row .field-hint`.'
+    rationale: 'measured `--text-faint` #5a6173 on the panel and details background `--surface` #161922 at **2.84:1**, below 4.5:1, for all 76 drawn hints per width (9 px and 11 px). With `--text-hint` it is **4.84:1**. A hint stays a step dimmer than its label (`--text-dim`, 5.58:1).'
+    alternatives_rejected: ['raising `--text-faint` itself: 41 uses, including canvas glyph strokes and read-only fields, which would change shapes on the map that no item asked about.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/advisory/T-1241-codex-sweep-2015e17e.md'
+  - 'docs/reports/T-1241-evidence/t1241-all-1024-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1024-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1024-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1024-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1440-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1440-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1440-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1440-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1920-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1920-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1920-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1920-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1024-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1024-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1024-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1024-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1440-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1440-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1440-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1440-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1920-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1920-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1920-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1920-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1024-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1024-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1024-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1024-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1440-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1440-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1440-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1440-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1920-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1920-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1920-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1920-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1024-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1024-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1024-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1024-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1440-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1440-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1440-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1440-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1920-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1920-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1920-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1920-panel.png'
+  - 'docs/reports/T-1278-evidence/helper-2x-all-1024.png'
+  - 'docs/reports/T-1278-evidence/helper-2x-all-1440.png'
+  - 'docs/reports/T-1278-evidence/helper-2x-all-1920.png'
+  - 'docs/reports/T-1278-evidence/name-field-2x-all-1024.png'
+  - 'docs/reports/T-1278-evidence/name-field-2x-all-1440.png'
+  - 'docs/reports/T-1278-evidence/name-field-2x-all-1920.png'
+  - 'docs/reports/T-1278-evidence/name-field-2x-business-1024.png'
+  - 'docs/reports/T-1278-evidence/name-field-2x-business-1440.png'
+  - 'docs/reports/T-1278-evidence/name-field-2x-business-1920.png'
+  - 'docs/reports/T-1278-evidence/open-text-2x-all-1024.png'
+  - 'docs/reports/T-1278-evidence/open-text-2x-all-1440.png'
+  - 'docs/reports/T-1278-evidence/open-text-2x-all-1920.png'
+  - 'docs/reports/T-1278-evidence/open-text-2x-business-1024.png'
+  - 'docs/reports/T-1278-evidence/open-text-2x-business-1440.png'
+  - 'docs/reports/T-1278-evidence/open-text-2x-business-1920.png'
+  - 'docs/reports/T-1278-evidence/open-text-2x-logical-1024.png'
+  - 'docs/reports/T-1278-evidence/open-text-2x-logical-1440.png'
+  - 'docs/reports/T-1278-evidence/open-text-2x-logical-1920.png'
+  - 'docs/reports/T-1278-evidence/open-text-2x-technical-1024.png'
+  - 'docs/reports/T-1278-evidence/open-text-2x-technical-1440.png'
+  - 'docs/reports/T-1278-evidence/open-text-2x-technical-1920.png'
+  - 'docs/reports/T-1278-evidence/palette-2x-business-1024.png'
+  - 'docs/reports/T-1278-evidence/palette-2x-business-1440.png'
+  - 'docs/reports/T-1278-evidence/palette-2x-business-1920.png'
+  - 'docs/reports/T-1278-evidence/palette-2x-logical-1024.png'
+  - 'docs/reports/T-1278-evidence/palette-2x-logical-1440.png'
+  - 'docs/reports/T-1278-evidence/palette-2x-logical-1920.png'
+  - 'docs/reports/T-1278-evidence/palette-end-2x-business-1024.png'
+  - 'docs/reports/T-1278-evidence/palette-end-2x-business-1440.png'
+  - 'docs/reports/T-1278-evidence/palette-end-2x-business-1920.png'
+  - 'docs/reports/T-1278-evidence/palette-end-2x-logical-1024.png'
+  - 'docs/reports/T-1278-evidence/palette-end-2x-logical-1440.png'
+  - 'docs/reports/T-1278-evidence/palette-end-2x-logical-1920.png'
+  - 'docs/reports/T-1278-evidence/palette-end-business-1024.png'
+  - 'docs/reports/T-1278-evidence/palette-end-business-1440.png'
+  - 'docs/reports/T-1278-evidence/palette-end-business-1920.png'
+  - 'docs/reports/T-1278-evidence/reach-all-1024-left.png'
+  - 'docs/reports/T-1278-evidence/reach-all-1024-mid.png'
+  - 'docs/reports/T-1278-evidence/reach-all-1024-right.png'
+  - 'docs/reports/T-1278-evidence/reach-all-1440-left.png'
+  - 'docs/reports/T-1278-evidence/reach-all-1440-mid.png'
+  - 'docs/reports/T-1278-evidence/reach-all-1440-right.png'
+  - 'docs/reports/T-1278-evidence/reach-all-1920-left.png'
+  - 'docs/reports/T-1278-evidence/reach-all-1920-mid.png'
+  - 'docs/reports/T-1278-evidence/reach-all-1920-right.png'
+  - 'docs/reports/T-1278-evidence/reach-business-1024-left.png'
+  - 'docs/reports/T-1278-evidence/reach-business-1024-mid.png'
+  - 'docs/reports/T-1278-evidence/reach-business-1024-right.png'
+  - 'docs/reports/T-1278-evidence/reach-business-1440-left.png'
+  - 'docs/reports/T-1278-evidence/reach-business-1440-mid.png'
+  - 'docs/reports/T-1278-evidence/reach-business-1440-right.png'
+  - 'docs/reports/T-1278-evidence/reach-business-1920-left.png'
+  - 'docs/reports/T-1278-evidence/reach-business-1920-mid.png'
+  - 'docs/reports/T-1278-evidence/reach-business-1920-right.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1241-business-lens-in-the-designer-t-281-go-s.md'
+  - '.tasks/active/T-1278-t-1241-follow-up-round-4-fix-the-codex-a.md'
+  - 'tools/_t1278-shots.py'
+  - 'tools/_t1278-sweep-cdp.mjs'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-23T00:22:13'
+    action: 'T-1278: file the fourth T-1241 follow-up from the codex advisory sweep of all 48 shots at 2015e17e (10 blocking, 1 cosmetic, no crossings left), with the orchestrator''s triage: fix readable minimum (7->9px), Name field growth, business-lens palette wording; prove reachability with scrolled shots; measure helper contrast; items 8-9 are AEF map content, recorded not changed'
+  - time: '2026-10-23T01:04:24'
+    action: 'T-1278: answer the codex advisory sweep in one round — opening minimum 7->9 px over names, flow labels, id and lane captions (smallest drawn 9/10/9/9 px, opening zoom 0.78->1.00, Fit unchanged); side-panel Name field grows to its text (0/321 cut, was 99; Enter commits, newline never stored; also fixes per-keystroke re-render that kept only the first letter); business-lens palette in business wording (8 subtitles, one table); --text-hint token for helper text (2.84->4.84:1) and for lane and id captions (3.1->5.29:1); reachability proven, not changed: canvas scrolls to the pool''s right edge beside the open panel and the palette to its last control at 1024/1440/1920 (reach-/palette-end shots); items 8-9 are AEF map content, recorded and reported. _t1278-sweep red on 2015e17e (384) green now; 14 guards green; bytes unchanged; 48 lens shots re-shot; T-1241 Visual Verification gets a reviewer summary of the four rounds'
+  - time: '2026-10-23T01:04:52'
+    action: 'T-1278: baseline _t1278-shots.py in the unwired-guard census (an evidence-shot generator, not a guard; same class as _t1256-shots)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 79 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, ui, T-1241]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 79
+  commits: 3
+  files_changed: 109
+  lines_added: 1131
+  lines_removed: 18
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1278-t-1241-follow-up-round-4-fix-the-codex-a.md
+generated_by: context-agent-hybrid
