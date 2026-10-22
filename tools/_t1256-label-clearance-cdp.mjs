@@ -17,6 +17,10 @@
 //      of the smaller font read as one run ("yes — status: issues issues encountered?"): 0 on aef-task-lifecycle in
 //      leg 5's every run (lens x ids x 1440/1920); on the corpus (lens all, ids on/off, 1440 and 1920) no map more than
 //      the designer-v0.25.0 placement, and the total not higher (T1256_NEAR_BASE_SRC substitutes that baseline);
+//   7. lens-shot state (T-1277): every corpus map opened as tools/_t1241-lens-shots.py opens it, at 1024/1440/1920,
+//      lens all, ids on: gwFlow + idFlow + head (a name or caption on an arrowhead) per map and in total no higher than
+//      the 6d03c1b9 placement (T1256_SHOT_BASE_SRC substitutes it); bytes unchanged. Legs 1 and 5 count head too, and
+//      leg 5 measures the lens-shot load at 1024 as well;
 //   4. at 1024 the map opens with its node and gateway text at >= MIN_PX (stated in T-1256) rendered size, and
 //      nothing is hidden: every node's shape is in the canvas's scrollable area.
 // T1256_SRC substitutes another designer file (e.g. the 0.24.0 source: legs 1, 2 and 4 must go red).
@@ -35,7 +39,8 @@ const REPO = join(HERE, '..');
 const SERVER = join(HERE, 'gallery-serve.py');
 const SRC = process.env.T1256_SRC || join(REPO, 'src/aef-workflow-designer.html');
 const BASE_TAG = 'designer-v0.24.0';
-const NEAR_TAG = 'designer-v0.25.0';   // T-1274: the nearness baseline (the release before the nearness pass)
+const NEAR_TAG = 'designer-v0.25.0';
+const SHOT_BASE = '6d03c1b9';      // T-1277: the leg-7 baseline (T-1241 round-3 amber was judged on it)   // T-1274: the nearness baseline (the release before the nearness pass)
 const MIN_PX = 7;   // the stated minimum rendered size of node and gateway text at 1024 (T-1256)
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -71,6 +76,22 @@ const MEASURE = `window.__t1256measure = function(){
     var pts = polylineFromPath(p.getAttribute('d')).map(function(q){ return pt(m, q.x, q.y); });
     for (var i = 0; i < pts.length - 1; i++) segs.push({ a: pts[i], b: pts[i + 1], edge: id });
   });
+  // T-1277: the arrowheads, which the segments above leave out: #arrow at the end (8 x the 1.5 stroke, tip 1/10 past
+  // the path's end) and #arrow-source at the start (5 x 1.5, pointing into the flow), as boxes in screen px with one
+  // unit of margin for the anti-aliased edge. agt_3_start and agt_6_completion stood against the end head of the flow
+  // into their own task, touching its base: no segment crossed them, so legs 1 and 5 read 0.
+  var heads = [];
+  Array.prototype.forEach.call(gEdges.querySelectorAll('g.edge > path.edge-path'), function(p){
+    var m = p.getScreenCTM(), id = p.parentNode.getAttribute('data-id'), pl = polylineFromPath(p.getAttribute('d')), SW = 1.5, M = 1;
+    if (pl.length < 2) return;
+    function head(tip, prev, back, fwd, half){ var dx = tip.x - prev.x, dy = tip.y - prev.y, L = Math.hypot(dx, dy); if (!L) return;
+      var ux = dx / L, uy = dy / L, bx = tip.x - ux * back, by = tip.y - uy * back;
+      var xs = [tip.x + ux * fwd, bx - uy * half, bx + uy * half], ys = [tip.y + uy * fwd, by + ux * half, by - ux * half];
+      var a = pt(m, Math.min.apply(null, xs) - M, Math.min.apply(null, ys) - M), b = pt(m, Math.max.apply(null, xs) + M, Math.max.apply(null, ys) + M);
+      heads.push({ edge: id, box: { x1: Math.min(a.x, b.x), y1: Math.min(a.y, b.y), x2: Math.max(a.x, b.x), y2: Math.max(a.y, b.y) } }); }
+    if (p.getAttribute('marker-end')) head(pl[pl.length - 1], pl[pl.length - 2], 0.8 * SW * 9, 0.8 * SW, 0.8 * SW * 5);
+    if (p.getAttribute('marker-start')) head(pl[0], pl[1], -0.5 * SW, -0.5 * SW * 9, 0.5 * SW * 5);
+  });
   var labels = [];
   function add(kind, t, owner){ if (t.closest('#g-sticky-lanes')) return; var b = boxOf(t); if (!b) return;
     var s = 0.5; b = { x1: b.x1 + s, y1: b.y1 + s, x2: b.x2 - s, y2: b.y2 - s };   // touching is not crossing
@@ -97,6 +118,11 @@ const MEASURE = `window.__t1256measure = function(){
     out.hits.push(L.kind + ' "' + L.text + '" x flow ' + Object.keys(crossed).join(','));
   });
   function inter(a, b){ return a.x1 < b.x2 && b.x1 < a.x2 && a.y1 < b.y2 && b.y1 < a.y2; }
+  // head (T-1277): a gateway/event name or id caption on an arrowhead (its raw box against the head's box + margin).
+  out.head = 0;
+  labels.forEach(function(L){ if (L.kind === 'el') return;
+    heads.forEach(function(h){ if (!inter(L.raw, h.box)) return;
+      out.head++; out.hits.push('head "' + L.text + '" x arrowhead of ' + h.edge); }); });
   for (var i = 0; i < labels.length; i++) for (var j = i + 1; j < labels.length; j++) {
     var A = labels[i], B = labels[j];
     if (A.owner === B.owner || !inter(A.box, B.box)) continue;
@@ -174,6 +200,22 @@ const OPEN_CFGS = `(async function(args){
   return res;
 })`;
 
+// Leg 7: one corpus map opened as tools/_t1241-lens-shots.py opens a map (adopt, render, opening zoom, lens, a task
+// selected), lens all with ids on, measured as drawn; bytes compared before and after.
+const SHOT_MAP = `(async function(args){
+  labelPrefs.showIds = true;
+  adoptImportedXml(args.xml, { userImport: true }); renderAll();
+  var base = buildBpmnXml(state);
+  if (typeof openingZoom === 'function') openingZoom();
+  if (typeof setLens === 'function') setLens('all');
+  var n = state.nodes.find(function(x){ return /Task$/.test(x.type); });
+  if (n) { selection = { kind: 'node', id: n.id }; if (typeof renderProperties === 'function') renderProperties(); }
+  await new Promise(function(r){ requestAnimationFrame(function(){ requestAnimationFrame(function(){ r(); }); }); });
+  var m = window.__t1256measure();
+  selection = null;
+  return { gwFlow: m.gwFlow, idFlow: m.idFlow, head: m.head, hits: m.hits, bytesChanged: buildBpmnXml(state) !== base };
+})`;
+
 // Leg 4: at the opening view, the rendered size of node and gateway text, and whether every node is reachable.
 // The map is opened the way a person opens it (?load= deep link), not by calling the editor's functions.
 const OPEN_VIEW = `(async function(){
@@ -236,7 +278,7 @@ const flowSum = r => Object.values(r.cfg).reduce((s, m) => s + m.gwFlow + m.idFl
 async function main() {
   const corpus = readdirSync(CORPUS_DIR).filter(f => f.endsWith('.bpmn')).sort();
   if (!existsSync(SRC) || !existsSync(LIFECYCLE) || !existsSync(LENSFILE) || !corpus.length) { console.log(JSON.stringify({ ok: false, error: 'missing input' })); process.exitCode = 2; return; }
-  let baseSrc = process.env.T1256_BASE_SRC, baseTmp = null, nearTmp = null;
+  let baseSrc = process.env.T1256_BASE_SRC, baseTmp = null, nearTmp = null, shotTmp = null;
   if (!baseSrc) {
     baseTmp = mkdtempSync(join(tmpdir(), 't1256-base-'));
     baseSrc = join(baseTmp, 'designer.html');
@@ -250,20 +292,49 @@ async function main() {
     const lcCfgs = LENSES.flatMap(lens => [{ lens, ids: true }, { lens, ids: false }]);
     const shell = findShell();
     if (!shell) errs.push('leg5: no Playwright headless shell found (the engine the T-1241 lens shots draw with)');
-    const runs = [[1440, 900, 'link'], [1920, 1080, 'link'], [1440, 900, 'shot'], [1920, 1080, 'shot']];
+    const runs = [[1440, 900, 'link'], [1920, 1080, 'link'], [1024, 768, 'shot'], [1440, 900, 'shot'], [1920, 1080, 'shot']];
     if (shell) runs.push([1440, 900, 'shell'], [1920, 1080, 'shell']);
     for (const [w, h, how] of runs) {
       const args = { cfgs: lcCfgs, pick: 'tl_create', dump: !!process.env.T1256_DUMP, xml: how === 'link' ? null : lcXml };
       const cfg = await session(SRC, w, h, cmd => ev(cmd, `(${OPEN_CFGS})(${JSON.stringify(args)})`), how === 'link' ? lcXml : null, how === 'shell' ? shell : null);
       for (const [k0, m] of Object.entries(cfg)) {
         const k = how + ' ' + k0;
-        const bad = m.hits.filter(x => x.startsWith('el') || x.startsWith('clip') || x.startsWith('ll') || x.startsWith('near'));
+        const bad = m.hits.filter(x => x.startsWith('el') || x.startsWith('clip') || x.startsWith('ll') || x.startsWith('near') || x.startsWith('head') || x.startsWith('id') || x.startsWith('gw'));
         if (m.dump) report.dump = (report.dump || {}), report.dump[w + ' ' + k] = m.dump;
-        report.flowLabels[w + ' ' + k] = `elFlow ${m.elFlow}, ll ${m.ll}, clip ${m.clip}, near ${m.near}` + (bad.length ? ': ' + bad.join('; ') : '');
+        report.flowLabels[w + ' ' + k] = `elFlow ${m.elFlow}, ll ${m.ll}, clip ${m.clip}, near ${m.near}, gwFlow ${m.gwFlow}, idFlow ${m.idFlow}, head ${m.head}` + (bad.length ? ': ' + bad.join('; ') : '');
         if (m.near) errs.push(`leg6: aef-task-lifecycle opened at ${w}, ${k}: ${m.hits.filter(x => x.startsWith('near')).join('; ')}`);
-        if (m.elFlow || m.ll || m.clip || m.gwFlow || m.idFlow) errs.push(`leg5: aef-task-lifecycle opened at ${w}, ${k}: ${m.hits.join('; ')}`);
+        if (m.elFlow || m.ll || m.clip || m.gwFlow || m.idFlow || m.head) errs.push(`leg5: aef-task-lifecycle opened at ${w}, ${k}: ${m.hits.join('; ')}`);
       }
       if (Object.keys(cfg).length !== 8) errs.push(`leg5: ${how} at ${w} measured ${Object.keys(cfg).length} of 8 lens/id configurations`);
+    }
+    // leg 7 (T-1277): every corpus map opened in the lens-shot state at 1024/1440/1920, lens all, ids on: gateway/event
+    // names and id captions crossed by a flow segment or on an arrowhead, no map higher and no higher in total than the
+    // placement at SHOT_BASE (the source the T-1241 reviewer's round-3 amber was on); the saved bytes unchanged.
+    if (process.env.T1256_ONLY !== 'leg5') {
+      let shotBase = process.env.T1256_SHOT_BASE_SRC;
+      if (!shotBase) {
+        shotTmp = mkdtempSync(join(tmpdir(), 't1256-shot-'));
+        shotBase = join(shotTmp, 'designer.html');
+        writeFileSync(shotBase, execFileSync('git', ['-C', REPO, 'show', `${SHOT_BASE}:src/aef-workflow-designer.html`], { maxBuffer: 64 << 20 }));
+      }
+      const shotAt = (src, w, h) => session(src, w, h, async cmd => {
+        const maps = {};
+        for (const f of corpus) maps[f] = await ev(cmd, `(${SHOT_MAP})(${JSON.stringify({ xml: readFileSync(join(CORPUS_DIR, f), 'utf8') })})`);
+        return maps;
+      });
+      report.corpusShot = {}; const st = [0, 0];
+      for (const [w, h] of [[1024, 768], [1440, 900], [1920, 1080]]) {
+        const a = await shotAt(shotBase, w, h), b = await shotAt(SRC, w, h);
+        for (const f of corpus) {
+          const n0 = a[f].gwFlow + a[f].idFlow + a[f].head, n1 = b[f].gwFlow + b[f].idFlow + b[f].head;
+          st[0] += n0; st[1] += n1;
+          if (n0 || n1) report.corpusShot[w + ' ' + f] = `${n0}->${n1}` + (n1 ? ': ' + b[f].hits.filter(x => /^(gw|id|head) /.test(x)).join('; ') : '');
+          if (n1 > n0) errs.push(`leg7: ${f} at ${w} in the lens-shot state: name/caption crossings rose ${n0} -> ${n1}`);
+          if (b[f].bytesChanged) errs.push(`leg7: ${f} at ${w}: buildBpmnXml changed after the lens-shot render`);
+        }
+      }
+      report.corpusShotTotal = `${st[0]}->${st[1]}`;
+      if (st[1] > st[0]) errs.push(`leg7: corpus total in the lens-shot state rose ${st[0]} -> ${st[1]}`);
     }
     if (process.env.T1256_ONLY === 'leg5') throw new Error('T1256_ONLY=leg5: the other legs were not run');
     const corpusCfgs = [{ lens: 'all', ids: true }, { lens: 'all', ids: false }];
@@ -311,8 +382,8 @@ async function main() {
     // leg 1
     report.lifecycle = {};
     for (const [k, m] of Object.entries(now.lc.cfg)) {
-      report.lifecycle[k] = { gwFlow: m.gwFlow, idFlow: m.idFlow, ll: m.ll, elFlow: m.elFlow, el: m.hits.filter(h => h.startsWith('el')) };
-      if (m.gwFlow || m.idFlow || m.ll) errs.push(`leg1: aef-task-lifecycle ${k}: ${m.hits.join('; ')}`);
+      report.lifecycle[k] = { gwFlow: m.gwFlow, idFlow: m.idFlow, head: m.head, ll: m.ll, elFlow: m.elFlow, el: m.hits.filter(h => h.startsWith('el')) };
+      if (m.gwFlow || m.idFlow || m.head || m.ll) errs.push(`leg1: aef-task-lifecycle ${k}: ${m.hits.join('; ')}`);
     }
     if (Object.keys(now.lc.cfg).length !== 8) errs.push(`leg1: measured ${Object.keys(now.lc.cfg).length} of 8 lens/id configurations (the source has no lenses?)`);
     if (!Object.values(now.lc.cfg).some(m => m.labels > 20 && m.segs > 20)) errs.push('leg1: almost nothing measured — the check would be vacuous');
@@ -367,6 +438,7 @@ async function main() {
   } finally {
     if (baseTmp) rmSync(baseTmp, { recursive: true, force: true });
     if (nearTmp) rmSync(nearTmp, { recursive: true, force: true });
+    if (shotTmp) rmSync(shotTmp, { recursive: true, force: true });
   }
   report.ok = errs.length === 0; report.errs = errs;
   console.log(JSON.stringify(report, null, 2));

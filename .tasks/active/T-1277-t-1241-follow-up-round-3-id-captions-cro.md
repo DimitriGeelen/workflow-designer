@@ -102,15 +102,37 @@ This is the third follow-up from T-1241's AC1 review, after T-1274 and T-1276.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **Root cause** is stated in `## RCA` with the evidence: which state differs, and why the pass leaves these
+- [x] **Root cause** is stated in `## RCA` with the evidence: which state differs, and why the pass leaves these
       captions crossed, or never runs, there.
-- [ ] **Fix:** in the lens-shot state, no id caption or gateway/event name is crossed by a drawn flow on
+      **Evidence:** no state differs. The pass runs and its choice is the same at every width. The pass and the
+      harness both ignore the arrowheads: the captions stood against the 12-unit head of the flow into their own task,
+      with a gap of 0.00 units. Three hypotheses, one test each, are in `## RCA`.
+- [x] **Fix:** in the lens-shot state, no id caption or gateway/event name is crossed by a drawn flow on
       `aef-task-lifecycle`, in all four lenses, at 1024, 1440 and 1920 (ids on). Corpus totals are not higher than
       today in that state. Saved bytes are unchanged on every corpus map.
-- [ ] **Harness:** the T-1256 harness (or a new leg) measures crossings in the **lens-shot state**, the same load path
+      **Evidence (2026-10-22):** `clearLabelsOfFlows()` now counts each drawn arrowhead (`#arrow` end, `#arrow-source`
+      start, bounding box + 1 unit, unselected stroke) as an obstacle at the same cost as a segment (10, hard). It is
+      render-only and deterministic, and a move is still kept only when strictly better. `_t1256` leg 5 'shot' (the
+      lens-shot load) at 1024/1440/1920, the 'link' run at 1440/1920 and the Playwright 'shell' run at 1440/1920, all
+      lenses × ids on/off: gwFlow = idFlow = head = elFlow = ll = clip = near = 0. The three captions now stand above
+      their rects. Corpus in the lens-shot state (leg 7, 24 maps × 3 widths, lens all, ids on): **72 → 0** against
+      6d03c1b9. Leg 2 corpus (gwFlow+idFlow, 1920, vs 0.24.0): 134→**0** (was 134→1). Bytes: leg 3 25/25 unchanged;
+      leg 7 reports no changed map at any width.
+- [x] **Harness:** the T-1256 harness (or a new leg) measures crossings in the **lens-shot state**, the same load path
       as `tools/_t1241-lens-shots.py`. It is red on 6d03c1b9 for the two named captions and green after.
-- [ ] **No guard regresses:** the T-1274 guards plus `_t1274-note-box` and `_t1276-name-fit` stay green, run one at a
+      **Evidence:** `_t1256` measures `head` (a name or caption on an arrowhead) in legs 1 and 5, and leg 5's lens-shot
+      run now covers 1024 too. The new leg 7 opens every corpus map the way the shot tool does. On 6d03c1b9
+      (`git show` into a mktemp dir, removed after; `T1256_SRC=… T1256_ONLY=leg5`): exit 1 with 14 leg-5 errors, each
+      `head "agt_3_start" x arrowhead of tl_e16; head "agt_4_do" x arrowhead of tl_e3; head "agt_6_completion" x
+      arrowhead of tl_e20` (technical/all, link 1440/1920, shot 1024/1440/1920, shell 1440/1920). On this source the
+      full run exits 0, all legs green.
+- [x] **No guard regresses:** the T-1274 guards plus `_t1274-note-box` and `_t1276-name-fit` stay green, run one at a
       time under nice 19.
+      **Evidence:** one at a time under `nice -n 19`, every one exit 0, no reruns: `_t600 --self-test`,
+      `_t601 --self-test`, `_t1068 --self-test`, `_t1067` 6/6, `_t1078` 8 legs, `_t1241-business-lens`, `_t1176`,
+      `_t1249-v11-io`, `_editor-behavior-verify`, `_t1091` 31/31, `_endpoint-overlap-verify`, `_t1274-note-box`,
+      `_t1276-name-fit`, and `_t1256` (all legs; 1024 min text 7.02px). After them only a comment line in the source
+      changed.
 - [ ] **Shots:**
   - re-shoot all 48 T-1241 lens shots;
   - make 2x crops of both captions in the technical and all lenses at 1440 and 1920 into
@@ -301,6 +323,44 @@ This is the third follow-up from T-1241's AC1 review, after T-1274 and T-1276.
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+node tools/_t1256-label-clearance-cdp.mjs > /tmp/.t1277-1256.out 2>&1 && grep -q '"ok": true' /tmp/.t1277-1256.out
+node tools/_t1276-name-fit-cdp.mjs > /tmp/.t1277-1276.out 2>&1
+node tools/_t1274-note-box-cdp.mjs > /tmp/.t1277-1274.out 2>&1
+test -s docs/reports/T-1277-evidence/caption-agt3-start-2x-technical-1920.png && test -s docs/reports/T-1277-evidence/caption-agt6-completion-2x-all-1440.png
+
+## Visual Verification
+
+Shots: all 48 T-1241 lens shots re-shot on this source (`tools/_t1241-lens-shots.py`, 12/12 lens-select ok). True 2x
+crops (device_scale_factor 2, the lens-shot load: adopt, renderAll, openingZoom, lens, `tl_create` selected; temp
+script outside the repo) in `docs/reports/T-1277-evidence/`:
+`caption-{agt3-start,agt6-completion,agt4-do}-2x-{technical,all}-{1440,1920}.png` (12). At 1440 the canvas was
+scrolled to bring `agt_6_completion` into view, so the 1440 `agt4-do` crop shows the same scrolled view.
+
+What was checked across the 48 shots, looking for ANY flow on a name or caption, not only the two named ones:
+- **panel ×12:** the map area was cropped at native resolution and read node by node. Captions: `agt_start_work`,
+  `agt_1_create`, `agt_gw_ready`, `agt_3_start`, `agt_4_do`, `agt_gw_issues`, `agt_6_completion`, `agt_gw_gates`,
+  `agt_gw_unchecked`, `agt_7_archive`, `agt_end_task`, `agt_2_parked`, `agt_link_handoff`, `agt_5_healing`,
+  `hum_1_partial`. Gateway/event names: "work identified", "ready to start now?", "issues encountered?",
+  "gates pass?", "unchecked Human ACs?", "task archived", "Handoff → dispatch loop". **None is crossed by a line or
+  touched by an arrowhead** in any lens or width.
+- **panel-bottom ×12:** the canvas region is pixel-identical to its panel shot (ImageChops difference = none in all 12),
+  so the reading above holds for it.
+- **details / details-bottom ×24:** the details dialog covers and dims the canvas. No map text can be read, so there
+  is nothing to cross. Read as contact sheets.
+- **Not a crossing, noted:** at 1024 the "Handoff → dispatch loop" name runs under the side-panel edge (the canvas
+  scrolls), as in T-1276's shots.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| canvas, technical/all | `agt_3_start` caption ("start work") | ok | ok | ok | 2x crops: above the rect, centred; the upward flow `tl_e16` and its head end at the rect bottom with nothing beside them. 1024: panel shot (above the rect) and harness leg 5 shot@1024 head 0 |
+| canvas, technical/all | `agt_6_completion` caption ("completion gates") | ok | ok | ok | 2x crops: above the rect, clear of the "blocked —" flow above and of the `tl_e20` head below. 1024: off the opening view; leg 5 shot@1024 head/idFlow 0 |
+| canvas, technical/all | `agt_4_do` caption ("do the work") | ok | ok | ok | was on the head of `tl_e3` (found by the new leg); now above the rect, clear of the head and the incoming "now" flow |
+| canvas, technical/all | other id captions (12, listed above) | ok | ok | ok | panel shots: each under or above its shape, none on a line or head |
+| canvas, every lens | gateway/event names (7, listed above) | ok | ok | ok | panel shots: none crossed. 1024: "Handoff → dispatch loop" runs under the side-panel edge (scroll, not a crossing) |
+| details, every lens | details dialog over the canvas | ok | ok | ok | canvas covered and dimmed, nothing readable to cross |
+
+Review of these screenshots by an independent agent: the orchestrator reruns `fw reviewer judge T-1241 --criterion 1`
+(criterion 5).
 
 ## RCA
 
@@ -317,6 +377,47 @@ This is the third follow-up from T-1241's AC1 review, after T-1274 and T-1276.
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+**Symptom:** in the T-1241 lens shots (technical/all), `agt_3_start` and `agt_6_completion` sit on the upward flows
+into "start work" and "completion gates". The T-1256 harness reported 0 crossings for the lifecycle map in every lens.
+
+**Hypotheses, one test each:**
+1. *The lens-shot load path (adopt → renderAll → openingZoom → setLens → select) leaves a state the pass did not
+   finish, or a later re-render undoes it.* Test: replay that exact path in Playwright at 1024/1440/1920 (technical,
+   all) and run the harness's own `__t1256measure` right after the load and again 400 ms later (when the shot is taken).
+   **Disproved:** idFlow = gwFlow = 0 in all 12 runs, both times; the pass had run (the caption stood at its
+   `[cx + 6, below, 'start']` candidate, not at its default).
+2. *Node positions or the pass's choice differ by viewport.* Test: dump `state.nodes` x/y and the caption attributes at
+   the three widths. **Disproved:** identical (`tl_start@420,114.5`, `tl_verify@965,114.5`; `agt_3_start` x=481 at
+   every width). What changes with width is only scroll and zoom, so the same crossing is in every width's shot. Why
+   the old 1920 shot was clean: on 6d03c1b9~1 the same probe gives `agt_3_start` x=481 'start' (the crossed place) at
+   1440 (78%), but x=534 y=139.5 (beside the shape) at 1920, where that source opened at fit; `agt_6_completion` is
+   above its rect there. So the clear 1920 shot was a different candidate winning at fit, clear of the head by luck.
+   I did not trace which obstacle tipped it (likely sub-unit text-box differences at another scale); it does not
+   matter for the fix, because the arrowhead was invisible to the cost at every width.
+3. *The pass and the harness model a flow as a zero-width polyline, and the arrowhead is not part of it.* Test: a 2x
+   crop of the 1920 technical shot, plus the arrowhead boxes computed from the markers (`#arrow`: markerWidth 8 ×
+   stroke 1.5 = 12 units, refX 9, so the head runs 10.8 units back from the end and 6 units to each side;
+   `#arrow-source`: 7.5 units) against the caption boxes. **Confirmed:** the flow `tl_e16` ends on the bottom of
+   "start work" at x=475; the pass put `agt_3_start` at x=481 (cx + 6, 'start'), 6 units right of the line, which its
+   segment test (Liang-Barsky on the `d` points, label padded by 1) scores as clear. The head's base spans 469..481 and
+   y 177.3..189.3; the caption spans x 481.. and y 181.5..193. Gap 0.00, so the base of the head touches the "a"
+   (visible in the 2x crop). Same for `agt_6_completion` on `tl_e20` (gap 0.00). The same blind spot hides a third
+   one: `agt_4_do` sat on the head of `tl_e3` (beside-the-shape place, `end` anchor 4 units left of the rect, where
+   the 10.8-unit head arrives).
+
+**Root cause:** `clearLabelsOfFlows()` (T-1256) and `__t1256measure` both build their obstacles from the `d` of each
+`path.edge-path`, so the drawn arrowheads (markers) were never an obstacle. A caption 6 units from a flow's axis is
+"clear" to both while the head of the flow arriving at its own node covers it. It is not a lens-shot state difference.
+The harness's leg 5 already replays the lens-shot path ('shot' and 'shell' runs) and was right about the segments.
+
+**Why structurally allowed:** both the product and its check used the same geometry model (the line only), so the
+check could not see what the model leaves out. Every T-1256/T-1274 leg counts segments.
+
+**Prevention:** the harness now counts `head` (a gateway/event name or id caption on an arrowhead, raw text box against
+the head box + 1 unit) in legs 1 and 5. Leg 5 also measures the lens-shot load at 1024. A new leg 7 opens every corpus
+map in the lens-shot state at 1024/1440/1920 (lens all, ids on) and fails if any map or the total rises over 6d03c1b9,
+or if the saved bytes change. On 6d03c1b9, leg 5 is red with `head "agt_3_start" x arrowhead of tl_e16`,
+`head "agt_6_completion" x arrowhead of tl_e20` (and `agt_4_do` × `tl_e3`) in technical/all at 1024, 1440 and 1920.
 
 ## Evolution
 

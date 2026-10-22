@@ -4818,8 +4818,8 @@ function adjustLabelPlacements() {
 // (T-1090). This pass moves ONLY a block that a DRAWN flow segment (the path the canvas shows, read off its `d`,
 // so manually routed flows count too) or another label actually crosses, to the first of a fixed list of places
 // (below, beside a vertical flow, beside the shape above or below its own flow axis, above), a name also as one
-// line or two balanced lines, with the lowest cost: a flow segment or another label (with a word-space beside it)
-// 10 each, a shape 30, outside its own lane 3, on the lane header 2, outside the pool 1. A place is kept only when
+// line or two balanced lines, with the lowest cost: a flow segment, an arrowhead (T-1277) or another label (with a
+// word-space beside it) 10 each, a shape 30, outside its own lane 3, on the lane header 2, outside the pool 1. A place is kept only when
 // it is STRICTLY better, so an uncontested map is not touched. It runs after the flow labels are placed and keeps
 // clear of them, so every flow label stands where it stood before this pass (none is pushed onto a line). Deterministic;
 // render-only (PD-044): nothing here is written to the document (no BPMNLabel is emitted, see buildBpmnXml).
@@ -4831,6 +4831,28 @@ function clearLabelsOfFlows() {
     for (let i = 0; i < pl.length - 1; i++) segs.push([pl[i], pl[i + 1]]);
   }
   if (!segs.length) return;
+  // T-1277: a flow is not only its line. Its arrowheads (#arrow at the end, #arrow-source at the start, sized in
+  // stroke widths) are 12 and 7.5 units wide, so a caption 6 units beside a vertical flow sat on the head of the flow
+  // that ends on its node (agt_3_start, agt_6_completion on aef-task-lifecycle). Each head counts as an obstacle by its
+  // bounding box with one unit of margin for its anti-aliased edge; the unselected stroke (1.5) is used, so selecting
+  // a flow never moves a label.
+  const heads = [];
+  {
+    const SW = 1.5, M = 1;
+    const head = (tip, prev, back, fwd, half) => {
+      const dx = tip.x - prev.x, dy = tip.y - prev.y, L = Math.hypot(dx, dy);
+      if (!L) return;
+      const ux = dx / L, uy = dy / L, bx = tip.x - ux * back, by = tip.y - uy * back, fx = tip.x + ux * fwd, fy = tip.y + uy * fwd;
+      const xs = [fx, bx - uy * half, bx + uy * half], ys = [fy, by + ux * half, by - ux * half];
+      heads.push({ x1: Math.min(...xs) - M, y1: Math.min(...ys) - M, x2: Math.max(...xs) + M, y2: Math.max(...ys) + M });
+    };
+    for (const p of gEdges.querySelectorAll('g.edge > path.edge-path')) {
+      const pl = polylineFromPath(p.getAttribute('d'));
+      if (pl.length < 2) continue;
+      if (p.getAttribute('marker-end')) head(pl[pl.length - 1], pl[pl.length - 2], 0.8 * SW * 9, 0.8 * SW * 1, 0.8 * SW * 5);
+      if (p.getAttribute('marker-start')) head(pl[0], pl[1], -0.5 * SW * 1, -0.5 * SW * 9, 0.5 * SW * 5);   // points into the flow
+    }
+  }
   // Liang-Barsky: does the segment a-b enter the box r?
   const segHits = (a, b, r) => {
     let t0 = 0, t1 = 1;
@@ -4892,6 +4914,7 @@ function clearLabelsOfFlows() {
       for (const t of els) {
         const r = boxOf(t); if (!r) continue;
         for (const [a, b] of segs) if (segHits(a, b, r)) { c += 10; hard++; }
+        for (const h of heads) if (inter(r, h)) { c += 10; hard++; }
         for (const o of others) if (inter(r, o)) { c += 10; hard++; }
         for (const s of shapes) if (inter(r, s)) c += 30;
         if (hasPool) {
