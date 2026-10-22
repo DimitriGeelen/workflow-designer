@@ -56,7 +56,12 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Suite run 2 on 2026-10-22: `_t910-lanemeta-teeth.sh` was killed in the T-509 sweep before its restore ran, leaving
+`t910probe="…"` in src's laneMeta writer; `_t358`, `_t423`, `_t1017` and `_t1158` then tested the mutant (restored
+from HEAD; all four green on the clean source). **Second casualty, found later the same day:** a probe that regenerates
+`tests/fixtures/exported/t423-carrier-witness.bpmn` ran during the mutant window, so that TRACKED fixture carried
+`t910probe` on every laneMeta (96 lines changed); restored from HEAD, and no other tracked file contains `t910probe`.
+So the fix must also cover outputs a mutant run regenerates, not only src.
 
 ## Acceptance Criteria
 

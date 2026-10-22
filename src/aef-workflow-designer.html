@@ -4938,6 +4938,10 @@ function clearLabelsOfFlows() {
 // drop, hugging the line then one line further out; as one line, then as two balanced lines) with the lowest cost:
 // another flow 10, another label 25 (text under a pad is lost, a line through it is not; closer than a word-space 2),
 // a shape 30, its own line 10.
+// Nearness (T-1274; the T-1241 reviewer, 1920 technical/all: "yes — status: issues" ended 10.7 px left of the gateway
+// name "issues" across the drop, and the two read as one run): a flow label and a node text (name, id caption) on one
+// text row (sharing half the smaller height) closer than three em of the smaller font cost 8 and trigger a move as well;
+// such a move never trades a crossing or an overlap for it (a place with more of those than now is not taken).
 // A place is kept only when it is STRICTLY better, so a clear label is never touched. Every other label is an obstacle
 // where it stands now, so a move never lands on a label placed later in the order. Deterministic; render-only
 // (PD-044): nothing is written to the document. Flow labels measure with text-rendering: geometricPrecision (CSS
@@ -4971,16 +4975,22 @@ function clearFlowLabels() {
   // The text's box with the room its pad (halo) takes, plus a little air, so two labels never touch.
   const boxOf = t => { const b = t.getBBox(); return b.width ? { x1: b.x - 3, y1: b.y - 1, x2: b.x + b.width + 3, y2: b.y + b.height + 1 } : null; };
   const shapes = state.nodes.map(n => { const d = NODE_DEFAULTS[n.type]; return { x1: n.x - 2, y1: n.y - 2, x2: n.x + d.w + 2, y2: n.y + d.h + 2 }; });
-  const nodeBoxes = Array.from(gNodes.querySelectorAll('text.node-label, text.node-id-badge, text.node-io-badge'))
-    .filter(t => !t.closest('#g-sticky-lanes')).map(boxOf).filter(Boolean);
+  const nodeTextEls = Array.from(gNodes.querySelectorAll('text.node-label, text.node-id-badge, text.node-io-badge'))
+    .filter(t => !t.closest('#g-sticky-lanes'));
+  const nodeBoxes = nodeTextEls.map(boxOf).filter(Boolean);
+  // Names and id captions as drawn (no pad), with their font size, for nearness.
+  const nearRows = nodeTextEls.filter(t => !t.classList.contains('node-io-badge')).map(t => {
+    const b = t.getBBox(); return b.width ? { x1: b.x, y1: b.y, x2: b.x + b.width, y2: b.y + b.height, em: parseFloat(getComputedStyle(t).fontSize) || 11 } : null;
+  }).filter(Boolean);
+  const NEAR_EM = 3;
   const flowTexts = Array.from(gEdges.querySelectorAll('text.edge-label[data-el]'));
   const edgeOf = t => state.edges.find(x => x.id === t.getAttribute('data-el'));
   const grow = r => ({ x1: r.x1 - GAPX, y1: r.y1 - GAPY, x2: r.x2 + GAPX, y2: r.y2 + GAPY });
   // Cost of t where it stands, against every other label where IT stands now.
   const cost = t => {
-    const r = boxOf(t); if (!r) return { c: 0, hard: 0 };
+    const r = boxOf(t); if (!r) return { c: 0, hard: 0, near: 0 };
     const id = t.getAttribute('data-el');
-    let c = 0, hard = 0;
+    let c = 0, hard = 0, nearN = 0;
     const crossed = new Set();
     for (const [sid, a, b] of allSegs) if (segHits(a, b, r)) { if (sid === id) c += 10; else crossed.add(sid); }
     c += 10 * crossed.size; hard += crossed.size;
@@ -4989,7 +4999,14 @@ function clearFlowLabels() {
     for (const o of nodeBoxes) near(o);
     for (const o of flowTexts) if (o !== t) { const ob = boxOf(o); if (ob) near(ob); }
     for (const s of shapes) if (inter(r, s)) c += 30;
-    return { c, hard };
+    const bb = t.getBBox(), em = parseFloat(getComputedStyle(t).fontSize) || 10;
+    const a = { x1: bb.x, y1: bb.y, x2: bb.x + bb.width, y2: bb.y + bb.height };
+    for (const o of nearRows) {
+      if (Math.min(a.y2, o.y2) - Math.max(a.y1, o.y1) < 0.5 * Math.min(a.y2 - a.y1, o.y2 - o.y1)) continue;
+      const gap = Math.max(o.x1 - a.x2, a.x1 - o.x2);
+      if (gap >= 0 && gap < NEAR_EM * Math.min(em, o.em)) { c += 8; nearN++; }
+    }
+    return { c, hard, near: nearN };
   };
   const apply = (t, x, y, anchor) => {
     t.setAttribute('x', x); t.setAttribute('y', y); t.setAttribute('text-anchor', anchor);
@@ -5033,13 +5050,15 @@ function clearFlowLabels() {
     }
     return out;
   };
-  // The cheapest place for t (the first of equals), measured; t is left where it was.
-  const search = t => {
+  // The cheapest place for t (the first of equals) with no more crossings and overlaps than maxHard, measured; t is
+  // left where it was.
+  const search = (t, maxHard) => {
     const home = where(t);
     let best = null;
     for (const p of placesOf(t)) {
       put(t, p);
       const sc = cost(t);
+      if (sc.hard > maxHard) continue;
       if (!best || sc.c < best.c) best = { ...p, c: sc.c };
       if (best.c === 0) break;
     }
@@ -5056,8 +5075,8 @@ function clearFlowLabels() {
     .sort((a, b) => (edgeOf(b[0])?.name || '').length - (edgeOf(a[0])?.name || '').length || a[1] - b[1]).map(p => p[0]);
   for (const t of order.concat(order)) {
     const now = cost(t);
-    if (!now.hard) continue;
-    const best = search(t);
+    if (!now.hard && !now.near) continue;
+    const best = search(t, now.hard ? Infinity : 0);   // a move for nearness alone takes no crossing or overlap
     if (best && best.c < now.c) put(t, best);
   }
   for (const t of flowTexts) halo(t);
@@ -8110,7 +8129,7 @@ function _renderPropsInto(props, details) {
             if (parsed) n.aef[f] = parsed; else delete n.aef[f];
           }, { mono: true, textarea: meta.textarea, hint: meta.hint }));
         } else {
-        sAef.appendChild(field(meta.label, n.aef[f] || '', v => { n.aef[f] = v; }, { mono: true, textarea: meta.textarea, hint: meta.hint }));
+        sAef.appendChild(field(meta.label, n.aef[f] || '', v => { n.aef[f] = v; }, { mono: true, textarea: meta.textarea, hint: meta.hint, grow: f === 'note' }));
         }
       }
       if (profileHidden || hiddenInPanel) {   // drawn although the profile hides it — say why
@@ -8369,8 +8388,31 @@ function field(label, value, onInput, opts = {}) {
     inp.addEventListener('input', e => onInput(e.target.value));
     inp.addEventListener('blur', () => { renderProperties(); });
   }
+  if (opts.grow && opts.textarea) growToContent(inp);
   wrap.appendChild(inp);
   return wrap;
+}
+// T-1274: a textarea that shows its whole text (the T-1241 reviewer: the Note box cut its third line, "until real ACs
+// exist"). It grows to its content up to GROW_CAP px, then scrolls with a visible scrollbar. Sized on input and
+// whenever its width changes (the panel opens, the sheet widens, the window resizes): a box hidden at creation
+// measures 0 and is sized once it is shown. Display only: the value is not touched.
+const GROW_CAP = 240;
+function growToContent(ta) {
+  ta.classList.add('field-textarea-grow');
+  let lastW = -1;
+  const fit = () => {
+    if (!ta.isConnected || !ta.clientWidth) return;
+    ta.style.height = 'auto';
+    const cs = getComputedStyle(ta);
+    const h = ta.scrollHeight + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+    ta.style.height = Math.min(Math.max(h, parseFloat(cs.minHeight) || 0), GROW_CAP) + 'px';
+    ta.style.overflowY = h > GROW_CAP ? 'auto' : 'hidden';
+  };
+  ta.addEventListener('input', fit);
+  requestAnimationFrame(fit);   // the panel is attached by then; the observer may report a frame later
+  if (typeof ResizeObserver === 'function') {
+    new ResizeObserver(() => { if (ta.clientWidth !== lastW) { lastW = ta.clientWidth; fit(); } }).observe(ta);
+  }
 }
 // ── T-589: the designer's entire navigation surface ────────────────────────────────
 // Measured before building (and independently by 001-CashWeb on the pinned 0.11.0):

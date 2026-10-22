@@ -13,6 +13,10 @@
 //      the designer-v0.24.0 placement (built from `git show designer-v0.24.0:src/...`), and lower in total; flow labels
 //      crossed by another flow no higher per map either (moving a name must not push a flow label onto a line);
 //   3. bytes: buildBpmnXml output is identical before and after every render this harness makes, on every map;
+//   6. nearness (T-1274): a flow label and a node/gateway/event name or id caption on one text row closer than three em
+//      of the smaller font read as one run ("yes — status: issues issues encountered?"): 0 on aef-task-lifecycle in
+//      leg 5's every run (lens x ids x 1440/1920); on the corpus (lens all, ids on/off, 1440 and 1920) no map more than
+//      the designer-v0.25.0 placement, and the total not higher (T1256_NEAR_BASE_SRC substitutes that baseline);
 //   4. at 1024 the map opens with its node and gateway text at >= MIN_PX (stated in T-1256) rendered size, and
 //      nothing is hidden: every node's shape is in the canvas's scrollable area.
 // T1256_SRC substitutes another designer file (e.g. the 0.24.0 source: legs 1, 2 and 4 must go red).
@@ -31,6 +35,7 @@ const REPO = join(HERE, '..');
 const SERVER = join(HERE, 'gallery-serve.py');
 const SRC = process.env.T1256_SRC || join(REPO, 'src/aef-workflow-designer.html');
 const BASE_TAG = 'designer-v0.24.0';
+const NEAR_TAG = 'designer-v0.25.0';   // T-1274: the nearness baseline (the release before the nearness pass)
 const MIN_PX = 7;   // the stated minimum rendered size of node and gateway text at 1024 (T-1256)
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -69,8 +74,15 @@ const MEASURE = `window.__t1256measure = function(){
   var labels = [];
   function add(kind, t, owner){ if (t.closest('#g-sticky-lanes')) return; var b = boxOf(t); if (!b) return;
     var s = 0.5; b = { x1: b.x1 + s, y1: b.y1 + s, x2: b.x2 - s, y2: b.y2 - s };   // touching is not crossing
-    labels.push({ kind: kind, owner: owner, text: t.textContent, box: b }); }
+    var raw = boxOf(t), fpx = parseFloat(getComputedStyle(t).fontSize) * Math.abs(t.getScreenCTM().a);
+    labels.push({ kind: kind, owner: owner, text: t.textContent, box: b, raw: raw, em: fpx }); }
   Array.prototype.forEach.call(gNodes.querySelectorAll('text.node-label[data-nl]'), function(t){ add('gw', t, 'n:' + t.getAttribute('data-nl')); });
+  // T-1274: names inside a shape count for nearness only (a flow label beside a task's name reads on with it too).
+  var nameIn = [];
+  Array.prototype.forEach.call(gNodes.querySelectorAll('text.node-label:not([data-nl])'), function(t){ var g = t.closest('g[data-id]');
+    if (t.closest('#g-sticky-lanes')) return; var b = boxOf(t); if (!b) return;
+    nameIn.push({ kind: 'nm', owner: 'n:' + (g ? g.getAttribute('data-id') : t.textContent), text: t.textContent, raw: b,
+      em: parseFloat(getComputedStyle(t).fontSize) * Math.abs(t.getScreenCTM().a) }); });
   Array.prototype.forEach.call(svg.querySelectorAll('text.node-id-badge'), function(t){ var g = t.closest('g[data-id]');
     add('id', t, 'n:' + (t.getAttribute('data-nl') || (g ? g.getAttribute('data-id') : t.textContent))); });
   Array.prototype.forEach.call(gEdges.querySelectorAll('text.edge-label'), function(t){ add('el', t, 'e:' + t.getAttribute('data-el')); });
@@ -90,6 +102,21 @@ const MEASURE = `window.__t1256measure = function(){
     if (A.owner === B.owner || !inter(A.box, B.box)) continue;
     out.ll++; out.hits.push('ll "' + A.text + '" x "' + B.text + '"');
   }
+  // near (T-1274): a flow label and a node/gateway/event name or id caption on one text row (their boxes share at least
+  // half the smaller height) with a horizontal gap under NEAR_EM em of the smaller font: they read as one run. Three em,
+  // not one: the pair the T-1241 reviewer read as one run ("yes — status: issues" | "issues encountered?", 1920
+  // technical/all) stands 10.7 px apart across a 1-px flow, where one em of the 10-px flow label is 7.6 px; at two em
+  // the pass parked the label 20 px from the name on the same row, which still reads on (T-1274 crops).
+  var NEAR_EM = 3;
+  out.near = 0;
+  var nodeTexts = labels.filter(function(L){ return L.kind !== 'el'; }).concat(nameIn);
+  labels.forEach(function(A){ if (A.kind !== 'el') return;
+    nodeTexts.forEach(function(B){
+      var a = A.raw, b = B.raw, ov = Math.min(a.y2, b.y2) - Math.max(a.y1, b.y1);
+      if (ov < 0.5 * Math.min(a.y2 - a.y1, b.y2 - b.y1)) return;
+      var gap = Math.max(b.x1 - a.x2, a.x1 - b.x2), em = Math.min(A.em, B.em);
+      if (gap < 0 || gap >= NEAR_EM * em) return;      // overlapping is ll's; a gap of NEAR_EM em or more is clear
+      out.near++; out.hits.push('near "' + A.text + '" x "' + B.text + '" gap ' + gap.toFixed(1) + 'px < ' + (NEAR_EM * em).toFixed(1)); }); });
   // clip: a flow label's text under another flow's halo painted after it (the halo is the label's background pad,
   // so a later one cuts the earlier text: the "backloq" descender the T-1241 reviewer saw).
   out.clip = 0;
@@ -209,7 +236,7 @@ const flowSum = r => Object.values(r.cfg).reduce((s, m) => s + m.gwFlow + m.idFl
 async function main() {
   const corpus = readdirSync(CORPUS_DIR).filter(f => f.endsWith('.bpmn')).sort();
   if (!existsSync(SRC) || !existsSync(LIFECYCLE) || !existsSync(LENSFILE) || !corpus.length) { console.log(JSON.stringify({ ok: false, error: 'missing input' })); process.exitCode = 2; return; }
-  let baseSrc = process.env.T1256_BASE_SRC, baseTmp = null;
+  let baseSrc = process.env.T1256_BASE_SRC, baseTmp = null, nearTmp = null;
   if (!baseSrc) {
     baseTmp = mkdtempSync(join(tmpdir(), 't1256-base-'));
     baseSrc = join(baseTmp, 'designer.html');
@@ -230,9 +257,10 @@ async function main() {
       const cfg = await session(SRC, w, h, cmd => ev(cmd, `(${OPEN_CFGS})(${JSON.stringify(args)})`), how === 'link' ? lcXml : null, how === 'shell' ? shell : null);
       for (const [k0, m] of Object.entries(cfg)) {
         const k = how + ' ' + k0;
-        const bad = m.hits.filter(x => x.startsWith('el') || x.startsWith('clip') || x.startsWith('ll'));
+        const bad = m.hits.filter(x => x.startsWith('el') || x.startsWith('clip') || x.startsWith('ll') || x.startsWith('near'));
         if (m.dump) report.dump = (report.dump || {}), report.dump[w + ' ' + k] = m.dump;
-        report.flowLabels[w + ' ' + k] = `elFlow ${m.elFlow}, ll ${m.ll}, clip ${m.clip}` + (bad.length ? ': ' + bad.join('; ') : '');
+        report.flowLabels[w + ' ' + k] = `elFlow ${m.elFlow}, ll ${m.ll}, clip ${m.clip}, near ${m.near}` + (bad.length ? ': ' + bad.join('; ') : '');
+        if (m.near) errs.push(`leg6: aef-task-lifecycle opened at ${w}, ${k}: ${m.hits.filter(x => x.startsWith('near')).join('; ')}`);
         if (m.elFlow || m.ll || m.clip || m.gwFlow || m.idFlow) errs.push(`leg5: aef-task-lifecycle opened at ${w}, ${k}: ${m.hits.join('; ')}`);
       }
       if (Object.keys(cfg).length !== 8) errs.push(`leg5: ${how} at ${w} measured ${Object.keys(cfg).length} of 8 lens/id configurations`);
@@ -257,6 +285,29 @@ async function main() {
       return maps;
     });
     const now1440 = await corpusAt(SRC), base1440 = await corpusAt(baseSrc);
+    // leg 6 (corpus): nearness against the 0.25.0 placement at 1920 and 1440
+    let nearSrc = process.env.T1256_NEAR_BASE_SRC;
+    if (!nearSrc) {
+      nearTmp = mkdtempSync(join(tmpdir(), 't1256-near-'));
+      nearSrc = join(nearTmp, 'designer.html');
+      writeFileSync(nearSrc, execFileSync('git', ['-C', REPO, 'show', `${NEAR_TAG}:src/aef-workflow-designer.html`], { maxBuffer: 64 << 20 }));
+    }
+    const nearAt = (src, w, h) => session(src, w, h, async cmd => {
+      const maps = {};
+      for (const f of corpus) maps[f] = await runMap(cmd, readFileSync(join(CORPUS_DIR, f), 'utf8'), corpusCfgs);
+      return maps;
+    });
+    const nb1920 = await nearAt(nearSrc, 1920, 1080), nb1440 = await nearAt(nearSrc, 1440, 900);
+    const nearOf = maps => Object.values(maps.cfg).reduce((s, m) => s + m.near, 0);
+    report.corpusNear = {}; const nt = [0, 0];
+    for (const f of corpus) {
+      const a = nearOf(nb1920[f]) + nearOf(nb1440[f]), b = nearOf(now.maps[f]) + nearOf(now1440[f]);
+      report.corpusNear[f] = `${a}->${b}`;
+      nt[0] += a; nt[1] += b;
+      if (b > a) errs.push(`leg6: ${f} near pairs rose ${a} -> ${b}: ${Object.values(now.maps[f].cfg).concat(Object.values(now1440[f].cfg)).flatMap(m => m.hits.filter(h => h.startsWith('near'))).join('; ')}`);
+    }
+    report.corpusNearTotal = `${nt[0]}->${nt[1]}`;
+    if (nt[1] > nt[0]) errs.push(`leg6: corpus near pairs rose in total ${nt[0]} -> ${nt[1]}`);
     // leg 1
     report.lifecycle = {};
     for (const [k, m] of Object.entries(now.lc.cfg)) {
@@ -315,6 +366,7 @@ async function main() {
     errs.push('exception: ' + (e && e.stack || e));
   } finally {
     if (baseTmp) rmSync(baseTmp, { recursive: true, force: true });
+    if (nearTmp) rmSync(nearTmp, { recursive: true, force: true });
   }
   report.ok = errs.length === 0; report.errs = errs;
   console.log(JSON.stringify(report, null, 2));

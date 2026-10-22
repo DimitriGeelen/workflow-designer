@@ -1,13 +1,23 @@
 ---
 id: T-1274
-name: "T-1241 follow-up: flow label 'yes — status: issues' reads as one run with the gateway name 'issues encountered?'; Note box hides its third line"
+name: "T-1241 follow-up: flow label 'yes — status: issues' reads as one run with the
+  gateway name 'issues encountered?'; Note box hides its third line"
 description: >
-  From the T-1241 reviews of 2026-10-22: the official panel split (claude-code green, codex amber); an advisory panel of antigravity, codex and claude-code all green, claude-code noting that at 1920 (technical/all) the flow label 'yes — status: issues' ends ~10 px left of the gateway name 'issues encountered?' on the other side of the vertical flow, so they read as one run (no overlap; harness counts 0). Also: the side-panel Note box cuts its third line ('until real ACs exist') in t1241-business-1920-panel and t1241-technical-1440-panel-bottom. Give the flow label a clear gap from a gateway name (or prefer the side away from it), let the Note box size to its text, re-shoot, re-judge T-1241 criterion 1.
+  From the T-1241 reviews of 2026-10-22: the official panel split (claude-code green,
+  codex amber); an advisory panel of antigravity, codex and claude-code all green,
+  claude-code noting that at 1920 (technical/all) the flow label 'yes — status: issues'
+  ends ~10 px left of the gateway name 'issues encountered?' on the other side of
+  the vertical flow, so they read as one run (no overlap; harness counts 0). Also:
+  the side-panel Note box cuts its third line ('until real ACs exist') in t1241-business-1920-panel
+  and t1241-technical-1440-panel-bottom. Give the flow label a clear gap from a gateway
+  name (or prefer the side away from it), let the Note box size to its text, re-shoot,
+  re-judge T-1241 criterion 1.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [ui, designer]
 components: []
 related_tasks: []
@@ -38,8 +48,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-22T10:24:12Z
-last_update: 2026-10-22T10:24:12Z
-date_finished: null
+last_update: 2026-10-22T12:53:02Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +60,69 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-22T12:53:03Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=gateway); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1274: T-1241 follow-up: flow label 'yes — status: issues' reads as one run with the gateway name 'issues encountered?'; Note box hides its third line
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+T-1241's criterion 1 split on 2026-10-22: claude-code green, codex amber; an advisory panel (antigravity, codex,
+claude-code) was all green, claude-code noting that at 1920 (technical, all) the flow label "yes — status: issues" ends
+~10 px left of the gateway name "issues encountered?" on the other side of the vertical flow, so the two read as one
+run ("…issues issues encountered?"). No overlap: T-1256's harness counts 0, because it measures overlap, not nearness.
+Also from that review: the side-panel Note box cuts its third line ("until real ACs exist") in
+`t1241-business-1920-panel` and `t1241-technical-1440-panel-bottom`. Evidence: `.context/reviews/evidence/T-1241/`.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A flow label and a node/gateway/event name or id caption whose text boxes share a row keep a horizontal gap of at
+  least one em of the smaller font (measured, not by eye) — a new leg in `tools/_t1256-label-clearance-cdp.mjs`:
+  0 such near pairs on `aef-task-lifecycle` in every lens, ids on/off, at 1440 and 1920; the corpus count does not rise
+  for any map and does not rise in total; the leg is red on the 0.25.0 source (`designer-v0.25.0`); the existing
+  `_t1256` legs (crossings, overlaps, clipping, bytes) stay green; 0 saved bytes change.
+  **Evidence (2026-10-22):** leg 6, threshold three em (stricter than one; see Decisions). Lifecycle: 0 near in all 48
+  runs (link/shot/shell × 1440/1920 × 4 lenses × ids on/off). On 0.25.0: red, 6 hits, all the reported pair ("yes —
+  status: issues" × "issues", gap 10.7 px < 22.9, 1920 technical/all, ids on). Corpus near pairs at 1920+1440 vs 0.25.0:
+  31 -> 10, no map higher. The other legs stay green: crossings 134 -> 1, flow labels crossed or clipped 3 -> 2, bytes
+  25/25 maps unchanged, 1024 opening leg green.
+- [x] The side-panel Note box shows its whole text without scrolling or a cut line (the box grows to its content, up
+  to a cap after which it scrolls visibly): a leg asserting `scrollHeight <= clientHeight` for the Note field of every
+  `aef-task-lifecycle` node with a note, in every lens that shows Note, at 1024/1440/1920; red on 0.25.0.
+  **Evidence:** `tools/_t1274-note-box-cdp.mjs`: 9 nodes with a note × 4 lenses (Note shows in all four) × 3 widths =
+  108 boxes, 0 cut; a 60-line note gives a 240 px box (the cap) that scrolls with overflow-y auto, and deleting the
+  text shrinks it again; buildBpmnXml unchanged. On 0.25.0: red, 96 of 108 cut, and the cap legs fail (the box stays 48 px).
+- [x] Guards still green: `_t600`, `_t601`, `_t1068` (with self-tests), `_t1067`, `_t1078`, `_t1241`, `_t1176`,
+  `_t1249`, `_t1256` (all legs), `_editor-behavior-verify`, `_t1091`, `_endpoint-overlap-verify`.
+  **Evidence:** final source, one at a time under nice -n 19: every guard exits 0 (`_t600` 7 live legs / 2 poison arms,
+  `_t601` 6 live / 4 failable, `_t1068` 5 live / 4 arms, `_t1067` 6/6, `_t1078` 8, `_t1091` 31/31). `_t1256` hit a
+  browser-attach failure once (CDP attach, nothing measured); rerun alone, it was green. Poison arms: no change needed
+  (they remove the `clearLabelsOfFlows()` call, which this task does not touch).
+- [ ] Screenshots: the 48 T-1241 lens shots re-shot, plus 2x crops of the "issues encountered?" gateway at 1440/1920 in
+  every lens and of the Note box at 1024/1440/1920, read control by control in `## Visual Verification`; then
+  `fw reviewer judge T-1241 --criterion 1` is run again.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -112,6 +171,9 @@ date_finished: null
 -->
 
 ## Verification
+node tools/_t1256-label-clearance-cdp.mjs
+node tools/_t1241-business-lens-cdp.mjs
+node tools/_t1274-note-box-cdp.mjs
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -249,6 +311,27 @@ date_finished: null
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 
+## Visual Verification
+
+Shots: the 48 T-1241 lens shots re-shot on this source (`tools/_t1241-lens-shots.py` →
+`docs/reports/T-1241-evidence/t1241-{business,logical,technical,all}-{1024,1440,1920}-{panel,panel-bottom,details,details-bottom}.png`),
+and true 2x crops (device_scale_factor 2, same load as the lens shots: openingZoom, lens, `tl_create` selected; temp
+script, deleted) in `docs/reports/T-1274-evidence/`: `gateway-issues-2x-{lens}-{1440,1920}.png` (8) and
+`note-2x-{lens}-{1024,1440,1920}.png` (12). Each crop read control by control.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| canvas, technical (ids on) | "issues encountered?" + agt_gw_issues | n/a | ok | ok | 1440: name and caption above the diamond, "yes — status: issues" left of the drop below it, its own row; 1920: name right-below the diamond, the flow label moved to right of the drop above the healing loop: no longer on the name's row (before: 10.7 px gap, one run) |
+| canvas, all (ids on) | "issues encountered?" + flow label | n/a | ok | ok | same as technical, the same places |
+| canvas, business | "issues encountered?" + flow label | n/a | ok | ok | 1440: name above the diamond, label left-below; 1920: name left-below the diamond, "yes — status: / issues" two lines left of the drop beneath it, different rows; no ids drawn |
+| canvas, logical | "issues encountered?" + flow label | n/a | ok | ok | same places as business |
+| canvas, all lenses | neighbours ("no", "resolved — back to work", "resolved at gate…", "heavy sub-work") | n/a | ok | ok | no label crossed by a line, none on another, arrows into the healing loop clear |
+| side panel, every lens | Note box (`tl_create`) | ok | ok | ok | all three lines visible ("…(Core / Principle); G-020 blocks source edits / until real ACs exist"), no scrollbar, resize grip visible, label and hint intact |
+| side panel, business 1920 (full shot) | panel fields Name, Lane, Note, Owner | ok | ok | ok | t1241-business-1920-panel: Note shows its third line; Owner below it unclipped; toolbar complete (Check, Versions, Save to project, Save) |
+
+Review of these screenshots by an independent agent: re-run of `fw reviewer judge T-1241 --criterion 1` (criterion 4,
+left to the orchestrator).
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -329,6 +412,20 @@ date_finished: null
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-10-22 — nearness threshold: three em, not one
+- **Chose:** a flow label and a name/id caption on one text row (boxes share at least half the smaller height) count as
+  near when their horizontal gap is under THREE em of the smaller font (screen px in the harness, canvas units in the
+  designer pass; the ratio is zoom-free). A three-em gap also satisfies the criterion's "at least one em".
+- **Why:** the pair the reviewer read as one run ("yes — status: issues" | "issues", 1920 technical/all, ids on) stands
+  10.7 px apart across a 1-px flow; one em of the 10-px flow label at that zoom is 7.6 px, so a one-em leg counted 0 on
+  0.25.0 (measured) and could not be red. At two em (tried) the pass moved the label only to 20 px from "issues", still
+  on the same row (crop read 2026-10-22: still reads on). At three em it leaves the row and stands right of its own drop
+  above the healing loop. Corpus near pairs at three em: 31 -> 10, no map higher (two em: 17 -> 2).
+- **Rejected:** one em (blind to the reported case); two em (the run remains, just wider); also counting flow-label to
+  flow-label nearness in the pass (tried: identical placement on lifecycle and identical corpus numbers, no leg measures
+  it, so left out); moving the gateway name instead (the flow-label pass already searches places along the label's own
+  flow and keeps a move only when strictly better; a move for nearness alone takes no place with a crossing or overlap).
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -345,3 +442,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1274-t-1241-follow-up-flow-label-yes--status-.md
 - **Context:** Initial task creation
+
+### 2026-10-22T12:53:02Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
