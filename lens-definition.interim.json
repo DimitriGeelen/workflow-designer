@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "interim": "Stand-in for the shared lens file AEF owns (AEF T-4402, not shipped). Same shape; swap this file for AEF's when it lands. Source of the field sets: AEF process-layer INSTRUCTIONS section 2.2 (the three lenses).",
+  "interim": "Stand-in for the shared lens file AEF owns (AEF T-4402, served from AEF commit 4f6592c56). Lenses, members and order match what AEF's GET /api/lens-definition returns (compared 2026-10-22); swap this file for AEF's when 832 is served by it. Source of the field sets: AEF process-layer INSTRUCTIONS section 2.2 (the three lenses) and 832 T-281.",
   "order": ["business", "logical", "technical"],
   "lenses": {
     "business": {
@@ -13,18 +13,18 @@
     "logical": {
       "label": "Logical",
       "extends": "business",
-      "fields": ["authority", "horizon", "workflowType", "determinism", "triggeredBy", "emits", "workflowRef", "name", "targetWorkflow", "linkId", "errorStatus", "timerSpec", "busTopic", "hostRef", "boundaryPos", "interrupting"],
+      "fields": ["triggeredBy", "emits", "authority", "workflowType", "horizon", "determinism", "workflowRef", "name", "targetWorkflow", "linkId", "errorStatus", "timerSpec", "busTopic", "hostRef", "boundaryPos", "interrupting"],
       "bpmn": [],
       "sections": ["Constituents", "I/O contract"],
-      "canvas": ["io", "constituents", "authority"]
+      "canvas": ["io", "constituents"]
     },
     "technical": {
       "label": "Technical",
       "extends": "logical",
-      "fields": ["tier", "agentType", "endpoint", "contextReads", "artifactsWrites", "sideEffect", "fabricRef", "links", "scopeOf"],
-      "bpmn": ["Slug", "Display ID", "UID"],
+      "fields": ["contextReads", "artifactsWrites", "scopeOf", "tier", "agentType", "endpoint", "sideEffect", "fabricRef", "links"],
+      "bpmn": ["Display ID", "Slug", "UID"],
       "sections": ["Other extensions"],
-      "canvas": ["ids", "findings", "ns"]
+      "canvas": ["authority", "ids", "findings", "ns"]
     }
   }
 }
