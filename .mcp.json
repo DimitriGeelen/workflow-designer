@@ -2,23 +2,35 @@
   "mcpServers": {
     "context7": {
       "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"]
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ]
     },
     "playwright": {
       "command": "npx",
-      "args": ["@playwright/mcp@latest", "--no-sandbox"]
+      "args": [
+        "@playwright/mcp@latest",
+        "--no-sandbox"
+      ]
     },
     "termlink": {
       "command": "termlink",
-      "args": ["mcp", "serve"],
+      "args": [
+        "mcp",
+        "serve"
+      ],
       "env": {
         "TERMLINK_IDENTITY_FILE": "/opt/832-Workflow-designer/.context/secrets/termlink-identity.key",
-        "TERMLINK_IDENTITY_NO_CREATE": "1"
+        "TERMLINK_IDENTITY_NO_CREATE": "1",
+        "TERMLINK_RUNTIME_DIR": "/var/lib/termlink"
       }
     },
     "fw": {
       "command": "python3",
-      "args": [".agentic-framework/agents/mcp/framework_mcp_server.py"]
+      "args": [
+        ".agentic-framework/agents/mcp/framework_mcp_server.py"
+      ]
     }
   }
 }
