@@ -21,7 +21,9 @@ AEF T-4548). This release is the designer's first slice of it (832 T-1249, under
   AEF's corpus_spec round-trip cases, every tracked map with io (84) and aef-greenfield-test's VZN-T1: 0 bytes changed.
 - **Child elements inside an io survive a save (T-1243).** 0.24.0 kept unknown io attributes (T-1220); a child element
   (an `aef:field`, an `aef:expect`, a foreign-namespace extension) was dropped. Now every child is kept verbatim, in
-  order, adding no namespace declarations.
+  order, adding no namespace declarations for the five the designer always writes (bpmn, bpmndi, dc, di, aef). A child
+  whose prefix only the source root declares (`<x:schema>` with `xmlns:x` on `<bpmn:definitions>`) carries that
+  declaration itself, so the export stays well-formed (T-1272, found by ring20's cloud review).
 
 Guards: `tools/_t1249-v11-io-cdp.mjs`, `tools/_t1243-io-children-cdp.mjs`.
 

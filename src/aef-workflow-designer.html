@@ -12589,16 +12589,21 @@ function ioExtraAttrXml(extra) {
 }
 // T-1243: CHILD elements inside <aef:input>/<aef:output> are kept the same way (a producer's nested attribute tree,
 // a schema reference, any extension; T-1242). The designer names no children of an io, so every element child is
-// kept, verbatim, in order. XMLSerializer re-declares a namespace on a subtree serialised alone; a declaration the
-// document root already makes with the same URI is redundant there and is dropped, so a save adds no xmlns noise and a
-// second save is byte-identical to the first.
+// kept, verbatim, in order. XMLSerializer re-declares a namespace on a subtree serialised alone; a declaration that
+// buildBpmnXml's root always makes (bpmn, bpmndi, dc, di, aef, same URI) is redundant there and is dropped, so a save
+// adds no xmlns noise and a second save is byte-identical to the first.
+// T-1272: only those five. Any other prefix the SOURCE root declared (`xmlns:x` for `<x:schema>`) is not on our
+// export's root, so its declaration stays on the kept element; dropping it made the export not well-formed.
+const IO_EXPORT_ROOT_NS = { bpmn: 'http://www.omg.org/spec/BPMN/20100524/MODEL', bpmndi: 'http://www.omg.org/spec/BPMN/20100524/DI',
+                            dc: 'http://www.omg.org/spec/DD/20100524/DC', di: 'http://www.omg.org/spec/DD/20100524/DI',
+                            aef: 'http://anchorpoint.framework/aef/extensions' };
 function ioChildXml(el) {
-  const doc = el.ownerDocument, root = doc && doc.documentElement, ser = new XMLSerializer(), parts = [];
+  const ser = new XMLSerializer(), parts = [];
   for (const c of Array.from(el.childNodes)) {
     if (c.nodeType !== 1) continue;
     let x = ser.serializeToString(c);
     x = x.replace(/^(<[^\s>\/]+)((?:\s+[^\s=>]+="[^"]*")*)/, (m, tag, attrs) => tag + attrs.replace(/\s+xmlns(?::([A-Za-z_][\w.-]*))?="([^"]*)"/g,
-      (d, pfx, uri) => (root && root.getAttribute(pfx ? 'xmlns:' + pfx : 'xmlns') === uri) ? '' : d));
+      (d, pfx, uri) => (pfx && IO_EXPORT_ROOT_NS[pfx] === uri) ? '' : d));
     parts.push(x);
   }
   return parts.length ? parts : null;

@@ -8,10 +8,14 @@
 //   3. a second save is byte-identical to the first;
 //   4. editing the input in state (rename, as the panel does) keeps its children;
 //   5. an io with no children still serialises self-closing, exactly as before.
+//   6. T-1272: a child whose prefix (or default namespace) only the SOURCE root declares keeps its namespace: in the
+//      verbatim io block (T-1249, one-line io) and in an edited input (canonical writer), the export is well-formed
+//      (DOMParser here, and Python's expat outside the browser: an unbound prefix is an error there), the child's
+//      namespace URI is unchanged, and a second save is byte-identical. Red on the pre-T-1272 source.
 // T1243_SRC substitutes another designer file (the BITE: run against the pre-T-1243 source, leg 1 is red).
 // Exit 0 = all legs green; 1 = a leg failed; 2 = misconfig.
 import { makeProfileDir } from './_cdp-profile.mjs';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
 import { join, dirname } from 'node:path';
@@ -33,9 +37,9 @@ async function ev(cmd, e) { const r = await cmd('Runtime.evaluate', { expression
 async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof parseBpmnXml==='function'&&typeof buildBpmnXml==='function'&&typeof refreshDisplayIds==='function'&&_appReady===true&&(typeof _deepLinkSettled==='undefined'||_deepLinkSettled!==null))`).catch(() => false); if (ok) return; if (Date.now() - t0 > (+process.env.CDP_READY_MS || 20000)) throw new Error('editor not ready'); await sleep(150); } }
 
 const AEF = 'http://anchorpoint.framework/aef/extensions';
-function map(ioXml) {
+function map(ioXml, rootNs = '') {
   return `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:aef="${AEF}" id="Defs_1" targetNamespace="http://example.com/t1243">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:aef="${AEF}"${rootNs} id="Defs_1" targetNamespace="http://example.com/t1243">
   <bpmn:process id="Proc_1" name="T-1243" isExecutable="false">
     <bpmn:startEvent id="Start_1" name="Start"/>
     <bpmn:serviceTask id="Task_1" name="Price order">
@@ -60,6 +64,17 @@ const WITH = map(`          <aef:input name="order" type="object" required="true
           <aef:output name="quote" type="object"><aef:attr name="total" type="number"/></aef:output>`);
 const WITHOUT = map(`          <aef:input name="owner" type="string" required="true"/>
           <aef:output name="assignment" type="ref"/>`);
+// T-1272: the prefixes are declared on the source root only. ROOTNS_ONE has the io on one line (written back verbatim,
+// T-1249); ROOTNS_ML is in the designer's own layout, so it goes through the per-child writer, the path that lost them.
+const NS_ROOT = ` xmlns:x="urn:example:x" xmlns:s="urn:example:s" xmlns="urn:example:d"`;
+const ROOTNS_ONE = map(`          <aef:input name="order" type="object"><x:schema href="schemas/order-v1.json"><x:part ref="customer"/></x:schema><note>v1</note></aef:input><aef:output typeRef="s:Quote" operation="create"><s:ext level="2"/></aef:output>`, NS_ROOT);
+const ROOTNS_ML = map(`          <aef:input name="order" type="object">
+            <x:schema href="schemas/order-v1.json"><x:part ref="customer"/></x:schema>
+            <note>v1</note>
+          </aef:input>
+          <aef:output name="quote" type="object">
+            <s:ext level="2"/>
+          </aef:output>`, NS_ROOT);
 
 const ASSERT = `(function(){
   var errs = [];
@@ -93,7 +108,30 @@ const ASSERT = `(function(){
     if (out5.indexOf('<aef:output name="assignment" type="ref"/>') < 0) errs.push('leg5: plain output not self-closing as before');
     var plain = task(state);
     if (plain && plain.io.inputs.concat(plain.io.outputs).some(function(i){ return 'children' in i; })) errs.push('leg5: a map without children grew a children key');
-    return { ok: errs.length === 0, errs: errs };
+    // leg 6 (T-1272): root-declared prefixes and default namespace inside io children
+    function nsCheck(tag, xml) {
+      var d = new DOMParser().parseFromString(xml, 'application/xml');
+      if (d.getElementsByTagName('parsererror').length) { errs.push(tag + ': export not well-formed: ' + d.getElementsByTagName('parsererror')[0].textContent.slice(0, 160)); return; }
+      var want = [['urn:example:x', 'schema'], ['urn:example:x', 'part'], ['urn:example:s', 'ext'], ['urn:example:d', 'note']];
+      want.forEach(function(w){ if (!d.getElementsByTagNameNS(w[0], w[1]).length) errs.push(tag + ': {' + w[0] + '}' + w[1] + ' lost its namespace'); });
+    }
+    var exports = [];
+    [['one-line', window.__ROOTNS_ONE__], ['designer layout', window.__ROOTNS_ML__]].forEach(function(f){
+      var tag = 'leg6 ' + f[0];
+      load(f[1]);
+      var o1 = strip(buildBpmnXml(state));
+      nsCheck(tag, o1); exports.push([tag, o1]);
+      load(o1);
+      if (strip(buildBpmnXml(state)) !== o1) errs.push(tag + ': second save differs from the first');
+      load(f[1]);   // edit on the FIRST load: its source root is the one that declares the prefixes
+      var t6 = task(state), i6 = t6 && t6.io.inputs.filter(function(i){ return i.name === 'order'; })[0];
+      if (!i6) { errs.push(tag + ': input "order" not found'); return; }
+      i6.name = 'order_in';
+      var o3 = strip(buildBpmnXml(state));
+      if (o3.indexOf('<aef:input name="order_in"') < 0) errs.push(tag + ': edit not written');
+      nsCheck(tag + ' edited', o3); exports.push([tag + ' edited', o3]);
+    });
+    return { ok: errs.length === 0, errs: errs, exports: exports };
   } catch (e) { return { ok: false, errs: ['exception: ' + (e && e.message || e)] }; }
 })()`;
 
@@ -118,8 +156,14 @@ async function main() {
     await cmd('Page.enable'); await cmd('Runtime.enable');
     await cmd('Page.navigate', { url: `${BASE}/designer.html` });
     await waitReady(cmd); await sleep(300);
-    await ev(cmd, `window.__WITH__ = ${JSON.stringify(WITH)}; window.__WITHOUT__ = ${JSON.stringify(WITHOUT)};`);
+    await ev(cmd, `window.__WITH__ = ${JSON.stringify(WITH)}; window.__WITHOUT__ = ${JSON.stringify(WITHOUT)}; window.__ROOTNS_ONE__ = ${JSON.stringify(ROOTNS_ONE)}; window.__ROOTNS_ML__ = ${JSON.stringify(ROOTNS_ML)};`);
     const r = await ev(cmd, ASSERT);
+    // leg 6 outside the browser: expat refuses an unbound prefix
+    for (const [tag, x] of (r && r.exports) || []) {
+      const p = spawnSync('python3', ['-I', '-c', 'import sys, xml.etree.ElementTree as E; E.fromstring(sys.stdin.buffer.read())'], { input: x });
+      if (p.status !== 0) { r.ok = false; r.errs.push(`${tag} (expat): ${String(p.stderr).trim().split('\n').pop()}`); }
+    }
+    if (r) delete r.exports;
     console.log(JSON.stringify({ ok: !!(r && r.ok), src: SRC, result: r }, null, 2));
     process.exitCode = r && r.ok ? 0 : 1;
   } catch (e) {
