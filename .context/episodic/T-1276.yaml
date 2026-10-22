@@ -1,0 +1,151 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1276: T-1241 follow-up round 2: no task name ellipsized on corpus maps; flow-label contrast AA
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-22T23:31:07Z
+# ============================================================================
+
+task_id: T-1276
+task_name: "T-1241 follow-up round 2: no task name ellipsized on corpus maps; flow-label contrast AA"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-22T19:05:48Z
+completed: 2026-10-22T23:26:51Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-22T21:07:39+02:00
+last_commit: 2026-10-22T22:25:27+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file the second T-1241 follow-up from the codex amber at 1fdffed4 (two task names ellipsized by the T-087 fit floor on aef-task-lifecycle; flow-label contrast); render-only, bytes unchanged; dispatched to worker w-t1276. a third fit-ladder step inside the rect (fitNodeLabels, T-087) — 9px/10.5 at the default size, wrapped by measured width, over-wide tokens break after / | , ; > ) — so no corpus task name reaches the ellipsis floor (_t1276-name-fit: 204 floor hits on 0.25.0, lifecycle 2 per lens per width -> 0 on 25 maps x 4 lenses x 3 widths; smallest name font 9px); flow labels measured 6.1:1 (AA) before and after, no colour change; bytes 25/25 unchanged; 13 guards green; 48 T-1241 lens shots re-shot (1920 now opens at the T-1256 readable zoom, 78%: recorded in Decisions), 12 2x crops
+
+# Key outcomes
+outcomes:
+  - '**No task name is ellipsized on any corpus map** at the default label size, in all four lenses, at 1024, 1440'
+  - '**Flow-label text meets WCAG AA (≥ 4.5:1)** against the canvas background in every theme the designer ships.'
+  - '**No guard regresses:** the 12 T-1274 guards plus `_t1274-note-box` stay green, run one at a time under nice 19.'
+  - '**Shots:**'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-10-22 — how a long task name fits without the floor ellipsis'
+    chose: 'a third fit-ladder step inside the same rect (`fitNodeLabels`, T-087): at the default size 9px / 10.5px line pitch, five lines in the 64px rect where step 2 (10px / 12px) had four. Its lines are wrapped by **measured** width rather than the char estimate, and a token wider than the rect breaks after a separator inside it (`/ | , ; > )`), the way CSS `overflow-wrap` does. Five of the 17 cut names were single tokens such as `(--host/--task/--agent/--summary/--result)`, which no font size or extra line could fit. The `s` and `l` sizes get the same step (8px / 9.5, 10px / 11.5). The floor (ellipsis + `<title>`) stays as the last resort for a pathological name; no corpus name reaches it.'
+    rationale: 'this is the only candidate that touches nothing outside the rect, so it cannot add an overlap, a crossing or a lane-edge hit that the T-1256 legs count. It needs no new obstacle model, and it is a few lines in the one function that already owns the fit. Measured: 0.25.0 had 204 floor hits (17 names × 4 lenses × 3 widths; lifecycle 2 per lens); this source has 0. The smallest name font is 9px (≥ 8). Every line stays inside the rect (0 misfits). Name lines under an in-rect badge went from 51 to 42, every remaining one a short default-step name that already overlapped in 0.25.0.'
+    alternatives_rejected: ['(a) growing the rendered rect downward: it needs free-space search against the flows, labels, id captions and lane edges below it, the flows'' endpoints would no longer meet the drawn edge, and a rect that differs from the DI misleads anyone reading the shape as the stored geometry. (b) The label strip below the rect: that is where the id caption and bottom-centre flows sit (T-1090), so it creates the same near/overlap pairs T-1256/T-1274 just removed. A name split between inside and below reads as two labels.']
+  - decision: '2026-10-22 — flow-label contrast and canvas text size'
+    chose: 'no colour change. Measured from computed styles (`tools/_t1276-name-fit-cdp.mjs` leg 2): flow-label fill `--text-dim` rgb(139,145,163) on its halo pad `--bg` rgb(13,15,19) = **6.1:1** in the one theme the designer ships (`:root`; the source styles no `data-theme` and no `prefers-color-scheme`). That is the same on 0.25.0, so the leg is green there: it is ≥ 4.5 and the instruction was to change the token only below AA.'
+    rationale: 'the reviewer''s "low contrast" at 1920 is the fit zoom of a wide map. The 10px mono label renders at about 7px, and antialiasing thins it; the ratio itself is AA. Codex''s "canvas text small at 1920" is out of scope per Context §3: it is the fit zoom, and the user can zoom in.'
+    alternatives_rejected: ['brightening `--text-dim` anyway: it is used by ~30 chrome controls, so it would shift the whole UI''s hierarchy to answer a size complaint, not a contrast failure.']
+  - decision: '2026-10-22 — side effect on the opening zoom (orchestrator''s review)'
+    chose: 'keep it. - It is T-1256''s designed behaviour: open readable, and Fit still shows the whole map. - It answers the other half of codex''s amber (canvas text too small at 1920) without a separate change.'
+    alternatives_rejected: ['excluding the step-3 names from `openingZoom`''s minimum. The map would then open at fit, with those names drawn below 7px, exactly what T-1256 set out to prevent.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-1241-evidence/t1241-all-1024-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1024-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1024-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1024-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1440-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1440-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1440-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1440-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1920-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1920-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1920-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1920-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1024-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1024-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1024-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1024-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1440-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1440-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1440-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1440-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1920-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1920-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1920-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1920-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1024-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1024-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1024-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1024-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1440-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1440-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1440-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1440-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1920-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1920-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1920-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1920-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1024-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1024-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1024-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1024-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1440-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1440-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1440-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1440-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1920-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1920-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1920-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1920-panel.png'
+  - 'docs/reports/T-1276-evidence/flow-labels-2x-all-1920.png'
+  - 'docs/reports/T-1276-evidence/flow-labels-2x-business-1920.png'
+  - 'docs/reports/T-1276-evidence/flow-labels-2x-logical-1920.png'
+  - 'docs/reports/T-1276-evidence/flow-labels-2x-technical-1920.png'
+  - 'docs/reports/T-1276-evidence/name-human-review-2x-all-1920.png'
+  - 'docs/reports/T-1276-evidence/name-human-review-2x-business-1920.png'
+  - 'docs/reports/T-1276-evidence/name-human-review-2x-logical-1920.png'
+  - 'docs/reports/T-1276-evidence/name-human-review-2x-technical-1920.png'
+  - 'docs/reports/T-1276-evidence/name-verify-2x-all-1920.png'
+  - 'docs/reports/T-1276-evidence/name-verify-2x-business-1920.png'
+  - 'docs/reports/T-1276-evidence/name-verify-2x-logical-1920.png'
+  - 'docs/reports/T-1276-evidence/name-verify-2x-technical-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1276-t-1241-follow-up-round-2-no-task-name-el.md'
+  - 'tools/_t1276-name-fit-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-22T21:07:39'
+    action: 'T-1276: file the second T-1241 follow-up from the codex amber at 1fdffed4 (two task names ellipsized by the T-087 fit floor on aef-task-lifecycle; flow-label contrast); render-only, bytes unchanged; dispatched to worker w-t1276'
+  - time: '2026-10-22T22:25:27'
+    action: 'T-1276: a third fit-ladder step inside the rect (fitNodeLabels, T-087) — 9px/10.5 at the default size, wrapped by measured width, over-wide tokens break after / | , ; > ) — so no corpus task name reaches the ellipsis floor (_t1276-name-fit: 204 floor hits on 0.25.0, lifecycle 2 per lens per width -> 0 on 25 maps x 4 lenses x 3 widths; smallest name font 9px); flow labels measured 6.1:1 (AA) before and after, no colour change; bytes 25/25 unchanged; 13 guards green; 48 T-1241 lens shots re-shot (1920 now opens at the T-1256 readable zoom, 78%: recorded in Decisions), 12 2x crops'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 261 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, ui, T-1241]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 261
+  commits: 2
+  files_changed: 63
+  lines_added: 699
+  lines_removed: 13
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1276-t-1241-follow-up-round-2-no-task-name-el.md
+generated_by: context-agent-hybrid

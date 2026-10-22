@@ -1,0 +1,131 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1277: T-1241 follow-up round 3: id captions crossed by bottom-centre flows in the lens-shot state (agt_3_start, agt_6_completion)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-22T23:36:41Z
+# ============================================================================
+
+task_id: T-1277
+task_name: "T-1241 follow-up round 3: id captions crossed by bottom-centre flows in the lens-shot state (agt_3_start, agt_6_completion)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-22T20:30:31Z
+completed: 2026-10-22T23:31:25Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-23T00:15:46+02:00
+last_commit: 2026-10-23T00:15:46+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  arrowheads are obstacles in the flow-clearance pass — clearLabelsOfFlows and its harness treated a flow as a zero-width line, so agt_3_start and agt_6_completion sat 6 units beside their incoming flow but on its 12-unit arrowhead (codex amber at 6d03c1b9; the lens-shot state was NOT different: 3 hypotheses tested, RCA in the task); each drawn head (marker-end/marker-start, unselected stroke) now costs like a segment in the strictly-better pass. _t1256 legs 1/5 count heads, leg 5 covers 1024, new leg 7 opens every corpus map as the shot tool does: lifecycle 0 in all 4 lenses x ids on/off x 3 widths (red on 6d03c1b9, 14 errors), corpus 72 -> 0, leg 2 134 -> 0; bytes 25/25 unchanged; 13 guards + _t1256 green; 48 lens shots re-shot, 12 2x crops
+
+# Key outcomes
+outcomes:
+  - '**Root cause** is stated in `## RCA` with the evidence: which state differs, and why the pass leaves these'
+  - '**Fix:** in the lens-shot state, no id caption or gateway/event name is crossed by a drawn flow on'
+  - '**Harness:** the T-1256 harness (or a new leg) measures crossings in the **lens-shot state**, the same load path'
+  - '**No guard regresses:** the T-1274 guards plus `_t1274-note-box` and `_t1276-name-fit` stay green, run one at a'
+  - '**Shots:**'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'arrowheads are obstacles in the flow-clearance pass — clearLabelsOfFlows and its harness treated a flow as a zero-width line, so agt_3_start and agt_6_completion sat 6 units beside their incoming flow but on its 12-unit arrowhead (codex amber at 6d03c1b9; the lens-shot state was NOT different: 3 hypotheses tested, RCA in the task); each drawn head (marker-end/marker-start, unselected stroke) now costs like a segment in the strictly-better pass. _t1256 legs 1/5 count heads, leg 5 covers 1024, new leg 7 opens every corpus map as the shot tool does: lifecycle 0 in all 4 lenses x ids on/off x 3 widths (red on 6d03c1b9, 14 errors), corpus 72 -> 0, leg 2 134 -> 0; bytes 25/25 unchanged; 13 guards + _t1256 green; 48 lens shots re-shot, 12 2x crops'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-1241-evidence/t1241-all-1024-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1024-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1440-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1440-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1440-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1440-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1920-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1920-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1920-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1920-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1024-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1024-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1440-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1440-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1920-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1920-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1920-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1920-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1024-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1024-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1024-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1024-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1440-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1440-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1920-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1920-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1920-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1920-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1024-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1024-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1440-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1440-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1440-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1440-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1920-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1920-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1920-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1920-panel.png'
+  - 'docs/reports/T-1277-evidence/caption-agt3-start-2x-all-1440.png'
+  - 'docs/reports/T-1277-evidence/caption-agt3-start-2x-all-1920.png'
+  - 'docs/reports/T-1277-evidence/caption-agt3-start-2x-technical-1440.png'
+  - 'docs/reports/T-1277-evidence/caption-agt3-start-2x-technical-1920.png'
+  - 'docs/reports/T-1277-evidence/caption-agt4-do-2x-all-1440.png'
+  - 'docs/reports/T-1277-evidence/caption-agt4-do-2x-all-1920.png'
+  - 'docs/reports/T-1277-evidence/caption-agt4-do-2x-technical-1440.png'
+  - 'docs/reports/T-1277-evidence/caption-agt4-do-2x-technical-1920.png'
+  - 'docs/reports/T-1277-evidence/caption-agt6-completion-2x-all-1440.png'
+  - 'docs/reports/T-1277-evidence/caption-agt6-completion-2x-all-1920.png'
+  - 'docs/reports/T-1277-evidence/caption-agt6-completion-2x-technical-1440.png'
+  - 'docs/reports/T-1277-evidence/caption-agt6-completion-2x-technical-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1277-t-1241-follow-up-round-3-id-captions-cro.md'
+  - 'tools/_t1256-label-clearance-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-23T00:15:46'
+    action: 'T-1277: arrowheads are obstacles in the flow-clearance pass — clearLabelsOfFlows and its harness treated a flow as a zero-width line, so agt_3_start and agt_6_completion sat 6 units beside their incoming flow but on its 12-unit arrowhead (codex amber at 6d03c1b9; the lens-shot state was NOT different: 3 hypotheses tested, RCA in the task); each drawn head (marker-end/marker-start, unselected stroke) now costs like a segment in the strictly-better pass. _t1256 legs 1/5 count heads, leg 5 covers 1024, new leg 7 opens every corpus map as the shot tool does: lifecycle 0 in all 4 lenses x ids on/off x 3 widths (red on 6d03c1b9, 14 errors), corpus 72 -> 0, leg 2 134 -> 0; bytes 25/25 unchanged; 13 guards + _t1256 green; 48 lens shots re-shot, 12 2x crops'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 180 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, ui, T-1241]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 180
+  commits: 1
+  files_changed: 53
+  lines_added: 210
+  lines_removed: 14
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1277-t-1241-follow-up-round-3-id-captions-cro.md
+generated_by: context-agent-hybrid

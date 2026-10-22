@@ -1,0 +1,153 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1274: T-1241 follow-up: flow label 'yes — status: issues' reads as one run with the gateway name 'issues encountered?'; Note box hides its third line
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-22T23:26:34Z
+# ============================================================================
+
+task_id: T-1274
+task_name: "T-1241 follow-up: flow label 'yes — status: issues' reads as one run with the gateway name 'issues encountered?'; Note box hides its third line"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-22T10:24:12Z
+completed: 2026-10-22T23:21:27Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-22T16:20:58+02:00
+last_commit: 2026-10-22T16:20:58+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a flow label within three em of a node/gateway name or id caption on the same row is a conflict in the strictly-better flow-label pass (_t1256 leg 6: red on 0.25.0 for the reviewer's pair, lifecycle 0 in all 48 runs, corpus near pairs 31->10, no map higher; crossings/overlaps/clipping/bytes legs unchanged), and the side-panel Note box grows to its text up to 240 px then scrolls (_t1274-note-box: 96/108 cut on 0.25.0 -> 0/108); 12 guards green; 48 lens shots re-shot, 20 2x crops. T-1273: the t423 carrier-witness fixture was a second casualty of the mutant window (restored)
+
+# Key outcomes
+outcomes:
+  - 'A flow label and a node/gateway/event name or id caption whose text boxes share a row keep a horizontal gap of at'
+  - 'The side-panel Note box shows its whole text without scrolling or a cut line (the box grows to its content, up'
+  - 'Guards still green: `_t600`, `_t601`, `_t1068` (with self-tests), `_t1067`, `_t1078`, `_t1241`, `_t1176`,'
+  - 'Screenshots: the 48 T-1241 lens shots re-shot, plus 2x crops of the "issues encountered?" gateway at 1440/1920 in'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'a flow label within three em of a node/gateway name or id caption on the same row is a conflict in the strictly-better flow-label pass (_t1256 leg 6: red on 0.25.0 for the reviewer''s pair, lifecycle 0 in all 48 runs, corpus near pairs 31->10, no map higher; crossings/overlaps/clipping/bytes legs unchanged), and the side-panel Note box grows to its text up to 240 px then scrolls (_t1274-note-box: 96/108 cut on 0.25.0 -> 0/108); 12 guards green; 48 lens shots re-shot, 20 2x crops. T-1273: the t423 carrier-witness fixture was a second casualty of the mutant window (restored)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-10-22 — nearness threshold: three em, not one'
+    chose: 'a flow label and a name/id caption on one text row (boxes share at least half the smaller height) count as near when their horizontal gap is under THREE em of the smaller font (screen px in the harness, canvas units in the designer pass; the ratio is zoom-free). A three-em gap also satisfies the criterion''s "at least one em".'
+    rationale: 'the pair the reviewer read as one run ("yes — status: issues" | "issues", 1920 technical/all, ids on) stands 10.7 px apart across a 1-px flow; one em of the 10-px flow label at that zoom is 7.6 px, so a one-em leg counted 0 on 0.25.0 (measured) and could not be red. At two em (tried) the pass moved the label only to 20 px from "issues", still on the same row (crop read 2026-10-22: still reads on). At three em it leaves the row and stands right of its own drop above the healing loop. Corpus near pairs at three em: 31 -> 10, no map higher (two em: 17 -> 2).'
+    alternatives_rejected: ['one em (blind to the reported case); two em (the run remains, just wider); also counting flow-label to flow-label nearness in the pass (tried: identical placement on lifecycle and identical corpus numbers, no leg measures it, so left out); moving the gateway name instead (the flow-label pass already searches places along the label''s own flow and keeps a move only when strictly better; a move for nearness alone takes no place with a crossing or overlap).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-1241-evidence/t1241-all-1024-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1024-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1024-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1024-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1440-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1440-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1440-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1440-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1920-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1920-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1920-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-all-1920-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1024-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1024-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1024-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1024-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1440-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1440-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1440-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1440-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1920-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1920-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1920-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-business-1920-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1024-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1024-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1024-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1024-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1440-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1440-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1440-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1440-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1920-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1920-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1920-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-logical-1920-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1024-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1024-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1024-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1024-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1440-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1440-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1440-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1440-panel.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1920-details-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1920-details.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1920-panel-bottom.png'
+  - 'docs/reports/T-1241-evidence/t1241-technical-1920-panel.png'
+  - 'docs/reports/T-1274-evidence/gateway-issues-2x-all-1440.png'
+  - 'docs/reports/T-1274-evidence/gateway-issues-2x-all-1920.png'
+  - 'docs/reports/T-1274-evidence/gateway-issues-2x-business-1440.png'
+  - 'docs/reports/T-1274-evidence/gateway-issues-2x-business-1920.png'
+  - 'docs/reports/T-1274-evidence/gateway-issues-2x-logical-1440.png'
+  - 'docs/reports/T-1274-evidence/gateway-issues-2x-logical-1920.png'
+  - 'docs/reports/T-1274-evidence/gateway-issues-2x-technical-1440.png'
+  - 'docs/reports/T-1274-evidence/gateway-issues-2x-technical-1920.png'
+  - 'docs/reports/T-1274-evidence/note-2x-all-1024.png'
+  - 'docs/reports/T-1274-evidence/note-2x-all-1440.png'
+  - 'docs/reports/T-1274-evidence/note-2x-all-1920.png'
+  - 'docs/reports/T-1274-evidence/note-2x-business-1024.png'
+  - 'docs/reports/T-1274-evidence/note-2x-business-1440.png'
+  - 'docs/reports/T-1274-evidence/note-2x-business-1920.png'
+  - 'docs/reports/T-1274-evidence/note-2x-logical-1024.png'
+  - 'docs/reports/T-1274-evidence/note-2x-logical-1440.png'
+  - 'docs/reports/T-1274-evidence/note-2x-logical-1920.png'
+  - 'docs/reports/T-1274-evidence/note-2x-technical-1024.png'
+  - 'docs/reports/T-1274-evidence/note-2x-technical-1440.png'
+  - 'docs/reports/T-1274-evidence/note-2x-technical-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1273-instrument-sweep-90s-cap-can-leave-src-m.md'
+  - '.tasks/active/T-1274-t-1241-follow-up-flow-label-yes--status-.md'
+  - 'tools/_t1256-label-clearance-cdp.mjs'
+  - 'tools/_t1274-note-box-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-22T16:20:58'
+    action: 'T-1274: a flow label within three em of a node/gateway name or id caption on the same row is a conflict in the strictly-better flow-label pass (_t1256 leg 6: red on 0.25.0 for the reviewer''s pair, lifecycle 0 in all 48 runs, corpus near pairs 31->10, no map higher; crossings/overlaps/clipping/bytes legs unchanged), and the side-panel Note box grows to its text up to 240 px then scrolls (_t1274-note-box: 96/108 cut on 0.25.0 -> 0/108); 12 guards green; 48 lens shots re-shot, 20 2x crops. T-1273: the t423 carrier-witness fixture was a second casualty of the mutant window (restored)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 777 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [ui, designer]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 777
+  commits: 1
+  files_changed: 73
+  lines_added: 366
+  lines_removed: 25
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1274-t-1241-follow-up-flow-label-yes--status-.md
+generated_by: context-agent-hybrid
