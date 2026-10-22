@@ -1,13 +1,24 @@
 ---
 id: T-1275
-name: "Upgrade AEF to v1.8.15-be.3 (SEV-1 env allow-list, designer 0.25.0 pin, glm-5.3 seat, lens definition)"
+name: "Upgrade AEF to v1.8.15-be.3 (SEV-1 env allow-list, designer 0.25.0 pin, glm-5.3
+  seat, lens definition)"
 description: >
-  AEF released v1.8.15-be.3 (tag commit 2ec39ef8e, bleeding-edge pre-release; msg 63e2dc10 on conversation aef-v1815-be3). Brings: T-4647 spawn/dispatch env from an allow-list (the 2026-10-22 tmux env leak, T-4635), T-4582 termlink wait race, T-4506 opencode seat re-pinned to glm-5.3 with a retired-model preflight, designer 0.25.0 pin (closes T-1255's last criterion: Watchtower here serves the vendored pin), lens definition (T-4402), v1.1 io standard + corpus_spec + lint, upgrade fixes (T-4554, T-4235, T-4555, T-4231), review-link gate (T-4624). Upgrade from a NON-shallow clone of the tag. Follow the be.2 path (T-1245: jobs 072/074/075): operator jobs for the upgrade steps, re-apply the local fixes, check every .bak, run _t1192 templates, restart Watchtower, full suite; send AEF a field report (WORKS/FAILS per fix exercised).
+  AEF released v1.8.15-be.3 (tag commit 2ec39ef8e, bleeding-edge pre-release; msg
+  63e2dc10 on conversation aef-v1815-be3). Brings: T-4647 spawn/dispatch env from
+  an allow-list (the 2026-10-22 tmux env leak, T-4635), T-4582 termlink wait race,
+  T-4506 opencode seat re-pinned to glm-5.3 with a retired-model preflight, designer
+  0.25.0 pin (closes T-1255's last criterion: Watchtower here serves the vendored
+  pin), lens definition (T-4402), v1.1 io standard + corpus_spec + lint, upgrade fixes
+  (T-4554, T-4235, T-4555, T-4231), review-link gate (T-4624). Upgrade from a NON-shallow
+  clone of the tag. Follow the be.2 path (T-1245: jobs 072/074/075): operator jobs
+  for the upgrade steps, re-apply the local fixes, check every .bak, run _t1192 templates,
+  restart Watchtower, full suite; send AEF a field report (WORKS/FAILS per fix exercised).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [upgrade, framework]
 components: []
 related_tasks: []
@@ -38,8 +49,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-22T14:13:19Z
-last_update: 2026-10-22T14:13:19Z
-date_finished: null
+last_update: 2026-10-22T19:21:25Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +61,60 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-22T19:21:26Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 3
+      D4: 2
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 2
+      F1: 0
+    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
+      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=2 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L2:keyword=termlink);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1275: Upgrade AEF to v1.8.15-be.3 (SEV-1 env allow-list, designer 0.25.0 pin, glm-5.3 seat, lens definition)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+This follows the be.2 path (T-1245, jobs 072, 074 and 075).
+- **Checked in a full clone** (2026-10-22):
+  - afe974124 is an ancestor of 2ec39ef8e, 365 commits back;
+  - VERSION stays 1.8.14;
+  - `vendor/designer/aef-workflow-designer-0.25.0.html` has sha256 2cbcca06…, our release.
+- **Deletions:** the upgrade deletes no other vendored path. It replaces the vendored designer 0.24.0, which was last
+  committed under T-1225. The pristine commit message names T-1225 from the start, because job 072 was refused by
+  the foreign-delete guard (AEF T-4528) for exactly this.
+- **Job:** 077-upgrade-aef-v1.8.15-be.3 (rehearsed, sha d03cb7185a03).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] **Job 077 ran to `done`:**
+  - `.framework.yaml` version_sha is 2ec39ef8e;
+  - pristine and baseline commits are present;
+  - TermLink settings are kept;
+  - the doctor before/after files are saved.
+- [ ] **832's local framework fixes are re-applied:** `tools/_t517` shows no STALE entry. Every `*.bak` the upgrade
+      left is diffed and then removed or reported (standing rule). The `_t1192` templates have exit 0.
+- [ ] **Watchtower is restarted on be.3 and serves designer 0.25.0** (`fw designer` names 0.25.0), which closes
+      T-1255 AC3. A spawned worker no longer inherits CONTEXT_DIR/TASKS_DIR from the tmux server (T-4647). The
+      identity FAIL in the session-start alerts is cleared after a relaunch via `claude-fw` (T-4454).
+- [ ] **Suite** (`tests/run-bridge-tests.sh`) shows no new failure against the 2026-10-22 baseline (305/8, all 8
+      explained).
+- [ ] **AEF has the field report:** WORKS or FAILS for each be.3 fix exercised, with paths.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -345,3 +396,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1275-upgrade-aef-to-v1815-be3-sev-1-env-allow.md
 - **Context:** Initial task creation
+
+### 2026-10-22T19:21:25Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
