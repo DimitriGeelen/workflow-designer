@@ -62,6 +62,13 @@ from HEAD; all four green on the clean source). **Second casualty, found later t
 `tests/fixtures/exported/t423-carrier-witness.bpmn` ran during the mutant window, so that TRACKED fixture carried
 `t910probe` on every laneMeta (96 lines changed); restored from HEAD, and no other tracked file contains `t910probe`.
 So the fix must also cover outputs a mutant run regenerates, not only src.
+**Correction (2026-10-23):** "restored from HEAD" put back a STALE witness. The committed copy dated from 2026-09-22
+(80af8f4a), before the emitter renamed ids (`agt_1_trigger` -> `agt_start_trigger`, …). By design the suite's
+`_t423-carrier-agreement-cdp.mjs` refreshes the witness on success, and that refresh was never committed. The clean
+post-be.3 suite (2026-10-22 23:14) rewrote it. A fresh regeneration on clean source is byte-identical, and
+`_t423-carrier-agreement-teeth`, `_t815-witness-ordering-guard` and `_t815-witness-guard-controls` all pass on it, so
+the refreshed witness is committed. The lesson for this task: when restoring a regenerated output, regenerate it on
+clean source. Do not take it from HEAD, which can be stale.
 
 ## Acceptance Criteria
 
