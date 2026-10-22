@@ -44,7 +44,7 @@ related_tasks: [T-1249, T-1241, T-1243, T-1222]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T20:14:54Z
-last_update: 2026-10-21T20:15:00Z
+last_update: 2026-10-22T10:24:41Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -89,12 +89,21 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] VERSION and APP_VERSION are 0.25.0 (parity check passes); `docs/releases/RELEASE-NOTES-0.25.0.md` carries T-1249,
+- [x] VERSION and APP_VERSION are 0.25.0 (parity check passes); `docs/releases/RELEASE-NOTES-0.25.0.md` carries T-1249,
   T-1243, T-1241, T-1222 with what changes in stored maps; the pending list is emptied.
-- [ ] An operator release job (modelled on 053) is rehearsed: kit calibration (codex, GLM-5.3), cut, commit, tag
+- [x] An operator release job (modelled on 053) is rehearsed: kit calibration (codex, GLM-5.3), cut, commit, tag
   `designer-v0.25.0`, push.
+  **2026-10-22:** job 076 ran (operator, 12:28-13:04 CEST, rc=0, all 7 steps): codex PASS and GLM-5.3 PASS (3/3
+  recall, 0 false on clean), gate ok, cut (sha256 2cbcca06b4f2157f8b1ff4c1b85ca98586289ac7fd02460fc2dd43649e0fb8ee,
+  1226527 bytes), release commit 2b6bd876, tag designer-v0.25.0 pushed to origin. **The release commit's subject is
+  wrong:** it was copied from job 053 (0.24.0's T-1217/T-1218/T-1220/T-1212/T-1209 text) and not updated; the contents
+  of 0.25.0 are in RELEASE-NOTES-0.25.0.md and the tag message (which names the right sha). Not rewritten (pushed).
+  Release notes also cover T-1256 and T-1272, added after this criterion was written.
 - [ ] After the operator's run: Watchtower re-pinned to 0.25.0, and AEF and aef-greenfield-test are sent version, tag,
   sha256, bytes, what it brings and what changes in stored maps; AEF's pin tracked until CURRENT.
+  **2026-10-22:** AEF and aef-greenfield-test sent the full announce (and the release script announced on the rail).
+  Watchtower here serves the VENDORED designer (`fw designer`: AEF's pin, 0.24.0), so it moves to 0.25.0 only when AEF
+  re-pins and 832 takes that in; open until `tools/_t1187-aef-pin-lag.sh` says CURRENT at 0.25.0.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

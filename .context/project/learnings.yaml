@@ -2893,3 +2893,45 @@ learnings:
   task: T-1225
   date: 2026-10-20
   context: Added via context agent
+- id: PL-418
+  learning: "Never wrap fw reviewer judge in timeout (or kill it): the SIGTERM reaches reviewer workers that may already have committed a green row, the runtime records exit 143, and the append-only ledger then FAILs that row forever ('a green from a failed or killed review does not count'), blocking every push (T-209, 2026-10-20/21). Run judge in the background with no cap."
+  source: P-001
+  task: T-1245
+  date: 2026-10-21
+  context: Added via context agent
+- id: PL-419
+  learning: "This host is the operator's desktop and shared by many projects: a load test may never saturate it. Cap CPU burners at 6, run them with nice -n 19, cap any parallel harnesses at 2, time-box to 15 minutes, and stop everything you start by PID. Three 832 workers each ran 24 burners on 24 cores on 2026-10-21 and made the desktop unusable (dimitri-mint-dev asked us to stop)."
+  source: P-001
+  task: T-1246
+  date: 2026-10-21
+  context: Added via context agent
+- id: PL-420
+  learning: "fw task review's handoff-readiness check does not catch every success clause fw inception decide refuses: T-279's literal '[NEEDS YOU: ...]' clause passed review and was refused at GO (job 066). A decide job's preflight must check the 'We will know that we are successful when we see' line itself for template placeholders"
+  source: P-001
+  task: T-1065
+  date: 2026-10-21
+  context: Added via context agent
+- id: PL-421
+  learning: "fw inception decide on a CAPTURED inception can fail after writing the Decision: the status moved to started-work was back at captured a moment later (likely the backgrounded BVP estimator's whole-file rewrite racing update-task's sed edits), so the closing update was refused. In an operator job, start such a task first and wait until its status holds, then decide; do not use fw inception sweep to recover (it force-closes every started-work+GO task, gates bypassed)"
+  source: unknown
+  task: T-1065
+  date: 2026-10-21
+  context: Added via context agent
+- id: PL-422
+  learning: "Never run session-start-alerts.sh / fw sidecar alerts --mark-seen blind (output discarded): it marks EVERY listed message shown, including ones not read, and a shown message is withheld from the mail watcher and the prompt hook, so it never surfaces (greenfield's T-4415 answer sat unseen, operator noticed). Mark seen only right after reading the list it prints, and arm exactly one mail watcher"
+  source: unknown
+  task: T-1248
+  date: 2026-10-21
+  context: Added via context agent
+- id: PL-423
+  learning: "A tool that runs fw audit live must handle its single-instance refusal ('Another audit is already running — exiting (no verdict produced)'): the half-hourly cron audit holds it, and a long suite always crosses that window. Retry on exactly that message, bounded, and say so (T-1254, _t344)"
+  source: unknown
+  task: T-1254
+  date: 2026-10-21
+  context: Added via context agent
+- id: PL-424
+  learning: "A release job's commit message must be derived from that release's notes (or name the version only), never hand-copied from the previous job: job 076 was modelled on 053 and shipped 0.25.0 with 0.24.0's commit subject (2b6bd876), permanent once pushed. Rehearsal checks did not read the message."
+  source: unknown
+  task: T-1255
+  date: 2026-10-22
+  context: Added via context agent
