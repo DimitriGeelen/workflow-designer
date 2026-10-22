@@ -14,6 +14,8 @@
 
 # Source config for PORT setting (guard protects double-source)
 source "${FRAMEWORK_ROOT:-.}/lib/config.sh"
+# T-4337: zombie-aware liveness (bare kill -0 succeeds on a zombie)
+source "${FRAMEWORK_ROOT:-.}/lib/pid-alive.sh"
 
 [[ -n "${_FW_WATCHTOWER_LOADED:-}" ]] && return 0
 _FW_WATCHTOWER_LOADED=1
@@ -187,8 +189,8 @@ _watchtower_url() {
         _url=$(cat "$_uf" 2>/dev/null | tr -d '[:space:]')
         [ -n "$_pid" ] && [ -n "$_url" ] || continue
 
-        # Verify process is alive (cheap kernel check)
-        kill -0 "$_pid" 2>/dev/null || continue
+        # Verify process is alive and not a zombie (T-4337)
+        fw_pid_alive "$_pid" || continue
 
         # Verify identity (confirms the url actually IS our Watchtower,
         # not a masquerader that happened to bind the same port after restart)
@@ -309,7 +311,11 @@ _watchtower_base_or_placeholder() {
 # bin/watchtower.sh:port_in_use, which lib/ does not source. It says nothing
 # about WHO holds the port: the identity question is _watchtower_identity_matches.
 _watchtower_port_listening() {
-    ss -tln 2>/dev/null | grep -q ":${1} "
+    # T-4221: count, don't `grep -q` — an early exit SIGPIPEs ss and a caller
+    # under pipefail reads the 141 as "not listening" (L-387).
+    local n
+    n=$(ss -tln 2>/dev/null | grep -c ":${1} ") || true
+    [ "${n:-0}" -gt 0 ]
 }
 
 # fw_task_review_url TASK_ID [TASK_FILE]

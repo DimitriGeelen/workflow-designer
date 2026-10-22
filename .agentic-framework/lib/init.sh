@@ -49,6 +49,26 @@ fw_init_install_designer() {
     return 0
 }
 
+# T-4266: the task id to put in the bootstrap RECOVERY advice below.
+#
+# Init's own bootstrap commit runs in-process and uses T-000. The recovery
+# advice is different: a human or agent runs it later, and in a Claude Code
+# session the focus-drift gate (agents/context/check-active-task.sh) refuses a
+# `git commit -m "T-N: ..."` naming anything but the focused task — T-000
+# included. So the advice names the session's focused task, read from the same
+# focus file the hook reads ($CLAUDE_PROJECT_DIR), and T-000 only when nothing
+# is focused (no session, or focus null). The gate keeps no T-000 exemption.
+#
+# Output: one task id on stdout. Return: 0 always.
+fw_init_bootstrap_task_ref() {
+    local focus_file="${CLAUDE_PROJECT_DIR:-}/.context/working/focus.yaml"
+    local ref=""
+    if [ -n "${CLAUDE_PROJECT_DIR:-}" ] && [ -f "$focus_file" ]; then
+        ref=$(sed -n 's/^current_task:[[:space:]]*["'\'']*\(T-[0-9][0-9]*\).*/\1/p' "$focus_file" 2>/dev/null | head -1)
+    fi
+    printf '%s\n' "${ref:-T-000}"
+}
+
 do_init() {
     local target_dir=""
     local provider="generic"
@@ -134,6 +154,9 @@ do_init() {
             # .fw-init-incomplete (T-2801) is ours by definition — it only exists
             # because a previous run of THIS function put it there.
             .agentic-framework|.claude|.framework.yaml|CLAUDE.md|FRAMEWORK.md|.mcp.json|.fw-init-incomplete) continue ;;
+            # T-4254: .context/ and .tasks/ are framework-owned too. Prior tasks are
+            # judged separately (has_existing_tasks); loose notes under them are not code.
+            .context|.tasks) continue ;;
         esac
         preexisting_entries+=("$_b")
     done
@@ -385,6 +408,10 @@ WGIT
     # shellcheck source=lib/vec-index-gitignore.sh
     source "$FRAMEWORK_ROOT/lib/vec-index-gitignore.sh"
     fw_vec_index_ensure_ignored "$target_dir" >/dev/null
+    # T-4231: counters, locks, pid/url, cursors, logs — one list shared with fw upgrade.
+    # shellcheck source=lib/working-gitignore.sh
+    source "$FRAMEWORK_ROOT/lib/working-gitignore.sh"
+    fw_working_ensure_ignored "$target_dir" >/dev/null
 
     echo -e "  ${GREEN}✓${NC}  Task system (.tasks/)"
     echo -e "  ${GREEN}✓${NC}  Context fabric (.context/)"
@@ -686,6 +713,20 @@ CYAML
             echo -e "  ${YELLOW}⚠${NC}  Session init failed — run 'fw context init' manually"
             [ -n "$si_err" ] && echo "$si_err" | sed 's/^/      /' >&2
         fi
+        # T-4259: the registry above is seeded with framework jobs (T-3673), so
+        # leaving it ungenerated made the first `fw doctor` WARN "present but not
+        # generated" — drift init itself created. Generate only; installing writes
+        # root cron and stays a deliberate operator step (`fw cron install`).
+        if [ -f "$target_dir/.context/cron-registry.yaml" ] \
+            && [ ! -f "$target_dir/.context/cron/agentic-audit.crontab" ]; then
+            local cg_err
+            if cg_err="$(PROJECT_ROOT="$target_dir" "$si_fw" cron generate 2>&1 >/dev/null)"; then
+                echo -e "  ${GREEN}✓${NC}  Cron crontab generated (not installed — run: fw cron install)"
+            else
+                echo -e "  ${YELLOW}⚠${NC}  Cron generate failed — run 'fw cron generate' manually"
+                [ -n "$cg_err" ] && echo "$cg_err" | sed 's/^/      /' >&2
+            fi
+        fi
     fi
 
     # --- Copy onboarding task templates (T-460) ---
@@ -893,11 +934,11 @@ CYAML
             if [ "${_bootstrap_n:-0}" -eq 0 ]; then
                 echo -e "  ${YELLOW}⚠${NC}   Bootstrap tree is EMPTY — worktree isolation will yield an empty"
                 echo "       worktree (OBS-178). Commit the project scaffolding before dispatching"
-                echo "       a background agent: cd \"$target_dir\" && git add -A && git commit -m \"T-000: scaffolding\""
+                echo "       a background agent: cd \"$target_dir\" && git add -A && git commit -m \"$(fw_init_bootstrap_task_ref): scaffolding\""
             fi
         else
             echo -e "  ${YELLOW}⚠${NC}   Bootstrap commit failed — HEAD remains unresolved:"
-            echo "       run manually: cd \"$target_dir\" && git add -A && git commit -m \"T-000: bootstrap\""
+            echo "       run manually: cd \"$target_dir\" && git add -A && git commit -m \"$(fw_init_bootstrap_task_ref): bootstrap\""
             [ -n "$_bootstrap_err" ] && echo "$_bootstrap_err" | sed 's/^/      /' >&2
         fi
         if [ -n "$_scan_timing" ]; then
@@ -940,13 +981,36 @@ CYAML
         echo -e "  (Drop ${BOLD}--global${NC} in, or set it on this repo only as above.)"
         echo ""
     fi
-    echo -e "  ${BOLD}Next step:${NC} Start your AI agent (e.g. Claude Code) in this directory."
+    # T-4240: Claude Code loads CLAUDE.md and .claude/settings.json hooks at session
+    # START, so a session that ran this init (or was open before it) stays ungoverned
+    # until restarted in the project. Say so where the eye lands, not "active".
+    # T-4263: install.sh runs this init and then prints the same notice in its own
+    # closing banner (FW_INIT_NO_RESTART_NOTICE=1), so the operator reads it once.
+    case "$provider" in
+        cursor)
+            echo -e "  ${BOLD}Next step:${NC} Start your AI agent (e.g. Cursor) in this directory." ;;
+        *)
+            if [ "${FW_INIT_NO_RESTART_NOTICE:-0}" != "1" ]; then
+                if [ -n "${CLAUDECODE:-}" ]; then
+                    echo -e "  ${YELLOW}This ran inside a Claude Code session (CLAUDECODE is set).${NC}"
+                fi
+                echo -e "  ${YELLOW}${BOLD}Restart Claude Code in $target_dir with claude-fw${NC} — governance is"
+                echo -e "  not active in this session (CLAUDE.md and $target_dir/.claude/settings.json"
+                echo -e "  hooks load at session start)."
+                if [ -n "${CLAUDECODE:-}" ]; then
+                    echo -e "    exit this session, then: cd \"$target_dir\" && claude-fw"
+                else
+                    echo -e "    cd \"$target_dir\" && claude-fw"
+                fi
+            fi ;;
+    esac
     if [ "$has_existing_tasks" = false ] && [ -d "$target_dir/.tasks/active" ] && ls "$target_dir/.tasks/active/"T-*.md >/dev/null 2>&1; then
         local onboard_count
         onboard_count=$(ls "$target_dir/.tasks/active/"T-*.md 2>/dev/null | wc -l)
         echo -e "  Onboarding tasks are ready — ${BOLD}$onboard_count tasks${NC} will guide you through setup."
     fi
     echo ""
+    echo -e "  ${BOLD}Scheduled jobs${NC}: fw cron install  (operator step — writes root cron for the generated crontab)"
     echo -e "  ${BOLD}Dashboard${NC}: fw serve"
     echo -e "  ${BOLD}All commands${NC}: fw help"
 }
@@ -1486,8 +1550,8 @@ Run these in parallel:
 2. Run `git status --short` and `git log --oneline -5`
 3. List `.tasks/active/` and extract task IDs, names, and statuses from frontmatter
 4. Check tool counter: `cat .context/working/.tool-counter`
-5. Check web server: `WURL=$(cat .context/working/watchtower.url 2>/dev/null || echo "http://localhost:$(bin/fw config get PORT 2>/dev/null || echo 3000)"); curl -sf "$WURL/" > /dev/null && echo "running at $WURL" || echo "stopped"`
-   (Never hard-code `:3000` — the triple file `.context/working/watchtower.{pid,port,url}` is the single source of truth for Watchtower's current port. See `bin/fw doctor` for diagnostics.)
+5. Check web server: `.agentic-framework/bin/fw watchtower reachable`
+   (Prints `running at <URL>` or `stopped`. It resolves the URL from the triple file `.context/working/watchtower.{pid,port,url}` and checks the answer is this project's Watchtower — never hard-code `:3000`, and never `cat` the URL into a variable and curl it: the read-only gate refuses that with no task in focus. See `.agentic-framework/bin/fw doctor` for diagnostics.)
 
 ## Step 2: Summarize
 

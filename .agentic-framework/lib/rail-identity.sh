@@ -76,7 +76,13 @@ rail_identity_fingerprint() {
     if [ -n "$idfile" ]; then
         out="$(TERMLINK_IDENTITY_FILE="$idfile" termlink agent identity --resolve --json 2>/dev/null)"
     else
-        out="$(termlink agent identity --resolve --json 2>/dev/null)"
+        # T-4326: strip every identity selector, or a session that already
+        # exports TERMLINK_IDENTITY_FILE=<project key> measures the project key
+        # as "the host" and compares it with itself (lib/sidecar/dm.py
+        # _host_fingerprint does the same). unset inside the $(...) subshell,
+        # not `env -u`, so a `termlink` shell function still resolves.
+        out="$(unset TERMLINK_IDENTITY_FILE TERMLINK_AGENT_ID TERMLINK_IDENTITY_DIR
+            termlink agent identity --resolve --json 2>/dev/null)"
     fi
     [ -n "$out" ] || return 1
     printf '%s' "$out" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("fingerprint",""))' 2>/dev/null
@@ -186,6 +192,14 @@ EOF
 # co-residents and authenticates nobody. It is a grouping key, and a grouping key
 # is only worth having if it groups.
 
+#
+# T-4327: only a CONFIGURED label is normalised. With nothing configured the
+# label is the verbatim project dir name — the fleet id the sidecar
+# (lib/sidecar/circuit.py project_id), lib/pickup.sh and 832's exact-match gate
+# already use. Lower-casing it here split one project into two names
+# ('832-Workflow-designer' on the sidecar, '832-workflow-designer' on the rail).
+# The dir name is one source, so it cannot vary the way a typed label did.
+
 rail_project_label() {
     local label
     if declare -F fw_config >/dev/null 2>&1; then
@@ -193,7 +207,10 @@ rail_project_label() {
     else
         label="${FW_RAIL_PROJECT_LABEL:-}"
     fi
-    [ -n "$label" ] || label="$(basename "${PROJECT_ROOT:-$PWD}")"
+    if [ -z "$label" ]; then
+        printf '%s' "$(basename "${PROJECT_ROOT:-$PWD}")"
+        return 0
+    fi
     printf '%s' "$label" \
         | tr '[:upper:]' '[:lower:]' \
         | tr ' _' '--' \

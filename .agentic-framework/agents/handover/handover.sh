@@ -59,9 +59,12 @@ _resolve_commit_task() {
         COMMIT_TASK="T-012"
         return
     fi
-    # Look for any task with "handover" in its slug
+    # Reuse the dedicated handover task: the exact slug the auto-create below
+    # produces, in active/ only (T-1477). T-4230: the old '*handover*' glob over
+    # active+completed matched any task whose title mentions handover (bug
+    # reports about it), so commits were labelled with an unrelated task.
     local handover_task
-    handover_task=$(find "$TASKS_DIR/active" "$TASKS_DIR/completed" -maxdepth 1 -name '*handover*.md' -type f 2>/dev/null | head -1)
+    handover_task=$(find "$TASKS_DIR/active" -maxdepth 1 -name 'T-*-session-handover-maintenance.md' -type f 2>/dev/null | sort | head -1)
     if [ -n "$handover_task" ]; then
         COMMIT_TASK=$(basename "$handover_task" | grep -oE "T-[0-9]+" | head -1)
         if [ -n "$COMMIT_TASK" ]; then return; fi
@@ -354,19 +357,30 @@ mkdir -p "$HANDOVER_DIR"
 # surfacing — so the states the old field absorbed get their own fields. Union of
 # the four equals the directory listing; nothing is dropped.
 #
-# Sets: ACTIVE_TASKS, PARKED_TASKS, AWAITING_REVIEW_TASKS, UNKNOWN_STATUS_TASKS.
+#
+# T-4169: `captured` is split on horizon. Parked means horizon next/later only; a
+# captured task with horizon now (or none — `now` is the default) is ready work
+# and goes to READY_TASKS. Mapping it to parked hid ring20's bug T-2215 for 9 days.
+#
+# Sets: ACTIVE_TASKS, READY_TASKS, PARKED_TASKS, AWAITING_REVIEW_TASKS,
+# UNKNOWN_STATUS_TASKS.
 classify_active_tasks() {
-    ACTIVE_TASKS=""; PARKED_TASKS=""; AWAITING_REVIEW_TASKS=""; UNKNOWN_STATUS_TASKS=""
-    local f task_id task_status
+    ACTIVE_TASKS=""; READY_TASKS=""; PARKED_TASKS=""; AWAITING_REVIEW_TASKS=""; UNKNOWN_STATUS_TASKS=""
+    local f task_id task_status task_horizon
     shopt -s nullglob
     for f in "$TASKS_DIR/active"/*.md; do
         [ -f "$f" ] || continue
         task_id=$({ grep "^id:" "$f" 2>/dev/null || true; } | head -1 | cut -d: -f2 | tr -d ' ')
         [ -n "$task_id" ] || continue
         task_status=$({ grep "^status:" "$f" 2>/dev/null || true; } | head -1 | cut -d: -f2 | tr -d ' ')
+        task_horizon=$({ grep "^horizon:" "$f" 2>/dev/null || true; } | head -1 | cut -d: -f2 | tr -d " \"'")
         case "$task_status" in
             started-work|issues) ACTIVE_TASKS="$ACTIVE_TASKS$task_id, " ;;
-            captured)            PARKED_TASKS="$PARKED_TASKS$task_id, " ;;
+            captured)
+                case "$task_horizon" in
+                    next|later) PARKED_TASKS="$PARKED_TASKS$task_id, " ;;
+                    *)          READY_TASKS="$READY_TASKS$task_id, " ;;
+                esac ;;
             work-completed)      AWAITING_REVIEW_TASKS="$AWAITING_REVIEW_TASKS$task_id, " ;;
             # An unreadable or absent status is its own answer. Defaulting it into
             # `active` would turn a parse failure into a live-work assertion — the
@@ -376,6 +390,7 @@ classify_active_tasks() {
     done
     shopt -u nullglob
     ACTIVE_TASKS="${ACTIVE_TASKS%, }"
+    READY_TASKS="${READY_TASKS%, }"
     PARKED_TASKS="${PARKED_TASKS%, }"
     AWAITING_REVIEW_TASKS="${AWAITING_REVIEW_TASKS%, }"
     UNKNOWN_STATUS_TASKS="${UNKNOWN_STATUS_TASKS%, }"
@@ -421,6 +436,7 @@ timestamp: $TIMESTAMP
 enrichment_status: pending
 type: checkpoint
 tasks_active: [$ACTIVE_TASKS]
+tasks_ready: [$READY_TASKS]
 tasks_parked: [$PARKED_TASKS]
 tasks_awaiting_review: [$AWAITING_REVIEW_TASKS]
 tasks_unknown_status: [$UNKNOWN_STATUS_TASKS]
@@ -501,164 +517,6 @@ PREDECESSOR=""
 if [ -f "$HANDOVER_DIR/LATEST.md" ]; then
     PREDECESSOR=$(grep "^session_id:" "$HANDOVER_DIR/LATEST.md" 2>/dev/null | cut -d: -f2 | tr -d ' ')
 fi
-
-# ── SUGGESTED FIRST ACTION CARRY-FORWARD (T-862, OBS-383) ──────────────────────
-#
-# Every other section of this document is DERIVED — from git, from the task
-# register, from the audit. Regenerating them from scratch each run is correct.
-# Exactly one section is AUTHORED, and it is the only one a reader is invited to
-# improve: Suggested First Action. Before T-862 the generator overwrote it
-# unconditionally with a single computed line, so a hand-written plan survived
-# precisely one regeneration. Measured four times on 2026-09-25/26; the cleanest
-# pair is cfc7e9ed -> f98bf459, one commit apart, focus unchanged, 4,982 chars
-# replaced by 7 lines.
-#
-# The loss was silent BY CONSTRUCTION. A stub is present, and a stub is not
-# missing, so every completeness check the document has passed. Nothing anywhere
-# compared a handover to its predecessor. That is the same false-green shape as
-# the rest of T-841..T-861: the artefact looks finished because the check cannot
-# tell "nothing to say" from "the words were discarded".
-#
-# WHAT THIS DOES NOT DO. It does not decide where handover content ought to live.
-# OBS-383(b) — render the section from the focus task's body — would relocate
-# authority over the content and is a Sovereign question, left open deliberately.
-# Carrying bytes the generator did not author forward is data preservation and
-# commits to nothing.
-#
-# THE DANGEROUS FAILURE IS NOT "it fails to carry". That shows up the first time
-# anyone looks. It is "it carries always", which would silently present a plan
-# written for a DIFFERENT task as this task's next step — a worse false-green
-# than the one being fixed, and one that reads as authoritative. Hence the focus
-# guard below, and hence the over-firing control in the teeth.
-
-# The session's own focus, read from the same file the generator below consults
-# (focus.yaml:current_task) so the two cannot disagree about what we are on.
-FOCUS_TASK=$(grep -m1 '^current_task:' "$CONTEXT_DIR/working/focus.yaml" 2>/dev/null \
-    | sed 's/^current_task:[[:space:]]*//' | tr -d " '\"" )
-case "$FOCUS_TASK" in T-[0-9]*) ;; *) FOCUS_TASK="" ;; esac
-
-# Resolve LATEST.md to the file it points at. Called BEFORE the symlink is
-# repointed (that happens at the end of this script), so it is the predecessor.
-_sfa_predecessor_file() {
-    local l="$HANDOVER_DIR/LATEST.md"
-    [ -e "$l" ] || return 1
-    if [ -L "$l" ]; then readlink -f "$l"; else printf '%s' "$l"; fi
-}
-
-# Print the body of the Suggested First Action section, minus any carry label a
-# previous run added. Without the strip, repeated carries stack provenance
-# banners until the banner is longer than the content.
-_sfa_extract() {
-    [ -f "${1:-}" ] || return 1
-    awk '
-        /^## Suggested First Action[[:space:]]*$/ { inside=1; next }
-        inside && /^## / { exit }
-        inside && /^<!-- sfa-carry-begin -->$/ { skip=1; next }
-        inside && /^<!-- sfa-carry-end -->$/   { skip=0; next }
-        inside && !skip { print }
-    ' "$1"
-}
-
-# The task id a section was written for. The marker is authoritative and is
-# emitted by this script from T-862 onward; the `Continue T-NNN` fallback reads
-# handovers written before the marker existed. Empty means unknown, and unknown
-# is NOT treated as a match — see _sfa_compose.
-_sfa_origin_focus() {
-    local f="${1:-}" m
-    m=$(grep -m1 -oE '<!-- sfa-focus: (T-[0-9]+) -->' "$f" 2>/dev/null | grep -oE 'T-[0-9]+')
-    [ -n "$m" ] && { printf '%s' "$m"; return 0; }
-    _sfa_extract "$f" | grep -m1 -oE '^Continue (T-[0-9]+)' | grep -oE 'T-[0-9]+'
-}
-
-# Is this section nothing but what the generator itself would have produced?
-# Blank lines, HTML comments, the mergeback nudge, and a lone `Continue T-NNN`
-# / `See active tasks` line are all generator output. If nothing else remains,
-# there is nothing worth preserving and carrying would only add provenance
-# noise to content that has no provenance.
-_sfa_is_stub() {
-    local n
-    n=$(printf '%s\n' "$1" \
-        | grep -vE '^[[:space:]]*$' \
-        | grep -vE '^[[:space:]]*<!--' \
-        | grep -vE '^(Continue T-[0-9]+|See active tasks)' \
-        | grep -vE '^\*\*Mergeback|^>[[:space:]]*\*\*Mergeback' \
-        | grep -c '')
-    [ "$n" -eq 0 ]
-}
-
-# $1 = the freshly generated one-liner. Prints the section body to emit.
-_sfa_compose() {
-    local generated="$1"
-    local cur_focus pred body origin age_note pred_id
-
-    printf '<!-- sfa-focus: %s -->\n' "${FOCUS_TASK:-none}"
-
-    cur_focus="${FOCUS_TASK:-}"
-    pred="$(_sfa_predecessor_file)" || { printf '%s\n' "$generated"; return 0; }
-    body="$(_sfa_extract "$pred")" || { printf '%s\n' "$generated"; return 0; }
-
-    # Nothing authored in the predecessor -> generate, and say nothing about it.
-    if _sfa_is_stub "$body"; then printf '%s\n' "$generated"; return 0; fi
-
-    origin="$(_sfa_origin_focus "$pred")"
-
-    # The focus guard. An authored plan is about a TASK; presenting it under a
-    # different task is the over-firing failure this is built to avoid. When the
-    # origin cannot be established at all, fall back to asking whether the
-    # content itself still names the task we are on — and if it does not, refuse
-    # to carry. Unknown provenance fails CLOSED.
-    if [ -n "$origin" ]; then
-        [ "$origin" = "$cur_focus" ] || { printf '%s\n' "$generated"; return 0; }
-        age_note="focus $origin unchanged"
-    else
-        if [ -z "$cur_focus" ] || ! printf '%s' "$body" | grep -qF -- "$cur_focus"; then
-            printf '%s\n' "$generated"; return 0
-        fi
-        age_note="origin focus not recorded; carried because the text names $cur_focus"
-    fi
-
-    pred_id=$(grep -m1 '^session_id:' "$pred" 2>/dev/null | cut -d: -f2- | tr -d ' ')
-    [ -n "$pred_id" ] || pred_id="$(basename "$pred" .md)"
-
-    # Age, not just provenance. "Carried from S-2026-0926-0154" tells a reader
-    # where the text came from but not whether to trust it; a plan that is two
-    # hours old and one that is nine days old warrant different reactions, and
-    # the session id only encodes the former to someone who does the arithmetic.
-    # Falls back to file mtime, then to saying plainly that the age is unknown —
-    # an unknown age is reported as unknown rather than omitted, because a label
-    # silently missing its age reads as freshness.
-    local pred_ts age_txt now_s then_s mins
-    pred_ts=$(grep -m1 '^timestamp:' "$pred" 2>/dev/null | cut -d: -f2- | sed 's/^[[:space:]]*//')
-    now_s=$(date -u +%s 2>/dev/null)
-    then_s=$(date -u -d "$pred_ts" +%s 2>/dev/null) \
-        || then_s=$(stat -c %Y "$pred" 2>/dev/null)
-    if [ -n "${then_s:-}" ] && [ -n "${now_s:-}" ] && [ "$then_s" -le "$now_s" ] 2>/dev/null; then
-        mins=$(( (now_s - then_s) / 60 ))
-        if   [ "$mins" -lt 60 ]   ; then age_txt="${mins}m old"
-        elif [ "$mins" -lt 2880 ] ; then age_txt="$(( mins / 60 ))h old"
-        else                            age_txt="$(( mins / 1440 ))d old"
-        fi
-    else
-        age_txt="age unknown"
-    fi
-    age_note="$age_note, $age_txt"
-
-    # The label is not decoration. A carried section that reads as freshly
-    # authored is a new false-green: the reader would act on a plan without
-    # knowing when it was written or that nobody has revisited it since.
-    printf '<!-- sfa-carry-begin -->\n'
-    printf '> **Carried forward from `%s`** — %s.\n' "$pred_id" "$age_note"
-    printf '> This section was authored by hand, not generated, so it is preserved rather than\n'
-    printf '> overwritten (T-862/OBS-383). Nobody has re-checked it since it was written: if it\n'
-    printf '> is stale, replace it — regeneration will not, which is the whole point.\n'
-    printf '> The generator would otherwise have written here: `%s`\n' "$generated"
-    printf '<!-- sfa-carry-end -->\n\n'
-    printf '%s\n' "$body"
-}
-# ── end T-862 carry-forward ──
-# tools/_t862-handover-carry-teeth.sh extracts the block between this marker and
-# the banner above, and sources it. Move or rename either marker and the teeth
-# exit 4 announcing they can no longer reach the code — they do not quietly pass.
 
 # Get active tasks — T-3027: classified by status, not by directory membership.
 classify_active_tasks
@@ -1010,6 +868,7 @@ timestamp: $TIMESTAMP
 enrichment_status: pending
 predecessor: $PREDECESSOR
 tasks_active: [$ACTIVE_TASKS]
+tasks_ready: [$READY_TASKS]
 tasks_parked: [$PARKED_TASKS]
 tasks_awaiting_review: [$AWAITING_REVIEW_TASKS]
 tasks_unknown_status: [$UNKNOWN_STATUS_TASKS]
@@ -1106,28 +965,8 @@ if [ -f "$ARC_FOCUS_FILE" ]; then
     fi
 fi
 
-# T-1452 / G-053: surface ripe revisit_at deferrals. Silent when the file is absent
-# or empty.
-#
-# T-626: this block used to attribute the two files to a daily cron invocation of
-# revisit-due-scan.sh, and read them without ever running it. That sentence made the omission
-# invisible: it names a producer, so every reader assumed one existed. In this project
-# none did — the only revisit-due-scan cron entry on the host is rooted at another
-# project — so the two files were written exactly once, by hand, and T-155's revisit sat
-# 8 days past its date unseen.
-#
-# The scan costs 14ms (measured). Making a 14ms check depend on a scheduled job is what
-# turned its cost of observation from negligible into infinite (G-044). Handover already
-# runs every session, so it refreshes what it is about to render.
-#
-# Best-effort by design: a handover that aborts because a diagnostic scan failed is a
-# worse outcome than the blindness it replaces, since generating the handover is the
-# load-bearing act and the revisit list is advisory. Failure here is silent by intent.
-_T626_SCAN="$FRAMEWORK_ROOT/agents/context/revisit-due-scan.sh"
-if [ -x "$_T626_SCAN" ]; then
-    PROJECT_ROOT="$PROJECT_ROOT" "$_T626_SCAN" >/dev/null 2>&1 || true
-fi
-
+# T-1452 / G-053: surface ripe revisit_at deferrals (populated by daily
+# revisit-due-scan.sh cron). Silent when the file is absent or empty.
 REVISITS_FILE="$PROJECT_ROOT/.context/working/.revisits-due.txt"
 if [ -s "$REVISITS_FILE" ]; then
     echo "## Revisits Ripe Today"
@@ -1233,6 +1072,24 @@ def extract_verdict(content):
                   body, re.IGNORECASE)
     return v.group(1).upper() if v else '?'
 
+def is_bug_class(name, wf, tags):
+    """T-4169: same rule as the RCA gate (update-task.sh check_rca_section):
+    bug/bugfix/hotfix/rca/incident tag, or a defect word in the title that is
+    not part of a hyphenated compound. Non-bug workflow types never qualify."""
+    if wf in ('inception', 'specification', 'design', 'request', 'feature',
+              'enhancement', 'decommission'):
+        return False
+    if re.search(r'\b(feature|request|enhancement)\b', tags, re.I):
+        return False
+    if re.search(r'\b(bug|bugfix|hotfix|rca|incident)\b', tags, re.I):
+        return True
+    title = re.sub(r'\b(upstream )?(fix request|request to fix|ask to fix|fix proposal|'
+                   r'proposal to fix|feature request|enhancement request|feature[^.]*fix)\b',
+                   '', name, flags=re.I)
+    return bool(re.search(r'(^|[^\w-])(fix|bug|rca|broken|crash|error|regression|fail|hotfix)'
+                          r'([^\w-]|$)', title, re.I))
+
+
 horizon_order = {'now': 0, 'next': 1, 'later': 2}
 tasks = []
 
@@ -1261,10 +1118,12 @@ for f in sorted(glob.glob(os.path.join(tasks_dir, '*.md'))):
     # reader resuming a session needs.
     tlu = re.search(r'^last_update:\s*[\'"]?([^\'"\s]+)', content, re.M)
     lu = tlu.group(1) if tlu else ''
+    ttags = re.search(r'^tags:\s*(.*)', content, re.M)
+    bug = is_bug_class(tname, wf, ttags.group(1) if ttags else '')
     tasks.append((horizon_order.get(h, 0), tid.group(1).strip(),
                   tname,
                   tstatus.group(1).strip() if tstatus else '',
-                  h, verdict, wf, dec, lu))
+                  h, verdict, wf, dec, lu, bug))
 
 tasks.sort(key=lambda t: (t[0], t[1]))
 current_horizon = None
@@ -1285,7 +1144,7 @@ digest = os.environ.get('HANDOVER_DIGEST', '1') != '0'
 top_n = int(os.environ.get('DIGEST_TOP_N') or 5)
 
 wip = []
-for _, tid, tname, tstatus, h, verdict, wf, dec, lu in tasks:
+for _, tid, tname, tstatus, h, verdict, wf, dec, lu, bug in tasks:
     # T-1619: DEFER'd inceptions are parked (decision is final, not WIP).
     # Skip from WIP — they are surfaced in the "Deferred Inceptions"
     # section below (T-1517) which already covers visibility.
@@ -1296,23 +1155,41 @@ for _, tid, tname, tstatus, h, verdict, wf, dec, lu in tasks:
     if tstatus == 'work-completed':
         pending_completed.append((tid, tname, verdict, h))
         continue
-    wip.append((tid, tname, tstatus, h, lu))
+    wip.append((tid, tname, tstatus, h, lu, bug))
+
+
+def wip_rank(t):
+    """T-4169: in-flight, then captured+now (ready), then everything else."""
+    if t[2] in ('started-work', 'issues'):
+        return 0
+    if t[2] == 'captured' and t[3] == 'now':
+        return 1
+    return 2
+
 
 total_wip = len(wip)
 if digest and wip:
-    # started-work outranks captured; within each, most recently touched first.
-    # Two stable passes rather than one composite key: last_update is a string,
-    # so it sorts descending by reverse= and cannot be negated inside a tuple.
+    # In-flight outranks ready (captured+now) outranks parked; within each, most
+    # recently touched first. Two stable passes rather than one composite key:
+    # last_update is a string, so it sorts descending by reverse= and cannot be
+    # negated inside a tuple.
     wip.sort(key=lambda t: (t[4] or ''), reverse=True)
-    wip.sort(key=lambda t: t[2] != 'started-work')
-    wip = wip[:top_n]
-    print(f'Showing {len(wip)} of {total_wip} — in-flight first, then most recently '
-          f'touched. Every in-flight task ID is in frontmatter `tasks_active:`.')
+    wip.sort(key=wip_rank)
+    # T-4169: a ready bug is never elided by the top-N cut — an untouched
+    # captured+now bug otherwise loses to anything touched more recently and
+    # never surfaces (ring20 T-2215, 9 days).
+    kept = wip[:top_n]
+    kept += [t for t in wip[top_n:] if t[5] and wip_rank(t) == 1]
+    wip = kept
+    print(f'Showing {len(wip)} of {total_wip} — in-flight first, then ready '
+          f'(captured, horizon now; ready bugs always shown), then most recently '
+          f'touched. Every in-flight task ID is in frontmatter `tasks_active:`, '
+          f'every ready one in `tasks_ready:`.')
     print(f'Regenerate in full: `bin/fw task list --status started-work`')
     print()
 
 current_horizon = None
-for tid, tname, tstatus, h, lu in wip:
+for tid, tname, tstatus, h, lu, bug in wip:
     if h != current_horizon:
         current_horizon = h
         print(f'<!-- horizon: {h} -->')
@@ -1379,7 +1256,7 @@ inception_pending = []
 inception_deferred = []
 # T-1619: tuple grew to 8 elements (verdict, wf, dec). Reuse the captured
 # values; no need to re-read each task file.
-for _, tid, tname, tstatus, h, _verdict, wf, dec, _lu in tasks:
+for _, tid, tname, tstatus, h, _verdict, wf, dec, _lu, _bug in tasks:
     if tstatus == 'work-completed':
         continue
     if wf != 'inception':
@@ -1730,7 +1607,7 @@ ${VECIDX_LINE}
 
 ${MERGEBACK_NUDGE}
 
-$(_sfa_compose "$(python3 -c "
+$(python3 -c "
 import glob, re, os
 import yaml
 tasks_dir = '$TASKS_DIR/active'
@@ -1830,7 +1707,7 @@ if _why:
           ' filled. Confirm against the task before acting on it._')
 else:
     print('See active tasks')
-" 2>/dev/null || echo "See active tasks")")
+" 2>/dev/null || echo "See active tasks")
 
 ## Files Changed This Session
 

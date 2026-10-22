@@ -497,6 +497,10 @@ _fw_env_prefix_is_denied() {
         # early, never point it at another repository.
         # generic spawn-a-program hooks
         PAGER|EDITOR|VISUAL) return 0 ;;
+        # T-4626: an rg config file can carry --pre / --hostname-bin.
+        RIPGREP_CONFIG_PATH) return 0 ;;
+        # T-4630: journalctl (and every systemd tool) runs SYSTEMD_PAGER via a shell.
+        SYSTEMD_PAGER|SYSTEMD_PAGERSECURE) return 0 ;;
         *) return 1 ;;
     esac
 }
@@ -694,6 +698,93 @@ _fw_git_grep_opens_pager() {
     return 1
 }
 
+# T-4631: git help -w / --web starts a web browser (via its web--browse helper) whatever the
+# configuration says, so it is an action, not a read. Judged on the dequoted words:
+# a short bundle holding w, any prefix of --web (git accepts --w, --we), or a word
+# that begins with an expansion. Words after `--` are refused as well.
+# _fw_git_help_opens_browser <normalised "git help args...">; 0 = may open one.
+_fw_git_help_opens_browser() {
+    local i tok
+    _fw_option_words "$1" || return 0
+    for (( i=2; i<${#_FW_OW[@]}; i++ )); do
+        tok="${_FW_OW[i]}"
+        [ "${_FW_OWK[i]}" = E ] && return 0
+        case "$tok" in
+            --?*) case --web in "${tok%%=*}"*) return 0 ;; esac ;;
+            -?*) case "${tok:1}" in *w*) return 0 ;; esac ;;
+        esac
+    done
+    return 1
+}
+
+# T-4629: git remote and git reflog are mixed verbs (T-2888's class): `remote add|
+# remove|set-url|…` write .git/config, `reflog expire|delete|drop` destroy history.
+# remote is admitted only bare, after -v/--verbose, or with show / get-url; reflog
+# unless any word is expire, delete or drop (its default is show, and an argument
+# that is not a sub-verb is a ref to show). Judged on the dequoted words; a word
+# that begins with an expansion, or words that cannot be resolved, are refused.
+# _fw_git_mixed_verb_is_read <normalised "git verb args...">; 0 = read.
+_fw_git_mixed_verb_is_read() {
+    local i tok
+    _fw_option_words "$1" || return 1
+    for (( i=2; i<${#_FW_OW[@]}; i++ )); do
+        [ "${_FW_OWK[i]}" = E ] && return 1
+    done
+    case "${_FW_OW[1]:-}" in
+        remote)
+            for (( i=2; i<${#_FW_OW[@]}; i++ )); do
+                tok="${_FW_OW[i]}"
+                case "$tok" in
+                    -v) continue ;;
+                    --v*) case --verbose in "$tok"*) continue ;; esac; return 1 ;;
+                    show|get-url) return 0 ;;
+                    *) return 1 ;;
+                esac
+            done
+            return 0 ;;
+        reflog)
+            for (( i=2; i<${#_FW_OW[@]}; i++ )); do
+                case "${_FW_OW[i]}" in expire|delete|drop) return 1 ;; esac
+            done
+            return 0 ;;
+    esac
+    return 1
+}
+
+# T-4627: git ls-remote / fetch --upload-pack=CMD and push --receive-pack=CMD /
+# --exec=CMD RUN CMD as the remote's pack program (local-path and ssh transports),
+# although the verbs are admitted by name. Judged on the dequoted words: any
+# unambiguous prefix of those long options (git accepts --u…, --rece…, --e…), any
+# short bundle holding u on ls-remote/fetch (-u is --upload-pack on ls-remote,
+# --update-head-ok on fetch: refused on both, fail closed), and a word that begins
+# with an expansion. Words after `--` are refused as well.
+# _fw_git_transport_runs_program <normalised "git verb args...">; 0 = may run one.
+_fw_git_transport_runs_program() {
+    local i j tok sub
+    _fw_option_words "$1" || return 0
+    sub="${_FW_OW[1]:-}"
+    for (( i=2; i<${#_FW_OW[@]}; i++ )); do
+        tok="${_FW_OW[i]}"
+        [ "${_FW_OWK[i]}" = E ] && return 0
+        case "$tok" in
+            --?*)
+                tok="${tok%%=*}"
+                [ "${#tok}" -ge 3 ] || continue
+                case "$sub" in
+                    push) case --receive-pack in "$tok"*) [ "${#tok}" -ge 4 ] && return 0 ;; esac
+                          case --exec in "$tok"*) return 0 ;; esac ;;
+                    *)    case --upload-pack in "$tok"*) return 0 ;; esac ;;
+                esac ;;
+            -?*)
+                [ "$sub" = push ] && continue
+                for (( j=1; j<${#tok}; j++ )); do
+                    [ "${tok:j:1}" = u ] && return 0
+                done ;;
+        esac
+    done
+    return 1
+}
+
 # T-4512: THE word list every option check reads. The find and curl/wget checks
 # matched quote-stripped words and sed/sort matched raw text, so -'exec', "-o",
 # $'-i' and -{o,u} hid the option they look for (G-121; T-4485 fixed git alone).
@@ -847,17 +938,115 @@ _fw_filter_option_writes() {
     return 1
 }
 
-# 832 T-1047: is $1 THIS project's scripts/session-start-alerts.sh? The /resume skill's step 7
-# (AEF T-3327) runs it at session START, before any task is focused, so the no-task gate must
-# admit it or the unseen-mail check never runs when it matters. It reads the inbox; --mark-seen
-# writes only .context/working/.alerts-seen-offset (framework state, like `fw context`). Only a
-# relative scripts/ path or $PROJECT_ROOT/scripts/ is admitted — never a same-named file
-# elsewhere. Redirects on the line are still judged by has_bash_write_pattern on the original.
-_fw_is_session_start_alerts() {
-    case "$1" in
-        scripts/session-start-alerts.sh|./scripts/session-start-alerts.sh) return 0 ;;
+# T-4628: does this uniq/xxd/gunzip clause write a file with no redirect? uniq and
+# xxd write their SECOND operand (`uniq IN OUT`, `xxd -r -p IN OUT`); gunzip replaces
+# X.gz with X unless it writes to stdout (-c) or only inspects (-t, -l). Operands are
+# counted on _fw_option_words with option values skipped: uniq -f/-s/-w and their long
+# forms (getopt permutes, so options may follow operands); xxd -c/-g/-l/-n/-o/-s/-R and
+# their long spellings, options only before the first operand (xxd stops there, so
+# `xxd IN -r` writes a file named -r); gunzip -S/--suffix. A word that cannot be
+# resolved, or one that begins with an expansion, counts as a write.
+_fw_filter_operand_writes() {
+    local base="$1" i j tok ops=0 out=0 opts=1
+    _fw_option_words "$2" || return 0
+    for (( i=1; i<${#_FW_OW[@]}; i++ )); do
+        tok="${_FW_OW[i]}"
+        [ "${_FW_OWK[i]}" = E ] && return 0
+        if [ "$opts" -eq 0 ] || [ "$tok" = - ] || [[ "$tok" != -* ]]; then
+            ops=$((ops + 1))
+            [ "$base" = xxd ] && opts=0
+            [ "$base" = gunzip ] && [ "$tok" = - ] && ops=$((ops - 1))
+            continue
+        fi
+        [ "$tok" = -- ] && { opts=0; continue; }
+        case "$base:$tok" in
+            uniq:--*=*|gunzip:--*=*) ;;
+            uniq:--*)
+                for j in --skip-fields --skip-chars --check-chars; do
+                    case "$j" in "$tok"*) i=$((i + 1)); break ;; esac
+                done ;;
+            uniq:-*)
+                for (( j=1; j<${#tok}; j++ )); do
+                    case "${tok:j:1}" in
+                        f|s|w) [ $((j + 1)) -eq ${#tok} ] && i=$((i + 1)); break ;;
+                    esac
+                done ;;
+            xxd:-c|xxd:-g|xxd:-l|xxd:-n|xxd:-o|xxd:-s|xxd:-R|xxd:-cols|xxd:-groupsize|\
+            xxd:-len|xxd:-name|xxd:-offset|xxd:-seek) i=$((i + 1)) ;;
+            xxd:-*) ;;
+            gunzip:--stdout|gunzip:--to-stdout|gunzip:--test|gunzip:--list) out=1 ;;
+            gunzip:--suffix) i=$((i + 1)) ;;
+            gunzip:--*) ;;
+            gunzip:-*)
+                for (( j=1; j<${#tok}; j++ )); do
+                    case "${tok:j:1}" in
+                        c|t|l) out=1 ;;
+                        S) [ $((j + 1)) -eq ${#tok} ] && i=$((i + 1)); break ;;
+                    esac
+                done ;;
+        esac
+    done
+    case "$base" in
+        uniq|xxd) [ "$ops" -ge 2 ] ;;
+        gunzip) [ "$ops" -ge 1 ] && [ "$out" -eq 0 ] ;;
+        *) return 1 ;;
     esac
-    [ -n "${PROJECT_ROOT:-}" ] && [ "$1" = "$PROJECT_ROOT/scripts/session-start-alerts.sh" ]
+}
+
+# T-4630: does this journalctl/dmesg clause change system state? journalctl's
+# maintenance options delete, rotate, flush or sync journal files, regenerate the
+# catalog or FSS keys, and --cursor-file=FILE rewrites FILE; dmesg -C/-c clear the
+# ring buffer and -D/-E/-n change console logging. Both use getopt_long, so any
+# prefix of a long option counts (an ambiguous one fails in the tool, so refusing it
+# costs nothing); `--cursor` itself is journalctl's read option and stays. dmesg
+# short bundles are scanned whole (fail closed). Judged on the dequoted words; a
+# word that cannot be resolved, or one that begins with an expansion, counts.
+_fw_option_changes_state() {
+    local base="$1" i j tok longs
+    case "$base" in
+        journalctl) longs="--vacuum-time --vacuum-size --vacuum-files --rotate --flush --sync --relinquish-var --smart-relinquish-var --update-catalog --setup-keys --cursor-file" ;;
+        dmesg) longs="--clear --read-clear --console-off --console-on --console-level" ;;
+        *) return 1 ;;
+    esac
+    _fw_option_words "$2" || return 0
+    for (( i=1; i<${#_FW_OW[@]}; i++ )); do
+        tok="${_FW_OW[i]}"
+        [ "${_FW_OWK[i]}" = E ] && return 0
+        [ "$tok" = -- ] && return 1
+        case "$tok" in
+            --?*)
+                tok="${tok%%=*}"
+                [ "$base:$tok" = journalctl:--cursor ] && continue
+                for j in $longs; do
+                    case "$j" in "$tok"*) return 0 ;; esac
+                done ;;
+            -?*)
+                [ "$base" = dmesg ] || continue
+                case "${tok:1}" in *[cCDEn]*) return 0 ;; esac ;;
+        esac
+    done
+    return 1
+}
+
+# T-4626: does this sort/rg clause name an option that STARTS a program? sort
+# --compress-program=CMD runs CMD when it spills to temp files (getopt accepts any
+# unambiguous prefix; `--c` alone is ambiguous with --check, so `--co…` is it). rg
+# --pre CMD runs CMD per searched file and --hostname-bin CMD runs it once; rg takes
+# no abbreviations. Judged on _fw_option_words like the write check above: a word
+# that cannot be resolved, or one that begins with an expansion, counts as the option.
+_fw_option_runs_program() {
+    local base="$1" i tok
+    _fw_option_words "$2" || return 0
+    for (( i=1; i<${#_FW_OW[@]}; i++ )); do
+        tok="${_FW_OW[i]}"
+        [ "${_FW_OWK[i]}" = E ] && return 0
+        [ "$tok" = -- ] && return 1
+        case "$base:${tok%%=*}" in
+            sort:--co*) case --compress-program in "${tok%%=*}"*) return 0 ;; esac ;;
+            rg:--pre|rg:--hostname-bin) return 0 ;;
+        esac
+    done
+    return 1
 }
 
 # Single (non-compound) command classification. This is the original
@@ -1127,6 +1316,23 @@ _fw_single_command_is_safe() {
             _fw_git_has_output_opt "$git_sub" "$git_norm" && return 1
             # T-4513: git grep -O / --open-files-in-pager starts a program.
             [ "$git_sub" = grep ] && _fw_git_grep_opens_pager "$git_norm" && return 1
+            # T-4627: --upload-pack / --receive-pack / --exec run a program.
+            case "$git_sub" in
+                ls-remote|fetch|push) _fw_git_transport_runs_program "$git_norm" && return 1 ;;
+            esac
+            # T-4631: git help -w / --web starts a browser.
+            [ "$git_sub" = help ] && _fw_git_help_opens_browser "$git_norm" && return 1
+            # T-4631 (decision): --ext-diff and --textconv are NOT refused. Measured on
+            # git 2.43: plain `git diff` already runs diff.external, and plain diff /
+            # show / log -p already run textconv drivers, so refusing the flags would
+            # close nothing. The programs come from configuration, and this arm trusts
+            # only configuration the command line cannot choose: the repository is held
+            # to PROJECT_ROOT (T-4343, T-4408), and -c, GIT_CONFIG_*, GIT_EXTERNAL_DIFF
+            # and the other injection channels are refused above. `git config` is gated.
+            # T-4639 closed the residual on the write side: the Write/Edit gate no longer
+            # exempts .git/config, info/attributes or hooks/ (check-active-task.sh), so
+            # naming a driver (or core.fsmonitor, which plain `git status` runs) needs a
+            # task, and a newly set exec-capable key is flagged and logged.
             case "$git_sub" in
                 # T-2888 added the second line. The first had grown one verb per
                 # incident — T-2052, T-2054, T-2462 and T-2878 each patched this
@@ -1141,8 +1347,13 @@ _fw_single_command_is_safe() {
                 # residue: `git symbolic-ref HEAD refs/heads/x` writes. Same
                 # reason `config` stays out — a verb whose read and write forms
                 # differ only by an argument cannot be decided on the verb alone.
-                status|log|diff|show|remote|describe|rev-parse|shortlog|blame|ls-files|ls-tree|cat-file|name-rev|reflog)
+                status|log|diff|show|describe|rev-parse|shortlog|blame|ls-files|ls-tree|cat-file|name-rev)
                     return 0
+                    ;;
+                # T-4629: remote and reflog write on some sub-verbs.
+                remote|reflog)
+                    _fw_git_mixed_verb_is_read "$git_norm" && return 0
+                    return 1
                     ;;
                 # T-2889: branch, tag and stash are the same class as config —
                 # read and write forms differ only by arguments (`git stash`
@@ -1190,12 +1401,6 @@ _fw_single_command_is_safe() {
             esac
             ;;
 
-        # 832 T-1047: /resume's mail check, this project's copy only (see _fw_is_session_start_alerts).
-        # The `bash scripts/session-start-alerts.sh` spelling is admitted in the bash|sh arm.
-        session-start-alerts.sh)
-            _fw_is_session_start_alerts "$(echo "$cmd" | awk '{print $1}')" && return 0
-            ;;
-
         # Category 2: File reading
         cat|head|tail|ls|wc|file|stat|realpath|readlink|basename|dirname|test|\[)
             return 0
@@ -1203,6 +1408,8 @@ _fw_single_command_is_safe() {
 
         # Category 3: Searching
         grep|rg|which|where|type|command)
+            # T-4626: rg --pre / --hostname-bin run a program.
+            [ "$base" = rg ] && _fw_option_runs_program rg "$cmd" && return 1
             return 0
             ;;
 
@@ -1266,6 +1473,10 @@ _fw_single_command_is_safe() {
             # T-4512: the outer sed -i / sort -o rules read raw text; a quoted or
             # brace-built option is judged here on the dequoted words.
             case "$base" in sed|sort) _fw_filter_option_writes "$base" "$cmd" && return 1 ;; esac
+            # T-4628: uniq/xxd write a second operand; gunzip writes in place.
+            case "$base" in uniq|xxd|gunzip) _fw_filter_operand_writes "$base" "$cmd" && return 1 ;; esac
+            # T-4626: sort --compress-program runs a program.
+            [ "$base" = sort ] && _fw_option_runs_program sort "$cmd" && return 1
             # T-4509: awk runs commands with system(), | getline, print | and |&.
             [ "$base" = awk ] && _fw_awk_runs_command "$cmd" && return 1
             # T-4510: GNU sed runs commands with the e command and the e flag of s.
@@ -1278,6 +1489,8 @@ _fw_single_command_is_safe() {
         # (`kill`, `ip`, `mount` and friends are NOT here — `ip addr` reads but `ip link
         # set` writes, and a verb-level split there is wider than this task measured).
         pgrep|pidof|getent|journalctl|dmesg|tty|logname|groups|locale|ulimit)
+            # T-4630: journalctl --vacuum-*/--rotate/… and dmesg -C/-c/-n change state.
+            _fw_option_changes_state "$base" "$cmd" && return 1
             return 0
             ;;
         systemctl)
@@ -1419,7 +1632,8 @@ _fw_single_command_is_safe() {
                     return 0
                     ;;
                 watchtower)
-                    case "$fw_sub3" in port|url|status) return 0 ;; esac
+                    # T-4562: reachable = do_url + an identity GET; writes nothing.
+                    case "$fw_sub3" in port|url|status|reachable) return 0 ;; esac
                     ;;
                 config)
                     case "$fw_sub3" in get|list|overrides) return 0 ;; esac
@@ -1567,15 +1781,6 @@ _fw_single_command_is_safe() {
                     # of why it fired.
                     return 0
                     ;;
-                fix-learned)
-                    # 832 T-650 (restored by T-1037 on 1.7.740): `fw fix-learned T-XXX "text"`
-                    # IS `fw context add-learning "text" --task T-XXX --source P-001` (bin/fw's
-                    # branch execs exactly that), and add-learning is admitted above. The
-                    # completion prompt prints THIS spelling, so refusing it refuses the
-                    # framework's own advice. An allowlist of effects must not be indexed by
-                    # spelling; tools/_t650-*.sh asserts alias/target parity pairwise.
-                    return 0
-                    ;;
                 handover)
                     # T-2878: session handover is the Session End Protocol's
                     # mandatory step; it runs precisely when no task is active.
@@ -1663,8 +1868,6 @@ _fw_single_command_is_safe() {
             if grep -qE '^\s*(ba)?sh\s+-n\b' <<< "$cmd"; then
                 return 0
             fi
-            # 832 T-1047: `bash scripts/session-start-alerts.sh …` (see the arm of that name)
-            _fw_is_session_start_alerts "$(echo "$cmd" | awk '{print $2}')" && return 0
             ;;
 
         # Special: echo without redirect is safe (diagnostic output)
@@ -1720,43 +1923,6 @@ _fw_single_command_is_safe() {
 }
 
 # Check if a command contains file-write patterns
-# 832 T-636 (re-applied on 1.7.740 by T-1005): framework verbs whose quoted arguments are
-# PROSE the framework stores, not shell it runs. Only for these may a verb named inside quotes
-# (`fw note "tee writes a copy"`) be ignored by the rm/tee checks below.
-_sc_is_framework_prose_verb() {
-    local c="$1" tok1 tok2 tok3 rest
-    rest="${c#"${c%%[![:space:]]*}"}"          # ltrim
-    tok1="${rest%%[[:space:]]*}"
-    case "$tok1" in
-        fw|*/fw) ;;
-        *) return 1 ;;
-    esac
-    rest="${rest#"$tok1"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
-    tok2="${rest%%[[:space:]]*}"
-    rest="${rest#"$tok2"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
-    tok3="${rest%%[[:space:]]*}"
-    case "$tok2" in
-        note) return 0 ;;
-        # T-650: the alias needs its OWN entry here, not just in _sc_simple_is_safe.
-        # The two lists answer different questions — "is this verb safe with no task?"
-        # and "does this verb take free prose that must not be read as shell?" — and
-        # `fw fix-learned T-XXX "<sentence>"` needs a yes from both. With only the first,
-        # the command is admitted and then trips on its own argument the moment a learning
-        # contains `>` or `&&`, which is exactly the kind of sentence a bugfix learning is.
-        fix-learned) return 0 ;;
-        context)
-            case "$tok3" in add-learning|add-pattern|add-decision) return 0 ;; esac
-            ;;
-        task)
-            case "$tok3" in create) return 0 ;; esac
-            ;;
-        git)
-            case "$tok3" in commit) return 0 ;; esac
-            ;;
-    esac
-    return 1
-}
-
 has_bash_write_pattern() {
     local cmd="$1"
 
@@ -1777,17 +1943,7 @@ has_bash_write_pattern() {
     # command over the 64KB pipe buffer, grep -q matches line 1 and exits, echo
     # takes SIGPIPE, the pipeline returns 141, and a non-zero return here means
     # "no write found": the gate failed OPEN on a match (measured 0/5 at HEAD).
-    # 832 T-404/T-632 (re-applied on 1.7.740 by T-1005): judge REDIRECTS on shell structure,
-    # not on characters inside quotes. `grep -n "a\\|>>\\|b" f`, `echo "a > b"` and
-    # `python3 -c "...>= 50..."` are reads; the raw-text scan called them writes and the
-    # no-task gate refused them. Uses upstream's _fw_strip_quoted. Conservative fallbacks to
-    # the RAW text: unbalanced quotes (strip fails), or any command substitution, since
-    # stripping a double-quoted "$(cmd > f)" would hide a real write.
-    local _rview="$cmd"
-    if [[ "$cmd" != *'$('* && "$cmd" != *'`'* ]] && declare -F _fw_strip_quoted >/dev/null 2>&1; then
-        _rview="$(_fw_strip_quoted "$cmd")" || _rview="$cmd"
-    fi
-    local _scan="$_rview" _sprev=""
+    local _scan="$cmd" _sprev=""
     while [ "$_scan" != "$_sprev" ]; do
         _sprev="$_scan"
         _scan=$(printf '%s' "$_scan" | sed -E 's#(^|[^>&0-9])([0-9]|&)?>>?[[:space:]]*/dev/(null|stdout|stderr)([[:space:];|&)]|$)#\1 \4#')
@@ -1831,45 +1987,8 @@ has_bash_write_pattern() {
         return 0
     fi
 
-    # 832 T-632/T-640 (re-applied on 1.7.740 by T-1005). Three writes the checks above miss,
-    # each on a verb the allowlist ADMITS, so a miss here is an unguarded write without a task:
-    #   2> FILE / &> FILE   the redirect test above skips every fd-2 and &> form (to keep 2>&1);
-    #                       /dev/null targets were already stripped from $_scan
-    #   sed ... w FILE      sed's w flag / w command writes without -i
-    #   sort -o / --output  sort writes its output file itself
-    if echo "$_scan" | grep -qE '(^|[^>&0-9])(2|&)>>?[[:space:]]*[^&[:space:]]'; then
-        return 0
-    fi
-    if echo "$cmd" | grep -qE "\bsed\b.*[^[:alnum:]]w[[:space:]]+[^[:space:]'\"]"; then
-        return 0
-    fi
-    if echo "$cmd" | grep -qE '\bsort\b.*(^|[[:space:]])(-o([[:space:]]|$)|--output)'; then
-        return 0
-    fi
-    # 832 T-640 (re-applied on 1.7.740 by T-1005). Upstream ALLOWLISTS awk and uniq; ours kept
-    # them gated because each can write without a shell redirect. So the write check must see it:
-    #   awk/gawk/mawk  `print > "f"`, `print | cmd`, `system(...)` live INSIDE the quoted program,
-    #                  which the quote-aware redirect scan above (rightly) ignores — judged on RAW
-    #   uniq IN OUT    the second file operand is an output file
-    if echo "$cmd" | grep -qE '(^|[^[:alnum:]_-])[gm]?awk\b' \
-       && echo "$cmd" | grep -qE '>|system[[:space:]]*\(|print[^|]*\|'; then
-        return 0
-    fi
-    if grep -qE '(^|[;&|[:space:]])uniq\b' <<< "$_rview"; then
-        local _uw _un=0 _after=0
-        for _uw in $(printf '%s' "$cmd" | sed -E 's/.*(^|[;&|[:space:]])uniq\b//; s/[;&|].*//'); do
-            case "$_uw" in -*) ;; *) _un=$((_un + 1)) ;; esac
-        done
-        [ "$_un" -ge 2 ] && return 0
-    fi
-
     # Destructive file operations (already caught by Tier 0 but belt-and-suspenders)
-    # T-636 (re-applied by T-1005): verbs named INSIDE a quoted argument of a framework PROSE
-    # verb are text, not commands. Any other command keeps the raw view: `bash -c "rm -rf x"`
-    # executes its quotes.
-    local _pview="$cmd"
-    if [ "$_rview" != "$cmd" ] && _sc_is_framework_prose_verb "$cmd"; then _pview="$_rview"; fi
-    if grep -qE '\b(rm|rmdir)\b' <<< "$_pview"; then
+    if grep -qE '\b(rm|rmdir)\b' <<< "$cmd"; then
         return 0
     fi
 
@@ -1879,7 +1998,7 @@ has_bash_write_pattern() {
     fi
 
     # tee (writes to file)
-    if grep -qE '\btee\b' <<< "$_pview"; then
+    if grep -qE '\btee\b' <<< "$cmd"; then
         return 0
     fi
 

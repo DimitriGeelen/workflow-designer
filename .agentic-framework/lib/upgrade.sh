@@ -1539,12 +1539,15 @@ do_upgrade() {
         local _replay_shown
         _replay_shown=$(printf '%q ' "${_replay_args[@]}")
 
+        # T-4234: a dry run still fetches. Every per-file report (vendored files,
+        # settings hooks, CLAUDE.md) lives in the upstream's own do_upgrade, so a
+        # dry run that stops at the plan shows the operator nothing to decide on.
+        # The clone lands in the temp dir only; the child runs with --dry-run
+        # (it is in the replay) and writes nothing to the consumer.
         if [ "$dry_run" = true ]; then
             echo "  [dry-run] would clone $_upstream_url into $_tmpd/fw"
             echo "  [dry-run] would re-invoke: $_tmpd/fw/bin/fw ${_replay_shown% }"
-            rm -rf "$_tmpd"
-            trap - EXIT INT TERM HUP
-            return 0
+            echo "  [dry-run] fetching upstream into the temp dir to preview the changes (consumer untouched)"
         fi
 
         echo -n "  Cloning... "
@@ -1563,8 +1566,15 @@ do_upgrade() {
             _clone_filter=()
             _clone_from="$_clone_src"
         fi
-        if ! git clone ${_clone_filter[@]+"${_clone_filter[@]}"} --quiet "$_clone_from" "$_tmpd/fw" 2>"$_tmpd/clone.err"; then
+        if ! GIT_TERMINAL_PROMPT=0 git clone ${_clone_filter[@]+"${_clone_filter[@]}"} --quiet "$_clone_from" "$_tmpd/fw" 2>"$_tmpd/clone.err"; then
             echo "FAILED"
+            if [ "$dry_run" = true ]; then
+                echo -e "${YELLOW}WARN${NC}  [dry-run] preview unavailable: could not fetch $_upstream_url — the plan above is all this dry run can show." >&2
+                sed 's/^/    /' "$_tmpd/clone.err" >&2 2>/dev/null || true
+                rm -rf "$_tmpd"
+                trap - EXIT INT TERM HUP
+                return 0
+            fi
             echo -e "${RED}ERROR: git clone failed${NC}" >&2
             sed 's/^/    /' "$_tmpd/clone.err" >&2 2>/dev/null || true
             return 1
@@ -1623,9 +1633,10 @@ do_upgrade() {
         # .upstream sentinel (precedence-3 leg) and the auto-clone succeeded,
         # persist the URL to .framework.yaml so the next upgrade skips the
         # sentinel fallback. Operator gets a clean .framework.yaml without
-        # having to remediate by hand. Skipped on dry-run (handled above) and
+        # having to remediate by hand. Skipped on dry-run (T-4234: the preview
+        # hands off too, so the guard is explicit) and
         # on failure (we only want to durably commit a known-good URL).
-        if [ "$_rc" -eq 0 ] \
+        if [ "$_rc" -eq 0 ] && [ "$dry_run" != true ] \
            && [ "$_upstream_source" = "vendored .agentic-framework/.upstream sentinel (T-2232)" ] \
            && [ -f "$target_dir/.framework.yaml" ] \
            && ! grep -q "^upstream_repo:" "$target_dir/.framework.yaml" 2>/dev/null; then
@@ -1680,7 +1691,11 @@ do_upgrade() {
     local _src_sha _src_tag
     _src_sha=$(git -C "$FRAMEWORK_ROOT" rev-parse --short=12 HEAD 2>/dev/null) || _src_sha=""
     if [ -n "$_src_sha" ]; then
-        _src_tag=$(git -C "$FRAMEWORK_ROOT" describe --tags --exact-match --exclude '*-be.*' HEAD 2>/dev/null) || _src_tag=""
+        # T-4566: a label, not a version floor — a -be tag is exactly what this line must
+        # name on a -be cut, so it is not excluded; a release tag on the same commit wins.
+        _src_tag=$(git -C "$FRAMEWORK_ROOT" tag --points-at HEAD 2>/dev/null \
+            | awk '/-be\./ { be = $0; next } { print; exit } END { if (NR && be != "") print be }' \
+            | head -n1) || _src_tag=""
         echo "  Commit:    ${_src_sha}${_src_tag:+ ($_src_tag)}"
     fi
     if [ -n "$project_version" ]; then
@@ -1710,6 +1725,10 @@ do_upgrade() {
         # unchanged in intent; it is simply no longer fed a fabricated direction.
         local _precheck_direction _precheck_sha
         _precheck_sha=$(grep "^version_sha:" "$target_dir/.framework.yaml" 2>/dev/null | sed 's/^version_sha:[[:space:]]*//' || true)
+        # T-4235: a shallow source cannot see the recorded sha; fetch its history
+        # ourselves rather than refusing with "run fetch --unshallow". On failure
+        # the relation below still refuses with that remedy (T-3714).
+        fw_source_fetch_history "$FRAMEWORK_ROOT" "$_precheck_sha" "$dry_run" || true
         # Bare call, not $(...) — the reason travels via a global (see lib/version-relation.sh).
         fw_version_relation "$project_version" "$fw_version" "$_precheck_sha" "$FRAMEWORK_ROOT" >/dev/null
         _precheck_direction="$FW_VERSION_RELATION"
@@ -2224,13 +2243,25 @@ CRONREGEOF
                 PRESENT\ *) echo -e "  ${GREEN}OK${NC}  cron job ${_cs_line#PRESENT } already present" ;;
             esac
         done <<< "$_cs_out"
-        if [ "$_cs_added" -gt 0 ] && [ "$dry_run" != true ]; then
+        # T-4555: also regenerate an existing source when no job was added. The
+        # renderer itself changes between releases (T-3162 '; exit ${PIPESTATUS[0]}',
+        # T-4351 reindex stagger), so a crontab the old framework generated no
+        # longer matches what the unchanged registry renders to, and doctor/audit
+        # report "registry edited but not generated" on a registry nobody edited.
+        local _cg_src="$target_dir/.context/cron/agentic-audit.crontab" _cg_before=""
+        if [ "$dry_run" != true ] && { [ "$_cs_added" -gt 0 ] || [ -f "$_cg_src" ]; }; then
+            [ -f "$_cg_src" ] && _cg_before=$(cat "$_cg_src")
             # T-3835: $FRAMEWORK_ROOT may be the temp upstream clone; generate
             # resolves the consumer's durable fw itself and refuses a temp one.
             # Its refusal is shown, not swallowed.
             local _cg_out
             if _cg_out=$(cd "$target_dir" && PROJECT_ROOT="$target_dir" "$FRAMEWORK_ROOT/bin/fw" cron generate 2>&1); then
-                echo -e "  ${GREEN}OK${NC}  Cron source regenerated — run 'fw cron install' to deploy"
+                if [ "$_cs_added" -gt 0 ]; then
+                    echo -e "  ${GREEN}OK${NC}  Cron source regenerated — run 'fw cron install' to deploy"
+                elif [ "$(cat "$_cg_src" 2>/dev/null)" != "$_cg_before" ]; then
+                    changes=$((changes + 1))
+                    echo -e "  ${GREEN}REGENERATED${NC}  Cron source (framework cron renderer changed) — run 'fw cron install' to deploy"
+                fi
             else
                 echo -e "  ${YELLOW}WARN${NC}  'fw cron generate' failed — run it manually, then 'fw cron install'"
                 printf '%s\n' "$_cg_out" | sed 's/^/        /'
@@ -3082,6 +3113,32 @@ MCPJSON
         fi
     else
         echo -e "  ${GREEN}OK${NC}  Vector index gitignored"
+    fi
+
+    # T-4231: the same file never named the runtime counters, locks, pid/url,
+    # cursors and logs that hooks write there — append the missing rules.
+    # shellcheck source=lib/working-gitignore.sh
+    source "$FRAMEWORK_ROOT/lib/working-gitignore.sh"
+    local _wk_added _wk_tracked
+    if [ "$dry_run" = true ]; then
+        _wk_added=$(fw_working_ensure_ignored "$target_dir" --dry-run)
+    else
+        _wk_added=$(fw_working_ensure_ignored "$target_dir")
+    fi
+    if [ "${_wk_added:-0}" -gt 0 ]; then
+        changes=$((changes + 1))
+        if [ "$dry_run" = true ]; then
+            echo -e "  ${CYAN}WOULD ADD${NC}  $_wk_added runtime-state ignore rule(s) to .context/working/.gitignore"
+        else
+            echo -e "  ${GREEN}ADDED${NC}  $_wk_added runtime-state ignore rule(s) to .context/working/.gitignore"
+        fi
+    else
+        echo -e "  ${GREEN}OK${NC}  Runtime state under .context/working gitignored"
+    fi
+    _wk_tracked=$(fw_working_tracked_runtime "$target_dir" | wc -l | tr -d ' ')
+    if [ "${_wk_tracked:-0}" -gt 0 ]; then
+        echo -e "  ${YELLOW}NOTE${NC}  $_wk_tracked runtime file(s) under .context/working are already tracked; untrack with:"
+        echo -e "        git -C \"$target_dir\" ls-files -ci --exclude-standard -z -- .context/working | xargs -0 git -C \"$target_dir\" rm --cached --"
     fi
 
     # ── 9. Version tracking (.framework.yaml) ──

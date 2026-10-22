@@ -10,7 +10,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Iterable, TypeVar
 
-from markupsafe import Markup, escape
 import yaml
 from flask import g, has_request_context, render_template, request
 
@@ -549,7 +548,8 @@ def mtime_cached_get(
 
 _TASK_REF_RE_SHARED = re_mod.compile(r"(?<![\w/-])(T-\d{3,5})(?![\w/-])")
 _BARE_URL_RE_SHARED = re_mod.compile(r"(?<![\(\[\"'`])(https?://[^\s<>'\"`)\]]+)")
-_CODE_URL_HTML_RE_SHARED = re_mod.compile(r"<code>(https?://[^<\s]+?)</code>")
+# T-4290: no quotes — the match goes into href="…" and markdown2 leaves quotes raw in code.
+_CODE_URL_HTML_RE_SHARED = re_mod.compile(r"<code>(https?://[^<\s\"']+?)</code>")
 
 # T-1764: single source of truth for "viewable artefact paths".
 # Both the auto-linker (T-1722) and the /file/ route (T-632) consult these.
@@ -637,6 +637,12 @@ def is_viewable_path(filepath: str) -> bool:
         return False
     if filepath in ROOT_FILES or is_root_doc(filepath):
         return True
+    # T-4571: top-level guides (docs/style-guide.md, docs/context-compaction.md)
+    # matched no docs/<subdir>/ prefix, so /file/ answered "Not Served" for
+    # files CLAUDE.md cites. Depth 1 only — docs subdirs stay prefix-listed.
+    if filepath.startswith("docs/") and "/" not in filepath[len("docs/"):]:
+        ext = filepath.rsplit(".", 1)[-1] if "." in filepath else ""
+        return ext in VIEWABLE_EXTENSIONS
     if not any(filepath.startswith(d) for d in VIEWABLE_DIR_PREFIXES):
         return False
     ext = filepath.rsplit(".", 1)[-1] if "." in filepath else ""
@@ -815,8 +821,12 @@ def _build_basename_index(now: float) -> dict:
     for f in root_docs:
         if f not in ROOT_FILES:
             idx.setdefault(f, []).insert(0, f)
+    import time as _t
     _BASENAME_INDEX["index"] = idx
-    _BASENAME_INDEX["built"] = now
+    # T-4547: age counts from when the walk FINISHED. Stamping `now` (read
+    # before the walk) published an index already past its TTL whenever the
+    # walk took longer than the TTL, so the next miss walked again.
+    _BASENAME_INDEX["built"] = _t.monotonic()
     return idx
 
 
@@ -851,7 +861,7 @@ def _exists_anywhere(name: str) -> bool:
                     dirs[:] = [d for d in dirs if d not in _TREE_SKIP_DIRS]
                     names.update(files)
                 _TREE_NAMES["names"] = frozenset(names)
-                _TREE_NAMES["built"] = now
+                _TREE_NAMES["built"] = _t.monotonic()  # T-4547: after the walk
     return name in _TREE_NAMES["names"]
 
 
@@ -1074,22 +1084,96 @@ def protect_path_underscores(text: str) -> str:
     return "".join(parts)
 
 
-def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
+# T-4624 (G-123): Human Steps reach the operator as `$(cd … && bin/fw watchtower url)/designer`
+# or as a backticked bare `/designer`. Authors keep producing them (the idiom is correct in
+# ## Verification), so the render layer resolves both to full own-origin URLs. Applied only
+# to the AC-field / Recommendation renderers, never to the raw task body (## Verification).
+_WT_URL_SUBST_RE = re_mod.compile(
+    r"\$\(\s*(?:cd\s+[^()&;|]*?\s*&&\s*)?(?:[\w./~-]*/)?fw\s+watchtower\s+url\s*\)"
+)
+_FENCE_SPLIT_RE = re_mod.compile(r"(```.*?```)", re_mod.DOTALL)
+_CODE_ROUTE_HTML_RE = re_mod.compile(r"<code>(/[^<\s\"'`]*)</code>")
+
+
+def external_base_url() -> str:
+    """The Watchtower origin the operator reached us on, without a trailing slash.
+
+    Inside a request: ``request.host_url`` (what the browser used). Outside one:
+    ``.context/working/watchtower.url`` (written on start). '' when neither exists.
+    """
+    if has_request_context():
+        return request.host_url.rstrip("/")
+    try:
+        return (PROJECT_ROOT / ".context" / "working" / "watchtower.url").read_text().strip().rstrip("/")
+    except OSError:
+        return ""
+
+
+def resolve_watchtower_refs(text: str, base_url: str | None = None) -> str:
+    """Replace ``$(…bin/fw watchtower url)`` with the literal base URL (T-4624).
+
+    ``$(cd /x && bin/fw watchtower url)/designer`` → ``http://host:3000/designer``.
+    Backticks and quotes around it are kept, so the downstream URL linkers make
+    it an anchor. Fenced code blocks are left alone.
+    """
+    if not text or "watchtower" not in text:
+        return text
+    base = external_base_url() if base_url is None else base_url.rstrip("/")
+    parts = _FENCE_SPLIT_RE.split(text)
+    for i in range(0, len(parts), 2):
+        parts[i] = _WT_URL_SUBST_RE.sub(lambda _m: base, parts[i])
+    return "".join(parts)
+
+
+def _is_watchtower_route(path: str) -> bool:
+    """True when ``path`` (query dropped) matches a GET rule in the running app."""
+    from flask import current_app
+    from werkzeug.exceptions import HTTPException
+    from werkzeug.routing import RequestRedirect
+
+    try:
+        adapter = current_app.url_map.bind("localhost")
+    except RuntimeError:
+        return False  # no app context — cannot know the routes
+    bare = path.split("?", 1)[0].split("#", 1)[0]
+    if not bare or bare == "/":
+        return False
+    try:
+        adapter.match(bare, method="GET")
+        return True
+    except RequestRedirect:
+        return True  # trailing-slash redirect: the route exists
+    except HTTPException:
+        return False
+
+
+def link_route_code_spans(html: str, base_url: str | None = None) -> str:
+    """Turn ``<code>/designer</code>`` into a full-URL anchor when the path is a
+    Watchtower route (T-4624). File paths and unknown paths are left as code."""
+    if not html or "<code>/" not in html:
+        return html
+    import html as html_mod
+
+    base = external_base_url() if base_url is None else base_url.rstrip("/")
+
+    def _sub(m):
+        raw = html_mod.unescape(m.group(1))
+        if "<" in raw or ">" in raw or not _is_watchtower_route(raw):
+            return m.group(0)
+        url = base + m.group(1)
+        return f'<a href="{url}"><code>{url}</code></a>'
+
+    return _CODE_ROUTE_HTML_RE.sub(_sub, html)
+
+
+def render_markdown_safe(text: str, extras: list[str] | None = None) -> str:
     """Render Markdown to HTML with safe_mode='escape', auto-link T-XXX refs
     and bare http(s) URLs.
 
     Used by /review and any blueprint that needs to render an arbitrary chunk
     of task-body markdown (rationale, evidence, etc.) without piping through
-    tasks.py's AC-specific helpers. Returns '' for empty input.
-
-    T-606: returns markupsafe.Markup, so callers no longer have to remember
-    `| safe`. Recommended by 010-termlink (rail 563) and correct — but note it
-    was NOT sufficient for the reported symptom: /approvals' AC fields never
-    reach this function, they come from tasks.py's _render_md_inline. The
-    docstring below claims the blueprint-private parser pattern was broken by
-    promoting this helper here; the promotion happened and the private pair
-    survived. Both are now fixed. A contract with two definitions is one
-    definition and one impostor, and the impostor is where the bug lives.
+    tasks.py's AC-specific helpers. Returns '' for empty input. Caller must
+    mark returned string `| safe` in templates.
 
     Origin: T-1575 — /review surface dumped raw markdown into a `<pre>` block.
     Promoted here (rather than reused from tasks.py) to break the blueprint-
@@ -1101,24 +1185,12 @@ def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
     ``extras=None`` is the previous behaviour exactly.
     """
     if not text:
-        return Markup("")
+        return ""
     try:
         import markdown2
     except ImportError:
-        # T-569: ESCAPE on the degradation path. Every caller marks this `| safe` — that is
-        # stated three lines up in this docstring — so returning the raw text handed
-        # unescaped, attacker-influenced content straight into the page whenever markdown2
-        # was missing. It was latent only because the import has always succeeded here.
-        # A fallback that silently turns escaping off is the same shape as the rest of this
-        # week's defects: the failure renders as health, and nothing in the output says the
-        # renderer degraded.
-        from markupsafe import escape as _escape
-        # T-606: was str(_escape(text)) — correct only because every caller then
-        # applied `| safe`. Now that this function owns the safety, return the
-        # Markup escape() already produced: the entities stay visible as literal
-        # text and are NOT re-escaped into &amp;lt;. The degradation path must keep
-        # escaping; it must not inherit the happy path's trust.
-        return _escape(text)
+        return text  # graceful degradation
+    text = resolve_watchtower_refs(text)  # T-4624
     text = _TASK_REF_RE_SHARED.sub(r"[\1](/tasks/\1)", text)
     text = protect_path_underscores(text)
     text = _BARE_URL_RE_SHARED.sub(lambda m: f"[{m.group(1).rstrip('.,;:!?')}]({m.group(1).rstrip('.,;:!?')})", text)
@@ -1133,11 +1205,12 @@ def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
         lambda m: f'<a href="{m.group(1)}"><code>{m.group(1)}</code></a>',
         html,
     )
+    html = link_route_code_spans(html)  # T-4624
     # T-1722: artefact paths (docs/reports/*, .tasks/*, .fabric/components/*, etc.)
     # become clickable /file/ links. Existence-gated; same rendering-layer
     # contract as the T-1575 URL/T-NNNN shape — agent need not pre-format.
     html = _auto_link_files(html)
-    return Markup(html)
+    return html
 
 
 _REC_MARKER_RE = re_mod.compile(
@@ -2283,30 +2356,14 @@ def load_latest_audit():
 
 
 def linkify_tasks(text):
-    r"""Convert T-XXX references to clickable Watchtower links (T-851).
-
-    T-646: ESCAPE FIRST, THEN LINKIFY. The result is declared trusted HTML by the
-    Jinja filter in app.py, and a function may only vouch for markup it created
-    itself. Before this, the substitution ran over the RAW string and the whole
-    result was wrapped in Markup(), so every `<` in the source prose was published
-    as a tag. The source is not incidental: timeline narratives are read out of
-    committed handover markdown (blueprints/timeline.py:159), so the text is prose
-    that sessions wrote, and sessions write about HTML. Measured on the live
-    /timeline: two `<html` tags reaching the browser from a paragraph *discussing*
-    fragments. Injection-shaped rather than an open door — the input is our own
-    repository — but the ordering is wrong either way, and the fix is one line.
-
-    escape() is applied to the whole input; the anchors are then inserted into
-    already-escaped text, so they are the only markup this function vouches for.
-    T-\d{3,} contains no escapable character, so escaping cannot disturb the match.
-    """
+    """Convert T-XXX references to clickable Watchtower links (T-851)."""
     if not text:
         return text
-    return Markup(re_mod.sub(
+    return re_mod.sub(
         r'\b(T-\d{3,})\b',
         r'<a href="/tasks/\1">\1</a>',
-        str(escape(text)),
-    ))
+        str(text),
+    )
 
 
 _FRAGMENT_CONVENTION_VIOLATION = (

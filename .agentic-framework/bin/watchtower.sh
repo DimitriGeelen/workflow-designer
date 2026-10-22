@@ -21,8 +21,11 @@ source "$FRAMEWORK_ROOT/lib/firewall.sh"
 # T-1803: shared identity helpers (_watchtower_port_holder_is_ours,
 # _watchtower_identity_matches) so the writer reuses the reader's identity check.
 source "$FRAMEWORK_ROOT/lib/watchtower.sh"
+source "$FRAMEWORK_ROOT/lib/pid-alive.sh"
 # PID/LOG in PROJECT_ROOT so review.sh and watchtower.sh find them in the same place (T-1154)
 PID_FILE="$PROJECT_ROOT/.context/working/watchtower.pid"
+# T-4323: UFW rules this project's Watchtower added (one port per line); stop removes them.
+FIREWALL_STATE_FILE="$PROJECT_ROOT/.context/working/watchtower.firewall"
 # T-1287: port + url triple alongside pid (foundation for T-1284 3-layer discovery)
 PORT_FILE="$PROJECT_ROOT/.context/working/watchtower.port"
 URL_FILE="$PROJECT_ROOT/.context/working/watchtower.url"
@@ -60,15 +63,7 @@ get_pid() {
 # not reaped — common for children of a container's PID 1), so stop failed and
 # start refused on a server that was already gone. A zombie is stopped.
 _pid_alive() {
-    local pid="$1" state=""
-    [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null || return 1
-    if [ -r "/proc/$pid/stat" ]; then
-        # comm may contain spaces/parens: the state follows the LAST ')'.
-        state=$(sed 's/.*) //' "/proc/$pid/stat" 2>/dev/null | cut -d' ' -f1)
-    else
-        state=$(ps -o stat= -p "$pid" 2>/dev/null | tr -d '[:space:]')
-    fi
-    [ "${state:0:1}" != "Z" ]
+    fw_pid_alive "$1"
 }
 
 is_running() {
@@ -78,8 +73,11 @@ is_running() {
 }
 
 port_in_use() {
-    local port="$1"
-    ss -tlnp 2>/dev/null | grep -q ":${port} " 2>/dev/null
+    local port="$1" n
+    # T-4221: grep -c reads all of ss's output. `grep -q` exited at the first
+    # match, ss took SIGPIPE, and under pipefail the 141 read as "free" (L-387).
+    n=$(ss -tln 2>/dev/null | grep -c ":${port} ") || true
+    [ "${n:-0}" -gt 0 ]
 }
 
 # ensure_firewall_open is sourced from lib/firewall.sh (T-888)
@@ -170,6 +168,7 @@ do_stop() {
     if ! _pid_alive "$pid"; then
         log_warn "Stale PID file (PID $pid not running). Cleaning up."
         rm -f "$PID_FILE" "$PORT_FILE" "$URL_FILE"
+        close_recorded_firewall_rules "$FIREWALL_STATE_FILE"
         return 0
     fi
 
@@ -202,6 +201,8 @@ do_stop() {
     fi
 
     rm -f "$PID_FILE" "$PORT_FILE" "$URL_FILE"
+    # T-4323: remove the UFW rule(s) start added; a stopped server serves no port.
+    close_recorded_firewall_rules "$FIREWALL_STATE_FILE"
     log_info "Watchtower stopped."
 }
 
@@ -463,7 +464,7 @@ do_start() {
             # T-4297: pass the bind host (loopback never touches UFW) and honour the
             # operator's opt-in from config; without it nothing is opened.
             FW_WATCHTOWER_OPEN_FIREWALL="${FW_WATCHTOWER_OPEN_FIREWALL:-$(fw_config "WATCHTOWER_OPEN_FIREWALL" "0" 2>/dev/null || echo 0)}" \
-                ensure_firewall_open "$port" "Agentic Framework" "${FW_HOST:-0.0.0.0}"
+                ensure_firewall_open "$port" "Agentic Framework" "${FW_HOST:-0.0.0.0}" "$FIREWALL_STATE_FILE"
 
             local lan_ip
             lan_ip=$(detect_lan_ip)
@@ -539,7 +540,9 @@ do_status() {
 
         # Find the port from the process
         local port
-        port=$(ss -tlnp 2>/dev/null | grep "pid=${pid}" | awk '{print $4}' | grep -oE '[0-9]+' | tail -1)
+        # T-4337: `|| true` — ss missing or no match must not exit status
+        # silently under set -euo pipefail (same class as T-4332).
+        port=$(ss -tlnp 2>/dev/null | grep "pid=${pid}" | awk '{print $4}' | grep -oE '[0-9]+' | tail -1) || true
         if [ -n "$port" ]; then
             echo "  Local:  http://localhost:${port}"
             local lan_ip
@@ -574,6 +577,25 @@ do_status() {
         fi
         return 3
     fi
+}
+
+# ---------------------------------------------------------------------------
+# do_reachable — Does THIS project's Watchtower answer at its URL? (T-4562)
+# ---------------------------------------------------------------------------
+# Resolves the URL itself (do_url) and probes /api/_identity, so a caller needs
+# no `WURL=$(cat …); curl "$WURL"` — a shape the no-focus read-only gate refuses
+# (T-4512). Identity, not mere reachability: on a shared host another project's
+# Watchtower answers 200 too (the T-2732 false-green class).
+# rc 0 = ours, answering; 1 = a foreign service answers there; 3 = nothing answers.
+do_reachable() {
+    local url state
+    url=$(do_url)
+    state=$(_watchtower_identity_state "$url")
+    case "$state" in
+        ours)    echo "running at $url" ;;
+        foreign) echo "stopped (something else answers at $url — not this project's Watchtower)"; return 1 ;;
+        *)       echo "stopped"; return 3 ;;
+    esac
 }
 
 # ---------------------------------------------------------------------------
@@ -708,6 +730,7 @@ case "$cmd" in
     stop)    do_stop ;;
     restart) do_restart "$@" ;;
     status)  do_status ;;
+    reachable) do_reachable ;;
     port)    do_port ;;
     url)     do_url ;;
     current) do_current ;;
@@ -719,6 +742,7 @@ case "$cmd" in
         echo "  stop                           Stop Watchtower"
         echo "  restart [--port N] [--debug]  Stop then start"
         echo "  status                         Show current state; exit 0 running, 1 stale PID file, 3 not running (T-3661)"
+        echo "  reachable                      Probe this project's Watchtower at its URL; exit 0 running, 1 foreign, 3 stopped (T-4562)"
         echo "  port                           Print current port (triple-file source of truth; T-1376 B5)"
         echo "  url                            Print current URL (triple-file source of truth; T-1376 B5)"
         echo "  current                        Exit 1 if the running process predates web/ source (T-3282)"

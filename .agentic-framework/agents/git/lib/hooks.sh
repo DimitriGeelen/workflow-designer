@@ -24,7 +24,7 @@
 # PL-078 still applies: when you change the CONTENT of any hook template below,
 # bump this constant AND the `# VERSION=` literal in the commit-msg heredoc
 # together, so consumers' next install-hooks redeploys all four.
-COMMIT_MSG_HOOK_VERSION="1.21"
+COMMIT_MSG_HOOK_VERSION="1.22"
 
 # T-2813: verify a hook actually landed by reading state back from disk,
 # rather than trusting that the `cat`/`chmod` calls that wrote it didn't
@@ -68,11 +68,44 @@ _fw_hook_installed_block() {
         $0 == b { inb = 1 } inb { print } $0 == e { inb = 0 }' "$1"
 }
 
+# T-4568: digests of every template body a pre-block install-hooks wrote verbatim
+# (tools/gen-stock-hook-digests.sh). A stock old hook is recognised whole, so its
+# own lines are never mistaken for project lines (they did not parse after the
+# block, and the upgrade REFUSED a hook nobody had edited).
+_FW_STOCK_HOOK_DIGESTS="$(dirname "${BASH_SOURCE[0]}")/stock-hook-digests.txt"
+
+_fw_sha256() {
+    if command -v sha256sum >/dev/null 2>&1; then sha256sum; else shasum -a 256; fi | cut -d' ' -f1
+}
+
+# _fw_hook_stock_prefix FILE — line count of the longest shipped template that
+# FILE starts with, line for line (0 when none does).
+_fw_hook_stock_prefix() {
+    local file="$1" total n sha best=0
+    [ -f "$_FW_STOCK_HOOK_DIGESTS" ] || { echo 0; return 0; }
+    total=$(wc -l < "$file" | tr -d ' ')
+    while read -r n sha; do
+        case "$n" in ''|\#*) continue ;; esac
+        { [ "$n" -le "$total" ] && [ "$n" -gt "$best" ]; } || continue
+        [ "$(head -n "$n" "$file" | _fw_sha256)" = "$sha" ] && best=$n
+    done < "$_FW_STOCK_HOOK_DIGESTS"
+    echo "$best"
+}
+
+# _fw_hook_first_exit FILE — line number of FILE's first unconditional top-level
+# `exit` (column 0, as every template writes its final `exit 0`), 0 when none.
+# T-4569: nothing after it ever ran.
+_fw_hook_first_exit() {
+    awk '/^exit([[:space:]]|;|$)/ { print NR; found = 1; exit } END { if (!found) print 0 }' "$1"
+}
+
 # _fw_hook_compose INSTALLED BLOCK OUT — write the new hook to OUT: the block,
 # with everything the installed file held outside it kept in place. An unmarked
 # installed hook is migrated (backed up to INSTALLED.pre-fw-block first):
-#   - an old framework hook keeps only the lines the template does not contain,
-#     after the block — the template lines are never duplicated;
+#   - a stock old framework hook (T-4568: a shipped template, per its digest) is
+#     replaced whole; lines appended after it are kept, after the block;
+#   - any other old framework hook keeps only the lines the template does not
+#     contain, after the block — the template lines are never duplicated;
 #   - a consumer's own sh/bash hook keeps its whole body, after the block;
 #   - a hook in another language, or a merge that does not parse, is REFUSED:
 #     the installed file is left as it is and the function returns 2.
@@ -94,41 +127,66 @@ _fw_hook_compose() {
             !skip { print }' "$installed" > "$out"
         return 0
     fi
-    local name backup="$installed.pre-fw-block" kept="$out.kept" first note=""
+    local name backup="$installed.pre-fw-block" kept="$out.kept" inert="$out.inert" first note="" stock dead
     name=$(basename "$installed")
     first=$(head -n 1 "$installed")
-    if grep -qE 'Agentic Engineering Framework|agents/git/git\.sh install-hooks|^# [<>]{3} agentic-framework hook' "$installed"; then
+    stock=$(_fw_hook_stock_prefix "$installed")
+    : > "$inert"
+    if [ "$stock" -gt 0 ]; then
+        # T-4568: a stock old framework hook, possibly with lines appended. The
+        # template is replaced whole; only the appended lines are kept.
+        awk -v s="$stock" 'NR > s { print NR "\t" $0 }' "$installed" > "$kept.n"
+        grep -q '[^[:space:]]' "$kept.n" || : > "$kept.n"
+        note="appended to a stock framework hook — they now run after the framework checks pass"
+    elif grep -qE 'Agentic Engineering Framework|agents/git/git\.sh install-hooks|^# [<>]{3} agentic-framework hook' "$installed"; then
         # An old framework hook: lines the current template lacks are either the
         # consumer's or an OLDER template's, and nothing tells them apart. Keep
         # them all ACTIVE (T-4515): a consumer gate must keep running.
-        tail -n +2 "$installed" | grep -vxF -f "$block" | grep -v '^[[:space:]]*$' \
-            | grep -v '^# [<>]\{3\} agentic-framework hook' > "$kept" || true
+        awk 'FNR == NR { t[$0] = 1; next }
+             FNR > 1 && !($0 in t) && $0 !~ /^[[:space:]]*$/ && $0 !~ /^# [<>][<>][<>] agentic-framework hook/ {
+                 print FNR "\t" $0 }' "$block" "$installed" > "$kept.n"
         note="still active — delete any that came from an older framework hook"
     elif [[ "$first" =~ ^#!(/usr)?/bin/(env[[:space:]]+)?(ba)?sh([[:space:]]|$) ]]; then
         tail -n +2 "$installed" > "$kept"
         note="unchanged — they now run after the framework checks pass"
     else
-        rm -f "$kept"
+        rm -f "$kept" "$inert"
         echo -e "${RED}REFUSED: $name is not a shell script ($first) — it cannot be merged with the framework block, and replacing it would disable it. Left unchanged.${NC}" >&2
         echo "  Fix: call your hook from a shell $name, then re-run fw git install-hooks." >&2
         return 2
+    fi
+    if [ -f "$kept.n" ]; then
+        # T-4569: keeping a line must keep whether it ran. A line after the old
+        # hook's unconditional top-level exit never ran; kept ACTIVE below the
+        # block it would start running on every commit. It stays inert.
+        dead=$(_fw_hook_first_exit "$installed")
+        awk -F '\t' -v d="$dead" -v k="$kept" -v i="$inert" '{
+            n = $1; sub(/^[0-9]+\t/, "")
+            if (d > 0 && n > d) print > i; else print > k }' "$kept.n"
+        touch "$kept"
+        rm -f "$kept.n"
     fi
     { echo '#!/bin/bash'; cat "$block"
       if [ -s "$kept" ]; then
           echo "# T-4515: project lines kept ACTIVE from the previous $name by fw git install-hooks ($note); original: $(basename "$backup")"
           cat "$kept"
+      fi
+      if [ -s "$inert" ]; then
+          echo "# T-4569: project lines kept INERT from the previous $name by fw git install-hooks — they sat after its unconditional exit (line $dead) and never ran; uncomment any that should run; original: $(basename "$backup")"
+          sed 's/^/# /' "$inert"
       fi; } > "$out"
     if [ -s "$kept" ] && ! bash -n "$out" 2>/dev/null; then
         echo -e "${RED}REFUSED: the lines of $name outside the framework template do not parse after the framework block — installing would disable them. $name left unchanged (its checks still run).${NC}" >&2
         echo "  Lines:" >&2
         sed 's/^/    | /' "$kept" | head -20 >&2
         echo "  Fix: delete the lines that came from an older framework hook (or make the rest parse on its own), then re-run fw git install-hooks." >&2
-        rm -f "$kept" "$out"
+        rm -f "$kept" "$inert" "$out"
         return 2
     fi
-    [ -s "$kept" ] || [ -z "$note" ] && cp -p "$installed" "$backup" 2>/dev/null
+    [ -s "$kept" ] || [ -s "$inert" ] || [ -z "$note" ] && cp -p "$installed" "$backup" 2>/dev/null
     [ -s "$kept" ] && echo -e "${YELLOW}$name: kept $(wc -l < "$kept") line(s) of the previous hook below the framework block ($note); previous file: $backup${NC}" >&2
-    rm -f "$kept"
+    [ -s "$inert" ] && echo -e "${YELLOW}$name: kept $(wc -l < "$inert") line(s) commented out — they sat after the previous hook's unconditional exit (line $dead) and never ran; previous file: $backup${NC}" >&2
+    rm -f "$kept" "$inert"
     return 0
 }
 
@@ -194,7 +252,7 @@ do_install_hooks() {
 # commit-msg hook - Task Reference Enforcement
 # Installed by: ./agents/git/git.sh install-hooks
 # Part of: Agentic Engineering Framework
-# VERSION=1.21
+# VERSION=1.22
 
 COMMIT_MSG_FILE="$1"
 COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
@@ -486,42 +544,6 @@ MASTER_GUARD="$FRAMEWORK_ROOT/agents/git/lib/master-guard.sh"
 if [ -f "$MASTER_GUARD" ]; then
     PROJECT_ROOT="$PROJECT_ROOT" bash "$MASTER_GUARD" check || exit 1
 fi
-
-# T-659: retention-sweep deletions are not the agent's to commit.
-#
-# A retention cron prunes .context/audits/cron/ and leaves the deletions pending in the
-# working tree indefinitely. Committing them is a housekeeping decision belonging to the
-# operator, not a side effect of whatever the agent was doing. Three sessions held this
-# line by staging explicit paths every time — until one `git add .context/` to pick up a
-# single episodic file swept 338 of them into the index. The rule lived in the agent's
-# head; the index does not consult it. Habit is what failed, so a habit is not the fix.
-#
-# Blocks only under agent control ($CLAUDECODE). The operator committing a retention
-# sweep deliberately is the intended path and is not obstructed.
-# 832 T-659 (re-applied on 1.7.740 by T-1005)
-if [ "${CLAUDECODE:-0}" = "1" ] && [ "${FW_ALLOW_RETENTION_SWEEP:-0}" != "1" ]; then
-    _rs_n=$(git diff --cached --name-only --diff-filter=D 2>/dev/null \
-            | grep -c '^\.context/audits/cron/' || true)
-    if [ "${_rs_n:-0}" -gt 0 ]; then
-        echo "" >&2
-        echo "ERROR: Commit blocked — $_rs_n retention-sweep deletion(s) staged (T-659)." >&2
-        echo "" >&2
-        echo "  .context/audits/cron/ is pruned by a retention cron. Those deletions are" >&2
-        echo "  the operator's to commit, not a byproduct of the current task." >&2
-        echo "" >&2
-        echo "  Almost always the cause: a directory-wide 'git add .context/' rather than" >&2
-        echo "  explicit paths. Unstage them and keep the rest of your work:" >&2
-        echo "" >&2
-        echo "    git reset HEAD .context/audits/" >&2
-        echo "" >&2
-        echo "  Then re-add only the files your task produced, by name." >&2
-        echo "" >&2
-        echo "  Operator, or a deliberate sweep: FW_ALLOW_RETENTION_SWEEP=1 git commit ..." >&2
-        echo "" >&2
-        exit 1
-    fi
-fi
-
 
 # FW-HOOK-BLOCK: t3110-corpus-guard
 # T-3110 (R7 leg L1, docs/design/task-corpus-concurrency-model.md): task-corpus
@@ -1618,14 +1640,50 @@ _t3297_lock_free() {
         [ ! -f "$_t3297_lock_file" ]
     fi
 }
+# T-4542: name the holder. audit.sh writes pid/since/job to audit.lock.holder when
+# it takes the lock; the record counts only while that pid is alive. Without this
+# a contended push read as a silent hang (field report from 1409-sprind).
+_t4542_holder_desc() {
+    _t4542_hf="$PROJECT_ROOT/.context/locks/audit.lock.holder"
+    _t4542_hpid=$(sed -n 's/^pid=//p' "$_t4542_hf" 2>/dev/null | head -1)
+    case "$_t4542_hpid" in ''|*[!0-9]*) echo "holder unknown (no holder record)"; return 0 ;; esac
+    if ! kill -0 "$_t4542_hpid" 2>/dev/null; then
+        echo "holder unknown (recorded pid $_t4542_hpid has exited)"
+        return 0
+    fi
+    _t4542_hsince=$(sed -n 's/^since=//p' "$_t4542_hf" 2>/dev/null | head -1)
+    _t4542_hjob=$(sed -n 's/^job=//p' "$_t4542_hf" 2>/dev/null | head -1)
+    case "$_t4542_hsince" in ''|*[!0-9]*) _t4542_hage="?" ;; *) _t4542_hage=$(( $(date +%s) - _t4542_hsince )) ;; esac
+    echo "held by pid $_t4542_hpid (${_t4542_hjob:-job unknown}) for ${_t4542_hage}s"
+}
+# T-4542: progress cadence while waiting (seconds); the first line prints at once.
+_t4542_progress="${FW_PREPUSH_LOCK_PROGRESS:-30}"
+case "$_t4542_progress" in ''|*[!0-9]*|0) _t4542_progress=30 ;; esac
+_t4542_waiting_file="$PROJECT_ROOT/.context/locks/push-waiting"
 _t3297_waited=0
 if [ "$audit_exit" -eq 75 ] && [ "$_t3297_wait" -gt 0 ]; then
-    echo ""
-    echo "Audit lock held — waiting up to ${_t3297_wait}s for it to free (FW_PREPUSH_LOCK_WAIT=$_t3297_wait, 0 disables)..."
+    # stderr is unbuffered and is what git shows for a hook; say it there first.
+    echo "" >&2
+    echo "Audit lock held — waiting up to ${_t3297_wait}s for it to free (FW_PREPUSH_LOCK_WAIT=$_t3297_wait, 0 disables)..." >&2
+    echo "  lock $(_t4542_holder_desc)" >&2
+    # T-4542: while this marker names a live pid, cron audits yield instead of
+    # re-taking the lock (agents/audit/audit.sh), so the push cannot be starved by
+    # back-to-back cron runs. Removed when the wait ends, or on any exit.
+    mkdir -p "$PROJECT_ROOT/.context/locks" 2>/dev/null
+    printf 'pid=%s\nsince=%s\n' "$$" "$(date +%s)" > "$_t4542_waiting_file" 2>/dev/null
+    # ($$ is the hook process — alive for the whole push; the body is a subshell.)
+    trap 'rm -f "$_t4542_waiting_file" ${_t3126_out:+"$_t3126_out"}' EXIT
+    trap 'rm -f "$_t4542_waiting_file" ${_t3126_out:+"$_t3126_out"}; trap - INT; kill -INT $BASHPID' INT
+    trap 'rm -f "$_t4542_waiting_file" ${_t3126_out:+"$_t3126_out"}; trap - TERM; kill -TERM $BASHPID' TERM
     _t3297_start=$(date +%s)
     _t3297_deadline=$(( _t3297_start + _t3297_wait ))
+    _t4542_next_note=$(( _t3297_start + _t4542_progress ))
     _t3297_blind=0
     while [ "$audit_exit" -eq 75 ] && [ "$(date +%s)" -lt "$_t3297_deadline" ]; do
+        if [ "$(date +%s)" -ge "$_t4542_next_note" ]; then
+            echo "  still waiting ($(( $(date +%s) - _t3297_start ))s of ${_t3297_wait}s) — lock $(_t4542_holder_desc)" >&2
+            _t4542_next_note=$(( _t4542_next_note + _t4542_progress ))
+        fi
         if _t3297_lock_free; then
             # Lock looks free — retry now. The retry may still lose the
             # re-acquire race and return 75 again; keep waiting if so.
@@ -1645,6 +1703,7 @@ if [ "$audit_exit" -eq 75 ] && [ "$_t3297_wait" -gt 0 ]; then
         [ "$audit_exit" -eq 75 ] && sleep 1
     done
     _t3297_waited=$(( $(date +%s) - _t3297_start ))
+    rm -f "$_t4542_waiting_file"
 fi
 
 # T-3297: Tier-2 log writer for the contention-only bypass (same entry shape as
@@ -1711,6 +1770,7 @@ if [ $audit_exit -eq 75 ]; then
         echo "trigger, so the lock may stay held for many minutes (T-3297); the window"
         echo "is sized from the last measured structure audit, so more than one queued"
         echo "pusher can still outlast it (T-3421)."
+        echo "  Lock: $(_t4542_holder_desc)"
         echo "  Check: ls -l $PROJECT_ROOT/.context/locks/audit.lock; pgrep -af audit.sh"
         echo ""
         echo "What to do — each command works as-is from this blocked state:"

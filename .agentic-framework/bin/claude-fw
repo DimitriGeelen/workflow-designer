@@ -49,6 +49,14 @@ _cfw_pin_project() {
     if [ -n "${PROJECT_ROOT:-}" ] && [ "$PROJECT_ROOT" != "$d" ]; then
         echo "claude-fw: WARNING: inherited PROJECT_ROOT=$PROJECT_ROOT is not this project; this session uses $d (T-4218)" >&2
     fi
+    # T-4638: say so for TASKS_DIR/CONTEXT_DIR too (unset below), not only for PROJECT_ROOT.
+    local _v
+    for _v in TASKS_DIR CONTEXT_DIR; do
+        case "${!_v:-$d}" in
+            "$d"|"$d"/*) ;;
+            *) echo "claude-fw: WARNING: inherited $_v=${!_v} is not this project; cleared for $d (T-4638)" >&2 ;;
+        esac
+    done
     # T-4369: the framework repo first — it also carries a vendored self-copy
     # (fw vendor self), and exporting that ran every fw command from the copy.
     if [ -f "$d/FRAMEWORK.md" ] && [ -x "$d/bin/fw" ]; then fwr="$d"
@@ -126,6 +134,32 @@ if [ -n "${FW_CFW_REEXEC_PID:-}" ] && [ "${FW_CFW_REEXEC_PID}" = "$$" ]; then
 fi
 unset FW_CFW_REEXEC_PID FW_CFW_REEXEC_COUNT FW_CFW_REEXEC_TIMES FW_CFW_REEXEC_ARGS \
     FW_CFW_REEXEC_TL_SESSION FW_CFW_REEXEC_TL_ENABLED FW_CFW_REEXEC_OLD_ID
+
+# T-4636 (T-4635 RCA): started from a login session (cron, ssh, a terminal), this wrapper, the
+# tmux server it may start below and claude all lived in that session's scope, and a forced
+# teardown of the user's slice killed them together. Re-exec once through lib/agent-scope.sh's
+# `systemd-run --scope` prefix so all of them live in agentic.slice instead; where systemd
+# cannot do that the helper logs why, once, and the launch goes on as before. Only at start
+# (a T-4118 re-exec is already placed); FW_CFW_SCOPED_PID names this pid (systemd-run execs,
+# so the pid is kept) and stops a second attempt. The lib is looked up beside this script or
+# in the pinned FRAMEWORK_ROOT, never $PWD (T-3984). Opt out: FW_AGENT_SCOPE=0.
+if [ "$_CFW_RESUMED" != 1 ] && [ "${FW_CFW_SCOPED_PID:-}" != "$$" ]; then
+    for _cfw_d in "$(dirname "$_CFW_SELF_PATH")/.." "${FRAMEWORK_ROOT:-}"; do
+        [ -n "$_cfw_d" ] && [ -f "$_cfw_d/lib/agent-scope.sh" ] || continue
+        # shellcheck source=/dev/null
+        . "$_cfw_d/lib/agent-scope.sh"
+        fw_agent_scope_prefix claude-fw
+        if [ "${#FW_AGENT_SCOPE_CMD[@]}" -gt 0 ]; then
+            export FW_CFW_SCOPED_PID="$$"
+            shopt -s execfail
+            exec "${FW_AGENT_SCOPE_CMD[@]}" bash "$_CFW_SELF_PATH" "$@"
+            shopt -u execfail
+            echo "claude-fw: WARNING: could not start in its own systemd scope — continuing in the current one (T-4636)" >&2
+        fi
+        break
+    done
+fi
+unset FW_CFW_SCOPED_PID
 
 # T-4003 (operator 2026-10-09: "we wanted reliable to work for every project"): peer mail can
 # only reach an agent through a terminal something can type into — a TermLink session or a
@@ -348,12 +382,40 @@ _tl_sidecar_env_prefix() {
     return 0
 }
 
+# T-4638 (T-4635 RCA): the PTY shell takes its environment from the tmux server TermLink spawned
+# it on, and a server another project's spawn started carries THAT project's PROJECT_ROOT /
+# TASKS_DIR / CONTEXT_DIR (1409-sprind's, 2026-10-22). _cfw_pin_project cleaned only this
+# process. So the injected line pins the shell itself to this project: it names each foreign
+# value it finds (once — the shell keeps the cleared state, so a relaunch finds nothing), unsets
+# the derived variables and exports the pinned paths. Plain POSIX case/unset/export, no bash
+# indirection: the PTY shell is the user's shell. Outside any project it adds nothing.
+_tl_project_env_prefix() {
+    [ -n "${PROJECT_ROOT:-}" ] || return 0
+    local _r _v _unset="TASKS_DIR CONTEXT_DIR _FW_PATHS_DERIVED_BY FW_ROUTED_FROM" _exp
+    _r=$(printf '%q' "$PROJECT_ROOT")
+    _exp="PROJECT_ROOT=$_r"
+    if [ -n "${FRAMEWORK_ROOT:-}" ]; then _exp="$_exp FRAMEWORK_ROOT=$(printf '%q' "$FRAMEWORK_ROOT")"
+    else _unset="$_unset FRAMEWORK_ROOT"; fi
+    for _v in PROJECT_ROOT TASKS_DIR CONTEXT_DIR; do
+        printf 'case "${%s:-}" in ""|%s|%s/*) ;; *) echo "claude-fw: inherited %s=$%s is not this project; cleared for "%s" (T-4638)" >&2 ;; esac; ' \
+            "$_v" "$_r" "$_r" "$_v" "$_v" "$_r"
+    done
+    printf 'unset %s; export %s; ' "$_unset" "$_exp"
+}
+
 # T-3648 (port of 055 P-011/P-012, framework:pickup offsets 242/244): one ping
 # is a liveness SAMPLE, not a verdict. Under CPU load a single ping fails or
 # times out while the session is fine, and the wait loop used to end the agent
 # on it. The session is declared gone only after CLAUDE_FW_PING_FAILURES
 # consecutive failures (default 3, one per 5 s poll; non-numeric or <1 → 3).
 # A success resets the count. Each tolerated failure goes to stderr.
+# T-4541 (055 T-587): failed pings alone never end a session. Under host
+# overload (load 283-443 on 24 cores, 2026-10-21) the local ping times out for
+# minutes and every --termlink agent on the host was torn down twice. Once the
+# failure limit is reached the session is gone only if a second, independent
+# signal agrees: no exact-name `termlink register --name <session>` process is
+# left (_tl_register_pids, /proc-backed). While one lives, log DEGRADED (at the
+# limit, then once a minute) and keep waiting; the exit marker still ends it.
 # Returns 0 when the session is gone, 1 while it should be treated as alive.
 _TL_PING_FAILS=0
 _tl_session_gone() {
@@ -366,7 +428,13 @@ _tl_session_gone() {
     fi
     _TL_PING_FAILS=$((_TL_PING_FAILS + 1))
     if [ "$_TL_PING_FAILS" -ge "$limit" ]; then
-        echo "claude-fw: termlink ping failed ${_TL_PING_FAILS} times in a row — session $TERMLINK_SESSION is gone." >&2
+        if [ -n "$(_tl_register_pids "$TERMLINK_SESSION")" ]; then
+            if [ $(( (_TL_PING_FAILS - limit) % 12 )) -eq 0 ]; then
+                echo "claude-fw: DEGRADED — termlink ping failed ${_TL_PING_FAILS} times in a row, but session $TERMLINK_SESSION's register process is alive; keeping the session (T-4541)." >&2
+            fi
+            return 1
+        fi
+        echo "claude-fw: termlink ping failed ${_TL_PING_FAILS} times in a row and no register process is left — session $TERMLINK_SESSION is gone." >&2
         return 0
     fi
     echo "claude-fw: termlink ping failed (${_TL_PING_FAILS}/${limit}) — tolerating, session $TERMLINK_SESSION may be under load." >&2
@@ -1358,8 +1426,9 @@ while true; do
         _tl_args=""
         [ "${#CLAUDE_ARGS[@]}" -gt 0 ] && _tl_args=$(printf ' %q' "${CLAUDE_ARGS[@]}")
         _tl_env=$(_tl_sidecar_env_prefix)   # T-4474: sidecar sockets, per command
+        _tl_pin=$(_tl_project_env_prefix)   # T-4638: this project's paths, not the server's
         _tl_tok="r${restart_count}p$$e$(date +%s)"   # T-4249: this run's marker token
-        termlink_inject "${_tl_env}command claude${_tl_args}; printf '__CLAUDE_FW_EXIT_${_tl_tok}_%s__\n' \"\$?\""
+        termlink_inject "${_tl_pin}${_tl_env}command claude${_tl_args}; printf '__CLAUDE_FW_EXIT_${_tl_tok}_%s__\n' \"\$?\""
         _TL_PING_FAILS=0 # T-3648: each run starts with a clean failure count
         # Wait for claude to exit by polling the PTY for shell prompt
         # We check if claude process is still running inside the session

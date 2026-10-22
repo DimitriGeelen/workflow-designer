@@ -56,13 +56,34 @@ from dataclasses import dataclass, field
 from typing import Callable, Optional
 
 LEDGER_NAME = "human-ac-ticks.jsonl"
+# T-4165: the operator's standing-delegation grants are guarded the same way
+LEDGER_NAMES = (LEDGER_NAME, "standing-delegations.jsonl")
 
 # A mention of a guarded path anywhere in the command (quotes/backslashes removed).
 MENTION_RE = re.compile(
     r"\.tasks\b|tasks/(?:active|completed|templates)\b|/(?:active|completed)/T-\d"
-    r"|\bT-\d+[-\w]*\.md\b|human-ac-ticks\.jsonl|toggle-ac",
+    r"|human-ac-ticks\.jsonl|standing-delegations\.jsonl|toggle-ac",
     re.I,
 )
+# T-4159: a task-file NAME (`T-NNNN[-slug].md`) with the path word in front of it. It is
+# a mention only when nothing anchors it elsewhere: a bare name (the `cd .tasks/active &&
+# … T-1.md` case) or a directory that normalises to `.`/`..`. `docs/reports/T-1-x.md`
+# (the C-001 artefact convention) and `dispatch-T-1-prompt.md` are not task files; a
+# `.tasks/…/T-1.md` path is already a mention through MENTION_RE.
+TASK_NAME_RE = re.compile(r"([\w./-]*?)\bT-\d+[-\w]*\.md\b", re.I)
+
+
+def _mentions(text: str) -> bool:
+    if MENTION_RE.search(text):
+        return True
+    for m in TASK_NAME_RE.finditer(text):
+        prefix = m.group(1)
+        if prefix and not prefix.endswith("/"):
+            continue                    # part of a longer name: dispatch-T-1-prompt.md
+        d = os.path.normpath(prefix) if prefix else "."
+        if not d.startswith("/") and all(c in (".", "..") for c in d.split("/")):
+            return True
+    return False
 
 SEPARATORS = {";", ";;", "&&", "||", "|", "|&", "&", "(", ")", "\n", "!", "{", "}"}
 REDIRECT_WRITE = {">", ">>", ">|", "&>", "&>>", "<>", ">&", "&>|"}
@@ -134,7 +155,7 @@ def normalised(command: str) -> str:
 
 
 def mentions_guarded(command: str) -> bool:
-    return bool(MENTION_RE.search(normalised(command)))
+    return _mentions(normalised(command))
 
 
 OPERATORS = sorted([";;", "&&", "||", "|&", ">>", "&>>", "&>", ">&", ">|", "<>", "<<-", "<<<", "<<",
@@ -875,7 +896,7 @@ def _segments(tokens: list[str]) -> list[list[str]]:
 
 def is_guarded_path(path: str) -> bool:
     parts = path.replace("\\", "/").split("/")
-    return ".tasks" in parts or os.path.basename(path) == LEDGER_NAME
+    return ".tasks" in parts or os.path.basename(path) in LEDGER_NAMES
 
 
 def _provably_outside(path: str, root: str) -> bool:
@@ -893,7 +914,7 @@ def _guarded_within(root: str) -> Callable[[str], bool]:
     not provably outside the project. The ledger name stays guarded everywhere, as the
     Write/Edit leg already does, so the Bash leg is never more permissive than that one."""
     def guarded(path: str) -> bool:
-        if os.path.basename(path) == LEDGER_NAME:
+        if os.path.basename(path) in LEDGER_NAMES:
             return True
         parts = path.replace("\\", "/").split("/")
         return ".tasks" in parts and not _provably_outside(path, root)
@@ -1108,7 +1129,8 @@ def _segment(seg: list[str], ctx: _Ctx) -> None:
         return
     ops = [a for a in args if not a.startswith("-")]
     if not ctx.boundary and \
-            any(os.path.basename(a) in ("human_ac_ticks.py", "human_ac_ticks") for a in ops[:2]) and "ack" in ops:
+            any(os.path.basename(a) in ("human_ac_ticks.py", "human_ac_ticks") for a in ops[:2]) and ("ack" in ops or ("delegation" in ops and
+                                                   ("grant" in ops or "revoke" in ops))):
         ctx.hits.append(Hit("records a Human-tick provenance row (the operator's act)"))
         return
     if verb in ("cd", "pushd"):
@@ -1290,7 +1312,7 @@ def _segment(seg: list[str], ctx: _Ctx) -> None:
                     else:
                         _check_target(UNRESOLVED, ctx, f"git {sub} {a}")
         if sub in ("checkout", "restore", "apply", "am", "stash", "switch", "reset") and \
-                not ctx.boundary and MENTION_RE.search(normalised(seg_text)):
+                not ctx.boundary and _mentions(normalised(seg_text)):
             ctx.hits.append(Hit(f"git {sub} names a guarded path (writes it from another revision/patch)"))
         elif sub in ("apply", "am"):
             _check_target(UNRESOLVED, ctx, f"git {sub} (paths named inside the patch)")
@@ -1312,7 +1334,7 @@ def _segment(seg: list[str], ctx: _Ctx) -> None:
         flags = "".join(x.lstrip("-") for x in args if x.startswith("-")) + (args[0] if args and verb in ("tar", "bsdtar") and not args[0].startswith("-") else "")
         extracting = ((verb == "unzip" and not re.search(r"[lvtZpz]", flags)) or verb == "busybox" or ("x" in flags if verb in ("tar", "bsdtar", "7z", "7za") else "i" in flags)
                       or any(x in ("--extract", "--get") or (verb in ("7z", "7za") and x in ("x", "e")) for x in args))
-        if extracting and not ctx.boundary and MENTION_RE.search(normalised(seg_text)):
+        if extracting and not ctx.boundary and _mentions(normalised(seg_text)):
             ctx.hits.append(Hit(f"{verb} extracts into a guarded path"))
         return
     if verb in ("eval", "source", "."):
@@ -1427,7 +1449,7 @@ def _boundary_segment(exe: str, verb: str, args: list[str], ctx: _Ctx) -> bool:
 
 def _script_form(verb: str, seg_text: str, ctx: _Ctx) -> None:
     """`python3 tool.py ARGS`: the script is not opened (residual); its ARGUMENTS are seen."""
-    if not ctx.boundary and MENTION_RE.search(normalised(seg_text)):
+    if not ctx.boundary and _mentions(normalised(seg_text)):
         ctx.hits.append(Hit(f"{verb} script is handed a guarded path (the script itself is not inspected)"))
 
 

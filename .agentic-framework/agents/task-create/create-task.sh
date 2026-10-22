@@ -49,7 +49,6 @@ while [[ $# -gt 0 ]]; do
         --description) DESCRIPTION="$2"; shift 2 ;;
         --type) WORKFLOW_TYPE="$2"; shift 2 ;;
         --owner) OWNER="$2"; shift 2 ;;
-        --human-ac) HUMAN_AC="$2"; shift 2 ;;   # T-767: seeds a real Human AC; required by --owner human
         --tags) TAGS="$2"; shift 2 ;;
         --related) RELATED="$2"; shift 2 ;;
         --horizon) HORIZON="$2"; shift 2 ;;
@@ -128,37 +127,6 @@ case "${FW_TASK_ORIGIN:-}" in
     ;;
 esac
 
-# T-767 (SQ-2, operator ruling 2026-09-21): ownership must follow the presence of a real
-# Human acceptance criterion. A task born `owner: human` with no Human AC is one the
-# creating agent is structurally forbidden to finish AND the human has nothing to verify
-# on, so it parks forever. Measured on this project 2026-09-21: 34 of 107 active
-# owner:human tasks carry zero Human AC checkboxes; 2 of them (T-708, T-723) have every
-# criterion ticked and are simply waiting on a human with no stated act to perform.
-#
-# The gate REFUSES; it does not silently rewrite OWNER to agent. An auto-flip would decide
-# ownership on the caller's behalf, and ownership is the operator's call — a refusal makes
-# the caller state the human's job, which is the thing that was missing.
-#
-# Gated writers are exempt BY POLICY, not by oversight: T-2543 (bpmn-promote) and T-2577
-# (designer-ghost) make those creates human-owned regardless of ACs. That bar is the
-# operator's sovereignty bar and this gate does not get to lower it.
-case "${FW_TASK_ORIGIN:-}" in
-  bpmn-promote|designer-ghost) ;;
-  *)
-    # `inception` is exempt: .tasks/templates/inception.md ships a real go/no-go Human AC
-    # with Steps/Expected/If-not, so an inception task cannot be born without one.
-    if [ "$OWNER" = "human" ] && [ -z "$HUMAN_AC" ] && [ "$WORKFLOW_TYPE" != "inception" ]; then
-        echo -e "${RED}BLOCKED: --owner human requires --human-ac \"<criterion>\".${NC}" >&2
-        echo "  A human-owned task must name what the human verifies. Without it the task" >&2
-        echo "  cannot be finished by the agent and has nothing for the human to check." >&2
-        echo "  Either pass --human-ac \"<what the human must verify>\", or create the task" >&2
-        echo "  with --owner agent." >&2
-        echo "  Policy: T-767, operator ruling on SQ-2 (2026-09-21)." >&2
-        exit 1
-    fi
-    ;;
-esac
-
 # Interactive mode if required fields missing.
 # T-100160 (OBS-086): prompt ONLY when stdin is a tty. In no-tty contexts
 # (background dispatch, cron, TermLink workers) stdin is a socket/pipe that
@@ -193,16 +161,6 @@ case "$_name_lower" in
         echo "    --name \"Add retry logic to API client\"" >&2
         echo "    --name \"Inception: Evaluate caching strategy\"" >&2
         echo "" >&2
-        exit 1
-        ;;
-esac
-
-# 832 T-775 (re-applied on 1.7.740 by T-1005): a name becomes a YAML scalar, an H1 and a filename
-# slug; a line break makes it none of those, and the injected line can capture a substitution.
-case "$NAME" in
-    *$'\n'*|*$'\r'*)
-        echo "ERROR: Task name contains a line break — refused (T-775, OBS-364)." >&2
-        echo "  Put the detail in --description, which is a folded block and may span lines." >&2
         exit 1
         ;;
 esac
@@ -319,15 +277,11 @@ generate_id() {
     done < <(fw_task_view_dirs)
     shopt -u nullglob
 
-    if [ "${#ids[@]}" -eq 0 ]; then
-        printf "T-%03d" 1
-        return
-    fi
-
     # Ascending unique; walk up from the bottom and stop at the first gap larger
     # than the threshold — everything above that cliff is a quarantined band.
+    # No task files at all leaves main_max=0 (next T-001, unless a mark says more).
     local n prev="" main_max=0
-    while IFS= read -r n; do
+    [ "${#ids[@]}" -gt 0 ] && while IFS= read -r n; do
         if [ -z "$prev" ]; then
             main_max=$n
         elif [ $((n - prev)) -gt "$gap_threshold" ]; then
@@ -337,6 +291,23 @@ generate_id() {
         fi
         prev=$n
     done < <(printf '%s\n' "${ids[@]}" | sort -n -u)
+
+    # T-4189: max over the files that exist now is pulled DOWN by deletion —
+    # remove the top task file and its id is reissued (832 OBS-426; T-2966 was
+    # the same defect in the OBS allocator). Take the max with the high-water
+    # mark of every view; a mark past the quarantine cliff is ignored like the
+    # band it would point into. Persisted at generation time, inside the
+    # allocation keylock: a crash before the write skips an id, never reuses one.
+    local mark
+    while IFS= read -r d; do
+        mark=$(head -n1 "$d/.id-highwater" 2>/dev/null) || continue
+        [[ "$mark" =~ ^[0-9]+$ ]] || continue
+        mark=$((10#$mark))
+        if [ "$mark" -gt "$main_max" ] && [ $((mark - main_max)) -le "$gap_threshold" ]; then
+            main_max=$mark
+        fi
+    done < <(fw_task_view_dirs)
+    printf '%s\n' $((main_max + 1)) > "$TASKS_DIR/.id-highwater" 2>/dev/null || true
 
     printf "T-%03d" $((main_max + 1))
 }
@@ -499,36 +470,32 @@ format_yaml_array() {
 TAGS_YAML=$(format_yaml_array "$TAGS")
 RELATED_YAML=$(format_yaml_array "$RELATED")
 
+# T-4597: a project without .tasks/templates/ (one fw init never seeded, or a test
+# fixture) uses the framework's own copy. Without this an inception fell through to
+# the inline fallback below, which has no ## Recommendation / ## Decision, and the
+# T-1263 check refused every `fw inception start` in such a project.
+_template_path() {
+    if [ -f "$TASKS_DIR/templates/$1" ]; then
+        echo "$TASKS_DIR/templates/$1"
+    elif [ -f "$FRAMEWORK_ROOT/.tasks/templates/$1" ]; then
+        echo "$FRAMEWORK_ROOT/.tasks/templates/$1"
+    fi
+}
+INCEPTION_TEMPLATE=$(_template_path inception.md)
+DEFAULT_TEMPLATE=$(_template_path default.md)
+
 # Select template content based on workflow type
 # All vars passed via env to avoid shell interpolation into Python source (T-595)
-if [ "$WORKFLOW_TYPE" = "inception" ] && [ -f "$TASKS_DIR/templates/inception.md" ]; then
-    TC_TEMPLATE="$TASKS_DIR/templates/inception.md" \
+if [ "$WORKFLOW_TYPE" = "inception" ] && [ -n "$INCEPTION_TEMPLATE" ]; then
+    TC_TEMPLATE="$INCEPTION_TEMPLATE" \
     TC_TASK_ID="$TASK_ID" TC_STATUS="$STATUS" TC_HORIZON="$HORIZON" \
-    TC_HUMAN_AC="$HUMAN_AC" TC_OWNER="$OWNER" TC_TAGS_YAML="$TAGS_YAML" TC_RELATED_YAML="$RELATED_YAML" \
+    TC_OWNER="$OWNER" TC_TAGS_YAML="$TAGS_YAML" TC_RELATED_YAML="$RELATED_YAML" \
     TC_TIMESTAMP="$TIMESTAMP" TC_FILEPATH="$FILEPATH" \
     python3 -c "
 import sys, os
 e = os.environ
 with open(e['TC_TEMPLATE']) as f:
     t = f.read()
-# 832 T-774/T-776 (re-applied on 1.7.740 by T-1005): substitute each frontmatter key ON ITS
-# OWN LINE inside the frontmatter only. A first-match str.replace let a task NAME that contains
-# 'owner:' / 'status:' / 'workflow_type:' capture the later substitution and corrupt the file.
-def _fm(t, key, line):
-    L = t.split('\n')
-    end = len(L)
-    for i in range(1, len(L)):
-        if L[i].rstrip() == '---':
-            end = i
-            break
-    for i in range(1, end):
-        if L[i].startswith(key):
-            L[i] = line
-            return '\n'.join(L)
-    return t
-# T-776: the id placeholder is substituted BEFORE any operator text is inserted, so a
-# name or description that itself contains 'T-XXX' is never rewritten.
-t = t.replace('T-XXX', e['TC_TASK_ID'])
 name, desc = sys.argv[1], sys.argv[2]
 def indent_block(s):
     # T-2778: 'description: >' is a folded scalar, so EVERY line of the value must be
@@ -541,59 +508,31 @@ def indent_block(s):
     # Blank lines are emitted bare: whitespace-only lines inside a block scalar are
     # separators, and padding them to the indent width leaves trailing spaces.
     return '\n'.join(('  ' + ln) if ln.strip() else '' for ln in s.split('\n'))
-t = _fm(t, 'id:', 'id: ' + e['TC_TASK_ID'])
-t = _fm(t, 'name:', 'name: \"' + name.replace('\"', '\\\\\"') + '\"')
-t = _fm(t, 'description: >', 'description: >\n' + indent_block(desc))
-t = _fm(t, 'status:', 'status: ' + e['TC_STATUS'])
-t = _fm(t, 'horizon:', 'horizon: ' + e['TC_HORIZON'])
-t = _fm(t, 'owner:', 'owner: ' + e['TC_OWNER'])
-# T-767: seed the Human AC the gate just required. Anchored on the heading AND its
-# comment opener so a name or description containing '### Human' cannot capture the
-# substitution — that first-match capture is OBS-363, filed separately.
-if e.get('TC_HUMAN_AC'):
-    _anchor = '### Human\n<!--'
-    if _anchor in t:
-        t = t.replace(_anchor, '### Human\n\n- [ ] ' + e['TC_HUMAN_AC'] + '\n\n<!--', 1)
-    else:
-        sys.stderr.write('create-task.sh: WARNING --human-ac given but template has no anchored ### Human section; criterion NOT seeded\n')
-        sys.exit(3)
-t = _fm(t, 'tags:', 'tags: ' + e['TC_TAGS_YAML'])
-t = _fm(t, 'related_tasks:', 'related_tasks: ' + e['TC_RELATED_YAML'])
-t = _fm(t, 'created:', 'created: ' + e['TC_TIMESTAMP'])
-t = _fm(t, 'last_update:', 'last_update: ' + e['TC_TIMESTAMP'])
-t = t.replace('# ' + e['TC_TASK_ID'] + ': [Inception Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
+t = t.replace('id: T-XXX', 'id: ' + e['TC_TASK_ID'])
+t = t.replace('name:', 'name: \"' + name.replace('\"', '\\\\\"') + '\"', 1)
+t = t.replace('description: >', 'description: >\n' + indent_block(desc), 1)
+t = t.replace('status: captured', 'status: ' + e['TC_STATUS'])
+t = t.replace('horizon: now', 'horizon: ' + e['TC_HORIZON'])
+t = t.replace('owner:', 'owner: ' + e['TC_OWNER'], 1)
+t = t.replace('tags: []', 'tags: ' + e['TC_TAGS_YAML'])
+t = t.replace('related_tasks: []', 'related_tasks: ' + e['TC_RELATED_YAML'])
+t = t.replace('created:', 'created: ' + e['TC_TIMESTAMP'], 1)
+t = t.replace('last_update:', 'last_update: ' + e['TC_TIMESTAMP'], 1)
+t = t.replace('# T-XXX: [Inception Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
 t = t.replace('[Chronological log', '### ' + e['TC_TIMESTAMP'] + ' — task-created [task-create-agent]\n- **Action:** Created inception task\n- **Output:** ' + e['TC_FILEPATH'] + '\n- **Context:** Initial task creation\n\n[Chronological log')
 with open(e['TC_FILEPATH'], 'w') as f:
     f.write(t)
 " "$NAME" "$DESCRIPTION"
-elif [ -f "$TASKS_DIR/templates/default.md" ]; then
-    TC_TEMPLATE="$TASKS_DIR/templates/default.md" \
+elif [ -n "$DEFAULT_TEMPLATE" ]; then
+    TC_TEMPLATE="$DEFAULT_TEMPLATE" \
     TC_TASK_ID="$TASK_ID" TC_STATUS="$STATUS" TC_WORKFLOW_TYPE="$WORKFLOW_TYPE" \
-    TC_HUMAN_AC="$HUMAN_AC" TC_HORIZON="$HORIZON" TC_OWNER="$OWNER" TC_TAGS_YAML="$TAGS_YAML" \
+    TC_HORIZON="$HORIZON" TC_OWNER="$OWNER" TC_TAGS_YAML="$TAGS_YAML" \
     TC_RELATED_YAML="$RELATED_YAML" TC_TIMESTAMP="$TIMESTAMP" TC_FILEPATH="$FILEPATH" \
     python3 -c "
 import sys, os
 e = os.environ
 with open(e['TC_TEMPLATE']) as f:
     t = f.read()
-# 832 T-774/T-776 (re-applied on 1.7.740 by T-1005): substitute each frontmatter key ON ITS
-# OWN LINE inside the frontmatter only. A first-match str.replace let a task NAME that contains
-# 'owner:' / 'status:' / 'workflow_type:' capture the later substitution and corrupt the file.
-def _fm(t, key, line):
-    L = t.split('\n')
-    end = len(L)
-    for i in range(1, len(L)):
-        if L[i].rstrip() == '---':
-            end = i
-            break
-    for i in range(1, end):
-        if L[i].startswith(key):
-            L[i] = line
-            return '\n'.join(L)
-    return t
-# T-776: the id placeholder is substituted BEFORE any operator text is inserted, so a
-# name or description that itself contains 'T-XXX' is never rewritten.
-t = t.replace('T-XXX', e['TC_TASK_ID'])
 name, desc = sys.argv[1], sys.argv[2]
 def indent_block(s):
     # T-2778: 'description: >' is a folded scalar, so EVERY line of the value must be
@@ -606,28 +545,18 @@ def indent_block(s):
     # Blank lines are emitted bare: whitespace-only lines inside a block scalar are
     # separators, and padding them to the indent width leaves trailing spaces.
     return '\n'.join(('  ' + ln) if ln.strip() else '' for ln in s.split('\n'))
-t = _fm(t, 'id:', 'id: ' + e['TC_TASK_ID'])
-t = _fm(t, 'name:', 'name: \"' + name.replace('\"', '\\\\\"') + '\"')
-t = _fm(t, 'description: >', 'description: >\n' + indent_block(desc))
-t = _fm(t, 'status:', 'status: ' + e['TC_STATUS'])
-t = _fm(t, 'workflow_type:', 'workflow_type: ' + e['TC_WORKFLOW_TYPE'])
-t = _fm(t, 'owner:', 'owner: ' + e['TC_OWNER'])
-# T-767: seed the Human AC the gate just required. Anchored on the heading AND its
-# comment opener so a name or description containing '### Human' cannot capture the
-# substitution — that first-match capture is OBS-363, filed separately.
-if e.get('TC_HUMAN_AC'):
-    _anchor = '### Human\n<!--'
-    if _anchor in t:
-        t = t.replace(_anchor, '### Human\n\n- [ ] ' + e['TC_HUMAN_AC'] + '\n\n<!--', 1)
-    else:
-        sys.stderr.write('create-task.sh: WARNING --human-ac given but template has no anchored ### Human section; criterion NOT seeded\n')
-        sys.exit(3)
-t = _fm(t, 'horizon:', 'horizon: ' + e['TC_HORIZON'])
-t = _fm(t, 'tags:', 'tags: ' + e['TC_TAGS_YAML'])
-t = _fm(t, 'related_tasks:', 'related_tasks: ' + e['TC_RELATED_YAML'])
-t = _fm(t, 'created:', 'created: ' + e['TC_TIMESTAMP'])
-t = _fm(t, 'last_update:', 'last_update: ' + e['TC_TIMESTAMP'])
-t = t.replace('# ' + e['TC_TASK_ID'] + ': [Task Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
+t = t.replace('id: T-XXX', 'id: ' + e['TC_TASK_ID'])
+t = t.replace('name:', 'name: \"' + name.replace('\"', '\\\\\"') + '\"', 1)
+t = t.replace('description: >', 'description: >\n' + indent_block(desc), 1)
+t = t.replace('status: captured', 'status: ' + e['TC_STATUS'])
+t = t.replace('workflow_type:', 'workflow_type: ' + e['TC_WORKFLOW_TYPE'], 1)
+t = t.replace('owner:', 'owner: ' + e['TC_OWNER'], 1)
+t = t.replace('horizon: now', 'horizon: ' + e['TC_HORIZON'])
+t = t.replace('tags: []', 'tags: ' + e['TC_TAGS_YAML'])
+t = t.replace('related_tasks: []', 'related_tasks: ' + e['TC_RELATED_YAML'])
+t = t.replace('created:', 'created: ' + e['TC_TIMESTAMP'], 1)
+t = t.replace('last_update:', 'last_update: ' + e['TC_TIMESTAMP'], 1)
+t = t.replace('# T-XXX: [Task Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
 t = t.replace('<!-- Auto-populated by git mining at task completion.\\n     Manual entries optional during execution. -->', '### ' + e['TC_TIMESTAMP'] + ' — task-created [task-create-agent]\n- **Action:** Created task via task-create agent\n- **Output:** ' + e['TC_FILEPATH'] + '\n- **Context:** Initial task creation')
 with open(e['TC_FILEPATH'], 'w') as f:
     f.write(t)
@@ -717,7 +646,7 @@ if [ "$WORKFLOW_TYPE" = "inception" ]; then
     if [ -n "$_missing" ]; then
         echo -e "${RED}ERROR: Inception template missing required sections: $_missing${NC}" >&2
         echo "The inception decide pipeline requires both ## Recommendation and ## Decision." >&2
-        echo "Fix the template at: $TASKS_DIR/templates/inception.md" >&2
+        echo "Fix the template at: ${INCEPTION_TEMPLATE:-$TASKS_DIR/templates/inception.md}" >&2
         rm -f "$FILEPATH"
         exit 1
     fi

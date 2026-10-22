@@ -1,6 +1,5 @@
 """Tasks blueprint — task list, detail, status API."""
 
-from markupsafe import Markup
 import re as re_mod
 from html import escape as _html_escape
 from urllib.parse import urlencode
@@ -17,6 +16,7 @@ from web.shared import (
     extract_recommendation, extract_reviewer_verdict, render_markdown_safe,
     protect_path_underscores,
     _auto_link_files,
+    resolve_watchtower_refs, link_route_code_spans,
     count_human_acs,
     task_review_state,
 )
@@ -352,7 +352,9 @@ def _auto_link_bare_urls(text):
 # HTML to wrap `<code>http(s)://...</code>` in an anchor while preserving the
 # code-span styling. This guarantees URLs are clickable regardless of how the
 # agent wrote them — the rendering layer is the contract, not agent discipline.
-_CODE_URL_HTML_RE = re_mod.compile(r"<code>(https?://[^<\s]+?)</code>")
+# T-4290: no quotes in the URL — markdown2 leaves " and ' unescaped inside a code
+# span, and the match is interpolated into href="…", so a quote would close it.
+_CODE_URL_HTML_RE = re_mod.compile(r"<code>(https?://[^<\s\"']+?)</code>")
 
 
 def _linkify_code_urls(html):
@@ -371,17 +373,11 @@ def _render_md_inline(text):
     """Render text as Markdown HTML for inline display (T-1551).
     Strips <p> wrapper for use inside <li> contexts. safe_mode='escape'
     blocks raw HTML — only Markdown syntax (links, code, emphasis) renders.
-    Returns '' for empty input.
-
-    T-606: returns markupsafe.Markup. The old contract was "the caller must mark
-    returned strings safe", i.e. correctness lived in every template author's memory
-    rather than in this function. Two of the four consumers forgot, and the operator
-    read 205 escaped &lt;code&gt; on /approvals for as long as that page has existed.
-    Escaping is decided HERE (markdown2 safe_mode='escape' still neutralises raw HTML
-    in the task file); marking the result Markup only stops Jinja escaping it twice.
+    Returns '' for empty input. The caller must mark returned strings safe.
     """
     if not text:
-        return Markup('')
+        return ''
+    text = resolve_watchtower_refs(text)  # T-4624
     text = _auto_link_watchtower_paths(text)
     text = _auto_link_task_refs(text)
     text = _auto_link_bare_urls(text)
@@ -391,23 +387,17 @@ def _render_md_inline(text):
     if html.startswith('<p>') and html.endswith('</p>'):
         html = html[3:-4]
     html = _linkify_code_urls(html)
+    html = link_route_code_spans(html)  # T-4624
     # T-1722: artefact paths → /file/ anchors (existence-gated, idempotent).
-    return Markup(_auto_link_files(html))
+    return _auto_link_files(html)
 
 
 def _render_md_block(text):
     """Same as _render_md_inline but keeps <p> wrapping for block contexts
-    (Expected, If-not). T-1551.
-
-    T-606: returns markupsafe.Markup. The old contract was "the caller must mark
-    returned strings safe", i.e. correctness lived in every template author's memory
-    rather than in this function. Two of the four consumers forgot, and the operator
-    read 205 escaped &lt;code&gt; on /approvals for as long as that page has existed.
-    Escaping is decided HERE (markdown2 safe_mode='escape' still neutralises raw HTML
-    in the task file); marking the result Markup only stops Jinja escaping it twice.
-    """
+    (Expected, If-not). T-1551."""
     if not text:
-        return Markup('')
+        return ''
+    text = resolve_watchtower_refs(text)  # T-4624
     text = _auto_link_watchtower_paths(text)
     text = _auto_link_task_refs(text)
     text = _auto_link_bare_urls(text)
@@ -415,8 +405,9 @@ def _render_md_block(text):
     text = protect_path_underscores(text)  # T-3587
     html = markdown2.markdown(text, safe_mode='escape').strip()
     html = _linkify_code_urls(html)
+    html = link_route_code_spans(html)  # T-4624
     # T-1722: artefact paths → /file/ anchors (existence-gated, idempotent).
-    return Markup(_auto_link_files(html))
+    return _auto_link_files(html)
 
 
 # T-3224: an AC field heading is `**<marker><suffix>:**`, where the optional
