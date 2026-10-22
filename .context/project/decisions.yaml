@@ -2691,3 +2691,451 @@ decisions:
     date: 2026-10-10
     task: T-1115
     rationale: "Operator 2026-10-10: yes. First use: T-4003 (plain claude-fw delivers sidecar mail into a private tmux pane), which serves the operator's own launch mode; 832 supplies the field evidence AEF requires before master. Safeguards proposed by 832 in T-1113: pin each -be release to an immutable tag+sha, keep the re-vendor protocol (pristine commit + baseline), a rehearsed rollback runme job, never during a designer release window."
+
+  - id: PD-364
+    decision: "a `workflowPicker` field (\"Choose from project…\") is always drawn, empty or not."
+    scope: project
+    date: 2026-10-11
+    task: T-1124
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-365
+    decision: "\"+ N empty fields\" opens for the current selection only; any new click folds again."
+    scope: project
+    date: 2026-10-11
+    task: T-1124
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-366
+    decision: "B2 ships the project layer only; the per-workflow layer is not built now."
+    scope: project
+    date: 2026-10-11
+    task: T-1125
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-367
+    decision: "one profile per gallery repository (`<repo>/field-profile.json`, `GET /api/field-profile`)."
+    scope: project
+    date: 2026-10-11
+    task: T-1125
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-368
+    decision: "hidden fields are left out of the fold too; only \"Show all fields\" (or a value) brings them back."
+    scope: project
+    date: 2026-10-11
+    task: T-1125
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-369
+    decision: "on the project server beside the map's versions, `.editor-versions/<id>/field-profile.json` (W1)."
+    scope: project
+    date: 2026-10-11
+    task: T-1128
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-370
+    decision: "`tools/field-suggestion.py approve|reject|list`, run via a runme job; the editor can only POST a suggestion."
+    scope: project
+    date: 2026-10-11
+    task: T-1126
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-371
+    decision: "`fields` section of `<repo>/field-profile.json`; map profiles cannot add fields."
+    scope: project
+    date: 2026-10-11
+    task: T-1126
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-372
+    decision: "owner, gatewayKind, scopeOf, constituents are never offered."
+    scope: project
+    date: 2026-10-11
+    task: T-1126
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-373
+    decision: "adopt Greenfield's Settings option with default ON, and on a map that declares no"
+    scope: project
+    date: 2026-10-12
+    task: T-1092
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-374
+    decision: "a carrier must actually hold the finding (a task whose body covers it, a shipped fix, an upstream report); still-true findings with none got a task."
+    scope: project
+    date: 2026-10-13
+    task: T-1149
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-375
+    decision: "the 25 framework findings go to AEF as one report (T-1150); the 16 of our own each got a task, horizon later."
+    scope: project
+    date: 2026-10-13
+    task: T-1149
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-376
+    decision: "inline in a Watchtower page with a fullscreen toggle, as the fabric browser does (operator)."
+    scope: project
+    date: 2026-10-14
+    task: T-1172
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-377
+    decision: "keep `target_blast_radius: 3` / `voi_score: 0.5` in the template, with T-865's note restored above them:"
+    scope: project
+    date: 2026-10-14
+    task: T-1178
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-378
+    decision: "SLOW_CAP entries at ~1.5x the worst observed run: _t525 160 s, _t549 270 s (was 180), _t550 120 s,"
+    scope: project
+    date: 2026-10-14
+    task: T-1182
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-379
+    decision: "a rise is confirmed by the two newest completed runs both above the floor; one run above is an"
+    scope: project
+    date: 2026-10-17
+    task: T-1163
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-380
+    decision: "job 034 upgrades only; job 035 restarts Watchtower after the local fixes are re-applied."
+    scope: project
+    date: 2026-10-17
+    task: T-1188
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-381
+    decision: "lazy edges + C YAML loader (worker's diff, -27%); a per-file cache keyed by content sha256 + this script's"
+    scope: project
+    date: 2026-10-17
+    task: T-1191
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-382
+    decision: "`import X` / `from X import` count as an edge to tools/X.py (filtered to the population, so stdlib names add"
+    scope: project
+    date: 2026-10-17
+    task: T-1191
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-383
+    decision: "after renderNodes, measure rendered labels and badges; redraw the pool wider by the overhang + 12 px"
+    scope: project
+    date: 2026-10-17
+    task: T-1154
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-384
+    decision: "the lane's HEADER strip carries the mark (severity edge + the node marker's ✖/⚠ pill at its top); the"
+    scope: project
+    date: 2026-10-17
+    task: T-1164
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-385
+    decision: "only text that STARTS inside the pool may stretch it (a badge"
+    scope: project
+    date: 2026-10-17
+    task: T-1164
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-386
+    decision: "while the dock"
+    scope: project
+    date: 2026-10-17
+    task: T-1164
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-387
+    decision: "a pinned name is centred in the"
+    scope: project
+    date: 2026-10-17
+    task: T-1164
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-388
+    decision: "re-centre only when the whole name fits the visible room, else keep its lane-centred place"
+    scope: project
+    date: 2026-10-17
+    task: T-1164
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-389
+    decision: "discard. Each minted vN.bpmn differs from the map's previous version AND from the rendered map at HEAD, so it"
+    scope: project
+    date: 2026-10-17
+    task: T-1198
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-390
+    decision: "the record's directory (`completed/`), and the only legal move from it is onto an endEvent; a walk is"
+    scope: project
+    date: 2026-10-17
+    task: T-1160
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-391
+    decision: "the task's last CONTENT commit, skipping frontmatter-only edits, checkbox ticks, edits confined to"
+    scope: project
+    date: 2026-10-17
+    task: T-1152
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-392
+    decision: "one informational line in `scripts/session-start-alerts.sh` (what /resume shows every session), naming"
+    scope: project
+    date: 2026-10-17
+    task: T-1152
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-393
+    decision: "a mapping-v1 citation resolves only with MUST / MUST NOT / SHALL / REQUIRED."
+    scope: project
+    date: 2026-10-18
+    task: T-1200
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-394
+    decision: "no basis declared for E-GW-OUTGOING / E-XML-GW-OUTGOING; they derive CONVENTIONAL, pinned and printed."
+    scope: project
+    date: 2026-10-18
+    task: T-1200
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-395
+    decision: "mapping-v1 Part II (provisional), marked non-normative and proposed."
+    scope: project
+    date: 2026-10-18
+    task: T-1200
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-396
+    decision: "build directly, no go/no-go round."
+    scope: project
+    date: 2026-10-19
+    task: T-1127
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-397
+    decision: "double-click on any element except a handoff; an \"⤢ All details\" button in every element's panel."
+    scope: project
+    date: 2026-10-19
+    task: T-1127
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-398
+    decision: "the side panel's renderer draws both, with a `details` flag (all fields, no fold, no profile hide,"
+    scope: project
+    date: 2026-10-19
+    task: T-1127
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-399
+    decision: "Task ownership is decided by an initial risk assessment (agent or human), not human by default. Agent-owned work is always judged at close by an independent reviewer (never the producer): good -> close; not good -> the reviewer says what is needed; too risky -> the reviewer escalates and the owner becomes human. Human-owned work (high risk, or escalated) is reviewed by the operator."
+    scope: project
+    date: 2026-10-19
+    task: T-1203
+    rationale: "Operator, 2026-10-19: the human-by-default stance was a response to bad quality and can be dropped now that an independent reviewer judges every agent close. Supersedes T-931 and differs from AEF T-4156 (which keeps owner: human until a verdict). Operator asks 832 to adopt it and AEF to change with high priority."
+
+  - id: PD-400
+    decision: "H1 reversed: roadmap Arcs 4-6 supersede the DEFERs; revive and build T-279 (guided-mode guardrail), T-280 (Workflow Fabric), T-281 (audience lenses), T-282 (callActivity); callActivity first; raise lenses with AEF (their T-2669 NO-GO)."
+    scope: project
+    date: 2026-10-19
+    task: T-732
+    rationale: "Operator, 2026-10-19, in session: 'definitely want all this stuff ... If you can build it, that would be great', confirmed '1' to the read-back. Agent had recommended keeping them parked; operator chose to revive. Supersedes the 2026-09-21 verbal ruling."
+
+  - id: PD-401
+    decision: "close without posting the bytes. The original five criteria (post both files to"
+    scope: project
+    date: 2026-10-19
+    task: T-969
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-402
+    decision: "Wrap gateway/event NAME labels, but ONLY the ones that actually collide"
+    scope: project
+    date: 2026-10-19
+    task: T-105
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-403
+    decision: "close, recording that `fw upgrade --dry-run` before the upgrade, wrapping it in runme.sh with per-step"
+    scope: project
+    date: 2026-10-19
+    task: T-988
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-404
+    decision: "close. The upgrade landed (7b5e227e) and four criteria are met by that commit's own record. Three are not:"
+    scope: project
+    date: 2026-10-19
+    task: T-840
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-405
+    decision: "the empty-denominator guard raises WARN in both audit blocks; the FAIL-capable"
+    scope: project
+    date: 2026-10-19
+    task: T-344
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-406
+    decision: "watch all authored code including the 85 one-shot `_t###-*` task probes."
+    scope: project
+    date: 2026-10-19
+    task: T-344
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-407
+    decision: "express the scope entirely in include globs; name the excluded categories"
+    scope: project
+    date: 2026-10-19
+    task: T-344
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-408
+    decision: "remove (as the Recommendation said). Nothing to do here: AEF removed the first block's coverage verdict"
+    scope: project
+    date: 2026-10-19
+    task: T-345
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-409
+    decision: "(a), narrowed: a native `<bpmn:linkEventDefinition>` that a file brings is kept on the node and written"
+    scope: project
+    date: 2026-10-20
+    task: T-1217
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-410
+    decision: "only start and end events stay unnamed; their display id is kept by deriving the slug from the id on first"
+    scope: project
+    date: 2026-10-20
+    task: T-1218
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-411
+    decision: "Consumers without read access to the OneDev repo pull designer releases from the GitHub mirror (github.com/DimitriGeelen/workflow-designer), which OneDev updates on every branch and tag; the agent verifies the tag and the artifact's sha256 there before pointing them at it"
+    scope: project
+    date: 2026-10-20
+    task: T-1223
+    rationale: "Operator, 2026-10-20, when aef-greenfield-test could not pull designer-v0.24.0 over ssh: 'they should pull it from github'. No deploy keys, no file sends."
+
+  - id: PD-412
+    decision: "restore the host — a third-party `boundaryEvent` imports as the designer's boundary event with its"
+    scope: project
+    date: 2026-10-20
+    task: T-1222
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-413
+    decision: "any catch imported from a"
+    scope: project
+    date: 2026-10-20
+    task: T-1222
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-414
+    decision: "New interactive #g-handles layer above #g-nodes; port dots prepended"
+    scope: project
+    date: 2026-10-20
+    task: T-293
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-415
+    decision: "repair the one uncontrolled leg in the repairable stratum (T-590:344) and leave the"
+    scope: project
+    date: 2026-10-21
+    task: T-669
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-416
+    decision: "document the three defects with evidence and leave `tools/_t560-absence-assertion-census.py`"
+    scope: project
+    date: 2026-10-21
+    task: T-669
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-417
+    decision: "T-1242 designer side waits for AEF T-4415's ruling (final names); no build ahead behind a flag"
+    scope: project
+    date: 2026-10-21
+    task: T-1242
+    rationale: "Operator chose option 1 on 2026-10-21: the ruling is about one AEF session away, nothing is lost on save meanwhile (T-1220, T-1243), and building once with final names avoids a rename and a second review round"
+
+  - id: PD-418
+    decision: "a flow label and a name/id caption on one text row (boxes share at least half the smaller height) count as"
+    scope: project
+    date: 2026-10-22
+    task: T-1274
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-419
+    decision: "a third fit-ladder step inside the same rect (`fitNodeLabels`, T-087): at the default size 9px / 10.5px line"
+    scope: project
+    date: 2026-10-22
+    task: T-1276
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-420
+    decision: "no colour change. Measured from computed styles (`tools/_t1276-name-fit-cdp.mjs` leg 2): flow-label fill"
+    scope: project
+    date: 2026-10-22
+    task: T-1276
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-421
+    decision: "keep it."
+    scope: project
+    date: 2026-10-22
+    task: T-1276
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-422
+    decision: "`OPEN_MIN_TEXT_PX` 9, and `openingZoom()` takes its minimum over every drawn node name, flow label,"
+    scope: project
+    date: 2026-10-22
+    task: T-1278
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-423
+    decision: "no layout change; prove reachability with a CDP leg and scrolled shots."
+    scope: project
+    date: 2026-10-22
+    task: T-1278
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-424
+    decision: "leave \"T-1068\", \"fw work-on T-XXX\", \"P-010\", \"## Verification commands\", \"P-011\" and \"G-020\" as they are."
+    scope: project
+    date: 2026-10-22
+    task: T-1278
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-425
+    decision: "the node Name is a one-row textarea (`field(..., { line: true, grow: true })`) sized by T-1274's"
+    scope: project
+    date: 2026-10-22
+    task: T-1278
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-426
+    decision: "a table, `PALETTE_WORDING[lens][data-create]`, applied by `renderPaletteWording()` from"
+    scope: project
+    date: 2026-10-22
+    task: T-1278
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-427
+    decision: "a new token `--text-hint: #80869a` for `.field-label .field-hint` and `.suggest-row .field-hint`."
+    scope: project
+    date: 2026-10-22
+    task: T-1278
+    rationale: "Auto-captured from task file on completion"

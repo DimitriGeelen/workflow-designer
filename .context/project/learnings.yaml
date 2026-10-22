@@ -2935,3 +2935,9 @@ learnings:
   task: T-1255
   date: 2026-10-22
   context: Added via context agent
+- id: PL-425
+  learning: "Before an official UI review run (fw reviewer judge), send one ADVISORY sweep (no VERDICT line, no ledger) asking the reviewer for EVERY problem across all screenshots, fix the whole list, then judge once. The judge's sequential panel stops at the first amber, so each official run surfaces one new point: T-1241 took three amber rounds (T-1274, T-1276, T-1277) finding one issue each; one advisory sweep listed the remaining 10 and the next official run was green on all three seats."
+  source: unknown
+  task: T-1278
+  date: 2026-10-22
+  context: Added via context agent
