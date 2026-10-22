@@ -269,3 +269,5 @@ _t669-t590-control-level.py
 _t1249-v11-io-shots.mjs
 # screenshot generator for T-1256's Visual Verification (before/after canvas shots), not a guard; same class as _t1241-lens-shots
 _t1256-shots.py
+# screenshot generator for T-1278's evidence (reach, palette-end and 2x crops for the codex sweep items), not a guard; same class as _t1241-lens-shots
+_t1278-shots.py
