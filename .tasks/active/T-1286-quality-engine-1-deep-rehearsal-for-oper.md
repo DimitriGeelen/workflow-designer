@@ -1,11 +1,17 @@
 ---
 id: T-1286
-name: "Quality engine 1: deep rehearsal for operator runme jobs (steps run against a throwaway clone, framework gates included)"
+name: "Quality engine 1: deep rehearsal for operator runme jobs (steps run against
+  a throwaway clone, framework gates included)"
 description: >
-  About 1 in 4 operator runs stops (30 STOPPED / 77 done; 22 of 83 jobs retired), the largest cause a framework gate that --dry-run never exercises because it only runs preflight checks. Rehearse the steps themselves in a throwaway clone so gate refusals surface before hand-over; steps idempotent so a stopped run resumes (T-1285 GO, ranked step 1; evidence docs/reports/T-1285-quality-engine.md)
+  About 1 in 4 operator runs stops (30 STOPPED / 77 done; 22 of 83 jobs retired),
+  the largest cause a framework gate that --dry-run never exercises because it only
+  runs preflight checks. Rehearse the steps themselves in a throwaway clone so gate
+  refusals surface before hand-over; steps idempotent so a stopped run resumes (T-1285
+  GO, ranked step 1; evidence docs/reports/T-1285-quality-engine.md)
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: [quality-engine, T-1285]
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-23T22:13:11Z
-last_update: 2026-10-23T22:13:11Z
-date_finished: null
+last_update: '2026-10-23T22:16:27Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,67 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-23T22:16:27Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1286: Quality engine 1: deep rehearsal for operator runme jobs (steps run against a throwaway clone, framework gates included)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+This is step 1 of the quality engine (T-1285 GO, recorded by job 084). Evidence: `docs/reports/T-1285-quality-engine.md`
+spike 1.
+- **The problem:** about 1 in 4 operator runs stops. 7 of the 22 retired jobs (012, 016, 022, 054, 066, 067, 072)
+  died on a framework gate that `bash runme.sh --dry-run` never exercised, because the dry-run (tools/runme-launcher.sh,
+  `run_checks`) runs only the preflight CHECKS, never the STEPS.
+- **The fix:** rehearse the steps in a throwaway clone of the committed repo, with this repo's git hooks installed,
+  so commit/decide/sovereignty/foreign-delete gates fire there, before the job is handed to the operator.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] **Outward steps are declared.** A job can declare `step_outward "<what>" '<cmd>'` for steps that act outside the
+      repo (push, tag push, `/etc`, network services, model or reviewer calls, host services). The launcher's real
+      run treats it exactly like `step`, with the same y/N, logging and signal.
+- [ ] **`--dry-run` rehearses the steps.** After the checks pass, it:
+  - clones the committed repo (HEAD) into a gitignored dir inside the project (`.context/rehearse/<job>/`; the path
+    is short, so no Chromium 108-char issue);
+  - copies in this repo's `.git/hooks`;
+  - runs the job's checks and then every `step` in order there, with PROJECT_ROOT/CONTEXT_DIR/TASKS_DIR unset and
+    cwd at the clone; skips each `step_outward`, listed as "not rehearsed: acts outside the repo";
+  - removes the clone.
+  A step that fails in the rehearsal fails the dry-run: no `dryrun.ok`, and the failing step and its output are
+  printed.
+- [ ] **It catches the class it is for.**
+  - Test fixtures: a job whose step runs a gate that refuses, e.g. `fw inception decide` on an inception whose
+    success clause is a placeholder, or a commit the foreign-delete or re-vendor gate refuses. It passes the OLD
+    dry-run and fails the new one.
+  - A job whose steps all succeed passes both.
+  - Rehearsal never touches the real repo: HEAD, the index, the working tree and `.git/hooks` are byte-identical
+    after it (asserted).
+- [ ] **No regression:**
+  - `tests/test_t1055_runme_launcher.py` and the T-1227/T-1230 picker tests stay green;
+  - an existing pending job still dry-runs, with its steps rehearsed and its outward ones listed;
+  - CLAUDE.md's runme section says what the dry-run now does, and how to declare `step_outward`.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -345,3 +398,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1286-quality-engine-1-deep-rehearsal-for-oper.md
 - **Context:** Initial task creation
+
+### 2026-10-23T22:16:26Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
