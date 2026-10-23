@@ -88,6 +88,14 @@ Tags to batch (take the newest when this starts):
   systemd-managed Watchtower. A new key, `WATCHTOWER_ENSURE` (default 1; `fw config set WATCHTOWER_ENSURE 0` opts a
   project out). The keep-alive is still not seeded to consumers. 832's Watchtower is started by `fw watchtower
   restart`, not by a systemd unit, so check after the batch that restart still works here.
+- **be.15** 31afaf383 (msg 57627423):
+  - T-4717: the files-to-commit helper runs beside the upgrade code;
+  - T-4716/T-4718: Watchtower `/designer` opens 832's designer at `/designer/app?browse=1`, with one Designer nav
+    entry;
+  - T-4715: the old card list gets thumbnails.
+  This changes what OUR Watchtower's `/designer` shows once we take the batch: it goes to the designer's project
+  browser, which needs designer 0.26.0 for the browser to open on load. Take the batch after 0.26.0 is pinned
+  (T-1283).
 
 ## Acceptance Criteria
 
