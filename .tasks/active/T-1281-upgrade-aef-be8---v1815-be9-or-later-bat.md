@@ -73,6 +73,13 @@ Tags to batch (take the newest when this starts):
     outages.
   After upgrading, run `fw cron install` as an OPERATOR job step (it writes `/etc/cron.d`) and `fw git install-hooks`;
   check that our three pre-commit gates survive both.
+- **be.12** 4f906e6a3 (msg f0ecc89b):
+  - T-4712: the files-to-commit list includes vendored files left dirty by an earlier upgrade;
+  - T-4710: the close hint names `.tasks/active/<file>` only when tracked;
+  - T-4703: release dirs are pruned, and doctor WARNs on a large `.context/scratch`;
+  - T-4709/T-4713: fixes.
+  AEF says the be.11 Watchtower keep-alive is NOT seeded to consumers until their T-4711, so `fw cron install` may add
+  nothing yet. Check what it adds before running it.
 
 ## Acceptance Criteria
 
