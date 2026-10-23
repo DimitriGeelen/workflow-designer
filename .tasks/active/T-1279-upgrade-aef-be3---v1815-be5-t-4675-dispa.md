@@ -96,11 +96,30 @@ This follows the be.3 path (T-1275, job 077).
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **Job 078 ran to `done`:** version_sha fea3e4c76; pristine and baseline commits present; TermLink settings
+- [x] **Job 078 ran to `done`:** version_sha fea3e4c76; pristine and baseline commits present; TermLink settings
       kept; doctor before/after saved.
-- [ ] **832's local fixes re-applied:** `tools/_t517` OK; every `*.bak` diffed and removed or reported; `_t1192`
+  **2026-10-23, met:**
+  - rc=0, 11:13, all 9 steps. The upgrade step took 8 min (be.3: 38).
+  - pristine 7be3ad1a (68 vendored paths; the one deletion is our local `designer_open.html`, as before).
+  - doctor PASS before and after, with no FAIL. Watchtower smoke failures went 9/54 -> 3/53.
+- [x] **832's local fixes re-applied:** `tools/_t517` OK; every `*.bak` diffed and removed or reported; `_t1192`
       exit 0; the safe-commands regressions and `_t632` pass; the verdict audit has 0 failures.
-- [ ] **Watchtower restarted on be.5** serves designer 0.25.0 byte for byte.
+  **2026-10-23, met** (665f2f91):
+  - 37 fixes, all clean, with no 3-way or hand merges;
+  - `_t517` OK; the six regressions pass; verdict audit 0 failures;
+  - the upgrade left no `.bak` and did not touch CLAUDE.md or `.mcp.json`;
+  - `_t1192` (job step 8): inception.md.upstream was superseded and removed.
+- [x] **Watchtower restarted on be.5** serves designer 0.25.0 byte for byte.
+  **2026-10-23, met:** `/designer/app` sha256 2cbcca06…
+  - **T-4672 is inconclusive:** job step 4 said PRESENT, but the installed file kept yesterday's mtime (22:21, from my
+    manual install). It already matched the pin, so skipping it is right. A real test needs a pin change.
+  - **T-4675 works, with a gap:** `DISPATCH_DIR` defaults to `$PROJECT_ROOT/.context/dispatch`. That dir was NOT
+    gitignored, so a worker's prompt and `env.sh` could be committed. 832 now ignores `.context/dispatch/`, and this
+    goes in the field report.
+  - **T-4678 works:** our three gates (T-1000, T-1161, T-1239) are kept above the framework block in
+    `.git/hooks/pre-commit`.
+  - **T-4655 works:** `fw metrics` reads the stores (active 231, completed 1047).
+  - **T-4667 works:** `checkpoint.sh` with no args writes 0 bytes to stdout.
 - [ ] **Suite:** no new failure against 2026-10-22's post-be.3 run (310 passed, 3 failed, all 3 explained).
 - [ ] **AEF has the field report:** WORKS/FAILS for each be.5 fix this project can exercise, on `aef-v1815-be3`.
   - T-4675: a worker's dir under `.context/dispatch`;

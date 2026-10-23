@@ -63,3 +63,5 @@ docs/learning-ledger.yaml.lock
 .context/working/watchtower.log
 # peer documents received for review (T-1242): never tracked, never on the mirror
 .context/working/intake-t4415/
+# worker dirs since AEF be.5 (T-4675): prompt, env.sh, results of every dispatched worker; never tracked (T-1279)
+.context/dispatch/
