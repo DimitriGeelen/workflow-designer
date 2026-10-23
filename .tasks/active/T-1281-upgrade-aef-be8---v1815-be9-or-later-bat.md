@@ -65,6 +65,14 @@ Tags to batch (take the newest when this starts):
   - T-4695: cron outputs are committed or untracked;
   - T-4696: bats refuses a TMPDIR inside the repo, which matches our 2026-10-23 Chromium socket lesson.
   Open: T-4701. 832 tracks no `.session-silent-scanner.log` (checked 2026-10-23), so nothing needs untracking.
+- **be.11** 42086fee3 (msg 7decaad1):
+  - T-4704/T-4705: the upgrade's next steps and files-to-commit list;
+  - T-4707: the printed close-commit works with focus cleared;
+  - T-4708: doctor accepts `[ … ] || exec` hooks;
+  - T-4706: Watchtower runs in its own systemd scope, with a 5-minute keep-alive cron that restarts it and records
+    outages.
+  After upgrading, run `fw cron install` as an OPERATOR job step (it writes `/etc/cron.d`) and `fw git install-hooks`;
+  check that our three pre-commit gates survive both.
 
 ## Acceptance Criteria
 
