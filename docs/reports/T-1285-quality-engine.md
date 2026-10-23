@@ -38,8 +38,24 @@ _pending_
 ### Spike 3 — reviewer findings a deterministic check could have caught (IW-3)
 _pending_
 
-### Spike 4 — generated designer-to-host contract vs AEF's server (IW-4)
-_pending_
+### Spike 4 — generated designer-to-host contract vs AEF's server (IW-4) — done 2026-10-24
+
+A throwaway script (`.context/working/t1285/contract.py`, ~30 lines) extracts every `/api/...` path from
+`src/aef-workflow-designer.html` and every route from AEF's Watchtower code at a given commit, and diffs them. Against
+AEF be.8 (pristine 2f87fdb1) it reproduces the manual 2026-10-23 result exactly: 13 used, 9 served, 4 missing.
+
+| Missing in AEF | Feature | In the designer since | Undetected for |
+|---|---|---|---|
+| `/api/instances` | instance overlay (T-884) | 2026-09-29 | 25 days |
+| `/api/validate` | Check (T-961/T-962) | 2026-10-01 | 23 days |
+| `/api/field-profile` | project field profile (T-1125) | 2026-10-11 | 13 days |
+| `/api/field-suggestions` | Suggest as a field (T-1126) | 2026-10-11 | 13 days |
+
+**Answer to IW-4:** yes. The contract is cheaply generated from source and checkable against AEF's code with no
+access to AEF's running server. Run at release time it would have flagged each gap the day the feature shipped. Every
+release since 0.15 has gone to AEF without these four.
+**Limits:** it compares paths, not methods or payloads (a route can exist and still differ in contract), and it
+reads the vendored copy, so it is only as current as our last framework upgrade.
 
 ### Spike 5 — verifiable reviewer findings (IW-5)
 _pending_

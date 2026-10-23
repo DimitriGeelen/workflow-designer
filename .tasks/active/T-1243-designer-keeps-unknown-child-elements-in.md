@@ -98,9 +98,15 @@ no UI, no meaning given to them, no wait for AEF's v1.1 (AEF T-4518 made its int
       `xmlns` declarations (redundant re-declarations of a namespace the root already declares are dropped)
 - [x] An io WITHOUT children still serialises self-closing, byte-identical to before (all goldens unchanged)
       (`_t358` third-party byte identity PASS; `_t1220` still ok; instrument sweep 105/105, regressed 0)
-- [ ] A browser harness (`tools/_t1243-io-children-cdp.mjs`) proves the above and fails on the 0.24.0 code; it is
+- [x] A browser harness (`tools/_t1243-io-children-cdp.mjs`) proves the above and fails on the 0.24.0 code; it is
       wired into the bridge suite, and the full bridge run stays green
       (harness 5/5 green on the fix, leg 1 red on HEAD's source; wired next to T-1220; full run pending)
+  **2026-10-24, met:**
+  - wired at `tests/run-bridge-tests.sh:1131`, and green in the be.8 full run (2026-10-23: 315 passed, 1 failed). The
+    one failure was `_t568`'s tmpfs timing, explained and fixed under T-1280;
+  - shipped in 0.25.0 and confirmed by greenfield on its own maps (T-327, msg 42bacca0): 30/30 maps round-trip OK,
+    io attributes 20→20, and the `aef:input` children case (`aef:example` plus a root-declared `nid:note`) keeps
+    both children with the output well-formed.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
