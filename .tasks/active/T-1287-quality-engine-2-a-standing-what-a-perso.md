@@ -1,13 +1,18 @@
 ---
 id: T-1287
-name: "Quality engine 2: a standing 'what a person sees' gate on every corpus map at 1024/1440/1920 in the opening state, run before any review"
+name: "Quality engine 2: a standing 'what a person sees' gate on every corpus map
+  at 1024/1440/1920 in the opening state, run before any review"
 description: >
-  ~70% of reviewer findings on T-1241/T-1282 were mechanically decidable (crossings incl. arrowheads, clipping, cut text, min text size, contrast, reachability). Consolidate _t1256/_t1276/_t1278 into one gate run before any official review (T-1285 GO, ranked step 2; evidence docs/reports/T-1285-quality-engine.md)
+  ~70% of reviewer findings on T-1241/T-1282 were mechanically decidable (crossings
+  incl. arrowheads, clipping, cut text, min text size, contrast, reachability). Consolidate
+  _t1256/_t1276/_t1278 into one gate run before any official review (T-1285 GO, ranked
+  step 2; evidence docs/reports/T-1285-quality-engine.md)
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [quality-engine, T-1285]
 components: []
 related_tasks: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-23T22:13:16Z
-last_update: 2026-10-23T22:13:16Z
-date_finished: null
+last_update: '2026-10-23T22:27:12Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +55,62 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-23T22:27:12Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1287: Quality engine 2: a standing 'what a person sees' gate on every corpus map at 1024/1440/1920 in the opening state, run before any review
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+This is step 2 of the quality engine (T-1285 GO); see spike 3 in `docs/reports/T-1285-quality-engine.md`. About 9 of 13
+reviewer findings on T-1241/T-1282 (~70%) were mechanically decidable on the rendered map, yet each cost a review
+round before it became a check (`_t1256`, `_t1276`, `_t1278`). This makes them ONE gate that runs BEFORE any
+official review, so a reviewer confirms taste instead of discovering defects.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] **One entry point, `tools/person-sees-gate.sh`**, runs, one browser at a time, every check of what a person
+      sees, over every corpus map at 1024/1440/1920 in the real opening state (the lens-shot load path):
+  - flow/arrowhead crossings and label overlaps (`_t1256`);
+  - no ellipsized task names (`_t1276`);
+  - minimum text size at opening, Name field not cut, contrast, reachability (`_t1278`);
+  - Note box growth (`_t1274`);
+  - toolbar reach (`_t1176`).
+  A check that exists is called, not copied. A check class from spike 3 with no existing harness is added, or
+  listed as a gap with the reason.
+- [ ] **A clear verdict:** one summary line per check (PASS/FAIL with counts); exit 0 only when every check
+      passes, 1 on any failure, 2 when a check could not run (never a silent pass). It finishes in a bounded time,
+      measured and recorded here.
+- [ ] **It runs before every official UI review:**
+  - CLAUDE.md's "UI changes are reviewed on screenshots" section says to run `tools/person-sees-gate.sh` and get exit
+    0 before `fw reviewer judge`, and before the advisory sweep;
+  - the learning from T-1278 (advisory sweep first) is kept;
+  - the suite runs the gate as one leg (literal path), replacing the individual legs only where that is equal or
+    stronger; the unwired-guard census stays balanced.
+- [ ] **Its teeth are proven:** run against `designer-v0.25.0`'s source (via the harnesses' source override), the
+      gate FAILS and names the defects the T-1241 reviewers found (arrowheads, cut names, small text). On the current
+      source it PASSES.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -345,3 +392,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1287-quality-engine-2-a-standing-what-a-perso.md
 - **Context:** Initial task creation
+
+### 2026-10-23T22:27:10Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
