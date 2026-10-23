@@ -102,7 +102,7 @@ clean source. Do not take it from HEAD, which can be stale.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **RCA stated with evidence** in `## RCA`. The working hypothesis comes from reading the code (operator chose
+- [x] **RCA stated with evidence** in `## RCA`. The working hypothesis comes from reading the code (operator chose
       "read the code only", 2026-10-23); no live mutation is run. `_t910`'s `trap cleanup EXIT INT TERM` handler
       restores and deletes the backup dir but does NOT exit, and bash resumes a script after a TERM handler returns.
       So after the sweep's `timeout` TERM, the script plants its next mutant, then finds no backup and exits 91 with
