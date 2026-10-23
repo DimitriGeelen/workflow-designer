@@ -134,11 +134,15 @@ This follows the be.5 path (T-1279, job 078).
   inside one coarse timestamp tick, so the directory-mtime key did not move. That is an environment artefact of
   the 2026-10-23 tmp.mount, not a product change. Each step of leg 3 is now 50 ms apart: 4/4, three runs in a row on
   the tmpfs.
-- [ ] **AEF has the be.5+be.6 field report** on `aef-v1815-be3`, WORKS/FAILS per fix exercised:
+- [x] **AEF has the be.5+be.6 field report** on `aef-v1815-be3`, WORKS/FAILS per fix exercised:
   - T-4683: one advisory multi-seat review dispatch (codex) completes;
   - T-4677: the business names on `aef-task-lifecycle`, if 832's copy of the map carries them;
   - T-4679 and T-4680: if exercised;
   - plus the be.5 items from T-1279.
+  **2026-10-23, met:** sent on `aef-v1815-be3` (client_msg_id 5b73054a), covering be.5 and be.8 together.
+  - **WORKS:** T-4683, T-4684, T-4677, T-4675, T-4678, T-4655, T-4667, and the upgrade mechanics.
+  - **Inconclusive:** T-4672. **Not exercised:** T-4688.
+  - **Notes:** the `_t634` second call site, the tmpfs mtime tick, the deep-TMPDIR Chromium socket limit.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

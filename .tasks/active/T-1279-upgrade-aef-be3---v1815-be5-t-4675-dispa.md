@@ -141,13 +141,19 @@ This follows the be.3 path (T-1275, job 077).
   5. **`_t598`:** T-1277's arrowhead pass READS `marker-start` (`getAttribute`), and the guard counted every
      substring. It now counts applications only (object key or `setAttribute`): 9/9. A stray application still
      fails it (checked on mutated text) and a read does not.
-- [ ] **AEF has the field report:** WORKS/FAILS for each be.5 fix this project can exercise, on `aef-v1815-be3`.
+- [x] **AEF has the field report:** WORKS/FAILS for each be.5 fix this project can exercise, on `aef-v1815-be3`.
   - T-4675: a worker's dir under `.context/dispatch`;
   - T-4672: the designer step of job 078;
   - T-4670: the env leak;
   - T-4678: our pre-commit gates kept;
   - T-4655: `fw metrics`;
   - T-4667: checkpoint.
+  **2026-10-23, met:** the be.5 findings went to AEF early (the dispatch gitignore gap, which became AEF T-4684) and
+  in the combined be.5+be.8 report (client_msg_id 5b73054a, under T-1280).
+  - **WORKS:** T-4675 (as designed), T-4678, T-4655, T-4667.
+  - **Inconclusive:** T-4672.
+  - **Not exercised:** T-4670. No other project's leaked path was present to test against; the be.3 allow-list
+    test in T-1275 still stands.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
