@@ -271,3 +271,5 @@ _t1249-v11-io-shots.mjs
 _t1256-shots.py
 # screenshot generator for T-1278's evidence (reach, palette-end and 2x crops for the codex sweep items), not a guard; same class as _t1241-lens-shots
 _t1278-shots.py
+# screenshot generator for T-1282's evidence (the ?browse=1 project browser at three widths, hover-zoom, the button-opened browser), not a guard; same class as _t1241-lens-shots
+_t1282-shots.py

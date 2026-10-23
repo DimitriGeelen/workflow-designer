@@ -96,7 +96,11 @@ gallery (no API) it does nothing, as Open project is hidden there anyway.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **`?browse=1` opens the project browser on load:**
+- [x] **`?browse=1` opens the project browser on load:** _(done: `detectSaveApi()` opens it once `/api/health`
+  answers, 5 lines; CDP leg: opens with 8/8 cards in Open-project mode (8 delete affordances = no pick callback), ✕
+  leaves the bytes as at start (see Decisions: the designer starts on its default workflow, not an empty canvas),
+  closed without the parameter, pick = the Open project pick's bytes, ?load wins, no API silent with 0 page errors;
+  saved bytes: the T-1256 bytes leg green, 25/25)_
   - `/designer/app?browse=1` (and the gallery `aef-workflow-designer.html?browse=1`) opens the Open-project card
     browser once `/api/health` confirms the API, with no pick callback;
   - picking a card opens that map exactly as Open project does today; closing the browser leaves an empty designer;
@@ -104,14 +108,20 @@ gallery (no API) it does nothing, as Open project is hidden there anyway.
   - `?load=` wins over `?browse=1`: a document named to load is loaded and the browser stays closed;
   - with no API (static gallery), `?browse=1` does nothing and raises no error;
   - saved bytes are unchanged.
-- [ ] **A CDP leg** covers each case above: opens / does not open / pick loads the map / load wins / no API is
+- [x] **A CDP leg** covers each case above: opens / does not open / pick loads the map / load wins / no API is
       silent. It is red on the source before this change (no browse entry), green after, and wired into the suite (literal path).
-- [ ] **No guard regresses:** the T-1278 guard set plus the T-1273 guard and teeth stay green, run one at a time
-      under nice 19.
-- [ ] **Screenshots** of the browser opened by `?browse=1` at 1024, 1440 and 1920, with hover-zoom on one card, read
-      control by control in `## Visual Verification`. The independent review is the criterion below.
-- [ ] **Release note:** a line in the next release notes (with T-1274..T-1278), so AEF knows which version carries
-      `?browse=1`.
+      _(done: `tools/_t1282-browse-entry-cdp.mjs`, red on HEAD 71374245 in cases 1 and 3 ("did not open", "no card";
+      2, 4 and 5 pass there, as no-change cases should), green now, ~14 s; wired into `tests/run-bridge-tests.sh` with a
+      literal path; census ratchet 89=89 with the leg, 90=90 once the shot script is baselined)_
+- [x] **No guard regresses:** the T-1278 guard set plus the T-1273 guard and teeth stay green, run one at a time
+      under nice 19. _(done: _t1256 180 s, _t1274 29 s, _t1276 45 s, _t1278 91 s, _t1241 8 s, _t1273 guard, _t1273
+      teeth 9 passed / 0 failed: all rc 0)_
+- [x] **Screenshots** of the browser opened by `?browse=1` at 1024, 1440 and 1920, with hover-zoom on one card, read
+      control by control in `## Visual Verification`. The independent review is the criterion below. _(done: 7 shots
+      in docs/reports/T-1282-evidence; hover-zoom shows at 1440 and 1920, hidden at 1024 by T-156's no-overlap rule)_
+- [x] **Release note:** a line in the next release notes (with T-1274..T-1278), so AEF knows which version carries
+      `?browse=1`. _(done: docs/releases/RELEASE-NOTES-0.26.0.md, a DRAFT, one entry each for T-1274, T-1276, T-1277,
+      T-1278 and T-1282; VERSION and APP_VERSION untouched)_
 
 ### Human
 - [ ] [REVIEW] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1282 --criterion 1`): the project
@@ -305,6 +315,31 @@ gallery (no API) it does nothing, as Open project is hidden there anyway.
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+command grep -q "qs.get('browse') === '1' && !qs.get('load')" src/aef-workflow-designer.html
+nice -n 19 node tools/_t1282-browse-entry-cdp.mjs > /tmp/.t1282.out 2>&1 && grep -q '"ok": true' /tmp/.t1282.out
+command grep -q 'tools/_t1282-browse-entry-cdp.mjs' tests/run-bridge-tests.sh
+python3 tools/_t451-unwired-guard-census.py --ratchet > /tmp/.t1282-census.out 2>&1 && grep -q 'no movement' /tmp/.t1282-census.out
+command grep -q 'T-1282' docs/releases/RELEASE-NOTES-0.26.0.md
+test -f docs/reports/T-1282-evidence/browse-1024.png && test -f docs/reports/T-1282-evidence/browse-1440.png && test -f docs/reports/T-1282-evidence/browse-1920.png && test -f docs/reports/T-1282-evidence/browse-hover-1440.png
+
+## Visual Verification
+
+Shots: `python3 tools/_t1282-shots.py` → `docs/reports/T-1282-evidence/`: `browse-{1024,1440,1920}.png` (the browser as
+`designer.html?browse=1` opens it), `browse-hover-{1024,1440,1920}.png` (pointer on the aef-task-lifecycle card),
+`button-1440.png` (the same browser opened by the Open project button). Served over a temp store holding AEF's 8
+projects (every version), each latest version given a thumbnail drawn by the designer's own `captureThumbnail()`.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| browse | title "Open project map" | ok | ok | ok | Open-project mode, not "Choose target workflow" |
+| browse | Filter field | ok | ok | ok | full width between title and ✕ |
+| browse | ✕ close | ok | ok | ok | top right of the panel |
+| browse | 8 map cards (thumb, title, id, "saved · vN") | ok | ok | ok | 3 columns at every width; the long title aef-existing-project-onboarding ellipsizes in the card's title line by design (T-162), the full id is on the line below |
+| browse | 🗑 delete on each map card | ok | ok | ok | 8 of 8 = no pick callback |
+| browse | pending-ref (ghost) cards | ok | ok | ok | 2 (aef-dispatch-loop e32a518c, aef-task-lifecycle 1f9b5f0c, AEF's own refs); the last one is below the grid's fold at 1024 and 1440, reachable by scrolling the card grid (overflow:auto), whole at 1920 |
+| browse | toolbar behind the modal | ok | ok | ok | Check, Versions, Save to project, Save all visible (2 rows at 1024 and 1440) |
+| hover | hover-zoom preview | hidden | ok | ok | 1024: the gutter beside the panel is ~150 px, under the preview's 200 px minimum, so it hides rather than overlap the panel (T-156 design, unchanged here, the same with the Open project button); 1440: in the right gutter, right edge at the viewport edge, inside; 1920: whole, in the right gutter, with title and "saved · v4" |
+| button | same browser via Open project | — | ok | — | visually identical to browse-1440; the pixel-diff box is the clicked button and the first row |
 
 ## RCA
 
@@ -385,6 +420,19 @@ gallery (no API) it does nothing, as Open project is hidden there anyway.
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-10-23 — what "the same map" means when comparing two opens
+- **Chose:** the CDP leg compares the bytes of a pick from `?browse=1` with the bytes of the same card picked via Open
+  project (and the `?load` document with the same map picked), with the `aef:workflowMeta uuid` masked.
+- **Why:** AEF's stored files declare no uuid, so the designer mints a fresh one on every open (T-224). Two opens of
+  the same version therefore differ in that one attribute and nothing else (diffed). This was already true before
+  T-1282 and does not come from it.
+- **Rejected:** comparing raw bytes (fails on every open, for a reason this task does not touch).
+
+### 2026-10-23 — "closing leaves an empty designer"
+- **Chose:** checked as "closing the browser leaves the document exactly as the designer started" (bytes equal).
+- **Why:** with no autosave the designer starts on its default `investigate` workflow, not an empty canvas; `?browse=1`
+  does not change that, and the shots show it behind the browser.
 
 ## Decision
 

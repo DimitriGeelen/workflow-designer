@@ -1193,6 +1193,17 @@ for _g in "$ROOT/tools/_t1274-note-box-cdp.mjs" "$ROOT/tools/_t1276-name-fit-cdp
   fi
 done
 
+# ── T-1282 (AEF T-4716): ?browse=1 opens the Open-project browser once the project API answers ──
+# Opens in Open-project mode (no pick callback), stays closed without the parameter, a pick loads the map as the
+# Open project button does, ?load wins, and with no API nothing opens and no page error. Literal path (T-451).
+if node "$ROOT/tools/_t1282-browse-entry-cdp.mjs" > "$TMP/leg-_t1282.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the ?browse=1 URL entry: the project browser did not open on load, opened when it should not (no parameter, ?load given, no API), raised a page error, or a pick loaded different bytes than Open project (run 'node tools/_t1282-browse-entry-cdp.mjs'; T-1282)"
+  show_output "$TMP/leg-_t1282.out" "_t1282-browse-entry-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
 # ── T-1273: an in-place mutation script cannot survive INT/TERM with its mutant ──
 # On 2026-10-22 the T-509 sweep's cap TERMed _t910, whose trap handler restored and RETURNED; bash resumed and
 # planted the next mutant into src. Static: every in-place bash restorer's INT/TERM trap exits, every Python

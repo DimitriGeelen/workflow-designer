@@ -11340,6 +11340,11 @@ async function detectSaveApi() {
       refreshUuidIndex();   // T-240: bind uuid workflowRefs to live maps at startup
       loadFieldProfile();   // T-1125: the project's field profile (404 = designer default)
       loadLensDefinition(); // T-1241: the audience lenses (404 = no lens, every field)
+      // T-1282 (AEF T-4716): ?browse=1 opens the Open-project browser on load, so a host can
+      // route its own "designer" page straight to it. Here, not at load, because the browser
+      // needs the API this block just confirmed. ?load wins: a named document is opened instead.
+      const qs = new URLSearchParams(location.search);
+      if (qs.get('browse') === '1' && !qs.get('load')) openProjectModal();
     }
   } catch (_) { /* static gallery — leave the button hidden */ }
 }
