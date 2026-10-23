@@ -1138,6 +1138,7 @@ class XmlValidator:
         node_type = {}
         seq_flows = []
         gateways = []
+        gateway_default = {}   # T-1284: exclusiveGateway id -> its `default` attribute, when present
         parallel_gateways = []
         for child in list(process):
             local = self._local(child.tag)
@@ -1165,6 +1166,8 @@ class XmlValidator:
                 node_type[node_id] = local
                 if local == "exclusiveGateway":
                     gateways.append(node_id)
+                    if child.get("default") is not None:
+                        gateway_default[node_id] = child.get("default")   # T-1284
                 elif local == "parallelGateway":
                     parallel_gateways.append(node_id)
 
@@ -1177,6 +1180,7 @@ class XmlValidator:
         # witnesses — a count alone tells an author there is a problem without
         # telling them which edges to look at.
         unconditioned_out = {}
+        out_flows = {}   # T-1284: every outgoing flow id per source, to check a gateway's default against
         for flow in seq_flows:
             fid = flow.get("id", "?")
             for attr in ("sourceRef", "targetRef"):
@@ -1194,6 +1198,7 @@ class XmlValidator:
             src = flow.get("sourceRef")
             if src is not None:
                 outgoing_count[src] = outgoing_count.get(src, 0) + 1
+                out_flows.setdefault(src, []).append(fid)
                 if flow.find("{%s}conditionExpression" % BPMN_NS) is None:
                     unconditioned_out.setdefault(src, []).append(fid)
 
@@ -1305,16 +1310,39 @@ class XmlValidator:
         # The bare token `gw_ambiguous` is carried in the message so a grep
         # joins both toolchains across the rule-id namespacing, as done for
         # lane_geometry in T-312.
+        #
+        # T-1284: the message reads the gateway's `default`. It used to print "at most one may be the default" for
+        # every case, so a gateway WITH a correct default and one with NONE read alike, and a calibration reviewer
+        # (GLM-5.3, 0.26.0) went looking for a default problem that did not exist. Same condition, same threshold.
         for gid in gateways:
             unconditioned = unconditioned_out.get(gid, [])
             if len(unconditioned) > 1:
+                dflt = gateway_default.get(gid)
+                if dflt in unconditioned:
+                    rest = sorted(f for f in unconditioned if f != dflt)
+                    detail = ("default flow '%s' is declared; the other %s (%s) %s no conditionExpression"
+                              % (dflt, "flow" if len(rest) == 1 else "flows", ", ".join(rest),
+                                 "has" if len(rest) == 1 else "have"))
+                else:
+                    detail = ("no default flow is declared; none of them has a conditionExpression (%s)"
+                              % ", ".join(sorted(unconditioned)))
                 self.warn(
                     "W-XML-GW-AMBIGUOUS",
                     "exclusiveGateway '%s'" % gid,
-                    "gw_ambiguous: exclusiveGateway has %d outgoing flows "
-                    "without a conditionExpression (%s); at most one may be "
-                    "the default"
-                    % (len(unconditioned), ", ".join(sorted(unconditioned))),
+                    "gw_ambiguous: exclusiveGateway has %d outgoing flows without a conditionExpression: %s"
+                    % (len(unconditioned), detail),
+                )
+
+        # -- a gateway's default is one of its own outgoing flows (T-1284) ----
+        # BPMN 2.0: `default` references a sequenceFlow whose sourceRef is this gateway. A default naming another
+        # node's flow, or no flow, silently routes nothing. WARN for the T-312 reason above.
+        for gid, dflt in gateway_default.items():
+            if dflt not in out_flows.get(gid, []):
+                self.warn(
+                    "W-XML-GW-DEFAULT-NOT-OWN",
+                    "exclusiveGateway '%s'" % gid,
+                    "gw_default_not_own: default '%s' is not one of this gateway's own outgoing flows (%s)"
+                    % (dflt, ", ".join(sorted(out_flows.get(gid, []))) or "none"),
                 )
 
         # -- unassigned flow nodes (T-891: promoted WARN -> ERROR) ----------

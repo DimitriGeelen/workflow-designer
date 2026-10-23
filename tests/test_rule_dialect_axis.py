@@ -316,6 +316,7 @@ RULE_CARRIERS = {
     "E-XML-ABBR-DUP":           (("aef:laneMeta/@abbr",), CONSTRAINS),
     "W-XML-GW-OUTGOING":        (("sequenceFlow",), STRUCTURAL),
     "W-XML-GW-AMBIGUOUS":       (("conditionExpression",), REQUIRES),
+    "W-XML-GW-DEFAULT-NOT-OWN": (("sequenceFlow",), STRUCTURAL),   # T-1284: default vs the gateway's own flows
     # T-891: promoted WARN -> ERROR and renamed. Same carrier, same axis — what changed is
     # severity, because the editor no longer silently repairs the state (it used to default
     # an unclaimed node to lanes[0]).
@@ -413,11 +414,15 @@ RULE_BASIS = {
     # BPMN admits the shape, so they derive CONVENTIONAL. Until T-1212 they carried ERROR severity (E-GW-OUTGOING /
     # E-XML-GW-OUTGOING), pinned below as the two uncited errors; the operator ruled them warnings on 2026-10-19.
     # Nor the 13 graph-shape WARNs (T-1165 tiers A+B): nothing backs them.
+    # Nor W-XML-GW-DEFAULT-NOT-OWN (T-1284): BPMN 2.0 describes a gateway's default as the flow that receives the
+    # token when no other outgoing condition holds, which implies its own flow, but mapping-v1 states no MUST for it and
+    # no closed GROUND covers it. So it derives CONVENTIONAL, like W-XML-GW-OUTGOING, rather than asserting a basis no
+    # quote backs.
 }
 _REQUIREMENT_RE = re.compile(r"\b(MUST|SHALL|REQUIRED)\b")
 # Pinned so a basis added or dropped is a decision, not drift (T-1165: 13 graph-shape WARNs + the 2 gateway rules,
-# warnings since T-1212).
-EXPECTED_CONVENTIONAL = 15
+# warnings since T-1212; + W-XML-GW-DEFAULT-NOT-OWN, T-1284, a deliberate 15 -> 16 with the reason above).
+EXPECTED_CONVENTIONAL = 16
 # T-1212: none left. An ERROR that rests on no basis refuses documents the standard admits; a new one is a decision.
 EXPECTED_UNCITED_ERRORS = ()
 

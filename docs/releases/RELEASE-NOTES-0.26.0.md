@@ -22,6 +22,19 @@ opens the project browser. No change to what the designer stores.
   its whole value and keeps typed input, the business lens's palette uses plain words, helper text meets 4.5:1, and
   the canvas and palette scroll to every control. Guard: `tools/_t1278-sweep-cdp.mjs`.
 
+## Validator and authoring kit (T-1284)
+
+- **W-XML-GW-AMBIGUOUS now reads the gateway's default.** It fires on the same condition as before (more than one
+  outgoing flow without a `conditionExpression`), but the message now says whether a default flow is declared, and
+  names it and the flows that lack a condition. It used to print "at most one may be the default" for every case, so
+  a gateway with a correct default read like one with none. During this release's calibration, that wording led a
+  reviewer (GLM-5.3) to report a default problem that did not exist; it withdrew the finding on re-check, and codex
+  confirmed independently.
+- **New W-XML-GW-DEFAULT-NOT-OWN (warning):** an exclusive gateway's `default` must be one of its own outgoing
+  flows. Classified CONVENTIONAL (no MUST in mapping-v1 backs it); no corpus map trips it.
+- The kit ships this validator, so the kit's bytes changed. The first 0.26.0 calibration (codex PASS, GLM-5.3 FAIL
+  on that false finding) is kept in the record as voided runs, and both reviewers calibrated the corrected kit.
+
 ## What changes in stored maps
 
 Nothing: every change above is display only, and the guards check saved bytes are unchanged. No node id, field or

@@ -91,6 +91,7 @@ ANCHOR = {
     "E-XML-LANEREF-DANGLING":    "REFERENT",
     "W-XML-GW-OUTGOING":         "NODE",
     "W-XML-GW-AMBIGUOUS":        "NODE",
+    "W-XML-GW-DEFAULT-NOT-OWN":  "NODE",   # T-1284: anchored on the gateway
     # T-990: renamed from W-XML-NODE-UNASSIGNED when T-891 promoted it to an ERROR; the old row
     # named a rule the validator no longer emits. Location names the node itself.
     "E-XML-NODE-UNASSIGNED":     "NODE",
@@ -154,8 +155,11 @@ GUTTERABLE = {"NODE", "LANE"}
 # its current answer.
 NEVER_WITNESSED = {
     "E-XML-STRUCTURE": "unreachable: no emitter produces a non-<bpmn:definitions> root",
+    # T-1284: reachable (its fixture tests/fixtures/warn/W-XML-GW-DEFAULT-NOT-OWN.xml fires it), but no map in the
+    # walked corpus declares a gateway default that is not its own flow. It must resurface here if one ever does.
+    "W-XML-GW-DEFAULT-NOT-OWN": "unwitnessed: no corpus map mis-wires a gateway default",
 }
-EXPECTED_NEVER_WITNESSED = 1
+EXPECTED_NEVER_WITNESSED = 2
 
 # What a resolved id may legitimately turn out to be, per declared class. A
 # class whose observation set falls outside this is a table that stopped

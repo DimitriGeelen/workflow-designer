@@ -245,6 +245,9 @@ PARITY = {
     "W-XML-NO-START-EVENT": (PAIRED, "W-NO-START-EVENT"),
     "W-XML-NO-END-EVENT":   (PAIRED, "W-NO-END-EVENT"),
     "W-XML-GW-AMBIGUOUS":   (PAIRED, "W-GW-AMBIGUOUS"),
+    "W-XML-GW-DEFAULT-NOT-OWN": (OUT_OF_SCOPE, "T-1284: the YAML form has no default REFERENCE (its default is "
+                                               "simply the one unconditioned edge), so a default naming another "
+                                               "node's flow cannot be written there"),
     "W-XML-PGW-CONDITION":  (PAIRED, "W-PGW-CONDITION"),
     "W-XML-PGW-NOOP":       (PAIRED, "W-PGW-NOOP"),
     "W-XML-PGW-UNBALANCED": (PAIRED, "W-PGW-UNBALANCED"),
@@ -314,7 +317,24 @@ PARITY = {
 # because it is still exercised, by negative controls (b), (c) and (f), which
 # synthesise entries. Without those this whole section would be dead code that
 # passes by never running (the T-312 vacuity class).
-OUT_OF_SCOPE_PROBES = {}
+def _yaml_bridge_emits_gateway_default(_corpus):
+    """T-1284 probe: can the YAML form carry a gateway `default` REFERENCE?
+
+    The YAML form reaches BPMN only through tools/yaml-to-bpmn.py, so it can express a `default` attribute only if
+    that bridge writes one. Answered from the bridge's source, not the corpus: any line that emits a `default`
+    attribute makes the construct expressible and turns this OUT-OF-SCOPE into a GAP.
+    """
+    path = os.path.join(ROOT, "tools", "yaml-to-bpmn.py")
+    src = open(path, encoding="utf-8").read()   # missing bridge RAISES: never a silent "not expressible"
+    return [ln.strip() for ln in src.splitlines()
+            if re.search(r"""(\bdefault=\\?["'{]|["']default["']\s*[:,\]])""", ln) and not ln.lstrip().startswith("#")]
+
+
+# T-1284: the first real entry. Until then this table was empty and exercised only by the negative controls.
+OUT_OF_SCOPE_PROBES = {
+    "W-XML-GW-DEFAULT-NOT-OWN": ("a gateway default reference (BPMN @default) on the YAML form",
+                                 _yaml_bridge_emits_gateway_default),
+}
 
 # Counted tolerance. Derived by hand from the census, re-derive it there rather
 # than nudging this constant: constituents 3 + io 1 + abbr 1 + node-type 1

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- exclusiveGateway n_g declares default="f4", but f4 leaves n_a, not n_g. BPMN 2.0 requires a gateway's default
+     to be one of its own outgoing sequence flows, so this default routes nothing -> W-XML-GW-DEFAULT-NOT-OWN (WARN,
+     T-1284). This is the mis-wiring GLM-5.3 believed it saw in the 0.26.0 calibration map; the validator can now
+     answer the question itself.
+
+     Only this rule may fire:
+     - f1 carries a conditionExpression, so n_g has ONE unconditioned outgoing flow (f2) and W-XML-GW-AMBIGUOUS stays
+       quiet;
+     - every node is lane-assigned and every branch reaches the end event. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t">
+    <bpmn:laneSet id="LS">
+      <bpmn:lane id="agent" name="Agent">
+        <bpmn:flowNodeRef>n_s</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_g</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_a</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_b</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_e</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="n_s"/>
+    <bpmn:exclusiveGateway id="n_g" name="order accepted?" default="f4"/>
+    <bpmn:scriptTask id="n_a"/>
+    <bpmn:scriptTask id="n_b"/>
+    <bpmn:endEvent id="n_e"/>
+    <bpmn:sequenceFlow id="f0" sourceRef="n_s" targetRef="n_g"/>
+    <bpmn:sequenceFlow id="f1" name="yes" sourceRef="n_g" targetRef="n_a">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">accepted</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f2" name="no" sourceRef="n_g" targetRef="n_b"/>
+    <bpmn:sequenceFlow id="f4" sourceRef="n_a" targetRef="n_e"/>
+    <bpmn:sequenceFlow id="f5" sourceRef="n_b" targetRef="n_e"/>
+  </bpmn:process>
+</bpmn:definitions>
