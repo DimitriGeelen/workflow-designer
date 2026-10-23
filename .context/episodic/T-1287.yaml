@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1287: Quality engine 2: a standing 'what a person sees' gate on every corpus map at 1024/1440/1920 in the opening state, run before any review
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-23T22:58:48Z
+# ============================================================================
+
+task_id: T-1287
+task_name: "Quality engine 2: a standing 'what a person sees' gate on every corpus map at 1024/1440/1920 in the opening state, run before any review"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-23T22:13:16Z
+completed: 2026-10-23T22:53:21Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-24T00:27:47+02:00
+last_commit: 2026-10-24T00:53:16+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  criteria — one 'what a person sees' gate (tools/person-sees-gate.sh) calling the existing render checks over every corpus map at three widths before any official UI review; clear exit codes and bounded time; CLAUDE.md rule; suite leg; red on designer-v0.25.0, green now. the 'what a person sees' gate — tools/person-sees-gate.sh runs the render harnesses (_t1256 label/arrowhead clearance, _t1276 name fit, _t1278 sweep, _t1274 Note box, _t1176 toolbar reach, _t1282 project browser, now with a last-card/hover-preview leg) one browser at a time over the corpus at three widths; exit 0 pass / 1 defect / 2 not run (timeouts never pass). Current source 6/6 PASS in ~347 s; designer-v0.25.0 FAILS naming the T-1241 defects (22 arrowhead hits, 204 cut names, 7 px text, 119 Name fields cut). CLAUDE.md: the gate is step 1 of every UI review, then the advisory sweep, then judge. Suite: one gate leg replaces the 1274/1276/1278 loop and the separate _t1256/_t1282 legs (stricter rule, no double runs); census 90=90
+
+# Key outcomes
+outcomes:
+  - '**One entry point, `tools/person-sees-gate.sh`**, runs, one browser at a time, every check of what a person'
+  - '**A clear verdict:** one summary line per check (PASS/FAIL with counts); exit 0 only when every check'
+  - '**It runs before every official UI review:**'
+  - '**Its teeth are proven:** run against `designer-v0.25.0`''s source (via the harnesses'' source override), the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'CLAUDE.md'
+  - '.tasks/active/T-1287-quality-engine-2-a-standing-what-a-perso.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/person-sees-gate.sh'
+  - 'tools/_t1282-browse-entry-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-24T00:27:47'
+    action: 'T-1287: criteria — one ''what a person sees'' gate (tools/person-sees-gate.sh) calling the existing render checks over every corpus map at three widths before any official UI review; clear exit codes and bounded time; CLAUDE.md rule; suite leg; red on designer-v0.25.0, green now'
+  - time: '2026-10-24T00:53:16'
+    action: 'T-1287: the ''what a person sees'' gate — tools/person-sees-gate.sh runs the render harnesses (_t1256 label/arrowhead clearance, _t1276 name fit, _t1278 sweep, _t1274 Note box, _t1176 toolbar reach, _t1282 project browser, now with a last-card/hover-preview leg) one browser at a time over the corpus at three widths; exit 0 pass / 1 defect / 2 not run (timeouts never pass). Current source 6/6 PASS in ~347 s; designer-v0.25.0 FAILS naming the T-1241 defects (22 arrowhead hits, 204 cut names, 7 px text, 119 Name fields cut). CLAUDE.md: the gate is step 1 of every UI review, then the advisory sweep, then judge. Suite: one gate leg replaces the 1274/1276/1278 loop and the separate _t1256/_t1282 legs (stricter rule, no double runs); census 90=90'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 40 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [quality-engine, T-1285]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 40
+  commits: 2
+  files_changed: 5
+  lines_added: 333
+  lines_removed: 55
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1287-quality-engine-2-a-standing-what-a-perso.md
+generated_by: context-agent-hybrid
