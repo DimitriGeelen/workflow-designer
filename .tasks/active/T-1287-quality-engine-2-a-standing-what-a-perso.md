@@ -90,7 +90,7 @@ official review, so a reviewer confirms taste instead of discovering defects.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **One entry point, `tools/person-sees-gate.sh`**, runs, one browser at a time, every check of what a person
+- [x] **One entry point, `tools/person-sees-gate.sh`**, runs, one browser at a time, every check of what a person
       sees, over every corpus map at 1024/1440/1920 in the real opening state (the lens-shot load path):
   - flow/arrowhead crossings and label overlaps (`_t1256`);
   - no ellipsized task names (`_t1276`);
@@ -99,18 +99,34 @@ official review, so a reviewer confirms taste instead of discovering defects.
   - toolbar reach (`_t1176`).
   A check that exists is called, not copied. A check class from spike 3 with no existing harness is added, or
   listed as a gap with the reason.
-- [ ] **A clear verdict:** one summary line per check (PASS/FAIL with counts); exit 0 only when every check
+  _(done: 6 harnesses called, none copied (the five above + `_t1282`, which gained case 6: last card reachable and
+  hover preview inside the window, at 1024/1440/1920, red on a mutant); gaps and reasons under "Spike-3 classes",
+  including which legs measure one map rather than the corpus)_
+- [x] **A clear verdict:** one summary line per check (PASS/FAIL with counts); exit 0 only when every check
       passes, 1 on any failure, 2 when a check could not run (never a silent pass). It finishes in a bounded time,
       measured and recorded here.
-- [ ] **It runs before every official UI review:**
+  _(done: 6 lines "PASS|FAIL|NOT RUN <check>: <counts> [Ns]"; current 6 PASS, exit 0, 347 s; 0.25.0 5 FAIL, exit 1,
+  344 s; a 3 s timeout gives NOT RUN, exit 2; bound 900 s per check (PERSON_SEES_TIMEOUT))_
+- [x] **It runs before every official UI review:**
   - CLAUDE.md's "UI changes are reviewed on screenshots" section says to run `tools/person-sees-gate.sh` and get exit
     0 before `fw reviewer judge`, and before the advisory sweep;
   - the learning from T-1278 (advisory sweep first) is kept;
   - the suite runs the gate as one leg (literal path), replacing the individual legs only where that is equal or
     stronger; the unwired-guard census stays balanced.
-- [ ] **Its teeth are proven:** run against `designer-v0.25.0`'s source (via the harnesses' source override), the
+  **2026-10-24, met (orchestrator):**
+  - the worker's proposed text is applied to CLAUDE.md's UI-review section: the gate is step 1, the advisory sweep
+    step 2, and judge only after both;
+  - the separate `_t1256` and `_t1282` suite legs are removed: the gate runs the same harnesses under a STRICTER rule
+    (exit 0 and ok and no errors), so nothing is lost and they no longer run twice;
+  - `_t1176` stays as an entry in the suite's CDP-regression table (~10 s);
+  - census ratchet 90=90.
+- [x] **Its teeth are proven:** run against `designer-v0.25.0`'s source (via the harnesses' source override), the
       gate FAILS and names the defects the T-1241 reviewers found (arrowheads, cut names, small text). On the current
       source it PASSES.
+  _(done: 0.25.0: exit 1, label-clearance 22 (arrowhead `head` hits), name-fit 204 floor hits, sweep 385 (text 7 px,
+  lane 6.3 px; 119 Name fields cut), note-box 102, project-browser 2; current: 6 PASS, exit 0. Outputs under "Gate
+  evidence". The suite/census half of criterion 3 is done (1 leg, census 90=90); its CLAUDE.md half waits on the
+  orchestrator applying "Proposed CLAUDE.md text", so criterion 3 stays unticked)_
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -159,6 +175,12 @@ official review, so a reviewer confirms taste instead of discovering defects.
 -->
 
 ## Verification
+
+bash -n tools/person-sees-gate.sh
+node --check tools/_t1282-browse-entry-cdp.mjs
+command grep -q 'bash "$ROOT/tools/person-sees-gate.sh"' tests/run-bridge-tests.sh
+bash tools/person-sees-gate.sh
+python3 tools/_t451-unwired-guard-census.py --ratchet
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -295,6 +317,98 @@ official review, so a reviewer confirms taste instead of discovering defects.
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+
+## Gate evidence (2026-10-24, w-t1287)
+
+**What it calls.** `tools/person-sees-gate.sh` (orchestrator only: no measurement of its own) runs, in turn, at
+`nice -n 19`, one browser at a time, each under `timeout` (`PERSON_SEES_TIMEOUT`, default 900 s; the timeout signals the
+harness's whole process group, so no browser is orphaned): `_t1256` (label-clearance), `_t1276` (name-fit), `_t1278`
+(sweep), `_t1274` (note-box), `_t1176` (toolbar-reach), `_t1282` (project-browser). `--src FILE` is passed through
+each harness's own override (`T1256_SRC`, `T1276_SRC`, `T1278_SRC`, `T1274_SRC`, `T1176_DESIGNER`, `T1282_SRC`).
+Verdict: an exception, missing input, no JSON report or a timeout are `NOT RUN` (exit 2, which wins over 1).
+
+**Current source** (`src/aef-workflow-designer.html`), exit 0, total 347 s:
+```
+PASS label-clearance: 0 errors  [128s]
+PASS name-fit: 0 errors  [59s]
+PASS sweep: 0 errors  [104s]
+PASS note-box: 0 errors  [29s]
+PASS toolbar-reach: 21/21 steps  [10s]
+PASS project-browser: 0 errors  [17s]
+person-sees-gate: src/aef-workflow-designer.html: total 347s, exit 0
+```
+(An earlier run of the first five checks: 179/54/95/30/10 s. The bound is 6 × 900 s; observed time is about 6 minutes.)
+
+**designer-v0.25.0** (`git show designer-v0.25.0:src/aef-workflow-designer.html` into a `mktemp -d` dir in the project,
+removed after), exit 1, total 344 s. It names the T-1241 defects: **arrowheads** (`head "agt_3_start" x arrowhead of
+tl_e3`), **cut names** (204 fit-ladder floor hits, e.g. `tl_verify "… ## Verification comman…"`; 119 Name fields cut),
+**small text** (`smallest name text … drawn at 7px (< 9)`, lane text 6.3 px), plus nearness, helper contrast 2.84:1,
+Note box cut and not growing, and no `?browse=1` (shipped after 0.25.0):
+```
+FAIL label-clearance: 22 errors (leg1 2, leg5 14, leg6 6)  [133s]
+FAIL name-fit: 204 errors (leg1 204)  [51s]
+FAIL sweep: 385 errors (leg1 42, leg3 119, leg4 8, leg5 216)  [91s]
+FAIL note-box: 102 errors (leg1 96, leg2 6)  [28s]
+PASS toolbar-reach: 21/21 steps  [9s]
+FAIL project-browser: 2 errors (opens 1, pick 1)  [32s]
+person-sees-gate: …/designer-v0.25.0.html: total 344s, exit 1
+```
+(Each FAIL line also prints up to 3 errors per leg; the lines above are the summary lines only.)
+
+**Exit 2 proven:** `PERSON_SEES_TIMEOUT=3 … --only note-box` gives `NOT RUN note-box: timed out`, exit 2.
+
+**New leg, and its teeth:** `_t1282` case 6 (spike-3 items "a card below the fold" and "hover preview inside the
+viewport"). At 1024/1440/1920 the Open project browser's last card, once scrolled into view, is whole in the window and
+in its scroll box and is the element at its centre. A real CDP mouse hover on a card shows the preview whole in the
+window and clear of the browser panel. It must show at 1440/1920; at 1024 T-156's no-overlap rule hides it. On the
+current source the preview is at [1094,155,1440,414] at 1440 and [1334,155,1694,422] at 1920; hidden at 1024. A mutant
+that moves the preview 300 px right gives `FAIL project-browser: 2 errors (cards 2)` (out of the window at 1440 and 1920).
+Caveat: with the 8 AEF projects, the last card's bottom (677) already lies inside a 900 px window, so "below the fold"
+is measured as "reachable", not proven against a grid that must scroll.
+
+**Suite:** `tests/run-bridge-tests.sh` has ONE leg, `bash "$ROOT/tools/person-sees-gate.sh"`. It replaces the
+T-1274/T-1276/T-1278 loop: same harnesses, same exit-0 rule, plus a timeout and NOT RUN ≠ pass, so it is equal or
+stronger. The individual `_t1256`, `_t1282` legs and the `_t1176` T1013 guard entry are kept (out of this brief's
+scope), so those three run twice per suite run (~155 s extra); a follow-up can drop them. `_t527` capture invariant: OK
+(206 if-guards). Census `--ratchet`: baseline 90, current 90 (the gate's literal paths keep _t1274/6/8 live).
+
+### Spike-3 classes: covered and gaps
+Covered: label nearness, captions on arrowheads (`_t1256`); ellipsized names (`_t1276`); text size at opening, Name
+field clipped, helper and caption contrast, canvas/palette reachability (`_t1278`); hover preview inside the viewport
+and the last card reachable (`_t1282` case 6, new). Gaps, with the reason:
+- **Watchtower's own `/designer` card page** (hover fly-out, a card below the fold there): it is AEF's page, served by
+  AEF; `tools/_t1171-landing-flyout-test.py` checks its structure, not its rendered geometry. Not added: no 832 render
+  harness drives that page; it belongs with the AEF host contract (T-1289).
+- **Whether a thumbnail is "too small"**, **business-palette wording**: judgement (spike 3), so they stay with the
+  reviewer. `_t1278` leg 4 checks only the mechanical part (no BPMN type words).
+- **Map-content wording**: not designer scope.
+- **Gate is lifecycle-heavy in places:** `_t1274`, `_t1278` legs 1/2 and `_t1176` measure one map, not the whole corpus;
+  the corpus-wide legs are `_t1256` 2/6/7, `_t1276` 1 and `_t1278` 3. Widening them is a harness change, not done here.
+
+## Proposed CLAUDE.md text
+
+For the orchestrator to apply (this worker did not edit CLAUDE.md). Replace the numbered list under "### UI changes are
+reviewed on screenshots, by you AND an independent review agent (operator, 2026-10-14)" with:
+
+```
+For every change that renders (designer `src/`, Watchtower templates/CSS, anything a person sees):
+1. **The "what a person sees" gate first** (T-1287): `bash tools/person-sees-gate.sh` must exit 0 before any
+   screenshot goes to a reviewer. It runs the render harnesses (crossings incl. arrowheads, cut names, text size,
+   Name field, contrast, reachability, Note box, toolbar, project browser) over the corpus at 1024/1440/1920 in the
+   opening state, about 6 minutes. Exit 1 = a defect a machine can find: fix it, do not send it to review. Exit 2 =
+   a check did not run, so there is no verdict (never read it as a pass). A designer change the gate cannot see
+   gets a leg in the harness that owns its class, or a line in the gate.
+2. **Then the advisory sweep** (T-1278's learning: sweep before the official review). A cheap independent read of
+   the screenshots finds what the gate does not measure, before an official round is spent on it.
+3. **Screenshots of every state the change touches** (hover, open/closed, fullscreen, empty/full) **at three
+   widths at least**: narrow (~1024), normal (~1440), wide (~1920), plus the operator's screen if known.
+4. **Read each one control by control**: every button, menu and field visible, reachable and unclipped; nothing
+   overlapping or off-screen; the space used well. Write what was checked per screenshot in the task's
+   `## Visual Verification`. A screenshot looked at "for the layout" is not a review.
+5. **An independent review agent judges them before close**: a `[REVIEW]` criterion listing the screenshot paths
+   and what to check, judged by `fw reviewer judge T-XXX --criterion N` (AEF routing, PD-357), and only after
+   steps 1 and 2. The task does not close on the author's own look alone, nor on a red or unrun gate.
+```
 
 ## RCA
 

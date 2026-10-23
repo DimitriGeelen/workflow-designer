@@ -93,14 +93,23 @@ names the rest for a person (exit 1).
 T-1172 shipped the inline designer with its toolbar cut off (Check, Versions, Save project unreachable); the
 screenshot showed it, but it was read for the layout, at one width, and nobody else looked. For every change that
 renders (designer `src/`, Watchtower templates/CSS, anything a person sees):
-1. **Screenshots of every state the change touches** (hover, open/closed, fullscreen, empty/full) **at three
+1. **The "what a person sees" gate first** (T-1287): `bash tools/person-sees-gate.sh` must exit 0 before any
+   screenshot goes to a reviewer. It runs the render harnesses (crossings incl. arrowheads, cut names, text size,
+   Name field, contrast, reachability, Note box, toolbar, project browser) over the corpus at 1024/1440/1920 in the
+   opening state, in about 6 minutes.
+   - Exit 1 means a defect a machine can find: fix it, do not send it to review.
+   - Exit 2 means a check did not run, so there is no verdict (never read it as a pass).
+   - A designer change the gate cannot see gets a leg in the harness that owns its class, or a line in the gate.
+2. **Then the advisory sweep** (T-1278's learning: sweep before the official review). A cheap independent read of
+   the screenshots finds what the gate does not measure, before an official round is spent on it.
+3. **Screenshots of every state the change touches** (hover, open/closed, fullscreen, empty/full) **at three
    widths at least**: narrow (~1024), normal (~1440), wide (~1920), plus the operator's screen if known.
-2. **Read each one control by control**: every button, menu and field visible, reachable and unclipped; nothing
+4. **Read each one control by control**: every button, menu and field visible, reachable and unclipped; nothing
    overlapping or off-screen; the space used well. Write what was checked per screenshot in the task's
    `## Visual Verification`. A screenshot looked at "for the layout" is not a review.
-3. **An independent review agent judges them before close**: a `[REVIEW]` criterion listing the screenshot paths
-   and what to check, judged by `fw reviewer judge T-XXX --criterion N` (AEF routing, PD-357). The task does not
-   close on the author's own look alone.
+5. **An independent review agent judges them before close**: a `[REVIEW]` criterion listing the screenshot paths
+   and what to check, judged by `fw reviewer judge T-XXX --criterion N` (AEF routing, PD-357), and only after
+   steps 1 and 2. The task does not close on the author's own look alone, nor on a red or unrun gate.
 
 ### AEF is the designer's main consumer: a release is done only when AEF serves it (operator, 2026-10-17)
 

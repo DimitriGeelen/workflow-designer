@@ -10,7 +10,10 @@
 //   3. pick:      picking aef-task-lifecycle in the ?browse=1 browser loads it (tl_create present, saved version
 //                 = the latest), byte-identical (the uuid minted per open masked) to picking the same card from the Open project button;
 //   4. load wins: ?browse=1&load=/api/version?id=aef-inception-flow&v=N adopts that map (the same bytes as picking it) and no browser opens;
-//   5. no API:    on a static server (no /api/health) ?browse=1 opens nothing and raises no page error.
+//   5. no API:    on a static server (no /api/health) ?browse=1 opens nothing and raises no page error;
+//   6. cards (T-1287): at 1024/1440/1920 the last card scrolled into view is whole in the window and its scroll box
+//                 and on top; a real hover shows the preview whole in the window, clear of the browser (shown at
+//                 1440/1920; at 1024 T-156 may hide it).
 // T1282_SRC substitutes another designer file (HEAD before T-1282: cases 1 and 3 must go red). Exit 0 = green;
 // 1 = red; 2 = misconfig.
 import { makeProfileDir } from './_cdp-profile.mjs';
@@ -181,6 +184,47 @@ async function main() {
       if (!c4.uids.length) errs.push('load wins: the document is empty');
       if (!report.loadWins.sameAsPicked) errs.push(`load wins: the document ?load adopted is not ${DEEP} v${v} as Open project opens it`);
       if (c4.open) errs.push('load wins: the browser opened although ?load named a document');
+      // 6. what a person sees in the browser (T-1287, spike-3 items "a card below the fold", "hover preview inside the
+      //    viewport"): opened by the Open project button at 1024/1440/1920, the last card scrolled into view lies whole
+      //    inside the window and its scroll box and is the element at its centre; a real mouse hover on a card shows
+      //    the preview whole inside the window and clear of the browser panel (at 1440 and 1920 it must show; at 1024
+      //    T-156's rule may hide it when no gutter fits it).
+      report.cardsSeen = {};
+      for (const w of [1024, 1440, 1920]) {
+        await cmd('Emulation.setDeviceMetricsOverride', { width: w, height: 900, deviceScaleFactor: 1, mobile: false });
+        await open('');
+        await ev(cmd, `document.getElementById('btn-open-project').click(), true`);
+        if (!await until(cmd, `document.querySelectorAll('#project-modal button[title^="Open "]').length > 0`, 5000)) { errs.push(`cards: at ${w} the Open project browser showed no card`); continue; }
+        await sleep(300);
+        const last = await ev(cmd, `(function(){
+          var bs = document.querySelectorAll('#project-modal button[title^="Open "]'), b = bs[bs.length - 1];
+          b.scrollIntoView({ block: 'nearest' });
+          var r = b.getBoundingClientRect(), box = b.parentElement;
+          while (box && box !== document.body && !/(auto|scroll)/.test(getComputedStyle(box).overflowY)) box = box.parentElement;
+          var s = box && box !== document.body ? box.getBoundingClientRect() : { top: 0, left: 0, right: innerWidth, bottom: innerHeight };
+          var at = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+          return { id: b.title.slice(5), inWin: r.left >= 0 && r.top >= 0 && r.right <= innerWidth + 0.5 && r.bottom <= innerHeight + 0.5,
+                   inBox: r.top >= s.top - 0.5 && r.bottom <= s.bottom + 0.5 && r.left >= s.left - 0.5 && r.right <= s.right + 0.5,
+                   onTop: !!at && b.contains(at), rect: [r.left, r.top, r.right, r.bottom].map(Math.round) };
+        })()`);
+        if (!(last.inWin && last.inBox && last.onTop)) errs.push(`cards: at ${w} the last card (${last.id}) scrolled into view is not whole and on top: ${JSON.stringify(last)}`);
+        const first = await ev(cmd, `(function(){ var b = document.querySelector('#project-modal button[title^="Open "]'); b.scrollIntoView({ block: 'nearest' }); var r = b.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
+        await cmd('Input.dispatchMouseEvent', { type: 'mouseMoved', x: first.x, y: first.y });
+        await sleep(600);
+        const pv = await ev(cmd, `(function(){
+          var el = document.getElementById('project-hover-preview'), p = document.querySelector('#project-modal > div');
+          if (!el || getComputedStyle(el).display === 'none') return { shown: false };
+          var r = el.getBoundingClientRect(), q = p.getBoundingClientRect();
+          return { shown: true, inWin: r.left >= 0 && r.top >= 0 && r.right <= innerWidth + 0.5 && r.bottom <= innerHeight + 0.5,
+                   clear: r.right <= q.left + 0.5 || r.left >= q.right - 0.5, rect: [r.left, r.top, r.right, r.bottom].map(Math.round) };
+        })()`);
+        await cmd('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 1, y: 1 });
+        report.cardsSeen[w] = { last, preview: pv };
+        if (pv.shown && !(pv.inWin && pv.clear)) errs.push(`cards: at ${w} the hover preview is not whole inside the window and clear of the browser: ${JSON.stringify(pv)}`);
+        if (!pv.shown && w >= 1440) errs.push(`cards: at ${w} hovering a card showed no preview`);
+        await ev(cmd, `(function(){ var h = document.querySelector('#project-modal strong'); if (h) h.parentElement.querySelector('button.btn').click(); return true; })()`);
+      }
+      await cmd('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
       report.pageErrors = pageErrors.slice();
       for (const e of pageErrors) errs.push('page error (API session): ' + e);
     });

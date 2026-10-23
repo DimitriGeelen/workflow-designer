@@ -1162,47 +1162,23 @@ else
   fail=$((fail + 1))
 fi
 
-# ── T-1256: gateway/event names and id captions stand clear of the drawn flows; a large map opens readable ──
-# Measured from the rendered SVG (text boxes vs the flow paths' segments): aef-task-lifecycle 0 crossings and 0 label
-# overlaps in every lens with id captions on and off; no corpus map worse than designer-v0.24.0 and the total lower; 0
-# saved bytes change; at 1024 node text opens at >= 7px, every node reachable, Fit still fits. Red on the 0.24.0 source.
-if node "$ROOT/tools/_t1256-label-clearance-cdp.mjs" > "$TMP/leg-_t1256.out" 2>&1 \
-   && head -2 "$TMP/leg-_t1256.out" | grep -q '"ok": true'; then
+# T-1256 (label clearance) and T-1282 (?browse=1) run inside the T-1287 gate below, under a stricter pass rule
+# (exit 0 AND ok AND no errors); their separate legs were removed to stop running them twice (T-1287).
+
+# ── T-1287: the "what a person sees" gate — one entry point over the render harnesses, run before any UI review ──
+# It runs, one browser at a time: _t1256 (flow/arrowhead crossings, label overlaps), _t1276 (no ellipsized task name,
+# flow-label contrast), _t1278 (opening text >= 9 px, Name field, reachability, helper contrast), _t1274 (Note box
+# growth), _t1176 (toolbar reach) and _t1282 (project browser: last card reachable, hover preview inside the window).
+# It replaces the T-1274/T-1276/T-1278 loop (T-1279): the same harnesses, the same exit-0 rule, plus a per-check
+# timeout; any harness not run is exit 2, never a pass. Red on designer-v0.25.0 (T-1287). Literal path (T-451).
+if bash "$ROOT/tools/person-sees-gate.sh" > "$TMP/leg-person-sees-gate.out" 2>&1; then
   pass=$((pass + 1))
 else
-  report FAIL "a gateway/event name or id caption is crossed by a drawn flow or overlaps another label on aef-task-lifecycle, a corpus map got worse than designer-v0.24.0, saved bytes changed, or the map does not open readable at 1024 (run 'node tools/_t1256-label-clearance-cdp.mjs'; T-1256)"
-  show_output "$TMP/leg-_t1256.out" "_t1256-label-clearance-cdp.mjs"
+  report FAIL "the what-a-person-sees gate is red or could not run a check: one of label clearance, task-name fit, the codex sweep items, Note box, toolbar reach, project browser (run 'bash tools/person-sees-gate.sh'; T-1287)"
+  show_output "$TMP/leg-person-sees-gate.out" "person-sees-gate.sh"
   fail=$((fail + 1))
 fi
 
-# ── T-1274 / T-1276 / T-1278: the T-1241 review rounds' guards, standing (T-1279: their only callers were the
-# closed tasks' Verification, so the unwired-guard census grew 89 -> 92). Each exits non-zero on any error. ──
-# _t1274: the side-panel Note box grows to its text up to the cap, then scrolls (0 of 108 cut).
-# _t1276: no corpus task name reaches the fit ladder's ellipsis floor; smallest name font >= 9 px.
-# _t1278: the codex sweep items — opening text >= 9 px in every class, Name field never cut and a typed value
-#         survives, business-lens palette wording, helper-text contrast >= 4.5:1, canvas and palette reachable.
-# Literal paths, not a name built in the loop: the unwired-guard census (T-451) reads callers textually.
-for _g in "$ROOT/tools/_t1274-note-box-cdp.mjs" "$ROOT/tools/_t1276-name-fit-cdp.mjs" "$ROOT/tools/_t1278-sweep-cdp.mjs"; do
-  _n=$(basename "$_g")
-  if node "$_g" > "$TMP/leg-$_n.out" 2>&1; then
-    pass=$((pass + 1))
-  else
-    report FAIL "a T-1241 review-round guard failed: $_n (Note box growth, task-name fit, or the codex sweep items: opening text size, Name field, business palette wording, helper contrast, reachability) (run 'node tools/$_n'; T-1274/T-1276/T-1278)"
-    show_output "$TMP/leg-$_n.out" "$_n"
-    fail=$((fail + 1))
-  fi
-done
-
-# ── T-1282 (AEF T-4716): ?browse=1 opens the Open-project browser once the project API answers ──
-# Opens in Open-project mode (no pick callback), stays closed without the parameter, a pick loads the map as the
-# Open project button does, ?load wins, and with no API nothing opens and no page error. Literal path (T-451).
-if node "$ROOT/tools/_t1282-browse-entry-cdp.mjs" > "$TMP/leg-_t1282.out" 2>&1; then
-  pass=$((pass + 1))
-else
-  report FAIL "the ?browse=1 URL entry: the project browser did not open on load, opened when it should not (no parameter, ?load given, no API), raised a page error, or a pick loaded different bytes than Open project (run 'node tools/_t1282-browse-entry-cdp.mjs'; T-1282)"
-  show_output "$TMP/leg-_t1282.out" "_t1282-browse-entry-cdp.mjs"
-  fail=$((fail + 1))
-fi
 
 # ── T-1290: review findings carry map evidence; the kit checks it; calibration verdict unchanged ──
 if python3 "$ROOT/tests/test_t1290_verify_findings.py" > "$TMP/leg-_t1290.out" 2>&1; then
