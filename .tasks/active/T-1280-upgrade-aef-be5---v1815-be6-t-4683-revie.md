@@ -91,6 +91,10 @@ This follows the be.5 path (T-1279, job 078).
   report), T-4685, T-4687 and T-4686. Job 079 was retired before it ran; **job 080 goes be.5 -> be.7**.
   AEF's known open T-4688 (upgrade writes into the clone it runs from) does not apply: the job clones fresh each run.
   Every "079"/"797875a32" below now means 080/ce8075dba.
+- **Superseded again (2026-10-23):** AEF cut **be.8**, msg 85f74ebe; tag `v1.8.15-be.8` = commit 04dc39868c32. It
+  is be.7 plus T-4688 (upgrade no longer self-vendors its source clone). Job 080 was retired before it ran; **job
+  081 goes be.5 -> be.8**. Every 079/080 below now means 081/04dc39868. AEF filed T-4689..T-4692 from our reports;
+  follow them.
 - **Hold:** no `fw reviewer judge` panel runs on be.5. Its T-4683 regression kills the first codex/opencode/antigravity
   seat.
 
