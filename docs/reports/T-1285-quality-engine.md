@@ -29,8 +29,46 @@ goal is fixed (CLAUDE.md, 2026-10-17): the designer is AEF's base, and a change 
 
 Results are filled in below as they land.
 
-### Spike 1 — rework census, 30 days (IW-1)
-_pending_
+### Spike 1 — rework census (IW-1) — first pass 2026-10-24
+
+**Operator runs** (`.context/runme/`, all time, 83 jobs): **22 retired** without completing (26%). The event log has
+**30 STOPPED runs against 77 completed**: about **1 in 4 operator runs does not finish**, and each one costs the
+operator a run and the agent a new job. The 22 retirements by cause:
+
+| Cause | Jobs | What would have caught it first |
+|---|---|---|
+| A framework gate refused a step that the dry-run never exercised (placeholder hypothesis, sovereignty gate, status revert, foreign-delete guard, completion inside decide) | 012, 016, 022, 054, 066, 067, 072 (**7**) | a deep rehearsal that runs the steps against a throwaway clone, not only the preflight checks |
+| Superseded by upstream tag churn before or while running | 055, 057, 058, 079, 080 (**5**) | taking framework tags in batches |
+| Partial run: some steps took effect, the rest replaced (mistake, or a later step needed a new shape) | 023, 040, 044, 046, 052 (**5**) | idempotent, resumable steps |
+| Release calibration found a real kit defect | 026 (**1**) | calibrating at kit-change time, not on release night |
+| Credentials/environment, or not needed | 008, 009, 036 (**3**) | — |
+
+Plus job 082 (2026-10-23), retired after this list was drawn: a reviewer false finding that our own validator text
+helped cause.
+
+**Agent-side rework** (30 days, 444 tasks touched): 9 tasks are explicitly follow-up, round, re-shoot, fix or
+regression tasks. That undercounts, because rounds also happen inside one task.
+
+**Answer to IW-1, first pass:** the biggest single loop is the **operator run that stops**. The largest cause is a
+**rehearsal that checks preconditions but never exercises the steps against the framework's gates**. That is a
+sixth candidate the first list missed.
+
+### Spike 3 — reviewer findings a deterministic check could have caught (IW-3) — 2026-10-24
+
+The T-1241/T-1282 review rounds raised 13 distinct points (T-1274: 2, T-1276: 2, T-1277: 1, the T-1278 sweep: 10,
+partly overlapping; T-1282 sweep: 6 cosmetic). Scoring each point by whether a check on the rendered DOM/SVG can
+decide it with no judgement:
+
+- **Mechanically decidable: 9.** Label nearness; ellipsized names; captions on arrowheads; text size at opening;
+  Name field clipped; helper and caption contrast; canvas/palette reachability; hover preview inside the viewport;
+  a card below the fold.
+- **Judgement, and should stay with a reviewer: 2.** Business-palette wording; whether a thumbnail is "too small".
+- **Not designer scope: 2.** Map-content wording (AEF's names and notes).
+
+**Answer to IW-3:** about 9 in 13 (~70%) of what reviewers found was mechanically decidable. Each one became a check
+only after a round was spent finding it (`_t1256`, `_t1276`, `_t1278`). A standing "what a person sees" gate that
+starts from these checks and runs before any review would have removed most rounds. The reviewer then confirms taste
+instead of discovering defects.
 
 ### Spike 2 — suite-red classification (IW-2) — first pass 2026-10-24, 5 runs
 
@@ -80,16 +118,47 @@ release since 0.15 has gone to AEF without these four.
 **Limits:** it compares paths, not methods or payloads (a route can exist and still differ in contract), and it
 reads the vendored copy, so it is only as current as our last framework upgrade.
 
-### Spike 5 — verifiable reviewer findings (IW-5)
-_pending_
+### Spike 5 — verifiable reviewer findings (IW-5) — 2026-10-24
 
-## Candidate changes (to be ranked by the spikes)
+- **Current format** (`docs/authoring-kit/REVIEW.md:6-9`): each finding has `element`, `category`, `severity`,
+  `source_evidence` (a quote from SOURCE.md) and `problem`/`correction`. It has **no evidence from the map**.
+- **Current scoring** (`docs/authoring-kit/loop.sh:98-119`): any finding on the clean map counts as false. Nothing
+  checks cited evidence.
+- **Test on job 082's false finding:** GLM cited `map.bpmn:119` in prose. Line 119 is `<bpmn:exclusiveGateway
+  id="accept-order-anyway" name="Accept order anyway?">`, with no `default=`; the claimed attribute is on line 98.
+  A required `map_evidence: {line, quote}` and a two-line check ("is the quote on that line?") would have marked the
+  finding **unverified** mechanically, before any human read it.
 
-1. A "what a person sees" gate on every corpus map at 1024/1440/1920 in the opening state, run before any review.
-2. A hermetic core suite that must be 100% green on every push, plus a quarantine set with owners.
-3. A designer-to-host contract file generated from source and checked against AEF on every release and upgrade.
-4. Verifiable release findings (file:line + quote check), with calibration at kit-change time.
-5. Upstreaming 832's local framework patches; framework tags taken in batches.
+**Answer to IW-5:** yes, and cheaply. Make `map_evidence` required in REVIEW.md, and have loop.sh's scorer report
+unverified findings separately: they do not count as false, and they are surfaced. In production authoring loops,
+unverified findings would be dropped before an author sees them.
+**Trade-off:** a reviewer with a real point but a wrong line number is flagged too, which is the right default for a
+gate. It also needs a kit change, so a calibration, which is the moment to do it.
+
+## Candidate changes, ranked by the spikes
+
+Ranked by loops removed per unit of work, from the measurements above:
+
+1. **Deep rehearsal for operator jobs** (spike 1: about 1 in 4 operator runs stops; the largest cause is a framework
+   gate the dry-run never exercised). Rehearse the STEPS against a throwaway clone of the repo, gates included, not
+   only the preflight checks. Steps should be idempotent, so a stopped run can resume.
+2. **"What a person sees" gate before review** (spike 3: ~70% of reviewer findings were mechanically decidable). A
+   standing check on every corpus map at 1024/1440/1920 in the opening state: crossings including arrowheads,
+   clipping, cut text, minimum text size, contrast, reachability. It is built from `_t1256`, `_t1276` and `_t1278`,
+   which exist.
+3. **Hermetic core suite plus quarantine** (spike 2: 10 reds, 0 product regressions). Core: no shared /tmp, no
+   load-sensitive timing, no anchors on vendored framework text; it must be 100% green on every push. Quarantine:
+   each leg with an owner and a fix-by date.
+4. **Designer-to-host contract** (spike 4: 4 endpoints missing in AEF for 13-25 days). Generated from source and
+   checked against AEF's code at every release and framework upgrade; gaps go into the release notes and the session
+   alerts.
+5. **Verifiable reviewer findings** (spike 5): `map_evidence` required and mechanically checked; calibration at
+   kit-change time.
+6. **Framework drift:** upstream the 37 local patches and take framework tags in batches (already practised since
+   T-1281).
+
+**Weekly metrics** (the hypothesis's signal): operator runs stopped / completed; official review rounds per UI task;
+core-suite red count; AEF endpoint gaps; release attempts per release.
 
 ## Dialogue Log
 
