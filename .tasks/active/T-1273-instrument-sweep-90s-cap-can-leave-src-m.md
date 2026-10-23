@@ -2,12 +2,20 @@
 id: T-1273
 name: "Instrument sweep 90s cap can leave src mutated: _t910 teeth killed before restore-or-die"
 description: >
-  Suite run 2 on 2026-10-22 (host load ~80): after the T-509 instrument sweep, src/aef-workflow-designer.html carried _t910-lanemeta-teeth.sh's planted t910probe attribute; its trap-based restore never ran and its backup dir was gone. Every later leg (_t358, _t423, _t1017, _t1158) tested the mutant and went red; restored from HEAD (only diff), all four green. Find how the kill bypasses the trap (timeout TERM vs a child holding the foreground, or a later KILL), and make in-place mutation teeth unable to leave the tree mutated (mutate a copy, or the sweep checks src against HEAD after each probe and restores + FAILs loudly). Old debris of the same class: tools/.t351-mut-a.sh (2026-10-01).
+  Suite run 2 on 2026-10-22 (host load ~80): after the T-509 instrument sweep, src/aef-workflow-designer.html
+  carried _t910-lanemeta-teeth.sh's planted t910probe attribute; its trap-based restore
+  never ran and its backup dir was gone. Every later leg (_t358, _t423, _t1017, _t1158)
+  tested the mutant and went red; restored from HEAD (only diff), all four green.
+  Find how the kill bypasses the trap (timeout TERM vs a child holding the foreground,
+  or a later KILL), and make in-place mutation teeth unable to leave the tree mutated
+  (mutate a copy, or the sweep checks src against HEAD after each probe and restores
+  + FAILs loudly). Old debris of the same class: tools/.t351-mut-a.sh (2026-10-01).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [suite, teeth, bug]
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-22T10:07:40Z
-last_update: 2026-10-22T10:07:40Z
-date_finished: null
+last_update: '2026-10-23T16:37:08Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-23T16:37:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 1
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=1 (body:fix-without-learning); D2=0 (no-signal); D3=0 (no-signal);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=export)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1273: Instrument sweep 90s cap can leave src mutated: _t910 teeth killed before restore-or-die
@@ -74,8 +102,24 @@ clean source. Do not take it from HEAD, which can be stale.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] **RCA stated with evidence** in `## RCA`. The working hypothesis comes from reading the code (operator chose
+      "read the code only", 2026-10-23); no live mutation is run. `_t910`'s `trap cleanup EXIT INT TERM` handler
+      restores and deletes the backup dir but does NOT exit, and bash resumes a script after a TERM handler returns.
+      So after the sweep's `timeout` TERM, the script plants its next mutant, then finds no backup and exits 91 with
+      the mutant in src.
+- [ ] **Every in-place mutation script exits on INT/TERM after restoring.** A census lists every script under
+      `tools/` that writes a tracked file in place (`src/`, `tools/`, `tests/fixtures/`) and restores it from a
+      trap. Each one's INT/TERM path ends in `exit` (the EXIT path keeps restoring), with the count before and after
+      recorded here.
+- [ ] **A standing guard keeps it so:** a static check fails when such a script's trap handler for INT/TERM can
+      return (no `exit`). It is red on the current `_t910` and green after, and wired into the suite (literal path,
+      for the unwired-guard census).
+- [ ] **A behavioural proof that harms nothing:** a test runs a dummy script with the fixed trap pattern on a
+      throwaway file in a temp dir, sends TERM mid-run, and asserts the file is restored and nothing runs after the
+      signal. The same test on the old pattern shows the resumed write. No real tracked file is touched.
+- [ ] **Regenerated outputs are protected:** the suite's `t423-carrier-witness.bpmn` refresh only writes when `src`
+      matches HEAD (`git diff --quiet -- src`); otherwise it skips the refresh and says so. The same check is
+      applied to any other suite step found to rewrite a tracked file.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -277,6 +321,35 @@ clean source. Do not take it from HEAD, which can be stale.
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** after the T-509 instrument sweep stopped `_t910-lanemeta-teeth.sh` at its time cap (2026-10-22, run 2),
+`src/aef-workflow-designer.html` still carried the mutant (`t910probe`). Later suite legs tested it, and a
+regenerating probe wrote it into a tracked fixture.
+
+**Root cause** (established 2026-10-23 by reading the code and by dummy scripts on throwaway files; no tracked file was
+mutated, per the operator's choice):
+1. **bash:** `_t910` sets `trap cleanup EXIT INT TERM`, where `cleanup` = restore + delete the backup dir, with **no
+   `exit`**. On TERM, bash runs the handler and then **resumes the script**, which plants its next mutant. Its next
+   `restore` finds no backup, prints FATAL and exits 91 with the mutant in place.
+   - Dummy with the same pattern under `timeout 1`: rc=124 (as the sweep saw), file left `mutant-2`, FATAL twice.
+   - The fix pattern (`trap cleanup EXIT; trap 'exit 130' INT; trap 'exit 143' TERM`): rc=124, file `original`, no
+     backup left, nothing after the signal.
+   - An EXIT-only trap (`_t890`'s pattern) is SAFE: bash runs the EXIT trap when TERM kills it (dummy: `original`).
+2. **Python:** `try/finally` does **not** run on an unhandled SIGTERM. A dummy that writes a mutant and restores in
+   `finally` was left `mutant` under `timeout 1`. `_t886-writer-mutation.py` writes `src` in place and restores in
+   `finally`, so the same leftover can happen there. Several other teeth restore in `finally`; which of them write
+   the real file rather than a temp copy is the census in criterion 2.
+
+**Why structurally allowed:** "restored on EVERY exit path" was asserted in `_t910`'s header but never exercised. No
+leg kills a mutation script mid-run, so a handler that returns, and a Python `finally` that never runs on TERM, both
+looked like safety. The sweep's 90 s cap (T-509) made a mid-run TERM routine.
+
+**Prevention:**
+- every in-place mutation script exits on INT/TERM (bash), or turns SIGTERM into SystemExit so `finally` runs
+  (Python);
+- a standing static guard keeps it so;
+- a behavioural test kills the pattern mid-run on a throwaway file;
+- the suite's witness refresh refuses to write while `src` differs from HEAD (criteria 2-5).
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -357,3 +430,7 @@ clean source. Do not take it from HEAD, which can be stale.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1273-instrument-sweep-90s-cap-can-leave-src-m.md
 - **Context:** Initial task creation
+
+### 2026-10-23T16:37:07Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
