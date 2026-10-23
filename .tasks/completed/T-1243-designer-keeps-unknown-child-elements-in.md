@@ -11,13 +11,13 @@ description: >
   build re-emits it in place, byte-stable round trip; test with a fixture carrying
   nested unknown children; no UI.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t1243-io-children-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-20T21:20:29Z
-last_update: 2026-10-21T01:07:57Z
-date_finished:
+last_update: 2026-10-23T22:06:22Z
+date_finished: 2026-10-23T22:06:22Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -156,6 +156,8 @@ no UI, no meaning given to them, no wait for AEF's v1.1 (AEF T-4518 made its int
 
 ## Verification
 
+test -f tools/_t1243-io-children-cdp.mjs
+grep -q '_t1243-io-children-cdp.mjs' tests/run-bridge-tests.sh
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -392,3 +394,20 @@ no UI, no meaning given to them, no wait for AEF's v1.1 (AEF T-4518 made its int
 ### 2026-10-21T00:53:35Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-cbb25b8b
+- **Timestamp:** 2026-10-23T22:06:24Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-23T22:06:22Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

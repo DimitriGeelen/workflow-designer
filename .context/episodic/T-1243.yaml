@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1243: Designer keeps unknown child elements inside aef:input/aef:output through a save (T-1242 producer ask)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-23T22:06:36Z
+# ============================================================================
+
+task_id: T-1243
+task_name: "Designer keeps unknown child elements inside aef:input/aef:output through a save (T-1242 producer ask)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-20T21:20:29Z
+completed: 2026-10-23T22:06:22Z
+duration_days: 3
+updates_count: 2
+first_commit: 2026-10-21T03:07:57+02:00
+last_commit: 2026-10-24T00:04:42+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the designer keeps child elements inside aef:input/aef:output through a save (verbatim, in order, no added xmlns, second save byte-identical); io without children unchanged (goldens byte-identical); harness 5/5, red on the 0.24.0 source; suite leg wired; pending release note. last criterion met — _t1243 green in the be.8 full run, and greenfield confirms on its own maps (T-327: 30/30 round trip OK, io attributes 20->20, io children incl. a root-declared prefix kept). T-1285 spike 4: the designer-to-host contract is generable from source (13 used, 9 served by AEF, 4 missing for 13-25 days)
+
+# Key outcomes
+outcomes:
+  - 'Every element child of an `aef:input`/`aef:output` survives open -> save, in order, with its attributes, text'
+  - 'Byte-stable: a second open -> save of the first save''s output is byte-identical; the save adds no new'
+  - 'An io WITHOUT children still serialises self-closing, byte-identical to before (all goldens unchanged)'
+  - 'A browser harness (`tools/_t1243-io-children-cdp.mjs`) proves the above and fails on the 0.24.0 code; it is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'last criterion met — _t1243 green in the be.8 full run, and greenfield confirms on its own maps (T-327: 30/30 round trip OK, io attributes 20->20, io children incl. a root-declared prefix kept). T-1285 spike 4: the designer-to-host contract is generable from source (13 used, 9 served by AEF, 4 missing for 13-25 days)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/releases/PENDING-next-release.md'
+  - 'docs/reports/T-1285-quality-engine.md'
+  - '.fabric/components/tools-_t1243-io-children-cdp.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1243-designer-keeps-unknown-child-elements-in.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1243-io-children-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-21T03:07:57'
+    action: 'T-1243: the designer keeps child elements inside aef:input/aef:output through a save (verbatim, in order, no added xmlns, second save byte-identical); io without children unchanged (goldens byte-identical); harness 5/5, red on the 0.24.0 source; suite leg wired; pending release note'
+  - time: '2026-10-24T00:04:42'
+    action: 'T-1243: last criterion met — _t1243 green in the be.8 full run, and greenfield confirms on its own maps (T-327: 30/30 round trip OK, io attributes 20->20, io children incl. a root-declared prefix kept). T-1285 spike 4: the designer-to-host contract is generable from source (13 used, 9 served by AEF, 4 missing for 13-25 days)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 4365 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 4365
+  commits: 2
+  files_changed: 7
+  lines_added: 278
+  lines_removed: 16
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1243-designer-keeps-unknown-child-elements-in.md
+generated_by: context-agent-hybrid
