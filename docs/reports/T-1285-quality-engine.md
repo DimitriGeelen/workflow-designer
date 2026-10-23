@@ -32,8 +32,31 @@ Results are filled in below as they land.
 ### Spike 1 — rework census, 30 days (IW-1)
 _pending_
 
-### Spike 2 — suite-red classification, last 10 runs (IW-2)
-_pending_
+### Spike 2 — suite-red classification (IW-2) — first pass 2026-10-24, 5 runs
+
+Each red leg was triaged by hand in the runs below. The three 2026-10-23 runs (logs
+`.context/working/t1275-suite.log`, `t1279-suite.log`, `t1280-suite.log`) are classified per leg. The two
+2026-10-22 runs are classified from the session record, since their logs sat in the pre-remount /tmp.
+
+| Run | Result | Red legs and cause |
+|---|---|---|
+| 10-22 #1 (pre-release) | 305/8 | 2 expected-by-design (0.25.0 dist and calibration record not yet cut) · load timeouts · mutant contamination |
+| 10-22 #2 | 305/8 | same pre-release pair · load timeouts · `_t910` mutant left in src and a fixture (kill-unsafe teeth, T-1273) |
+| 10-23 be.3 | 310/3 | G-015 hygiene: a Verification line I wrote (process) · instrument sweep `_t572`/`_t1060` under load (environment) · `_t629` anchor after the be.3 upgrade (upgrade drift) |
+| 10-23 be.5 | 307/6 | `_t1068`, `_t604`: Chromium socket path over 108 chars from my TMPDIR (environment, self-inflicted) · unwired-guard census 89→92 after task closes (bookkeeping drift) · sweep `_t910` under load (environment) · `_t634` second call site from be.5 (upgrade drift) · `_t598` counted a read as an application after T-1277 (guard too literal) |
+| 10-23 be.8 | 315/1 | `_t568` create/delete inside one tmpfs mtime tick (environment) |
+
+**Tally over the three per-leg runs (10 reds):**
+- product regressions: **0**;
+- environment (load, /tmp tmpfs, TMPDIR): **5**;
+- upgrade drift (a guard anchored on vendored framework text): **2**;
+- guard too literal / bookkeeping drift: **2**;
+- process (a line I wrote): **1**.
+
+**Answer to IW-2, first pass:** in these runs the suite caught **no product regression**, but every run was red, and
+each red cost a manual investigation. The reds are dominated by environment and drift, the two things a hermetic
+core suite with a quarantine set removes from the "must be green" signal. That supports candidate 2. A 10-run pass
+(spike 2 proper) would firm up the ratio; the direction is already clear.
 
 ### Spike 3 — reviewer findings a deterministic check could have caught (IW-3)
 _pending_
