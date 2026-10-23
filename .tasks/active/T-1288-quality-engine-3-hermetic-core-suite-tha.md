@@ -1,13 +1,18 @@
 ---
 id: T-1288
-name: "Quality engine 3: hermetic core suite that must be green on every push, plus a quarantine set with owners"
+name: "Quality engine 3: hermetic core suite that must be green on every push, plus
+  a quarantine set with owners"
 description: >
-  10 suite reds over 3 runs, 0 product regressions (environment, upgrade drift, literal guards). Core: no shared /tmp, no load-sensitive timing, no anchors on vendored framework text; quarantine legs each with owner and fix-by date (T-1285 GO, ranked step 3; evidence docs/reports/T-1285-quality-engine.md)
+  10 suite reds over 3 runs, 0 product regressions (environment, upgrade drift, literal
+  guards). Core: no shared /tmp, no load-sensitive timing, no anchors on vendored
+  framework text; quarantine legs each with owner and fix-by date (T-1285 GO, ranked
+  step 3; evidence docs/reports/T-1285-quality-engine.md)
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [quality-engine, T-1285]
 components: []
 related_tasks: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-23T22:13:22Z
-last_update: 2026-10-23T22:13:22Z
-date_finished: null
+last_update: '2026-10-23T22:28:31Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +55,72 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-23T22:28:31Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1288: Quality engine 3: hermetic core suite that must be green on every push, plus a quarantine set with owners
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+This is step 3 of the quality engine (T-1285 GO); see spike 2 in `docs/reports/T-1285-quality-engine.md`. Over three
+per-leg-triaged runs the suite produced 10 reds and 0 product regressions:
+- 5 environment (load, the /tmp tmpfs, TMPDIR);
+- 2 upgrade drift (teeth anchored on vendored framework text);
+- 2 literal guards or bookkeeping;
+- 1 process.
+Every run was red, so a real regression would hide among them, and each run cost a manual triage.
+
+**Survey, 2026-10-24** (`tests/run-bridge-tests.sh`, 3684 lines):
+- 198 direct legs, of which 48 launch a browser over CDP;
+- the T-509 instrument sweep re-runs every teeth script under a 90 s cap;
+- the triaged reds came almost entirely from the CDP legs and the sweep.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] **Three tiers, one runner.** `tests/run-bridge-tests.sh --tier core|browser|sweep|all` (default `all`: today's
+      behaviour, unchanged).
+  - **core:** every leg that starts no browser and is not the sweep;
+  - **browser:** the CDP legs;
+  - **sweep:** the instrument sweep.
+  Each leg's tier is declared in one place (not inferred at run time), and a guard fails when a leg has no tier.
+- [ ] **Core is hermetic and must be green:**
+  - it runs with its own short TMPDIR inside the project (`.context/st/`), removed after, never the shared /tmp;
+  - it starts no browser and touches no network;
+  - it finishes in bounded time (measured, recorded here);
+  - on today's tree it is 100% green.
+  A `--tier core` run is wired to run before every push (local pre-push, installed the way the T-1000/T-1161 gates
+  are, and re-installed after framework upgrades). It blocks the push on red; its bypass is logged.
+- [ ] **Browser tier retries a timeout once, alone.** The standing rule "rerun a CDP harness that timed out once alone
+      before calling it red" becomes code: a leg that fails by TIMEOUT or "no DevTools port" is retried once after
+      the others. It is reported FLAKY if the retry passes and RED if it fails again. FLAKY is counted and listed, not
+      hidden.
+- [ ] **Quarantine with owners.** `tests/quarantine.yaml` lists legs whose red is known non-product: leg, reason,
+      owner task, fix-by date. A quarantined leg still runs and reports, but does not fail its tier, and a quarantine
+      entry past its fix-by date FAILS. Initial entries come only from evidence, each with an owner task.
+- [ ] **Measured:** each run appends tier results to `tests/.run-history.tsv` (it exists): date, tier, passed, failed,
+      flaky, quarantined, seconds. A one-line summary per tier makes the weekly "suite red count" metric (T-1285)
+      readable.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -345,3 +402,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1288-quality-engine-3-hermetic-core-suite-tha.md
 - **Context:** Initial task creation
+
+### 2026-10-23T22:28:30Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
