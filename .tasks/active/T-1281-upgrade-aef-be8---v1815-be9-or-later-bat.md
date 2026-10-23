@@ -84,6 +84,10 @@ Tags to batch (take the newest when this starts):
   Code background daemon as the conversation holder, so a resume after the session stops works. This matters for the
   operator's pending relaunch (`claude-fw` + `/resume`, which clears T-1275's identity FAIL). If the relaunch on be.8
   is refused as a duplicate, take this batch first, then relaunch.
+- **be.14** 965dbcdc5 (msg b158a34d): T-4711. The Watchtower keep-alive and `watchtower.sh start/restart` defer to a
+  systemd-managed Watchtower. A new key, `WATCHTOWER_ENSURE` (default 1; `fw config set WATCHTOWER_ENSURE 0` opts a
+  project out). The keep-alive is still not seeded to consumers. 832's Watchtower is started by `fw watchtower
+  restart`, not by a systemd unit, so check after the batch that restart still works here.
 
 ## Acceptance Criteria
 
