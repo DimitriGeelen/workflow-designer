@@ -124,13 +124,14 @@ gallery (no API) it does nothing, as Open project is hidden there anyway.
       T-1278 and T-1282; VERSION and APP_VERSION untouched)_
 
 ### Human
-- [ ] [REVIEW] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1282 --criterion 1`): the project
+- [x] [REVIEW] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1282 --criterion 1`): the project
       browser opened by `?browse=1` is the same browser as Open project, every card and control reachable and
       unclipped at 1024/1440/1920, and hover-zoom works.
   **Steps:** 1. Open the screenshot paths listed under `## Visual Verification`. 2. Compare with the Open-project
   browser opened by its button.
   **Expected:** the same browser, nothing clipped, the hover-zoom preview visible and inside the viewport.
   **If not:** name the screenshot and the control; the agent fixes and re-shoots.
+  **Reviewer verdict:** green V-20261023-ce569a02 — reviewer-judge-t-1282-r1-90b5ddc9f4a2:reviewer (rung rung-1-same-vendor-independent), digest 8a466b90d05f; dispatch judge-t-1282-r1-90b5ddc9f4a2; evidence: .context/reviews/evidence/T-1282/AC1-judge-t-1282-r1-90b5ddc9f4a2.md, .context/reviews/evidence/T-1282/browse-1024-judge-t-1282-r1-90b5ddc9f4a2.png, .context/reviews/evidence/T-1282/browse-1440-judge-t-1282-r1-90b5ddc9f4a2.png, .context/reviews/evidence/T-1282/browse-1920-judge-t-1282-r1-90b5ddc9f4a2.png, .context/reviews/evidence/T-1282/browse-end-1024-judge-t-1282-r1-90b5ddc9f4a2.png, .context/reviews/evidence/T-1282/browse-end-1440-judge-t-1282-r1-90b5ddc9f4a2.png, .context/reviews/evidence/T-1282/browse-hover-1024-judge-t-1282-r1-90b5ddc9f4a2.png, .context/reviews/evidence/T-1282/browse-hover-1440-judge-t-1282-r1-90b5ddc9f4a2.png, .context/reviews/evidence/T-1282/browse-hover-1920-judge-t-1282-r1-90b5ddc9f4a2.png, .context/reviews/evidence/T-1282/button-1440-judge-t-1282-r1-90b5ddc9f4a2.png; ledger .context/reviews/verdicts.jsonl
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
