@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1285: Quality engine: what structural changes make a designer change reach AEF right first time
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-23T22:15:55Z
+# ============================================================================
+
+task_id: T-1285
+task_name: "Quality engine: what structural changes make a designer change reach AEF right first time"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-23T22:00:14Z
+completed: 2026-10-23T22:15:41Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-24T00:02:43+02:00
+last_commit: 2026-10-24T00:09:40+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception — what structural changes make a designer change reach AEF right first time (operator 2026-10-23); problem, measurable hypothesis, IW-1..IW-5, five time-boxed spikes, scope fence, go/no-go criteria; research artifact with the first day's evidence table. IW-1..IW-5 answered from the spikes; recommendation GO with the ranked six (deep rehearsal for operator jobs; 'what a person sees' gate; hermetic core suite; host contract; verifiable findings; upstream local patches) and weekly metrics. operator job 084 records the GO (quality engine, six ranked build steps) — rehearsed 5/5; the decision stays the operator's
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/084-decide-t1285-quality-engine/dryrun.ok'
+  - '.context/runme/084-decide-t1285-quality-engine/job.sh'
+  - 'docs/reports/T-1285-quality-engine.md'
+  - '.tasks/active/T-1285-quality-engine-what-structural-changes-m.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-24T00:02:43'
+    action: 'T-1285: inception — what structural changes make a designer change reach AEF right first time (operator 2026-10-23); problem, measurable hypothesis, IW-1..IW-5, five time-boxed spikes, scope fence, go/no-go criteria; research artifact with the first day''s evidence table'
+  - time: '2026-10-24T00:09:00'
+    action: 'T-1285: IW-1..IW-5 answered from the spikes; recommendation GO with the ranked six (deep rehearsal for operator jobs; ''what a person sees'' gate; hermetic core suite; host contract; verifiable findings; upstream local patches) and weekly metrics'
+  - time: '2026-10-24T00:09:40'
+    action: 'T-1285: operator job 084 records the GO (quality engine, six ranked build steps) — rehearsed 5/5; the decision stays the operator''s'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 15 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 15
+  commits: 3
+  files_changed: 4
+  lines_added: 464
+  lines_removed: 17
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1285-quality-engine-what-structural-changes-m.md
+generated_by: context-agent-hybrid

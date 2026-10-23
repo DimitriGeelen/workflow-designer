@@ -6,17 +6,17 @@ description: >
   Inception: Quality engine: what structural changes make a designer change reach
   AEF right first time
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-10-23T22:00:14Z
-last_update: '2026-10-23T22:02:11Z'
-date_finished:
+last_update: 2026-10-23T22:15:41Z
+date_finished: 2026-10-23T22:15:41Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -220,15 +220,15 @@ docs/reports/T-1285-quality-engine.md as they land. No build work before the GO.
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-1285` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -305,7 +305,11 @@ Measure weekly against the hypothesis.
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-1285 go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Operator 2026-10-23 asked how to improve quality structurally. Spikes (docs/reports/T-1285-quality-engine.md): ~1 in 4 operator runs stops (largest cause: dry-run never exercises the step gates); ~70% of reviewer findings mechanically decidable; suite red every run with 0 product regressions; AEF missing 4 designer endpoints for 13-25 days. Build in ranked order: deep rehearsal, what-a-person-sees gate, hermetic core suite, host contract, verifiable findings, upstream local patches.
+
+**Date**: 2026-10-23T22:15:40Z
 
 ## Updates
 
@@ -314,3 +318,47 @@ Measure weekly against the hypothesis.
 
 ### 2026-10-23T22:02:09Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-10-23T22:15:40Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Operator 2026-10-23 asked how to improve quality structurally. Spikes (docs/reports/T-1285-quality-engine.md): ~1 in 4 operator runs stops (largest cause: dry-run never exercises the step gates); ~70% of reviewer findings mechanically decidable; suite red every run with 0 product regressions; AEF missing 4 designer endpoints for 13-25 days. Build in ranked order: deep rehearsal, what-a-person-sees gate, hermetic core suite, host contract, verifiable findings, upstream local patches.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9deb144e
+- **Timestamp:** 2026-10-23T22:15:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 4
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-3
+     - evidence: `IW-3 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  3. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-4
+     - evidence: `IW-4 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  4. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-5
+     - evidence: `IW-5 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-0e4e11da
+- **Timestamp:** 2026-10-23T22:15:44Z
+- **Overall:** CONTRADICTED
+- **Claims:** 5
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `.context/working/runme.events` | file | ✓ pass |
+| `.context/working/t1275-suite.log` | file | ✓ pass |
+| `.context/working/t1285/contract.py` | file | ✓ pass |
+| `docs/authoring-kit/REVIEW.md:6-9` | file | ✗ fail — file not found at PROJECT_ROOT |
+| `docs/authoring-kit/loop.sh:98-119` | file | ✗ fail — file not found at PROJECT_ROOT |
+
+### 2026-10-23T22:15:41Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
