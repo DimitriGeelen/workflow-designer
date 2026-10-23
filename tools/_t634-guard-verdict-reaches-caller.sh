@@ -204,18 +204,21 @@ echo "--- the call site must not suppress errexit"
 SITE=$(grep -nE '(^|[^#])\brun_verification_commands\b' "$GATE" \
        | grep -vE 'run_verification_commands[[:space:]]*\(\)' \
        | grep -v 'log_gate_bypass' | grep -vE '^[0-9]+:[[:space:]]*#' || true)
+# T-1279: AEF be.5 (T-4653) added a second call, finalizing a partial-complete task re-runs P-011 before archiving.
+# The property is per call site, so judge EVERY one: at least one exists, and each is a bare statement.
 NSITE=$(printf '%s' "$SITE" | grep -c '' || echo 0)
-if [ "$NSITE" -ne 1 ]; then
-    bad "expected exactly 1 call site, found $NSITE — the analysis covers only one:"
-    printf '%s\n' "$SITE" | sed 's/^/          /'
+if [ "$NSITE" -lt 1 ]; then
+    bad "no call site of run_verification_commands found — the analysis has no denominator"
 else
-    ok "exactly one call site (denominator is real)"
-    LINE=${SITE#*:}
-    if printf '%s' "$LINE" | grep -qE '^\s*run_verification_commands\s*$'; then
-        ok "call site is a bare statement — errexit applies to it"
-    else
-        bad "call site is guarded/chained, which SUPPRESSES errexit: $LINE"
-    fi
+    ok "$NSITE call site(s) found (denominator is real)"
+    while IFS= read -r S; do
+        LINE=${S#*:}
+        if printf '%s' "$LINE" | grep -qE '^\s*run_verification_commands\s*$'; then
+            ok "call site line ${S%%:*} is a bare statement — errexit applies to it"
+        else
+            bad "call site line ${S%%:*} is guarded/chained, which SUPPRESSES errexit: $LINE"
+        fi
+    done <<< "$SITE"
 fi
 
 echo

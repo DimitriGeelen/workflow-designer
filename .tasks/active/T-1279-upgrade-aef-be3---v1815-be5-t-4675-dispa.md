@@ -116,11 +116,31 @@ This follows the be.3 path (T-1275, job 077).
   - **T-4675 works, with a gap:** `DISPATCH_DIR` defaults to `$PROJECT_ROOT/.context/dispatch`. That dir was NOT
     gitignored, so a worker's prompt and `env.sh` could be committed. 832 now ignores `.context/dispatch/`, and this
     goes in the field report.
+  - **AEF agreed** (msg 4b52e2ea) and filed **T-4684**: init and upgrade will add `.context/dispatch/` to a consumer
+    .gitignore, append-only, and warn if anything there is already tracked. Our line stays. Follow it.
   - **T-4678 works:** our three gates (T-1000, T-1161, T-1239) are kept above the framework block in
     `.git/hooks/pre-commit`.
   - **T-4655 works:** `fw metrics` reads the stores (active 231, completed 1047).
   - **T-4667 works:** `checkpoint.sh` with no args writes 0 bytes to stdout.
-- [ ] **Suite:** no new failure against 2026-10-22's post-be.3 run (310 passed, 3 failed, all 3 explained).
+- [x] **Suite:** no new failure against 2026-10-22's post-be.3 run (310 passed, 3 failed, all 3 explained).
+  **2026-10-23, met:** 307 passed, 6 failed (log `.context/working/t1279-suite.log`). All 6 are explained, and none
+  is a be.5 product regression.
+  1. **`_t1068` and `_t604` L5:** Chromium died with SIGTRAP at launch. I ran the suite with `TMPDIR` inside the
+     project to avoid the full /tmp. Both harnesses also hand Chromium that `TMPDIR`, and its socket path
+     `…/.context/working/tmp/t1068-corpus-XXXXXX/org.chromium.Chromium.XXXXXX/SingletonSocket` is 112 chars, over the
+     108-char Unix socket limit. With the default TMPDIR, `_t1068` passes 5/5 and `_t604` passes. This was caused by
+     the operator of the run (me), not by the code.
+  2. **Unwired-guard census 89 -> 92:** closing T-1274/T-1276/T-1278 removed the last callers of their guards. The
+     suite now runs `_t1274-note-box`, `_t1276-name-fit` and `_t1278-sweep` as standing legs (literal paths, because
+     the census reads callers textually). Ratchet back to 89 = 89.
+  3. **Instrument sweep, `_t910` teeth:** "unmutated copy does not pass" inside the sweep; alone 40/0, src clean
+     after. The same sweep-under-load class as before.
+  4. **`_t634`:** be.5's T-4653 added a second `run_verification_commands` call (finalizing a partial-complete task
+     re-runs P-011). The leg demanded exactly one. It now requires at least one and checks EVERY call site is a bare
+     statement: both are, 13/0.
+  5. **`_t598`:** T-1277's arrowhead pass READS `marker-start` (`getAttribute`), and the guard counted every
+     substring. It now counts applications only (object key or `setAttribute`): 9/9. A stray application still
+     fails it (checked on mutated text) and a read does not.
 - [ ] **AEF has the field report:** WORKS/FAILS for each be.5 fix this project can exercise, on `aef-v1815-be3`.
   - T-4675: a worker's dir under `.context/dispatch`;
   - T-4672: the designer step of job 078;

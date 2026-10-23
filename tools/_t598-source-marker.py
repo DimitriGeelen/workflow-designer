@@ -56,8 +56,10 @@ n_src = len(re.findall(r"'marker-start':[^,\n]*arrow-source", s))
 n_mf = len(re.findall(r"'marker-start':\s*'url\(#mf-start\)'", s))
 if n_src != 1:
     print(f"FAIL  expected exactly one application of the sequence-flow source cue (#arrow-source), found {n_src}"); fail = 1
-elif s.count("marker-start") != 1 + n_mf:
-    print(f"FAIL  an unexplained marker-start application: {s.count('marker-start')} total, 1 source cue + {n_mf} message-flow"); fail = 1
+# T-1279: count APPLICATIONS (an attribute-object key, or setAttribute), not every mention. T-1277's flow-clearance
+# pass READS the attribute (getAttribute('marker-start')) to find a flow's start head; a read applies nothing.
+elif (n_app := len(re.findall(r"""['"]marker-start['"]\s*:|setAttribute\(\s*['"]marker-start['"]""", s))) != 1 + n_mf:
+    print(f"FAIL  an unexplained marker-start application: {n_app} total, 1 source cue + {n_mf} message-flow"); fail = 1
 else:
     print(f"PASS  exactly one source-cue application (+ {n_mf} message-flow start marker, T-1120)")
 

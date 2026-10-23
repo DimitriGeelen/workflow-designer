@@ -1175,6 +1175,24 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1274 / T-1276 / T-1278: the T-1241 review rounds' guards, standing (T-1279: their only callers were the
+# closed tasks' Verification, so the unwired-guard census grew 89 -> 92). Each exits non-zero on any error. ──
+# _t1274: the side-panel Note box grows to its text up to the cap, then scrolls (0 of 108 cut).
+# _t1276: no corpus task name reaches the fit ladder's ellipsis floor; smallest name font >= 9 px.
+# _t1278: the codex sweep items — opening text >= 9 px in every class, Name field never cut and a typed value
+#         survives, business-lens palette wording, helper-text contrast >= 4.5:1, canvas and palette reachable.
+# Literal paths, not a name built in the loop: the unwired-guard census (T-451) reads callers textually.
+for _g in "$ROOT/tools/_t1274-note-box-cdp.mjs" "$ROOT/tools/_t1276-name-fit-cdp.mjs" "$ROOT/tools/_t1278-sweep-cdp.mjs"; do
+  _n=$(basename "$_g")
+  if node "$_g" > "$TMP/leg-$_n.out" 2>&1; then
+    pass=$((pass + 1))
+  else
+    report FAIL "a T-1241 review-round guard failed: $_n (Note box growth, task-name fit, or the codex sweep items: opening text size, Name field, business palette wording, helper contrast, reachability) (run 'node tools/$_n'; T-1274/T-1276/T-1278)"
+    show_output "$TMP/leg-$_n.out" "$_n"
+    fail=$((fail + 1))
+  fi
+done
+
 # ── T-1220: attributes on aef:input/aef:output beyond name/type/required survive open and save ──
 # aef-greenfield-test generates aef:io from its ontology (ref/role/cardinality/dataType, AEF T-4415); the
 # save used to keep only the named attributes. Red against the pre-T-1220 source (legs 1, 3, 6).
