@@ -36,6 +36,11 @@ becomes a JOB, and the operator always runs exactly:
    `step "<what>" '<cmd>'`, and helper functions. Anything run at load time is refused.
 2. `bash runme.sh --dry-run <NNN>-<name>`: runs the checks, prints the plan, records the job's
    sha256 in `dryrun.ok`, makes `job.sh` read-only. The agent runs only this, never a real run.
+   Since T-1286 it first REHEARSES the steps: the checks and every `step` run in a throwaway clone of HEAD
+   (`.context/rehearse/`, with this repo's git hooks; the real repo read-only to them and asserted unchanged), so a
+   gate that refuses a step fails the dry-run, not the operator's run. Declare a step that acts outside the repo
+   (push, tag push, `/etc`, model or reviewer calls, host services), and any step that needs its result, as
+   `step_outward "<what>" '<cmd>'`: listed, never rehearsed, and run like any step for real.
 3. Commit the job dir, hand over the one command, arm the watcher (below).
 The launcher shows the operator the job name, sha and rehearsal time; refuses a job with no
 dry-run or changed since it; re-runs the checks; asks y/N before every step (terminal only);

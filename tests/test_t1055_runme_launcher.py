@@ -5,8 +5,13 @@ Every leg runs the REAL entry point (runme.sh -> tools/runme-launcher.sh) agains
 directory, with answers fed through RUNME_TTY (honoured only off the real job dir; leg 11 shows the
 refusal) and events to a scratch file. Steps write marker files, so "ran" / "did not run" is
 observed, not inferred. Exit 0 = all legs pass.
+
+T-1286: a dry-run now rehearses the steps in a clone of a small fixture repo (RUNME_REPO). The markers
+the rehearsal makes are collected and cleared after each dry-run, so a later leg sees only what the
+REAL run did. A step meant to fail at run time is a step_outward, which the rehearsal skips.
 """
 import os
+import shutil
 import stat
 import subprocess
 import sys
@@ -17,6 +22,8 @@ RUNME = os.path.join(ROOT, "runme.sh")
 # runme.sh execs this; named here so a broken stub fails as itself (leg 0), not as missing output.
 LAUNCHER = os.path.join(ROOT, "tools", "runme-launcher.sh")
 NEW = os.path.join(ROOT, "tools", "runme-new.sh")
+# T-1286: the repo the dry-runs rehearse in (a clone of it), so 30-odd dry-runs do not each clone this project
+FIXTURE = os.path.join(ROOT, ".context", "rehearse", "test-t1055-%d" % os.getpid())
 fails = []
 
 
@@ -48,9 +55,13 @@ class Box:
     def run(self, *args, answers="", picker=False):
         with open(self.answers, "w") as fh:
             fh.write(answers)
-        env = dict(os.environ, RUNME_JOBS_DIR=self.jobs, RUNME_EVENTS_FILE=self.events,
+        env = dict(os.environ, RUNME_JOBS_DIR=self.jobs, RUNME_EVENTS_FILE=self.events, RUNME_REPO=FIXTURE,
                    RUNME_SIGNAL_NO_TERMLINK="1", RUNME_TTY=self.answers, RUNME_PICKER="1" if picker else "0")
         r = subprocess.run(["bash", RUNME] + list(args), capture_output=True, text=True, env=env, timeout=60)
+        if "--dry-run" in args:   # T-1286: what the rehearsal made, then cleared for the legs that follow
+            self.rehearsed = sorted(os.listdir(self.out))
+            for m in self.rehearsed:
+                os.remove(os.path.join(self.out, m))
         return r.returncode, r.stdout + r.stderr
 
     def made(self, marker):
@@ -93,12 +104,13 @@ def main():
         leg(rc != 0 and "has not been rehearsed" in out and not b.made("s1") and "STOPPED" in b.events_text(),
             "2 no dry-run -> refused, nothing ran, STOPPED event written")
 
-        # 3 dry-run: checks run, sha recorded, job.sh read-only, NO step runs
+        # 3 dry-run: checks run, sha recorded, job.sh read-only, steps run only in the rehearsal clone (T-1286)
         rc, out = b.run("--dry-run")
         d = os.path.join(b.jobs, "001-two")
         ro = not (os.stat(os.path.join(d, "job.sh")).st_mode & stat.S_IWUSR)
-        leg(rc == 0 and os.path.exists(os.path.join(d, "dryrun.ok")) and ro and not b.made("s1")
-            and "ok    always true" in out, "3 dry-run records sha, makes job.sh read-only, runs no step")
+        leg(rc == 0 and os.path.exists(os.path.join(d, "dryrun.ok")) and ro and b.rehearsed == ["s1", "s2"]
+            and "ok    always true" in out and "ok    step 2/2: second" in out and not os.path.exists(os.path.join(d, "done")),
+            "3 dry-run records sha, makes job.sh read-only, runs the steps only in its rehearsal")
 
         # 4 a job edited after its dry-run is refused
         os.chmod(os.path.join(d, "job.sh"), 0o644)
@@ -131,7 +143,7 @@ def main():
 
         # 8 a failing step stops the run; later steps do not run
         b = Box(tmp, "l8")
-        b.job("001-fails", TWO_STEPS.replace("'touch @OUT@/s1'", "'false'"))
+        b.job("001-fails", TWO_STEPS.replace('step "first" \'touch @OUT@/s1\'', 'step_outward "first" \'false\''))
         b.run("--dry-run")
         rc, out = b.run(answers="y\ny\n")
         leg(rc != 0 and "step 1/2 failed" in out and not b.made("s2"), "8 failing step -> stop, later steps not run")
@@ -172,7 +184,7 @@ def main():
         #    reason says so before the operator picks it again (008 was picked 3x while waiting on a file)
         b = Box(tmp, "l13")
         b.job("001-needs-file", TWO_STEPS.replace('"Two steps"', '"Needs a file first"')
-              .replace("'touch @OUT@/s1'", "'echo \"no /root/x.secret - place it first\"; false'"))
+              .replace('step "first" \'touch @OUT@/s1\'', 'step_outward "first" \'echo "no /root/x.secret - place it first"; false\''))
         b.job("002-other", TWO_STEPS.replace("s1", "o1").replace("s2", "o2"))
         b.run("--dry-run")
         b.run(answers="1\ny\n")                       # run 001: step 1 fails with its reason
@@ -246,7 +258,7 @@ def main():
         # 18 (T-1227) a batch stops at the first job that does not complete; later jobs are not started
         b = Box(tmp, "l18")
         b.job("001-a", TWO_STEPS.replace("s1", "a1").replace("s2", "a2"))
-        b.job("002-fails", TWO_STEPS.replace("'touch @OUT@/s1'", "'false'"))
+        b.job("002-fails", TWO_STEPS.replace('step "first" \'touch @OUT@/s1\'', 'step_outward "first" \'false\''))
         b.job("003-c", TWO_STEPS.replace("s1", "c1").replace("s2", "c2"))
         b.run("--dry-run")
         rc, out = b.run(answers="x\ny\ny\ny\ny\ny\ny\n")
@@ -391,5 +403,16 @@ do_y() { : MARK_Y_BODY; touch @OUT@/s1; }
     return 1 if fails else 0
 
 
+def with_fixture():
+    os.makedirs(FIXTURE)
+    try:
+        g = "git -c user.name=t1055 -c user.email=t1055@example.invalid"
+        subprocess.run("git init -q -b bleeding-edge . && %s commit -q --allow-empty -m 'T-1055: fixture'" % g,
+                       shell=True, cwd=FIXTURE, check=True)
+        return main()
+    finally:
+        shutil.rmtree(FIXTURE, ignore_errors=True)
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(with_fixture())

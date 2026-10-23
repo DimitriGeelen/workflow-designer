@@ -16,12 +16,19 @@
 #     JOB_WHY="one or more lines the operator reads before anything runs"
 #     preflight() { check "on bleeding-edge" '[ "$(git rev-parse --abbrev-ref HEAD)" = bleeding-edge ]'; }
 #     steps()     { step "Run the upgrade" 'run_upgrade'; step "Commit it" 'git commit ...'; }
+#     steps()     { ...; step_outward "Push the tag" 'git push origin "$TAG"'; }   # acts outside the repo
 #     run_upgrade() { ... }               # helper functions are fine; they run only inside a step
 # Scaffold one with:  bash tools/runme-new.sh <name>
 #
 # THE SAFEGUARDS (all here, none in the job):
 #   --dry-run [name]  the agent's rehearsal: loads the job, runs every check, prints the plan, then
-#                     records the job's sha256 in dryrun.ok and makes job.sh read-only.
+#                     (T-1286) REHEARSES the steps: clones the committed HEAD into .context/rehearse/<job>/repo,
+#                     copies in this repo's .git/hooks and the job dir, and runs the checks and then every `step`
+#                     there (cwd = clone, PROJECT_ROOT/CONTEXT_DIR/TASKS_DIR unset), so a gate that refuses a step
+#                     refuses it here, before the operator sees the job. A `step_outward` (push, tag push, /etc,
+#                     model or reviewer calls, host services) is listed, never run. The clone is removed, the real
+#                     repo is asserted unchanged (HEAD, refs, index, working tree, hooks). Only when all of that
+#                     passes: records the job's sha256 in dryrun.ok and makes job.sh read-only.
 #   real run          lists pending jobs; when several, the operator picks one or a BATCH in their own order
 #                     (T-1227: arrow keys + space on a terminal, or typed: 3,1,2 / x = all), shows name + sha + dry-run
 #                     time, REFUSES a job with no dry-run or changed since it, re-runs the checks,
@@ -50,14 +57,19 @@ if [ -n "${RUNME_TTY:-}" ]; then
     [ "$(realpath -m "$JOBS")" != "$(realpath -m "$REAL_JOBS")" ] || { echo "REFUSED: RUNME_TTY is for tests only, never on $REAL_JOBS"; exit 1; }
     TTY=$RUNME_TTY
 fi
+# T-1286: the repo a dry-run rehearses against. Another repo (a fixture with its own hooks) is for tests only.
+REPO=$PROJ
+if [ -n "${RUNME_REPO:-}" ]; then
+    [ "$(realpath -m "$JOBS")" != "$(realpath -m "$REAL_JOBS")" ] || { echo "REFUSED: RUNME_REPO is for tests only, never on $REAL_JOBS"; exit 1; }
+    REPO=$(realpath -m "$RUNME_REPO")
+fi
+REHEARSE_ROOT="$PROJ/.context/rehearse"
 
 say()  { printf '%s\n' "$*"; }
 fail() { say "STOPPED: $*"; exit 1; }
 
 # ---------------------------------------------------------------- job loading
-CHECK_T=(); CHECK_C=(); STEP_T=(); STEP_C=(); declare -A FN_BODY=()
-check() { CHECK_T+=("$1"); CHECK_C+=("$2"); }
-step()  { STEP_T+=("$1"); STEP_C+=("$2"); }
+CHECK_T=(); CHECK_C=(); STEP_T=(); STEP_C=(); STEP_O=(); declare -A FN_BODY=()
 
 job_sha() { sha256sum "$1/job.sh" | cut -c1-64; }
 
@@ -68,7 +80,7 @@ load_job() {  # load_job <dir>  — refuses anything but a definitions-only job
     # Load-time side effects: source it with NO usable PATH. A job that only defines things loads
     # silently; one that runs an external command at load time reports "command not found".
     probe=$(env -i PATH=/nonexistent HOME=/nonexistent "$BASH" --norc --noprofile -c \
-        'check(){ :; }; step(){ :; }; source "$1"' _ "$f" 2>&1)
+        'check(){ :; }; step(){ :; }; step_outward(){ :; }; source "$1"' _ "$f" 2>&1)
     if grep -q 'command not found\|No such file' <<<"$probe"; then
         fail "$(basename "$d")/job.sh runs a command when it is loaded; a job may only define JOB_* variables and functions ($(head -1 <<<"$probe"))"
     fi
@@ -78,7 +90,7 @@ load_job() {  # load_job <dir>  — refuses anything but a definitions-only job
     # NUL-separated records, which this shell reads as data. Whatever the job defines dies with that child.
     JOB_FILE=$f
     JOB_TITLE=""; JOB_TASK=""; JOB_WHY=""
-    CHECK_T=(); CHECK_C=(); STEP_T=(); STEP_C=(); FN_BODY=()
+    CHECK_T=(); CHECK_C=(); STEP_T=(); STEP_C=(); STEP_O=(); FN_BODY=()
     local kind a b has_steps=0
     while IFS= read -r -d '' kind; do
         case "$kind" in
@@ -87,13 +99,15 @@ load_job() {  # load_job <dir>  — refuses anything but a definitions-only job
             W) IFS= read -r -d '' JOB_WHY ;;
             N) has_steps=1 ;;
             C) IFS= read -r -d '' a; IFS= read -r -d '' b; CHECK_T+=("$a"); CHECK_C+=("$b") ;;
-            S) IFS= read -r -d '' a; IFS= read -r -d '' b; STEP_T+=("$a"); STEP_C+=("$b") ;;
+            S|O) IFS= read -r -d '' a; IFS= read -r -d '' b; STEP_T+=("$a"); STEP_C+=("$b")
+                 [ "$kind" = O ] && STEP_O+=(1) || STEP_O+=(0) ;;
             F) IFS= read -r -d '' a; IFS= read -r -d '' b; FN_BODY[$a]=$b ;;
         esac
     done < <("$BASH" --norc --noprofile -c '
         exec 4>&1 1>/dev/null      # records go to fd 4 only, so nothing the job prints can forge one
         check() { builtin printf "C\0%s\0%s\0" "$1" "$2" >&4; }
         step()  { builtin printf "S\0%s\0%s\0" "$1" "$2" >&4; }
+        step_outward() { builtin printf "O\0%s\0%s\0" "$1" "$2" >&4; }   # T-1286: a step that acts outside the repo
         __pre=" $(compgen -A function | tr "\n" " ") "
         source "$1" || exit 97
         for __f in $(compgen -A function); do   # T-1234: the body of every function the JOB defines
@@ -112,7 +126,7 @@ load_job() {  # load_job <dir>  — refuses anything but a definitions-only job
 
 job_shell() {  # job_shell <command>: runs one check or step in a child bash that sources the job (so its helpers
     # work), never in this shell, and with the answers fd (3) closed, so a step cannot read the operator's answers
-    "$BASH" --norc --noprofile -c 'check() { :; }; step() { :; }; source "$1" || exit 97; eval "$2"' _ "$JOB_FILE" "$1" 3<&-
+    "$BASH" --norc --noprofile -c 'check() { :; }; step() { :; }; step_outward() { :; }; source "$1" || exit 97; eval "$2"' _ "$JOB_FILE" "$1" 3<&-
 }
 
 step_code() {  # step_code <command>: T-1234 (AEF T-4470 finding 4): print the body of every job function the command
@@ -149,7 +163,131 @@ show_plan() {
     say "What:  $JOB_TITLE"
     [ -n "${JOB_WHY:-}" ] && sed 's/^/       /' <<<"$JOB_WHY"
     say "Steps (each asks y/N first):"
-    for i in "${!STEP_T[@]}"; do say "  $((i + 1)). ${STEP_T[$i]}"; done
+    for i in "${!STEP_T[@]}"; do say "  $((i + 1)). ${STEP_T[$i]}$([ "${STEP_O[$i]}" = 1 ] && printf ' (outward)')"; done
+}
+
+# ---------------------------------------------------------------- rehearsal (T-1286)
+# The dry-run used to run only the checks, so a gate that refuses a STEP (commit gates, inception decide, sovereignty,
+# foreign-delete) was first met by the operator: 7 of 22 retired jobs died that way (docs/reports/T-1285-quality-engine.md,
+# spike 1). Now the steps run first in a throwaway clone of HEAD with this repo's hooks, and the real repo is asserted
+# untouched afterwards.
+REHEARSE_DIR=""; REHEARSE_PID=""; REHEARSE_GUARDED=0
+
+repo_state() {  # one labelled line per part of the real repo a rehearsal must leave alone; the porcelain lines last
+    local hooks
+    hooks=$(cd "$REPO" && cd "$(git rev-parse --git-path hooks)" 2>/dev/null && pwd)
+    printf 'HEAD           %s\n' "$(git -C "$REPO" rev-parse -q --verify HEAD)"
+    printf 'refs           %s\n' "$(git -C "$REPO" for-each-ref | sha256sum | cut -c1-64)"
+    printf 'index          %s\n' "$(git -C "$REPO" ls-files --stage | sha256sum | cut -c1-64)"
+    git -C "$REPO" diff --cached --quiet; printf 'staged         rc=%s\n' "$?"
+    printf 'hooks          %s\n' "$( (cd "$hooks" 2>/dev/null && find . -type f -print0 | sort -z | xargs -0r sha256sum) | sha256sum | cut -c1-64)"
+    git -C "$REPO" status --porcelain | sed 's/^/status         /'
+    # the bytes of every tracked file that differs from HEAD, one line each, so a mismatch names the file
+    (cd "$REPO" && git diff HEAD --name-only -z | xargs -0r sha256sum 2>&1) | sed 's/^/edited         /'
+}
+
+rehearse_cleanup() {  # stop a step still running (its whole process group) and remove the clone
+    if [ -n "${REHEARSE_PID:-}" ]; then
+        kill -TERM -- "-$REHEARSE_PID" 2>/dev/null; wait "$REHEARSE_PID" 2>/dev/null; REHEARSE_PID=""
+    fi
+    case "${REHEARSE_DIR:-}" in
+        "$REHEARSE_ROOT"/?*)
+            [ -e "$REHEARSE_DIR" ] || return 0
+            rm -rf "$REHEARSE_DIR" 2>/dev/null || { chmod -R u+w "$REHEARSE_DIR" 2>/dev/null; rm -rf "$REHEARSE_DIR"; }
+            [ ! -e "$REHEARSE_DIR" ] || say "WARNING: could not remove $REHEARSE_DIR" ;;
+    esac
+}
+
+# The guard: in a private mount namespace the project and the real repo are read-only and only the clone is writable,
+# so a step that reaches the real repo (an absolute path, a tool that resolves the real root) fails HERE, by
+# construction. Measured on 2026-10-24: other sessions change this tree every few seconds (hook counters, their own
+# edits), so a before/after compare alone cannot tell their writes from the rehearsal's. Needs unshare + root; without
+# it the compare is the only guard and any change fails the dry-run. RUNME_REHEARSE_NO_GUARD=1: tests only.
+rehearse_guard() {
+    [ "${RUNME_REHEARSE_NO_GUARD:-}" = 1 ] && [ "$(realpath -m "$JOBS")" != "$(realpath -m "$REAL_JOBS")" ] && return 1
+    unshare --mount --propagation private true 2>/dev/null
+}
+
+rehearse_run() {  # rehearse_run <clone> <job.sh in it> <command> <output file>: one check or step, cwd at the clone, the
+    # project pointers unset, no stdin, no fd 3, in its own process group so an interrupt stops it whole. Backgrounded and
+    # waited for, so INT/TERM reach the trap at once instead of after the step.
+    local inner='cd "$C" && exec setsid env -u PROJECT_ROOT -u CONTEXT_DIR -u TASKS_DIR "$BASH" --norc --noprofile -c \
+        '"'"'check() { :; }; step() { :; }; step_outward() { :; }; source "$1" || exit 97; eval "$2"'"'"' _ "$J" "$X"'
+    if [ "$REHEARSE_GUARDED" = 1 ]; then
+        inner='for r in "$P" "$R"; do mount --bind "$r" "$r" && mount -o remount,bind,ro "$r" || exit 98; done
+        mount --bind "$C" "$C" && mount -o remount,bind,rw "$C" || exit 98
+        '"$inner"
+        ( cd "$1" && C=$1 J=$2 X=$3 P=$PROJ R=$REPO exec unshare --mount --propagation private "$BASH" --norc --noprofile -c "$inner" ) \
+            </dev/null >"$4" 2>&1 3<&- &
+    else
+        ( C=$1 J=$2 X=$3 exec "$BASH" --norc --noprofile -c "$inner" ) </dev/null >"$4" 2>&1 3<&- &
+    fi
+    REHEARSE_PID=$!
+    wait "$REHEARSE_PID"; local rc=$?
+    REHEARSE_PID=""
+    return $rc
+}
+
+rehearse() {  # rehearse <job dir>: 0 when the checks and every non-outward step pass in the clone and the real repo is unchanged
+    local d=$1 job rel rd rr clone cjob hooks url out before after i n rc bad=0
+    job=$(basename "$d")
+    REHEARSE_DIR="$REHEARSE_ROOT/$job"; clone="$REHEARSE_DIR/repo"; out="$REHEARSE_DIR/step.out"
+    rehearse_cleanup                                     # a clone left by a killed run
+    mkdir -p "$REHEARSE_DIR" || { say "FAIL  cannot create $REHEARSE_DIR"; return 1; }
+    before=$(repo_state)
+    REHEARSE_GUARDED=0; rehearse_guard && REHEARSE_GUARDED=1
+    say "Rehearsal: the steps run in a clone of HEAD $(git -C "$REPO" rev-parse --short HEAD) with this repo's hooks (${clone#"$PROJ"/});" \
+        "$([ "$REHEARSE_GUARDED" = 1 ] && echo "the real repo is read-only to them" || echo "NO read-only guard on this host: the before/after compare decides")"
+    git clone --quiet --no-hardlinks "$REPO" "$clone" 2>"$out" || { say "FAIL  git clone"; sed 's/^/  | /' "$out"; rehearse_cleanup; return 1; }
+    hooks=$(cd "$REPO" && cd "$(git rev-parse --git-path hooks)" 2>/dev/null && pwd)
+    [ -n "$hooks" ] && cp -pR "$hooks/." "$clone/.git/hooks/"
+    # A push in a rehearsal must never land anywhere: the clone's origin would be the real repo (a tag pushed there is
+    # a real tag). Fetch keeps the real origin, so a check that reads it sees what the operator's run will see.
+    url=$(git -C "$REPO" remote get-url origin 2>/dev/null) && git -C "$clone" remote set-url origin "$url"
+    git -C "$clone" remote set-url --push origin /dev/null/rehearsal-refuses-every-push--declare-it-step_outward
+    rd=$(realpath "$d"); rr=$(realpath "$REPO")
+    case "$rd/" in "$rr"/*) rel=${rd#"$rr"/} ;; *) rel=".context/runme/$job" ;; esac
+    rm -rf "${clone:?}/$rel"; mkdir -p "$clone/$(dirname "$rel")"; cp -pR "$d" "$clone/$rel"
+    git -C "$clone" ls-files --error-unmatch "$rel/job.sh" >/dev/null 2>&1 || printf '/%s/\n' "$rel" >> "$clone/.git/info/exclude"
+    cjob="$clone/$rel/job.sh"
+    for i in "${!CHECK_T[@]}"; do
+        if rehearse_run "$clone" "$cjob" "${CHECK_C[$i]}" "$out"; then
+            say "ok    check   ${CHECK_T[$i]}"
+        else
+            say "FAIL  check   ${CHECK_T[$i]} — fails in the clone (it passes here: does it need something uncommitted?)"
+            sed 's/^/  | /' "$out"; bad=1; break
+        fi
+    done
+    n=${#STEP_T[@]}
+    for i in "${!STEP_T[@]}"; do
+        [ "$bad" = 0 ] || break
+        if [ "${STEP_O[$i]}" = 1 ]; then
+            say "skip  step $((i + 1))/$n: ${STEP_T[$i]} — not rehearsed: acts outside the repo"; continue
+        fi
+        if rehearse_run "$clone" "$cjob" "${STEP_C[$i]}" "$out"; then
+            say "ok    step $((i + 1))/$n: ${STEP_T[$i]}"
+        else
+            rc=$?
+            say "FAIL  step $((i + 1))/$n: ${STEP_T[$i]} (rc=$rc); later steps not rehearsed"
+            say "  runs: ${STEP_C[$i]}"
+            sed 's/^/  | /' "$out"; bad=1
+        fi
+    done
+    rehearse_cleanup; REHEARSE_DIR=""
+    after=$(repo_state)
+    if [ "$before" = "$after" ]; then
+        say "ok    real repo unchanged: HEAD, refs, index, working tree, .git/hooks"
+    elif [ "$REHEARSE_GUARDED" = 1 ]; then
+        say "WARN  the real repo changed during the rehearsal, NOT by it (it saw the repo read-only): another session. Before (-) / after (+):"
+        diff <(printf '%s\n' "$before") <(printf '%s\n' "$after") | command grep '^[<>]' | sed 's/^</  -/; s/^>/  +/'
+    else
+        say "FAIL  THE REHEARSAL CHANGED THE REAL REPO ($REPO); it must touch only its clone. Before (-) / after (+):"
+        diff <(printf '%s\n' "$before") <(printf '%s\n' "$after") | command grep '^[<>]' | sed 's/^</  -/; s/^>/  +/'
+        say "  (a step reached outside the clone, e.g. by an absolute path; or another session changed the repo meanwhile:"
+        say "   this host has no mount-namespace guard, so the two cannot be told apart)"
+        bad=1
+    fi
+    return $bad
 }
 
 pending() {  # job dirs with a job.sh and no done or retired marker, in number order
@@ -316,7 +454,7 @@ case "${1:-}" in
     --dry-run) mode=dry; name=${2:-} ;;
     --list)    mode=list; [ "${2:-}" = --all ] && mode=listall ;;
     "")        ;;
-    -h|--help) sed -n '2,32p' "${BASH_SOURCE[0]}"; exit 0 ;;
+    -h|--help) sed -n '2,44p' "${BASH_SOURCE[0]}"; exit 0 ;;
     *)         fail "unknown argument: $1 (use --dry-run [name], --list [--all], or nothing)" ;;
 esac
 
@@ -343,20 +481,29 @@ if [ "$mode" = dry ]; then
     mapfile -t todo < <(if [ -n "$name" ]; then ls -d "$JOBS"/*"$name"* 2>/dev/null; else pending; fi)
     [ "${#todo[@]}" -gt 0 ] || { say "dry-run: no pending job${name:+ matching '$name'}"; exit 0; }
     rc=0
+    # T-1273: the EXIT trap removes the clone; INT/TERM/HUP EXIT (never return and resume the loop), which fires it.
+    trap rehearse_cleanup EXIT
+    trap 'exit 130' INT; trap 'exit 143' TERM; trap 'exit 129' HUP
     for d in "${todo[@]}"; do
         say "== DRY RUN $(basename "$d")"
         load_job "$d"
         show_plan "$d"
-        if run_checks; then
-            sha=$(job_sha "$d")
-            chmod u+w "$d" 2>/dev/null
-            printf 'sha=%s\nat=%s\n' "$sha" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$d/dryrun.ok"
-            chmod a-w "$d/job.sh"
-            say "dry-run passed: job.sh sha ${sha:0:12} recorded, job.sh now read-only. Nothing was run."
-        else
+        if ! run_checks; then
             rm -f "$d/dryrun.ok"; rc=1
             say "dry-run FAILED: preflight did not pass; no dryrun.ok written."
+            continue
         fi
+        sha=$(job_sha "$d")
+        if ! rehearse "$d"; then
+            rm -f "$d/dryrun.ok"; rc=1
+            say "dry-run FAILED: the rehearsal did not pass (above); no dryrun.ok written."
+            continue
+        fi
+        [ "$(job_sha "$d")" = "$sha" ] || fail "$(basename "$d")/job.sh changed during its own rehearsal; no dryrun.ok written"
+        chmod u+w "$d" 2>/dev/null
+        printf 'sha=%s\nat=%s\n' "$sha" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$d/dryrun.ok"
+        chmod a-w "$d/job.sh"
+        say "dry-run passed: steps rehearsed in a clone (removed), job.sh sha ${sha:0:12} recorded, job.sh now read-only. Nothing ran here."
     done
     exit $rc
 fi

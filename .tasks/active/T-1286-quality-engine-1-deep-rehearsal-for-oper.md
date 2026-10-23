@@ -94,10 +94,13 @@ spike 1.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **Outward steps are declared.** A job can declare `step_outward "<what>" '<cmd>'` for steps that act outside the
+- [x] **Outward steps are declared.** A job can declare `step_outward "<what>" '<cmd>'` for steps that act outside the
       repo (push, tag push, `/etc`, network services, model or reviewer calls, host services). The launcher's real
       run treats it exactly like `step`, with the same y/N, logging and signal.
-- [ ] **`--dry-run` rehearses the steps.** After the checks pass, it:
+      *(2026-10-24: tools/runme-launcher.sh records it as kind `O` beside `S`; the plan shows "(outward)". Real run:
+      test_t1286 leg 3b, y/N asked, ran, `step 2/2` event, `done`; test_t1055 legs 8, 13, 18 now fail their real run
+      through a step_outward and pass unchanged.)*
+- [x] **`--dry-run` rehearses the steps.** After the checks pass, it:
   - clones the committed repo (HEAD) into a gitignored dir inside the project (`.context/rehearse/<job>/`; the path
     is short, so no Chromium 108-char issue);
   - copies in this repo's `.git/hooks`;
@@ -106,17 +109,34 @@ spike 1.
   - removes the clone.
   A step that fails in the rehearsal fails the dry-run: no `dryrun.ok`, and the failing step and its output are
   printed.
-- [ ] **It catches the class it is for.**
+  *(2026-10-24: `git clone --no-hardlinks` into `.context/rehearse/<job>/repo` (gitignored), hooks copied, job dir
+  copied at its relative path, checks then steps with `env -u PROJECT_ROOT -u CONTEXT_DIR -u TASKS_DIR`, cwd = clone,
+  no stdin. Each runs in its own process group; the EXIT trap removes the clone, INT/TERM/HUP exit (T-1273):
+  test_t1286 leg 7 measures rc 143 / 130, step group killed, clone gone. The clone's push url refuses every push
+  (leg 4). On the real repo a probe job's `fw git commit` with no task id was refused in the clone by the real
+  commit-msg hook, output printed, no dryrun.ok. Cost: about 7-9 s per dry-run here, the clone of a 925 MB repo.)*
+- [x] **It catches the class it is for.**
   - Test fixtures: a job whose step runs a gate that refuses, e.g. `fw inception decide` on an inception whose
     success clause is a placeholder, or a commit the foreign-delete or re-vendor gate refuses. It passes the OLD
     dry-run and fails the new one.
   - A job whose steps all succeed passes both.
   - Rehearsal never touches the real repo: HEAD, the index, the working tree and `.git/hooks` are byte-identical
     after it (asserted).
+  *(2026-10-24: tests/test_t1286_rehearsal.py, 14/14 legs. Leg 1: a commit the fixture's pre-commit hook refuses
+  passes the OLD dry-run (launcher at f60a5f35) and fails the new one with the gate's words, no dryrun.ok. Leg 2: a
+  good job (a commit, then a step checking it and the three unset variables) passes both, and its commit stays in
+  the clone. The assertion compares HEAD, refs, `ls-files --stage`, the `diff --cached` rc, porcelain status, the
+  bytes of every edited tracked file and a `.git/hooks` digest. Leg 5: the guard makes the real repo read-only
+  to steps, so an absolute-path write fails in the step. Leg 6: without the guard, the assertion fails the dry-run
+  and names `?? stray` and the hooks change.)*
 - [ ] **No regression:**
   - `tests/test_t1055_runme_launcher.py` and the T-1227/T-1230 picker tests stay green;
   - an existing pending job still dry-runs, with its steps rehearsed and its outward ones listed;
   - CLAUDE.md's runme section says what the dry-run now does, and how to declare `step_outward`.
+  *(2026-10-24, NOT ticked: test_t1055 36/36 legs (picker legs 16-29 included), test_t1003 11/11, test_t1050
+  green, and CLAUDE.md is updated. But `runme.sh --list` shows no pending job (001-084 are all done or retired), so
+  "an existing pending job still dry-runs" has nothing to run on. No job was created for it, on purpose. Tick this
+  at the next real job's dry-run.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -172,6 +192,12 @@ spike 1.
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
+#
+bash -n tools/runme-launcher.sh
+git check-ignore -q .context/rehearse/x
+nice -n 19 python3 tests/test_t1286_rehearsal.py > /tmp/.t1286.out 2>&1 && grep -q "all legs passed" /tmp/.t1286.out
+nice -n 19 python3 tests/test_t1055_runme_launcher.py > /tmp/.t1055.out 2>&1 && grep -q "all legs passed" /tmp/.t1055.out
+grep -q "step_outward" CLAUDE.md
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
@@ -381,6 +407,21 @@ spike 1.
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-10-24 — how the rehearsal is kept off the real repo
+- **Chose:** two layers. (1) A guard: each check and step runs in a private mount namespace (`unshare --mount`),
+  with the project and the real repo bind-mounted read-only and only the clone writable, so a write into the real
+  repo fails inside the step. (2) The asked-for before/after assertion. With the guard, a difference is a loud WARN
+  naming the files, since the rehearsal could not have made it. Without the guard (no unshare/root, or the test-only
+  `RUNME_REHEARSE_NO_GUARD=1`), a difference FAILS the dry-run.
+- **Why:** measured on the real repo, other sessions changed the tree during every one of 4 probe rehearsals: hook
+  counters (`.context/working/.hook-counter`, `.loop-detect.json`, `.budget-status`), T-1290's `loop.sh` edit, its
+  new test file, its close commit (HEAD moved). An assertion-only design failed every dry-run here, and the compare
+  alone cannot tell their writes from ours.
+- **Rejected:** assertion-only (fails every dry-run in this multi-session repo); excluding volatile paths (another
+  session's real edits still collide, and the exclusion list rots); a git worktree or /tmp clone (the brief rules
+  them out).
+
 
 ## Decision
 

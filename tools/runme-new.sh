@@ -18,6 +18,8 @@ mkdir "$d"
 cat > "$d/job.sh" <<'EOF'
 # Operator job for tools/runme-launcher.sh. DEFINITIONS ONLY: the launcher refuses a job that runs
 # anything when loaded. Steps run from the project root, each after the operator's y/N.
+# --dry-run rehearses every `step` in a clone of HEAD; a step that acts outside the repo (push, tag push, /etc,
+# model calls, host services), or needs such a step's result, is `step_outward "<what>" '<cmd>'` instead.
 JOB_TITLE="TODO one line: what this does"
 JOB_TASK="T-XXXX"
 JOB_WHY="TODO: why now, and what the operator should know before saying y."
