@@ -2941,3 +2941,9 @@ learnings:
   task: T-1278
   date: 2026-10-22
   context: Added via context agent
+- id: PL-426
+  learning: "Never point TMPDIR at a deep project path when running CDP harnesses: they hand Chromium TMPDIR=<profile dir>, Chromium creates org.chromium.Chromium.XXXXXX/SingletonSocket inside it, and a Unix socket path over 108 chars makes Chromium die with SIGTRAP at launch ('chromium did not open a DevTools port'). /opt/832-Workflow-designer/.context/working/tmp/... gave 112 chars; _t1068 and _t604 failed in the T-1279 suite for this reason alone. If /tmp is full, free it or use a short path (e.g. /var/tmp/x), not a deep one."
+  source: unknown
+  task: T-1279
+  date: 2026-10-23
+  context: Added via context agent
