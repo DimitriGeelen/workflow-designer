@@ -7,13 +7,13 @@ description: >
   cited a line without the quoted text. Require map_evidence, report unverified findings
   separately; calibrate at kit-change time (T-1285 GO, ranked step 5; evidence docs/reports/T-1285-quality-engine.md)
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [quality-engine, T-1285]
-components: []
+components: [tests/run-bridge-tests.sh, tools/build-authoring-kit.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-23T22:13:32Z
-last_update: '2026-10-23T22:21:48Z'
-date_finished:
+last_update: 2026-10-23T22:26:11Z
+date_finished: 2026-10-23T22:26:11Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -422,3 +422,20 @@ grep -q 'map_evidence' docs/authoring-kit/REVIEW.md
 ### 2026-10-23T22:21:46Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-210d9d69
+- **Timestamp:** 2026-10-23T22:26:15Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-23T22:26:11Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1290: Quality engine 5: verifiable reviewer findings (map_evidence line+quote, mechanically checked) in the authoring kit
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-23T22:26:27Z
+# ============================================================================
+
+task_id: T-1290
+task_name: "Quality engine 5: verifiable reviewer findings (map_evidence line+quote, mechanically checked) in the authoring kit"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-23T22:13:32Z
+completed: 2026-10-23T22:26:11Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-24T00:25:48+02:00
+last_commit: 2026-10-24T00:25:48+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  review findings carry map evidence, checked mechanically — REVIEW.md asks for map_evidence {line, quote} (null = absence claim); new kit/verify-findings.py labels each finding verified / absence / unverified; loop.sh prints labels in --calibrate (verdict unchanged: an unverified clean finding still fails) and sets unverified findings aside in production review rounds (kept in review.rN.unverified.json); test replays a calibration through the real loop.sh (job 082's GLM finding comes out unverified); suite leg wired; draft 0.27.0 notes
+
+# Key outcomes
+outcomes:
+  - '**REVIEW.md asks for `map_evidence`:** `{"line": <1-based line in map.bpmn>, "quote": "<text verbatim on that'
+  - '**`verify-findings.py` ships in the kit** (via `tools/build-authoring-kit.py`''s LOOP_FILES). Given map.bpmn and'
+  - '**loop.sh uses it:**'
+  - '**Tests** (`tests/test_t1290_verify_findings.py`):'
+  - '**Release note line** for the next designer release (the kit changes, so the next release calibrates it).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-10-24 — does an unverified finding count against calibration?'
+    chose: 'yes. The calibration verdict is unchanged; unverified findings are labelled, not excused.'
+    rationale: 'calibration measures whether a reviewer is fit to use. A reviewer that cites lines which do not say what it claims has a precision problem, which is exactly what the gate exists to catch. The operator had just pushed back on treating a failure as noise ("it sounds like you''re completely ignoring this"). The gain here is diagnosis: a FAIL''s cause is now printed, so the 30-minute re-ask plus second opinion of 2026-10-23 becomes one log line.'
+    alternatives_rejected: ['- excluding unverified findings from the false count. It would let a reviewer that makes things up pass calibration, and it relaxes a release gate, which is the operator''s call, not this task''s; - dropping findings without map evidence silently: they are moved to `review.rN.unverified.json`, never lost.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/authoring-kit/loop.sh'
+  - 'docs/authoring-kit/REVIEW.md'
+  - 'docs/authoring-kit/verify-findings.py'
+  - 'docs/releases/RELEASE-NOTES-0.27.0.md'
+  - '.tasks/active/T-1290-quality-engine-5-verifiable-reviewer-fin.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t1290_verify_findings.py'
+  - 'tools/build-authoring-kit.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-24T00:25:48'
+    action: 'T-1290: review findings carry map evidence, checked mechanically — REVIEW.md asks for map_evidence {line, quote} (null = absence claim); new kit/verify-findings.py labels each finding verified / absence / unverified; loop.sh prints labels in --calibrate (verdict unchanged: an unverified clean finding still fails) and sets unverified findings aside in production review rounds (kept in review.rN.unverified.json); test replays a calibration through the real loop.sh (job 082''s GLM finding comes out unverified); suite leg wired; draft 0.27.0 notes'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 12 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [quality-engine, T-1285]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 12
+  commits: 1
+  files_changed: 8
+  lines_added: 323
+  lines_removed: 10
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1290-quality-engine-5-verifiable-reviewer-fin.md
+generated_by: context-agent-hybrid
