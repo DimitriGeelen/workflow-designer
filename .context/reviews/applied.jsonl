@@ -42,3 +42,4 @@
 {"ac":1,"kind":"escalate","owner_after":"human","owner_before":"agent","task":"T-811","ts":"2026-10-21T08:27:24Z","verdict_id":"V-20261021-6726f2dd"}
 {"ac":1,"kind":"escalate","owner_after":"human","owner_before":"agent","task":"T-898","ts":"2026-10-21T08:29:01Z","verdict_id":"V-20261021-ab343bb5"}
 {"kind":"verdict-apply","open_human_remaining":0,"owner_after":"agent","owner_before":"agent","recited":[],"task":"T-1249","ticked":[{"ac":1,"reviewer":"reviewer-judge-t-1249-r3-e9a86f1be12a:reviewer","verdict_id":"V-20261021-e7c2ac2c"}],"ts":"2026-10-21T18:56:03Z","withdrawn":[]}
+{"kind":"verdict-apply","open_human_remaining":1,"owner_after":"agent","owner_before":"agent","recited":[],"task":"T-1241","ticked":[{"ac":1,"reviewer":"reviewer-judge-t-1241-r5-opencode-179adf6e8d78:opencode","verdict_id":"V-20261022-73c28dd4"}],"ts":"2026-10-22T23:20:18Z","withdrawn":[]}
