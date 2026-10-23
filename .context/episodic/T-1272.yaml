@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1272: io child element using a prefix declared on the source root loses that declaration on save: export not well-formed (T-1243 regression; blocks 0.25.0)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-23T22:05:39Z
+# ============================================================================
+
+task_id: T-1272
+task_name: "io child element using a prefix declared on the source root loses that declaration on save: export not well-formed (T-1243 regression; blocks 0.25.0)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-21T21:28:42Z
+completed: 2026-10-23T22:05:20Z
+duration_days: 2
+updates_count: 2
+first_commit: 2026-10-22T09:27:15+02:00
+last_commit: 2026-10-22T09:27:15+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  an io child whose prefix only the source root declares keeps its declaration on save (ioChildXml strips only the five namespaces our export root writes), so the export stays well-formed; _t1243 leg 6 (root-declared x/s/default ns, one-line and designer layout, unedited and edited; DOMParser + expat) red on the pre-fix source, green now; _t1249 (84 maps, 0 bytes), roundtrip and _t1222 green; 0.25.0 notes say so
+
+# Key outcomes
+outcomes:
+  - '`ioChildXml` drops only the declarations `buildBpmnXml`''s root always makes (those five prefixes with their URIs);'
+  - '`_t1243` gains a leg with a root-declared foreign prefix inside an `aef:input` child, in the verbatim io block and'
+  - 'No other byte changes: `_t1243`, `_t1249` (v1.1 examples, corpus_spec cases, 84 tracked maps with io) and'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'an io child whose prefix only the source root declares keeps its declaration on save (ioChildXml strips only the five namespaces our export root writes), so the export stays well-formed; _t1243 leg 6 (root-declared x/s/default ns, one-line and designer layout, unedited and edited; DOMParser + expat) red on the pre-fix source, green now; _t1249 (84 maps, 0 bytes), roundtrip and _t1222 green; 0.25.0 notes say so'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-10-22 — where the foreign declaration goes'
+    chose: 'keep it on the kept element (strip only the five namespaces our export root always declares), the rule the T-1096/T-1119 verbatim writers already follow.'
+    rationale: 'needs no new state: a project JSON saved by an older build, or a state built without the source document, still exports well-formed; a second save is byte-identical; maps that were already correct do not change.'
+    alternatives_rejected: ['job B''s `rootNs` (re-declare the source root''s prefixes on our root when kept content uses them): correct, but adds a state field older builds drop (job B''s own risk 8) and changes the root line of every map that uses one; it belongs with T-347''s wider foreign-content work if that needs it.']
+  - decision: '2026-10-22 — what reproduces at HEAD'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/releases/RELEASE-NOTES-0.25.0.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1272-io-child-element-using-a-prefix-declared.md'
+  - 'tools/_t1243-io-children-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-22T09:27:15'
+    action: 'T-1272: an io child whose prefix only the source root declares keeps its declaration on save (ioChildXml strips only the five namespaces our export root writes), so the export stays well-formed; _t1243 leg 6 (root-declared x/s/default ns, one-line and designer layout, unedited and edited; DOMParser + expat) red on the pre-fix source, green now; _t1249 (84 maps, 0 bytes), roundtrip and _t1222 green; 0.25.0 notes say so'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2916 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [release-blocker]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2916
+  commits: 1
+  files_changed: 4
+  lines_added: 481
+  lines_removed: 11
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1272-io-child-element-using-a-prefix-declared.md
+generated_by: context-agent-hybrid
