@@ -1,0 +1,181 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1279: Upgrade AEF be.3 -> v1.8.15-be.5 (T-4675 dispatch dirs in .context, T-4672 designer reinstall, T-4670 leak rule) and field report
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-23T14:12:15Z
+# ============================================================================
+
+task_id: T-1279
+task_name: "Upgrade AEF be.3 -> v1.8.15-be.5 (T-4675 dispatch dirs in .context, T-4672 designer reinstall, T-4670 leak rule) and field report"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-22T23:46:18Z
+completed: 2026-10-23T14:12:08Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-23T01:48:01+02:00
+last_commit: 2026-10-23T12:11:12+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  operator job 078 upgrades AEF be.3 (2ec39ef8e) -> v1.8.15-be.5 (fea3e4c76) on the be.3 path (clone to /var/tmp because /tmp is a near-full tmpfs; report-only designer step for T-4672; pristine commit names T-1275 for designer_open.html); rehearsed, 9/9 checks ok; criteria written. pristine vendor commit (removes designer_open.html last committed by T-1275, our previous upgrade task; re-applied as a local fix next) — AEF v1.8.15-be.5 (fea3e4c76) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.15-be.5 commit (re-vendor protocol step 2, T-1000). re-apply 832's local fixes onto pristine AEF v1.8.15-be.5 (re-vendor protocol step 3, T-1000) — 37 fixes, all clean (no 3-way or hand merges this time); _t517 OK; verdict audit 0 failures; _t390/_t636/_t640/_t650/_t1047/_t632 pass; no .bak left by the upgrade; CLAUDE.md and .mcp.json untouched by it. be.5 in place — Watchtower restarted serving designer 0.25.0 byte for byte; .context/dispatch/ (be.5 T-4675's new worker-dir home, holding prompts and env.sh) gitignored, which be.5 does not do; T-4678/T-4655/T-4667 exercised WORKS, T-4672 inconclusive (pin unchanged). suite on be.5 is 307/6, all explained — the three T-1241 review-round guards (_t1274-note-box, _t1276-name-fit, _t1278-sweep) are standing suite legs now (census back to 89=89); _t634 judges every run_verification_commands call site (be.5 T-4653 added a second, bare); _t598 counts marker-start applications, not T-1277's getAttribute read; _t1068/_t604 failed only because the run's TMPDIR inside the project made Chromium's socket path 112 chars (>108). learning — a deep TMPDIR makes Chromium's socket path exceed 108 chars and it dies with SIGTRAP
+
+# Key outcomes
+outcomes:
+  - '**Job 078 ran to `done`:** version_sha fea3e4c76; pristine and baseline commits present; TermLink settings'
+  - '**832''s local fixes re-applied:** `tools/_t517` OK; every `*.bak` diffed and removed or reported; `_t1192`'
+  - '**Watchtower restarted on be.5** serves designer 0.25.0 byte for byte.'
+  - '**Suite:** no new failure against 2026-10-22''s post-be.3 run (310 passed, 3 failed, all 3 explained).'
+  - '**AEF has the field report:** WORKS/FAILS for each be.5 fix this project can exercise, on `aef-v1815-be3`.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.15-be.5 (re-vendor protocol step 3, T-1000) — 37 fixes, all clean (no 3-way or hand merges this time); _t517 OK; verdict audit 0 failures; _t390/_t636/_t640/_t650/_t1047/_t632 pass; no .bak left by the upgrade; CLAUDE.md and .mcp.json untouched by it'
+    source: git-mined
+  - description: 'pristine vendor commit (removes designer_open.html last committed by T-1275, our previous upgrade task; re-applied as a local fix next) — AEF v1.8.15-be.5 (fea3e4c76) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/check-project-boundary.sh'
+  - '.agentic-framework/agents/context/check-tier0.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/location_kind.py'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/git/lib/stock-hook-lines.txt'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/agents/termlink/termlink.sh'
+  - '.agentic-framework/bin/claude-fw'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/docs/reports/field-test-submitter-confirmations.md'
+  - '.agentic-framework/docs/reports/T-4635-session-kill-rca.md'
+  - '.agentic-framework/docs/reports/T-4649-ring20-patch-triage.md'
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/dispatch_tokens.py'
+  - '.agentic-framework/lib/hook-degraded.sh'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/issues.py'
+  - '.agentic-framework/lib/mirror.sh'
+  - '.agentic-framework/lib/operator_pending.py'
+  - '.agentic-framework/lib/paths.sh'
+  - '.agentic-framework/lib/release.sh'
+  - '.agentic-framework/lib/release-tags.sh'
+  - '.agentic-framework/lib/shell_write_scan.py'
+  - '.agentic-framework/lib/sidecar_cli.py'
+  - '.agentic-framework/lib/spawn-env.sh'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/termlink_worker.py'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/upgrade.sh'
+  - '.agentic-framework/lib/verdict_ledger.py'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/metrics.sh'
+  - '.agentic-framework/tools/gen-stock-hook-digests.sh'
+  - '.agentic-framework/tools/wait-dispatch.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/api.py'
+  - '.agentic-framework/web/blueprints/arcs.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/templates/tasks.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.context/project/learnings.yaml'
+  - '.context/runme/078-upgrade-aef-v1.8.15-be.5/dryrun.ok'
+  - '.context/runme/078-upgrade-aef-v1.8.15-be.5/job.sh'
+  - '.context/working/tmp/tmp.PWeDKJIbSt/t630-3628412-1792749172/ctrl/.context/episodic/T-901.yaml'
+  - '.context/working/tmp/tmp.PWeDKJIbSt/t630-3628412-1792749172/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/working/tmp/tmp.PWeDKJIbSt/t630-3628412-1792749172/gap/.context/episodic/T-905.yaml'
+  - '.context/working/tmp/tmp.PWeDKJIbSt/t630-3628412-1792749172/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/working/tmp/tmp.PWeDKJIbSt/t630-3628412-1792749172/live/.context/episodic/T-902.yaml'
+  - '.context/working/tmp/tmp.PWeDKJIbSt/t630-3628412-1792749172/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/working/tmp/tmp.PWeDKJIbSt/t634-3367288-1792748962/ctrl/.context/episodic/T-901.yaml'
+  - '.context/working/tmp/tmp.PWeDKJIbSt/t634-3367288-1792748962/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/working/tmp/tmp.PWeDKJIbSt/t634-3367288-1792748962/fixed/.context/episodic/T-905.yaml'
+  - '.context/working/tmp/tmp.PWeDKJIbSt/t634-3367288-1792748962/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/working/tmp/tmp.PWeDKJIbSt/t634-3367288-1792748962/m2/.context/episodic/T-907.yaml'
+  - '.context/working/tmp/tmp.PWeDKJIbSt/t634-3367288-1792748962/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.gitignore'
+  - '.tasks/active/T-1279-upgrade-aef-be3---v1815-be5-t-4675-dispa.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t598-source-marker.py'
+  - 'tools/_t634-guard-verdict-reaches-caller.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-23T01:48:01'
+    action: 'T-1279: operator job 078 upgrades AEF be.3 (2ec39ef8e) -> v1.8.15-be.5 (fea3e4c76) on the be.3 path (clone to /var/tmp because /tmp is a near-full tmpfs; report-only designer step for T-4672; pristine commit names T-1275 for designer_open.html); rehearsed, 9/9 checks ok; criteria written'
+  - time: '2026-10-23T11:10:20'
+    action: 'T-1279: pristine vendor commit (removes designer_open.html last committed by T-1275, our previous upgrade task; re-applied as a local fix next) — AEF v1.8.15-be.5 (fea3e4c76) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-23T11:12:29'
+    action: 'T-1279: advance the divergence baseline to the pristine AEF v1.8.15-be.5 commit (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-23T11:18:40'
+    action: 'T-1279: re-apply 832''s local fixes onto pristine AEF v1.8.15-be.5 (re-vendor protocol step 3, T-1000) — 37 fixes, all clean (no 3-way or hand merges this time); _t517 OK; verdict audit 0 failures; _t390/_t636/_t640/_t650/_t1047/_t632 pass; no .bak left by the upgrade; CLAUDE.md and .mcp.json untouched by it'
+  - time: '2026-10-23T11:20:11'
+    action: 'T-1279: be.5 in place — Watchtower restarted serving designer 0.25.0 byte for byte; .context/dispatch/ (be.5 T-4675''s new worker-dir home, holding prompts and env.sh) gitignored, which be.5 does not do; T-4678/T-4655/T-4667 exercised WORKS, T-4672 inconclusive (pin unchanged)'
+  - time: '2026-10-23T12:10:59'
+    action: 'T-1279: suite on be.5 is 307/6, all explained — the three T-1241 review-round guards (_t1274-note-box, _t1276-name-fit, _t1278-sweep) are standing suite legs now (census back to 89=89); _t634 judges every run_verification_commands call site (be.5 T-4653 added a second, bare); _t598 counts marker-start applications, not T-1277''s getAttribute read; _t1068/_t604 failed only because the run''s TMPDIR inside the project made Chromium''s socket path 112 chars (>108)'
+  - time: '2026-10-23T12:11:12'
+    action: 'T-1279: learning — a deep TMPDIR makes Chromium''s socket path exceed 108 chars and it dies with SIGTRAP'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 865 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [upgrade, framework]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 865
+  commits: 7
+  files_changed: 89
+  lines_added: 8093
+  lines_removed: 3892
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1279-upgrade-aef-be3---v1815-be5-t-4675-dispa.md
+generated_by: context-agent-hybrid

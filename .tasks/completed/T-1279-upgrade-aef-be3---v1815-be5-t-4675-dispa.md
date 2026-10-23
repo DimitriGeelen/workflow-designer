@@ -10,13 +10,13 @@ description: >
   Same path as be.3 (T-1275, job 077); clone outside the tree (/var/tmp: /tmp is a
   near-full tmpfs). Report WORKS/FAILS per fix on aef-v1815-be3.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [upgrade, framework]
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t598-source-marker.py, tools/_t634-guard-verdict-reaches-caller.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -45,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-22T23:46:18Z
-last_update: '2026-10-22T23:46:25Z'
-date_finished:
+last_update: 2026-10-23T14:12:08Z
+date_finished: 2026-10-23T14:12:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -203,6 +203,9 @@ This follows the be.3 path (T-1275, job 077).
 
 ## Verification
 
+git cat-file -e 7be3ad1a && git cat-file -e 665f2f91
+python3 tools/_t517-vendor-divergence.py > /dev/null
+git check-ignore -q .context/dispatch/w/env.sh
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -438,3 +441,25 @@ This follows the be.3 path (T-1275, job 077).
 
 ### 2026-10-22T23:46:24Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3d1c41fa
+- **Timestamp:** 2026-10-23T14:12:09Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 2
+     - evidence: `python3 tools/_t517-vendor-divergence.py > /dev/null`
+
+### 2026-10-23T14:12:08Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

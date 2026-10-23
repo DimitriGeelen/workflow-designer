@@ -1,0 +1,155 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1280: Upgrade AEF be.5 -> v1.8.15-be.6 (T-4683 review seats, T-4681 finalize, T-4682 tests; T-4677 business names) and field report for be.5+be.6
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-23T14:12:38Z
+# ============================================================================
+
+task_id: T-1280
+task_name: "Upgrade AEF be.5 -> v1.8.15-be.6 (T-4683 review seats, T-4681 finalize, T-4682 tests; T-4677 business names) and field report for be.5+be.6"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-23T10:11:24Z
+completed: 2026-10-23T14:12:31Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-23T12:12:39+02:00
+last_commit: 2026-10-23T16:11:08+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  operator job 079 upgrades AEF be.5 (fea3e4c76) -> v1.8.15-be.6 (797875a32, lightweight tag) on the be.5 path; rehearsed, 9/9 checks ok; criteria written. retire job 079 (be.6) before it ran; job 080 upgrades be.5 -> v1.8.15-be.7 (ce8075dba) directly, which carries be.6 plus T-4684 from our report; rehearsed. retire job 080 (be.7) before it ran; job 081 upgrades be.5 -> v1.8.15-be.8 (04dc39868) directly; rehearsed. pristine vendor commit (removes designer_open.html last committed by T-1279, our previous upgrade task; re-applied as a local fix next) — AEF v1.8.15-be.8 (04dc39868) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.15-be.8 commit (re-vendor protocol step 2, T-1000). re-apply 832's local fixes onto pristine AEF v1.8.15-be.8 (re-vendor protocol step 3, T-1000) — 37 fixes, all clean; _t517 OK; verdict audit 0 failures; _t390/_t636/_t640/_t650/_t1047/_t632/_t629/_t634 pass; no .bak; CLAUDE.md, .mcp.json and .gitignore untouched by the upgrade (T-4684 saw our .context/dispatch/ line and added no duplicate). be.8 suite 315 passed / 1 failed — _t568 mutant A also missed create/delete on the tmpfs /tmp (create and delete inside one coarse mtime tick); leg 3's steps now 50 ms apart, 4/4 three times; be.5..be.8 fixes recorded (T-4683, T-4684, T-4677 WORKS; T-4675 as designed; T-4672 inconclusive; T-4688 not exercised). Also files T-1281: be.9 batched for later. be.5+be.8 field report sent to AEF (WORKS: T-4683, T-4684, T-4677, T-4675, T-4678, T-4655, T-4667; inconclusive T-4672; not exercised T-4688, T-4670); T-1279 and T-1280 criteria all met
+
+# Key outcomes
+outcomes:
+  - '**Job 079 ran to `done`:** version_sha 797875a32; pristine and baseline commits present; TermLink settings'
+  - '**832''s local fixes re-applied:** `tools/_t517` OK; every `*.bak` diffed and removed or reported; `_t1192`'
+  - '**Suite:** no new failure against the be.5 run (307 passed, 6 failed, all 6 explained in T-1279), run with the'
+  - '**AEF has the be.5+be.6 field report** on `aef-v1815-be3`, WORKS/FAILS per fix exercised:'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'be.8 suite 315 passed / 1 failed — _t568 mutant A also missed create/delete on the tmpfs /tmp (create and delete inside one coarse mtime tick); leg 3''s steps now 50 ms apart, 4/4 three times; be.5..be.8 fixes recorded (T-4683, T-4684, T-4677 WORKS; T-4675 as designed; T-4672 inconclusive; T-4688 not exercised). Also files T-1281: be.9 batched for later'
+    source: git-mined
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.15-be.8 (re-vendor protocol step 3, T-1000) — 37 fixes, all clean; _t517 OK; verdict audit 0 failures; _t390/_t636/_t640/_t650/_t1047/_t632/_t629/_t634 pass; no .bak; CLAUDE.md, .mcp.json and .gitignore untouched by the upgrade (T-4684 saw our .context/dispatch/ line and added no duplicate)'
+    source: git-mined
+  - description: 'pristine vendor commit (removes designer_open.html last committed by T-1279, our previous upgrade task; re-applied as a local fix next) — AEF v1.8.15-be.8 (04dc39868) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/agents/termlink/termlink.sh'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/.context/designer/projects/aef-task-lifecycle/meta.json'
+  - '.agentic-framework/.context/designer/projects/aef-task-lifecycle/v4.bpmn'
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/dispatch-gitignore.sh'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/init.sh'
+  - '.agentic-framework/lib/paths.sh'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/upgrade.sh'
+  - '.agentic-framework/lib/vendor_preserve.py'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.context/runme/079-upgrade-aef-v1.8.15-be.6/dryrun.ok'
+  - '.context/runme/079-upgrade-aef-v1.8.15-be.6/job.sh'
+  - '.context/runme/079-upgrade-aef-v1.8.15-be.6/retired'
+  - '.context/runme/080-upgrade-aef-v1.8.15-be.7/dryrun.ok'
+  - '.context/runme/080-upgrade-aef-v1.8.15-be.7/job.sh'
+  - '.context/runme/080-upgrade-aef-v1.8.15-be.7/retired'
+  - '.context/runme/081-upgrade-aef-v1.8.15-be.8/dryrun.ok'
+  - '.context/runme/081-upgrade-aef-v1.8.15-be.8/job.sh'
+  - '.tasks/active/T-1279-upgrade-aef-be3---v1815-be5-t-4675-dispa.md'
+  - '.tasks/active/T-1280-upgrade-aef-be5---v1815-be6-t-4683-revie.md'
+  - '.tasks/active/T-1281-upgrade-aef-be8---v1815-be9-or-later-bat.md'
+  - 'tools/_t568-fabric-card-cache-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-23T12:12:39'
+    action: 'T-1280: operator job 079 upgrades AEF be.5 (fea3e4c76) -> v1.8.15-be.6 (797875a32, lightweight tag) on the be.5 path; rehearsed, 9/9 checks ok; criteria written'
+  - time: '2026-10-23T12:24:46'
+    action: 'T-1280: retire job 079 (be.6) before it ran; job 080 upgrades be.5 -> v1.8.15-be.7 (ce8075dba) directly, which carries be.6 plus T-4684 from our report; rehearsed'
+  - time: '2026-10-23T12:47:37'
+    action: 'T-1280: retire job 080 (be.7) before it ran; job 081 upgrades be.5 -> v1.8.15-be.8 (04dc39868) directly; rehearsed'
+  - time: '2026-10-23T15:27:59'
+    action: 'T-1280: pristine vendor commit (removes designer_open.html last committed by T-1279, our previous upgrade task; re-applied as a local fix next) — AEF v1.8.15-be.8 (04dc39868) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-23T15:30:37'
+    action: 'T-1280: advance the divergence baseline to the pristine AEF v1.8.15-be.8 commit (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-23T15:37:41'
+    action: 'T-1280: re-apply 832''s local fixes onto pristine AEF v1.8.15-be.8 (re-vendor protocol step 3, T-1000) — 37 fixes, all clean; _t517 OK; verdict audit 0 failures; _t390/_t636/_t640/_t650/_t1047/_t632/_t629/_t634 pass; no .bak; CLAUDE.md, .mcp.json and .gitignore untouched by the upgrade (T-4684 saw our .context/dispatch/ line and added no duplicate)'
+  - time: '2026-10-23T16:10:34'
+    action: 'T-1280: be.8 suite 315 passed / 1 failed — _t568 mutant A also missed create/delete on the tmpfs /tmp (create and delete inside one coarse mtime tick); leg 3''s steps now 50 ms apart, 4/4 three times; be.5..be.8 fixes recorded (T-4683, T-4684, T-4677 WORKS; T-4675 as designed; T-4672 inconclusive; T-4688 not exercised). Also files T-1281: be.9 batched for later'
+  - time: '2026-10-23T16:11:08'
+    action: 'T-1280: be.5+be.8 field report sent to AEF (WORKS: T-4683, T-4684, T-4677, T-4675, T-4678, T-4655, T-4667; inconclusive T-4672; not exercised T-4688, T-4670); T-1279 and T-1280 criteria all met'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 241 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [upgrade, framework]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 241
+  commits: 8
+  files_changed: 60
+  lines_added: 5494
+  lines_removed: 3781
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1280-upgrade-aef-be5---v1815-be6-t-4683-revie.md
+generated_by: context-agent-hybrid
