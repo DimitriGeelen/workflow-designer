@@ -56,7 +56,15 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Tags to batch (take the newest when this starts):
+- **be.9** e9fb67bc9 (msg 710fe81b): T-4689-T-4694. Run `fw git install-hooks` afterwards (T-4690), and check that
+  our three pre-commit gates survive.
+- **be.10** e82e3d9a7 (msg 3bb22588):
+  - T-4699/T-4700: the session-silent-scanner stays inside this project and rotates its log;
+  - T-4697: the upgrade's "files to commit" list names only the files it wrote;
+  - T-4695: cron outputs are committed or untracked;
+  - T-4696: bats refuses a TMPDIR inside the repo, which matches our 2026-10-23 Chromium socket lesson.
+  Open: T-4701. 832 tracks no `.session-silent-scanner.log` (checked 2026-10-23), so nothing needs untracking.
 
 ## Acceptance Criteria
 
