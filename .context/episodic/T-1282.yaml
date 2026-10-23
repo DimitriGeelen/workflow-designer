@@ -1,0 +1,125 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1282: Designer URL entry ?browse=1 opens the project browser on load (AEF T-4716: Watchtower /designer becomes the designer's own card browser)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-23T20:47:44Z
+# ============================================================================
+
+task_id: T-1282
+task_name: "Designer URL entry ?browse=1 opens the project browser on load (AEF T-4716: Watchtower /designer becomes the designer's own card browser)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-23T20:25:29Z
+completed: 2026-10-23T20:47:16Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-23T22:26:23+02:00
+last_commit: 2026-10-23T22:47:15+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file AEF's request (their T-4716) for a designer URL entry ?browse=1 that opens the project browser on load, with criteria (opened from detectSaveApi so the API is confirmed; ?load wins; silent without API; CDP leg; screenshots at three widths; independent review; release note). ?browse=1 opens the designer's Open-project browser on load (AEF T-4716) — 5 lines in detectSaveApi, after the API is confirmed; ?load wins; silent without an API. _t1282-browse-entry-cdp (5 cases, red on HEAD for open and pick-loads, green now) wired into the suite; guards green; screenshots at 1024/1440/1920 with hover-zoom; draft RELEASE-NOTES-0.26.0 (T-1274, T-1276..T-1278, T-1282). answer the codex advisory sweep (0 blocking, 6 cosmetic) — browse-end-{1024,1440,1920} shots show the last card reached by scrolling the grid; Visual Verification notes the 1024 hover-preview suppression (existing narrow-gutter rule) and that thumbnail size/ellipsis are the unchanged existing browser. reviewer verdict. independent screenshot review green (claude-code seat, rung 1), applied by fw reviewer verdict apply
+
+# Key outcomes
+outcomes:
+  - '**`?browse=1` opens the project browser on load:** _(done: `detectSaveApi()` opens it once `/api/health`'
+  - '**A CDP leg** covers each case above: opens / does not open / pick loads the map / load wins / no API is'
+  - '**No guard regresses:** the T-1278 guard set plus the T-1273 guard and teeth stay green, run one at a time'
+  - '**Screenshots** of the browser opened by `?browse=1` at 1024, 1440 and 1920, with hover-zoom on one card, read'
+  - '**Release note:** a line in the next release notes (with T-1274..T-1278), so AEF knows which version carries'
+  - '[REVIEW] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1282 --criterion 1`): the project'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-10-23 — what "the same map" means when comparing two opens'
+    chose: 'the CDP leg compares the bytes of a pick from `?browse=1` with the bytes of the same card picked via Open project (and the `?load` document with the same map picked), with the `aef:workflowMeta uuid` masked.'
+    rationale: 'AEF''s stored files declare no uuid, so the designer mints a fresh one on every open (T-224). Two opens of the same version therefore differ in that one attribute and nothing else (diffed). This was already true before T-1282 and does not come from it.'
+    alternatives_rejected: ['comparing raw bytes (fails on every open, for a reason this task does not touch).']
+  - decision: '2026-10-23 — "closing leaves an empty designer"'
+    chose: 'checked as "closing the browser leaves the document exactly as the designer started" (bytes equal).'
+    rationale: 'with no autosave the designer starts on its default `investigate` workflow, not an empty canvas; `?browse=1` does not change that, and the shots show it behind the browser.'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1282/AC1-judge-t-1282-r1-90b5ddc9f4a2.md'
+  - '.context/reviews/evidence/T-1282/browse-1024-judge-t-1282-r1-90b5ddc9f4a2.png'
+  - '.context/reviews/evidence/T-1282/browse-1440-judge-t-1282-r1-90b5ddc9f4a2.png'
+  - '.context/reviews/evidence/T-1282/browse-1920-judge-t-1282-r1-90b5ddc9f4a2.png'
+  - '.context/reviews/evidence/T-1282/browse-end-1024-judge-t-1282-r1-90b5ddc9f4a2.png'
+  - '.context/reviews/evidence/T-1282/browse-end-1440-judge-t-1282-r1-90b5ddc9f4a2.png'
+  - '.context/reviews/evidence/T-1282/browse-hover-1024-judge-t-1282-r1-90b5ddc9f4a2.png'
+  - '.context/reviews/evidence/T-1282/browse-hover-1440-judge-t-1282-r1-90b5ddc9f4a2.png'
+  - '.context/reviews/evidence/T-1282/browse-hover-1920-judge-t-1282-r1-90b5ddc9f4a2.png'
+  - '.context/reviews/evidence/T-1282/button-1440-judge-t-1282-r1-90b5ddc9f4a2.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - 'docs/releases/RELEASE-NOTES-0.26.0.md'
+  - 'docs/reports/T-1282-evidence/browse-1024.png'
+  - 'docs/reports/T-1282-evidence/browse-1440.png'
+  - 'docs/reports/T-1282-evidence/browse-1920.png'
+  - 'docs/reports/T-1282-evidence/browse-end-1024.png'
+  - 'docs/reports/T-1282-evidence/browse-end-1440.png'
+  - 'docs/reports/T-1282-evidence/browse-end-1920.png'
+  - 'docs/reports/T-1282-evidence/browse-hover-1024.png'
+  - 'docs/reports/T-1282-evidence/browse-hover-1440.png'
+  - 'docs/reports/T-1282-evidence/browse-hover-1920.png'
+  - 'docs/reports/T-1282-evidence/button-1440.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1282-designer-url-entry-browse1-opens-the-pro.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1282-browse-entry-cdp.mjs'
+  - 'tools/_t1282-shots.py'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-23T22:26:23'
+    action: 'T-1282: file AEF''s request (their T-4716) for a designer URL entry ?browse=1 that opens the project browser on load, with criteria (opened from detectSaveApi so the API is confirmed; ?load wins; silent without API; CDP leg; screenshots at three widths; independent review; release note)'
+  - time: '2026-10-23T22:42:00'
+    action: 'T-1282: ?browse=1 opens the designer''s Open-project browser on load (AEF T-4716) — 5 lines in detectSaveApi, after the API is confirmed; ?load wins; silent without an API. _t1282-browse-entry-cdp (5 cases, red on HEAD for open and pick-loads, green now) wired into the suite; guards green; screenshots at 1024/1440/1920 with hover-zoom; draft RELEASE-NOTES-0.26.0 (T-1274, T-1276..T-1278, T-1282)'
+  - time: '2026-10-23T22:44:36'
+    action: 'T-1282: answer the codex advisory sweep (0 blocking, 6 cosmetic) — browse-end-{1024,1440,1920} shots show the last card reached by scrolling the grid; Visual Verification notes the 1024 hover-preview suppression (existing narrow-gutter rule) and that thumbnail size/ellipsis are the unchanged existing browser'
+  - time: '2026-10-23T22:46:25'
+    action: 'T-1282: reviewer verdict'
+  - time: '2026-10-23T22:47:15'
+    action: 'T-1282: independent screenshot review green (claude-code seat, rung 1), applied by fw reviewer verdict apply'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 21 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, ui, aef]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 21
+  commits: 5
+  files_changed: 33
+  lines_added: 897
+  lines_removed: 9
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1282-designer-url-entry-browse1-opens-the-pro.md
+generated_by: context-agent-hybrid
