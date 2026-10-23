@@ -1204,6 +1204,17 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1289: every designer endpoint AEF does not serve is named in the current release notes ──
+# AEF went 13-25 days without 4 designer endpoints because nothing compared the two (T-1285 spike 4). A NEW gap
+# fails here until RELEASE-NOTES-<VERSION>.md tells AEF; a synthetic unnamed gap proves the check bites.
+if python3 "$ROOT/tests/test_t1289_host_contract_notes.py" > "$TMP/leg-_t1289.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a designer endpoint AEF's Watchtower does not serve is not named in the current release notes, or the host contract could not be read (run 'python3 tests/test_t1289_host_contract_notes.py'; T-1289)"
+  show_output "$TMP/leg-_t1289.out" "test_t1289_host_contract_notes.py"
+  fail=$((fail + 1))
+fi
+
 # ── T-1273: an in-place mutation script cannot survive INT/TERM with its mutant ──
 # On 2026-10-22 the T-509 sweep's cap TERMed _t910, whose trap handler restored and RETURNED; bash resumed and
 # planted the next mutant into src. Static: every in-place bash restorer's INT/TERM trap exits, every Python

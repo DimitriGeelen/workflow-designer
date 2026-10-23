@@ -1,13 +1,18 @@
 ---
 id: T-1289
-name: "Quality engine 4: generated designer-to-host contract checked against AEF at every release and framework upgrade"
+name: "Quality engine 4: generated designer-to-host contract checked against AEF at
+  every release and framework upgrade"
 description: >
-  AEF lacked 4 of 13 designer endpoints for 13-25 days. Generate the endpoint list from src, diff against AEF's vendored server code, surface gaps in release notes and session alerts (spike script .context/working/t1285/contract.py) (T-1285 GO, ranked step 4; evidence docs/reports/T-1285-quality-engine.md)
+  AEF lacked 4 of 13 designer endpoints for 13-25 days. Generate the endpoint list
+  from src, diff against AEF's vendored server code, surface gaps in release notes
+  and session alerts (spike script .context/working/t1285/contract.py) (T-1285 GO,
+  ranked step 4; evidence docs/reports/T-1285-quality-engine.md)
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [quality-engine, T-1285]
 components: []
 related_tasks: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-23T22:13:27Z
-last_update: 2026-10-23T22:13:27Z
-date_finished: null
+last_update: '2026-10-23T22:18:27Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +55,62 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-23T22:18:27Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1289: Quality engine 4: generated designer-to-host contract checked against AEF at every release and framework upgrade
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+This is step 4 of the quality engine (T-1285 GO). Spike 4 (`docs/reports/T-1285-quality-engine.md`) proved the
+contract is cheaply generable: 13 endpoints used by the designer, 9 served by AEF, and 4 missing for 13-25 days with
+nothing comparing the two. This makes that comparison standing.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **`tools/_t1289-host-contract.py`:**
+  - lists every `/api/...` path the designer source calls, and every route AEF's Watchtower code defines at the
+    vendor divergence baseline (`.agentic-framework/.vendor-divergence.yaml` `baseline_commit`: AEF's own code
+    without 832's local fixes);
+  - prints the used / served / missing sets; `--json` for machines;
+  - exits 1 when any endpoint is missing, 0 when none, 2 when it cannot read either side (never a silent zero).
+  On today's tree it reports 13 / 9 / 4 (validate, instances, field-profile, field-suggestions).
+  **2026-10-24, met:** "13 used, 9 served, 4 missing: /api/field-profile, /api/field-suggestions, /api/instances,
+  /api/validate (AEF code at 2f87fdb13)", exit 1. With an unreadable ref it prints "NOT CHECKED: …", exit 2.
+- [x] **Session-start alerts show it:** one line, "AEF host contract: N used, M served, K missing: …", next to the
+      AEF designer pin line. Informational, like the pin line (it never changes the exit code).
+  **2026-10-24, met:** `tools/session-start-alerts.py` `aef_host_contract()` prints the line after the pin line; the
+  session-start script still exits 0.
+- [x] **The suite keeps release notes honest:** a leg runs the tool and asserts every missing endpoint is named in
+      the current VERSION's `docs/releases/RELEASE-NOTES-<V>.md`. A new gap fails the suite until the notes tell
+      AEF. It is green today (0.26.0's notes name all 4). A negative control proves it bites: a synthetic missing
+      endpoint not in the notes makes it fail. Wired with a literal path; the unwired-guard census stays balanced.
+  **2026-10-24, met:** `tests/test_t1289_host_contract_notes.py` reports "OK: … 4 missing; every missing endpoint is
+  named in RELEASE-NOTES-0.26.0.md; negative control fires". It is wired in `tests/run-bridge-tests.sh` with a literal
+  path; census ratchet 90=90.
+- [x] **Limits stated in the tool's header:** it compares paths, not methods or payloads; and the vendored copy is
+      only as new as our last framework upgrade.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -113,6 +160,9 @@ date_finished: null
 
 ## Verification
 
+python3 tests/test_t1289_host_contract_notes.py
+python3 tools/_t1289-host-contract.py --json > /tmp/.t1289.json; test $? -le 1 && grep -q '"missing"' /tmp/.t1289.json
+grep -q '_t1289_host_contract_notes.py' tests/run-bridge-tests.sh
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -345,3 +395,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1289-quality-engine-4-generated-designer-to-h.md
 - **Context:** Initial task creation
+
+### 2026-10-23T22:18:25Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

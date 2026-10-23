@@ -13,6 +13,9 @@ Two sections, runme first so a failing mail check can never hide it:
   4. AEF designer pin (T-1187): AEF is the designer's main consumer (operator, 2026-10-17); a release is
      done only when AEF serves it. One line from tools/_t1187-aef-pin-lag.sh: CURRENT, BEHIND N, or
      NOT CHECKED. Informational: it never changes the exit code, which stays the mail check's.
+  4b. AEF host contract (T-1289): the designer's /api endpoints AEF's Watchtower does not answer, from
+     tools/_t1289-host-contract.py. A missing endpoint means a designer feature is dead inside AEF.
+     Informational, like the pin line.
   5. Stale [REVIEW] documents (T-1152, OBS-291): an open [REVIEW] criterion that asks someone to read a docs/
      document older than its task's content. One line from tools/_t1152-stale-review-doc.py naming the
      tasks; informational too.
@@ -286,6 +289,20 @@ def aef_pin():
     print("AEF designer pin: %s" % line)
 
 
+def aef_host_contract():
+    """T-1289: the designer's server endpoints AEF's Watchtower does not answer. One line; never fails the run."""
+    # Spelled root/"tools"/name so _t451's census sees the call (T-1191).
+    tool = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "_t1289-host-contract.py")
+    try:
+        r = subprocess.run([sys.executable, tool], capture_output=True, text=True, timeout=60)
+        line = (r.stdout.strip().splitlines() or ["(no output)"])[-1]
+        if r.returncode == 2 and not line.startswith("NOT CHECKED"):
+            line = "NOT CHECKED — " + line
+    except (OSError, subprocess.TimeoutExpired) as e:
+        line = "NOT CHECKED — %s" % e
+    print("AEF host contract: %s" % line)
+
+
 def stale_review_docs():
     """T-1152: [REVIEW] criteria pointing at a document older than the task. One line; never fails the run."""
     tool = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "_t1152-stale-review-doc.py")
@@ -368,6 +385,7 @@ def main(argv=None):
     # runme-alerts test drives; under full-suite load they pushed one call past that test's subprocess timeout.
     if os.environ.get("ALERTS_SKIP_LIVE_CHECKS") != "1":
         aef_pin()
+        aef_host_contract()
         stale_review_docs()
         identity_coverage()
     return max(rc_mail, rc_topics)
