@@ -5,6 +5,14 @@ re-applies these by hand (37 patches at be.3, be.5 and be.8; 5 needed hand merge
 one fewer to carry. Order of work: the ones touching files AEF changes most often first (they conflict), then the
 rest. **Nothing has been sent to AEF from this list yet.**
 
+**First triage fact (2026-10-24):**
+- At the be.8 upgrade (T-1280, worklist `build/revendor-worklist/2f87fdb131e3/`), all 37 re-applied patches applied
+  CLEANLY onto AEF's pristine be.8 code (`git apply --check` passed for each).
+- A patch AEF had already adopted would not apply cleanly (it would conflict or be already applied).
+- So **as of be.8, none of the 37 is upstream**: every one is still 832-only. Whether be.9..be.15 adopted any is
+  measured at the batched upgrade (T-1281).
+- The one `local-config` entry stays local by definition.
+
 | # | Path | Kind | Task | Upstream | Reason (first 140 chars) |
 |---|---|---|---|---|---|
 | 1 | `lib/external_consult.py` | added | T-887 | fix | NEW VERB, operator-directed 2026-09-27: `fw external` — consult differently-trained models for the strongest objection. The UNCORRELATED cou |
