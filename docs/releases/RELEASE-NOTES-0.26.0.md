@@ -1,7 +1,4 @@
-# Workflow Designer 0.26.0 — release notes (DRAFT)
-
-**Status: DRAFT, not released.** `VERSION` and `APP_VERSION` stay 0.25.0 until the release task bumps them; the
-number is the one this file is named for unless that task chooses otherwise.
+# Workflow Designer 0.26.0 — release notes
 
 **Since:** `designer-v0.25.0`. Readability fixes from the T-1241 business-lens review rounds, and a URL entry that
 opens the project browser. No change to what the designer stores.
@@ -27,4 +24,34 @@ opens the project browser. No change to what the designer stores.
 
 ## What changes in stored maps
 
-Nothing: every change above is display only, and the guards check saved bytes are unchanged.
+Nothing: every change above is display only, and the guards check saved bytes are unchanged. No node id, field or
+finding id changes.
+
+## For AEF (host)
+
+- **`/designer` → `/designer/app?browse=1`** (AEF T-4716): with this release pinned, the route lands in the
+  designer's own project browser. No new endpoint is needed: the browser uses `/api/health`, `/api/list` and
+  `/api/thumb`, which AEF already serves.
+- **Endpoints the designer uses that AEF's server does not answer**, checked against AEF's own Watchtower code at
+  v1.8.15-be.8 (`web/blueprints/designer_api.py`, `designer.py`). The designer degrades quietly when they are absent,
+  so these features are off inside AEF:
+
+  | Endpoint | Feature (task) | In AEF today |
+  |---|---|---|
+  | `POST /api/validate` | **Check**: validator findings drawn on the map (T-962) | the Check button shows; checking fails |
+  | `GET /api/instances?template=<id>` | **Instance overlay**: where each live task sits on the map (T-884) | picker stays "instances: n/a" |
+  | `GET/PUT /api/field-profile[?id=<id>]` | **Project field profile** (T-1125, T-1128) | always the designer's default fields |
+  | `GET/POST /api/field-suggestions` | **"Suggest as a field"** for an unknown `aef:` key (T-1126) | the suggestion is not recorded |
+
+  The request/response contract of each is in the header of `tools/gallery-serve.py`, 832's reference server.
+  Served by AEF already: `/api/health`, `/api/list`, `/api/version`, `/api/versions`, `/api/save`, `/api/delete`,
+  `/api/thumb`, `/api/lens-definition`, `/api/overlay`.
+
+## Re-test
+
+1. Open `/designer/app?browse=1`: the Open-project browser is open on load; pick a card and that map opens. Open
+   `/designer/app?browse=1&load=<a map URL>`: the map opens and the browser stays closed.
+2. Open `aef-task-lifecycle` at 1920: it opens at 100% with every name, flow label and caption at least 9 px; no
+   caption sits on a flow or an arrowhead; no task name ends in "…".
+3. Select a task with a long name: the side-panel Name field shows it whole; type into it: every character is kept.
+4. Switch the lens to **Business**: the palette reads in plain words ("where the work begins", …).
