@@ -324,6 +324,15 @@ test -f docs/reports/T-1282-evidence/browse-1024.png && test -f docs/reports/T-1
 
 ## Visual Verification
 
+**Reviewer, read this first (after a codex ADVISORY sweep, 0 blocking, 6 cosmetic):**
+- `browse-end-{1024,1440,1920}.png` show the card grid scrolled to its end. The last card ("aef-task-lifecycle ·
+  pending ref · referenced by 3") is reached by scrolling, with the filter and ✕ still in view.
+- At 1024 the hover preview is hidden by design: the side gutter (~150 px) is under the browser's existing 200 px
+  minimum, so the preview hides rather than covers the grid. The button-opened browser behaves the same (T-156/T-164
+  behaviour, unchanged here).
+- Thumbnail text is small and a long title ellipsizes (with its full id beneath). That is the existing browser,
+  identical to the button-opened one (`button-1440.png`), and not changed by `?browse=1`.
+
 Shots: `python3 tools/_t1282-shots.py` → `docs/reports/T-1282-evidence/`: `browse-{1024,1440,1920}.png` (the browser as
 `designer.html?browse=1` opens it), `browse-hover-{1024,1440,1920}.png` (pointer on the aef-task-lifecycle card),
 `button-1440.png` (the same browser opened by the Open project button). Served over a temp store holding AEF's 8

@@ -6,6 +6,7 @@ The designer is served by gallery-serve.py over a temp version store holding eve
 rendered by the designer's own captureThumbnail() (the PNG a save writes), so the cards show real tiles.
   browse-{w}.png        designer.html?browse=1 as it opens: the browser, every card (1024x768, 1440x900, 1920x1080);
   browse-hover-{w}.png  the same, the pointer on the aef-task-lifecycle card: the hover-zoom preview showing;
+  browse-end-{w}.png    the card grid scrolled to its end (pointer off): the last card reached by scrolling;
   button-{w}.png        the browser opened by the Open project button, for comparison (1440 only).
 Usage: python3 tools/_t1282-shots.py [outdir]   (default docs/reports/T-1282-evidence). Exit 0 = shots taken; 3 = no
 playwright. Asserts nothing: the reading is in the task's ## Visual Verification.
@@ -107,6 +108,13 @@ def main():
                 page.hover('#project-modal button[title="Open %s"]' % HOVER)
                 page.wait_for_timeout(500)
                 shot(page, "browse-hover-%d.png" % w)
+                # The last card is below the fold at 1024/1440: scroll whatever scrolls inside the browser to its end
+                # and show it, pointer moved off so no preview covers the grid (T-1282 advisory sweep, item 1).
+                page.mouse.move(2, 2)
+                page.evaluate("""() => { for (const el of document.querySelectorAll('#project-modal, #project-modal *'))
+                    if (el.scrollHeight > el.clientHeight + 1 && getComputedStyle(el).overflowY !== 'visible') el.scrollTop = el.scrollHeight; }""")
+                page.wait_for_timeout(400)
+                shot(page, "browse-end-%d.png" % w)
                 ctx.close()
             ctx = browser.new_context(viewport={"width": 1440, "height": 900})
             page = ctx.new_page()
