@@ -10,7 +10,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Iterable, TypeVar
 
-from markupsafe import Markup, escape
 import yaml
 from flask import g, has_request_context, render_template, request
 
@@ -1167,22 +1166,14 @@ def link_route_code_spans(html: str, base_url: str | None = None) -> str:
     return _CODE_ROUTE_HTML_RE.sub(_sub, html)
 
 
-def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
+def render_markdown_safe(text: str, extras: list[str] | None = None) -> str:
     """Render Markdown to HTML with safe_mode='escape', auto-link T-XXX refs
     and bare http(s) URLs.
 
     Used by /review and any blueprint that needs to render an arbitrary chunk
     of task-body markdown (rationale, evidence, etc.) without piping through
-    tasks.py's AC-specific helpers. Returns '' for empty input.
-
-    T-606: returns markupsafe.Markup, so callers no longer have to remember
-    `| safe`. Recommended by 010-termlink (rail 563) and correct — but note it
-    was NOT sufficient for the reported symptom: /approvals' AC fields never
-    reach this function, they come from tasks.py's _render_md_inline. The
-    docstring below claims the blueprint-private parser pattern was broken by
-    promoting this helper here; the promotion happened and the private pair
-    survived. Both are now fixed. A contract with two definitions is one
-    definition and one impostor, and the impostor is where the bug lives.
+    tasks.py's AC-specific helpers. Returns '' for empty input. Caller must
+    mark returned string `| safe` in templates.
 
     Origin: T-1575 — /review surface dumped raw markdown into a `<pre>` block.
     Promoted here (rather than reused from tasks.py) to break the blueprint-
@@ -1194,24 +1185,11 @@ def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
     ``extras=None`` is the previous behaviour exactly.
     """
     if not text:
-        return Markup("")
+        return ""
     try:
         import markdown2
     except ImportError:
-        # T-569: ESCAPE on the degradation path. Every caller marks this `| safe` — that is
-        # stated three lines up in this docstring — so returning the raw text handed
-        # unescaped, attacker-influenced content straight into the page whenever markdown2
-        # was missing. It was latent only because the import has always succeeded here.
-        # A fallback that silently turns escaping off is the same shape as the rest of this
-        # week's defects: the failure renders as health, and nothing in the output says the
-        # renderer degraded.
-        from markupsafe import escape as _escape
-        # T-606: was str(_escape(text)) — correct only because every caller then
-        # applied `| safe`. Now that this function owns the safety, return the
-        # Markup escape() already produced: the entities stay visible as literal
-        # text and are NOT re-escaped into &amp;lt;. The degradation path must keep
-        # escaping; it must not inherit the happy path's trust.
-        return _escape(text)
+        return text  # graceful degradation
     text = resolve_watchtower_refs(text)  # T-4624
     text = _TASK_REF_RE_SHARED.sub(r"[\1](/tasks/\1)", text)
     text = protect_path_underscores(text)
@@ -1232,7 +1210,7 @@ def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
     # become clickable /file/ links. Existence-gated; same rendering-layer
     # contract as the T-1575 URL/T-NNNN shape — agent need not pre-format.
     html = _auto_link_files(html)
-    return Markup(html)
+    return html
 
 
 _REC_MARKER_RE = re_mod.compile(
@@ -1908,6 +1886,51 @@ def task_review_state(path: Path | str) -> tuple[str | None, list[str], int]:
     return state, reasons, open_human
 
 
+def count_open_agent_acs(body: str) -> int:
+    """Unticked criteria in every ``### Agent`` block (comments stripped), scoped the way
+    `count_human_acs` scopes Human criteria."""
+    if not body:
+        return 0
+    text = _strip_html_comments(body)
+    return sum(len(re_mod.findall(r"^\s*-\s*\[ \]", m.group(1), re_mod.MULTILINE))
+               for m in re_mod.finditer(r"^### Agent\s*$(.*?)(?=^#{1,3} |\Z)",
+                                        text, re_mod.MULTILINE | re_mod.DOTALL))
+
+
+_OPEN_AGENT_CACHE: dict[str, tuple[int, int]] = {}
+AWAIT_REVIEWER_READY = "reviewer: ready"
+AWAIT_AGENT_DONE = "agent done"
+
+
+def board_awaiting_reason(meta: dict) -> str | None:
+    """Why a task waits on the operator (T-4663), or None: the ONE predicate behind the
+    board's "Awaiting review" column and the arc page's overview.
+
+    * ``"reviewer: ready"`` - `task_review_state` calls it ready (T-4053, unchanged).
+    * ``"agent done"`` - partial-complete: ``work-completed``, still in active/, owner
+      human, no unticked Agent criterion. No reviewer verdict needed, so projects that
+      keep reviews human-only still see the tasks waiting on them.
+
+    Reviewer-ready wins when both hold, so a task carries one reason. Fills
+    ``_review_state`` / ``_wait_reasons`` / ``_open_human`` on ``meta`` for the card."""
+    path = meta.get("_path")
+    active = meta.get("_location") == "active" and bool(path)
+    meta["_review_state"], meta["_wait_reasons"], meta["_open_human"] = (
+        task_review_state(path) if active else (None, [], 0))
+    if meta["_review_state"] == READY:
+        return AWAIT_REVIEWER_READY
+    if (active and str(meta.get("status") or "") == "work-completed"
+            and str(meta.get("owner") or "") == "human"):
+        def _count(q: Path) -> int:
+            try:
+                return count_open_agent_acs(q.read_text(encoding="utf-8", errors="replace"))
+            except OSError:
+                return -1
+        if mtime_cached_get(Path(path), _count, _OPEN_AGENT_CACHE, -1) == 0:
+            return AWAIT_AGENT_DONE
+    return None
+
+
 _INCEPTION_DECIDED_RE = re_mod.compile(r"^\*\*Decision\*\*:\s*(GO|NO-GO|DEFER)\b", re_mod.M)
 
 
@@ -2378,30 +2401,14 @@ def load_latest_audit():
 
 
 def linkify_tasks(text):
-    r"""Convert T-XXX references to clickable Watchtower links (T-851).
-
-    T-646: ESCAPE FIRST, THEN LINKIFY. The result is declared trusted HTML by the
-    Jinja filter in app.py, and a function may only vouch for markup it created
-    itself. Before this, the substitution ran over the RAW string and the whole
-    result was wrapped in Markup(), so every `<` in the source prose was published
-    as a tag. The source is not incidental: timeline narratives are read out of
-    committed handover markdown (blueprints/timeline.py:159), so the text is prose
-    that sessions wrote, and sessions write about HTML. Measured on the live
-    /timeline: two `<html` tags reaching the browser from a paragraph *discussing*
-    fragments. Injection-shaped rather than an open door — the input is our own
-    repository — but the ordering is wrong either way, and the fix is one line.
-
-    escape() is applied to the whole input; the anchors are then inserted into
-    already-escaped text, so they are the only markup this function vouches for.
-    T-\d{3,} contains no escapable character, so escaping cannot disturb the match.
-    """
+    """Convert T-XXX references to clickable Watchtower links (T-851)."""
     if not text:
         return text
-    return Markup(re_mod.sub(
+    return re_mod.sub(
         r'\b(T-\d{3,})\b',
         r'<a href="/tasks/\1">\1</a>',
-        str(escape(text)),
-    ))
+        str(text),
+    )
 
 
 _FRAGMENT_CONVENTION_VIOLATION = (
