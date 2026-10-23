@@ -21,6 +21,7 @@ import hashlib
 import json
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -182,4 +183,7 @@ def main():
 
 
 if __name__ == "__main__":
+    # T-1273: an unhandled SIGTERM skips `finally`, so a sweep's timeout would leave the in-place
+    # mutation behind. Turn it into SystemExit so the restore in `finally` runs.
+    signal.signal(signal.SIGTERM, lambda s, f: sys.exit(128 + s))
     sys.exit(main())

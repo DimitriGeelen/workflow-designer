@@ -26,7 +26,9 @@ FOCUS="$ROOT/.context/working/focus.yaml"
 BAK="$(mktemp)"
 cp "$FOCUS" "$BAK"
 restore() { cp "$BAK" "$FOCUS"; rm -f "$BAK"; }
-trap restore EXIT INT TERM
+# T-1273: a handler that returns lets bash RESUME after INT/TERM (and plant the next mutant), so
+# restore on EXIT only and turn INT/TERM into an exit, which runs the EXIT trap.
+trap restore EXIT; trap 'exit 130' INT; trap 'exit 143' TERM
 
 python3 - "$FOCUS" <<'PY'
 import re, sys

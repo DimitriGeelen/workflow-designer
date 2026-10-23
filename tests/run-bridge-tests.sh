@@ -1193,6 +1193,27 @@ for _g in "$ROOT/tools/_t1274-note-box-cdp.mjs" "$ROOT/tools/_t1276-name-fit-cdp
   fi
 done
 
+# ── T-1273: an in-place mutation script cannot survive INT/TERM with its mutant ──
+# On 2026-10-22 the T-509 sweep's cap TERMed _t910, whose trap handler restored and RETURNED; bash resumed and
+# planted the next mutant into src. Static: every in-place bash restorer's INT/TERM trap exits, every Python
+# one installs a SIGTERM handler so `finally` runs. Literal path for the unwired-guard census (T-451).
+if python3 "$ROOT/tools/_t1273-mutation-signal-guard.py" > "$TMP/leg-_t1273-guard.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "an in-place mutation script can return from its INT/TERM handler, or restores in Python 'finally' with no SIGTERM handler, so a timeout can leave src or a tracked file mutated (run 'python3 tools/_t1273-mutation-signal-guard.py'; T-1273)"
+  show_output "$TMP/leg-_t1273-guard.out" "_t1273-mutation-signal-guard.py"
+  fail=$((fail + 1))
+fi
+# Behaviour, on dummies in a temp dir only (no real mutation script is ever killed): old patterns leave the mutant
+# under `timeout 1`, fixed ones restore and run nothing after the signal, and the guard agrees with both (~5 s).
+if bash "$ROOT/tools/_t1273-signal-restore-teeth.sh" > "$TMP/leg-_t1273-teeth.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the T-1273 signal patterns no longer behave as the guard assumes: a fixed dummy left its mutant or ran on after TERM, an old one did not, or the guard disagrees (run 'bash tools/_t1273-signal-restore-teeth.sh'; T-1273)"
+  show_output "$TMP/leg-_t1273-teeth.out" "_t1273-signal-restore-teeth.sh"
+  fail=$((fail + 1))
+fi
+
 # ── T-1220: attributes on aef:input/aef:output beyond name/type/required survive open and save ──
 # aef-greenfield-test generates aef:io from its ontology (ref/role/cardinality/dataType, AEF T-4415); the
 # save used to keep only the named attributes. Red against the pre-T-1220 source (legs 1, 3, 6).

@@ -107,19 +107,39 @@ clean source. Do not take it from HEAD, which can be stale.
       restores and deletes the backup dir but does NOT exit, and bash resumes a script after a TERM handler returns.
       So after the sweep's `timeout` TERM, the script plants its next mutant, then finds no backup and exits 91 with
       the mutant in src.
-- [ ] **Every in-place mutation script exits on INT/TERM after restoring.** A census lists every script under
+- [x] **Every in-place mutation script exits on INT/TERM after restoring.** A census lists every script under
       `tools/` that writes a tracked file in place (`src/`, `tools/`, `tests/fixtures/`) and restores it from a
       trap. Each one's INT/TERM path ends in `exit` (the EXIT path keeps restoring), with the count before and after
       recorded here.
-- [ ] **A standing guard keeps it so:** a static check fails when such a script's trap handler for INT/TERM can
+      *Met 2026-10-23 (w-t1273): census under `## RCA`, 8 in-place restorers. Unsafe: 6 before, 0 after (bash `_t910`
+      and `t404`; Python `_t886`, `_t392`, `_t607` and `_t606` given a SIGTERM -> SystemExit handler). Each changed
+      script was run once, normally, under nice: every target file had the same sha256 before and after, and src was
+      clean after each run. `_t910` 40/0, `_t886` all killed, `_t392` 13/13, `_t607` 14/14. `_t606` (1/3 arms) and
+      `t404` (7 FAIL: the hook now ALLOWs `sed -i`/`tee` on source) exit 1 on framework behaviour, not on their
+      trap/handler lines. Both are unwired (`t404` is in the unwired baseline); I did not check that HEAD fails the same way.*
+- [x] **A standing guard keeps it so:** a static check fails when such a script's trap handler for INT/TERM can
       return (no `exit`). It is red on the current `_t910` and green after, and wired into the suite (literal path,
       for the unwired-guard census).
-- [ ] **A behavioural proof that harms nothing:** a test runs a dummy script with the fixed trap pattern on a
+      *Met: `tools/_t1273-mutation-signal-guard.py`. `--at b2f3bb2d`: FAIL, 6 of 8 unsafe. Working tree: PASS, 0 of 8.
+      Wired after the T-1274/T-1276/T-1278 loop in `tests/run-bridge-tests.sh`, with literal paths, beside the teeth
+      leg. `_t451 --ratchet` stays 89=89. Its census list uses bare names, because a `tools/t404-gate-e2e.sh` literal
+      made the census count t404 as wired (89 -> 88).*
+- [x] **A behavioural proof that harms nothing:** a test runs a dummy script with the fixed trap pattern on a
       throwaway file in a temp dir, sends TERM mid-run, and asserts the file is restored and nothing runs after the
       signal. The same test on the old pattern shows the resumed write. No real tracked file is touched.
-- [ ] **Regenerated outputs are protected:** the suite's `t423-carrier-witness.bpmn` refresh only writes when `src`
+      *Met: `tools/_t1273-signal-restore-teeth.sh` 9/9 in about 5 s. Controls: 4 unkilled dummies restore. Under
+      `timeout 1`: old bash -> `mutant-2`, `after-signal`, FATAL twice (exactly the RCA); fixed bash -> rc 124,
+      original, nothing after. Old py -> `mutant-1`; fixed py -> rc 124, original, nothing after. The guard flags
+      both old dummies and passes both fixed ones. The temp dir is removed (0 left in /tmp).*
+- [x] **Regenerated outputs are protected:** the suite's `t423-carrier-witness.bpmn` refresh only writes when `src`
       matches HEAD (`git diff --quiet -- src`); otherwise it skips the refresh and says so. The same check is
       applied to any other suite step found to rewrite a tracked file.
+      *Met: the refresh is in `tools/_t423-carrier-agreement-cdp.mjs` itself. It now writes only when
+      `git diff --quiet HEAD -- src` is 0, and prints `witness: NOT refreshed — …` otherwise; a git that cannot answer
+      also skips. Both paths were run with src clean: a normal run rewrote the witness byte-identically, and with
+      `GIT_DIR=/nonexistent` the skip message printed. No other suite step rewrites a src-derived tracked file:
+      `t361-trailer-witness.bpmn` has no live producer, and `tests/.run-history.tsv` is the suite's own results log,
+      which does not depend on src.*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -304,6 +324,11 @@ clean source. Do not take it from HEAD, which can be stale.
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+python3 tools/_t1273-mutation-signal-guard.py > /tmp/.t1273-g.out 2>&1 && grep -q "RESULT: PASS" /tmp/.t1273-g.out
+! python3 tools/_t1273-mutation-signal-guard.py --at b2f3bb2d > /tmp/.t1273-r.out 2>&1 && grep -q "6 unsafe" /tmp/.t1273-r.out
+bash tools/_t1273-signal-restore-teeth.sh > /tmp/.t1273-t.out 2>&1 && grep -q "RESULT: 9 passed, 0 failed" /tmp/.t1273-t.out
+grep -q "tools/_t1273-mutation-signal-guard.py" tests/run-bridge-tests.sh && grep -q "tools/_t1273-signal-restore-teeth.sh" tests/run-bridge-tests.sh
+grep -q "'diff', '--quiet', 'HEAD', '--', 'src'" tools/_t423-carrier-agreement-cdp.mjs
 
 ## RCA
 
@@ -349,6 +374,35 @@ looked like safety. The sweep's 90 s cap (T-509) made a mid-run TERM routine.
 - a standing static guard keeps it so;
 - a behavioural test kills the pattern mid-run on a throwaway file;
 - the suite's witness refresh refuses to write while `src` differs from HEAD (criteria 2-5).
+
+### Census (criterion 2, 2026-10-23, by reading each script; nothing was killed)
+
+Read: 44 bash scripts under `tools/` with a trap on INT/TERM, 8 with a `restore()`/`cleanup()` function, 49 Python
+scripts with a `finally:` and a file write, and every Node script that calls `writeFileSync`. Most write only copies
+in a `mktemp` dir. **8 write a real file in place and restore it; 6 of them were unsafe before, 0 are after.**
+
+| script | file it writes in place | restore mechanism | before | after |
+|---|---|---|---|---|
+| `_t910-lanemeta-teeth.sh` | `src/aef-workflow-designer.html`, `tools/_roundtrip-serialization-cdp.mjs` | `trap cleanup EXIT INT TERM`, handler returns | UNSAFE | `trap cleanup EXIT; trap 'exit 130' INT; trap 'exit 143' TERM` |
+| `t404-gate-e2e.sh` | `.context/working/focus.yaml` (live, untracked) | `trap restore EXIT INT TERM`, handler returns | UNSAFE | same fix |
+| `_t371-audit-partition-teeth.sh` | `.agentic-framework/agents/context/check-active-task.sh` | `trap restore EXIT` only | safe | unchanged |
+| `_t890-lanemeta-guard-teeth.sh` | `src/aef-workflow-designer.html` | EXIT-only trap, `cmp`-verified | safe | unchanged |
+| `_t886-writer-mutation.py` | `src/aef-workflow-designer.html` | `finally: copyfile(backup, SRC)` | UNSAFE | SIGTERM -> `sys.exit(128+s)` |
+| `_t392-safelist-shadow-gate.py` | `.agentic-framework/agents/context/check-active-task.sh` | `finally: HOOK.write_text(src)` | UNSAFE | same fix |
+| `_t607-drift-gate-reach.py` | same hook | `finally: HOOK.write_text(src)` | UNSAFE | same fix |
+| `_t606-render-escaping.py` | `.agentic-framework/web/blueprints/tasks.py` | `finally: path.write_text(original)` | UNSAFE | same fix |
+
+Node: no in-place mutate-and-restore. The one tracked write is `_t423-carrier-agreement-cdp.mjs`'s witness
+(criterion 5). `t361-trailer-witness.bpmn` has no live producer (retired, `tools/unwired-guard-baseline.txt`).
+The candidates the brief named (`_t358`, `_t364`, `_t367`, `_t423-di-roundtrip`, `_t566`, `_t569`, `_t570`, `_t572`,
+`_t573`, `_t581`, `_t361`) all mutate copies in a temp dir. `_t569` creates a new probe card, see below.
+
+**Not fixed, a lesser class (new UNTRACKED files beside tracked ones, which TERM can leave as debris, like
+`tools/.t351-mut-a.sh`):** bash `_t628`, `_t629`, `_t630`, `_t631`, `_t634`, `_t636`, `_t638`, `_t640` write
+`.t6NN-mutant-$$.sh` beside framework files, and their `rm` traps return on INT/TERM. Python `_t343`, `_t558`,
+`_t568`, `_t569`, `_t1017` and `_t364-t308` create a probe file in the tree and remove it in `finally`. None of
+them edits a tracked file. Residual window in the four Python fixes: a TERM that lands between the mutating
+write and the `try:` (a few statements; `_t886` has an assert and a read there) still skips `finally`.
 
 ## Evolution
 

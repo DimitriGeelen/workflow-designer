@@ -21,6 +21,7 @@
  * same reason t361 writes one: the teeth need a REAL document to mutate, and requiring a
  * browser to run the teeth would mean the teeth stop being run. The witness is the map
  * with the most nodes, so the population it gives the teeth is the largest available.
+ * Only written while src matches HEAD (T-1273): a tracked witness must not record a mutant or WIP.
  *
  * Usage: node tools/_t423-carrier-agreement-cdp.mjs
  * Exit 0 = every exported map carries both carriers, covering the same nodes, agreeing.
@@ -135,7 +136,15 @@ async function main() {
   process.stdout.write(g.stdout || '');
   process.stderr.write(g.stderr || '');
 
-  if (g.status === 0 && best) {
+  // T-1273: the witness is TRACKED, so it is refreshed only from the committed source. On 2026-10-22 a mutant
+  // left in src by a killed teeth script was exported and written here. Any src change vs HEAD (a mutant, or
+  // work in progress) skips the refresh, and so does a git that cannot answer.
+  const srcDiff = spawnSync('git', ['-C', REPO, 'diff', '--quiet', 'HEAD', '--', 'src'], { encoding: 'utf8' });
+  const srcClean = srcDiff.status === 0;
+  if (g.status === 0 && best && !srcClean) {
+    console.log(`  witness: NOT refreshed — src is not proven identical to HEAD (git diff --quiet HEAD -- src rc=${srcDiff.status}: 1 = differs, other = git could not tell); ` +
+                `${WITNESS.replace(REPO + '/', '')} is written only from committed source (T-1273)`);
+  } else if (g.status === 0 && best) {
     mkdirSync(dirname(WITNESS), { recursive: true });
     writeFileSync(WITNESS, best.xml, 'utf8');
     console.log(`  witness: ${WITNESS.replace(REPO + '/', '')} (from ${best.name}, ${best.nodes} nodes, ${best.xml.length} bytes)`);

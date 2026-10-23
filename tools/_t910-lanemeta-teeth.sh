@@ -48,7 +48,9 @@ restore() {
   fi
 }
 cleanup() { restore; rm -rf "$WORK"; }
-trap cleanup EXIT INT TERM
+# T-1273: a handler that returns lets bash RESUME after INT/TERM (and plant the next mutant), so
+# restore on EXIT only and turn INT/TERM into an exit, which runs the EXIT trap.
+trap cleanup EXIT; trap 'exit 130' INT; trap 'exit 143' TERM
 
 # mutate <file> <old> <new> <expected-count> — asserts the count, asserts the bytes moved.
 mutate() {
