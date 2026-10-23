@@ -80,6 +80,10 @@ Tags to batch (take the newest when this starts):
   - T-4709/T-4713: fixes.
   AEF says the be.11 Watchtower keep-alive is NOT seeded to consumers until their T-4711, so `fw cron install` may add
   nothing yet. Check what it adds before running it.
+- **be.13** c9ec9459e (msg 2828c473): T-4714. claude-fw's duplicate-conversation guard no longer counts the Claude
+  Code background daemon as the conversation holder, so a resume after the session stops works. This matters for the
+  operator's pending relaunch (`claude-fw` + `/resume`, which clears T-1275's identity FAIL). If the relaunch on be.8
+  is refused as a duplicate, take this batch first, then relaunch.
 
 ## Acceptance Criteria
 
