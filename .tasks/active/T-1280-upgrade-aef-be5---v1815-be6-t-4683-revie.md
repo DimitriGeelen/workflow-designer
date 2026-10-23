@@ -86,6 +86,11 @@ bvp_scores_proposed:
 This follows the be.5 path (T-1279, job 078).
 - **Release:** AEF msg 6f882722; tag `v1.8.15-be.6` = commit 797875a328d2 (lightweight).
 - **Job:** 079-upgrade-aef-v1.8.15-be.6.
+- **Superseded the same morning (2026-10-23):** AEF cut **be.7**, msg a871c3bf; tag `v1.8.15-be.7` = commit
+  ce8075dba7a7 (lightweight). It carries be.6 plus T-4684 (`.context/dispatch/` gitignored by upgrade, from our be.5
+  report), T-4685, T-4687 and T-4686. Job 079 was retired before it ran; **job 080 goes be.5 -> be.7**.
+  AEF's known open T-4688 (upgrade writes into the clone it runs from) does not apply: the job clones fresh each run.
+  Every "079"/"797875a32" below now means 080/ce8075dba.
 - **Hold:** no `fw reviewer judge` panel runs on be.5. Its T-4683 regression kills the first codex/opencode/antigravity
   seat.
 
