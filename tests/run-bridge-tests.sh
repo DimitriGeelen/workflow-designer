@@ -1204,6 +1204,15 @@ else
   fail=$((fail + 1))
 fi
 
+# ── T-1290: review findings carry map evidence; the kit checks it; calibration verdict unchanged ──
+if python3 "$ROOT/tests/test_t1290_verify_findings.py" > "$TMP/leg-_t1290.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "verify-findings mislabels map evidence, the kit stopped shipping it, or a calibration replay's verdict changed (run 'python3 tests/test_t1290_verify_findings.py'; T-1290)"
+  show_output "$TMP/leg-_t1290.out" "test_t1290_verify_findings.py"
+  fail=$((fail + 1))
+fi
+
 # ── T-1289: every designer endpoint AEF does not serve is named in the current release notes ──
 # AEF went 13-25 days without 4 designer endpoints because nothing compared the two (T-1285 spike 4). A NEW gap
 # fails here until RELEASE-NOTES-<VERSION>.md tells AEF; a synthetic unnamed gap proves the check bites.

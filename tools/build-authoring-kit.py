@@ -49,7 +49,8 @@ GUIDE = os.path.join(ROOT, 'docs', 'authoring-kit', 'AUTHORING.md')
 KITSRC = os.path.join(ROOT, 'docs', 'authoring-kit')
 # T-983 (T-982 GO, slice B1): the review loop ships in the kit. Copied verbatim from
 # docs/authoring-kit/; calibration/ is a subdirectory the builder checks before shipping.
-LOOP_FILES = ('RUBRIC.md', 'GENERATE.md', 'REVIEW.md', 'CORRECT.md', 'loop.sh')
+# T-1290: verify-findings.py checks each finding's map_evidence (quote on the cited line) before it counts.
+LOOP_FILES = ('RUBRIC.md', 'GENERATE.md', 'REVIEW.md', 'CORRECT.md', 'loop.sh', 'verify-findings.py')
 CALIBRATION = ('SOURCE.md', 'clean.bpmn', 'planted.bpmn', 'expected.json')
 EXEMPLAR = os.path.join(ROOT, 'examples', 'aef-processes', 'rendered', 'task-lifecycle.bpmn')
 

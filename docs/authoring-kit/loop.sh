@@ -84,6 +84,14 @@ count() {
     python3 -c "import json,sys;d=json.load(open(sys.argv[1]));print(len(d))" "$1" 2>/dev/null || echo ERR
 }
 
+# T-1290: findings whose map_evidence is not on the cited line are set aside (kept, never lost) before anyone acts
+# on them. set_aside <round>: run in the work dir; prints how many were set aside.
+set_aside() {
+    python3 kit/verify-findings.py map.bpmn REVIEW.json --split "review.r$1.unverified.json" >/dev/null 2>&1 \
+        || { echo "verify-findings could not run; nothing set aside"; return 0; }
+    echo "$(count "review.r$1.unverified.json") unverified finding(s) set aside in review.r$1.unverified.json"
+}
+
 if [ "${1:-}" = "--calibrate" ]; then
     [ -n "${KIT_REVIEWER_CMD:-}" ] || { echo "loop.sh: --calibrate needs KIT_REVIEWER_CMD" >&2; exit 2; }
     WD="${2:?usage: loop.sh --calibrate <workdir>}"
@@ -94,6 +102,12 @@ if [ "${1:-}" = "--calibrate" ]; then
         fits "$WD/$which" || { echo "CALIBRATION: COULD NOT MEASURE (reviewer context too small)"; exit 3; }
         ( cd "$WD/$which" && rm -f REVIEW.json && agent "$KIT_REVIEWER_CMD" \
             "The kit is in ./kit/. Read ./kit/REVIEW.md and carry it out completely." )
+    done
+    # T-1290: label every finding (verified / absence / unverified) so a FAIL's cause is visible here.
+    # Labels only: the verdict below still counts every finding, verified or not.
+    for which in clean planted; do
+        echo "map evidence, $which map:"
+        python3 "$KIT/verify-findings.py" "$WD/$which/map.bpmn" "$WD/$which/REVIEW.json" 2>&1 | sed 's/^/  /'
     done
     python3 - "$KIT/calibration/expected.json" "$WD/clean/REVIEW.json" "$WD/planted/REVIEW.json" <<'PY'
 import json, sys
@@ -135,6 +149,8 @@ if [ "${1:-}" = "--review-only" ]; then
     agent "$KIT_REVIEWER_CMD" "The kit is in ./kit/. Read ./kit/REVIEW.md and carry it out completely."
     n=$(count REVIEW.json)
     [ "$n" = ERR ] && { log "STOPPED: no parseable REVIEW.json"; exit 1; }
+    log "review-only round $r: $(set_aside "$r")"
+    n=$(count REVIEW.json)
     cp REVIEW.json "review.r$r.json"
     log "review-only round $r: $n finding(s)$([ "$n" = 0 ] && echo ': DONE, clean review')"
     [ "$n" = 0 ] && exit 0 || exit 1
@@ -157,6 +173,8 @@ for r in $(seq 1 "$MAX"); do
     agent "$KIT_REVIEWER_CMD" "$PRE Read ./kit/REVIEW.md and carry it out completely."
     n=$(count REVIEW.json)
     [ "$n" = ERR ] && { log "STOPPED: no parseable REVIEW.json in round $r"; exit 1; }
+    log "round $r: $(set_aside "$r")"
+    n=$(count REVIEW.json)
     cp REVIEW.json "review.r$r.json"
     log "round $r: $n finding(s)"
     [ "$n" = 0 ] && { log "DONE: clean review in round $r"; exit 0; }

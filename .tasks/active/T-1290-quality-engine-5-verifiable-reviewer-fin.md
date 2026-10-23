@@ -1,13 +1,17 @@
 ---
 id: T-1290
-name: "Quality engine 5: verifiable reviewer findings (map_evidence line+quote, mechanically checked) in the authoring kit"
+name: "Quality engine 5: verifiable reviewer findings (map_evidence line+quote, mechanically
+  checked) in the authoring kit"
 description: >
-  REVIEW.json has no map evidence and loop.sh checks none; GLM's 0.26.0 false claim cited a line without the quoted text. Require map_evidence, report unverified findings separately; calibrate at kit-change time (T-1285 GO, ranked step 5; evidence docs/reports/T-1285-quality-engine.md)
+  REVIEW.json has no map evidence and loop.sh checks none; GLM's 0.26.0 false claim
+  cited a line without the quoted text. Require map_evidence, report unverified findings
+  separately; calibrate at kit-change time (T-1285 GO, ranked step 5; evidence docs/reports/T-1285-quality-engine.md)
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [quality-engine, T-1285]
 components: []
 related_tasks: []
@@ -38,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-23T22:13:32Z
-last_update: 2026-10-23T22:13:32Z
-date_finished: null
+last_update: '2026-10-23T22:21:48Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +54,75 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-23T22:21:48Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1290: Quality engine 5: verifiable reviewer findings (map_evidence line+quote, mechanically checked) in the authoring kit
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+This is step 5 of the quality engine (T-1285 GO); see spike 5 in `docs/reports/T-1285-quality-engine.md`. In release
+0.26.0's job 082, GLM-5.3 claimed a gateway carried a `default` it did not have, citing map.bpmn:119, a line that
+does not contain the quoted text. Diagnosing that took a re-ask and a second opinion. Mechanically checked evidence
+makes the diagnosis instant.
+
+**Policy (decided here, recorded in Decisions):** the calibration GATE does not change. An unverified finding on the
+clean map still counts as false, because a reviewer that makes claims it cannot back is a precision failure and the
+gate exists to catch that. Relaxing it is the operator's call, separately. What changes:
+- every finding is labelled verified / absence claim / unverified, so the cause of a FAIL is visible in the log;
+- in the PRODUCTION loop, unverified findings are set aside before they reach the corrector, kept in a separate
+  file, never silently lost.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **REVIEW.md asks for `map_evidence`:** `{"line": <1-based line in map.bpmn>, "quote": "<text verbatim on that
+      line>"}` for a finding about something in the map, or `null` for a finding about something ABSENT from the map.
+- [x] **`verify-findings.py` ships in the kit** (via `tools/build-authoring-kit.py`'s LOOP_FILES). Given map.bpmn and
+      REVIEW.json, it labels each finding:
+  - `verified`: the quote occurs on the cited line;
+  - `absence`: map_evidence is null;
+  - `unverified`: evidence is missing, the line does not exist, or the quote is not on it.
+  It prints a summary; `--write` stores the label per finding.
+- [x] **loop.sh uses it:**
+  - `--calibrate` prints each clean/planted finding's label next to the counts; PASS/FAIL is unchanged;
+  - the production loop and `--review-only` move unverified findings to `review.rN.unverified.json`, log the count,
+    and pass only verified and absence findings on.
+- [x] **Tests** (`tests/test_t1290_verify_findings.py`):
+  - job 082's real GLM-5.3 clean finding against its map: `unverified`;
+  - the same claim with the true line 98 and a true quote: `verified`;
+  - a wrong line: `unverified`;
+  - `null` evidence: `absence`;
+  - a calibration replay shows the label in the output with the verdict unchanged;
+  - the kit builds and its file list includes the verifier.
+- [x] **Release note line** for the next designer release (the kit changes, so the next release calibrates it).
+  **2026-10-24, all five met:**
+  - the test prints "OK: 4 labels as expected (082's real finding unverified); calibration replay prints labels and the
+    verdict is unchanged (unverified clean finding FAILS, clean [] PASSES); the kit ships verify-findings.py";
+  - the kit builds with the verifier;
+  - `tests/test_release_immutability.py` and `tests/test_t1008_kit_calibration_gate.sh` are still green;
+  - the leg is wired in the suite with a literal path; census 90=90;
+  - draft `docs/releases/RELEASE-NOTES-0.27.0.md` carries the line.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -113,6 +172,9 @@ date_finished: null
 
 ## Verification
 
+python3 tests/test_t1290_verify_findings.py
+grep -q 'verify-findings.py' tools/build-authoring-kit.py
+grep -q 'map_evidence' docs/authoring-kit/REVIEW.md
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -329,6 +391,17 @@ date_finished: null
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-10-24 — does an unverified finding count against calibration?
+- **Chose:** yes. The calibration verdict is unchanged; unverified findings are labelled, not excused.
+- **Why:** calibration measures whether a reviewer is fit to use. A reviewer that cites lines which do not say what it
+  claims has a precision problem, which is exactly what the gate exists to catch. The operator had just pushed back
+  on treating a failure as noise ("it sounds like you're completely ignoring this"). The gain here is diagnosis: a
+  FAIL's cause is now printed, so the 30-minute re-ask plus second opinion of 2026-10-23 becomes one log line.
+- **Rejected:**
+  - excluding unverified findings from the false count. It would let a reviewer that makes things up pass
+    calibration, and it relaxes a release gate, which is the operator's call, not this task's;
+  - dropping findings without map evidence silently: they are moved to `review.rN.unverified.json`, never lost.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -345,3 +418,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1290-quality-engine-5-verifiable-reviewer-fin.md
 - **Context:** Initial task creation
+
+### 2026-10-23T22:21:46Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
