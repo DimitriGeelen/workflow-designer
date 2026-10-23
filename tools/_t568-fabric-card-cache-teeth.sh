@@ -117,8 +117,13 @@ ok2 = "beta-renamed.yaml" in files
 emit("rename", ok2, "card files now %r" % (files,))
 
 # ── leg 3: create and delete are visible ─────────────────────────────────────────
+# T-1280: each step a clock tick apart. On a tmpfs (/tmp since 2026-10-23) create and delete landed inside one coarse
+# timestamp tick, so the directory mtime did not move between them and mutant A (the directory-mtime key) missed the
+# delete as well. That made it redden two legs. Mutant A must differ from the fix ONLY on the in-place edit.
+time.sleep(0.05)
 open(os.path.join(fix, "gamma.yaml"), "w").write(card("gamma", "new", "created after first load"))
 ids_after_create = sorted(purposes())
+time.sleep(0.05)
 os.remove(os.path.join(fix, "gamma.yaml"))
 ids_after_delete = sorted(purposes())
 ok3 = "gamma" in ids_after_create and "gamma" not in ids_after_delete

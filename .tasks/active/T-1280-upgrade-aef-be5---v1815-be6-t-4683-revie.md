@@ -102,13 +102,38 @@ This follows the be.5 path (T-1279, job 078).
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **Job 079 ran to `done`:** version_sha 797875a32; pristine and baseline commits present; TermLink settings
+- [x] **Job 079 ran to `done`:** version_sha 797875a32; pristine and baseline commits present; TermLink settings
       kept; doctor before/after saved.
-- [ ] **832's local fixes re-applied:** `tools/_t517` OK; every `*.bak` diffed and removed or reported; `_t1192`
+  **2026-10-23, met as job 081 (be.8, 04dc39868):**
+  - rc=0, 15:32, all 9 steps. The upgrade step took 24 min.
+  - pristine 2f87fdb1 (47 vendored paths; the one deletion is our `designer_open.html`, as before).
+  - identity kept; designer PRESENT; doctor with no FAIL.
+- [x] **832's local fixes re-applied:** `tools/_t517` OK; every `*.bak` diffed and removed or reported; `_t1192`
       exit 0; the safe-commands regressions and `_t632` pass; the verdict audit has 0 failures; Watchtower restarted
       and serving designer 0.25.0 byte for byte.
-- [ ] **Suite:** no new failure against the be.5 run (307 passed, 6 failed, all 6 explained in T-1279), run with the
+  **2026-10-23, met** (c3effb90):
+  - 37 fixes, all clean; `_t517` OK;
+  - `_t390`/`_t636`/`_t640`/`_t650`/`_t1047`/`_t632`/`_t629`/`_t634` pass; verdict audit 0 failures;
+  - no `.bak`; CLAUDE.md, `.mcp.json` and `.gitignore` untouched;
+  - templates: `inception.md.upstream` was superseded and removed;
+  - Watchtower `/designer/app` sha256 2cbcca06…
+  Fixes exercised:
+  - **T-4683 works:** a codex review-seat dispatch (`probe-t4683`) completed on its first run.
+  - **T-4684 works:** the upgrade saw our `.context/dispatch/` line and added no duplicate.
+  - **T-4677 works:** `aef-task-lifecycle` v4 has plain-language names. "T-1068" and "fw work-on" remain only in
+    `aef:endpoint`, a technical field the business lens hides.
+  - **T-4675 works as designed:** claude workers use `.context/dispatch`. Harness review seats
+    (codex/opencode/antigravity) keep `/tmp`, by design, because they run as another user.
+  - **T-4672:** still inconclusive (pin unchanged).
+  - **T-4688:** not exercised (fresh clone per run).
+- [x] **Suite:** no new failure against the be.5 run (307 passed, 6 failed, all 6 explained in T-1279), run with the
       default TMPDIR.
+  **2026-10-23, met:** **315 passed, 1 failed** (log `.context/working/t1280-suite.log`), the best run of the
+  upgrades. The one failure, `_t568`'s mutant A, also reddened the create/delete leg. Alone on the tmpfs /tmp it
+  failed the same way; with its scratch dir on disk it passed 4/4. Cause: on a tmpfs, create and delete landed
+  inside one coarse timestamp tick, so the directory-mtime key did not move. That is an environment artefact of
+  the 2026-10-23 tmp.mount, not a product change. Each step of leg 3 is now 50 ms apart: 4/4, three runs in a row on
+  the tmpfs.
 - [ ] **AEF has the be.5+be.6 field report** on `aef-v1815-be3`, WORKS/FAILS per fix exercised:
   - T-4683: one advisory multi-seat review dispatch (codex) completes;
   - T-4677: the business names on `aef-task-lifecycle`, if 832's copy of the map carries them;
