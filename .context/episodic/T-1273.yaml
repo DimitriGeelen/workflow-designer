@@ -1,0 +1,98 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1273: Instrument sweep 90s cap can leave src mutated: _t910 teeth killed before restore-or-die
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-23T16:56:01Z
+# ============================================================================
+
+task_id: T-1273
+task_name: "Instrument sweep 90s cap can leave src mutated: _t910 teeth killed before restore-or-die"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-22T10:07:40Z
+completed: 2026-10-23T16:55:40Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-23T00:16:56+02:00
+last_commit: 2026-10-23T18:55:21+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  commit the t423 carrier witness as the clean suite regenerated it — the committed copy was a month stale (80af8f4a, 2026-09-22, before the emitter's id renames), and the earlier 'restore from HEAD' reinstated that stale copy; fresh regeneration on clean source is byte-identical and the three witness guards pass. root cause found by code reading and harmless dummies — _t910's 'trap cleanup EXIT INT TERM' handler restores and deletes the backup but does not exit, so bash resumes after the sweep's TERM, plants the next mutant and cannot restore it (dummy: rc 124, file left mutant-2); Python try/finally does not run on an unhandled SIGTERM either (_t886 writes src in place); EXIT-only traps are safe. Criteria written: census + exit-on-signal fixes, a static guard, a behavioural kill test on a throwaway file, and a src-clean check before the suite refreshes its witness. criterion 1 (RCA with evidence) met; criteria 2-5 dispatched to worker w-t1273. in-place mutation scripts can no longer leave a mutant behind when a timeout signals them — census of every tools/ script that writes a real file in place and restores it (8; 6 unsafe): bash _t910 and t404 now restore on EXIT only and exit on INT/TERM; Python _t886/_t392/_t607/_t606 turn SIGTERM into SystemExit so 'finally' restores; standing guard _t1273-mutation-signal-guard.py (red at b2f3bb2d: 6 of 8, green now) and behavioural teeth on dummies only (9/9: the old pattern leaves mutant-2, the fixed one restores) wired into the suite (census 89=89); the tracked t423 witness is refreshed only while src matches HEAD. _t910 run normally: src clean
+
+# Key outcomes
+outcomes:
+  - '**RCA stated with evidence** in `## RCA`. The working hypothesis comes from reading the code (operator chose'
+  - '**Every in-place mutation script exits on INT/TERM after restoring.** A census lists every script under'
+  - '**A standing guard keeps it so:** a static check fails when such a script''s trap handler for INT/TERM can'
+  - '**A behavioural proof that harms nothing:** a test runs a dummy script with the fixed trap pattern on a'
+  - '**Regenerated outputs are protected:** the suite''s `t423-carrier-witness.bpmn` refresh only writes when `src`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'in-place mutation scripts can no longer leave a mutant behind when a timeout signals them — census of every tools/ script that writes a real file in place and restores it (8; 6 unsafe): bash _t910 and t404 now restore on EXIT only and exit on INT/TERM; Python _t886/_t392/_t607/_t606 turn SIGTERM into SystemExit so ''finally'' restores; standing guard _t1273-mutation-signal-guard.py (red at b2f3bb2d: 6 of 8, green now) and behavioural teeth on dummies only (9/9: the old pattern leaves mutant-2, the fixed one restores) wired into the suite (census 89=89); the tracked t423 witness is refreshed only while src matches HEAD. _t910 run normally: src clean'
+    source: git-mined
+  - description: 'root cause found by code reading and harmless dummies — _t910''s ''trap cleanup EXIT INT TERM'' handler restores and deletes the backup but does not exit, so bash resumes after the sweep''s TERM, plants the next mutant and cannot restore it (dummy: rc 124, file left mutant-2); Python try/finally does not run on an unhandled SIGTERM either (_t886 writes src in place); EXIT-only traps are safe. Criteria written: census + exit-on-signal fixes, a static guard, a behavioural kill test on a throwaway file, and a src-clean check before the suite refreshes its witness'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1273-instrument-sweep-90s-cap-can-leave-src-m.md'
+  - 'tests/fixtures/exported/t423-carrier-witness.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1273-mutation-signal-guard.py'
+  - 'tools/_t1273-signal-restore-teeth.sh'
+  - 'tools/_t392-safelist-shadow-gate.py'
+  - 'tools/t404-gate-e2e.sh'
+  - 'tools/_t423-carrier-agreement-cdp.mjs'
+  - 'tools/_t606-render-escaping.py'
+  - 'tools/_t607-drift-gate-reach.py'
+  - 'tools/_t886-writer-mutation.py'
+  - 'tools/_t910-lanemeta-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-23T00:16:56'
+    action: 'T-1273: commit the t423 carrier witness as the clean suite regenerated it — the committed copy was a month stale (80af8f4a, 2026-09-22, before the emitter''s id renames), and the earlier ''restore from HEAD'' reinstated that stale copy; fresh regeneration on clean source is byte-identical and the three witness guards pass'
+  - time: '2026-10-23T18:40:33'
+    action: 'T-1273: root cause found by code reading and harmless dummies — _t910''s ''trap cleanup EXIT INT TERM'' handler restores and deletes the backup but does not exit, so bash resumes after the sweep''s TERM, plants the next mutant and cannot restore it (dummy: rc 124, file left mutant-2); Python try/finally does not run on an unhandled SIGTERM either (_t886 writes src in place); EXIT-only traps are safe. Criteria written: census + exit-on-signal fixes, a static guard, a behavioural kill test on a throwaway file, and a src-clean check before the suite refreshes its witness'
+  - time: '2026-10-23T18:41:02'
+    action: 'T-1273: criterion 1 (RCA with evidence) met; criteria 2-5 dispatched to worker w-t1273'
+  - time: '2026-10-23T18:55:21'
+    action: 'T-1273: in-place mutation scripts can no longer leave a mutant behind when a timeout signals them — census of every tools/ script that writes a real file in place and restores it (8; 6 unsafe): bash _t910 and t404 now restore on EXIT only and exit on INT/TERM; Python _t886/_t392/_t607/_t606 turn SIGTERM into SystemExit so ''finally'' restores; standing guard _t1273-mutation-signal-guard.py (red at b2f3bb2d: 6 of 8, green now) and behavioural teeth on dummies only (9/9: the old pattern leaves mutant-2, the fixed one restores) wired into the suite (census 89=89); the tracked t423 witness is refreshed only while src matches HEAD. _t910 run normally: src clean'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 1848 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [suite, teeth, bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1848
+  commits: 5
+  files_changed: 84
+  lines_added: 937
+  lines_removed: 134
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1273-instrument-sweep-90s-cap-can-leave-src-m.md
+generated_by: context-agent-hybrid

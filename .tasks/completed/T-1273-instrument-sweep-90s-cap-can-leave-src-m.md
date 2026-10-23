@@ -11,13 +11,13 @@ description: >
   (mutate a copy, or the sweep checks src against HEAD after each probe and restores
   + FAILs loudly). Old debris of the same class: tools/.t351-mut-a.sh (2026-10-01).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [suite, teeth, bug]
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t392-safelist-shadow-gate.py, tools/_t423-carrier-agreement-cdp.mjs, tools/_t606-render-escaping.py, tools/_t607-drift-gate-reach.py, tools/_t886-writer-mutation.py, tools/_t910-lanemeta-teeth.sh, tools/t404-gate-e2e.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-22T10:07:40Z
-last_update: '2026-10-23T16:37:08Z'
-date_finished:
+last_update: 2026-10-23T16:55:40Z
+date_finished: 2026-10-23T16:55:40Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -488,3 +488,20 @@ write and the `try:` (a few statements; `_t886` has an assert and a read there) 
 ### 2026-10-23T16:37:07Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-823d0b94
+- **Timestamp:** 2026-10-23T16:55:51Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-23T16:55:40Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
