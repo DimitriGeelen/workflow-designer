@@ -153,31 +153,37 @@ completing on its first run.
 - **IW-1: Where does rework actually come from?** Count, from git and task history over the last 30 days, the loops
   per designer change (review rounds, re-shoots, follow-up tasks, release attempts) and classify each loop's cause:
   check measured the wrong thing / environment / reviewer error / scope / process.
-  confidence: 1
-  disposition: deferred
-  rationale: today's sample (T-1241 x4, 0.26.0 x1, suite x4) is one day; the 30-day mining is spike 1.
+  confidence: 2
+  disposition: answered
+  rationale: spike 1 (docs/reports/T-1285-quality-engine.md). About 1 in 4 operator runs stops (30 STOPPED / 77
+  done; 22 of 83 jobs retired), the largest cause being a framework gate the dry-run never exercised (7 jobs); then
+  review rounds (T-1241 x4).
 - **IW-2: Which suite reds are product, and which are environment?** Classify every failing leg in the last 10 full
   runs as product regression / environment (load, /tmp, TMPDIR, host) / stale anchor after upgrade / census drift.
-  confidence: 1
-  disposition: deferred
-  rationale: 2026-10-22/23 runs suggest mostly non-product; spike 2 measures it.
+  confidence: 2
+  disposition: answered
+  rationale: spike 2. Of 10 red legs triaged per leg over 3 runs, 0 were product regressions (5 environment, 2
+  upgrade drift, 2 guard literalness/bookkeeping, 1 process). A 10-run pass would firm up the ratio, not change its
+  direction.
 - **IW-3: Can a "what a person sees" gate replace discovery-by-reviewer?** Of the findings reviewers raised on
   T-1241/T-1282, how many could a deterministic check on the rendered SVG/DOM have caught (crossings, arrowheads,
   clipping, text size, contrast, reachability)?
   confidence: 2
-  disposition: deferred
-  rationale: T-1277/T-1278 turned most reviewer points into checks after the fact; spike 3 counts the rest.
+  disposition: answered
+  rationale: spike 3. 9 of 13 distinct reviewer points (~70%) were mechanically decidable on the rendered map; 2 were
+  taste and 2 were AEF's map content.
 - **IW-4: Can the designer-to-host contract be generated from source and checked against AEF?** Generate the
   endpoint list from the designer source and compare it with AEF's vendored server code.
-  confidence: 2
-  disposition: deferred
-  rationale: done by hand on 2026-10-23 (13 used, 9 served); spike 4 makes it a script.
+  confidence: 3
+  disposition: answered
+  rationale: spike 4. A ~30-line script reproduces the manual result exactly (13 used, 9 served, 4 missing; gaps 13-25
+  days old) from source and AEF's vendored code.
 - **IW-5: Can release reviewer findings be made verifiable?** A finding cites file:line, and a script checks the
   quoted text exists before it counts.
-  confidence: 1
-  disposition: deferred
-  rationale: GLM's 0.26.0 false finding cited map.bpmn:119, which did not contain the claimed attribute; spike 5
-  checks the kit's REVIEW.json shape allows it.
+  confidence: 2
+  disposition: answered
+  rationale: spike 5. REVIEW.json has no map evidence today and loop.sh checks none. A required map_evidence
+  {line, quote} plus a quote check would have flagged GLM's claim (line 119 lacks the quoted default=).
 
 ## Exploration Plan
 
@@ -256,13 +262,31 @@ docs/reports/T-1285-quality-engine.md as they land. No build work before the GO.
 
 ## Recommendation
 
-**Recommendation:** DEFER
+**Recommendation:** GO
 
 **Rationale:**
 
-Evidence is being gathered first (operator, 2026-10-23: 'what do we need to do to improve our quality ... structurally, it's about improving the engine'). Observed in one day: T-1241 took 4 review rounds, no full suite run was green (305/8, 310/3, 307/6, 315/1), release 0.26.0 stopped once on a reviewer false finding, AEF lacked 4 designer endpoints unnoticed, and 37 local framework patches are re-applied on every upgrade. The research artifact measures these and ranks remedies before any build.
+The spikes meet the GO criterion: most measured rework comes from checking and shipping, not from what to build.
+- About 1 in 4 operator runs stops, mostly because a rehearsal checks preconditions but never exercises the steps'
+  gates.
+- ~70% of reviewer findings were mechanically decidable.
+- The suite was red every run while catching 0 product regressions.
+- AEF went 13-25 days without 4 designer endpoints, with nothing comparing the two.
+Each remedy is a bounded build task with its own metric, so build them in the ranked order, one at a time:
+1. a deep rehearsal for operator jobs;
+2. a "what a person sees" gate before review;
+3. a hermetic core suite plus quarantine;
+4. a generated designer-to-host contract;
+5. verifiable reviewer findings;
+6. upstreaming local framework patches.
+Measure weekly against the hypothesis.
 
 **Evidence:**
+- docs/reports/T-1285-quality-engine.md, spikes 1-5 (commits d6710863, d1e272ca, 2bce661e and the spike-4 commit)
+- `.context/runme/*/retired` (22 retirements by cause) and `.context/working/runme.events` (30 STOPPED / 77 done)
+- `.context/working/t1275-suite.log`, `t1279-suite.log`, `t1280-suite.log` (per-leg triage)
+- `.context/working/t1285/contract.py` (the contract spike)
+- `docs/authoring-kit/REVIEW.md:6-9`, `docs/authoring-kit/loop.sh:98-119` (finding format and scoring)
 
 <!-- Add evidence bullets as exploration progresses (file paths,
      commit hashes, test results). The filing-time recommendation
