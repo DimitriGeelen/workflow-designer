@@ -117,8 +117,17 @@ bvp_scores_proposed:
 - [x] **No regression:** the validator fixture suite, `tests/test_t317_gw_ambiguous_parity.py` and the kit build
       pass; on the clean calibration map the two GW-AMBIGUOUS warnings now read differently for the two gateways,
       as codex proposed.
-- [ ] **A new 0.26.0 release job** (calibrating the corrected kit with codex and GLM-5.3 from scratch, then cut, tag
+- [x] **A new 0.26.0 release job** (calibrating the corrected kit with codex and GLM-5.3 from scratch, then cut, tag
       and push) is rehearsed, and job 082 is retired with the reason.
+  **2026-10-23, met:**
+  - 082 has a `retired` file with the reason;
+  - job 083-release-designer-0.26.0-recalibrated is rehearsed, 13/13 checks ok, sha f87c5d60ce5c;
+  - its record check now accepts an existing record ONLY from an earlier kit build (whose runs `record` moves into
+    `voided_runs`) and still refuses one for the current kit (760031ce…).
+  Evidence for the operator's question "why is it failing":
+  - GLM-5.3's own re-check (it withdrew the finding);
+  - codex's second opinion (claim false; warning misleading; code lines);
+  - the fixed message on the clean map, which now reads differently for the two gateways.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
