@@ -127,7 +127,7 @@ Two carry an open tail, which does not change the verdict — the GO propagated:
 **T-038** (T-041, phase P4, `started-work`) and **T-685** (T-341/T-358, both blocked on
 operator rulings, not on filing).
 
-### PARTIAL (7) — the decision propagated, the delivery did not
+### PARTIAL (8) — the decision propagated, the delivery did not
 
 - ~~**T-263** — *Save-to-project target binding.* The slice **was filed**: T-264, and is
   still `captured`. Filed 2026-07-27, never started. **This is the one on the list most
@@ -136,6 +136,16 @@ operator rulings, not on filing).
   harness, and was closed 2026-09-30 at 5/5 ACs and 5/5 verification. Only its `status:`
   field said otherwise. Moved to `SHIPPED-UNLINKED` above. Struck rather than deleted,
   because the reasoning that produced the wrong verdict is the useful part.
+- **T-1285** — *Quality engine* (GO 2026-10-24, operator job 084: six ranked build steps). Filed the same night as
+  T-1286..T-1291. Done:
+  - T-1287, the 'what a person sees' gate;
+  - T-1289, the designer-to-host contract;
+  - T-1290, verifiable review findings.
+  Open:
+  - T-1286, the rehearsal (one criterion waits for the next real job);
+  - T-1288, the three-tier suite;
+  - T-1291, upstreaming local framework patches.
+  Evidence: `docs/reports/T-1285-quality-engine.md`. Added when the triage checker flagged it (2026-10-24, T-1293).
 - **T-281** — *Audience render lenses* (GO 2026-10-20, operator job 063: slice 1, the business lens in the designer).
   The slice is filed as **T-1241** (horizon now, not started), so the decision propagated and the delivery has not.
   Evidence: `docs/reports/T-281-audience-lenses.md`. Added when the triage checker flagged it (2026-10-21).

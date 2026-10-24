@@ -5,12 +5,6 @@
 # entries: the reason says what was observed and why it is not the product. Leg names: `bash tests/run-bridge-tests.sh
 # --list-legs`. Remove an entry in the same commit that fixes its leg.
 quarantine:
-  - leg: _t949-completeness-teeth
-    reason: >-
-      the teeth pass 6/6 and the back-links 23/23; _t949-triage-completeness.py COVERAGE fails because the audit now
-      flags the T-1285 inception (GO, 2026-10-23) and the T-949 triage has no verdict for it. Bookkeeping.
-    owner: T-1293
-    fix_by: 2026-11-07
   - leg: _t1273-signal-restore-teeth
     reason: >-
       'FIXED python runs finally and nothing after TERM' failed once in the core run under nice -n 19 (rc=124, file
