@@ -68,3 +68,5 @@ docs/learning-ledger.yaml.lock
 .context/working/intake-t4415/
 # worker dirs since AEF be.5 (T-4675): prompt, env.sh, results of every dispatched worker; never tracked (T-1279)
 .context/dispatch/
+# T-1288: pre-push core-tier cache and log (per checkout, never tracked)
+.context/working/prepush-core.*

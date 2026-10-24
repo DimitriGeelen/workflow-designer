@@ -27,6 +27,16 @@ fi
 # own, which those variables would silently redirect to this one.
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES
 
+# A green core run is remembered by the tree of what it tests: src, tools, tests, the authoring kit and the vendored
+# framework at HEAD. A push whose HEAD has the same key (a handover, a task-file commit) needs no new run; any change
+# to those trees runs the core tier again. Only a GREEN run records a key. Remove the file to force a run.
+GREEN="$ROOT/.context/working/prepush-core.green"
+key=$(cd "$ROOT" && for p in src tools tests docs/authoring-kit .agentic-framework; do git rev-parse "HEAD:$p" 2>/dev/null || echo "none:$p"; done | sha256sum | cut -c1-64)
+if [ -s "$GREEN" ] && [ "$(cat "$GREEN")" = "$key" ]; then
+    echo "T-1288 pre-push: core tier already GREEN for this tree (src/tools/tests/kit/framework unchanged) — no run needed" >&2
+    exit 0
+fi
+
 echo "T-1288 pre-push: running the core tier (tests/run-bridge-tests.sh --tier core) ..." >&2
 out="$ROOT/.context/working/prepush-core.log"
 mkdir -p "$(dirname "$out")"
@@ -40,4 +50,5 @@ if [ "$rc" -ne 0 ]; then
     echo "  To push anyway, logged: T1288_PREPUSH_BYPASS=\"<reason>\" git push ..." >&2
     exit 1
 fi
+printf '%s\n' "$key" > "$GREEN"
 exit 0
