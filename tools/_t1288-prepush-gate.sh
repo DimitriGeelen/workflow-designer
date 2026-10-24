@@ -31,7 +31,10 @@ unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX GIT_OBJECT_DIRECTORY GIT_A
 # framework at HEAD. A push whose HEAD has the same key (a handover, a task-file commit) needs no new run; any change
 # to those trees runs the core tier again. Only a GREEN run records a key. Remove the file to force a run.
 GREEN="$ROOT/.context/working/prepush-core.green"
-key=$(cd "$ROOT" && for p in src tools tests docs/authoring-kit .agentic-framework; do git rev-parse "HEAD:$p" 2>/dev/null || echo "none:$p"; done | sha256sum | cut -c1-64)
+# T-1295: the suite's own bookkeeping (run history, bypass log) changes with every run, so it is not part of the key;
+# otherwise committing a run's history line would invalidate the run it records.
+key=$(cd "$ROOT" && git ls-tree -r HEAD -- src tools tests docs/authoring-kit .agentic-framework \
+      | grep -vE $'\t''tests/\.(run-history|prepush-bypass)\.tsv$' | sha256sum | cut -c1-64)
 if [ -s "$GREEN" ] && [ "$(cat "$GREEN")" = "$key" ]; then
     echo "T-1288 pre-push: core tier already GREEN for this tree (src/tools/tests/kit/framework unchanged) — no run needed" >&2
     exit 0
