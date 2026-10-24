@@ -110,6 +110,9 @@ Tags to batch (take the newest when this starts):
   - T-4720: `fw vendor` and `fw upgrade` write only files whose content changed (a no-op re-vendor leaves `web/` mtimes
     alone). Check after the batch that our 37 re-applied local fixes still land, since they rely on a rewrite;
   - T-4726: the inception review hint takes the decide verb from the Recommendation.
+- **After be.17** (AEF notice msg 0d60e494, 2026-10-25, going offline): five v1.8.15 release blockers (AEF T-4744..T-4748)
+  are fixed on AEF's bleeding-edge but in no be tag yet; the v1.8.15 master release waits on AEF's operator. Prefer the tag
+  that carries them (be.18 or v1.8.15) over be.17 for this batch.
 - **Before this batch's job:** T-1298 changed the rehearsal (lock, `--git-dir`, config in the compare). This job's dry-run is
   the first real job rehearsed on it, and also T-1286 AC4.
 
