@@ -1,0 +1,156 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1288: Quality engine 3: hermetic core suite that must be green on every push, plus a quarantine set with owners
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-24T09:14:04Z
+# ============================================================================
+
+task_id: T-1288
+task_name: "Quality engine 3: hermetic core suite that must be green on every push, plus a quarantine set with owners"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-23T22:13:22Z
+completed: 2026-10-24T09:13:36Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-24T00:29:18+02:00
+last_commit: 2026-10-24T11:13:35+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  criteria — suite in three tiers (core/browser/sweep) with declared tiers; core hermetic (own short TMPDIR, no browser, no network), 100% green and run before every push; browser timeouts retried once alone and reported FLAKY, not hidden; quarantine with owners and fix-by dates; tier results logged for the weekly metric. the suite in three tiers — every leg declares core/browser/sweep once (279 legs: 174 core, 105 browser, 1 sweep; tier guard fails an untiered leg); core runs hermetic (own short TMPDIR, private network namespace); browser timeouts retried once alone and reported FLAKY; tests/quarantine.yaml with owners and fix-by dates (2 evidenced entries: _t949 bookkeeping T-1293, _t1273 load-timing T-1294); tier results appended to tests/.run-history.tsv; pre-push gate installer tools/_t1288-install-hook.sh (core tier blocks a red push, logged bypass), re-installed by the T-1000 installer. Orchestrator fixes instead of quarantine: test_t974's kit list gains T-1290's verify-findings.py; test_t1286_rehearsal wired into the runner; the T-1286 rehearsal keeps a project-internal TMPDIR writable. Sweep tier 106/106; test_t1288 39/39. core run findings fixed — the retry stamp is dated one second back so a no-DevTools-port leg output written in the same coarse timestamp tick is seen (test_t1288 leg 22 failed inside the core run, TMP on disk); _t611-review-card-steps moves to the browser tier (it reads the live Watchtower over the network, so it cannot be hermetic). the pre-push gate remembers a green core run by the tree it tested (src, tools, tests, authoring kit, vendored framework at HEAD), so a push that changes none of them needs no 17-minute run; cache and log gitignored. Not installed yet: the handover's auto-push has a 180 s timeout, decision pending with the operator. core tier GREEN on the committed tree (207 passed, 0 failed, 0 flaky, 0 quarantined, ~17 min; twice) and the pre-push gate installed as the operator chose ('Full run in the hook', cached by tested tree); CLAUDE.md gains 'Every push passes the core suite tier', including running the gate before a handover because the handover's auto-push times out at 180 s
+
+# Key outcomes
+outcomes:
+  - '**Three tiers, one runner.** `tests/run-bridge-tests.sh --tier core|browser|sweep|all` (default `all`: today''s'
+  - '**Core is hermetic and must be green:**'
+  - '**Browser tier retries a timeout once, alone.** The standing rule "rerun a CDP harness that timed out once alone'
+  - '**Quarantine with owners.** `tests/quarantine.yaml` lists legs whose red is known non-product: leg, reason,'
+  - '**Measured:** each run appends tier results to `tests/.run-history.tsv` (it exists): date, tier, passed, failed,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'core run findings fixed — the retry stamp is dated one second back so a no-DevTools-port leg output written in the same coarse timestamp tick is seen (test_t1288 leg 22 failed inside the core run, TMP on disk); _t611-review-card-steps moves to the browser tier (it reads the live Watchtower over the network, so it cannot be hermetic)'
+    source: git-mined
+  - description: 'the suite in three tiers — every leg declares core/browser/sweep once (279 legs: 174 core, 105 browser, 1 sweep; tier guard fails an untiered leg); core runs hermetic (own short TMPDIR, private network namespace); browser timeouts retried once alone and reported FLAKY; tests/quarantine.yaml with owners and fix-by dates (2 evidenced entries: _t949 bookkeeping T-1293, _t1273 load-timing T-1294); tier results appended to tests/.run-history.tsv; pre-push gate installer tools/_t1288-install-hook.sh (core tier blocks a red push, logged bypass), re-installed by the T-1000 installer. Orchestrator fixes instead of quarantine: test_t974''s kit list gains T-1290''s verify-findings.py; test_t1286_rehearsal wired into the runner; the T-1286 rehearsal keeps a project-internal TMPDIR writable. Sweep tier 106/106; test_t1288 39/39'
+    source: git-mined
+  - description: 'criteria — suite in three tiers (core/browser/sweep) with declared tiers; core hermetic (own short TMPDIR, no browser, no network), 100% green and run before every push; browser timeouts retried once alone and reported FLAKY, not hidden; quarantine with owners and fix-by dates; tier results logged for the weekly metric'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-10-24 — how a leg declares its tier'
+    chose: 'every leg body became a function, registered by one `leg <tier> <name> <fn>` line (mechanical: the wrapped text is byte-identical to the old blocks, unindented so the column-0 censuses still read it); the tier engine lives in `tools/_t1288-tiers.sh`, the static no-tier guard in `tools/_t1288-tier-guard.py`.'
+    rationale: 'retry-once needs a leg that can be re-run alone, which a function is and an inline if-block is not.'
+    alternatives_rejected: ['`if leg core …; then … fi` wrappers (no re-run); inferring the tier at run time (the criterion forbids it).']
+  - decision: '2026-10-24 — retry and quarantine also apply to `--tier all`'
+    chose: '`all` runs the same legs as before, with the same per-check pass/fail counts, and applies the tier rules (browser retry-once, quarantine) — otherwise the full run stays red for known reasons forever.'
+    alternatives_rejected: ['a rule-free `all` (keeps the 10-reds-in-3-runs problem the task exists to end).']
+  - decision: '2026-10-24 — core''s hermeticity is enforced, not only declared'
+    chose: '`--tier core` re-execs in a private mount + network namespace (only `lo`; Playwright/Chromium binaries and caches covered), falling back to a printed "NOT enforced" where unshare is unavailable.'
+    rationale: 'a static classification can be wrong (it was, once: T-690); the namespace makes such a leg fail visibly.'
+  - decision: '2026-10-24 — history rows'
+    chose: 'keep the six T-813 columns and append tier, flaky, quarantined; an `all` run writes its all-row plus one row per tier. `_t952` and `_t813-suite-age` read only `all` (and old 6-column) rows, so a core row is never mistaken for the whole suite''s failure count.'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'CLAUDE.md'
+  - '.context/st/tmp.AgK3G9srvx/t630-766510-1792833007/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/tmp.AgK3G9srvx/t630-766510-1792833007/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/tmp.AgK3G9srvx/t630-766510-1792833007/gap/.context/episodic/T-905.yaml'
+  - '.context/st/tmp.AgK3G9srvx/t630-766510-1792833007/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/tmp.AgK3G9srvx/t630-766510-1792833007/live/.context/episodic/T-902.yaml'
+  - '.context/st/tmp.AgK3G9srvx/t630-766510-1792833007/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/tmp.AgK3G9srvx/t634-705690-1792832938/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/tmp.AgK3G9srvx/t634-705690-1792832938/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/tmp.AgK3G9srvx/t634-705690-1792832938/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/tmp.AgK3G9srvx/t634-705690-1792832938/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/tmp.AgK3G9srvx/t634-705690-1792832938/m2/.context/episodic/T-907.yaml'
+  - '.context/st/tmp.AgK3G9srvx/t634-705690-1792832938/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.context/st/tmp.EccKEmB1ZZ/t630-104492-1792808180/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/tmp.EccKEmB1ZZ/t630-104492-1792808180/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/tmp.EccKEmB1ZZ/t630-104492-1792808180/gap/.context/episodic/T-905.yaml'
+  - '.context/st/tmp.EccKEmB1ZZ/t630-104492-1792808180/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/tmp.EccKEmB1ZZ/t630-104492-1792808180/live/.context/episodic/T-902.yaml'
+  - '.context/st/tmp.EccKEmB1ZZ/t630-104492-1792808180/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/tmp.EccKEmB1ZZ/t634-64197-1792808113/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/tmp.EccKEmB1ZZ/t634-64197-1792808113/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/tmp.EccKEmB1ZZ/t634-64197-1792808113/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/tmp.EccKEmB1ZZ/t634-64197-1792808113/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/tmp.EccKEmB1ZZ/t634-64197-1792808113/m2/.context/episodic/T-907.yaml'
+  - '.context/st/tmp.EccKEmB1ZZ/t634-64197-1792808113/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.context/st/tmp.eiNvDHkvlW/t630-3091508-1792806863/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/tmp.eiNvDHkvlW/t630-3091508-1792806863/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/tmp.eiNvDHkvlW/t630-3091508-1792806863/gap/.context/episodic/T-905.yaml'
+  - '.context/st/tmp.eiNvDHkvlW/t630-3091508-1792806863/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/tmp.eiNvDHkvlW/t630-3091508-1792806863/live/.context/episodic/T-902.yaml'
+  - '.context/st/tmp.eiNvDHkvlW/t630-3091508-1792806863/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/tmp.eiNvDHkvlW/t634-3054685-1792806792/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/tmp.eiNvDHkvlW/t634-3054685-1792806792/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/tmp.eiNvDHkvlW/t634-3054685-1792806792/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/tmp.eiNvDHkvlW/t634-3054685-1792806792/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/tmp.eiNvDHkvlW/t634-3054685-1792806792/m2/.context/episodic/T-907.yaml'
+  - '.context/st/tmp.eiNvDHkvlW/t634-3054685-1792806792/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.gitignore'
+  - '.tasks/active/T-1288-quality-engine-3-hermetic-core-suite-tha.md'
+  - '.tasks/active/T-1292-testt974-kit-file-list-lacks-verify-find.md'
+  - '.tasks/active/T-1293-t-949-triage-has-no-verdict-for-the-t-12.md'
+  - '.tasks/active/T-1294-t1273-signal-restore-teeth-fixed-python-.md'
+  - 'tests/quarantine.yaml'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/.run-history.tsv'
+  - 'tests/test_t1288_tiers.py'
+  - 'tests/test_t974_authoring_kit.py'
+  - 'tools/runme-launcher.sh'
+  - 'tools/_t1000-install-hook.sh'
+  - 'tools/_t1288-install-hook.sh'
+  - 'tools/_t1288-prepush-gate.sh'
+  - 'tools/_t1288-tier-guard.py'
+  - 'tools/_t1288-tiers.sh'
+  - 'tools/_t813-suite-age.py'
+  - 'tools/_t952-bridge-suite-ratchet.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-24T00:29:18'
+    action: 'T-1288: criteria — suite in three tiers (core/browser/sweep) with declared tiers; core hermetic (own short TMPDIR, no browser, no network), 100% green and run before every push; browser timeouts retried once alone and reported FLAKY, not hidden; quarantine with owners and fix-by dates; tier results logged for the weekly metric'
+  - time: '2026-10-24T03:33:02'
+    action: 'T-1288: the suite in three tiers — every leg declares core/browser/sweep once (279 legs: 174 core, 105 browser, 1 sweep; tier guard fails an untiered leg); core runs hermetic (own short TMPDIR, private network namespace); browser timeouts retried once alone and reported FLAKY; tests/quarantine.yaml with owners and fix-by dates (2 evidenced entries: _t949 bookkeeping T-1293, _t1273 load-timing T-1294); tier results appended to tests/.run-history.tsv; pre-push gate installer tools/_t1288-install-hook.sh (core tier blocks a red push, logged bypass), re-installed by the T-1000 installer. Orchestrator fixes instead of quarantine: test_t974''s kit list gains T-1290''s verify-findings.py; test_t1286_rehearsal wired into the runner; the T-1286 rehearsal keeps a project-internal TMPDIR writable. Sweep tier 106/106; test_t1288 39/39'
+  - time: '2026-10-24T03:59:14'
+    action: 'T-1288: core run findings fixed — the retry stamp is dated one second back so a no-DevTools-port leg output written in the same coarse timestamp tick is seen (test_t1288 leg 22 failed inside the core run, TMP on disk); _t611-review-card-steps moves to the browser tier (it reads the live Watchtower over the network, so it cannot be hermetic)'
+  - time: '2026-10-24T04:21:02'
+    action: 'T-1288: the pre-push gate remembers a green core run by the tree it tested (src, tools, tests, authoring kit, vendored framework at HEAD), so a push that changes none of them needs no 17-minute run; cache and log gitignored. Not installed yet: the handover''s auto-push has a 180 s timeout, decision pending with the operator'
+  - time: '2026-10-24T11:13:35'
+    action: 'T-1288: core tier GREEN on the committed tree (207 passed, 0 failed, 0 flaky, 0 quarantined, ~17 min; twice) and the pre-push gate installed as the operator chose (''Full run in the hook'', cached by tested tree); CLAUDE.md gains ''Every push passes the core suite tier'', including running the gate before a handover because the handover''s auto-push times out at 180 s'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 660 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [quality-engine, T-1285]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 660
+  commits: 5
+  files_changed: 55
+  lines_added: 5280
+  lines_removed: 117
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1288-quality-engine-3-hermetic-core-suite-tha.md
+generated_by: context-agent-hybrid
