@@ -9,7 +9,12 @@
 //   c. greenfield's VZN-T1 v29 (client material, read in place, never printed): io bytes unchanged. Absent = not measured;
 //   d. the io panel shows each construct of a v1.1 step, and the workflow panel mappingVersion and the prefixes
 //      (asserted on DOM text), with no new input/select inside the v1.1 display (read-only);
-//   e. a v1 io shows no v1.1 section, and its row is exactly the editable row it was before.
+//   e. a v1 io with no attribute beyond name/type/required shows no v1.1 section, and its row is exactly the editable
+//      row it was before;
+//   f. T-1304: greenfield's style A (ref="nid:attr-…" role dataType, in a map with no mappingVersion and no prefixes,
+//      as VZN-T1) shows ref, dataType and role, and derives no fieldRef. Leg c measured VZN-T1 by bytes only, so a hidden
+//      ref/dataType passed it; this leg asserts what is SHOWN;
+//   g. T-1304: the same io in a map declaring its prefix kind="field": ref is read as fieldRef (derived) and shown once.
 // T1249_SRC substitutes another designer file (e.g. the pre-T-1249 source). T1249_BITE=display runs a temp copy whose
 // display function returns nothing: leg d must go red. Exit 0 = all legs green; 1 = a leg failed; 2 = misconfig.
 import { makeProfileDir } from './_cdp-profile.mjs';
@@ -83,7 +88,7 @@ const ind = (lines, n) => lines.map(l => ' '.repeat(n) + l).join('\n');
 // A minimal map in the designer's own layout (process ext at 6, node ext at 8, io items at 10, io children at 12), so a
 // byte comparison measures the io, not the designer's indentation. stepMeta: an optional step-level aef:meta line.
 function v11Map(key, ioLines, opts = {}) {
-  const meta = opts.noMeta ? '' : ind(V11_META, 6) + '\n';
+  const meta = opts.noMeta ? '' : ind(opts.meta || V11_META, 6) + '\n';
   const stepMeta = opts.stepMeta ? `        ${opts.stepMeta}\n` : '';
   return `<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:aef="${AEF}" id="Definitions_${key}" targetNamespace="https://aef.anchorpoint.dev/workflows">
@@ -111,7 +116,13 @@ const FIXTURES = Object.entries(EX).map(([k, v]) => ({ key: k, xml: v11Map(k, v)
 // leg d: a step with a step default (sourceSystem on the step's aef:meta) and an io whose system comes from a prefix
 const DISPLAY = v11Map('display', [...EX.full, ...EX.h042, ...EX.styleB, ...EX.account.slice(0, 2), '</aef:output>',
   '<aef:input name="acct" fieldRef="sfdc:Account.Id" role="match"/>'], { stepMeta: '<aef:meta sourceSystem="sys:crm-default"/>' });
-const V1 = v11Map('v1', ['<aef:input name="owner" type="string" required="true"/>', '<aef:output name="assignment" type="ref" ref="nid:x"/>'], { noMeta: true });
+const V1 = v11Map('v1', ['<aef:input name="owner" type="string" required="true"/>', '<aef:output name="assignment" type="ref"/>'], { noMeta: true });
+// T-1304: greenfield's style A as VZN-T1 writes it (synthetic values): v1 attributes, no mappingVersion, no prefixes
+const STYLE_A_IO = ['<aef:input name="sfdc:Opportunity.Id" type="object" ref="nid:attr-opportunity-id" role="read" dataType="id"/>',
+  '<aef:output name="tacton:Account.companyName" type="object" ref="nid:attr-account-company" role="write" dataType="reference"/>'];
+const STYLE_A = v11Map('stylea', STYLE_A_IO, { noMeta: true });
+const STYLE_A_FIELD = v11Map('styleaf', ['<aef:input name="sfdc:Opportunity.Id" type="object" ref="sfdc:Opportunity.Id" role="read" dataType="id"/>'],
+  { meta: ['<aef:meta>', '  <aef:prefixes>', '    <aef:prefix name="sfdc" iri="https://example.org/sfdc#" kind="field"/>', '  </aef:prefixes>', '</aef:meta>'] });
 
 function trackedMaps() {
   const files = execFileSync('git', ['ls-files', '*.bpmn'], { cwd: REPO, encoding: 'utf8' }).split('\n').filter(Boolean);
@@ -259,7 +270,8 @@ async function main() {
       'targetSystem', 'sys:erp', 'sys:salesforce', 'derived', 'sys:crm-default', 'step default',
       'LineItems[]', 'when Kind const TradeIn', 'tacton:Opportunity.crmOppExtId', 'match', 'create',
       'StageName', 'Status', 'enum Won, Closed Won', 'minimum 10000', 'exclusiveMaximum 1e9', 'pattern ^[0-9]+$',
-      'present true', 'ruleRef rules:notes', 'example', 'Amount', '12500', 'field', 'expect'];
+      'present true', 'ruleRef rules:notes', 'example', 'Amount', '12500', 'field', 'expect',
+      'nid:x', 'dataType'];   // T-1304: the full case carried ref and dataType from the start; nothing asked for them
     const miss = want.filter(w => d.v11Text.indexOf(w) < 0);
     const wfWant = ['mappingVersion', '1.1', 'sfdc', 'https://example.org/sfdc#', 'sys:salesforce', 'field', 'tacton', 'https://example.org/tacton#', 'type'];
     const wfMiss = wfWant.filter(w => d.wfText.indexOf(w) < 0);
@@ -274,6 +286,28 @@ async function main() {
     legs.e = { v11Blocks: e.v11, rows: e.rows, wfV11: e.wfV11 };
     if (e.v11 || e.wfV11) errs.push('e: a v1 map shows a v1.1 section');
     if (JSON.stringify(e.rows) !== JSON.stringify([3, 2])) errs.push('e: v1 io rows changed shape ' + JSON.stringify(e.rows));
+
+    // f. T-1304: style A shows ref, dataType and role (one block per io), derives no fieldRef, stays read-only, and is kept
+    const f = await ev(cmd, `window.__show(${JSON.stringify(STYLE_A)}, 't1249_stylea')`);
+    const fWant = ['ref', 'nid:attr-opportunity-id', 'nid:attr-account-company', 'v1', 'dataType', 'id', 'reference',
+      'informational', 'role', 'read', 'write'];
+    const fMiss = fWant.filter(w => f.v11Text.indexOf(w) < 0);
+    const fr = await round(STYLE_A, false);
+    legs.f = { v11Blocks: f.v11, missing: fMiss, derivedFieldRef: f.v11Text.indexOf('fieldRef') >= 0, editable: f.v11Inputs, rows: f.rows,
+               ioDiff: fr.ioDiff };
+    if (f.v11 !== 2) errs.push('f: expected one read-only block per style-A io (2), saw ' + f.v11);
+    if (fMiss.length) errs.push('f: style-A io panel does not show ' + fMiss.join(' | '));
+    if (legs.f.derivedFieldRef) errs.push('f: a fieldRef was derived although no prefix is declared kind="field"');
+    if (f.v11Inputs) errs.push('f: the style-A display contains ' + f.v11Inputs + ' editable control(s)');
+    if (fr.ioDiff.length) errs.push('f: style-A io bytes changed on save (' + fr.ioDiff.join(', ') + ')');
+
+    // g. T-1304: declared kind="field" -> ref read as fieldRef, shown once (no separate "ref" line)
+    const g = await ev(cmd, `window.__show(${JSON.stringify(STYLE_A_FIELD)}, 't1249_styleaf')`);
+    const gTimes = g.v11Text.split('sfdc:Opportunity.Id').length - 1;
+    legs.g = { v11Blocks: g.v11, derived: g.v11Text.indexOf('derived · from ref') >= 0, valueShown: gTimes, dataType: g.v11Text.indexOf('dataType') >= 0 };
+    if (!legs.g.derived) errs.push('g: ref under a kind="field" prefix is not shown as a derived fieldRef');
+    if (gTimes !== 1) errs.push('g: the ref value is shown ' + gTimes + ' time(s), expected once');
+    if (!legs.g.dataType) errs.push('g: dataType not shown');
 
     const ok = errs.length === 0;
     console.log(JSON.stringify({ ok, src: SRC, bite: BITE || null, errs, legs }, null, 2));

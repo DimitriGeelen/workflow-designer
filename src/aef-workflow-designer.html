@@ -8717,16 +8717,23 @@ function ioV11Block(item, isInput, node) {
     if (p && p.kind === 'field') refAsField = attrs.get('ref');
   }
   const shown = IO_V11_ATTRS.filter(k => attrs.has(k));
-  if (!shown.length && !kids.length && !derivedSys && !refAsField) return null;
+  // T-1304: the v1 attributes v1.1 keeps (2.3): `ref` (a data-object identity unless the rule above reads it as a
+  // fieldRef, then shown once, as that) and `dataType` (informational only). Producers write them today (greenfield's
+  // style A: ref="nid:attr-…" dataType="id"); hiding them hid a producer's whole link to its ontology.
+  const v1Ref = attrs.has('ref') && !refAsField ? attrs.get('ref') : null;
+  const v1DataType = attrs.has('dataType') ? attrs.get('dataType') : null;
+  if (!shown.length && !kids.length && !derivedSys && !refAsField && v1Ref === null && v1DataType === null) return null;
 
   const box = document.createElement('div');
   box.className = 'io-v11';
   box.title = 'mapping v1.1 · read-only';
-  if (shown.length || derivedSys || refAsField) {
+  if (shown.length || derivedSys || refAsField || v1Ref !== null || v1DataType !== null) {
     const kv = document.createElement('div');
     kv.className = 'io-v11-kv';
     if (refAsField) v11Span(kv, 'fieldRef', refAsField, 'derived · from ref');
+    if (v1Ref !== null) v11Span(kv, 'ref', v1Ref, 'v1');
     for (const k of shown) v11Span(kv, k, attrs.get(k));
+    if (v1DataType !== null) v11Span(kv, 'dataType', v1DataType, 'informational');
     if (derivedSys) v11Span(kv, sysKey, derivedSys[0], derivedSys[1]);
     box.appendChild(kv);
   }
