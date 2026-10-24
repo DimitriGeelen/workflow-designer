@@ -1,0 +1,3 @@
+Retired before hand-over (2026-10-25, shutdown): the core tier went red on the 0.27.0 tree. T-1289 (the notes did not name AEF's
+missing endpoints) is fixed; T-974 legs 8a/8b (the release script's kit build is refused by the calibration gate, no 0.27.0
+calibration record yet) is not yet understood. A fresh job follows once the core tier is green. Never run.

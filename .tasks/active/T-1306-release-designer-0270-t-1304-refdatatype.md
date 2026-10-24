@@ -379,3 +379,16 @@ Procedure as job 083 (T-1283).
 
 ### 2026-10-24T22:04:24Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-10-25 — STOPPED for the operator's shutdown; resume here
+- Done: VERSION/APP_VERSION 0.27.0 (1b111291), notes final. Job 085 written, dry-run passed (13/13 checks in the clone,
+  real repo incl. .git/config unchanged), then **retired** unrun: the core tier is red on this tree.
+- Core gate on 1b111291, stopped at 122 legs with 2 red (`.context/working/prepush-core.log`):
+  1. T-1289 `test_t1289_host_contract_notes.py`: the 0.27.0 notes did not name the 4 endpoints AEF does not serve.
+     **Fixed** (For-AEF table); the test passes.
+  2. T-974 `test_t974_authoring_kit.py` 8a/8b: "kit calibration gate FAILED — release aborted before any write to dist/"
+     for 0.27.0 (no calibration record yet). **Not yet understood.** First check how the leg behaved between the 0.26.0
+     bump and its calibration (did it go red then too, or does it use a fixture record?), then decide: test fixture, or the
+     order of bump vs calibration in the release procedure. Do not bypass.
+- Next: resolve T-974, full core gate green, a fresh release job (086) from 085's text, hand over, arm the watcher.
+- Nothing of this is pushed: origin has d845b2ed; local commits since (T-1304, T-1306) wait for a green core.
