@@ -95,6 +95,21 @@ green run the cache recorded, so the cache would have missed on that push.
   **2026-10-24, met:** in a clone under `.context/rehearse/t1295` (no hooks, removed after): base b59c981f…, after a
   history-only commit b59c981f… (unchanged), after a tool-file commit ffbaa5a3… (changed).
 - [ ] A green core run is recorded for the fixed gate's tree, so the next push passes on the cache.
+  **2026-10-24, OPEN — next session starts here:**
+  - **Gate run 1** (tree ddf3bc25): RED 206/1, test_t1286_rehearsal. That is T-1296, root-caused and fixed in 6bfdf180
+    (timestamp fingerprint).
+  - **Gate run 2** (tree 6bfdf180): **RED 83 passed / 124 failed in 223 s**. That is NOT a test failure: an
+    environmental break mid-run. The log is `.context/working/prepush-core.log`: 395 x "No such file or directory".
+    The first failure is test_t1055 at line 172; legs 1-6 printed PASS before it broke.
+  - **Disk was fine:** / 182G free, /tmp 14G free. /tmp's tmpfs had been RESIZED from 8G to 24G during the session
+    (a host change), possibly remounted mid-run, which would remove TMPDIR/scratch paths a running suite needed.
+  - **Next:**
+    1. find which paths were missing (`grep -o '[^ |]*: No such file' .context/working/prepush-core.log | sort |
+       uniq -c`);
+    2. if it was the /tmp remount, rerun the gate;
+    3. green → cache recorded → push.
+  - **Nothing is pushed; no green cache exists for this tree.** The pre-push gate is installed and will run the core
+    tier on the next push.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
