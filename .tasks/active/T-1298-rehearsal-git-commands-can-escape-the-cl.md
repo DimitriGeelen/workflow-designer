@@ -286,8 +286,8 @@ Only `tools/runme-launcher.sh:250` writes that URL, and it targets `$clone` with
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
-python3 tests/test_t1286_rehearsal.py > .context/working/t1298-v.out 2>&1 && ! grep -q '^FAIL' .context/working/t1298-v.out
-test -z "$(git config --get remote.origin.pushurl)"
+python3 tests/test_t1286_rehearsal.py > .context/working/t1298-v.out 2>&1 && grep -q '^PASS  9 concurrent same-name rehearsals' .context/working/t1298-v.out && grep -q '^all legs passed' .context/working/t1298-v.out
+u=$(git remote get-url origin) && test -n "$u" && test "$(git remote get-url --push origin)" = "$u"
 
 ## RCA
 
@@ -385,6 +385,12 @@ sandbox project (old launcher: 8/8 pairs fail). T-1299 stops concurrent core run
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-10-24 — Verification lines assert the positive fact
+- **Chose:** `PASS  9 …` + `all legs passed`, and push url == fetch url.
+- **Why:** the first two lines (`! grep -q '^FAIL'`, `test -z "$(git config …)"`) were uncontrolled absence assertions:
+  the T-560 census raised its ratchet 74→76 and turned the core tier red (gate run on 2da59534, 206/1). An empty output
+  or a failing git would have passed them.
 
 ### 2026-10-24 — serialise same-name rehearsals (lock) vs give each its own directory
 - **Chose:** a per-name `flock` in `.context/rehearse/.lock-<job>`, waiting up to 15 minutes.

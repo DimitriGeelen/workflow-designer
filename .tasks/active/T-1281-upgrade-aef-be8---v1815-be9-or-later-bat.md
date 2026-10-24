@@ -96,6 +96,16 @@ Tags to batch (take the newest when this starts):
   This changes what OUR Watchtower's `/designer` shows once we take the batch: it goes to the designer's project
   browser, which needs designer 0.26.0 for the browser to open on load. Take the batch after 0.26.0 is pinned
   (T-1283).
+- **0.26.0 pinned** (2026-10-24, AEF T-4732, commit 83ca46345; msg a08bd2c3): `_t1187-aef-pin-lag.sh` reads CURRENT. The
+  precondition above is met.
+- **be.16** ae71b4f0c (msg 5d467553):
+  - T-4723: the upgrade file-list snapshot stays bounded on huge trees;
+  - T-4724: the file list (or its reason line) prints under "N change(s) applied";
+  - T-4733: the budget gauge decodes a transcript as strict UTF-8 under any locale;
+  - T-4732: the designer 0.26.0 pin;
+  - T-4725: test-only.
+- **Before this batch's job:** T-1298 changed the rehearsal (lock, `--git-dir`, config in the compare). This job's dry-run is
+  the first real job rehearsed on it, and also T-1286 AC4.
 
 ## Acceptance Criteria
 

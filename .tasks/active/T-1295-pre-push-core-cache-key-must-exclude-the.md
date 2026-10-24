@@ -402,6 +402,16 @@ history-only changes keep the key, and real changes move it.
 
 ## Updates
 
+### 2026-10-24 — gate run 2 explained; a hole in the key found
+- Gate run 2's red was not environmental chance: three core runs overlapped and shared `.context/st` (T-1299, fixed),
+  which also caused T-1298.
+- Gate run 3 (2da59534): RED 206/1, `_t560` absence census: two uncontrolled absence lines in T-1298's Verification
+  (fixed, ratchet back to 74).
+- **The cache key does not cover what the core tier reads.** `_t560` reads `.tasks/{active,completed}`, which is not in
+  the key (src, tools, tests, kit, framework). A task-file edit can turn core red while an earlier green key still passes
+  the push. The candidates are adding `.tasks` to the key (any task edit then needs a full run, ~19 min) or moving the
+  census out of core. To decide before closing this task.
+
 ### 2026-10-24T09:14:29Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1295-pre-push-core-cache-key-must-exclude-the.md
