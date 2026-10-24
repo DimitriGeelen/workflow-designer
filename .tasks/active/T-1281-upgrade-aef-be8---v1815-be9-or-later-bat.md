@@ -104,6 +104,12 @@ Tags to batch (take the newest when this starts):
   - T-4733: the budget gauge decodes a transcript as strict UTF-8 under any locale;
   - T-4732: the designer 0.26.0 pin;
   - T-4725: test-only.
+- **be.17** 165039bb4 (msg d40f0435):
+  - T-4719: the close hint pushes `HEAD` to the upstream (or the only remote, origin, or the first remote), and leaves
+    the push out when there is no remote;
+  - T-4720: `fw vendor` and `fw upgrade` write only files whose content changed (a no-op re-vendor leaves `web/` mtimes
+    alone). Check after the batch that our 37 re-applied local fixes still land, since they rely on a rewrite;
+  - T-4726: the inception review hint takes the decide verb from the Recommendation.
 - **Before this batch's job:** T-1298 changed the rehearsal (lock, `--git-dir`, config in the compare). This job's dry-run is
   the first real job rehearsed on it, and also T-1286 AC4.
 
