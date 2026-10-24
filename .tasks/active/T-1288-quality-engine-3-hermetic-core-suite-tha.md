@@ -104,13 +104,24 @@ Every run was red, so a real regression would hide among them, and each run cost
   - **browser:** the CDP legs;
   - **sweep:** the instrument sweep.
   Each leg's tier is declared in one place (not inferred at run time), and a guard fails when a leg has no tier.
-- [ ] **Core is hermetic and must be green:**
+- [x] **Core is hermetic and must be green:**
   - it runs with its own short TMPDIR inside the project (`.context/st/`), removed after, never the shared /tmp;
   - it starts no browser and touches no network;
   - it finishes in bounded time (measured, recorded here);
   - on today's tree it is 100% green.
   A `--tier core` run is wired to run before every push (local pre-push, installed the way the T-1000/T-1161 gates
   are, and re-installed after framework upgrades). It blocks the push on red; its bypass is logged.
+  **2026-10-24, met (orchestrator):**
+  - **First full core run:** RED, 205/2. Neither was a product bug: a retry-stamp tick (fixed: stamp dated 1 s back)
+    and `_t611`, which reads the live Watchtower (moved to the browser tier).
+  - **Quarantine:** three of the worker's five entries were really ours and were fixed instead (test_t974's kit list,
+    the rehearsal test unwired, the rehearsal making a project-internal TMPDIR read-only), and `_t949` by adding the
+    T-949 verdict.
+  - **Second full core run, committed tree:** **GREEN, 207 passed, 0 failed, 0 flaky, 0 quarantined, 1004 s.**
+  - **Pre-push:** the operator chose "Full run in the hook" (2026-10-24). `tools/_t1288-install-hook.sh` installed it
+    (`--check` ok). It caches a green run by the tested tree (src/tools/tests/kit/framework at HEAD), so non-code
+    pushes pass at once. CLAUDE.md gains the rule, including running the gate before a handover, since the handover's
+    auto-push times out at 180 s.
 - [x] **Browser tier retries a timeout once, alone.** The standing rule "rerun a CDP harness that timed out once alone
       before calling it red" becomes code: a leg that fails by TIMEOUT or "no DevTools port" is retried once after
       the others. It is reported FLAKY if the retry passes and RED if it fails again. FLAKY is counted and listed, not

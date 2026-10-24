@@ -111,6 +111,20 @@ renders (designer `src/`, Watchtower templates/CSS, anything a person sees):
    and what to check, judged by `fw reviewer judge T-XXX --criterion N` (AEF routing, PD-357), and only after
    steps 1 and 2. The task does not close on the author's own look alone, nor on a red or unrun gate.
 
+### Every push passes the core suite tier (operator, 2026-10-24: "Full run in the hook"; T-1288)
+
+`.git/hooks/pre-push` runs `tools/_t1288-prepush-gate.sh`, which runs `tests/run-bridge-tests.sh --tier core` and
+refuses the push on red.
+- **The core tier:** 207 legs, hermetic, about 17 minutes. It must be 100% green. A known non-product red goes into
+  `tests/quarantine.yaml` with an owner task and a fix-by date, never pushed past silently.
+- **The cache:** a green run is remembered by the tree it tested (src, tools, tests, authoring kit, vendored framework
+  at HEAD), so a push that changed none of them passes at once.
+- **Before a handover:** the handover's automatic push times out after 180 s. After changing code, run
+  `bash tools/_t1288-prepush-gate.sh` yourself before handing over, so the cache is green when the handover pushes.
+- **Bypass:** `T1288_PREPUSH_BYPASS="<reason>" git push`, logged to `tests/.prepush-bypass.tsv`. The operator's call,
+  not a convenience.
+- **Re-install:** the hook is re-installed by `tools/_t1000-install-hook.sh` after framework upgrades.
+
 ### AEF is the designer's main consumer: a release is done only when AEF serves it (operator, 2026-10-17)
 
 "With AEF it should be very tight continuous development ... Greenfield will fall off and AEF will continue to be

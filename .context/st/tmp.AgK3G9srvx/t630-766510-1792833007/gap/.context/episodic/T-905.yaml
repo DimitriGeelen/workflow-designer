@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-905: sandbox probe
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-24T09:10:18Z
+# ============================================================================
+
+task_id: T-905
+task_name: "sandbox probe"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-29T00:00:00Z
+completed: 2026-10-24T09:10:15Z
+duration_days: 56
+updates_count: 0
+first_commit: 2026-09-29T01:32:48+02:00
+last_commit: 2026-09-29T01:32:48+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  COMPUTED_SOURCES becomes a claim the code can refute — the guard derives each computed variable's binding sources from the emitter and refuses a declaration that names a source it does not iterate
+
+# Key outcomes
+outcomes:
+  - 'the only criterion'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-905.yaml'
+  - '.tasks/completed/T-905-the-round-trip-guards-computedsources-de.md'
+  - 'tools/_roundtrip-serialization-cdp.mjs'
+  - 'tools/_t905-computed-sources-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-29T01:32:48'
+    action: 'T-905: COMPUTED_SOURCES becomes a claim the code can refute — the guard derives each computed variable''s binding sources from the emitter and refuses a declaration that names a source it does not iterate'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 81190 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 81190
+  commits: 1
+  files_changed: 4
+  lines_added: 398
+  lines_removed: 56
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.context/st/tmp.AgK3G9srvx/t630-766510-1792833007/gap/.tasks/completed/T-905-sandbox-probe.md
+generated_by: context-agent-hybrid
