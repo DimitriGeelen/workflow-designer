@@ -2953,3 +2953,9 @@ learnings:
   task: T-1296
   date: 2026-10-24
   context: Added via context agent
+- id: PL-428
+  learning: "A throwaway repo inside the project tree is one missing .git away from being the real repo: git -C <dir> walks up. Write to a clone through --git-dir (or GIT_CEILING_DIRECTORIES), never by discovery"
+  source: P-001
+  task: T-1298
+  date: 2026-10-24
+  context: Added via context agent

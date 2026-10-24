@@ -93,9 +93,23 @@ class Fixture:
     def clones_left(self):
         # T-1296: only clones of THIS fixture's own jobs. .context/rehearse/ is shared: another process's rehearsal (a
         # launcher test's dry-run, another session) may sit there briefly and is none of this test's business.
+        # T-1298: a same-name clone whose lock is held is a rehearsal still running in another process (this fixture's
+        # own have all returned when this is asked); left behind is a clone nobody holds.
+        import fcntl
         rh = os.path.join(ROOT, ".context", "rehearse")
         mine = set(os.listdir(self.jobs)) if os.path.isdir(self.jobs) else set()
-        return [d for d in os.listdir(rh) if d in mine] if os.path.isdir(rh) else []
+        left = []
+        for d in (os.listdir(rh) if os.path.isdir(rh) else []):
+            if d not in mine:
+                continue
+            with open(os.path.join(rh, ".lock-" + d), "a") as lk:
+                try:
+                    fcntl.flock(lk, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                except OSError:
+                    continue
+                if os.path.exists(os.path.join(rh, d)):
+                    left.append(d)
+        return left
 
     def state_diff(self, before):
         # T-1296: on a failing cleanup leg, say WHAT differs (and which clones were left), not just that it failed.
@@ -234,6 +248,43 @@ steps() { step "slow" 'touch @OUT@/started-%d; sleep 31.286; touch @OUT@/finishe
         env.pop("RUNME_JOBS_DIR", None)
         r = subprocess.run(["bash", RUNME, "--list"], capture_output=True, text=True, env=env, timeout=30)
         leg(r.returncode != 0 and "RUNME_REPO is for tests only" in r.stdout, "8 RUNME_REPO refused on the real job dir")
+
+        # 9 T-1298: two rehearsals of the SAME job name at once (two suite runs, same fixture names) neither remove each
+        #   other's clone nor write through it into the project's repo. On a sandbox project with its own repo and a copy
+        #   of the launcher, because an escape walks up to the launcher's project: here, never the real one.
+        #   The launcher before T-1298 failed 27 of 60 such pairs and wrote the project's pushurl in 2.
+        proj = os.path.join(base, "proj")
+        os.makedirs(os.path.join(proj, "tools"))
+        shutil.copy(os.environ.get("T1298_LAUNCHER") or os.path.join(ROOT, "tools", "runme-launcher.sh"),
+                    os.path.join(proj, "tools", "runme-launcher.sh"))
+        shutil.copy(os.path.join(ROOT, "tools", "runme-signal.sh"), os.path.join(proj, "tools"))
+        sh("git init -q && git remote add origin /nonexistent/project-origin", proj)
+        pconf = sh("git config --local --list", proj)
+        for j in ("a", "b"):
+            d = os.path.join(base, "jobs-" + j, "009-same")
+            os.makedirs(d)
+            with open(os.path.join(d, "job.sh"), "w") as fh:
+                fh.write('JOB_TITLE="same name"\nsteps() { step "one" \'git status --short >/dev/null\'; }\n')
+        bad = []
+        for i in range(8):
+            ps = []
+            for j in ("a", "b"):
+                d = os.path.join(base, "jobs-" + j, "009-same")
+                if os.path.exists(os.path.join(d, "dryrun.ok")):
+                    os.remove(os.path.join(d, "dryrun.ok"))
+                os.chmod(os.path.join(d, "job.sh"), 0o644)
+                env = dict(f.env(), RUNME_JOBS_DIR=os.path.join(base, "jobs-" + j))
+                ps.append(subprocess.Popen(["bash", os.path.join(proj, "tools", "runme-launcher.sh"), "--dry-run", "009-same"],
+                                           env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True))
+                time.sleep(0.05 + 0.1 * i / 7)
+            for p in ps:
+                o = p.communicate(timeout=300)[0]
+                if p.returncode != 0:
+                    bad.append("pair %d: %s" % (i, tail(o, 2)))
+        now = sh("git config --local --list", proj)
+        leg(not bad and now == pconf,
+            "9 concurrent same-name rehearsals: all 16 pass, the project repo's config untouched (no pushurl)",
+            "failed: %d %s | config %s" % (len(bad), bad[:2], "unchanged" if now == pconf else "CHANGED: " + now.replace("\n", "; ")))
     finally:
         shutil.rmtree(base, ignore_errors=True)
         if f is not None:

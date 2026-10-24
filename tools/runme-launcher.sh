@@ -181,6 +181,10 @@ repo_state() {  # one labelled line per part of the real repo a rehearsal must l
     printf 'index          %s\n' "$(git -C "$REPO" ls-files --stage | sha256sum | cut -c1-64)"
     git -C "$REPO" diff --cached --quiet; printf 'staged         rc=%s\n' "$?"
     printf 'hooks          %s\n' "$( (cd "$hooks" 2>/dev/null && find . -type f -print0 | sort -z | xargs -0r sha256sum) | sha256sum | cut -c1-64)"
+    # T-1298: the repo's own config (remotes, push urls), and the project's when it is another repo: a git command whose
+    # clone had vanished walked up from .context/rehearse/ into the project's repo and rewrote its push url unseen.
+    git -C "$REPO" config --local --list 2>/dev/null | sed 's/^/config         /'
+    [ "$(realpath "$PROJ")" = "$(realpath "$REPO")" ] || git -C "$PROJ" config --local --list 2>/dev/null | sed 's/^/project config /'
     git -C "$REPO" status --porcelain | sed 's/^/status         /'
     # the bytes of every tracked file that differs from HEAD, one line each, so a mismatch names the file
     (cd "$REPO" && git diff HEAD --name-only -z | xargs -0r sha256sum 2>&1) | sed 's/^/edited         /'
@@ -211,7 +215,9 @@ rehearse_guard() {
 rehearse_run() {  # rehearse_run <clone> <job.sh in it> <command> <output file>: one check or step, cwd at the clone, the
     # project pointers unset, no stdin, no fd 3, in its own process group so an interrupt stops it whole. Backgrounded and
     # waited for, so INT/TERM reach the trap at once instead of after the step.
-    local inner='cd "$C" && exec setsid env -u PROJECT_ROOT -u CONTEXT_DIR -u TASKS_DIR "$BASH" --norc --noprofile -c \
+    # T-1298: GIT_CEILING_DIRECTORIES stops git's repo discovery at the clone, so a step whose clone lost its .git fails
+    # instead of finding the project's repo above it.
+    local inner='cd "$C" && exec setsid env -u PROJECT_ROOT -u CONTEXT_DIR -u TASKS_DIR GIT_CEILING_DIRECTORIES="$(dirname "$C")" "$BASH" --norc --noprofile -c \
         '"'"'check() { :; }; step() { :; }; step_outward() { :; }; source "$1" || exit 97; eval "$2"'"'"' _ "$J" "$X"'
     if [ "$REHEARSE_GUARDED" = 1 ]; then
         # T-1288: a TMPDIR inside the project (the core suite tier's short .context/st) is scratch, not the project:
@@ -221,9 +227,9 @@ rehearse_run() {  # rehearse_run <clone> <job.sh in it> <command> <output file>:
         case "$T" in "$P"/?*) [ -d "$T" ] && { mount --bind "$T" "$T" && mount -o remount,bind,rw "$T" || exit 98; } ;; esac
         '"$inner"
         ( cd "$1" && C=$1 J=$2 X=$3 P=$PROJ R=$REPO T=$(realpath -m "${TMPDIR:-/tmp}") exec unshare --mount --propagation private "$BASH" --norc --noprofile -c "$inner" ) \
-            </dev/null >"$4" 2>&1 3<&- &
+            </dev/null >"$4" 2>&1 3<&- 9<&- &
     else
-        ( C=$1 J=$2 X=$3 exec "$BASH" --norc --noprofile -c "$inner" ) </dev/null >"$4" 2>&1 3<&- &
+        ( C=$1 J=$2 X=$3 exec "$BASH" --norc --noprofile -c "$inner" ) </dev/null >"$4" 2>&1 3<&- 9<&- &
     fi
     REHEARSE_PID=$!
     wait "$REHEARSE_PID"; local rc=$?
@@ -232,6 +238,26 @@ rehearse_run() {  # rehearse_run <clone> <job.sh in it> <command> <output file>:
 }
 
 rehearse() {  # rehearse <job dir>: 0 when the checks and every non-outward step pass in the clone and the real repo is unchanged
+    # T-1298: the clone's place is .context/rehearse/<job name>, shared by every launcher on this project (two suite runs
+    # rehearse the same fixture names), and each rehearsal starts by removing what is there. A lock per name (fd 9,
+    # closed for the steps) serialises them, so one never removes or writes through another's clone.
+    local job rc
+    job=$(basename "$1")
+    REHEARSE_DIR=""   # the EXIT trap removes REHEARSE_DIR: never one this process does not hold the lock for
+    mkdir -p "$REHEARSE_ROOT" || { say "FAIL  cannot create $REHEARSE_ROOT"; return 1; }
+    exec 9>"$REHEARSE_ROOT/.lock-$job" || { say "FAIL  cannot open the rehearsal lock for $job"; return 1; }
+    if ! flock -w 900 9; then
+        exec 9>&-
+        say "FAIL  another rehearsal of $job has held ${REHEARSE_ROOT#"$PROJ"/}/$job for 15 minutes; not rehearsed"
+        return 1
+    fi
+    rehearse_locked "$1"; rc=$?
+    rehearse_cleanup; REHEARSE_DIR=""
+    exec 9>&-
+    return $rc
+}
+
+rehearse_locked() {
     local d=$1 job rel rd rr clone cjob hooks url out before after i n rc bad=0
     job=$(basename "$d")
     REHEARSE_DIR="$REHEARSE_ROOT/$job"; clone="$REHEARSE_DIR/repo"; out="$REHEARSE_DIR/step.out"
@@ -242,12 +268,20 @@ rehearse() {  # rehearse <job dir>: 0 when the checks and every non-outward step
     say "Rehearsal: the steps run in a clone of HEAD $(git -C "$REPO" rev-parse --short HEAD) with this repo's hooks (${clone#"$PROJ"/});" \
         "$([ "$REHEARSE_GUARDED" = 1 ] && echo "the real repo is read-only to them" || echo "NO read-only guard on this host: the before/after compare decides")"
     git clone --quiet --no-hardlinks "$REPO" "$clone" 2>"$out" || { say "FAIL  git clone"; sed 's/^/  | /' "$out"; rehearse_cleanup; return 1; }
+    # T-1298: every write to the clone names its git dir: `git -C "$clone"` on a clone without .git would find the repo
+    # ABOVE it (the project's: the clone lives inside it) and write there.
+    if [ "$(git --git-dir="$clone/.git" rev-parse --absolute-git-dir 2>/dev/null)" != "$(realpath -m "$clone/.git")" ]; then
+        say "FAIL  the clone at ${clone#"$PROJ"/} is not a repo of its own; nothing written, not rehearsed"; rehearse_cleanup; return 1
+    fi
     hooks=$(cd "$REPO" && cd "$(git rev-parse --git-path hooks)" 2>/dev/null && pwd)
     [ -n "$hooks" ] && cp -pR "$hooks/." "$clone/.git/hooks/"
     # A push in a rehearsal must never land anywhere: the clone's origin would be the real repo (a tag pushed there is
     # a real tag). Fetch keeps the real origin, so a check that reads it sees what the operator's run will see.
-    url=$(git -C "$REPO" remote get-url origin 2>/dev/null) && git -C "$clone" remote set-url origin "$url"
-    git -C "$clone" remote set-url --push origin /dev/null/rehearsal-refuses-every-push--declare-it-step_outward
+    if url=$(git -C "$REPO" remote get-url origin 2>/dev/null); then
+        git --git-dir="$clone/.git" remote set-url origin "$url" || { say "FAIL  cannot set the clone's origin"; rehearse_cleanup; return 1; }
+    fi
+    git --git-dir="$clone/.git" remote set-url --push origin /dev/null/rehearsal-refuses-every-push--declare-it-step_outward \
+        || { say "FAIL  cannot make the clone refuse pushes; not rehearsed"; rehearse_cleanup; return 1; }
     rd=$(realpath "$d"); rr=$(realpath "$REPO")
     case "$rd/" in "$rr"/*) rel=${rd#"$rr"/} ;; *) rel=".context/runme/$job" ;; esac
     rm -rf "${clone:?}/$rel"; mkdir -p "$clone/$(dirname "$rel")"; cp -pR "$d" "$clone/$rel"

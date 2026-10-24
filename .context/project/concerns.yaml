@@ -4134,3 +4134,21 @@ concerns:
   containment: 'Local fix in the vendored lib (declared, tools/_t1123 8/8); decide jobs (013 onward) check
     audit_inception_hypothesis and inception_handoff_blockers in their preflight.'
   related_tasks: ['T-1123', 'T-1118', 'T-1093']
+- id: G-092
+  type: gap
+  status: prevention-in-place
+  severity: high
+  title: Throwaway repos inside the project tree resolve to the REAL repo when their .git vanishes, and nothing compared the real repo's config
+  detected: '2026-10-24'
+  origin_task: T-1298
+  id_note: 'G-086, G-089, G-091 and G-093 are cited in the vendored framework; G-090 is cited in this file. G-092 had no reference.'
+  context: 'The rehearsal clones (.context/rehearse/<job>/repo) and, since T-1288, every core-tier fixture repo (TMPDIR under
+    .context/st) live INSIDE /opt/832-Workflow-designer. Two same-name rehearsals at once removed each other''s clone; a
+    `git -C "$clone" remote set-url --push` on a clone without .git walked up and rewrote the real origin''s pushurl. The
+    handover push then failed. The rehearsal''s own before/after compare read neither .git/config nor the project repo, and
+    reported "real repo unchanged" (sandbox: 2 escapes in 60 pairs, one of them a PASSED dry-run).'
+  decision_trigger: 'Close when a core-tier run cannot share its TMPDIR with another run (T-1299) and no suite fixture or
+    rehearsal writes git config through repo discovery; reopen on any real-repo config change during a suite run.'
+  containment: 'T-1298: clone writes via --git-dir after a self-check, per-name flock, repo_state includes local config,
+    GIT_CEILING_DIRECTORIES for steps, test_t1286 leg 9 (sandbox project, 8 concurrent pairs).'
+  related_tasks: ['T-1298', 'T-1299', 'T-1286', 'T-1288']
