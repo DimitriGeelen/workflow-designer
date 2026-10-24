@@ -31,6 +31,9 @@ PY
 # after `fw upgrade`, so it installs (and checks) that gate too; one call covers every 832 line in the hook.
 T1161="$ROOT/tools/_t1161-install-hook.sh"
 T1239="$ROOT/tools/_t1239-install-hook.sh"   # T-1239: the LAN-address gate, same hook, same reinstall
+# T-1288: the core-tier gate in .git/hooks/pre-push, erased by the same reinstall. Installed here so every upgrade
+# job re-installs it; its --check joins the one below once the operator has installed it the first time.
+T1288="$ROOT/tools/_t1288-install-hook.sh"
 
 if [ "${1:-}" = "--check" ]; then
     rc=0
@@ -42,6 +45,7 @@ if [ "${1:-}" = "--check" ]; then
 fi
 [ -f "$T1161" ] && bash "$T1161" >/dev/null
 [ -f "$T1239" ] && bash "$T1239" >/dev/null
+[ -f "$T1288" ] && bash "$T1288" >/dev/null
 [ -f "$HOOK" ] || { echo "no $HOOK: run fw git install-hooks first" >&2; exit 2; }
 if active "$HOOK"; then echo "already installed"; exit 0; fi
 drop_commented "$HOOK"

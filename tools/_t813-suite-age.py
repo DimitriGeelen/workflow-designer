@@ -51,6 +51,8 @@ def parse(path):
                 print(f"  WARNING: {os.path.basename(path)}:{n} malformed, ignored: "
                       f"{line[:60]!r}", file=sys.stderr)
                 continue
+            if len(parts) >= 7 and parts[6] != "all":
+                continue  # T-1288: a single tier's row is a subset of the suite, not a run of it
             ts, npass, nfail, rc, dur, sha = parts[:6]
             try:
                 when = datetime.fromisoformat(ts.replace("Z", "+00:00"))

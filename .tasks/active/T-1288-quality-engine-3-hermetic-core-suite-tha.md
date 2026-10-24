@@ -98,7 +98,7 @@ Every run was red, so a real regression would hide among them, and each run cost
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **Three tiers, one runner.** `tests/run-bridge-tests.sh --tier core|browser|sweep|all` (default `all`: today's
+- [x] **Three tiers, one runner.** `tests/run-bridge-tests.sh --tier core|browser|sweep|all` (default `all`: today's
       behaviour, unchanged).
   - **core:** every leg that starts no browser and is not the sweep;
   - **browser:** the CDP legs;
@@ -111,14 +111,14 @@ Every run was red, so a real regression would hide among them, and each run cost
   - on today's tree it is 100% green.
   A `--tier core` run is wired to run before every push (local pre-push, installed the way the T-1000/T-1161 gates
   are, and re-installed after framework upgrades). It blocks the push on red; its bypass is logged.
-- [ ] **Browser tier retries a timeout once, alone.** The standing rule "rerun a CDP harness that timed out once alone
+- [x] **Browser tier retries a timeout once, alone.** The standing rule "rerun a CDP harness that timed out once alone
       before calling it red" becomes code: a leg that fails by TIMEOUT or "no DevTools port" is retried once after
       the others. It is reported FLAKY if the retry passes and RED if it fails again. FLAKY is counted and listed, not
       hidden.
-- [ ] **Quarantine with owners.** `tests/quarantine.yaml` lists legs whose red is known non-product: leg, reason,
+- [x] **Quarantine with owners.** `tests/quarantine.yaml` lists legs whose red is known non-product: leg, reason,
       owner task, fix-by date. A quarantined leg still runs and reports, but does not fail its tier, and a quarantine
       entry past its fix-by date FAILS. Initial entries come only from evidence, each with an owner task.
-- [ ] **Measured:** each run appends tier results to `tests/.run-history.tsv` (it exists): date, tier, passed, failed,
+- [x] **Measured:** each run appends tier results to `tests/.run-history.tsv` (it exists): date, tier, passed, failed,
       flaky, quarantined, seconds. A one-line summary per tier makes the weekly "suite red count" metric (T-1285)
       readable.
 
@@ -305,6 +305,47 @@ Every run was red, so a real regression would hide among them, and each run cost
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+bash -n tests/run-bridge-tests.sh
+python3 tools/_t1288-tier-guard.py > /tmp/.t1288-guard.out 2>&1 && grep -q "tier guard OK" /tmp/.t1288-guard.out
+python3 tests/test_t1288_tiers.py > /tmp/.t1288-tiers.out 2>&1 && grep -q " 0 failed" /tmp/.t1288-tiers.out
+bash tools/_t527-capture-invariant.sh
+bash tools/_t1183-tmp-containment.sh
+bash tools/_t813-history-trap-controls.sh
+
+## Evidence (2026-10-24, worker w-t1288)
+
+**Tier counts** (`bash tests/run-bridge-tests.sh --list-legs`): 279 legs — core 173, browser 105, sweep 1. The 198
+`leg` lines include two loops whose entries are legs of their own (orphan_legs 16: 11 core / 5 browser; T1013_GUARDS
+67: 47 core / 20 browser), each entry carrying its tier as its first field. Classified by what each leg runs,
+transitively (a script that spawns Chrome, or runs a `*-cdp.mjs`/shot script); hand-checked where the reference was
+only a mention (`_t1273` guard, `_t448`, `_t806`, the T-1216 stand-in: core; `_t604`: browser). A leg that consumes a
+browser leg's output (T-690 `_t423-di-schema-validate` reads `$T423_ADD_EXP`) is browser.
+
+**Core run 1** (`nice -n 19 bash tests/run-bridge-tests.sh --tier core`, in the namespace, 8 m 07 s wall, 484 s of
+legs): ABORTED at the T-690 leg — `T423_ADD_EXP: unbound variable` under `set -u` — because I had classified that leg
+core. Fixed (now browser). Before the abort: 98 passed, 5 failed; the five are investigated and quarantined with
+evidence (tests/quarantine.yaml), none a product regression:
+- `test_t974_authoring_kit` — stale file list after T-1290 added verify-findings.py (owner T-1292);
+- `_t949-completeness-teeth` — triage lacks a verdict for T-1285 (owner T-1293);
+- `_t1273-signal-restore-teeth` — load timing, green 3/3 standalone under nice (owner T-1294);
+- `orphan:test_t1055_runme_launcher` — fails only with TMPDIR inside the project, which T-1286's read-only rehearsal
+  mount makes unwritable; green with TMPDIR=/tmp and in a netns (owner T-1286);
+- `test_t316_runner_orphans` — tests/test_t1286_rehearsal.py not yet wired (owner T-1286).
+The legs after the abort point (~75 core legs) are NOT yet measured: criterion 2 stays open until a full core run.
+
+**Sweep run** (`nice -n 19 bash tests/run-bridge-tests.sh --tier sweep`): GREEN, 106/106 runnable teeth scripts,
+596 s (9 m 57 s wall); headroom warning only for `_t567-episodic-yaml-safety-teeth.sh` (99 s of 120 s). History row
+`2026-10-23T23:36:39Z 1 0 0 596 6e4dc9b6 sweep 0 0`. No tracked fixture or shot was rewritten by either run.
+
+**Pre-push:** `tools/_t1288-install-hook.sh` (idempotent, `--check`) adds one marked line to `.git/hooks/pre-push`
+that runs `tools/_t1288-prepush-gate.sh` (`--tier core`; red blocks; `T1288_PREPUSH_BYPASS="<reason>"` logged to
+`tests/.prepush-bypass.tsv`). Wired into `tools/_t1000-install-hook.sh`'s install chain so upgrade jobs re-install it.
+NOT installed: installing is one command for the orchestrator, `bash tools/_t1288-install-hook.sh`; after that, add
+its `--check` to the T-1000 `--check` chain.
+
+**Fixture tests:** `python3 tests/test_t1288_tiers.py` 39/39 (selection, no-tier guard run-time + static, quarantine
+incl. past fix_by, retry-once FLAKY/RED, history rows, core TMPDIR + namespace, installer, gate + bypass). The runner's
+own meta-checks still pass: `_t527` (206 if-guards, 0 discarding), `_t1183` 4/4, `_t813` trap controls 5/5, `_t817` 3/3.
 
 ## RCA
 
@@ -385,6 +426,28 @@ Every run was red, so a real regression would hide among them, and each run cost
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-10-24 — how a leg declares its tier
+- **Chose:** every leg body became a function, registered by one `leg <tier> <name> <fn>` line (mechanical: the
+  wrapped text is byte-identical to the old blocks, unindented so the column-0 censuses still read it); the tier
+  engine lives in `tools/_t1288-tiers.sh`, the static no-tier guard in `tools/_t1288-tier-guard.py`.
+- **Why:** retry-once needs a leg that can be re-run alone, which a function is and an inline if-block is not.
+- **Rejected:** `if leg core …; then … fi` wrappers (no re-run); inferring the tier at run time (the criterion forbids it).
+
+### 2026-10-24 — retry and quarantine also apply to `--tier all`
+- **Chose:** `all` runs the same legs as before, with the same per-check pass/fail counts, and applies the tier rules
+  (browser retry-once, quarantine) — otherwise the full run stays red for known reasons forever.
+- **Rejected:** a rule-free `all` (keeps the 10-reds-in-3-runs problem the task exists to end).
+
+### 2026-10-24 — core's hermeticity is enforced, not only declared
+- **Chose:** `--tier core` re-execs in a private mount + network namespace (only `lo`; Playwright/Chromium binaries and
+  caches covered), falling back to a printed "NOT enforced" where unshare is unavailable.
+- **Why:** a static classification can be wrong (it was, once: T-690); the namespace makes such a leg fail visibly.
+
+### 2026-10-24 — history rows
+- **Chose:** keep the six T-813 columns and append tier, flaky, quarantined; an `all` run writes its all-row plus one
+  row per tier. `_t952` and `_t813-suite-age` read only `all` (and old 6-column) rows, so a core row is never mistaken
+  for the whole suite's failure count.
 
 ## Decision
 

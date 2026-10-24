@@ -9,9 +9,20 @@
 #
 # This is the round-trip contract: canonical YAML → BPMN → validator-clean.
 # Exit 0 iff all corpus files round-trip clean.
+#
+# T-1288: --tier core|browser|sweep|all (default all: every leg, as before). Each leg is a function registered by
+# one `leg <tier> <name> <fn>` line, which is the only place its tier is declared; tools/_t1288-tiers.sh holds the
+# tier rules (hermetic core, retry-once for browser timeouts, tests/quarantine.yaml) and
+# tools/_t1288-tier-guard.py fails a leg with no tier. The leg bodies are the pre-T-1288 code, unindented on
+# purpose: the census and capture checks over this file read its lines at column 0.
 set -u
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=../tools/_t1288-tiers.sh
+. "$ROOT/tools/_t1288-tiers.sh"
+t1288_parse_args "$@"
+t1288_hermetic "$0" "$@"
+t1288_private_tmpdir
 BRIDGE="$ROOT/tools/yaml-to-bpmn.py"
 VALIDATOR="$ROOT/tools/validate-workflow.py"
 CORPUS="$ROOT/examples/aef-processes"
@@ -70,22 +81,24 @@ _t813_record() {
     # red" answerable only by a human noticing the pairs.
     [ "$_T813_RECORDED" = "1" ] && return 0
     _T813_RECORDED=1
+    [ "$T1288_LIST" = 1 ] && return 0   # T-1288: --list-legs runs nothing, so it records nothing
     local rc=$1
     local dur=$(( $(date +%s) - _T813_START ))
     local sha
     sha=$(git -C "$ROOT" rev-parse --short HEAD 2>/dev/null || echo "unknown")
-    # One tab-separated line, appended. Append-only and never rewritten: this is a record of
-    # what happened, not a cache of the current state.
-    printf '%s\t%s\t%s\t%s\t%s\t%s\n' \
-        "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$pass" "$fail" "$rc" "$dur" "$sha" \
+    # Tab-separated lines, appended. Append-only and never rewritten: this is a record of
+    # what happened, not a cache of the current state. T-1288: the first six columns are as
+    # before; tier, flaky and quarantined follow, and a --tier all run adds one row per tier
+    # after its all-row (t1288_history_rows).
+    t1288_history_rows "$rc" "$dur" "$sha" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
         >> "$_T813_HISTORY" 2>/dev/null || true
 }
 
-trap '_t813_record "$?"; rm -rf "$TMP"' EXIT
+trap '_t813_record "$?"; t1288_cleanup; rm -rf "$TMP"' EXIT
 # INT/TERM are not covered by EXIT in every bash configuration when the shell is killed
 # outright; re-raising after the handler preserves the true exit status for a caller.
-trap '_t813_record 130; rm -rf "$TMP"; trap - INT; kill -INT $$' INT
-trap '_t813_record 143; rm -rf "$TMP"; trap - TERM; kill -TERM $$' TERM
+trap '_t813_record 130; t1288_cleanup; rm -rf "$TMP"; trap - INT; kill -INT $$' INT
+trap '_t813_record 143; t1288_cleanup; rm -rf "$TMP"; trap - TERM; kill -TERM $$' TERM
 
 report() { printf '  [%s] %s\n' "$1" "$2"; }
 
@@ -173,6 +186,16 @@ if [ "${#files[@]}" -eq 0 ]; then
   exit 1
 fi
 
+# T-1288: the quarantine (tests/quarantine.yaml), and the static tier guard: every leg is registered by a
+# `leg <tier> ...` line with a known tier, and no counted check runs outside a registered leg.
+t1288_load_quarantine
+if [ "$T1288_LIST" = 0 ] && ! python3 "$ROOT/tools/_t1288-tier-guard.py" --static "$0" > "$TMP/leg-_t1288-guard.out" 2>&1; then  # T-1288: every tier
+  report FAIL "a leg has no tier, or a counted check runs outside a registered leg (run 'python3 tools/_t1288-tier-guard.py --static tests/run-bridge-tests.sh'; T-1288)"
+  show_output "$TMP/leg-_t1288-guard.out" "_t1288-tier-guard.py"
+  fail=$((fail + 1))
+fi
+
+_leg_001() {
 for f in "${files[@]}"; do
   base="$(basename "$f" .workflow.yaml)"
   bpmn="$TMP/$base.bpmn"
@@ -216,6 +239,9 @@ for f in "${files[@]}"; do
     fail=$((fail + 1))
   fi
 done
+}
+leg core "corpus-roundtrip" _leg_001
+_leg_002() {
 
 echo
 echo "== editor namespace consistency (T-044) =="
@@ -225,6 +251,9 @@ else
   report FAIL "editor aef: namespace drifted from canonical"
   fail=$((fail + 1))
 fi
+}
+leg core "test_editor_namespace_consistency" _leg_002
+_leg_003() {
 
 echo
 echo "== editor extension shape consistency (T-053) =="
@@ -234,6 +263,9 @@ else
   report FAIL "editor aef: field shape drifted from bridge (element text vs attribute)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_editor_extension_shape_consistency" _leg_003
+_leg_004() {
 
 echo
 echo "== editor↔bridge field coverage (T-059) =="
@@ -243,6 +275,9 @@ else
   report FAIL "bridge drops an editor-readable aef field present in the corpus"
   fail=$((fail + 1))
 fi
+}
+leg core "test_editor_bridge_field_coverage" _leg_004
+_leg_005() {
 
 echo
 echo "== editor↔bridge aef:meta parity (T-060) =="
@@ -252,6 +287,9 @@ else
   report FAIL "bridge META_KEYS drops a scalar key the editor writes to <aef:meta>"
   fail=$((fail + 1))
 fi
+}
+leg core "test_editor_bridge_meta_parity" _leg_005
+_leg_006() {
 
 echo
 echo "== bridge aef.x-* passthrough + loud-drop (T-061) =="
@@ -261,6 +299,9 @@ else
   report FAIL "bridge aef.x-* passthrough broken or unknown keys dropped silently"
   fail=$((fail + 1))
 fi
+}
+leg core "test_bridge_aef_passthrough" _leg_006
+_leg_007() {
 
 echo
 echo "== editor↔bridge structured-key parity (T-063) =="
@@ -270,6 +311,9 @@ else
   report FAIL "editor and bridge disagree on structured aef keys (import/export drift)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_editor_bridge_structured_parity" _leg_007
+_leg_008() {
 
 echo
 echo "== designer→AEF promote contract (T-206) =="
@@ -279,6 +323,9 @@ else
   report FAIL "designer .bpmn export drifted from the AEF promote contract (uid / lane-authority / manifest-tuple / source_bpmn_sha)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_promote_contract" _leg_008
+_leg_009() {
 
 echo
 echo "== two-lane joint promote fixture contract (T-208) =="
@@ -288,6 +335,9 @@ else
   report FAIL "two-lane joint fixture drifted from the promote contract (uid / both-lane owner derivation / manifest-tuple / source_bpmn_sha)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_two_lane_joint_contract" _leg_009
+_leg_010() {
 
 echo
 echo "== typed intermediate events: correctness + bite (T-204) =="
@@ -297,6 +347,9 @@ else
   report FAIL "typed event error/timer/message decode/encode broke (type or aef:eventDef binding drift)"
   fail=$((fail + 1))
 fi
+}
+leg browser "test_typed_events" _leg_010
+_leg_011() {
 
 echo
 echo "== typed-event fixture contract: sha-pin + shape (T-212, browser-independent) =="
@@ -314,6 +367,9 @@ else
   report FAIL "typed-event fixture drifted from its pinned byte digest or aef:eventDef shape (fixture edited? re-pin here + announce on the rail: one line, path + old -> new — AEF vendors these two by digest)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_typed_event_fixture_contract" _leg_011
+_leg_012() {
 
 echo
 echo "== fw note refuses payload-losing calls (T-557, framework tooling) =="
@@ -330,6 +386,9 @@ else
   report FAIL "fw note can silently discard an observation payload again (guard reverted in the vendored .agentic-framework, or a re-vendor overwrote it — check agents/observe/observe.sh do_capture; the fix is upstream-pending, so a framework bump can legitimately regress this)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_note_capture_refuses_lost_payload" _leg_012
+_leg_013() {
 
 echo
 echo "== pair-draft corpus fixture pins: sha + validator-clean (T-216, browser-independent) =="
@@ -345,6 +404,9 @@ else
   report FAIL "pair-draft corpus fixture drifted from its pinned byte digest or stopped validating clean (fixture edited? re-pin here + announce on the rail before the bytes land: one line, path + old -> new)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_corpus_fixture_pins" _leg_013
+_leg_014() {
 
 echo
 echo "== eventDef preservation passthrough: start/throw survive open-save (T-259) =="
@@ -357,6 +419,9 @@ else
   report FAIL "start/throw aef:eventDef preservation regressed — layout-only save drops typed-event semantics again (T-2620 class)"
   fail=$((fail + 1))
 fi
+}
+leg browser "test_t259_eventdef_preservation" _leg_014
+_leg_015() {
 
 echo
 echo "== bare catch event renders neutrally when unbound (T-308, T-244 GO path b) =="
@@ -373,6 +438,9 @@ else
   report FAIL "bare catch event stopped rendering neutrally, or the fix grew an export surface (T-308/T-244 class)"
   fail=$((fail + 1))
 fi
+}
+leg browser "test_t308_bare_catch_render" _leg_015
+_leg_016() {
 
 echo
 echo "== declared lane beats conflicting geometry (T-310) =="
@@ -388,6 +456,9 @@ else
   report FAIL "lane/position conflict handling regressed — membership may again be decided by pixels (T-310 class)"
   fail=$((fail + 1))
 fi
+}
+leg browser "test_t310_lane_position_conflict" _leg_016
+_leg_017() {
 
 echo
 echo "== the re-pinned shared fixtures stay zero-semantic (T-314) =="
@@ -403,6 +474,9 @@ else
   report FAIL "T-314 re-pinned fixtures drifted — the shared producer contract may no longer be what AEF pins"
   fail=$((fail + 1))
 fi
+}
+leg core "test_t314_fixture_repin" _leg_017
+_leg_018() {
 
 echo
 echo "== an under-declared lane band is grown, not the nodes moved (T-315) =="
@@ -420,6 +494,9 @@ else
   report FAIL "lane grow-on-import regressed — an under-declared band may again be 'repaired' by relocating the operator's nodes (T-315 class)"
   fail=$((fail + 1))
 fi
+}
+leg browser "test_t315_lane_grow_on_import" _leg_018
+_leg_019() {
 
 echo
 echo "== authored doc block survives the round-trip (T-311) =="
@@ -436,6 +513,9 @@ else
   report FAIL "authored doc block regressed — the rationale may again be destroyed on save (T-311 class)"
   fail=$((fail + 1))
 fi
+}
+leg browser "test_t311_doc_comment_roundtrip" _leg_019
+_leg_020() {
 
 echo
 echo "== lane/geometry agreement rule (T-312) =="
@@ -453,6 +533,9 @@ else
   report FAIL "lane/geometry agreement rule regressed — declaration-vs-drawing disagreement may again pass both toolchains (T-312 class)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_t312_lane_geometry" _leg_020
+_leg_021() {
 
 echo
 echo "== lane capacity rule (T-313) =="
@@ -469,6 +552,9 @@ else
   report FAIL "lane capacity rule regressed — a lane may again draw past its own band edge undetected (T-313 class)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_t313_lane_capacity" _leg_021
+_leg_022() {
 
 echo
 echo "== annotation seam v0: aef:ready/aef:annotate loop (T-258, T-250 GO) =="
@@ -481,6 +567,9 @@ else
   report FAIL "annotation seam loop broke — ready handshake, badge intake, or a display-only invariant regressed (T-250 contract)"
   fail=$((fail + 1))
 fi
+}
+leg browser "test_t258_annotation_seam" _leg_022
+_leg_023() {
 
 echo
 echo "== editor behavior suite: T-234 jump-no-poison + T-237 classification (G-010/T-238) =="
@@ -493,6 +582,9 @@ else
   report FAIL "editor behavior leg failed — jump-autosave poisoning or eventDef/link classification regressed (T-234/T-237 class)"
   fail=$((fail + 1))
 fi
+}
+leg browser "test_editor_behavior" _leg_023
+_leg_024() {
 
 echo
 echo "== endpoint reconnect reachability: handles above node bodies, real-input drag (T-293, G-003) =="
@@ -505,6 +597,9 @@ else
   report FAIL "endpoint reconnect reachability regressed — handle shadowed by node body/port dot or layer order broken (T-293/G-003 class)"
   fail=$((fail + 1))
 fi
+}
+leg browser "test_t293_endpoint_reach" _leg_024
+_leg_025() {
 
 echo
 echo "== save-target guard set: collision notice + blur/Enter commit + mismatch confirm (T-264, T-263 GO) =="
@@ -517,6 +612,9 @@ else
   report FAIL "save-target guard regressed — collision notice, ID commit-on-blur/Enter, or load-source mismatch confirm (T-264/T-263 class)"
   fail=$((fail + 1))
 fi
+}
+leg browser "test_t264_save_target_guards" _leg_025
+_leg_026() {
 
 echo
 echo "== lane compaction: fit lanes to content, exact Clean fixpoint (T-125, T-122 pairs) =="
@@ -529,6 +627,9 @@ else
   report FAIL "lane compaction regressed — fixpoint, containment, overlap, undo, or a pair-map height ceiling (T-125/T-122 class)"
   fail=$((fail + 1))
 fi
+}
+leg browser "test_t125_lane_compaction" _leg_026
+_leg_027() {
 
 echo
 echo "== DEAD-leg census contract: aef:meta-note-attrs-only scan (T-304, rail 325) =="
@@ -541,10 +642,10 @@ else
   report FAIL "DEAD-leg census contract broke — fixture drifted, census/owner mismatch, or corpus gained DEAD legs undeliberately (T-304, rail 325)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_dead_leg_census" _leg_027
 
-echo
-echo
-echo "== Previously-unrun legs (T-316, AEF rail 347/349) =="
+section "== Previously-unrun legs (T-316, AEF rail 347/349) =="
 # These nine were on disk, passing, and named by NO runner — several of them
 # guarding the seam this arc depends on. They were green when finally run by
 # hand, which is why the condition survived: a suite nobody runs cannot report a
@@ -557,37 +658,38 @@ echo "== Previously-unrun legs (T-316, AEF rail 347/349) =="
 # basename: a token in a comment or an echo string would satisfy that, which is
 # the prose-in-the-haystack class this arc has now hit three times.
 orphan_legs=(
-  "tests/test_forward_fixtures.py|forward-compile fixture contract"
-  "tests/test_roundtrip_serialization.py|round-trip serialization is no longer a semantic fixed point"
-  "tests/test_mapping_standard_conformance.py|frozen governance meta-keys drifted from the mapping standard"
-  "tests/test_validate_iw9.py|IW-9 validator rules (W-TYPE-LANE-MISMATCH / E-INCEPTION-NOT-SOVEREIGN) regressed"
-  "tests/test_release_immutability.py|release immutability guard (G-007) — a released VERSION can be overwritten, or a release path (new, idempotent, blocked, bypass) stopped working; the test names the case"
-  "tests/test_bridge_seam_roundtrip.py|bridge emissions are being silently dropped on editor import"
-  "tests/test_designer_export_contract.py|designer export contract — an owner-bearing node lost its authority carrier"
-  "tests/test_designer_owner_derived.py|designer owner-derived guard — an editable owner override reappeared (IW-9)"
-  "tests/test_designer_render.py|designer render-check — render, T-177 markers, or inspector dropdowns broke"
-  "tests/test_emitted_comment_claims.py|exported bytes carry a claim about an external party, or the emitter duplicates the trailer (T-361)"
+  "core|tests/test_forward_fixtures.py|forward-compile fixture contract"
+  "browser|tests/test_roundtrip_serialization.py|round-trip serialization is no longer a semantic fixed point"
+  "core|tests/test_mapping_standard_conformance.py|frozen governance meta-keys drifted from the mapping standard"
+  "core|tests/test_validate_iw9.py|IW-9 validator rules (W-TYPE-LANE-MISMATCH / E-INCEPTION-NOT-SOVEREIGN) regressed"
+  "core|tests/test_release_immutability.py|release immutability guard (G-007) — a released VERSION can be overwritten, or a release path (new, idempotent, blocked, bypass) stopped working; the test names the case"
+  "browser|tests/test_bridge_seam_roundtrip.py|bridge emissions are being silently dropped on editor import"
+  "browser|tests/test_designer_export_contract.py|designer export contract — an owner-bearing node lost its authority carrier"
+  "browser|tests/test_designer_owner_derived.py|designer owner-derived guard — an editable owner override reappeared (IW-9)"
+  "browser|tests/test_designer_render.py|designer render-check — render, T-177 markers, or inspector dropdowns broke"
+  "core|tests/test_emitted_comment_claims.py|exported bytes carry a claim about an external party, or the emitter duplicates the trailer (T-361)"
   # T-942 wired both of these. Each was written and left uninvoked, which is the same defect
   # twice: T-884 shipped test_gallery_instances_api.py with the /api/instances endpoint and never
   # registered it; T-941 (mine) added test_boundary_inventory_unclassified.py in the same commit
   # as a learning about instruments nothing runs. The T-316 orphan guard below caught both — it
   # is the only reason either is here, and the reason it must never be relaxed to make a red run
   # green.
-  "tests/test_gallery_instances_api.py|the /api/instances endpoint's own contract broke (T-884)"
-  "tests/test_boundary_inventory_unclassified.py|the boundary inventory's unclassified-route check stopped biting, or the real route set went unclassified (T-941)"
-  "tests/test_session_start_alerts.py|the /resume session-start check stopped delegating mail to fw sidecar alerts correctly: output or flags lost, a NOT CHECKED / failing / missing verb read as nothing, or the runme section hidden (T-1046, T-1059)"
-  "tests/test_t1055_runme_launcher.py|the runme launcher no longer enforces the operator's safeguards itself: a job that runs at load time, has no dry-run, changed since its dry-run, or is already done can run, or a step runs without its y/N (T-1055)"
-  "tests/test_t1050_runme_alerts.py|the session-start check no longer tells a new session that a handed-over runme.sh has nothing watching it (WATCH LOST), or misreports an in-flight / unrecorded run (T-1050)"
-  "tests/test_t1145_decision_handover_guard.py|the Stop hook no longer blocks a reply that hands the operator an unready inception's decision link, blocks a ready or link-free reply, loops, or fails closed (T-1145)"
+  "core|tests/test_gallery_instances_api.py|the /api/instances endpoint's own contract broke (T-884)"
+  "core|tests/test_boundary_inventory_unclassified.py|the boundary inventory's unclassified-route check stopped biting, or the real route set went unclassified (T-941)"
+  "core|tests/test_session_start_alerts.py|the /resume session-start check stopped delegating mail to fw sidecar alerts correctly: output or flags lost, a NOT CHECKED / failing / missing verb read as nothing, or the runme section hidden (T-1046, T-1059)"
+  "core|tests/test_t1055_runme_launcher.py|the runme launcher no longer enforces the operator's safeguards itself: a job that runs at load time, has no dry-run, changed since its dry-run, or is already done can run, or a step runs without its y/N (T-1055)"
+  "core|tests/test_t1286_rehearsal.py|runme --dry-run no longer rehearses a job's steps in a throwaway clone: a step a framework gate refuses passes the dry-run, a step_outward is executed in rehearsal, or the rehearsal changed the real repo (T-1286)"
+  "core|tests/test_t1050_runme_alerts.py|the session-start check no longer tells a new session that a handed-over runme.sh has nothing watching it (WATCH LOST), or misreports an in-flight / unrecorded run (T-1050)"
+  "core|tests/test_t1145_decision_handover_guard.py|the Stop hook no longer blocks a reply that hands the operator an unready inception's decision link, blocks a ready or link-free reply, loops, or fails closed (T-1145)"
 )
-for leg in "${orphan_legs[@]}"; do
-  legfile="${leg%%|*}"
-  legmsg="${leg#*|}"
-  legpath="$ROOT/$legfile"
+# T-1288: each entry is its own leg, its tier the entry's first field (five of these drive a browser).
+_orphan_leg() {
+  local legfile="$1" legmsg="$2"
+  local legpath="$ROOT/$legfile"
   if [ ! -f "$legpath" ]; then
     report FAIL "orphan leg names a file that does not exist: $legfile"
     fail=$((fail + 1))
-    continue
+    return 0
   fi
   if python3 "$legpath" >"$TMP/.legout" 2>&1; then
     pass=$((pass + 1))
@@ -596,7 +698,14 @@ for leg in "${orphan_legs[@]}"; do
     show_output "$TMP/.legout" "$legfile"
     fail=$((fail + 1))
   fi
+}
+for _ol in "${orphan_legs[@]}"; do
+  _ol_tier="${_ol%%|*}"; _ol="${_ol#*|}"
+  _ol_name="orphan:$(basename "${_ol%%|*}" .py)"
+  leg "$_ol_tier" "$_ol_name" _orphan_leg "${_ol%%|*}" "${_ol#*|}"
 done
+section ""
+_leg_028() {
 
 echo
 echo "== Render check on the SOURCE, before any cut (T-1130) =="
@@ -611,6 +720,9 @@ else
   show_output "$TMP/leg-render-src.out" "test_designer_render.py --src"
   fail=$((fail + 1))
 fi
+}
+leg browser "test_designer_render" _leg_028
+_leg_029() {
 
 echo
 echo "== Gateway branch-ambiguity parity (T-317) =="
@@ -624,6 +736,9 @@ else
   report FAIL "gateway branch-ambiguity parity broke — the two validator classes drifted, the boundary moved, or the corpus census changed (T-317)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_t317_gw_ambiguous_parity" _leg_029
+_leg_030() {
 
 echo
 echo "== XML node-type vocabulary drift (T-321) =="
@@ -637,6 +752,9 @@ else
   report FAIL "XML node-type vocabulary drifted from an emitter — the validator would reject bytes our own toolchain writes, or admit an element nothing can produce (T-321)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_xml_node_type_vocab" _leg_030
+_leg_031() {
 
 echo
 echo "== Rule-form parity guard (T-320) =="
@@ -651,6 +769,9 @@ else
   report FAIL "rule-form parity broke — a rule was added to one form with no parity decision, an out-of-scope classification stopped being true, or the known-gap count moved (T-320)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_rule_form_parity" _leg_031
+_leg_032() {
 
 echo
 echo "== Rule dialect axis (T-325 / T-309 IW-1b) =="
@@ -665,6 +786,9 @@ else
   report FAIL "rule dialect axis broke — a rule declares no carrier, a carrier drifted from the frozen standard's §1 partition, or a declared polarity stopped matching what the rule actually does (T-325)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_rule_dialect_axis" _leg_032
+_leg_033() {
 
 echo
 echo "== Harness emitter fidelity (T-327) =="
@@ -682,6 +806,9 @@ else
   report FAIL "a harness synthesises a <bpmn:*> element neither emitter can produce, or a declared tolerance stopped describing the tree (T-327)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_harness_emitter_fidelity" _leg_033
+_leg_034() {
 
 echo
 echo "== Cross-form behavioural agreement (T-328) =="
@@ -699,6 +826,9 @@ else
   report FAIL "two implementations of a PAIRED validator rule disagree on the same document, or a declared tolerance/repair stopped describing the tree (T-328)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_harness_cross_form_agreement" _leg_034
+_leg_035() {
 
 echo
 echo "== Check-pass reachability (T-333, AEF OBS-124) =="
@@ -716,6 +846,9 @@ else
   report FAIL "a validator rule fires on every document of its form (unreachable passing state, AEF OBS-124), or the never-witnessed declaration stopped describing the tree (T-333)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_check_pass_reachability" _leg_035
+_leg_036() {
 
 echo
 echo "== Finding anchorability (T-335, T-309 IW-1a) =="
@@ -733,6 +866,9 @@ else
   report FAIL "a validator rule is unclassified for anchorability, or its declared anchor class stopped agreeing with the documents, or the never-witnessed row moved (T-335 — the IW-1a numbers in docs/reports/T-309-validator-surfacing.md are now wrong)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_finding_anchorability" _leg_036
+_leg_037() {
 
 echo
 echo "== Input fidelity: load→save preserves content (T-338, G-016) =="
@@ -751,6 +887,9 @@ else
   report FAIL "a load→save round trip stopped preserving content, or the set of BPMN tags that lose content changed in either direction (T-338/G-016 — if a gap CLOSED, update EXPECTED_LOSSY in tools/_t338-input-fidelity-cdp.mjs so the improvement is recorded)"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t338-input-fidelity-cdp" _leg_037
+_leg_038() {
 
 echo
 echo "== Editor seam is a semantic fixed point, per-key (T-187/T-488/T-489/T-490, G-002) =="
@@ -775,6 +914,9 @@ else
   show_output "$TMP/leg-_roundtrip-serialization-cdp.out" "_roundtrip-serialization-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_roundtrip-serialization-cdp" _leg_038
+_leg_039() {
 
 echo
 echo "== Lane-origin partition is total and separable (T-358) =="
@@ -796,6 +938,9 @@ else
   report FAIL "the lane-origin partition stopped being total or separable — two causes of a fabricated lane set now share one verdict, or the negative control was itself defaulted (T-358)"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t358-lane-provenance-cdp" _leg_039
+_leg_040() {
 
 echo
 echo "== aef:note is authorable, and no carried key is invisible (T-566) =="
@@ -815,6 +960,9 @@ else
   show_output "$TMP/leg-_t566-note.out" "_t566-note-field-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t566-note-field-teeth" _leg_040
+_leg_041() {
 
 echo
 echo "== the editor does not destroy aef:meta keys it does not name (T-570) =="
@@ -838,6 +986,9 @@ else
   show_output "$TMP/leg-_t570-carriage.out" "_t570-meta-carriage-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t570-meta-carriage-teeth" _leg_041
+_leg_042() {
 
 # T-1060: the CDP probes wait for the ?load= map itself, not a fixed 400 ms after _appReady. On a busy
 # host the old wait lost the race and two guards reported CANNOT RUN, read here as regressions.
@@ -848,6 +999,9 @@ else
   show_output "$TMP/leg-_t1060.out" "_t1060-slow-load-teeth.sh"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1060-slow-load-teeth" _leg_042
+_leg_043() {
 
 # T-1061: the editor's own "deep link settled" signal, which every CDP probe now waits on.
 if node "$ROOT/tools/_t1061-deeplink-settled-cdp.mjs" > "$TMP/leg-_t1061.out" 2>&1; then
@@ -857,6 +1011,9 @@ else
   show_output "$TMP/leg-_t1061.out" "_t1061-deeplink-settled-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1061-deeplink-settled-cdp" _leg_043
+_leg_044() {
 
 # T-1067: a side-placed event label that collides on every side is tried as a wrapped block
 # (reviewer RED on T-600: the operator's own sentence never wrapped). Control = the pre-T-1067 editor.
@@ -867,6 +1024,8 @@ else
   show_output "$TMP/leg-_t1067.out" "_t1067-side-label-wrap-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1067-side-label-wrap-cdp" _leg_044
 
 # T-1068: the label-placement guards for T-600 (wrap) and T-601 (pool/lane containment) were never
 # wired — T-601's self-test went red unnoticed (its poison target drifted, and L2 could not fail).
@@ -884,9 +1043,19 @@ _label_guard() {
     fail=$((fail + 1))
   fi
 }
+_leg_045() {
 _label_guard "$ROOT/tools/_t600-label-wrap.mjs"
+}
+leg browser "_t600-label-wrap" _leg_045
+_leg_046() {
 _label_guard "$ROOT/tools/_t601-lane-boundary.mjs"
+}
+leg browser "_t601-lane-boundary" _leg_046
+_leg_047() {
 _label_guard "$ROOT/tools/_t1068-corpus-labels.mjs"
+}
+leg browser "_t1068-corpus-labels" _leg_047
+_leg_048() {
 
 # T-1069 (reviewer AMBER on T-893): the authority marker stays left of the shape's top-centre, so no
 # marker sits under its node's own flows (forced 'missing' and 'differs' on every corpus node), and
@@ -898,6 +1067,9 @@ else
   show_output "$TMP/leg-_t1069.out" "_t1069-authority-marker-clearance-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1069-authority-marker-clearance-cdp" _leg_048
+_leg_049() {
 
 # T-1088 (aef-greenfield-test T-172 #2): BPMN import makes lane abbreviations unique — three lanes
 # deriving 'tac' and two with the same laneMeta abbr get distinct prefixes, node ids stay distinct,
@@ -909,6 +1081,9 @@ else
   show_output "$TMP/leg-_t1088.out" "_t1088-lane-abbr-unique-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1088-lane-abbr-unique-cdp" _leg_049
+_leg_050() {
 
 # T-1089 (aef-greenfield-test T-172 #5): a map opened from a project saves as that project's next
 # version. A file without aef:workflowMeta takes the project id (it saved as a NEW project process_x
@@ -921,6 +1096,9 @@ else
   show_output "$TMP/leg-_t1089.out" "_t1089-save-loaded-as-version-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1089-save-loaded-as-version-cdp" _leg_050
+_leg_051() {
 
 # T-1090 (aef-greenfield-test T-172 #1): auto-routed cross-lane flows take ONE bend — an L leaving
 # N/S and entering W, or leaving E when that corner is blocked; the Z only when both are; same-lane
@@ -933,6 +1111,9 @@ else
   show_output "$TMP/leg-_t1090.out" "_t1090-cross-lane-l-routing-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1090-cross-lane-l-routing-cdp" _leg_051
+_leg_052() {
 
 # T-1092 (aef-greenfield-test T-172 #6, operator option 3): authority markers are a Setting, default
 # ON (T-888 clause 4); a map that declares no authority anywhere shows ONE summary in the advisory
@@ -945,6 +1126,9 @@ else
   show_output "$TMP/leg-_t1092.out" "_t1092-authority-summary-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1092-authority-summary-cdp" _leg_052
+_leg_053() {
 
 # T-1109 (aef-greenfield-test's 0.16.0 re-test): a same-origin ?load=/api/version?id=X deep link opens as
 # project X — a file without a workflow id takes X, Save writes X's next version with no confirm; a declared
@@ -957,6 +1141,9 @@ else
   show_output "$TMP/leg-_t1109.out" "_t1109-deeplink-project-load-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1109-deeplink-project-load-cdp" _leg_053
+_leg_054() {
 
 # T-1119 (P1 of the operator's T-347 ruling): open + save of a BPMN collaboration keeps every pool (incl.
 # black-box), every process not opened and every message flow with its DI; message-flow ends are re-pointed
@@ -969,6 +1156,9 @@ else
   show_output "$TMP/leg-_t1119.out" "_t1119-collaboration-roundtrip-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1119-collaboration-roundtrip-cdp" _leg_054
+_leg_055() {
 
 # T-1120 (P2): the kept pools are drawn read-only below ours and the message flows run between them (dashed,
 # open circle at the source, open arrowhead at the target); a flow follows a dragged node; the exported DI
@@ -981,6 +1171,9 @@ else
   show_output "$TMP/leg-_t1120.out" "_t1120-collab-pools-drawn-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1120-collab-pools-drawn-cdp" _leg_055
+_leg_056() {
 
 # T-1124 (T-1118 B1): empty Extensions fields fold into one "+ N empty fields" row; a field with a value is
 # never hidden (all 42 examples/ service tasks); "Show all fields" restores the old panel; export unchanged.
@@ -992,6 +1185,9 @@ else
   show_output "$TMP/leg-_t1124.out" "_t1124-hide-empty-fields-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1124-hide-empty-fields-cdp" _leg_056
+_leg_057() {
 
 # T-1125 (T-1118 B2): the project field profile (field-profile.json, GET /api/field-profile) hides and pins
 # fields; a hidden field with a value is still drawn and tagged; a malformed profile is refused whole;
@@ -1004,6 +1200,9 @@ else
   show_output "$TMP/leg-_t1125.out" "_t1125-field-profile-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1125-field-profile-cdp" _leg_057
+_leg_058() {
 
 # T-1128: the field-profile write path (PUT, project and per-map scope): malformed refused whole, a profile changed
 # since it was read refused 409, bad id refused, atomic, one history line per write.
@@ -1015,6 +1214,9 @@ else
   show_output "$TMP/leg-_t1128s.out" "_t1128-field-profile-server.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t1128-field-profile-server" _leg_058
+_leg_059() {
 
 # T-1128: Settings → "Fields shown by default", per project and per map (map wins for the fields it mentions,
 # the rest falls through); provenance shown; 409 surfaced; Cancel discards; new id starts clean; export unchanged.
@@ -1026,6 +1228,9 @@ else
   show_output "$TMP/leg-_t1128.out" "_t1128-field-defaults-settings-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1128-field-defaults-settings-cdp" _leg_059
+_leg_060() {
 
 # T-1127: the element details view — double-click (or the panel's "All details") shows every field of the element,
 # filled or empty, profile-hidden ones marked; edits land on the element; Esc/Close/backdrop close it; a handoff
@@ -1038,6 +1243,9 @@ else
   show_output "$TMP/leg-_t1127.out" "_t1127-element-details-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1127-element-details-cdp" _leg_060
+_leg_061() {
 
 # T-1129: every optional select offers an empty choice — an unset field must not DISPLAY (and write on change) its
 # first option; export of the examples identical to 0.17.0.
@@ -1049,6 +1257,9 @@ else
   show_output "$TMP/leg-_t1129.out" "_t1129-optional-select-empty-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1129-optional-select-empty-cdp" _leg_061
+_leg_062() {
 
 # T-1126 (T-1118 B3): "Suggest as a field" records a suggestion (never a field); only the operator's
 # tools/field-suggestion.py approves (writing the profile's fields section, refused without approval) or rejects.
@@ -1060,6 +1271,9 @@ else
   show_output "$TMP/leg-_t1126.out" "_t1126-field-suggestions-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1126-field-suggestions-cdp" _leg_062
+_leg_063() {
 
 # T-1096: process-level data survives a save — dataObject, dataObjectReference, dataStoreReference, the tasks'
 # property / dataInput / dataOutputAssociation and their DI; nothing dangles; a deleted task takes its associations.
@@ -1071,6 +1285,9 @@ else
   show_output "$TMP/leg-_t1096.out" "_t1096-data-objects-roundtrip-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1096-data-objects-roundtrip-cdp" _leg_063
+_leg_064() {
 
 # ── T-1217: a native bpmn:linkEventDefinition (third-party link pairing) survives open and save ──
 # The designer encodes link events as aef:link (T-190 IW-1) and dropped the native element, losing the pairing
@@ -1083,6 +1300,9 @@ else
   show_output "$TMP/leg-_t1217.out" "_t1217-native-link-definition-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1217-native-link-definition-cdp" _leg_064
+_leg_065() {
 
 # ── T-1218: an unnamed start/end event stays unnamed through open and save, with its display id unchanged ──
 # The import used the id as the name, so the canvas showed "StartEvent_1" and the save wrote it back
@@ -1095,6 +1315,9 @@ else
   show_output "$TMP/leg-_t1218.out" "_t1218-unnamed-event-name-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1218-unnamed-event-name-cdp" _leg_065
+_leg_066() {
 
 # T-1218's rendered side: the canvas labels of the two unnamed events read their ids BEFORE (HEAD's source) and are
 # empty AFTER, at 1024/1440/1920. Screenshots go to the run's temp dir, never into docs/.
@@ -1105,6 +1328,9 @@ else
   show_output "$TMP/leg-_t1218-shots.out" "_t1218-unnamed-event-shots.py"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1218-unnamed-event-shots" _leg_066
+_leg_067() {
 
 # ── T-1222: native BPMN event definitions survive a save; third-party boundary events stay boundary events ──
 # Saves every third-party fixture through the real designer and counts *EventDefinition per kind (49 -> 3 before),
@@ -1117,6 +1343,9 @@ else
   show_output "$TMP/leg-_t1222.out" "_t1222-event-definitions-kept.py"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1222-event-definitions-kept" _leg_067
+_leg_068() {
 if timeout 600 python3 "$ROOT/tools/_t1222-event-shots.py" "$TMP/t1222-shots" > "$TMP/leg-_t1222-shots.out" 2>&1; then
   pass=$((pass + 1))
 else
@@ -1124,6 +1353,9 @@ else
   show_output "$TMP/leg-_t1222-shots.out" "_t1222-event-shots.py"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1222-event-shots" _leg_068
+_leg_069() {
 
 # ── T-1243: CHILD elements inside aef:input/aef:output survive open and save, adding no xmlns noise ──
 # A producer's nested attribute tree, a schema reference or any extension child was dropped (T-1220 kept only
@@ -1136,6 +1368,9 @@ else
   show_output "$TMP/leg-_t1243.out" "_t1243-io-children-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1243-io-children-cdp" _leg_069
+_leg_070() {
 
 # ── T-1249: every mapping v1.1 io construct is shown read-only and saved byte-exactly ──
 # Slice 1 of T-1242. AEF's section-11 examples (+ process aef:meta), every tracked map with io and greenfield's VZN-T1
@@ -1149,6 +1384,9 @@ else
   show_output "$TMP/leg-_t1249.out" "_t1249-v11-io-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1249-v11-io-cdp" _leg_070
+_leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
 # T-281 slice 1. Business lens: 0 technical badges, 0 fields outside the business set, 0 fields the profile hides;
@@ -1161,6 +1399,9 @@ else
   show_output "$TMP/leg-_t1241.out" "_t1241-business-lens-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1241-business-lens-cdp" _leg_071
+_leg_072() {
 
 # T-1256 (label clearance) and T-1282 (?browse=1) run inside the T-1287 gate below, under a stricter pass rule
 # (exit 0 AND ok AND no errors); their separate legs were removed to stop running them twice (T-1287).
@@ -1178,6 +1419,9 @@ else
   show_output "$TMP/leg-person-sees-gate.out" "person-sees-gate.sh"
   fail=$((fail + 1))
 fi
+}
+leg browser "person-sees-gate" _leg_072
+_leg_073() {
 
 
 # ── T-1290: review findings carry map evidence; the kit checks it; calibration verdict unchanged ──
@@ -1188,6 +1432,9 @@ else
   show_output "$TMP/leg-_t1290.out" "test_t1290_verify_findings.py"
   fail=$((fail + 1))
 fi
+}
+leg core "test_t1290_verify_findings" _leg_073
+_leg_074() {
 
 # ── T-1289: every designer endpoint AEF does not serve is named in the current release notes ──
 # AEF went 13-25 days without 4 designer endpoints because nothing compared the two (T-1285 spike 4). A NEW gap
@@ -1199,6 +1446,9 @@ else
   show_output "$TMP/leg-_t1289.out" "test_t1289_host_contract_notes.py"
   fail=$((fail + 1))
 fi
+}
+leg core "test_t1289_host_contract_notes" _leg_074
+_leg_075() {
 
 # ── T-1273: an in-place mutation script cannot survive INT/TERM with its mutant ──
 # On 2026-10-22 the T-509 sweep's cap TERMed _t910, whose trap handler restored and RETURNED; bash resumed and
@@ -1211,6 +1461,9 @@ else
   show_output "$TMP/leg-_t1273-guard.out" "_t1273-mutation-signal-guard.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t1273-mutation-signal-guard" _leg_075
+_leg_076() {
 # Behaviour, on dummies in a temp dir only (no real mutation script is ever killed): old patterns leave the mutant
 # under `timeout 1`, fixed ones restore and run nothing after the signal, and the guard agrees with both (~5 s).
 if bash "$ROOT/tools/_t1273-signal-restore-teeth.sh" > "$TMP/leg-_t1273-teeth.out" 2>&1; then
@@ -1220,6 +1473,9 @@ else
   show_output "$TMP/leg-_t1273-teeth.out" "_t1273-signal-restore-teeth.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t1273-signal-restore-teeth" _leg_076
+_leg_077() {
 
 # ── T-1220: attributes on aef:input/aef:output beyond name/type/required survive open and save ──
 # aef-greenfield-test generates aef:io from its ontology (ref/role/cardinality/dataType, AEF T-4415); the
@@ -1232,6 +1488,9 @@ else
   show_output "$TMP/leg-_t1220.out" "_t1220-io-extra-attrs-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1220-io-extra-attrs-cdp" _leg_077
+_leg_078() {
 
 # T-589 / T-1132: the panel's fabric link and URL list — clickable, round-trip, no contract key added, and a map
 # carrying neither field exports identically with the two fields ablated (it went stale unwired; now scheduled).
@@ -1243,6 +1502,9 @@ else
   show_output "$TMP/leg-_t589.out" "_t589-panel-links-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t589-panel-links-cdp" _leg_078
+_leg_079() {
 
 # T-1131: every third-party fixture's export references only ids it contains. The byte goldens were recorded from
 # the export, so a defect present at recording passes them forever — this checks validity, not bytes.
@@ -1253,6 +1515,9 @@ else
   show_output "$TMP/leg-_t1131.out" "_t1131-dangling-refs-thirdparty-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1131-dangling-refs-thirdparty-cdp" _leg_079
+_leg_080() {
 
 # T-1134: on a portal WITHOUT the field endpoints (health/list/save only — Greenfield's shape) the designer offers no
 # field settings and no suggestions, and says why; every other test runs against gallery-serve.py, which has them.
@@ -1264,6 +1529,9 @@ else
   show_output "$TMP/leg-_t1134.out" "_t1134-portal-without-endpoints-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1134-portal-without-endpoints-cdp" _leg_080
+_leg_081() {
 
 # T-889 (T-888 clause 2): the editor AUTHORS element-level authority — a panel write exports
 # aef:meta authority= on an element whose document carried none (a differential, 5 legs). Standing
@@ -1276,6 +1544,9 @@ else
   show_output "$TMP/leg-_t889fc.out" "_t889-authority-first-class-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t889-authority-first-class-cdp" _leg_081
+_leg_082() {
 
 # T-1078 (reviewer follow-up on T-310): an advisory banner never covers a node, the combined
 # lane-fix message wraps inside the canvas, and dismissing gives the canvas back. Self-test mode:
@@ -1287,6 +1558,9 @@ else
   show_output "$TMP/leg-_t1078.out" "_t1078-advisory-overlap-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1078-advisory-overlap-cdp" _leg_082
+_leg_083() {
 
 # T-1066: a [REVIEW] Human criterion must name the operator exception that keeps it from the reviewer
 # (PD-302). Self-test first (the rule bites), then the live tree (new tasks comply).
@@ -1299,6 +1573,9 @@ else
   show_output "$TMP/leg-_t1066.out" "_t1066-why-you-check.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t1066-why-you-check" _leg_083
+_leg_084() {
 
 # T-1079 (PD-357): 832's delegation predicate takes every `### Human` criterion's bucket from AEF's
 # `fw task classify-ac` (T-1080), so the two encodings of the boundary (G-052) must agree. Self-test first (the
@@ -1312,6 +1589,9 @@ else
   show_output "$TMP/leg-_t932.out" "_t932-boundary-agreement.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t770-delegation-boundary" _leg_084
+_leg_085() {
 
 echo
 echo "== every key our bridge can emit survives an editor round trip (T-572) =="
@@ -1330,6 +1610,9 @@ else
   show_output "$TMP/leg-_t572-vocab.out" "_t572-bridge-vocabulary-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t572-bridge-vocabulary-teeth" _leg_085
+_leg_086() {
 
 echo
 echo "== the completion gate cannot pass on a block it could not read (T-574) =="
@@ -1355,6 +1638,9 @@ else
   show_output "$TMP/leg-_t574-p011.out" "_t574-p011-block-locator-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t574-p011-block-locator-teeth" _leg_086
+_leg_087() {
 
 # T-945: the vendor-divergence guard must reach a surface someone reads.
 #
@@ -1370,6 +1656,9 @@ else
   show_output "$TMP/leg-_t657.out" "_t657-vendor-divergence-must-reach-an-audit-line.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t657-vendor-divergence-must-reach-an-audit-line" _leg_087
+_leg_088() {
 
 # T-943: the contract UNDERNEATH that probe. The four states extract_verification_block must
 # keep distinct, asserted against the live function rather than through the gate's printed
@@ -1387,6 +1676,9 @@ else
   show_output "$TMP/leg-_t943-states.out" "_t943-heading-states.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t943-heading-states" _leg_088
+_leg_089() {
 
 # T-949: the GO-scope triage must stay complete as the audit's finding moves.
 #
@@ -1417,6 +1709,9 @@ else
   show_output "$TMP/leg-_t949.out" "_t949-triage-completeness.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t949-completeness-teeth" _leg_089
+_leg_090() {
 
 
 # T-301: card id == derived workflowMeta.id, across every served corpus.
@@ -1447,6 +1742,9 @@ else
   show_output "$TMP/leg-_t301.out" "_t301-id-stem-invariant.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t301-invariant-teeth" _leg_090
+_leg_091() {
 
 
 # T-952: the suite's own redness has to reach a reader, and the ratchet that reads it has
@@ -1467,6 +1765,9 @@ else
   show_output "$TMP/leg-_t952-rail.out" "_t952-audit-rail-teeth.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t952-ratchet-teeth" _leg_091
+_leg_092() {
 
 
 # T-955 (T-309 GO slice 1): the designer can now REACH the validator.
@@ -1488,6 +1789,9 @@ else
   show_output "$TMP/leg-_t955.out" "test_t955_validate_endpoint.py"
   fail=$((fail + 1))
 fi
+}
+leg core "test_t955_validate_endpoint" _leg_092
+_leg_093() {
 
 echo
 echo "== Findings reach the MAP, and the three states stay distinct (T-962, T-309 slice 3) =="
@@ -1515,6 +1819,9 @@ else
   show_output "$TMP/leg-_t962.out" "test_t962_findings_on_map.py"
   fail=$((fail + 1))
 fi
+}
+leg browser "test_t962_findings_on_map" _leg_093
+_leg_094() {
 
 echo
 echo "== /api/save carries the validator's verdict, advisorily (T-973) =="
@@ -1529,6 +1836,9 @@ else
   show_output "$TMP/leg-_t973.out" "test_t973_save_findings.py"
   fail=$((fail + 1))
 fi
+}
+leg core "test_t973_save_findings" _leg_094
+_leg_095() {
 
 echo
 echo "== The vendor authoring kit is complete, self-contained and immutable (T-974) =="
@@ -1542,6 +1852,9 @@ else
   show_output "$TMP/leg-_t974.out" "test_t974_authoring_kit.py"
   fail=$((fail + 1))
 fi
+}
+leg core "test_t974_authoring_kit" _leg_095
+_leg_096() {
 
 echo
 echo "== The review loop ships in the kit and calibrates (T-983, T-982 GO) =="
@@ -1554,6 +1867,9 @@ else
   show_output "$TMP/leg-_t983.out" "test_t983_review_loop_kit.py"
   fail=$((fail + 1))
 fi
+}
+leg core "test_t983_review_loop_kit" _leg_096
+_leg_097() {
 
 echo
 echo "== The learning ledger enforces its checkpoint: evidence + a calibrated cross-vendor panel (T-984, T-1006) =="
@@ -1567,6 +1883,9 @@ else
   show_output "$TMP/leg-_t984.out" "test_t984_learning_ledger.py"
   fail=$((fail + 1))
 fi
+}
+leg core "test_t984_learning_ledger" _leg_097
+_leg_098() {
 
 echo
 echo "== Lesson confirmation: evidence + calibrated cross-vendor quorum (T-1006) =="
@@ -1577,6 +1896,9 @@ else
   show_output "$TMP/leg-_t1006.out" "test_t1006_ledger_quorum.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "test_t1006_ledger_quorum" _leg_098
+_leg_099() {
 
 echo
 echo "== A link catch draws no dead-end of its own (T-1008, ledger L20) =="
@@ -1587,6 +1909,9 @@ else
   show_output "$TMP/leg-_t1008c.out" "test_t1008_catch_no_deadend.py"
   fail=$((fail + 1))
 fi
+}
+leg core "test_t1008_catch_no_deadend" _leg_099
+_leg_100() {
 
 echo
 echo "== A new kit ships only with a calibration of its own bytes (T-1008, ledger L16) =="
@@ -1597,6 +1922,9 @@ else
   show_output "$TMP/leg-_t1008g.out" "test_t1008_kit_calibration_gate.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "test_t1008_kit_calibration_gate" _leg_100
+_leg_101() {
 
 echo
 echo "== The designer can REACH the validator (T-961, T-309 slice 2) =="
@@ -1624,6 +1952,9 @@ else
   show_output "$TMP/leg-_t961.out" "test_t961_designer_validate_reach.py"
   fail=$((fail + 1))
 fi
+}
+leg browser "test_t961_designer_validate_reach" _leg_101
+_leg_102() {
 
 echo
 echo "== The boundary inventory's drift check still bites (T-958) =="
@@ -1646,6 +1977,9 @@ else
   show_output "$TMP/leg-_t958-boundary.out" "_t958-boundary-row-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t958-boundary-row-teeth" _leg_102
+_leg_103() {
 
 echo
 echo "== A card's purpose is readable AND safe (T-569) =="
@@ -1660,6 +1994,9 @@ else
   show_output "$TMP/leg-_t569-purpose.out" "_t569-card-purpose-markdown-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t569-card-purpose-markdown-teeth" _leg_103
+_leg_104() {
 
 echo
 echo "== Episodic memory is still readable, unattended (T-567, G-040) =="
@@ -1674,6 +2011,9 @@ else
   show_output "$TMP/leg-_t567-parse.out" "_t567-episodic-parse-check.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t567-episodic-parse-check" _leg_104
+_leg_105() {
 
 echo
 echo "== A card edit reaches the RUNNING dashboard, not just the loader (T-568) =="
@@ -1687,6 +2027,9 @@ else
   show_output "$TMP/leg-_t568-live.out" "_t568-live-card-visibility-probe.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t568-live-card-visibility-probe" _leg_105
+_leg_106() {
 
 echo
 echo "== An edited component card is visible to the page that shows it (T-568) =="
@@ -1703,6 +2046,9 @@ else
   show_output "$TMP/leg-_t568-fabric-cache.out" "_t568-fabric-card-cache-teeth.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t568-fabric-card-cache-teeth" _leg_106
+_leg_107() {
 
 echo
 echo "== A commit message cannot corrupt the episodic it is recorded in (T-567) =="
@@ -1718,6 +2064,9 @@ else
   show_output "$TMP/leg-_t567-episodic.out" "_t567-episodic-yaml-safety-teeth.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t567-episodic-yaml-safety-teeth" _leg_107
+_leg_108() {
 
 echo
 echo "== Workflow-id sanitizer and validator agree, at every site (T-562, T-501 D2) =="
@@ -1737,6 +2086,9 @@ else
   show_output "$TMP/leg-_t562-workflow-id-helpers.out" "_t562-workflow-id-helpers-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t562-workflow-id-helpers-cdp" _leg_108
+_leg_109() {
 
 # Mutation test for the probe above. Without it, "7/7 legs passed" is also what a probe
 # asserting nothing prints. Four mutants, each a fix someone would plausibly ship; the
@@ -1748,6 +2100,9 @@ else
   show_output "$TMP/leg-_t562-teeth.out" "_t562-workflow-id-helpers-teeth.sh"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t562-workflow-id-helpers-teeth" _leg_109
+_leg_110() {
 
 echo
 echo "== A document with no <aef:workflowMeta> imports with a valid, uncollapsed id (T-563) =="
@@ -1769,6 +2124,9 @@ else
   show_output "$TMP/leg-_t563-fallback-id.out" "_t563-fallback-id-derivation-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t563-fallback-id-derivation-cdp" _leg_110
+_leg_111() {
 
 echo
 echo "== Foreign nodes disclose rather than impersonate (T-355, T-337) =="
@@ -1797,6 +2155,9 @@ else
   show_output "$TMP/leg-_t355-foreign-tag-render-cdp.out" "_t355-foreign-tag-render-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t355-foreign-tag-render-cdp" _leg_111
+_leg_112() {
 
 echo
 echo "== Finished-and-invisible census still has a population (T-505) =="
@@ -1823,6 +2184,9 @@ else
   show_output "$TMP/leg-_t505-finished-invisible-census.out" "_t505-finished-invisible-census.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t505-finished-invisible-census" _leg_112
+_leg_113() {
 
 echo
 echo "== Runner-orphan guard (T-316) =="
@@ -1837,6 +2201,9 @@ else
   report FAIL "a collectable test file is not invoked by this runner, or the orphan guard's own negative controls broke (T-316)"
   fail=$((fail + 1))
 fi
+}
+leg core "test_t316_runner_orphans" _leg_113
+_leg_114() {
 
 echo
 echo "== Unwired-guard ratchet over tools/ (T-451 census, T-491 ratchet) =="
@@ -1863,6 +2230,9 @@ else
   show_output "$TMP/leg-_t451-unwired-guard-census.out" "_t451-unwired-guard-census.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t451-unwired-guard-census" _leg_114
+_leg_115() {
 
 echo
 echo "== G-015 verification-hygiene ratchet, now watched (T-508) =="
@@ -1885,6 +2255,9 @@ else
   show_output "$TMP/leg-verification-hygiene.out" "verification-hygiene.py"
   fail=$((fail + 1))
 fi
+}
+leg core "verification-hygiene" _leg_115
+_leg_116() {
 
 echo
 echo "== …and its teeth, also now watched (T-508) =="
@@ -1905,6 +2278,9 @@ else
   show_output "$TMP/leg-_t408-hygiene-teeth.out" "_t408-hygiene-teeth.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t408-hygiene-teeth" _leg_116
+_leg_117() {
 
 echo
 echo "== Instrument sweep: every runnable teeth script, every run (T-509) =="
@@ -1966,6 +2342,9 @@ else
   show_output "$TMP/leg-_t509-instrument-sweep.out" "_t509-instrument-sweep.sh"
   fail=$((fail + 1))
 fi
+}
+leg sweep "_t509-instrument-sweep" _leg_117
+_leg_118() {
 
 echo
 echo "== Census edge DEFINITION controls (T-495) =="
@@ -1990,6 +2369,9 @@ else
   show_output "$TMP/leg-_t495-prose-edge-probe.out" "_t495-prose-edge-probe.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t495-prose-edge-probe" _leg_118
+_leg_119() {
 
 echo
 echo "== Derived-root census controls (T-497) =="
@@ -2008,6 +2390,9 @@ else
   show_output "$TMP/leg-_t497-census-controls.out" "_t497-census-controls.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t497-census-controls" _leg_119
+_leg_120() {
 
 echo
 # Corpus geometry sweep (T-052): every authored map's nodes must sit inside their
@@ -2019,6 +2404,9 @@ else
   report FAIL "corpus geometry sweep — a non-legacy map straddles bands or the allowlist is stale"
   fail=$((fail + 1))
 fi
+}
+leg core "check-corpus-geometry" _leg_120
+_leg_121() {
 
 echo
 echo "== The geometry carrier has exactly one carrier (T-423) =="
@@ -2051,6 +2439,9 @@ else
   show_output "$TMP/leg-_t423-position-carrier-guard.out" "_t423-position-carrier-guard.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t423-position-carrier-guard" _leg_121
+_leg_122() {
 
 echo
 echo "== The two geometry carriers AGREE, not merely both exist (T-423) =="
@@ -2080,6 +2471,9 @@ else
   show_output "$TMP/leg-_t423-carrier-agreement.out" "_t423-carrier-agreement-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t423-carrier-agreement-cdp" _leg_122
+_leg_123() {
 
 echo
 echo "== Session control probes re-executed, not merely completed (T-819) =="
@@ -2132,6 +2526,9 @@ else
   report FAIL "session control probe(s) failed:$_t819_failed — each of these asserts that some OTHER guard still discriminates, so a failure here means a guard has gone inert or its subject moved. Run the named script directly; its output names the branch that disagreed."
   fail=$((fail + 1))
 fi
+}
+leg browser "_t819-session-controls" _leg_123
+_leg_124() {
 
 echo
 echo "== Direct-manipulation gestures (T-817: wiring F-08's inventory to close part of F-07) =="
@@ -2188,6 +2585,9 @@ for _probe in tools/_horizontal-spacing-verify-cdp.mjs \
     fail=$((fail + 1))
   fi
 done
+}
+leg browser "_t817-gestures" _leg_124
+_leg_125() {
 
 echo
 echo "== Those probes fail when their SUBJECT breaks and say so when their STIMULUS does (T-818) =="
@@ -2211,6 +2611,9 @@ else
   show_output "$TMP/leg-_t818-probe-controls.out" "_t818-probe-controls.sh"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t818-probe-controls" _leg_125
+_leg_126() {
 
 echo
 echo "== Correlations are derived, resolving, and ratifiable (T-830: H3 ruled D) =="
@@ -2239,6 +2642,9 @@ else
   show_output "$TMP/leg-_t830-correlation.out" "_t830-correlation-gate.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t830-correlation-gate" _leg_126
+_leg_127() {
 
 # And the gate's own teeth — 7 branches including the negative control that the handoff rule
 # must NOT fire when no handoff is open. A rule that cries wolf is one readers learn to skip,
@@ -2250,6 +2656,9 @@ else
   show_output "$TMP/leg-_t830-controls.out" "_t830-correlation-gate-controls.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t830-correlation-gate-controls" _leg_127
+_leg_128() {
 
 echo
 echo "== Failures leave evidence (T-821: F-05, the review's highest-leverage ADD) =="
@@ -2272,6 +2681,9 @@ else
   show_output "$TMP/leg-_t821-census.out" "_t821-swallowed-failure-census.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t821-swallowed-failure-census" _leg_128
+_leg_129() {
 
 # 2. THE SURFACE. Records, shows, survives a reload, and cannot throw — plus one end-to-end
 #    leg that breaks navigator.clipboard and presses the real Copy button, because testing
@@ -2284,6 +2696,9 @@ else
   show_output "$TMP/leg-_t821-surface.out" "_t821-fault-surface-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t821-fault-surface-cdp" _leg_129
+_leg_130() {
 
 # 3. THE CENSUS'S OWN TEETH. A census that only ever reports 0 on a passing tree would look
 #    like coverage and add none.
@@ -2294,6 +2709,9 @@ else
   show_output "$TMP/leg-_t821-census-controls.out" "_t821-census-controls.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t821-census-controls" _leg_130
+_leg_131() {
 
 echo
 echo "== A save that changes nothing produces no diff (T-423 idempotence) =="
@@ -2325,6 +2743,9 @@ else
   show_output "$TMP/leg-_t423-di-roundtrip.out" "_t423-di-roundtrip-idempotence-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t423-di-roundtrip-idempotence-cdp" _leg_131
+_leg_132() {
 
 echo
 echo "== Third-party documents still emit the bytes we recorded (T-358 / T-581) =="
@@ -2356,6 +2777,9 @@ else
   show_output "$TMP/leg-_t358-byteid.out" "_t358-byteid-thirdparty.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t358-byteid-thirdparty" _leg_132
+_leg_133() {
 
 echo
 echo "== 'I cannot tell whose server that is' is not reportable as healthy or down (T-499) =="
@@ -2382,6 +2806,9 @@ else
   show_output "$TMP/leg-_t499-ownership.out" "_t499-ownership-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t499-ownership-teeth" _leg_133
+_leg_134() {
 
 echo
 echo "== No tool is reachable only through a JavaScript comment (T-578) =="
@@ -2406,6 +2833,9 @@ else
   show_output "$TMP/leg-_t578-js-edge.out" "_t578-js-comment-edge-census.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t578-js-comment-edge-census" _leg_134
+_leg_135() {
 
 echo
 echo "== Worktree isolation is denied by every route it has (T-586) =="
@@ -2434,6 +2864,9 @@ else
   show_output "$TMP/leg-_t586-worktree.out" "_t586-worktree-denial-guard.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t586-worktree-denial-guard" _leg_135
+_leg_136() {
 
 # ── T-621: an Agent AC that names the operator as decider is a deadlock ──────────────
 #
@@ -2454,6 +2887,9 @@ else
   show_output "$TMP/leg-_t621-operator-ac.out" "_t621-operator-ac-classification-guard.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t621-operator-ac-classification-guard" _leg_136
+_leg_137() {
 
 echo
 echo "== No unchecked Human AC is invisible to the approvals queue (T-585) =="
@@ -2480,6 +2916,9 @@ else
   show_output "$TMP/leg-_t585-ac-visibility.out" "_t585-human-ac-visibility-census.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t585-human-ac-visibility-census" _leg_137
+_leg_138() {
 
 echo
 echo "== Every document lacking <aef:workflowMeta> gains one on export (T-565 / T-501 IW-0) =="
@@ -2503,6 +2942,9 @@ else
   show_output "$TMP/leg-_t565-wfmeta.out" "_t565-workflowmeta-emission-census.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t565-workflowmeta-emission-census" _leg_138
+_leg_139() {
 
 echo
 echo "== Export ADDS DI and changes nothing else (T-423 additive) =="
@@ -2541,6 +2983,9 @@ else
   show_output "$TMP/leg-_t423-additive.out" "_t423-additive-export-cdp.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t423-additive-export-cdp" _leg_139
+_leg_140() {
 
 echo
 echo "== exported BPMN validates against the OMG schema and carries complete DI (T-690, T-423) =="
@@ -2581,6 +3026,9 @@ else
   report FAIL "REFUSED — no exported maps to validate at \$T423_ADD_EXP, so nothing was checked against the schema (the additive-export leg above produces them; fix that leg first)"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t423-di-schema-validate" _leg_140
+_leg_141() {
 
 echo
 echo "== Unwired flow nodes survive a save round-trip (T-511, AEF rail 11833 Q2) =="
@@ -2604,6 +3052,9 @@ else
   show_output "$TMP/leg-_t511-unwired-node-roundtrip.out" "_t511-unwired-node-roundtrip.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t511-unwired-node-roundtrip" _leg_141
+_leg_142() {
 
 echo
 echo "== Identity survives a third-party import with no aef:uid (T-513, AEF rail 11882) =="
@@ -2625,6 +3076,9 @@ else
   show_output "$TMP/leg-_t513-thirdparty-identity-roundtrip.out" "_t513-thirdparty-identity-roundtrip.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t513-thirdparty-identity-roundtrip" _leg_142
+_leg_143() {
 
 echo
 echo "== Externally-assigned aef:uid is honoured — mapping standard §6.3 (T-515) =="
@@ -2647,6 +3101,9 @@ else
   show_output "$TMP/leg-_t515-external-uid-conformance.out" "_t515-external-uid-conformance.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t515-external-uid-conformance" _leg_143
+_leg_144() {
 
 echo
 echo "== Episodic decisions extractor: no phantoms, no truncation, no silent cap (T-516) =="
@@ -2665,6 +3122,9 @@ else
   show_output "$TMP/leg-_t516-episodic-decisions-teeth.out" "_t516-episodic-decisions-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t516-episodic-decisions-teeth" _leg_144
+_leg_145() {
 
 echo
 echo "== aef:uid collision behaviour is unchanged (T-518, _t515 gap 1, AEF rail 11891) =="
@@ -2688,6 +3148,9 @@ else
   show_output "$TMP/leg-_t518-uid-collision.out" "_t518-uid-collision.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t518-uid-collision" _leg_145
+_leg_146() {
 
 echo
 echo "== aef:uid values that are not XML-attribute-safe (T-520, _t515 gap 2) =="
@@ -2718,6 +3181,9 @@ else
   show_output "$TMP/leg-_t520-uid-xml-safety.out" "_t520-uid-xml-safety.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t520-uid-xml-safety" _leg_146
+_leg_147() {
 
 echo
 echo "== Vendored-framework divergence matches its declared manifest (T-517) =="
@@ -2743,6 +3209,9 @@ else
   show_output "$TMP/leg-_t517-vendor-divergence.out" "_t517-vendor-divergence.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t517-vendor-divergence" _leg_147
+_leg_148() {
 
 # T-1123: the vendored hand-off predicate (inception_handoff_blockers) asks our T-866 hypothesis gate on a
 # GO recommendation, so fw task review / Watchtower never offer a GO that fw inception decide refuses.
@@ -2755,6 +3224,9 @@ else
   show_output "$TMP/leg-_t1123.out" "_t1123-handoff-hypothesis.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t1123-handoff-hypothesis" _leg_148
+_leg_149() {
 
 if python3 "$ROOT/tools/_t517-vendor-divergence-teeth.py" > "$TMP/leg-_t517-vendor-divergence-teeth.out" 2>&1; then
   pass=$((pass + 1))
@@ -2763,6 +3235,9 @@ else
   show_output "$TMP/leg-_t517-vendor-divergence-teeth.out" "_t517-vendor-divergence-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t517-vendor-divergence-teeth" _leg_149
+_leg_150() {
 
 echo
 echo "== A node nested in a subProcess keeps its uid AND its parent (T-523) =="
@@ -2789,6 +3264,9 @@ else
   show_output "$TMP/leg-_t523-subprocess-nesting.out" "_t523-subprocess-nesting.mjs"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t523-subprocess-nesting" _leg_150
+_leg_151() {
 
 if timeout 600 python3 "$ROOT/tools/_t523-nesting-teeth.py" > "$TMP/leg-_t523-nesting-teeth.out" 2>&1; then
   pass=$((pass + 1))
@@ -2797,6 +3275,9 @@ else
   show_output "$TMP/leg-_t523-nesting-teeth.out" "_t523-nesting-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t523-nesting-teeth" _leg_151
+_leg_152() {
 
 echo
 echo "== A completed task still gets episodic memory, and a lost one is reported (T-522) =="
@@ -2823,6 +3304,9 @@ else
   show_output "$TMP/leg-_t522-episodic-reachability-teeth.out" "_t522-episodic-reachability-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t522-episodic-reachability-teeth" _leg_152
+_leg_153() {
 
 echo
 echo "== A malformed component card is DETECTED, not merely survived (T-524) =="
@@ -2850,6 +3334,9 @@ else
   show_output "$TMP/leg-_t524-fabric-validate-teeth.out" "_t524-fabric-validate-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t524-fabric-validate-teeth" _leg_153
+_leg_154() {
 
 echo
 echo "== The fabric coverage WARN can tell card LOSS from source growth (T-525) =="
@@ -2874,6 +3361,9 @@ else
   show_output "$TMP/leg-_t525-fabric-coverage-teeth.out" "_t525-fabric-coverage-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t525-fabric-coverage-teeth" _leg_154
+_leg_155() {
 
 echo
 echo "== Every leg still captures its own failure output (T-527) =="
@@ -2889,6 +3379,9 @@ else
   show_output "$TMP/leg-_t527-capture-invariant.out" "_t527-capture-invariant.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t527-capture-invariant" _leg_155
+_leg_156() {
 
 echo
 echo "== Hermeticity assertions are scoped to their subject, not the tree (T-532/T-533) =="
@@ -2905,6 +3398,9 @@ else
   show_output "$TMP/leg-_t532-hermeticity-scope-census.out" "_t532-hermeticity-scope-census.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t532-hermeticity-scope-census" _leg_156
+_leg_157() {
 
 echo
 echo "== The D2 review-queue line names only tasks meeting the bar it states (T-534) =="
@@ -2922,6 +3418,9 @@ else
   show_output "$TMP/leg-_t534-d2-queue-tier-teeth.out" "_t534-d2-queue-tier-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t534-d2-queue-tier-teeth" _leg_157
+_leg_158() {
 
 echo "== The trend detector aggregates an issue whose numbers move (T-535) =="
 # The counter keyed on the verbatim rendered check string, so a check embedding its own
@@ -2940,6 +3439,9 @@ else
   show_output "$TMP/leg-_t535-trend-key-teeth.out" "_t535-trend-key-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t535-trend-key-teeth" _leg_158
+_leg_159() {
 
 echo "== A task's location and its frontmatter status cannot silently disagree (T-536) =="
 # CTL-028 was never broken — it fired 263 times over 14 days and nobody saw one of them, because
@@ -2958,6 +3460,9 @@ else
   show_output "$TMP/leg-_t536-status-desync-teeth.out" "_t536-status-desync-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t536-status-desync-teeth" _leg_159
+_leg_160() {
 
 echo "== A control id names exactly one control (T-538) =="
 # T-538: a control id in audit.sh must map to exactly ONE control. Two do not — CTL-029 is
@@ -2980,6 +3485,9 @@ else
   show_output "$TMP/leg-_t538-control-id-collision.out" "_t538-control-id-collision.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t538-control-id-collision" _leg_160
+_leg_161() {
 
 echo "== Every watching gap's closure gauge returns a verdict the reader accepts (T-539) =="
 # A gap's closure_check_command is the mechanical half of its closure condition. audit.sh's
@@ -3002,6 +3510,9 @@ else
   show_output "$TMP/leg-_t539-gap-closure-gauge.out" "_t539-gap-closure-gauge-conformance.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t539-gap-closure-gauge-conformance" _leg_161
+_leg_162() {
 
 echo "== The three product BVP drivers discriminate rather than score zero (T-541) =="
 # T-540 measured that a BVP driver with no dedicated handler falls through to
@@ -3026,6 +3537,9 @@ else
   show_output "$TMP/leg-_t541-bvp-driver-handlers.out" "_t541-bvp-driver-handler-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t541-bvp-driver-handler-teeth" _leg_162
+_leg_163() {
 
 # ── T-931 / T-1009: `fw task delegate` makes ownership follow the open Human criteria ──
 # The fix (owner flips only when no Human criterion is open, not only when this run converted
@@ -3038,6 +3552,9 @@ else
   show_output "$TMP/leg-_t931-delegate-owner.out" "_t931-delegate-owner-follows-criteria.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t931-delegate-owner-follows-criteria" _leg_163
+_leg_164() {
 
 # ── T-1211: every CDP probe's readiness budget reads CDP_READY_MS (set above), so one value governs the whole run ──
 if bash "$ROOT/tools/_t1211-cdp-ready-budget-guard.sh" > "$TMP/leg-_t1211-ready-budget.out" 2>&1; then
@@ -3047,6 +3564,9 @@ else
   show_output "$TMP/leg-_t1211-ready-budget.out" "_t1211-cdp-ready-budget-guard.sh"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1211-cdp-ready-budget-guard" _leg_164
+_leg_165() {
 
 # ── T-390 / T-1205: capture verbs (fw context add-learning …) run with no active task, and the arm is load-bearing ──
 # Unwired until T-1205, so when upstream reshaped the arm its mutant stopped applying and nobody saw the teeth go inert.
@@ -3057,6 +3577,9 @@ else
   show_output "$TMP/leg-_t390-capture-verbs.out" "_t390-capture-verbs-nulltask.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t390-capture-verbs-nulltask" _leg_165
+_leg_166() {
 
 # ── T-640 / T-647 / T-1205: a fetch that writes a file is a write; every verdict the guard took away is priced ──
 # Unwired until T-1205, so upstream replacing 832's guard (T-3222) left its mutations inert unnoticed. rc 3 is
@@ -3068,6 +3591,9 @@ else
   show_output "$TMP/leg-_t640-fetchers.out" "_t640-fetchers-that-write-are-writes.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t640-fetchers-that-write-are-writes" _leg_166
+_leg_167() {
 
 # ── T-936 / T-1009: the bare-import gate refuses what its header promises, and nothing else ──
 # Its code had narrowed to line 1's first word while the header still promised && ; | newline.
@@ -3079,6 +3605,9 @@ else
   show_output "$TMP/leg-_t936-bare-import-gate.out" "_t936-bare-import-gate-teeth.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t936-bare-import-gate-teeth" _leg_167
+_leg_168() {
 
 # ── T-1005 / AEF T-3746: allowlisted "reads" that write are refused; quoted operators are not ──
 # 11 writes (incl. the echo > control) and 10 reads, composed exactly as check-active-task.sh
@@ -3091,6 +3620,9 @@ else
   show_output "$TMP/leg-_t3746-allowlisted-writes.out" "_t3746-allowlisted-writes-fixture.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t3746-allowlisted-writes-fixture" _leg_168
+_leg_169() {
 
 # ── T-1024 / T-939: this host's machine-id (secrets-store key material) is in no tracked file ──
 # The 1.7.740 re-vendor restored it silently in a vendored report; found by the T-1020 census.
@@ -3102,6 +3634,9 @@ else
   show_output "$TMP/leg-_t1024-machine-id.out" "_t1024-machine-id-not-tracked.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t1024-machine-id-not-tracked" _leg_169
+_leg_170() {
 
 # ── T-1025 / T-908: fw fabric impact survives plain-string depends_on entries and refuses loudly ──
 # A string entry anywhere in the corpus used to crash the traversal, and 2>/dev/null turned the
@@ -3113,6 +3648,9 @@ else
   show_output "$TMP/leg-_t1025-fabric-impact.out" "_t1025-fabric-impact-teeth.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t1025-fabric-impact-teeth" _leg_170
+_leg_171() {
 
 # ── T-1026 / T-866: an inception GO needs a hypothesis whose success someone could go and look at ──
 # Lost silently by the 1.7.740 re-vendor (lib/task-audit.sh never declared); TEETH BROKEN until
@@ -3124,6 +3662,9 @@ else
   show_output "$TMP/leg-_t866-hypothesis.out" "_t866-hypothesis-form-teeth.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t866-hypothesis-form-teeth" _leg_171
+_leg_172() {
 
 # ── T-1027 / T-912: fw note promote links observation <-> task, and survives a failed creation ──
 # 1.7.740 wrote the literal 'promoted_to: task', ignored create-task's exit code, and hard-coded
@@ -3135,6 +3676,9 @@ else
   show_output "$TMP/leg-_t1027-note-promote.out" "_t1027-note-promote-teeth.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t1027-note-promote-teeth" _leg_172
+_leg_173() {
 
 # ── T-1028 / T-914: fw note resolve — the inbox's largest class has an exit, with a validated carrier ──
 if bash "$ROOT/tools/_t1028-note-resolve-teeth.sh" > "$TMP/leg-_t1028-note-resolve.out" 2>&1; then
@@ -3144,6 +3688,9 @@ else
   show_output "$TMP/leg-_t1028-note-resolve.out" "_t1028-note-resolve-teeth.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t1028-note-resolve-teeth" _leg_173
+_leg_174() {
 
 # ── T-650 / T-1037: an alias is the command it aliases (fw git commit, fw fix-learned) ──
 if bash "$ROOT/tools/_t650-an-alias-is-the-command-it-aliases.sh" > "$TMP/leg-_t650-alias.out" 2>&1; then
@@ -3153,6 +3700,9 @@ else
   show_output "$TMP/leg-_t650-alias.out" "_t650-an-alias-is-the-command-it-aliases.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t650-an-alias-is-the-command-it-aliases" _leg_174
+_leg_175() {
 
 # ── T-662 / T-1038: a refused null-focus commit line says why, and how to get through ──
 if bash "$ROOT/tools/_t662-null-focus-commit-path-must-be-discoverable.sh" > "$TMP/leg-_t662-nullfocus.out" 2>&1; then
@@ -3162,6 +3712,9 @@ else
   show_output "$TMP/leg-_t662-nullfocus.out" "_t662-null-focus-commit-path-must-be-discoverable.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t662-null-focus-commit-path-must-be-discoverable" _leg_175
+_leg_176() {
 
 # ── T-688 / T-1034: upstream debt may not grow faster than it is delivered ──
 if python3 "$ROOT/tools/_t688-divergence-drain-ratchet.py" > "$TMP/leg-_t688-drain.out" 2>&1; then
@@ -3171,6 +3724,9 @@ else
   show_output "$TMP/leg-_t688-drain.out" "_t688-divergence-drain-ratchet.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t688-divergence-drain-ratchet" _leg_176
+_leg_177() {
 
 # ── T-1039: the 13 hook-fix teeth (T-628..T-662), repaired for 1.7.740 after the T-1035 census ──
 # _t650 and _t662 are wired above (T-1037/T-1038). Each tooth was re-anchored or updated, and its
@@ -3198,6 +3754,9 @@ for _entry in "${T1039_TEETH[@]}"; do
     fail=$((fail + 1))
   fi
 done
+}
+leg core "_t1039-hook-teeth" _leg_177
+_leg_178() {
 
 # ── T-1017: the round-trip leg counts DECLARED identities, not comment prose ──
 if python3 "$ROOT/tools/_t1017-uid-count-teeth.py" > "$TMP/leg-_t1017-uid-count.out" 2>&1; then
@@ -3207,6 +3766,9 @@ else
   show_output "$TMP/leg-_t1017-uid-count.out" "_t1017-uid-count-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1017-uid-count-teeth" _leg_178
+_leg_179() {
 
 # ── T-1048: every design on the gallery overview page has a preview tile ──
 if python3 "$ROOT/tools/_t1048-gallery-thumbs.py" > "$TMP/leg-_t1048-thumbs.out" 2>&1; then
@@ -3216,6 +3778,9 @@ else
   show_output "$TMP/leg-_t1048-thumbs.out" "_t1048-gallery-thumbs.py"
   fail=$((fail + 1))
 fi
+}
+leg browser "_t1048-gallery-thumbs" _leg_179
+_leg_180() {
 
 # ── T-1047: the no-task gate admits /resume's mail check, and only this project's copy of it ──
 if bash "$ROOT/tools/_t1047-session-start-alerts-gate.sh" > "$TMP/leg-_t1047-ssa-gate.out" 2>&1; then
@@ -3225,81 +3790,85 @@ else
   show_output "$TMP/leg-_t1047-ssa-gate.out" "_t1047-session-start-alerts-gate.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t1047-session-start-alerts-gate" _leg_180
 
 # ── T-1013: standing guards the unwired-guard census found with NO live caller ──
 # Each asserts a standing property of this repo and passed on 2026-10-04 when it was wired
 # (classification and per-tool reasons: docs/reports/T-1013-unwired-classification.md).
 # Listed literally so the census (tools/_t451-unwired-guard-census.py) sees each one as called.
 T1013_GUARDS=(
-  'tools/_gallery-claim-verify.py|stdlib regression test of gallery-serve /api/save claim path (temp repo, ephemeral port)'
-  'tools/_gallery-list-verify.py|regression test of /api/list (temp repo, real server)'
-  'tools/_gallery-registry-verify.py|regression test of the ghost registry twin'
-  'tools/_t1005-drift-target-clause-scoped.py|behavioural probe of the drift-gate target (T-639 re-applied, T-1023); named in the divergence register as the guard'
-  'tools/_t467-arc-tag-source-of-truth.py|teeth for fw arc tag (T-467/T-679); named in the divergence register as the guard'
-  'tools/_t573-emits-panel-shape-cdp.mjs|CDP regression: the Emits panel authors the ratified structured shape'
-  'tools/_t598-source-marker.py|static assertion: the source-end marker points forward (orient=auto)'
-  'tools/_t602-documentation-roundtrip.mjs|CDP regression: bpmn:documentation content survives open -> save'
-  'tools/_t603-multiprocess-import.mjs|CDP regression: multi-process documents keep content, loss is reported'
-  'tools/_t604-cdp-attach-race.mjs|scan: no CDP driver hand-rolls the page-target attach race'
-  'tools/_t611-review-card-steps.py|every unchecked [REVIEW] criterion renders its Steps block'
-  'tools/_t614-budget-threshold-drift.py|CLAUDE.mds budget ladder matches budget-gate.sh'
-  'tools/_t618-determinism-roundtrip-cdp.mjs|CDP regression: an authored determinism value survives a real save'
-  'tools/_t630-p011-stdin-swallow.sh|teeth: P-011 does not count commands it never ran'
-  'tools/_t644-ask-imports-survive-a-wrong-project-root.sh|teeth: lib/ask.py reaches its imports in a vendored install'
-  'tools/_t646-timeline-prose-is-escaped-before-it-is-trusted.sh|teeth (security): linkify_tasks escapes prose before Markup()'
-  'tools/_t649-completing-with-uncommitted-work-warns.sh|teeth: completing with uncommitted work warns'
-  'tools/_t651-stray-root-files-are-caught.sh|teeth: the audit catches zero-byte redirect debris at the root'
-  'tools/_t654-archiving-a-partial-complete-task-must-null-its-horizon.sh|teeth: an archived task does not keep horizon: now'
-  'tools/_t656-review-queue-splits-judgement-from-the-status-flip.sh|teeth: D2 splits judgement from the status flip'
-  'tools/_t658-p011-must-distinguish-killed-from-failed.sh|teeth: the P-011 runner distinguishes killed from failed'
-  'tools/_t659-retention-sweep-must-not-be-agent-staged.sh|teeth: retention-sweep deletions are not swept into agent commits'
-  'tools/_t661-mutation-count-is-a-floor.sh|teeth: the shared mutation-completeness assertion is a floor'
-  'tools/_t674-ctl012-comment-fence.py|fence: CTL-012 ignores ACs in HTML comments and still catches real ones'
-  'tools/_t675-budget-read-fence.py|fence: every arm of the budget safe-read'
-  'tools/_t683-save-containment-verify.py|security regression: /api/save write containment'
-  'tools/_t684-mutation-control.py|mutation control for the /api/save containment fence'
-  'tools/_t687-hook-function-check.py|function check for stdin-consuming PostToolUse hooks (writes .context/working/.t687-function-baseline.json)'
-  'tools/_t739-defer-is-not-a-decision.py|reproduces from the live tree that a DEFER keeps an inception on the decisions surface'
-  'tools/_t767-ownership-correspondence.sh|negative control + standing measurement: ownership follows a real Human AC'
-  'tools/_t806-corpus-sweep-guard-controls.py|regression: bake-clean-layout.py refuses unknown flags rather than rewriting the corpus'
-  'tools/_t808-version-parity.sh|standing property: APP_VERSION in src/ equals ./VERSION'
-  'tools/_t833-ctl029-partial-complete-controls.sh|controls: CTL-029 still catches what it should'
-  'tools/_t836-census-empty-split-controls.sh|controls: the carrier-shape split measures'
-  'tools/_t841-scoring-spec-controls.sh|controls: each T-841 verification leg can fail'
-  'tools/_t842-commit-exemption-spelling-regression.sh|regression pin: the commit exemptions spelling coverage'
-  'tools/_t843-absence-gate-integration.sh|integration: the absence close-gate fires and its named remedy clears it'
-  'tools/_t843-absence-gate-tests.sh|tests for the uncontrolled-absence close gate'
-  'tools/_t845-control-recogniser-tests.sh|tests for _t560s control recogniser'
-  'tools/_t848-realization-check-tests.sh|tests for the realization-ledger checker'
-  'tools/_t1149-triage-check.py|every observation the T-1149 triage answered stays answered, and every carrier it cites still resolves (OBS-425 class)'
-  'tools/_t849-budget-zero-token-tests.sh|teeth: the zero-token hole in checkpoint.shs budget reader'
-  'tools/_t886-writer-mutation.py|mutation teeth for the round-trip guard (suppresses each writer attribute, expects red)'
-  'tools/_t892-lane-default-cdp.mjs|CDP regression: the lane Authoring default never re-stamps nodes'
-  'tools/_t911-kind-badge-verify-cdp.mjs|CDP regression: workflowMeta/@kind settable and visible (writes .playwright-mcp/t911-panel-kind-select.png)'
-  'tools/_t1161-install-hook.sh --check|the pre-commit hook still carries 832s boundary-inventory gate line (a framework hook reinstall erases it) (T-1161)'
-  'tools/_t1000-install-hook.sh --check|the pre-commit hook still carries 832s re-vendor gate line (a framework hook reinstall erases it) (T-1000, checked since T-1161)'
-  'tools/_t1183-tmp-containment.sh|the suite and the instrument sweep run every test with TMPDIR in a private run dir they remove, so nothing they run leaves folders in the shared /tmp (T-1183, P-015)'
-  'tests/test_t1159_yaml_element_authority.py|the YAML IW-9 check lets a node own aef.authority win over its lane, as the XML form does; both forms agree on 6 cases (T-1159)'
-  'tools/_t1178-inception-template.sh|the inception template carries the hypothesis section and score fields, the schema hook and GO gate accept it, and an upgrade keeps it (T-1178)'
-  'tools/_t1177-panels-cdp.mjs|CDP regression: side panels fold to a notch and back, resize by drag with clamping, double-click reset, persist over reload (T-1177)'
-  'tools/_t1176-toolbar-reach-cdp.mjs|CDP regression: every header control visible and clickable at 1024/1200/1280/1440/1920, panels and the XML panel below the header (T-1176)'
-  'tools/_t1171-landing-flyout-test.py|the /designer cards'"'"' thumbnail fly-out: one per thumbnail card, Open through the card link, still one ?load link per card (T-1171)'
-  'tools/_t1172-designer-open-test.py|opening a map from /designer keeps Watchtower around it: inline page, frame with the same load value, fullscreen toggle, cards point at it (T-1172)'
-  'tools/_t1168-node-id-map.mjs --check|the committed corpus carries exactly the node ids the designer exports (T-1168 migration stays in step)'
-  'tools/_t1193-slug-readonly-cdp.mjs|the Slug field is read-only and follows the name; an exported map reloads with identical ids (T-1193)'
-  'tools/_t1164-lane-findings-cdp.mjs|CDP regression: lane-anchored validator findings mark the lane header (severity + pill), anchor their dock row and select the lane; marks follow the latest check; a node dragged out does not stretch the drawn pool (T-1164)'
-  'tools/_t1194-slug-task-id-cdp.mjs|deriveSlug skips a leading task id (T-001: Orientation -> orientation); other names keep their slug (T-1194)'
-  'tools/_t1154-pool-label-fit-cdp.mjs|CDP regression: the drawn pool encloses every rendered label and id badge on the right (24 maps + long-label fixture); the BPMN export stays box-based and pad-free (T-1154)'
-  'tools/_t1091-sticky-lanes-cdp.mjs|CDP regression: zoomed and scrolled right, lane names stay pinned at the left edge, aligned and on top; nothing pinned unscrolled; option persists; export and thumbnails unaffected (T-1091)'
-  'tools/_t1152-stale-review-doc-teeth.py|the stale-[REVIEW]-document detector fires when task content outgrows the document, and stays silent for frontmatter sweeps, ticks, bookkeeping sections, corpus sweeps, checked/non-REVIEW/commented criteria, untracked and non-docs paths (T-1152, OBS-291)'
-  'tools/_t1158-witness-per-verdict-teeth.sh|the round-trip guard'"'"'s node and workflowMeta self-tests name a BLIND only where it happened (blind_in + value_before/after), LIVE fixtures apart (also_live_in); proven by one-fixture mutants that the old pooled list misnamed (T-1158, OBS-418)'
-  'tools/_t1160-closed-record-teeth.sh|a record in completed/ moves only onto an end event (REFUSED-CLOSED, audited), the framework close and partial-complete still walk, successors is read-only; mutation run included (T-1160, OBS-437)'
-  'tools/_t1192-teeth.sh|after an upgrade, templates identical to the vendored copy are committed, .upstream files ours contains are removed, the rest named (T-1192)'
-  'tools/_t1189-id-map-dir.sh|the id-map tool run on another directory (--dir, --designer 0.20.0) reproduces the T-1168 table and migration byte for byte (T-1189, for AEF T-4224)'
-  'tools/_t1168-step-numbers-verify-cdp.mjs|CDP regression: node ids number ACTIVITIES only, events/gateways carry a type word, ids unique and round-trip (T-1168)'
-  'tools/_t1155-doc-title-verify-cdp.mjs|CDP regression: tab title and XML heading name the open map, across load, switch and rename (T-1155)'
+  'core|tools/_gallery-claim-verify.py|stdlib regression test of gallery-serve /api/save claim path (temp repo, ephemeral port)'
+  'core|tools/_gallery-list-verify.py|regression test of /api/list (temp repo, real server)'
+  'core|tools/_gallery-registry-verify.py|regression test of the ghost registry twin'
+  'core|tools/_t1005-drift-target-clause-scoped.py|behavioural probe of the drift-gate target (T-639 re-applied, T-1023); named in the divergence register as the guard'
+  'core|tools/_t467-arc-tag-source-of-truth.py|teeth for fw arc tag (T-467/T-679); named in the divergence register as the guard'
+  'browser|tools/_t573-emits-panel-shape-cdp.mjs|CDP regression: the Emits panel authors the ratified structured shape'
+  'core|tools/_t598-source-marker.py|static assertion: the source-end marker points forward (orient=auto)'
+  'browser|tools/_t602-documentation-roundtrip.mjs|CDP regression: bpmn:documentation content survives open -> save'
+  'browser|tools/_t603-multiprocess-import.mjs|CDP regression: multi-process documents keep content, loss is reported'
+  'browser|tools/_t604-cdp-attach-race.mjs|scan: no CDP driver hand-rolls the page-target attach race'
+  'core|tools/_t611-review-card-steps.py|every unchecked [REVIEW] criterion renders its Steps block'
+  'core|tools/_t614-budget-threshold-drift.py|CLAUDE.mds budget ladder matches budget-gate.sh'
+  'browser|tools/_t618-determinism-roundtrip-cdp.mjs|CDP regression: an authored determinism value survives a real save'
+  'core|tools/_t630-p011-stdin-swallow.sh|teeth: P-011 does not count commands it never ran'
+  'core|tools/_t644-ask-imports-survive-a-wrong-project-root.sh|teeth: lib/ask.py reaches its imports in a vendored install'
+  'core|tools/_t646-timeline-prose-is-escaped-before-it-is-trusted.sh|teeth (security): linkify_tasks escapes prose before Markup()'
+  'core|tools/_t649-completing-with-uncommitted-work-warns.sh|teeth: completing with uncommitted work warns'
+  'core|tools/_t651-stray-root-files-are-caught.sh|teeth: the audit catches zero-byte redirect debris at the root'
+  'core|tools/_t654-archiving-a-partial-complete-task-must-null-its-horizon.sh|teeth: an archived task does not keep horizon: now'
+  'core|tools/_t656-review-queue-splits-judgement-from-the-status-flip.sh|teeth: D2 splits judgement from the status flip'
+  'core|tools/_t658-p011-must-distinguish-killed-from-failed.sh|teeth: the P-011 runner distinguishes killed from failed'
+  'core|tools/_t659-retention-sweep-must-not-be-agent-staged.sh|teeth: retention-sweep deletions are not swept into agent commits'
+  'core|tools/_t661-mutation-count-is-a-floor.sh|teeth: the shared mutation-completeness assertion is a floor'
+  'core|tools/_t674-ctl012-comment-fence.py|fence: CTL-012 ignores ACs in HTML comments and still catches real ones'
+  'core|tools/_t675-budget-read-fence.py|fence: every arm of the budget safe-read'
+  'core|tools/_t683-save-containment-verify.py|security regression: /api/save write containment'
+  'core|tools/_t684-mutation-control.py|mutation control for the /api/save containment fence'
+  'core|tools/_t687-hook-function-check.py|function check for stdin-consuming PostToolUse hooks (writes .context/working/.t687-function-baseline.json)'
+  'core|tools/_t739-defer-is-not-a-decision.py|reproduces from the live tree that a DEFER keeps an inception on the decisions surface'
+  'core|tools/_t767-ownership-correspondence.sh|negative control + standing measurement: ownership follows a real Human AC'
+  'core|tools/_t806-corpus-sweep-guard-controls.py|regression: bake-clean-layout.py refuses unknown flags rather than rewriting the corpus'
+  'core|tools/_t808-version-parity.sh|standing property: APP_VERSION in src/ equals ./VERSION'
+  'core|tools/_t833-ctl029-partial-complete-controls.sh|controls: CTL-029 still catches what it should'
+  'core|tools/_t836-census-empty-split-controls.sh|controls: the carrier-shape split measures'
+  'core|tools/_t841-scoring-spec-controls.sh|controls: each T-841 verification leg can fail'
+  'core|tools/_t842-commit-exemption-spelling-regression.sh|regression pin: the commit exemptions spelling coverage'
+  'core|tools/_t843-absence-gate-integration.sh|integration: the absence close-gate fires and its named remedy clears it'
+  'core|tools/_t843-absence-gate-tests.sh|tests for the uncontrolled-absence close gate'
+  'core|tools/_t845-control-recogniser-tests.sh|tests for _t560s control recogniser'
+  'core|tools/_t848-realization-check-tests.sh|tests for the realization-ledger checker'
+  'core|tools/_t1149-triage-check.py|every observation the T-1149 triage answered stays answered, and every carrier it cites still resolves (OBS-425 class)'
+  'core|tools/_t849-budget-zero-token-tests.sh|teeth: the zero-token hole in checkpoint.shs budget reader'
+  'browser|tools/_t886-writer-mutation.py|mutation teeth for the round-trip guard (suppresses each writer attribute, expects red)'
+  'browser|tools/_t892-lane-default-cdp.mjs|CDP regression: the lane Authoring default never re-stamps nodes'
+  'browser|tools/_t911-kind-badge-verify-cdp.mjs|CDP regression: workflowMeta/@kind settable and visible (writes .playwright-mcp/t911-panel-kind-select.png)'
+  'core|tools/_t1161-install-hook.sh --check|the pre-commit hook still carries 832s boundary-inventory gate line (a framework hook reinstall erases it) (T-1161)'
+  'core|tools/_t1000-install-hook.sh --check|the pre-commit hook still carries 832s re-vendor gate line (a framework hook reinstall erases it) (T-1000, checked since T-1161)'
+  'core|tools/_t1183-tmp-containment.sh|the suite and the instrument sweep run every test with TMPDIR in a private run dir they remove, so nothing they run leaves folders in the shared /tmp (T-1183, P-015)'
+  'core|tests/test_t1159_yaml_element_authority.py|the YAML IW-9 check lets a node own aef.authority win over its lane, as the XML form does; both forms agree on 6 cases (T-1159)'
+  'core|tools/_t1178-inception-template.sh|the inception template carries the hypothesis section and score fields, the schema hook and GO gate accept it, and an upgrade keeps it (T-1178)'
+  'browser|tools/_t1177-panels-cdp.mjs|CDP regression: side panels fold to a notch and back, resize by drag with clamping, double-click reset, persist over reload (T-1177)'
+  'browser|tools/_t1176-toolbar-reach-cdp.mjs|CDP regression: every header control visible and clickable at 1024/1200/1280/1440/1920, panels and the XML panel below the header (T-1176)'
+  'core|tools/_t1171-landing-flyout-test.py|the /designer cards'"'"' thumbnail fly-out: one per thumbnail card, Open through the card link, still one ?load link per card (T-1171)'
+  'core|tools/_t1172-designer-open-test.py|opening a map from /designer keeps Watchtower around it: inline page, frame with the same load value, fullscreen toggle, cards point at it (T-1172)'
+  'browser|tools/_t1168-node-id-map.mjs --check|the committed corpus carries exactly the node ids the designer exports (T-1168 migration stays in step)'
+  'browser|tools/_t1193-slug-readonly-cdp.mjs|the Slug field is read-only and follows the name; an exported map reloads with identical ids (T-1193)'
+  'browser|tools/_t1164-lane-findings-cdp.mjs|CDP regression: lane-anchored validator findings mark the lane header (severity + pill), anchor their dock row and select the lane; marks follow the latest check; a node dragged out does not stretch the drawn pool (T-1164)'
+  'browser|tools/_t1194-slug-task-id-cdp.mjs|deriveSlug skips a leading task id (T-001: Orientation -> orientation); other names keep their slug (T-1194)'
+  'browser|tools/_t1154-pool-label-fit-cdp.mjs|CDP regression: the drawn pool encloses every rendered label and id badge on the right (24 maps + long-label fixture); the BPMN export stays box-based and pad-free (T-1154)'
+  'browser|tools/_t1091-sticky-lanes-cdp.mjs|CDP regression: zoomed and scrolled right, lane names stay pinned at the left edge, aligned and on top; nothing pinned unscrolled; option persists; export and thumbnails unaffected (T-1091)'
+  'core|tools/_t1152-stale-review-doc-teeth.py|the stale-[REVIEW]-document detector fires when task content outgrows the document, and stays silent for frontmatter sweeps, ticks, bookkeeping sections, corpus sweeps, checked/non-REVIEW/commented criteria, untracked and non-docs paths (T-1152, OBS-291)'
+  'browser|tools/_t1158-witness-per-verdict-teeth.sh|the round-trip guard'"'"'s node and workflowMeta self-tests name a BLIND only where it happened (blind_in + value_before/after), LIVE fixtures apart (also_live_in); proven by one-fixture mutants that the old pooled list misnamed (T-1158, OBS-418)'
+  'core|tools/_t1160-closed-record-teeth.sh|a record in completed/ moves only onto an end event (REFUSED-CLOSED, audited), the framework close and partial-complete still walk, successors is read-only; mutation run included (T-1160, OBS-437)'
+  'core|tools/_t1192-teeth.sh|after an upgrade, templates identical to the vendored copy are committed, .upstream files ours contains are removed, the rest named (T-1192)'
+  'browser|tools/_t1189-id-map-dir.sh|the id-map tool run on another directory (--dir, --designer 0.20.0) reproduces the T-1168 table and migration byte for byte (T-1189, for AEF T-4224)'
+  'browser|tools/_t1168-step-numbers-verify-cdp.mjs|CDP regression: node ids number ACTIVITIES only, events/gateways carry a type word, ids unique and round-trip (T-1168)'
+  'browser|tools/_t1155-doc-title-verify-cdp.mjs|CDP regression: tab title and XML heading name the open map, across load, switch and rename (T-1155)'
 )
-for _entry in "${T1013_GUARDS[@]}"; do
+# T-1288: each entry is its own leg, its tier the entry's first field ('core|tools/x.py|why').
+_t1013_guard() {
+  local _entry="$1"
   _tool="${_entry%%|*}"; _tool="${_tool#tools/}"; _why="${_entry#*|}"
   # T-1168: an entry may carry arguments after the tool name ('tools/x.mjs --check|why').
   _args=(); case "$_tool" in *" "*) read -r _tool _rest <<< "$_tool"; read -r -a _args <<< "$_rest" ;; esac
@@ -3326,7 +3895,12 @@ for _entry in "${T1013_GUARDS[@]}"; do
     show_output "$_out" "$_tool"
     fail=$((fail + 1))
   fi
+}
+for _g in "${T1013_GUARDS[@]}"; do
+  _g_tier="${_g%%|*}"; _g="${_g#*|}"; _g_tool="${_g%%|*}"; _g_tool="${_g_tool%% *}"
+  leg "$_g_tier" "t1013:${_g_tool##*/}" _t1013_guard "$_g"
 done
+_leg_181() {
 
 echo "== The BVP cost axis measures surface rather than defaulting to cheapest (T-542) =="
 # blast_radius carries weight 0.6 in F8 — the dominant term — and was derived from
@@ -3349,6 +3923,9 @@ else
   show_output "$TMP/leg-_t542-cost-blast-radius.out" "_t542-cost-blast-radius-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t542-cost-blast-radius-teeth" _leg_181
+_leg_182() {
 
 echo "== The session cookie is named for the port actually bound (T-544) =="
 # web/app.py scopes SESSION_COOKIE_NAME by port on purpose — RFC 6265 does not scope
@@ -3372,6 +3949,9 @@ else
   show_output "$TMP/leg-_t544-session-cookie-port.out" "_t544-session-cookie-port-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t544-session-cookie-port-teeth" _leg_182
+_leg_183() {
 
 echo
 echo "== A 403 is written for the client that asked for it (T-545) =="
@@ -3398,6 +3978,9 @@ else
   show_output "$TMP/leg-_t545-error-shape.out" "_t545-error-shape-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t545-error-shape-teeth" _leg_183
+_leg_184() {
 
 echo
 echo "== An operator's rationale is stored as the operator wrote it (T-547) =="
@@ -3431,6 +4014,9 @@ else
   show_output "$TMP/leg-_t547-hx-prompt-decode.out" "_t547-hx-prompt-decode-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t547-hx-prompt-decode-teeth" _leg_184
+_leg_185() {
 
 echo
 echo "== The sweep tells 'it broke' apart from 'I never found out' (T-548) =="
@@ -3458,6 +4044,9 @@ else
   show_output "$TMP/leg-_t548-sweep-classification.out" "_t548-sweep-classification-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t548-sweep-classification-teeth" _leg_185
+_leg_186() {
 
 echo
 echo "== A stale anchor rebinds onto the archive of its own past (T-550) =="
@@ -3477,6 +4066,9 @@ else
   show_output "$TMP/leg-_t550-audit-parse-anchor.out" "_t550-audit-parse-anchor-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t550-audit-parse-anchor-teeth" _leg_186
+_leg_187() {
 
 # ── T-1216: a mutant run whose control leg is red is a broken measurement, not an over-killing mutant ──
 # A stand-in probe passes on the real source and reddens every leg (reproduce-drop included) on any mutant; the
@@ -3489,6 +4081,9 @@ else
   show_output "$TMP/leg-_t1216.out" "_t570-meta-carriage-teeth.py (stand-in)"
   fail=$((fail + 1))
 fi
+}
+leg core "_t1216-broken-measurement" _leg_187
+_leg_188() {
 
 # ── T-1221: guards whose only caller was an active task's Verification, wired before those tasks close ──
 # _t723 stated the review-queue residue (signed-off tasks left unflipped; >30d rows each carrying a reason) only
@@ -3511,6 +4106,9 @@ for _entry in "${T1221_GUARDS[@]}"; do
     fail=$((fail + 1))
   fi
 done
+}
+leg core "_t1221-guards" _leg_188
+_leg_189() {
 
 echo
 echo "== A cheaper stimulus is not a deleted test (T-549) =="
@@ -3529,6 +4127,9 @@ else
   show_output "$TMP/leg-_t549-coverage-mutation.out" "_t549-fabric-coverage-mutation-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t549-fabric-coverage-mutation-teeth" _leg_189
+_leg_190() {
 
 echo
 echo "== An exit code is not an account of what happened (T-551) =="
@@ -3551,6 +4152,9 @@ else
   show_output "$TMP/leg-_t551-sweep-capture.out" "_t551-sweep-capture-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t551-sweep-capture-teeth" _leg_190
+_leg_191() {
 
 echo
 echo "== The gate named the wrong subsystem for two maps (T-448) =="
@@ -3572,6 +4176,9 @@ else
   show_output "$TMP/leg-_t448-drift-classification.out" "_t448-drift-classification-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t448-drift-classification-teeth" _leg_191
+_leg_192() {
 
 echo
 echo "== A hermeticity check that cannot pass on Mondays (T-552) =="
@@ -3596,6 +4203,9 @@ else
   show_output "$TMP/leg-_t552-writeset-hermeticity.out" "_t552-writeset-hermeticity-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t552-writeset-hermeticity-teeth" _leg_192
+_leg_193() {
 
 echo
 echo "== The hermeticity census still sees a real one after it stopped seeing prose (T-558) =="
@@ -3618,6 +4228,9 @@ else
   show_output "$TMP/leg-_t558-hermeticity-census.out" "_t558-hermeticity-census-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t558-hermeticity-census-teeth" _leg_193
+_leg_194() {
 
 echo
 echo "== A Verification leg that asserts ABSENCE is satisfied by silence (T-560) =="
@@ -3641,6 +4254,9 @@ else
   show_output "$TMP/leg-_t560-absence-census.out" "_t560-absence-census-teeth.py"
   fail=$((fail + 1))
 fi
+}
+leg core "_t560-absence-census-teeth" _leg_194
+_leg_195() {
 
 # ── T-1247: every CDP harness makes its Chrome profile dir with the shared helper (removed on signals, swept after SIGKILL) ──
 # A load run left 548 /tmp/nodecuts-chrome-* dirs (1.9 GB): `finally` never runs on a signal. Red when a harness
@@ -3654,7 +4270,24 @@ else
   show_output "$TMP/leg-_t1247-test.out" "test_t1247_cdp_profile.sh"
   fail=$((fail + 1))
 fi
+}
+leg core "_t1247-profile-census" _leg_195
 
+# ── T-1288: the tier engine itself — tier selection, the no-tier guard, quarantine, retry-once, history rows, core's
+# private TMPDIR and namespace, the pre-push installer and gate — on fixture runners, plus the full tier guard here ──
+_leg_t1288() {
+if python3 "$ROOT/tests/test_t1288_tiers.py" > "$TMP/leg-_t1288.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the suite's tier engine broke: a tier runs the wrong legs, a leg with no tier passes, a quarantined or past-fix_by leg is scored wrongly, a browser timeout is not retried once (or a core one is), or the pre-push gate/installer misbehaves (run 'python3 tests/test_t1288_tiers.py'; T-1288)"
+  show_output "$TMP/leg-_t1288.out" "test_t1288_tiers.py"
+  fail=$((fail + 1))
+fi
+}
+leg core "test_t1288_tiers" _leg_t1288
+
+[ "$T1288_LIST" = 1 ] && { [ -z "${_T1288_NOTIER:-}" ]; exit; }
+t1288_finish
 echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

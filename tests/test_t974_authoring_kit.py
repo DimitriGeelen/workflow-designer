@@ -106,7 +106,8 @@ def main():
                         'REVIEW.md', 'RUBRIC.md', 'SHA256SUMS',
                         'calibration/SOURCE.md', 'calibration/clean.bpmn',
                         'calibration/expected.json', 'calibration/planted.bpmn',
-                        'exemplar.bpmn', 'loop.sh', 'validate-workflow.py'], str(names))
+                        'exemplar.bpmn', 'loop.sh', 'validate-workflow.py',
+                        'verify-findings.py'], str(names))   # T-1290: map-evidence checker ships in the kit
         sums = dict(reversed(l.split('  ', 1)) for l in
                     open(os.path.join(k1, 'SHA256SUMS')).read().split('\n') if l)
         ok = sums and all(hashlib.sha256(open(os.path.join(k1, n), 'rb').read()).hexdigest() == h

@@ -214,10 +214,13 @@ rehearse_run() {  # rehearse_run <clone> <job.sh in it> <command> <output file>:
     local inner='cd "$C" && exec setsid env -u PROJECT_ROOT -u CONTEXT_DIR -u TASKS_DIR "$BASH" --norc --noprofile -c \
         '"'"'check() { :; }; step() { :; }; step_outward() { :; }; source "$1" || exit 97; eval "$2"'"'"' _ "$J" "$X"'
     if [ "$REHEARSE_GUARDED" = 1 ]; then
+        # T-1288: a TMPDIR inside the project (the core suite tier's short .context/st) is scratch, not the project:
+        # it stays writable like the clone, or every step that makes a temp file there fails under the guard.
         inner='for r in "$P" "$R"; do mount --bind "$r" "$r" && mount -o remount,bind,ro "$r" || exit 98; done
         mount --bind "$C" "$C" && mount -o remount,bind,rw "$C" || exit 98
+        case "$T" in "$P"/?*) [ -d "$T" ] && { mount --bind "$T" "$T" && mount -o remount,bind,rw "$T" || exit 98; } ;; esac
         '"$inner"
-        ( cd "$1" && C=$1 J=$2 X=$3 P=$PROJ R=$REPO exec unshare --mount --propagation private "$BASH" --norc --noprofile -c "$inner" ) \
+        ( cd "$1" && C=$1 J=$2 X=$3 P=$PROJ R=$REPO T=$(realpath -m "${TMPDIR:-/tmp}") exec unshare --mount --propagation private "$BASH" --norc --noprofile -c "$inner" ) \
             </dev/null >"$4" 2>&1 3<&- &
     else
         ( C=$1 J=$2 X=$3 exec "$BASH" --norc --noprofile -c "$inner" ) </dev/null >"$4" 2>&1 3<&- &

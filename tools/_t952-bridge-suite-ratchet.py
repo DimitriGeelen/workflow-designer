@@ -89,6 +89,10 @@ def read_history():
         except ValueError:
             discarded.append((n, line[:60], "unparseable"))
             continue
+        # T-1288: a 7th column names the tier. Only an `all` row (or a pre-T-1288 row, which has none) is a
+        # whole sweep; a core/browser/sweep row counts a subset and must not read as the suite's failure count.
+        if len(parts) >= 7 and parts[6] != "all":
+            continue
         if row["rc"] in COMPLETED_RCS:
             completed.append(row)
         else:
