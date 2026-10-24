@@ -2,12 +2,15 @@
 id: T-1292
 name: "test_t974 kit file list lacks verify-findings.py (T-1290 added it to the kit)"
 description: >
-  Core tier red since b667bb66: tests/test_t974_authoring_kit.py check 1a expects the kit files without verify-findings.py, which T-1290 added to the kit. Update the expected list (or the kit). Quarantined in tests/quarantine.yaml by T-1288.
+  Core tier red since b667bb66: tests/test_t974_authoring_kit.py check 1a expects
+  the kit files without verify-findings.py, which T-1290 added to the kit. Update
+  the expected list (or the kit). Quarantined in tests/quarantine.yaml by T-1288.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: next
+horizon: null
 tags: [quality-engine, quarantine, T-1288]
 components: []
 related_tasks: []
@@ -38,8 +41,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-23T23:26:07Z
-last_update: 2026-10-23T23:26:07Z
-date_finished: null
+last_update: 2026-10-24T02:02:23Z
+date_finished: 2026-10-24T02:02:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +53,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-24T02:02:06Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1292: test_t974 kit file list lacks verify-findings.py (T-1290 added it to the kit)
@@ -62,8 +85,9 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `tests/test_t974_authoring_kit.py`'s expected kit file list includes T-1290's `verify-findings.py`, and the test
+      passes.
+  **2026-10-24, met** (f36411e0): 16/16; the quarantine entry was removed in the same commit.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -113,6 +137,7 @@ date_finished: null
 
 ## Verification
 
+python3 tests/test_t974_authoring_kit.py
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -345,3 +370,24 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1292-testt974-kit-file-list-lacks-verify-find.md
 - **Context:** Initial task creation
+
+### 2026-10-24T02:02:04Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-47cbf531
+- **Timestamp:** 2026-10-24T02:02:28Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-24T02:02:23Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
