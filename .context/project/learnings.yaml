@@ -2947,3 +2947,9 @@ learnings:
   task: T-1279
   date: 2026-10-23
   context: Added via context agent
+- id: PL-427
+  learning: "Never fingerprint by timestamp in a check: three times on 2026-10-23/24 a guard was flaky for one reason — _t568 (tmpfs: create+delete inside one mtime tick), _t1288's retry stamp (find -newer on a coarse tick), test_t1286_rehearsal (ls -la shows minute mtimes incl. '..' = .git, so crossing a minute 'changed' an unchanged fixture). Compare names and contents (sha256 of sorted files), or date a stamp clearly in the past; and make a failing leg print WHAT differed."
+  source: unknown
+  task: T-1296
+  date: 2026-10-24
+  context: Added via context agent

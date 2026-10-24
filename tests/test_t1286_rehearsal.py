@@ -81,15 +81,29 @@ class Fixture:
         return r.returncode, r.stdout + r.stderr
 
     def state(self):  # the fixture repo as the assertion sees it
+        # T-1296: the hooks are compared by NAME and CONTENT. `ls -la .git/hooks` was hashed here before: it prints
+        # mtimes to the minute, including the `..` line (.git itself, touched by any git command), so a leg that
+        # crossed a minute boundary under load "changed" the fixture with nothing changed.
         return sh("git rev-parse HEAD; git for-each-ref; git ls-files --stage; git status --porcelain; "
-                  "ls -la .git/hooks | sha256sum", self.repo)
+                  "(cd .git/hooks && find . -type f | sort | xargs -r sha256sum) | sha256sum", self.repo)
 
     def made(self, marker):
         return os.path.exists(os.path.join(self.out, marker))
 
     def clones_left(self):
+        # T-1296: only clones of THIS fixture's own jobs. .context/rehearse/ is shared: another process's rehearsal (a
+        # launcher test's dry-run, another session) may sit there briefly and is none of this test's business.
         rh = os.path.join(ROOT, ".context", "rehearse")
-        return [d for d in os.listdir(rh) if not d.startswith("test-")] if os.path.isdir(rh) else []
+        mine = set(os.listdir(self.jobs)) if os.path.isdir(self.jobs) else set()
+        return [d for d in os.listdir(rh) if d in mine] if os.path.isdir(rh) else []
+
+    def state_diff(self, before):
+        # T-1296: on a failing cleanup leg, say WHAT differs (and which clones were left), not just that it failed.
+        import difflib
+        now = self.state()
+        d = [l for l in difflib.unified_diff(before.splitlines(), now.splitlines(), "before", "after", lineterm="", n=0)
+             if l[:1] in "+-" and not l.startswith(("+++", "---"))]
+        return "state diff: %s | clones left: %s" % ("; ".join(d[:6]) or "none", self.clones_left() or "none")
 
 
 def tail(out, n=4):
@@ -132,7 +146,7 @@ steps() {
             and os.path.exists(os.path.join(d, "dryrun.ok")) and "ok    real repo unchanged" in out,
             "2a a good job passes old and new; steps ran in the clone with PROJECT_ROOT/CONTEXT_DIR/TASKS_DIR unset", tail(out))
         leg(f.state() == before and not os.path.exists(os.path.join(f.repo, "allowed.txt")) and not f.clones_left(),
-            "2b the commit stayed in the clone: fixture HEAD, refs, index, tree and hooks unchanged; clone removed")
+            "2b the commit stayed in the clone: fixture HEAD, refs, index, tree and hooks unchanged; clone removed", f.state_diff(before))
 
         # 3 step_outward: in the plan as (outward), never run by the rehearsal; a real run runs it like any step
         d = f.job("003-outward", '''JOB_TITLE="One outward step"
@@ -175,7 +189,7 @@ steps() { step "write outside the clone" 'touch @REPO@/stray'; }
         guarded = "the real repo is read-only to them" in out
         leg(guarded and rc != 0 and "FAIL  step 1/1: write outside the clone" in out and "Read-only file system" in out
             and not os.path.exists(os.path.join(f.repo, "stray")) and f.state() == before,
-            "5 guarded: a step writing into the real repo fails (read-only) and nothing lands", tail(out))
+            "5 guarded: a step writing into the real repo fails (read-only) and nothing lands", tail(out) + " | " + f.state_diff(before))
 
         # 6 without the guard the before/after assertion catches the same reach: working tree and hooks named
         f.job("006-reach", '''JOB_TITLE="Reach into the real repo, unguarded"
@@ -189,7 +203,7 @@ steps() { step "write outside the clone" 'touch @REPO@/stray && echo "#x" > @REP
         for p in (os.path.join(f.repo, "stray"), os.path.join(f.repo, ".git", "hooks", "post-stray")):
             if os.path.exists(p):
                 os.remove(p)
-        leg(f.state() == before, "6b (fixture restored for the legs after)")
+        leg(f.state() == before, "6b (fixture restored for the legs after)", f.state_diff(before))
 
         # 7 an interrupt mid-step: the launcher EXITS (does not resume), stops the step's whole process group, removes
         #   the clone. T-1273: a handler that returned would carry on to the next step.
