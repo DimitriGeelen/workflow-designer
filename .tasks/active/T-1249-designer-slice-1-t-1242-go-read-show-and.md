@@ -16,7 +16,7 @@ workflow_type: build
 current_node: frw_1_start
 owner: agent
 horizon: now
-tags: []
+tags: [arc:structured-io]
 components: []
 related_tasks: [T-1242]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
@@ -35,6 +35,7 @@ related_tasks: [T-1242]
 #                                 # An EMPTY list is a real declaration ("writes nothing"),
 #                                 # which is not the same as omitting the field. Omitted
 #                                 # means unknown, and unknown must never score as cheap.
+arc_id: structured-io
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
@@ -46,7 +47,7 @@ related_tasks: [T-1242]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T17:12:23Z
-last_update: 2026-10-21T18:37:37Z
+last_update: 2026-10-24T22:20:27Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -451,3 +452,6 @@ field and the type select at `string`; the step-level `aef:meta sourceSystem` al
 
 ### 2026-10-21T18:17:45Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-10-24T22:20:27Z — status-update [task-update-agent]
+- **Change:** tags: +arc:structured-io

@@ -11,11 +11,12 @@ workflow_type: inception
 current_node: frw_3_run
 owner: human
 horizon: now
-tags: []
+tags: [arc:structured-io]
 components: []
 related_tasks: []
+arc_id: structured-io
 created: 2026-10-19T16:56:20Z
-last_update: 2026-10-20T13:48:32Z
+last_update: 2026-10-24T22:20:24Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -246,3 +247,6 @@ AEF's operator rules on T-4415; that build task is filed when the ruling exists.
 ### 2026-10-20T11:44:10Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Reason:** Inception decision in progress
+
+### 2026-10-24T22:20:24Z — status-update [task-update-agent]
+- **Change:** tags: +arc:structured-io

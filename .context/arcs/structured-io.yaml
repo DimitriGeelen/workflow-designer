@@ -1,0 +1,35 @@
+id: arc-006
+slug: structured-io
+name: "Structured io: from shown to editable, confirmed by the producer"
+description: "Operator 2026-10-20 (T-1242): inputs and outputs carry the shape of their data (attributes,\
+  \ nesting, allowed values) and the source and target systems; external advice (Codex,\
+  \ GLM-5.3), AEF and greenfield; the standard is AEF's mapping v1.1 (AEF T-4415,\
+  \ GO 2026-10-21); 832 GO 2026-10-21, four slices, read-only first. Arc rule (operator\
+  \ 2026-10-24, after slice 1 was claimed done and greenfield's own check found ref\
+  \ and dataType hidden): no slice counts as done until the producer has confirmed\
+  \ it on its own map, in the designer version it runs. Constituents: T-1219, T-1229,\
+  \ T-1242, T-1249 (slice 1, show), T-1304 (show ref/dataType), T-1301 (slice 2, edit\
+  \ attributes), T-1302 (slice 3, edit fields/expectations), T-1303 (slice 4, lint),\
+  \ T-1305 (io name box). Basis: docs/reports/T-1242-structured-io-attributes.md,\
+  \ .agentic-framework/docs/reports/T-4415-structured-io-attributes.md; 832 contract\
+  \ for AEF data APIs T-1300."
+status: in-progress
+anchor_task: T-1242
+# close_task: T-XXX  # T-3843: the arc's close-out task. Its ## Recommendation (CLOSE|KEEP-OPEN,
+#                    # Rationale, Evidence) is the close recommendation on /arcs/<slug>/close and
+#                    # gates fw arc review; anchor_task is the fallback when unset.
+headline_mechanic: "A producer (aef-greenfield-test) opens its own map, e.g. VZN-T1, in the designer\
+  \ it runs, in 832 and in AEF's /designer, sees every input/output attribute it wrote\
+  \ (ref, role, dataType, fieldRef/typeRef, systems, fields, expectations), edits\
+  \ them there (pick a ref from its ontology attributes, set role, operation and systems,\
+  \ add a field to an io), saves, and its own check script confirms the change landed\
+  \ and nothing else moved"
+demo_evidence: null
+created: 2026-10-24T22:19:51Z
+closed_at: null
+decision: null
+# T-1918 (arc-006, value-prioritisation): BVP scoring fields. Semantics in
+# docs/reports/T-1915-bvp-inception.md §4 (D7-reframe) and §7 (M2).
+bvp_scores: {}
+scoped_drivers: []           # max 3, weight ≤6 each (M2). Approved by fw arc approve-driver (T-1926).
+proposed_scoped_drivers: []  # uncapped persistence (D7-reframe). Estimator may write here freely.
