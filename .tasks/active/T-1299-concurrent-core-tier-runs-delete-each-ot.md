@@ -56,14 +56,22 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+T-1295's gate run 2 (tree 6bfdf180, HEAD 1fd49026) went RED 83/124 in 223 s with 395 "No such file or directory". It was not
+/tmp. Every missing path is under `.context/st/tmp.ZtEAAjcLXc/`, the run's own TMPDIR. `tests/.run-history.tsv` has three core
+rows on 1fd49026, ending 09:39:28, 09:40:32 and 09:40:37 after 163/223/231 s: all three started within 4 s of 09:36:45Z.
+`t1288_private_tmpdir` points every core run at the one `.context/st`; `t1288_cleanup` removes the whole dir in the run that
+created it. The first run to end deleted the other two runs' TMPDIRs. The same overlap caused T-1298.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Each core run gets its own TMPDIR under `.context/st/` and removes only that one (the shared parent goes only when empty).
+- [x] A leg in `tests/test_t1288_tiers.py` runs two core fixture runs at once, the shorter ending first: the longer one's TMPDIR
+  survives. It fails on the old `_t1288-tiers.sh`.
+- [x] The pre-push gate runs one core tier at a time: a second gate waits for the first (then reads its cache), never runs
+  beside it. Covered in `tests/test_t1288_tiers.py`.
+- [ ] A full gate run (`bash tools/_t1288-prepush-gate.sh`) is GREEN on the tree with T-1298 and T-1299, and the cache is
+  written for it.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -112,6 +120,9 @@ date_finished: null
 -->
 
 ## Verification
+
+python3 tests/test_t1288_tiers.py > .context/working/t1299-v.out 2>&1 && grep -q ' 0 failed' .context/working/t1299-v.out
+bash tools/_t1288-prepush-gate.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.

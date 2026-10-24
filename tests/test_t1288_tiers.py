@@ -298,6 +298,31 @@ def test_core_tmpdir():
         f.close()
 
 
+def test_core_tmpdir_concurrent():
+    # T-1299: three core runs at once shared .context/st, and the first to end removed it whole; the others lost their temp
+    # dirs mid-run (124 reds). Here a short run ends while a long one is still working in the same st.
+    f = Fixture('_hold() { echo "RAN $1"; sleep "${HOLD:-0}"; if [ -d "$TMP" ] && : > "$TMP/still"; then pass=$((pass + 1)); '
+                'else echo "TMP GONE"; fail=$((fail + 1)); fi; }\nleg core "hold" _hold hold')
+    try:
+        e = dict(os.environ, FIX_STATE=f.state, FIX_HISTORY=f.history, T1288_QUARANTINE=f.qf, T1288_TODAY="2026-10-24",
+                 T1288_ST=f.st, T1288_NO_HERMETIC="1")
+        e.pop("_T1288_IN_NS", None)
+        # the first to start (it makes st) ends first, as on 2026-10-24
+        short = subprocess.Popen(["bash", f.path, "--tier", "core"], env=dict(e, HOLD="2"), stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT, text=True, stdin=subprocess.DEVNULL)
+        import time
+        time.sleep(1)
+        long_ = subprocess.Popen(["bash", f.path, "--tier", "core"], env=dict(e, HOLD="4"), stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT, text=True, stdin=subprocess.DEVNULL)
+        short.communicate(timeout=60)
+        out = long_.communicate(timeout=60)[0]
+        check("29b two core runs at once: the one that ends first leaves the other's TMPDIR alone; st goes when both are done",
+              short.returncode == 0 and long_.returncode == 0 and "TMP GONE" not in out and not os.path.exists(f.st),
+              f"short={short.returncode} long={long_.returncode} st_left={os.path.exists(f.st)} | {out}")
+    finally:
+        f.close()
+
+
 def test_core_namespace():
     probe = subprocess.run(["unshare", "--mount", "--net", "--propagation", "private", "true"], capture_output=True)
     if probe.returncode != 0:
@@ -368,13 +393,34 @@ def test_installer_and_gate():
         log = os.path.join(d, "tests", ".prepush-bypass.tsv")
         check("39 a bypass with a reason passes and is logged to tests/.prepush-bypass.tsv",
               rc == 0 and os.path.exists(log) and "fixture reason" in open(log).read(), out)
+        # T-1299: two gates at once run ONE core tier: the second waits for the lock, then finds the first's green key
+        runs = os.path.join(d, "runs")
+        open(suite, "w").write('echo run >> "%s"; sleep 3; '
+                               'echo "tier core    GREEN: 2 passed, 0 failed, 0 flaky, 0 quarantined, 3 s"\n' % runs)
+        green = os.path.join(d, ".context", "working", "prepush-core.green")
+        if os.path.exists(green):
+            os.remove(green)
+        e = dict(os.environ)
+        e.pop("T1288_PREPUSH_BYPASS", None)
+        a = subprocess.Popen(["bash", "tools/_t1288-prepush-gate.sh"], cwd=d, env=e, stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT, text=True, stdin=subprocess.DEVNULL)
+        import time
+        time.sleep(1)
+        b = subprocess.Popen(["bash", "tools/_t1288-prepush-gate.sh"], cwd=d, env=e, stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT, text=True, stdin=subprocess.DEVNULL)
+        a.communicate(timeout=60)
+        ob = b.communicate(timeout=60)[0]
+        n = len(open(runs).read().split()) if os.path.exists(runs) else 0
+        check("40 two gates at once: the second waits for the first, then passes on its green key — ONE core run",
+              a.returncode == 0 and b.returncode == 0 and n == 1 and "waiting for it" in ob and "already GREEN" in ob,
+              f"runs={n} a={a.returncode} b={b.returncode} | {ob}")
     finally:
         shutil.rmtree(d, ignore_errors=True)
 
 
 if __name__ == "__main__":
     for t in (test_selection, test_no_tier_runtime, test_static_guard, test_quarantine, test_retry, test_history,
-              test_core_tmpdir, test_core_namespace, test_installer_and_gate):
+              test_core_tmpdir, test_core_tmpdir_concurrent, test_core_namespace, test_installer_and_gate):
         t()
     print(f"T-1288 tiers: {sum(checks)} passed, {len(checks) - sum(checks)} failed")
     sys.exit(0 if all(checks) else 1)

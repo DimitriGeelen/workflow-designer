@@ -81,17 +81,19 @@ exec bash "$0" "$@"'
     echo "      the ones declared core, and TMPDIR is still private"
 }
 
-# t1288_private_tmpdir — for --tier core, point TMPDIR at .context/st/ (created here, removed by t1288_cleanup) so
-# the run's own mktemp -d lands inside the project, never in the shared /tmp.
-_T1288_MADE_ST=0
+# t1288_private_tmpdir — for --tier core, point TMPDIR at a directory of this run's own under .context/st/ (removed by
+# t1288_cleanup) so the run's own mktemp -d lands inside the project, never in the shared /tmp.
+# T-1299: of its OWN. .context/st itself was the TMPDIR before, removed whole by the run that had created it: with three
+# core runs at once, the first to end deleted the other two runs' temp dirs (124 reds, 395 "No such file or directory").
+_T1288_RUN_ST=""
 t1288_private_tmpdir() {
     [ "$T1288_TIER" = core ] && [ "$T1288_LIST" = 0 ] || return 0
     T1288_ST="${T1288_ST:-$ROOT/.context/st}"
-    [ -d "$T1288_ST" ] || { mkdir -p "$T1288_ST" && _T1288_MADE_ST=1; }
-    export TMPDIR="$T1288_ST"
+    mkdir -p "$T1288_ST" && _T1288_RUN_ST=$(mktemp -d "$T1288_ST/r.XXXXXX") || { echo "core: cannot make a TMPDIR under $T1288_ST" >&2; exit 2; }
+    export TMPDIR="$_T1288_RUN_ST"
 }
 t1288_cleanup() {
-    [ "$_T1288_MADE_ST" = 1 ] && rm -rf "$T1288_ST"
+    [ -n "$_T1288_RUN_ST" ] && rm -rf "$_T1288_RUN_ST" && rmdir "$T1288_ST" 2>/dev/null
     return 0
 }
 

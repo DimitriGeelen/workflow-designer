@@ -27,6 +27,16 @@ fi
 # own, which those variables would silently redirect to this one.
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES
 
+# T-1299: one core run at a time. Three gates once ran side by side (a handover's push and two by hand), tripling the load,
+# and their overlap removed each other's temp dirs and rehearsal clones (T-1298). A second gate waits for the first, then
+# finds the first one's green key below and needs no run of its own. The suite gets the lock's fd closed (8<&-).
+mkdir -p "$ROOT/.context/working"
+exec 8>"$ROOT/.context/working/prepush-core.lock"
+if ! flock -n 8; then
+    echo "T-1288 pre-push: another core-tier run holds the lock — waiting for it (up to 60 min) ..." >&2
+    flock -w "${T1299_LOCK_WAIT:-3600}" 8 || { echo "T-1288 pre-push: the other core run still holds the lock — push refused" >&2; exit 1; }
+fi
+
 # A green core run is remembered by the tree of what it tests: src, tools, tests, the authoring kit and the vendored
 # framework at HEAD. A push whose HEAD has the same key (a handover, a task-file commit) needs no new run; any change
 # to those trees runs the core tier again. Only a GREEN run records a key. Remove the file to force a run.
@@ -43,7 +53,7 @@ fi
 echo "T-1288 pre-push: running the core tier (tests/run-bridge-tests.sh --tier core) ..." >&2
 out="$ROOT/.context/working/prepush-core.log"
 mkdir -p "$(dirname "$out")"
-( cd "$ROOT" && bash tests/run-bridge-tests.sh --tier core ) </dev/null > "$out" 2>&1
+( cd "$ROOT" && bash tests/run-bridge-tests.sh --tier core ) </dev/null > "$out" 2>&1 8<&-
 rc=$?
 grep -E '^tier core ' "$out" >&2
 if [ "$rc" -ne 0 ]; then
