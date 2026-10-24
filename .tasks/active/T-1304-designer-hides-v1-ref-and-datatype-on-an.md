@@ -105,7 +105,7 @@ is informational only, preserved verbatim. Display: `src/aef-workflow-designer.h
   dataType are shown (their words recorded here).
 
 ### Human
-- [ ] [REVIEW] A producer's style-A io shows ref, role and dataType legibly, tied to its row, read-only, at every width
+- [x] [REVIEW] A producer's style-A io shows ref, role and dataType legibly, tied to its row, read-only, at every width
   **Steps:**
   1. Open `docs/reports/T-1304-evidence/stylea-step-1024-panel.png`, `-1440-panel.png`, `-1920-panel.png` and the three
      full-window `stylea-step-{1024,1440,1920}.png`.
@@ -162,6 +162,7 @@ is informational only, preserved verbatim. Display: `src/aef-workflow-designer.h
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261024-4bd97453 — reviewer-judge-t-1304-r3-3cd350ce5208:reviewer (rung rung-3-termlink-single-reviewer), digest be6aa6cd4122; dispatch judge-t-1304-r3-3cd350ce5208; evidence: .context/reviews/evidence/T-1304/AC1-judge-t-1304-r3-3cd350ce5208.md, .context/reviews/evidence/T-1304/stylea-step-1024-panel-judge-t-1304-r3-3cd350ce5208.png, .context/reviews/evidence/T-1304/stylea-step-1440-panel-judge-t-1304-r3-3cd350ce5208.png, .context/reviews/evidence/T-1304/stylea-step-1920-panel-judge-t-1304-r3-3cd350ce5208.png, .context/reviews/evidence/T-1304/compare-v11-step-1920-panel-judge-t-1304-r3-3cd350ce5208.png, .context/reviews/evidence/T-1304/compare-v1-step-1440-panel-judge-t-1304-r3-3cd350ce5208.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
