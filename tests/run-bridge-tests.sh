@@ -3808,7 +3808,7 @@ T1013_GUARDS=(
   'browser|tools/_t602-documentation-roundtrip.mjs|CDP regression: bpmn:documentation content survives open -> save'
   'browser|tools/_t603-multiprocess-import.mjs|CDP regression: multi-process documents keep content, loss is reported'
   'browser|tools/_t604-cdp-attach-race.mjs|scan: no CDP driver hand-rolls the page-target attach race'
-  'core|tools/_t611-review-card-steps.py|every unchecked [REVIEW] criterion renders its Steps block'
+  'browser|tools/_t611-review-card-steps.py|every unchecked [REVIEW] criterion renders its Steps block'   # T-1288: reads the LIVE Watchtower over the network, so not hermetic
   'core|tools/_t614-budget-threshold-drift.py|CLAUDE.mds budget ladder matches budget-gate.sh'
   'browser|tools/_t618-determinism-roundtrip-cdp.mjs|CDP regression: an authored determinism value survives a real save'
   'core|tools/_t630-p011-stdin-swallow.sh|teeth: P-011 does not count commands it never ran'

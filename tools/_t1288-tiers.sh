@@ -178,7 +178,10 @@ _t1288_run() {
     local tier="$1" name="$2" attempt="$3" fn="$4"; shift 4
     local p0=$pass f0=$fail t0=$SECONDS out="$TMP/.t1288-leg.out" stamp="$TMP/.t1288-stamp"
     _T1288_TO_MARK="$TMP/.t1288-timeout"
-    rm -f "$_T1288_TO_MARK"; : > "$stamp"
+    # The stamp is dated one second back: `find -newer` is strict, and on a filesystem with coarse timestamps a leg-*.out
+    # written in the same tick as a fresh stamp is not "newer", so a no-DevTools-port failure was missed (core run,
+    # 2026-10-24, TMP on disk; the same class as T-1280's _t568 tmpfs tick).
+    rm -f "$_T1288_TO_MARK"; : > "$stamp"; touch -d "@$(( $(date +%s) - 1 ))" "$stamp"
     if [ "$tier" = browser ]; then
         # captured so a DevTools-port failure can be recognised, then shown as it would have been
         "$fn" "$@" > "$out" 2>&1
