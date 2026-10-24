@@ -77,16 +77,24 @@ ${task('Task_v1', 'Assign owner', 't1249_v1', `        <aef:io>
 ${io(['<aef:input name="owner" type="string" required="true"/>', '<aef:input name="team" type="list"/>', '<aef:output name="assignment" type="ref"/>'])}
         </aef:io>
 `)}
+${task('Task_stylea', 'Configure quote', 't1249_stylea', `        <aef:io>
+${io(['<aef:input name="sfdc:Opportunity.Id" type="object" ref="nid:attr-opportunity-id" role="read" dataType="id"/>',
+  '<aef:input name="sfdc:Opportunity.OwnerId" type="object" ref="nid:attr-opportunity-owner" role="read" dataType="reference"/>',
+  '<aef:output name="tacton:Account.companyName" type="object" ref="nid:attr-account-company" role="write" dataType="string"/>'])}
+        </aef:io>
+`)}
 ${task('Task_empty', 'Notify', 't1249_empty', '')}
     <bpmn:endEvent id="End_1" name="End"/>
     <bpmn:sequenceFlow id="f1" sourceRef="Start_1" targetRef="Task_v11"/>
     <bpmn:sequenceFlow id="f2" sourceRef="Task_v11" targetRef="Task_v1"/>
-    <bpmn:sequenceFlow id="f3" sourceRef="Task_v1" targetRef="Task_empty"/>
+    <bpmn:sequenceFlow id="f3" sourceRef="Task_v1" targetRef="Task_stylea"/>
+    <bpmn:sequenceFlow id="f3b" sourceRef="Task_stylea" targetRef="Task_empty"/>
     <bpmn:sequenceFlow id="f4" sourceRef="Task_empty" targetRef="End_1"/>
   </bpmn:process>
 </bpmn:definitions>
 `;
-const STATES = [['v11-step', 't1249_v11', 'I/O contract'], ['v1-step', 't1249_v1', 'I/O contract'], ['empty-step', 't1249_empty', 'I/O contract'], ['workflow', null, 'Mapping']];
+// T-1304: stylea-step, greenfield's style A (v1 ref, role, dataType; synthetic values, nid: prefix undeclared)
+const STATES = [['v11-step', 't1249_v11', 'I/O contract'], ['v1-step', 't1249_v1', 'I/O contract'], ['stylea-step', 't1249_stylea', 'I/O contract'], ['empty-step', 't1249_empty', 'I/O contract'], ['workflow', null, 'Mapping']];
 const WIDTHS = [[1024, 768], [1440, 900], [1920, 1080]];
 
 async function main() {

@@ -92,20 +92,32 @@ is informational only, preserved verbatim. Display: `src/aef-workflow-designer.h
 ## Acceptance Criteria
 
 ### Agent
-- [ ] An io carrying `ref` shows it read-only in the io panel (`ref <value>`), marked as v1. Where the read rule makes it a
+- [x] An io carrying `ref` shows it read-only in the io panel (`ref <value>`), marked as v1. Where the read rule makes it a
   fieldRef, the existing derived `fieldRef … derived · from ref` line shows instead, so the value is never shown twice.
-- [ ] An io carrying `dataType` shows it read-only (`dataType <value>`), marked informational.
-- [ ] A v1 io with neither attribute (and no v1.1 construct) renders exactly as before: no block.
-- [ ] Bytes unchanged: open + save of a style-A io is byte-exact (the _t1249 round trip legs still pass).
-- [ ] The harness checks what is SHOWN for greenfield's real form, not only bytes: a committed style-A fixture (VZN-T1's io
+- [x] An io carrying `dataType` shows it read-only (`dataType <value>`), marked informational.
+- [x] A v1 io with neither attribute (and no v1.1 construct) renders exactly as before: no block.
+- [x] Bytes unchanged: open + save of a style-A io is byte-exact (the _t1249 round trip legs still pass).
+- [x] The harness checks what is SHOWN for greenfield's real form, not only bytes: a committed style-A fixture (VZN-T1's io
   shape, synthetic values) whose panel text must contain ref, dataType and role. Red on the old source, green on the new.
-- [ ] `bash tools/person-sees-gate.sh` exits 0; the advisory sweep has run; screenshots of a style-A step at 1024/1440/1920
+- [x] `bash tools/person-sees-gate.sh` exits 0; the advisory sweep has run; screenshots of a style-A step at 1024/1440/1920
   are read control by control in `## Visual Verification`.
-- [ ] [REVIEW] An independent reviewer judges the screenshots (`fw reviewer judge T-1304 --criterion N`).
 - [ ] greenfield reruns its `scripts/designer-io-panel-check.mjs` on the release that carries this and confirms ref and
   dataType are shown (their words recorded here).
 
 ### Human
+- [ ] [REVIEW] A producer's style-A io shows ref, role and dataType legibly, tied to its row, read-only, at every width
+  **Steps:**
+  1. Open `docs/reports/T-1304-evidence/stylea-step-1024-panel.png`, `-1440-panel.png`, `-1920-panel.png` and the three
+     full-window `stylea-step-{1024,1440,1920}.png`.
+  2. For each io row (two inputs, one output), read the line under it: `ref <nid:…> v1 attribute`, `role read|write`,
+     `dataType <id|reference|string> informational`.
+  3. Compare `v11-step-*`, `v1-step-*`, `empty-step-*`, `workflow-*` with `docs/reports/T-1249-evidence/` (same names): they
+     must look as before.
+  **Expected:** every value is readable and unclipped, clearly belongs to its own io row, contains no editable control, and
+  the hints read as hints (not values, not a version). The neighbouring states are unchanged. The cut io NAME boxes are a
+  known, separate item (T-1305) and not part of this judgement.
+  **If not:** name the file, the row and what is wrong.
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -152,6 +164,9 @@ is informational only, preserved verbatim. Display: `src/aef-workflow-designer.h
 -->
 
 ## Verification
+
+node tools/_t1249-v11-io-cdp.mjs > .context/working/t1304-v.out 2>&1 && head -2 .context/working/t1304-v.out | grep -q '"ok": true'
+grep -q '"derived": true' .context/working/t1304-v.out && grep -q '"dataType": true' .context/working/t1304-v.out
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -289,6 +304,26 @@ is informational only, preserved verbatim. Display: `src/aef-workflow-designer.h
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 
+## Visual Verification
+
+Screenshots: `docs/reports/T-1304-evidence/` (`node tools/_t1249-v11-io-shots.mjs docs/reports/T-1304-evidence`), after the
+sweep's hint fix. Person-sees gate: exit 0, 6/6, 344 s.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| stylea-step | io row: name box | clipped | clipped | clipped | long field paths cut at every width (1920 fits the shortest); pre-existing, T-1305 |
+| stylea-step | io row: type select, req, × | ok | ok | ok | |
+| stylea-step | ref + "v1 attribute" | ok | ok | ok | was "v1" before the sweep (read as a version) |
+| stylea-step | role | ok | ok | ok | |
+| stylea-step | dataType + "informational" | ok | ok | ok | |
+| stylea-step | + add input / + add output | ok | ok | ok | |
+| stylea-step | toolbar (Check, Versions, Save to project, Save) | ok | ok | ok | full-window shots |
+| v1-step / empty-step / workflow | panel | ok | ok | ok | no new block; as T-1249 |
+
+Advisory sweep (codex, `.context/working/t1304-sweep.out`): values readable, rows clear; "v1" ambiguous (fixed); name
+truncation (T-1305); `type object` beside `dataType` may confuse (greenfield's forced placeholder, slice 2); v1.1 density at
+1024 and the canvas in a fitted overview shot are pre-existing, outside this change.
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -304,6 +339,20 @@ is informational only, preserved verbatim. Display: `src/aef-workflow-designer.h
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** on greenfield's VZN-T1 (designer 0.25.0) the io panel showed name, type, required and `role`, but not
+`ref="nid:attr-…"` nor `dataType`, the producer's whole link to its ontology. Found by greenfield's own check, after the
+operator doubted our claim that slice 1 showed the io.
+**Root cause:** the display listed only the v1.1 attribute names (`IO_V11_ATTRS`); `ref` was used only to derive a fieldRef
+(which needs a declared `kind="field"` prefix greenfield's maps do not have) and `dataType` was never read. Both are v1
+attributes the v1.1 standard keeps (AEF T-4415 2.3).
+**Why structurally allowed:** slice 1 was verified against the standard's clean v1.1 examples, while the one real producer
+map (VZN-T1) was measured by bytes only, never by what is shown. Leg d's own fixture carried `ref` and `dataType` and the
+expected-text list never named them; leg e's v1 fixture asserted that an io with `ref` shows nothing, so the test pinned the
+defect. "Shows every construct" was claimed from the list of constructs, not from the producer's real map.
+**Prevention:** legs f/g assert the shown text for the producer's real form (style A, with and without a field prefix); leg d
+now names every attribute its fixture carries. Learning: verify a display against the real consumer's data, by what is SHOWN;
+a byte round trip proves keeping, never showing.
 
 ## Evolution
 

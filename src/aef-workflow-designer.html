@@ -8731,9 +8731,12 @@ function ioV11Block(item, isInput, node) {
     const kv = document.createElement('div');
     kv.className = 'io-v11-kv';
     if (refAsField) v11Span(kv, 'fieldRef', refAsField, 'derived · from ref');
-    if (v1Ref !== null) v11Span(kv, 'ref', v1Ref, 'v1');
+    // the hints say what the attribute IS, not a version: a bare "v1" read as the version of the referenced item (T-1304 sweep)
+    if (v1Ref !== null) v11Span(kv, 'ref', v1Ref, 'v1 attribute').title =
+      'ref (v1 attribute): what this input/output refers to, e.g. an ontology IRI. Kept as written.';
     for (const k of shown) v11Span(kv, k, attrs.get(k));
-    if (v1DataType !== null) v11Span(kv, 'dataType', v1DataType, 'informational');
+    if (v1DataType !== null) v11Span(kv, 'dataType', v1DataType, 'informational').title =
+      'dataType (v1 attribute): informational only. It does not change the type, and it is kept as written.';
     if (derivedSys) v11Span(kv, sysKey, derivedSys[0], derivedSys[1]);
     box.appendChild(kv);
   }
