@@ -394,5 +394,17 @@ Procedure as job 083 (T-1283).
 - Next: resolve T-974, full core gate green, a fresh release job (086) from 085's text, hand over, arm the watcher.
 - Nothing of this is pushed: origin has d845b2ed; local commits since (T-1304, T-1306) wait for a green core.
 
+### 2026-10-25 — T-974 8a/8b understood: the bump moves into the release job
+- **Cause:** `scripts/release-designer.sh` refuses a kit version with no PASS calibration unless that kit is already in
+  `dist/` (T-1008, deliberately no bypass). T-974 leg 8 runs the real script on the tree's `VERSION`. Bumping `VERSION`
+  before the job's calibration therefore makes the core tier red until the release is cut. Not seen at 0.26.0: the
+  pre-push core gate (T-1288) came after that release.
+- **Fix (order, not the gate or the test):** `VERSION`/`APP_VERSION` back to 0.26.0 on the branch; the release job bumps
+  and commits them as its first step. The kit hash depends only on `--version` and the kit sources (checked:
+  `kit-calibration-gate.py kit_hash` → `build-authoring-kit.py --version V`), so calibrating 0.27.0 before or after the bump
+  hashes the same bytes. T-974 16/16 and T-1289 green on the reverted tree.
+- **Rejected:** a scratch-dist exemption in the gate (weakens a panel-confirmed no-bypass gate); a fake calibration record in
+  the test (hash-bound to a live reviewer's run).
+
 ### 2026-10-24T22:20:33Z — status-update [task-update-agent]
 - **Change:** tags: +arc:structured-io
