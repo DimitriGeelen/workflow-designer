@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-23T22:13:11Z
-last_update: '2026-10-23T22:16:27Z'
+last_update: 2026-10-25T11:30:39Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -129,7 +129,7 @@ spike 1.
   bytes of every edited tracked file and a `.git/hooks` digest. Leg 5: the guard makes the real repo read-only
   to steps, so an absolute-path write fails in the step. Leg 6: without the guard, the assertion fails the dry-run
   and names `?? stray` and the hooks change.)*
-- [ ] **No regression:**
+- [x] **No regression:**
   - `tests/test_t1055_runme_launcher.py` and the T-1227/T-1230 picker tests stay green;
   - an existing pending job still dry-runs, with its steps rehearsed and its outward ones listed;
   - CLAUDE.md's runme section says what the dry-run now does, and how to declare `step_outward`.
@@ -137,6 +137,12 @@ spike 1.
   green, and CLAUDE.md is updated. But `runme.sh --list` shows no pending job (001-084 are all done or retired), so
   "an existing pending job still dry-runs" has nothing to run on. No job was created for it, on purpose. Tick this
   at the next real job's dry-run.)*
+  *(2026-10-25, ticked: the next real jobs. Job 085 (release 0.27.0) dry-ran with 13 checks rehearsed and 7 outward
+  steps listed. Job 086 found a real gap: its step 1 commits (`git commit` with the repo's identity), and the clone
+  had no `user.name`/`user.email` because a clone does not inherit local config, so the rehearsal failed with "Author
+  identity unknown" where the operator's run would commit fine. Fixed (the clone gets the repo's local identity), leg
+  10 added (plain `git commit`, HOME an empty dir), test_t1286 all legs green, test_t1055 green, and 086's step 1 now
+  passes in the clone through this repo's own hooks. The real repo stayed unchanged, `.git/config` included (T-1298).)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

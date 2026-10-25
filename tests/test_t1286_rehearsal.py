@@ -249,6 +249,19 @@ steps() { step "slow" 'touch @OUT@/started-%d; sleep 31.286; touch @OUT@/finishe
         r = subprocess.run(["bash", RUNME, "--list"], capture_output=True, text=True, env=env, timeout=30)
         leg(r.returncode != 0 and "RUNME_REPO is for tests only" in r.stdout, "8 RUNME_REPO refused on the real job dir")
 
+        # 10 T-1286 AC4 (found by job 086): a step that commits with the repo's OWN identity (local user.name/email, no -c,
+        #    no global identity: HOME is an empty dir) commits in the rehearsal too. A clone does not inherit local config.
+        sh("git config user.name t1286-local && git config user.email t1286-local@example.invalid", f.repo)
+        home = tempfile.mkdtemp(prefix="t1286-home-")
+        f.job("010-ident", '''JOB_TITLE="Commit with the repo's own identity"
+steps() { step "commit" 'echo y > ident.txt && git add ident.txt && git commit -qm "T-1286: ident" && git log -1 --format=%an | grep -qx t1286-local'; }
+''')
+        rc, out = f.dry("010-ident", HOME=home, GIT_CONFIG_NOSYSTEM="1")
+        shutil.rmtree(home, ignore_errors=True)
+        sh("git config --unset user.name; git config --unset user.email; true", f.repo)
+        leg(rc == 0 and "ok    step 1/1: commit" in out and "Author identity unknown" not in out,
+            "10 a committing step uses the repo's own local identity in the rehearsal (no global identity)", tail(out, 6))
+
         # 9 T-1298: two rehearsals of the SAME job name at once (two suite runs, same fixture names) neither remove each
         #   other's clone nor write through it into the project's repo. On a sandbox project with its own repo and a copy
         #   of the launcher, because an escape walks up to the launcher's project: here, never the real one.

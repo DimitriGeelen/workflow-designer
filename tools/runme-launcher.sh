@@ -258,7 +258,7 @@ rehearse() {  # rehearse <job dir>: 0 when the checks and every non-outward step
 }
 
 rehearse_locked() {
-    local d=$1 job rel rd rr clone cjob hooks url out before after i n rc bad=0
+    local d=$1 job rel rd rr clone cjob hooks url ident k out before after i n rc bad=0
     job=$(basename "$d")
     REHEARSE_DIR="$REHEARSE_ROOT/$job"; clone="$REHEARSE_DIR/repo"; out="$REHEARSE_DIR/step.out"
     rehearse_cleanup                                     # a clone left by a killed run
@@ -282,6 +282,11 @@ rehearse_locked() {
     fi
     git --git-dir="$clone/.git" remote set-url --push origin /dev/null/rehearsal-refuses-every-push--declare-it-step_outward \
         || { say "FAIL  cannot make the clone refuse pushes; not rehearsed"; rehearse_cleanup; return 1; }
+    # The repo's own committer identity: a clone does not inherit local config, so a committing step failed in the
+    # rehearsal ("Author identity unknown") although the operator's run commits fine (job 086, T-1286 AC4).
+    for k in user.name user.email; do
+        ident=$(git -C "$REPO" config --local --get "$k" 2>/dev/null) && git --git-dir="$clone/.git" config "$k" "$ident"
+    done
     rd=$(realpath "$d"); rr=$(realpath "$REPO")
     case "$rd/" in "$rr"/*) rel=${rd#"$rr"/} ;; *) rel=".context/runme/$job" ;; esac
     rm -rf "${clone:?}/$rel"; mkdir -p "$clone/$(dirname "$rel")"; cp -pR "$d" "$clone/$rel"
