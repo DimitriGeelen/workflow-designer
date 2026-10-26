@@ -71,7 +71,7 @@ PYEOF
     # the script rather than removing the fix, and every red below is a false red.
     broken=""
     for c in $CONTROL_CASES; do
-        if ! printf '%s' "$out" | grep -q "PASS  $c\$"; then broken="$broken $c"; fi
+        if ! grep -q "PASS  $c\$" <<< "$out"; then broken="$broken $c"; fi
     done
     if [ -n "$broken" ]; then
         echo "MUTATION SETUP BROKEN — cases unrelated to the fix also failed:$broken"
@@ -82,7 +82,7 @@ PYEOF
     # THEN: the cases that do depend on it must all be red.
     survivors=""
     for c in $NEW_CASES; do
-        if printf '%s' "$out" | grep -q "PASS  $c\$"; then survivors="$survivors $c"; fi
+        if grep -q "PASS  $c\$" <<< "$out"; then survivors="$survivors $c"; fi
     done
     if [ -n "$survivors" ]; then
         echo "MUTATION FAILED — these cases pass WITHOUT the fix:$survivors"
@@ -118,13 +118,13 @@ cache() { # cache <tokens-field> [extra-fields]
 
 expect_unknown() { # expect_unknown <name> <output> <substring...>
     local name="$1" out="$2"; shift 2
-    if ! printf '%s' "$out" | grep -q '^level: unknown'; then
+    if ! grep -q '^level: unknown' <<< "$out"; then
         bad "$name" "expected 'level: unknown', got: $(printf '%s' "$out" | head -2 | tr '\n' ' ')"
         return
     fi
     local s
     for s in "$@"; do
-        if ! printf '%s' "$out" | grep -qF "$s"; then
+        if ! grep -qF "$s" <<< "$out"; then
             bad "$name" "reason does not name '$s' — got: $(printf '%s' "$out" | grep '^reason:' | head -1)"
             return
         fi
@@ -165,7 +165,7 @@ expect_unknown "below_baseline" "$out" "below baseline_tokens: 88847" "impossibl
 # 7. raw_level/raw_tokens passthrough survives on a NEW rejection path — the
 #    reader must still be able to see what the cache claimed.
 out=$(run_budget "$(cache '"tokens": 0' '"baseline_tokens": 88847')")
-if printf '%s' "$out" | grep -q '^raw_level: ok' && printf '%s' "$out" | grep -q '^raw_tokens: 0'; then
+if grep -q '^raw_level: ok' <<< "$out" && grep -q '^raw_tokens: 0' <<< "$out"; then
     ok "raw_passthrough"
 else
     bad "raw_passthrough" "expected raw_level: ok and raw_tokens: 0, got: $(printf '%s' "$out" | tr '\n' ' ')"
@@ -175,14 +175,14 @@ fi
 #     would pass every case above and be worse than the bug (OBS-293: a
 #     permanently red check trains its reader to ignore it).
 out=$(run_budget "$(cache '"tokens": 96832' '"baseline_tokens": 88847, "headroom_tokens": 711153, "headroom_ratio": 0.89')")
-if printf '%s' "$out" | grep -q '^level: ok' && printf '%s' "$out" | grep -q '^tokens: 96832' \
-   && printf '%s' "$out" | grep -q '^headroom_ratio: 0.89'; then
+if grep -q '^level: ok' <<< "$out" && grep -q '^tokens: 96832' <<< "$out" \
+   && grep -q '^headroom_ratio: 0.89' <<< "$out"; then
     ok "healthy_still_ok"
 else
     bad "healthy_still_ok" "healthy cache no longer reports ok+tokens+headroom: $(printf '%s' "$out" | tr '\n' ' ')"
 fi
 out=$(run_budget "$(cache '"tokens": 50000')")
-if printf '%s' "$out" | grep -q '^level: ok' && printf '%s' "$out" | grep -q '^tokens: 50000'; then
+if grep -q '^level: ok' <<< "$out" && grep -q '^tokens: 50000' <<< "$out"; then
     ok "healthy_no_baseline_still_ok"
 else
     bad "healthy_no_baseline_still_ok" "expected ok/50000, got: $(printf '%s' "$out" | tr '\n' ' ')"
@@ -197,7 +197,7 @@ out=$(run_budget '{"level": "unknown", "tokens": 96832, "timestamp": '"$(date +%
 expect_unknown "writer_unknown_still_rejected" "$out" "writer marked this measurement unknown"
 
 # 12. The real script, on the real cache, does not traceback. Read-only.
-if live=$("$CHECKPOINT" budget 2>&1) && printf '%s' "$live" | grep -q '^level: '; then
+if live=$("$CHECKPOINT" budget 2>&1) && grep -q '^level: ' <<< "$live"; then
     ok "live_cache_no_traceback"
 else
     bad "live_cache_no_traceback" "live read failed or printed no level: $(printf '%s' "$live" | tail -3 | tr '\n' ' ')"
