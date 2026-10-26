@@ -1235,11 +1235,16 @@ font-family: 'Outfit';
   /* T-1312: the field-catalog picker under the ref field */
   .io-cat { grid-column: 2; margin-top: 2px; display: grid; gap: 2px; min-width: 0; }
   .io-cat-hits { display: grid; gap: 1px; min-width: 0; }
-  .io-cat-hit { padding: 2px 6px; border-radius: 3px; cursor: pointer; min-width: 0; overflow-wrap: anywhere;
+  .io-cat-hit { padding: 2px 6px; border-radius: 3px; cursor: pointer; min-width: 0; overflow-wrap: break-word;
                 background: var(--surface-2, rgba(127,127,127,0.08)); }
   .io-cat-hit:hover { background: var(--accent-soft, rgba(127,127,127,0.2)); }
-  .io-cat-n { font-family: var(--mono); font-size: 11px; color: var(--text); margin-right: 6px; }
-  .io-cat-l { font-size: 11px; color: var(--text-dim); }
+  /* the notation on its own line, broken only after . : - (wbr); the label below it, broken at spaces */
+  .io-cat-n { display: block; font-family: var(--mono); font-size: 11px; color: var(--text); }
+  .io-cat-l { display: block; font-size: 11px; color: var(--text-dim); }
+  /* a search, not a value: dashed edge and a leading glyph */
+  input.io-cat-search { border-style: dashed; padding-left: 20px;
+                        background-repeat: no-repeat; background-position: 6px 50%; background-size: 10px;
+                        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Ccircle cx='4' cy='4' r='3' fill='none' stroke='%23888' stroke-width='1.3'/%3E%3Cpath d='M6.3 6.3L9.3 9.3' stroke='%23888' stroke-width='1.3'/%3E%3C/svg%3E"); }
   .io-cat-more { font-size: 10px; color: var(--text-dim); padding: 1px 6px; }
   /* T-1302: the fields (aef:field children) of an io, in its editor */
   .io-fields { display: grid; gap: 5px; margin-top: 4px; padding-top: 5px; border-top: 1px dashed var(--border); }
@@ -8994,7 +8999,8 @@ function ioCatalogPicker(item) {
       h.title = x.ref + (x.dataType ? '\ndataType ' + x.dataType : '');
       const n = document.createElement('span');
       n.className = 'io-cat-n';
-      n.textContent = x.notation || x.ref;
+      // break chances after . : - only, so sfdc:Opportunity.OwnerId breaks between its parts, never inside a name
+      (x.notation || x.ref).split(/(?<=[.:-])/).forEach((part, pi) => { if (pi) n.appendChild(document.createElement('wbr')); n.appendChild(document.createTextNode(part)); });
       const l = document.createElement('span');
       l.className = 'io-cat-l';
       l.textContent = (x.label || '') + (x.dataType ? ' · ' + x.dataType : '');
