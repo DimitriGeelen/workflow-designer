@@ -1,13 +1,17 @@
 ---
 id: T-1302
-name: "Designer slice 3 (T-1242 GO): edit aef:field / aef:expect / aef:example children of an io"
+name: "Designer slice 3 (T-1242 GO): edit aef:field / aef:expect / aef:example children
+  of an io"
 description: >
-  After slice 2: add, edit, remove and reorder the child elements of a v1.1 io (fields of a typeRef io with path, role, match; expectations with const/absent/range/pattern/oneOf; examples), list paths included. Byte-exact for children not edited.
+  After slice 2: add, edit, remove and reorder the child elements of a v1.1 io (fields
+  of a typeRef io with path, role, match; expectations with const/absent/range/pattern/oneOf;
+  examples), list paths included. Byte-exact for children not edited.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [arc:structured-io]
 components: []
 related_tasks: []
@@ -39,8 +43,8 @@ arc_id: structured-io
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-24T21:04:18Z
-last_update: 2026-10-24T22:20:30Z
-date_finished: null
+last_update: '2026-10-26T11:27:00Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -51,22 +55,63 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-26T11:27:00Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1302: Designer slice 3 (T-1242 GO): edit aef:field / aef:expect / aef:example children of an io
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Arc-006, slice 3. greenfield's item (c), "add a field to an io" (msg 49dfbe21). **Scope:** the `aef:field` children only;
+`aef:expect` / `aef:example` stay read-only, as their own follow-up task. Standard: AEF T-4415 §B (an `aef:field` has
+`path` or `fieldRef`, plus optional `role`, `required`, `cardinality`, and may hold `aef:when` children).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] In the io's attribute editor (T-1301), a "fields" list shows each `aef:field` child as an editable row: path or
+  fieldRef (text), role (read | write | create | match | delete), required (checkbox), cardinality (one | optional |
+  many), and a remove (×). A "+ add field" button appends a new row.
+- [ ] Round trip: a child that is not edited keeps its exact bytes (including `aef:when` children and the source's
+  attribute order). An edited field is written with its own attribute order kept and new attributes appended; a removed
+  field is gone; an added field is appended after the existing children. `aef:expect`, `aef:example` and unknown
+  children are never touched.
+- [ ] A field with `aef:when` children can be edited (its attributes) without losing them.
+- [ ] Harness legs (in `_t1301-io-edit-cdp.mjs`): add a field and set its path and role; edit one attribute of an existing
+  field; remove a field; a field with `aef:when` survives an edit; an untouched sibling child and every other step stay
+  byte-exact. Red on the 0.28.0 source, green on the new.
+- [ ] Person-sees gate exit 0; advisory sweep; screenshots (an io with fields, editor open; adding a field) at
+  1024/1440/1920 in `## Visual Verification`.
+- [ ] Released, then greenfield adds a field on its own map and confirms (arc-006 rule).
 
 ### Human
+- [ ] The fields list in the io editor is legible, compact and clearly part of its io, at every width
+  For the independent reviewer: `fw reviewer judge T-1302 --criterion 1` (render-surface, no operator carve-out).
+  **Steps:** 1. Open the T-1302 evidence screenshots named in `## Visual Verification`. 2. For each field row: path or
+  fieldRef, role, required, cardinality, ×; the "+ add field" button. 3. Compare the closed states with
+  `docs/reports/T-1305-evidence/`.
+  **Expected:** every control visible, aligned and unclipped; field rows clearly belong to their io; the closed states
+  unchanged. **If not:** name the file, the row and the control.
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -349,3 +394,7 @@ date_finished: null
 
 ### 2026-10-24T22:20:30Z — status-update [task-update-agent]
 - **Change:** tags: +arc:structured-io
+
+### 2026-10-26T11:26:59Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

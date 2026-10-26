@@ -71,6 +71,20 @@ ${meta}    </bpmn:extensionElements>
 </bpmn:definitions>
 `;
 const NO_META = MAP('');
+// T-1302: a v1.1 io with children, in the designer's own layout: two fields (the second with an aef:when), an expect
+const FIELDS = MAP('').replace(
+  /<bpmn:serviceTask id="Task_v1"[\s\S]*?<\/bpmn:serviceTask>/, `<bpmn:serviceTask id="Task_v1" name="Upsert opportunity">
+      <bpmn:extensionElements>
+        <aef:uid value="t1301_f"/>
+        <aef:io>
+          <aef:output name="opp" type="object" typeRef="sfdc:Opportunity" operation="upsert">
+            <aef:field fieldRef="sfdc:Opportunity.Id" role="match"/>
+            <aef:field path="LineItems[]" cardinality="many"><aef:when path="Kind" const="TradeIn"/></aef:field>
+            <aef:expect path="StageName" const="Closed Won"/>
+          </aef:output>
+        </aef:io>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>`);
 const PFX_META = MAP('      <aef:meta>\n        <aef:prefixes>\n          <aef:prefix name="sfdc" iri="https://example.org/sfdc#" kind="field"/>\n        </aef:prefixes>\n      </aef:meta>\n');
 
 const PAGE = `(function(){
@@ -123,6 +137,36 @@ const PAGE = `(function(){
       r.clipped = Array.from(ed.querySelectorAll('textarea')).filter(function(t){ return t.value && t.scrollHeight > t.clientHeight + 1; }).map(function(t){ return t.dataset.attr; });
     }
     return r;
+  };
+  // T-1302: the field rows of io #idx's open editor
+  function fieldRows(kind, idx){
+    window.__controls(kind, idx, true);
+    var b = block(kind), t = b.querySelectorAll('.io-attrs-toggle')[idx], ed = t && t.nextElementSibling;
+    return ed ? Array.from(ed.querySelectorAll('.io-field-row')) : null;
+  }
+  window.__fields = function(kind, idx){
+    var rows = fieldRows(kind, idx);
+    if (!rows) return null;
+    var b = block(kind), ed = b.querySelectorAll('.io-attrs-toggle')[idx].nextElementSibling;
+    return { rows: rows.map(function(r){ var o = {}; r.querySelectorAll('[data-fattr]').forEach(function(c){ o[c.dataset.fattr] = c.type === 'checkbox' ? c.checked : c.value; }); return o; }),
+             add: !!ed.querySelector('.io-field-add') };
+  };
+  window.__fieldSet = function(kind, idx, f, attr, value){
+    var rows = fieldRows(kind, idx); if (!rows || !rows[f]) return 'no field row ' + f;
+    var c = rows[f].querySelector('[data-fattr="' + attr + '"]'); if (!c) return 'no control ' + attr;
+    if (c.type === 'checkbox') c.checked = !!value; else c.value = value;
+    if (c.tagName === 'TEXTAREA') c.dispatchEvent(new Event('input', { bubbles: true }));
+    c.dispatchEvent(new Event('change', { bubbles: true }));
+    return 'ok';
+  };
+  window.__fieldAdd = function(kind, idx){
+    window.__controls(kind, idx, true);
+    var b = block(kind), ed = b.querySelectorAll('.io-attrs-toggle')[idx].nextElementSibling, a = ed && ed.querySelector('.io-field-add');
+    if (!a) return 'no add button'; a.click(); return 'ok';
+  };
+  window.__fieldDel = function(kind, idx, f){
+    var rows = fieldRows(kind, idx); if (!rows || !rows[f]) return 'no field row ' + f;
+    var d = rows[f].querySelector('.io-field-del'); if (!d) return 'no remove'; d.click(); return 'ok';
   };
   window.__set = function(kind, idx, attr, value){   // through the control, as a person would
     window.__controls(kind, idx, true);
@@ -276,6 +320,77 @@ async function main() {
     const iCut = iRes.filter(x => x.cut).map(x => x.value);
     if (!iRes.length) errs.push('i: no io name fields found');
     if (iCut.length) errs.push('i: io name field(s) clip their value: ' + iCut.join(', '));
+
+    // j. T-1302: the fields (aef:field children) of an io are editable; untouched children and steps keep their bytes
+    const ioF = (xml) => io(xml, 't1301_f');
+    // a child is either self-closing, or open ... </aef:same> (an aef:field may hold aef:when children of its own)
+    const kidsOf = (block) => (block.match(/<aef:(field|expect|example)\b[^>]*?(?:\/>|>[\s\S]*?<\/aef:\1>)/g) || []);
+    const fBase = await E(`window.__open(${JSON.stringify(FIELDS)})`);
+    const fKids = kidsOf(await ioF(fBase)), fA = await io(fBase, 't1301_a');
+    await E(`window.__select('t1301_f')`);
+    const j0 = await E(`window.__fields('outputs', 0)`);
+    legs.j = { rows: j0 && j0.rows, add: j0 && j0.add };
+    if (!j0 || j0.rows.length !== 2 || !j0.add) errs.push('j: the io editor does not list its 2 fields with an add button: ' + JSON.stringify(j0));
+    // j1 edit one attribute of field 0 (role match -> read): only that child changes, by exactly that attribute
+    await E(`window.__fieldSet('outputs', 0, 0, 'role', 'read')`);
+    let k1 = kidsOf(await ioF(await save()));
+    legs.j.edit = k1[0];
+    if (k1[0] !== '<aef:field fieldRef="sfdc:Opportunity.Id" role="read"/>' || k1[1] !== fKids[1] || k1[2] !== fKids[2])
+      errs.push('j1: editing a field\'s role did not change exactly that attribute: ' + JSON.stringify(k1));
+    // j2 field 1 has an aef:when: set required, the when survives
+    await E(`window.__open(${JSON.stringify(FIELDS)})`); await E(`window.__select('t1301_f')`);
+    await E(`window.__fieldSet('outputs', 0, 1, 'required', true)`);
+    let k2 = kidsOf(await ioF(await save()));
+    legs.j.when = k2[1];
+    if (!/^<aef:field path="LineItems\[\]" cardinality="many" required="true"><aef:when path="Kind" const="TradeIn"\/><\/aef:field>$/.test(k2[1] || ''))
+      errs.push('j2: editing a field with an aef:when lost or reordered something: ' + k2[1]);
+    // j3 add a field and give it a path and a role: appended after the existing children
+    await E(`window.__open(${JSON.stringify(FIELDS)})`); await E(`window.__select('t1301_f')`);
+    const ja = await E(`window.__fieldAdd('outputs', 0)`);
+    const jRows = await E(`window.__fields('outputs', 0)`);
+    const nf = jRows ? jRows.rows.length - 1 : -1;
+    await E(`window.__fieldSet('outputs', 0, ${nf}, 'addr', 'Amount')`);
+    await E(`window.__fieldSet('outputs', 0, ${nf}, 'role', 'write')`);
+    let k3 = kidsOf(await ioF(await save()));
+    legs.j.added = k3[3];
+    if (ja !== 'ok' || k3.length !== 4 || k3[3] !== '<aef:field path="Amount" role="write"/>' || k3.slice(0, 3).join('') !== fKids.join(''))
+      errs.push('j3: adding a field did not append exactly <aef:field path="Amount" role="write"/>: ' + JSON.stringify(k3));
+    // j4 remove field 0: gone, the others byte-exact
+    await E(`window.__open(${JSON.stringify(FIELDS)})`); await E(`window.__select('t1301_f')`);
+    await E(`window.__fieldDel('outputs', 0, 0)`);
+    let k4 = kidsOf(await ioF(await save()));
+    if (k4.length !== 2 || k4[0] !== fKids[1] || k4[1] !== fKids[2]) errs.push('j4: removing field 0 did not leave the other children byte-exact: ' + JSON.stringify(k4));
+    // j5 the untouched step keeps its bytes through all of it
+    if ((await io(await save(), 't1301_a')) !== fA) errs.push('j5: editing fields changed another step\'s io');
+    // j6 the expect child is never editable as a field
+    if (j0 && j0.rows.some(r => r.addr === 'StageName')) errs.push('j6: an aef:expect is listed as a field');
+    // j7 every control of every field row lies inside its editor, at the narrowest width (incl. a NEW, empty field)
+    const geo = [];
+    for (const [w, h] of [[1024, 768], [1440, 900]]) {
+      await cmd('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: false });
+      await E(`window.__open(${JSON.stringify(FIELDS)})`); await E(`window.__select('t1301_f')`);
+      await E(`window.__fieldAdd('outputs', 0)`);
+      geo.push(await E(`(function(){
+        var out = [];
+        document.querySelectorAll('#properties .io-attrs').forEach(function(ed){
+          var er = ed.getBoundingClientRect();
+          ed.querySelectorAll('.io-field-row select, .io-field-row textarea, .io-field-row .io-req, .io-field-row .io-field-del').forEach(function(c){
+            var r = c.getBoundingClientRect();
+            if (r.width < 1 || r.right > er.right + 0.5 || r.left < er.left - 0.5) out.push((c.className || c.tagName) + ' x ' + Math.round(r.left) + '..' + Math.round(r.right) + ' vs ' + Math.round(er.left) + '..' + Math.round(er.right));
+            // and actually on top where a person would click it (not covered, not clipped by a scroll container)
+            if (c.classList.contains('io-field-del')) {
+              c.scrollIntoView({ block: 'center' });
+              var q = c.getBoundingClientRect(), hit = document.elementFromPoint(q.left + q.width / 2, q.top + q.height / 2);
+              if (hit !== c) out.push('field x not on top at its centre: ' + (hit ? (hit.className || hit.tagName) : 'nothing') + ' (x at ' + Math.round(q.left) + '..' + Math.round(q.right) + ')');
+            }
+          });
+        });
+        return { w: ${w}, outside: out };
+      })()`));
+    }
+    await cmd('Emulation.clearDeviceMetricsOverride');
+    legs.j.geometry = geo;
+    for (const g of geo) if (g.outside.length) errs.push(`j7: at ${g.w} px a field control lies outside its editor: ` + g.outside.slice(0, 3).join(' | '));
 
     const ok = errs.length === 0;
     console.log(JSON.stringify({ ok, src: SRC, errs, legs }, null, 2));

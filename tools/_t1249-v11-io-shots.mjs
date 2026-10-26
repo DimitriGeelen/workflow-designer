@@ -101,7 +101,10 @@ const STATES = [['v11-step', 't1249_v11', 'I/O contract'], ['v1-step', 't1249_v1
   // T-1301 review: the undeclared-prefix hint, typed into typeRef of the v1 step's first input (zz is not declared)
   ['hint-edit', 't1249_v1', 'I/O contract', { open: [0], set: { typeRef: 'zz:Thing' } }],
   // T-1305: a name longer than the panel is wide, so the wrap itself is visible (typed into the first name, not saved)
-  ['longname', 't1249_v1', 'I/O contract', { name: [0, 'salesforce:OpportunityLineItem.QuoteLineItem.TradeInVehicle.RegistrationNumber'] }]];
+  ['longname', 't1249_v1', 'I/O contract', { name: [0, 'salesforce:OpportunityLineItem.QuoteLineItem.TradeInVehicle.RegistrationNumber'] }],
+  // T-1302: the fields of an io in its editor (the v1.1 step's first output: three fields), and adding one (style A)
+  ['fields-edit', 't1249_v11', 'I/O contract', { open: [2] }],
+  ['field-add', 't1249_stylea', 'I/O contract', { open: [0], addField: true }]];
 const WIDTHS = [[1024, 768], [1440, 900], [1920, 1080]];
 
 async function main() {
@@ -132,6 +135,7 @@ async function main() {
           renderAll(); renderProperties();
           var spec = ${JSON.stringify(opens || [])}, op = Array.isArray(spec) ? spec : (spec.open || []);
           op.forEach(function(i){ var t = document.querySelectorAll('#properties .io-attrs-toggle')[i]; if (t && !t.classList.contains('open')) t.click(); });
+          if (spec.addField) { var a = document.querySelector('#properties .io-attrs .io-field-add'); if (a) a.click(); }
           if (spec.name) {   // [row index, value]: type it into that io name, then re-render as an edit would
             var f = document.querySelectorAll('#properties .io-row .io-name')[spec.name[0]];
             if (f) { f.value = spec.name[1]; f.dispatchEvent(new Event('input', { bubbles: true })); renderProperties(); }
