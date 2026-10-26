@@ -91,7 +91,10 @@ reach a commit (a pathspec-free commit by anything) or break `git diff --cached`
   *(`t1288_private_tmpdir` exports `GIT_CEILING_DIRECTORIES=<run TMPDIR>`. `tests/test_t1313_sandbox_index.py` (core):
   2/4 on the old code (leak=1 into a stand-in repo; .context/st not ignored), 4/4 new; `test_t1288_tiers` 41/0;
   `_t630` and `_t634` under the ceiling: rc=0, staged 0.)*
-- [ ] The core tier stays green, and after a full core run `git diff --cached --name-only` in the real repo is empty.
+- AEF side reported 2026-10-26 (update-task.sh:69 stages into an enclosing repo): filed as AEF T-4777 (archive git
+  step skipped unless git's toplevel is PROJECT_ROOT). Not ours to tick; noted for the batched upgrade (T-1281).
+- [x] The core tier stays green, and after a full core run `git diff --cached --name-only` in the real repo is empty.
+  *(2026-10-26: `tier core GREEN: 210 passed, 0 failed`, 681 s; `staged_after=0`, `.context/st` removed after the run.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
