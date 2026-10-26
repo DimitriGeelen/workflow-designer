@@ -165,6 +165,9 @@ ROUTE_SEMANTICS = {
     # T-1241: the audience lenses — a read-only file (the interim stand-in for AEF's lens file).
     ('GET', '/api/lens-definition'): ('none — reads <repo>/lens-definition.interim.json',
                                       'n/a (fixed path, no id or path derived from input)'),
+    # T-1312: the project's field catalog for the io ref picker — a read-only file.
+    ('GET', '/api/field-catalog'): ('none — reads the --field-catalog file, else <repo>/field-catalog.json',
+                                    'n/a (path from the server\'s own setting, never derived from input)'),
 }
 
 

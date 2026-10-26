@@ -1,11 +1,21 @@
 ---
 id: T-1312
-name: "ref picker over a project field catalog (GET /api/field-catalog, greenfield's nid-attributes.json)"
+name: "ref picker over a project field catalog (GET /api/field-catalog, greenfield's
+  nid-attributes.json)"
 description: >
-  greenfield T-334 (msg d2e5287a): the ref picker's list comes from their ontology export, docs/views/nid-attributes.json (format v1: {version, generatedBy, count, attributes:[{ref, notation, label, system, systemLabel, entity, dataType, keyRole, sources}]}, 1294 rows, sorted by notation then ref; notation/dataType/keyRole may be empty). Their proposal (accepted in principle): like /api/lens-definition (T-1241), the server serves a project-declared file at GET /api/field-catalog; 404/absent = free text (today's behaviour). The picker searches notation + label, writes ref, may prefill dataType. 832: gallery-serve.py route + designer picker + harness; AEF: serving it is their data-API lane (T-4737) — propose it there. Arc-006.
+  greenfield T-334 (msg d2e5287a): the ref picker's list comes from their ontology
+  export, docs/views/nid-attributes.json (format v1: {version, generatedBy, count,
+  attributes:[{ref, notation, label, system, systemLabel, entity, dataType, keyRole,
+  sources}]}, 1294 rows, sorted by notation then ref; notation/dataType/keyRole may
+  be empty). Their proposal (accepted in principle): like /api/lens-definition (T-1241),
+  the server serves a project-declared file at GET /api/field-catalog; 404/absent
+  = free text (today's behaviour). The picker searches notation + label, writes ref,
+  may prefill dataType. 832: gallery-serve.py route + designer picker + harness; AEF:
+  serving it is their data-API lane (T-4737) — propose it there. Arc-006.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: [arc:structured-io]
@@ -39,8 +49,8 @@ arc_id: structured-io
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-26T11:53:48Z
-last_update: 2026-10-26T11:54:03Z
-date_finished: null
+last_update: '2026-10-26T13:11:00Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -51,20 +61,52 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-26T13:11:00Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=2 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L2:keyword=export)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1312: ref picker over a project field catalog (GET /api/field-catalog, greenfield's nid-attributes.json)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Built in two parts. The **server** part (`tools/gallery-serve.py`, not a release input) can go while release job 088 is
+pending. The **designer** picker (`src/`) waits until 088 has cut 0.29.0, so nothing unreviewed reaches that release.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] `GET /api/field-catalog` in the reference server: 200 `{ok: true, catalog: <file>}` for a well-formed v1 file; 404
+  `{ok: false, error: "no field catalog"}` when there is none; 422 (refused whole) for a file that is not JSON, has no
+  `version: 1`, has no `attributes` list, or has a row without a text `ref` (or a non-text notation, label, system,
+  systemLabel, entity, dataType or keyRole). The file path is the server's setting (`--field-catalog PATH`, default
+  `<repo>/field-catalog.json`), never derived from a request.
+- [ ] The route is classified in the boundary inventory (`tools/_t682-boundary-inventory.py`, the T-682 report row, and
+  the `_t958` table size 14 to 15); the core tier stays green.
+- [ ] A test (`tests/test_t1312_field_catalog.py`, core tier) covers 200, 404 and each 422 case, through the real HTTP
+  route.
+- [ ] Designer (after job 088): the ref field in the io editor offers a searchable picker over the catalog (notation and
+  label), writing `ref` and prefilling `dataType` from the row only when the io has none. With a 404 it behaves exactly as
+  today (free text and the "use a ref from this map" picker). A CDP leg covers both.
+- [ ] AEF gets the contract (request, responses, fallback) for its T-4737; greenfield is told how to point the server at
+  `docs/views/nid-attributes.json`.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -349,3 +391,6 @@ date_finished: null
 
 ### 2026-10-26T11:54:03Z — status-update [task-update-agent]
 - **Change:** tags: +arc:structured-io
+
+### 2026-10-26T13:10:59Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

@@ -675,6 +675,7 @@ orphan_legs=(
   # is the only reason either is here, and the reason it must never be relaxed to make a red run
   # green.
   "core|tests/test_gallery_instances_api.py|the /api/instances endpoint's own contract broke (T-884)"
+  "core|tests/test_t1312_field_catalog.py|GET /api/field-catalog no longer serves a v1 catalog, refuses a malformed one whole (422), answers 404 without one, or reads a path from the request (T-1312)"
   "core|tests/test_boundary_inventory_unclassified.py|the boundary inventory's unclassified-route check stopped biting, or the real route set went unclassified (T-941)"
   "core|tests/test_session_start_alerts.py|the /resume session-start check stopped delegating mail to fw sidecar alerts correctly: output or flags lost, a NOT CHECKED / failing / missing verb read as nothing, or the runme section hidden (T-1046, T-1059)"
   "core|tests/test_t1055_runme_launcher.py|the runme launcher no longer enforces the operator's safeguards itself: a job that runs at load time, has no dry-run, changed since its dry-run, or is already done can run, or a step runs without its y/N (T-1055)"

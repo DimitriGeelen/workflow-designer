@@ -97,9 +97,10 @@ def main():
                                               for m in ('GET', 'POST', 'PUT'))})
     # The size pin is deliberate: a row added or lost without updating this number turns the leg red.
     # 9 -> 11 at T-1128 (GET and PUT /api/field-profile, each classified in ROUTE_SEMANTICS);
-    # 11 -> 13 at T-1126 (GET and POST /api/field-suggestions); 13 -> 14 at T-1241 (GET /api/lens-definition).
+    # 11 -> 13 at T-1126 (GET and POST /api/field-suggestions); 13 -> 14 at T-1241 (GET /api/lens-definition);
+    # 14 -> 15 at T-1312 (GET /api/field-catalog).
     check_leg('removal is specific: no other route is reported unclassified',
-              not leaked and n_before == 14,
+              not leaked and n_before == 15,
               'table_size=%d leaked=%s' % (n_before, leaked))
 
     # --- leg 5: the report arm is independent and also bites --------------------

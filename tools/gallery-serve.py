@@ -30,6 +30,9 @@ API:
                                       (.editor-versions/<id>/field-profile.json, T-1128);
                                       404 none (falls back), 422 malformed (refused whole)
   GET  /api/field-suggestions      -> {ok:true, version, suggestions[]} (T-1126)
+  GET  /api/field-catalog          -> {ok:true, catalog} (T-1312) — the project's attribute catalog for the io ref
+                                      picker (--field-catalog PATH, else <repo>/field-catalog.json); 404 none (free
+                                      text), 422 malformed (refused whole)
   POST /api/field-suggestions {type, key, count, total, examples[], map} -> {ok:true, suggestion}
                                       (T-1126) a RECORD in <repo>/field-suggestions.json, never a field;
                                       approval/rejection only via tools/field-suggestion.py (operator)
@@ -192,6 +195,37 @@ def read_lens_definition():
     if not isinstance(lenses, dict) or not lenses or not all(isinstance(v, dict) for v in lenses.values()):
         return 422, {'ok': False, 'error': 'lens definition refused: needs a non-empty "lenses" object'}
     return 200, {'ok': True, 'definition': obj}
+
+
+FIELD_CATALOG_NAME = 'field-catalog.json'
+_CATALOG_TEXT_KEYS = ('notation', 'label', 'system', 'systemLabel', 'entity', 'dataType', 'keyRole')
+
+
+def read_field_catalog():
+    """T-1312: (http code, body) for GET /api/field-catalog. Read-only. A project's catalog of the attributes an io `ref`
+    can name (aef-greenfield-test's nid-attributes.json, format v1: {version: 1, attributes: [{ref, notation, label,
+    system, systemLabel, entity, dataType, keyRole, ...}]}). 404 = none: the designer's ref field stays free text. A
+    malformed file is refused whole (422), never half-served: a picker offering a wrong subset is worse than none."""
+    p = FIELD_CATALOG or os.path.join(REPO, FIELD_CATALOG_NAME)
+    if not os.path.exists(p):
+        return 404, {'ok': False, 'error': 'no field catalog'}
+    try:
+        with open(p, 'rb') as f:
+            obj = json.loads(f.read().decode('utf-8'))
+    except (OSError, ValueError) as e:
+        return 422, {'ok': False, 'error': 'field catalog unreadable: %s' % e}
+    if not isinstance(obj, dict) or obj.get('version') != 1:
+        return 422, {'ok': False, 'error': 'field catalog refused: needs {"version": 1, "attributes": [...]}'}
+    rows = obj.get('attributes')
+    if not isinstance(rows, list):
+        return 422, {'ok': False, 'error': 'field catalog refused: "attributes" must be a list'}
+    for i, r in enumerate(rows):
+        if not isinstance(r, dict) or not (isinstance(r.get('ref'), str) and r['ref'].strip()):
+            return 422, {'ok': False, 'error': 'field catalog refused: attributes[%d] has no "ref"' % i}
+        bad = [k for k in _CATALOG_TEXT_KEYS if k in r and not isinstance(r[k], str)]
+        if bad:
+            return 422, {'ok': False, 'error': 'field catalog refused: attributes[%d].%s must be text' % (i, bad[0])}
+    return 200, {'ok': True, 'catalog': obj}
 
 
 _PROFILE_LOCK = threading.Lock()
@@ -363,16 +397,21 @@ PORT = 8834
 # scratch/test saves cannot pollute examples/aef-processes/rendered/. This flag
 # restores the legacy always-write behaviour (any valid id publishes to corpus).
 ALLOW_NEW_CORPUS = False
+# T-1312: the project's field catalog (GET /api/field-catalog). The path is the server's own setting, never taken from a
+# request: --field-catalog PATH, else <repo>/field-catalog.json.
+FIELD_CATALOG = None
 
 
 def _args(argv):
-    global DOCROOT, REPO, BIND, PORT, ALLOW_NEW_CORPUS
+    global DOCROOT, REPO, BIND, PORT, ALLOW_NEW_CORPUS, FIELD_CATALOG
     it = iter(argv)
     for a in it:
         if a == '--docroot':
             DOCROOT = os.path.abspath(next(it))
         elif a == '--repo':
             REPO = os.path.abspath(next(it))
+        elif a == '--field-catalog':
+            FIELD_CATALOG = os.path.abspath(next(it))
         elif a == '--bind':
             BIND = next(it)
         elif a == '--allow-new-corpus':
@@ -915,6 +954,10 @@ class Handler(SimpleHTTPRequestHandler):
                 return self._json(200, {'ok': True, **read_suggestions()})
             except (OSError, ValueError) as e:
                 return self._json(500, {'ok': False, 'error': 'suggestions unreadable: %s' % e})
+        if route == '/api/field-catalog':
+            # T-1312: the project's field catalog for the io ref picker; 404 = none (the ref field stays free text).
+            code, obj = read_field_catalog()
+            return self._json(code, obj)
         if route == '/api/lens-definition':
             # T-1241: the audience lenses (business / logical / technical). Interim stand-in for AEF's shared
             # lens file (their T-4402): <repo>/lens-definition.interim.json. 404 = none, the designer shows all fields.
