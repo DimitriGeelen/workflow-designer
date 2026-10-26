@@ -1,11 +1,18 @@
 ---
 id: T-1301
-name: "Designer slice 2 (T-1242 GO): edit the mapping v1.1 io attributes in the io editor"
+name: "Designer slice 2 (T-1242 GO): edit the mapping v1.1 io attributes in the io
+  editor"
 description: >
-  Operator 2026-10-24: 'definitely I want also the edit to be possible', in 832's designer and in AEF's. Slice 1 (T-1249) shows v1.1 io read-only. Slice 2 makes the attributes editable: fieldRef/typeRef/schemaRef/conceptRef, role, operation, cardinality, sourceSystem/targetSystem (with prefix-derived default), step default; absorbs T-1229. A v1 map stays v1 until a v1.1 attribute is set; mappingVersion and prefixes follow. Works the same in AEF's /designer (save via /api/save).
+  Operator 2026-10-24: 'definitely I want also the edit to be possible', in 832's
+  designer and in AEF's. Slice 1 (T-1249) shows v1.1 io read-only. Slice 2 makes the
+  attributes editable: fieldRef/typeRef/schemaRef/conceptRef, role, operation, cardinality,
+  sourceSystem/targetSystem (with prefix-derived default), step default; absorbs T-1229.
+  A v1 map stays v1 until a v1.1 attribute is set; mappingVersion and prefixes follow.
+  Works the same in AEF's /designer (save via /api/save).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: [arc:structured-io]
@@ -39,8 +46,8 @@ arc_id: structured-io
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-24T21:04:09Z
-last_update: 2026-10-24T22:20:29Z
-date_finished: null
+last_update: '2026-10-26T09:09:43Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -51,22 +58,71 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-26T09:09:43Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=editor)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1301: Designer slice 2 (T-1242 GO): edit the mapping v1.1 io attributes in the io editor
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Arc-006 `structured-io`. Standard: AEF T-4415 (mapping v1.1). greenfield's order (msg 49dfbe21): edit ref (a picker over
+their nid: attributes), role and dataType first; then add a field (slice 3, T-1302); systems and expectations later.
+Built in an isolated clone (`.context/working/t1301-dev`) while release job 086 ran, so no unreleased edit could reach
+0.27.0's cut or its push gate.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] **Fix first, test first:** an attribute ADDED to an io item in raw layout (`ioAttrsXml`, the `i.raw` path) is written
+  on save. Before, only the source's attribute order list was written, so the new attribute was silently dropped. A
+  harness leg is red on the old source and green on the new.
+- [ ] Each io row has an attributes editor (a toggle under the row; open by default when the io carries any attribute):
+  ref, fieldRef, typeRef, schemaRef, conceptRef (text), role (read | write | create | match | delete), operation
+  (read | create | update | upsert | delete), cardinality (one | optional | many), sourceSystem on inputs / targetSystem
+  on outputs, dataType (text, informational). Emptying a field removes the attribute.
+- [ ] Round trip: a step whose io is not edited saves byte-exact. Editing one attribute changes exactly that attribute in
+  the saved item: the other attributes keep their values and order, and a new attribute is appended after them.
+- [ ] ref suggestions: the field offers the ref values already used in the open map (a datalist). The ontology picker waits
+  for greenfield's answer on where the list comes from (msg dad53edf).
+- [ ] No silent upgrade: setting a v1.1 attribute adds neither `mappingVersion` nor prefixes. A CURIE whose prefix the
+  map does not declare shows a hint (the lint proper is slice 4, T-1303).
+- [ ] A CDP harness drives the editor through DOM events: set and clear each attribute, save, and the diff is exactly that
+  change; the raw-layout append; a greenfield style-A item edited; untouched steps byte-exact. It runs as a bridge leg.
+- [ ] Person-sees gate exit 0; advisory sweep; screenshots (row closed and open; style A; v1.1; v1; empty) at
+  1024/1440/1920, read control by control in `## Visual Verification`.
+- [ ] Released, then greenfield edits on its own map and confirms with its own check script (arc-006 rule).
 
 ### Human
+- [ ] The io attributes editor is legible, compact and usable at every width, and editing reads as editing
+  For the independent reviewer: `fw reviewer judge T-1301 --criterion 1` (classify-ac: REVIEWER-JUDGES, render-surface;
+  no operator carve-out, so no `[REVIEW]` label: tools/_t1066-why-you-check.py).
+  **Steps:**
+  1. Open the T-1301 evidence screenshots (paths in `## Visual Verification`) at 1024, 1440 and 1920.
+  2. For each io row: the toggle, every field and select, its label, and the hint for an undeclared prefix.
+  3. Compare the untouched states (v1, empty, workflow) with the 0.27.0 screenshots in `docs/reports/T-1304-evidence/`.
+  **Expected:** every control is visible, reachable and unclipped; each field clearly belongs to its row; it is obvious
+  which values can be edited; the untouched states are unchanged.
+  **If not:** name the file, the row and the control.
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -349,3 +405,6 @@ date_finished: null
 
 ### 2026-10-24T22:20:29Z — status-update [task-update-agent]
 - **Change:** tags: +arc:structured-io
+
+### 2026-10-26T09:09:42Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

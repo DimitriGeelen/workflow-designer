@@ -113,6 +113,19 @@ Tags to batch (take the newest when this starts):
 - **After be.17** (AEF notice msg 0d60e494, 2026-10-25, going offline): five v1.8.15 release blockers (AEF T-4744..T-4748)
   are fixed on AEF's bleeding-edge but in no be tag yet; the v1.8.15 master release waits on AEF's operator. Prefer the tag
   that carries them (be.18 or v1.8.15) over be.17 for this batch.
+- **be.21** c8a660297 (msg 38ebeb12; be.20 never published): T-4753 (sidecar/receiver start|stop refuse an inherited
+  PROJECT_ROOT naming another project), suite health T-4640..T-4646 (fw_self_test 606 s to 140 s). Newest at this note.
+- **be.19** ec1bdf64a (msg 139f4895, 2026-10-25): was the target (be.18 + T-4698 self-deferral gate ignores
+  other projects' task ids; T-4701 fw upgrade lists still-tracked runtime files with the exact `git rm --cached`, never
+  untracks silently; T-4721 reference launcher install/launcher/aef-start.sh; T-4722 claude-fw / fw termlink find the hub
+  runtime dir when TERMLINK_RUNTIME_DIR is unset (relevant to our TermLink identity FAIL); T-4751
+  BOUNDARY_EXTRA_READ_PATHS). Take the latest tag at job time.
+- **be.18** 5259a14be (msg 8769c438, 2026-10-25): carries the five blockers (T-4744..T-4748),
+  plus T-4727 (decide warns when the verdict differs from the Recommendation), T-4729/T-4730/T-4731 (dispatch gate per
+  session, `fw termlink` subcommands answer --help, boundary allows ~/.termlink), T-4734, T-4736 (superseded designer
+  builds pruned at the consumer root), T-4738 (CLOSE_HINT_PUSH=0), T-4740 (vendor rewrites the designer build only when
+  changed), T-4741, T-4742/T-4749 (Watchtower Anthropic provider), T-4750. Check after the batch: T-4736/T-4740 touch the
+  designer build AEF vendors into consumers (our own dist/ is not theirs, but look).
 - **Before this batch's job:** T-1298 changed the rehearsal (lock, `--git-dir`, config in the compare). This job's dry-run is
   the first real job rehearsed on it, and also T-1286 AC4.
 
