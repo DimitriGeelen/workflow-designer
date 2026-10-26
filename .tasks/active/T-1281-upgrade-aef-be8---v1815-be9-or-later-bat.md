@@ -113,6 +113,10 @@ Tags to batch (take the newest when this starts):
 - **After be.17** (AEF notice msg 0d60e494, 2026-10-25, going offline): five v1.8.15 release blockers (AEF T-4744..T-4748)
   are fixed on AEF's bleeding-edge but in no be tag yet; the v1.8.15 master release waits on AEF's operator. Prefer the tag
   that carries them (be.18 or v1.8.15) over be.17 for this batch.
+- **be.25** 2ffe3a27e (msg 75880fb7): T-4768 `fw inception decide` commits the Human-tick provenance row with the decision;
+  T-4769 the ticks audit names an uncommitted provenance row. **Reconcile with 832's rule** "the agent never `git add`s
+  `.context/reviews/*.jsonl`": after this upgrade the framework itself commits that row on a decide (an operator action),
+  which is consistent; check our pre-commit/pathspec guards do not refuse it. Newest at this note.
 - **be.24** 43de42eae (msg eab22ef6): T-4766 (`fw sidecar waiting` no longer lists consults the retry ladder closed),
   T-4767 (designer 0.28.0 pinned). Newest at this note.
 - **be.23** 6cf7977aa (msg 25e38e25): T-4757 `fw sidecar settle-sent <client_msg_id> --reason` settles one's own
