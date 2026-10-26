@@ -20,7 +20,7 @@
 set -uo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SUCCESSOR="$REPO/tools/_t344-watch-set-denominator.sh"
+SUCCESSOR="${T345_SUCCESSOR:-$REPO/tools/_t344-watch-set-denominator.sh}"   # T345_SUCCESSOR: tests only (T-1307)
 
 echo "T-345 — RETIRED (T-1221): the two-check agreement is now _t344 leg 8 (audit vs independent count)"
 if [ ! -f "$SUCCESSOR" ]; then
@@ -33,5 +33,8 @@ if [ "$rc" -eq 0 ] && printf '%s\n' "$out" | grep -q 'coverage checks agree:'; t
   exit 0
 fi
 echo "  FAIL  successor exit $rc, or its leg 8 did not report agreement:"
-printf '%s\n' "$out" | tail -5 | sed 's/^/        /'
+# T-1307: every FAIL line (and the lines indented under it), then the totals. The last 5 lines hid the two legs that went
+# red inside a core run on 2026-10-26: they were early, and leg 8 plus the totals filled the tail.
+printf '%s\n' "$out" | awk '/^ *FAIL /{f=1; print; next} f && /^ {6,}/{print; next} {f=0}' | sed 's/^/        /'
+printf '%s\n' "$out" | grep -E '^ *[0-9]+ passed, [0-9]+ failed' | tail -1 | sed 's/^/        /'
 exit 1

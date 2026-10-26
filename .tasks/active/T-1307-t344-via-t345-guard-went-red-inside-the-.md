@@ -1,11 +1,21 @@
 ---
 id: T-1307
-name: "_t344 (via _t345 guard) went red inside the core tier (8 passed, 2 failed) but is 9/9 alone and under hermetic conditions"
+name: "_t344 (via _t345 guard) went red inside the core tier (8 passed, 2 failed)
+  but is 9/9 alone and under hermetic conditions"
 description: >
-  Core gate on c2c release tree (2026-10-26, run 848 s): guard _t345-fabric-check-agreement.sh FAIL because its successor _t344-watch-set-denominator.sh reported '8 passed, 2 failed' (10 legs); leg 8 itself agreed (135 unregistered of 643 watched). Alone: 9 passed, 0 failed; under unshare --mount --net with TMPDIR in .context/st: 9/0. The leg count differs (10 vs 9), and the captured tail hides which 2 legs failed (only 40 lines, the failing lines were above). Hypotheses: a concurrent fw audit (cron) during blocks 1-2, which run the audit with injected env; load. Next: make _t345 capture the successor's FAIL lines, not the last 40, and reproduce under a concurrent audit.
+  Core gate on c2c release tree (2026-10-26, run 848 s): guard _t345-fabric-check-agreement.sh
+  FAIL because its successor _t344-watch-set-denominator.sh reported '8 passed, 2
+  failed' (10 legs); leg 8 itself agreed (135 unregistered of 643 watched). Alone:
+  9 passed, 0 failed; under unshare --mount --net with TMPDIR in .context/st: 9/0.
+  The leg count differs (10 vs 9), and the captured tail hides which 2 legs failed
+  (only 40 lines, the failing lines were above). Hypotheses: a concurrent fw audit
+  (cron) during blocks 1-2, which run the audit with injected env; load. Next: make
+  _t345 capture the successor's FAIL lines, not the last 40, and reproduce under a
+  concurrent audit.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +48,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-26T09:43:14Z
-last_update: 2026-10-26T09:43:14Z
-date_finished: null
+last_update: '2026-10-26T11:52:43Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +60,45 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-26T11:52:43Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1307: _t344 (via _t345 guard) went red inside the core tier (8 passed, 2 failed) but is 9/9 alone and under hermetic conditions
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+On 2026-10-26 the core tier went red once on `_t345` (8 passed, 2 failed in `_t344`). On rerun it was green. The guard
+printed only the successor's last 5 lines, so the two failing legs were never named.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `_t345` prints EVERY `FAIL` line of its successor (plus the totals), not the last 5 lines. Proven with a stand-in
+  successor that fails an early leg (`T345_SUCCESSOR`, tests only): the early FAIL line appears in the guard's output.
+  *(new: "FAIL EARLY-LEG-2 went red" + its detail line + "8 passed, 1 failed"; old: 0 occurrences; the real run passes)*
+- [ ] Hypothesis 1 (a concurrent `fw audit` during `_t344`) is tested: `_t344` is run while audits are running, several
+  times. The result (reproduced, with the failing legs named; or not reproduced) is recorded here, and a fix follows
+  only for a reproduced cause.
+- [ ] The core tier stays green with the changed guard.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -353,3 +388,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1307-t344-via-t345-guard-went-red-inside-the-.md
 - **Context:** Initial task creation
+
+### 2026-10-26T11:52:42Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
