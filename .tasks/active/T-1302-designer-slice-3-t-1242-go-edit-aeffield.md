@@ -361,6 +361,15 @@ control inside its editor and on top at its centre (1024, 1440); a first reading
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-10-26 — a field row needs to look like a block, and lands where fields live
+- **What changed:** the sweep found field rows ran together and an empty new field said nothing; a faint req/× was
+  present but hard to see (I first thought the × missing). greenfield's confirmation on 0.29.0 found a new field landing
+  after `aef:example`.
+- **Plan impact:** separators between field rows, a "path…" prompt, wider cardinality; a geometry and hit-test leg (j7)
+  instead of trusting the screenshot; the add position moves to after the last field.
+- **Triggered:** T-1310 (faint req/×), T-1314 (field position, fixed with j3/j8), T-1309 (expect/example editing, later).
+  The 0.29.0 release withdrew the verdict as stale-review; re-judged green on the same shots (AEF T-4779 filed).
+
 ## Recommendation
 
 <!-- T-2945: same shape as inception.md's block — the gate that reads it
