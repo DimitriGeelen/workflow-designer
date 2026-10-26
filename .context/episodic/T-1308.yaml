@@ -1,0 +1,185 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1308: Release designer 0.28.0 (T-1301: io attributes editable)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-26T13:13:54Z
+# ============================================================================
+
+task_id: T-1308
+task_name: "Release designer 0.28.0 (T-1301: io attributes editable)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-26T10:19:35Z
+completed: 2026-10-26T13:13:46Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-10-26T11:21:06+01:00
+last_commit: 2026-10-26T14:13:45+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release notes 0.28.0 (io attributes editable, T-1301; raw-layout drop fixed; For-AEF endpoints) and the release task's criteria. job 087 — release designer 0.28.0 (bump in the job, calibrate codex + GLM-5.3, gate, cut, commit, tag, core tier as its own step, push); dry-run passed, step 1 rehearsed. 0.28.0 — VERSION and APP_VERSION bumped by the release job (parity ok). release designer 0.28.0 — the io attributes are editable in the properties panel and a save writes exactly the edit (T-1301); an attribute added to a raw-layout io is no longer dropped; kit calibrated on its bytes. designer 0.28.0 released — job 087 ran all 9 steps (rc=0); codex + GLM-5.3 calibration PASS; core GREEN 207/0 as its own step, so the push passed at once; tag designer-v0.28.0 on 7eb864d4 (sha256 f8c5e15f…, 1246384 bytes); AEF and greenfield told, greenfield asked to try editing on its own map. T-1281: be.23 noted. AEF pinned 0.28.0 (T-4767) on its branch; published pin follows with its next be tag (pin-lag BEHIND until then). AEF serves designer 0.28.0 (pin-lag CURRENT; AEF be.24 T-4767). T-1281: be.24 noted. verification commands and Evolution entry
+
+# Key outcomes
+outcomes:
+  - '`docs/releases/RELEASE-NOTES-0.28.0.md` is final: it names T-1301 and the raw-layout fix, says what changes in'
+  - 'An operator job (bump, calibrate codex + GLM-5.3, gate, cut, commit, tag, core tier as its own step, push) passes'
+  - 'After the run: tag `designer-v0.28.0` on origin; AEF and aef-greenfield-test have version, tag, sha256, bytes and'
+  - 'AEF''s pin is followed until `tools/_t1187-aef-pin-lag.sh` reads CURRENT. *(CURRENT: AEF serves designer 0.28.0, in'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'release notes 0.28.0 (io attributes editable, T-1301; raw-layout drop fixed; For-AEF endpoints) and the release task''s criteria'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex.out'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/clean/LOOP.txt'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/clean/REVIEW.json'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/clean/SOURCE.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/clean/agents.log'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/clean/kit/AUTHORING.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/clean/kit/CONFORMANCE.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/clean/kit/CORRECT.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/clean/kit/GENERATE.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/clean/kit/REVIEW.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/clean/kit/RUBRIC.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/clean/kit/exemplar.bpmn'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/clean/kit/validate-workflow.py'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/clean/map.bpmn'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/planted/LOOP.txt'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/planted/REVIEW.json'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/planted/SOURCE.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/planted/agents.log'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/planted/kit/AUTHORING.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/planted/kit/CONFORMANCE.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/planted/kit/CORRECT.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/planted/kit/GENERATE.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/planted/kit/REVIEW.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/planted/kit/RUBRIC.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/planted/kit/exemplar.bpmn'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/planted/kit/validate-workflow.py'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-codex/planted/map.bpmn'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3.out'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/clean/LOOP.txt'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/clean/REVIEW.json'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/clean/SOURCE.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/clean/agents.log'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/clean/kit/AUTHORING.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/clean/kit/CONFORMANCE.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/clean/kit/CORRECT.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/clean/kit/GENERATE.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/clean/kit/REVIEW.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/clean/kit/RUBRIC.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/clean/kit/exemplar.bpmn'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/clean/kit/validate-workflow.py'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/clean/map.bpmn'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/planted/LOOP.txt'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/planted/REVIEW.json'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/planted/SOURCE.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/planted/agents.log'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/planted/kit/AUTHORING.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/planted/kit/CONFORMANCE.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/planted/kit/CORRECT.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/planted/kit/GENERATE.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/planted/kit/REVIEW.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/planted/kit/RUBRIC.md'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/planted/kit/exemplar.bpmn'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/planted/kit/validate-workflow.py'
+  - '.context/runme/087-release-designer-0.28.0/calibrate-glm-5.3/planted/map.bpmn'
+  - '.context/runme/087-release-designer-0.28.0/done'
+  - '.context/runme/087-release-designer-0.28.0/dryrun.ok'
+  - '.context/runme/087-release-designer-0.28.0/job.sh'
+  - '.context/runme/087-release-designer-0.28.0/run-20261026T112352.log'
+  - '.context/runme/087-release-designer-0.28.0/run-20261026T112443.log'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t630-3008605-1793011658/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t630-3008605-1793011658/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t630-3008605-1793011658/gap/.context/episodic/T-905.yaml'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t630-3008605-1793011658/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t630-3008605-1793011658/live/.context/episodic/T-902.yaml'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t630-3008605-1793011658/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t634-2981572-1793011612/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t634-2981572-1793011612/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t634-2981572-1793011612/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t634-2981572-1793011612/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t634-2981572-1793011612/m2/.context/episodic/T-907.yaml'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t634-2981572-1793011612/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.tasks/active/T-1281-upgrade-aef-be8---v1815-be9-or-later-bat.md'
+  - '.tasks/active/T-1308-release-designer-0280-t-1301-io-attribut.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.28.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.28.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.28.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.28.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.28.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.28.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.28.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.28.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.28.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.28.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.28.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.28.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.28.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.28.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.28.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.28.0.html'
+  - 'docs/authoring-kit/calibration-records/0.28.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.28.0.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-26T11:21:06'
+    action: 'T-1308: release notes 0.28.0 (io attributes editable, T-1301; raw-layout drop fixed; For-AEF endpoints) and the release task''s criteria'
+  - time: '2026-10-26T11:21:22'
+    action: 'T-1308: job 087 — release designer 0.28.0 (bump in the job, calibrate codex + GLM-5.3, gate, cut, commit, tag, core tier as its own step, push); dry-run passed, step 1 rehearsed'
+  - time: '2026-10-26T11:24:49'
+    action: 'T-1308: 0.28.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-10-26T11:37:55'
+    action: 'T-1308: release designer 0.28.0 — the io attributes are editable in the properties panel and a save writes exactly the edit (T-1301); an attribute added to a raw-layout io is no longer dropped; kit calibrated on its bytes'
+  - time: '2026-10-26T12:07:26'
+    action: 'T-1308: designer 0.28.0 released — job 087 ran all 9 steps (rc=0); codex + GLM-5.3 calibration PASS; core GREEN 207/0 as its own step, so the push passed at once; tag designer-v0.28.0 on 7eb864d4 (sha256 f8c5e15f…, 1246384 bytes); AEF and greenfield told, greenfield asked to try editing on its own map. T-1281: be.23 noted'
+  - time: '2026-10-26T12:10:55'
+    action: 'T-1308: AEF pinned 0.28.0 (T-4767) on its branch; published pin follows with its next be tag (pin-lag BEHIND until then)'
+  - time: '2026-10-26T14:13:28'
+    action: 'T-1308: AEF serves designer 0.28.0 (pin-lag CURRENT; AEF be.24 T-4767). T-1281: be.24 noted'
+  - time: '2026-10-26T14:13:45'
+    action: 'T-1308: verification commands and Evolution entry'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 174 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:structured-io]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 174
+  commits: 8
+  files_changed: 94
+  lines_added: 39294
+  lines_removed: 17
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1308-release-designer-0280-t-1301-io-attribut.md
+generated_by: context-agent-hybrid
