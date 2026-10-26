@@ -91,12 +91,13 @@ width. Same remedy as T-1301's attribute fields: a wrapping field that grows wit
 ## Acceptance Criteria
 
 ### Agent
-- [ ] The io name is shown whole at every width: a wrapping field that grows with its value (Enter commits, no new line).
+- [x] The io name is shown whole at every width: a wrapping field that grows with its value (Enter commits, no new line).
   The type, req and × controls keep their place and size; a short name keeps a one-line row.
-- [ ] Editing the name works as before (typing updates the item); a save is unchanged by the switch (no edit = io bytes
+  *(a long name takes the row's full width; type/req/× go to the line below)*
+- [x] Editing the name works as before (typing updates the item); a save is unchanged by the switch (no edit = io bytes
   unchanged). `_t1249` and `_t1301` stay green; `_t1249` leg e counts the name control whatever its tag.
-- [ ] A harness leg asserts that no io name field clips (scrollHeight vs clientHeight) for greenfield's style-A names, red
-  on the old source (input: scrollWidth > clientWidth) and green on the new.
+- [x] A harness leg asserts that no io name field clips (scrollHeight vs clientHeight) for greenfield's style-A names, red
+  on the old source (input: scrollWidth > clientWidth) and green on the new. *(`_t1301` leg i)*
 - [ ] Person-sees gate exit 0; screenshots (style A, v1, v1.1) at 1024/1440/1920 read in `## Visual Verification`.
 
 ### Human
@@ -290,6 +291,22 @@ width. Same remedy as T-1301's attribute fields: a wrapping field that grows wit
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+
+## Visual Verification
+
+Screenshots: `docs/reports/T-1305-evidence/` (`node tools/_t1249-v11-io-shots.mjs docs/reports/T-1305-evidence`).
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| stylea-step | io name (field path) | ok | ok | ok | whole, one line: sfdc:Opportunity.Id, sfdc:Opportunity.OwnerId, tacton:Account.companyName (was cut at every width) |
+| stylea-step | type, req, × under a long name | ok | ok | ok | second line, right-hand columns |
+| stylea-step | read-only summary, edit toggle | ok | ok | ok | unchanged |
+| v1-step | short names (owner, team, assignment) | ok | ok | ok | the one-line row as before |
+| v11-step | nameless v1.1 ios ("name" placeholder) | ok | ok | ok | one-line row, as before |
+| stylea-edit / v1-edit / hint-edit | editor under the row | ok | ok | ok | unchanged from T-1301 |
+
+First attempt (not kept): a wrapping name in the narrow name column broke paths mid-word ("sfdc:Opportunity.I / d"). The
+full-width row for a long name avoids it.
 
 ## RCA
 
