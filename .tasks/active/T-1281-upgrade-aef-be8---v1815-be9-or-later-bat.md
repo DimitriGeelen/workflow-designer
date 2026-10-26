@@ -113,6 +113,12 @@ Tags to batch (take the newest when this starts):
 - **After be.17** (AEF notice msg 0d60e494, 2026-10-25, going offline): five v1.8.15 release blockers (AEF T-4744..T-4748)
   are fixed on AEF's bleeding-edge but in no be tag yet; the v1.8.15 master release waits on AEF's operator. Prefer the tag
   that carries them (be.18 or v1.8.15) over be.17 for this batch.
+- **be.27** eea53bb06 (msg 465d0f7b): carries BOTH of 832's 2026-10-26 reports: T-4777 (update-task.sh close-path git
+  writes only when PROJECT_ROOT is the top of its own repo; 832 T-1313 nested-sandbox staging) and T-4779 (stale-review
+  ignores release-artifact dist/ copies and content-identical paths; a withdrawn tick prints WITHDRAWN:; 832's T-1304/
+  T-1301/T-1302 withdrawals). Also T-4778 (reviewer auto-tick needs positive evidence), T-4775/T-4776 (dispatch claude
+  path, watchdog TERM->KILL), T-4774 (arc-focus age warning), T-4782 (hook-script quoting lint), T-4780 (designer 0.29.0).
+  be.26 53f7dd171 (msg cf93f55a): T-4773 stale replayed doorbell flagged. **Newest at this note; the upgrade target.**
 - **be.25** 2ffe3a27e (msg 75880fb7): T-4768 `fw inception decide` commits the Human-tick provenance row with the decision;
   T-4769 the ticks audit names an uncommitted provenance row. **Reconcile with 832's rule** "the agent never `git add`s
   `.context/reviews/*.jsonl`": after this upgrade the framework itself commits that row on a decide (an operator action),

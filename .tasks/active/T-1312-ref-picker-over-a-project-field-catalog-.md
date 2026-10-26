@@ -119,9 +119,12 @@ pending. The **designer** picker (`src/`) waits until 088 has cut 0.29.0, so not
   *(`docs/reports/T-1312-field-catalog-contract.md`; sent to AEF on 832-t4415-priority and to greenfield on
   gf-io-v11-check-2026-10-24, 2026-10-26.)*
 - [ ] Released, then greenfield picks a ref from its own catalog on its own map and confirms (arc-006 rule).
+  *(greenfield serves the designer through AEF's Watchtower, not gallery-serve.py (msg 057dc504): the full confirmation
+  needs AEF to serve /api/field-catalog (T-4737). Agreed interim: a run with an in-page stub on its real catalog file,
+  recorded as PARTIAL; this criterion stays open until the run without the stub.)*
 
 ### Human
-- [ ] The catalog picker under ref is legible, clearly part of its io row, and its hits read as choices, at every width
+- [x] The catalog picker under ref is legible, clearly part of its io row, and its hits read as choices, at every width
   For the independent reviewer: `fw reviewer judge T-1312 --criterion 1` (render-surface, no operator carve-out, so no
   `[REVIEW]` label: tools/_t1066-why-you-check.py).
   **Steps:**
@@ -181,6 +184,7 @@ pending. The **designer** picker (`src/`) waits until 088 has cut 0.29.0, so not
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261026-abe19443 — reviewer-judge-t-1312-r3-80758f40be44:reviewer (rung rung-3-termlink-single-reviewer), digest 892708b382fa; dispatch judge-t-1312-r3-80758f40be44; evidence: .context/reviews/evidence/T-1312/AC1-judge-t-1312-r3-80758f40be44.md, .context/reviews/evidence/T-1312/catalog-v1-1024-panel-judge-t-1312-r3-80758f40be44.png, .context/reviews/evidence/T-1312/catalog-stylea-1920-panel-judge-t-1312-r3-80758f40be44.png, .context/reviews/evidence/T-1312/catalog-more-1024-panel-end-judge-t-1312-r3-80758f40be44.png, .context/reviews/evidence/T-1312/catalog-none-1024-panel-judge-t-1312-r3-80758f40be44.png, .context/reviews/evidence/T-1312/catalog-more-1920-judge-t-1312-r3-80758f40be44.png, .context/reviews/evidence/T-1312/sbs-stylea-edit-1440-panel-T1302-vs-T1312-judge-t-1312-r3-80758f40be44.png; ledger .context/reviews/verdicts.jsonl
 
 ## Visual Verification
 
