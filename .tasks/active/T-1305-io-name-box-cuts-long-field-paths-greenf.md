@@ -158,6 +158,9 @@ width. Same remedy as T-1301's attribute fields: a wrapping field that grows wit
 
 ## Verification
 
+node tools/_t1301-io-edit-cdp.mjs > .context/working/t1305-v.out 2>&1 && head -2 .context/working/t1305-v.out | grep -q '"ok": true'
+grep -q '"cut": false' .context/working/t1305-v.out
+
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -331,6 +334,14 @@ full-width row for a long name avoids it.
 -->
 
 ## Evolution
+
+### 2026-10-26 — wrapping in place is not enough
+- **What changed:** the planned fix (a wrapping name field, as T-1301 did for attributes) showed every name whole but broke
+  field paths mid-word in the narrow name column ("sfdc:Opportunity.I / d"). A name longer than that column now takes the
+  row's full width, with type/req/× on a second line, so a path wraps only when it is longer than the whole panel.
+- **Plan impact:** none outside this task. The rule "show a producer's value whole" (T-1304, T-1301, T-1305) now holds
+  for every io field, each with a harness leg that fails on clipping.
+- **Triggered:** nothing new. The reviewer's note (a longer-than-panel name wraps by character) is accepted, not changed.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
