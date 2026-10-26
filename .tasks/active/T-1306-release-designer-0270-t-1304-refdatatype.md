@@ -403,7 +403,8 @@ Procedure as job 083 (T-1283).
   and commits them as its first step. The kit hash depends only on `--version` and the kit sources (checked:
   `kit-calibration-gate.py kit_hash` → `build-authoring-kit.py --version V`), so calibrating 0.27.0 before or after the bump
   hashes the same bytes. T-974 16/16 and T-1289 green on the reverted tree.
-- **Rejected (above):** a scratch-dist exemption in the gate
+- **Rejected:** a scratch-dist exemption in the gate (weakens a panel-confirmed no-bypass gate); a fake calibration record in
+  the test (hash-bound to a live reviewer's run).
 
 ### 2026-10-26 — job 086: steps 1-7 done, step 8 (push) refused
 - Operator ran 086: bump 9d96dc2b; codex and GLM-5.3 calibration PASS (3/3, 0 false findings; T-1290 verify-findings 3
@@ -418,10 +419,6 @@ Procedure as job 083 (T-1283).
      hook ran 13 min of core tier. A push only succeeds when the gate's green cache makes the hook instant. A job must
      never rely on the hook running the tier inside the push: run the gate as its own step first.
 - Next: core gate green on this tree (agent), then push bleeding-edge and the tag. The operator already said y to step 8.
-
-### Rejected (old)
-- a scratch-dist exemption in the gate (weakens a panel-confirmed no-bypass gate); a fake calibration record in
-  the test (hash-bound to a live reviewer's run).
 
 ### 2026-10-24T22:20:33Z — status-update [task-update-agent]
 - **Change:** tags: +arc:structured-io
