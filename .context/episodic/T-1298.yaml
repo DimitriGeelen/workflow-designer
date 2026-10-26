@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1298: Rehearsal git commands can escape the clone into the real repo (real origin pushurl overwritten)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-26T11:09:26Z
+# ============================================================================
+
+task_id: T-1298
+task_name: "Rehearsal git commands can escape the clone into the real repo (real origin pushurl overwritten)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-24T19:52:58Z
+completed: 2026-10-26T11:09:08Z
+duration_days: 2
+updates_count: 2
+first_commit: 2026-10-24T22:02:51+02:00
+last_commit: 2026-10-24T22:02:51+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  rehearsals can no longer write through a vanished clone into the real repo — two same-name rehearsals at once (two core runs, fixed fixture names) removed each other's clone, and 'git -C $clone remote set-url --push' walked up to the project's repo and rewrote the real origin's pushurl (the failed handover push; restored by unsetting it). Clone writes now go through --git-dir after a self-check; a per-name flock serialises rehearsals; repo_state compares the repo's and the project's local config (the escape had passed as 'real repo unchanged'); steps run under GIT_CEILING_DIRECTORIES. Sandbox proof: old launcher 2 escapes + 27 failed dry-runs in 60 pairs, new 0 and 0. test_t1286 leg 9 (8 concurrent pairs in a sandbox project) fails 8/8 on the old launcher; clones_left() skips same-name clones whose lock another rehearsal holds. Gap G-092, T-1299 captured
+
+# Key outcomes
+outcomes:
+  - 'The mechanism is proven, not assumed: a sandbox reproduction (its own outer repo standing in for the project, a copy of the'
+  - 'The launcher''s git writes to the clone cannot reach any other repo: they name the clone''s git dir explicitly (no'
+  - 'Two rehearsals of the same job name cannot overlap in `.context/rehearse/<job>` (the clean-up of one cannot remove the'
+  - 'A regression leg in `tests/test_t1286_rehearsal.py` fails on the old launcher and passes on the new: the outer repo''s'
+  - 'The real repo''s `remote.origin.pushurl` is unset and a push of bleeding-edge goes to origin.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'rehearsals can no longer write through a vanished clone into the real repo — two same-name rehearsals at once (two core runs, fixed fixture names) removed each other''s clone, and ''git -C $clone remote set-url --push'' walked up to the project''s repo and rewrote the real origin''s pushurl (the failed handover push; restored by unsetting it). Clone writes now go through --git-dir after a self-check; a per-name flock serialises rehearsals; repo_state compares the repo''s and the project''s local config (the escape had passed as ''real repo unchanged''); steps run under GIT_CEILING_DIRECTORIES. Sandbox proof: old launcher 2 escapes + 27 failed dry-runs in 60 pairs, new 0 and 0. test_t1286 leg 9 (8 concurrent pairs in a sandbox project) fails 8/8 on the old launcher; clones_left() skips same-name clones whose lock another rehearsal holds. Gap G-092, T-1299 captured'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-10-24 — Verification lines assert the positive fact'
+    chose: '`PASS 9 …` + `all legs passed`, and push url == fetch url.'
+    rationale: 'the first two lines (`! grep -q ''^FAIL''`, `test -z "$(git config …)"`) were uncontrolled absence assertions: the T-560 census raised its ratchet 74→76 and turned the core tier red (gate run on 2da59534, 206/1). An empty output or a failing git would have passed them.'
+  - decision: '2026-10-24 — serialise same-name rehearsals (lock) vs give each its own directory'
+    chose: 'a per-name `flock` in `.context/rehearse/.lock-<job>`, waiting up to 15 minutes.'
+    rationale: 'keeps the clone''s place (`.context/rehearse/<job>`) that leftover clean-up, the tests'' `clones_left()` and the operator''s messages rely on; a lock that is held also tells a test exactly which same-name clone is still in use.'
+    alternatives_rejected: ['a per-process directory (`<job>.<pid>`): a killed run''s clone would no longer be found by the next run of that job, and leftover detection would need a sweep with its own race.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-1298-rehearsal-git-commands-can-escape-the-cl.md'
+  - '.tasks/active/T-1299-concurrent-core-tier-runs-delete-each-ot.md'
+  - 'tests/test_t1286_rehearsal.py'
+  - 'tools/runme-launcher.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-24T22:02:51'
+    action: 'T-1298: rehearsals can no longer write through a vanished clone into the real repo — two same-name rehearsals at once (two core runs, fixed fixture names) removed each other''s clone, and ''git -C $clone remote set-url --push'' walked up to the project''s repo and rewrote the real origin''s pushurl (the failed handover push; restored by unsetting it). Clone writes now go through --git-dir after a self-check; a per-name flock serialises rehearsals; repo_state compares the repo''s and the project''s local config (the escape had passed as ''real repo unchanged''); steps run under GIT_CEILING_DIRECTORIES. Sandbox proof: old launcher 2 escapes + 27 failed dry-runs in 60 pairs, new 0 and 0. test_t1286 leg 9 (8 concurrent pairs in a sandbox project) fails 8/8 on the old launcher; clones_left() skips same-name clones whose lock another rehearsal holds. Gap G-092, T-1299 captured'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 2356 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2356
+  commits: 2
+  files_changed: 22
+  lines_added: 2181
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1298-rehearsal-git-commands-can-escape-the-cl.md
+generated_by: context-agent-hybrid
