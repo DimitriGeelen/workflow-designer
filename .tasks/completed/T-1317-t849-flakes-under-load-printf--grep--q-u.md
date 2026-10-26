@@ -4,13 +4,13 @@ name: "_t849 flakes under load: printf | grep -q under pipefail reports a presen
 description: >
   Core run 2026-10-26 red on _t849 foreign_session_still_rejected although the reason line it printed contains the expected text; 1/40 runs under CPU load fail the same way on another leg. expect_unknown/expect pipe printf into grep -q under set -o pipefail: grep exits on the match, printf gets SIGPIPE (141), pipefail turns a match into a miss.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_run
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t849-budget-zero-token-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -39,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-26T22:54:51Z
-last_update: 2026-10-26T22:54:51Z
-date_finished: null
+last_update: 2026-10-26T23:38:24Z
+date_finished: 2026-10-26T23:38:24Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -360,3 +360,20 @@ test "$(grep -c 'grep -qF\? .* <<< "\$' tools/_t849-budget-zero-token-tests.sh)"
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1317-t849-flakes-under-load-printf--grep--q-u.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-bec63997
+- **Timestamp:** 2026-10-26T23:38:28Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-26T23:38:24Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
