@@ -1235,9 +1235,10 @@ font-family: 'Outfit';
   /* T-1312: the field-catalog picker under the ref field */
   .io-cat { grid-column: 2; margin-top: 2px; display: grid; gap: 2px; min-width: 0; }
   .io-cat-hits { display: grid; gap: 1px; min-width: 0; }
+  /* a choice, not a note: bordered like a button (T-1312 sweep: flat blocks read as information) */
   .io-cat-hit { padding: 2px 6px; border-radius: 3px; cursor: pointer; min-width: 0; overflow-wrap: break-word;
-                background: var(--surface-2, rgba(127,127,127,0.08)); }
-  .io-cat-hit:hover { background: var(--accent-soft, rgba(127,127,127,0.2)); }
+                border: 1px solid var(--border); background: var(--surface-2, rgba(127,127,127,0.08)); }
+  .io-cat-hit:hover { background: var(--accent-soft, rgba(127,127,127,0.2)); border-color: var(--accent); }
   /* the notation on its own line, broken only after . : - (wbr); the label below it, broken at spaces */
   .io-cat-n { display: block; font-family: var(--mono); font-size: 11px; color: var(--text); }
   .io-cat-l { display: block; font-size: 11px; color: var(--text-dim); }
@@ -8985,7 +8986,7 @@ function ioCatalogPicker(item) {
   s.className = 'io-name io-attr-v io-cat-search';
   s.dataset.pick = 'catalog';
   s.spellcheck = false;
-  s.placeholder = 'search the field catalog…';
+  s.placeholder = 'search catalog…';   // short: the longer one was cut at every width (T-1312 sweep)
   s.title = 'search the project\'s field catalog (' + _fieldCatalog.length + ' attributes) by notation, label or ref; every word must match';
   const list = document.createElement('div');
   list.className = 'io-cat-hits';

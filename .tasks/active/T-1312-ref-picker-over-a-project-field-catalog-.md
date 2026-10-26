@@ -181,7 +181,27 @@ pending. The **designer** picker (`src/`) waits until 088 has cut 0.29.0, so not
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
 
+## Visual Verification
+
+Screenshots: `docs/reports/T-1312-evidence/` (`T1249S_CATALOG=1 node tools/_t1249-v11-io-shots.mjs docs/reports/T-1312-evidence`,
+105 files), taken after the sweep's fixes. Person-sees gate: exit 0 (three runs over the changes, last after the sweep fixes).
+Advisory sweep (codex): `.context/working/t1312-sweep.out`, 4 OK, 2 minor, both taken (placeholder cut at every width ->
+"search catalog…"; hits read as information -> bordered, accent on hover). My own first read found notations and labels
+split mid-word ("OwnerI|d", "Na|me") -> notation on its own line with break chances only after `. : -`, label below.
+Read control by control:
+- `catalog-stylea-1440-panel`: ref value, "use a ref from this map…", search (glyph, dashed, "account"), 8 bordered hits;
+  each notation breaks only at a dot (`sfdc:Account.|BillingCountry`), label + dataType dim below; fieldRef and the rows
+  below start after the list, nothing overlaps.
+- `catalog-stylea-1024-panel`: same, narrower; every hit unclipped inside the rail.
+- `catalog-v1-1920-panel`: empty ref, 6 hits for "opportunity", the rest of the editor (typeRef hint, fields, + add field)
+  below; the long name and `zz:Thing` are left from earlier states of the run.
+- `stylea-edit-1024-panel`: the empty search shows "search catalog…" whole under the map picker; the other attribute rows
+  as in T-1302-evidence.
+
 ## Verification
+
+node tools/_t1312-catalog-picker-cdp.mjs > .context/working/t1312-v.out 2>&1 && head -2 .context/working/t1312-v.out | grep -q '"ok": true'
+python3 tests/test_t1312_field_catalog.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
