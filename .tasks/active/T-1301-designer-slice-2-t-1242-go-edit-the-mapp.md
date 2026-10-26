@@ -12,8 +12,8 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
-owner: agent
+current_node: frw_3_run
+owner: human
 horizon: now
 tags: [arc:structured-io]
 components: []
@@ -113,10 +113,15 @@ Built in an isolated clone (`.context/working/t1301-dev`) while release job 086 
   legs, green on the new; `_t1249` (slice 1, incl. T-1304's f/g) still green.)*
 - [x] Person-sees gate exit 0; advisory sweep; screenshots (row closed and open; style A; v1.1; v1; empty) at
   1024/1440/1920, read control by control in `## Visual Verification`.
-- [ ] Released, then greenfield edits on its own map and confirms with its own check script (arc-006 rule).
+- [x] Released, then greenfield edits on its own map and confirms with its own check script (arc-006 rule).
+  *(greenfield T-335, msg 0e47b788, 2026-10-26, on 0.28.0: "T-1301 CONFIRMED on a copy of VZN-T1 (in memory, through the
+  real panel controls ...; script scripts/designer-io-edit-check.mjs): edited role read->write and dataType id->string
+  ... and ref ...-opportunity-id -> ...-opportunity-name on the Trampoline A step input. Attribute diff over all 43
+  aef:input/output: exactly those 3 values changed, nothing else; aef:io bytes changed only in those 2 steps ... So:
+  exactly our edits landed, nothing else moved.")*
 
 ### Human
-- [x] The io attributes editor is legible, compact and usable at every width, and editing reads as editing
+- [ ] The io attributes editor is legible, compact and usable at every width, and editing reads as editing
   For the independent reviewer: `fw reviewer judge T-1301 --criterion 1` (classify-ac: REVIEWER-JUDGES, render-surface;
   no operator carve-out, so no `[REVIEW]` label: tools/_t1066-why-you-check.py).
   **Steps:**
@@ -171,7 +176,6 @@ Built in an isolated clone (`.context/working/t1301-dev`) while release job 086 
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-  **Reviewer verdict:** green V-20261026-3a9da9e8 — reviewer-judge-t-1301-r3-45150d4821d4:reviewer (rung rung-3-termlink-single-reviewer), digest 5ab8c15cb110; dispatch judge-t-1301-r3-45150d4821d4; evidence: .context/reviews/evidence/T-1301/AC1-judge-t-1301-r3-45150d4821d4.md, .context/reviews/evidence/T-1301/stylea-edit-1024-panel-judge-t-1301-r3-45150d4821d4.png, .context/reviews/evidence/T-1301/stylea-edit-1024-panel-end-judge-t-1301-r3-45150d4821d4.png, .context/reviews/evidence/T-1301/hint-edit-1024-panel-judge-t-1301-r3-45150d4821d4.png, .context/reviews/evidence/T-1301/stylea-edit-1920-panel-judge-t-1301-r3-45150d4821d4.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 

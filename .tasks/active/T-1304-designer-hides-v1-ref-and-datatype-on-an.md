@@ -13,8 +13,8 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
-owner: agent
+current_node: frw_3_run
+owner: human
 horizon: now
 tags: [arc:structured-io]
 components: []
@@ -102,11 +102,14 @@ is informational only, preserved verbatim. Display: `src/aef-workflow-designer.h
   shape, synthetic values) whose panel text must contain ref, dataType and role. Red on the old source, green on the new.
 - [x] `bash tools/person-sees-gate.sh` exits 0; the advisory sweep has run; screenshots of a style-A step at 1024/1440/1920
   are read control by control in `## Visual Verification`.
-- [ ] greenfield reruns its `scripts/designer-io-panel-check.mjs` on the release that carries this and confirms ref and
+- [x] greenfield reruns its `scripts/designer-io-panel-check.mjs` on the release that carries this and confirms ref and
   dataType are shown (their words recorded here).
+  *(greenfield T-335, msg 0e47b788, 2026-10-26, on 0.28.0 (sha256 f8c5e15f...45fb verified): "T-1304 CONFIRMED on our
+  map: designer-io-panel-check.mjs, VZN-T1 sal_2_configurator shows "ref nid:attr-salesforce-opportunity-id  v1
+  attribute", "role read", "dataType id  informational"; 17/17 aef:io byte-exact with no edits.")*
 
 ### Human
-- [x] [REVIEW] A producer's style-A io shows ref, role and dataType legibly, tied to its row, read-only, at every width
+- [ ] [REVIEW] A producer's style-A io shows ref, role and dataType legibly, tied to its row, read-only, at every width
   **Steps:**
   1. Open `docs/reports/T-1304-evidence/stylea-step-1024-panel.png`, `-1440-panel.png`, `-1920-panel.png` and the three
      full-window `stylea-step-{1024,1440,1920}.png`.
@@ -163,7 +166,6 @@ is informational only, preserved verbatim. Display: `src/aef-workflow-designer.h
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-  **Reviewer verdict:** green V-20261024-4bd97453 — reviewer-judge-t-1304-r3-3cd350ce5208:reviewer (rung rung-3-termlink-single-reviewer), digest be6aa6cd4122; dispatch judge-t-1304-r3-3cd350ce5208; evidence: .context/reviews/evidence/T-1304/AC1-judge-t-1304-r3-3cd350ce5208.md, .context/reviews/evidence/T-1304/stylea-step-1024-panel-judge-t-1304-r3-3cd350ce5208.png, .context/reviews/evidence/T-1304/stylea-step-1440-panel-judge-t-1304-r3-3cd350ce5208.png, .context/reviews/evidence/T-1304/stylea-step-1920-panel-judge-t-1304-r3-3cd350ce5208.png, .context/reviews/evidence/T-1304/compare-v11-step-1920-panel-judge-t-1304-r3-3cd350ce5208.png, .context/reviews/evidence/T-1304/compare-v1-step-1440-panel-judge-t-1304-r3-3cd350ce5208.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
