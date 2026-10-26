@@ -10,7 +10,7 @@ description: >
 status: started-work
 workflow_type: build
 current_node: frw_3_run
-owner: human
+owner: agent
 horizon: now
 tags: [arc:structured-io]
 components: []
@@ -110,7 +110,7 @@ Arc-006, slice 3. greenfield's item (c), "add a field to an io" (msg 49dfbe21). 
   note: a new field lands after `aef:example`; filed as a follow-up.)*
 
 ### Human
-- [ ] The fields list in the io editor is legible, compact and clearly part of its io, at every width
+- [x] The fields list in the io editor is legible, compact and clearly part of its io, at every width
   For the independent reviewer: `fw reviewer judge T-1302 --criterion 1` (render-surface, no operator carve-out).
   **Steps:** 1. Open the T-1302 evidence screenshots named in `## Visual Verification`. 2. For each field row: path or
   fieldRef, role, required, cardinality, ×; the "+ add field" button. 3. Compare the closed states with
@@ -162,12 +162,15 @@ Arc-006, slice 3. greenfield's item (c), "add a field to an io" (msg 49dfbe21). 
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261026-360fb79a — reviewer-judge-t-1302-r3-1cd14c2db485:reviewer (rung rung-3-termlink-single-reviewer), digest 0fceca6e7866; dispatch judge-t-1302-r3-1cd14c2db485; evidence: .context/reviews/evidence/T-1302/AC1-judge-t-1302-r3-1cd14c2db485.md, .context/reviews/evidence/T-1302/fields-edit-1440-panel-end-judge-t-1302-r3-1cd14c2db485.png, .context/reviews/evidence/T-1302/fields-when-1024-panel-judge-t-1302-r3-1cd14c2db485.png, .context/reviews/evidence/T-1302/field-add-1920-panel-end-judge-t-1302-r3-1cd14c2db485.png, .context/reviews/evidence/T-1302/fields-edit-1024-zoom-judge-t-1302-r3-1cd14c2db485.png, .context/reviews/evidence/T-1302/fields-when-1024-zoom-judge-t-1302-r3-1cd14c2db485.png, .context/reviews/evidence/T-1302/longname-1440-T1305-vs-T1302-judge-t-1302-r3-1cd14c2db485.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+node tools/_t1301-io-edit-cdp.mjs > .context/working/t1302-v.out 2>&1 && head -2 .context/working/t1302-v.out | grep -q '"ok": true'
+grep -q 'io-field-add' src/aef-workflow-designer.html
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.

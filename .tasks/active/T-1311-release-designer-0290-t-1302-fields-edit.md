@@ -86,12 +86,16 @@ Arc-006. Procedure as job 087 (T-1308): bump in the job, core tier as its own st
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `docs/releases/RELEASE-NOTES-0.29.0.md` is final: T-1302 and T-1305, what changes in stored maps, the four
+- [x] `docs/releases/RELEASE-NOTES-0.29.0.md` is final: T-1302 and T-1305, what changes in stored maps, the four
   endpoints AEF does not serve.
-- [ ] Job 088 passes its dry-run (step 1 rehearsed), is committed and handed over, with the watcher armed.
-- [ ] After the run: tag `designer-v0.29.0` on origin; AEF and aef-greenfield-test told (version, tag, sha256, bytes,
+- [x] Job 088 passes its dry-run (step 1 rehearsed), is committed and handed over, with the watcher armed.
+  *(088 ran steps 1-7 (bump f3a08cbc, release 7969660d, tag), stopped at step 8 on _t1066 (my close attempt had
+  withdrawn T-1304's verdict); fixed in 5f89f36d; job 089 ran the core tier and pushed; 088 retired.)*
+- [x] After the run: tag `designer-v0.29.0` on origin; AEF and aef-greenfield-test told (version, tag, sha256, bytes,
   changes); greenfield asked to add a field on its own map (T-1302's last criterion).
-- [ ] AEF's pin is followed until `tools/_t1187-aef-pin-lag.sh` reads CURRENT.
+  *(tag on origin and on the GitHub mirror; sha256 121db17a…9a67, 1254629 bytes; AEF acknowledged, repin is AEF T-4780;
+  greenfield pinned 0.29.0 and confirmed T-1302 (msg 7b92a590). AEF also filed T-4779 (release commits make reviews stale).)*
+- [ ] AEF's pin is followed until `tools/_t1187-aef-pin-lag.sh` reads CURRENT. *(AEF T-4780 dispatched 2026-10-26.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
