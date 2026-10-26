@@ -94,6 +94,8 @@ operator's ruling: 832 owns the UI, AEF serves data APIs); inception T-4737 deci
 - [x] AEF has the condensed contract on the conversation (sent 2026-10-24, client_msg_id 047ee6a3).
 - [ ] The document is on origin (pushed), and AEF is told the path at that commit.
 - [ ] AEF's T-4737 outcome is recorded here, with their build task ids, when they send it.
+  *(2026-10-27, msg 3ce89ce0: AEF's operator gave GO on T-4737 for `/api/validate` and `/api/instances`; field-profile,
+  field-suggestions and field-catalog not in that GO. Build task ids not sent yet; asked for them.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
