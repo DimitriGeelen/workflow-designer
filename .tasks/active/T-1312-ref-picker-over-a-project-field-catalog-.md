@@ -114,8 +114,10 @@ pending. The **designer** picker (`src/`) waits until 088 has cut 0.29.0, so not
   `_t1301` and `_t1249` green.)*
 - [ ] `bash tools/person-sees-gate.sh` exits 0; the advisory sweep has run; screenshots of the picker (v1 io and style-A
   io, with hits) at 1024/1440/1920 are read control by control in `## Visual Verification`.
-- [ ] AEF gets the contract (request, responses, fallback) for its T-4737; greenfield is told how to point the server at
+- [x] AEF gets the contract (request, responses, fallback) for its T-4737; greenfield is told how to point the server at
   `docs/views/nid-attributes.json`.
+  *(`docs/reports/T-1312-field-catalog-contract.md`; sent to AEF on 832-t4415-priority and to greenfield on
+  gf-io-v11-check-2026-10-24, 2026-10-26.)*
 - [ ] Released, then greenfield picks a ref from its own catalog on its own map and confirms (arc-006 rule).
 
 ### Human
