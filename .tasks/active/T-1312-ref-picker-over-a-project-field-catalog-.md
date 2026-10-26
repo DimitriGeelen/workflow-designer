@@ -93,15 +93,16 @@ pending. The **designer** picker (`src/`) waits until 088 has cut 0.29.0, so not
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `GET /api/field-catalog` in the reference server: 200 `{ok: true, catalog: <file>}` for a well-formed v1 file; 404
+- [x] `GET /api/field-catalog` in the reference server: 200 `{ok: true, catalog: <file>}` for a well-formed v1 file; 404
   `{ok: false, error: "no field catalog"}` when there is none; 422 (refused whole) for a file that is not JSON, has no
   `version: 1`, has no `attributes` list, or has a row without a text `ref` (or a non-text notation, label, system,
   systemLabel, entity, dataType or keyRole). The file path is the server's setting (`--field-catalog PATH`, default
   `<repo>/field-catalog.json`), never derived from a request.
-- [ ] The route is classified in the boundary inventory (`tools/_t682-boundary-inventory.py`, the T-682 report row, and
+- [x] The route is classified in the boundary inventory (`tools/_t682-boundary-inventory.py`, the T-682 report row, and
   the `_t958` table size 14 to 15); the core tier stays green.
-- [ ] A test (`tests/test_t1312_field_catalog.py`, core tier) covers 200, 404 and each 422 case, through the real HTTP
+- [x] A test (`tests/test_t1312_field_catalog.py`, core tier) covers 200, 404 and each 422 case, through the real HTTP
   route.
+  *(criteria 1-3: commit e9ff4d07; 11/11; `_t958` 5/5 at table size 15; core tier green in job 089's run, 2026-10-26)*
 - [ ] Designer (after job 088): the ref field in the io editor offers a searchable picker over the catalog (notation and
   label), writing `ref` and prefilling `dataType` from the row only when the io has none. With a 404 it behaves exactly as
   today (free text and the "use a ref from this map" picker). A CDP leg covers both.

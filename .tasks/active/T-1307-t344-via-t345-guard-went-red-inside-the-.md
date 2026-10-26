@@ -107,7 +107,8 @@ printed only the successor's last 5 lines, so the two failing legs were never na
   after it is reported as "coverage count UNMEASURED: another audit still held the lock", never as a stale anchor.
   `tests/test_t1307_t344_lock_wait.py` (core): 0/3 on the old script, 3/3 on the new; real `_t344` 9/0, `_t550`
   teeth 5/5, `_t345` passes. Not the same as the original 2-fail red, which stays unexplained.)*
-- [ ] The core tier stays green with the changed guard.
+- [x] The core tier stays green with the changed guard.
+  *(job 089's core run on 2026-10-26 (tree with 1e4186ac): green, then pushed `bleeding-edge` and `designer-v0.29.0`.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
