@@ -4,12 +4,13 @@ name: "Host-contract notes test reads the published notes of VERSION, so a new e
 description: >
   tests/test_t1289_host_contract_notes.py checks RELEASE-NOTES-<VERSION>.md. VERSION moves only inside the release job, so once src uses an endpoint AEF does not serve (T-1312: /api/field-catalog) the test demands that the PUBLISHED notes of the last release name it. It should read the newest notes at or above VERSION (the next release's draft).
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-26T22:31:41Z
-last_update: 2026-10-26T22:31:41Z
-date_finished: null
+last_update: 2026-10-26T23:37:22Z
+date_finished: 2026-10-26T23:37:22Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -359,3 +360,20 @@ python3 tests/test_t1289_host_contract_notes.py
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1315-host-contract-notes-test-reads-the-publi.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ff53ec1e
+- **Timestamp:** 2026-10-26T23:37:25Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-26T23:37:22Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
