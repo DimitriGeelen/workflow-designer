@@ -1,0 +1,225 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1313: Core-tier sandboxes stage files in the real repo index (git finds the enclosing repo from .context/st)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-26T23:36:37Z
+# ============================================================================
+
+task_id: T-1313
+task_name: "Core-tier sandboxes stage files in the real repo index (git finds the enclosing repo from .context/st)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-26T14:46:47Z
+completed: 2026-10-26T23:36:28Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-10-26T16:33:48+01:00
+last_commit: 2026-10-26T17:29:31+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  core-tier sandboxes can no longer reach this repo's git — the run TMPDIR is a GIT_CEILING_DIRECTORIES entry; .context/st/ ignored; the 138 sandbox probe files committed since 2026-10-24 untracked (synthetic, no secrets; history not rewritten). Cause: the framework's task close runs git -C <sandbox> add -A in _t630/_t634 sandboxes without a .git. tests/test_t1313_sandbox_index.py (core) 2/4 old, 4/4 new. core tier green with the fix (210/0) and the real index empty after a full run; AEF filed the framework side as T-4777
+
+# Key outcomes
+outcomes:
+  - 'The 12 leaked entries are unstaged from the real index (index only; no file touched).'
+  - 'Extent recorded: the leak happens on EVERY core run (again in job 089''s run, `r.ABvPFq`, 12 entries, unstaged'
+  - 'The 138 files are untracked (`git rm --cached`, normal commit) and `.context/st/` is ignored, so a staged sandbox'
+  - 'Release jobs commit by pathspec: the job generator / the next release job''s bump step names its paths in'
+  - 'Root cause confirmed by a reproduction: a core-tier leg run with TMPDIR inside the repo stages paths in the real'
+  - 'Fix: no core-tier sandbox can reach the real repo''s git (e.g. `GIT_CEILING_DIRECTORIES` set to the per-run dir''s'
+  - 'The core tier stays green, and after a full core run `git diff --cached --name-only` in the real repo is empty.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'core tier green with the fix (210/0) and the real index empty after a full run; AEF filed the framework side as T-4777'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/m2/.context/episodic/T-907.yaml'
+  - '.context/st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.context/st/r.R9ap3T/tmp.5aecZqIiZt/t630-3652814-1792873420/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.R9ap3T/tmp.5aecZqIiZt/t630-3652814-1792873420/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.R9ap3T/tmp.5aecZqIiZt/t630-3652814-1792873420/gap/.context/episodic/T-905.yaml'
+  - '.context/st/r.R9ap3T/tmp.5aecZqIiZt/t630-3652814-1792873420/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.R9ap3T/tmp.5aecZqIiZt/t630-3652814-1792873420/live/.context/episodic/T-902.yaml'
+  - '.context/st/r.R9ap3T/tmp.5aecZqIiZt/t630-3652814-1792873420/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/r.R9ap3T/tmp.5aecZqIiZt/t634-3601583-1792873346/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.R9ap3T/tmp.5aecZqIiZt/t634-3601583-1792873346/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.R9ap3T/tmp.5aecZqIiZt/t634-3601583-1792873346/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/r.R9ap3T/tmp.5aecZqIiZt/t634-3601583-1792873346/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.R9ap3T/tmp.5aecZqIiZt/t634-3601583-1792873346/m2/.context/episodic/T-907.yaml'
+  - '.context/st/r.R9ap3T/tmp.5aecZqIiZt/t634-3601583-1792873346/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t630-3008605-1793011658/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t630-3008605-1793011658/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t630-3008605-1793011658/gap/.context/episodic/T-905.yaml'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t630-3008605-1793011658/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t630-3008605-1793011658/live/.context/episodic/T-902.yaml'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t630-3008605-1793011658/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t634-2981572-1793011612/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t634-2981572-1793011612/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t634-2981572-1793011612/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t634-2981572-1793011612/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t634-2981572-1793011612/m2/.context/episodic/T-907.yaml'
+  - '.context/st/r.W7jKmK/tmp.9HBfdic7lV/t634-2981572-1793011612/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.context/st/r.aRGSW4/tmp.uCsFuLhZWX/t630-1168772-1792874640/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.aRGSW4/tmp.uCsFuLhZWX/t630-1168772-1792874640/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.aRGSW4/tmp.uCsFuLhZWX/t630-1168772-1792874640/gap/.context/episodic/T-905.yaml'
+  - '.context/st/r.aRGSW4/tmp.uCsFuLhZWX/t630-1168772-1792874640/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.aRGSW4/tmp.uCsFuLhZWX/t630-1168772-1792874640/live/.context/episodic/T-902.yaml'
+  - '.context/st/r.aRGSW4/tmp.uCsFuLhZWX/t630-1168772-1792874640/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/r.aRGSW4/tmp.uCsFuLhZWX/t634-1086289-1792874565/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.aRGSW4/tmp.uCsFuLhZWX/t634-1086289-1792874565/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.aRGSW4/tmp.uCsFuLhZWX/t634-1086289-1792874565/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/r.aRGSW4/tmp.uCsFuLhZWX/t634-1086289-1792874565/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.aRGSW4/tmp.uCsFuLhZWX/t634-1086289-1792874565/m2/.context/episodic/T-907.yaml'
+  - '.context/st/r.aRGSW4/tmp.uCsFuLhZWX/t634-1086289-1792874565/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/gap/.context/episodic/T-905.yaml'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/live/.context/episodic/T-902.yaml'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/m2/.context/episodic/T-907.yaml'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/gap/.context/episodic/T-905.yaml'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/live/.context/episodic/T-902.yaml'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/m2/.context/episodic/T-907.yaml'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/gap/.context/episodic/T-905.yaml'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/live/.context/episodic/T-902.yaml'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/m2/.context/episodic/T-907.yaml'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.context/st/r.xQdd2K/tmp.2SmIGE1wzF/t630-284635-1793022015/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.xQdd2K/tmp.2SmIGE1wzF/t630-284635-1793022015/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.xQdd2K/tmp.2SmIGE1wzF/t630-284635-1793022015/gap/.context/episodic/T-905.yaml'
+  - '.context/st/r.xQdd2K/tmp.2SmIGE1wzF/t630-284635-1793022015/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.xQdd2K/tmp.2SmIGE1wzF/t630-284635-1793022015/live/.context/episodic/T-902.yaml'
+  - '.context/st/r.xQdd2K/tmp.2SmIGE1wzF/t630-284635-1793022015/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/r.xQdd2K/tmp.2SmIGE1wzF/t634-200954-1793021964/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.xQdd2K/tmp.2SmIGE1wzF/t634-200954-1793021964/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.xQdd2K/tmp.2SmIGE1wzF/t634-200954-1793021964/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/r.xQdd2K/tmp.2SmIGE1wzF/t634-200954-1793021964/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.xQdd2K/tmp.2SmIGE1wzF/t634-200954-1793021964/m2/.context/episodic/T-907.yaml'
+  - '.context/st/r.xQdd2K/tmp.2SmIGE1wzF/t634-200954-1793021964/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.context/st/tmp.AgK3G9srvx/t630-766510-1792833007/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/tmp.AgK3G9srvx/t630-766510-1792833007/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/tmp.AgK3G9srvx/t630-766510-1792833007/gap/.context/episodic/T-905.yaml'
+  - '.context/st/tmp.AgK3G9srvx/t630-766510-1792833007/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/tmp.AgK3G9srvx/t630-766510-1792833007/live/.context/episodic/T-902.yaml'
+  - '.context/st/tmp.AgK3G9srvx/t630-766510-1792833007/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/tmp.AgK3G9srvx/t634-705690-1792832938/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/tmp.AgK3G9srvx/t634-705690-1792832938/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/tmp.AgK3G9srvx/t634-705690-1792832938/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/tmp.AgK3G9srvx/t634-705690-1792832938/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/tmp.AgK3G9srvx/t634-705690-1792832938/m2/.context/episodic/T-907.yaml'
+  - '.context/st/tmp.AgK3G9srvx/t634-705690-1792832938/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.context/st/tmp.EccKEmB1ZZ/t630-104492-1792808180/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/tmp.EccKEmB1ZZ/t630-104492-1792808180/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/tmp.EccKEmB1ZZ/t630-104492-1792808180/gap/.context/episodic/T-905.yaml'
+  - '.context/st/tmp.EccKEmB1ZZ/t630-104492-1792808180/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/tmp.EccKEmB1ZZ/t630-104492-1792808180/live/.context/episodic/T-902.yaml'
+  - '.context/st/tmp.EccKEmB1ZZ/t630-104492-1792808180/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/tmp.EccKEmB1ZZ/t634-64197-1792808113/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/tmp.EccKEmB1ZZ/t634-64197-1792808113/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/tmp.EccKEmB1ZZ/t634-64197-1792808113/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/tmp.EccKEmB1ZZ/t634-64197-1792808113/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/tmp.EccKEmB1ZZ/t634-64197-1792808113/m2/.context/episodic/T-907.yaml'
+  - '.context/st/tmp.EccKEmB1ZZ/t634-64197-1792808113/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.context/st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/gap/.context/episodic/T-905.yaml'
+  - '.context/st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/live/.context/episodic/T-902.yaml'
+  - '.context/st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/m2/.context/episodic/T-907.yaml'
+  - '.context/st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.context/st/tmp.eiNvDHkvlW/t630-3091508-1792806863/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/tmp.eiNvDHkvlW/t630-3091508-1792806863/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/tmp.eiNvDHkvlW/t630-3091508-1792806863/gap/.context/episodic/T-905.yaml'
+  - '.context/st/tmp.eiNvDHkvlW/t630-3091508-1792806863/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/tmp.eiNvDHkvlW/t630-3091508-1792806863/live/.context/episodic/T-902.yaml'
+  - '.context/st/tmp.eiNvDHkvlW/t630-3091508-1792806863/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/tmp.eiNvDHkvlW/t634-3054685-1792806792/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/tmp.eiNvDHkvlW/t634-3054685-1792806792/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/tmp.eiNvDHkvlW/t634-3054685-1792806792/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/tmp.eiNvDHkvlW/t634-3054685-1792806792/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/tmp.eiNvDHkvlW/t634-3054685-1792806792/m2/.context/episodic/T-907.yaml'
+  - '.context/st/tmp.eiNvDHkvlW/t634-3054685-1792806792/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.gitignore'
+  - '.tasks/active/T-1313-core-tier-sandboxes-stage-files-in-the-r.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t1313_sandbox_index.py'
+  - 'tools/_t1288-tiers.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-26T16:33:48'
+    action: 'T-1313: core-tier sandboxes can no longer reach this repo''s git — the run TMPDIR is a GIT_CEILING_DIRECTORIES entry; .context/st/ ignored; the 138 sandbox probe files committed since 2026-10-24 untracked (synthetic, no secrets; history not rewritten). Cause: the framework''s task close runs git -C <sandbox> add -A in _t630/_t634 sandboxes without a .git. tests/test_t1313_sandbox_index.py (core) 2/4 old, 4/4 new'
+  - time: '2026-10-26T17:29:31'
+    action: 'T-1313: core tier green with the fix (210/0) and the real index empty after a full run; AEF filed the framework side as T-4777'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 529 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 529
+  commits: 3
+  files_changed: 144
+  lines_added: 111
+  lines_removed: 8520
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1313-core-tier-sandboxes-stage-files-in-the-r.md
+generated_by: context-agent-hybrid
