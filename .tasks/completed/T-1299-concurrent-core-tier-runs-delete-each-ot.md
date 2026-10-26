@@ -8,11 +8,11 @@ description: >
   mktemp dirs -> 124 fails, 395 'No such file or directory' (T-1295 gate run 2). Not
   /tmp. Also: nothing stops two core runs at once.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-24T19:53:03Z
-last_update: '2026-10-24T20:07:18Z'
-date_finished:
+last_update: 2026-10-26T11:09:49Z
+date_finished: 2026-10-26T11:09:49Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -95,7 +95,7 @@ created it. The first run to end deleted the other two runs' TMPDIRs. The same o
   survives. It fails on the old `_t1288-tiers.sh`.
 - [x] The pre-push gate runs one core tier at a time: a second gate waits for the first (then reads its cache), never runs
   beside it. Covered in `tests/test_t1288_tiers.py`.
-- [ ] A full gate run (`bash tools/_t1288-prepush-gate.sh`) is GREEN on the tree with T-1298 and T-1299, and the cache is
+- [x] A full gate run (`bash tools/_t1288-prepush-gate.sh`) is GREEN on the tree with T-1298 and T-1299, and the cache is
   written for it.
 
 ### Human
@@ -384,3 +384,20 @@ bash tools/_t1288-prepush-gate.sh
 
 ### 2026-10-24T20:07:17Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8f807571
+- **Timestamp:** 2026-10-26T11:10:07Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-26T11:09:49Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
