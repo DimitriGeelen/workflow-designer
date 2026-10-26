@@ -2,10 +2,15 @@
 id: T-1299
 name: "Concurrent core-tier runs delete each other's TMPDIR (shared .context/st)"
 description: >
-  t1288_private_tmpdir points every core run at the shared .context/st; t1288_cleanup rm -rf's the whole dir in whichever run created it. Three core runs started within 4 s at ~09:36:45Z on 2026-10-24; the first to end (09:39:28) removed the others' mktemp dirs -> 124 fails, 395 'No such file or directory' (T-1295 gate run 2). Not /tmp. Also: nothing stops two core runs at once.
+  t1288_private_tmpdir points every core run at the shared .context/st; t1288_cleanup
+  rm -rf's the whole dir in whichever run created it. Three core runs started within
+  4 s at ~09:36:45Z on 2026-10-24; the first to end (09:39:28) removed the others'
+  mktemp dirs -> 124 fails, 395 'No such file or directory' (T-1295 gate run 2). Not
+  /tmp. Also: nothing stops two core runs at once.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-24T19:53:03Z
-last_update: 2026-10-24T19:53:03Z
-date_finished: null
+last_update: '2026-10-24T20:07:18Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +55,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-24T20:07:18Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1299: Concurrent core-tier runs delete each other's TMPDIR (shared .context/st)
@@ -356,3 +381,6 @@ bash tools/_t1288-prepush-gate.sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1299-concurrent-core-tier-runs-delete-each-ot.md
 - **Context:** Initial task creation
+
+### 2026-10-24T20:07:17Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
