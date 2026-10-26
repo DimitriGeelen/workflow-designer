@@ -119,7 +119,10 @@ is informational only, preserved verbatim. Display: `src/aef-workflow-designer.h
   2. For each io row (two inputs, one output), read the summary under it: `ref <nid:…> v1 attribute`, `role read|write`,
      `dataType <id|reference|string> informational`, and the row's closed `▸ edit attributes` toggle (T-1301).
   3. Compare `v11-step-*`, `v1-step-*`, `empty-step-*`, `workflow-*` in the same folder with `docs/reports/T-1249-evidence/`
-     (same names): apart from the toggle and the io name now shown whole (T-1305), they must look as before.
+     (same names): apart from the toggle and the io name now shown whole (T-1305), they must look as before. Expected
+     differences that are not regressions: in `v11-step-*` the first input also shows `ref nid:x v1 attribute` and
+     `dataType id informational` (this task's own change, in the fixture since 0.27.0); in `empty-step-*` the Display ID
+     reads `lan_4_notify`, not `lan_3_notify` (the screenshot fixture gained the style-A step before it).
   **Expected:** every value is readable and unclipped and clearly belongs to its own io row; the summary itself has no
   editable control (editing sits behind the toggle); the hints read as hints (not values, not a version); io names are
   shown whole. The neighbouring states are unchanged apart from the toggle and the whole names.
@@ -313,7 +316,20 @@ grep -q '"derived": true' .context/working/t1304-v.out && grep -q '"dataType": t
 
 ## Visual Verification
 
-Screenshots: `docs/reports/T-1304-evidence/` (`node tools/_t1249-v11-io-shots.mjs docs/reports/T-1304-evidence`), after the
+**Re-review on 0.29.0 (2026-10-26)**, after the stale-review withdrawal. Shots: `docs/reports/T-1302-evidence/` (0.29.0
+source; the badge still says v0.28.0, as the shots predate the job's APP_VERSION bump, the only source difference).
+Person-sees gate: exit 0, 272 s. Advisory sweep (codex): `.context/working/t1304-rereview-sweep.out`, 4 OK and 4 minor:
+the "v1 attribute" hint can still read as a version (accepted at 0.27.0, unchanged); its "sys:crm vs sys:crm-default"
+is a misread (both T-1249 and T-1302 `v11-step-1024-panel.png` show `sys:crm-default · derived · step default` on the
+second input); the v11 ref/dataType lines and the `lan_4_notify` Display ID are expected (now named in the criterion);
+other inputs' editors are not shown open (each row's toggle is the same control). My read, control by control:
+`stylea-step-{1024,1920}-panel`: three rows, names whole; ref/role/dataType lines under each, muted hints, closed
+toggle after; row controls (name, type, req, ×) unclipped. `stylea-edit-1440-panel`: green rail per open row; every
+label beside its field; ref picker under ref; "+ add field" inside the rail. `hint-edit-1024-panel`: orange prefix
+hint directly under typeRef, nothing overlapped. `longname-1024-panel`: the long name wraps whole over two lines;
+type/req/× on the next line, unclipped. No defect found.
+
+Screenshots (0.27.0, superseded above): `docs/reports/T-1304-evidence/` (`node tools/_t1249-v11-io-shots.mjs docs/reports/T-1304-evidence`), after the
 sweep's hint fix. Person-sees gate: exit 0, 6/6, 344 s.
 
 | state | control | 1024 | 1440 | 1920 | note |

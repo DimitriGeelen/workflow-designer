@@ -322,7 +322,12 @@ node tools/_t1249-v11-io-cdp.mjs > .context/working/t1301-v1249.out 2>&1 && head
 
 ## Visual Verification
 
-Screenshots: `docs/reports/T-1301-evidence/` (`node tools/_t1249-v11-io-shots.mjs docs/reports/T-1301-evidence`), taken after
+**Re-review on 0.29.0 (2026-10-26)**, after the stale-review withdrawal: shots in `docs/reports/T-1302-evidence/`, gate
+exit 0, sweep `.context/working/t1304-rereview-sweep.out` (one sweep for T-1304 and T-1301); the read control by control
+is recorded in T-1304's `## Visual Verification` (stylea-edit, hint-edit, longname: rail, labels, picker, hint, wrap).
+No defect found.
+
+Screenshots (0.28.0, superseded above): `docs/reports/T-1301-evidence/` (`node tools/_t1249-v11-io-shots.mjs docs/reports/T-1301-evidence`), taken after
 the sweep's two fixes. Person-sees gate: exit 0, 6/6, 283 s. Advisory sweep (codex): `.context/working/t1301-sweep.out`.
 
 | state | control | 1024 | 1440 | 1920 | note |
