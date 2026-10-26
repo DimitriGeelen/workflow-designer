@@ -104,7 +104,7 @@ Arc-006, slice 3. greenfield's item (c), "add a field to an io" (msg 49dfbe21). 
 - [ ] Released, then greenfield adds a field on its own map and confirms (arc-006 rule).
 
 ### Human
-- [ ] The fields list in the io editor is legible, compact and clearly part of its io, at every width
+- [x] The fields list in the io editor is legible, compact and clearly part of its io, at every width
   For the independent reviewer: `fw reviewer judge T-1302 --criterion 1` (render-surface, no operator carve-out).
   **Steps:** 1. Open the T-1302 evidence screenshots named in `## Visual Verification`. 2. For each field row: path or
   fieldRef, role, required, cardinality, ×; the "+ add field" button. 3. Compare the closed states with
@@ -156,6 +156,7 @@ Arc-006, slice 3. greenfield's item (c), "add a field to an io" (msg 49dfbe21). 
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261026-bd126fe3 — reviewer-judge-t-1302-r3-2ecb2d9bd7cd:reviewer (rung rung-3-termlink-single-reviewer), digest 0fceca6e7866; dispatch judge-t-1302-r3-2ecb2d9bd7cd; evidence: .context/reviews/evidence/T-1302/AC1-judge-t-1302-r3-2ecb2d9bd7cd.md, .context/reviews/evidence/T-1302/fields-edit-1024-panel-end-judge-t-1302-r3-2ecb2d9bd7cd.png, .context/reviews/evidence/T-1302/fields-edit-1024-zoom-judge-t-1302-r3-2ecb2d9bd7cd.png, .context/reviews/evidence/T-1302/fields-when-1920-panel-judge-t-1302-r3-2ecb2d9bd7cd.png, .context/reviews/evidence/T-1302/field-add-1440-panel-end-judge-t-1302-r3-2ecb2d9bd7cd.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -307,7 +308,7 @@ taken after the sweep's fixes. Person-sees gate exit 0 (254 s). Advisory sweep: 
 | fields-edit | boundary between fields | ok | ok | ok | dotted separator added (sweep: blocks ran together) |
 | field-add | new empty field + "+ add field" | ok | ok | ok | address prompts "path…" (sweep: no cue) |
 | fields-when | a field with aef:when: "when ×1" | ok | ok | ok | sweep: no shot showed it; added; fits beside the others |
-| all neighbours | closed states | ok | ok | ok | 32 same-name shots pixel-identical to T-1305 (sweep) |
+| all neighbours | closed states | ok | ok | ok | vs T-1305: 29 same-name shots pixel-identical, 3 with sub-visible differences (the reviewer's count; the sweep had said 32 identical) |
 
 The faint "req" and "×" (all io rows and field rows) predate this task: T-1310. The harness's j7 leg measures every field
 control inside its editor and on top at its centre (1024, 1440); a first reading of a small screenshot had missed the faint ×.
