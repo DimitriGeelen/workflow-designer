@@ -1146,7 +1146,7 @@ font-family: 'Outfit';
     display: grid;
     grid-template-columns: 1fr 78px auto auto;
     gap: 4px;
-    align-items: center;
+    align-items: start;   /* T-1305: a wrapped name grows downwards; type, req and × stay on its first line */
   }
   .io-row.no-req { grid-template-columns: 1fr 78px auto; }
   .io-name, .io-type {
@@ -1161,6 +1161,11 @@ font-family: 'Outfit';
     min-width: 0;
   }
   .io-name:focus, .io-type:focus { border-color: var(--accent); }
+  /* T-1305: the io name wraps and grows with its value, so a producer's field path is never cut */
+  textarea.io-name-wrap { resize: none; overflow: hidden; field-sizing: content; min-height: 0; line-height: 1.35;
+                          white-space: pre-wrap; overflow-wrap: anywhere; display: block; width: 100%; }
+  .io-row.io-row-long > .io-name { grid-column: 1 / -1; }
+  .io-row.io-row-long > .io-type { grid-column: 2; }
   .io-type {
     appearance: none;
     -webkit-appearance: none;
@@ -8820,12 +8825,20 @@ function ioRow(item, idx, items, isInput) {
   const row = document.createElement('div');
   row.className = 'io-row';
 
-  const nameIn = document.createElement('input');
-  nameIn.className = 'io-name';
+  // T-1305: a wrapping field that grows with the name. A producer's name is its field path (sfdc:Opportunity.OwnerId),
+  // and a single-line input cut it at every window width (the panel has a fixed width). Enter commits, no new line.
+  const nameIn = document.createElement('textarea');
+  nameIn.className = 'io-name io-name-wrap';
+  nameIn.rows = Math.max(1, Math.ceil((item.name || '').length / 18));   // where field-sizing:content is unsupported
   nameIn.value = item.name;
   nameIn.placeholder = 'name';
   nameIn.spellcheck = false;
-  nameIn.addEventListener('input', e => { item.name = e.target.value; });
+  nameIn.title = item.name || '';
+  nameIn.addEventListener('input', e => { item.name = e.target.value.replace(/\n/g, ''); });
+  nameIn.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); nameIn.blur(); } });
+  // a name longer than the name column holds takes the row's full width, and type/req/× go to the line below, so a
+  // field path wraps only when it is longer than the whole panel (not mid-word in a narrow column)
+  if ((item.name || '').length > 18) row.classList.add('io-row-long');
   row.appendChild(nameIn);
 
   const typeSel = document.createElement('select');

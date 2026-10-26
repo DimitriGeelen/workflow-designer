@@ -1,13 +1,20 @@
 ---
 id: T-1305
-name: "io name box cuts long field paths (greenfield's sfdc:Opportunity.OwnerId…) at every width"
+name: "io name box cuts long field paths (greenfield's sfdc:Opportunity.OwnerId…)
+  at every width"
 description: >
-  Seen in T-1304's screenshots and the advisory sweep: in the I/O contract panel the io NAME input cuts a producer's field path at 1024, 1440 and 1920 (1920 fits only the shortest). For greenfield the name IS the field path (sfdc:Opportunity.Id, tacton:Account.companyName), so the end that identifies the field is hidden. Pre-existing; candidates: grow the name box (as T-1278 did for the step Name), a full-value tooltip, or wrap. Fold into slice 2 (T-1301) if the io row is reworked there.
+  Seen in T-1304's screenshots and the advisory sweep: in the I/O contract panel the
+  io NAME input cuts a producer's field path at 1024, 1440 and 1920 (1920 fits only
+  the shortest). For greenfield the name IS the field path (sfdc:Opportunity.Id, tacton:Account.companyName),
+  so the end that identifies the field is hidden. Pre-existing; candidates: grow the
+  name box (as T-1278 did for the step Name), a full-value tooltip, or wrap. Fold
+  into slice 2 (T-1301) if the io row is reworked there.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [arc:structured-io]
 components: []
 related_tasks: []
@@ -39,8 +46,8 @@ arc_id: structured-io
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-24T22:00:34Z
-last_update: 2026-10-24T22:20:32Z
-date_finished: null
+last_update: '2026-10-26T11:14:58Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -51,22 +58,56 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-26T11:14:58Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1305: io name box cuts long field paths (greenfield's sfdc:Opportunity.OwnerId…) at every width
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Arc-006. Flagged by T-1304's sweep and reviewer and by both T-1301 reviews: the io name box cuts a producer's field path
+(`sfdc:Opportunity.OwnerId`, `tacton:Account.companyName`) at every window width, because the properties panel has a fixed
+width. Same remedy as T-1301's attribute fields: a wrapping field that grows with its value.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] The io name is shown whole at every width: a wrapping field that grows with its value (Enter commits, no new line).
+  The type, req and × controls keep their place and size; a short name keeps a one-line row.
+- [ ] Editing the name works as before (typing updates the item); a save is unchanged by the switch (no edit = io bytes
+  unchanged). `_t1249` and `_t1301` stay green; `_t1249` leg e counts the name control whatever its tag.
+- [ ] A harness leg asserts that no io name field clips (scrollHeight vs clientHeight) for greenfield's style-A names, red
+  on the old source (input: scrollWidth > clientWidth) and green on the new.
+- [ ] Person-sees gate exit 0; screenshots (style A, v1, v1.1) at 1024/1440/1920 read in `## Visual Verification`.
 
 ### Human
+- [ ] The io name field shows a producer's whole field path, legibly, without disturbing the row, at every width
+  For the independent reviewer: `fw reviewer judge T-1305 --criterion 1` (render-surface, no operator carve-out).
+  **Steps:** 1. Open `docs/reports/T-1305-evidence/stylea-step-{1024,1440,1920}-panel.png` and `v1-step-*`, `v11-step-*`.
+  2. For each io row: the name (whole?), type, req, ×. 3. Compare with `docs/reports/T-1301-evidence/` (same names).
+  **Expected:** every name whole; the row's controls aligned and unclipped; only the name field changed.
+  **If not:** name the file, the row and the control.
+
+<!-- Criteria requiring human verification
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -349,3 +390,7 @@ date_finished: null
 
 ### 2026-10-24T22:20:32Z — status-update [task-update-agent]
 - **Change:** tags: +arc:structured-io
+
+### 2026-10-26T11:14:57Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

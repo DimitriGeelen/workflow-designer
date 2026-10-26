@@ -196,7 +196,7 @@ const PAGE = `(function(){
     var v11 = Array.from(p.querySelectorAll('.io-v11'));
     var r = { text: p.innerText, v11: v11.length, v11Text: v11.map(function(e){ return e.innerText; }).join('\\n'),
               v11Inputs: v11.reduce(function(s, e){ return s + e.querySelectorAll('input,select,textarea,[contenteditable="true"]').length; }, 0),
-              rows: Array.from(p.querySelectorAll('.io-row')).map(function(r){ return r.querySelectorAll('input,select').length; }) };
+              rows: Array.from(p.querySelectorAll('.io-row')).map(function(r){ return r.querySelectorAll('input,select,textarea').length; }) };   // T-1305: the name may be a textarea
     selection = null; multiSelect = new Set(); renderProperties();
     r.wfText = p.innerText; r.wfV11 = p.querySelectorAll('.wf-v11').length;
     return r;

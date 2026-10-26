@@ -264,6 +264,19 @@ async function main() {
     if (!hAo.open || !(hAo.keys || []).length) errs.push('h: opening the toggle shows no controls');
     if ((await io(hOut, 't1301_v1')) !== baseV1 || JSON.stringify(await items(hOut, 't1301_a')) !== JSON.stringify(baseA)) errs.push('h: open + select + save with no edit changed io');
 
+    // i. T-1305: an io NAME (greenfield's field path) is shown whole in its row: no name field clips
+    await fresh(NO_META, 't1301_a');
+    const iRes = await E(`(function(){
+      return Array.from(document.querySelectorAll('#properties .io-row .io-name')).map(function(f){
+        var cut = f.tagName === 'TEXTAREA' ? f.scrollHeight > f.clientHeight + 1 : f.scrollWidth > f.clientWidth + 1;
+        return { value: f.value, tag: f.tagName, cut: cut };
+      });
+    })()`);
+    legs.i = { names: iRes };
+    const iCut = iRes.filter(x => x.cut).map(x => x.value);
+    if (!iRes.length) errs.push('i: no io name fields found');
+    if (iCut.length) errs.push('i: io name field(s) clip their value: ' + iCut.join(', '));
+
     const ok = errs.length === 0;
     console.log(JSON.stringify({ ok, src: SRC, errs, legs }, null, 2));
     process.exitCode = ok ? 0 : 1;
