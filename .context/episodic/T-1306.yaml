@@ -1,0 +1,238 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1306: Release designer 0.27.0 (T-1304 ref/dataType shown, T-1290 kit findings carry map evidence)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-26T11:13:44Z
+# ============================================================================
+
+task_id: T-1306
+task_name: "Release designer 0.27.0 (T-1304 ref/dataType shown, T-1290 kit findings carry map evidence)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-24T22:04:18Z
+completed: 2026-10-26T11:13:36Z
+duration_days: 2
+updates_count: 6
+first_commit: 2026-10-25T00:05:14+02:00
+last_commit: 2026-10-26T12:13:36+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  0.27.0 — VERSION and APP_VERSION bumped (parity ok); release notes final: the io panel shows a producer's ref and dataType read-only (T-1304), kit review findings carry map evidence (T-1290); nothing changes in stored maps. T-1304: reviewer green applied (V-20261024-4bd97453). stopped for the operator's shutdown — 0.27.0 notes name the four endpoints AEF does not serve (T-1289 leg green); job 085 dry-run passed, then retired unrun because the core tier is red: T-974 8a/8b (the release script's kit build is refused by the calibration gate before any 0.27.0 calibration) is open for the next session. Session handover S-2026-1025-0016 (operator shutdown; 5 commits local, core red on T-974 8a/8b, job 085 retired). arc-006 structured-io — 'Structured io: from shown to editable, confirmed by the producer' (operator 2026-10-25: yes). Anchor T-1242; headline: greenfield opens its own map, sees every io attribute it wrote, edits them (ref picker over its ontology, role, operation, systems, add a field), saves, and its own check confirms. Arc rule: no slice is done until the producer confirms it on its own map, in the designer it runs. Tagged T-1219, T-1229, T-1249, T-1301..T-1306. handover notes arc-006 structured-io created. VERSION/APP_VERSION back to 0.26.0; the 0.27.0 bump moves into the release job — the release script's no-bypass kit calibration gate (T-1008) refuses an uncalibrated version, and T-974 leg 8 runs it on the tree's VERSION, so a bump before the job's calibration keeps the core tier red until the release (unseen at 0.26.0: the core gate T-1288 came after it). The kit hash depends only on --version and the kit sources, so calibration is unaffected. T-974 16/16, T-1289 green. 0.27.0 — VERSION and APP_VERSION bumped by the release job (parity ok). release designer 0.27.0 — the io panel shows a producer's ref and dataType read-only, like role (T-1304); kit review findings carry map evidence, checked mechanically (T-1290); kit calibrated on its bytes. job 086 steps 1-7 done (bump, codex and GLM-5.3 calibration PASS, release commit 8d2bffe2, tag designer-v0.27.0 local), step 8 push refused: core red on _t1066 because the agent wrote T-1301's reviewer criterion with the operator-only [REVIEW] label into the working tree during the push (fixed), and the server dropped SSH during the hook's 13-min core run (a push must find a green cache). T-1301 criteria; T-1281 be.18-be.21 noted. tidy the release notes in the task (Rejected line restored to its place). designer 0.27.0 released — tag designer-v0.27.0 on 8d2bffe2 pushed with bleeding-edge 79f1647d after a green core (207/0); sha256 dd707e13…, 1237858 bytes; AEF and greenfield told (greenfield asked to rerun its io check). Job 086 recorded: steps 1-7 by the operator, step 8 completed by the agent's push. T-1307: evidence for the one-off _t344 red (cron audit overlap suspected). verification commands (tag on origin, artifact sha256, tag on the artifact's commit) and the Evolution entry (the release procedure changed: bump in the job, core tier before the push)
+
+# Key outcomes
+outcomes:
+  - '`VERSION` and `APP_VERSION` are 0.27.0 (`tools/_t808-version-parity.sh` passes); `docs/releases/RELEASE-NOTES-0.27.0.md`'
+  - 'The core tier is green on the tree that is released (the pre-push cache holds for it before hand-over).'
+  - 'An operator job (calibrate codex + GLM-5.3, gate, cut, commit, tag, push) passes its dry-run; it is committed and handed'
+  - 'After the operator''s run: tag `designer-v0.27.0` on origin; AEF and aef-greenfield-test have version, tag, sha256, bytes'
+  - 'AEF''s pin is followed until `tools/_t1187-aef-pin-lag.sh` reads CURRENT. *(AEF task T-4764, msg 496570c4, 2026-10-26:'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'job 086 steps 1-7 done (bump, codex and GLM-5.3 calibration PASS, release commit 8d2bffe2, tag designer-v0.27.0 local), step 8 push refused: core red on _t1066 because the agent wrote T-1301''s reviewer criterion with the operator-only [REVIEW] label into the working tree during the push (fixed), and the server dropped SSH during the hook''s 13-min core run (a push must find a green cache). T-1301 criteria; T-1281 be.18-be.21 noted'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/arcs/structured-io.yaml'
+  - '.context/handovers/LATEST.md'
+  - '.context/handovers/S-2026-1025-0016.md'
+  - '.context/runme/085-release-designer-0.27.0/dryrun.ok'
+  - '.context/runme/085-release-designer-0.27.0/job.sh'
+  - '.context/runme/085-release-designer-0.27.0/retired'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex.out'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/clean/LOOP.txt'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/clean/REVIEW.json'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/clean/SOURCE.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/clean/agents.log'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/clean/kit/AUTHORING.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/clean/kit/CONFORMANCE.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/clean/kit/CORRECT.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/clean/kit/GENERATE.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/clean/kit/REVIEW.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/clean/kit/RUBRIC.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/clean/kit/exemplar.bpmn'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/clean/kit/validate-workflow.py'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/clean/map.bpmn'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/planted/LOOP.txt'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/planted/REVIEW.json'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/planted/SOURCE.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/planted/agents.log'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/planted/kit/AUTHORING.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/planted/kit/CONFORMANCE.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/planted/kit/CORRECT.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/planted/kit/GENERATE.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/planted/kit/REVIEW.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/planted/kit/RUBRIC.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/planted/kit/exemplar.bpmn'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/planted/kit/validate-workflow.py'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-codex/planted/map.bpmn'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3.out'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/clean/LOOP.txt'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/clean/REVIEW.json'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/clean/SOURCE.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/clean/agents.log'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/clean/kit/AUTHORING.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/clean/kit/CONFORMANCE.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/clean/kit/CORRECT.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/clean/kit/GENERATE.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/clean/kit/REVIEW.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/clean/kit/RUBRIC.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/clean/kit/exemplar.bpmn'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/clean/kit/validate-workflow.py'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/clean/map.bpmn'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/planted/LOOP.txt'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/planted/REVIEW.json'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/planted/SOURCE.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/planted/agents.log'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/planted/kit/AUTHORING.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/planted/kit/CONFORMANCE.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/planted/kit/CORRECT.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/planted/kit/GENERATE.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/planted/kit/REVIEW.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/planted/kit/RUBRIC.md'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/planted/kit/exemplar.bpmn'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/planted/kit/validate-workflow.py'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/calibrate-glm-5.3/planted/map.bpmn'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/dryrun.ok'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/job.sh'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/retired'
+  - '.context/runme/086-release-designer-0.27.0-bump-in-job/run-20261025T124046.log'
+  - '.context/st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/m2/.context/episodic/T-907.yaml'
+  - '.context/st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/gap/.context/episodic/T-905.yaml'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/live/.context/episodic/T-902.yaml'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/m2/.context/episodic/T-907.yaml'
+  - '.context/st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/gap/.context/episodic/T-905.yaml'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/live/.context/episodic/T-902.yaml'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/m2/.context/episodic/T-907.yaml'
+  - '.context/st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/gap/.context/episodic/T-905.yaml'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/live/.context/episodic/T-902.yaml'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/m2/.context/episodic/T-907.yaml'
+  - '.context/st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.tasks/active/T-1219-traceable-data-elements-on-aefio-ref-rol.md'
+  - '.tasks/active/T-1229-designer-fields-for-aefio-ref-role-cardi.md'
+  - '.tasks/active/T-1249-designer-slice-1-t-1242-go-read-show-and.md'
+  - '.tasks/active/T-1281-upgrade-aef-be8---v1815-be9-or-later-bat.md'
+  - '.tasks/active/T-1301-designer-slice-2-t-1242-go-edit-the-mapp.md'
+  - '.tasks/active/T-1302-designer-slice-3-t-1242-go-edit-aeffield.md'
+  - '.tasks/active/T-1303-designer-slice-4-t-1242-go-show-aefs-map.md'
+  - '.tasks/active/T-1304-designer-hides-v1-ref-and-datatype-on-an.md'
+  - '.tasks/active/T-1305-io-name-box-cuts-long-field-paths-greenf.md'
+  - '.tasks/active/T-1306-release-designer-0270-t-1304-refdatatype.md'
+  - '.tasks/active/T-1307-t344-via-t345-guard-went-red-inside-the-.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.27.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.27.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.27.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.27.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.27.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.27.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.27.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.27.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.27.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.27.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.27.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.27.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.27.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.27.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.27.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.27.0.html'
+  - 'docs/authoring-kit/calibration-records/0.27.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.27.0.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-25T00:05:14'
+    action: 'T-1306: 0.27.0 — VERSION and APP_VERSION bumped (parity ok); release notes final: the io panel shows a producer''s ref and dataType read-only (T-1304), kit review findings carry map evidence (T-1290); nothing changes in stored maps. T-1304: reviewer green applied (V-20261024-4bd97453)'
+  - time: '2026-10-25T00:15:39'
+    action: 'T-1306: stopped for the operator''s shutdown — 0.27.0 notes name the four endpoints AEF does not serve (T-1289 leg green); job 085 dry-run passed, then retired unrun because the core tier is red: T-974 8a/8b (the release script''s kit build is refused by the calibration gate before any 0.27.0 calibration) is open for the next session'
+  - time: '2026-10-25T00:17:34'
+    action: 'T-1306: Session handover S-2026-1025-0016 (operator shutdown; 5 commits local, core red on T-974 8a/8b, job 085 retired)'
+  - time: '2026-10-25T00:20:51'
+    action: 'T-1306: arc-006 structured-io — ''Structured io: from shown to editable, confirmed by the producer'' (operator 2026-10-25: yes). Anchor T-1242; headline: greenfield opens its own map, sees every io attribute it wrote, edits them (ref picker over its ontology, role, operation, systems, add a field), saves, and its own check confirms. Arc rule: no slice is done until the producer confirms it on its own map, in the designer it runs. Tagged T-1219, T-1229, T-1249, T-1301..T-1306'
+  - time: '2026-10-25T00:21:01'
+    action: 'T-1306: handover notes arc-006 structured-io created'
+  - time: '2026-10-25T12:29:15'
+    action: 'T-1306: VERSION/APP_VERSION back to 0.26.0; the 0.27.0 bump moves into the release job — the release script''s no-bypass kit calibration gate (T-1008) refuses an uncalibrated version, and T-974 leg 8 runs it on the tree''s VERSION, so a bump before the job''s calibration keeps the core tier red until the release (unseen at 0.26.0: the core gate T-1288 came after it). The kit hash depends only on --version and the kit sources, so calibration is unaffected. T-974 16/16, T-1289 green'
+  - time: '2026-10-25T12:41:01'
+    action: 'T-1306: 0.27.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-10-26T10:09:46'
+    action: 'T-1306: release designer 0.27.0 — the io panel shows a producer''s ref and dataType read-only, like role (T-1304); kit review findings carry map evidence, checked mechanically (T-1290); kit calibrated on its bytes'
+  - time: '2026-10-26T10:25:57'
+    action: 'T-1306: job 086 steps 1-7 done (bump, codex and GLM-5.3 calibration PASS, release commit 8d2bffe2, tag designer-v0.27.0 local), step 8 push refused: core red on _t1066 because the agent wrote T-1301''s reviewer criterion with the operator-only [REVIEW] label into the working tree during the push (fixed), and the server dropped SSH during the hook''s 13-min core run (a push must find a green cache). T-1301 criteria; T-1281 be.18-be.21 noted'
+  - time: '2026-10-26T10:26:23'
+    action: 'T-1306: tidy the release notes in the task (Rejected line restored to its place)'
+  - time: '2026-10-26T10:56:31'
+    action: 'T-1306: designer 0.27.0 released — tag designer-v0.27.0 on 8d2bffe2 pushed with bleeding-edge 79f1647d after a green core (207/0); sha256 dd707e13…, 1237858 bytes; AEF and greenfield told (greenfield asked to rerun its io check). Job 086 recorded: steps 1-7 by the operator, step 8 completed by the agent''s push. T-1307: evidence for the one-off _t344 red (cron audit overlap suspected)'
+  - time: '2026-10-26T12:13:36'
+    action: 'T-1306: verification commands (tag on origin, artifact sha256, tag on the artifact''s commit) and the Evolution entry (the release procedure changed: bump in the job, core tier before the push)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 14 commit(s), 2229 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:structured-io]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2229
+  commits: 14
+  files_changed: 140
+  lines_added: 39424
+  lines_removed: 83
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1306-release-designer-0270-t-1304-refdatatype.md
+generated_by: context-agent-hybrid

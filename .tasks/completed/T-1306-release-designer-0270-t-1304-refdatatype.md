@@ -8,13 +8,13 @@ description: >
   and greenfield get version, tag, sha256, bytes; greenfield reruns scripts/designer-io-panel-check.mjs
   (T-1304's last criterion); track AEF's pin.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_run
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:structured-io]
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ arc_id: structured-io
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-24T22:04:18Z
-last_update: 2026-10-24T22:20:33Z
-date_finished:
+last_update: 2026-10-26T11:13:36Z
+date_finished: 2026-10-26T11:13:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -444,3 +444,29 @@ test "$(git rev-parse designer-v0.27.0^{commit})" = "$(git log -1 --format=%H --
 
 ### 2026-10-24T22:20:33Z — status-update [task-update-agent]
 - **Change:** tags: +arc:structured-io
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-c9532ce5
+- **Timestamp:** 2026-10-26T11:13:38Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 4
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — `VERSION` and `APP_VERSION` are 0.27.0 (`tools/_t808-version-parity.sh` passes); `docs/releases/RELEASE-NOTES-0.27.0.md`
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t808-version-parity.sh in: `VERSION` and `APP_VERSION` are 0.27.0 (`tools/_t808-version-parity.sh` passes); `docs/releases/RELEASE-NOTES-0.27.0.md``
+- **AC#5 (Agent)** — AEF's pin is followed until `tools/_t1187-aef-pin-lag.sh` reads CURRENT. *(AEF task T-4764, msg 496570c4, 2026-10-26:
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t1187-aef-pin-lag.sh in: AEF's pin is followed until `tools/_t1187-aef-pin-lag.sh` reads CURRENT. *(AEF task T-4764, msg 496570c4, 2026-10-26:`
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 1
+     - evidence: `git ls-remote --exit-code --tags origin designer-v0.27.0 >/dev/null`
+
+### 2026-10-26T11:13:36Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
