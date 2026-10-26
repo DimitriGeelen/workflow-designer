@@ -1,0 +1,5 @@
+Steps 1-7 ran (operator, 2026-10-25/26): bump 9d96dc2b, codex and GLM-5.3 calibration PASS, release commit 8d2bffe2, tag
+designer-v0.27.0. Step 8 (push) was refused: core red on _t1066 (the agent's own T-1301 task edit during the push) and the
+server dropped SSH while the hook ran the core tier. The agent got the core tier green (207/0) and pushed bleeding-edge
+(79f1647d) and the tag on 2026-10-26, the action the operator had already said y to. Nothing is left to run. Do not re-run:
+step 1 would refuse (VERSION is no longer 0.26.0).

@@ -88,13 +88,17 @@ Procedure as job 083 (T-1283).
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `VERSION` and `APP_VERSION` are 0.27.0 (`tools/_t808-version-parity.sh` passes); `docs/releases/RELEASE-NOTES-0.27.0.md`
-  is final (no DRAFT), names T-1304 and T-1290 and says what changes in stored maps.
-- [ ] The core tier is green on the tree that is released (the pre-push cache holds for it before hand-over).
-- [ ] An operator job (calibrate codex + GLM-5.3, gate, cut, commit, tag, push) passes its dry-run; it is committed and handed
-  over, with the watcher armed.
-- [ ] After the operator's run: tag `designer-v0.27.0` on origin; AEF and aef-greenfield-test have version, tag, sha256, bytes
+- [x] `VERSION` and `APP_VERSION` are 0.27.0 (`tools/_t808-version-parity.sh` passes); `docs/releases/RELEASE-NOTES-0.27.0.md`
+  is final (no DRAFT), names T-1304 and T-1290 and says what changes in stored maps. *(bumped by job 086 step 1, 9d96dc2b)*
+- [x] The core tier is green on the tree that is released (the pre-push cache holds for it before hand-over).
+  *(207/0, 679 s, 2026-10-26, after one red run filed as T-1307)*
+- [x] An operator job (calibrate codex + GLM-5.3, gate, cut, commit, tag, push) passes its dry-run; it is committed and handed
+  over, with the watcher armed. *(086: dry-run passed with step 1 rehearsed; the operator ran steps 1-7; step 8 refused,
+  completed by the agent's push)*
+- [x] After the operator's run: tag `designer-v0.27.0` on origin; AEF and aef-greenfield-test have version, tag, sha256, bytes
   and what changes; greenfield is asked to rerun `scripts/designer-io-panel-check.mjs` (T-1304's last criterion).
+  *(tag a253e5fb on 8d2bffe2, bleeding-edge 79f1647d; sha256 dd707e13…, 1237858 bytes; AEF msg 604650eb, greenfield msg
+  66d6f981 via its hub)*
 - [ ] AEF's pin is followed until `tools/_t1187-aef-pin-lag.sh` reads CURRENT.
 
 ### Human

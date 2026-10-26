@@ -1,0 +1,15 @@
+review prompt ~6704 tokens (reviewer context not declared)
+review prompt ~6724 tokens (reviewer context not declared)
+map evidence, clean map:
+  verify-findings: 0 verified, 0 absence, 0 unverified
+map evidence, planted map:
+    verified   Lane_warehouse (line 49 contains the quote)
+    verified   quality-inspection (line 285 contains the quote)
+    verified   send-payment-reminder (line 285 contains the quote)
+  verify-findings: 3 verified, 0 absence, 0 unverified
+recall: 3/3 planted defects caught
+  caught invented/citation                  send-payment-reminder
+  caught undeclared-unknown/invented        quality-inspection
+  caught wrong-authority                    Lane_warehouse
+false findings: 0 on the clean map, 0 on unplanted elements
+CALIBRATION: PASS
