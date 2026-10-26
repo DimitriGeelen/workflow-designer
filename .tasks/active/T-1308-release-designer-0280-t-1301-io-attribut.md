@@ -99,7 +99,10 @@ runs as its own step before the push, so the hook finds a green cache.
   what changes; greenfield is asked to try the editor on its own map (T-1301's last criterion).
   *(tag 5c46a811 on release commit 7eb864d4; sha256 f8c5e15f…aade45fb, 1246384 bytes; AEF msg 4cd11df7, greenfield msg
   3da78e9c)*
-- [ ] AEF's pin is followed until `tools/_t1187-aef-pin-lag.sh` reads CURRENT.
+- [ ] AEF's pin is followed until `tools/_t1187-aef-pin-lag.sh` reads CURRENT. *(AEF task T-4767, msg 97f34da2: pulling at
+  the tag, sha256 and bytes checked; they will confirm when served. Msg b54b341e: pinned and confirmed on their branch,
+  sha256 and bytes match, "ships in our next be tag". Pin-lag still reads BEHIND (0.27.0) because it reads the published
+  pin, so this stays open until AEF's next be tag.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
