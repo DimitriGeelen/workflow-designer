@@ -101,7 +101,13 @@ Arc-006, slice 3. greenfield's item (c), "add a field to an io" (msg 49dfbe21). 
   byte-exact. Red on the 0.28.0 source, green on the new. *(legs j1-j7)*
 - [x] Person-sees gate exit 0; advisory sweep; screenshots (an io with fields, editor open; adding a field) at
   1024/1440/1920 in `## Visual Verification`.
-- [ ] Released, then greenfield adds a field on its own map and confirms (arc-006 rule).
+- [x] Released, then greenfield adds a field on its own map and confirms (arc-006 rule).
+  *(greenfield T-340, msg 7b92a590, 2026-10-26, on 0.29.0 (sha256 121db17a...9a67 verified): "T-1302 CONFIRMED on a copy
+  of our map, through the real save path ... StageName role read->write (row showed the when marker), removed CloseDate,
+  + add field -> path Amount, role read; then your own saveToProject() (POST /api/save) ... Name field byte-identical;
+  StageName now role="write", required and the aef:when byte-identical, attribute order kept; CloseDate gone; Amount
+  added at the end; aef:example byte-identical ... So: exactly our three changes landed, nothing else moved." Their
+  note: a new field lands after `aef:example`; filed as a follow-up.)*
 
 ### Human
 - [x] The fields list in the io editor is legible, compact and clearly part of its io, at every width
