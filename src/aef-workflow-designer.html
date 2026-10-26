@@ -9106,7 +9106,16 @@ function ioFieldsEditor(item) {
   add.className = 'io-add io-field-add';
   add.textContent = '+ add field';
   add.title = 'add a field to this input/output (aef:field); give it a path or a fieldRef';
-  add.onclick = () => { item.children = (item.children || []).concat(['<aef:field/>']); renderProperties(); };
+  // T-1314: with the fields, not at the end: after the last aef:field, or before the first other child (expect, example)
+  add.onclick = () => {
+    const kids = (item.children || []).slice();
+    const isField = x => { const el = v11ParseFragment([x])[0]; return !!el && el.namespaceURI === AEF_EXT_NS && el.localName === 'field'; };
+    let at = -1;
+    kids.forEach((x, j) => { if (isField(x)) at = j; });
+    kids.splice(at + 1, 0, '<aef:field/>');
+    item.children = kids;
+    renderProperties();
+  };
   sec.appendChild(add);
   return sec;
 }

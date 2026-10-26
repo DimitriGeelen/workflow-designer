@@ -81,6 +81,11 @@ const FIELDS = MAP('').replace(
             <aef:field fieldRef="sfdc:Opportunity.Id" role="match"/>
             <aef:field path="LineItems[]" cardinality="many"><aef:when path="Kind" const="TradeIn"/></aef:field>
             <aef:expect path="StageName" const="Closed Won"/>
+            <aef:example>{"StageName": "Closed Won"}</aef:example>
+          </aef:output>
+          <aef:output name="audit" type="object">
+            <aef:expect path="Status" const="ok"/>
+            <aef:example>{"Status": "ok"}</aef:example>
           </aef:output>
         </aef:io>
       </bpmn:extensionElements>
@@ -344,7 +349,8 @@ async function main() {
     legs.j.when = k2[1];
     if (!/^<aef:field path="LineItems\[\]" cardinality="many" required="true"><aef:when path="Kind" const="TradeIn"\/><\/aef:field>$/.test(k2[1] || ''))
       errs.push('j2: editing a field with an aef:when lost or reordered something: ' + k2[1]);
-    // j3 add a field and give it a path and a role: appended after the existing children
+    // j3 add a field and give it a path and a role: it lands after the last field, before expect and example (T-1314:
+    // 0.29.0 appended it after aef:example; greenfield, msg 7b92a590)
     await E(`window.__open(${JSON.stringify(FIELDS)})`); await E(`window.__select('t1301_f')`);
     const ja = await E(`window.__fieldAdd('outputs', 0)`);
     const jRows = await E(`window.__fields('outputs', 0)`);
@@ -352,14 +358,26 @@ async function main() {
     await E(`window.__fieldSet('outputs', 0, ${nf}, 'addr', 'Amount')`);
     await E(`window.__fieldSet('outputs', 0, ${nf}, 'role', 'write')`);
     let k3 = kidsOf(await ioF(await save()));
-    legs.j.added = k3[3];
-    if (ja !== 'ok' || k3.length !== 4 || k3[3] !== '<aef:field path="Amount" role="write"/>' || k3.slice(0, 3).join('') !== fKids.join(''))
-      errs.push('j3: adding a field did not append exactly <aef:field path="Amount" role="write"/>: ' + JSON.stringify(k3));
+    legs.j.added = k3[2];
+    // kidsOf reads the whole io: output 0 (field, field, expect, example), then output 1 (expect, example)
+    if (ja !== 'ok' || k3.length !== fKids.length + 1 || k3[2] !== '<aef:field path="Amount" role="write"/>'
+        || k3.slice(0, 2).concat(k3.slice(3)).join('') !== fKids.join(''))
+      errs.push('j3: a new field did not land after the last field, before expect/example, the rest byte-exact: ' + JSON.stringify(k3));
     // j4 remove field 0: gone, the others byte-exact
     await E(`window.__open(${JSON.stringify(FIELDS)})`); await E(`window.__select('t1301_f')`);
     await E(`window.__fieldDel('outputs', 0, 0)`);
     let k4 = kidsOf(await ioF(await save()));
-    if (k4.length !== 2 || k4[0] !== fKids[1] || k4[1] !== fKids[2]) errs.push('j4: removing field 0 did not leave the other children byte-exact: ' + JSON.stringify(k4));
+    if (k4.length !== fKids.length - 1 || k4.join('') !== fKids.slice(1).join(''))
+      errs.push('j4: removing field 0 did not leave the other children byte-exact: ' + JSON.stringify(k4));
+    // j8 (T-1314) an io with no field: the new field comes first, before its expect and example
+    await E(`window.__open(${JSON.stringify(FIELDS)})`); await E(`window.__select('t1301_f')`);
+    const j8a = await E(`window.__fieldAdd('outputs', 1)`);
+    await E(`window.__fieldSet('outputs', 1, 0, 'addr', 'Status')`);
+    const k8 = kidsOf(await ioF(await save()));
+    legs.j.firstField = k8.slice(4);
+    if (j8a !== 'ok' || k8.length !== 7 || k8[4] !== '<aef:field path="Status"/>' || !/^<aef:expect path="Status"/.test(k8[5] || '')
+        || !/^<aef:example>/.test(k8[6] || ''))
+      errs.push('j8: a first field did not land before the io\'s expect and example: ' + JSON.stringify(k8.slice(4)));
     // j5 the untouched step keeps its bytes through all of it
     if ((await io(await save(), 't1301_a')) !== fA) errs.push('j5: editing fields changed another step\'s io');
     // j6 the expect child is never editable as a field

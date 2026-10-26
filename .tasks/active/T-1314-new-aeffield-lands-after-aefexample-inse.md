@@ -2,12 +2,15 @@
 id: T-1314
 name: "New aef:field lands after aef:example; insert it after the last existing field"
 description: >
-  greenfield (msg 7b92a590, 0.29.0): + add field appends the new aef:field at the end of the io's children, after aef:example. It should go after the last existing aef:field (before aef:expect/aef:example), keeping every other child byte-exact.
+  greenfield (msg 7b92a590, 0.29.0): + add field appends the new aef:field at the
+  end of the io's children, after aef:example. It should go after the last existing
+  aef:field (before aef:expect/aef:example), keeping every other child byte-exact.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [arc:structured-io]
 components: []
 related_tasks: []
@@ -38,8 +41,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-26T15:59:36Z
-last_update: 2026-10-26T15:59:36Z
-date_finished: null
+last_update: '2026-10-26T16:31:58Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +53,53 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-26T16:31:58Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=editor)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1314: New aef:field lands after aef:example; insert it after the last existing field
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+greenfield (T-340, msg 7b92a590) on 0.29.0: "+ add field" appended the new `aef:field` at the end of the io's children,
+so it landed after `aef:example` (order Name, StageName, example, Amount). `src/aef-workflow-designer.html` ioFieldsEditor:
+`item.children.concat(['<aef:field/>'])`. A new field belongs with the fields: after the last existing `aef:field`, or,
+with none, before the first `aef:expect`/`aef:example`/other child.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] "+ add field" inserts the new `<aef:field/>` right after the last existing `aef:field` child; with no field, before
+  the first other child (expect, example, unknown); with no children, as the only child. Every other child keeps its
+  bytes and position.
+  *(ioFieldsEditor's add handler: splice after the last aef:field index, else at 0.)*
+- [x] A CDP leg (in `tools/_t1301-io-edit-cdp.mjs`, j-series) drives "+ add field" on an io whose children are
+  field, field, expect, example and asserts the saved order field, field, NEW, expect, example (and the no-field case):
+  red on the 0.29.0 source, green on the new.
+  *(FIELDS fixture gains an aef:example and a second output with expect + example only. j3 (after the last field) and
+  j8 (no field: first): red on 0.29.0 (`.context/working/t1314-red.out`, exactly j3 and j8), green on the new
+  (`t1314-green.out`, ok: true, all legs incl. j4 and j7).)*
+- [x] The person-sees gate exits 0 (no layout change expected: the editor lists fields only, so the row appears in the
+  same place as before).
+  *(exit 0, 314 s; `_t1249` slice-1 harness rc=0.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -116,6 +152,7 @@ date_finished: null
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+node tools/_t1301-io-edit-cdp.mjs > .context/working/t1314-v.out 2>&1 && head -2 .context/working/t1314-v.out | grep -q '"ok": true'
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
@@ -289,6 +326,12 @@ date_finished: null
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-10-26 — found by the producer, not by our harness
+- **What changed:** the T-1302 harness asserted "appended after the existing children", which encoded the defect: its
+  fixture had no aef:example after the fields, so the wrong position looked right. greenfield's own map had one.
+- **Plan impact:** fixtures carry every child kind the producer writes (field, expect, example, a field-less io).
+- **Triggered:** nothing new; ships with the next designer release.
+
 ## Recommendation
 
 <!-- T-2945: same shape as inception.md's block — the gate that reads it
@@ -345,3 +388,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1314-new-aeffield-lands-after-aefexample-inse.md
 - **Context:** Initial task creation
+
+### 2026-10-26T16:31:54Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
