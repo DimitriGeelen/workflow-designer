@@ -101,7 +101,7 @@ width. Same remedy as T-1301's attribute fields: a wrapping field that grows wit
 - [x] Person-sees gate exit 0; screenshots (style A, v1, v1.1) at 1024/1440/1920 read in `## Visual Verification`.
 
 ### Human
-- [ ] The io name field shows a producer's whole field path, legibly, without disturbing the row, at every width
+- [x] The io name field shows a producer's whole field path, legibly, without disturbing the row, at every width
   For the independent reviewer: `fw reviewer judge T-1305 --criterion 1` (render-surface, no operator carve-out).
   **Steps:** 1. Open `docs/reports/T-1305-evidence/stylea-step-{1024,1440,1920}-panel.png`, `longname-*` (a name longer
   than the panel), and `v1-step-*`, `v11-step-*`.
@@ -154,6 +154,7 @@ width. Same remedy as T-1301's attribute fields: a wrapping field that grows wit
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261026-4d896081 — reviewer-judge-t-1305-r3-8bb95e621e75:reviewer (rung rung-3-termlink-single-reviewer), digest ba00fff8da47; dispatch judge-t-1305-r3-8bb95e621e75; evidence: .context/reviews/evidence/T-1305/AC1-judge-t-1305-r3-8bb95e621e75.md, .context/reviews/evidence/T-1305/stylea-step-1024-panel-judge-t-1305-r3-8bb95e621e75.png, .context/reviews/evidence/T-1305/T1301-stylea-step-1024-panel-judge-t-1305-r3-8bb95e621e75.png, .context/reviews/evidence/T-1305/longname-1024-panel-judge-t-1305-r3-8bb95e621e75.png, .context/reviews/evidence/T-1305/longname-1920-panel-judge-t-1305-r3-8bb95e621e75.png, .context/reviews/evidence/T-1305/v1-step-1024-panel-judge-t-1305-r3-8bb95e621e75.png, .context/reviews/evidence/T-1305/v11-step-1024-panel-end-judge-t-1305-r3-8bb95e621e75.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
