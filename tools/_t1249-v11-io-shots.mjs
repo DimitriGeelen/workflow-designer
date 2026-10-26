@@ -94,7 +94,10 @@ ${task('Task_empty', 'Notify', 't1249_empty', '')}
 </bpmn:definitions>
 `;
 // T-1304: stylea-step, greenfield's style A (v1 ref, role, dataType; synthetic values, nid: prefix undeclared)
-const STATES = [['v11-step', 't1249_v11', 'I/O contract'], ['v1-step', 't1249_v1', 'I/O contract'], ['stylea-step', 't1249_stylea', 'I/O contract'], ['empty-step', 't1249_empty', 'I/O contract'], ['workflow', null, 'Mapping']];
+// T-1301: stylea-edit / v1-edit open the io attributes editor (4th field: the edit toggles to click, in panel order);
+// last, because an open editor stays open for the rest of that width.
+const STATES = [['v11-step', 't1249_v11', 'I/O contract'], ['v1-step', 't1249_v1', 'I/O contract'], ['stylea-step', 't1249_stylea', 'I/O contract'], ['empty-step', 't1249_empty', 'I/O contract'], ['workflow', null, 'Mapping'],
+  ['stylea-edit', 't1249_stylea', 'I/O contract', [0, 2]], ['v1-edit', 't1249_v1', 'I/O contract', [0]]];
 const WIDTHS = [[1024, 768], [1440, 900], [1920, 1080]];
 
 async function main() {
@@ -117,12 +120,13 @@ async function main() {
       await waitReady(cmd); await sleep(400);
       await ev(cmd, `adoptImportedXml(${JSON.stringify(MAP)}); typeof fitView==='function' && fitView(); true`);
       await sleep(300);
-      for (const [name, uid, title] of STATES) {
+      for (const [name, uid, title, opens] of STATES) {
         const rect = await ev(cmd, `(function(){
           if (${JSON.stringify(uid)}) { var n = state.nodes.filter(function(x){ return x.uid === ${JSON.stringify(uid)}; })[0];
             selection = { kind: 'node', id: n.id }; multiSelect = new Set([n.id]); }
           else { selection = null; multiSelect = new Set(); }
           renderAll(); renderProperties();
+          ${JSON.stringify(opens || [])}.forEach(function(i){ var t = document.querySelectorAll('#properties .io-attrs-toggle')[i]; if (t) t.click(); });
           var p = document.getElementById('properties');
           var sec = Array.from(p.querySelectorAll('.props-section')).filter(function(s){ var t = s.querySelector('.props-section-title'); return t && t.textContent.indexOf(${JSON.stringify(title)}) === 0; })[0];
           p.scrollTop = 0;
