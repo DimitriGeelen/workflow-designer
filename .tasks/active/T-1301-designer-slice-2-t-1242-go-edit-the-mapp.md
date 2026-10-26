@@ -92,21 +92,25 @@ Built in an isolated clone (`.context/working/t1301-dev`) while release job 086 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] **Fix first, test first:** an attribute ADDED to an io item in raw layout (`ioAttrsXml`, the `i.raw` path) is written
+- [x] **Fix first, test first:** an attribute ADDED to an io item in raw layout (`ioAttrsXml`, the `i.raw` path) is written
   on save. Before, only the source's attribute order list was written, so the new attribute was silently dropped. A
   harness leg is red on the old source and green on the new.
-- [ ] Each io row has an attributes editor (a toggle under the row; open by default when the io carries any attribute):
+- [x] Each io row has an attributes editor behind an "edit" toggle under the row, closed by default. Closed, the read-only
+  summary is exactly as released in 0.27.0, which greenfield is confirming. Open, the summary drops its attribute line,
+  so no value is shown twice. Controls:
   ref, fieldRef, typeRef, schemaRef, conceptRef (text), role (read | write | create | match | delete), operation
   (read | create | update | upsert | delete), cardinality (one | optional | many), sourceSystem on inputs / targetSystem
   on outputs, dataType (text, informational). Emptying a field removes the attribute.
-- [ ] Round trip: a step whose io is not edited saves byte-exact. Editing one attribute changes exactly that attribute in
+- [x] Round trip: a step whose io is not edited saves byte-exact. Editing one attribute changes exactly that attribute in
   the saved item: the other attributes keep their values and order, and a new attribute is appended after them.
-- [ ] ref suggestions: the field offers the ref values already used in the open map (a datalist). The ontology picker waits
+- [x] ref suggestions: the field offers the ref values already used in the open map (a datalist). The ontology picker waits
   for greenfield's answer on where the list comes from (msg dad53edf).
-- [ ] No silent upgrade: setting a v1.1 attribute adds neither `mappingVersion` nor prefixes. A CURIE whose prefix the
+- [x] No silent upgrade: setting a v1.1 attribute adds neither `mappingVersion` nor prefixes. A CURIE whose prefix the
   map does not declare shows a hint (the lint proper is slice 4, T-1303).
-- [ ] A CDP harness drives the editor through DOM events: set and clear each attribute, save, and the diff is exactly that
+- [x] A CDP harness drives the editor through DOM events: set and clear each attribute, save, and the diff is exactly that
   change; the raw-layout append; a greenfield style-A item edited; untouched steps byte-exact. It runs as a bridge leg.
+  *(`tools/_t1301-io-edit-cdp.mjs`, legs a-h; browser leg `_t1301-io-edit-cdp`. Red on the 0.27.0 source on all eight
+  legs, green on the new; `_t1249` (slice 1, incl. T-1304's f/g) still green.)*
 - [ ] Person-sees gate exit 0; advisory sweep; screenshots (row closed and open; style A; v1.1; v1; empty) at
   1024/1440/1920, read control by control in `## Visual Verification`.
 - [ ] Released, then greenfield edits on its own map and confirms with its own check script (arc-006 rule).
@@ -169,6 +173,9 @@ Built in an isolated clone (`.context/working/t1301-dev`) while release job 086 
 -->
 
 ## Verification
+
+node tools/_t1301-io-edit-cdp.mjs > .context/working/t1301-v.out 2>&1 && head -2 .context/working/t1301-v.out | grep -q '"ok": true'
+node tools/_t1249-v11-io-cdp.mjs > .context/working/t1301-v1249.out 2>&1 && head -2 .context/working/t1301-v1249.out | grep -q '"ok": true'
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.

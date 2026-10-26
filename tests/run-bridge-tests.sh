@@ -1386,6 +1386,23 @@ else
 fi
 }
 leg browser "_t1249-v11-io-cdp" _leg_070
+_leg_196() {
+
+# ── T-1301: the io attributes are editable, and a save writes exactly the edit ──
+# Slice 2 of T-1242 (arc-006). Each attribute set and cleared through its own control changes exactly that attribute;
+# an attribute added to a raw-layout item (greenfield's one-line style A) is written, not dropped; no mappingVersion or
+# prefixes appear unasked; an undeclared prefix is hinted; ref suggests the map's refs; the editor is closed by default.
+# Red on the pre-T-1301 source (T1301_SRC).
+if node "$ROOT/tools/_t1301-io-edit-cdp.mjs" > "$TMP/leg-_t1301.out" 2>&1 \
+   && head -2 "$TMP/leg-_t1301.out" | grep -q '"ok": true'; then
+  pass=$((pass + 1))
+else
+  report FAIL "an io attribute edit is not written exactly (dropped on a raw-layout item, another attribute or step changed, a silent mappingVersion), or the editor's controls, hint or ref suggestions are missing (run 'node tools/_t1301-io-edit-cdp.mjs'; T-1301)"
+  show_output "$TMP/leg-_t1301.out" "_t1301-io-edit-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1301-io-edit-cdp" _leg_196
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
