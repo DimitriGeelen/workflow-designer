@@ -112,7 +112,7 @@ pending. The **designer** picker (`src/`) waits until 088 has cut 0.29.0, so not
   dataType, f other steps byte-exact, g geometry and hit test at 1024/1440, h a re-render keeps the search (a real defect
   found on the way: a late loader's re-render wiped the typed query). Green 3/3 runs; red on 0.29.0 in b-e, g, h.
   `_t1301` and `_t1249` green.)*
-- [ ] `bash tools/person-sees-gate.sh` exits 0; the advisory sweep has run; screenshots of the picker (v1 io and style-A
+- [x] `bash tools/person-sees-gate.sh` exits 0; the advisory sweep has run; screenshots of the picker (v1 io and style-A
   io, with hits) at 1024/1440/1920 are read control by control in `## Visual Verification`.
 - [x] AEF gets the contract (request, responses, fallback) for its T-4737; greenfield is told how to point the server at
   `docs/views/nid-attributes.json`.
