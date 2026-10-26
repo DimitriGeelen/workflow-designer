@@ -59,6 +59,9 @@ runme-*.log
 build/evergreen-intake/
 docs/learning-ledger.yaml.lock
 
+# T-1313: the core tier's per-run TMPDIR (r.XXXXXX, T-1299); a sandbox under it once staged files in this repo's index
+.context/st/
+
 # T-1239: Watchtower runtime state (live address, pid, port, log); never committed, the repo is mirrored publicly
 .context/working/watchtower.url
 .context/working/watchtower.pid

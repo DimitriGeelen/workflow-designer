@@ -68,11 +68,29 @@ reach a commit (a pathspec-free commit by anything) or break `git diff --cached`
 ### Agent
 - [x] The 12 leaked entries are unstaged from the real index (index only; no file touched).
   *(`git restore --staged -- .context/st`; list kept in `.context/working/t1313-leaked-index.txt`; index now empty)*
-- [ ] Root cause confirmed by a reproduction: a core-tier leg run with TMPDIR inside the repo stages paths in the real
+- [x] Extent recorded: the leak happens on EVERY core run (again in job 089's run, `r.ABvPFq`, 12 entries, unstaged
+  2026-10-26, list in `.context/working/t1313-leaked-index-2.txt`), and it was COMMITTED 11 times since 2026-10-24
+  (0c06c4d1 … f3a08cbc, all pushed): any commit without a pathspec swept the staged sandbox paths in, including release
+  job 088's bump commit (`git add VERSION src/…; git commit` with no pathspec). 138 files are tracked under
+  `.context/st/` (all gone on disk). Content: synthetic "sandbox probe" tasks T-901…T-907 and their episodics; `git grep`
+  for secret/token/password/identity/key/LAN address over them: 0 hits. History is not rewritten (pushed; no force).
+- [x] The 138 files are untracked (`git rm --cached`, normal commit) and `.context/st/` is ignored, so a staged sandbox
+  path can no longer reach a commit even if a sandbox leaks again.
+  *(`git rm --cached -r .context/st`: 138 staged deletions, `git ls-files .context/st` = 0; `.gitignore` gains
+  `.context/st/`; test leg 4)*
+- [ ] Release jobs commit by pathspec: the job generator / the next release job's bump step names its paths in
+  `git commit` (088's did not).
+- [x] Root cause confirmed by a reproduction: a core-tier leg run with TMPDIR inside the repo stages paths in the real
   index (index snapshot before/after), and which command does it is named here.
-- [ ] Fix: no core-tier sandbox can reach the real repo's git (e.g. `GIT_CEILING_DIRECTORIES` set to the per-run dir's
+  *(`TMPDIR=.context/st/t1313-repro bash tools/_t630-p011-stdin-swallow.sh`: staged 0 before, 6 after. The command is
+  the framework's task close, `.agentic-framework/agents/task-create/update-task.sh:69`,
+  `git -C "$PROJECT_ROOT" add -A -- "$src" "$dest"`: the sandbox has no .git, so git searches upward into this repo.)*
+- [x] Fix: no core-tier sandbox can reach the real repo's git (e.g. `GIT_CEILING_DIRECTORIES` set to the per-run dir's
   parent in the tier runner, or the sandboxes made their own repos). A test (core tier) fails on the old code: a leg that
   runs a git write in a non-repo sandbox under the per-run TMPDIR leaves the real index unchanged.
+  *(`t1288_private_tmpdir` exports `GIT_CEILING_DIRECTORIES=<run TMPDIR>`. `tests/test_t1313_sandbox_index.py` (core):
+  2/4 on the old code (leak=1 into a stand-in repo; .context/st not ignored), 4/4 new; `test_t1288_tiers` 41/0;
+  `_t630` and `_t634` under the ceiling: rc=0, staged 0.)*
 - [ ] The core tier stays green, and after a full core run `git diff --cached --name-only` in the real repo is empty.
 
 ### Human
@@ -126,6 +144,8 @@ reach a commit (a pathspec-free commit by anything) or break `git diff --cached`
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+python3 tests/test_t1313_sandbox_index.py
+test "$(git ls-files .context/st | wc -l)" -eq 0
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.

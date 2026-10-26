@@ -91,6 +91,10 @@ t1288_private_tmpdir() {
     T1288_ST="${T1288_ST:-$ROOT/.context/st}"
     mkdir -p "$T1288_ST" && _T1288_RUN_ST=$(mktemp -d "$T1288_ST/r.XXXXXX") || { echo "core: cannot make a TMPDIR under $T1288_ST" >&2; exit 2; }
     export TMPDIR="$_T1288_RUN_ST"
+    # T-1313: the run's TMPDIR is inside this repo, so a sandbox without a .git of its own (_t630, _t634: the framework's
+    # task close runs `git -C <sandbox> add -A`) found THIS repo by searching upward and staged its files here, on every
+    # core run; pathspec-free commits then committed them (11 times). git does not search above the run's TMPDIR now.
+    export GIT_CEILING_DIRECTORIES="$_T1288_RUN_ST${GIT_CEILING_DIRECTORIES:+:$GIT_CEILING_DIRECTORIES}"
 }
 t1288_cleanup() {
     [ -n "$_T1288_RUN_ST" ] && rm -rf "$_T1288_RUN_ST" && rmdir "$T1288_ST" 2>/dev/null
