@@ -1,0 +1,38 @@
+[
+  {
+    "element": "Lane_warehouse",
+    "category": "wrong-authority",
+    "severity": "major",
+    "source_evidence": "For accepted orders the warehouse picks the parts, packs the order and books a carrier.",
+    "map_evidence": {
+      "line": 49,
+      "quote": "<aef:laneMeta authority=\"authority\" />"
+    },
+    "problem": "The warehouse department is marked as an automated authority rather than a human organisational performer.",
+    "correction": "Change Lane_warehouse authority from \"authority\" to \"sovereignty\"."
+  },
+  {
+    "element": "quality-inspection",
+    "category": "undeclared-unknown",
+    "severity": "major",
+    "source_evidence": "The warehouse also does quality inspection and labelling for each order, but nobody could\nsay whether those happen before or after packing, or in which order relative to each other.",
+    "map_evidence": {
+      "line": 190,
+      "quote": "<bpmn:incoming>pick-parts--quality-inspection</bpmn:incoming><bpmn:outgoing>quality-inspection--pack-order</bpmn:outgoing>"
+    },
+    "problem": "The map fixes quality inspection between picking and packing despite the source explicitly leaving its order unknown.",
+    "correction": "Remove pick-parts--quality-inspection and quality-inspection--pack-order and their incoming/outgoing references, connect pick-parts directly to pack-order, and leave quality-inspection unconnected with an annotation declaring its unknown order relative to packing and labelling."
+  },
+  {
+    "element": "send-payment-reminder",
+    "category": "invented",
+    "severity": "major",
+    "source_evidence": "source is silent",
+    "map_evidence": {
+      "line": 285,
+      "quote": "<bpmn:task id=\"send-payment-reminder\" name=\"Send payment reminder\"><bpmn:documentation>source: \"The ERP sends a payment reminder after seven days.\"</bpmn:documentation>"
+    },
+    "problem": "The map adds an unsupported payment-reminder task after invoicing and attributes it to a fabricated source quotation.",
+    "correction": "Remove send-payment-reminder, its lane reference and both incident flows; connect generate-and-send-invoice directly to accepted-order-fulfilled and update incoming/outgoing references."
+  }
+]

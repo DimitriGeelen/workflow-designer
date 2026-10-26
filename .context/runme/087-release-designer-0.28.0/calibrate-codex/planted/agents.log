@@ -1,0 +1,3251 @@
+Reading additional input from stdin...
+OpenAI Codex v0.153.4
+--------
+workdir: /opt/832-Workflow-designer/.context/runme/087-release-designer-0.28.0/calibrate-codex/planted
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: none
+reasoning summaries: none
+session id: 01a177be-249d-7f40-a593-1c7d2793224d
+--------
+user
+The kit is in ./kit/. Read ./kit/REVIEW.md and carry it out completely.
+codex
+I’ll read the review instructions in `./kit/REVIEW.md` and carry out the required work.
+
+exec
+/bin/bash -lc "pwd; rg --files -g AGENTS.md -g REVIEW.md -g '"'!node_modules'"' -g '"'!vendor'"' ." in /opt/832-Workflow-designer/.context/runme/087-release-designer-0.28.0/calibrate-codex/planted
+ succeeded in 0ms:
+/opt/832-Workflow-designer/.context/runme/087-release-designer-0.28.0/calibrate-codex/planted
+./kit/REVIEW.md
+
+exec
+/bin/bash -lc 'cat kit/REVIEW.md' in /opt/832-Workflow-designer/.context/runme/087-release-designer-0.28.0/calibrate-codex/planted
+ succeeded in 0ms:
+# Review (brief for the reviewing agent)
+
+Review `./map.bpmn` against `./SOURCE.md` using `RUBRIC.md` from the kit (its directory is given
+in the prompt that started you). You may run `python3 <kit>/validate-workflow.py map.bpmn`.
+
+Write ONLY `./REVIEW.json`: a JSON array, `[]` if you find nothing. Each item:
+
+    {"element": "<bpmn id or 'map'>", "category": "<rubric category>",
+     "severity": "major|minor", "source_evidence": "<verbatim quote, or 'source is silent'>",
+     "map_evidence": {"line": <line number in map.bpmn>, "quote": "<text exactly as it appears on that line>"},
+     "problem": "<one sentence>", "correction": "<what to change, concretely>"}
+
+`map_evidence` is checked mechanically (`kit/verify-findings.py`): the quote must appear on that line of
+`map.bpmn`. Re-read the line before you cite it. Use `"map_evidence": null` only when the finding is about something
+ABSENT from the map. A finding whose quote is not on its line is set aside as unverified.
+
+Be strict and specific. Do not report anything the rubric lists under "Do not report".
+Use a different model or vendor from the generator where you can: a reviewer that shares the
+generator's training shares its blind spots.
+
+exec
+/bin/bash -lc 'cat kit/RUBRIC.md; cat SOURCE.md; nl -ba map.bpmn' in /opt/832-Workflow-designer/.context/runme/087-release-designer-0.28.0/calibrate-codex/planted
+ succeeded in 0ms:
+# Review rubric (v4)
+
+You review a BPMN map AGAINST ITS SOURCE TEXT, not against your own idea of the process.
+Every finding must quote the source, or say that the source is silent.
+
+## Categories (use exactly these names)
+
+- **invented**: an element, edge, order, condition, performer or outcome the source does not
+  support.
+- **missed**: something the source states as part of the process that the map omits.
+- **wrong-authority**: a lane authority or performer that contradicts the source. A named human
+  role or department is `sovereignty`, an automated system acting on its own rules is
+  `authority`, a party outside the organisation is `external`, nobody named is `none`. A system
+  that only *supports* a step (the step is done "in" it) is not its performer: a lane for that
+  system is `wrong-authority`; the honest map has the step in a `none` lane with a system note.
+- **undeclared-unknown**: the source leaves something unknown and the map hides it instead of
+  declaring it (unknown owner -> `authority="none"`; unknown order -> unconnected and annotated).
+- **citation**: an element's `<documentation>` source quote is missing, not verbatim, or does
+  not support the element.
+- **readability**: the map is valid but a human would misread it (misleading names, odd structure).
+- **scope**: material that is not part of the process modelled as if it were: reference sections
+  (command lists, option tables, examples, glossaries) turned into tasks. A step belongs in the
+  map only if the source presents it as part of the flow.
+
+## Severity
+
+`major` changes what the process means; `minor` does not.
+**`wrong-authority`, `invented` and `undeclared-unknown` are always major**: authority decides who
+owns the work (human, agent or nobody), so a wrong one changes what would be built, not just how
+it reads.
+
+## Not invented (AUTHORING.md §4)
+
+- One none start event before, and one none end event after, a chain the source states, cited
+  `unstated` and not named as a trigger or result. They mark the stated order's boundaries.
+- Plain sequence flows from one step to two successors when the source states both follow it,
+  with a note if the source does not say whether both always happen. A parallel fork there says
+  the same thing and is not invented either. A parallel JOIN is not the same as plain converging
+  flows (it waits for every branch): it is right only where the source says the next step waits
+  for all of them; elsewhere flag it as `readability`, not `invented`, and say why. (An exclusive
+  gateway after one step with two successors IS invented: it adds a decision.)
+- An unlabelled default flow on a decision whose other branch carries the source's words.
+- A task with a cited `Detailed in: X` note for a step the source says is detailed elsewhere; a
+  `callActivity` only where the source says the step invokes X.
+- Two distinct steps with the same display name, kept verbatim, told apart by distinct keys.
+- A link throw/catch event for a hand-over the source states to another process.
+- A note naming a record a step creates or uses, or the system that supports it, when it quotes
+  the source.
+
+## Do not report
+
+Layout coordinates; id spelling; the validator findings an honest map keeps (AUTHORING.md §5:
+`W-XML-DISCONNECTED`, `W-XML-UNREACHABLE`, `W-XML-DEADEND` on declared unknown order;
+`W-LANE-NO-OWNER` on a declared unknown owner; `W-XML-GW-AMBIGUOUS` on branches labelled in the
+source's words; `W-XML-NO-START-EVENT` / `W-XML-NO-END-EVENT` on a map whose source states no
+order at all; the geometry-skip note). They are not defects.
+
+## Why each rule is here
+
+- Governance categories always major: a calibration review rated a human department marked
+  "automated" as minor (T-982 S1b).
+- `scope`: two independent agent reviewers from different vendors both accepted CLI commands
+  from a "Commands" section as process tasks; a human did not. Added from that disagreement, it
+  then caught both, with no false findings on a clean control (T-982 S2b).
+- v4, "Not invented" and the supporting-system sentence: an agent generating 26 real maps under
+  the kit (Evergreen trial round 0, T-989) had to guess at each of these (findings K2-K6); a
+  reviewer without them would flag honest choices as `invented`, or miss a system lane passed off
+  as a performer. Its first draft also called a parallel fork/join after one step "invented";
+  the real calibration (GLM-5.2) then flagged the clean control map's own fork and join, which
+  mean exactly what plain flows mean. The rule was wrong, not the reviewer (T-993).
+- v5 (0.15.3), corrected: that last sentence was itself half wrong. A fork does mean what plain
+  flows mean; a join does not (it synchronises). Found by the cross-vendor lesson panel (T-1006,
+  ledger L26, confirmed by OpenAI, Z.AI and Google reviewers that first rejected planted-false
+  lessons); the operator was never asked to vouch for it. The join, the default flow, `Detailed
+  in`, and duplicate display names were added from the same panel (L18, L22, L23).
+# Source: order fulfilment at a bicycle wholesaler (interview notes)
+
+A customer order arrives by email. A sales employee enters the order into the ERP.
+Credit control checks the customer's credit limit. If the limit is exceeded, the sales
+manager decides whether to accept the order anyway; a rejected order is closed and the
+customer is told.
+
+For accepted orders the warehouse picks the parts, packs the order and books a carrier.
+The carrier collects the parcel and delivers it to the customer. After shipment the ERP
+generates and sends the invoice automatically.
+
+The warehouse also does quality inspection and labelling for each order, but nobody could
+say whether those happen before or after packing, or in which order relative to each other.
+
+Returns are handled by a separate process that is not described here.
+     1	<?xml version='1.0' encoding='UTF-8'?>
+     2	<bpmn:definitions xmlns:aef="http://anchorpoint.framework/aef/extensions" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Definitions_order-fulfilment" targetNamespace="https://aef.anchorpoint.dev/workflows">
+     3	  <bpmn:process id="Process_order-fulfilment" name="Bicycle wholesaler order fulfilment" isExecutable="false">
+     4	    <bpmn:documentation>source: "Returns are handled by a separate process that is not described here."</bpmn:documentation>
+     5	    <bpmn:extensionElements>
+     6	      <aef:workflowMeta id="bicycle-wholesaler-order-fulfilment" version="1" schemaVersion="2" title="Bicycle wholesaler order fulfilment" />
+     7	    </bpmn:extensionElements>
+     8	    <bpmn:laneSet id="Lanes_order-fulfilment">
+     9	      <bpmn:lane id="Lane_sales" name="Sales employee">
+    10	        <bpmn:documentation>source: "A sales employee enters the order into the ERP."</bpmn:documentation>
+    11	        <bpmn:extensionElements>
+    12	          <aef:laneMeta authority="sovereignty" />
+    13	        </bpmn:extensionElements>
+    14	        <bpmn:flowNodeRef>order-arrives-by-email</bpmn:flowNodeRef>
+    15	        <bpmn:flowNodeRef>enter-order-into-erp</bpmn:flowNodeRef>
+    16	      </bpmn:lane>
+    17	      <bpmn:lane id="Lane_credit" name="Credit control">
+    18	        <bpmn:documentation>source: "Credit control checks the customer's credit limit."</bpmn:documentation>
+    19	        <bpmn:extensionElements>
+    20	          <aef:laneMeta authority="sovereignty" />
+    21	        </bpmn:extensionElements>
+    22	        <bpmn:flowNodeRef>check-customer-credit-limit</bpmn:flowNodeRef>
+    23	        <bpmn:flowNodeRef>credit-limit-exceeded</bpmn:flowNodeRef>
+    24	      </bpmn:lane>
+    25	      <bpmn:lane id="Lane_manager" name="Sales manager">
+    26	        <bpmn:documentation>source: "If the limit is exceeded, the sales
+    27	manager decides whether to accept the order anyway; a rejected order is closed and the
+    28	customer is told."</bpmn:documentation>
+    29	        <bpmn:extensionElements>
+    30	          <aef:laneMeta authority="sovereignty" />
+    31	        </bpmn:extensionElements>
+    32	        <bpmn:flowNodeRef>decide-whether-to-accept-order-anyway</bpmn:flowNodeRef>
+    33	        <bpmn:flowNodeRef>accept-order-anyway</bpmn:flowNodeRef>
+    34	      </bpmn:lane>
+    35	      <bpmn:lane id="Lane_unknown" name="Unspecified performer">
+    36	        <bpmn:documentation>source: unstated - The source names no performer for closing a rejected order or telling the customer.</bpmn:documentation>
+    37	        <bpmn:extensionElements>
+    38	          <aef:laneMeta authority="none" />
+    39	        </bpmn:extensionElements>
+    40	        <bpmn:flowNodeRef>close-rejected-order</bpmn:flowNodeRef>
+    41	        <bpmn:flowNodeRef>tell-customer</bpmn:flowNodeRef>
+    42	        <bpmn:flowNodeRef>order-rejected</bpmn:flowNodeRef>
+    43	      </bpmn:lane>
+    44	      <bpmn:lane id="Lane_warehouse" name="Warehouse">
+    45	        <bpmn:documentation>source: "For accepted orders the warehouse picks the parts, packs the order and books a carrier."
+    46	source: "The warehouse also does quality inspection and labelling for each order, but nobody could
+    47	say whether those happen before or after packing, or in which order relative to each other."</bpmn:documentation>
+    48	        <bpmn:extensionElements>
+    49	          <aef:laneMeta authority="authority" />
+    50	        </bpmn:extensionElements>
+    51	        <bpmn:flowNodeRef>pick-parts</bpmn:flowNodeRef>
+    52	        <bpmn:flowNodeRef>pack-order</bpmn:flowNodeRef>
+    53	        <bpmn:flowNodeRef>book-carrier</bpmn:flowNodeRef>
+    54	        <bpmn:flowNodeRef>quality-inspection</bpmn:flowNodeRef>
+    55	        <bpmn:flowNodeRef>labelling</bpmn:flowNodeRef>
+    56	      </bpmn:lane>
+    57	      <bpmn:lane id="Lane_carrier" name="Carrier">
+    58	        <bpmn:documentation>source: "The carrier collects the parcel and delivers it to the customer."</bpmn:documentation>
+    59	        <bpmn:extensionElements>
+    60	          <aef:laneMeta authority="external" />
+    61	        </bpmn:extensionElements>
+    62	        <bpmn:flowNodeRef>collect-parcel</bpmn:flowNodeRef>
+    63	        <bpmn:flowNodeRef>deliver-parcel-to-customer</bpmn:flowNodeRef>
+    64	      </bpmn:lane>
+    65	      <bpmn:lane id="Lane_erp" name="ERP">
+    66	        <bpmn:documentation>source: "After shipment the ERP
+    67	generates and sends the invoice automatically."</bpmn:documentation>
+    68	        <bpmn:extensionElements>
+    69	          <aef:laneMeta authority="authority" />
+    70	        </bpmn:extensionElements>
+    71	        <bpmn:flowNodeRef>generate-and-send-invoice</bpmn:flowNodeRef>
+    72	        <bpmn:flowNodeRef>accepted-order-fulfilled</bpmn:flowNodeRef>
+    73	      <bpmn:flowNodeRef>send-payment-reminder</bpmn:flowNodeRef></bpmn:lane>
+    74	    </bpmn:laneSet>
+    75	    <bpmn:startEvent id="order-arrives-by-email" name="Customer order arrives by email">
+    76	      <bpmn:documentation>source: "A customer order arrives by email."</bpmn:documentation>
+    77	      <bpmn:extensionElements>
+    78	        <aef:uid value="order-arrives-by-email" />
+    79	      </bpmn:extensionElements>
+    80	      <bpmn:outgoing>order-arrives-by-email--enter-order-into-erp</bpmn:outgoing></bpmn:startEvent>
+    81	    <bpmn:task id="enter-order-into-erp" name="Enter order into ERP">
+    82	      <bpmn:documentation>source: "A sales employee enters the order into the ERP."</bpmn:documentation>
+    83	      <bpmn:extensionElements>
+    84	        <aef:uid value="enter-order-into-erp" />
+    85	      </bpmn:extensionElements>
+    86	      <bpmn:incoming>order-arrives-by-email--enter-order-into-erp</bpmn:incoming><bpmn:outgoing>enter-order-into-erp--check-customer-credit-limit</bpmn:outgoing></bpmn:task>
+    87	    <bpmn:task id="check-customer-credit-limit" name="Check customer credit limit">
+    88	      <bpmn:documentation>source: "Credit control checks the customer's credit limit."</bpmn:documentation>
+    89	      <bpmn:extensionElements>
+    90	        <aef:uid value="check-customer-credit-limit" />
+    91	      </bpmn:extensionElements>
+    92	      <bpmn:incoming>enter-order-into-erp--check-customer-credit-limit</bpmn:incoming><bpmn:outgoing>check-customer-credit-limit--credit-limit-exceeded</bpmn:outgoing></bpmn:task>
+    93	    <bpmn:exclusiveGateway id="credit-limit-exceeded" name="Credit limit exceeded?" default="credit-limit-exceeded--pick-parts">
+    94	      <bpmn:documentation>source: "If the limit is exceeded, the sales
+    95	manager decides whether to accept the order anyway; a rejected order is closed and the
+    96	customer is told."</bpmn:documentation>
+    97	      <bpmn:extensionElements>
+    98	        <aef:uid value="credit-limit-exceeded" />
+    99	      </bpmn:extensionElements>
+   100	      <bpmn:incoming>check-customer-credit-limit--credit-limit-exceeded</bpmn:incoming><bpmn:outgoing>credit-limit-exceeded--decide-whether-to-accept-order-anyway</bpmn:outgoing><bpmn:outgoing>credit-limit-exceeded--pick-parts</bpmn:outgoing></bpmn:exclusiveGateway>
+   101	    <bpmn:task id="decide-whether-to-accept-order-anyway" name="Decide whether to accept order anyway">
+   102	      <bpmn:documentation>source: "If the limit is exceeded, the sales
+   103	manager decides whether to accept the order anyway; a rejected order is closed and the
+   104	customer is told."</bpmn:documentation>
+   105	      <bpmn:extensionElements>
+   106	        <aef:uid value="decide-whether-to-accept-order-anyway" />
+   107	      </bpmn:extensionElements>
+   108	      <bpmn:incoming>credit-limit-exceeded--decide-whether-to-accept-order-anyway</bpmn:incoming><bpmn:outgoing>decide-whether-to-accept-order-anyway--accept-order-anyway</bpmn:outgoing></bpmn:task>
+   109	    <bpmn:exclusiveGateway id="accept-order-anyway" name="Accept order anyway?">
+   110	      <bpmn:documentation>source: "If the limit is exceeded, the sales
+   111	manager decides whether to accept the order anyway; a rejected order is closed and the
+   112	customer is told."</bpmn:documentation>
+   113	      <bpmn:extensionElements>
+   114	        <aef:uid value="accept-order-anyway" />
+   115	      </bpmn:extensionElements>
+   116	      <bpmn:incoming>decide-whether-to-accept-order-anyway--accept-order-anyway</bpmn:incoming><bpmn:outgoing>accept-order-anyway--close-rejected-order</bpmn:outgoing><bpmn:outgoing>accept-order-anyway--pick-parts</bpmn:outgoing></bpmn:exclusiveGateway>
+   117	    <bpmn:task id="close-rejected-order" name="Close rejected order">
+   118	      <bpmn:documentation>source: "a rejected order is closed"</bpmn:documentation>
+   119	      <bpmn:extensionElements>
+   120	        <aef:uid value="close-rejected-order" />
+   121	      </bpmn:extensionElements>
+   122	      <bpmn:incoming>accept-order-anyway--close-rejected-order</bpmn:incoming><bpmn:outgoing>close-rejected-order--tell-customer</bpmn:outgoing></bpmn:task>
+   123	    <bpmn:task id="tell-customer" name="Tell customer">
+   124	      <bpmn:documentation>source: "customer is told."</bpmn:documentation>
+   125	      <bpmn:extensionElements>
+   126	        <aef:uid value="tell-customer" />
+   127	      </bpmn:extensionElements>
+   128	      <bpmn:incoming>close-rejected-order--tell-customer</bpmn:incoming><bpmn:outgoing>tell-customer--order-rejected</bpmn:outgoing></bpmn:task>
+   129	    <bpmn:endEvent id="order-rejected" name="Order rejected; customer told">
+   130	      <bpmn:documentation>source: "a rejected order is closed and the
+   131	customer is told."</bpmn:documentation>
+   132	      <bpmn:extensionElements>
+   133	        <aef:uid value="order-rejected" />
+   134	      </bpmn:extensionElements>
+   135	      <bpmn:incoming>tell-customer--order-rejected</bpmn:incoming></bpmn:endEvent>
+   136	    <bpmn:task id="pick-parts" name="Pick parts">
+   137	      <bpmn:documentation>source: "For accepted orders the warehouse picks the parts, packs the order and books a carrier."</bpmn:documentation>
+   138	      <bpmn:extensionElements>
+   139	        <aef:uid value="pick-parts" />
+   140	      </bpmn:extensionElements>
+   141	      <bpmn:incoming>credit-limit-exceeded--pick-parts</bpmn:incoming><bpmn:incoming>accept-order-anyway--pick-parts</bpmn:incoming><bpmn:outgoing>pick-parts--quality-inspection</bpmn:outgoing></bpmn:task>
+   142	    <bpmn:task id="pack-order" name="Pack order">
+   143	      <bpmn:documentation>source: "For accepted orders the warehouse picks the parts, packs the order and books a carrier."</bpmn:documentation>
+   144	      <bpmn:extensionElements>
+   145	        <aef:uid value="pack-order" />
+   146	      </bpmn:extensionElements>
+   147	      <bpmn:incoming>quality-inspection--pack-order</bpmn:incoming><bpmn:outgoing>pack-order--book-carrier</bpmn:outgoing></bpmn:task>
+   148	    <bpmn:task id="book-carrier" name="Book carrier">
+   149	      <bpmn:documentation>source: "For accepted orders the warehouse picks the parts, packs the order and books a carrier."</bpmn:documentation>
+   150	      <bpmn:extensionElements>
+   151	        <aef:uid value="book-carrier" />
+   152	      </bpmn:extensionElements>
+   153	      <bpmn:incoming>pack-order--book-carrier</bpmn:incoming><bpmn:outgoing>book-carrier--collect-parcel</bpmn:outgoing></bpmn:task>
+   154	    <bpmn:task id="collect-parcel" name="Collect parcel">
+   155	      <bpmn:documentation>source: "The carrier collects the parcel and delivers it to the customer."</bpmn:documentation>
+   156	      <bpmn:extensionElements>
+   157	        <aef:uid value="collect-parcel" />
+   158	      </bpmn:extensionElements>
+   159	      <bpmn:incoming>book-carrier--collect-parcel</bpmn:incoming>
+   160	      <bpmn:outgoing>collect-parcel--deliver-parcel-to-customer</bpmn:outgoing>
+   161	      <bpmn:outgoing>collect-parcel--generate-and-send-invoice</bpmn:outgoing>
+   162	    </bpmn:task>
+   163	    <bpmn:task id="deliver-parcel-to-customer" name="Deliver parcel to customer">
+   164	      <bpmn:documentation>source: "The carrier collects the parcel and delivers it to the customer."</bpmn:documentation>
+   165	      <bpmn:extensionElements>
+   166	        <aef:uid value="deliver-parcel-to-customer" />
+   167	      </bpmn:extensionElements>
+   168	      <bpmn:incoming>collect-parcel--deliver-parcel-to-customer</bpmn:incoming><bpmn:outgoing>deliver-parcel-to-customer--accepted-order-fulfilled</bpmn:outgoing></bpmn:task>
+   169	    <bpmn:serviceTask id="generate-and-send-invoice" name="Generate and send invoice automatically">
+   170	      <bpmn:documentation>source: "After shipment the ERP
+   171	generates and sends the invoice automatically."</bpmn:documentation>
+   172	      <bpmn:extensionElements>
+   173	        <aef:uid value="generate-and-send-invoice" />
+   174	      </bpmn:extensionElements>
+   175	      <bpmn:incoming>collect-parcel--generate-and-send-invoice</bpmn:incoming><bpmn:outgoing>generate-and-send-invoice--send-payment-reminder</bpmn:outgoing></bpmn:serviceTask>
+   176	    <bpmn:endEvent id="accepted-order-fulfilled">
+   177	      <bpmn:documentation>source: unstated - marks where the stated order ends; the source names no result</bpmn:documentation>
+   178	      <bpmn:extensionElements>
+   179	        <aef:uid value="accepted-order-fulfilled" />
+   180	      </bpmn:extensionElements>
+   181	      <bpmn:incoming>deliver-parcel-to-customer--accepted-order-fulfilled</bpmn:incoming>
+   182	      <bpmn:incoming>send-payment-reminder--accepted-order-fulfilled</bpmn:incoming>
+   183	    </bpmn:endEvent>
+   184	    <bpmn:task id="quality-inspection" name="Quality inspection">
+   185	      <bpmn:documentation>source: "The warehouse also does quality inspection and labelling for each order, but nobody could
+   186	say whether those happen before or after packing, or in which order relative to each other."</bpmn:documentation>
+   187	      <bpmn:extensionElements>
+   188	        <aef:uid value="quality-inspection" />
+   189	      </bpmn:extensionElements>
+   190	    <bpmn:incoming>pick-parts--quality-inspection</bpmn:incoming><bpmn:outgoing>quality-inspection--pack-order</bpmn:outgoing></bpmn:task>
+   191	    <bpmn:task id="labelling" name="Labelling">
+   192	      <bpmn:documentation>source: "The warehouse also does quality inspection and labelling for each order, but nobody could
+   193	say whether those happen before or after packing, or in which order relative to each other."</bpmn:documentation>
+   194	      <bpmn:extensionElements>
+   195	        <aef:uid value="labelling" />
+   196	      </bpmn:extensionElements>
+   197	    </bpmn:task>
+   198	    <bpmn:sequenceFlow id="order-arrives-by-email--enter-order-into-erp" sourceRef="order-arrives-by-email" targetRef="enter-order-into-erp">
+   199	      <bpmn:extensionElements>
+   200	        <aef:uid value="order-arrives-by-email--enter-order-into-erp" />
+   201	      </bpmn:extensionElements>
+   202	    </bpmn:sequenceFlow>
+   203	    <bpmn:sequenceFlow id="enter-order-into-erp--check-customer-credit-limit" sourceRef="enter-order-into-erp" targetRef="check-customer-credit-limit">
+   204	      <bpmn:extensionElements>
+   205	        <aef:uid value="enter-order-into-erp--check-customer-credit-limit" />
+   206	      </bpmn:extensionElements>
+   207	    </bpmn:sequenceFlow>
+   208	    <bpmn:sequenceFlow id="check-customer-credit-limit--credit-limit-exceeded" sourceRef="check-customer-credit-limit" targetRef="credit-limit-exceeded">
+   209	      <bpmn:extensionElements>
+   210	        <aef:uid value="check-customer-credit-limit--credit-limit-exceeded" />
+   211	      </bpmn:extensionElements>
+   212	    </bpmn:sequenceFlow>
+   213	    <bpmn:sequenceFlow id="credit-limit-exceeded--decide-whether-to-accept-order-anyway" sourceRef="credit-limit-exceeded" targetRef="decide-whether-to-accept-order-anyway" name="limit is exceeded">
+   214	      <bpmn:extensionElements>
+   215	        <aef:uid value="credit-limit-exceeded--decide-whether-to-accept-order-anyway" />
+   216	      </bpmn:extensionElements>
+   217	    </bpmn:sequenceFlow>
+   218	    <bpmn:sequenceFlow id="credit-limit-exceeded--pick-parts" sourceRef="credit-limit-exceeded" targetRef="pick-parts">
+   219	      <bpmn:extensionElements>
+   220	        <aef:uid value="credit-limit-exceeded--pick-parts" />
+   221	      </bpmn:extensionElements>
+   222	    </bpmn:sequenceFlow>
+   223	    <bpmn:sequenceFlow id="decide-whether-to-accept-order-anyway--accept-order-anyway" sourceRef="decide-whether-to-accept-order-anyway" targetRef="accept-order-anyway">
+   224	      <bpmn:extensionElements>
+   225	        <aef:uid value="decide-whether-to-accept-order-anyway--accept-order-anyway" />
+   226	      </bpmn:extensionElements>
+   227	    </bpmn:sequenceFlow>
+   228	    <bpmn:sequenceFlow id="accept-order-anyway--close-rejected-order" sourceRef="accept-order-anyway" targetRef="close-rejected-order" name="a rejected order">
+   229	      <bpmn:extensionElements>
+   230	        <aef:uid value="accept-order-anyway--close-rejected-order" />
+   231	      </bpmn:extensionElements>
+   232	    </bpmn:sequenceFlow>
+   233	    <bpmn:sequenceFlow id="accept-order-anyway--pick-parts" sourceRef="accept-order-anyway" targetRef="pick-parts" name="accept the order anyway">
+   234	      <bpmn:extensionElements>
+   235	        <aef:uid value="accept-order-anyway--pick-parts" />
+   236	      </bpmn:extensionElements>
+   237	    </bpmn:sequenceFlow>
+   238	    <bpmn:sequenceFlow id="close-rejected-order--tell-customer" sourceRef="close-rejected-order" targetRef="tell-customer">
+   239	      <bpmn:extensionElements>
+   240	        <aef:uid value="close-rejected-order--tell-customer" />
+   241	      </bpmn:extensionElements>
+   242	    </bpmn:sequenceFlow>
+   243	    <bpmn:sequenceFlow id="tell-customer--order-rejected" sourceRef="tell-customer" targetRef="order-rejected">
+   244	      <bpmn:extensionElements>
+   245	        <aef:uid value="tell-customer--order-rejected" />
+   246	      </bpmn:extensionElements>
+   247	    </bpmn:sequenceFlow>
+   248	    <bpmn:sequenceFlow id="pack-order--book-carrier" sourceRef="pack-order" targetRef="book-carrier">
+   249	      <bpmn:extensionElements>
+   250	        <aef:uid value="pack-order--book-carrier" />
+   251	      </bpmn:extensionElements>
+   252	    </bpmn:sequenceFlow>
+   253	    <bpmn:sequenceFlow id="book-carrier--collect-parcel" sourceRef="book-carrier" targetRef="collect-parcel">
+   254	      <bpmn:extensionElements>
+   255	        <aef:uid value="book-carrier--collect-parcel" />
+   256	      </bpmn:extensionElements>
+   257	    </bpmn:sequenceFlow>
+   258	    <bpmn:sequenceFlow id="collect-parcel--deliver-parcel-to-customer" sourceRef="collect-parcel" targetRef="deliver-parcel-to-customer">
+   259	      <bpmn:extensionElements>
+   260	        <aef:uid value="collect-parcel--deliver-parcel-to-customer" />
+   261	      </bpmn:extensionElements>
+   262	    </bpmn:sequenceFlow>
+   263	    <bpmn:sequenceFlow id="collect-parcel--generate-and-send-invoice" sourceRef="collect-parcel" targetRef="generate-and-send-invoice">
+   264	      <bpmn:extensionElements>
+   265	        <aef:uid value="collect-parcel--generate-and-send-invoice" />
+   266	      </bpmn:extensionElements>
+   267	    </bpmn:sequenceFlow>
+   268	    <bpmn:sequenceFlow id="deliver-parcel-to-customer--accepted-order-fulfilled" sourceRef="deliver-parcel-to-customer" targetRef="accepted-order-fulfilled">
+   269	      <bpmn:extensionElements>
+   270	        <aef:uid value="deliver-parcel-to-customer--accepted-order-fulfilled" />
+   271	      </bpmn:extensionElements>
+   272	    </bpmn:sequenceFlow>
+   273	    <bpmn:sequenceFlow id="generate-and-send-invoice--send-payment-reminder" sourceRef="generate-and-send-invoice" targetRef="send-payment-reminder">
+   274	      <bpmn:extensionElements>
+   275	        <aef:uid value="generate-and-send-invoice--send-payment-reminder" />
+   276	      </bpmn:extensionElements>
+   277	    </bpmn:sequenceFlow>
+   278	    <bpmn:textAnnotation id="Note_labelling">
+   279	      <bpmn:text>Required for each order. Order relative to packing and to the other inspection/labelling step is not recorded in the source; intentionally unconnected.</bpmn:text>
+   280	    </bpmn:textAnnotation>
+   281	    <bpmn:association id="Association_labelling" sourceRef="Note_labelling" targetRef="labelling" />
+   282	    <bpmn:textAnnotation id="Note_returns">
+   283	      <bpmn:text>Returns are handled by a separate process that is not described here. Returns are outside this map.</bpmn:text>
+   284	    </bpmn:textAnnotation>
+   285	  <bpmn:sequenceFlow id="pick-parts--quality-inspection" sourceRef="pick-parts" targetRef="quality-inspection" /><bpmn:sequenceFlow id="quality-inspection--pack-order" sourceRef="quality-inspection" targetRef="pack-order" /><bpmn:task id="send-payment-reminder" name="Send payment reminder"><bpmn:documentation>source: "The ERP sends a payment reminder after seven days."</bpmn:documentation><bpmn:incoming>generate-and-send-invoice--send-payment-reminder</bpmn:incoming><bpmn:outgoing>send-payment-reminder--accepted-order-fulfilled</bpmn:outgoing></bpmn:task><bpmn:sequenceFlow id="send-payment-reminder--accepted-order-fulfilled" sourceRef="send-payment-reminder" targetRef="accepted-order-fulfilled" />
+   286	    <bpmn:textAnnotation id="Note_accepted-order-fulfilled">
+   287	      <bpmn:text>Outcome not recorded in the source: this end is left unnamed until the source owner states one.</bpmn:text>
+   288	    </bpmn:textAnnotation>
+   289	    <bpmn:association id="Association_accepted-order-fulfilled" sourceRef="Note_accepted-order-fulfilled" targetRef="accepted-order-fulfilled" />
+   290	  </bpmn:process>
+   291	</bpmn:definitions>
+
+exec
+/bin/bash -lc 'ls -la kit; git status --short' in /opt/832-Workflow-designer/.context/runme/087-release-designer-0.28.0/calibrate-codex/planted
+ succeeded in 0ms:
+total 176
+drwxrwxr-x+ 1 root root    196 Oct 26 11:25 .
+drwxrwxr-x+ 1 root root    110 Oct 26 11:25 ..
+-rw-r--r--+ 1 root root  19785 Oct 26 11:25 AUTHORING.md
+-rw-r--r--+ 1 root root  10375 Oct 26 11:25 CONFORMANCE.md
+-rw-r--r--+ 1 root root    841 Oct 26 11:25 CORRECT.md
+-rw-r--r--+ 1 root root    535 Oct 26 11:25 GENERATE.md
+-rw-r--r--+ 1 root root   1208 Oct 26 11:25 REVIEW.md
+-rw-r--r--+ 1 root root   5037 Oct 26 11:25 RUBRIC.md
+-rw-r--r--+ 1 root root  15848 Oct 26 11:25 exemplar.bpmn
+-rw-r--r--+ 1 root root 109553 Oct 26 11:25 validate-workflow.py
+ M ../../../../../.claude/commands/resume.md
+ M ../../../../../.claude/settings.json
+ D ../../../../approvals/resolved-d2e1f22c4cb6.yaml
+ D ../../../../approvals/resolved-e904dcefd1b1.yaml
+ D ../../../../approvals/resolved-f8567c4bcc33.yaml
+ M ../../../../audits/2026-10-01.yaml
+ D ../../../../audits/cron/2026-09-23-0115.yaml
+ D ../../../../audits/cron/2026-09-23-0130.yaml
+ D ../../../../audits/cron/2026-09-23-0145.yaml
+ D ../../../../audits/cron/2026-09-23-0200.yaml
+ D ../../../../audits/cron/2026-09-23-0215.yaml
+ D ../../../../audits/cron/2026-09-23-0230.yaml
+ D ../../../../audits/cron/2026-09-23-0245.yaml
+ D ../../../../audits/cron/2026-09-23-0300.yaml
+ D ../../../../audits/cron/2026-09-23-0315.yaml
+ D ../../../../audits/cron/2026-09-23-0330.yaml
+ D ../../../../audits/cron/2026-09-23-0345.yaml
+ D ../../../../audits/cron/2026-09-23-0400.yaml
+ D ../../../../audits/cron/2026-09-23-0415.yaml
+ D ../../../../audits/cron/2026-09-23-0430.yaml
+ D ../../../../audits/cron/2026-09-23-0445.yaml
+ D ../../../../audits/cron/2026-09-23-0500.yaml
+ D ../../../../audits/cron/2026-09-23-0515.yaml
+ D ../../../../audits/cron/2026-09-23-0530.yaml
+ D ../../../../audits/cron/2026-09-23-0545.yaml
+ D ../../../../audits/cron/2026-09-23-0600.yaml
+ D ../../../../audits/cron/2026-09-23-0615.yaml
+ D ../../../../audits/cron/2026-09-23-0630.yaml
+ D ../../../../audits/cron/2026-09-23-0645.yaml
+ D ../../../../audits/cron/2026-09-23-0700.yaml
+ D ../../../../audits/cron/2026-09-23-0715.yaml
+ D ../../../../audits/cron/2026-09-23-0730.yaml
+ D ../../../../audits/cron/2026-09-23-0745.yaml
+ D ../../../../audits/cron/2026-09-23-0800.yaml
+ D ../../../../audits/cron/2026-09-23-0815.yaml
+ D ../../../../audits/cron/2026-09-23-0830.yaml
+ D ../../../../audits/cron/2026-09-23-0845.yaml
+ D ../../../../audits/cron/2026-09-23-0900.yaml
+ D ../../../../audits/cron/2026-09-23-0915.yaml
+ D ../../../../audits/cron/2026-09-23-0930.yaml
+ D ../../../../audits/cron/2026-09-23-0945.yaml
+ D ../../../../audits/cron/2026-09-23-1000.yaml
+ D ../../../../audits/cron/2026-09-23-1015.yaml
+ D ../../../../audits/cron/2026-09-23-1030.yaml
+ D ../../../../audits/cron/2026-09-23-1045.yaml
+ D ../../../../audits/cron/2026-09-23-1100.yaml
+ D ../../../../audits/cron/2026-09-23-1115.yaml
+ D ../../../../audits/cron/2026-09-23-1130.yaml
+ D ../../../../audits/cron/2026-09-23-1145.yaml
+ D ../../../../audits/cron/2026-09-23-1200.yaml
+ D ../../../../audits/cron/2026-09-23-1215.yaml
+ D ../../../../audits/cron/2026-09-23-1230.yaml
+ D ../../../../audits/cron/2026-09-23-1245.yaml
+ D ../../../../audits/cron/2026-09-23-1300.yaml
+ D ../../../../audits/cron/2026-09-23-1315.yaml
+ D ../../../../audits/cron/2026-09-23-1330.yaml
+ D ../../../../audits/cron/2026-09-23-1345.yaml
+ D ../../../../audits/cron/2026-09-23-1400.yaml
+ D ../../../../audits/cron/2026-09-23-1415.yaml
+ D ../../../../audits/cron/2026-09-23-1430.yaml
+ D ../../../../audits/cron/2026-09-23-1445.yaml
+ D ../../../../audits/cron/2026-09-23-1500.yaml
+ D ../../../../audits/cron/2026-09-23-1515.yaml
+ D ../../../../audits/cron/2026-09-23-1530.yaml
+ D ../../../../audits/cron/2026-09-23-1545.yaml
+ D ../../../../audits/cron/2026-09-23-1600.yaml
+ D ../../../../audits/cron/2026-09-23-1615.yaml
+ D ../../../../audits/cron/2026-09-23-1630.yaml
+ D ../../../../audits/cron/2026-09-23-1645.yaml
+ D ../../../../audits/cron/2026-09-23-1700.yaml
+ D ../../../../audits/cron/2026-09-23-1715.yaml
+ D ../../../../audits/cron/2026-09-23-1730.yaml
+ D ../../../../audits/cron/2026-09-23-1745.yaml
+ D ../../../../audits/cron/2026-09-23-1800.yaml
+ D ../../../../audits/cron/2026-09-23-1815.yaml
+ D ../../../../audits/cron/2026-09-23-1830.yaml
+ D ../../../../audits/cron/2026-09-23-1845.yaml
+ D ../../../../audits/cron/2026-09-23-1900.yaml
+ D ../../../../audits/cron/2026-09-23-1915.yaml
+ D ../../../../audits/cron/2026-09-23-1930.yaml
+ D ../../../../audits/cron/2026-09-23-1945.yaml
+ D ../../../../audits/cron/2026-09-23-2000.yaml
+ D ../../../../audits/cron/2026-09-23-2015.yaml
+ D ../../../../audits/cron/2026-09-23-2030.yaml
+ D ../../../../audits/cron/2026-09-23-2045.yaml
+ D ../../../../audits/cron/2026-09-23-2100.yaml
+ D ../../../../audits/cron/2026-09-23-2115.yaml
+ D ../../../../audits/cron/2026-09-23-2130.yaml
+ D ../../../../audits/cron/2026-09-23-2145.yaml
+ D ../../../../audits/cron/2026-09-23-2200.yaml
+ D ../../../../audits/cron/2026-09-23-2215.yaml
+ D ../../../../audits/cron/2026-09-23-2230.yaml
+ D ../../../../audits/cron/2026-09-23-2245.yaml
+ D ../../../../audits/cron/2026-09-23-2300.yaml
+ D ../../../../audits/cron/2026-09-23-2315.yaml
+ D ../../../../audits/cron/2026-09-23-2330.yaml
+ D ../../../../audits/cron/2026-09-23-2345.yaml
+ D ../../../../audits/cron/2026-09-24-0000.yaml
+ D ../../../../audits/cron/2026-09-24-0015.yaml
+ D ../../../../audits/cron/2026-09-24-0030.yaml
+ D ../../../../audits/cron/2026-09-24-0045.yaml
+ D ../../../../audits/cron/2026-09-24-0100.yaml
+ D ../../../../audits/cron/2026-09-24-0115.yaml
+ D ../../../../audits/cron/2026-09-24-0130.yaml
+ D ../../../../audits/cron/2026-09-24-0145.yaml
+ D ../../../../audits/cron/2026-09-24-0200.yaml
+ D ../../../../audits/cron/2026-09-24-0215.yaml
+ D ../../../../audits/cron/2026-09-24-0230.yaml
+ D ../../../../audits/cron/2026-09-24-0245.yaml
+ D ../../../../audits/cron/2026-09-24-0300.yaml
+ D ../../../../audits/cron/2026-09-24-0315.yaml
+ D ../../../../audits/cron/2026-09-24-0330.yaml
+ D ../../../../audits/cron/2026-09-24-0345.yaml
+ D ../../../../audits/cron/2026-09-24-0400.yaml
+ D ../../../../audits/cron/2026-09-24-0415.yaml
+ D ../../../../audits/cron/2026-09-24-0430.yaml
+ D ../../../../audits/cron/2026-09-24-0445.yaml
+ D ../../../../audits/cron/2026-09-24-0500.yaml
+ D ../../../../audits/cron/2026-09-24-0515.yaml
+ D ../../../../audits/cron/2026-09-24-0530.yaml
+ D ../../../../audits/cron/2026-09-24-0545.yaml
+ D ../../../../audits/cron/2026-09-24-0600.yaml
+ D ../../../../audits/cron/2026-09-24-0615.yaml
+ D ../../../../audits/cron/2026-09-24-0630.yaml
+ D ../../../../audits/cron/2026-09-24-0645.yaml
+ D ../../../../audits/cron/2026-09-24-0700.yaml
+ D ../../../../audits/cron/2026-09-24-0715.yaml
+ D ../../../../audits/cron/2026-09-24-0730.yaml
+ D ../../../../audits/cron/2026-09-24-0745.yaml
+ D ../../../../audits/cron/2026-09-24-0800.yaml
+ D ../../../../audits/cron/2026-09-24-0815.yaml
+ D ../../../../audits/cron/2026-09-24-0830.yaml
+ D ../../../../audits/cron/2026-09-24-0845.yaml
+ D ../../../../audits/cron/2026-09-24-0900.yaml
+ D ../../../../audits/cron/2026-09-24-0915.yaml
+ D ../../../../audits/cron/2026-09-24-0930.yaml
+ D ../../../../audits/cron/2026-09-24-0945.yaml
+ D ../../../../audits/cron/2026-09-24-1000.yaml
+ D ../../../../audits/cron/2026-09-24-1015.yaml
+ D ../../../../audits/cron/2026-09-24-1030.yaml
+ D ../../../../audits/cron/2026-09-24-1045.yaml
+ D ../../../../audits/cron/2026-09-24-1100.yaml
+ D ../../../../audits/cron/2026-09-24-1115.yaml
+ D ../../../../audits/cron/2026-09-24-1130.yaml
+ D ../../../../audits/cron/2026-09-24-1145.yaml
+ D ../../../../audits/cron/2026-09-24-1200.yaml
+ D ../../../../audits/cron/2026-09-24-1215.yaml
+ D ../../../../audits/cron/2026-09-24-1230.yaml
+ D ../../../../audits/cron/2026-09-24-1245.yaml
+ D ../../../../audits/cron/2026-09-24-1300.yaml
+ D ../../../../audits/cron/2026-09-24-1315.yaml
+ D ../../../../audits/cron/2026-09-24-1330.yaml
+ D ../../../../audits/cron/2026-09-24-1345.yaml
+ D ../../../../audits/cron/2026-09-24-1400.yaml
+ D ../../../../audits/cron/2026-09-24-1415.yaml
+ D ../../../../audits/cron/2026-09-24-1430.yaml
+ D ../../../../audits/cron/2026-09-24-1445.yaml
+ D ../../../../audits/cron/2026-09-24-1500.yaml
+ D ../../../../audits/cron/2026-09-24-1515.yaml
+ D ../../../../audits/cron/2026-09-24-1530.yaml
+ D ../../../../audits/cron/2026-09-24-1545.yaml
+ D ../../../../audits/cron/2026-09-24-1600.yaml
+ D ../../../../audits/cron/2026-09-24-1615.yaml
+ D ../../../../audits/cron/2026-09-24-1630.yaml
+ D ../../../../audits/cron/2026-09-24-1645.yaml
+ D ../../../../audits/cron/2026-09-24-1700.yaml
+ D ../../../../audits/cron/2026-09-24-1715.yaml
+ D ../../../../audits/cron/2026-09-24-1730.yaml
+ D ../../../../audits/cron/2026-09-24-1745.yaml
+ D ../../../../audits/cron/2026-09-24-1800.yaml
+ D ../../../../audits/cron/2026-09-24-1815.yaml
+ D ../../../../audits/cron/2026-09-24-1830.yaml
+ D ../../../../audits/cron/2026-09-24-1845.yaml
+ D ../../../../audits/cron/2026-09-24-1900.yaml
+ D ../../../../audits/cron/2026-09-24-1915.yaml
+ D ../../../../audits/cron/2026-09-24-1930.yaml
+ D ../../../../audits/cron/2026-09-24-1945.yaml
+ D ../../../../audits/cron/2026-09-24-2000.yaml
+ D ../../../../audits/cron/2026-09-24-2015.yaml
+ D ../../../../audits/cron/2026-09-24-2030.yaml
+ D ../../../../audits/cron/2026-09-24-2045.yaml
+ D ../../../../audits/cron/2026-09-24-2100.yaml
+ D ../../../../audits/cron/2026-09-24-2115.yaml
+ D ../../../../audits/cron/2026-09-24-2130.yaml
+ D ../../../../audits/cron/2026-09-24-2145.yaml
+ D ../../../../audits/cron/2026-09-24-2200.yaml
+ D ../../../../audits/cron/2026-09-24-2215.yaml
+ D ../../../../audits/cron/2026-09-24-2230.yaml
+ D ../../../../audits/cron/2026-09-24-2245.yaml
+ D ../../../../audits/cron/2026-09-24-2300.yaml
+ D ../../../../audits/cron/2026-09-24-2315.yaml
+ D ../../../../audits/cron/2026-09-24-2330.yaml
+ D ../../../../audits/cron/2026-09-24-2345.yaml
+ D ../../../../audits/cron/2026-09-25-0000.yaml
+ D ../../../../audits/cron/2026-09-25-0015.yaml
+ D ../../../../audits/cron/2026-09-25-0030.yaml
+ D ../../../../audits/cron/2026-09-25-0045.yaml
+ D ../../../../audits/cron/2026-09-25-0100.yaml
+ D ../../../../audits/cron/2026-09-25-0115.yaml
+ D ../../../../audits/cron/2026-09-25-0130.yaml
+ D ../../../../audits/cron/2026-09-25-0145.yaml
+ D ../../../../audits/cron/2026-09-25-0200.yaml
+ D ../../../../audits/cron/2026-09-25-0215.yaml
+ D ../../../../audits/cron/2026-09-25-0230.yaml
+ D ../../../../audits/cron/2026-09-25-0245.yaml
+ D ../../../../audits/cron/2026-09-25-0300.yaml
+ D ../../../../audits/cron/2026-09-25-0315.yaml
+ D ../../../../audits/cron/2026-09-25-0330.yaml
+ D ../../../../audits/cron/2026-09-25-0345.yaml
+ D ../../../../audits/cron/2026-09-25-0400.yaml
+ D ../../../../audits/cron/2026-09-25-0415.yaml
+ D ../../../../audits/cron/2026-09-25-0430.yaml
+ D ../../../../audits/cron/2026-09-25-0445.yaml
+ D ../../../../audits/cron/2026-09-25-0500.yaml
+ D ../../../../audits/cron/2026-09-25-0515.yaml
+ D ../../../../audits/cron/2026-09-25-0530.yaml
+ D ../../../../audits/cron/2026-09-25-0545.yaml
+ D ../../../../audits/cron/2026-09-25-0600.yaml
+ D ../../../../audits/cron/2026-09-25-0615.yaml
+ D ../../../../audits/cron/2026-09-25-0630.yaml
+ D ../../../../audits/cron/2026-09-25-0645.yaml
+ D ../../../../audits/cron/2026-09-25-0700.yaml
+ D ../../../../audits/cron/2026-09-25-0715.yaml
+ D ../../../../audits/cron/2026-09-25-0730.yaml
+ D ../../../../audits/cron/2026-09-25-0745.yaml
+ D ../../../../audits/cron/2026-09-25-0800.yaml
+ D ../../../../audits/cron/2026-09-25-0815.yaml
+ D ../../../../audits/cron/2026-09-25-0830.yaml
+ D ../../../../audits/cron/2026-09-25-0845.yaml
+ D ../../../../audits/cron/2026-09-25-0900.yaml
+ D ../../../../audits/cron/2026-09-25-0915.yaml
+ D ../../../../audits/cron/2026-09-25-0930.yaml
+ D ../../../../audits/cron/2026-09-25-0945.yaml
+ D ../../../../audits/cron/2026-09-25-1000.yaml
+ D ../../../../audits/cron/2026-09-25-1015.yaml
+ D ../../../../audits/cron/2026-09-25-1030.yaml
+ D ../../../../audits/cron/2026-09-25-1045.yaml
+ D ../../../../audits/cron/2026-09-25-1100.yaml
+ D ../../../../audits/cron/2026-09-25-1115.yaml
+ D ../../../../audits/cron/2026-09-25-1130.yaml
+ D ../../../../audits/cron/2026-09-25-1145.yaml
+ D ../../../../audits/cron/2026-09-25-1200.yaml
+ D ../../../../audits/cron/2026-09-25-1215.yaml
+ D ../../../../audits/cron/2026-09-25-1230.yaml
+ D ../../../../audits/cron/2026-09-25-1245.yaml
+ D ../../../../audits/cron/2026-09-25-1300.yaml
+ D ../../../../audits/cron/2026-09-25-1315.yaml
+ D ../../../../audits/cron/2026-09-25-1330.yaml
+ D ../../../../audits/cron/2026-09-25-1345.yaml
+ D ../../../../audits/cron/2026-09-25-1400.yaml
+ D ../../../../audits/cron/2026-09-25-1415.yaml
+ D ../../../../audits/cron/2026-09-25-1430.yaml
+ D ../../../../audits/cron/2026-09-25-1445.yaml
+ D ../../../../audits/cron/2026-09-25-1500.yaml
+ D ../../../../audits/cron/2026-09-25-1515.yaml
+ D ../../../../audits/cron/2026-09-25-1530.yaml
+ D ../../../../audits/cron/2026-09-25-1545.yaml
+ D ../../../../audits/cron/2026-09-25-1600.yaml
+ D ../../../../audits/cron/2026-09-25-1615.yaml
+ D ../../../../audits/cron/2026-09-25-1630.yaml
+ D ../../../../audits/cron/2026-09-25-1645.yaml
+ D ../../../../audits/cron/2026-09-25-1700.yaml
+ D ../../../../audits/cron/2026-09-25-1715.yaml
+ D ../../../../audits/cron/2026-09-25-1730.yaml
+ D ../../../../audits/cron/2026-09-25-1745.yaml
+ D ../../../../audits/cron/2026-09-25-1800.yaml
+ D ../../../../audits/cron/2026-09-25-1815.yaml
+ D ../../../../audits/cron/2026-09-25-1830.yaml
+ D ../../../../audits/cron/2026-09-25-1845.yaml
+ D ../../../../audits/cron/2026-09-25-1900.yaml
+ D ../../../../audits/cron/2026-09-25-1915.yaml
+ D ../../../../audits/cron/2026-09-25-1930.yaml
+ D ../../../../audits/cron/2026-09-25-1945.yaml
+ D ../../../../audits/cron/2026-09-25-2000.yaml
+ D ../../../../audits/cron/2026-09-25-2015.yaml
+ D ../../../../audits/cron/2026-09-25-2030.yaml
+ D ../../../../audits/cron/2026-09-25-2045.yaml
+ D ../../../../audits/cron/2026-09-25-2100.yaml
+ D ../../../../audits/cron/2026-09-25-2115.yaml
+ D ../../../../audits/cron/2026-09-25-2130.yaml
+ D ../../../../audits/cron/2026-09-25-2145.yaml
+ D ../../../../audits/cron/2026-09-25-2200.yaml
+ D ../../../../audits/cron/2026-09-25-2215.yaml
+ D ../../../../audits/cron/2026-09-25-2230.yaml
+ D ../../../../audits/cron/2026-09-25-2245.yaml
+ D ../../../../audits/cron/2026-09-25-2300.yaml
+ D ../../../../audits/cron/2026-09-25-2315.yaml
+ D ../../../../audits/cron/2026-09-25-2330.yaml
+ D ../../../../audits/cron/2026-09-25-2345.yaml
+ D ../../../../audits/cron/2026-09-26-0000.yaml
+ D ../../../../audits/cron/2026-09-26-0015.yaml
+ D ../../../../audits/cron/2026-09-26-0030.yaml
+ D ../../../../audits/cron/2026-09-26-0045.yaml
+ D ../../../../audits/cron/2026-09-26-0100.yaml
+ D ../../../../audits/cron/2026-09-26-0115.yaml
+ D ../../../../audits/cron/2026-09-26-0130.yaml
+ D ../../../../audits/cron/2026-09-26-0145.yaml
+ D ../../../../audits/cron/2026-09-26-0200.yaml
+ D ../../../../audits/cron/2026-09-26-0215.yaml
+ D ../../../../audits/cron/2026-09-26-0230.yaml
+ D ../../../../audits/cron/2026-09-26-0245.yaml
+ D ../../../../audits/cron/2026-09-26-0300.yaml
+ D ../../../../audits/cron/2026-09-26-0315.yaml
+ D ../../../../audits/cron/2026-09-26-0330.yaml
+ D ../../../../audits/cron/2026-09-26-0345.yaml
+ D ../../../../audits/cron/2026-09-26-0400.yaml
+ D ../../../../audits/cron/2026-09-26-0415.yaml
+ D ../../../../audits/cron/2026-09-26-0430.yaml
+ D ../../../../audits/cron/2026-09-26-0445.yaml
+ D ../../../../audits/cron/2026-09-26-0500.yaml
+ D ../../../../audits/cron/2026-09-26-0515.yaml
+ D ../../../../audits/cron/2026-09-26-0530.yaml
+ D ../../../../audits/cron/2026-09-26-0545.yaml
+ D ../../../../audits/cron/2026-09-26-0600.yaml
+ D ../../../../audits/cron/2026-09-26-0615.yaml
+ D ../../../../audits/cron/2026-09-26-0630.yaml
+ D ../../../../audits/cron/2026-09-26-0645.yaml
+ D ../../../../audits/cron/2026-09-26-0700.yaml
+ D ../../../../audits/cron/2026-09-26-0715.yaml
+ D ../../../../audits/cron/2026-09-26-0730.yaml
+ D ../../../../audits/cron/2026-09-26-0745.yaml
+ D ../../../../audits/cron/2026-09-26-0800.yaml
+ D ../../../../audits/cron/2026-09-26-0815.yaml
+ D ../../../../audits/cron/2026-09-26-0830.yaml
+ D ../../../../audits/cron/2026-09-26-0845.yaml
+ D ../../../../audits/cron/2026-09-26-0900.yaml
+ D ../../../../audits/cron/2026-09-26-0915.yaml
+ D ../../../../audits/cron/2026-09-26-0930.yaml
+ D ../../../../audits/cron/2026-09-26-0945.yaml
+ D ../../../../audits/cron/2026-09-26-1015.yaml
+ D ../../../../audits/cron/2026-09-26-1030.yaml
+ D ../../../../audits/cron/2026-09-26-1045.yaml
+ D ../../../../audits/cron/2026-09-26-1100.yaml
+ D ../../../../audits/cron/2026-09-26-1115.yaml
+ D ../../../../audits/cron/2026-09-26-1130.yaml
+ D ../../../../audits/cron/2026-09-26-1145.yaml
+ D ../../../../audits/cron/2026-09-26-1200.yaml
+ D ../../../../audits/cron/2026-09-26-1215.yaml
+ D ../../../../audits/cron/2026-09-26-1230.yaml
+ D ../../../../audits/cron/2026-09-26-1245.yaml
+ D ../../../../audits/cron/2026-09-26-1300.yaml
+ D ../../../../audits/cron/2026-09-26-1315.yaml
+ D ../../../../audits/cron/2026-09-26-1330.yaml
+ D ../../../../audits/cron/2026-09-26-1345.yaml
+ D ../../../../audits/cron/2026-09-26-1400.yaml
+ D ../../../../audits/cron/2026-09-26-1415.yaml
+ D ../../../../audits/cron/2026-09-26-1430.yaml
+ D ../../../../audits/cron/2026-09-26-1445.yaml
+ D ../../../../audits/cron/2026-09-26-1500.yaml
+ D ../../../../audits/cron/2026-09-26-1515.yaml
+ D ../../../../audits/cron/2026-09-26-1530.yaml
+ D ../../../../audits/cron/2026-09-26-1545.yaml
+ D ../../../../audits/cron/2026-09-26-1600.yaml
+ D ../../../../audits/cron/2026-09-26-1615.yaml
+ D ../../../../audits/cron/2026-09-26-1630.yaml
+ D ../../../../audits/cron/2026-09-26-1645.yaml
+ D ../../../../audits/cron/2026-09-26-1700.yaml
+ D ../../../../audits/cron/2026-09-26-1715.yaml
+ D ../../../../audits/cron/2026-09-26-1730.yaml
+ D ../../../../audits/cron/2026-09-26-1745.yaml
+ D ../../../../audits/cron/2026-09-26-1800.yaml
+ D ../../../../audits/cron/2026-09-26-1815.yaml
+ D ../../../../audits/cron/2026-09-26-1830.yaml
+ D ../../../../audits/cron/2026-09-26-1845.yaml
+ D ../../../../audits/cron/2026-09-26-1900.yaml
+ D ../../../../audits/cron/2026-09-26-1915.yaml
+ D ../../../../audits/cron/2026-09-26-1930.yaml
+ D ../../../../audits/cron/2026-09-26-1945.yaml
+ D ../../../../audits/cron/2026-09-26-2000.yaml
+ D ../../../../audits/cron/2026-09-26-2015.yaml
+ D ../../../../audits/cron/2026-09-26-2030.yaml
+ D ../../../../audits/cron/2026-09-26-2045.yaml
+ D ../../../../audits/cron/2026-09-26-2100.yaml
+ D ../../../../audits/cron/2026-09-26-2115.yaml
+ D ../../../../audits/cron/2026-09-26-2130.yaml
+ D ../../../../audits/cron/2026-09-26-2145.yaml
+ D ../../../../audits/cron/2026-09-26-2200.yaml
+ D ../../../../audits/cron/2026-09-26-2215.yaml
+ D ../../../../audits/cron/2026-09-26-2230.yaml
+ D ../../../../audits/cron/2026-09-26-2245.yaml
+ D ../../../../audits/cron/2026-09-26-2300.yaml
+ D ../../../../audits/cron/2026-09-26-2315.yaml
+ D ../../../../audits/cron/2026-09-26-2330.yaml
+ D ../../../../audits/cron/2026-09-26-2345.yaml
+ D ../../../../audits/cron/2026-09-27-0000.yaml
+ D ../../../../audits/cron/2026-09-27-0015.yaml
+ D ../../../../audits/cron/2026-09-27-0030.yaml
+ D ../../../../audits/cron/2026-09-27-0045.yaml
+ D ../../../../audits/cron/2026-09-27-0100.yaml
+ D ../../../../audits/cron/2026-09-27-0115.yaml
+ D ../../../../audits/cron/2026-09-27-0130.yaml
+ D ../../../../audits/cron/2026-09-27-0145.yaml
+ D ../../../../audits/cron/2026-09-27-0200.yaml
+ D ../../../../audits/cron/2026-09-27-0215.yaml
+ D ../../../../audits/cron/2026-09-27-0230.yaml
+ D ../../../../audits/cron/2026-09-27-0245.yaml
+ D ../../../../audits/cron/2026-09-27-0300.yaml
+ D ../../../../audits/cron/2026-09-27-0315.yaml
+ D ../../../../audits/cron/2026-09-27-0330.yaml
+ D ../../../../audits/cron/2026-09-27-0345.yaml
+ D ../../../../audits/cron/2026-09-27-0400.yaml
+ D ../../../../audits/cron/2026-09-27-0415.yaml
+ D ../../../../audits/cron/2026-09-27-0430.yaml
+ D ../../../../audits/cron/2026-09-27-0445.yaml
+ D ../../../../audits/cron/2026-09-27-0500.yaml
+ D ../../../../audits/cron/2026-09-27-0515.yaml
+ D ../../../../audits/cron/2026-09-27-0530.yaml
+ D ../../../../audits/cron/2026-09-27-0545.yaml
+ D ../../../../audits/cron/2026-09-27-0600.yaml
+ D ../../../../audits/cron/2026-09-27-0615.yaml
+ D ../../../../audits/cron/2026-09-27-0630.yaml
+ D ../../../../audits/cron/2026-09-27-0645.yaml
+ D ../../../../audits/cron/2026-09-27-0700.yaml
+ D ../../../../audits/cron/2026-09-27-0715.yaml
+ D ../../../../audits/cron/2026-09-27-0730.yaml
+ D ../../../../audits/cron/2026-09-27-0745.yaml
+ D ../../../../audits/cron/2026-09-27-0800.yaml
+ D ../../../../audits/cron/2026-09-27-0815.yaml
+ D ../../../../audits/cron/2026-09-27-0830.yaml
+ D ../../../../audits/cron/2026-09-27-0845.yaml
+ D ../../../../audits/cron/2026-09-27-0900.yaml
+ D ../../../../audits/cron/2026-09-27-0915.yaml
+ D ../../../../audits/cron/2026-09-27-0930.yaml
+ D ../../../../audits/cron/2026-09-27-0945.yaml
+ D ../../../../audits/cron/2026-09-27-1000.yaml
+ D ../../../../audits/cron/2026-09-27-1015.yaml
+ D ../../../../audits/cron/2026-09-27-1030.yaml
+ D ../../../../audits/cron/2026-09-27-1045.yaml
+ D ../../../../audits/cron/2026-09-27-1100.yaml
+ D ../../../../audits/cron/2026-09-27-1115.yaml
+ D ../../../../audits/cron/2026-09-27-1130.yaml
+ D ../../../../audits/cron/2026-09-27-1145.yaml
+ D ../../../../audits/cron/2026-09-27-1200.yaml
+ D ../../../../audits/cron/2026-09-27-1215.yaml
+ D ../../../../audits/cron/2026-09-27-1230.yaml
+ D ../../../../audits/cron/2026-09-27-1245.yaml
+ D ../../../../audits/cron/2026-09-27-1300.yaml
+ D ../../../../audits/cron/2026-09-27-1315.yaml
+ D ../../../../audits/cron/2026-09-27-1330.yaml
+ D ../../../../audits/cron/2026-09-27-1345.yaml
+ D ../../../../audits/cron/2026-09-27-1400.yaml
+ D ../../../../audits/cron/2026-09-27-1415.yaml
+ D ../../../../audits/cron/2026-09-27-1445.yaml
+ D ../../../../audits/cron/2026-09-27-1500.yaml
+ D ../../../../audits/cron/2026-09-27-1515.yaml
+ D ../../../../audits/cron/2026-09-27-1530.yaml
+ D ../../../../audits/cron/2026-09-27-1545.yaml
+ D ../../../../audits/cron/2026-09-27-1600.yaml
+ D ../../../../audits/cron/2026-09-27-1615.yaml
+ D ../../../../audits/cron/2026-09-27-1630.yaml
+ D ../../../../audits/cron/2026-09-27-1645.yaml
+ D ../../../../audits/cron/2026-09-27-1700.yaml
+ D ../../../../audits/cron/2026-09-27-1715.yaml
+ D ../../../../audits/cron/2026-09-27-1730.yaml
+ D ../../../../audits/cron/2026-09-27-1745.yaml
+ D ../../../../audits/cron/2026-09-27-1800.yaml
+ D ../../../../audits/cron/2026-09-27-1815.yaml
+ D ../../../../audits/cron/2026-09-27-1830.yaml
+ D ../../../../audits/cron/2026-09-27-1845.yaml
+ D ../../../../audits/cron/2026-09-27-1900.yaml
+ D ../../../../audits/cron/2026-09-27-1915.yaml
+ D ../../../../audits/cron/2026-09-27-1930.yaml
+ D ../../../../audits/cron/2026-09-27-1945.yaml
+ D ../../../../audits/cron/2026-09-27-2000.yaml
+ D ../../../../audits/cron/2026-09-27-2015.yaml
+ D ../../../../audits/cron/2026-09-27-2030.yaml
+ D ../../../../audits/cron/2026-09-27-2045.yaml
+ D ../../../../audits/cron/2026-09-27-2100.yaml
+ D ../../../../audits/cron/2026-09-27-2115.yaml
+ D ../../../../audits/cron/2026-09-27-2130.yaml
+ D ../../../../audits/cron/2026-09-27-2145.yaml
+ D ../../../../audits/cron/2026-09-27-2200.yaml
+ D ../../../../audits/cron/2026-09-27-2215.yaml
+ D ../../../../audits/cron/2026-09-27-2230.yaml
+ D ../../../../audits/cron/2026-09-27-2245.yaml
+ D ../../../../audits/cron/2026-09-27-2300.yaml
+ D ../../../../audits/cron/2026-09-27-2315.yaml
+ D ../../../../audits/cron/2026-09-27-2330.yaml
+ D ../../../../audits/cron/2026-09-27-2345.yaml
+ D ../../../../audits/cron/2026-09-28-0000.yaml
+ D ../../../../audits/cron/2026-09-28-0015.yaml
+ D ../../../../audits/cron/2026-09-28-0030.yaml
+ D ../../../../audits/cron/2026-09-28-0045.yaml
+ D ../../../../audits/cron/2026-09-28-0100.yaml
+ D ../../../../audits/cron/2026-09-28-0115.yaml
+ D ../../../../audits/cron/2026-09-28-0130.yaml
+ D ../../../../audits/cron/2026-09-28-0145.yaml
+ D ../../../../audits/cron/2026-09-28-0200.yaml
+ D ../../../../audits/cron/2026-09-28-0215.yaml
+ D ../../../../audits/cron/2026-09-28-0230.yaml
+ D ../../../../audits/cron/2026-09-28-0245.yaml
+ D ../../../../audits/cron/2026-09-28-0300.yaml
+ D ../../../../audits/cron/2026-09-28-0315.yaml
+ D ../../../../audits/cron/2026-09-28-0330.yaml
+ D ../../../../audits/cron/2026-09-28-0345.yaml
+ D ../../../../audits/cron/2026-09-28-0400.yaml
+ D ../../../../audits/cron/2026-09-28-0415.yaml
+ D ../../../../audits/cron/2026-09-28-0430.yaml
+ D ../../../../audits/cron/2026-09-28-0445.yaml
+ D ../../../../audits/cron/2026-09-28-0500.yaml
+ D ../../../../audits/cron/2026-09-28-0515.yaml
+ D ../../../../audits/cron/2026-09-28-0530.yaml
+ D ../../../../audits/cron/2026-09-28-0545.yaml
+ D ../../../../audits/cron/2026-09-28-0600.yaml
+ D ../../../../audits/cron/2026-09-28-0615.yaml
+ D ../../../../audits/cron/2026-09-28-0630.yaml
+ D ../../../../audits/cron/2026-09-28-0645.yaml
+ D ../../../../audits/cron/2026-09-28-0700.yaml
+ D ../../../../audits/cron/2026-09-28-0715.yaml
+ D ../../../../audits/cron/2026-09-28-0730.yaml
+ D ../../../../audits/cron/2026-09-28-0745.yaml
+ D ../../../../audits/cron/2026-09-28-0800.yaml
+ D ../../../../audits/cron/2026-09-28-0815.yaml
+ D ../../../../audits/cron/2026-09-28-0830.yaml
+ D ../../../../audits/cron/2026-09-28-0845.yaml
+ D ../../../../audits/cron/2026-09-28-0900.yaml
+ D ../../../../audits/cron/2026-09-28-0915.yaml
+ D ../../../../audits/cron/2026-09-28-0930.yaml
+ D ../../../../audits/cron/2026-09-28-0945.yaml
+ D ../../../../audits/cron/2026-09-28-1000.yaml
+ D ../../../../audits/cron/2026-09-28-1015.yaml
+ D ../../../../audits/cron/2026-09-28-1030.yaml
+ D ../../../../audits/cron/2026-09-28-1100.yaml
+ D ../../../../audits/cron/2026-09-28-1115.yaml
+ D ../../../../audits/cron/2026-09-28-1145.yaml
+ D ../../../../audits/cron/2026-09-28-1200.yaml
+ D ../../../../audits/cron/2026-09-28-1215.yaml
+ D ../../../../audits/cron/2026-09-28-1230.yaml
+ D ../../../../audits/cron/2026-09-28-1245.yaml
+ D ../../../../audits/cron/2026-09-28-1300.yaml
+ D ../../../../audits/cron/2026-09-28-1315.yaml
+ D ../../../../audits/cron/2026-09-28-1330.yaml
+ D ../../../../audits/cron/2026-09-28-1345.yaml
+ D ../../../../audits/cron/2026-09-28-1400.yaml
+ D ../../../../audits/cron/2026-09-28-1415.yaml
+ D ../../../../audits/cron/2026-09-28-1430.yaml
+ D ../../../../audits/cron/2026-09-28-1445.yaml
+ D ../../../../audits/cron/2026-09-28-1500.yaml
+ D ../../../../audits/cron/2026-09-28-1515.yaml
+ D ../../../../audits/cron/2026-09-28-1530.yaml
+ D ../../../../audits/cron/2026-09-28-1545.yaml
+ D ../../../../audits/cron/2026-09-28-1600.yaml
+ D ../../../../audits/cron/2026-09-28-1615.yaml
+ D ../../../../audits/cron/2026-09-28-1630.yaml
+ D ../../../../audits/cron/2026-09-28-1645.yaml
+ D ../../../../audits/cron/2026-09-28-1700.yaml
+ D ../../../../audits/cron/2026-09-28-1715.yaml
+ D ../../../../audits/cron/2026-09-28-1730.yaml
+ D ../../../../audits/cron/2026-09-28-1745.yaml
+ D ../../../../audits/cron/2026-09-28-1800.yaml
+ D ../../../../audits/cron/2026-09-28-1815.yaml
+ D ../../../../audits/cron/2026-09-28-1830.yaml
+ D ../../../../audits/cron/2026-09-28-1845.yaml
+ D ../../../../audits/cron/2026-09-28-1900.yaml
+ D ../../../../audits/cron/2026-09-28-1915.yaml
+ D ../../../../audits/cron/2026-09-28-1930.yaml
+ D ../../../../audits/cron/2026-09-28-1945.yaml
+ D ../../../../audits/cron/2026-09-28-2000.yaml
+ D ../../../../audits/cron/2026-09-28-2015.yaml
+ D ../../../../audits/cron/2026-09-28-2030.yaml
+ D ../../../../audits/cron/2026-09-28-2045.yaml
+ D ../../../../audits/cron/2026-09-28-2100.yaml
+ D ../../../../audits/cron/2026-09-28-2115.yaml
+ D ../../../../audits/cron/2026-09-28-2130.yaml
+ D ../../../../audits/cron/2026-09-28-2145.yaml
+ D ../../../../audits/cron/2026-09-28-2200.yaml
+ D ../../../../audits/cron/2026-09-28-2215.yaml
+ D ../../../../audits/cron/2026-09-28-2230.yaml
+ D ../../../../audits/cron/2026-09-28-2245.yaml
+ D ../../../../audits/cron/2026-09-28-2300.yaml
+ D ../../../../audits/cron/2026-09-28-2315.yaml
+ D ../../../../audits/cron/2026-09-28-2330.yaml
+ D ../../../../audits/cron/2026-09-28-2345.yaml
+ D ../../../../audits/cron/2026-09-29-0000.yaml
+ D ../../../../audits/cron/2026-09-29-0015.yaml
+ D ../../../../audits/cron/2026-09-29-0030.yaml
+ D ../../../../audits/cron/2026-09-29-0045.yaml
+ D ../../../../audits/cron/2026-09-29-0100.yaml
+ D ../../../../audits/cron/2026-09-29-0115.yaml
+ D ../../../../audits/cron/2026-09-29-0130.yaml
+ D ../../../../audits/cron/2026-09-29-0145.yaml
+ D ../../../../audits/cron/2026-09-29-0200.yaml
+ D ../../../../audits/cron/2026-09-29-0215.yaml
+ D ../../../../audits/cron/2026-09-29-0230.yaml
+ D ../../../../audits/cron/2026-09-29-0245.yaml
+ D ../../../../audits/cron/2026-09-29-0300.yaml
+ D ../../../../audits/cron/2026-09-29-0315.yaml
+ D ../../../../audits/cron/2026-09-29-0330.yaml
+ D ../../../../audits/cron/2026-09-29-0345.yaml
+ D ../../../../audits/cron/2026-09-29-0400.yaml
+ D ../../../../audits/cron/2026-09-29-0415.yaml
+ D ../../../../audits/cron/2026-09-29-0430.yaml
+ D ../../../../audits/cron/2026-09-29-0445.yaml
+ D ../../../../audits/cron/2026-09-29-0500.yaml
+ D ../../../../audits/cron/2026-09-29-0515.yaml
+ D ../../../../audits/cron/2026-09-29-0530.yaml
+ D ../../../../audits/cron/2026-09-29-0545.yaml
+ D ../../../../audits/cron/2026-09-29-0600.yaml
+ D ../../../../audits/cron/2026-09-29-0615.yaml
+ D ../../../../audits/cron/2026-09-29-0630.yaml
+ D ../../../../audits/cron/2026-09-29-0645.yaml
+ D ../../../../audits/cron/2026-09-29-0700.yaml
+ D ../../../../audits/cron/2026-09-29-0715.yaml
+ D ../../../../audits/cron/2026-09-29-0730.yaml
+ D ../../../../audits/cron/2026-09-29-0745.yaml
+ D ../../../../audits/cron/2026-09-29-0800.yaml
+ D ../../../../audits/cron/2026-09-29-0815.yaml
+ D ../../../../audits/cron/2026-09-29-0830.yaml
+ D ../../../../audits/cron/2026-09-29-0845.yaml
+ D ../../../../audits/cron/2026-09-29-0900.yaml
+ D ../../../../audits/cron/2026-09-29-0915.yaml
+ D ../../../../audits/cron/2026-09-29-0930.yaml
+ D ../../../../audits/cron/2026-09-29-0945.yaml
+ D ../../../../audits/cron/2026-09-29-1015.yaml
+ D ../../../../audits/cron/2026-09-29-1030.yaml
+ D ../../../../audits/cron/2026-09-29-1045.yaml
+ D ../../../../audits/cron/2026-09-29-1100.yaml
+ D ../../../../audits/cron/2026-09-29-1115.yaml
+ D ../../../../audits/cron/2026-09-29-1130.yaml
+ D ../../../../audits/cron/2026-09-29-1145.yaml
+ D ../../../../audits/cron/2026-09-29-1200.yaml
+ D ../../../../audits/cron/2026-09-29-1215.yaml
+ D ../../../../audits/cron/2026-09-29-1230.yaml
+ D ../../../../audits/cron/2026-09-29-1245.yaml
+ D ../../../../audits/cron/2026-09-29-1300.yaml
+ D ../../../../audits/cron/2026-09-29-1315.yaml
+ D ../../../../audits/cron/2026-09-29-1330.yaml
+ D ../../../../audits/cron/2026-09-29-1345.yaml
+ D ../../../../audits/cron/2026-09-29-1400.yaml
+ D ../../../../audits/cron/2026-09-29-1415.yaml
+ D ../../../../audits/cron/2026-09-29-1430.yaml
+ D ../../../../audits/cron/2026-09-29-1445.yaml
+ D ../../../../audits/cron/2026-09-29-1500.yaml
+ D ../../../../audits/cron/2026-09-29-1515.yaml
+ D ../../../../audits/cron/2026-09-29-1530.yaml
+ D ../../../../audits/cron/2026-09-29-1545.yaml
+ D ../../../../audits/cron/2026-09-29-1600.yaml
+ D ../../../../audits/cron/2026-09-29-1615.yaml
+ D ../../../../audits/cron/2026-09-29-1630.yaml
+ D ../../../../audits/cron/2026-09-29-1645.yaml
+ D ../../../../audits/cron/2026-09-29-1700.yaml
+ D ../../../../audits/cron/2026-09-29-1715.yaml
+ D ../../../../audits/cron/2026-09-29-1730.yaml
+ D ../../../../audits/cron/2026-09-29-1745.yaml
+ D ../../../../audits/cron/2026-09-29-1800.yaml
+ D ../../../../audits/cron/2026-09-29-1815.yaml
+ D ../../../../audits/cron/2026-09-29-1830.yaml
+ D ../../../../audits/cron/2026-09-29-1845.yaml
+ D ../../../../audits/cron/2026-09-29-1900.yaml
+ D ../../../../audits/cron/2026-09-29-1915.yaml
+ D ../../../../audits/cron/2026-09-29-1930.yaml
+ D ../../../../audits/cron/2026-09-29-1945.yaml
+ D ../../../../audits/cron/2026-09-29-2000.yaml
+ D ../../../../audits/cron/2026-09-29-2015.yaml
+ D ../../../../audits/cron/2026-09-29-2030.yaml
+ D ../../../../audits/cron/2026-09-29-2045.yaml
+ D ../../../../audits/cron/2026-09-29-2100.yaml
+ D ../../../../audits/cron/2026-09-29-2115.yaml
+ D ../../../../audits/cron/2026-09-29-2130.yaml
+ D ../../../../audits/cron/2026-09-29-2145.yaml
+ D ../../../../audits/cron/2026-09-29-2200.yaml
+ D ../../../../audits/cron/2026-09-29-2215.yaml
+ D ../../../../audits/cron/2026-09-29-2230.yaml
+ D ../../../../audits/cron/2026-09-29-2245.yaml
+ D ../../../../audits/cron/2026-09-29-2300.yaml
+ D ../../../../audits/cron/2026-09-29-2315.yaml
+ D ../../../../audits/cron/2026-09-29-2330.yaml
+ D ../../../../audits/cron/2026-09-29-2345.yaml
+ D ../../../../audits/cron/2026-09-30-0000.yaml
+ D ../../../../audits/cron/2026-09-30-0015.yaml
+ D ../../../../audits/cron/2026-09-30-0030.yaml
+ D ../../../../audits/cron/2026-09-30-0045.yaml
+ D ../../../../audits/cron/2026-09-30-0100.yaml
+ D ../../../../audits/cron/2026-09-30-0115.yaml
+ D ../../../../audits/cron/2026-09-30-0130.yaml
+ D ../../../../audits/cron/2026-09-30-0145.yaml
+ D ../../../../audits/cron/2026-09-30-0200.yaml
+ D ../../../../audits/cron/2026-09-30-0215.yaml
+ D ../../../../audits/cron/2026-09-30-0230.yaml
+ D ../../../../audits/cron/2026-09-30-0245.yaml
+ D ../../../../audits/cron/2026-09-30-0300.yaml
+ D ../../../../audits/cron/2026-09-30-0315.yaml
+ D ../../../../audits/cron/2026-09-30-0330.yaml
+ D ../../../../audits/cron/2026-09-30-0345.yaml
+ D ../../../../audits/cron/2026-09-30-0400.yaml
+ D ../../../../audits/cron/2026-09-30-0415.yaml
+ D ../../../../audits/cron/2026-09-30-0430.yaml
+ D ../../../../audits/cron/2026-09-30-0445.yaml
+ D ../../../../audits/cron/2026-09-30-0500.yaml
+ D ../../../../audits/cron/2026-09-30-0515.yaml
+ D ../../../../audits/cron/2026-09-30-0530.yaml
+ D ../../../../audits/cron/2026-09-30-0545.yaml
+ D ../../../../audits/cron/2026-09-30-0600.yaml
+ D ../../../../audits/cron/2026-09-30-0615.yaml
+ D ../../../../audits/cron/2026-09-30-0630.yaml
+ D ../../../../audits/cron/2026-09-30-0645.yaml
+ D ../../../../audits/cron/2026-09-30-0700.yaml
+ D ../../../../audits/cron/2026-09-30-0715.yaml
+ D ../../../../audits/cron/2026-09-30-0730.yaml
+ D ../../../../audits/cron/2026-09-30-0745.yaml
+ D ../../../../audits/cron/2026-09-30-0800.yaml
+ D ../../../../audits/cron/2026-09-30-0815.yaml
+ D ../../../../audits/cron/2026-09-30-0830.yaml
+ D ../../../../audits/cron/2026-09-30-0845.yaml
+ D ../../../../audits/cron/2026-09-30-0900.yaml
+ D ../../../../audits/cron/2026-09-30-0915.yaml
+ D ../../../../audits/cron/2026-09-30-0930.yaml
+ D ../../../../audits/cron/2026-09-30-0945.yaml
+ D ../../../../audits/cron/2026-09-30-1000.yaml
+ D ../../../../audits/cron/2026-09-30-1015.yaml
+ D ../../../../audits/cron/2026-09-30-1030.yaml
+ D ../../../../audits/cron/2026-09-30-1045.yaml
+ D ../../../../audits/cron/2026-09-30-1115.yaml
+ D ../../../../audits/cron/2026-09-30-1130.yaml
+ D ../../../../audits/cron/2026-09-30-1145.yaml
+ D ../../../../audits/cron/2026-09-30-1200.yaml
+ D ../../../../audits/cron/2026-09-30-1215.yaml
+ D ../../../../audits/cron/2026-09-30-1230.yaml
+ D ../../../../audits/cron/2026-09-30-1245.yaml
+ D ../../../../audits/cron/2026-09-30-1300.yaml
+ D ../../../../audits/cron/2026-09-30-1315.yaml
+ D ../../../../audits/cron/2026-09-30-1330.yaml
+ D ../../../../audits/cron/2026-09-30-1345.yaml
+ D ../../../../audits/cron/2026-09-30-1400.yaml
+ D ../../../../audits/cron/2026-09-30-1415.yaml
+ D ../../../../audits/cron/2026-09-30-1430.yaml
+ D ../../../../audits/cron/2026-09-30-1445.yaml
+ D ../../../../audits/cron/2026-09-30-1500.yaml
+ D ../../../../audits/cron/2026-09-30-1515.yaml
+ D ../../../../audits/cron/2026-09-30-1530.yaml
+ D ../../../../audits/cron/2026-09-30-1545.yaml
+ D ../../../../audits/cron/2026-09-30-1600.yaml
+ D ../../../../audits/cron/2026-09-30-1615.yaml
+ D ../../../../audits/cron/2026-09-30-1645.yaml
+ D ../../../../audits/cron/2026-09-30-1700.yaml
+ D ../../../../audits/cron/2026-09-30-1715.yaml
+ D ../../../../audits/cron/2026-09-30-1730.yaml
+ D ../../../../audits/cron/2026-09-30-1745.yaml
+ D ../../../../audits/cron/2026-09-30-1800.yaml
+ D ../../../../audits/cron/2026-09-30-1815.yaml
+ D ../../../../audits/cron/2026-09-30-1830.yaml
+ D ../../../../audits/cron/2026-09-30-1845.yaml
+ D ../../../../audits/cron/2026-09-30-1900.yaml
+ D ../../../../audits/cron/2026-09-30-1915.yaml
+ D ../../../../audits/cron/2026-09-30-2000.yaml
+ D ../../../../audits/cron/2026-09-30-2015.yaml
+ D ../../../../audits/cron/2026-09-30-2030.yaml
+ D ../../../../audits/cron/2026-09-30-2045.yaml
+ D ../../../../audits/cron/2026-09-30-2100.yaml
+ D ../../../../audits/cron/2026-09-30-2115.yaml
+ D ../../../../audits/cron/2026-09-30-2130.yaml
+ D ../../../../audits/cron/2026-09-30-2145.yaml
+ D ../../../../audits/cron/2026-09-30-2215.yaml
+ D ../../../../audits/cron/2026-09-30-2230.yaml
+ D ../../../../audits/cron/2026-09-30-2245.yaml
+ D ../../../../audits/cron/2026-09-30-2300.yaml
+ D ../../../../audits/cron/2026-09-30-2315.yaml
+ D ../../../../audits/cron/2026-09-30-2330.yaml
+ D ../../../../audits/cron/2026-09-30-2345.yaml
+ D ../../../../audits/cron/2026-10-01-0000.yaml
+ D ../../../../audits/cron/2026-10-01-0015.yaml
+ D ../../../../audits/cron/2026-10-01-0030.yaml
+ D ../../../../audits/cron/2026-10-01-0045.yaml
+ D ../../../../audits/cron/2026-10-01-0100.yaml
+ M ../../../../audits/cron/LATEST-CRON.yaml
+ M ../../../../audits/discoveries/LATEST.yaml
+ M ../../../../audits/full-audit-timing.yaml
+ M ../../../../audits/go-scope-unpropagated/LATEST.md
+ M ../../../../audits/instance-refusals.jsonl
+ M ../../../../audits/ownership-reversions.jsonl
+ M ../../../../audits/unclosed-satisfied/LATEST.md
+ M ../../../../episodic/T-1091.yaml
+ M ../../../../episodic/T-1094.yaml
+ M ../../../../episodic/T-1104.yaml
+ M ../../../../episodic/T-1105.yaml
+ M ../../../../episodic/T-1106.yaml
+ M ../../../../episodic/T-1108.yaml
+ M ../../../../episodic/T-1109.yaml
+ M ../../../../episodic/T-1110.yaml
+ M ../../../../episodic/T-1111.yaml
+ M ../../../../episodic/T-1112.yaml
+ M ../../../../episodic/T-1113.yaml
+ M ../../../../episodic/T-1116.yaml
+ M ../../../../episodic/T-1117.yaml
+ M ../../../../episodic/T-1119.yaml
+ M ../../../../episodic/T-1120.yaml
+ M ../../../../episodic/T-1121.yaml
+ M ../../../../episodic/T-1127.yaml
+ M ../../../../episodic/T-1140.yaml
+ M ../../../../episodic/T-1149.yaml
+ M ../../../../episodic/T-1150.yaml
+ M ../../../../episodic/T-1151.yaml
+ M ../../../../episodic/T-1152.yaml
+ M ../../../../episodic/T-1153.yaml
+ M ../../../../episodic/T-1154.yaml
+ M ../../../../episodic/T-1155.yaml
+ M ../../../../episodic/T-1156.yaml
+ M ../../../../episodic/T-1158.yaml
+ M ../../../../episodic/T-1159.yaml
+ M ../../../../episodic/T-1160.yaml
+ M ../../../../episodic/T-1161.yaml
+ M ../../../../episodic/T-1162.yaml
+ M ../../../../episodic/T-1163.yaml
+ M ../../../../episodic/T-1165.yaml
+ M ../../../../episodic/T-1166.yaml
+ M ../../../../episodic/T-1167.yaml
+ M ../../../../episodic/T-1170.yaml
+ M ../../../../episodic/T-1172.yaml
+ M ../../../../episodic/T-1173.yaml
+ M ../../../../episodic/T-1175.yaml
+ M ../../../../episodic/T-1176.yaml
+ M ../../../../episodic/T-1177.yaml
+ M ../../../../episodic/T-1178.yaml
+ M ../../../../episodic/T-1179.yaml
+ M ../../../../episodic/T-1180.yaml
+ M ../../../../episodic/T-1181.yaml
+ M ../../../../episodic/T-1182.yaml
+ M ../../../../episodic/T-1183.yaml
+ M ../../../../episodic/T-1184.yaml
+ M ../../../../episodic/T-1185.yaml
+ M ../../../../episodic/T-1186.yaml
+ M ../../../../episodic/T-1187.yaml
+ M ../../../../episodic/T-1188.yaml
+ M ../../../../episodic/T-1191.yaml
+ M ../../../../episodic/T-1192.yaml
+ M ../../../../episodic/T-1194.yaml
+ M ../../../../episodic/T-1198.yaml
+ M ../../../../episodic/T-1199.yaml
+ M ../../../../episodic/T-1200.yaml
+ M ../../../../episodic/T-1201.yaml
+ M ../../../../episodic/T-1202.yaml
+ M ../../../../episodic/T-1204.yaml
+ M ../../../../episodic/T-1205.yaml
+ M ../../../../episodic/T-1206.yaml
+ M ../../../../episodic/T-1207.yaml
+ M ../../../../episodic/T-1208.yaml
+ M ../../../../episodic/T-1209.yaml
+ M ../../../../episodic/T-1210.yaml
+ M ../../../../episodic/T-1211.yaml
+ M ../../../../episodic/T-1214.yaml
+ M ../../../../episodic/T-1215.yaml
+ M ../../../../episodic/T-1216.yaml
+ M ../../../../episodic/T-1221.yaml
+ M ../../../../episodic/T-1222.yaml
+ M ../../../../episodic/T-1224.yaml
+ M ../../../../episodic/T-1225.yaml
+ M ../../../../episodic/T-1226.yaml
+ M ../../../../episodic/T-1228.yaml
+ M ../../../../episodic/T-1231.yaml
+ M ../../../../episodic/T-1234.yaml
+ M ../../../../episodic/T-1237.yaml
+ M ../../../../episodic/T-1242.yaml
+ M ../../../../episodic/T-1243.yaml
+ M ../../../../episodic/T-1245.yaml
+ M ../../../../episodic/T-1254.yaml
+ M ../../../../episodic/T-1272.yaml
+ M ../../../../episodic/T-1273.yaml
+ M ../../../../episodic/T-1277.yaml
+ M ../../../../episodic/T-1278.yaml
+ M ../../../../episodic/T-1280.yaml
+ M ../../../../episodic/T-1282.yaml
+ M ../../../../episodic/T-1285.yaml
+ M ../../../../episodic/T-1287.yaml
+ M ../../../../episodic/T-1288.yaml
+ M ../../../../episodic/T-1289.yaml
+ M ../../../../episodic/T-1290.yaml
+ M ../../../../episodic/T-1292.yaml
+ M ../../../../episodic/T-1293.yaml
+ M ../../../../episodic/T-209.yaml
+ M ../../../../episodic/T-281.yaml
+ M ../../../../episodic/T-309.yaml
+ M ../../../../episodic/T-357.yaml
+ M ../../../../episodic/T-402.yaml
+ M ../../../../episodic/T-669.yaml
+ M ../../../../episodic/T-723.yaml
+ M ../../../../episodic/T-917.yaml
+ M ../../../../episodic/T-969.yaml
+ M ../../../../episodic/T-974.yaml
+ M ../../../../inbox.yaml
+ M ../../../../project/decisions.yaml
+ M ../../../../project/metrics-history.yaml
+ M ../../../../reviews/applied.jsonl
+ M ../../../../reviews/human-ac-ticks.jsonl
+ M ../../../../reviews/review-completions.jsonl
+ M ../../../009-greenfield-hub-credential-via-mint-dev/run-20261009T214224.log
+ D ../../../067-decide-remaining-inceptions/dryrun.ok
+ D ../../../../st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/fixed/.context/episodic/T-905.yaml
+ D ../../../../st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/fixed/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/m2/.context/episodic/T-907.yaml
+ D ../../../../st/r.Q8ou4p/tmp.Ro0J44tqvG/t634-2184560-1792880041/m2/.tasks/completed/T-907-sandbox-probe.md
+ D ../../../../st/r.R9ap3T/tmp.5aecZqIiZt/t630-3652814-1792873420/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/r.R9ap3T/tmp.5aecZqIiZt/t630-3652814-1792873420/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/r.R9ap3T/tmp.5aecZqIiZt/t630-3652814-1792873420/gap/.context/episodic/T-905.yaml
+ D ../../../../st/r.R9ap3T/tmp.5aecZqIiZt/t630-3652814-1792873420/gap/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/r.R9ap3T/tmp.5aecZqIiZt/t630-3652814-1792873420/live/.context/episodic/T-902.yaml
+ D ../../../../st/r.R9ap3T/tmp.5aecZqIiZt/t630-3652814-1792873420/live/.tasks/completed/T-902-sandbox-probe.md
+ D ../../../../st/r.R9ap3T/tmp.5aecZqIiZt/t634-3601583-1792873346/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/r.R9ap3T/tmp.5aecZqIiZt/t634-3601583-1792873346/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/r.R9ap3T/tmp.5aecZqIiZt/t634-3601583-1792873346/fixed/.context/episodic/T-905.yaml
+ D ../../../../st/r.R9ap3T/tmp.5aecZqIiZt/t634-3601583-1792873346/fixed/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/r.R9ap3T/tmp.5aecZqIiZt/t634-3601583-1792873346/m2/.context/episodic/T-907.yaml
+ D ../../../../st/r.R9ap3T/tmp.5aecZqIiZt/t634-3601583-1792873346/m2/.tasks/completed/T-907-sandbox-probe.md
+ D ../../../../st/r.aRGSW4/tmp.uCsFuLhZWX/t630-1168772-1792874640/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/r.aRGSW4/tmp.uCsFuLhZWX/t630-1168772-1792874640/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/r.aRGSW4/tmp.uCsFuLhZWX/t630-1168772-1792874640/gap/.context/episodic/T-905.yaml
+ D ../../../../st/r.aRGSW4/tmp.uCsFuLhZWX/t630-1168772-1792874640/gap/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/r.aRGSW4/tmp.uCsFuLhZWX/t630-1168772-1792874640/live/.context/episodic/T-902.yaml
+ D ../../../../st/r.aRGSW4/tmp.uCsFuLhZWX/t630-1168772-1792874640/live/.tasks/completed/T-902-sandbox-probe.md
+ D ../../../../st/r.aRGSW4/tmp.uCsFuLhZWX/t634-1086289-1792874565/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/r.aRGSW4/tmp.uCsFuLhZWX/t634-1086289-1792874565/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/r.aRGSW4/tmp.uCsFuLhZWX/t634-1086289-1792874565/fixed/.context/episodic/T-905.yaml
+ D ../../../../st/r.aRGSW4/tmp.uCsFuLhZWX/t634-1086289-1792874565/fixed/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/r.aRGSW4/tmp.uCsFuLhZWX/t634-1086289-1792874565/m2/.context/episodic/T-907.yaml
+ D ../../../../st/r.aRGSW4/tmp.uCsFuLhZWX/t634-1086289-1792874565/m2/.tasks/completed/T-907-sandbox-probe.md
+ D ../../../../st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/gap/.context/episodic/T-905.yaml
+ D ../../../../st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/gap/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/live/.context/episodic/T-902.yaml
+ D ../../../../st/r.ins6ov/tmp.d7kn0m2oMY/t630-3664884-1793006488/live/.tasks/completed/T-902-sandbox-probe.md
+ D ../../../../st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/fixed/.context/episodic/T-905.yaml
+ D ../../../../st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/fixed/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/m2/.context/episodic/T-907.yaml
+ D ../../../../st/r.ins6ov/tmp.d7kn0m2oMY/t634-3600977-1793006438/m2/.tasks/completed/T-907-sandbox-probe.md
+ D ../../../../st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/gap/.context/episodic/T-905.yaml
+ D ../../../../st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/gap/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/live/.context/episodic/T-902.yaml
+ D ../../../../st/r.wflFui/tmp.rgFtS7HWYf/t630-2029022-1793008342/live/.tasks/completed/T-902-sandbox-probe.md
+ D ../../../../st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/fixed/.context/episodic/T-905.yaml
+ D ../../../../st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/fixed/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/m2/.context/episodic/T-907.yaml
+ D ../../../../st/r.wflFui/tmp.rgFtS7HWYf/t634-1997229-1793008297/m2/.tasks/completed/T-907-sandbox-probe.md
+ D ../../../../st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/gap/.context/episodic/T-905.yaml
+ D ../../../../st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/gap/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/live/.context/episodic/T-902.yaml
+ D ../../../../st/r.x6B8vy/tmp.QGQiFsBPGn/t630-1198872-1793007499/live/.tasks/completed/T-902-sandbox-probe.md
+ D ../../../../st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/fixed/.context/episodic/T-905.yaml
+ D ../../../../st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/fixed/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/m2/.context/episodic/T-907.yaml
+ D ../../../../st/r.x6B8vy/tmp.QGQiFsBPGn/t634-1082963-1793007441/m2/.tasks/completed/T-907-sandbox-probe.md
+ D ../../../../st/tmp.AgK3G9srvx/t630-766510-1792833007/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/tmp.AgK3G9srvx/t630-766510-1792833007/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/tmp.AgK3G9srvx/t630-766510-1792833007/gap/.context/episodic/T-905.yaml
+ D ../../../../st/tmp.AgK3G9srvx/t630-766510-1792833007/gap/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/tmp.AgK3G9srvx/t630-766510-1792833007/live/.context/episodic/T-902.yaml
+ D ../../../../st/tmp.AgK3G9srvx/t630-766510-1792833007/live/.tasks/completed/T-902-sandbox-probe.md
+ D ../../../../st/tmp.AgK3G9srvx/t634-705690-1792832938/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/tmp.AgK3G9srvx/t634-705690-1792832938/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/tmp.AgK3G9srvx/t634-705690-1792832938/fixed/.context/episodic/T-905.yaml
+ D ../../../../st/tmp.AgK3G9srvx/t634-705690-1792832938/fixed/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/tmp.AgK3G9srvx/t634-705690-1792832938/m2/.context/episodic/T-907.yaml
+ D ../../../../st/tmp.AgK3G9srvx/t634-705690-1792832938/m2/.tasks/completed/T-907-sandbox-probe.md
+ D ../../../../st/tmp.EccKEmB1ZZ/t630-104492-1792808180/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/tmp.EccKEmB1ZZ/t630-104492-1792808180/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/tmp.EccKEmB1ZZ/t630-104492-1792808180/gap/.context/episodic/T-905.yaml
+ D ../../../../st/tmp.EccKEmB1ZZ/t630-104492-1792808180/gap/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/tmp.EccKEmB1ZZ/t630-104492-1792808180/live/.context/episodic/T-902.yaml
+ D ../../../../st/tmp.EccKEmB1ZZ/t630-104492-1792808180/live/.tasks/completed/T-902-sandbox-probe.md
+ D ../../../../st/tmp.EccKEmB1ZZ/t634-64197-1792808113/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/tmp.EccKEmB1ZZ/t634-64197-1792808113/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/tmp.EccKEmB1ZZ/t634-64197-1792808113/fixed/.context/episodic/T-905.yaml
+ D ../../../../st/tmp.EccKEmB1ZZ/t634-64197-1792808113/fixed/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/tmp.EccKEmB1ZZ/t634-64197-1792808113/m2/.context/episodic/T-907.yaml
+ D ../../../../st/tmp.EccKEmB1ZZ/t634-64197-1792808113/m2/.tasks/completed/T-907-sandbox-probe.md
+ D ../../../../st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/gap/.context/episodic/T-905.yaml
+ D ../../../../st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/gap/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/live/.context/episodic/T-902.yaml
+ D ../../../../st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/live/.tasks/completed/T-902-sandbox-probe.md
+ D ../../../../st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/fixed/.context/episodic/T-905.yaml
+ D ../../../../st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/fixed/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/m2/.context/episodic/T-907.yaml
+ D ../../../../st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/m2/.tasks/completed/T-907-sandbox-probe.md
+ D ../../../../st/tmp.eiNvDHkvlW/t630-3091508-1792806863/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/tmp.eiNvDHkvlW/t630-3091508-1792806863/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/tmp.eiNvDHkvlW/t630-3091508-1792806863/gap/.context/episodic/T-905.yaml
+ D ../../../../st/tmp.eiNvDHkvlW/t630-3091508-1792806863/gap/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/tmp.eiNvDHkvlW/t630-3091508-1792806863/live/.context/episodic/T-902.yaml
+ D ../../../../st/tmp.eiNvDHkvlW/t630-3091508-1792806863/live/.tasks/completed/T-902-sandbox-probe.md
+ D ../../../../st/tmp.eiNvDHkvlW/t634-3054685-1792806792/ctrl/.context/episodic/T-901.yaml
+ D ../../../../st/tmp.eiNvDHkvlW/t634-3054685-1792806792/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../st/tmp.eiNvDHkvlW/t634-3054685-1792806792/fixed/.context/episodic/T-905.yaml
+ D ../../../../st/tmp.eiNvDHkvlW/t634-3054685-1792806792/fixed/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../st/tmp.eiNvDHkvlW/t634-3054685-1792806792/m2/.context/episodic/T-907.yaml
+ D ../../../../st/tmp.eiNvDHkvlW/t634-3054685-1792806792/m2/.tasks/completed/T-907-sandbox-probe.md
+ D ../../../../working/.auto-restart-pending
+ M ../../../../working/.budget-gate-counter
+ M ../../../../working/.budget-status
+ M ../../../../working/.checkpoint.handover.stderr
+ M ../../../../working/.compact-log
+ M ../../../../working/.fabric-describe.last
+ M ../../../../working/.fleet-failure-state.json
+ M ../../../../working/.gate-bypass-log.yaml
+ M ../../../../working/.gitignore
+ M ../../../../working/.hook-counter
+ M ../../../../working/.hook-crashes.log
+ M ../../../../working/.hook-failure-counter
+ M ../../../../working/.loop-detect.json
+ M ../../../../working/.new-file-counter
+ M ../../../../working/.obs-highwater
+ M ../../../../working/.pre-compact.handover.stderr
+ M ../../../../working/.pre-compact.last-run
+ D ../../../../working/.reviewed-T-102
+ D ../../../../working/.reviewed-T-105
+ D ../../../../working/.reviewed-T-293
+ D ../../../../working/.reviewed-T-309
+ D ../../../../working/.reviewed-T-344
+ D ../../../../working/.reviewed-T-345
+ D ../../../../working/.reviewed-T-357
+ D ../../../../working/.reviewed-T-402
+ D ../../../../working/.reviewed-T-601
+ D ../../../../working/.reviewed-T-723
+ M ../../../../working/.revisits-due.txt
+ M ../../../../working/.session-baseline
+ M ../../../../working/.session-metrics.yaml
+ M ../../../../working/.session-start-ts
+ D ../../../../working/.session-turn-offset
+ M ../../../../working/.t687-function-baseline.json
+ M ../../../../working/.verify-queue-state.json
+ M ../../../../working/continuous-run.jsonl
+ M ../../../../working/feedback-stream.yaml
+ D ../../../../working/tmp/tmp.PWeDKJIbSt/t630-3628412-1792749172/ctrl/.context/episodic/T-901.yaml
+ D ../../../../working/tmp/tmp.PWeDKJIbSt/t630-3628412-1792749172/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../working/tmp/tmp.PWeDKJIbSt/t630-3628412-1792749172/gap/.context/episodic/T-905.yaml
+ D ../../../../working/tmp/tmp.PWeDKJIbSt/t630-3628412-1792749172/gap/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../working/tmp/tmp.PWeDKJIbSt/t630-3628412-1792749172/live/.context/episodic/T-902.yaml
+ D ../../../../working/tmp/tmp.PWeDKJIbSt/t630-3628412-1792749172/live/.tasks/completed/T-902-sandbox-probe.md
+ D ../../../../working/tmp/tmp.PWeDKJIbSt/t634-3367288-1792748962/ctrl/.context/episodic/T-901.yaml
+ D ../../../../working/tmp/tmp.PWeDKJIbSt/t634-3367288-1792748962/ctrl/.tasks/completed/T-901-sandbox-probe.md
+ D ../../../../working/tmp/tmp.PWeDKJIbSt/t634-3367288-1792748962/fixed/.context/episodic/T-905.yaml
+ D ../../../../working/tmp/tmp.PWeDKJIbSt/t634-3367288-1792748962/fixed/.tasks/completed/T-905-sandbox-probe.md
+ D ../../../../working/tmp/tmp.PWeDKJIbSt/t634-3367288-1792748962/m2/.context/episodic/T-907.yaml
+ D ../../../../working/tmp/tmp.PWeDKJIbSt/t634-3367288-1792748962/m2/.tasks/completed/T-907-sandbox-probe.md
+ M ../../../../../.fabric/components/tests-t884-instance-overlay-state.test.yaml
+ M ../../../../../.fabric/components/tests-t893-authority-marker-state.test.yaml
+ M ../../../../../.fabric/components/tools-_t1091-sticky-lanes-cdp.yaml
+ M ../../../../../.fabric/components/tools-_t1154-pool-label-fit-cdp.yaml
+ M ../../../../../.fabric/components/tools-_t1164-lane-findings-cdp.yaml
+ M ../../../../../.fabric/components/tools-_t1193-slug-readonly-cdp.yaml
+ M ../../../../../.fabric/components/tools-_t1194-slug-task-id-cdp.yaml
+ M ../../../../../.fabric/components/tools-_t1220-io-extra-attrs-cdp.yaml
+ M ../../../../../.fabric/components/tools-_t573-emits-panel-shape-cdp.yaml
+ M ../../../../../.fabric/components/tools-_t821-fault-surface-cdp.yaml
+ M ../../../../../.fabric/components/tools-_t884-instance-overlay-cdp.yaml
+ M ../../../../../.fabric/components/tools-_t884-live-proof-cdp.yaml
+ M ../../../../../.fabric/components/tools-_t889-authority-first-class-cdp.yaml
+ M ../../../../../.fabric/components/tools-_t892-lane-default-cdp.yaml
+ M ../../../../../.fabric/components/tools-_t893-authority-marker-shots.yaml
+ M ../../../../../.framework.yaml
+ M ../../../../../.playwright-mcp/t1177-1024-open.png
+ M ../../../../../.playwright-mcp/t1177-1024-palette-folded.png
+ M ../../../../../.playwright-mcp/t1177-1024-props-folded.png
+ M ../../../../../.playwright-mcp/t1177-1024-resized.png
+ M ../../../../../.playwright-mcp/t1177-1440-open.png
+ M ../../../../../.playwright-mcp/t1177-1440-palette-folded.png
+ M ../../../../../.playwright-mcp/t1177-1440-props-folded.png
+ M ../../../../../.playwright-mcp/t1177-1440-resized.png
+ M ../../../../../.playwright-mcp/t1177-1920-open.png
+ M ../../../../../.playwright-mcp/t1177-1920-palette-folded.png
+ M ../../../../../.playwright-mcp/t1177-1920-props-folded.png
+ M ../../../../../.playwright-mcp/t1177-1920-resized.png
+ M ../../../../../.playwright-mcp/t258-annotation-badges.png
+ M ../../../../../.playwright-mcp/t911-badge-documentation.png
+ M ../../../../../.playwright-mcp/t911-badge-narrow-640.png
+ M ../../../../../.playwright-mcp/t911-badge-unset.png
+ M ../../../../../.playwright-mcp/t911-badge-work-plan.png
+ M ../../../../../.playwright-mcp/t911-panel-kind-select.png
+ M ../../../../../.tasks/active/T-1064-send-the-15-small-visual-checks-in-the-o.md
+ M ../../../../../.tasks/active/T-1247-cdp-harnesses-leave-their-chrome---user-.md
+ M ../../../../../.tasks/active/T-1248-blind---mark-seen-swallowed-greenfields-.md
+ M ../../../../../.tasks/active/T-1256-gateway-labels-collide-with-flows-and-id.md
+ M ../../../../../.tasks/active/T-347-content-inside-an-accepted-element-is-si.md
+ M ../../../../../.tasks/active/T-358-importer-fabricates-lane-and-pool-struct.md
+ M ../../../../../.tasks/active/T-593-ewcr-handoff-envelope-records-an-operato.md
+ M ../../../../../.tasks/active/T-737-handoversh-reports-3-urgent-observations.md
+ M ../../../../../.tasks/completed/T-1204-upgrade-aef-956f05f36---v1811-and-field-.md
+ M ../../../../../tests/.run-history.tsv
+?? ../../../../../...
+?? ../../../../../.agentic-framework/.context/settings.yaml
+?? ../../../../../.agentic-framework/.context/sidecar/
+?? ../../../../../.claude/commands/agent-handoff.md
+?? ../../../../../.claude/commands/be-reachable.md
+?? ../../../../../.claude/commands/broadcast-chat.md
+?? ../../../../../.claude/commands/check-arc.md
+?? ../../../../../.claude/commands/conversations.md
+?? ../../../../../.claude/commands/peers.md
+?? ../../../../../.claude/commands/pulse.md
+?? ../../../../../.claude/commands/recent-chat.md
+?? ../../../../../.claude/commands/recent-dm.md
+?? ../../../../../.claude/settings.json.pre-t857
+?? ../../../../.gitignore
+?? ../../../../audits/2026-10-02.yaml
+?? ../../../../audits/2026-10-03.yaml
+?? ../../../../audits/2026-10-04.yaml
+?? ../../../../audits/2026-10-05.yaml
+?? ../../../../audits/2026-10-06.yaml
+?? ../../../../audits/2026-10-07.yaml
+?? ../../../../audits/2026-10-08.yaml
+?? ../../../../audits/2026-10-09.yaml
+?? ../../../../audits/2026-10-10.yaml
+?? ../../../../audits/2026-10-11.yaml
+?? ../../../../audits/2026-10-12.yaml
+?? ../../../../audits/2026-10-13.yaml
+?? ../../../../audits/2026-10-14.yaml
+?? ../../../../audits/2026-10-15.yaml
+?? ../../../../audits/2026-10-16.yaml
+?? ../../../../audits/2026-10-17.yaml
+?? ../../../../audits/2026-10-18.yaml
+?? ../../../../audits/2026-10-19.yaml
+?? ../../../../audits/2026-10-20.yaml
+?? ../../../../audits/2026-10-21.yaml
+?? ../../../../audits/2026-10-22.yaml
+?? ../../../../audits/2026-10-23.yaml
+?? ../../../../audits/2026-10-24.yaml
+?? ../../../../audits/2026-10-25.yaml
+?? ../../../../audits/2026-10-26.yaml
+?? ../../../../audits/cron/2026-10-19-0030.yaml
+?? ../../../../audits/cron/2026-10-19-0045.yaml
+?? ../../../../audits/cron/2026-10-19-0100.yaml
+?? ../../../../audits/cron/2026-10-19-0115.yaml
+?? ../../../../audits/cron/2026-10-19-0130.yaml
+?? ../../../../audits/cron/2026-10-19-0145.yaml
+?? ../../../../audits/cron/2026-10-19-0215.yaml
+?? ../../../../audits/cron/2026-10-19-0245.yaml
+?? ../../../../audits/cron/2026-10-19-0300.yaml
+?? ../../../../audits/cron/2026-10-19-0315.yaml
+?? ../../../../audits/cron/2026-10-19-0345.yaml
+?? ../../../../audits/cron/2026-10-19-0400.yaml
+?? ../../../../audits/cron/2026-10-19-0415.yaml
+?? ../../../../audits/cron/2026-10-19-0430.yaml
+?? ../../../../audits/cron/2026-10-19-0445.yaml
+?? ../../../../audits/cron/2026-10-19-0500.yaml
+?? ../../../../audits/cron/2026-10-19-0515.yaml
+?? ../../../../audits/cron/2026-10-19-0530.yaml
+?? ../../../../audits/cron/2026-10-19-0545.yaml
+?? ../../../../audits/cron/2026-10-19-0600.yaml
+?? ../../../../audits/cron/2026-10-19-0615.yaml
+?? ../../../../audits/cron/2026-10-19-0630.yaml
+?? ../../../../audits/cron/2026-10-19-0645.yaml
+?? ../../../../audits/cron/2026-10-19-0700.yaml
+?? ../../../../audits/cron/2026-10-19-0715.yaml
+?? ../../../../audits/cron/2026-10-19-0730.yaml
+?? ../../../../audits/cron/2026-10-19-0745.yaml
+?? ../../../../audits/cron/2026-10-19-0800.yaml
+?? ../../../../audits/cron/2026-10-19-0815.yaml
+?? ../../../../audits/cron/2026-10-19-0830.yaml
+?? ../../../../audits/cron/2026-10-19-0845.yaml
+?? ../../../../audits/cron/2026-10-19-0900.yaml
+?? ../../../../audits/cron/2026-10-19-0915.yaml
+?? ../../../../audits/cron/2026-10-19-0930.yaml
+?? ../../../../audits/cron/2026-10-19-0945.yaml
+?? ../../../../audits/cron/2026-10-19-1000.yaml
+?? ../../../../audits/cron/2026-10-19-1015.yaml
+?? ../../../../audits/cron/2026-10-19-1030.yaml
+?? ../../../../audits/cron/2026-10-19-1045.yaml
+?? ../../../../audits/cron/2026-10-19-1100.yaml
+?? ../../../../audits/cron/2026-10-19-1115.yaml
+?? ../../../../audits/cron/2026-10-19-1130.yaml
+?? ../../../../audits/cron/2026-10-19-1145.yaml
+?? ../../../../audits/cron/2026-10-19-1200.yaml
+?? ../../../../audits/cron/2026-10-19-1215.yaml
+?? ../../../../audits/cron/2026-10-19-1230.yaml
+?? ../../../../audits/cron/2026-10-19-1245.yaml
+?? ../../../../audits/cron/2026-10-19-1300.yaml
+?? ../../../../audits/cron/2026-10-19-1315.yaml
+?? ../../../../audits/cron/2026-10-19-1330.yaml
+?? ../../../../audits/cron/2026-10-19-1345.yaml
+?? ../../../../audits/cron/2026-10-19-1415.yaml
+?? ../../../../audits/cron/2026-10-19-1430.yaml
+?? ../../../../audits/cron/2026-10-19-1445.yaml
+?? ../../../../audits/cron/2026-10-19-1515.yaml
+?? ../../../../audits/cron/2026-10-19-1530.yaml
+?? ../../../../audits/cron/2026-10-19-1545.yaml
+?? ../../../../audits/cron/2026-10-19-1600.yaml
+?? ../../../../audits/cron/2026-10-19-1615.yaml
+?? ../../../../audits/cron/2026-10-19-1630.yaml
+?? ../../../../audits/cron/2026-10-19-1645.yaml
+?? ../../../../audits/cron/2026-10-19-1700.yaml
+?? ../../../../audits/cron/2026-10-19-1715.yaml
+?? ../../../../audits/cron/2026-10-19-1730.yaml
+?? ../../../../audits/cron/2026-10-19-1745.yaml
+?? ../../../../audits/cron/2026-10-19-1800.yaml
+?? ../../../../audits/cron/2026-10-19-1815.yaml
+?? ../../../../audits/cron/2026-10-19-1830.yaml
+?? ../../../../audits/cron/2026-10-19-1845.yaml
+?? ../../../../audits/cron/2026-10-19-1900.yaml
+?? ../../../../audits/cron/2026-10-19-1915.yaml
+?? ../../../../audits/cron/2026-10-19-1930.yaml
+?? ../../../../audits/cron/2026-10-19-2015.yaml
+?? ../../../../audits/cron/2026-10-19-2030.yaml
+?? ../../../../audits/cron/2026-10-19-2045.yaml
+?? ../../../../audits/cron/2026-10-19-2100.yaml
+?? ../../../../audits/cron/2026-10-19-2115.yaml
+?? ../../../../audits/cron/2026-10-19-2130.yaml
+?? ../../../../audits/cron/2026-10-19-2145.yaml
+?? ../../../../audits/cron/2026-10-19-2215.yaml
+?? ../../../../audits/cron/2026-10-19-2230.yaml
+?? ../../../../audits/cron/2026-10-19-2245.yaml
+?? ../../../../audits/cron/2026-10-19-2300.yaml
+?? ../../../../audits/cron/2026-10-19-2315.yaml
+?? ../../../../audits/cron/2026-10-19-2345.yaml
+?? ../../../../audits/cron/2026-10-20-0000.yaml
+?? ../../../../audits/cron/2026-10-20-0015.yaml
+?? ../../../../audits/cron/2026-10-20-0030.yaml
+?? ../../../../audits/cron/2026-10-20-0045.yaml
+?? ../../../../audits/cron/2026-10-20-0100.yaml
+?? ../../../../audits/cron/2026-10-20-0115.yaml
+?? ../../../../audits/cron/2026-10-20-0130.yaml
+?? ../../../../audits/cron/2026-10-20-0200.yaml
+?? ../../../../audits/cron/2026-10-20-0215.yaml
+?? ../../../../audits/cron/2026-10-20-0230.yaml
+?? ../../../../audits/cron/2026-10-20-0245.yaml
+?? ../../../../audits/cron/2026-10-20-0300.yaml
+?? ../../../../audits/cron/2026-10-20-0315.yaml
+?? ../../../../audits/cron/2026-10-20-0330.yaml
+?? ../../../../audits/cron/2026-10-20-0345.yaml
+?? ../../../../audits/cron/2026-10-20-0400.yaml
+?? ../../../../audits/cron/2026-10-20-0415.yaml
+?? ../../../../audits/cron/2026-10-20-0430.yaml
+?? ../../../../audits/cron/2026-10-20-0445.yaml
+?? ../../../../audits/cron/2026-10-20-0500.yaml
+?? ../../../../audits/cron/2026-10-20-0515.yaml
+?? ../../../../audits/cron/2026-10-20-0530.yaml
+?? ../../../../audits/cron/2026-10-20-0545.yaml
+?? ../../../../audits/cron/2026-10-20-0600.yaml
+?? ../../../../audits/cron/2026-10-20-0615.yaml
+?? ../../../../audits/cron/2026-10-20-0630.yaml
+?? ../../../../audits/cron/2026-10-20-0645.yaml
+?? ../../../../audits/cron/2026-10-20-0700.yaml
+?? ../../../../audits/cron/2026-10-20-0715.yaml
+?? ../../../../audits/cron/2026-10-20-0730.yaml
+?? ../../../../audits/cron/2026-10-20-0745.yaml
+?? ../../../../audits/cron/2026-10-20-0800.yaml
+?? ../../../../audits/cron/2026-10-20-0815.yaml
+?? ../../../../audits/cron/2026-10-20-0830.yaml
+?? ../../../../audits/cron/2026-10-20-0845.yaml
+?? ../../../../audits/cron/2026-10-20-0900.yaml
+?? ../../../../audits/cron/2026-10-20-0915.yaml
+?? ../../../../audits/cron/2026-10-20-0930.yaml
+?? ../../../../audits/cron/2026-10-20-0945.yaml
+?? ../../../../audits/cron/2026-10-20-1000.yaml
+?? ../../../../audits/cron/2026-10-20-1015.yaml
+?? ../../../../audits/cron/2026-10-20-1030.yaml
+?? ../../../../audits/cron/2026-10-20-1045.yaml
+?? ../../../../audits/cron/2026-10-20-1100.yaml
+?? ../../../../audits/cron/2026-10-20-1115.yaml
+?? ../../../../audits/cron/2026-10-20-1130.yaml
+?? ../../../../audits/cron/2026-10-20-1145.yaml
+?? ../../../../audits/cron/2026-10-20-1200.yaml
+?? ../../../../audits/cron/2026-10-20-1215.yaml
+?? ../../../../audits/cron/2026-10-20-1230.yaml
+?? ../../../../audits/cron/2026-10-20-1245.yaml
+?? ../../../../audits/cron/2026-10-20-1300.yaml
+?? ../../../../audits/cron/2026-10-20-1315.yaml
+?? ../../../../audits/cron/2026-10-20-1330.yaml
+?? ../../../../audits/cron/2026-10-20-1345.yaml
+?? ../../../../audits/cron/2026-10-20-1415.yaml
+?? ../../../../audits/cron/2026-10-20-1430.yaml
+?? ../../../../audits/cron/2026-10-20-1445.yaml
+?? ../../../../audits/cron/2026-10-20-1500.yaml
+?? ../../../../audits/cron/2026-10-20-1515.yaml
+?? ../../../../audits/cron/2026-10-20-1530.yaml
+?? ../../../../audits/cron/2026-10-20-1545.yaml
+?? ../../../../audits/cron/2026-10-20-1600.yaml
+?? ../../../../audits/cron/2026-10-20-1615.yaml
+?? ../../../../audits/cron/2026-10-20-1630.yaml
+?? ../../../../audits/cron/2026-10-20-1645.yaml
+?? ../../../../audits/cron/2026-10-20-1700.yaml
+?? ../../../../audits/cron/2026-10-20-1715.yaml
+?? ../../../../audits/cron/2026-10-20-1730.yaml
+?? ../../../../audits/cron/2026-10-20-1745.yaml
+?? ../../../../audits/cron/2026-10-20-1800.yaml
+?? ../../../../audits/cron/2026-10-20-1830.yaml
+?? ../../../../audits/cron/2026-10-20-1845.yaml
+?? ../../../../audits/cron/2026-10-20-1900.yaml
+?? ../../../../audits/cron/2026-10-20-1915.yaml
+?? ../../../../audits/cron/2026-10-20-1930.yaml
+?? ../../../../audits/cron/2026-10-20-2000.yaml
+?? ../../../../audits/cron/2026-10-20-2015.yaml
+?? ../../../../audits/cron/2026-10-20-2030.yaml
+?? ../../../../audits/cron/2026-10-20-2045.yaml
+?? ../../../../audits/cron/2026-10-20-2100.yaml
+?? ../../../../audits/cron/2026-10-20-2115.yaml
+?? ../../../../audits/cron/2026-10-20-2130.yaml
+?? ../../../../audits/cron/2026-10-20-2145.yaml
+?? ../../../../audits/cron/2026-10-20-2200.yaml
+?? ../../../../audits/cron/2026-10-20-2215.yaml
+?? ../../../../audits/cron/2026-10-20-2230.yaml
+?? ../../../../audits/cron/2026-10-20-2245.yaml
+?? ../../../../audits/cron/2026-10-20-2300.yaml
+?? ../../../../audits/cron/2026-10-20-2315.yaml
+?? ../../../../audits/cron/2026-10-20-2330.yaml
+?? ../../../../audits/cron/2026-10-20-2345.yaml
+?? ../../../../audits/cron/2026-10-21-0000.yaml
+?? ../../../../audits/cron/2026-10-21-0015.yaml
+?? ../../../../audits/cron/2026-10-21-0030.yaml
+?? ../../../../audits/cron/2026-10-21-0045.yaml
+?? ../../../../audits/cron/2026-10-21-0100.yaml
+?? ../../../../audits/cron/2026-10-21-0115.yaml
+?? ../../../../audits/cron/2026-10-21-0130.yaml
+?? ../../../../audits/cron/2026-10-21-0145.yaml
+?? ../../../../audits/cron/2026-10-21-0200.yaml
+?? ../../../../audits/cron/2026-10-21-0215.yaml
+?? ../../../../audits/cron/2026-10-21-0230.yaml
+?? ../../../../audits/cron/2026-10-21-0245.yaml
+?? ../../../../audits/cron/2026-10-21-0315.yaml
+?? ../../../../audits/cron/2026-10-21-0330.yaml
+?? ../../../../audits/cron/2026-10-21-0345.yaml
+?? ../../../../audits/cron/2026-10-21-0400.yaml
+?? ../../../../audits/cron/2026-10-21-0415.yaml
+?? ../../../../audits/cron/2026-10-21-0430.yaml
+?? ../../../../audits/cron/2026-10-21-0445.yaml
+?? ../../../../audits/cron/2026-10-21-0500.yaml
+?? ../../../../audits/cron/2026-10-21-0515.yaml
+?? ../../../../audits/cron/2026-10-21-0530.yaml
+?? ../../../../audits/cron/2026-10-21-0545.yaml
+?? ../../../../audits/cron/2026-10-21-0600.yaml
+?? ../../../../audits/cron/2026-10-21-0615.yaml
+?? ../../../../audits/cron/2026-10-21-0630.yaml
+?? ../../../../audits/cron/2026-10-21-0645.yaml
+?? ../../../../audits/cron/2026-10-21-0700.yaml
+?? ../../../../audits/cron/2026-10-21-0715.yaml
+?? ../../../../audits/cron/2026-10-21-0730.yaml
+?? ../../../../audits/cron/2026-10-21-0745.yaml
+?? ../../../../audits/cron/2026-10-21-0800.yaml
+?? ../../../../audits/cron/2026-10-21-0815.yaml
+?? ../../../../audits/cron/2026-10-21-0830.yaml
+?? ../../../../audits/cron/2026-10-21-0845.yaml
+?? ../../../../audits/cron/2026-10-21-0900.yaml
+?? ../../../../audits/cron/2026-10-21-0915.yaml
+?? ../../../../audits/cron/2026-10-21-0930.yaml
+?? ../../../../audits/cron/2026-10-21-0945.yaml
+?? ../../../../audits/cron/2026-10-21-1000.yaml
+?? ../../../../audits/cron/2026-10-21-1015.yaml
+?? ../../../../audits/cron/2026-10-21-1030.yaml
+?? ../../../../audits/cron/2026-10-21-1045.yaml
+?? ../../../../audits/cron/2026-10-21-1100.yaml
+?? ../../../../audits/cron/2026-10-21-1115.yaml
+?? ../../../../audits/cron/2026-10-21-1130.yaml
+?? ../../../../audits/cron/2026-10-21-1146.yaml
+?? ../../../../audits/cron/2026-10-21-1200.yaml
+?? ../../../../audits/cron/2026-10-21-1215.yaml
+?? ../../../../audits/cron/2026-10-21-1230.yaml
+?? ../../../../audits/cron/2026-10-21-1245.yaml
+?? ../../../../audits/cron/2026-10-21-1300.yaml
+?? ../../../../audits/cron/2026-10-21-1315.yaml
+?? ../../../../audits/cron/2026-10-21-1330.yaml
+?? ../../../../audits/cron/2026-10-21-1345.yaml
+?? ../../../../audits/cron/2026-10-21-1400.yaml
+?? ../../../../audits/cron/2026-10-21-1415.yaml
+?? ../../../../audits/cron/2026-10-21-1430.yaml
+?? ../../../../audits/cron/2026-10-21-1445.yaml
+?? ../../../../audits/cron/2026-10-21-1500.yaml
+?? ../../../../audits/cron/2026-10-21-1515.yaml
+?? ../../../../audits/cron/2026-10-21-1530.yaml
+?? ../../../../audits/cron/2026-10-21-1545.yaml
+?? ../../../../audits/cron/2026-10-21-1600.yaml
+?? ../../../../audits/cron/2026-10-21-1615.yaml
+?? ../../../../audits/cron/2026-10-21-1630.yaml
+?? ../../../../audits/cron/2026-10-21-1645.yaml
+?? ../../../../audits/cron/2026-10-21-1700.yaml
+?? ../../../../audits/cron/2026-10-21-1715.yaml
+?? ../../../../audits/cron/2026-10-21-1730.yaml
+?? ../../../../audits/cron/2026-10-21-1745.yaml
+?? ../../../../audits/cron/2026-10-21-1800.yaml
+?? ../../../../audits/cron/2026-10-21-1815.yaml
+?? ../../../../audits/cron/2026-10-21-1830.yaml
+?? ../../../../audits/cron/2026-10-21-1845.yaml
+?? ../../../../audits/cron/2026-10-21-1900.yaml
+?? ../../../../audits/cron/2026-10-21-1915.yaml
+?? ../../../../audits/cron/2026-10-21-1930.yaml
+?? ../../../../audits/cron/2026-10-21-1945.yaml
+?? ../../../../audits/cron/2026-10-21-2000.yaml
+?? ../../../../audits/cron/2026-10-21-2015.yaml
+?? ../../../../audits/cron/2026-10-21-2030.yaml
+?? ../../../../audits/cron/2026-10-21-2045.yaml
+?? ../../../../audits/cron/2026-10-21-2100.yaml
+?? ../../../../audits/cron/2026-10-21-2115.yaml
+?? ../../../../audits/cron/2026-10-21-2130.yaml
+?? ../../../../audits/cron/2026-10-21-2145.yaml
+?? ../../../../audits/cron/2026-10-21-2200.yaml
+?? ../../../../audits/cron/2026-10-21-2205.yaml
+?? ../../../../audits/cron/2026-10-21-2206.yaml
+?? ../../../../audits/cron/2026-10-21-2215.yaml
+?? ../../../../audits/cron/2026-10-21-2230.yaml
+?? ../../../../audits/cron/2026-10-21-2245.yaml
+?? ../../../../audits/cron/2026-10-21-2300.yaml
+?? ../../../../audits/cron/2026-10-21-2315.yaml
+?? ../../../../audits/cron/2026-10-21-2330.yaml
+?? ../../../../audits/cron/2026-10-21-2345.yaml
+?? ../../../../audits/cron/2026-10-22-0000.yaml
+?? ../../../../audits/cron/2026-10-22-0015.yaml
+?? ../../../../audits/cron/2026-10-22-0030.yaml
+?? ../../../../audits/cron/2026-10-22-0045.yaml
+?? ../../../../audits/cron/2026-10-22-0100.yaml
+?? ../../../../audits/cron/2026-10-22-0115.yaml
+?? ../../../../audits/cron/2026-10-22-0130.yaml
+?? ../../../../audits/cron/2026-10-22-0145.yaml
+?? ../../../../audits/cron/2026-10-22-0200.yaml
+?? ../../../../audits/cron/2026-10-22-0215.yaml
+?? ../../../../audits/cron/2026-10-22-0230.yaml
+?? ../../../../audits/cron/2026-10-22-0245.yaml
+?? ../../../../audits/cron/2026-10-22-0300.yaml
+?? ../../../../audits/cron/2026-10-22-0315.yaml
+?? ../../../../audits/cron/2026-10-22-0330.yaml
+?? ../../../../audits/cron/2026-10-22-0345.yaml
+?? ../../../../audits/cron/2026-10-22-0400.yaml
+?? ../../../../audits/cron/2026-10-22-0415.yaml
+?? ../../../../audits/cron/2026-10-22-0430.yaml
+?? ../../../../audits/cron/2026-10-22-0445.yaml
+?? ../../../../audits/cron/2026-10-22-0500.yaml
+?? ../../../../audits/cron/2026-10-22-0515.yaml
+?? ../../../../audits/cron/2026-10-22-0530.yaml
+?? ../../../../audits/cron/2026-10-22-0545.yaml
+?? ../../../../audits/cron/2026-10-22-0600.yaml
+?? ../../../../audits/cron/2026-10-22-0615.yaml
+?? ../../../../audits/cron/2026-10-22-0630.yaml
+?? ../../../../audits/cron/2026-10-22-0645.yaml
+?? ../../../../audits/cron/2026-10-22-0700.yaml
+?? ../../../../audits/cron/2026-10-22-0715.yaml
+?? ../../../../audits/cron/2026-10-22-0730.yaml
+?? ../../../../audits/cron/2026-10-22-0745.yaml
+?? ../../../../audits/cron/2026-10-22-0800.yaml
+?? ../../../../audits/cron/2026-10-22-0830.yaml
+?? ../../../../audits/cron/2026-10-22-0845.yaml
+?? ../../../../audits/cron/2026-10-22-0900.yaml
+?? ../../../../audits/cron/2026-10-22-0915.yaml
+?? ../../../../audits/cron/2026-10-22-0930.yaml
+?? ../../../../audits/cron/2026-10-22-0945.yaml
+?? ../../../../audits/cron/2026-10-22-1000.yaml
+?? ../../../../audits/cron/2026-10-22-1045.yaml
+?? ../../../../audits/cron/2026-10-22-1100.yaml
+?? ../../../../audits/cron/2026-10-22-1115.yaml
+?? ../../../../audits/cron/2026-10-22-1130.yaml
+?? ../../../../audits/cron/2026-10-22-1145.yaml
+?? ../../../../audits/cron/2026-10-22-1200.yaml
+?? ../../../../audits/cron/2026-10-22-1215.yaml
+?? ../../../../audits/cron/2026-10-22-1230.yaml
+?? ../../../../audits/cron/2026-10-22-1245.yaml
+?? ../../../../audits/cron/2026-10-22-1315.yaml
+?? ../../../../audits/cron/2026-10-22-1330.yaml
+?? ../../../../audits/cron/2026-10-22-1345.yaml
+?? ../../../../audits/cron/2026-10-22-1400.yaml
+?? ../../../../audits/cron/2026-10-22-1415.yaml
+?? ../../../../audits/cron/2026-10-22-1430.yaml
+?? ../../../../audits/cron/2026-10-22-1445.yaml
+?? ../../../../audits/cron/2026-10-22-1500.yaml
+?? ../../../../audits/cron/2026-10-22-1515.yaml
+?? ../../../../audits/cron/2026-10-22-1530.yaml
+?? ../../../../audits/cron/2026-10-22-1545.yaml
+?? ../../../../audits/cron/2026-10-22-1600.yaml
+?? ../../../../audits/cron/2026-10-22-1615.yaml
+?? ../../../../audits/cron/2026-10-22-1630.yaml
+?? ../../../../audits/cron/2026-10-22-1645.yaml
+?? ../../../../audits/cron/2026-10-22-1700.yaml
+?? ../../../../audits/cron/2026-10-22-1715.yaml
+?? ../../../../audits/cron/2026-10-22-1730.yaml
+?? ../../../../audits/cron/2026-10-22-1745.yaml
+?? ../../../../audits/cron/2026-10-22-1800.yaml
+?? ../../../../audits/cron/2026-10-22-2045.yaml
+?? ../../../../audits/cron/2026-10-22-2100.yaml
+?? ../../../../audits/cron/2026-10-22-2115.yaml
+?? ../../../../audits/cron/2026-10-22-2130.yaml
+?? ../../../../audits/cron/2026-10-22-2145.yaml
+?? ../../../../audits/cron/2026-10-22-2200.yaml
+?? ../../../../audits/cron/2026-10-22-2215.yaml
+?? ../../../../audits/cron/2026-10-22-2230.yaml
+?? ../../../../audits/cron/2026-10-22-2245.yaml
+?? ../../../../audits/cron/2026-10-22-2315.yaml
+?? ../../../../audits/cron/2026-10-22-2330.yaml
+?? ../../../../audits/cron/2026-10-22-2345.yaml
+?? ../../../../audits/cron/2026-10-23-0000.yaml
+?? ../../../../audits/cron/2026-10-23-0015.yaml
+?? ../../../../audits/cron/2026-10-23-0030.yaml
+?? ../../../../audits/cron/2026-10-23-0045.yaml
+?? ../../../../audits/cron/2026-10-23-0100.yaml
+?? ../../../../audits/cron/2026-10-23-0115.yaml
+?? ../../../../audits/cron/2026-10-23-0130.yaml
+?? ../../../../audits/cron/2026-10-23-0145.yaml
+?? ../../../../audits/cron/2026-10-23-0200.yaml
+?? ../../../../audits/cron/2026-10-23-0215.yaml
+?? ../../../../audits/cron/2026-10-23-0230.yaml
+?? ../../../../audits/cron/2026-10-23-0245.yaml
+?? ../../../../audits/cron/2026-10-23-0300.yaml
+?? ../../../../audits/cron/2026-10-23-0315.yaml
+?? ../../../../audits/cron/2026-10-23-0330.yaml
+?? ../../../../audits/cron/2026-10-23-0345.yaml
+?? ../../../../audits/cron/2026-10-23-0400.yaml
+?? ../../../../audits/cron/2026-10-23-0415.yaml
+?? ../../../../audits/cron/2026-10-23-0430.yaml
+?? ../../../../audits/cron/2026-10-23-0445.yaml
+?? ../../../../audits/cron/2026-10-23-0500.yaml
+?? ../../../../audits/cron/2026-10-23-0515.yaml
+?? ../../../../audits/cron/2026-10-23-0530.yaml
+?? ../../../../audits/cron/2026-10-23-0545.yaml
+?? ../../../../audits/cron/2026-10-23-0600.yaml
+?? ../../../../audits/cron/2026-10-23-0615.yaml
+?? ../../../../audits/cron/2026-10-23-0630.yaml
+?? ../../../../audits/cron/2026-10-23-0645.yaml
+?? ../../../../audits/cron/2026-10-23-0700.yaml
+?? ../../../../audits/cron/2026-10-23-0715.yaml
+?? ../../../../audits/cron/2026-10-23-0730.yaml
+?? ../../../../audits/cron/2026-10-23-0745.yaml
+?? ../../../../audits/cron/2026-10-23-0800.yaml
+?? ../../../../audits/cron/2026-10-23-0815.yaml
+?? ../../../../audits/cron/2026-10-23-0830.yaml
+?? ../../../../audits/cron/2026-10-23-0845.yaml
+?? ../../../../audits/cron/2026-10-23-0900.yaml
+?? ../../../../audits/cron/2026-10-23-0915.yaml
+?? ../../../../audits/cron/2026-10-23-0930.yaml
+?? ../../../../audits/cron/2026-10-23-0945.yaml
+?? ../../../../audits/cron/2026-10-23-1000.yaml
+?? ../../../../audits/cron/2026-10-23-1015.yaml
+?? ../../../../audits/cron/2026-10-23-1030.yaml
+?? ../../../../audits/cron/2026-10-23-1045.yaml
+?? ../../../../audits/cron/2026-10-23-1100.yaml
+?? ../../../../audits/cron/2026-10-23-1115.yaml
+?? ../../../../audits/cron/2026-10-23-1130.yaml
+?? ../../../../audits/cron/2026-10-23-1145.yaml
+?? ../../../../audits/cron/2026-10-23-1200.yaml
+?? ../../../../audits/cron/2026-10-23-1215.yaml
+?? ../../../../audits/cron/2026-10-23-1230.yaml
+?? ../../../../audits/cron/2026-10-23-1245.yaml
+?? ../../../../audits/cron/2026-10-23-1300.yaml
+?? ../../../../audits/cron/2026-10-23-1315.yaml
+?? ../../../../audits/cron/2026-10-23-1330.yaml
+?? ../../../../audits/cron/2026-10-23-1345.yaml
+?? ../../../../audits/cron/2026-10-23-1400.yaml
+?? ../../../../audits/cron/2026-10-23-1415.yaml
+?? ../../../../audits/cron/2026-10-23-1430.yaml
+?? ../../../../audits/cron/2026-10-23-1445.yaml
+?? ../../../../audits/cron/2026-10-23-1500.yaml
+?? ../../../../audits/cron/2026-10-23-1515.yaml
+?? ../../../../audits/cron/2026-10-23-1530.yaml
+?? ../../../../audits/cron/2026-10-23-1545.yaml
+?? ../../../../audits/cron/2026-10-23-1615.yaml
+?? ../../../../audits/cron/2026-10-23-1630.yaml
+?? ../../../../audits/cron/2026-10-23-1645.yaml
+?? ../../../../audits/cron/2026-10-23-1700.yaml
+?? ../../../../audits/cron/2026-10-23-1715.yaml
+?? ../../../../audits/cron/2026-10-23-1730.yaml
+?? ../../../../audits/cron/2026-10-23-1745.yaml
+?? ../../../../audits/cron/2026-10-23-1800.yaml
+?? ../../../../audits/cron/2026-10-23-1815.yaml
+?? ../../../../audits/cron/2026-10-23-1830.yaml
+?? ../../../../audits/cron/2026-10-23-1845.yaml
+?? ../../../../audits/cron/2026-10-23-1900.yaml
+?? ../../../../audits/cron/2026-10-23-1915.yaml
+?? ../../../../audits/cron/2026-10-23-1930.yaml
+?? ../../../../audits/cron/2026-10-23-1945.yaml
+?? ../../../../audits/cron/2026-10-23-2000.yaml
+?? ../../../../audits/cron/2026-10-23-2015.yaml
+?? ../../../../audits/cron/2026-10-23-2030.yaml
+?? ../../../../audits/cron/2026-10-23-2045.yaml
+?? ../../../../audits/cron/2026-10-23-2100.yaml
+?? ../../../../audits/cron/2026-10-23-2115.yaml
+?? ../../../../audits/cron/2026-10-23-2130.yaml
+?? ../../../../audits/cron/2026-10-23-2145.yaml
+?? ../../../../audits/cron/2026-10-23-2200.yaml
+?? ../../../../audits/cron/2026-10-23-2215.yaml
+?? ../../../../audits/cron/2026-10-23-2230.yaml
+?? ../../../../audits/cron/2026-10-23-2245.yaml
+?? ../../../../audits/cron/2026-10-23-2300.yaml
+?? ../../../../audits/cron/2026-10-23-2315.yaml
+?? ../../../../audits/cron/2026-10-23-2330.yaml
+?? ../../../../audits/cron/2026-10-23-2345.yaml
+?? ../../../../audits/cron/2026-10-24-0000.yaml
+?? ../../../../audits/cron/2026-10-24-0015.yaml
+?? ../../../../audits/cron/2026-10-24-0030.yaml
+?? ../../../../audits/cron/2026-10-24-0045.yaml
+?? ../../../../audits/cron/2026-10-24-0100.yaml
+?? ../../../../audits/cron/2026-10-24-0115.yaml
+?? ../../../../audits/cron/2026-10-24-0145.yaml
+?? ../../../../audits/cron/2026-10-24-0200.yaml
+?? ../../../../audits/cron/2026-10-24-0215.yaml
+?? ../../../../audits/cron/2026-10-24-0230.yaml
+?? ../../../../audits/cron/2026-10-24-0245.yaml
+?? ../../../../audits/cron/2026-10-24-0300.yaml
+?? ../../../../audits/cron/2026-10-24-0315.yaml
+?? ../../../../audits/cron/2026-10-24-0330.yaml
+?? ../../../../audits/cron/2026-10-24-0345.yaml
+?? ../../../../audits/cron/2026-10-24-0400.yaml
+?? ../../../../audits/cron/2026-10-24-0415.yaml
+?? ../../../../audits/cron/2026-10-24-0430.yaml
+?? ../../../../audits/cron/2026-10-24-0445.yaml
+?? ../../../../audits/cron/2026-10-24-0500.yaml
+?? ../../../../audits/cron/2026-10-24-0515.yaml
+?? ../../../../audits/cron/2026-10-24-0530.yaml
+?? ../../../../audits/cron/2026-10-24-0545.yaml
+?? ../../../../audits/cron/2026-10-24-0600.yaml
+?? ../../../../audits/cron/2026-10-24-0615.yaml
+?? ../../../../audits/cron/2026-10-24-0630.yaml
+?? ../../../../audits/cron/2026-10-24-0645.yaml
+?? ../../../../audits/cron/2026-10-24-0700.yaml
+?? ../../../../audits/cron/2026-10-24-0715.yaml
+?? ../../../../audits/cron/2026-10-24-0730.yaml
+?? ../../../../audits/cron/2026-10-24-0745.yaml
+?? ../../../../audits/cron/2026-10-24-0800.yaml
+?? ../../../../audits/cron/2026-10-24-0815.yaml
+?? ../../../../audits/cron/2026-10-24-0830.yaml
+?? ../../../../audits/cron/2026-10-24-0845.yaml
+?? ../../../../audits/cron/2026-10-24-0900.yaml
+?? ../../../../audits/cron/2026-10-24-0915.yaml
+?? ../../../../audits/cron/2026-10-24-0930.yaml
+?? ../../../../audits/cron/2026-10-24-0945.yaml
+?? ../../../../audits/cron/2026-10-24-1000.yaml
+?? ../../../../audits/cron/2026-10-24-1015.yaml
+?? ../../../../audits/cron/2026-10-24-1030.yaml
+?? ../../../../audits/cron/2026-10-24-1045.yaml
+?? ../../../../audits/cron/2026-10-24-1100.yaml
+?? ../../../../audits/cron/2026-10-24-1115.yaml
+?? ../../../../audits/cron/2026-10-24-1130.yaml
+?? ../../../../audits/cron/2026-10-24-1145.yaml
+?? ../../../../audits/cron/2026-10-24-1200.yaml
+?? ../../../../audits/cron/2026-10-24-1215.yaml
+?? ../../../../audits/cron/2026-10-24-1230.yaml
+?? ../../../../audits/cron/2026-10-24-1245.yaml
+?? ../../../../audits/cron/2026-10-24-1300.yaml
+?? ../../../../audits/cron/2026-10-24-1315.yaml
+?? ../../../../audits/cron/2026-10-24-1330.yaml
+?? ../../../../audits/cron/2026-10-24-1345.yaml
+?? ../../../../audits/cron/2026-10-24-1400.yaml
+?? ../../../../audits/cron/2026-10-24-1415.yaml
+?? ../../../../audits/cron/2026-10-24-1430.yaml
+?? ../../../../audits/cron/2026-10-24-1445.yaml
+?? ../../../../audits/cron/2026-10-24-1500.yaml
+?? ../../../../audits/cron/2026-10-24-1515.yaml
+?? ../../../../audits/cron/2026-10-24-1530.yaml
+?? ../../../../audits/cron/2026-10-24-1545.yaml
+?? ../../../../audits/cron/2026-10-24-1600.yaml
+?? ../../../../audits/cron/2026-10-24-1615.yaml
+?? ../../../../audits/cron/2026-10-24-1630.yaml
+?? ../../../../audits/cron/2026-10-24-1645.yaml
+?? ../../../../audits/cron/2026-10-24-1700.yaml
+?? ../../../../audits/cron/2026-10-24-1715.yaml
+?? ../../../../audits/cron/2026-10-24-1730.yaml
+?? ../../../../audits/cron/2026-10-24-1745.yaml
+?? ../../../../audits/cron/2026-10-24-1800.yaml
+?? ../../../../audits/cron/2026-10-24-1815.yaml
+?? ../../../../audits/cron/2026-10-24-1830.yaml
+?? ../../../../audits/cron/2026-10-24-1845.yaml
+?? ../../../../audits/cron/2026-10-24-1900.yaml
+?? ../../../../audits/cron/2026-10-24-1915.yaml
+?? ../../../../audits/cron/2026-10-24-1930.yaml
+?? ../../../../audits/cron/2026-10-24-1945.yaml
+?? ../../../../audits/cron/2026-10-24-2000.yaml
+?? ../../../../audits/cron/2026-10-24-2015.yaml
+?? ../../../../audits/cron/2026-10-24-2030.yaml
+?? ../../../../audits/cron/2026-10-24-2045.yaml
+?? ../../../../audits/cron/2026-10-24-2100.yaml
+?? ../../../../audits/cron/2026-10-24-2115.yaml
+?? ../../../../audits/cron/2026-10-24-2130.yaml
+?? ../../../../audits/cron/2026-10-24-2145.yaml
+?? ../../../../audits/cron/2026-10-24-2200.yaml
+?? ../../../../audits/cron/2026-10-24-2215.yaml
+?? ../../../../audits/cron/2026-10-24-2230.yaml
+?? ../../../../audits/cron/2026-10-24-2245.yaml
+?? ../../../../audits/cron/2026-10-24-2300.yaml
+?? ../../../../audits/cron/2026-10-24-2315.yaml
+?? ../../../../audits/cron/2026-10-24-2330.yaml
+?? ../../../../audits/cron/2026-10-24-2345.yaml
+?? ../../../../audits/cron/2026-10-25-0000.yaml
+?? ../../../../audits/cron/2026-10-25-0015.yaml
+?? ../../../../audits/cron/2026-10-25-0030.yaml
+?? ../../../../audits/cron/2026-10-25-0045.yaml
+?? ../../../../audits/cron/2026-10-25-0100.yaml
+?? ../../../../audits/cron/2026-10-25-1130.yaml
+?? ../../../../audits/cron/2026-10-25-1145.yaml
+?? ../../../../audits/cron/2026-10-25-1200.yaml
+?? ../../../../audits/cron/2026-10-25-1215.yaml
+?? ../../../../audits/cron/2026-10-25-1230.yaml
+?? ../../../../audits/cron/2026-10-25-1245.yaml
+?? ../../../../audits/cron/2026-10-25-1300.yaml
+?? ../../../../audits/cron/2026-10-25-1315.yaml
+?? ../../../../audits/cron/2026-10-25-1330.yaml
+?? ../../../../audits/cron/2026-10-25-1345.yaml
+?? ../../../../audits/cron/2026-10-25-1400.yaml
+?? ../../../../audits/cron/2026-10-25-1415.yaml
+?? ../../../../audits/cron/2026-10-25-1430.yaml
+?? ../../../../audits/cron/2026-10-25-1445.yaml
+?? ../../../../audits/cron/2026-10-25-1500.yaml
+?? ../../../../audits/cron/2026-10-25-1515.yaml
+?? ../../../../audits/cron/2026-10-25-1530.yaml
+?? ../../../../audits/cron/2026-10-25-1545.yaml
+?? ../../../../audits/cron/2026-10-25-1600.yaml
+?? ../../../../audits/cron/2026-10-25-1615.yaml
+?? ../../../../audits/cron/2026-10-25-1630.yaml
+?? ../../../../audits/cron/2026-10-25-1645.yaml
+?? ../../../../audits/cron/2026-10-25-1700.yaml
+?? ../../../../audits/cron/2026-10-25-1715.yaml
+?? ../../../../audits/cron/2026-10-25-1730.yaml
+?? ../../../../audits/cron/2026-10-25-1745.yaml
+?? ../../../../audits/cron/2026-10-25-1800.yaml
+?? ../../../../audits/cron/2026-10-25-1815.yaml
+?? ../../../../audits/cron/2026-10-25-1830.yaml
+?? ../../../../audits/cron/2026-10-25-1845.yaml
+?? ../../../../audits/cron/2026-10-25-1900.yaml
+?? ../../../../audits/cron/2026-10-25-1915.yaml
+?? ../../../../audits/cron/2026-10-25-1930.yaml
+?? ../../../../audits/cron/2026-10-25-1945.yaml
+?? ../../../../audits/cron/2026-10-25-2000.yaml
+?? ../../../../audits/cron/2026-10-25-2015.yaml
+?? ../../../../audits/cron/2026-10-25-2030.yaml
+?? ../../../../audits/cron/2026-10-25-2045.yaml
+?? ../../../../audits/cron/2026-10-25-2100.yaml
+?? ../../../../audits/cron/2026-10-25-2115.yaml
+?? ../../../../audits/cron/2026-10-25-2130.yaml
+?? ../../../../audits/cron/2026-10-25-2145.yaml
+?? ../../../../audits/cron/2026-10-25-2200.yaml
+?? ../../../../audits/cron/2026-10-25-2215.yaml
+?? ../../../../audits/cron/2026-10-25-2230.yaml
+?? ../../../../audits/cron/2026-10-25-2245.yaml
+?? ../../../../audits/cron/2026-10-25-2300.yaml
+?? ../../../../audits/cron/2026-10-25-2315.yaml
+?? ../../../../audits/cron/2026-10-25-2330.yaml
+?? ../../../../audits/cron/2026-10-25-2345.yaml
+?? ../../../../audits/cron/2026-10-26-0000.yaml
+?? ../../../../audits/cron/2026-10-26-0015.yaml
+?? ../../../../audits/cron/2026-10-26-0030.yaml
+?? ../../../../audits/cron/2026-10-26-0045.yaml
+?? ../../../../audits/cron/2026-10-26-0100.yaml
+?? ../../../../audits/cron/2026-10-26-0115.yaml
+?? ../../../../audits/cron/2026-10-26-0130.yaml
+?? ../../../../audits/cron/2026-10-26-0145.yaml
+?? ../../../../audits/cron/2026-10-26-0200.yaml
+?? ../../../../audits/cron/2026-10-26-0215.yaml
+?? ../../../../audits/cron/2026-10-26-0230.yaml
+?? ../../../../audits/cron/2026-10-26-0245.yaml
+?? ../../../../audits/cron/2026-10-26-0300.yaml
+?? ../../../../audits/cron/2026-10-26-0315.yaml
+?? ../../../../audits/cron/2026-10-26-0330.yaml
+?? ../../../../audits/cron/2026-10-26-0345.yaml
+?? ../../../../audits/cron/2026-10-26-0400.yaml
+?? ../../../../audits/cron/2026-10-26-0415.yaml
+?? ../../../../audits/cron/2026-10-26-0430.yaml
+?? ../../../../audits/cron/2026-10-26-0445.yaml
+?? ../../../../audits/cron/2026-10-26-0500.yaml
+?? ../../../../audits/cron/2026-10-26-0515.yaml
+?? ../../../../audits/cron/2026-10-26-0530.yaml
+?? ../../../../audits/cron/2026-10-26-0545.yaml
+?? ../../../../audits/cron/2026-10-26-0600.yaml
+?? ../../../../audits/cron/2026-10-26-0615.yaml
+?? ../../../../audits/cron/2026-10-26-0630.yaml
+?? ../../../../audits/cron/2026-10-26-0645.yaml
+?? ../../../../audits/cron/2026-10-26-0700.yaml
+?? ../../../../audits/cron/2026-10-26-0715.yaml
+?? ../../../../audits/cron/2026-10-26-0730.yaml
+?? ../../../../audits/cron/2026-10-26-0745.yaml
+?? ../../../../audits/cron/2026-10-26-0800.yaml
+?? ../../../../audits/cron/2026-10-26-0815.yaml
+?? ../../../../audits/cron/2026-10-26-0830.yaml
+?? ../../../../audits/cron/2026-10-26-0845.yaml
+?? ../../../../audits/cron/2026-10-26-0900.yaml
+?? ../../../../audits/cron/2026-10-26-0915.yaml
+?? ../../../../audits/cron/2026-10-26-0930.yaml
+?? ../../../../audits/cron/2026-10-26-0945.yaml
+?? ../../../../audits/cron/2026-10-26-1000.yaml
+?? ../../../../audits/cron/2026-10-26-1015.yaml
+?? ../../../../audits/cron/2026-10-26-1030.yaml
+?? ../../../../audits/cron/2026-10-26-1045.yaml
+?? ../../../../audits/cron/2026-10-26-1100.yaml
+?? ../../../../audits/cron/2026-10-26-1115.yaml
+?? ../../../../audits/project/
+?? ../../../../audits/upgrades.yaml
+?? ../../../../audits/verification-servicing.jsonl
+?? ../../../../costs/
+?? ../../../../dispatch-results/
+?? ../../../../episodic/T-1092.yaml
+?? ../../../../episodic/T-1096.yaml
+?? ../../../../episodic/T-1118.yaml
+?? ../../../../episodic/T-1122.yaml
+?? ../../../../episodic/T-1123.yaml
+?? ../../../../episodic/T-1124.yaml
+?? ../../../../episodic/T-1125.yaml
+?? ../../../../episodic/T-1126.yaml
+?? ../../../../episodic/T-1128.yaml
+?? ../../../../episodic/T-1129.yaml
+?? ../../../../episodic/T-1130.yaml
+?? ../../../../episodic/T-1131.yaml
+?? ../../../../episodic/T-1132.yaml
+?? ../../../../episodic/T-1133.yaml
+?? ../../../../episodic/T-1134.yaml
+?? ../../../../episodic/T-1135.yaml
+?? ../../../../episodic/T-1137.yaml
+?? ../../../../episodic/T-1138.yaml
+?? ../../../../episodic/T-1141.yaml
+?? ../../../../episodic/T-1142.yaml
+?? ../../../../episodic/T-1143.yaml
+?? ../../../../episodic/T-1144.yaml
+?? ../../../../episodic/T-1145.yaml
+?? ../../../../episodic/T-1146.yaml
+?? ../../../../episodic/T-1147.yaml
+?? ../../../../episodic/T-1148.yaml
+?? ../../../../episodic/T-1164.yaml
+?? ../../../../episodic/T-1190.yaml
+?? ../../../../episodic/T-1193.yaml
+?? ../../../../episodic/T-1195.yaml
+?? ../../../../episodic/T-1196.yaml
+?? ../../../../episodic/T-1197.yaml
+?? ../../../../episodic/T-1227.yaml
+?? ../../../../episodic/T-1230.yaml
+?? ../../../../handovers/S-2026-1003-2233.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1004-1054.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1004-1823.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1004-1913.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1004-2228.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1005-1144.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1006-1318.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1007-0727.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1007-1521.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1007-1930.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1008-1214.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1008-1224.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1008-1224.md
+?? ../../../../handovers/S-2026-1010-1934.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1012-1539.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1012-1619.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1012-2131.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1013-1728.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1014-1947.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1014-2003.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1014-2056.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1016-2310.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1017-1439.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1017-2311.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1018-0037.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1018-2046.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1018-2122.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1019-0013.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1019-1454.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1019-1805.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1019-1812.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1019-1812.md
+?? ../../../../handovers/S-2026-1020-1355.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1021-1244.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1022-0009.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1022-1720.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1024-1135.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1024-1151.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1024-1221.discard-manifest.yaml
+?? ../../../../handovers/S-2026-1025-0016.discard-manifest.yaml
+?? ../../../../locks/T-1000.lock
+?? ../../../../locks/T-1003.lock
+?? ../../../../locks/T-1005.lock
+?? ../../../../locks/T-1006.lock
+?? ../../../../locks/T-1007.lock
+?? ../../../../locks/T-1008.lock
+?? ../../../../locks/T-1009.lock
+?? ../../../../locks/T-1010.lock
+?? ../../../../locks/T-1012.lock
+?? ../../../../locks/T-1013.lock
+?? ../../../../locks/T-1014.lock
+?? ../../../../locks/T-1015.lock
+?? ../../../../locks/T-1016.lock
+?? ../../../../locks/T-1017.lock
+?? ../../../../locks/T-1018.lock
+?? ../../../../locks/T-1019.lock
+?? ../../../../locks/T-1020.lock
+?? ../../../../locks/T-1021.lock
+?? ../../../../locks/T-1022.lock
+?? ../../../../locks/T-1023.lock
+?? ../../../../locks/T-1024.lock
+?? ../../../../locks/T-1025.lock
+?? ../../../../locks/T-1026.lock
+?? ../../../../locks/T-1027.lock
+?? ../../../../locks/T-1028.lock
+?? ../../../../locks/T-1029.lock
+?? ../../../../locks/T-1030.lock
+?? ../../../../locks/T-1031.lock
+?? ../../../../locks/T-1032.lock
+?? ../../../../locks/T-1033.lock
+?? ../../../../locks/T-1034.lock
+?? ../../../../locks/T-1035.lock
+?? ../../../../locks/T-1036.lock
+?? ../../../../locks/T-1037.lock
+?? ../../../../locks/T-1038.lock
+?? ../../../../locks/T-1039.lock
+?? ../../../../locks/T-1040.lock
+?? ../../../../locks/T-1042.lock
+?? ../../../../locks/T-1043.lock
+?? ../../../../locks/T-1044.lock
+?? ../../../../locks/T-1045.lock
+?? ../../../../locks/T-1046.lock
+?? ../../../../locks/T-1047.lock
+?? ../../../../locks/T-1048.lock
+?? ../../../../locks/T-1049.lock
+?? ../../../../locks/T-1050.lock
+?? ../../../../locks/T-1051.lock
+?? ../../../../locks/T-1052.lock
+?? ../../../../locks/T-1053.lock
+?? ../../../../locks/T-1054.lock
+?? ../../../../locks/T-1055.lock
+?? ../../../../locks/T-1056.lock
+?? ../../../../locks/T-1057.lock
+?? ../../../../locks/T-1058.lock
+?? ../../../../locks/T-1059.lock
+?? ../../../../locks/T-1060.lock
+?? ../../../../locks/T-1061.lock
+?? ../../../../locks/T-1062.lock
+?? ../../../../locks/T-1065.lock
+?? ../../../../locks/T-1066.lock
+?? ../../../../locks/T-1067.lock
+?? ../../../../locks/T-1068.lock
+?? ../../../../locks/T-1069.lock
+?? ../../../../locks/T-1073.lock
+?? ../../../../locks/T-1074.lock
+?? ../../../../locks/T-1075.lock
+?? ../../../../locks/T-1076.lock
+?? ../../../../locks/T-1077.lock
+?? ../../../../locks/T-1078.lock
+?? ../../../../locks/T-1079.lock
+?? ../../../../locks/T-1080.lock
+?? ../../../../locks/T-1081.lock
+?? ../../../../locks/T-1082.lock
+?? ../../../../locks/T-1083.lock
+?? ../../../../locks/T-1084.lock
+?? ../../../../locks/T-1085.lock
+?? ../../../../locks/T-1086.lock
+?? ../../../../locks/T-1087.lock
+?? ../../../../locks/T-1088.lock
+?? ../../../../locks/T-1089.lock
+?? ../../../../locks/T-1090.lock
+?? ../../../../locks/T-1091.lock
+?? ../../../../locks/T-1092.lock
+?? ../../../../locks/T-1094.lock
+?? ../../../../locks/T-1095.lock
+?? ../../../../locks/T-1096.lock
+?? ../../../../locks/T-1104.lock
+?? ../../../../locks/T-1105.lock
+?? ../../../../locks/T-1106.lock
+?? ../../../../locks/T-1107.lock
+?? ../../../../locks/T-1108.lock
+?? ../../../../locks/T-1109.lock
+?? ../../../../locks/T-1110.lock
+?? ../../../../locks/T-1111.lock
+?? ../../../../locks/T-1112.lock
+?? ../../../../locks/T-1113.lock
+?? ../../../../locks/T-1114.lock
+?? ../../../../locks/T-1115.lock
+?? ../../../../locks/T-1116.lock
+?? ../../../../locks/T-1117.lock
+?? ../../../../locks/T-1118.lock
+?? ../../../../locks/T-1119.lock
+?? ../../../../locks/T-1120.lock
+?? ../../../../locks/T-1121.lock
+?? ../../../../locks/T-1122.lock
+?? ../../../../locks/T-1123.lock
+?? ../../../../locks/T-1124.lock
+?? ../../../../locks/T-1125.lock
+?? ../../../../locks/T-1126.lock
+?? ../../../../locks/T-1127.lock
+?? ../../../../locks/T-1128.lock
+?? ../../../../locks/T-1129.lock
+?? ../../../../locks/T-1130.lock
+?? ../../../../locks/T-1131.lock
+?? ../../../../locks/T-1132.lock
+?? ../../../../locks/T-1133.lock
+?? ../../../../locks/T-1134.lock
+?? ../../../../locks/T-1135.lock
+?? ../../../../locks/T-1136.lock
+?? ../../../../locks/T-1137.lock
+?? ../../../../locks/T-1138.lock
+?? ../../../../locks/T-1139.lock
+?? ../../../../locks/T-1140.lock
+?? ../../../../locks/T-1141.lock
+?? ../../../../locks/T-1142.lock
+?? ../../../../locks/T-1143.lock
+?? ../../../../locks/T-1144.lock
+?? ../../../../locks/T-1145.lock
+?? ../../../../locks/T-1146.lock
+?? ../../../../locks/T-1147.lock
+?? ../../../../locks/T-1148.lock
+?? ../../../../locks/T-1149.lock
+?? ../../../../locks/T-1150.lock
+?? ../../../../locks/T-1151.lock
+?? ../../../../locks/T-1152.lock
+?? ../../../../locks/T-1153.lock
+?? ../../../../locks/T-1154.lock
+?? ../../../../locks/T-1155.lock
+?? ../../../../locks/T-1156.lock
+?? ../../../../locks/T-1157.lock
+?? ../../../../locks/T-1158.lock
+?? ../../../../locks/T-1159.lock
+?? ../../../../locks/T-1160.lock
+?? ../../../../locks/T-1161.lock
+?? ../../../../locks/T-1162.lock
+?? ../../../../locks/T-1163.lock
+?? ../../../../locks/T-1164.lock
+?? ../../../../locks/T-1165.lock
+?? ../../../../locks/T-1166.lock
+?? ../../../../locks/T-1167.lock
+?? ../../../../locks/T-1168.lock
+?? ../../../../locks/T-1169.lock
+?? ../../../../locks/T-1170.lock
+?? ../../../../locks/T-1171.lock
+?? ../../../../locks/T-1172.lock
+?? ../../../../locks/T-1173.lock
+?? ../../../../locks/T-1174.lock
+?? ../../../../locks/T-1175.lock
+?? ../../../../locks/T-1176.lock
+?? ../../../../locks/T-1177.lock
+?? ../../../../locks/T-1178.lock
+?? ../../../../locks/T-1179.lock
+?? ../../../../locks/T-1180.lock
+?? ../../../../locks/T-1181.lock
+?? ../../../../locks/T-1182.lock
+?? ../../../../locks/T-1183.lock
+?? ../../../../locks/T-1184.lock
+?? ../../../../locks/T-1185.lock
+?? ../../../../locks/T-1186.lock
+?? ../../../../locks/T-1187.lock
+?? ../../../../locks/T-1188.lock
+?? ../../../../locks/T-1189.lock
+?? ../../../../locks/T-1190.lock
+?? ../../../../locks/T-1191.lock
+?? ../../../../locks/T-1192.lock
+?? ../../../../locks/T-1193.lock
+?? ../../../../locks/T-1194.lock
+?? ../../../../locks/T-1195.lock
+?? ../../../../locks/T-1196.lock
+?? ../../../../locks/T-1197.lock
+?? ../../../../locks/T-1198.lock
+?? ../../../../locks/T-1199.lock
+?? ../../../../locks/T-1200.lock
+?? ../../../../locks/T-1201.lock
+?? ../../../../locks/T-1202.lock
+?? ../../../../locks/T-1204.lock
+?? ../../../../locks/T-1205.lock
+?? ../../../../locks/T-1206.lock
+?? ../../../../locks/T-1207.lock
+?? ../../../../locks/T-1208.lock
+?? ../../../../locks/T-1209.lock
+?? ../../../../locks/T-1210.lock
+?? ../../../../locks/T-1211.lock
+?? ../../../../locks/T-1212.lock
+?? ../../../../locks/T-1213.lock
+?? ../../../../locks/T-1214.lock
+?? ../../../../locks/T-1215.lock
+?? ../../../../locks/T-1216.lock
+?? ../../../../locks/T-1217.lock
+?? ../../../../locks/T-1218.lock
+?? ../../../../locks/T-1219.lock
+?? ../../../../locks/T-1220.lock
+?? ../../../../locks/T-1221.lock
+?? ../../../../locks/T-1222.lock
+?? ../../../../locks/T-1224.lock
+?? ../../../../locks/T-1225.lock
+?? ../../../../locks/T-1226.lock
+?? ../../../../locks/T-1227.lock
+?? ../../../../locks/T-1228.lock
+?? ../../../../locks/T-1229.lock
+?? ../../../../locks/T-1230.lock
+?? ../../../../locks/T-1231.lock
+?? ../../../../locks/T-1234.lock
+?? ../../../../locks/T-1237.lock
+?? ../../../../locks/T-1238.lock
+?? ../../../../locks/T-1239.lock
+?? ../../../../locks/T-1240.lock
+?? ../../../../locks/T-1241.lock
+?? ../../../../locks/T-1242.lock
+?? ../../../../locks/T-1243.lock
+?? ../../../../locks/T-1244.lock
+?? ../../../../locks/T-1245.lock
+?? ../../../../locks/T-1246.lock
+?? ../../../../locks/T-1247.lock
+?? ../../../../locks/T-1248.lock
+?? ../../../../locks/T-1249.lock
+?? ../../../../locks/T-1254.lock
+?? ../../../../locks/T-1255.lock
+?? ../../../../locks/T-1256.lock
+?? ../../../../locks/T-1272.lock
+?? ../../../../locks/T-1273.lock
+?? ../../../../locks/T-1274.lock
+?? ../../../../locks/T-1275.lock
+?? ../../../../locks/T-1276.lock
+?? ../../../../locks/T-1277.lock
+?? ../../../../locks/T-1278.lock
+?? ../../../../locks/T-1279.lock
+?? ../../../../locks/T-1280.lock
+?? ../../../../locks/T-1282.lock
+?? ../../../../locks/T-1283.lock
+?? ../../../../locks/T-1284.lock
+?? ../../../../locks/T-1285.lock
+?? ../../../../locks/T-1286.lock
+?? ../../../../locks/T-1287.lock
+?? ../../../../locks/T-1288.lock
+?? ../../../../locks/T-1289.lock
+?? ../../../../locks/T-1290.lock
+?? ../../../../locks/T-1291.lock
+?? ../../../../locks/T-1292.lock
+?? ../../../../locks/T-1293.lock
+?? ../../../../locks/T-1295.lock
+?? ../../../../locks/T-1296.lock
+?? ../../../../locks/T-1298.lock
+?? ../../../../locks/T-1299.lock
+?? ../../../../locks/T-1300.lock
+?? ../../../../locks/T-1301.lock
+?? ../../../../locks/T-1302.lock
+?? ../../../../locks/T-1303.lock
+?? ../../../../locks/T-1304.lock
+?? ../../../../locks/T-1305.lock
+?? ../../../../locks/T-1306.lock
+?? ../../../../locks/T-1308.lock
+?? ../../../../locks/T-184.lock
+?? ../../../../locks/T-185.lock
+?? ../../../../locks/T-186.lock
+?? ../../../../locks/T-279.lock
+?? ../../../../locks/T-280.lock
+?? ../../../../locks/T-281.lock
+?? ../../../../locks/T-282.lock
+?? ../../../../locks/T-840.lock
+?? ../../../../locks/T-895.lock
+?? ../../../../locks/T-896.lock
+?? ../../../../locks/T-959.lock
+?? ../../../../locks/T-960.lock
+?? ../../../../locks/T-961.lock
+?? ../../../../locks/T-962.lock
+?? ../../../../locks/T-963.lock
+?? ../../../../locks/T-964.lock
+?? ../../../../locks/T-965.lock
+?? ../../../../locks/T-966.lock
+?? ../../../../locks/T-967.lock
+?? ../../../../locks/T-969.lock
+?? ../../../../locks/T-970.lock
+?? ../../../../locks/T-971.lock
+?? ../../../../locks/T-972.lock
+?? ../../../../locks/T-973.lock
+?? ../../../../locks/T-974.lock
+?? ../../../../locks/T-975.lock
+?? ../../../../locks/T-977.lock
+?? ../../../../locks/T-978.lock
+?? ../../../../locks/T-979.lock
+?? ../../../../locks/T-980.lock
+?? ../../../../locks/T-981.lock
+?? ../../../../locks/T-982.lock
+?? ../../../../locks/T-983.lock
+?? ../../../../locks/T-984.lock
+?? ../../../../locks/T-986.lock
+?? ../../../../locks/T-987.lock
+?? ../../../../locks/T-988.lock
+?? ../../../../locks/T-989.lock
+?? ../../../../locks/T-990.lock
+?? ../../../../locks/T-991.lock
+?? ../../../../locks/T-992.lock
+?? ../../../../locks/T-993.lock
+?? ../../../../locks/T-995.lock
+?? ../../../../locks/T-996.lock
+?? ../../../../locks/T-999.lock
+?? ../../../../locks/verdict-ledger.lock
+?? ../../../006-upgrade-aef-1.8.8/done
+?? ../../../006-upgrade-aef-1.8.8/run-20261009T202252.log
+?? ../../../007-release-designer-0.16.0/done
+?? ../../../007-release-designer-0.16.0/run-20261009T101353.log
+?? ../../../009-greenfield-hub-credential-via-mint-dev/run-20261009T222820.log
+?? ../../../010-release-designer-0.17.0/done
+?? ../../../010-release-designer-0.17.0/run-20261011T104715.log
+?? ../../../011-upgrade-aef-1.8.9/done
+?? ../../../011-upgrade-aef-1.8.9/run-20261011T121757.log
+?? ../../../013-decide-t1118-go-gated/done
+?? ../../../013-decide-t1118-go-gated/run-20261011T145558.log
+?? ../../../014-release-designer-0.18.0/done
+?? ../../../014-release-designer-0.18.0/run-20261011T220331.log
+?? ../../../014-release-designer-0.18.0/run-20261011T224615.log
+?? ../../../015-release-designer-0.19.0/done
+?? ../../../015-release-designer-0.19.0/run-20261012T091449.log
+?? ../../../018-upgrade-aef-ed683536a/doctor-after.txt
+?? ../../../018-upgrade-aef-ed683536a/doctor-before.txt
+?? ../../../018-upgrade-aef-ed683536a/done
+?? ../../../018-upgrade-aef-ed683536a/run-20261012T201429.log
+?? ../../../019-release-designer-0.19.1/done
+?? ../../../019-release-designer-0.19.1/run-20261012T170158.log
+?? ../../../021-install-decision-handover-guard/done
+?? ../../../021-install-decision-handover-guard/run-20261013T131952.log
+?? ../../../029-restart-watchtower-full-width/done
+?? ../../../029-restart-watchtower-full-width/run-20261014T211952.log
+?? ../../../034-upgrade-aef-956f05f36/doctor-after.txt
+?? ../../../034-upgrade-aef-956f05f36/doctor-before.txt
+?? ../../../034-upgrade-aef-956f05f36/done
+?? ../../../034-upgrade-aef-956f05f36/run-20261017T150355.log
+?? ../../../035-restart-watchtower-956f05f36/done
+?? ../../../035-restart-watchtower-956f05f36/run-20261017T153817.log
+?? ../../../037-release-designer-0.21.0/calibrate-codex.out
+?? ../../../037-release-designer-0.21.0/calibrate-codex/
+?? ../../../037-release-designer-0.21.0/calibrate-glm-5.3.out
+?? ../../../037-release-designer-0.21.0/calibrate-glm-5.3/
+?? ../../../037-release-designer-0.21.0/done
+?? ../../../037-release-designer-0.21.0/run-20261017T192800.log
+?? ../../../038-release-designer-0.22.0/calibrate-codex.out
+?? ../../../038-release-designer-0.22.0/calibrate-codex/
+?? ../../../038-release-designer-0.22.0/calibrate-glm-5.3.out
+?? ../../../038-release-designer-0.22.0/calibrate-glm-5.3/
+?? ../../../038-release-designer-0.22.0/done
+?? ../../../038-release-designer-0.22.0/run-20261017T224603.log
+?? ../../../041-push-designer-0.23.0/done
+?? ../../../041-push-designer-0.23.0/run-20261018T140741.log
+?? ../../../048-upgrade-aef-v1.8.11/doctor-after.txt
+?? ../../../048-upgrade-aef-v1.8.11/doctor-before.txt
+?? ../../../048-upgrade-aef-v1.8.11/done
+?? ../../../048-upgrade-aef-v1.8.11/run-20261018T221857.log
+?? ../../../049-restart-watchtower-v1.8.11/done
+?? ../../../049-restart-watchtower-v1.8.11/run-20261018T232507.log
+?? ../../../050-rekey-receiver-after-upgrade/coverage.txt
+?? ../../../050-rekey-receiver-after-upgrade/done
+?? ../../../050-rekey-receiver-after-upgrade/run-20261019T001220.log
+?? ../../../051-upgrade-aef-v1.8.12/doctor-after.txt
+?? ../../../051-upgrade-aef-v1.8.12/doctor-before.txt
+?? ../../../051-upgrade-aef-v1.8.12/done
+?? ../../../051-upgrade-aef-v1.8.12/run-20261019T152725.log
+?? ../../../052-rekey-and-restart-v1.8.12/run-20261019T154728.log
+?? ../../../053-release-designer-0.24.0/calibrate-codex.out
+?? ../../../053-release-designer-0.24.0/calibrate-codex/
+?? ../../../053-release-designer-0.24.0/calibrate-glm-5.3.out
+?? ../../../053-release-designer-0.24.0/calibrate-glm-5.3/
+?? ../../../053-release-designer-0.24.0/done
+?? ../../../053-release-designer-0.24.0/run-20261020T003232.log
+?? ../../../054-decide-t1219-go/run-20261020T134348.log
+?? ../../../056-decide-t1215-go/done
+?? ../../../056-decide-t1215-go/run-20261020T170905.log
+?? ../../../056-decide-t1215-go/run-20261020T171225.log
+?? ../../../059-upgrade-aef-v1.8.14-be.3/doctor-after.txt
+?? ../../../059-upgrade-aef-v1.8.14-be.3/doctor-before.txt
+?? ../../../059-upgrade-aef-v1.8.14-be.3/done
+?? ../../../059-upgrade-aef-v1.8.14-be.3/run-20261020T171806.log
+?? ../../../060-termlink-no-create-settings-after-be3/done
+?? ../../../060-termlink-no-create-settings-after-be3/run-20261020T171246.log
+?? ../../../060-termlink-no-create-settings-after-be3/run-20261020T172828.log
+?? ../../../062-cron-install-be3/done
+?? ../../../062-cron-install-be3/run-20261020T205554.log
+?? ../../../063-decide-t281-go/done
+?? ../../../063-decide-t281-go/run-20261020T221356.log
+?? ../../../064-restart-watchtower-be3/done
+?? ../../../064-restart-watchtower-be3/run-20261020T224017.log
+?? ../../../065-scrub-lan-addresses/done
+?? ../../../065-scrub-lan-addresses/run-20261020T233831.log
+?? ../../../066-decide-settled-inceptions/run-20261021T110821.log
+?? ../../../067-decide-remaining-inceptions/run-20261021T112645.log
+?? ../../../067-decide-remaining-inceptions/run-20261021T124420.log
+?? ../../../068-finish-t498-no-go/done
+?? ../../../068-finish-t498-no-go/run-20261021T141002.log
+?? ../../../069-clean-leaked-chrome-profiles/done
+?? ../../../069-clean-leaked-chrome-profiles/run-20261021T140626.log
+?? ../../../070-clean-empty-chromium-dirs/done
+?? ../../../070-clean-empty-chromium-dirs/run-20261021T142258.log
+?? ../../../071-clean-chromium-singleton-dirs/done
+?? ../../../071-clean-chromium-singleton-dirs/run-20261021T163249.log
+?? ../../../072-upgrade-aef-v1.8.15-be.2/doctor-before.txt
+?? ../../../072-upgrade-aef-v1.8.15-be.2/run-20261021T163317.log
+?? ../../../073-decide-t1242-go/done
+?? ../../../073-decide-t1242-go/run-20261021T163303.log
+?? ../../../074-finish-be2-upgrade/doctor-after.txt
+?? ../../../074-finish-be2-upgrade/done
+?? ../../../074-finish-be2-upgrade/run-20261021T174456.log
+?? ../../../075-install-be2-crontab/done
+?? ../../../075-install-be2-crontab/run-20261021T202049.log
+?? ../../../076-release-designer-0.25.0/calibrate-codex.out
+?? ../../../076-release-designer-0.25.0/calibrate-codex/
+?? ../../../076-release-designer-0.25.0/calibrate-glm-5.3.out
+?? ../../../076-release-designer-0.25.0/calibrate-glm-5.3/
+?? ../../../076-release-designer-0.25.0/done
+?? ../../../076-release-designer-0.25.0/run-20261022T122842.log
+?? ../../../077-upgrade-aef-v1.8.15-be.3/doctor-after.txt
+?? ../../../077-upgrade-aef-v1.8.15-be.3/doctor-before.txt
+?? ../../../077-upgrade-aef-v1.8.15-be.3/done
+?? ../../../077-upgrade-aef-v1.8.15-be.3/run-20261022T212652.log
+?? ../../../078-upgrade-aef-v1.8.15-be.5/doctor-after.txt
+?? ../../../078-upgrade-aef-v1.8.15-be.5/doctor-before.txt
+?? ../../../078-upgrade-aef-v1.8.15-be.5/done
+?? ../../../078-upgrade-aef-v1.8.15-be.5/run-20261023T105720.log
+?? ../../../081-upgrade-aef-v1.8.15-be.8/doctor-after.txt
+?? ../../../081-upgrade-aef-v1.8.15-be.8/doctor-before.txt
+?? ../../../081-upgrade-aef-v1.8.15-be.8/done
+?? ../../../081-upgrade-aef-v1.8.15-be.8/run-20261023T150117.log
+?? ../../../082-release-designer-0.26.0/calibrate-codex.out
+?? ../../../082-release-designer-0.26.0/calibrate-codex/
+?? ../../../082-release-designer-0.26.0/calibrate-glm-5.3.out
+?? ../../../082-release-designer-0.26.0/calibrate-glm-5.3/
+?? ../../../082-release-designer-0.26.0/run-20261023T232048.log
+?? ../../../083-release-designer-0.26.0-recalibrated/calibrate-codex.out
+?? ../../../083-release-designer-0.26.0-recalibrated/calibrate-codex/
+?? ../../../083-release-designer-0.26.0-recalibrated/calibrate-glm-5.3.out
+?? ../../../083-release-designer-0.26.0-recalibrated/calibrate-glm-5.3/
+?? ../../../083-release-designer-0.26.0-recalibrated/done
+?? ../../../083-release-designer-0.26.0-recalibrated/run-20261023T235724.log
+?? ../../../084-decide-t1285-quality-engine/done
+?? ../../../084-decide-t1285-quality-engine/run-20261024T001456.log
+?? ../../calibrate-codex.out
+?? ../
+?? ../../run-20261026T112352.log
+?? ../../run-20261026T112443.log
+?? ../../../../sidecar/
+?? ../../../../upgrade-template-stamp.json
+?? ../../../../working/.alerts-seen-offset
+?? ../../../../working/.fleet-learning-greenfield
+?? ../../../../working/.runme-cron-dry.txt
+?? ../../../../working/.terminator.handover.out
+?? ../../../../working/close.out
+?? ../../../../working/dispatch/inbox2-triage-prompt.md
+?? ../../../../working/dispatch/inbox2-triage.md
+?? ../../../../working/dispatch/inbox2-unique.json
+?? ../../../../working/dispatch/t1039-teeth-prompt.md
+?? ../../../../working/judge-brief-judge-t-1091-r3.md
+?? ../../../../working/judge-brief-judge-t-1093-r3.md
+?? ../../../../working/judge-brief-judge-t-1127-r3.md
+?? ../../../../working/judge-brief-judge-t-1154-r3.md
+?? ../../../../working/judge-brief-judge-t-1164-r3.md
+?? ../../../../working/judge-brief-judge-t-1175-r3.md
+?? ../../../../working/judge-brief-judge-t-1176-r3.md
+?? ../../../../working/judge-brief-judge-t-1177-r3.md
+?? ../../../../working/judge-brief-judge-t-1193-r3.md
+?? ../../../../working/judge-brief-judge-t-1209-r3.md
+?? ../../../../working/judge-brief-judge-t-1212-r5-claude-code.md
+?? ../../../../working/judge-brief-judge-t-1212-r5-codex.md
+?? ../../../../working/judge-brief-judge-t-1212-r5-opencode.md
+?? ../../../../working/judge-brief-judge-t-1215-r3.md
+?? ../../../../working/judge-brief-judge-t-1218-r3.md
+?? ../../../../working/judge-brief-judge-t-1219-r3.md
+?? ../../../../working/judge-brief-judge-t-1222-r3.md
+?? ../../../../working/judge-brief-judge-t-1241-r1.md
+?? ../../../../working/judge-brief-judge-t-1241-r5-claude-code.md
+?? ../../../../working/judge-brief-judge-t-1241-r5-codex.md
+?? ../../../../working/judge-brief-judge-t-1241-r5-opencode.md
+?? ../../../../working/judge-brief-judge-t-1249-r3.md
+?? ../../../../working/judge-brief-judge-t-1282-r1.md
+?? ../../../../working/judge-brief-judge-t-1301-r3.md
+?? ../../../../working/judge-brief-judge-t-1304-r3.md
+?? ../../../../working/judge-brief-judge-t-209-r5-antigravity.md
+?? ../../../../working/judge-brief-judge-t-209-r5-claude-code.md
+?? ../../../../working/judge-brief-judge-t-209-r5-codex.md
+?? ../../../../working/judge-brief-judge-t-209-r5-opencode.md
+?? ../../../../working/judge-brief-judge-t-233-r3.md
+?? ../../../../working/judge-brief-judge-t-277-r3.md
+?? ../../../../working/judge-brief-judge-t-286-r1.md
+?? ../../../../working/judge-brief-judge-t-308-r5-claude-code.md
+?? ../../../../working/judge-brief-judge-t-308-r5-codex.md
+?? ../../../../working/judge-brief-judge-t-310-r5-claude-code.md
+?? ../../../../working/judge-brief-judge-t-310-r5-codex.md
+?? ../../../../working/judge-brief-judge-t-310-r5-opencode.md
+?? ../../../../working/judge-brief-judge-t-325-r1.md
+?? ../../../../working/judge-brief-judge-t-341-r1.md
+?? ../../../../working/judge-brief-judge-t-344-r1.md
+?? ../../../../working/judge-brief-judge-t-345-r1.md
+?? ../../../../working/judge-brief-judge-t-347-r1.md
+?? ../../../../working/judge-brief-judge-t-402-r3.md
+?? ../../../../working/judge-brief-judge-t-432-r1.md
+?? ../../../../working/judge-brief-judge-t-449-r3.md
+?? ../../../../working/judge-brief-judge-t-537-r3.md
+?? ../../../../working/judge-brief-judge-t-565-r3.md
+?? ../../../../working/judge-brief-judge-t-589-r1.md
+?? ../../../../working/judge-brief-judge-t-590-r5-claude-code.md
+?? ../../../../working/judge-brief-judge-t-600-r1.md
+?? ../../../../working/judge-brief-judge-t-601-r1.md
+?? ../../../../working/judge-brief-judge-t-606-r3.md
+?? ../../../../working/judge-brief-judge-t-643-r1.md
+?? ../../../../working/judge-brief-judge-t-647-r5-claude-code.md
+?? ../../../../working/judge-brief-judge-t-671-r3.md
+?? ../../../../working/judge-brief-judge-t-695-r1.md
+?? ../../../../working/judge-brief-judge-t-702-r1.md
+?? ../../../../working/judge-brief-judge-t-732-r1.md
+?? ../../../../working/judge-brief-judge-t-733-r1.md
+?? ../../../../working/judge-brief-judge-t-742-r5-claude-code.md
+?? ../../../../working/judge-brief-judge-t-743-r3.md
+?? ../../../../working/judge-brief-judge-t-811-r3.md
+?? ../../../../working/judge-brief-judge-t-858-r3.md
+?? ../../../../working/judge-brief-judge-t-893-r5-antigravity.md
+?? ../../../../working/judge-brief-judge-t-893-r5-claude-code.md
+?? ../../../../working/judge-brief-judge-t-893-r5-codex.md
+?? ../../../../working/judge-brief-judge-t-893-r5-opencode.md
+?? ../../../../working/judge-brief-judge-t-898-r3.md
+?? ../../../../working/judge-brief-judge-t-962-r3.md
+?? ../../../../working/mail-watch.out
+?? ../../../../working/r.out
+?? ../../../../working/r1.out
+?? ../../../../working/r2.out
+?? ../../../../working/rt.out
+?? ../../../../working/runme-20261004T015655-teeth.out
+?? ../../../../working/runme-20261004T020305-teeth.out
+?? ../../../../working/runme-20261004T020336-teeth.out
+?? ../../../../working/runme-watch.out
+?? ../../../../working/runme.events
+?? ../../../../working/runme.watch
+?? ../../../../working/sidecar-mail-watch.seen
+?? ../../../../working/sidecar-mail.watch
+?? ../../../../working/t1055.out
+?? ../../../../working/t1065-delegate/
+?? ../../../../working/t1065-human.txt
+?? ../../../../working/t1198/
+?? ../../../../working/t1203-reg-leg.py
+?? ../../../../working/t1249-after.out
+?? ../../../../working/t1249.out
+?? ../../../../working/t1249run/
+?? ../../../../working/t1275-worklist.txt
+?? ../../../../working/t1285/
+?? ../../../../working/t1286-10.out
+?? ../../../../working/t1286-new.out
+?? ../../../../working/t1286-old.out
+?? ../../../../working/t1286-x.out
+?? ../../../../working/t1286-y.out
+?? ../../../../working/t1286.out
+?? ../../../../working/t1288-new.out
+?? ../../../../working/t1288-old.out
+?? ../../../../working/t1288/
+?? ../../../../working/t1298-old-launcher.sh
+?? ../../../../working/t1298-repro.sh
+?? ../../../../working/t1298-sb/
+?? ../../../../working/t1299-gate.out
+?? ../../../../working/t1299-old/
+?? ../../../../working/t1301-judge.out
+?? ../../../../working/t1301-judge2.out
+?? ../../../../working/t1301-new.out
+?? ../../../../working/t1301-old.out
+?? ../../../../working/t1301-psg.out
+?? ../../../../working/t1301-sweep-wait.out
+?? ../../../../working/t1301-sweep.out
+?? ../../../../working/t1304-judge.out
+?? ../../../../working/t1304-new.out
+?? ../../../../working/t1304-old.html
+?? ../../../../working/t1304-old.out
+?? ../../../../working/t1304-psg.out
+?? ../../../../working/t1304-sweep-wait.out
+?? ../../../../working/t1304-sweep.out
+?? ../../../../working/t1306-gate.out
+?? ../../../../working/t344-herm.out
+?? ../../../../working/t560.out
+?? ../../../../working/t560c.out
+?? ../../../../working/tmp/.org.chromium.Chromium.2YufxK/
+?? ../../../../working/tmp/.org.chromium.Chromium.3t4LE1/
+?? ../../../../working/tmp/.org.chromium.Chromium.APMIho/
+?? ../../../../working/tmp/.org.chromium.Chromium.DXucU8/
+?? ../../../../working/tmp/.org.chromium.Chromium.IbXi7S/
+?? ../../../../working/tmp/.org.chromium.Chromium.Q1X5VU
+?? ../../../../working/tmp/.org.chromium.Chromium.RFsv9U
+?? ../../../../working/tmp/.org.chromium.Chromium.bMqRB7
+?? ../../../../working/tmp/.org.chromium.Chromium.c6yJeU
+?? ../../../../working/tmp/.org.chromium.Chromium.dyeE6M
+?? ../../../../working/tmp/.org.chromium.Chromium.xjUG4J
+?? ../../../../working/tmp/.org.chromium.Chromium.yIFCuy
+?? ../../../../working/tmp/focus.before
+?? ../../../../working/tmp/fw-search-index-1743932-npcd0on2/
+?? ../../../../working/tmp/org.chromium.Chromium.05sk2G/
+?? ../../../../working/tmp/org.chromium.Chromium.0kchBp/
+?? ../../../../working/tmp/org.chromium.Chromium.0pnogZ/
+?? ../../../../working/tmp/org.chromium.Chromium.16DjaD/
+?? ../../../../working/tmp/org.chromium.Chromium.1KMDBf/
+?? ../../../../working/tmp/org.chromium.Chromium.22Kov8/
+?? ../../../../working/tmp/org.chromium.Chromium.23HyLY/
+?? ../../../../working/tmp/org.chromium.Chromium.2vlq1B/
+?? ../../../../working/tmp/org.chromium.Chromium.4I8x6w/
+?? ../../../../working/tmp/org.chromium.Chromium.518bdG/
+?? ../../../../working/tmp/org.chromium.Chromium.5AL6MN/
+?? ../../../../working/tmp/org.chromium.Chromium.5cuoMl/
+?? ../../../../working/tmp/org.chromium.Chromium.5mTzlf/
+?? ../../../../working/tmp/org.chromium.Chromium.6Dz8SM/
+?? ../../../../working/tmp/org.chromium.Chromium.703rK9/
+?? ../../../../working/tmp/org.chromium.Chromium.7BohZV/
+?? ../../../../working/tmp/org.chromium.Chromium.7bcdAS/
+?? ../../../../working/tmp/org.chromium.Chromium.7fU8t4/
+?? ../../../../working/tmp/org.chromium.Chromium.7xWFQD/
+?? ../../../../working/tmp/org.chromium.Chromium.8HVJiO/
+?? ../../../../working/tmp/org.chromium.Chromium.8WATBM/
+?? ../../../../working/tmp/org.chromium.Chromium.8hlKKO/
+?? ../../../../working/tmp/org.chromium.Chromium.9NRQMe/
+?? ../../../../working/tmp/org.chromium.Chromium.9uB0qc/
+?? ../../../../working/tmp/org.chromium.Chromium.9vMRAi/
+?? ../../../../working/tmp/org.chromium.Chromium.AGFGX5/
+?? ../../../../working/tmp/org.chromium.Chromium.AprRf0/
+?? ../../../../working/tmp/org.chromium.Chromium.B0F31o/
+?? ../../../../working/tmp/org.chromium.Chromium.BYppDl/
+?? ../../../../working/tmp/org.chromium.Chromium.C04IwH/
+?? ../../../../working/tmp/org.chromium.Chromium.DSNfwh/
+?? ../../../../working/tmp/org.chromium.Chromium.Dv1XJE/
+?? ../../../../working/tmp/org.chromium.Chromium.E8uAei/
+?? ../../../../working/tmp/org.chromium.Chromium.F3ISGs/
+?? ../../../../working/tmp/org.chromium.Chromium.GCczGy/
+?? ../../../../working/tmp/org.chromium.Chromium.H1SiA7/
+?? ../../../../working/tmp/org.chromium.Chromium.HI4pkm/
+?? ../../../../working/tmp/org.chromium.Chromium.IH8Gx7/
+?? ../../../../working/tmp/org.chromium.Chromium.JHA3c9/
+?? ../../../../working/tmp/org.chromium.Chromium.KHA6a9/
+?? ../../../../working/tmp/org.chromium.Chromium.Kt4BRv/
+?? ../../../../working/tmp/org.chromium.Chromium.LM7EKO/
+?? ../../../../working/tmp/org.chromium.Chromium.LgBiu8/
+?? ../../../../working/tmp/org.chromium.Chromium.Ln7yKp/
+?? ../../../../working/tmp/org.chromium.Chromium.O10fiS/
+?? ../../../../working/tmp/org.chromium.Chromium.O4uAD8/
+?? ../../../../working/tmp/org.chromium.Chromium.O62wM5/
+?? ../../../../working/tmp/org.chromium.Chromium.PUzEQY/
+?? ../../../../working/tmp/org.chromium.Chromium.PfiYS1/
+?? ../../../../working/tmp/org.chromium.Chromium.QoX0Fe/
+?? ../../../../working/tmp/org.chromium.Chromium.QwoQls/
+?? ../../../../working/tmp/org.chromium.Chromium.R4ieqc/
+?? ../../../../working/tmp/org.chromium.Chromium.RDHYvX/
+?? ../../../../working/tmp/org.chromium.Chromium.RO8TqV/
+?? ../../../../working/tmp/org.chromium.Chromium.S0tiqk/
+?? ../../../../working/tmp/org.chromium.Chromium.SUC11Y/
+?? ../../../../working/tmp/org.chromium.Chromium.Sxpyal/
+?? ../../../../working/tmp/org.chromium.Chromium.T3Vaql/
+?? ../../../../working/tmp/org.chromium.Chromium.TfMWyw/
+?? ../../../../working/tmp/org.chromium.Chromium.U8tlLl/
+?? ../../../../working/tmp/org.chromium.Chromium.UKldAt/
+?? ../../../../working/tmp/org.chromium.Chromium.VnWsFS/
+?? ../../../../working/tmp/org.chromium.Chromium.XkxKYH/
+?? ../../../../working/tmp/org.chromium.Chromium.ZhTmVA/
+?? ../../../../working/tmp/org.chromium.Chromium.a0ISSC/
+?? ../../../../working/tmp/org.chromium.Chromium.aZIIJv/
+?? ../../../../working/tmp/org.chromium.Chromium.atXCKk/
+?? ../../../../working/tmp/org.chromium.Chromium.avS5ei/
+?? ../../../../working/tmp/org.chromium.Chromium.bZCqAB/
+?? ../../../../working/tmp/org.chromium.Chromium.coX56r/
+?? ../../../../working/tmp/org.chromium.Chromium.dAuyqX/
+?? ../../../../working/tmp/org.chromium.Chromium.dIRMpr/
+?? ../../../../working/tmp/org.chromium.Chromium.dhuVct/
+?? ../../../../working/tmp/org.chromium.Chromium.dnDUHI/
+?? ../../../../working/tmp/org.chromium.Chromium.dsHHFY/
+?? ../../../../working/tmp/org.chromium.Chromium.eIyPQW/
+?? ../../../../working/tmp/org.chromium.Chromium.elvUi3/
+?? ../../../../working/tmp/org.chromium.Chromium.gLQ2ft/
+?? ../../../../working/tmp/org.chromium.Chromium.gaBADH/
+?? ../../../../working/tmp/org.chromium.Chromium.gxz8QG/
+?? ../../../../working/tmp/org.chromium.Chromium.hFmS7J/
+?? ../../../../working/tmp/org.chromium.Chromium.icrdGb/
+?? ../../../../working/tmp/org.chromium.Chromium.jOCohV/
+?? ../../../../working/tmp/org.chromium.Chromium.lxdgUk/
+?? ../../../../working/tmp/org.chromium.Chromium.mFiXga/
+?? ../../../../working/tmp/org.chromium.Chromium.nyOzNy/
+?? ../../../../working/tmp/org.chromium.Chromium.ofGPSY/
+?? ../../../../working/tmp/org.chromium.Chromium.oqZQrp/
+?? ../../../../working/tmp/org.chromium.Chromium.p90rdp/
+?? ../../../../working/tmp/org.chromium.Chromium.q3O8BS/
+?? ../../../../working/tmp/org.chromium.Chromium.rTXXr8/
+?? ../../../../working/tmp/org.chromium.Chromium.rntI5A/
+?? ../../../../working/tmp/org.chromium.Chromium.sEUIGg/
+?? ../../../../working/tmp/org.chromium.Chromium.sMFiAq/
+?? ../../../../working/tmp/org.chromium.Chromium.sQtwIx/
+?? ../../../../working/tmp/org.chromium.Chromium.sgftql/
+?? ../../../../working/tmp/org.chromium.Chromium.uGUADh/
+?? ../../../../working/tmp/org.chromium.Chromium.udPojD/
+?? ../../../../working/tmp/org.chromium.Chromium.x8iIyO/
+?? ../../../../working/tmp/org.chromium.Chromium.xE56Id/
+?? ../../../../working/tmp/org.chromium.Chromium.xa9Soa/
+?? ../../../../working/tmp/org.chromium.Chromium.yT8RLv/
+?? ../../../../working/tmp/org.chromium.Chromium.zN4kYZ/
+?? ../../../../working/tmp/t4683-probe.md
+?? ../../../../working/vector-index-health.json
+?? ../../../../working/vendor-backup/
+?? ../../../../working/vt.out
+?? ../../../../working/w-t1277-result.jsonl
+?? ../../../../working/w-t1277-result2.jsonl
+?? ../../../../working/watched-topics.seen.json
+?? ../../../../working/worker-dispose-prompt.txt
+?? ../../../../working/worker-dispose-result.md
+?? ../../../../../.playwright-mcp/console-2026-08-26T09-38-56-561Z.log
+?? ../../../../../.playwright-mcp/console-2026-08-26T16-57-58-210Z.log
+?? ../../../../../.playwright-mcp/console-2026-08-26T20-58-40-012Z.log
+?? ../../../../../.playwright-mcp/console-2026-08-31T11-34-20-386Z.log
+?? ../../../../../.playwright-mcp/console-2026-09-21T12-42-18-842Z.log
+?? ../../../../../.playwright-mcp/console-2026-09-21T14-06-05-926Z.log
+?? ../../../../../.playwright-mcp/console-2026-09-22T12-45-11-357Z.log
+?? ../../../../../.playwright-mcp/console-2026-09-22T13-12-33-008Z.log
+?? ../../../../../.playwright-mcp/console-2026-09-22T13-13-05-209Z.log
+?? ../../../../../.playwright-mcp/console-2026-09-22T13-43-03-622Z.log
+?? ../../../../../.playwright-mcp/console-2026-09-28T09-06-17-479Z.log
+?? ../../../../../.playwright-mcp/console-2026-09-29T08-24-57-452Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-01T06-16-41-969Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-01T07-03-00-709Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-01T07-10-14-440Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-01T07-12-43-844Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-01T11-43-23-190Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-01T18-09-22-988Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-12T22-04-40-179Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-12T22-05-01-729Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-13T23-25-07-699Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-13T23-43-01-974Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-13T23-45-49-248Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-14T06-20-33-613Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-14T06-20-41-639Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-14T06-21-02-502Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-14T17-36-16-496Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-14T17-36-44-197Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-14T17-37-13-160Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-14T17-37-39-624Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-14T17-38-14-219Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-14T17-39-24-854Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-14T17-39-50-146Z.log
+?? ../../../../../.playwright-mcp/console-2026-10-14T17-40-12-391Z.log
+?? ../../../../../.playwright-mcp/page-2026-08-26T09-38-57-021Z.yml
+?? ../../../../../.playwright-mcp/page-2026-08-26T16-57-58-656Z.yml
+?? ../../../../../.playwright-mcp/page-2026-08-26T20-58-44-896Z.yml
+?? ../../../../../.playwright-mcp/page-2026-08-26T20-59-13-071Z.yml
+?? ../../../../../.playwright-mcp/page-2026-08-26T20-59-39-084Z.yml
+?? ../../../../../.playwright-mcp/page-2026-08-31T11-34-33-213Z.yml
+?? ../../../../../.playwright-mcp/page-2026-09-21T12-42-21-609Z.yml
+?? ../../../../../.playwright-mcp/page-2026-09-21T12-42-41-577Z.yml
+?? ../../../../../.playwright-mcp/page-2026-09-21T12-42-54-037Z.yml
+?? ../../../../../.playwright-mcp/page-2026-09-21T12-43-13-945Z.yml
+?? ../../../../../.playwright-mcp/page-2026-09-21T14-06-07-814Z.yml
+?? ../../../../../.playwright-mcp/page-2026-09-22T07-45-33-142Z.yml
+?? ../../../../../.playwright-mcp/page-2026-09-22T07-45-47-036Z.png
+?? ../../../../../.playwright-mcp/page-2026-09-22T07-45-54-020Z.png
+?? ../../../../../.playwright-mcp/page-2026-09-22T07-46-04-993Z.yml
+?? ../../../../../.playwright-mcp/page-2026-09-22T07-46-08-422Z.png
+?? ../../../../../.playwright-mcp/page-2026-09-22T07-46-30-017Z.yml
+?? ../../../../../.playwright-mcp/page-2026-09-22T12-45-11-828Z.yml
+?? ../../../../../.playwright-mcp/page-2026-09-22T13-12-33-416Z.yml
+?? ../../../../../.playwright-mcp/page-2026-09-22T13-13-05-465Z.yml
+?? ../../../../../.playwright-mcp/page-2026-09-22T13-43-03-960Z.yml
+?? ../../../../../.playwright-mcp/page-2026-09-28T09-06-18-106Z.yml
+?? ../../../../../.playwright-mcp/page-2026-09-29T08-24-57-969Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-01T06-16-43-008Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-01T07-03-01-606Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-01T07-09-19-985Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-01T07-10-15-011Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-01T07-12-44-410Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-01T11-43-25-667Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-01T18-09-24-051Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-12T22-04-40-537Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-12T22-04-53-445Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-12T22-05-03-666Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-12T22-05-13-517Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-12T22-05-46-125Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-13T23-25-08-090Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-13T23-25-11-369Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-13T23-25-27-053Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-13T23-42-49-994Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-13T23-43-02-796Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-13T23-43-03-913Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-13T23-45-49-453Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-14T06-20-34-316Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-14T06-20-34-825Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-14T06-20-41-866Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-14T06-20-42-433Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-14T06-20-55-537Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-14T06-20-56-807Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-14T06-21-02-824Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-14T06-21-03-729Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-14T06-21-04-290Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-14T17-36-17-221Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-14T17-36-44-705Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-14T17-37-13-678Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-14T17-37-40-127Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-14T17-38-14-770Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-14T17-39-25-372Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-14T17-39-50-796Z.yml
+?? ../../../../../.playwright-mcp/page-2026-10-14T17-40-12-997Z.yml
+?? ../../../../../.playwright-mcp/t1091-1024-off.png
+?? ../../../../../.playwright-mcp/t1091-1024-scrolled-down.png
+?? ../../../../../.playwright-mcp/t1091-1024-scrolled.png
+?? ../../../../../.playwright-mcp/t1091-1024-unscrolled.png
+?? ../../../../../.playwright-mcp/t1091-1440-off.png
+?? ../../../../../.playwright-mcp/t1091-1440-scrolled-down.png
+?? ../../../../../.playwright-mcp/t1091-1440-scrolled.png
+?? ../../../../../.playwright-mcp/t1091-1440-unscrolled.png
+?? ../../../../../.playwright-mcp/t1091-1920-off.png
+?? ../../../../../.playwright-mcp/t1091-1920-scrolled-down.png
+?? ../../../../../.playwright-mcp/t1091-1920-scrolled.png
+?? ../../../../../.playwright-mcp/t1091-1920-unscrolled.png
+?? ../../../../../.playwright-mcp/t1154-1024-fit.png
+?? ../../../../../.playwright-mcp/t1154-1024-zoomed.png
+?? ../../../../../.playwright-mcp/t1154-1440-fit.png
+?? ../../../../../.playwright-mcp/t1154-1440-zoomed.png
+?? ../../../../../.playwright-mcp/t1154-1920-fit.png
+?? ../../../../../.playwright-mcp/t1154-1920-zoomed.png
+?? ../../../../../.playwright-mcp/t1155-xml-panel-heading.png
+?? ../../../../../.playwright-mcp/t1164-1024-marked.png
+?? ../../../../../.playwright-mcp/t1164-1024-sticky.png
+?? ../../../../../.playwright-mcp/t1164-1440-marked.png
+?? ../../../../../.playwright-mcp/t1164-1440-sticky.png
+?? ../../../../../.playwright-mcp/t1164-1920-marked.png
+?? ../../../../../.playwright-mcp/t1164-1920-sticky.png
+?? ../../../../../.playwright-mcp/t1171-flyout.png
+?? ../../../../../.playwright-mcp/t1172-fullscreen.png
+?? ../../../../../.playwright-mcp/t1172-inline.png
+?? ../../../../../.playwright-mcp/t1175-inline-1024.png
+?? ../../../../../.playwright-mcp/t1175-inline-1280.png
+?? ../../../../../.playwright-mcp/t1175-inline-1440.png
+?? ../../../../../.playwright-mcp/t1175-inline-1920.png
+?? ../../../../../.playwright-mcp/t1176-header-1024.png
+?? ../../../../../.playwright-mcp/t1176-header-1200.png
+?? ../../../../../.playwright-mcp/t1176-header-1280.png
+?? ../../../../../.playwright-mcp/t1176-header-1440.png
+?? ../../../../../.playwright-mcp/t1176-header-1880.png
+?? ../../../../../.playwright-mcp/t1176-header-1894.png
+?? ../../../../../.playwright-mcp/t1176-header-1920.png
+?? ../../../../../.playwright-mcp/t1193-1024-props.png
+?? ../../../../../.playwright-mcp/t1193-1440-props.png
+?? ../../../../../.playwright-mcp/t1193-1920-props.png
+?? ../../../../../.tasks/.id-highwater
+?? ../../../../../.tasks/active/T-1297-session-handover-maintenance.md
+?? ../../../../../designer-initial.png
+?? ../../../../../docs/learning-ledger-controls.yaml.lock
+?? ../../../../../docs/reports/T-1125-external-review/antigravity.stderr
+?? ../../../../../docs/reports/T-1125-external-review/codex.md
+?? ../../../../../docs/reports/T-1125-external-review/codex.stderr
+?? ../../../../../docs/reports/T-1125-external-review/glm.stderr
+?? ../../../../../runme-upgrade.sh
+?? ../../../../../scripts/agent-chat-arc-recent.sh
+?? ../../../../../scripts/agent-conversation-list.sh
+?? ../../../../../scripts/agent-conversation-status.sh
+?? ../../../../../scripts/agent-identity.sh
+?? ../../../../../scripts/agent-listeners-fleet.sh
+?? ../../../../../scripts/agent-listeners.sh
+?? ../../../../../scripts/agent-respond.sh
+?? ../../../../../scripts/agent-send.sh
+?? ../../../../../scripts/be-reachable.sh
+?? ../../../../../scripts/chat-arc-broadcast.sh
+?? ../../../../../scripts/listener-heartbeat.sh
+?? ../../../../../scripts/rail-post.sh
+?? ../../../../../scripts/recent-dm.sh
+?? ../../../../../t589-populated.png
+?? ../../../../../t598-light.png
+?? ../../../../../t646-after.png
+?? ../../../../../t808-header-default.png
+?? ../../../../../t911-badge-documentation-default.png
+?? ../../../../../tools/.t351-mut-a.sh
+?? ../../../../../vendor/designer/aef-workflow-designer-0.15.0.html
+?? ../../../../../vendor/designer/aef-workflow-designer-0.15.2.html
+?? ../../../../../vendor/designer/aef-workflow-designer-0.15.3.html
+?? ../../../../../vendor/designer/aef-workflow-designer-0.16.0.html
+?? ../../../../../vendor/designer/aef-workflow-designer-0.17.0.html
+?? ../../../../../vendor/designer/aef-workflow-designer-0.18.0.html
+?? ../../../../../vendor/designer/aef-workflow-designer-0.19.0.html
+?? ../../../../../vendor/designer/aef-workflow-designer-0.19.1.html
+?? ../../../../../vendor/designer/aef-workflow-designer-0.20.0.html
+?? ../../../../../vendor/designer/aef-workflow-designer-0.21.0.html
+?? ../../../../../vendor/designer/aef-workflow-designer-0.22.0.html
+?? ../../../../../vendor/designer/aef-workflow-designer-0.23.0.html
+?? ../../../../../vendor/designer/aef-workflow-designer-0.24.0.html
+?? ../../../../../vendor/designer/aef-workflow-designer-0.25.0.html
+
+exec
+/bin/bash -lc 'python3 kit/validate-workflow.py map.bpmn' in /opt/832-Workflow-designer/.context/runme/087-release-designer-0.28.0/calibrate-codex/planted
+ exited 1 in 0ms:
+WARN  [W-XML-GW-AMBIGUOUS] exclusiveGateway 'credit-limit-exceeded': gw_ambiguous: exclusiveGateway has 2 outgoing flows without a conditionExpression: default flow 'credit-limit-exceeded--pick-parts' is declared; the other flow (credit-limit-exceeded--decide-whether-to-accept-order-anyway) has no conditionExpression
+WARN  [W-XML-GW-AMBIGUOUS] exclusiveGateway 'accept-order-anyway': gw_ambiguous: exclusiveGateway has 2 outgoing flows without a conditionExpression: no default flow is declared; none of them has a conditionExpression (accept-order-anyway--close-rejected-order, accept-order-anyway--pick-parts)
+WARN  [W-XML-UNREACHABLE] node 'labelling': node is not reachable from any startEvent
+WARN  [W-XML-DEADEND] node 'labelling': no endEvent is reachable from this node: either control is trapped, or the source does not record what follows it
+WARN  [W-XML-DISCONNECTED] <process>: the flow graph falls into 2 disconnected parts: 18 node(s) [order-arrives-by-email -> accepted-order-fulfilled, order-rejected]; 1 node(s) [no start -> no end]. Either these are separate processes sharing one pool, or some steps have no recorded place in one process (then annotate them, do not connect them)
+WARN  [W-LANE-NO-OWNER] node 'close-rejected-order': this task's authority 'none' names no owner; mapping-v1 §3 derives a task's owner from its lane, so this task has no derivable owner. Declared unknown is honest: do not guess one
+WARN  [W-LANE-NO-OWNER] node 'tell-customer': this task's authority 'none' names no owner; mapping-v1 §3 derives a task's owner from its lane, so this task has no derivable owner. Declared unknown is honest: do not guess one
+INFO  [I-XML-LANE-GEOMETRY-SKIP] laneSet: lane/geometry agreement not evaluated: 19 of 19 flow node(s) carry no <aef:position> y (e.g. accept-order-anyway, accepted-order-fulfilled, book-carrier). Geometry that does not exist cannot disagree with the declared lanes — this map is SKIPPED by lane_geometry, not passed by it
+WARN  map.bpmn -- 0 error(s), 7 warning(s), 1 note(s)
+
+exec
+/bin/bash -lc "sed -n '49p;190p;285p' map.bpmn" in /opt/832-Workflow-designer/.context/runme/087-release-designer-0.28.0/calibrate-codex/planted
+ succeeded in 0ms:
+          <aef:laneMeta authority="authority" />
+    <bpmn:incoming>pick-parts--quality-inspection</bpmn:incoming><bpmn:outgoing>quality-inspection--pack-order</bpmn:outgoing></bpmn:task>
+  <bpmn:sequenceFlow id="pick-parts--quality-inspection" sourceRef="pick-parts" targetRef="quality-inspection" /><bpmn:sequenceFlow id="quality-inspection--pack-order" sourceRef="quality-inspection" targetRef="pack-order" /><bpmn:task id="send-payment-reminder" name="Send payment reminder"><bpmn:documentation>source: "The ERP sends a payment reminder after seven days."</bpmn:documentation><bpmn:incoming>generate-and-send-invoice--send-payment-reminder</bpmn:incoming><bpmn:outgoing>send-payment-reminder--accepted-order-fulfilled</bpmn:outgoing></bpmn:task><bpmn:sequenceFlow id="send-payment-reminder--accepted-order-fulfilled" sourceRef="send-payment-reminder" targetRef="accepted-order-fulfilled" />
+
+exec
+/bin/bash -lc "python3 - <<'PY'
+import json
+from pathlib import Path
+findings = [
+    {
+        'element': 'Lane_warehouse', 'category': 'wrong-authority', 'severity': 'major',
+        'source_evidence': 'For accepted orders the warehouse picks the parts, packs the order and books a carrier.',
+        'map_evidence': {'line': 49, 'quote': '<aef:laneMeta authority=\"authority\" />'},
+        'problem': 'The warehouse department is marked as an automated authority rather than a human organisational performer.',
+        'correction': 'Change Lane_warehouse authority from \"authority\" to \"sovereignty\".'
+    },
+    {
+        'element': 'quality-inspection', 'category': 'undeclared-unknown', 'severity': 'major',
+        'source_evidence': 'The warehouse also does quality inspection and labelling for each order, but nobody could\\nsay whether those happen before or after packing, or in which order relative to each other.',
+        'map_evidence': {'line': 190, 'quote': '<bpmn:incoming>pick-parts--quality-inspection</bpmn:incoming><bpmn:outgoing>quality-inspection--pack-order</bpmn:outgoing>'},
+        'problem': 'The map fixes quality inspection between picking and packing despite the source explicitly leaving its order unknown.',
+        'correction': 'Remove pick-parts--quality-inspection and quality-inspection--pack-order and their incoming/outgoing references, connect pick-parts directly to pack-order, and leave quality-inspection unconnected with an annotation declaring its unknown order relative to packing and labelling.'
+    },
+    {
+        'element': 'send-payment-reminder', 'category': 'invented', 'severity': 'major',
+        'source_evidence': 'source is silent',
+        'map_evidence': {'line': 285, 'quote': '<bpmn:task id=\"send-payment-reminder\" name=\"Send payment reminder\"><bpmn:documentation>source: \"The ERP sends a payment reminder after seven days.\"</bpmn:documentation>'},
+        'problem': 'The map adds an unsupported payment-reminder task after invoicing and attributes it to a fabricated source quotation.',
+        'correction': 'Remove send-payment-reminder, its lane reference and both incident flows; connect generate-and-send-invoice directly to accepted-order-fulfilled and update incoming/outgoing references.'
+    }
+]
+lines = Path('map.bpmn').read_text().splitlines()
+source = Path('SOURCE.md').read_text()
+for f in findings:
+    assert f['map_evidence']['quote'] in lines[f['map_evidence']['line'] - 1]
+    assert f['source_evidence'] == 'source is silent' or f['source_evidence'] in source
+Path('REVIEW.json').write_text(json.dumps(findings, indent=2) + '\\n')
+print('Wrote REVIEW.json; all 3 findings have verified map and source evidence.')
+PY" in /opt/832-Workflow-designer/.context/runme/087-release-designer-0.28.0/calibrate-codex/planted
+ succeeded in 0ms:
+Wrote REVIEW.json; all 3 findings have verified map and source evidence.
+
+codex
+Created `REVIEW.json` with three major findings and verified evidence references.
+tokens used
+16,500
+Created `REVIEW.json` with three major findings and verified evidence references.

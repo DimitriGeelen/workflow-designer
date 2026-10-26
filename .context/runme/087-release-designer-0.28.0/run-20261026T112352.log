@@ -1,0 +1,56 @@
+runme  087-release-designer-0.28.0   sha 50e2ac649e7c   rehearsed 2026-10-26T10:21:17Z   log: /opt/832-Workflow-designer/.context/runme/087-release-designer-0.28.0/run-20261026T112352.log
+Job:   087-release-designer-0.28.0   (T-1308)
+What:  Release designer 0.28.0: bump, calibrate the kit (codex, GLM-5.3), cut, commit, tag designer-v0.28.0, core tier, push
+       Release 0.28.0 (minor), arc-006 slice 2.
+       - The io attributes are editable (T-1301): under each input/output an 'edit attributes' toggle opens fields for ref,
+         fieldRef, typeRef, schemaRef, conceptRef, role, operation, cardinality, source/target system and dataType. A save
+         writes exactly the edit. The independent reviewer judged it green in round 2 (V-20261026-3a9da9e8).
+       - Fix: an attribute added to an io in greenfield's one-line style was silently dropped on save.
+       Nothing changes in stored maps unless someone edits. Notes: docs/releases/RELEASE-NOTES-0.28.0.md.
+       Steps 2-3 run live reviewers on the 0.28.0 kit (codex, then GLM-5.3), a few minutes each and model time; if one does not
+       PASS, the job stops and nothing is released (step 1's bump commit stays local and unpushed). Step 7 makes the tag
+       (permanent once pushed). NEW (lesson from job 086): step 8 runs the core tier itself, about 15 minutes, and stops the
+       job if it is red; step 9 then pushes bleeding-edge and the tag, and its hook finds the tier already green. In 086 the
+       server dropped the connection while the hook ran the tier inside the push. Afterwards the agent tells AEF and
+       aef-greenfield-test, asks greenfield to try the editor on its own map, and tracks AEF's pin.
+Steps (each asks y/N first):
+  1. Bump VERSION and APP_VERSION to 0.28.0 and commit (parity checked)
+  2. Calibrate with codex (OpenAI): build the 0.28.0 kit, loop.sh --calibrate, record the result (outward)
+  3. Calibrate with GLM-5.3 (Z.AI, opencode): build the 0.28.0 kit, loop.sh --calibrate, record the result (outward)
+  4. Release gate: the 0.28.0 kit carries a PASS calibration of its exact bytes (outward)
+  5. Cut release 0.28.0: scripts/release-designer.sh (render gate ON, announce ON; writes dist/) (outward)
+  6. Commit dist/aef-workflow-designer-0.28.0.html, dist/aef-authoring-kit-0.28.0, dist/MANIFEST.yaml and the calibration record (outward)
+  7. Tag designer-v0.28.0 (annotated) on the release commit (outward)
+  8. Run the core tier now (about 15 minutes), so the push finds it green (outward)
+  9. Push bleeding-edge and designer-v0.28.0 to origin (outward)
+
+ok    on bleeding-edge
+ok    ./VERSION is still 0.27.0 (step 1 bumps it)
+ok    APP_VERSION in src matches VERSION (T-808)
+ok    the release inputs are committed
+ok    release notes for 0.28.0 exist, are committed and are not a draft
+ok    the release notes name the four endpoints AEF does not serve (T-1289)
+ok    the dialect axis passes (the kit's class column comes from it)
+ok    tag designer-v0.28.0 does not exist locally
+ok    tag designer-v0.28.0 does not exist on origin
+ok    no 0.28.0 artifact or kit in dist/ yet
+ok    no 0.28.0 calibration record yet
+ok    the kit for 0.28.0 builds
+ok    codex is installed
+ok    opencode is installed and lists zai-coding-plan/glm-5.3
+
+Step 1/9: Bump VERSION and APP_VERSION to 0.28.0 and commit (parity checked)
+  runs: do_bump
+        | do_bump () 
+        | { 
+        |     printf '%s\n' "$V" > VERSION || return 1;
+        |     sed -i "s/^const APP_VERSION = '[0-9][0-9.]*';/const APP_VERSION = '$V';/" src/aef-workflow-designer.html || return 1;
+        |     bash tools/_t808-version-parity.sh || { 
+        |         echo "parity failed after the bump";
+        |         return 1
+        |     };
+        |     git add VERSION src/aef-workflow-designer.html || return 1;
+        |     git commit -q -m "T-1308: $V — VERSION and APP_VERSION bumped by the release job (parity ok)" || return 1;
+        |     echo "ok  bumped to $V in $(git rev-parse --short HEAD)"
+        | }
+Run step 1/9? [y/N] STOPPED: not confirmed at step 1/9; steps before it ran, nothing after

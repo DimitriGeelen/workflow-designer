@@ -89,12 +89,16 @@ runs as its own step before the push, so the hook finds a green cache.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `docs/releases/RELEASE-NOTES-0.28.0.md` is final: it names T-1301 and the raw-layout fix, says what changes in
+- [x] `docs/releases/RELEASE-NOTES-0.28.0.md` is final: it names T-1301 and the raw-layout fix, says what changes in
   stored maps, and names the four endpoints AEF does not serve (T-1289).
-- [ ] An operator job (bump, calibrate codex + GLM-5.3, gate, cut, commit, tag, core tier as its own step, push) passes
+- [x] An operator job (bump, calibrate codex + GLM-5.3, gate, cut, commit, tag, core tier as its own step, push) passes
   its dry-run with step 1 rehearsed; it is committed and handed over, with the watcher armed.
-- [ ] After the run: tag `designer-v0.28.0` on origin; AEF and aef-greenfield-test have version, tag, sha256, bytes and
+  *(job 087: all 9 steps ran, rc=0, 2026-10-26 10:24-11:06Z; codex and GLM-5.3 PASS 3/3; core GREEN 207/0 as step 8,
+  then the push went through at once. The 086 lesson held.)*
+- [x] After the run: tag `designer-v0.28.0` on origin; AEF and aef-greenfield-test have version, tag, sha256, bytes and
   what changes; greenfield is asked to try the editor on its own map (T-1301's last criterion).
+  *(tag 5c46a811 on release commit 7eb864d4; sha256 f8c5e15f…aade45fb, 1246384 bytes; AEF msg 4cd11df7, greenfield msg
+  3da78e9c)*
 - [ ] AEF's pin is followed until `tools/_t1187-aef-pin-lag.sh` reads CURRENT.
 
 ### Human
