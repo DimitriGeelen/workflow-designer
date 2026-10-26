@@ -98,12 +98,13 @@ width. Same remedy as T-1301's attribute fields: a wrapping field that grows wit
   unchanged). `_t1249` and `_t1301` stay green; `_t1249` leg e counts the name control whatever its tag.
 - [x] A harness leg asserts that no io name field clips (scrollHeight vs clientHeight) for greenfield's style-A names, red
   on the old source (input: scrollWidth > clientWidth) and green on the new. *(`_t1301` leg i)*
-- [ ] Person-sees gate exit 0; screenshots (style A, v1, v1.1) at 1024/1440/1920 read in `## Visual Verification`.
+- [x] Person-sees gate exit 0; screenshots (style A, v1, v1.1) at 1024/1440/1920 read in `## Visual Verification`.
 
 ### Human
 - [ ] The io name field shows a producer's whole field path, legibly, without disturbing the row, at every width
   For the independent reviewer: `fw reviewer judge T-1305 --criterion 1` (render-surface, no operator carve-out).
-  **Steps:** 1. Open `docs/reports/T-1305-evidence/stylea-step-{1024,1440,1920}-panel.png` and `v1-step-*`, `v11-step-*`.
+  **Steps:** 1. Open `docs/reports/T-1305-evidence/stylea-step-{1024,1440,1920}-panel.png`, `longname-*` (a name longer
+  than the panel), and `v1-step-*`, `v11-step-*`.
   2. For each io row: the name (whole?), type, req, ×. 3. Compare with `docs/reports/T-1301-evidence/` (same names).
   **Expected:** every name whole; the row's controls aligned and unclipped; only the name field changed.
   **If not:** name the file, the row and the control.
@@ -304,6 +305,10 @@ Screenshots: `docs/reports/T-1305-evidence/` (`node tools/_t1249-v11-io-shots.mj
 | v1-step | short names (owner, team, assignment) | ok | ok | ok | the one-line row as before |
 | v11-step | nameless v1.1 ios ("name" placeholder) | ok | ok | ok | one-line row, as before |
 | stylea-edit / v1-edit / hint-edit | editor under the row | ok | ok | ok | unchanged from T-1301 |
+| longname | a 78-character name | ok | ok | ok | wraps whole over two full-width lines (sweep: no shot showed a wrap; added) |
+
+Advisory sweep (codex, `.context/working/t1305-sweep.out`): 1-3 OK; the small, faint "req"/"×" predates this change; no
+shot showed a multi-line wrap (added: longname). Person-sees gate exit 0 (278 s).
 
 First attempt (not kept): a wrapping name in the narrow name column broke paths mid-word ("sfdc:Opportunity.I / d"). The
 full-width row for a long name avoids it.

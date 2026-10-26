@@ -99,7 +99,9 @@ ${task('Task_empty', 'Notify', 't1249_empty', '')}
 const STATES = [['v11-step', 't1249_v11', 'I/O contract'], ['v1-step', 't1249_v1', 'I/O contract'], ['stylea-step', 't1249_stylea', 'I/O contract'], ['empty-step', 't1249_empty', 'I/O contract'], ['workflow', null, 'Mapping'],
   ['stylea-edit', 't1249_stylea', 'I/O contract', [0, 2]], ['v1-edit', 't1249_v1', 'I/O contract', [0]],
   // T-1301 review: the undeclared-prefix hint, typed into typeRef of the v1 step's first input (zz is not declared)
-  ['hint-edit', 't1249_v1', 'I/O contract', { open: [0], set: { typeRef: 'zz:Thing' } }]];
+  ['hint-edit', 't1249_v1', 'I/O contract', { open: [0], set: { typeRef: 'zz:Thing' } }],
+  // T-1305: a name longer than the panel is wide, so the wrap itself is visible (typed into the first name, not saved)
+  ['longname', 't1249_v1', 'I/O contract', { name: [0, 'salesforce:OpportunityLineItem.QuoteLineItem.TradeInVehicle.RegistrationNumber'] }]];
 const WIDTHS = [[1024, 768], [1440, 900], [1920, 1080]];
 
 async function main() {
@@ -130,6 +132,10 @@ async function main() {
           renderAll(); renderProperties();
           var spec = ${JSON.stringify(opens || [])}, op = Array.isArray(spec) ? spec : (spec.open || []);
           op.forEach(function(i){ var t = document.querySelectorAll('#properties .io-attrs-toggle')[i]; if (t && !t.classList.contains('open')) t.click(); });
+          if (spec.name) {   // [row index, value]: type it into that io name, then re-render as an edit would
+            var f = document.querySelectorAll('#properties .io-row .io-name')[spec.name[0]];
+            if (f) { f.value = spec.name[1]; f.dispatchEvent(new Event('input', { bubbles: true })); renderProperties(); }
+          }
           Object.keys(spec.set || {}).forEach(function(k){
             var c = document.querySelector('#properties .io-attrs [data-attr="' + k + '"]');
             if (c) { c.value = spec.set[k]; c.dispatchEvent(new Event('change', { bubbles: true })); }
