@@ -116,7 +116,7 @@ Built in an isolated clone (`.context/working/t1301-dev`) while release job 086 
 - [ ] Released, then greenfield edits on its own map and confirms with its own check script (arc-006 rule).
 
 ### Human
-- [ ] The io attributes editor is legible, compact and usable at every width, and editing reads as editing
+- [x] The io attributes editor is legible, compact and usable at every width, and editing reads as editing
   For the independent reviewer: `fw reviewer judge T-1301 --criterion 1` (classify-ac: REVIEWER-JUDGES, render-surface;
   no operator carve-out, so no `[REVIEW]` label: tools/_t1066-why-you-check.py).
   **Steps:**
@@ -171,6 +171,7 @@ Built in an isolated clone (`.context/working/t1301-dev`) while release job 086 
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261026-3a9da9e8 — reviewer-judge-t-1301-r3-45150d4821d4:reviewer (rung rung-3-termlink-single-reviewer), digest 5ab8c15cb110; dispatch judge-t-1301-r3-45150d4821d4; evidence: .context/reviews/evidence/T-1301/AC1-judge-t-1301-r3-45150d4821d4.md, .context/reviews/evidence/T-1301/stylea-edit-1024-panel-judge-t-1301-r3-45150d4821d4.png, .context/reviews/evidence/T-1301/stylea-edit-1024-panel-end-judge-t-1301-r3-45150d4821d4.png, .context/reviews/evidence/T-1301/hint-edit-1024-panel-judge-t-1301-r3-45150d4821d4.png, .context/reviews/evidence/T-1301/stylea-edit-1920-panel-judge-t-1301-r3-45150d4821d4.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
