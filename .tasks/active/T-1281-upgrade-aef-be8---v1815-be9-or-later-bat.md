@@ -113,6 +113,8 @@ Tags to batch (take the newest when this starts):
 - **After be.17** (AEF notice msg 0d60e494, 2026-10-25, going offline): five v1.8.15 release blockers (AEF T-4744..T-4748)
   are fixed on AEF's bleeding-edge but in no be tag yet; the v1.8.15 master release waits on AEF's operator. Prefer the tag
   that carries them (be.18 or v1.8.15) over be.17 for this batch.
+- **be.24** 43de42eae (msg eab22ef6): T-4766 (`fw sidecar waiting` no longer lists consults the retry ladder closed),
+  T-4767 (designer 0.28.0 pinned). Newest at this note.
 - **be.23** 6cf7977aa (msg 25e38e25): T-4757 `fw sidecar settle-sent <client_msg_id> --reason` settles one's own
   outstanding consult (useful for our long-unanswered greenfield sends); T-4752 worker-contract conformance mapping.
   Newest at this note.
