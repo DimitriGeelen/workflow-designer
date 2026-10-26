@@ -10,7 +10,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_3_run
 owner: agent
 horizon: now
 tags: [arc:structured-io]
@@ -150,6 +150,10 @@ Procedure as job 083 (T-1283).
 -->
 
 ## Verification
+
+git ls-remote --exit-code --tags origin designer-v0.27.0 >/dev/null
+test "$(sha256sum dist/aef-workflow-designer-0.27.0.html | cut -c1-64)" = dd707e13caa61910f976a07c2b73b32abeba3ac048f001a485e782a6b8e38c59
+test "$(git rev-parse designer-v0.27.0^{commit})" = "$(git log -1 --format=%H -- dist/aef-workflow-designer-0.27.0.html)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -304,6 +308,18 @@ Procedure as job 083 (T-1283).
 -->
 
 ## Evolution
+
+### 2026-10-26 — the release procedure itself changed
+- **What changed:** two ordering facts nobody had met before the pre-push core gate (T-1288): (1) bumping VERSION
+  before the kit's calibration keeps the core tier red until the release, since T-974 runs the release script and its
+  calibration gate has no bypass; (2) a push whose hook runs the 13-15 min core tier is dropped by the server (SSH
+  "Protocol error"), so a push only works when it finds a green cache. A third fact: an agent edit to `.tasks/` during the
+  operator's push turned the tier red (T-1066 reads task files).
+- **Plan impact:** release jobs now bump inside the job (step 1, rehearsable) and run the core tier as their own step
+  before the push. Job 085 was retired; 086 needed an agent push for its step 8; 087 (0.28.0) ran all 9 steps cleanly.
+  The agent changes nothing in the working tree while an operator job runs.
+- **Triggered:** T-1286 AC4 (a rehearsal identity gap found by 086's dry-run, fixed); T-1307 (a one-off `_t344` red);
+  job 087's shape for every release after.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
