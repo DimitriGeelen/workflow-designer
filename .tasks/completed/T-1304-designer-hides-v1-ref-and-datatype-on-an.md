@@ -11,13 +11,13 @@ description: >
   under the four-condition rule; dataType informational only). The _t1249 harness
   checked VZN-T1 by byte count only, never what is shown.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_run
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:structured-io]
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -47,8 +47,8 @@ arc_id: structured-io
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-24T21:42:40Z
-last_update: 2026-10-24T22:20:28Z
-date_finished:
+last_update: 2026-10-26T15:24:40Z
+date_finished: 2026-10-26T15:24:40Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -478,3 +478,29 @@ a byte round trip proves keeping, never showing.
 
 ### 2026-10-24T22:20:28Z — status-update [task-update-agent]
 - **Change:** tags: +arc:structured-io
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6148956a
+- **Timestamp:** 2026-10-26T15:24:52Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 4
+
+**Per-AC findings:**
+
+- **AC#6 (Agent)** — `bash tools/person-sees-gate.sh` exits 0; the advisory sweep has run; screenshots of a style-A step at 1024/1440/1920
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/person-sees-gate.sh in: `bash tools/person-sees-gate.sh` exits 0; the advisory sweep has run; screenshots of a style-A step at 1024/1440/1920`
+- **AC#7 (Agent)** — greenfield reruns its `scripts/designer-io-panel-check.mjs` on the release that carries this and confirms ref and
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=scripts/designer-io-panel-check.mjs in: greenfield reruns its `scripts/designer-io-panel-check.mjs` on the release that carries this and confirms ref and`
+- **AC#3 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 1
+     - evidence: `node tools/_t1249-v11-io-cdp.mjs > .context/working/t1304-v.out 2>&1 && head -2 .context/working/t1304-v.out | grep -q '"ok": true'`
+
+### 2026-10-26T15:24:40Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

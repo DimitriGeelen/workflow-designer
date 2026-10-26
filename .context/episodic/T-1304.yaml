@@ -1,0 +1,145 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1304: Designer hides v1 'ref' and 'dataType' on an io (greenfield style A): show them read-only like role
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-26T15:25:01Z
+# ============================================================================
+
+task_id: T-1304
+task_name: "Designer hides v1 'ref' and 'dataType' on an io (greenfield style A): show them read-only like role"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-24T21:42:40Z
+completed: 2026-10-26T15:24:40Z
+duration_days: 2
+updates_count: 3
+first_commit: 2026-10-24T23:52:28+02:00
+last_commit: 2026-10-26T15:58:05+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the io panel shows v1 'ref' and 'dataType' read-only, like role — greenfield's own check on VZN-T1 (msg 49dfbe21) found them hidden: the display listed only the v1.1 names, so a producer's style-A io (ref="nid:attr-…" dataType="id") showed only name, type and role. Read rules per AEF T-4415 2.3: ref shown as v1, or as the derived fieldRef when its prefix is declared kind="field" (never twice); dataType marked informational. Harness _t1249 legs f/g assert what is SHOWN for style A (leg c checked VZN-T1 by bytes only; leg d's fixture carried ref and dataType and never asked for them; leg e's v1 fixture encoded the hiding). Old source red on d/f/g, new green on a-g. T-1301/2/3 filed for slices 2-4 (editing). hints say what the attribute is ('v1 attribute', 'informational', with tooltips) — the advisory sweep read a bare 'v1' as the version of the referenced item; screenshot script gains a style-A step (31 shots in docs/reports/T-1304-evidence); person-sees gate exit 0 (6/6); [REVIEW] criterion and Visual Verification written. T-1305 filed: the io name box cuts long field paths at every width (pre-existing). reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'An io carrying `ref` shows it read-only in the io panel (`ref <value>`), marked as v1. Where the read rule makes it a'
+  - 'An io carrying `dataType` shows it read-only (`dataType <value>`), marked informational.'
+  - 'A v1 io with neither attribute (and no v1.1 construct) renders exactly as before: no block.'
+  - 'Bytes unchanged: open + save of a style-A io is byte-exact (the _t1249 round trip legs still pass).'
+  - 'The harness checks what is SHOWN for greenfield''s real form, not only bytes: a committed style-A fixture (VZN-T1''s io'
+  - '`bash tools/person-sees-gate.sh` exits 0; the advisory sweep has run; screenshots of a style-A step at 1024/1440/1920'
+  - 'greenfield reruns its `scripts/designer-io-panel-check.mjs` on the release that carries this and confirms ref and'
+  - 'A producer''s style-A io shows ref, role and dataType legibly, tied to its row, read-only, at every width (as shipped in 0.29.0)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the io panel shows v1 ''ref'' and ''dataType'' read-only, like role — greenfield''s own check on VZN-T1 (msg 49dfbe21) found them hidden: the display listed only the v1.1 names, so a producer''s style-A io (ref="nid:attr-…" dataType="id") showed only name, type and role. Read rules per AEF T-4415 2.3: ref shown as v1, or as the derived fieldRef when its prefix is declared kind="field" (never twice); dataType marked informational. Harness _t1249 legs f/g assert what is SHOWN for style A (leg c checked VZN-T1 by bytes only; leg d''s fixture carried ref and dataType and never asked for them; leg e''s v1 fixture encoded the hiding). Old source red on d/f/g, new green on a-g. T-1301/2/3 filed for slices 2-4 (editing)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1304/AC1-judge-t-1304-r3-2a44fa309277.md'
+  - '.context/reviews/evidence/T-1304/AC1-judge-t-1304-r3-3cd350ce5208.md'
+  - '.context/reviews/evidence/T-1304/cmp-empty-step-1440-panel-judge-t-1304-r3-2a44fa309277.png'
+  - '.context/reviews/evidence/T-1304/cmp-v1-step-1920-panel-judge-t-1304-r3-2a44fa309277.png'
+  - '.context/reviews/evidence/T-1304/cmp-v11-step-1440-panel-judge-t-1304-r3-2a44fa309277.png'
+  - '.context/reviews/evidence/T-1304/compare-v1-step-1440-panel-judge-t-1304-r3-3cd350ce5208.png'
+  - '.context/reviews/evidence/T-1304/compare-v11-step-1920-panel-judge-t-1304-r3-3cd350ce5208.png'
+  - '.context/reviews/evidence/T-1304/stylea-step-1024-panel-judge-t-1304-r3-2a44fa309277.png'
+  - '.context/reviews/evidence/T-1304/stylea-step-1024-panel-judge-t-1304-r3-3cd350ce5208.png'
+  - '.context/reviews/evidence/T-1304/stylea-step-1440-panel-judge-t-1304-r3-2a44fa309277.png'
+  - '.context/reviews/evidence/T-1304/stylea-step-1440-panel-judge-t-1304-r3-3cd350ce5208.png'
+  - '.context/reviews/evidence/T-1304/stylea-step-1920-panel-judge-t-1304-r3-2a44fa309277.png'
+  - '.context/reviews/evidence/T-1304/stylea-step-1920-panel-judge-t-1304-r3-3cd350ce5208.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1301-designer-slice-2-t-1242-go-edit-the-mapp.md'
+  - '.tasks/active/T-1302-designer-slice-3-t-1242-go-edit-aeffield.md'
+  - '.tasks/active/T-1303-designer-slice-4-t-1242-go-show-aefs-map.md'
+  - '.tasks/active/T-1304-designer-hides-v1-ref-and-datatype-on-an.md'
+  - '.tasks/active/T-1305-io-name-box-cuts-long-field-paths-greenf.md'
+  - 'docs/reports/T-1304-evidence/empty-step-1024-panel.png'
+  - 'docs/reports/T-1304-evidence/empty-step-1024.png'
+  - 'docs/reports/T-1304-evidence/empty-step-1440-panel.png'
+  - 'docs/reports/T-1304-evidence/empty-step-1440.png'
+  - 'docs/reports/T-1304-evidence/empty-step-1920-panel.png'
+  - 'docs/reports/T-1304-evidence/empty-step-1920.png'
+  - 'docs/reports/T-1304-evidence/stylea-step-1024-panel.png'
+  - 'docs/reports/T-1304-evidence/stylea-step-1024.png'
+  - 'docs/reports/T-1304-evidence/stylea-step-1440-panel.png'
+  - 'docs/reports/T-1304-evidence/stylea-step-1440.png'
+  - 'docs/reports/T-1304-evidence/stylea-step-1920-panel.png'
+  - 'docs/reports/T-1304-evidence/stylea-step-1920.png'
+  - 'docs/reports/T-1304-evidence/v1-step-1024-panel.png'
+  - 'docs/reports/T-1304-evidence/v1-step-1024.png'
+  - 'docs/reports/T-1304-evidence/v1-step-1440-panel.png'
+  - 'docs/reports/T-1304-evidence/v1-step-1440.png'
+  - 'docs/reports/T-1304-evidence/v1-step-1920-panel.png'
+  - 'docs/reports/T-1304-evidence/v1-step-1920.png'
+  - 'docs/reports/T-1304-evidence/v11-step-1024-panel-end.png'
+  - 'docs/reports/T-1304-evidence/v11-step-1024-panel.png'
+  - 'docs/reports/T-1304-evidence/v11-step-1024.png'
+  - 'docs/reports/T-1304-evidence/v11-step-1440-panel.png'
+  - 'docs/reports/T-1304-evidence/v11-step-1440.png'
+  - 'docs/reports/T-1304-evidence/v11-step-1920-panel.png'
+  - 'docs/reports/T-1304-evidence/v11-step-1920.png'
+  - 'docs/reports/T-1304-evidence/workflow-1024-panel.png'
+  - 'docs/reports/T-1304-evidence/workflow-1024.png'
+  - 'docs/reports/T-1304-evidence/workflow-1440-panel.png'
+  - 'docs/reports/T-1304-evidence/workflow-1440.png'
+  - 'docs/reports/T-1304-evidence/workflow-1920-panel.png'
+  - 'docs/reports/T-1304-evidence/workflow-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tools/_t1249-v11-io-cdp.mjs'
+  - 'tools/_t1249-v11-io-shots.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-24T23:52:28'
+    action: 'T-1304: the io panel shows v1 ''ref'' and ''dataType'' read-only, like role — greenfield''s own check on VZN-T1 (msg 49dfbe21) found them hidden: the display listed only the v1.1 names, so a producer''s style-A io (ref="nid:attr-…" dataType="id") showed only name, type and role. Read rules per AEF T-4415 2.3: ref shown as v1, or as the derived fieldRef when its prefix is declared kind="field" (never twice); dataType marked informational. Harness _t1249 legs f/g assert what is SHOWN for style A (leg c checked VZN-T1 by bytes only; leg d''s fixture carried ref and dataType and never asked for them; leg e''s v1 fixture encoded the hiding). Old source red on d/f/g, new green on a-g. T-1301/2/3 filed for slices 2-4 (editing)'
+  - time: '2026-10-25T00:00:44'
+    action: 'T-1304: hints say what the attribute is (''v1 attribute'', ''informational'', with tooltips) — the advisory sweep read a bare ''v1'' as the version of the referenced item; screenshot script gains a style-A step (31 shots in docs/reports/T-1304-evidence); person-sees gate exit 0 (6/6); [REVIEW] criterion and Visual Verification written. T-1305 filed: the io name box cuts long field paths at every width (pre-existing)'
+  - time: '2026-10-25T00:03:14'
+    action: 'T-1304: reviewer verdict'
+  - time: '2026-10-26T15:58:05'
+    action: 'T-1304: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 2502 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:structured-io]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2502
+  commits: 5
+  files_changed: 61
+  lines_added: 2385
+  lines_removed: 24
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1304-designer-hides-v1-ref-and-datatype-on-an.md
+generated_by: context-agent-hybrid

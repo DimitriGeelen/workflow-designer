@@ -1,0 +1,191 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1301: Designer slice 2 (T-1242 GO): edit the mapping v1.1 io attributes in the io editor
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-26T15:25:34Z
+# ============================================================================
+
+task_id: T-1301
+task_name: "Designer slice 2 (T-1242 GO): edit the mapping v1.1 io attributes in the io editor"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-24T21:04:09Z
+completed: 2026-10-26T15:25:19Z
+duration_days: 2
+updates_count: 3
+first_commit: 2026-10-26T11:00:35+01:00
+last_commit: 2026-10-26T15:58:45+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the io attributes are editable — under each io row an 'edit attributes' toggle (closed by default, so the released read-only summary is unchanged) opens controls for ref, fieldRef, typeRef, schemaRef, conceptRef, role, operation, cardinality, sourceSystem/targetSystem, dataType; a change replaces in place, a new attribute is appended, an emptied control removes it; no silent mappingVersion or prefixes; an undeclared CURIE prefix is hinted; ref suggests the map's refs. Fixes a silent drop: an attribute added to a raw-layout io item (greenfield's one-line style A) was not written on save. Harness _t1301 (legs a-h) red on 0.27.0, green now, wired as a browser leg; _t1249 still green. T-1306: AEF pin task T-4764. fabric card for tools/_t1301-io-edit-cdp.mjs. each io attribute field's tooltip leads with its full value (the panel's fixed width cuts a long IRI at every window width; T-1305 owns the layout fix); the screenshot script gains stylea-edit and v1-edit (the open editor), 46 shots in docs/reports/T-1301-evidence. sweep fixes — the toggle says 'close editor' (an edit applies at once; 'done editing' read as save), no placeholder in an empty field (a muted 'informational' read as a default value); screenshots retaken; person-sees gate exit 0; Visual Verification written. reviewer verdict. review round 1 (amber) — text attributes are wrapping fields that grow with their value, so a producer's long IRI is shown whole at every width (field-sizing, with a length-based row count where unsupported); the ref suggestions become an explicit 'use a ref from this map' picker (a datalist cannot ride a wrapping field), offering the map's other refs; harness leg g asserts the picker sets ref and no text field clips; screenshots gain hint-edit (the undeclared-prefix hint), 52 shots. Visual Verification after review round 1 (refs whole, picker, prefix hint shown); person-sees gate exit 0 again. T-1306: AEF serves designer 0.27.0 (pin-lag CURRENT; AEF T-4764, be.22). T-1281: be.22 noted. reviewer green in round 2 (V-20261026-3a9da9e8) applied via fw reviewer verdict apply
+
+# Key outcomes
+outcomes:
+  - '**Fix first, test first:** an attribute ADDED to an io item in raw layout (`ioAttrsXml`, the `i.raw` path) is written'
+  - 'Each io row has an attributes editor behind an "edit" toggle under the row, closed by default. Closed, the read-only'
+  - 'Round trip: a step whose io is not edited saves byte-exact. Editing one attribute changes exactly that attribute in'
+  - 'ref suggestions: the field offers the ref values already used in the open map (a datalist). The ontology picker waits'
+  - 'No silent upgrade: setting a v1.1 attribute adds neither `mappingVersion` nor prefixes. A CURIE whose prefix the'
+  - 'A CDP harness drives the editor through DOM events: set and clear each attribute, save, and the diff is exactly that'
+  - 'Person-sees gate exit 0; advisory sweep; screenshots (row closed and open; style A; v1.1; v1; empty) at'
+  - 'Released, then greenfield edits on its own map and confirms with its own check script (arc-006 rule).'
+  - 'The io attributes editor is legible, compact and usable at every width, and editing reads as editing'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Visual Verification after review round 1 (refs whole, picker, prefix hint shown); person-sees gate exit 0 again. T-1306: AEF serves designer 0.27.0 (pin-lag CURRENT; AEF T-4764, be.22). T-1281: be.22 noted'
+    source: git-mined
+  - description: 'review round 1 (amber) — text attributes are wrapping fields that grow with their value, so a producer''s long IRI is shown whole at every width (field-sizing, with a length-based row count where unsupported); the ref suggestions become an explicit ''use a ref from this map'' picker (a datalist cannot ride a wrapping field), offering the map''s other refs; harness leg g asserts the picker sets ref and no text field clips; screenshots gain hint-edit (the undeclared-prefix hint), 52 shots'
+    source: git-mined
+  - description: 'sweep fixes — the toggle says ''close editor'' (an edit applies at once; ''done editing'' read as save), no placeholder in an empty field (a muted ''informational'' read as a default value); screenshots retaken; person-sees gate exit 0; Visual Verification written'
+    source: git-mined
+  - description: 'each io attribute field''s tooltip leads with its full value (the panel''s fixed width cuts a long IRI at every window width; T-1305 owns the layout fix); the screenshot script gains stylea-edit and v1-edit (the open editor), 46 shots in docs/reports/T-1301-evidence'
+    source: git-mined
+  - description: 'the io attributes are editable — under each io row an ''edit attributes'' toggle (closed by default, so the released read-only summary is unchanged) opens controls for ref, fieldRef, typeRef, schemaRef, conceptRef, role, operation, cardinality, sourceSystem/targetSystem, dataType; a change replaces in place, a new attribute is appended, an emptied control removes it; no silent mappingVersion or prefixes; an undeclared CURIE prefix is hinted; ref suggests the map''s refs. Fixes a silent drop: an attribute added to a raw-layout io item (greenfield''s one-line style A) was not written on save. Harness _t1301 (legs a-h) red on 0.27.0, green now, wired as a browser leg; _t1249 still green. T-1306: AEF pin task T-4764'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1301/AC1-judge-t-1301-r3-45150d4821d4.md'
+  - '.context/reviews/evidence/T-1301/AC1-judge-t-1301-r3-56d0a0df8e01.md'
+  - '.context/reviews/evidence/T-1301/AC1-judge-t-1301-r3-a8e702b54706.md'
+  - '.context/reviews/evidence/T-1301/fields-edit-1920-panel-end-judge-t-1301-r3-a8e702b54706.png'
+  - '.context/reviews/evidence/T-1301/hint-edit-1024-panel-judge-t-1301-r3-45150d4821d4.png'
+  - '.context/reviews/evidence/T-1301/hint-edit-1920-judge-t-1301-r3-a8e702b54706.png'
+  - '.context/reviews/evidence/T-1301/longname-1024-panel-judge-t-1301-r3-a8e702b54706.png'
+  - '.context/reviews/evidence/T-1301/stylea-edit-1024-panel-end-judge-t-1301-r3-45150d4821d4.png'
+  - '.context/reviews/evidence/T-1301/stylea-edit-1024-panel-end-judge-t-1301-r3-a8e702b54706.png'
+  - '.context/reviews/evidence/T-1301/stylea-edit-1024-panel-judge-t-1301-r3-45150d4821d4.png'
+  - '.context/reviews/evidence/T-1301/stylea-edit-1024-panel-judge-t-1301-r3-56d0a0df8e01.png'
+  - '.context/reviews/evidence/T-1301/stylea-edit-1440-judge-t-1301-r3-56d0a0df8e01.png'
+  - '.context/reviews/evidence/T-1301/stylea-edit-1920-panel-judge-t-1301-r3-45150d4821d4.png'
+  - '.context/reviews/evidence/T-1301/v1-edit-1440-panel-judge-t-1301-r3-56d0a0df8e01.png'
+  - '.context/reviews/evidence/T-1301/v1-step-1024-panel-0.27.0-judge-t-1301-r3-a8e702b54706.png'
+  - '.context/reviews/evidence/T-1301/v1-step-1024-panel-judge-t-1301-r3-a8e702b54706.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.fabric/components/tools-_t1301-io-edit-cdp.yaml'
+  - '.tasks/active/T-1281-upgrade-aef-be8---v1815-be9-or-later-bat.md'
+  - '.tasks/active/T-1301-designer-slice-2-t-1242-go-edit-the-mapp.md'
+  - '.tasks/active/T-1306-release-designer-0270-t-1304-refdatatype.md'
+  - 'docs/reports/T-1301-evidence/empty-step-1024-panel.png'
+  - 'docs/reports/T-1301-evidence/empty-step-1024.png'
+  - 'docs/reports/T-1301-evidence/empty-step-1440-panel.png'
+  - 'docs/reports/T-1301-evidence/empty-step-1440.png'
+  - 'docs/reports/T-1301-evidence/empty-step-1920-panel.png'
+  - 'docs/reports/T-1301-evidence/empty-step-1920.png'
+  - 'docs/reports/T-1301-evidence/hint-edit-1024-panel.png'
+  - 'docs/reports/T-1301-evidence/hint-edit-1024.png'
+  - 'docs/reports/T-1301-evidence/hint-edit-1440-panel.png'
+  - 'docs/reports/T-1301-evidence/hint-edit-1440.png'
+  - 'docs/reports/T-1301-evidence/hint-edit-1920-panel.png'
+  - 'docs/reports/T-1301-evidence/hint-edit-1920.png'
+  - 'docs/reports/T-1301-evidence/stylea-edit-1024-panel-end.png'
+  - 'docs/reports/T-1301-evidence/stylea-edit-1024-panel.png'
+  - 'docs/reports/T-1301-evidence/stylea-edit-1024.png'
+  - 'docs/reports/T-1301-evidence/stylea-edit-1440-panel-end.png'
+  - 'docs/reports/T-1301-evidence/stylea-edit-1440-panel.png'
+  - 'docs/reports/T-1301-evidence/stylea-edit-1440.png'
+  - 'docs/reports/T-1301-evidence/stylea-edit-1920-panel.png'
+  - 'docs/reports/T-1301-evidence/stylea-edit-1920.png'
+  - 'docs/reports/T-1301-evidence/stylea-step-1024-panel.png'
+  - 'docs/reports/T-1301-evidence/stylea-step-1024.png'
+  - 'docs/reports/T-1301-evidence/stylea-step-1440-panel.png'
+  - 'docs/reports/T-1301-evidence/stylea-step-1440.png'
+  - 'docs/reports/T-1301-evidence/stylea-step-1920-panel.png'
+  - 'docs/reports/T-1301-evidence/stylea-step-1920.png'
+  - 'docs/reports/T-1301-evidence/v1-edit-1024-panel.png'
+  - 'docs/reports/T-1301-evidence/v1-edit-1024.png'
+  - 'docs/reports/T-1301-evidence/v1-edit-1440-panel.png'
+  - 'docs/reports/T-1301-evidence/v1-edit-1440.png'
+  - 'docs/reports/T-1301-evidence/v1-edit-1920-panel.png'
+  - 'docs/reports/T-1301-evidence/v1-edit-1920.png'
+  - 'docs/reports/T-1301-evidence/v1-step-1024-panel.png'
+  - 'docs/reports/T-1301-evidence/v1-step-1024.png'
+  - 'docs/reports/T-1301-evidence/v1-step-1440-panel.png'
+  - 'docs/reports/T-1301-evidence/v1-step-1440.png'
+  - 'docs/reports/T-1301-evidence/v1-step-1920-panel.png'
+  - 'docs/reports/T-1301-evidence/v1-step-1920.png'
+  - 'docs/reports/T-1301-evidence/v11-step-1024-panel-end.png'
+  - 'docs/reports/T-1301-evidence/v11-step-1024-panel.png'
+  - 'docs/reports/T-1301-evidence/v11-step-1024.png'
+  - 'docs/reports/T-1301-evidence/v11-step-1440-panel-end.png'
+  - 'docs/reports/T-1301-evidence/v11-step-1440-panel.png'
+  - 'docs/reports/T-1301-evidence/v11-step-1440.png'
+  - 'docs/reports/T-1301-evidence/v11-step-1920-panel.png'
+  - 'docs/reports/T-1301-evidence/v11-step-1920.png'
+  - 'docs/reports/T-1301-evidence/workflow-1024-panel.png'
+  - 'docs/reports/T-1301-evidence/workflow-1024.png'
+  - 'docs/reports/T-1301-evidence/workflow-1440-panel.png'
+  - 'docs/reports/T-1301-evidence/workflow-1440.png'
+  - 'docs/reports/T-1301-evidence/workflow-1920-panel.png'
+  - 'docs/reports/T-1301-evidence/workflow-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1249-v11-io-shots.mjs'
+  - 'tools/_t1301-io-edit-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-26T11:00:35'
+    action: 'T-1301: the io attributes are editable — under each io row an ''edit attributes'' toggle (closed by default, so the released read-only summary is unchanged) opens controls for ref, fieldRef, typeRef, schemaRef, conceptRef, role, operation, cardinality, sourceSystem/targetSystem, dataType; a change replaces in place, a new attribute is appended, an emptied control removes it; no silent mappingVersion or prefixes; an undeclared CURIE prefix is hinted; ref suggests the map''s refs. Fixes a silent drop: an attribute added to a raw-layout io item (greenfield''s one-line style A) was not written on save. Harness _t1301 (legs a-h) red on 0.27.0, green now, wired as a browser leg; _t1249 still green. T-1306: AEF pin task T-4764'
+  - time: '2026-10-26T11:00:48'
+    action: 'T-1301: fabric card for tools/_t1301-io-edit-cdp.mjs'
+  - time: '2026-10-26T11:02:02'
+    action: 'T-1301: each io attribute field''s tooltip leads with its full value (the panel''s fixed width cuts a long IRI at every window width; T-1305 owns the layout fix); the screenshot script gains stylea-edit and v1-edit (the open editor), 46 shots in docs/reports/T-1301-evidence'
+  - time: '2026-10-26T11:09:22'
+    action: 'T-1301: sweep fixes — the toggle says ''close editor'' (an edit applies at once; ''done editing'' read as save), no placeholder in an empty field (a muted ''informational'' read as a default value); screenshots retaken; person-sees gate exit 0; Visual Verification written'
+  - time: '2026-10-26T11:11:00'
+    action: 'T-1301: reviewer verdict'
+  - time: '2026-10-26T11:13:26'
+    action: 'T-1301: review round 1 (amber) — text attributes are wrapping fields that grow with their value, so a producer''s long IRI is shown whole at every width (field-sizing, with a length-based row count where unsupported); the ref suggestions become an explicit ''use a ref from this map'' picker (a datalist cannot ride a wrapping field), offering the map''s other refs; harness leg g asserts the picker sets ref and no text field clips; screenshots gain hint-edit (the undeclared-prefix hint), 52 shots'
+  - time: '2026-10-26T11:17:43'
+    action: 'T-1301: Visual Verification after review round 1 (refs whole, picker, prefix hint shown); person-sees gate exit 0 again. T-1306: AEF serves designer 0.27.0 (pin-lag CURRENT; AEF T-4764, be.22). T-1281: be.22 noted'
+  - time: '2026-10-26T11:18:55'
+    action: 'T-1301: reviewer verdict'
+  - time: '2026-10-26T11:19:35'
+    action: 'T-1301: reviewer green in round 2 (V-20261026-3a9da9e8) applied via fw reviewer verdict apply'
+  - time: '2026-10-26T15:58:45'
+    action: 'T-1301: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 14 commit(s), 2541 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:structured-io]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2541
+  commits: 14
+  files_changed: 86
+  lines_added: 1101
+  lines_removed: 73
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1301-designer-slice-2-t-1242-go-edit-the-mapp.md
+generated_by: context-agent-hybrid

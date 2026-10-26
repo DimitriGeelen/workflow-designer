@@ -10,13 +10,13 @@ description: >
   A v1 map stays v1 until a v1.1 attribute is set; mappingVersion and prefixes follow.
   Works the same in AEF's /designer (save via /api/save).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_run
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:structured-io]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t1301-io-edit-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -46,8 +46,8 @@ arc_id: structured-io
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-24T21:04:09Z
-last_update: '2026-10-26T09:09:43Z'
-date_finished:
+last_update: 2026-10-26T15:25:19Z
+date_finished: 2026-10-26T15:25:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -463,3 +463,27 @@ a one-line tooltip; ten visible help lines would double the editor's height.
 
 ### 2026-10-26T09:09:42Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-dd5a2bc6
+- **Timestamp:** 2026-10-26T15:25:28Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 3
+
+**Per-AC findings:**
+
+- **AC#3 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 1
+     - evidence: `node tools/_t1301-io-edit-cdp.mjs > .context/working/t1301-v.out 2>&1 && head -2 .context/working/t1301-v.out | grep -q '"ok": true'`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 2
+     - evidence: `node tools/_t1249-v11-io-cdp.mjs > .context/working/t1301-v1249.out 2>&1 && head -2 .context/working/t1301-v1249.out | grep -q '"ok": true'`
+
+### 2026-10-26T15:25:19Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
