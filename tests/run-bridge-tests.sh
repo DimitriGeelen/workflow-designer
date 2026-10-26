@@ -1406,6 +1406,22 @@ else
 fi
 }
 leg browser "_t1301-io-edit-cdp" _leg_196
+_leg_197() {
+
+# ── T-1312: the ref field offers a searchable picker over the project's field catalog ──
+# Against the real reference server: no catalog (404) leaves the editor as before; with one, a search under ref lists at
+# most 8 hits (notation, label); a hit writes ref, and dataType only when the io has none; a re-render keeps the search;
+# other steps byte-exact; the picker lies inside the editor at 1024 and 1440. Red on the 0.29.0 source (T1312_SRC).
+if node "$ROOT/tools/_t1312-catalog-picker-cdp.mjs" > "$TMP/leg-_t1312.out" 2>&1 \
+   && head -2 "$TMP/leg-_t1312.out" | grep -q '"ok": true'; then
+  pass=$((pass + 1))
+else
+  report FAIL "the field-catalog ref picker is missing, overwrites a producer's dataType, loses its search on a re-render, changes another step, or shows without a catalog (run 'node tools/_t1312-catalog-picker-cdp.mjs'; T-1312)"
+  show_output "$TMP/leg-_t1312.out" "_t1312-catalog-picker-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1312-catalog-picker-cdp" _leg_197
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

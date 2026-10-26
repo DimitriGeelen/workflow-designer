@@ -107,12 +107,26 @@ const STATES = [['v11-step', 't1249_v11', 'I/O contract'], ['v1-step', 't1249_v1
   ['field-add', 't1249_stylea', 'I/O contract', { open: [0], addField: true }],
   // T-1302 sweep: a field with a condition (aef:when) in the editor: the v1.1 step's first input
   ['fields-when', 't1249_v11', 'I/O contract', { open: [0] }]];
+// T-1312: with T1249S_CATALOG=1 the server's repo holds a field catalog (synthetic rows in greenfield's v1 shape) and two
+// more states type into the ref picker: a v1 io (no ref yet) and a style-A io (its own ref and dataType).
+const CATALOG = process.env.T1249S_CATALOG === '1' ? { version: 1, generatedBy: 't1249 shots fixture', attributes: [
+  ['sfdc:Opportunity.Id', 'Id (Salesforce Opportunity)', 'id'], ['sfdc:Opportunity.Name', 'Name (Salesforce Opportunity)', 'string'],
+  ['sfdc:Opportunity.OwnerId', 'OwnerId (Salesforce Opportunity)', 'reference'], ['sfdc:Opportunity.StageName', 'StageName (Salesforce Opportunity)', 'string'],
+  ['sfdc:Opportunity.CloseDate', 'CloseDate (Salesforce Opportunity)', 'date'], ['sfdc:Opportunity.AccountId', 'AccountId (Salesforce Opportunity)', 'reference'],
+  ['sfdc:Account.Name', 'Name (Salesforce Account)', 'string'], ['', 'companyName (Tacton Account)', ''], ['', 'accountNumber (Tacton Account)', ''],
+  ['sfdc:Account.BillingCountry', 'BillingCountry (Salesforce Account)', 'string'], ['sfdc:Account.OwnerId', 'OwnerId (Salesforce Account)', 'reference'],
+  ['sfdc:Account.Industry', 'Industry (Salesforce Account)', 'string'], ['sfdc:Account.Type', 'Type (Salesforce Account)', 'string'],
+].map(([n, l, t], i) => ({ ref: 'nid:attr-' + (n || l).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''), notation: n, label: l,
+  system: n ? 'nid:app-salesforce' : 'nid:app-tacton', systemLabel: n ? 'Salesforce' : 'Tacton', entity: 'nid:de-x', dataType: t, keyRole: '', sources: 1 })) } : null;
+if (CATALOG) STATES.push(['catalog-v1', 't1249_v1', 'I/O contract', { open: [0], search: 'opportunity' }],
+                         ['catalog-stylea', 't1249_stylea', 'I/O contract', { open: [0], search: 'account' }]);
 const WIDTHS = [[1024, 768], [1440, 900], [1920, 1080]];
 
 async function main() {
   mkdirSync(OUT, { recursive: true });
   const doc = mkdtempSync(join(tmpdir(), 't1249s-doc-')), repo = mkdtempSync(join(tmpdir(), 't1249s-repo-'));
   copyFileSync(SRC, join(doc, 'designer.html')); mkdirSync(join(doc, 'rendered'), { recursive: true });
+  if (CATALOG) writeFileSync(join(repo, 'field-catalog.json'), JSON.stringify(CATALOG));
   const port = await freePort();
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
   const BASE = `http://127.0.0.1:${port}`;
@@ -138,6 +152,10 @@ async function main() {
           var spec = ${JSON.stringify(opens || [])}, op = Array.isArray(spec) ? spec : (spec.open || []);
           op.forEach(function(i){ var t = document.querySelectorAll('#properties .io-attrs-toggle')[i]; if (t && !t.classList.contains('open')) t.click(); });
           if (spec.addField) { var a = document.querySelector('#properties .io-attrs .io-field-add'); if (a) a.click(); }
+          if (spec.search) {   // T-1312: type into the open editor's catalog picker
+            var q = document.querySelector('#properties .io-attrs [data-pick="catalog"]');
+            if (q) { q.value = spec.search; q.dispatchEvent(new Event('input', { bubbles: true })); }
+          }
           if (spec.name) {   // [row index, value]: type it into that io name, then re-render as an edit would
             var f = document.querySelectorAll('#properties .io-row .io-name')[spec.name[0]];
             if (f) { f.value = spec.name[1]; f.dispatchEvent(new Event('input', { bubbles: true })); renderProperties(); }

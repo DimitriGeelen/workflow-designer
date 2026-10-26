@@ -49,7 +49,7 @@ arc_id: structured-io
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-26T11:53:48Z
-last_update: '2026-10-26T13:11:00Z'
+last_update: 2026-10-26T21:08:15Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -103,13 +103,37 @@ pending. The **designer** picker (`src/`) waits until 088 has cut 0.29.0, so not
 - [x] A test (`tests/test_t1312_field_catalog.py`, core tier) covers 200, 404 and each 422 case, through the real HTTP
   route.
   *(criteria 1-3: commit e9ff4d07; 11/11; `_t958` 5/5 at table size 15; core tier green in job 089's run, 2026-10-26)*
-- [ ] Designer (after job 088): the ref field in the io editor offers a searchable picker over the catalog (notation and
+- [x] Designer (after job 088): the ref field in the io editor offers a searchable picker over the catalog (notation and
   label), writing `ref` and prefilling `dataType` from the row only when the io has none. With a 404 it behaves exactly as
   today (free text and the "use a ref from this map" picker). A CDP leg covers both.
+  *(`loadFieldCatalog()` at startup; `ioCatalogPicker` under ref: every word matched against notation/label/ref, at most 8
+  hits, "N more" / "no match" line. `tools/_t1312-catalog-picker-cdp.mjs` (browser leg `_leg_197`), against the real
+  server: a 404 unchanged, b one search field, c matching and the cap, d v1 io gets ref + dataType, e style-A keeps its
+  dataType, f other steps byte-exact, g geometry and hit test at 1024/1440, h a re-render keeps the search (a real defect
+  found on the way: a late loader's re-render wiped the typed query). Green 3/3 runs; red on 0.29.0 in b-e, g, h.
+  `_t1301` and `_t1249` green.)*
+- [ ] `bash tools/person-sees-gate.sh` exits 0; the advisory sweep has run; screenshots of the picker (v1 io and style-A
+  io, with hits) at 1024/1440/1920 are read control by control in `## Visual Verification`.
 - [ ] AEF gets the contract (request, responses, fallback) for its T-4737; greenfield is told how to point the server at
   `docs/views/nid-attributes.json`.
+- [ ] Released, then greenfield picks a ref from its own catalog on its own map and confirms (arc-006 rule).
 
 ### Human
+- [ ] The catalog picker under ref is legible, clearly part of its io row, and its hits read as choices, at every width
+  For the independent reviewer: `fw reviewer judge T-1312 --criterion 1` (render-surface, no operator carve-out, so no
+  `[REVIEW]` label: tools/_t1066-why-you-check.py).
+  **Steps:**
+  1. Open `docs/reports/T-1312-evidence/catalog-v1-{1024,1440,1920}-panel.png` (a v1 io, "opportunity" typed) and
+     `catalog-stylea-{1024,1440,1920}-panel.png` (a style-A io with its own ref, "account" typed), plus `-panel-end`
+     where present and the full windows.
+  2. For the open editor: the ref field, the "use a ref from this map…" picker where shown, the catalog search field, each
+     hit (notation, label, dataType) and the "N more" line.
+  3. Compare `stylea-edit-*` and `v1-edit-*` in the same folder with `docs/reports/T-1302-evidence/` (same names): the
+     only difference is the search field under ref.
+  **Expected:** the search field reads as a search (not as a value); each hit is readable, unclipped, distinguishable from
+  its neighbours and clearly clickable; notation and label are told apart; the whole picker belongs to the ref row of its
+  io; nothing overlaps the attribute rows below.
+  **If not:** name the file, the control and what is wrong.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
