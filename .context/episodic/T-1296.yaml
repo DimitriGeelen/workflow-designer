@@ -1,0 +1,92 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1296: test_t1286_rehearsal cleanup legs (2b, 5, 6b) fail under full core-tier load: find the race
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-26T11:11:48Z
+# ============================================================================
+
+task_id: T-1296
+task_name: "test_t1286_rehearsal cleanup legs (2b, 5, 6b) fail under full core-tier load: find the race"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-24T09:33:47Z
+completed: 2026-10-26T11:11:34Z
+duration_days: 2
+updates_count: 2
+first_commit: 2026-10-24T11:35:42+02:00
+last_commit: 2026-10-24T11:35:42+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  test_t1286_rehearsal's flaky cleanup legs root-caused and fixed — the fixture fingerprint hashed 'ls -la .git/hooks' (minute mtimes incl. '..' = .git, touched by every git command), so a run crossing a minute boundary saw an unchanged fixture as changed; it now hashes hook names and contents (proven: a 2-minute mtime move changes the old fingerprint, not the new). Failing legs print the state diff and leftover clones; clones_left() reads only this fixture's jobs. Learning: never fingerprint by timestamp
+
+# Key outcomes
+outcomes:
+  - '**The failing legs say why:** 2b, 5 and 6b print, on failure, the clones they found left over and the fixture'
+  - '**One isolation flaw removed now:** `clones_left()` looks only for clones of this test''s own fixture jobs, not'
+  - '**Quarantined with evidence until fixed:** a `tests/quarantine.yaml` entry for the leg (owner T-1296, fix-by'
+  - '**The race is found and fixed** from the diagnostics of the next occurrence; the quarantine entry is removed.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'test_t1286_rehearsal''s flaky cleanup legs root-caused and fixed — the fixture fingerprint hashed ''ls -la .git/hooks'' (minute mtimes incl. ''..'' = .git, touched by every git command), so a run crossing a minute boundary saw an unchanged fixture as changed; it now hashes hook names and contents (proven: a 2-minute mtime move changes the old fingerprint, not the new). Failing legs print the state diff and leftover clones; clones_left() reads only this fixture''s jobs. Learning: never fingerprint by timestamp'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - '.context/st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/gap/.context/episodic/T-905.yaml'
+  - '.context/st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/gap/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/live/.context/episodic/T-902.yaml'
+  - '.context/st/tmp.Mc2xRzZK6Z/t630-1471306-1792834132/live/.tasks/completed/T-902-sandbox-probe.md'
+  - '.context/st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/ctrl/.context/episodic/T-901.yaml'
+  - '.context/st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/ctrl/.tasks/completed/T-901-sandbox-probe.md'
+  - '.context/st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/fixed/.context/episodic/T-905.yaml'
+  - '.context/st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/fixed/.tasks/completed/T-905-sandbox-probe.md'
+  - '.context/st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/m2/.context/episodic/T-907.yaml'
+  - '.context/st/tmp.Mc2xRzZK6Z/t634-1429395-1792834064/m2/.tasks/completed/T-907-sandbox-probe.md'
+  - '.tasks/active/T-1296-testt1286rehearsal-cleanup-legs-2b-5-6b-.md'
+  - 'tests/test_t1286_rehearsal.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-24T11:35:42'
+    action: 'T-1296: test_t1286_rehearsal''s flaky cleanup legs root-caused and fixed — the fixture fingerprint hashed ''ls -la .git/hooks'' (minute mtimes incl. ''..'' = .git, touched by every git command), so a run crossing a minute boundary saw an unchanged fixture as changed; it now hashes hook names and contents (proven: a 2-minute mtime move changes the old fingerprint, not the new). Failing legs print the state diff and leftover clones; clones_left() reads only this fixture''s jobs. Learning: never fingerprint by timestamp'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2977 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug, quality-engine, flaky, T-1286]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2977
+  commits: 1
+  files_changed: 15
+  lines_added: 1179
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1296-testt1286rehearsal-cleanup-legs-2b-5-6b-.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1286: Quality engine 1: deep rehearsal for operator runme jobs (steps run against a throwaway clone, framework gates included)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-26T11:12:37Z
+# ============================================================================
+
+task_id: T-1286
+task_name: "Quality engine 1: deep rehearsal for operator runme jobs (steps run against a throwaway clone, framework gates included)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-23T22:13:11Z
+completed: 2026-10-26T11:12:05Z
+duration_days: 3
+updates_count: 2
+first_commit: 2026-10-24T00:17:23+02:00
+last_commit: 2026-10-25T12:34:09+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  criteria — step_outward declaration; --dry-run rehearses every step in a throwaway clone with this repo's hooks (outward steps listed, not run); fixtures prove it catches a gate refusal the old dry-run missed; real repo untouched; launcher tests green, CLAUDE.md updated. runme --dry-run rehearses the steps — after the checks it clones HEAD into .context/rehearse/<job> (gitignored), copies in this repo's git hooks, and runs the checks and every step there with PROJECT_ROOT/CONTEXT_DIR/TASKS_DIR unset, the real project and repo mounted read-only in a private mount namespace, and pushes refused; step_outward declares steps that act outside the repo (listed, never rehearsed, run normally for real). A step a gate refuses now fails the dry-run instead of the operator's run (fixture: a hook-refused commit passes the old dry-run, fails the new). test_t1286 14/14, test_t1055 36/36; CLAUDE.md and runme-new explain step_outward. a rehearsal commits with the repo's own identity — job 086's step 1 (the version bump commit) failed in the clone with 'Author identity unknown': user.name/email live in this repo's local config, which a clone does not inherit, so a step the operator's run completes failed only in the rehearsal. The clone now gets the repo's local user.name/email. Leg 10 (plain git commit, HOME an empty dir); test_t1286 and test_t1055 green; 086's step 1 passes in the clone through this repo's hooks. AC4 (the next real job's dry-run) ticked
+
+# Key outcomes
+outcomes:
+  - '**Outward steps are declared.** A job can declare `step_outward "<what>" ''<cmd>''` for steps that act outside the'
+  - '**`--dry-run` rehearses the steps.** After the checks pass, it:'
+  - '**It catches the class it is for.**'
+  - '**No regression:**'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'runme --dry-run rehearses the steps — after the checks it clones HEAD into .context/rehearse/<job> (gitignored), copies in this repo''s git hooks, and runs the checks and every step there with PROJECT_ROOT/CONTEXT_DIR/TASKS_DIR unset, the real project and repo mounted read-only in a private mount namespace, and pushes refused; step_outward declares steps that act outside the repo (listed, never rehearsed, run normally for real). A step a gate refuses now fails the dry-run instead of the operator''s run (fixture: a hook-refused commit passes the old dry-run, fails the new). test_t1286 14/14, test_t1055 36/36; CLAUDE.md and runme-new explain step_outward'
+    source: git-mined
+  - description: 'criteria — step_outward declaration; --dry-run rehearses every step in a throwaway clone with this repo''s hooks (outward steps listed, not run); fixtures prove it catches a gate refusal the old dry-run missed; real repo untouched; launcher tests green, CLAUDE.md updated'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-10-24 — how the rehearsal is kept off the real repo'
+    chose: 'two layers. (1) A guard: each check and step runs in a private mount namespace (`unshare --mount`), with the project and the real repo bind-mounted read-only and only the clone writable, so a write into the real repo fails inside the step. (2) The asked-for before/after assertion. With the guard, a difference is a loud WARN naming the files, since the rehearsal could not have made it. Without the guard (no unshare/root, or the test-only `RUNME_REHEARSE_NO_GUARD=1`), a difference FAILS the dry-run.'
+    rationale: 'measured on the real repo, other sessions changed the tree during every one of 4 probe rehearsals: hook counters (`.context/working/.hook-counter`, `.loop-detect.json`, `.budget-status`), T-1290''s `loop.sh` edit, its new test file, its close commit (HEAD moved). An assertion-only design failed every dry-run here, and the compare alone cannot tell their writes from ours.'
+    alternatives_rejected: ['assertion-only (fails every dry-run in this multi-session repo); excluding volatile paths (another session''s real edits still collide, and the exclusion list rots); a git worktree or /tmp clone (the brief rules them out).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.gitignore'
+  - '.tasks/active/T-1286-quality-engine-1-deep-rehearsal-for-oper.md'
+  - 'CLAUDE.md'
+  - 'tests/test_t1055_runme_launcher.py'
+  - 'tests/test_t1286_rehearsal.py'
+  - 'tools/runme-launcher.sh'
+  - 'tools/runme-new.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-24T00:17:23'
+    action: 'T-1286: criteria — step_outward declaration; --dry-run rehearses every step in a throwaway clone with this repo''s hooks (outward steps listed, not run); fixtures prove it catches a gate refusal the old dry-run missed; real repo untouched; launcher tests green, CLAUDE.md updated'
+  - time: '2026-10-24T00:37:01'
+    action: 'T-1286: runme --dry-run rehearses the steps — after the checks it clones HEAD into .context/rehearse/<job> (gitignored), copies in this repo''s git hooks, and runs the checks and every step there with PROJECT_ROOT/CONTEXT_DIR/TASKS_DIR unset, the real project and repo mounted read-only in a private mount namespace, and pushes refused; step_outward declares steps that act outside the repo (listed, never rehearsed, run normally for real). A step a gate refuses now fails the dry-run instead of the operator''s run (fixture: a hook-refused commit passes the old dry-run, fails the new). test_t1286 14/14, test_t1055 36/36; CLAUDE.md and runme-new explain step_outward'
+  - time: '2026-10-25T12:34:09'
+    action: 'T-1286: a rehearsal commits with the repo''s own identity — job 086''s step 1 (the version bump commit) failed in the clone with ''Author identity unknown'': user.name/email live in this repo''s local config, which a clone does not inherit, so a step the operator''s run completes failed only in the rehearsal. The clone now gets the repo''s local user.name/email. Leg 10 (plain git commit, HOME an empty dir); test_t1286 and test_t1055 green; 086''s step 1 passes in the clone through this repo''s hooks. AC4 (the next real job''s dry-run) ticked'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 3658 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [quality-engine, T-1285]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 3658
+  commits: 3
+  files_changed: 7
+  lines_added: 573
+  lines_removed: 39
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1286-quality-engine-1-deep-rehearsal-for-oper.md
+generated_by: context-agent-hybrid
