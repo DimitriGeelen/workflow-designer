@@ -175,11 +175,18 @@ else
   # T-1254: the audit runs one instance at a time; while the half-hourly cron audit holds it, this call prints
   # "Another audit is already running — exiting (no verdict produced)" and every leg below read that as a missing
   # verdict (the suite flake of 2026-10-21). Wait for the running audit, bounded, and say so.
-  _t344_wait=0
-  for _t344_try in $(seq 1 60); do
-    audit_out=$("$REPO/.agentic-framework/bin/fw" audit --section structure 2>&1)
+  # T-1307: the bound was 300 s, but a full audit takes 492 s (full-audit-timing.yaml, 2026-10-26); the wait ran out
+  # and leg 8 parsed the lock message as the verdict, reporting a stale anchor. 900 s outlasts a full audit, and a lock
+  # still held after it is reported as what it is. T344_FW stands in for fw (tests/test_t1307_t344_lock_wait.py only).
+  _t344_fw="${T344_FW:-$REPO/.agentic-framework/bin/fw}"
+  _t344_max="${T344_WAIT_MAX:-900}"; _t344_step="${T344_WAIT_STEP:-5}"
+  _t344_wait=0; _t344_held=0
+  while :; do
+    audit_out=$("$_t344_fw" audit --section structure 2>&1)
     printf '%s\n' "$audit_out" | grep -q 'Another audit is already running' || break
-    _t344_wait=$((_t344_wait + 5)); sleep 5
+    if [ "$_t344_wait" -ge "$_t344_max" ]; then _t344_held=1; break; fi
+    _t344_wait=$((_t344_wait + (_t344_step > 0 ? _t344_step : 1)))
+    sleep "$_t344_step"
   done
   [ "$_t344_wait" -gt 0 ] && echo "  NOTE  another audit was running; waited ${_t344_wait}s for it before reading (T-1254)"
 fi
@@ -207,7 +214,10 @@ print(len([f for f in w if f not in locs]), len(w))")
 fi
 c2=$(echo "$ind" | awk '{print $1}'); d2=$(echo "$ind" | awk '{print $2}')
 n1=$(echo "$c1" | awk '{print $1}'); d1=$(echo "$c1" | awk '{print $2}')
-if [ -z "$n1" ] || [ -z "$c2" ]; then
+if [ "${_t344_held:-0}" = 1 ]; then
+  bad "coverage count UNMEASURED: another audit still held the lock after ${_t344_wait}s, so this run produced"
+  bad "      no verdict to read (T-1307). Not a stale anchor; rerun when the other audit has finished."
+elif [ -z "$n1" ] || [ -z "$c2" ]; then
   # Full coverage is the one legitimate reason a count is absent, and it too must be read off
   # a severity-marked finding rather than from anywhere in the report.
   if printf '%s\n' "$findings" | grep -qE '^\[[A-Z]*\] Fabric: [0-9]+ registered, 0 unregistered'; then

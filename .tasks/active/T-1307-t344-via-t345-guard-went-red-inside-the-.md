@@ -95,9 +95,18 @@ printed only the successor's last 5 lines, so the two failing legs were never na
 - [x] `_t345` prints EVERY `FAIL` line of its successor (plus the totals), not the last 5 lines. Proven with a stand-in
   successor that fails an early leg (`T345_SUCCESSOR`, tests only): the early FAIL line appears in the guard's output.
   *(new: "FAIL EARLY-LEG-2 went red" + its detail line + "8 passed, 1 failed"; old: 0 occurrences; the real run passes)*
-- [ ] Hypothesis 1 (a concurrent `fw audit` during `_t344`) is tested: `_t344` is run while audits are running, several
+- [x] Hypothesis 1 (a concurrent `fw audit` during `_t344`) is tested: `_t344` is run while audits are running, several
   times. The result (reproduced, with the failing legs named; or not reproduced) is recorded here, and a fix follows
   only for a reproduced cause.
+  *(REPRODUCED on run 1 (2026-10-26 13:58): a full audit started 2 s before `_t344` held the lock 492 s
+  (full-audit-timing.yaml); `_t344` waited its fixed 300 s ("NOTE another audit was running; waited 300s"), then leg 8
+  parsed the lock message as the verdict: "FAIL could not read both coverage counts ... (coverage=none, drift=135). The
+  anchor has gone stale" (8 passed, 5 failed = one leg, five lines). Runs 2-3 never started: my loop's
+  `pgrep -f agents/audit/audit.sh` matched its own command line; run 1's output already names the cause, so it was
+  stopped rather than repeated. Fix: the wait bound is `T344_WAIT_MAX` (default 900 s > 492 s), and a lock still held
+  after it is reported as "coverage count UNMEASURED: another audit still held the lock", never as a stale anchor.
+  `tests/test_t1307_t344_lock_wait.py` (core): 0/3 on the old script, 3/3 on the new; real `_t344` 9/0, `_t550`
+  teeth 5/5, `_t345` passes. Not the same as the original 2-fail red, which stays unexplained.)*
 - [ ] The core tier stays green with the changed guard.
 
 ### Human
@@ -151,6 +160,8 @@ printed only the successor's last 5 lines, so the two failing legs were never na
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+python3 tests/test_t1307_t344_lock_wait.py
+bash tools/_t345-fabric-check-agreement.sh
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
