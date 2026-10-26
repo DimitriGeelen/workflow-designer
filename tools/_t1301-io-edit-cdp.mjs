@@ -115,17 +115,20 @@ const PAGE = `(function(){
     if (open && t && !ed) { t.click(); return window.__controls(kind, idx, false); }
     var r = { found: true, toggles: rows.length, open: !!ed, keys: [], hints: [] };
     if (ed) {
-      ed.querySelectorAll('[data-attr]').forEach(function(c){ if (c.matches('input,select')) r.keys.push(c.dataset.attr); });
+      ed.querySelectorAll('[data-attr]').forEach(function(c){ if (c.matches('input,select,textarea')) r.keys.push(c.dataset.attr); });
       ed.querySelectorAll('.io-attr-hint').forEach(function(h){ if (h.textContent.trim()) r.hints.push(h.dataset.attr + ': ' + h.textContent.trim()); });
-      var rf = ed.querySelector('input[data-attr="ref"]');
-      r.refList = rf && rf.list ? Array.from(rf.list.options).map(function(o){ return o.value; }) : null;
+      var pk = ed.querySelector('select[data-pick="ref"]');
+      r.refList = pk ? Array.from(pk.options).map(function(o){ return o.value; }).filter(Boolean) : null;
+      // a text value must be shown whole: a wrapping field as tall as its content (T-1301 review: clipped refs)
+      r.clipped = Array.from(ed.querySelectorAll('textarea')).filter(function(t){ return t.value && t.scrollHeight > t.clientHeight + 1; }).map(function(t){ return t.dataset.attr; });
     }
     return r;
   };
   window.__set = function(kind, idx, attr, value){   // through the control, as a person would
     window.__controls(kind, idx, true);
     var b = block(kind), t = b.querySelectorAll('.io-attrs-toggle')[idx], ed = t && t.nextElementSibling;
-    var c = ed && ed.querySelector('input[data-attr="' + attr + '"], select[data-attr="' + attr + '"]');
+    var c = !ed ? null : attr === 'ref:pick' ? ed.querySelector('select[data-pick="ref"]')
+      : ed.querySelector('input[data-attr="' + attr + '"], select[data-attr="' + attr + '"], textarea[data-attr="' + attr + '"]');
     if (!c) return 'no control for ' + attr;
     c.value = value;
     if (c.tagName !== 'SELECT') c.dispatchEvent(new Event('input', { bubbles: true }));
@@ -234,11 +237,19 @@ async function main() {
     if (!(fU.hints || []).some(h => h.indexOf('typeRef') === 0 && h.indexOf('zz') >= 0)) errs.push('f: no hint for the undeclared prefix zz on typeRef');
     if ((fD.hints || []).some(h => h.indexOf('fieldRef') === 0)) errs.push('f: a hint on fieldRef although sfdc is declared');
 
-    // g. ref datalist: the refs already in the map
+    // g. ref suggestions: the OTHER refs already in the map are offered, and picking one sets ref; long values shown whole
     await fresh(NO_META, 't1301_a');
     const g = await E(`window.__controls('inputs', 0, true)`);
-    legs.g = { refList: g.refList };
-    if (!g.refList || ['nid:attr-opportunity-id', 'nid:attr-account-company'].some(v => g.refList.indexOf(v) < 0)) errs.push('g: the ref field does not offer the refs already in the map');
+    const gSet = await E(`window.__set('inputs', 0, 'ref:pick', 'nid:attr-account-company')`);
+    const gIt = (await items(await save(), 't1301_a'))[0];
+    await fresh(NO_META, 't1301_a');
+    await E(`window.__set('inputs', 0, 'ref', 'nid:attr-a-very-long-producer-attribute-identifier-that-cannot-fit')`);
+    const gLong = await E(`window.__controls('inputs', 0, true)`);
+    legs.g = { refList: g.refList, picked: gIt.attrs.ref, clipped: gLong.clipped };
+    if (!g.refList || g.refList.indexOf('nid:attr-account-company') < 0 || g.refList.indexOf('nid:attr-opportunity-id') >= 0)
+      errs.push('g: the ref picker should offer the map\'s other refs (not the current one): ' + JSON.stringify(g.refList));
+    if (gSet !== 'ok' || gIt.attrs.ref !== 'nid:attr-account-company') errs.push('g: picking a ref from the map did not set it');
+    if (!gLong.clipped || gLong.clipped.length) errs.push('g: a long value is clipped in its field: ' + JSON.stringify(gLong.clipped));
 
     // h. a closed toggle on every io (v1 and style A); opening shows controls; open + select + save with no edit changes nothing
     await fresh(NO_META, 't1301_v1');

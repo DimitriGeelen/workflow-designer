@@ -1224,6 +1224,9 @@ font-family: 'Outfit';
   .io-attr-k { font-family: var(--mono); font-size: 10px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; }
   .io-attr-v { width: 100%; padding: 2px 6px; }
   select.io-attr-v { padding-right: 16px; }
+  textarea.io-attr-v { resize: none; overflow: hidden; field-sizing: content; min-height: 22px; line-height: 1.4;
+                       white-space: pre-wrap; overflow-wrap: anywhere; display: block; }
+  .io-ref-pick { grid-column: 2; margin-top: 2px; color: var(--text-dim); }
   .io-attr-hint { grid-column: 2; font-size: 10px; color: var(--orange); }
   .io-attr-hint:empty { display: none; }
   .io-v11-when { padding-left: 14px; }
@@ -8903,7 +8906,6 @@ function ioUndeclaredPrefix(k, v) {   // a CURIE prefix the map does not declare
   if (!m || ['http', 'https', 'urn'].includes(m[1].toLowerCase())) return null;
   return procMetaInfo(state).prefixes.some(p => p.name === m[1]) ? null : m[1];
 }
-let _ioRefListSeq = 0;
 function ioRefValues() {   // the ref values already used in the open map, for the ref field's suggestions
   const out = new Set();
   for (const n of (state && state.nodes) || []) {
@@ -8947,17 +8949,13 @@ function ioAttrsEditor(item, isInput) {
         c.appendChild(e);
       }
     } else {
-      c = document.createElement('input');
-      c.type = 'text';
+      // a wrapping field that grows with its value: a single-line input cut a producer's IRI at every window width
+      // (the panel has a fixed width; T-1301 review). Enter commits instead of adding a line.
+      c = document.createElement('textarea');
+      c.rows = Math.max(1, Math.ceil(val.length / 24));   // where field-sizing:content is not supported
       c.value = val;
       c.spellcheck = false;   // no placeholder: a muted word in an empty field read as a default value (T-1301 sweep)
-      if (k === 'ref') {
-        const dl = document.createElement('datalist');
-        dl.id = 'io-ref-values-' + (++_ioRefListSeq);
-        for (const v of ioRefValues()) { const o = document.createElement('option'); o.value = v; dl.appendChild(o); }
-        row.appendChild(dl);
-        c.setAttribute('list', dl.id);
-      }
+      c.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); c.blur(); } });
     }
     c.className = (IO_EDIT_CHOICES[k] ? 'io-type' : 'io-name') + ' io-attr-v';   // the io row's own control look
     c.dataset.attr = k;
@@ -8965,6 +8963,20 @@ function ioAttrsEditor(item, isInput) {
     c.title = (val ? val + '\n' : '') + (IO_EDIT_HELP[k] || '');
     c.addEventListener('change', e => { if (ioSetAttr(item, k, e.target.value.trim())) renderProperties(); });
     row.appendChild(c);
+    if (k === 'ref') {   // the refs already in this map, offered explicitly (a datalist cannot ride a wrapping field)
+      const refs = ioRefValues().filter(v => v !== val);
+      if (refs.length) {
+        const pick = document.createElement('select');
+        pick.className = 'io-type io-attr-v io-ref-pick';
+        pick.dataset.pick = 'ref';
+        const first = document.createElement('option');
+        first.value = ''; first.textContent = 'use a ref from this map…';
+        pick.appendChild(first);
+        for (const v of refs) { const o = document.createElement('option'); o.value = v; o.textContent = v; pick.appendChild(o); }
+        pick.addEventListener('change', e => { if (e.target.value && ioSetAttr(item, 'ref', e.target.value)) renderProperties(); });
+        row.appendChild(pick);
+      }
+    }
     const pfx = ioUndeclaredPrefix(k, val);
     const hint = document.createElement('span');
     hint.className = 'io-attr-hint';

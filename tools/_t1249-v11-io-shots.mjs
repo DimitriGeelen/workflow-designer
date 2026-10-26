@@ -97,7 +97,9 @@ ${task('Task_empty', 'Notify', 't1249_empty', '')}
 // T-1301: stylea-edit / v1-edit open the io attributes editor (4th field: the edit toggles to click, in panel order);
 // last, because an open editor stays open for the rest of that width.
 const STATES = [['v11-step', 't1249_v11', 'I/O contract'], ['v1-step', 't1249_v1', 'I/O contract'], ['stylea-step', 't1249_stylea', 'I/O contract'], ['empty-step', 't1249_empty', 'I/O contract'], ['workflow', null, 'Mapping'],
-  ['stylea-edit', 't1249_stylea', 'I/O contract', [0, 2]], ['v1-edit', 't1249_v1', 'I/O contract', [0]]];
+  ['stylea-edit', 't1249_stylea', 'I/O contract', [0, 2]], ['v1-edit', 't1249_v1', 'I/O contract', [0]],
+  // T-1301 review: the undeclared-prefix hint, typed into typeRef of the v1 step's first input (zz is not declared)
+  ['hint-edit', 't1249_v1', 'I/O contract', { open: [0], set: { typeRef: 'zz:Thing' } }]];
 const WIDTHS = [[1024, 768], [1440, 900], [1920, 1080]];
 
 async function main() {
@@ -126,7 +128,12 @@ async function main() {
             selection = { kind: 'node', id: n.id }; multiSelect = new Set([n.id]); }
           else { selection = null; multiSelect = new Set(); }
           renderAll(); renderProperties();
-          ${JSON.stringify(opens || [])}.forEach(function(i){ var t = document.querySelectorAll('#properties .io-attrs-toggle')[i]; if (t) t.click(); });
+          var spec = ${JSON.stringify(opens || [])}, op = Array.isArray(spec) ? spec : (spec.open || []);
+          op.forEach(function(i){ var t = document.querySelectorAll('#properties .io-attrs-toggle')[i]; if (t && !t.classList.contains('open')) t.click(); });
+          Object.keys(spec.set || {}).forEach(function(k){
+            var c = document.querySelector('#properties .io-attrs [data-attr="' + k + '"]');
+            if (c) { c.value = spec.set[k]; c.dispatchEvent(new Event('change', { bubbles: true })); }
+          });
           var p = document.getElementById('properties');
           var sec = Array.from(p.querySelectorAll('.props-section')).filter(function(s){ var t = s.querySelector('.props-section-title'); return t && t.textContent.indexOf(${JSON.stringify(title)}) === 0; })[0];
           p.scrollTop = 0;
