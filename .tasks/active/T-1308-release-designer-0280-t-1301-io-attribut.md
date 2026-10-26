@@ -153,6 +153,10 @@ runs as its own step before the push, so the hook finds a green cache.
 
 ## Verification
 
+git ls-remote --exit-code --tags origin designer-v0.28.0 >/dev/null
+test "$(sha256sum dist/aef-workflow-designer-0.28.0.html | cut -c1-64)" = f8c5e15f9d8e6e0de670209e7abf25d632d506d5c215bc74ecbd17e8aade45fb
+test "$(git rev-parse designer-v0.28.0^{commit})" = "$(git log -1 --format=%H -- dist/aef-workflow-designer-0.28.0.html)"
+
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -306,6 +310,13 @@ runs as its own step before the push, so the hook finds a green cache.
 -->
 
 ## Evolution
+
+### 2026-10-26 — the new release shape held
+- **What changed:** the job shape built from 086's lessons (bump in the job, core tier as its own step before the push)
+  ran end to end: all 9 steps of job 087, rc=0. The push found the tier green and went through in seconds, where 086's
+  hook-run tier had been cut off by the server.
+- **Plan impact:** none. Job 088 (0.29.0) reuses it unchanged, and it is the template for later releases.
+- **Triggered:** nothing new.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
