@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1307: _t344 (via _t345 guard) went red inside the core tier (8 passed, 2 failed) but is 9/9 alone and under hermetic conditions
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-26T15:36:17Z
+# ============================================================================
+
+task_id: T-1307
+task_name: "_t344 (via _t345 guard) went red inside the core tier (8 passed, 2 failed) but is 9/9 alone and under hermetic conditions"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-26T09:43:14Z
+completed: 2026-10-26T15:35:02Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-10-26T13:59:29+01:00
+last_commit: 2026-10-26T14:30:19+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the _t345 guard prints every FAIL line of its successor (and the lines under it) plus the totals, not the last 5 lines, which hid the two early legs that went red in the 2026-10-26 core run; proven with a stand-in successor (T345_SUCCESSOR, tests only): new names the early failure, old printed none. T-1312 filed: ref picker over a project field catalog (greenfield's proposal; AEF recorded it as the fifth T-4737 candidate). _t344 waits out a full audit (T344_WAIT_MAX, default 900 s > the 492 s measured) and reports a lock still held as UNMEASURED, not a stale anchor. Reproduced: a concurrent full audit outlasted the fixed 300 s wait and leg 8 parsed the lock message as the verdict. tests/test_t1307_t344_lock_wait.py (core) 0/3 old, 3/3 new
+
+# Key outcomes
+outcomes:
+  - '`_t345` prints EVERY `FAIL` line of its successor (plus the totals), not the last 5 lines. Proven with a stand-in'
+  - 'Hypothesis 1 (a concurrent `fw audit` during `_t344`) is tested: `_t344` is run while audits are running, several'
+  - 'The core tier stays green with the changed guard.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: '_t344 waits out a full audit (T344_WAIT_MAX, default 900 s > the 492 s measured) and reports a lock still held as UNMEASURED, not a stale anchor. Reproduced: a concurrent full audit outlasted the fixed 300 s wait and leg 8 parsed the lock message as the verdict. tests/test_t1307_t344_lock_wait.py (core) 0/3 old, 3/3 new'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1307-t344-via-t345-guard-went-red-inside-the-.md'
+  - '.tasks/active/T-1312-ref-picker-over-a-project-field-catalog-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t1307_t344_lock_wait.py'
+  - 'tools/_t344-watch-set-denominator.sh'
+  - 'tools/_t345-fabric-check-agreement.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-26T13:59:29'
+    action: 'T-1307: the _t345 guard prints every FAIL line of its successor (and the lines under it) plus the totals, not the last 5 lines, which hid the two early legs that went red in the 2026-10-26 core run; proven with a stand-in successor (T345_SUCCESSOR, tests only): new names the early failure, old printed none. T-1312 filed: ref picker over a project field catalog (greenfield''s proposal; AEF recorded it as the fifth T-4737 candidate)'
+  - time: '2026-10-26T14:30:19'
+    action: 'T-1307: _t344 waits out a full audit (T344_WAIT_MAX, default 900 s > the 492 s measured) and reports a lock still held as UNMEASURED, not a stale anchor. Reproduced: a concurrent full audit outlasted the fixed 300 s wait and leg 8 parsed the lock message as the verdict. tests/test_t1307_t344_lock_wait.py (core) 0/3 old, 3/3 new'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 351 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 351
+  commits: 3
+  files_changed: 89
+  lines_added: 18087
+  lines_removed: 24
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1307-t344-via-t345-guard-went-red-inside-the-.md
+generated_by: context-agent-hybrid
