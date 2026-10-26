@@ -65,10 +65,13 @@ T-4779 / be.27, not vendored yet); the notes check covers all five endpoints AEF
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Job 090 passes its dry-run (step 1 rehearsed), is committed and handed over, with the watcher armed.
-- [ ] After the run: tag `designer-v0.30.0` on origin and the GitHub mirror; AEF and aef-greenfield-test told (version,
+- [x] Job 090 passes its dry-run (step 1 rehearsed), is committed and handed over, with the watcher armed.
+  *(ran 2026-10-27 00:10-00:35 local, all 9 steps rc=0; codex and GLM-5.3 calibration PASS; core green in step 8.)*
+- [x] After the run: tag `designer-v0.30.0` on origin and the GitHub mirror; AEF and aef-greenfield-test told (version,
   tag, sha256, bytes, changes); greenfield asked to confirm the field order on its real path and the picker with its stub
   (recorded as partial, T-1312).
+  *(tag f66c1e7d on origin; GitHub mirror 200; sha256 137810095a…1bcd6, 1261404 bytes; kit SHA256SUMS 66f0c3ba…92fb;
+  AEF on 832-designer-repin-0.20.0, greenfield on gf-io-v11-check-2026-10-24.)*
 - [ ] AEF's pin is followed until `tools/_t1187-aef-pin-lag.sh` reads CURRENT.
 
 ### Human

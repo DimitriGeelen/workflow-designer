@@ -78,8 +78,10 @@ reach a commit (a pathspec-free commit by anything) or break `git diff --cached`
   path can no longer reach a commit even if a sandbox leaks again.
   *(`git rm --cached -r .context/st`: 138 staged deletions, `git ls-files .context/st` = 0; `.gitignore` gains
   `.context/st/`; test leg 4)*
-- [ ] Release jobs commit by pathspec: the job generator / the next release job's bump step names its paths in
+- [x] Release jobs commit by pathspec: the job generator / the next release job's bump step names its paths in
   `git commit` (088's did not).
+  *(job 090 (0.30.0): `do_bump` and `do_commit` pass `-- <paths>` to `git commit`, plus a preflight that the index is
+  empty; it ran clean 2026-10-27. Next release jobs are written from 090.)*
 - [x] Root cause confirmed by a reproduction: a core-tier leg run with TMPDIR inside the repo stages paths in the real
   index (index snapshot before/after), and which command does it is named here.
   *(`TMPDIR=.context/st/t1313-repro bash tools/_t630-p011-stdin-swallow.sh`: staged 0 before, 6 after. The command is
