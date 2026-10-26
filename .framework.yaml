@@ -1,7 +1,7 @@
 # Agentic Engineering Framework - Project Configuration
 # framework_path removed (T-498) — fw resolves from .agentic-framework/bin/fw location
 project_name: 832-Workflow-designer
-version: 1.8.13+320.g346c4ed33
+version: 1.8.14+1099.g04dc39868
 provider: claude
 initialized_at: 2026-06-04T07:53:19Z
 inception_commit_limit: 15
@@ -10,9 +10,9 @@ upstream_repo:
 INCEPTION_COMMIT_LIMIT: 15
 CONTEXT_WINDOW: 1000000
 BVP_AUTO_CONFIRM: 1
-upgraded_from: 1.8.12
-version_sha: 346c4ed330ff14afc60d215ea9b117efe94489cc
-last_upgrade: 2026-10-20T15:24:20Z
+upgraded_from: 1.8.14+1064.gfea3e4c76
+version_sha: 04dc39868c32aec73e2ccdea4f9e067c28aa05cd
+last_upgrade: 2026-10-23T13:11:31Z
 project_id: pid-6da630d5b53b170f
 MESSAGING_TOOLKIT: 1
 RAIL_IDENTITY_FILE: .context/secrets/termlink-identity.key
