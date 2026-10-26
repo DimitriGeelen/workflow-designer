@@ -113,6 +113,10 @@ Tags to batch (take the newest when this starts):
 - **After be.17** (AEF notice msg 0d60e494, 2026-10-25, going offline): five v1.8.15 release blockers (AEF T-4744..T-4748)
   are fixed on AEF's bleeding-edge but in no be tag yet; the v1.8.15 master release waits on AEF's operator. Prefer the tag
   that carries them (be.18 or v1.8.15) over be.17 for this batch.
+- **be.28** 81c2d5e82 (msg 7cab2334): T-4781 claude-fw runs one tmux server per project (`tmux -L fw-agents-<fw-project
+  id>`), not the shared `fw-agents`; sidecar inject still searches the legacy servers during the transition; `fw doctor`
+  WARNs on a shared server. Running sessions stay on the legacy server until relaunched. After the upgrade: relaunch via
+  claude-fw (the operator) and check the sidecar receiver reaches the new server. **Newest at this note; the target.**
 - **be.27** eea53bb06 (msg 465d0f7b): carries BOTH of 832's 2026-10-26 reports: T-4777 (update-task.sh close-path git
   writes only when PROJECT_ROOT is the top of its own repo; 832 T-1313 nested-sandbox staging) and T-4779 (stale-review
   ignores release-artifact dist/ copies and content-identical paths; a withdrawn tick prints WITHDRAWN:; 832's T-1304/
