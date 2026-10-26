@@ -83,10 +83,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 3658
-  commits: 3
-  files_changed: 7
-  lines_added: 573
-  lines_removed: 39
+  commits: 4
+  files_changed: 11
+  lines_added: 804
+  lines_removed: 49
+  footprint_refreshed_at: '2026-10-26T11:12:56Z'
+  footprint_refreshed_by_commit: 460a3e59
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1286-quality-engine-1-deep-rehearsal-for-oper.md
