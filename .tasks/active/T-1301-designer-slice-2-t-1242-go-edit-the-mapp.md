@@ -123,9 +123,11 @@ Built in an isolated clone (`.context/working/t1301-dev`) while release job 086 
 ### Human
 - [ ] The io attributes editor is legible, compact and usable at every width, and editing reads as editing
   For the independent reviewer: `fw reviewer judge T-1301 --criterion 1` (classify-ac: REVIEWER-JUDGES, render-surface;
-  no operator carve-out, so no `[REVIEW]` label: tools/_t1066-why-you-check.py).
+  no operator carve-out, so no `[REVIEW]` label: tools/_t1066-why-you-check.py). Re-judged on 0.29.0: verdict
+  V-20261026-3a9da9e8 (0.28.0) was withdrawn as stale-review (the editor changed since: fields, T-1302; whole names, T-1305).
   **Steps:**
-  1. Open the T-1301 evidence screenshots (paths in `## Visual Verification`) at 1024, 1440 and 1920.
+  1. Open the 0.29.0 screenshots in `docs/reports/T-1302-evidence/` (`stylea-edit-*`, `v1-edit-*`, `hint-edit-*`,
+     `longname-*` and the closed `stylea-step-*`, `v11-step-*`) at 1024, 1440 and 1920.
   2. For each io row: the toggle, every field and select, its label, and the hint for an undeclared prefix.
   3. Compare the untouched states (v1, empty, workflow) with the 0.27.0 screenshots in `docs/reports/T-1304-evidence/`.
   **Expected:** every control is visible, reachable and unclipped; each field clearly belongs to its row; it is obvious

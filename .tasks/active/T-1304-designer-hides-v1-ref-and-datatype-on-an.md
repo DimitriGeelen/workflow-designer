@@ -109,17 +109,20 @@ is informational only, preserved verbatim. Display: `src/aef-workflow-designer.h
   attribute", "role read", "dataType id  informational"; 17/17 aef:io byte-exact with no edits.")*
 
 ### Human
-- [ ] [REVIEW] A producer's style-A io shows ref, role and dataType legibly, tied to its row, read-only, at every width
+- [ ] A producer's style-A io shows ref, role and dataType legibly, tied to its row, read-only, at every width (as shipped in 0.29.0)
+  For the independent reviewer: `fw reviewer judge T-1304 --criterion 1` (classify-ac: REVIEWER-JUDGES, render-surface;
+  no operator carve-out, so no `[REVIEW]` label: tools/_t1066-why-you-check.py). Re-judged on 0.29.0: the 0.27.0 verdict
+  V-20261024-4bd97453 was withdrawn as stale-review (the io panel changed since, T-1301/T-1302/T-1305).
   **Steps:**
-  1. Open `docs/reports/T-1304-evidence/stylea-step-1024-panel.png`, `-1440-panel.png`, `-1920-panel.png` and the three
-     full-window `stylea-step-{1024,1440,1920}.png`.
-  2. For each io row (two inputs, one output), read the line under it: `ref <nid:…> v1 attribute`, `role read|write`,
-     `dataType <id|reference|string> informational`.
-  3. Compare `v11-step-*`, `v1-step-*`, `empty-step-*`, `workflow-*` with `docs/reports/T-1249-evidence/` (same names): they
-     must look as before.
-  **Expected:** every value is readable and unclipped, clearly belongs to its own io row, contains no editable control, and
-  the hints read as hints (not values, not a version). The neighbouring states are unchanged. The cut io NAME boxes are a
-  known, separate item (T-1305) and not part of this judgement.
+  1. Open `docs/reports/T-1302-evidence/stylea-step-1024-panel.png`, `-1440-panel.png`, `-1920-panel.png` and the three
+     full-window `stylea-step-{1024,1440,1920}.png` (taken on the 0.29.0 source; only APP_VERSION differs).
+  2. For each io row (two inputs, one output), read the summary under it: `ref <nid:…> v1 attribute`, `role read|write`,
+     `dataType <id|reference|string> informational`, and the row's closed `▸ edit attributes` toggle (T-1301).
+  3. Compare `v11-step-*`, `v1-step-*`, `empty-step-*`, `workflow-*` in the same folder with `docs/reports/T-1249-evidence/`
+     (same names): apart from the toggle and the io name now shown whole (T-1305), they must look as before.
+  **Expected:** every value is readable and unclipped and clearly belongs to its own io row; the summary itself has no
+  editable control (editing sits behind the toggle); the hints read as hints (not values, not a version); io names are
+  shown whole. The neighbouring states are unchanged apart from the toggle and the whole names.
   **If not:** name the file, the row and what is wrong.
 
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
