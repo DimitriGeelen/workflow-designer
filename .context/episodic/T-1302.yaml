@@ -1,0 +1,208 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1302: Designer slice 3 (T-1242 GO): edit aef:field / aef:expect / aef:example children of an io
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-26T16:36:07Z
+# ============================================================================
+
+task_id: T-1302
+task_name: "Designer slice 3 (T-1242 GO): edit aef:field / aef:expect / aef:example children of an io"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-24T21:04:18Z
+completed: 2026-10-26T16:35:29Z
+duration_days: 2
+updates_count: 3
+first_commit: 2026-10-26T12:31:32+01:00
+last_commit: 2026-10-26T17:35:27+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the fields (aef:field children) of an io are editable — in the io editor a 'fields' list: path or fieldRef, role, cardinality, required, remove, and '+ add field'. Only the edited child is re-serialised (attributes set in place, new ones appended, aef:when kept); untouched children, aef:expect, aef:example and unknown children keep their bytes; the summary hides field lines while editing. Harness legs j1-j7 (edit, a field with aef:when, add, remove, other step byte-exact, expect not a field, every field control inside its editor and on top at 1024/1440) red on 0.28.0, green now. T-1309 split off: expect/example editing. Screenshots: fields-edit, field-add. sweep fixes — a dotted line between fields, the empty address prompts 'path…'/'fieldRef…', 'cardinality —' shown whole; screenshot state fields-when (a field with aef:when); Visual Verification written. T-1310 filed (faint req/x, pre-existing). reviewer verdict. reviewer green (applied via fw reviewer verdict apply); the neighbours count corrected to the reviewer's (29 identical + 3 sub-visible, not 32). greenfield confirmed on 0.29.0 through its real save path (msg 7b92a590): edit with aef:when kept, remove, add; exactly those changes landed. Last agent criterion ticked. close attempt withdrew the reviewer verdict as stale-review (release commit 7969660d names T-1302 and adds dist/; the reviewed shots are of the same 0.29.0 source) — re-judging on the same evidence; pattern reported to AEF. re-judged green on the same 0.29.0 shots (V-20261026-360fb79a), applied; Verification gains the harness. T-1311: three criteria met (088/089, tag on origin and mirror, AEF and greenfield told; repin is AEF T-4780; T-4779 filed for the stale-review pattern). Evolution written
+
+# Key outcomes
+outcomes:
+  - 'In the io''s attribute editor (T-1301), a "fields" list shows each `aef:field` child as an editable row: path or'
+  - 'Round trip: a child that is not edited keeps its exact bytes (including `aef:when` children and the source''s'
+  - 'A field with `aef:when` children can be edited (its attributes) without losing them.'
+  - 'Harness legs (in `_t1301-io-edit-cdp.mjs`): add a field and set its path and role; edit one attribute of an existing'
+  - 'Person-sees gate exit 0; advisory sweep; screenshots (an io with fields, editor open; adding a field) at'
+  - 'Released, then greenfield adds a field on its own map and confirms (arc-006 rule).'
+  - 'The fields list in the io editor is legible, compact and clearly part of its io, at every width'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'sweep fixes — a dotted line between fields, the empty address prompts ''path…''/''fieldRef…'', ''cardinality —'' shown whole; screenshot state fields-when (a field with aef:when); Visual Verification written. T-1310 filed (faint req/x, pre-existing)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1302/AC1-judge-t-1302-r3-1cd14c2db485.md'
+  - '.context/reviews/evidence/T-1302/AC1-judge-t-1302-r3-2ecb2d9bd7cd.md'
+  - '.context/reviews/evidence/T-1302/field-add-1440-panel-end-judge-t-1302-r3-2ecb2d9bd7cd.png'
+  - '.context/reviews/evidence/T-1302/field-add-1920-panel-end-judge-t-1302-r3-1cd14c2db485.png'
+  - '.context/reviews/evidence/T-1302/fields-edit-1024-panel-end-judge-t-1302-r3-2ecb2d9bd7cd.png'
+  - '.context/reviews/evidence/T-1302/fields-edit-1024-zoom-judge-t-1302-r3-1cd14c2db485.png'
+  - '.context/reviews/evidence/T-1302/fields-edit-1024-zoom-judge-t-1302-r3-2ecb2d9bd7cd.png'
+  - '.context/reviews/evidence/T-1302/fields-edit-1440-panel-end-judge-t-1302-r3-1cd14c2db485.png'
+  - '.context/reviews/evidence/T-1302/fields-when-1024-panel-judge-t-1302-r3-1cd14c2db485.png'
+  - '.context/reviews/evidence/T-1302/fields-when-1024-zoom-judge-t-1302-r3-1cd14c2db485.png'
+  - '.context/reviews/evidence/T-1302/fields-when-1920-panel-judge-t-1302-r3-2ecb2d9bd7cd.png'
+  - '.context/reviews/evidence/T-1302/longname-1440-T1305-vs-T1302-judge-t-1302-r3-1cd14c2db485.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1302-designer-slice-3-t-1242-go-edit-aeffield.md'
+  - '.tasks/active/T-1309-designer-edit-aefexpect--aefexample-chil.md'
+  - '.tasks/active/T-1310-io-row-req-and-x-are-small-and-faint-two.md'
+  - '.tasks/active/T-1311-release-designer-0290-t-1302-fields-edit.md'
+  - 'docs/reports/T-1302-evidence/empty-step-1024-panel.png'
+  - 'docs/reports/T-1302-evidence/empty-step-1024.png'
+  - 'docs/reports/T-1302-evidence/empty-step-1440-panel.png'
+  - 'docs/reports/T-1302-evidence/empty-step-1440.png'
+  - 'docs/reports/T-1302-evidence/empty-step-1920-panel.png'
+  - 'docs/reports/T-1302-evidence/empty-step-1920.png'
+  - 'docs/reports/T-1302-evidence/field-add-1024-panel-end.png'
+  - 'docs/reports/T-1302-evidence/field-add-1024-panel.png'
+  - 'docs/reports/T-1302-evidence/field-add-1024.png'
+  - 'docs/reports/T-1302-evidence/field-add-1440-panel-end.png'
+  - 'docs/reports/T-1302-evidence/field-add-1440-panel.png'
+  - 'docs/reports/T-1302-evidence/field-add-1440.png'
+  - 'docs/reports/T-1302-evidence/field-add-1920-panel-end.png'
+  - 'docs/reports/T-1302-evidence/field-add-1920-panel.png'
+  - 'docs/reports/T-1302-evidence/field-add-1920.png'
+  - 'docs/reports/T-1302-evidence/fields-edit-1024-panel-end.png'
+  - 'docs/reports/T-1302-evidence/fields-edit-1024-panel.png'
+  - 'docs/reports/T-1302-evidence/fields-edit-1024.png'
+  - 'docs/reports/T-1302-evidence/fields-edit-1440-panel-end.png'
+  - 'docs/reports/T-1302-evidence/fields-edit-1440-panel.png'
+  - 'docs/reports/T-1302-evidence/fields-edit-1440.png'
+  - 'docs/reports/T-1302-evidence/fields-edit-1920-panel-end.png'
+  - 'docs/reports/T-1302-evidence/fields-edit-1920-panel.png'
+  - 'docs/reports/T-1302-evidence/fields-edit-1920.png'
+  - 'docs/reports/T-1302-evidence/fields-when-1024-panel-end.png'
+  - 'docs/reports/T-1302-evidence/fields-when-1024-panel.png'
+  - 'docs/reports/T-1302-evidence/fields-when-1024.png'
+  - 'docs/reports/T-1302-evidence/fields-when-1440-panel-end.png'
+  - 'docs/reports/T-1302-evidence/fields-when-1440-panel.png'
+  - 'docs/reports/T-1302-evidence/fields-when-1440.png'
+  - 'docs/reports/T-1302-evidence/fields-when-1920-panel-end.png'
+  - 'docs/reports/T-1302-evidence/fields-when-1920-panel.png'
+  - 'docs/reports/T-1302-evidence/fields-when-1920.png'
+  - 'docs/reports/T-1302-evidence/hint-edit-1024-panel.png'
+  - 'docs/reports/T-1302-evidence/hint-edit-1024.png'
+  - 'docs/reports/T-1302-evidence/hint-edit-1440-panel.png'
+  - 'docs/reports/T-1302-evidence/hint-edit-1440.png'
+  - 'docs/reports/T-1302-evidence/hint-edit-1920-panel.png'
+  - 'docs/reports/T-1302-evidence/hint-edit-1920.png'
+  - 'docs/reports/T-1302-evidence/longname-1024-panel-end.png'
+  - 'docs/reports/T-1302-evidence/longname-1024-panel.png'
+  - 'docs/reports/T-1302-evidence/longname-1024.png'
+  - 'docs/reports/T-1302-evidence/longname-1440-panel.png'
+  - 'docs/reports/T-1302-evidence/longname-1440.png'
+  - 'docs/reports/T-1302-evidence/longname-1920-panel.png'
+  - 'docs/reports/T-1302-evidence/longname-1920.png'
+  - 'docs/reports/T-1302-evidence/stylea-edit-1024-panel-end.png'
+  - 'docs/reports/T-1302-evidence/stylea-edit-1024-panel.png'
+  - 'docs/reports/T-1302-evidence/stylea-edit-1024.png'
+  - 'docs/reports/T-1302-evidence/stylea-edit-1440-panel-end.png'
+  - 'docs/reports/T-1302-evidence/stylea-edit-1440-panel.png'
+  - 'docs/reports/T-1302-evidence/stylea-edit-1440.png'
+  - 'docs/reports/T-1302-evidence/stylea-edit-1920-panel-end.png'
+  - 'docs/reports/T-1302-evidence/stylea-edit-1920-panel.png'
+  - 'docs/reports/T-1302-evidence/stylea-edit-1920.png'
+  - 'docs/reports/T-1302-evidence/stylea-step-1024-panel.png'
+  - 'docs/reports/T-1302-evidence/stylea-step-1024.png'
+  - 'docs/reports/T-1302-evidence/stylea-step-1440-panel.png'
+  - 'docs/reports/T-1302-evidence/stylea-step-1440.png'
+  - 'docs/reports/T-1302-evidence/stylea-step-1920-panel.png'
+  - 'docs/reports/T-1302-evidence/stylea-step-1920.png'
+  - 'docs/reports/T-1302-evidence/v1-edit-1024-panel.png'
+  - 'docs/reports/T-1302-evidence/v1-edit-1024.png'
+  - 'docs/reports/T-1302-evidence/v1-edit-1440-panel.png'
+  - 'docs/reports/T-1302-evidence/v1-edit-1440.png'
+  - 'docs/reports/T-1302-evidence/v1-edit-1920-panel.png'
+  - 'docs/reports/T-1302-evidence/v1-edit-1920.png'
+  - 'docs/reports/T-1302-evidence/v1-step-1024-panel.png'
+  - 'docs/reports/T-1302-evidence/v1-step-1024.png'
+  - 'docs/reports/T-1302-evidence/v1-step-1440-panel.png'
+  - 'docs/reports/T-1302-evidence/v1-step-1440.png'
+  - 'docs/reports/T-1302-evidence/v1-step-1920-panel.png'
+  - 'docs/reports/T-1302-evidence/v1-step-1920.png'
+  - 'docs/reports/T-1302-evidence/v11-step-1024-panel-end.png'
+  - 'docs/reports/T-1302-evidence/v11-step-1024-panel.png'
+  - 'docs/reports/T-1302-evidence/v11-step-1024.png'
+  - 'docs/reports/T-1302-evidence/v11-step-1440-panel-end.png'
+  - 'docs/reports/T-1302-evidence/v11-step-1440-panel.png'
+  - 'docs/reports/T-1302-evidence/v11-step-1440.png'
+  - 'docs/reports/T-1302-evidence/v11-step-1920-panel.png'
+  - 'docs/reports/T-1302-evidence/v11-step-1920.png'
+  - 'docs/reports/T-1302-evidence/workflow-1024-panel.png'
+  - 'docs/reports/T-1302-evidence/workflow-1024.png'
+  - 'docs/reports/T-1302-evidence/workflow-1440-panel.png'
+  - 'docs/reports/T-1302-evidence/workflow-1440.png'
+  - 'docs/reports/T-1302-evidence/workflow-1920-panel.png'
+  - 'docs/reports/T-1302-evidence/workflow-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tools/_t1249-v11-io-shots.mjs'
+  - 'tools/_t1301-io-edit-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-26T12:31:32'
+    action: 'T-1302: the fields (aef:field children) of an io are editable — in the io editor a ''fields'' list: path or fieldRef, role, cardinality, required, remove, and ''+ add field''. Only the edited child is re-serialised (attributes set in place, new ones appended, aef:when kept); untouched children, aef:expect, aef:example and unknown children keep their bytes; the summary hides field lines while editing. Harness legs j1-j7 (edit, a field with aef:when, add, remove, other step byte-exact, expect not a field, every field control inside its editor and on top at 1024/1440) red on 0.28.0, green now. T-1309 split off: expect/example editing. Screenshots: fields-edit, field-add'
+  - time: '2026-10-26T12:38:21'
+    action: 'T-1302: sweep fixes — a dotted line between fields, the empty address prompts ''path…''/''fieldRef…'', ''cardinality —'' shown whole; screenshot state fields-when (a field with aef:when); Visual Verification written. T-1310 filed (faint req/x, pre-existing)'
+  - time: '2026-10-26T12:43:52'
+    action: 'T-1302: reviewer verdict'
+  - time: '2026-10-26T12:44:22'
+    action: 'T-1302: reviewer green (applied via fw reviewer verdict apply); the neighbours count corrected to the reviewer''s (29 identical + 3 sub-visible, not 32)'
+  - time: '2026-10-26T16:59:25'
+    action: 'T-1302: greenfield confirmed on 0.29.0 through its real save path (msg 7b92a590): edit with aef:when kept, remove, add; exactly those changes landed. Last agent criterion ticked'
+  - time: '2026-10-26T17:30:54'
+    action: 'T-1302: close attempt withdrew the reviewer verdict as stale-review (release commit 7969660d names T-1302 and adds dist/; the reviewed shots are of the same 0.29.0 source) — re-judging on the same evidence; pattern reported to AEF'
+  - time: '2026-10-26T17:33:09'
+    action: 'T-1302: reviewer verdict'
+  - time: '2026-10-26T17:34:36'
+    action: 'T-1302: re-judged green on the same 0.29.0 shots (V-20261026-360fb79a), applied; Verification gains the harness. T-1311: three criteria met (088/089, tag on origin and mirror, AEF and greenfield told; repin is AEF T-4780; T-4779 filed for the stale-review pattern)'
+  - time: '2026-10-26T17:35:27'
+    action: 'T-1302: Evolution written'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 9 commit(s), 2611 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:structured-io]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2611
+  commits: 9
+  files_changed: 112
+  lines_added: 1118
+  lines_removed: 32
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1302-designer-slice-3-t-1242-go-edit-aeffield.md
+generated_by: context-agent-hybrid
