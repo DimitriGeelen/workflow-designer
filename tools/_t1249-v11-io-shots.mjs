@@ -104,7 +104,9 @@ const STATES = [['v11-step', 't1249_v11', 'I/O contract'], ['v1-step', 't1249_v1
   ['longname', 't1249_v1', 'I/O contract', { name: [0, 'salesforce:OpportunityLineItem.QuoteLineItem.TradeInVehicle.RegistrationNumber'] }],
   // T-1302: the fields of an io in its editor (the v1.1 step's first output: three fields), and adding one (style A)
   ['fields-edit', 't1249_v11', 'I/O contract', { open: [2] }],
-  ['field-add', 't1249_stylea', 'I/O contract', { open: [0], addField: true }]];
+  ['field-add', 't1249_stylea', 'I/O contract', { open: [0], addField: true }],
+  // T-1302 sweep: a field with a condition (aef:when) in the editor: the v1.1 step's first input
+  ['fields-when', 't1249_v11', 'I/O contract', { open: [0] }]];
 const WIDTHS = [[1024, 768], [1440, 900], [1920, 1080]];
 
 async function main() {

@@ -88,18 +88,18 @@ Arc-006, slice 3. greenfield's item (c), "add a field to an io" (msg 49dfbe21). 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] In the io's attribute editor (T-1301), a "fields" list shows each `aef:field` child as an editable row: path or
+- [x] In the io's attribute editor (T-1301), a "fields" list shows each `aef:field` child as an editable row: path or
   fieldRef (text), role (read | write | create | match | delete), required (checkbox), cardinality (one | optional |
   many), and a remove (×). A "+ add field" button appends a new row.
-- [ ] Round trip: a child that is not edited keeps its exact bytes (including `aef:when` children and the source's
+- [x] Round trip: a child that is not edited keeps its exact bytes (including `aef:when` children and the source's
   attribute order). An edited field is written with its own attribute order kept and new attributes appended; a removed
   field is gone; an added field is appended after the existing children. `aef:expect`, `aef:example` and unknown
   children are never touched.
-- [ ] A field with `aef:when` children can be edited (its attributes) without losing them.
-- [ ] Harness legs (in `_t1301-io-edit-cdp.mjs`): add a field and set its path and role; edit one attribute of an existing
+- [x] A field with `aef:when` children can be edited (its attributes) without losing them.
+- [x] Harness legs (in `_t1301-io-edit-cdp.mjs`): add a field and set its path and role; edit one attribute of an existing
   field; remove a field; a field with `aef:when` survives an edit; an untouched sibling child and every other step stay
-  byte-exact. Red on the 0.28.0 source, green on the new.
-- [ ] Person-sees gate exit 0; advisory sweep; screenshots (an io with fields, editor open; adding a field) at
+  byte-exact. Red on the 0.28.0 source, green on the new. *(legs j1-j7)*
+- [x] Person-sees gate exit 0; advisory sweep; screenshots (an io with fields, editor open; adding a field) at
   1024/1440/1920 in `## Visual Verification`.
 - [ ] Released, then greenfield adds a field on its own map and confirms (arc-006 rule).
 
@@ -294,6 +294,23 @@ Arc-006, slice 3. greenfield's item (c), "add a field to an io" (msg 49dfbe21). 
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+
+## Visual Verification
+
+Screenshots: `docs/reports/T-1302-evidence/` (`node tools/_t1249-v11-io-shots.mjs docs/reports/T-1302-evidence`), 87 shots,
+taken after the sweep's fixes. Person-sees gate exit 0 (254 s). Advisory sweep: `.context/working/t1302-sweep.out`.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| fields-edit | field: kind (path/fieldRef) + address | ok | ok | ok | long fieldRefs wrap whole (tacton:Opportunity.crmOppExtId) |
+| fields-edit | field line 2: role, cardinality, req, × | ok | ok | ok | "cardinality —" whole after the sweep (was cut to "cardinality") |
+| fields-edit | boundary between fields | ok | ok | ok | dotted separator added (sweep: blocks ran together) |
+| field-add | new empty field + "+ add field" | ok | ok | ok | address prompts "path…" (sweep: no cue) |
+| fields-when | a field with aef:when: "when ×1" | ok | ok | ok | sweep: no shot showed it; added; fits beside the others |
+| all neighbours | closed states | ok | ok | ok | 32 same-name shots pixel-identical to T-1305 (sweep) |
+
+The faint "req" and "×" (all io rows and field rows) predate this task: T-1310. The harness's j7 leg measures every field
+control inside its editor and on top at its centre (1024, 1440); a first reading of a small screenshot had missed the faint ×.
 
 ## RCA
 
