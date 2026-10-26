@@ -1,0 +1,1 @@
+Steps 1-7 ran on 2026-10-26 (bump f3a08cbc, release commit 7969660d, tag designer-v0.29.0); step 8 (core tier) was red on _t1066 and stopped the job before the push. The fix is in 5f89f36d; job 089 runs the core tier and pushes the branch and the tag. 088 cannot run again (its preflight correctly refuses: the release already exists).

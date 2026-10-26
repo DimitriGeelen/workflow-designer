@@ -13,7 +13,7 @@ description: >
 status: started-work
 workflow_type: build
 current_node: frw_3_run
-owner: human
+owner: agent
 horizon: now
 tags: [arc:structured-io]
 components: []
@@ -121,7 +121,7 @@ Built in an isolated clone (`.context/working/t1301-dev`) while release job 086 
   exactly our edits landed, nothing else moved.")*
 
 ### Human
-- [ ] The io attributes editor is legible, compact and usable at every width, and editing reads as editing
+- [x] The io attributes editor is legible, compact and usable at every width, and editing reads as editing
   For the independent reviewer: `fw reviewer judge T-1301 --criterion 1` (classify-ac: REVIEWER-JUDGES, render-surface;
   no operator carve-out, so no `[REVIEW]` label: tools/_t1066-why-you-check.py). Re-judged on 0.29.0: verdict
   V-20261026-3a9da9e8 (0.28.0) was withdrawn as stale-review (the editor changed since: fields, T-1302; whole names, T-1305).
@@ -178,6 +178,7 @@ Built in an isolated clone (`.context/working/t1301-dev`) while release job 086 
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261026-1fd396fe — reviewer-judge-t-1301-r3-a8e702b54706:reviewer (rung rung-3-termlink-single-reviewer), digest 8430390f0c4b; dispatch judge-t-1301-r3-a8e702b54706; evidence: .context/reviews/evidence/T-1301/AC1-judge-t-1301-r3-a8e702b54706.md, .context/reviews/evidence/T-1301/stylea-edit-1024-panel-end-judge-t-1301-r3-a8e702b54706.png, .context/reviews/evidence/T-1301/hint-edit-1920-judge-t-1301-r3-a8e702b54706.png, .context/reviews/evidence/T-1301/longname-1024-panel-judge-t-1301-r3-a8e702b54706.png, .context/reviews/evidence/T-1301/fields-edit-1920-panel-end-judge-t-1301-r3-a8e702b54706.png, .context/reviews/evidence/T-1301/v1-step-1024-panel-judge-t-1301-r3-a8e702b54706.png, .context/reviews/evidence/T-1301/v1-step-1024-panel-0.27.0-judge-t-1301-r3-a8e702b54706.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -387,6 +388,18 @@ a one-line tooltip; ten visible help lines would double the editor's height.
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-10-25 — a wrapping field, not an input, for producer IRIs
+- **What changed:** the reviewer's amber: single-line inputs cut long refs at every width and the ref datalist could
+  not ride a wrapping field.
+- **Plan impact:** textareas that grow with their value, and an explicit "use a ref from this map…" picker.
+- **Triggered:** T-1305 (io name shown whole), T-1302 (fields), T-1312 (catalog picker, greenfield's proposal).
+
+### 2026-10-26 — confirmed by the producer; re-judged on 0.29.0
+- **What changed:** greenfield edited role, dataType and ref on a copy of VZN-T1 through the real controls: exactly
+  those values changed (msg 0e47b788). The 0.28.0 verdict was withdrawn as stale-review at the close attempt.
+- **Plan impact:** re-judged on the 0.29.0 shots (green V-20261026-1fd396fe).
+- **Triggered:** nothing new.
 
 ## Recommendation
 

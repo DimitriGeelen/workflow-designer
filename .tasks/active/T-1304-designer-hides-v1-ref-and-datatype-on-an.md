@@ -14,7 +14,7 @@ description: >
 status: started-work
 workflow_type: build
 current_node: frw_3_run
-owner: human
+owner: agent
 horizon: now
 tags: [arc:structured-io]
 components: []
@@ -109,7 +109,7 @@ is informational only, preserved verbatim. Display: `src/aef-workflow-designer.h
   attribute", "role read", "dataType id  informational"; 17/17 aef:io byte-exact with no edits.")*
 
 ### Human
-- [ ] A producer's style-A io shows ref, role and dataType legibly, tied to its row, read-only, at every width (as shipped in 0.29.0)
+- [x] A producer's style-A io shows ref, role and dataType legibly, tied to its row, read-only, at every width (as shipped in 0.29.0)
   For the independent reviewer: `fw reviewer judge T-1304 --criterion 1` (classify-ac: REVIEWER-JUDGES, render-surface;
   no operator carve-out, so no `[REVIEW]` label: tools/_t1066-why-you-check.py). Re-judged on 0.29.0: the 0.27.0 verdict
   V-20261024-4bd97453 was withdrawn as stale-review (the io panel changed since, T-1301/T-1302/T-1305).
@@ -172,6 +172,7 @@ is informational only, preserved verbatim. Display: `src/aef-workflow-designer.h
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261026-dedefec8 — reviewer-judge-t-1304-r3-2a44fa309277:reviewer (rung rung-3-termlink-single-reviewer), digest db6a824a586d; dispatch judge-t-1304-r3-2a44fa309277; evidence: .context/reviews/evidence/T-1304/AC1-judge-t-1304-r3-2a44fa309277.md, .context/reviews/evidence/T-1304/stylea-step-1024-panel-judge-t-1304-r3-2a44fa309277.png, .context/reviews/evidence/T-1304/stylea-step-1440-panel-judge-t-1304-r3-2a44fa309277.png, .context/reviews/evidence/T-1304/stylea-step-1920-panel-judge-t-1304-r3-2a44fa309277.png, .context/reviews/evidence/T-1304/cmp-v11-step-1440-panel-judge-t-1304-r3-2a44fa309277.png, .context/reviews/evidence/T-1304/cmp-v1-step-1920-panel-judge-t-1304-r3-2a44fa309277.png, .context/reviews/evidence/T-1304/cmp-empty-step-1440-panel-judge-t-1304-r3-2a44fa309277.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -400,6 +401,20 @@ a byte round trip proves keeping, never showing.
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-10-24 — the producer's real form was not the one we tested
+- **What changed:** slice 1 (T-1249) showed every v1.1 construct, but greenfield writes style A (v1 `ref` + `dataType`,
+  no v1.1 attributes), so its io showed nothing; the operator doubted it and was right.
+- **Plan impact:** harness fixtures must include the producer's actual form, not only the spec's; style-A fixture added.
+- **Triggered:** T-1305 (io names cut at every width, seen in these screenshots); arc-006's rule that a slice is done
+  only when the producer confirms it on its own map.
+
+### 2026-10-26 — a release withdraws the verdict on the screens it changed
+- **What changed:** the close attempt withdrew the 0.27.0 reviewer verdict as stale-review (later commits shipped a
+  changed io panel), which left a `[REVIEW]` criterion without **Why you:** and turned job 088's core tier red.
+- **Plan impact:** a reviewer-judged criterion is written without the `[REVIEW]` label; re-judged on the 0.29.0 shots
+  (green V-20261026-dedefec8). greenfield confirmed the display on its own map (msg 0e47b788).
+- **Triggered:** job 089 (push 0.29.0); T-1313 (sandbox index leak found in the same core run).
 
 ## Recommendation
 
