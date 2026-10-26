@@ -111,7 +111,7 @@ Built in an isolated clone (`.context/working/t1301-dev`) while release job 086 
   change; the raw-layout append; a greenfield style-A item edited; untouched steps byte-exact. It runs as a bridge leg.
   *(`tools/_t1301-io-edit-cdp.mjs`, legs a-h; browser leg `_t1301-io-edit-cdp`. Red on the 0.27.0 source on all eight
   legs, green on the new; `_t1249` (slice 1, incl. T-1304's f/g) still green.)*
-- [ ] Person-sees gate exit 0; advisory sweep; screenshots (row closed and open; style A; v1.1; v1; empty) at
+- [x] Person-sees gate exit 0; advisory sweep; screenshots (row closed and open; style A; v1.1; v1; empty) at
   1024/1440/1920, read control by control in `## Visual Verification`.
 - [ ] Released, then greenfield edits on its own map and confirms with its own check script (arc-006 rule).
 
@@ -312,6 +312,27 @@ node tools/_t1249-v11-io-cdp.mjs > .context/working/t1301-v1249.out 2>&1 && head
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+
+## Visual Verification
+
+Screenshots: `docs/reports/T-1301-evidence/` (`node tools/_t1249-v11-io-shots.mjs docs/reports/T-1301-evidence`), taken after
+the sweep's two fixes. Person-sees gate: exit 0, 6/6, 283 s. Advisory sweep (codex): `.context/working/t1301-sweep.out`.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| stylea-edit | ▸ edit attributes / ▾ close editor | ok | ok | ok | "done editing" read as save (sweep): renamed |
+| stylea-edit | ref, fieldRef, typeRef, schemaRef, conceptRef fields | clipped | clipped | clipped | a long ref is cut by the panel's fixed width; full value in the tooltip; layout fix T-1305 |
+| stylea-edit | role, operation, cardinality dropdowns | ok | ok | ok | arrows intact; a producer's own value is kept as an extra option |
+| stylea-edit | sourceSystem (input) / targetSystem (output), dataType | ok | ok | ok | |
+| stylea-edit | editor tied to its row | ok | ok | ok | accent bar; the open row's summary hidden, the closed row's kept |
+| stylea-edit | two editors open | ok | ok | ok | at 1024 the second editor needs a scroll (-panel-end) |
+| v1-edit | empty fields | ok | ok | ok | "informational" placeholder removed (read as a default value) |
+| stylea-step / v11-step / v1-step | closed toggle under each io | ok | ok | ok | only change vs 0.27.0: the toggle line |
+| empty-step / workflow | panel | ok | ok | ok | pixel-identical to T-1304 |
+| all | toolbar | ok | ok | ok | full-window shots |
+
+Not taken (for the reviewer to weigh): visible explanations of fieldRef / conceptRef / cardinality. Each label and field has
+a one-line tooltip; ten visible help lines would double the editor's height.
 
 ## RCA
 

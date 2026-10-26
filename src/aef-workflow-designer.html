@@ -8916,8 +8916,9 @@ function ioRefValues() {   // the ref values already used in the open map, for t
 function ioAttrsToggle(item, open) {
   const t = document.createElement('div');
   t.className = 'io-attrs-toggle' + (open ? ' open' : '');
-  t.textContent = open ? '▾ done editing' : '▸ edit attributes';
-  t.title = open ? 'Close the editor (the summary above shows the result)' : 'Edit ref, role, dataType and the mapping v1.1 attributes';
+  // "close", not "done": an edit applies at once, and the toggle only collapses (T-1301 sweep: "done" read as "save")
+  t.textContent = open ? '▾ close editor' : '▸ edit attributes';
+  t.title = open ? 'Collapse the editor: your edits are already applied; the summary shows them' : 'Edit ref, role, dataType and the mapping v1.1 attributes';
   t.onclick = () => { if (open) _ioAttrsOpen.delete(item); else _ioAttrsOpen.add(item); renderProperties(); };
   return t;
 }
@@ -8949,8 +8950,7 @@ function ioAttrsEditor(item, isInput) {
       c = document.createElement('input');
       c.type = 'text';
       c.value = val;
-      c.spellcheck = false;
-      c.placeholder = k === 'dataType' ? 'informational' : '';
+      c.spellcheck = false;   // no placeholder: a muted word in an empty field read as a default value (T-1301 sweep)
       if (k === 'ref') {
         const dl = document.createElement('datalist');
         dl.id = 'io-ref-values-' + (++_ioRefListSeq);
