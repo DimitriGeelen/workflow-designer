@@ -675,6 +675,7 @@ orphan_legs=(
   # is the only reason either is here, and the reason it must never be relaxed to make a red run
   # green.
   "core|tests/test_gallery_instances_api.py|the /api/instances endpoint's own contract broke (T-884)"
+  "core|tests/test_t1315_notes_pick.py|the host-contract notes check no longer reads the newest release notes at or above VERSION (it demands the published notes name an endpoint that release does not use, or reads a lower version's) (T-1315)"
   "core|tests/test_t1313_sandbox_index.py|a core-tier sandbox without its own .git can again reach this repo's index (GIT_CEILING_DIRECTORIES gone from the run TMPDIR), or .context/st/ is no longer ignored (T-1313)"
   "core|tests/test_t1307_t344_lock_wait.py|_t344 no longer waits out a full audit holding the lock, or reports a lock still held as a stale anchor instead of UNMEASURED (T-1307)"
   "core|tests/test_t1312_field_catalog.py|GET /api/field-catalog no longer serves a v1 catalog, refuses a malformed one whole (422), answers 404 without one, or reads a path from the request (T-1312)"

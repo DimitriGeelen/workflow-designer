@@ -22,6 +22,28 @@ def unnamed(missing, notes_text):
     return [m for m in missing if m not in notes_text]
 
 
+def _semver(v):
+    try:
+        return tuple(int(x) for x in v.split("."))
+    except ValueError:
+        return None
+
+
+def notes_file(notes_dir, version):
+    """T-1315: the newest RELEASE-NOTES-<v>.md with v >= VERSION, or None. VERSION moves only inside the release job, so
+    between releases src can already call an endpoint the last (published) release does not; the next release's drafted
+    notes are the ones that must name it. Never a lower version's notes."""
+    base = _semver(version)
+    best = None
+    for f in os.listdir(notes_dir) if base and os.path.isdir(notes_dir) else []:
+        if not (f.startswith("RELEASE-NOTES-") and f.endswith(".md")):
+            continue
+        v = _semver(f[len("RELEASE-NOTES-"):-len(".md")])
+        if v and v >= base and (best is None or v > best[0]):
+            best = (v, os.path.join(notes_dir, f))
+    return best[1] if best else None
+
+
 def main():
     r = subprocess.run([sys.executable, TOOL, "--json"], capture_output=True, text=True)
     if r.returncode == 2:
@@ -29,18 +51,19 @@ def main():
         return 1
     data = json.loads(r.stdout)
     version = open(os.path.join(ROOT, "VERSION"), encoding="utf-8").read().strip()
-    notes_path = os.path.join(ROOT, "docs", "releases", "RELEASE-NOTES-%s.md" % version)
-    if not os.path.exists(notes_path):
-        print("FAIL: no release notes for VERSION %s at %s" % (version, notes_path))
+    notes_path = notes_file(os.path.join(ROOT, "docs", "releases"), version)
+    if not notes_path:
+        print("FAIL: no release notes for VERSION %s or newer in docs/releases" % version)
         return 1
     notes = open(notes_path, encoding="utf-8").read()
+    named_file = os.path.basename(notes_path)
 
     fails = []
     gaps = unnamed(data["missing"], notes)
     if gaps:
-        fails.append("RELEASE-NOTES-%s.md does not name designer endpoint(s) AEF does not serve: %s. Tell AEF in "
+        fails.append("%s does not name designer endpoint(s) AEF does not serve: %s. Tell AEF in "
                      "the notes (the For-AEF section), so the release AEF pins says which features are off there."
-                     % (version, ", ".join(gaps)))
+                     % (named_file, ", ".join(gaps)))
     # negative control: the check must bite on a gap the notes do not name
     if not unnamed(data["missing"] + ["/api/zz-t1289-control"], notes):
         fails.append("negative control did not fire: an unnamed synthetic endpoint passed the check")
@@ -49,8 +72,8 @@ def main():
         print("FAIL: " + f)
     if fails:
         return 1
-    print("OK: host contract %d used, %d served, %d missing; every missing endpoint is named in RELEASE-NOTES-%s.md;"
-          " negative control fires" % (len(data["used"]), len(data["served"]), len(data["missing"]), version))
+    print("OK: host contract %d used, %d served, %d missing; every missing endpoint is named in %s (VERSION %s);"
+          " negative control fires" % (len(data["used"]), len(data["served"]), len(data["missing"]), named_file, version))
     return 0
 
 
