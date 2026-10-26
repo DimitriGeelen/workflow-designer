@@ -1,0 +1,163 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1305: io name box cuts long field paths (greenfield's sfdc:Opportunity.OwnerId…) at every width
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-26T11:26:15Z
+# ============================================================================
+
+task_id: T-1305
+task_name: "io name box cuts long field paths (greenfield's sfdc:Opportunity.OwnerId…) at every width"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-24T22:00:34Z
+completed: 2026-10-26T11:26:02Z
+duration_days: 2
+updates_count: 3
+first_commit: 2026-10-26T12:17:17+01:00
+last_commit: 2026-10-26T12:26:02+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the io name is shown whole — a wrapping field that grows with its value (Enter commits); a name longer than the name column takes the row's full width with type/req/x on the line below, so a producer's field path (sfdc:Opportunity.OwnerId) sits on one line instead of being cut at every window width; short names keep the one-line row. _t1301 leg i (no name field clips) red before, green now; _t1249 leg e counts the name control whatever its tag; screenshots in docs/reports/T-1305-evidence. Visual Verification; person-sees gate exit 0. sweep OK; screenshot state longname shows a name longer than the panel wrapping whole (58 shots). reviewer verdict. reviewer green (applied via fw reviewer verdict apply); the mid-segment character wrap of a longer-than-panel name noted, not changed (breaking at '.' would need invisible characters in the value). verification commands and Evolution entry
+
+# Key outcomes
+outcomes:
+  - 'The io name is shown whole at every width: a wrapping field that grows with its value (Enter commits, no new line).'
+  - 'Editing the name works as before (typing updates the item); a save is unchanged by the switch (no edit = io bytes'
+  - 'A harness leg asserts that no io name field clips (scrollHeight vs clientHeight) for greenfield''s style-A names, red'
+  - 'Person-sees gate exit 0; screenshots (style A, v1, v1.1) at 1024/1440/1920 read in `## Visual Verification`.'
+  - 'The io name field shows a producer''s whole field path, legibly, without disturbing the row, at every width'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1305/AC1-judge-t-1305-r3-8bb95e621e75.md'
+  - '.context/reviews/evidence/T-1305/T1301-stylea-step-1024-panel-judge-t-1305-r3-8bb95e621e75.png'
+  - '.context/reviews/evidence/T-1305/longname-1024-panel-judge-t-1305-r3-8bb95e621e75.png'
+  - '.context/reviews/evidence/T-1305/longname-1920-panel-judge-t-1305-r3-8bb95e621e75.png'
+  - '.context/reviews/evidence/T-1305/stylea-step-1024-panel-judge-t-1305-r3-8bb95e621e75.png'
+  - '.context/reviews/evidence/T-1305/v1-step-1024-panel-judge-t-1305-r3-8bb95e621e75.png'
+  - '.context/reviews/evidence/T-1305/v11-step-1024-panel-end-judge-t-1305-r3-8bb95e621e75.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1305-io-name-box-cuts-long-field-paths-greenf.md'
+  - 'docs/reports/T-1305-evidence/empty-step-1024-panel.png'
+  - 'docs/reports/T-1305-evidence/empty-step-1024.png'
+  - 'docs/reports/T-1305-evidence/empty-step-1440-panel.png'
+  - 'docs/reports/T-1305-evidence/empty-step-1440.png'
+  - 'docs/reports/T-1305-evidence/empty-step-1920-panel.png'
+  - 'docs/reports/T-1305-evidence/empty-step-1920.png'
+  - 'docs/reports/T-1305-evidence/hint-edit-1024-panel.png'
+  - 'docs/reports/T-1305-evidence/hint-edit-1024.png'
+  - 'docs/reports/T-1305-evidence/hint-edit-1440-panel.png'
+  - 'docs/reports/T-1305-evidence/hint-edit-1440.png'
+  - 'docs/reports/T-1305-evidence/hint-edit-1920-panel.png'
+  - 'docs/reports/T-1305-evidence/hint-edit-1920.png'
+  - 'docs/reports/T-1305-evidence/longname-1024-panel.png'
+  - 'docs/reports/T-1305-evidence/longname-1024.png'
+  - 'docs/reports/T-1305-evidence/longname-1440-panel.png'
+  - 'docs/reports/T-1305-evidence/longname-1440.png'
+  - 'docs/reports/T-1305-evidence/longname-1920-panel.png'
+  - 'docs/reports/T-1305-evidence/longname-1920.png'
+  - 'docs/reports/T-1305-evidence/stylea-edit-1024-panel-end.png'
+  - 'docs/reports/T-1305-evidence/stylea-edit-1024-panel.png'
+  - 'docs/reports/T-1305-evidence/stylea-edit-1024.png'
+  - 'docs/reports/T-1305-evidence/stylea-edit-1440-panel-end.png'
+  - 'docs/reports/T-1305-evidence/stylea-edit-1440-panel.png'
+  - 'docs/reports/T-1305-evidence/stylea-edit-1440.png'
+  - 'docs/reports/T-1305-evidence/stylea-edit-1920-panel.png'
+  - 'docs/reports/T-1305-evidence/stylea-edit-1920.png'
+  - 'docs/reports/T-1305-evidence/stylea-step-1024-panel.png'
+  - 'docs/reports/T-1305-evidence/stylea-step-1024.png'
+  - 'docs/reports/T-1305-evidence/stylea-step-1440-panel.png'
+  - 'docs/reports/T-1305-evidence/stylea-step-1440.png'
+  - 'docs/reports/T-1305-evidence/stylea-step-1920-panel.png'
+  - 'docs/reports/T-1305-evidence/stylea-step-1920.png'
+  - 'docs/reports/T-1305-evidence/v1-edit-1024-panel.png'
+  - 'docs/reports/T-1305-evidence/v1-edit-1024.png'
+  - 'docs/reports/T-1305-evidence/v1-edit-1440-panel.png'
+  - 'docs/reports/T-1305-evidence/v1-edit-1440.png'
+  - 'docs/reports/T-1305-evidence/v1-edit-1920-panel.png'
+  - 'docs/reports/T-1305-evidence/v1-edit-1920.png'
+  - 'docs/reports/T-1305-evidence/v1-step-1024-panel.png'
+  - 'docs/reports/T-1305-evidence/v1-step-1024.png'
+  - 'docs/reports/T-1305-evidence/v1-step-1440-panel.png'
+  - 'docs/reports/T-1305-evidence/v1-step-1440.png'
+  - 'docs/reports/T-1305-evidence/v1-step-1920-panel.png'
+  - 'docs/reports/T-1305-evidence/v1-step-1920.png'
+  - 'docs/reports/T-1305-evidence/v11-step-1024-panel-end.png'
+  - 'docs/reports/T-1305-evidence/v11-step-1024-panel.png'
+  - 'docs/reports/T-1305-evidence/v11-step-1024.png'
+  - 'docs/reports/T-1305-evidence/v11-step-1440-panel-end.png'
+  - 'docs/reports/T-1305-evidence/v11-step-1440-panel.png'
+  - 'docs/reports/T-1305-evidence/v11-step-1440.png'
+  - 'docs/reports/T-1305-evidence/v11-step-1920-panel.png'
+  - 'docs/reports/T-1305-evidence/v11-step-1920.png'
+  - 'docs/reports/T-1305-evidence/workflow-1024-panel.png'
+  - 'docs/reports/T-1305-evidence/workflow-1024.png'
+  - 'docs/reports/T-1305-evidence/workflow-1440-panel.png'
+  - 'docs/reports/T-1305-evidence/workflow-1440.png'
+  - 'docs/reports/T-1305-evidence/workflow-1920-panel.png'
+  - 'docs/reports/T-1305-evidence/workflow-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tools/_t1249-v11-io-cdp.mjs'
+  - 'tools/_t1249-v11-io-shots.mjs'
+  - 'tools/_t1301-io-edit-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-26T12:17:17'
+    action: 'T-1305: the io name is shown whole — a wrapping field that grows with its value (Enter commits); a name longer than the name column takes the row''s full width with type/req/x on the line below, so a producer''s field path (sfdc:Opportunity.OwnerId) sits on one line instead of being cut at every window width; short names keep the one-line row. _t1301 leg i (no name field clips) red before, green now; _t1249 leg e counts the name control whatever its tag; screenshots in docs/reports/T-1305-evidence'
+  - time: '2026-10-26T12:22:13'
+    action: 'T-1305: Visual Verification; person-sees gate exit 0'
+  - time: '2026-10-26T12:24:10'
+    action: 'T-1305: sweep OK; screenshot state longname shows a name longer than the panel wrapping whole (58 shots)'
+  - time: '2026-10-26T12:25:17'
+    action: 'T-1305: reviewer verdict'
+  - time: '2026-10-26T12:25:43'
+    action: 'T-1305: reviewer green (applied via fw reviewer verdict apply); the mid-segment character wrap of a longer-than-panel name noted, not changed (breaking at ''.'' would need invisible characters in the value)'
+  - time: '2026-10-26T12:26:02'
+    action: 'T-1305: verification commands and Evolution entry'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 2245 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:structured-io]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2245
+  commits: 6
+  files_changed: 76
+  lines_added: 168
+  lines_removed: 24
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1305-io-name-box-cuts-long-field-paths-greenf.md
+generated_by: context-agent-hybrid

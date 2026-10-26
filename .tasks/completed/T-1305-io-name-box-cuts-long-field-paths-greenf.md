@@ -10,13 +10,13 @@ description: >
   name box (as T-1278 did for the step Name), a full-value tooltip, or wrap. Fold
   into slice 2 (T-1301) if the io row is reworked there.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:structured-io]
-components: []
+components: [src/aef-workflow-designer.html, tools/_t1301-io-edit-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -46,8 +46,8 @@ arc_id: structured-io
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-24T22:00:34Z
-last_update: '2026-10-26T11:14:58Z'
-date_finished:
+last_update: 2026-10-26T11:26:02Z
+date_finished: 2026-10-26T11:26:02Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -428,3 +428,25 @@ full-width row for a long name avoids it.
 ### 2026-10-26T11:14:57Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d5a8e8b7
+- **Timestamp:** 2026-10-26T11:26:09Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#3 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 1
+     - evidence: `node tools/_t1301-io-edit-cdp.mjs > .context/working/t1305-v.out 2>&1 && head -2 .context/working/t1305-v.out | grep -q '"ok": true'`
+
+### 2026-10-26T11:26:02Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
