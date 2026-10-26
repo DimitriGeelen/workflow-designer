@@ -9,8 +9,8 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
-owner: agent
+current_node: frw_3_run
+owner: human
 horizon: now
 tags: [arc:structured-io]
 components: []
@@ -110,7 +110,7 @@ Arc-006, slice 3. greenfield's item (c), "add a field to an io" (msg 49dfbe21). 
   note: a new field lands after `aef:example`; filed as a follow-up.)*
 
 ### Human
-- [x] The fields list in the io editor is legible, compact and clearly part of its io, at every width
+- [ ] The fields list in the io editor is legible, compact and clearly part of its io, at every width
   For the independent reviewer: `fw reviewer judge T-1302 --criterion 1` (render-surface, no operator carve-out).
   **Steps:** 1. Open the T-1302 evidence screenshots named in `## Visual Verification`. 2. For each field row: path or
   fieldRef, role, required, cardinality, ×; the "+ add field" button. 3. Compare the closed states with
@@ -162,7 +162,6 @@ Arc-006, slice 3. greenfield's item (c), "add a field to an io" (msg 49dfbe21). 
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-  **Reviewer verdict:** green V-20261026-bd126fe3 — reviewer-judge-t-1302-r3-2ecb2d9bd7cd:reviewer (rung rung-3-termlink-single-reviewer), digest 0fceca6e7866; dispatch judge-t-1302-r3-2ecb2d9bd7cd; evidence: .context/reviews/evidence/T-1302/AC1-judge-t-1302-r3-2ecb2d9bd7cd.md, .context/reviews/evidence/T-1302/fields-edit-1024-panel-end-judge-t-1302-r3-2ecb2d9bd7cd.png, .context/reviews/evidence/T-1302/fields-edit-1024-zoom-judge-t-1302-r3-2ecb2d9bd7cd.png, .context/reviews/evidence/T-1302/fields-when-1920-panel-judge-t-1302-r3-2ecb2d9bd7cd.png, .context/reviews/evidence/T-1302/field-add-1440-panel-end-judge-t-1302-r3-2ecb2d9bd7cd.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
