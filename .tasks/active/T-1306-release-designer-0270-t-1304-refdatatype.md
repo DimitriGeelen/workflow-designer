@@ -99,8 +99,9 @@ Procedure as job 083 (T-1283).
   and what changes; greenfield is asked to rerun `scripts/designer-io-panel-check.mjs` (T-1304's last criterion).
   *(tag a253e5fb on 8d2bffe2, bleeding-edge 79f1647d; sha256 dd707e13…, 1237858 bytes; AEF msg 604650eb, greenfield msg
   66d6f981 via its hub)*
-- [ ] AEF's pin is followed until `tools/_t1187-aef-pin-lag.sh` reads CURRENT. *(AEF task T-4764, msg 496570c4, 2026-10-26:
-  pulling at the tag, sha256 and bytes checked against MANIFEST; they will confirm when served)*
+- [x] AEF's pin is followed until `tools/_t1187-aef-pin-lag.sh` reads CURRENT. *(AEF task T-4764, msg 496570c4, 2026-10-26:
+  pulling at the tag, sha256 and bytes checked against MANIFEST. Shipped in AEF be.22 (msg b82385f8); the pin-lag tool
+  reads "CURRENT: AEF serves designer 0.27.0", 2026-10-26.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

@@ -113,6 +113,9 @@ Tags to batch (take the newest when this starts):
 - **After be.17** (AEF notice msg 0d60e494, 2026-10-25, going offline): five v1.8.15 release blockers (AEF T-4744..T-4748)
   are fixed on AEF's bleeding-edge but in no be tag yet; the v1.8.15 master release waits on AEF's operator. Prefer the tag
   that carries them (be.18 or v1.8.15) over be.17 for this batch.
+- **be.22** 7a64947c5 (msg b82385f8): T-4762/T-4763 (shell-write guard: backticks in single quotes, unparsable
+  substitutions refused), T-4756/T-4754, T-4764 (designer 0.27.0 pinned), nightly-caught regressions T-4759..T-4761,
+  T-4765. Newest at this note.
 - **be.21** c8a660297 (msg 38ebeb12; be.20 never published): T-4753 (sidecar/receiver start|stop refuse an inherited
   PROJECT_ROOT naming another project), suite health T-4640..T-4646 (fw_self_test 606 s to 140 s). Newest at this note.
 - **be.19** ec1bdf64a (msg 139f4895, 2026-10-25): was the target (be.18 + T-4698 self-deferral gate ignores

@@ -321,7 +321,9 @@ the sweep's two fixes. Person-sees gate: exit 0, 6/6, 283 s. Advisory sweep (cod
 | state | control | 1024 | 1440 | 1920 | note |
 |-------|---------|------|------|------|------|
 | stylea-edit | ▸ edit attributes / ▾ close editor | ok | ok | ok | "done editing" read as save (sweep): renamed |
-| stylea-edit | ref, fieldRef, typeRef, schemaRef, conceptRef fields | clipped | clipped | clipped | a long ref is cut by the panel's fixed width; full value in the tooltip; layout fix T-1305 |
+| stylea-edit | ref, fieldRef, typeRef, schemaRef, conceptRef fields | ok | ok | ok | review round 1 (amber): were clipped; now wrapping fields that grow with the value; harness leg g asserts no clip |
+| stylea-edit | "use a ref from this map" picker under ref | ok | ok | ok | offers the map's other refs; replaces the datalist |
+| hint-edit | undeclared-prefix hint under typeRef ("zz") | ok | ok | ok | review round 1: no screenshot showed it; added |
 | stylea-edit | role, operation, cardinality dropdowns | ok | ok | ok | arrows intact; a producer's own value is kept as an extra option |
 | stylea-edit | sourceSystem (input) / targetSystem (output), dataType | ok | ok | ok | |
 | stylea-edit | editor tied to its row | ok | ok | ok | accent bar; the open row's summary hidden, the closed row's kept |
