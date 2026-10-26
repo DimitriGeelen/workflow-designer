@@ -1,0 +1,21 @@
+id: tools/_t1301-io-edit-cdp.mjs
+name: _t1301-io-edit-cdp
+type: script
+subsystem: browser-harness
+location: tools/_t1301-io-edit-cdp.mjs
+tags: []
+
+purpose: "_t1301-io-edit-cdp.mjs — T-1301 (slice 2 of T-1242, arc-006): the io attributes are EDITABLE in the properties panel, and a save writes exactly the edit."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-26
+created_by: unknown
