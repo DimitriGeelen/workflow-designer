@@ -119,7 +119,10 @@ const CATALOG = process.env.T1249S_CATALOG === '1' ? { version: 1, generatedBy: 
 ].map(([n, l, t], i) => ({ ref: 'nid:attr-' + (n || l).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''), notation: n, label: l,
   system: n ? 'nid:app-salesforce' : 'nid:app-tacton', systemLabel: n ? 'Salesforce' : 'Tacton', entity: 'nid:de-x', dataType: t, keyRole: '', sources: 1 })) } : null;
 if (CATALOG) STATES.push(['catalog-v1', 't1249_v1', 'I/O contract', { open: [0], search: 'opportunity' }],
-                         ['catalog-stylea', 't1249_stylea', 'I/O contract', { open: [0], search: 'account' }]);
+                         ['catalog-stylea', 't1249_stylea', 'I/O contract', { open: [0], search: 'account' }],
+                         // T-1312 review: more matches than the 8 listed (the "N more" line), and no match at all
+                         ['catalog-more', 't1249_v1', 'I/O contract', { open: [0], search: 'salesforce' }],
+                         ['catalog-none', 't1249_v1', 'I/O contract', { open: [0], search: 'zzz' }]);
 const WIDTHS = [[1024, 768], [1440, 900], [1920, 1080]];
 
 async function main() {

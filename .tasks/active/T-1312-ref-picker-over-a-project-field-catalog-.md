@@ -126,8 +126,9 @@ pending. The **designer** picker (`src/`) waits until 088 has cut 0.29.0, so not
   `[REVIEW]` label: tools/_t1066-why-you-check.py).
   **Steps:**
   1. Open `docs/reports/T-1312-evidence/catalog-v1-{1024,1440,1920}-panel.png` (a v1 io, "opportunity" typed) and
-     `catalog-stylea-{1024,1440,1920}-panel.png` (a style-A io with its own ref, "account" typed), plus `-panel-end`
-     where present and the full windows.
+     `catalog-stylea-{1024,1440,1920}-panel.png` (a style-A io with its own ref, "account" typed),
+     `catalog-more-*` ("salesforce": 11 matches, 8 listed and the "3 more" line) and `catalog-none-*` ("zzz": no match),
+     plus `-panel-end` where present and the full windows.
   2. For the open editor: the ref field, the "use a ref from this map…" picker where shown, the catalog search field, each
      hit (notation, label, dataType) and the "N more" line.
   3. Compare `stylea-edit-*` and `v1-edit-*` in the same folder with `docs/reports/T-1302-evidence/` (same names): the
@@ -197,6 +198,10 @@ Read control by control:
   below; the long name and `zz:Thing` are left from earlier states of the run.
 - `stylea-edit-1024-panel`: the empty search shows "search catalog…" whole under the map picker; the other attribute rows
   as in T-1302-evidence.
+- Reviewer amber (V on judge-t-1312-r3-39aa11490eb8): the "N more" line was in no shot (queries matched 6 and exactly 8).
+  Added `catalog-more` ("salesforce", 11 matches) and `catalog-none` ("zzz"): `catalog-more-1920-panel` and
+  `-1024-panel-end`: "3 more: type more words to narrow" directly under the 8th hit, whole, above fieldRef;
+  `catalog-none-1440-panel`: "no match in the catalog" under the search, nothing overlapped. 121 shots.
 
 ## Verification
 
