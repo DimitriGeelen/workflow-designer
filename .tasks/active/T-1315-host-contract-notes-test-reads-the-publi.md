@@ -73,8 +73,9 @@ not use the endpoint).
   a lower-version file is never read. Red on the old test (it reads only VERSION's), green on the new.
   *(`tests/test_t1315_notes_pick.py` (core) calls `notes_file` on fixture dirs directly, no env var needed: 1/6 on the
   old test (no `notes_file`), 6/6 new.)*
-- [ ] With `RELEASE-NOTES-0.30.0.md` drafted (it names `/api/field-catalog`), the real test passes; the core tier is green.
-  *(real test: "OK ... every missing endpoint is named in RELEASE-NOTES-0.30.0.md (VERSION 0.29.0)"; core tier pending)*
+- [x] With `RELEASE-NOTES-0.30.0.md` drafted (it names `/api/field-catalog`), the real test passes; the core tier is green.
+  *(real test: "OK ... every missing endpoint is named in RELEASE-NOTES-0.30.0.md (VERSION 0.29.0)"; core tier green in
+  job 090's step 8, 2026-10-27, then 0.30.0 released.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -127,6 +128,8 @@ not use the endpoint).
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+python3 tests/test_t1315_notes_pick.py
+python3 tests/test_t1289_host_contract_notes.py
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.

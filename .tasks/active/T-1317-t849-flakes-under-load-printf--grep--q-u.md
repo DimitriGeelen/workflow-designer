@@ -74,7 +74,8 @@ and checks with `printf '%s' "$out" | grep -q ...`.
 - [x] Under the same load, 120 runs of the fixed script: 0 failures (the old one: 1/40). The mutation mode still works.
   *(0/120 under 4 busy loops at nice 19; `--mutation`: "MUTATION OK — the 6 control cases stayed green ... the 8 cases
   that depend on the T-849 block all went red".)*
-- [ ] The core tier is green.
+- [x] The core tier is green.
+  *(job 090's step 8, 2026-10-27, on the tree with af0613fa.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -127,6 +128,8 @@ and checks with `printf '%s' "$out" | grep -q ...`.
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+bash tools/_t849-budget-zero-token-tests.sh
+test "$(grep -c '| grep -q' tools/_t849-budget-zero-token-tests.sh)" -eq 0
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
