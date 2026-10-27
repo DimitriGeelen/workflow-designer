@@ -2,10 +2,16 @@
 id: T-1320
 name: "LAN-address gate leaves the unscrubbed text staged after a commit it scrubbed"
 description: >
-  After tools/_t1239-lan-address-gate.sh rewrites addresses to <dev-host> in a staged file and the commit lands, the index holds the original LAN-address text (git diff --cached shows placeholder -> address against HEAD), the working tree the placeholder. The next preflight 'nothing staged' refuses (jobs 093/094 rehearsals), and a later commit without pathspec would commit the addresses. Seen 2026-10-27 on the S-2026-1027-1118 handover and job 093's doctor captures.
+  After tools/_t1239-lan-address-gate.sh rewrites addresses to <dev-host> in a staged
+  file and the commit lands, the index holds the original LAN-address text (git diff
+  --cached shows placeholder -> address against HEAD), the working tree the placeholder.
+  The next preflight 'nothing staged' refuses (jobs 093/094 rehearsals), and a later
+  commit without pathspec would commit the addresses. Seen 2026-10-27 on the S-2026-1027-1118
+  handover and job 093's doctor captures.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: [bug]
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-27T12:12:10Z
-last_update: 2026-10-27T12:12:10Z
-date_finished: null
+last_update: '2026-10-27T14:36:52Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,47 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-27T14:36:52Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 1
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=1 (body:fix-without-learning); D2=0 (no-signal); D3=0 (no-signal);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1320: LAN-address gate leaves the unscrubbed text staged after a commit it scrubbed
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The T-1239 pre-commit gate rewrites LAN addresses to placeholders in staged text. Fix: the gate records the paths it
+rewrote (`.git/t1239-rewritten`); a new `--post-commit` mode, installed after the framework's managed block in
+`.git/hooks/post-commit` by `tools/_t1239-install-hook.sh`, sets each one's index entry to HEAD's blob when the
+worktree equals HEAD and the index differs from HEAD by the scrub alone. See ## RCA.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] After a pathspec commit (`git commit -- <file>`) of a text file holding a LAN address, HEAD, the index and the
+  working tree all hold the placeholder (`git diff --cached` empty, `git diff` empty for that file); the same for a plain
+  `git add` + `git commit`
+- [ ] A partly staged file keeps its unstaged part: the index is reset only where the working tree already equals HEAD
+- [ ] The installer (`tools/_t1239-install-hook.sh`) puts the post-commit half in place and is idempotent; a test in the
+  core tier proves the three cases above on a scratch repo
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -112,6 +145,11 @@ date_finished: null
 -->
 
 ## Verification
+
+out=$(bash tests/test_t1239_lan_gate.sh 2>&1); echo "$out" | grep -q '9 passed, 0 failed'
+bash tools/_t1239-install-hook.sh --check
+grep -q 'leg core "test_t1239_lan_gate" _leg_199' tests/run-bridge-tests.sh
+python3 tools/_t1288-tier-guard.py --static tests/run-bridge-tests.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -264,6 +302,20 @@ date_finished: null
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+**Symptom:** after a commit the LAN-address gate had rewritten, `git diff --cached` showed the file staged, placeholder
+-> address against HEAD; job 093's and 094's rehearsals refused ("nothing staged"), and the S-2026-1027-1118 handover
+sat staged with the addresses after the operator's relaunch.
+
+**Root cause:** 832 commits by explicit pathspec (`git commit -- <paths>`). In that mode git stages the worktree copy
+of each path into the REAL index first, then runs pre-commit on a temporary index (GIT_INDEX_FILE) that the commit is
+built from, and writes the real index out afterwards. The gate rewrote the temporary index (so the commit is clean) and
+the worktree, but never the real index, which kept the unscrubbed text. A plain `git add` + `git commit` was fine.
+
+**Why structurally allowed:** `tests/test_t1239_lan_gate.sh` called the gate script directly on the one index, never
+through a real `git commit -- path`, and no runner ran the test at all: it was missing from `tests/run-bridge-tests.sh`.
+
+**Prevention:** the test now commits through the installed hooks by pathspec and by plain add (cases 7, 8) and asserts
+HEAD, index and worktree are equal, and it is a core leg (`_leg_199`), so every push runs it.
 
 ## Evolution
 
@@ -345,3 +397,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1320-lan-address-gate-leaves-the-unscrubbed-t.md
 - **Context:** Initial task creation
+
+### 2026-10-27T14:36:51Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

@@ -4324,6 +4324,21 @@ else
 fi
 }
 leg core "_t1247-profile-census" _leg_195
+_leg_199() {
+
+# ── T-1239/T-1320: no LAN address enters a commit, and the gate's rewrite leaves nothing staged behind it ──
+# The gate test was on disk and never run by the suite (found by T-1320). It runs the real gate and installer in a
+# throwaway repo: generated text rewritten, code refused, AEF's tree and the ledgers untouched, and after a pathspec
+# commit HEAD, index and worktree all hold the placeholder (before T-1320 the index kept the address, staged).
+if bash "$ROOT/tests/test_t1239_lan_gate.sh" > "$TMP/leg-_t1239.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the LAN-address gate lets an address into a commit, refuses or rewrites the wrong files, or leaves the unscrubbed text staged after a pathspec commit (run 'bash tests/test_t1239_lan_gate.sh'; T-1239, T-1320)"
+  show_output "$TMP/leg-_t1239.out" "test_t1239_lan_gate.sh"
+  fail=$((fail + 1))
+fi
+}
+leg core "test_t1239_lan_gate" _leg_199
 
 # ── T-1288: the tier engine itself — tier selection, the no-tier guard, quarantine, retry-once, history rows, core's
 # private TMPDIR and namespace, the pre-push installer and gate — on fixture runners, plus the full tier guard here ──

@@ -17,10 +17,34 @@
 # Never touched: .agentic-framework/ (AEF's vendored code) and .context/reviews/ (append-only ledgers).
 #
 #   exit 0 = clean (possibly after rewriting); 1 = refused
+#
+# --post-commit (T-1320), run from .git/hooks/post-commit: a pathspec commit (`git commit -- f`) runs pre-commit on a
+# temporary index, so the rewrite reaches the commit and the worktree but not the real index, which git fills from the
+# unscrubbed worktree copy BEFORE the hook and writes out after it: HEAD and worktree say <dev-host>, the index the
+# address, a staged change nobody made. Pre-commit records the paths it rewrote; post-commit sets each one's index
+# entry back to HEAD's blob, only where the worktree already equals HEAD and the index differs from HEAD by the
+# scrub alone (so no one's staged edit is undone). Always exits 0: the commit has happened.
 set -u
 ROOT=$(git rev-parse --show-toplevel) || exit 0
 cd "$ROOT" || exit 0
 PAT='192\.168\.[0-9]{1,3}\.[0-9]{1,3}'
+LIST=$(git rev-parse --git-path t1239-rewritten) || LIST=""
+if [ "${1:-}" = "--post-commit" ]; then
+    [ -n "$LIST" ] && [ -f "$LIST" ] || exit 0
+    while IFS= read -r f; do
+        [ -n "$f" ] || continue
+        head_blob=$(git rev-parse -q --verify "HEAD:$f" 2>/dev/null) || continue
+        idx=$(git ls-files -s -- "$f"); idx_blob=$(echo "$idx" | awk '{print $2}'); mode=$(echo "$idx" | awk '{print $1}')
+        [ -n "$idx_blob" ] && [ "$idx_blob" != "$head_blob" ] || continue
+        [ -f "$f" ] && [ "$(git hash-object -- "$f")" = "$head_blob" ] || continue
+        [ "$(git cat-file blob "$idx_blob" | python3 "$ROOT/tools/scrub-lan-addresses.py" --stdin | git hash-object --stdin)" = "$head_blob" ] || continue
+        git update-index --cacheinfo "$mode,$head_blob,$f"
+    done < "$LIST"
+    rm -f "$LIST"
+    exit 0
+fi
+# The list is never cleared here: a second run in the same commit would erase the first run's paths, and an entry left
+# by a refused commit is harmless (post-commit re-checks every path before it touches the index).
 refused=()
 rewritten=()
 while IFS= read -r -d '' f; do
@@ -38,6 +62,7 @@ while IFS= read -r -d '' f; do
                 cp "$tmp" "$f"
             fi
             rm -f "$tmp"
+            [ -n "$LIST" ] && printf '%s\n' "$f" >> "$LIST"
             rewritten+=("$f") ;;
         *)
             refused+=("$f") ;;

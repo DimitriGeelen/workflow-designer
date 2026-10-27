@@ -22,12 +22,31 @@ lines = open(p, encoding="utf-8").read().split("\n")
 open(p, "w", encoding="utf-8").write("\n".join(l for l in lines if not (mark in l and l.lstrip().startswith("#"))))
 PY
 }
+# T-1320: the post-commit half puts the index back in step after a pathspec commit the gate rewrote. It goes AFTER the
+# framework's managed block (`# <<< agentic-framework hook <<<`), whose contents a reinstall overwrites.
+POST="$ROOT/.git/hooks/post-commit"
+PMARK="# 832-T-1320-lan-address-index"
+PLINE="bash \"\$(git rev-parse --show-toplevel)/tools/_t1239-lan-address-gate.sh\" --post-commit  $PMARK"
 if [ "${1:-}" = "--check" ]; then
-    active "$HOOK" && { echo "LAN-address gate: installed in $HOOK"; exit 0; }
-    echo "LAN-address gate: NOT installed in $HOOK (a hook reinstall removes it; run tools/_t1239-install-hook.sh)"
-    exit 1
+    rc=0
+    active "$HOOK" && echo "LAN-address gate: installed in $HOOK" \
+        || { echo "LAN-address gate: NOT installed in $HOOK (a hook reinstall removes it; run tools/_t1239-install-hook.sh)"; rc=1; }
+    MARK="$PMARK" active "$POST" && echo "LAN-address index repair: installed in $POST" \
+        || { echo "LAN-address index repair: NOT installed in $POST (run tools/_t1239-install-hook.sh)"; rc=1; }
+    exit "$rc"
 fi
 [ -f "$HOOK" ] || { echo "no $HOOK — run the framework's hook install first"; exit 2; }
+if ! MARK="$PMARK" active "$POST"; then
+    if [ -f "$POST" ]; then
+        MARK="$PMARK" drop_commented "$POST"
+        [ -n "$(tail -c1 "$POST")" ] && printf '\n' >> "$POST"   # a last line without a newline would swallow ours
+        printf '%s\n' "$PLINE" >> "$POST"
+    else
+        printf '#!/bin/bash\n%s\n' "$PLINE" > "$POST"
+    fi
+    chmod +x "$POST"
+    MARK="$PMARK" active "$POST" && echo "LAN-address index repair: installed in $POST"
+fi
 active "$HOOK" && { echo "LAN-address gate: already installed"; exit 0; }
 drop_commented "$HOOK"
 # Right after the shebang and the other 832 lines, so it runs before the framework's own checks.
