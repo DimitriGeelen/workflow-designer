@@ -66,11 +66,16 @@ whose job 092 is the template; T-4811 (the identity fix on --termlink launches) 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Job 093 (be.31 -> be.37) written from job 092, rehearsed (`runme.sh --dry-run`), committed; the operator ran it
+- [x] Job 093 (be.31 -> be.37) written from job 092, rehearsed (`runme.sh --dry-run`), committed; the operator ran it
   and it ended rc=0
-- [ ] 832's local fixes re-applied onto the pristine be.37 commit (`tools/_t1000-revendor-worklist.py`), and
+  *(2026-10-27 11:47-11:54Z, 9/9 ok: version 1.8.14+1471.gcc5842d89, identity settings and RAIL_IDENTITY_FILE kept,
+  designer 0.30.0 PRESENT (sha256 matches pin), pristine 0a0d114b (52 paths, deletes designer_open.html), baseline
+  2ef830b9, crontab ok, inception.md.upstream SUPERSEDED and removed.)*
+- [x] 832's local fixes re-applied onto the pristine be.37 commit (`tools/_t1000-revendor-worklist.py`), and
   `tools/_t517-vendor-divergence.py` reports OK
+  *(86700ea8: 37 patches, all clean, no three-way; _t517 OK, 44 diverged = 44 declared.)*
 - [ ] The core tier is green on the upgraded tree (`tools/_t1288-prepush-gate.sh`), and the upgrade is pushed
+  *(GREEN 211 passed, 0 failed, 834 s. Watchtower restarted after the re-apply (PL-402): pid 1686900.)*
 - [ ] The A-H field report is sent on aef-v1815-be3, WORKS/FAILS/N/A per item, with the command and output for each
   FAILS, and recorded here
 

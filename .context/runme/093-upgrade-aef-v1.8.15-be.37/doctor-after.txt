@@ -1,0 +1,126 @@
+[1mfw doctor[0m - Framework Health Check
+
+  [0;32mOK[0m  Framework installation
+  [0;32mOK[0m  PyYAML installed
+  [0;32mOK[0m  Watchtower Python stack installed
+  [0;32mOK[0m  Active mode: vendored (/opt/832-Workflow-designer/.agentic-framework)
+  [0;32mOK[0m  .framework.yaml found
+  [0;32mOK[0m  Task directories
+  [0;32mOK[0m  Context directory
+  [0;32mOK[0m  Git commit-msg hook
+  [0;32mOK[0m  Git pre-push hook
+  [0;32mOK[0m  Exec-bit parity: all 334 indexed-100755 script(s) executable on disk
+  [0;36mINFO[0m  Large-file gate: 24 tracked file(s) above warn threshold (under block)
+  [0;32mOK[0m  Repo root: no untracked binary files
+  [0;32mOK[0m  Handover LATEST.md resolves to S-2026-1027-1118.md
+  [0;32mOK[0m  Last auto-handover succeeded (pre-compact handover)
+  [0;32mOK[0m  Hook path validation: 40 hooks, all portable
+  [0;32mOK[0m  Hook exercise from /tmp: 29 PreToolUse/PostToolUse hook(s) resolve from foreign CWD
+  [0;32mOK[0m  All 13 agent entry scripts executable
+  [0;32mOK[0m  Plugin task-awareness
+  [0;36mSKIP[0m  Test infrastructure (consumer project — tests live in framework repo)
+  [0;36mSKIP[0m  ShellCheck linter (consumer project)
+  [0;32mOK[0m  No orphaned MCP processes
+  [0;32mOK[0m  .mcp.json (4 MCP server(s) configured)
+  [0;32mOK[0m  Playwright pip package (test runner)
+  [0;32mOK[0m  Playwright MCP server (agent UI verification)
+  [0;32mOK[0m  No global install at /root/.agentic-framework
+  [0;32mOK[0m  status-transitions.yaml (8 transitions, no orphaned/unreachable states)
+  [0;32mOK[0m  BVP drivers: every active free and arc-scoped driver is scorable
+  [1;33mWARN[0m  Fabric: 200 under-populated card(s)
+         TODO purpose: 12, unknown subsystem: 1, no edges: 193
+         Run: bin/fw fabric enrich --describe-only  (then: bin/fw fabric drift)
+  [0;32mOK[0m  Delegation surface: reviewer-closeable 1, reviewer-judges 46, agent-self 2, operator-only 18 (across 59 active task(s))
+         delegable now: T-884 — bin/fw task delegate <id> --dry-run
+  [0;32mOK[0m  framework MCP 22 tools (gated: 6) — stopped (manifest ready; start: fw mcp start --background)
+  [0;36mSKIP[0m  port3000 hygiene: no baseline yet
+         Run: python3 tools/port3000_hygiene.py baseline-refresh
+  [0;32mOK[0m  index: vector index opens (289096 chunks)
+  [0;32mOK[0m  manifest: manifest present
+  [0;32mOK[0m  import: web.embeddings importable from the reindex path
+  [0;32mOK[0m  age: vector index 0.2h old (limit 24h)
+  [0;32mOK[0m  lag: 0 task(s), 0 learning(s) not in the index; 2 source file(s) new or changed since indexed
+  [0;32mOK[0m  canary: canary FWCANARY-1793101142900645 retrieved as top hit
+  [0;32mOK[0m  token: canary FWCANARY-1793101142900645 planted in the index
+  [0;32mOK[0m  cron: index-reindex-hourly scheduled
+  [0;32mOK[0m  usage: recall: 0 of 165 queries in 7d could not run
+  [0;32mOK[0m  disk: no orphan index scratch; free space covers the next reindex
+  [1;33mWARN[0m  Arc focus 'hypothesis-first-inceptions' set 2026-09-26, 30 days ago (limit 14)
+         Re-confirm with 'fw arc focus hypothesis-first-inceptions' (refreshes focused_at) or clear it with 'fw arc focus --clear'.
+  [1;33mWARN[0m  Arc focus 'hypothesis-first-inceptions': 0 of 186 task(s) committed in the last 14 days are in it, 186 outside (below 10%)
+         Re-confirm with 'fw arc focus hypothesis-first-inceptions' (refreshes focused_at) or clear it with 'fw arc focus --clear'.
+  [0;36mSKIP[0m  recall usage: web.recall_telemetry not importable here (ModuleNotFoundError)
+  [0;32mOK[0m  Watchtower running (http://<dev-host>:3013, pid 2532819)
+  [1;33mWARN[0m  Watchtower process predates its own source (12 file(s) newer than pid 2532819)
+         - /opt/832-Workflow-designer/.agentic-framework/web/blueprints/bvp.py
+         - /opt/832-Workflow-designer/.agentic-framework/web/blueprints/designer.py
+         - /opt/832-Workflow-designer/.agentic-framework/web/blueprints/fabric.py
+         Every web/ change since it started is inert, including any awaiting [REVIEW].
+         Run: bin/fw watchtower restart
+  [1;33mWARN[0m  [host] 3 framework-labelled UFW rule(s) open a port nothing listens on
+         (host-level — handle from a session at that root)
+         sudo ufw delete allow 3004/tcp
+         sudo ufw delete allow 3005/tcp
+         sudo ufw delete allow 34541/tcp
+  [0;32mOK[0m  Watchtower secret key is owner-only (mode 600)
+  [0;36mSKIP[0m  Session supervision (not inside a Claude Code session)
+  [0;32mOK[0m  Continuous-run wrapper last recorded ARMED (start, restarts=0, 2026-10-27T10:30:34Z)
+         turn driver: not armed (interactive session; arm with: bin/fw continuous arm --hours N --iterations N)
+         wrapper pid 2872983 is alive
+  [0;32mOK[0m  Installed claude-fw matches repo source (2 copies on PATH, all current)
+  [0;32mOK[0m  Running claude-fw wrapper(s) (1) newer than their script
+  [0;32mOK[0m  Hook configuration valid (40 hooks in 25 matchers across 6 events)
+  [0;32mOK[0m  No armed stale index entries
+  [0;32mOK[0m  No Tier 0 approval request pending over 24h
+  [0;32mOK[0m  .context/scratch is 0 MB (under SCRATCH_WARN_GB=10)
+  [1;33mWARN[0m  Watchtower smoke: 3/54 endpoints failed
+         /: timed out
+         /approvals: timed out
+         /approvals/content: timed out
+  [0;32mOK[0m  claude-fw tmux servers: none shared between projects
+  [0;32mOK[0m  TermLink (termlink 0.12.1207)
+  [0;32mOK[0m  Process placement: no long-lived agent process in a non-lingering session scope
+  [0;32mOK[0m  Sidecar watcher live (seq 60678, last tick 15.0s ago, self-probe 8.9ms)
+  [0;36mINFO[0m  pi not installed (no workflows require it)
+  [0;32mOK[0m  embed endpoint reachable (http://localhost:11434)
+  [0;32mOK[0m  review model pin opencode zai-coding-plan/glm-5.3
+  [0;32mOK[0m  Enforcement baseline intact
+  [0;36mINFO[0m  Session tokens: 9.0B (19756 turns)
+  [1;33mWARN[0m  Task debt: 178 active tasks with last_update older than 7 days or unreadable
+         Run: fw task stale
+
+  [1mWorktrees[0m
+  [0;36mSKIP[0m  No linked worktrees — examined 0 linked worktree(s)
+  [0;36mINFO[0m  Hook crash log: 34 historical entries (none today)
+  [0;32mOK[0m  Configuration: all defaults (no FW_* overrides)
+  [1;33mWARN[0m  .framework.yaml key 'inception_commit_limit' is ignored — the setting is 'INCEPTION_COMMIT_LIMIT' (keys are read case-sensitively)
+         Fix: rename it to 'INCEPTION_COMMIT_LIMIT' in .framework.yaml, or: fw config set INCEPTION_COMMIT_LIMIT <value>  (then delete 'inception_commit_limit')
+  [0;32mOK[0m  Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer
+
+  [1mAutonomous Dispatch[0m
+  [0;32mLIVE[0m  systemd resolver-loop.timer is active — dispatching unattended every 30m
+  [0;36mINFO[0m  cron entry resolver-loop-autonomous: not-registered
+  [0;32mOK[0m  No stalled/zero-outcome tasks
+  [0;32mOK[0m  No stale in-flight latches
+  [0;32mOK[0m  bin/fw is the real CLI (12076 lines, not the shim)
+  [0;36mINFO[0m  No .context/project/workflows/ — orchestrator v1 not yet provisioned
+  [0;32mOK[0m  Worker-kinds parity (lib/workflow_lint.py ↔ lib/resolver.py): ['Task', 'TermLink', 'ollama-direct', 'ollama-loop', 'ollama-thin-loop', 'pi']
+  [0;32mOK[0m  Branch hygiene clean
+  [1;33mWARN[0m  Untracked task files: 1 under .tasks/{active,completed}/
+         .tasks/active/T-1297-session-handover-maintenance.md
+         An untracked completion copy that never got committed is the T-2091 divergence class. Commit it (git add + fw git commit) or remove the orphan. See T-2121 prong 3.
+  [1;33mWARN[0m  Gauge-READY gaps not closed: 1 gap(s) ≥7 days READY
+         G-039 (7d READY) — A control id is used as a key by operators, audit records an
+         Close via: fw gaps close <gap_id> (or /gaps Close button)
+  [0;32mOK[0m  Full-audit headroom: last run 492s of 3000s ceiling (16%)
+  [0;32mOK[0m  Structure-section timing is current (measured 2026-10-27T12:31:02+01:00)
+
+  [0;36mINFO[0m  fw doctor completed in 57s — slowest phases:
+           32s  Watchtower smoke test
+           8s  port3000 hygiene ratchet
+           5s  TermLink checks
+
+[1mProject /opt/832-Workflow-designer:[0m 9 project warning(s), 0 failure(s)
+  [0;36m↳ 1 host-level finding(s) excluded[0m (not about this project — handle from a session at that root)
+
+[1;33m10 warning(s) (1 host-level), no failures[0m
