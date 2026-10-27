@@ -3,19 +3,19 @@
 # this file exactly, including released/src_commit (T-387).
 # AEF vendors a pinned copy of the artifact named below and verifies its sha256.
 # Protocol: docs/aef-designer-integration-protocol.md
-latest: "0.30.0"
-artifact: "dist/aef-workflow-designer-0.30.0.html"
-sha256: "137810095a2a673bd543d16eab2cb6634b2ba0011f8afe5e2d9005c31cd1bcd6"
-bytes: 1261404
+latest: "0.31.0"
+artifact: "dist/aef-workflow-designer-0.31.0.html"
+sha256: "045726676578d2d88fec327695922cc3aa0bd46ad477bc3f00a024511473244e"
+bytes: 1264751
 source: "src/aef-workflow-designer.html"
 # T-387 (AEF rail 464): consumer-facing release identity. None derived from the others.
 #   released   — ISO8601 UTC, when this artifact was CUT
 #   src_commit — the commit it was built from
 #   supersedes — the previous version present in dist/ ("" for the first release)
-version: "0.30.0"
-released: "2026-10-26T23:17:44Z"
-src_commit: "7147062d66f3b9f251324117c6d8c01874509226"
-supersedes: "0.29.0"
+version: "0.31.0"
+released: "2026-10-27T16:27:13Z"
+src_commit: "5807f11feef97915b04754978b9039aee62e9462"
+supersedes: "0.30.0"
 # T-258/T-246: structured capability flags — a consumer (AEF) self-configures
 # conditional behaviour at re-pin by reading these instead of sniffing bytes.
 # annotation_seam: postMessage aef:ready/aef:annotate read-only badge layer
@@ -24,5 +24,5 @@ capabilities:
   annotation_seam: 1
 # T-974: the vendor authoring kit for this version. Verify the directory with
 #   (cd <kit> && sha256sum -c SHA256SUMS), and SHA256SUMS itself against kit_sha256.
-kit: "dist/aef-authoring-kit-0.30.0"
-kit_sha256: "66f0c3ba2d26c58ac707fe7d71f93df4ff86dd3788a21564dd33b5c2e22c92fb"
+kit: "dist/aef-authoring-kit-0.31.0"
+kit_sha256: "bf85239fd739f17a32aa7e4717ba801f862b1cf1ae8b8aa0f7058373523da19d"
