@@ -83,6 +83,9 @@ whose job 092 is the template; T-4811 (the identity fix on --termlink launches) 
   fed sample commands from files: socketless kills rc=2, -L/-S rc=0), wrongly BLOCKED twice by the word rule in
   check-tier0.sh ~505 (a read-only grep, and the report's own --body); D task create 0.29 s WORKS; H WORKS after the
   Watchtower restart. Open: E, F, G, and T-4454 after job 094 and a relaunch.)*
+  *(AEF reply 1b4461f3: #100 filed as AEF T-4819; the .upstream template without guidance is AEF T-4814; the word
+  block is by design (an accepted cost of fail-closed self-approval protection): write "Tier 0" with a space, name the
+  file, or pass the text via a file.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
