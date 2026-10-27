@@ -428,6 +428,53 @@ if _human_ticked and len(sys.argv) > 3 and sys.argv[2]:
 PYTICK
 }
 
+# T-4768: commit a CLI decision with its own paths — the task file (both sides of the
+# active→completed move), its episodic, and the Human-tick ledger tick_inception_decide_acs
+# appended to. Mirrors web/blueprints/inception.py:_commit_decision (T-4590 put the ledger
+# in _is_decision_file): left uncommitted, the main checkout's audit read the row from the
+# working tree, and every clean checkout FAILed the decided tick as unprovenanced (055).
+# `git commit --only -- <paths>` takes only these paths; other staged work stays staged.
+# Graceful: a commit failure warns with the command to run, never fails the decision.
+_commit_cli_decision() {
+    local task_id="$1" decision_upper="$2" base="$3"
+    local top
+    top=$(git -C "$PROJECT_ROOT" rev-parse --show-toplevel 2>/dev/null) || return 0
+    [ "$(cd "$top" && pwd -P)" = "$(cd "$PROJECT_ROOT" && pwd -P)" ] || return 0
+    git -C "$PROJECT_ROOT" rev-parse --verify -q HEAD >/dev/null || return 0
+
+    local p candidates=() known=() addable=()
+    candidates=(".tasks/active/$base" ".tasks/completed/$base" ".context/reviews/human-ac-ticks.jsonl")
+    for p in "$PROJECT_ROOT"/.context/episodic/"$task_id".yaml "$PROJECT_ROOT"/.context/episodic/"$task_id"-*.yaml; do
+        [ -e "$p" ] && candidates+=("${p#"$PROJECT_ROOT"/}")
+    done
+    for p in "${candidates[@]}"; do
+        if [ -e "$PROJECT_ROOT/$p" ]; then
+            known+=("$p"); addable+=("$p")
+        elif git -C "$PROJECT_ROOT" cat-file -e "HEAD:$p" 2>/dev/null || \
+             git -C "$PROJECT_ROOT" ls-files --error-unmatch -- "$p" >/dev/null 2>&1; then
+            known+=("$p")
+        fi
+    done
+    [ "${#known[@]}" -gt 0 ] || return 0
+
+    local _msg="$task_id: inception decision $decision_upper"
+    if [ "${#addable[@]}" -gt 0 ] && ! git -C "$PROJECT_ROOT" add -- "${addable[@]}" 2>/dev/null; then
+        echo -e "${YELLOW}WARN: decision recorded but not committed (git add failed). Commit it with:${NC}" >&2
+        echo "  cd $PROJECT_ROOT && git add -- ${addable[*]} && git commit -m \"$_msg\" -- ${known[*]}" >&2
+        return 0
+    fi
+    # Already committed (nothing of ours differs from HEAD): nothing to do.
+    if git -C "$PROJECT_ROOT" diff --cached --quiet HEAD -- "${known[@]}" 2>/dev/null; then
+        return 0
+    fi
+    if git -C "$PROJECT_ROOT" commit -q --only -m "$_msg" -- "${known[@]}" >/dev/null 2>&1; then
+        echo "Committed: $_msg"
+    else
+        echo -e "${YELLOW}WARN: decision recorded but not committed. Commit it with:${NC}" >&2
+        echo "  cd $PROJECT_ROOT && git commit --only -m \"$_msg\" -- ${known[*]}" >&2
+    fi
+}
+
 do_inception_decide() {
     local task_id="${1:-}"
     local decision="${2:-}"
@@ -482,7 +529,22 @@ do_inception_decide() {
     local task_file
     task_file=$(find_task_file "$task_id" active)
     if [ -z "$task_file" ]; then
-        echo -e "${RED}Task $task_id not found in active tasks${NC}" >&2
+        # T-4734: a work-completed task is archived, not missing. Say so, and name the
+        # re-record path (T-4324) instead of leaving the agent to guess at a file move.
+        local _archived
+        _archived=$(find_task_file "$task_id" completed)
+        if [ -n "$_archived" ]; then
+            echo -e "${RED}ERROR: $task_id is archived (work-completed): ${_archived#"$PROJECT_ROOT"/}${NC}" >&2
+            echo -e "'fw inception decide' records a verdict on an open exploration only." >&2
+            if grep -q "^workflow_type: inception" "$_archived"; then
+                echo -e "To re-record a wrong GO/NO-GO on it (operator only, logged):" >&2
+                echo -e "  $(_emit_user_command "inception correct $task_id go|no-go --reason 'why the recorded verdict was wrong'")" >&2
+            else
+                echo -e "It is not an inception task, so there is no verdict to record." >&2
+            fi
+            exit 1
+        fi
+        echo -e "${RED}Task $task_id not found in active or completed tasks${NC}" >&2
         exit 1
     fi
 
@@ -547,27 +609,6 @@ do_inception_decide() {
     # and an operator runme of 8 decisions was refused 8/8 (2026-10-08). The person
     # deciding is the review; refusing them only ever blocked a human.
     local review_marker="$PROJECT_ROOT/.context/working/.reviewed-$task_id"
-    # 832 T-996: the marker is a side effect of the AGENT-side `fw task review`, and nothing
-    # makes the agent run it before handing the decision over, so the refusal landed on the
-    # HUMAN at the moment of deciding ("run another command, then re-run") — 15 hits in one
-    # project's transcripts. The gate's purpose (T-973) is that the human SEES the review
-    # before deciding. When the caller is a human at a terminal, satisfy that purpose here:
-    # render the same review (emit_review writes the marker) and ask for confirmation.
-    # Agents ($CLAUDECODE=1) never reach this line (T-1259 gate above); non-interactive
-    # callers keep the refusal.
-    if [ ! -f "$review_marker" ] && [ -r /dev/tty ] && [ -t 1 -o -t 0 ] && [ "${CLAUDECODE:-}" != "1" ] \
-       && [ -f "$FW_LIB_DIR/review.sh" ]; then
-        echo -e "${YELLOW}No review was emitted for $task_id yet — showing it now (T-973 requires you to see it).${NC}" >&2
-        source "$FW_LIB_DIR/review.sh"
-        if emit_review "$task_id" "$task_file" >&2 && [ -f "$review_marker" ]; then
-            local _seen=""
-            read -r -p "You have read the review above. Continue with the decision? [y/N] " _seen </dev/tty || _seen=""
-            if [ "$_seen" != "y" ] && [ "$_seen" != "Y" ]; then
-                echo -e "${YELLOW}Stopped before deciding. The review stays emitted; re-run the decide command when ready.${NC}" >&2
-                exit 1
-            fi
-        fi
-    fi
     if [ ! -f "$review_marker" ]; then
         echo -e "${YELLOW}NOTE:${NC} $task_id decided without a prior 'fw task review' — the decider is the reviewer (T-3991)." >&2
     fi
@@ -588,38 +629,6 @@ do_inception_decide() {
         echo "" >&2
         echo -e "Watchtower reads this section — without it, the human sees no recommendation." >&2
         echo -e "Write the recommendation outside the HTML comment, then re-run this command." >&2
-        exit 1
-    fi
-
-    # Gate: require a ## Hypothesis in the three-part form, with a success clause
-    # naming something checkable (T-866, arc-004). Fires on GO only — a NO-GO or
-    # DEFER takes on no claim, so demanding a measurable signal there is
-    # bureaucracy. Placed AFTER the Recommendation gate deliberately: the
-    # recommendation is what the human reads, the hypothesis is what the project
-    # will later be measured against, and failing the cheaper/closer one first
-    # keeps the refusals in the order an author can act on them.
-    # Fail CLOSED if the audit lib never loaded. Its sourcing above is inside an
-    # `if [ -f ... ]`, so a missing lib would otherwise reach this line as a bare
-    # "command not found" and — depending on shell settings — let the decision
-    # through. A gate whose absence is indistinguishable from a pass is the exact
-    # defect this arc is built around.
-    if ! command -v audit_inception_hypothesis >/dev/null 2>&1; then
-        echo -e "${RED}ERROR: hypothesis gate unavailable (lib/task-audit.sh did not load)${NC}" >&2
-        echo -e "Refusing the decision rather than recording one the gate never checked." >&2
-        exit 1
-    fi
-    if ! audit_inception_hypothesis "$task_file" "$decision"; then
-        echo "" >&2
-        echo -e "${RED}ERROR: ## Hypothesis required before a GO decision${NC}" >&2
-        echo "" >&2
-        echo -e "A GO is the moment this project takes on a claim. Every support score in" >&2
-        echo -e "this task's value-driver table is an argument about that claim — without it," >&2
-        echo -e "the scores can rank but cannot be wrong, because there is nothing for them" >&2
-        echo -e "to be wrong about." >&2
-        echo "" >&2
-        echo -e "The estimator can draft one from this task's own text; correct it and set" >&2
-        echo -e "  hypothesis_source: human" >&2
-        echo -e "in the frontmatter to make your wording permanent." >&2
         exit 1
     fi
 
@@ -731,12 +740,33 @@ do_inception_decide() {
         fi
     fi
 
+    # T-4727: warn — never block — when the recorded verb differs from the
+    # Recommendation's verdict, and note it in ## Decision so the override is
+    # auditable. The verdict is parsed by the extractor Watchtower's
+    # Recommendation card uses (same call as lib/review.sh, T-4726); an
+    # unparseable verdict prints '' and stays silent. Watchtower's decide
+    # (web/decide_runner.py) runs this same CLI, so it gets the note too.
+    local _rec_verdict="" _diverges=""
+    _rec_verdict=$(FW_TASK_FILE="$task_file" python3 -c "
+import os, sys
+sys.path.insert(0, sys.argv[1])
+from web.shared import extract_recommendation
+v = extract_recommendation(open(os.environ['FW_TASK_FILE'], encoding='utf-8', errors='replace').read())['verdict']
+print(v if v in ('GO', 'NO-GO', 'DEFER') else '')
+" "${FRAMEWORK_ROOT:-.}" 2>/dev/null || true)
+    if [ -n "$_rec_verdict" ] && [ "$_rec_verdict" != "$decision_upper" ]; then
+        _diverges="$_rec_verdict"
+        echo -e "${YELLOW}WARNING: recording $decision_upper but the Recommendation is $_rec_verdict (T-4727)${NC}" >&2
+    fi
+
     # Update Decision section via Python
-    python3 - "$task_file" "$decision_upper" "$rationale" "$timestamp" << 'PYDECIDE'
+    python3 - "$task_file" "$decision_upper" "$rationale" "$timestamp" "$_diverges" << 'PYDECIDE'
 import re
 import sys
 
-task_file, decision, rationale, timestamp = sys.argv[1:5]
+task_file, decision, rationale, timestamp, diverges = sys.argv[1:6]
+# T-4727: one extra line in the Decision block when the verb overrides the Recommendation.
+diverges_lines = ['', f'**Diverges from Recommendation**: {diverges}'] if diverges else []
 
 with open(task_file, 'r') as f:
     content = f.read()
@@ -762,6 +792,7 @@ for line in lines:
             new_lines.append(f'**Rationale**: {rationale}')
             new_lines.append(f'')
             new_lines.append(f'**Date**: {timestamp}')
+            new_lines.extend(diverges_lines)
             decision_written = True
         # Subsequent Decision sections (duplicates) — swallow entirely
         continue
@@ -800,6 +831,7 @@ if not decision_written:
         f'**Rationale**: {rationale}',
         '',
         f'**Date**: {timestamp}',
+        *diverges_lines,
         '',
     ]
     # Insertion priority: before `## Updates`, then before `## Recommendation`, then EOF.
@@ -915,6 +947,10 @@ EOF
 
     # Clean up review marker (T-973)
     rm -f "$PROJECT_ROOT/.context/working/.reviewed-$task_id" 2>/dev/null || true
+
+    # T-4768: commit the decision with its Human-tick provenance row. Watchtower's decide
+    # runner (web/decide_runner.py) commits through _commit_decision itself, so skip there.
+    [ "$from_watchtower" = true ] || _commit_cli_decision "$task_id" "$decision_upper" "$(basename "$task_file")"
 
     echo ""
     echo -e "${GREEN}Inception decision recorded${NC}"

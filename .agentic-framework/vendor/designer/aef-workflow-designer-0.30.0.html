@@ -146,6 +146,7 @@ font-family: 'Outfit';
     --text: #e8eaef;
     --text-dim: #8b91a3;
     --text-faint: #5a6173;
+    --text-hint: #80869a;     /* T-1278: field helper text; --text-faint on --surface measured 2.84:1, this 4.84:1 (WCAG AA 4.5) */
     --accent: #c4ee54;
     --accent-soft: rgba(196,238,84,0.12);
     --blue: #6aa8ff;
@@ -606,7 +607,7 @@ font-family: 'Outfit';
   .pool-resize-handle:hover .lane-resize-grip { opacity: 1; fill: var(--accent); }
   .pool-resize-handle.dragging .lane-resize-grip { opacity: 1; fill: var(--accent); }
   .lane-label {
-    fill: var(--text-faint);
+    fill: var(--text-hint);   /* T-1278: --text-faint was 3.1:1 on --bg; --text-hint 5.29:1 (AA) */
     font-family: var(--mono);
     font-size: 10px;
     text-transform: uppercase;
@@ -679,7 +680,7 @@ font-family: 'Outfit';
   svg[data-lsize="s"] .lane-label { font-size: 9px; }
   svg[data-lsize="l"] .lane-label { font-size: 11.5px; }
   .node-io-badge { fill: var(--text-dim); font-family: var(--mono); font-size: 8px; pointer-events: none; }
-  .node-id-badge { fill: var(--text-faint); font-family: var(--mono); font-size: 9px; pointer-events: none; letter-spacing: 0.02em; }
+  .node-id-badge { fill: var(--text-hint); font-family: var(--mono); font-size: 9px; pointer-events: none; letter-spacing: 0.02em; }
   /* T-893 (T-888 clause 4): authority marker on the element. Two classes for two states that
      must read DIFFERENTLY — a differing authority is a choice (faint, like the id badge), a
      missing one is a hole (the orange token, the same one AUTHORITY_LABEL_COLOR uses for
@@ -959,7 +960,7 @@ font-family: 'Outfit';
   .field-hidden-tag { font-size: 10.5px; color: var(--orange, #d29922); margin: -2px 0 4px; }
   /* T-1126: the suggestion row under an "Other extensions" entry */
   .suggest-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 3px 0 2px; }
-  .suggest-row .field-hint { margin: 0; font-size: 11px; color: var(--text-faint); }
+  .suggest-row .field-hint { margin: 0; font-size: 11px; color: var(--text-hint); }
   .btn-suggest { font-size: 11px; padding: 2px 8px; white-space: nowrap; flex: none; }
   /* T-1128: Settings → Fields shown by default */
   .fd-scope { display: inline-flex; align-items: center; gap: 4px; margin-left: 10px; font-size: 12px; }
@@ -1071,7 +1072,7 @@ font-family: 'Outfit';
   .field-label .field-hint {
     font-family: var(--mono);
     font-size: 9px;
-    color: var(--text-faint);
+    color: var(--text-hint);
     font-weight: 400;
   }
   .field-input, .field-select, .field-textarea {
@@ -1093,6 +1094,15 @@ font-family: 'Outfit';
     resize: vertical;
     min-height: 50px;
     line-height: 1.4;
+  }
+  /* T-1278: a one-line value that wraps to show itself whole (the step Name); growToContent sizes it */
+  .field-input-line {
+    display: block;
+    resize: none;
+    overflow-y: hidden;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
   .field-select {
     appearance: none;
@@ -1136,7 +1146,7 @@ font-family: 'Outfit';
     display: grid;
     grid-template-columns: 1fr 78px auto auto;
     gap: 4px;
-    align-items: center;
+    align-items: start;   /* T-1305: a wrapped name grows downwards; type, req and × stay on its first line */
   }
   .io-row.no-req { grid-template-columns: 1fr 78px auto; }
   .io-name, .io-type {
@@ -1151,6 +1161,11 @@ font-family: 'Outfit';
     min-width: 0;
   }
   .io-name:focus, .io-type:focus { border-color: var(--accent); }
+  /* T-1305: the io name wraps and grows with its value, so a producer's field path is never cut */
+  textarea.io-name-wrap { resize: none; overflow: hidden; field-sizing: content; min-height: 0; line-height: 1.35;
+                          white-space: pre-wrap; overflow-wrap: anywhere; display: block; width: 100%; }
+  .io-row.io-row-long > .io-name { grid-column: 1 / -1; }
+  .io-row.io-row-long > .io-type { grid-column: 2; }
   .io-type {
     appearance: none;
     -webkit-appearance: none;
@@ -1205,6 +1220,43 @@ font-family: 'Outfit';
   .io-v11 .d { color: var(--text-faint); font-style: italic; margin-left: 4px; }
   .io-v11-kid { padding-left: 2px; }
   .io-v11-kid .tag { color: var(--accent); }
+  /* T-1301: the io attributes editor, under its row, behind a toggle */
+  .io-attrs-toggle { font-family: var(--mono); font-size: 10px; color: var(--text-dim); cursor: pointer; margin: 0 0 4px 2px;
+                     padding: 1px 0 1px 7px; user-select: none; }
+  .io-attrs-toggle:hover, .io-attrs-toggle.open { color: var(--accent); }
+  .io-attrs { margin: -2px 0 6px 2px; padding: 3px 0 3px 7px; border-left: 2px solid var(--accent); display: grid; gap: 3px; }
+  .io-attr { display: grid; grid-template-columns: 86px minmax(0, 1fr); align-items: center; column-gap: 6px; min-width: 0; }
+  .io-attr-k { font-family: var(--mono); font-size: 10px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; }
+  .io-attr-v { width: 100%; padding: 2px 6px; }
+  select.io-attr-v { padding-right: 16px; }
+  textarea.io-attr-v { resize: none; overflow: hidden; field-sizing: content; min-height: 22px; line-height: 1.4;
+                       white-space: pre-wrap; overflow-wrap: anywhere; display: block; }
+  .io-ref-pick { grid-column: 2; margin-top: 2px; color: var(--text-dim); }
+  /* T-1312: the field-catalog picker under the ref field */
+  .io-cat { grid-column: 2; margin-top: 2px; display: grid; gap: 2px; min-width: 0; }
+  .io-cat-hits { display: grid; gap: 1px; min-width: 0; }
+  /* a choice, not a note: bordered like a button (T-1312 sweep: flat blocks read as information) */
+  .io-cat-hit { padding: 2px 6px; border-radius: 3px; cursor: pointer; min-width: 0; overflow-wrap: break-word;
+                border: 1px solid var(--border); background: var(--surface-2, rgba(127,127,127,0.08)); }
+  .io-cat-hit:hover { background: var(--accent-soft, rgba(127,127,127,0.2)); border-color: var(--accent); }
+  /* the notation on its own line, broken only after . : - (wbr); the label below it, broken at spaces */
+  .io-cat-n { display: block; font-family: var(--mono); font-size: 11px; color: var(--text); }
+  .io-cat-l { display: block; font-size: 11px; color: var(--text-dim); }
+  /* a search, not a value: dashed edge and a leading glyph */
+  input.io-cat-search { border-style: dashed; padding-left: 20px;
+                        background-repeat: no-repeat; background-position: 6px 50%; background-size: 10px;
+                        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Ccircle cx='4' cy='4' r='3' fill='none' stroke='%23888' stroke-width='1.3'/%3E%3Cpath d='M6.3 6.3L9.3 9.3' stroke='%23888' stroke-width='1.3'/%3E%3C/svg%3E"); }
+  .io-cat-more { font-size: 10px; color: var(--text-dim); padding: 1px 6px; }
+  /* T-1302: the fields (aef:field children) of an io, in its editor */
+  .io-fields { display: grid; gap: 5px; margin-top: 4px; padding-top: 5px; border-top: 1px dashed var(--border); }
+  .io-field-row { display: grid; grid-template-columns: 86px minmax(0, 1fr); gap: 3px 6px; align-items: start; min-width: 0; }
+  .io-field-line2 { grid-column: 1 / -1; display: flex; gap: 4px; align-items: center; min-width: 0; }
+  .io-field-line2 select { flex: 1 1 0; min-width: 0; width: auto; }
+  .io-field-line2 select[data-fattr="cardinality"] { flex-grow: 1.35; }   /* room for "cardinality —" (T-1302 sweep) */
+  .io-field-row + .io-field-row { border-top: 1px dotted var(--border); padding-top: 5px; }   /* where a field ends (sweep) */
+  .io-field-when { font-family: var(--mono); font-size: 10px; color: var(--text-dim); white-space: nowrap; }
+  .io-attr-hint { grid-column: 2; font-size: 10px; color: var(--orange); }
+  .io-attr-hint:empty { display: none; }
   .io-v11-when { padding-left: 14px; }
   .wf-v11 .wf-v11-pfx { display: grid; grid-template-columns: auto 1fr; gap: 0 8px; margin-top: 3px; }
   .wf-v11 .wf-v11-pfx > span { overflow-wrap: anywhere; min-width: 0; }
@@ -3344,7 +3396,11 @@ function setZoom(f, anchorX, anchorY) {
 // opens at the zoom that draws it at that size, scrolled to the top-left corner; the rest is reached by scroll,
 // nothing is hidden, and Fit still shows the whole map. Only on opening a document, and never over a zoom the person
 // chose (setZoom clears _zoomFromOpen); a zoom this function set is re-judged on the next open. View state only.
-const OPEN_MIN_TEXT_PX = 7;
+// T-1278: 7 -> 9 px (the codex sweep of the T-1241 shots still found names, flow labels and captions too small at 7),
+// and the minimum is over every class of map text a person reads, not node names alone: flow labels, id captions and
+// lane captions too (OPEN_TEXT_SEL), so none of them opens below the floor when it is drawn smaller than the names.
+const OPEN_MIN_TEXT_PX = 9;
+const OPEN_TEXT_SEL = 'text.node-label, text.edge-label, text.node-id-badge, text.lane-label';
 let _zoomFromOpen = false;
 function openingZoom() {
   if (zoomFactor != null && !_zoomFromOpen) return;
@@ -3352,7 +3408,8 @@ function openingZoom() {
   applyCanvasZoom();
   let fit = 1, min = Infinity;
   try { fit = svg.getScreenCTM().a; } catch (e) { aefRecordFault('opening-zoom:ctm', e); return; }   // T-821: no CTM, the map stays at fit
-  for (const t of gNodes.querySelectorAll('text.node-label')) {
+  for (const t of svg.querySelectorAll(OPEN_TEXT_SEL)) {
+    if (!t.getBoundingClientRect().width) continue;   // not drawn (a lens or the ids toggle hides it)
     const px = parseFloat(getComputedStyle(t).fontSize) * fit;
     if (px > 0 && px < min) min = px;
   }
@@ -4496,15 +4553,18 @@ function deCollideBelowLabels() {
 // MEASURES the rendered lines (PL-008) and, when the block overflows the rect
 // (too many lines for the height, or a line wider than the rect), walks:
 // (1) re-wrap one font step smaller (inline style — PL-009: presentation
-// attributes lose to class CSS); (2) clamp to the line budget at that step,
+// attributes lose to class CSS); (1b, T-1276) a tighter step whose lines are
+// wrapped by MEASURED width, not a char estimate, one more line in the same
+// rect (the T-1241 review read two lifecycle names cut at the floor; every
+// corpus name fits here); (2) clamp to the line budget at the last step,
 // trim the last line to measured width with an ellipsis, and attach the full
 // name as a <title> tooltip. Render-only: rect geometry is never mutated.
-// Ladder parameters follow the label-size pref (T-085).
+// Ladder parameters follow the label-size pref (T-085); no step below 8px.
 function fitNodeLabels() {
   const LADDER = {
-    s: [{ fs: null, lh: 12, ch: 16 }, { fs: 9, lh: 11, ch: 18 }],
-    m: [{ fs: null, lh: 13, ch: 14 }, { fs: 10, lh: 12, ch: 16 }],
-    l: [{ fs: null, lh: 15, ch: 12 }, { fs: 11, lh: 13, ch: 14 }],
+    s: [{ fs: null, lh: 12, ch: 16 }, { fs: 9, lh: 11, ch: 18 }, { fs: 8, lh: 9.5, ch: 21, measured: true }],
+    m: [{ fs: null, lh: 13, ch: 14 }, { fs: 10, lh: 12, ch: 16 }, { fs: 9, lh: 10.5, ch: 19, measured: true }],
+    l: [{ fs: null, lh: 15, ch: 12 }, { fs: 11, lh: 13, ch: 14 }, { fs: 10, lh: 11.5, ch: 16, measured: true }],
   }[labelPrefs.size];
   for (const n of state.nodes) {
     let texts = Array.from(gNodes.querySelectorAll(`text[data-fitn="${n.uid}"]`));
@@ -4528,14 +4588,41 @@ function fitNodeLabels() {
       });
       return texts;
     };
+    // Greedy wrap by rendered width at a step's font size. A word wider than
+    // the rect breaks after a separator inside it (/ | , ; > ), as CSS
+    // overflow-wrap would: "(--host/--task/--agent/…)" is one token; a piece
+    // still too wide keeps its own line and the floor trims it.
+    const wrapMeasured = step => {
+      const probe = el('text', { class: 'node-label', style: 'font-size:' + step.fs + 'px' });
+      g.appendChild(probe);
+      const width = s => { probe.textContent = s; return probe.getComputedTextLength(); };
+      const atoms = [];   // [piece, joins the previous piece with a space]
+      for (const w of n.name.split(' ').filter(Boolean)) {
+        const parts = width(w) > maxW ? w.split(/(?<=[\/|,;>)])/).filter(Boolean) : [w];
+        parts.forEach((p, i) => atoms.push([p, i === 0]));
+      }
+      const out = [];
+      let cur = '';
+      for (const [p, sp] of atoms) {
+        const cand = cur ? cur + (sp ? ' ' : '') + p : p;
+        if (cur && width(cand) > maxW) { out.push(cur); cur = p; }
+        else cur = cand;
+      }
+      if (cur) out.push(cur);
+      probe.remove();
+      return out;
+    };
+    const wrapAt = step => step.measured ? wrapMeasured(step) : wrapText(n.name, step.ch);
     if (fits(texts, LADDER[0])) continue;
-    const shrink = LADDER[1];
-    if (fits(make(wrapText(n.name, shrink.ch), shrink), shrink)) continue;
-    // Floor: clamp to the shrink-step budget; the last line absorbs the
+    let fitted = false;
+    for (const step of LADDER.slice(1)) if (fits(make(wrapAt(step), step), step)) { fitted = true; break; }
+    if (fitted) continue;
+    // Floor: clamp to the last step's budget; the last line absorbs the
     // remainder and every over-wide line is trimmed to measured width.
-    // rest === '' means the shrink tier failed on width alone (long
+    // rest === '' means the last tier failed on width alone (long
     // unbreakable token) — keep the lines and let the trim handle it.
-    const lines = wrapText(n.name, shrink.ch);
+    const shrink = LADDER[LADDER.length - 1];
+    const lines = wrapAt(shrink);
     const maxL = budget(shrink.lh);
     const rest = lines.slice(maxL - 1).join(' ');
     make(rest ? lines.slice(0, maxL - 1).concat(rest) : lines, shrink);
@@ -4788,8 +4875,8 @@ function adjustLabelPlacements() {
 // (T-1090). This pass moves ONLY a block that a DRAWN flow segment (the path the canvas shows, read off its `d`,
 // so manually routed flows count too) or another label actually crosses, to the first of a fixed list of places
 // (below, beside a vertical flow, beside the shape above or below its own flow axis, above), a name also as one
-// line or two balanced lines, with the lowest cost: a flow segment or another label (with a word-space beside it)
-// 10 each, a shape 30, outside its own lane 3, on the lane header 2, outside the pool 1. A place is kept only when
+// line or two balanced lines, with the lowest cost: a flow segment, an arrowhead (T-1277) or another label (with a
+// word-space beside it) 10 each, a shape 30, outside its own lane 3, on the lane header 2, outside the pool 1. A place is kept only when
 // it is STRICTLY better, so an uncontested map is not touched. It runs after the flow labels are placed and keeps
 // clear of them, so every flow label stands where it stood before this pass (none is pushed onto a line). Deterministic;
 // render-only (PD-044): nothing here is written to the document (no BPMNLabel is emitted, see buildBpmnXml).
@@ -4801,6 +4888,28 @@ function clearLabelsOfFlows() {
     for (let i = 0; i < pl.length - 1; i++) segs.push([pl[i], pl[i + 1]]);
   }
   if (!segs.length) return;
+  // T-1277: a flow is not only its line. Its arrowheads (#arrow at the end, #arrow-source at the start, sized in
+  // stroke widths) are 12 and 7.5 units wide, so a caption 6 units beside a vertical flow sat on the head of the flow
+  // that ends on its node (agt_3_start, agt_6_completion on aef-task-lifecycle). Each head counts as an obstacle by its
+  // bounding box with one unit of margin for its anti-aliased edge; the unselected stroke (1.5) is used, so selecting
+  // a flow never moves a label.
+  const heads = [];
+  {
+    const SW = 1.5, M = 1;
+    const head = (tip, prev, back, fwd, half) => {
+      const dx = tip.x - prev.x, dy = tip.y - prev.y, L = Math.hypot(dx, dy);
+      if (!L) return;
+      const ux = dx / L, uy = dy / L, bx = tip.x - ux * back, by = tip.y - uy * back, fx = tip.x + ux * fwd, fy = tip.y + uy * fwd;
+      const xs = [fx, bx - uy * half, bx + uy * half], ys = [fy, by + ux * half, by - ux * half];
+      heads.push({ x1: Math.min(...xs) - M, y1: Math.min(...ys) - M, x2: Math.max(...xs) + M, y2: Math.max(...ys) + M });
+    };
+    for (const p of gEdges.querySelectorAll('g.edge > path.edge-path')) {
+      const pl = polylineFromPath(p.getAttribute('d'));
+      if (pl.length < 2) continue;
+      if (p.getAttribute('marker-end')) head(pl[pl.length - 1], pl[pl.length - 2], 0.8 * SW * 9, 0.8 * SW * 1, 0.8 * SW * 5);
+      if (p.getAttribute('marker-start')) head(pl[0], pl[1], -0.5 * SW * 1, -0.5 * SW * 9, 0.5 * SW * 5);   // points into the flow
+    }
+  }
   // Liang-Barsky: does the segment a-b enter the box r?
   const segHits = (a, b, r) => {
     let t0 = 0, t1 = 1;
@@ -4862,6 +4971,7 @@ function clearLabelsOfFlows() {
       for (const t of els) {
         const r = boxOf(t); if (!r) continue;
         for (const [a, b] of segs) if (segHits(a, b, r)) { c += 10; hard++; }
+        for (const h of heads) if (inter(r, h)) { c += 10; hard++; }
         for (const o of others) if (inter(r, o)) { c += 10; hard++; }
         for (const s of shapes) if (inter(r, s)) c += 30;
         if (hasPool) {
@@ -4938,6 +5048,10 @@ function clearLabelsOfFlows() {
 // drop, hugging the line then one line further out; as one line, then as two balanced lines) with the lowest cost:
 // another flow 10, another label 25 (text under a pad is lost, a line through it is not; closer than a word-space 2),
 // a shape 30, its own line 10.
+// Nearness (T-1274; the T-1241 reviewer, 1920 technical/all: "yes — status: issues" ended 10.7 px left of the gateway
+// name "issues" across the drop, and the two read as one run): a flow label and a node text (name, id caption) on one
+// text row (sharing half the smaller height) closer than three em of the smaller font cost 8 and trigger a move as well;
+// such a move never trades a crossing or an overlap for it (a place with more of those than now is not taken).
 // A place is kept only when it is STRICTLY better, so a clear label is never touched. Every other label is an obstacle
 // where it stands now, so a move never lands on a label placed later in the order. Deterministic; render-only
 // (PD-044): nothing is written to the document. Flow labels measure with text-rendering: geometricPrecision (CSS
@@ -4971,16 +5085,22 @@ function clearFlowLabels() {
   // The text's box with the room its pad (halo) takes, plus a little air, so two labels never touch.
   const boxOf = t => { const b = t.getBBox(); return b.width ? { x1: b.x - 3, y1: b.y - 1, x2: b.x + b.width + 3, y2: b.y + b.height + 1 } : null; };
   const shapes = state.nodes.map(n => { const d = NODE_DEFAULTS[n.type]; return { x1: n.x - 2, y1: n.y - 2, x2: n.x + d.w + 2, y2: n.y + d.h + 2 }; });
-  const nodeBoxes = Array.from(gNodes.querySelectorAll('text.node-label, text.node-id-badge, text.node-io-badge'))
-    .filter(t => !t.closest('#g-sticky-lanes')).map(boxOf).filter(Boolean);
+  const nodeTextEls = Array.from(gNodes.querySelectorAll('text.node-label, text.node-id-badge, text.node-io-badge'))
+    .filter(t => !t.closest('#g-sticky-lanes'));
+  const nodeBoxes = nodeTextEls.map(boxOf).filter(Boolean);
+  // Names and id captions as drawn (no pad), with their font size, for nearness.
+  const nearRows = nodeTextEls.filter(t => !t.classList.contains('node-io-badge')).map(t => {
+    const b = t.getBBox(); return b.width ? { x1: b.x, y1: b.y, x2: b.x + b.width, y2: b.y + b.height, em: parseFloat(getComputedStyle(t).fontSize) || 11 } : null;
+  }).filter(Boolean);
+  const NEAR_EM = 3;
   const flowTexts = Array.from(gEdges.querySelectorAll('text.edge-label[data-el]'));
   const edgeOf = t => state.edges.find(x => x.id === t.getAttribute('data-el'));
   const grow = r => ({ x1: r.x1 - GAPX, y1: r.y1 - GAPY, x2: r.x2 + GAPX, y2: r.y2 + GAPY });
   // Cost of t where it stands, against every other label where IT stands now.
   const cost = t => {
-    const r = boxOf(t); if (!r) return { c: 0, hard: 0 };
+    const r = boxOf(t); if (!r) return { c: 0, hard: 0, near: 0 };
     const id = t.getAttribute('data-el');
-    let c = 0, hard = 0;
+    let c = 0, hard = 0, nearN = 0;
     const crossed = new Set();
     for (const [sid, a, b] of allSegs) if (segHits(a, b, r)) { if (sid === id) c += 10; else crossed.add(sid); }
     c += 10 * crossed.size; hard += crossed.size;
@@ -4989,7 +5109,14 @@ function clearFlowLabels() {
     for (const o of nodeBoxes) near(o);
     for (const o of flowTexts) if (o !== t) { const ob = boxOf(o); if (ob) near(ob); }
     for (const s of shapes) if (inter(r, s)) c += 30;
-    return { c, hard };
+    const bb = t.getBBox(), em = parseFloat(getComputedStyle(t).fontSize) || 10;
+    const a = { x1: bb.x, y1: bb.y, x2: bb.x + bb.width, y2: bb.y + bb.height };
+    for (const o of nearRows) {
+      if (Math.min(a.y2, o.y2) - Math.max(a.y1, o.y1) < 0.5 * Math.min(a.y2 - a.y1, o.y2 - o.y1)) continue;
+      const gap = Math.max(o.x1 - a.x2, a.x1 - o.x2);
+      if (gap >= 0 && gap < NEAR_EM * Math.min(em, o.em)) { c += 8; nearN++; }
+    }
+    return { c, hard, near: nearN };
   };
   const apply = (t, x, y, anchor) => {
     t.setAttribute('x', x); t.setAttribute('y', y); t.setAttribute('text-anchor', anchor);
@@ -5033,13 +5160,15 @@ function clearFlowLabels() {
     }
     return out;
   };
-  // The cheapest place for t (the first of equals), measured; t is left where it was.
-  const search = t => {
+  // The cheapest place for t (the first of equals) with no more crossings and overlaps than maxHard, measured; t is
+  // left where it was.
+  const search = (t, maxHard) => {
     const home = where(t);
     let best = null;
     for (const p of placesOf(t)) {
       put(t, p);
       const sc = cost(t);
+      if (sc.hard > maxHard) continue;
       if (!best || sc.c < best.c) best = { ...p, c: sc.c };
       if (best.c === 0) break;
     }
@@ -5056,8 +5185,8 @@ function clearFlowLabels() {
     .sort((a, b) => (edgeOf(b[0])?.name || '').length - (edgeOf(a[0])?.name || '').length || a[1] - b[1]).map(p => p[0]);
   for (const t of order.concat(order)) {
     const now = cost(t);
-    if (!now.hard) continue;
-    const best = search(t);
+    if (!now.hard && !now.near) continue;
+    const best = search(t, now.hard ? Infinity : 0);   // a move for nearness alone takes no crossing or overlap
     if (best && best.c < now.c) put(t, best);
   }
   for (const t of flowTexts) halo(t);
@@ -7065,6 +7194,26 @@ function renderLensSelect() {
   if (_lensName !== 'all' && !names.includes(_lensName)) _lensName = 'all';
   sel.value = _lensName;
   document.body.dataset.lens = _lensName;
+  renderPaletteWording();
+}
+// T-1278: the palette subtitles a lens rewords (the T-1241 sweep: the business lens still showed "startEvent",
+// "endEvent", "on status:issues", "cron / horizon", "on bus topic"). Keyed by lens, then by data-create; an item the
+// table does not name keeps the subtitle written in the palette (kept in data-meta), so every other lens is unchanged.
+const PALETTE_WORDING = {
+  business: {
+    startEvent: 'where the work begins', endEvent: 'where the work ends', scriptTask: 'framework · Authority',
+    subProcess: 'a step made of steps',
+    parallelGateway: 'paths run side by side', eventError: 'when something goes wrong',
+    eventTimer: 'after a wait or at a set time', eventMessage: 'when a message arrives'
+  }
+};
+function renderPaletteWording() {
+  const words = PALETTE_WORDING[_lensName] || {};
+  for (const m of document.querySelectorAll('.palette-item[data-create] .palette-meta')) {
+    if (m.dataset.meta == null) m.dataset.meta = m.textContent;
+    const t = words[m.closest('.palette-item').dataset.create] || m.dataset.meta;
+    if (m.textContent !== t) m.textContent = t;
+  }
 }
 function setLens(name) {
   _lensName = name;
@@ -7083,6 +7232,28 @@ async function loadLensDefinition() {
   renderLensSelect();
   if (typeof renderAll === 'function' && lensSpec()) renderAll();
   if (typeof renderProperties === 'function') renderProperties();
+}
+// T-1312: the project's field catalog (GET /api/field-catalog; greenfield's nid-attributes.json, format v1), for the ref
+// picker in the io editor. null = none (404, refused, standalone): the ref field stays free text, as before.
+let _fieldCatalog = null;
+async function loadFieldCatalog() {
+  try {
+    const r = await fetch('/api/field-catalog', { cache: 'no-store' });
+    const ct = (r.headers && r.headers.get && r.headers.get('content-type')) || '';
+    const d = (r.ok || /json/i.test(ct)) ? await r.json().catch(() => null) : null;
+    const rows = r.ok && d && d.ok && d.catalog && Array.isArray(d.catalog.attributes) ? d.catalog.attributes : null;
+    _fieldCatalog = rows && rows.length ? rows.filter(x => x && typeof x.ref === 'string' && x.ref.trim()) : null;
+  } catch (e) { _fieldCatalog = null; aefRecordFault('field-catalog:load', e); }
+  if (typeof renderProperties === 'function') renderProperties();
+}
+const IO_CAT_MAX = 8;   // hits listed at once; type more words to narrow
+function ioCatalogMatches(q) {   // every word of q in the row's notation, label or ref (case-insensitive)
+  const words = q.toLowerCase().split(/\s+/).filter(Boolean);
+  if (!words.length || !_fieldCatalog) return [];
+  return _fieldCatalog.filter(x => {
+    const hay = [x.notation, x.label, x.ref].filter(v => typeof v === 'string').join(' ').toLowerCase();
+    return words.every(w => hay.includes(w));
+  });
 }
 
 // T-1124 (T-1118 B1): which selection has its empty Extensions fields opened (null = none).
@@ -7869,14 +8040,17 @@ function _renderPropsInto(props, details) {
 
   // BPMN basics
   const sBpmn = section('BPMN');
+  // T-1278: the Name box grows to show the whole name and stays one line of data (field opts.line). Each keystroke
+  // updates the step and the canvas; the panel (slug, id preview) re-renders when the edit ends (Enter or blur).
+  // It used to re-render on every keystroke, which rebuilt this box under the cursor: typing "abc" stored "a" and
+  // focus fell to the page (the T-264 failure, found by the T-1278 probe).
   sBpmn.appendChild(field('Name', n.name, v => {
     n.name = v;
     // The slug follows the name (T-1193: it is no longer editable).
     n.slug = deriveUniqueSlug(n, v);
     refreshDisplayIds();
     renderNodes();
-    renderProperties();
-  }));
+  }, { line: true, grow: true }));
   // T-1193: the slug is SHOWN, not edited. It follows the name. A slug typed here was never saved (the export writes no
   // slug; the importer derives every slug from the name), so it reverted on reload and the next save changed the id
   // unasked. Rename the step to change it.
@@ -8110,7 +8284,7 @@ function _renderPropsInto(props, details) {
             if (parsed) n.aef[f] = parsed; else delete n.aef[f];
           }, { mono: true, textarea: meta.textarea, hint: meta.hint }));
         } else {
-        sAef.appendChild(field(meta.label, n.aef[f] || '', v => { n.aef[f] = v; }, { mono: true, textarea: meta.textarea, hint: meta.hint }));
+        sAef.appendChild(field(meta.label, n.aef[f] || '', v => { n.aef[f] = v; }, { mono: true, textarea: meta.textarea, hint: meta.hint, grow: f === 'note' }));
         }
       }
       if (profileHidden || hiddenInPanel) {   // drawn although the profile hides it — say why
@@ -8351,10 +8525,25 @@ function field(label, value, onInput, opts = {}) {
     lbl.appendChild(h);
   }
   wrap.appendChild(lbl);
-  const inp = document.createElement(opts.textarea ? 'textarea' : 'input');
-  inp.className = opts.textarea ? 'field-textarea' : 'field-input';
+  const inp = document.createElement(opts.textarea || opts.line ? 'textarea' : 'input');
+  inp.className = opts.textarea ? 'field-textarea' : (opts.line ? 'field-input field-input-line' : 'field-input');
   inp.value = value;
   inp.spellcheck = false;
+  if (opts.line) {
+    // T-1278: a one-line value shown in a box that wraps and grows (the step Name: the T-1241 sweep found the single-
+    // line field cut "create task — fw work-on (status: captured)" after "captu"). It stays one line of data: Enter
+    // ends the edit (blur commits it) and never inserts a newline, and a pasted line break becomes a space, before
+    // the value reaches onInput, so no newline is ever stored.
+    inp.rows = 1;
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); if (!opts.deferred) inp.blur(); } });
+    inp.addEventListener('input', e => {
+      if (!/[\r\n]/.test(inp.value)) return;
+      const at = inp.selectionStart;
+      const before = inp.value.slice(0, at).replace(/\s*[\r\n]+\s*/g, ' ');
+      inp.value = before + inp.value.slice(at).replace(/\s*[\r\n]+\s*/g, ' ');
+      inp.setSelectionRange(before.length, before.length);
+    });   // registered before onInput's listener below, so onInput reads the cleaned value
+  }
   if (opts.deferred) {
     // T-264: commit once on blur/Enter. A live per-keystroke commit whose handler
     // re-renders the panel (workflow rename) destroys this input mid-typing —
@@ -8369,8 +8558,31 @@ function field(label, value, onInput, opts = {}) {
     inp.addEventListener('input', e => onInput(e.target.value));
     inp.addEventListener('blur', () => { renderProperties(); });
   }
+  if (opts.grow && (opts.textarea || opts.line)) growToContent(inp);
   wrap.appendChild(inp);
   return wrap;
+}
+// T-1274: a textarea that shows its whole text (the T-1241 reviewer: the Note box cut its third line, "until real ACs
+// exist"). It grows to its content up to GROW_CAP px, then scrolls with a visible scrollbar. Sized on input and
+// whenever its width changes (the panel opens, the sheet widens, the window resizes): a box hidden at creation
+// measures 0 and is sized once it is shown. Display only: the value is not touched.
+const GROW_CAP = 240;
+function growToContent(ta) {
+  ta.classList.add('field-textarea-grow');
+  let lastW = -1;
+  const fit = () => {
+    if (!ta.isConnected || !ta.clientWidth) return;
+    ta.style.height = 'auto';
+    const cs = getComputedStyle(ta);
+    const h = ta.scrollHeight + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+    ta.style.height = Math.min(Math.max(h, parseFloat(cs.minHeight) || 0), GROW_CAP) + 'px';
+    ta.style.overflowY = h > GROW_CAP ? 'auto' : 'hidden';
+  };
+  ta.addEventListener('input', fit);
+  requestAnimationFrame(fit);   // the panel is attached by then; the observer may report a frame later
+  if (typeof ResizeObserver === 'function') {
+    new ResizeObserver(() => { if (ta.clientWidth !== lastW) { lastW = ta.clientWidth; fit(); } }).observe(ta);
+  }
 }
 // ── T-589: the designer's entire navigation surface ────────────────────────────────
 // Measured before building (and independently by 001-CashWeb on the pinned 0.11.0):
@@ -8486,8 +8698,11 @@ function ioListField(kind /* 'inputs' | 'outputs' */, items, isInput, node) {
   }
   items.forEach((item, idx) => {
     list.appendChild(ioRow(item, idx, items, isInput));
-    const v11 = ioV11Block(item, isInput, node);   // T-1249: read-only
+    const editing = _ioAttrsOpen.has(item);   // T-1301
+    const v11 = ioV11Block(item, isInput, node, editing);   // T-1249: read-only
     if (v11) list.appendChild(v11);
+    list.appendChild(ioAttrsToggle(item, editing));
+    if (editing) list.appendChild(ioAttrsEditor(item, isInput));
   });
   wrap.appendChild(list);
 
@@ -8546,10 +8761,11 @@ function v11Span(parent, k, v, derived) {
   parent.appendChild(sp);
   return sp;
 }
-function ioV11Block(item, isInput, node) {
+function ioV11Block(item, isInput, node, editing) {   // editing (T-1301): the editor shows the attributes; keep derived + children
   const attrs = new Map(item.extra || []);
+  // T-1302: while editing, the fields are rows in the editor; expectations and examples stay here, read-only
   const kids = v11ParseFragment(item.children || []).filter(c => c.namespaceURI === AEF_EXT_NS &&
-    (c.localName === 'field' || c.localName === 'expect' || c.localName === 'example'));
+    ((c.localName === 'field' && !editing) || c.localName === 'expect' || c.localName === 'example'));
   const meta = procMetaInfo(state);
   const pfx = q => { const m = /^([A-Za-z_][\w.-]*):/.exec(q || ''); return m ? meta.prefixes.find(p => p.name === m[1]) : null; };
   // the system this io's direction names (2.5): the io's own attribute; else the step default on the step's aef:meta;
@@ -8568,17 +8784,27 @@ function ioV11Block(item, isInput, node) {
     const p = pfx(attrs.get('ref'));
     if (p && p.kind === 'field') refAsField = attrs.get('ref');
   }
-  const shown = IO_V11_ATTRS.filter(k => attrs.has(k));
-  if (!shown.length && !kids.length && !derivedSys && !refAsField) return null;
+  const shown = editing ? [] : IO_V11_ATTRS.filter(k => attrs.has(k));
+  // T-1304: the v1 attributes v1.1 keeps (2.3): `ref` (a data-object identity unless the rule above reads it as a
+  // fieldRef, then shown once, as that) and `dataType` (informational only). Producers write them today (greenfield's
+  // style A: ref="nid:attr-…" dataType="id"); hiding them hid a producer's whole link to its ontology.
+  const v1Ref = !editing && attrs.has('ref') && !refAsField ? attrs.get('ref') : null;
+  const v1DataType = !editing && attrs.has('dataType') ? attrs.get('dataType') : null;
+  if (!shown.length && !kids.length && !derivedSys && !refAsField && v1Ref === null && v1DataType === null) return null;
 
   const box = document.createElement('div');
   box.className = 'io-v11';
   box.title = 'mapping v1.1 · read-only';
-  if (shown.length || derivedSys || refAsField) {
+  if (shown.length || derivedSys || refAsField || v1Ref !== null || v1DataType !== null) {
     const kv = document.createElement('div');
     kv.className = 'io-v11-kv';
     if (refAsField) v11Span(kv, 'fieldRef', refAsField, 'derived · from ref');
+    // the hints say what the attribute IS, not a version: a bare "v1" read as the version of the referenced item (T-1304 sweep)
+    if (v1Ref !== null) v11Span(kv, 'ref', v1Ref, 'v1 attribute').title =
+      'ref (v1 attribute): what this input/output refers to, e.g. an ontology IRI. Kept as written.';
     for (const k of shown) v11Span(kv, k, attrs.get(k));
+    if (v1DataType !== null) v11Span(kv, 'dataType', v1DataType, 'informational').title =
+      'dataType (v1 attribute): informational only. It does not change the type, and it is kept as written.';
     if (derivedSys) v11Span(kv, sysKey, derivedSys[0], derivedSys[1]);
     box.appendChild(kv);
   }
@@ -8645,12 +8871,20 @@ function ioRow(item, idx, items, isInput) {
   const row = document.createElement('div');
   row.className = 'io-row';
 
-  const nameIn = document.createElement('input');
-  nameIn.className = 'io-name';
+  // T-1305: a wrapping field that grows with the name. A producer's name is its field path (sfdc:Opportunity.OwnerId),
+  // and a single-line input cut it at every window width (the panel has a fixed width). Enter commits, no new line.
+  const nameIn = document.createElement('textarea');
+  nameIn.className = 'io-name io-name-wrap';
+  nameIn.rows = Math.max(1, Math.ceil((item.name || '').length / 18));   // where field-sizing:content is unsupported
   nameIn.value = item.name;
   nameIn.placeholder = 'name';
   nameIn.spellcheck = false;
-  nameIn.addEventListener('input', e => { item.name = e.target.value; });
+  nameIn.title = item.name || '';
+  nameIn.addEventListener('input', e => { item.name = e.target.value.replace(/\n/g, ''); });
+  nameIn.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); nameIn.blur(); } });
+  // a name longer than the name column holds takes the row's full width, and type/req/× go to the line below, so a
+  // field path wraps only when it is longer than the whole panel (not mid-word in a narrow column)
+  if ((item.name || '').length > 18) row.classList.add('io-row-long');
   row.appendChild(nameIn);
 
   const typeSel = document.createElement('select');
@@ -8686,6 +8920,302 @@ function ioRow(item, idx, items, isInput) {
   row.appendChild(del);
 
   return row;
+}
+
+// ── T-1301 (slice 2 of T-1242, arc-006): EDIT the io attributes ──
+// Behind an "edit" toggle under each io row, closed by default, so the read-only summary (T-1249/T-1304) stays exactly as
+// released until someone edits. The attributes live in item.extra ([name, value] pairs, source order kept): a change
+// replaces the value in place, a new attribute is appended, an emptied control removes it. Nothing here adds
+// mappingVersion or aef:prefixes (mapping v1.1 is the author's choice, not a side effect of one edit).
+const _ioAttrsOpen = new WeakSet();   // view state: the io items whose editor is open
+const IO_EDIT_CHOICES = {
+  role: ['read', 'write', 'create', 'match', 'delete'],
+  operation: ['read', 'create', 'update', 'upsert', 'delete'],
+  cardinality: ['one', 'optional', 'many'],
+};
+const IO_EDIT_HELP = {
+  ref: 'what this input/output refers to, e.g. an ontology IRI (v1 attribute)',
+  fieldRef: 'the field, as a CURIE whose prefix the map declares',
+  typeRef: 'the object type, as a CURIE whose prefix the map declares',
+  schemaRef: 'a schema the data conforms to (URL or CURIE)',
+  conceptRef: 'the business concept (IRI or CURIE)',
+  role: 'what the step does with the field',
+  operation: 'what the step does with the object instance',
+  cardinality: 'one, optional or many',
+  sourceSystem: 'the system the data comes from',
+  targetSystem: 'the system the data goes to',
+  dataType: 'informational (v1 attribute): it does not change the type',
+};
+function ioEditAttrs(isInput) {
+  return ['ref', 'fieldRef', 'typeRef', 'schemaRef', 'conceptRef', 'role', 'operation', 'cardinality',
+          isInput ? 'sourceSystem' : 'targetSystem', 'dataType'];
+}
+function ioSetAttr(item, k, v) {   // in place: replace, append or remove; leaves item.extra untouched when nothing changes
+  const extra = (item.extra || []).slice();
+  const i = extra.findIndex(([n]) => n === k);
+  if (v === '') { if (i < 0) return false; extra.splice(i, 1); }
+  else if (i >= 0) { if (extra[i][1] === v) return false; extra[i] = [k, v]; }
+  else extra.push([k, v]);
+  if (extra.length) item.extra = extra; else delete item.extra;
+  return true;
+}
+function ioUndeclaredPrefix(k, v) {   // a CURIE prefix the map does not declare, for the attributes that take one
+  if (!['fieldRef', 'typeRef', 'conceptRef'].includes(k)) return null;
+  const m = /^([A-Za-z_][\w.-]*):(?!\/\/)/.exec(v || '');
+  if (!m || ['http', 'https', 'urn'].includes(m[1].toLowerCase())) return null;
+  return procMetaInfo(state).prefixes.some(p => p.name === m[1]) ? null : m[1];
+}
+function ioRefValues() {   // the ref values already used in the open map, for the ref field's suggestions
+  const out = new Set();
+  for (const n of (state && state.nodes) || []) {
+    for (const it of [].concat((n.io && n.io.inputs) || [], (n.io && n.io.outputs) || [])) {
+      for (const [k, v] of it.extra || []) if (k === 'ref' && v) out.add(v);
+    }
+  }
+  return Array.from(out).sort();
+}
+// T-1312: search the project's field catalog; a hit writes ref, and dataType only when the io has none (a producer's own
+// dataType is never overwritten). The hits are a list of buttons under the search field, not a datalist, so the notation
+// and the label both show and wrap (a datalist cannot ride the wrapping ref field, T-1301).
+const _ioCatQuery = new WeakMap();   // item -> the search text, so a re-render (a loader settling, an edit) keeps it
+function ioCatalogPicker(item) {
+  const box = document.createElement('div');
+  box.className = 'io-cat';
+  const s = document.createElement('input');
+  s.type = 'search';
+  s.className = 'io-name io-attr-v io-cat-search';
+  s.dataset.pick = 'catalog';
+  s.spellcheck = false;
+  s.placeholder = 'search catalog…';   // short: the longer one was cut at every width (T-1312 sweep)
+  s.title = 'search the project\'s field catalog (' + _fieldCatalog.length + ' attributes) by notation, label or ref; every word must match';
+  const list = document.createElement('div');
+  list.className = 'io-cat-hits';
+  const show = () => {
+    list.textContent = '';
+    const all = ioCatalogMatches(s.value);
+    for (const x of all.slice(0, IO_CAT_MAX)) {
+      const h = document.createElement('div');
+      h.className = 'io-cat-hit';
+      h.dataset.ref = x.ref;
+      h.title = x.ref + (x.dataType ? '\ndataType ' + x.dataType : '');
+      const n = document.createElement('span');
+      n.className = 'io-cat-n';
+      // break chances after . : - only, so sfdc:Opportunity.OwnerId breaks between its parts, never inside a name
+      (x.notation || x.ref).split(/(?<=[.:-])/).forEach((part, pi) => { if (pi) n.appendChild(document.createElement('wbr')); n.appendChild(document.createTextNode(part)); });
+      const l = document.createElement('span');
+      l.className = 'io-cat-l';
+      l.textContent = (x.label || '') + (x.dataType ? ' · ' + x.dataType : '');
+      h.append(n, l);
+      h.addEventListener('mousedown', e => e.preventDefault());   // keep the search field's focus until the click lands
+      h.addEventListener('click', () => {
+        _ioCatQuery.delete(item);   // picked: the search is done
+        let changed = ioSetAttr(item, 'ref', x.ref);
+        const has = (item.extra || []).some(([k, v]) => k === 'dataType' && v);
+        if (!has && x.dataType) changed = ioSetAttr(item, 'dataType', x.dataType) || changed;
+        if (changed) renderProperties();
+      });
+      list.appendChild(h);
+    }
+    if (all.length > IO_CAT_MAX) {
+      const more = document.createElement('div');
+      more.className = 'io-cat-more';
+      more.textContent = (all.length - IO_CAT_MAX) + ' more: type more words to narrow';
+      list.appendChild(more);
+    } else if (s.value.trim() && !all.length) {
+      const none = document.createElement('div');
+      none.className = 'io-cat-more';
+      none.textContent = 'no match in the catalog';
+      list.appendChild(none);
+    }
+  };
+  s.addEventListener('input', () => { if (s.value) _ioCatQuery.set(item, s.value); else _ioCatQuery.delete(item); show(); });
+  s.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
+  box.append(s, list);
+  if (_ioCatQuery.has(item)) { s.value = _ioCatQuery.get(item); show(); }
+  return box;
+}
+function ioAttrsToggle(item, open) {
+  const t = document.createElement('div');
+  t.className = 'io-attrs-toggle' + (open ? ' open' : '');
+  // "close", not "done": an edit applies at once, and the toggle only collapses (T-1301 sweep: "done" read as "save")
+  t.textContent = open ? '▾ close editor' : '▸ edit attributes';
+  t.title = open ? 'Collapse the editor: your edits are already applied; the summary shows them' : 'Edit ref, role, dataType and the mapping v1.1 attributes';
+  t.onclick = () => { if (open) _ioAttrsOpen.delete(item); else _ioAttrsOpen.add(item); renderProperties(); };
+  return t;
+}
+function ioAttrsEditor(item, isInput) {
+  const box = document.createElement('div');
+  box.className = 'io-attrs';
+  const cur = new Map(item.extra || []);
+  for (const k of ioEditAttrs(isInput)) {
+    const row = document.createElement('label');
+    row.className = 'io-attr';
+    const name = document.createElement('span');
+    name.className = 'io-attr-k';
+    name.textContent = k;
+    name.title = IO_EDIT_HELP[k] || '';
+    row.appendChild(name);
+    let c;
+    const val = cur.has(k) ? cur.get(k) : '';
+    if (IO_EDIT_CHOICES[k]) {
+      c = document.createElement('select');
+      const opts = [''].concat(IO_EDIT_CHOICES[k]);
+      if (val && !opts.includes(val)) opts.push(val);   // a producer's own value is kept, never rewritten
+      for (const o of opts) {
+        const e = document.createElement('option');
+        e.value = o; e.textContent = o || '—';
+        if (o === val) e.selected = true;
+        c.appendChild(e);
+      }
+    } else {
+      // a wrapping field that grows with its value: a single-line input cut a producer's IRI at every window width
+      // (the panel has a fixed width; T-1301 review). Enter commits instead of adding a line.
+      c = document.createElement('textarea');
+      c.rows = Math.max(1, Math.ceil(val.length / 24));   // where field-sizing:content is not supported
+      c.value = val;
+      c.spellcheck = false;   // no placeholder: a muted word in an empty field read as a default value (T-1301 sweep)
+      c.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); c.blur(); } });
+    }
+    c.className = (IO_EDIT_CHOICES[k] ? 'io-type' : 'io-name') + ' io-attr-v';   // the io row's own control look
+    c.dataset.attr = k;
+    // the full value first: the panel's width cuts a long IRI at every window width (T-1305 is the layout fix)
+    c.title = (val ? val + '\n' : '') + (IO_EDIT_HELP[k] || '');
+    c.addEventListener('change', e => { if (ioSetAttr(item, k, e.target.value.trim())) renderProperties(); });
+    row.appendChild(c);
+    if (k === 'ref') {   // the refs already in this map, offered explicitly (a datalist cannot ride a wrapping field)
+      const refs = ioRefValues().filter(v => v !== val);
+      if (refs.length) {
+        const pick = document.createElement('select');
+        pick.className = 'io-type io-attr-v io-ref-pick';
+        pick.dataset.pick = 'ref';
+        const first = document.createElement('option');
+        first.value = ''; first.textContent = 'use a ref from this map…';
+        pick.appendChild(first);
+        for (const v of refs) { const o = document.createElement('option'); o.value = v; o.textContent = v; pick.appendChild(o); }
+        pick.addEventListener('change', e => { if (e.target.value && ioSetAttr(item, 'ref', e.target.value)) renderProperties(); });
+        row.appendChild(pick);
+      }
+      if (_fieldCatalog) row.appendChild(ioCatalogPicker(item));   // T-1312
+    }
+    const pfx = ioUndeclaredPrefix(k, val);
+    const hint = document.createElement('span');
+    hint.className = 'io-attr-hint';
+    hint.dataset.attr = k;
+    hint.textContent = pfx ? `prefix "${pfx}" is not declared in this map` : '';
+    row.appendChild(hint);
+    box.appendChild(row);
+  }
+  box.appendChild(ioFieldsEditor(item));   // T-1302
+  return box;
+}
+
+// ── T-1302 (slice 3 of T-1242, arc-006): EDIT the fields (aef:field children) of an io ──
+// item.children holds each child element as its exact XML (T-1243). A field row edits ITS element only: attributes are set
+// in place (an existing one keeps its position, a new one is appended), aef:when children ride along, and only that child is
+// serialised again. Untouched children, aef:expect, aef:example and unknown children keep their bytes. (AEF T-4415 §B.)
+const IO_FIELD_CHOICES = { role: ['read', 'write', 'create', 'match', 'delete'], cardinality: ['one', 'optional', 'many'] };
+function ioChildSerialize(el) {   // one child element as written back: no redundant xmlns (buildBpmnXml's root declares it)
+  const x = new XMLSerializer().serializeToString(el);
+  return x.replace(/^(<[^\s>\/]+)((?:\s+[^\s=>]+="[^"]*")*)/, (m, tag, attrs) => tag + attrs.replace(/\s+xmlns(?::([A-Za-z_][\w.-]*))?="([^"]*)"/g,
+    (d, pfx, uri) => (pfx && IO_EXPORT_ROOT_NS[pfx] === uri) ? '' : d));
+}
+function ioFieldEdit(item, i, fn) {   // parse child i, let fn change it, write it back (only if it changed)
+  const el = v11ParseFragment([item.children[i]])[0];
+  if (!el) return;
+  fn(el);
+  const x = ioChildSerialize(el);
+  if (x === item.children[i]) return;
+  item.children = item.children.slice(); item.children[i] = x;
+  renderProperties();
+}
+function ioFieldsEditor(item) {
+  const sec = document.createElement('div');
+  sec.className = 'io-fields';
+  const head = document.createElement('div');
+  head.className = 'io-attr-k io-fields-head';
+  head.textContent = 'fields';
+  head.title = 'the fields of this input/output (aef:field): path or fieldRef, role, required, cardinality';
+  sec.appendChild(head);
+  (item.children || []).forEach((xml, i) => {
+    const el = v11ParseFragment([xml])[0];
+    if (!el || el.namespaceURI !== AEF_EXT_NS || el.localName !== 'field') return;   // expect/example/unknown: not here
+    const row = document.createElement('div');
+    row.className = 'io-field-row';
+    const kind = el.hasAttribute('fieldRef') && !el.hasAttribute('path') ? 'fieldRef' : 'path';
+    const ks = document.createElement('select');
+    ks.className = 'io-type io-attr-v io-field-kind';
+    ks.dataset.fattr = 'kind';
+    for (const o of ['path', 'fieldRef']) { const e = document.createElement('option'); e.value = o; e.textContent = o; if (o === kind) e.selected = true; ks.appendChild(e); }
+    ks.title = 'address the field by a path inside the object, or by a fieldRef (a CURIE)';
+    ks.addEventListener('change', e => ioFieldEdit(item, i, f => {   // move the value to the other attribute, in place
+      const v = f.getAttribute(kind) || ''; f.removeAttribute(kind); if (v) f.setAttribute(e.target.value, v);
+    }));
+    const addr = document.createElement('textarea');
+    addr.className = 'io-name io-attr-v io-field-addr';
+    addr.dataset.fattr = 'addr';
+    addr.rows = 1; addr.spellcheck = false;
+    addr.placeholder = kind + '…';   // a prompt, not a value: an empty new field said nothing (T-1302 sweep)
+    addr.value = el.getAttribute(kind) || '';
+    addr.title = addr.value;
+    addr.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addr.blur(); } });
+    addr.addEventListener('change', e => ioFieldEdit(item, i, f => {
+      const v = e.target.value.trim(); if (v) f.setAttribute(kind, v); else f.removeAttribute(kind);
+    }));
+    const line2 = document.createElement('div');
+    line2.className = 'io-field-line2';
+    for (const k of ['role', 'cardinality']) {
+      const s = document.createElement('select');
+      s.className = 'io-type io-attr-v';
+      s.dataset.fattr = k;
+      s.title = k;
+      const cur = el.getAttribute(k) || '';
+      const opts = [''].concat(IO_FIELD_CHOICES[k]);
+      if (cur && !opts.includes(cur)) opts.push(cur);   // a producer's own value is kept
+      for (const o of opts) { const e = document.createElement('option'); e.value = o; e.textContent = o || (k + ' —'); if (o === cur) e.selected = true; s.appendChild(e); }
+      s.addEventListener('change', e => ioFieldEdit(item, i, f => { if (e.target.value) f.setAttribute(k, e.target.value); else f.removeAttribute(k); }));
+      line2.appendChild(s);
+    }
+    const req = document.createElement('label');
+    req.className = 'io-req';
+    const rc = document.createElement('input');
+    rc.type = 'checkbox'; rc.dataset.fattr = 'required';
+    rc.checked = el.getAttribute('required') === 'true';
+    rc.addEventListener('change', e => ioFieldEdit(item, i, f => { if (e.target.checked) f.setAttribute('required', 'true'); else f.removeAttribute('required'); }));
+    const rl = document.createElement('span'); rl.textContent = 'req';
+    req.append(rc, rl);
+    line2.appendChild(req);
+    if (el.getElementsByTagNameNS(AEF_EXT_NS, 'when').length) {
+      const w = document.createElement('span');
+      w.className = 'io-field-when';
+      w.textContent = 'when ×' + el.getElementsByTagNameNS(AEF_EXT_NS, 'when').length;
+      w.title = 'this field has conditions (aef:when); they are kept as written';
+      line2.appendChild(w);
+    }
+    const del = document.createElement('div');
+    del.className = 'io-del io-field-del';
+    del.textContent = '×';
+    del.title = 'remove this field';
+    del.onclick = () => { item.children = item.children.filter((_, j) => j !== i); if (!item.children.length) delete item.children; renderProperties(); };
+    line2.appendChild(del);
+    row.append(ks, addr, line2);
+    sec.appendChild(row);
+  });
+  const add = document.createElement('div');
+  add.className = 'io-add io-field-add';
+  add.textContent = '+ add field';
+  add.title = 'add a field to this input/output (aef:field); give it a path or a fieldRef';
+  // T-1314: with the fields, not at the end: after the last aef:field, or before the first other child (expect, example)
+  add.onclick = () => {
+    const kids = (item.children || []).slice();
+    const isField = x => { const el = v11ParseFragment([x])[0]; return !!el && el.namespaceURI === AEF_EXT_NS && el.localName === 'field'; };
+    let at = -1;
+    kids.forEach((x, j) => { if (isField(x)) at = j; });
+    kids.splice(at + 1, 0, '<aef:field/>');
+    item.children = kids;
+    renderProperties();
+  };
+  sec.appendChild(add);
+  return sec;
 }
 
 // ============================================================================
@@ -11192,6 +11722,12 @@ async function detectSaveApi() {
       refreshUuidIndex();   // T-240: bind uuid workflowRefs to live maps at startup
       loadFieldProfile();   // T-1125: the project's field profile (404 = designer default)
       loadLensDefinition(); // T-1241: the audience lenses (404 = no lens, every field)
+      loadFieldCatalog();   // T-1312: the project's field catalog for the ref picker (404 = free text)
+      // T-1282 (AEF T-4716): ?browse=1 opens the Open-project browser on load, so a host can
+      // route its own "designer" page straight to it. Here, not at load, because the browser
+      // needs the API this block just confirmed. ?load wins: a named document is opened instead.
+      const qs = new URLSearchParams(location.search);
+      if (qs.get('browse') === '1' && !qs.get('load')) openProjectModal();
     }
   } catch (_) { /* static gallery — leave the button hidden */ }
 }
@@ -12624,10 +13160,13 @@ function ioAttrsXml(i, isInput) {
   const r = i.raw;
   if (r && i.name === (r.name || '') && i.type === (r.type || 'string') && (!isInput || !!i.required === (r.required === 'true'))) {
     const extra = new Map(i.extra || []);
+    // T-1301: an attribute added since the read (the io editor) is not in the source's order: append it, after the
+    // source's own, or it was dropped on save without a word.
+    const known = new Set(r.order);
     return r.order.map(k => {
       const v = k === 'name' ? r.name : k === 'type' ? r.type : (k === 'required' && isInput) ? r.required : extra.get(k);
       return v == null ? '' : ` ${k}="${escAttr(v)}"`;
-    }).join('');
+    }).join('') + ioExtraAttrXml((i.extra || []).filter(([k]) => !known.has(k)));
   }
   const reqAttr = isInput && i.required ? ' required="true"' : '';
   return ` name="${escAttr(i.name)}" type="${escAttr(i.type)}"${reqAttr}${ioExtraAttrXml(i.extra)}`;
@@ -13002,7 +13541,7 @@ const BPMN_EXPORTER = 'aef-workflow-designer';
 //
 // KEEP IN STEP WITH ./VERSION. Not by remembering — tools/_t808-version-parity.sh is
 // wired into release-designer.sh ahead of every write to dist/.
-const APP_VERSION = '0.25.0';
+const APP_VERSION = '0.30.0';
 
 // A comment is the document's doc block only if it LEADS the document — appears
 // before any element child — and is not our own trailer. Position is the rule AEF's

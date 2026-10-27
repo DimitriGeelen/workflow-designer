@@ -14,6 +14,7 @@ bp = Blueprint("config", __name__)
 SETTINGS = [
     ("CONTEXT_WINDOW", "800000", "Context window size for budget enforcement (tokens)"),
     ("PORT", "3000", "Watchtower web UI listen port"),
+    ("WATCHTOWER_ENSURE", "1", "1 = keep this project's Watchtower alive: session start and the cron keep-alive (bin/watchtower.sh ensure) start it when it is down and record the outage. 0 disables the keep-alive for this project. A Watchtower managed by a systemd .service unit is always left to systemd (T-4706, T-4711)"),
     ("WATCHTOWER_START_TIMEOUT", "60", "Seconds watchtower start waits for the launched server to answer /api/_identity as this project's Watchtower. On expiry the start stops that server, clears the pid/port/url triple and exits 1, so no server runs without a url file (T-4460)"),
     ("UX_SHOT_WIDTHS", "1024,1440,1920", "Comma-separated viewport widths for fw ux shots (agents/ux-review/ux_shots.py). At least 3 entries, each 320-7680, no duplicates. T-4212"),
     ("HOST", "0.0.0.0", "Watchtower bind address (env FW_HOST, read by web/config.py). A specific address makes the shell side probe and advertise that address instead of localhost; 0.0.0.0 or :: means all interfaces (T-4041, GitHub #88)"),
@@ -34,6 +35,7 @@ SETTINGS = [
     ("RESTART_WINDOW", "3600", "Sliding window (seconds) over which MAX_RESTARTS is counted. Restarts older than this stop counting, so an hours-apart continuous run never accumulates while a spin still trips the cap (T-3243)."),
     ("CAPTURE_QUERY_TEXT", "0", "Keep the rendered prompt of a user query (fw ask) on disk in the dispatch blob. Default 0: the dispatch row keeps only prompt_sha256 and prompt_chars, so the typed query is not stored (arc-001 F-9, T-4061). Set 1 to opt in for debugging."),
     ("SAFE_MODE", "0", "Bypass task gate (escape hatch)"),
+    ("CLOSE_HINT_PUSH", "1", "0 = close hint prints no push clause (push deploys prod at some consumers; T-4738)"),
     ("CALL_WARN", "40", "Tool-call count threshold for warn level (fallback)"),
     ("CALL_URGENT", "60", "Tool-call count threshold for urgent level (fallback)"),
     ("CALL_CRITICAL", "80", "Tool-call count threshold for critical level (fallback)"),
@@ -53,8 +55,10 @@ SETTINGS = [
     ("ARC_COMPLETION_THRESHOLD", "0.80", "Ratio of completed children at which fw audit warns an in-progress arc (G-062 mechanism #2); T-1656"),
     # T-2842: honoured by shipped code and documented in CLAUDE.md, but absent
     # from the registry — so they were env-var-only and never rendered here.
+    ("SCRATCH_WARN_GB", "10", "Size of .context/scratch in GB above which fw doctor WARNs and names the largest subdirs; release lanes are pruned after each release (T-4703)"),
     ("BRANCH_BEHIND_WARN", "50", "Commits-behind-origin/master threshold for the branch-hygiene WARN and handover merge-back nudge; T-100143/T-100144"),
     ("STALE_ARC_DAYS", "30", "Days without a constituent-task commit before fw audit WARNs an in-progress arc as stale; T-1855"),
+    ("ARC_FOCUS_STALE_DAYS", "14", "Days after which handover and fw doctor WARN the arc focus is stale: focused_at older (AGE) or under 10% of recent tasks in the focused arc (DRIFT); advisory; T-4774"),
     ("BRANCH_AHEAD_WARN", "20", "Commits-ahead-of-origin threshold for the branch-hygiene ahead-unpushed WARN; measures the opposite direction to BRANCH_BEHIND_WARN — work committed locally and never pushed; fires on the dev branch only, WARN-only; T-3360"),
     ("BRANCH_STALE_DAYS", "30", "Days without a commit ON a branch before its behind-count may raise a branch-hygiene staleness finding; gates BRANCH_BEHIND_WARN so a busy master cannot make every healthy branch stale; T-3094"),
     # Release-train branch model (T-3185): DEV_BRANCH authors, RELEASE_BRANCH

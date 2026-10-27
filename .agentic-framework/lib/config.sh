@@ -263,6 +263,7 @@ FW_CONFIG_REGISTRY=(
     "UX_SHOT_WIDTHS|1024,1440,1920|Comma-separated viewport widths for fw ux shots (agents/ux-review/ux_shots.py). T-4202: a render-surface state is screenshotted at every width here; at least 3 entries, each 320-7680, no duplicates, validated at capture. Read by the check-visual-verification gate's width minimum. T-4212."
     "HOST|0.0.0.0|Watchtower bind address (env FW_HOST, read by web/config.py). A specific address makes the shell side probe and advertise that address instead of localhost; 0.0.0.0 or :: means all interfaces (T-4041, GitHub #88)"
     "WATCHTOWER_OPEN_FIREWALL|0|1 = Watchtower start may add a UFW allow rule for its port when UFW is active and the bind is not loopback. 0 (default) never changes the firewall; it prints the exact ufw command instead. A loopback bind never touches UFW (T-4297)"
+    "WATCHTOWER_ENSURE|1|1 = keep this project's Watchtower alive: session start and the cron keep-alive (bin/watchtower.sh ensure) start it when it is down and record the outage. 0 disables the keep-alive for this project. A Watchtower managed by a systemd .service unit is always left to systemd (T-4706, T-4711)"
     "WATCHTOWER_START_TIMEOUT|60|Seconds watchtower start waits for the launched server to answer /api/_identity as this project's Watchtower. On expiry the start stops that server, clears the pid/port/url triple and exits 1, so no server runs without a url file (T-4460)"
     "PORT_SCAN_BASE|3000|First port tried when a project has no PORT set: fw serve scans 100 ports up from here, skips any held by another service, and records the chosen port as PORT in .framework.yaml (T-3662)"
     "CAPTURE_QUERY_TEXT|0|Keep the rendered prompt of a user query (fw ask) on disk in the dispatch blob. Default 0: the dispatch row keeps only prompt_sha256 and prompt_chars, so the typed query is not stored (arc-001 F-9, T-4061). Set 1 to opt in for debugging."
@@ -277,6 +278,7 @@ FW_CONFIG_REGISTRY=(
     "MAX_RESTARTS|5|Max auto-restarts within RESTART_WINDOW seconds. T-3243 made this a RATE limit: it was a lifetime count that killed a healthy loop after 4 hours-apart restarts, and claude-fw hardcoded 5 rather than reading this key at all."
     "RESTART_WINDOW|3600|Sliding window (seconds) over which MAX_RESTARTS is counted. Restarts older than this stop counting, so an hours-apart continuous run never accumulates while a spin still trips the cap (T-3243)."
     "SAFE_MODE|0|Bypass task gate (escape hatch)"
+    "CLOSE_HINT_PUSH|1|0 = close hint prints no push clause (push deploys prod at some consumers; T-4738)"
     "CALL_WARN|40|Tool-call count threshold for warn level (fallback)"
     "CALL_URGENT|60|Tool-call count threshold for urgent level (fallback)"
     "CALL_CRITICAL|80|Tool-call count threshold for critical level (fallback)"
@@ -299,6 +301,7 @@ FW_CONFIG_REGISTRY=(
     # Defaults below are read from the CALL SITES, not from CLAUDE.md.
     "BRANCH_BEHIND_WARN|50|Commits-behind-origin/master threshold for the branch-hygiene WARN and the handover merge-back nudge (agents/handover/handover.sh). T-100143/T-100144."
     "STALE_ARC_DAYS|30|Days without a constituent-task commit before fw audit WARNs an in-progress arc as stale (agents/audit/audit.sh). T-1855."
+    "ARC_FOCUS_STALE_DAYS|14|Days after which the handover and fw doctor WARN that .context/working/arc-focus.yaml is stale: focused_at older than this (AGE), or under 10% of the tasks committed in this many days belong to the focused arc (DRIFT). Advisory only (lib/arc_focus_health.py). T-4774."
     "BRANCH_AHEAD_WARN|20|Commits-ahead-of-origin threshold for the branch-hygiene ahead-unpushed WARN (lib/branch-hygiene.sh). Measures the OPPOSITE direction to BRANCH_BEHIND_WARN: work committed locally and never pushed. Fires on the dev branch only, reports the age of the oldest unpushed commit, WARN-only. Origin: 32 commits stranded 3 days behind a refusing pre-push gate while every handover reported success (OBS-394/395). T-3360."
     "BRANCH_STALE_DAYS|30|Days without a commit ON a branch before its behind-count is allowed to raise a branch-hygiene staleness finding (lib/branch-hygiene.sh). Gates BRANCH_BEHIND_WARN: master moves ~41 commits/day here, so the commit threshold alone trips in ~1.2 days and fires on every healthy branch. Same unit and default as STALE_ARC_DAYS. T-3094 (T-3093 slice 1)."
     # Release-train branch model (T-3185 keystone). Two branches, two jobs:
@@ -364,6 +367,7 @@ FW_CONFIG_REGISTRY=(
     # card stays offerable: web/blueprints/approvals.py EXPIRY_SECONDS, T-3079).
     "TIER0_APPROVAL_TTL|300|Seconds a granted Tier 0 approval admits the command, for BOTH the 'fw tier0 approve' and Watchtower legs (agents/context/check-tier0.sh). Legacy TIER0_WATCHTOWER_TTL still wins when explicitly set. NOT the pending-request staleness window. T-3080."
     "APPROVAL_PENDING_WARN_HOURS|24|Hours a pending Tier 0 approval card (.context/approvals/pending-*.yaml) may sit unanswered before fw doctor and fw audit WARN (lib/approval_queue_age.py). The request-staleness alarm, not the grant clock (TIER0_APPROVAL_TTL). Origin T-3079: three cards sat unseen for up to 3.5 months because only pull surfaces read them."
+    "SCRATCH_WARN_GB|10|Size of .context/scratch (git-ignored scratch clones and work dirs) in GB above which fw doctor WARNs and names the largest subdirs (lib/scratch-size.sh). Release lanes are pruned after each release (lib/release.sh:release_scratch_prune); this catches the rest. Origin T-4703: 28 GB of old release clones sat there unmeasured."
     # T-3127. AUDIT_TIMEOUT (section-scoped default 600, full-run default 3000
     # via FW_AUDIT_FULL_TIMEOUT, T-3070) is a pinned constant; the corpus a
     # full 'fw audit' scans grows with every task/learning/episodic/fabric

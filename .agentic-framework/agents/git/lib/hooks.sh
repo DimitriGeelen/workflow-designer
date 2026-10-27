@@ -24,7 +24,7 @@
 # PL-078 still applies: when you change the CONTENT of any hook template below,
 # bump this constant AND the `# VERSION=` literal in the commit-msg heredoc
 # together, so consumers' next install-hooks redeploys all four.
-COMMIT_MSG_HOOK_VERSION="1.22"
+COMMIT_MSG_HOOK_VERSION="1.23"
 
 # T-2813: verify a hook actually landed by reading state back from disk,
 # rather than trusting that the `cat`/`chmod` calls that wrote it didn't
@@ -305,7 +305,7 @@ do_install_hooks() {
 # commit-msg hook - Task Reference Enforcement
 # Installed by: ./agents/git/git.sh install-hooks
 # Part of: Agentic Engineering Framework
-# VERSION=1.22
+# VERSION=1.23
 
 COMMIT_MSG_FILE="$1"
 COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
@@ -571,6 +571,7 @@ HOOK_EOF
 #                   + stale-index guard (T-4167) + Secret Scan (T-1844)
 #                   + bats dead-negation lint on staged tests (T-4379)
 #                   + task-template shipped-hash currency (T-4449)
+#                   + episodic footprint prediction for closing commits (T-4690)
 # Installed by: ./agents/git/git.sh install-hooks
 # Part of: Agentic Engineering Framework
 # VERSION=1.7
@@ -597,42 +598,6 @@ MASTER_GUARD="$FRAMEWORK_ROOT/agents/git/lib/master-guard.sh"
 if [ -f "$MASTER_GUARD" ]; then
     PROJECT_ROOT="$PROJECT_ROOT" bash "$MASTER_GUARD" check || exit 1
 fi
-
-# T-659: retention-sweep deletions are not the agent's to commit.
-#
-# A retention cron prunes .context/audits/cron/ and leaves the deletions pending in the
-# working tree indefinitely. Committing them is a housekeeping decision belonging to the
-# operator, not a side effect of whatever the agent was doing. Three sessions held this
-# line by staging explicit paths every time — until one `git add .context/` to pick up a
-# single episodic file swept 338 of them into the index. The rule lived in the agent's
-# head; the index does not consult it. Habit is what failed, so a habit is not the fix.
-#
-# Blocks only under agent control ($CLAUDECODE). The operator committing a retention
-# sweep deliberately is the intended path and is not obstructed.
-# 832 T-659 (re-applied on 1.7.740 by T-1005)
-if [ "${CLAUDECODE:-0}" = "1" ] && [ "${FW_ALLOW_RETENTION_SWEEP:-0}" != "1" ]; then
-    _rs_n=$(git diff --cached --name-only --diff-filter=D 2>/dev/null \
-            | grep -c '^\.context/audits/cron/' || true)
-    if [ "${_rs_n:-0}" -gt 0 ]; then
-        echo "" >&2
-        echo "ERROR: Commit blocked — $_rs_n retention-sweep deletion(s) staged (T-659)." >&2
-        echo "" >&2
-        echo "  .context/audits/cron/ is pruned by a retention cron. Those deletions are" >&2
-        echo "  the operator's to commit, not a byproduct of the current task." >&2
-        echo "" >&2
-        echo "  Almost always the cause: a directory-wide 'git add .context/' rather than" >&2
-        echo "  explicit paths. Unstage them and keep the rest of your work:" >&2
-        echo "" >&2
-        echo "    git reset HEAD .context/audits/" >&2
-        echo "" >&2
-        echo "  Then re-add only the files your task produced, by name." >&2
-        echo "" >&2
-        echo "  Operator, or a deliberate sweep: FW_ALLOW_RETENTION_SWEEP=1 git commit ..." >&2
-        echo "" >&2
-        exit 1
-    fi
-fi
-
 
 # FW-HOOK-BLOCK: t3110-corpus-guard
 # T-3110 (R7 leg L1, docs/design/task-corpus-concurrency-model.md): task-corpus
@@ -902,6 +867,18 @@ if [ -f "$PARKED_GUARD" ]; then
     PROJECT_ROOT="$PROJECT_ROOT" bash "$PARKED_GUARD" check || exit 1
 fi
 
+# FW-HOOK-BLOCK: t4690-footprint-predict
+# T-4690: write the episodic footprint of a task this commit CLOSES into the
+# staged episodic now, counting this commit. Post-commit used to do it one
+# second after the commit, leaving the episodic modified after every close.
+# Last block on purpose: only a commit every gate above let through gets here.
+# Best-effort; post-commit re-checks whatever this predicted.
+FOOTPRINT_LIB="$FRAMEWORK_ROOT/lib/episodic_footprint.py"
+if [ -f "$FOOTPRINT_LIB" ] && command -v python3 >/dev/null 2>&1 \
+    && [ -n "$(git diff --cached --name-only -- '.context/episodic/T-*.yaml' 2>/dev/null)" ]; then
+    python3 "$FOOTPRINT_LIB" --predict-staged --project-root "$PROJECT_ROOT" 2>/dev/null || true
+fi
+
 exit 0
 HOOK_EOF
 
@@ -969,7 +946,7 @@ HOOK_EOF
 # post-commit hook - Bypass Detection + Context Checkpoint
 # Installed by: ./agents/git/git.sh install-hooks
 # Part of: Agentic Engineering Framework
-# VERSION=1.7
+# VERSION=1.8
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 
@@ -1117,13 +1094,26 @@ FOOTPRINT_LIB="$FRAMEWORK_ROOT/lib/episodic_footprint.py"
 if [ -f "$FOOTPRINT_LIB" ] && command -v python3 >/dev/null 2>&1; then
     _fp_sha=$(git rev-parse --short HEAD 2>/dev/null || echo unknown)
     # One refresh per distinct task id in the message; `sort -u` because a
-    # message may name the same task several times.
-    for _fp_task in $(echo "$COMMIT_MSG" | grep -oE 'T-[0-9]+' | sort -u); do
+    # message may name the same task several times. T-4690: plus the ids
+    # pre-commit predicted, so a commit whose message does not name the task
+    # it closed is corrected here, not left over-counted. A correct prediction
+    # refreshes to `unchanged` and writes nothing.
+    _fp_pred=$(git rev-parse --git-path fw-footprint-predicted 2>/dev/null)
+    _fp_list=$( { echo "$COMMIT_MSG" | grep -oE 'T-[0-9]+'; [ -f "$_fp_pred" ] && cat "$_fp_pred"; } | sort -u)
+    # T-4694: an id pre-commit did NOT predict (a later commit naming an
+    # already-closed task) gets --leave-committed: its episodic is tracked and
+    # clean, and rewriting it now could only leave the tree dirty, so its
+    # footprint stays as committed. Predicted ids are re-checked as before.
+    _fp_predicted=$( [ -f "$_fp_pred" ] && cat "$_fp_pred")
+    rm -f "$_fp_pred" 2>/dev/null
+    for _fp_task in $_fp_list; do
         [ -f "$PROJECT_ROOT/.context/episodic/$_fp_task.yaml" ] || continue
-        python3 "$FOOTPRINT_LIB" "$_fp_task" \
+        _fp_leave="--leave-committed"
+        echo "$_fp_predicted" | grep -qx "$_fp_task" && _fp_leave=""
+        python3 "$FOOTPRINT_LIB" "$_fp_task" $_fp_leave \
             --project-root "$PROJECT_ROOT" --commit "$_fp_sha" 2>/dev/null || true
     done
-    unset _fp_sha _fp_task
+    unset _fp_sha _fp_task _fp_pred _fp_list _fp_predicted _fp_leave
 fi
 HOOK_EOF
 

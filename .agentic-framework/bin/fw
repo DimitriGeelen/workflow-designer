@@ -277,6 +277,21 @@ if [ -n "${PROJECT_ROOT:-}" ] && [ ! -e "$PROJECT_ROOT" ] && \
     exit 2
 fi
 
+# T-4756: remember an inherited root that is not a project, so its replacement below
+# can be named on stderr. The $HOME / passwd-home poison (T-2391) stays silent: every
+# tmux-spawned shell carries it. `fw hook` stays silent too (runs on every tool call).
+_t4756_inherited=""
+if [ -n "${PROJECT_ROOT:-}" ] && [ "${1:-}" != "hook" ] && \
+   { [ ! -d "$PROJECT_ROOT" ] || { [ ! -f "$PROJECT_ROOT/.framework.yaml" ] && [ ! -d "$PROJECT_ROOT/.tasks" ]; }; }; then
+    _t4756_canon=$(cd "$PROJECT_ROOT" 2>/dev/null && pwd -P) || _t4756_canon="$PROJECT_ROOT"
+    _t4756_home=$(cd "${HOME:-/nonexistent}" 2>/dev/null && pwd -P) || _t4756_home=""
+    _passwd_home_canon
+    if [ "$_t4756_canon" != "$_t4756_home" ] && [ "$_t4756_canon" != "$_FW_PASSWD_HOME" ]; then
+        _t4756_inherited="$PROJECT_ROOT"
+    fi
+    unset _t4756_canon _t4756_home
+fi
+
 # Resolve PROJECT_ROOT
 if [ -z "${PROJECT_ROOT:-}" ] || _project_root_is_stale "${PROJECT_ROOT:-}"; then
     # T-2390: prefer CLAUDE_PROJECT_DIR when set + valid. Claude Code exports it
@@ -347,6 +362,10 @@ if [ -z "${PROJECT_ROOT:-}" ] || _project_root_is_stale "${PROJECT_ROOT:-}"; the
         fi
     fi
 fi
+if [ -n "$_t4756_inherited" ] && [ -n "${PROJECT_ROOT:-}" ] && [ "$PROJECT_ROOT" != "$_t4756_inherited" ]; then
+    echo "fw: inherited PROJECT_ROOT=$_t4756_inherited ignored (not a project); using $PROJECT_ROOT" >&2
+fi
+unset _t4756_inherited
 
 # T-3285 (OBS-370): a VALID inherited PROJECT_ROOT can still be the WRONG one.
 # An outer fw process exports PROJECT_ROOT + _FW_PATHS_DERIVED_BY (lib/paths.sh);
@@ -606,6 +625,63 @@ _vendor_excludes_for() {
                   [ -n "$ig" ] || continue
                   case "$ig" in "$inc"/*) printf '/%s\n' "${ig#"$inc"/}" ;; esac
               done
+    fi
+}
+
+# T-4720: mirror tree $1 onto $2 writing only what differs — the cp fallback's
+# equivalent of `rsync -rlpgoD --checksum --delete`. A byte-identical file is
+# left alone (mtime untouched), so lib/watchtower-staleness.sh, which compares
+# web/ mtimes with the Watchtower start time, does not read a no-op re-vendor as
+# new code. A file that differs is replaced (mtime = now); an entry the source
+# no longer has is removed; an executable-bit change alone is applied in place.
+_vendor_sync_changed() {
+    local src="$1" dst="$2" rel
+    if [ -d "$dst" ]; then
+        while IFS= read -r -d '' rel; do
+            rel="${rel#./}"
+            if [ ! -e "$src/$rel" ] && [ ! -L "$src/$rel" ]; then
+                rm -rf "${dst:?}/$rel"
+            fi
+        done < <(cd "$dst" && find . -mindepth 1 -depth -print0)
+    fi
+    mkdir -p "$dst"
+    while IFS= read -r -d '' rel; do
+        rel="${rel#./}"
+        if [ -L "$src/$rel" ]; then
+            if [ -L "$dst/$rel" ] && [ "$(readlink "$src/$rel")" = "$(readlink "$dst/$rel")" ]; then
+                continue
+            fi
+            rm -rf "${dst:?}/$rel"
+            cp -P "$src/$rel" "$dst/$rel"
+        elif [ -d "$src/$rel" ]; then
+            if [ ! -d "$dst/$rel" ] || [ -L "$dst/$rel" ]; then
+                rm -rf "${dst:?}/$rel"
+                mkdir -p "$dst/$rel"
+            fi
+        elif [ -f "$dst/$rel" ] && [ ! -L "$dst/$rel" ] && cmp -s "$src/$rel" "$dst/$rel"; then
+            if [ -x "$src/$rel" ] && [ ! -x "$dst/$rel" ]; then
+                chmod +x "$dst/$rel"
+            elif [ ! -x "$src/$rel" ] && [ -x "$dst/$rel" ]; then
+                chmod -x "$dst/$rel"
+            fi
+        else
+            rm -rf "${dst:?}/$rel"
+            cp "$src/$rel" "$dst/$rel"
+        fi
+    done < <(cd "$src" && find . -mindepth 1 -print0)
+}
+
+# T-4740: write stdin to $1 only when it differs from what is there. The new
+# content goes to a temp file beside $1 (same filesystem, so mv is a rename;
+# created by redirect, so it gets the umask mode a plain `>` would), then it is
+# moved into place or discarded. A no-op re-vendor leaves $1's mtime alone.
+_vendor_write_if_changed() {
+    local f="$1" tmp="$1.fw-vendor-tmp.$$"
+    cat > "$tmp" || { rm -f "$tmp"; return 1; }
+    if [ -f "$f" ] && [ ! -L "$f" ] && cmp -s "$tmp" "$f"; then
+        rm -f "$tmp"
+    else
+        mv -f "$tmp" "$f"
     fi
 }
 
@@ -927,30 +1003,43 @@ do_vendor() {
                     for _pat in "${_item_excludes[@]}"; do
                         rsync_args+=(--exclude="$_pat")
                     done
-                    rsync -a --delete --delete-excluded "${rsync_args[@]}" "$vendor_source/$item/" "$dest/$item/"
+                    # T-4720: -a minus -t, plus --checksum. With -a the quick check
+                    # was size+mtime, and a fresh checkout's mtimes all differ, so
+                    # every unchanged file was rewritten and stamped with the
+                    # source's new mtime — `fw watchtower current` then read each
+                    # re-vendor as new web/ code. Now an identical file is not
+                    # touched, and a changed one gets mtime = now (not the
+                    # source's, which could predate the running Watchtower).
+                    rsync -rlpgoD --checksum --delete --delete-excluded "${rsync_args[@]}" "$vendor_source/$item/" "$dest/$item/"
                 else
                     # The fallback used to honour only the three slashless patterns,
                     # via the find calls below — so even after the rsync anchoring
                     # was fixed, a host without rsync would still ship node_modules.
                     # Both branches now consume the same resolved list.
-                    rm -rf "${dest:?}/${item:?}"
-                    cp -r "$vendor_source/$item" "$dest/$item"
+                    # T-4720: copy into a stage, apply the excludes there, then
+                    # write only what differs (was rm -rf + cp -r: every file new).
+                    local _stage
+                    _stage=$(mktemp -d "${TMPDIR:-/tmp}/fw-vendor-stage-XXXXXX")
+                    cp -r "$vendor_source/$item" "$_stage/t"
                     local _pat _target
                     for _pat in "${_item_excludes[@]}"; do
                         case "$_pat" in
                             /*)  # transfer-root-anchored: an exact path under this include
-                                _target="$dest/$item/${_pat#/}"
+                                _target="$_stage/t/${_pat#/}"
                                 rm -rf "${_target%/}" 2>/dev/null || true ;;
                             */*) # anchored by virtue of containing a slash
-                                _target="$dest/$item/$_pat"
+                                _target="$_stage/t/$_pat"
                                 rm -rf "${_target%/}" 2>/dev/null || true ;;
                             *)   # basename at any depth — matches rsync's semantics
-                                find "$dest/$item" -name "$_pat" -exec rm -rf {} + 2>/dev/null || true ;;
+                                find "$_stage/t" -name "$_pat" -exec rm -rf {} + 2>/dev/null || true ;;
                         esac
                     done
+                    _vendor_sync_changed "$_stage/t" "$dest/$item"
+                    rm -rf "$_stage"
                 fi
             else
-                cp "$vendor_source/$item" "$dest/$item"
+                # T-4720: leave a byte-identical file untouched.
+                cmp -s "$vendor_source/$item" "$dest/$item" || cp "$vendor_source/$item" "$dest/$item"
             fi
             echo -e "  ${GREEN}✓${NC} $item"
         else
@@ -987,10 +1076,14 @@ do_vendor() {
         _vd_rel="$(printf '%s' "$_vd_rel" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/^"//' -e 's/"$//')"
         if [ -n "$_vd_rel" ] && [ -f "$vendor_source/$_vd_rel" ]; then
             mkdir -p "$(dirname "$dest/$_vd_rel")"
-            # rm first: the vendored copy is 0444 (never edited in place — same
-            # contract `fw designer sync` installs under), so cp over it fails.
-            rm -f "$dest/$_vd_rel"
-            cp "$vendor_source/$_vd_rel" "$dest/$_vd_rel"
+            # T-4740: copy only when missing or different, so a no-op re-vendor
+            # leaves the build's mtime alone.
+            if [ ! -f "$dest/$_vd_rel" ] || ! cmp -s "$vendor_source/$_vd_rel" "$dest/$_vd_rel"; then
+                # rm first: the vendored copy is 0444 (never edited in place — same
+                # contract `fw designer sync` installs under), so cp over it fails.
+                rm -f "$dest/$_vd_rel"
+                cp "$vendor_source/$_vd_rel" "$dest/$_vd_rel"
+            fi
             chmod 0444 "$dest/$_vd_rel"
             echo -e "  ${GREEN}✓${NC} $_vd_rel (pinned designer build)"
             # Drop superseded builds. The copy above adds the pinned build;
@@ -1012,15 +1105,15 @@ do_vendor() {
         fi
     fi
 
-    # Create VERSION file
-    echo "$FW_VERSION" > "$dest/VERSION"
+    # Create VERSION file (T-4740: only when it differs)
+    echo "$FW_VERSION" | _vendor_write_if_changed "$dest/VERSION"
     echo -e "  ${GREEN}✓${NC} VERSION ($FW_VERSION)"
 
     # T-1841: write .fw-not-a-project sentinel so find_project_root walks past
     # this vendored copy when the agent CWD ends up inside it. .tasks/templates/
     # (shipped in vendored framework) would otherwise satisfy the .tasks/
     # detection branch and mis-resolve the vendored dir as PROJECT_ROOT.
-    cat > "$dest/.fw-not-a-project" <<'SENTINEL'
+    _vendor_write_if_changed "$dest/.fw-not-a-project" <<'SENTINEL'
 This file marks a vendored copy of the Agentic Engineering Framework — NOT a
 project root. fw's find_project_root skips any directory containing this file
 so an agent CWD inside .agentic-framework/ resolves to the real consumer
@@ -1032,7 +1125,7 @@ SENTINEL
     # the vendored framework do not leak into the consumer's git index.
     # (do_vendor already excludes these from the COPY step; this prevents
     # them from being added by the consumer's git after Watchtower runs.)
-    cat > "$dest/.gitignore" <<'GITIGNORE'
+    _vendor_write_if_changed "$dest/.gitignore" <<'GITIGNORE'
 # Vendored Agentic Engineering Framework — runtime artifacts.
 # Generated by `fw vendor` / `fw upgrade`. Do not edit by hand.
 __pycache__/
@@ -1083,7 +1176,7 @@ GITIGNORE
         fi
     fi
     if [ -n "$_vendor_origin" ]; then
-        cat > "$dest/.upstream" <<UPSTREAM
+        _vendor_write_if_changed "$dest/.upstream" <<UPSTREAM
 # Vendored Agentic Engineering Framework — upstream sentinel (T-2232).
 # Records the framework's upstream git URL at vendor-time so an in-consumer
 # \`fw upgrade\` can self-recover when .framework.yaml has no upstream_repo:.
@@ -1118,7 +1211,8 @@ UPSTREAM
     # recovered it. Copying it here inverts the window: everything a working
     # framework needs is on disk before anything claims one is.
     if [ -e "$vendor_source/FRAMEWORK.md" ]; then
-        cp "$vendor_source/FRAMEWORK.md" "$dest/FRAMEWORK.md"
+        # T-4740: via a temp file + cmp, so an unchanged sentinel keeps its mtime.
+        _vendor_write_if_changed "$dest/FRAMEWORK.md" < "$vendor_source/FRAMEWORK.md" || return 1
         echo -e "  ${GREEN}✓${NC} FRAMEWORK.md (written last — completeness sentinel)"
     else
         echo -e "  ${RED}ERROR${NC}  FRAMEWORK.md missing from source: $vendor_source" >&2
@@ -1479,7 +1573,7 @@ if [ -z "${FRAMEWORK_ROOT:-}" ] && [ "${1:-}" = "upgrade" ] \
         # T-4680: a full checkout inside the project tree (not its vendored copy) is
         # the source the operator picked, e.g. a tag clone; upgrade pins its HEAD.
         FRAMEWORK_ROOT="$_t4453_cand"
-        _t4680_at=$(git -C "$_t4453_cand" describe --tags --always 2>/dev/null) || _t4680_at="HEAD"
+        _t4680_at=$(git -C "$_t4453_cand" describe --tags --always --exclude '*-be.*' 2>/dev/null) || _t4680_at="HEAD"
         echo "fw: upgrading from the framework checkout inside the project: $_t4453_cand ($_t4680_at)" >&2
         unset _t4680_at
     fi
@@ -2150,7 +2244,7 @@ do_doctor() {
         _xbit_n=$(printf '%s\n' "$_xbit_list" | grep -c .)
         _xbit_join=$(printf '%s\n' "$_xbit_list" | tr '\n' ' ')
         echo -e "  ${YELLOW}WARN${NC}  Exec-bit drift: $_xbit_n tracked file(s) indexed 100755 but not executable on disk"
-        printf '%s\n' "$_xbit_list" | head -5 | sed 's|^|         - |'
+        printf '%s\n' "$_xbit_list" | awk 'NR<=5 {print "         - " $0}'  # T-4691: awk reads all, head SIGPIPEd
         echo -e "         A drifted script dies exit 126 at exec time; a drifted audit.sh kills the audit rail (OBS-336)."
         echo -e "         Fix: cd $_xbit_repo && chmod +x $_xbit_join"
         warnings=$((warnings + 1))
@@ -2788,7 +2882,7 @@ PY
                 echo -e "  ${GREEN}OK${NC}  Design-conformance register: every row has a valid owner"
         else
             echo -e "  ${YELLOW}WARN${NC}  Design-conformance register: row(s) without a valid owner"
-            printf '%s\n' "$_reg_out" | head -5 | sed 's/^/         /'
+            printf '%s\n' "$_reg_out" | awk 'NR<=5 {print "         " $0}'  # T-4691
             echo -e "         Point owner_task at the ACTIVE task that will build each row (fw audit FAILs on this)"
             warnings=$((warnings + 1))
         fi
@@ -2937,6 +3031,21 @@ PY
         esac
     done < <(printf '%s\n' "$_idx_out" | tail -n +2)
 
+    # Check: arc focus staleness (T-4774). Same predicate as the handover's
+    # ## Current Arc warning: AGE (focused_at too old) or DRIFT (recent work
+    # outside the focused arc). WARN-only; OK when fresh or no arc is focused.
+    if [ -f "$FRAMEWORK_ROOT/lib/arc_focus_health.py" ]; then
+        _afh_days=$(fw_config ARC_FOCUS_STALE_DAYS 14 2>/dev/null || echo 14)
+        while IFS='|' read -r _afh_verdict _afh_msg _afh_hint; do
+            case "$_afh_verdict" in
+                OK)        echo -e "  ${GREEN}OK${NC}  $_afh_msg" ;;
+                AGE|DRIFT) echo -e "  ${YELLOW}WARN${NC}  $_afh_msg"
+                           [ -n "$_afh_hint" ] && echo -e "         $_afh_hint"
+                           warnings=$((warnings + 1)) ;;
+            esac
+        done < <(python3 "$FRAMEWORK_ROOT/lib/arc_focus_health.py" --project-root "$PROJECT_ROOT" --days "$_afh_days" 2>/dev/null)
+    fi
+
     # Check: recall usage — the "Used" signal (T-3019, T-3005 slice 6a)
     #
     # The check above says the index is fresh. This one says whether anyone is
@@ -3047,7 +3156,10 @@ PY
                     if [ "$_wt_rc" -eq 0 ]; then
                         _wt_stale_n=$(printf '%s\n' "$_wt_stale" | grep -c .)
                         echo -e "  ${YELLOW}WARN${NC}  Watchtower process predates its own source ($_wt_stale_n file(s) newer than pid $_wt_pid)"
-                        printf '%s\n' "$_wt_stale" | head -3 | sed 's|^|         - |'
+                        # T-4691: awk, not head — right after `fw upgrade` this lists every
+                        # rewritten web/ file, and head closing early SIGPIPEd printf; under
+                        # errexit+pipefail doctor then exited 141 (050 field report).
+                        printf '%s\n' "$_wt_stale" | awk 'NR<=3 {print "         - " $0}'
                         echo -e "         Every web/ change since it started is inert, including any awaiting [REVIEW]."
                         echo -e "         Run: bin/fw watchtower restart"
                         warnings=$((warnings + 1))
@@ -3089,6 +3201,19 @@ PY
     else
         echo -e "  ${CYAN}SKIP${NC}  Watchtower not running (no triple) — start with: fw serve"
     fi
+    # T-4706: Watchtower was killed and stayed down ~1h47m with nothing saying so.
+    # The ensure keep-alive records every outage it repairs; a recent one is a finding.
+    if [ -f "$FRAMEWORK_ROOT/lib/watchtower-ensure.sh" ]; then
+        local _wt_out _wt_out_n
+        # shellcheck source=/dev/null
+        if _wt_out=$(. "$FRAMEWORK_ROOT/lib/watchtower-ensure.sh" && fw_watchtower_recent_outages); then
+            _wt_out_n=$(printf '%s\n' "$_wt_out" | grep -c .)
+            echo -e "  ${YELLOW}WARN${NC}  Watchtower was down: $_wt_out_n outage(s) in the last ${FW_WATCHTOWER_OUTAGE_DAYS:-7} day(s), restarted by the ensure keep-alive"
+            printf '%s\n' "$_wt_out" | awk '{l=$0} END {print "         last: " l}'
+            echo -e "         Log: .context/working/watchtower-outages.jsonl — find what killed it (T-4706)"
+            warnings=$((warnings + 1))
+        fi
+    fi
 
     # Check: framework-labelled UFW rules for ports nothing listens on (T-4323).
     # Watchtower start used to add a rule per port and stop never removed it
@@ -3100,9 +3225,9 @@ PY
         _fw_orphans=$(firewall_orphan_rules 2>/dev/null)
         if [ -n "$_fw_orphans" ]; then
             _fw_orphan_n=$(printf '%s\n' "$_fw_orphans" | grep -c .)
-            echo -e "  ${YELLOW}WARN${NC}  $_fw_orphan_n framework-labelled UFW rule(s) open a port nothing listens on"
+            # T-4640: UFW is machine state, not this project's — [host] scope (T-1707).
+            _doctor_warn_host "$_fw_orphan_n framework-labelled UFW rule(s) open a port nothing listens on"
             printf '%s\n' "$_fw_orphans" | sed 's|^|         sudo ufw delete allow |; s|$|/tcp|'
-            warnings=$((warnings + 1))
         fi
     fi
 
@@ -3471,7 +3596,7 @@ PY
     if [ -f "$settings_file" ]; then
         local hook_result
         hook_result=$(python3 -c "
-import json, os, sys
+import json, os, re, shlex, sys
 
 issues = []
 warnings = []
@@ -3517,26 +3642,73 @@ for event_type, hook_list in hooks.items():
             if not command:
                 issues.append(f'{event_type}[{i}].hooks[{j}] missing command')
                 continue
-            # Check script exists (skip env var assignments like PROJECT_ROOT=...)
-            parts = command.split()
-            script_path = parts[0]
-            for p in parts:
-                if '=' not in p:
-                    script_path = p
-                    break
+            # T-4708: tokenise with shlex (quotes removed the way the shell removes
+            # them) and split at shell operators, then take the first simple
+            # command whose program is a real script. A leading shell test, as in
+            # TermLink's Stop hook (open bracket, -z, a variable, close bracket,
+            # then a double pipe and exec termlink ...), was taken whole-token as
+            # the script and reported 'script not found: ['. Skipped: assignments
+            # (NAME=value), test brackets and the test builtin (that whole simple
+            # command), negation, exec/command/builtin/nohup/time, compound
+            # keywords. Only a path-like program (contains a slash), bare fw, or
+            # the script argument of an interpreter is checked; a bare program
+            # found on PATH (termlink, true) is not a script path and is left
+            # alone. No path-like program at all: nothing to check.
             # T-4056: an interpreter-prefixed hook (python3 with a script path, env ...)
             # names its script after the interpreter; skip the interpreter and its flags so
-            # the script is the path checked. Quotes stripped with \x27 and \x22.
-            # (No literal quote or dollar characters in this comment: see the note above.)
-            words = [w.strip('\x27\x22') for w in parts if '=' not in w]
-            interp = False
-            while words and os.path.basename(words[0]) in ('env', 'python3', 'python', 'bash', 'sh', 'node'):
-                interp = True
-                words = words[1:]
-                while words and words[0].startswith('-'):
-                    words = words[1:]
-            if words:
-                script_path = words[0]
+            # the script is the path checked. -c and -m carry code, not a script.
+            # (No literal quote or dollar characters in these comments: see the note above.)
+            try:
+                lx = shlex.shlex(command, posix=True, punctuation_chars=True)
+                lx.whitespace_split = True
+                toks = list(lx)
+            except ValueError:
+                toks = command.split()
+            segs, cur, skip_next = [], [], False
+            for t in toks:
+                if skip_next:
+                    skip_next = False
+                    continue
+                if t and all(c in ';&|()<>' for c in t):
+                    if '<' in t or '>' in t:
+                        skip_next = True
+                        if cur and cur[-1].isdigit():
+                            cur.pop()
+                        continue
+                    segs.append(cur)
+                    cur = []
+                else:
+                    cur.append(t)
+            segs.append(cur)
+            interps = ('env', 'python3', 'python', 'bash', 'sh', 'node')
+            leaders = ('!', 'exec', 'command', 'builtin', 'nohup', 'time', 'if', 'then',
+                       'else', 'elif', 'fi', 'while', 'until', 'do', 'done', '{', '}')
+            script_path, parts, interp = None, [], False
+            for seg in segs:
+                words = [w for w in seg if not re.match(r'[A-Za-z_][A-Za-z0-9_]*=', w)]
+                seg_interp = False
+                while words and (words[0] in leaders or words[0] in ('[', '[[', 'test')
+                                 or os.path.basename(words[0]) in interps):
+                    w0 = words.pop(0)
+                    if w0 in ('[', '[[', 'test'):
+                        words = []
+                        break
+                    if os.path.basename(w0) in interps:
+                        seg_interp = True
+                    flags = []
+                    while words and words[0].startswith('-'):
+                        flags.append(words.pop(0))
+                    if '-c' in flags or '-m' in flags:
+                        words = []
+                        break
+                if not words:
+                    continue
+                cand = words[0]
+                if seg_interp or cand == 'fw' or '/' in cand:
+                    script_path, parts, interp = cand, seg, seg_interp
+                    break
+            if script_path is None:
+                continue
             # Portable 'fw hook' commands — resolve via PATH or vendored path
             # T-573: Also recognize .agentic-framework/bin/fw and other paths ending in /fw
             is_fw = (script_path == 'fw' or script_path.endswith('/fw'))
@@ -3659,7 +3831,7 @@ else:
         _ir_out=$(python3 -I "$FRAMEWORK_ROOT/lib/index_reconcile.py" --repo "$PROJECT_ROOT" 2>&1) && _ir_rc=0 || _ir_rc=$?  # T-4200: set -e
         if [ "$_ir_rc" -eq 2 ]; then
             echo -e "  ${YELLOW}WARN${NC}  Armed stale index entries (G-114): $(echo "$_ir_out" | tail -1)"
-            echo "$_ir_out" | grep '^ARMED' | head -10 | sed 's/^/         /'
+            echo "$_ir_out" | awk '/^ARMED/ && ++n<=10 {print "         " $0}'  # T-4691
             echo -e "         Fix (index only, worktree untouched): bin/fw git reconcile-index --apply"
             warnings=$((warnings + 1))
         elif [ "$_ir_rc" -eq 0 ]; then
@@ -3685,6 +3857,27 @@ else:
             echo "         Review: bin/fw approvals pending (or Watchtower /approvals); sweep: bin/fw approvals expire"
         elif [ "$_aq_rc" -eq 0 ]; then
             echo -e "  ${GREEN}OK${NC}  No Tier 0 approval request pending over ${_aq_hours:-24}h"
+        fi
+    fi
+
+    # T-4703: .context/scratch is git-ignored, so nothing saw old release clones
+    # pile up to 28 GB. du on a big tree costs seconds, so --quick skips it.
+    if _doctor_quick_skip ".context/scratch size"; then :
+    elif [ -f "$FRAMEWORK_ROOT/lib/scratch-size.sh" ]; then
+        source "$FRAMEWORK_ROOT/lib/scratch-size.sh"
+        _sc_gb="$(fw_config SCRATCH_WARN_GB)"
+        case "${_sc_gb:-}" in ''|*[!0-9]*) _sc_gb=10 ;; esac
+        _sc_out=$(fw_scratch_size_verdict "${FW_DOCTOR_SCRATCH_DIR:-$PROJECT_ROOT/.context/scratch}" "$((_sc_gb * 1048576))") && _sc_rc=0 || _sc_rc=$?  # set -e; dir override is a test seam
+        IFS=$'\t' read -r _sc_v _sc_kb _sc_top <<< "$_sc_out"
+        if [ "$_sc_rc" -eq 1 ]; then
+            echo -e "  ${YELLOW}WARN${NC}  .context/scratch is $(awk -v k="$_sc_kb" 'BEGIN{printf "%.1f", k/1048576}') GB (over SCRATCH_WARN_GB=$_sc_gb) — largest: $_sc_top"
+            echo "         Remove finished work dirs (they are git-ignored scratch); release lanes v<NNNN>/hf<NNNN> are pruned by fw release"
+            warnings=$((warnings + 1))
+        elif [ "$_sc_rc" -eq 2 ]; then
+            echo -e "  ${YELLOW}WARN${NC}  .context/scratch size check could not run (${_sc_kb})"
+            warnings=$((warnings + 1))
+        else
+            echo -e "  ${GREEN}OK${NC}  .context/scratch is $((_sc_kb / 1024)) MB (under SCRATCH_WARN_GB=$_sc_gb)"
         fi
     fi
 
@@ -3774,6 +3967,12 @@ for e in d.get('errors',[])[:3]:
     fi  # T-2452/F6: end --quick guard for Watchtower smoke test
 
     _doctor_phase "TermLink checks"  # T-3452
+    # Check (T-4781): one tmux server carrying claude-fw sessions of several projects.
+    if [ -f "$FRAMEWORK_ROOT/lib/doctor-tmux.sh" ]; then
+        # shellcheck source=/dev/null
+        source "$FRAMEWORK_ROOT/lib/doctor-tmux.sh"
+        doctor_check_tmux_sharing
+    fi
     # Check: TermLink (optional cross-terminal session communication)
     if command -v termlink >/dev/null 2>&1; then
         local tl_version
@@ -8375,15 +8574,6 @@ EOF
         # Pairs with TermLink T-1636 (inbox.queued emitter, hub-side).
         exec python3 "$FW_LIB_DIR/peer.py" "$@"
         ;;
-    external)
-        # 832 T-887: external-consult — the UNCORRELATED counterpart to `peer`.
-        # `peer` and `sidecar` consult the TermLink mesh, where every responder
-        # is a Claude sharing one cohort identity, so a peer consult cannot
-        # catch a failure mode the lineage shares. This asks differently-trained
-        # models for the STRONGEST OBJECTION, and records it as a named,
-        # rescannable artifact. Local G-008 divergence pending upstream.
-        exec python3 "$FW_LIB_DIR/external_consult.py" "$@"
-        ;;
     sidecar)
         # T-3406 / arc-011 peer-consult sidecar: send a consult to a peer
         # agent and read consults addressed to this one. Wraps the outbox
@@ -9087,19 +9277,7 @@ from pathlib import Path
 from datetime import datetime
 
 # T-1533: shared helper. Robust to running from /opt/999-... where web/ is on the path.
-# T-643: ...which is exactly the layout it was tested in, and the only one. In a
-# VENDORED install the framework lives at <project>/.agentic-framework/, so web/ is
-# not under PROJECT_ROOT, the import below raises, and the `except ImportError`
-# substitutes the inline fallback — silently, every single time. Measured in
-# 832-Workflow-designer: `sys.path.insert(0, PROJECT_ROOT); import web.shared` ->
-# ModuleNotFoundError, so the shared predicate had never once executed in this CLI
-# while `/approvals` (which lives inside web/) used it. The two surfaces drifted in
-# precisely the manner count_unchecked_human_acs' docstring says sharing prevents.
-# FRAMEWORK_ROOT is exported unconditionally at the top of this file and is correct
-# in both modes, so try it first and keep PROJECT_ROOT for the framework-repo layout.
-for _root in (os.environ.get("FRAMEWORK_ROOT", ""), os.environ.get("PROJECT_ROOT", ".")):
-    if _root:
-        sys.path.insert(0, _root)
+sys.path.insert(0, os.environ.get("PROJECT_ROOT", "."))
 try:
     from web.shared import extract_recommendation_state, count_unchecked_human_acs
 except ImportError:
@@ -9116,14 +9294,8 @@ except ImportError:
         body2 = re.sub(r"<!--.*?-->", "", m.group(1), flags=re.DOTALL).strip()
         if not body2:
             return "NO-REC"
-        # T-643: vocabulary kept IDENTICAL to web/shared.py:791, alternation order
-        # included (longest-first, so NO-GO is not matched as GO). The shipped set was
-        # (NO-GO|GO|DEFER) — it rendered CLOSE (T-579) and KEEP-OPEN (T-609) as '?',
-        # i.e. as "the agent owes a verdict", when the agent had given one the library
-        # accepts. `_` form normalised to `-` per the T-1391 contract, as the library does.
-        v = re.search(r"\*\*Recommendation:\*\*\s*(KEEP-OPEN|NO[-_]GO|CLOSE|GO|DEFER)\b",
-                      body2, re.IGNORECASE)
-        return v.group(1).upper().replace("_", "-") if v else "?"
+        v = re.search(r"\*\*Recommendation:\*\*\s*(NO-GO|GO|DEFER)\b", body2, re.IGNORECASE)
+        return v.group(1).upper() if v else "?"
     # T-2075 (T-2064 GO) inline fallback — kept in sync with web.shared.count_unchecked_human_acs.
     # Same predicate the queue uses; consumer projects without web/ get equivalent behaviour.
     def count_unchecked_human_acs(body):
@@ -9256,17 +9428,7 @@ waiting_rows = []  # T-4053: open Human criteria, but the agent is not done
 decided_rows = []  # T-3178: decided but still open — one operator action left
 # T-1571 / F5: precompute pending-inception scan once, reuse below for both passes
 # Pattern matches the canonical block emitted by lib/inception.sh do_inception_decide.
-# T-739: DEFER deliberately NOT in this alternation. A MATCH here is used as an
-# EXCLUSION at the `not DECISION_RE.search(text)` test below, so every verb listed
-# means "this decision is settled, stop showing it". A DEFER is the explicit record
-# that the decision has NOT been made — it is the one state that most needs to stay
-# on a pending-decisions surface. With DEFER included, recording a deferral deleted
-# the task from this queue permanently: T-155 deferred 2026-07-29 and stayed invisible
-# through a full rewrite of its recommendation from DEFER to NO-GO.
-# Scope note: this regex has exactly one consumer (the DECISIONS predicate below).
-# extract_recommendation_state() reads **Recommendation:**, a different field, and is
-# untouched — that is why the rendered VERDICT column can still read DEFER.
-DECISION_RE = re.compile(r"^\*\*Decision\*\*:\s*(GO|NO-GO)\b", re.M)
+DECISION_RE = re.compile(r"^\*\*Decision\*\*:\s*(GO|NO-GO|DEFER)\b", re.M)
 for f in sorted(ACTIVE.glob("*.md")):
     text = f.read_text(errors="replace")
     # Frontmatter (used by both passes)
@@ -9425,13 +9587,7 @@ NAME_W = 60
 def _verdict_color(v):
     # T-1576: NO-REC in cyan (call-to-action — agent should write a recommendation),
     # distinct from grey '?' (deferred/unknown verdict in an existing block).
-    # T-643: CLOSE and KEEP-OPEN fell through to the default and rendered in the SAME
-    # grey as '?' — a stated verdict wearing the colour of "no readable verdict". Both
-    # are resolutions rather than call-to-action, so: magenta for CLOSE (terminal
-    # disposition), blue for KEEP-OPEN (stay-of-execution). Colour choice is taste and
-    # is the [REVIEW] Human AC on T-643.
     return {"GO": "\033[32m", "DEFER": "\033[33m", "NO-GO": "\033[31m",
-            "CLOSE": "\033[35m", "KEEP-OPEN": "\033[34m",
             "NO-REC": "\033[36m"}.get(v, "\033[90m")
 
 # T-1571 / F5: DECISIONS section — pending inception GO/NO-GO/DEFER decisions.
@@ -9501,21 +9657,18 @@ if waiting_rows:
         truncated = (name[:NAME_W] + "...") if len(name) > NAME_W else name
         print(f"{tid_v:<8}  {str(age_days)+'d':>4}  {truncated}")
         print(f"\033[2m    {why}\033[0m")
-# T-643: the tally used to name its five buckets one at a time, so a verdict the
-# vocabulary accepts but this list forgot was counted NOWHERE — the parenthetical
-# silently summed to less than the total beside it. That is exactly what happened the
-# moment CLOSE and KEEP-OPEN started parsing: 53 awaiting review, 51 accounted for.
-# Count what is there instead of what was expected. VERDICT_ORDER fixes the reading
-# order for the verdicts we know; anything else appends alphabetically rather than
-# disappearing, so the next addition to the vocabulary (OBS-329's ABSTAIN, say) shows
-# up uncounted-but-visible rather than not at all.
-VERDICT_ORDER = ["GO", "DEFER", "NO-GO", "CLOSE", "KEEP-OPEN", "?", "NO-REC"]
-counts = {}
-for r in rows:
-    counts[r[0]] = counts.get(r[0], 0) + 1
-ordered = VERDICT_ORDER + sorted(k for k in counts if k not in VERDICT_ORDER)
-parts = [f"{_verdict_color(v)}{counts[v]} {v}\033[0m" for v in ordered if counts.get(v)]
-total = len(rows) + len(decision_rows) + len(paused_rows) + len(decided_rows) + len(um_rows)  # upstream's total, our tally (T-1005)
+go = sum(1 for r in rows if r[0] == "GO")
+defer = sum(1 for r in rows if r[0] == "DEFER")
+nogo = sum(1 for r in rows if r[0] == "NO-GO")
+unk = sum(1 for r in rows if r[0] == "?")
+no_rec = sum(1 for r in rows if r[0] == "NO-REC")
+parts = []
+if go: parts.append(f"\033[32m{go} GO\033[0m")
+if defer: parts.append(f"\033[33m{defer} DEFER\033[0m")
+if nogo: parts.append(f"\033[31m{nogo} NO-GO\033[0m")
+if unk: parts.append(f"\033[90m{unk} ?\033[0m")
+if no_rec: parts.append(f"\033[36m{no_rec} NO-REC\033[0m")
+total = len(rows) + len(decision_rows) + len(paused_rows) + len(decided_rows) + len(um_rows)
 verif_only = f"{len(rows)} task(s) ready for human review" if rows else ""
 if waiting_rows:
     verif_only = (verif_only + " · " if verif_only else "") + f"{len(waiting_rows)} waiting on the agent"
