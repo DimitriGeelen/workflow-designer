@@ -64,12 +64,19 @@ the release job, as for 0.30.0. Job 096 from job 090; the release commit names o
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Release notes `docs/releases/RELEASE-NOTES-0.31.0.md` (not a draft; the five endpoints AEF does not serve named) and
+- [x] Release notes `docs/releases/RELEASE-NOTES-0.31.0.md` (not a draft; the five endpoints AEF does not serve named) and
   job 096 written from job 090, rehearsed, committed
-- [ ] The operator ran job 096 to the end: kit calibrated PASS by both reviewers, `designer-v0.31.0` tagged and pushed,
+  *(977853a4b; dry-run e0d930292dd0, all checks ok, step 1 rehearsed.)*
+- [x] The operator ran job 096 to the end: kit calibrated PASS by both reviewers, `designer-v0.31.0` tagged and pushed,
   core tier green
-- [ ] AEF told (version, tag, sha256, bytes, what changes) and serves 0.31.0 (`tools/_t1187-aef-pin-lag.sh` CURRENT);
+  *(2026-10-27 16:04-18:33Z, 9/9 rc=0: CALIBRATION PASS codex and GLM-5.3; release commit f80a924dd, tag
+  designer-v0.31.0 on origin; core green in step 8. Artifact 1,264,751 bytes, sha256
+  045726676578d2d88fec327695922cc3aa0bd46ad477bc3f00a024511473244e.)*
+- [x] AEF told (version, tag, sha256, bytes, what changes) and serves 0.31.0 (`tools/_t1187-aef-pin-lag.sh` CURRENT);
   greenfield told
+  *(Release mail with artifact, kit and validator sha256 sent on designer-data-api; AEF T-4838 re-pinned the build and
+  the validator together (b0d6b7624), live check returned E-XML-IO-MATCH-MISSING on their server; carried in be.43.
+  Pin-lag: "CURRENT: AEF serves designer 0.31.0". Greenfield told in Dutch.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -118,6 +125,11 @@ the release job, as for 0.30.0. Job 096 from job 090; the release commit names o
 -->
 
 ## Verification
+
+git ls-remote --exit-code --tags origin designer-v0.31.0
+test "$(sha256sum dist/aef-workflow-designer-0.31.0.html | cut -d' ' -f1)" = 045726676578d2d88fec327695922cc3aa0bd46ad477bc3f00a024511473244e
+out=$(bash tools/_t1187-aef-pin-lag.sh 2>&1); echo "$out" | grep -q "CURRENT: AEF serves designer 0.31.0"
+test -f .context/runme/096-release-designer-0.31.0/done
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
