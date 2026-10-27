@@ -203,6 +203,11 @@ Tags to batch (take the newest when this starts):
   *(sent 2026-10-27: WORKS — the upgrade path, designer pin, Watchtower, core; T-4777 EXERCISED: `_t630` under the repo
   without the ceiling staged 0 paths (be.8: 6). NOT YET EXERCISED, each when it occurs: T-4779 (next release), T-4768
   (next inception decide), T-4781 (after the operator relaunches via claude-fw).)*
+  *(2026-10-27 11:30, after the operator's relaunch (fleet cockpit, `claude-fw --resume … --termlink`): T-4781 N/A for
+  --termlink launches (the tmux wrap is skipped by design; the session runs on the default server), doctor's tmux check
+  OK. T-4454 FAILS: `termlink spawn --backend auto` starts the register process on the tmux server without
+  TERMLINK_IDENTITY_FILE (its /proc environ), so it registers as the host key d1993c2c3ec44c94. AEF confirmed and filed
+  T-4811 for v1.8.15 (msg f86a82dc). AEF then asked for a be.37 field test, A-H (msg 6b13a90a); that is a new upgrade.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
