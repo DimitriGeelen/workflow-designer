@@ -5,7 +5,8 @@
 // and 1920x1080: the full viewport (toolbar reach) and the properties panel scrolled to the section (-panel), plus a
 // second panel shot scrolled to the end when the section is taller than the panel (-panel-end).
 // Fixtures: AEF's mapping v1.1 section-11 examples and its FULL case only (never client material).
-// Usage: node tools/_t1249-v11-io-shots.mjs [outdir]   (default docs/reports/T-1249-evidence)
+// Usage: node tools/_t1249-v11-io-shots.mjs [outdir]   (default docs/reports/T-1249-evidence); T1249S_CATALOG=1 and
+// T1249S_FINDINGS=1 (T-1303: Check findings under their io rows) add states
 import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, mkdirSync, writeFileSync, rmSync, copyFileSync } from 'node:fs';
@@ -29,6 +30,10 @@ async function ev(cmd, e) { const r = await cmd('Runtime.evaluate', { expression
 async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof parseBpmnXml==='function'&&_appReady===true&&(typeof _deepLinkSettled==='undefined'||_deepLinkSettled!==null))`).catch(() => false); if (ok) return; if (Date.now() - t0 > (+process.env.CDP_READY_MS || 20000)) throw new Error('editor not ready'); await sleep(150); } }
 
 const AEF = 'http://anchorpoint.framework/aef/extensions';
+// T-1303: with T1249S_FINDINGS=1 the map gains a step whose outputs draw the mapping v1.1 lint (R1: an update with no
+// match field; R3: a match field naming nothing), and states that run Check first. The v1.1 step's first input already
+// draws R2 (sf: and biz: are not in its prefix map). Every other state closes the findings drawer before its shot.
+const FINDINGS = process.env.T1249S_FINDINGS === '1';
 const io = lines => lines.map(l => '          ' + l).join('\n');
 const task = (id, name, uid, body) => `    <bpmn:serviceTask id="${id}" name="${name}">
       <bpmn:extensionElements>
@@ -84,12 +89,23 @@ ${io(['<aef:input name="sfdc:Opportunity.Id" type="object" ref="nid:attr-opportu
         </aef:io>
 `)}
 ${task('Task_empty', 'Notify', 't1249_empty', '')}
+${FINDINGS ? task('Task_lint', 'Update contact', 't1249_lint', `        <aef:io>
+${io(['<aef:output name="contact" typeRef="sfdc:Contact" operation="update">',
+  '  <aef:field fieldRef="sfdc:Contact.Status" role="write"/>',
+  '</aef:output>',
+  '<aef:output name="account" typeRef="sfdc:Account" operation="upsert">',
+  '  <aef:field role="match"/>',
+  '</aef:output>'])}
+        </aef:io>
+`) : ''}
     <bpmn:endEvent id="End_1" name="End"/>
     <bpmn:sequenceFlow id="f1" sourceRef="Start_1" targetRef="Task_v11"/>
     <bpmn:sequenceFlow id="f2" sourceRef="Task_v11" targetRef="Task_v1"/>
     <bpmn:sequenceFlow id="f3" sourceRef="Task_v1" targetRef="Task_stylea"/>
     <bpmn:sequenceFlow id="f3b" sourceRef="Task_stylea" targetRef="Task_empty"/>
-    <bpmn:sequenceFlow id="f4" sourceRef="Task_empty" targetRef="End_1"/>
+${FINDINGS ? `    <bpmn:sequenceFlow id="f3c" sourceRef="Task_empty" targetRef="Task_lint"/>
+    <bpmn:sequenceFlow id="f4" sourceRef="Task_lint" targetRef="End_1"/>`
+  : `    <bpmn:sequenceFlow id="f4" sourceRef="Task_empty" targetRef="End_1"/>`}
   </bpmn:process>
 </bpmn:definitions>
 `;
@@ -123,6 +139,10 @@ if (CATALOG) STATES.push(['catalog-v1', 't1249_v1', 'I/O contract', { open: [0],
                          // T-1312 review: more matches than the 8 listed (the "N more" line), and no match at all
                          ['catalog-more', 't1249_v1', 'I/O contract', { open: [0], search: 'salesforce' }],
                          ['catalog-none', 't1249_v1', 'I/O contract', { open: [0], search: 'zzz' }]);
+if (FINDINGS) STATES.push(['findings-lint', 't1249_lint', 'I/O contract', { check: true }],
+                          ['findings-v11', 't1249_v11', 'I/O contract', { check: true }],
+                          // the same lint step with its first output's editor open: the finding sits above the toggle
+                          ['findings-lint-edit', 't1249_lint', 'I/O contract', { check: true, open: [0] }]);
 const WIDTHS = [[1024, 768], [1440, 900], [1920, 1080]];
 
 async function main() {
@@ -147,7 +167,9 @@ async function main() {
       await ev(cmd, `adoptImportedXml(${JSON.stringify(MAP)}); typeof fitView==='function' && fitView(); true`);
       await sleep(300);
       for (const [name, uid, title, opens] of STATES) {
+        if (opens && opens.check) await ev(cmd, `runCheck().then(function(){ return findingsView.state; })`);   // T-1303
         const rect = await ev(cmd, `(function(){
+          if (!${JSON.stringify(!!(opens && opens.check))} && findingsView.state !== 'unchecked') document.getElementById('findings-close').click();
           if (${JSON.stringify(uid)}) { var n = state.nodes.filter(function(x){ return x.uid === ${JSON.stringify(uid)}; })[0];
             selection = { kind: 'node', id: n.id }; multiSelect = new Set([n.id]); }
           else { selection = null; multiSelect = new Set(); }

@@ -138,6 +138,16 @@ and the kit; the designer then shows the findings on the io. Not started at the 
   `/api/validate` (T-4737 GO for validate, 2026-10-27).
 
 ### Human
+- [ ] A Check finding on an io reads as belonging to that io and says what is wrong, without crowding the io's own
+  rows, at every width
+  For the independent reviewer: `fw reviewer judge T-1303 --criterion 1` (render-surface, no operator carve-out).
+  **Steps:** 1. Open the `findings-*` screenshots in `docs/reports/T-1303-evidence/` named in `## Visual Verification`
+  (the lint step: an ERROR under one output, a WARN under the other; the v1.1 step: two ERRORs under its first input; the
+  lint step with an editor open) at 1024/1440/1920, full viewport and panel. 2. Compare a state without a Check, e.g.
+  `v11-step-1440-panel.png`, with `findings-v11-1440-panel.png`.
+  **Expected:** each finding sits directly under the io row it names (none under a clean io); severity, message and rule
+  id are legible; the io's name, type, req, × and its v1.1 summary are where they were and still readable.
+  **If not:** name the file, the io and what is wrong.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -320,6 +330,26 @@ and the kit; the designer then shows the findings on the io. Not started at the 
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+
+## Visual Verification
+
+Screenshots: `docs/reports/T-1303-evidence/` (`T1249S_FINDINGS=1 node tools/_t1249-v11-io-shots.mjs
+docs/reports/T-1303-evidence`, 110 files: every T-1249 state plus `findings-lint`, `findings-v11`,
+`findings-lint-edit`, each at 1024/1440/1920, full viewport and panel, `-panel-end` where the section is taller).
+Read control by control:
+- `findings-lint-1440-panel`: output `contact` (update, no match field): one ERROR line directly under its row, red edge,
+  "ERROR" + the validator's message + `E-XML-IO-MATCH-MISSING`; then its v1.1 summary and "edit attributes", unchanged.
+  Output `account` (match field naming nothing): one WARN line, orange edge, `W-XML-IO-MATCH-UNRESOLVED`. Name fields,
+  type selects and × of both rows in place; "+ add output" below. No line overflows the panel.
+- `findings-lint-1440` / `-1024` (full viewport): toolbar complete at both widths (Load, Check, Versions, Save to project,
+  Save); the drawer lists the findings and the canvas marks the step. The drawer's other rows are E-XML-NODE-UNASSIGNED:
+  this shots fixture never assigned its nodes to lanes (pre-existing, unrelated to this change).
+- `findings-v11-1024-panel`: input `opp` (sf: and biz: undeclared): two ERROR lines under its row, one per prefix; the
+  editor (open from an earlier state at this width) shows the same two prefixes in its own T-1301 hint: they agree.
+- `findings-lint-edit-1024-panel-end`: with output 0's editor open, the WARN line still sits under output `account`, not
+  under the editor; the editor's rows (typeRef, operation, fields) unchanged.
+Measured (the CDP leg `_leg_200`): each finding under its own io only; a clean step's panel byte-identical (inline style
+aside) before and after Check; every line inside the panel and on top at 1024 and 1440; red on 0.30.0 (a, b, f).
 
 ## RCA
 
