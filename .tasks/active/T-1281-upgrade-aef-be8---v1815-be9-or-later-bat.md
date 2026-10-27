@@ -181,17 +181,28 @@ Tags to batch (take the newest when this starts):
 ## Acceptance Criteria
 
 ### Agent
-- [ ] **Job 092 ran to `done`:** be.8 (04dc39868) -> v1.8.15-be.31 (0cd951409, lightweight tag); version_sha 0cd951409
+- [x] **Job 092 ran to `done`:** be.8 (04dc39868) -> v1.8.15-be.31 (0cd951409, lightweight tag); version_sha 0cd951409
   (job 091, be.28, retired unrun when be.31 was tagged);
   pristine and baseline commits present; TermLink key settings unchanged; crontab on the vendored fw; templates settled.
-- [ ] **832's local fixes re-applied** (re-vendor protocol, T-1000): `tools/_t517` OK; every `*.bak` diffed and removed or
+  *(2026-10-27 10:20-10:40: all 9 steps rc=0; pristine ff3ce770 (412 paths), baseline cb80e73b with .framework.yaml;
+  designer PRESENT 0.30.0 sha matches; inception.md.upstream fully contained, removed; doctor before/after same warnings.)*
+- [x] **832's local fixes re-applied** (re-vendor protocol, T-1000): `tools/_t517` OK; every `*.bak` diffed and removed or
   reported (CLAUDE.md rule); `_t1192` templates settled; the pre-push hook re-installed (`tools/_t1000-install-hook.sh`).
-- [ ] **Core tier green** on the upgraded tree (the push gate); anything red is explained (ours / AEF's / environment) and
+  *(d09f20f4: 37 patches, 34 clean, 3 three-way; designer_landing.html conflicted with AEF T-4715's own corpus thumbnail,
+  832's tile + fly-out kept. `_t517`: OK, 44 diverged = 44 declared. No `*.bak`/`.upstream` left. Hook re-installed by
+  step 2 (`--check` passed). Watchtower restarted: /, /designer/app, /api/health 200.)*
+- [x] **Core tier green** on the upgraded tree (the push gate); anything red is explained (ours / AEF's / environment) and
   owned, never pushed past.
+  *(first run RED 209/2: `_t1171`, `_t1172` tested the gallery at /designer, which AEF T-4716 turned into a 302 to the
+  designer's project browser (their operator's option 1) and moved to /designer/corpus; the guards follow the move
+  (cccec51a); then GREEN 211/0; pushed.)*
 - [ ] **AEF field report** on `aef-v1815-be3`, WORKS/FAILS per fix exercised, at least: T-4777 (a sandbox close no longer
   stages into an enclosing repo: run `_t630` with the T-1313 ceiling REMOVED and the index stays empty), T-4779 (a release
   commit's dist/ copy no longer withdraws a verdict), T-4768 (decide commits the provenance row; our pathspec guards
   accept it), T-4781 (per-project tmux server after the operator's relaunch).
+  *(sent 2026-10-27: WORKS — the upgrade path, designer pin, Watchtower, core; T-4777 EXERCISED: `_t630` under the repo
+  without the ceiling staged 0 paths (be.8: 6). NOT YET EXERCISED, each when it occurs: T-4779 (next release), T-4768
+  (next inception decide), T-4781 (after the operator relaunches via claude-fw).)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
