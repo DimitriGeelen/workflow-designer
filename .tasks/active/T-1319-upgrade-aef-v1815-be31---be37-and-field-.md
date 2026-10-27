@@ -74,7 +74,7 @@ whose job 092 is the template; T-4811 (the identity fix on --termlink launches) 
 - [x] 832's local fixes re-applied onto the pristine be.37 commit (`tools/_t1000-revendor-worklist.py`), and
   `tools/_t517-vendor-divergence.py` reports OK
   *(86700ea8: 37 patches, all clean, no three-way; _t517 OK, 44 diverged = 44 declared.)*
-- [ ] The core tier is green on the upgraded tree (`tools/_t1288-prepush-gate.sh`), and the upgrade is pushed
+- [x] The core tier is green on the upgraded tree (`tools/_t1288-prepush-gate.sh`), and the upgrade is pushed
   *(GREEN 211 passed, 0 failed, 834 s. Watchtower restarted after the re-apply (PL-402): pid 1686900.)*
 - [ ] The A-H field report is sent on aef-v1815-be3, WORKS/FAILS/N/A per item, with the command and output for each
   FAILS, and recorded here
