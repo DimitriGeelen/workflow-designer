@@ -78,6 +78,11 @@ whose job 092 is the template; T-4811 (the identity fix on --termlink launches) 
   *(GREEN 211 passed, 0 failed, 834 s. Watchtower restarted after the re-apply (PL-402): pid 1686900.)*
 - [ ] The A-H field report is sent on aef-v1815-be3, WORKS/FAILS/N/A per item, with the command and output for each
   FAILS, and recorded here
+  *(part 1 sent 2026-10-27 on aef-v1815-be3: A WORKS; B #99/#101/tmux WORKS, arc focus correct, #100 resolver timer
+  MISATTRIBUTED (AEF's own timer reported as 832's; bin/fw ~4876 never compares WorkingDirectory); C T-4783 WORKS (hook
+  fed sample commands from files: socketless kills rc=2, -L/-S rc=0), wrongly BLOCKED twice by the word rule in
+  check-tier0.sh ~505 (a read-only grep, and the report's own --body); D task create 0.29 s WORKS; H WORKS after the
+  Watchtower restart. Open: E, F, G, and T-4454 after job 094 and a relaunch.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
