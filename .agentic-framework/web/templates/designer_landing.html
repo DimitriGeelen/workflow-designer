@@ -16,15 +16,43 @@
         gap: 0.4rem;
     }
     .corpus-card h4 { margin: 0; }
-    /* T-4715: the diagram picture saved with each version (/api/thumb). */
+    /* 832 T-1048: preview tile of the latest saved version (the editor's own capture) */
     .corpus-thumb {
-        width: 100%;
-        aspect-ratio: 320 / 110;
-        object-fit: contain;
-        background: #12161c;
-        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 120px;
+        margin: -0.25rem -0.5rem 0.3rem;
         border: 1px solid var(--pico-muted-border-color);
-        margin-bottom: 0.4rem;
+        border-radius: 6px;
+        background: #151821;
+        overflow: hidden;
+    }
+    .corpus-thumb img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+    .corpus-thumb.no-thumb { background: transparent; border-style: dashed; color: var(--pico-muted-color); font-size: 0.75rem; }
+    /* 832 T-1171: hovering a thumbnail blows it up as a fly-out above the grid, with an Open button; leaving shrinks
+       it away. Shown after a short delay so a mouse passing over the grid does not flash every card. */
+    .corpus-thumb-wrap { position: relative; }
+    .corpus-thumb-wrap .corpus-thumb { cursor: zoom-in; }
+    .corpus-flyout {
+        position: absolute; left: 50%; top: -24px; z-index: 40;
+        width: min(680px, 92vw);
+        padding: 8px 8px 10px; border-radius: 10px;
+        background: #151821; border: 1px solid var(--pico-muted-border-color);
+        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.38);
+        transform: translate(calc(-50% + var(--fx, 0px)), var(--fy, 0px)) scale(0.3);
+        transform-origin: 50% 20%;
+        opacity: 0; visibility: hidden; pointer-events: none;
+        transition: transform 0.16s ease-in, opacity 0.16s ease-in, visibility 0s linear 0.16s;
+    }
+    .corpus-flyout img { display: block; width: 100%; max-height: 62vh; object-fit: contain; border-radius: 6px; cursor: pointer; }
+    .corpus-flyout-bar { display: flex; align-items: center; gap: 0.75rem; margin-top: 8px; }
+    .corpus-flyout-bar span { flex: 1; color: #c9ced8; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .corpus-flyout-open { margin: 0; width: auto; padding: 0.3rem 1rem; font-size: 0.85rem; }
+    .corpus-thumb-wrap.fly .corpus-flyout {
+        transform: translate(calc(-50% + var(--fx, 0px)), var(--fy, 0px)) scale(1);
+        opacity: 1; visibility: visible; pointer-events: auto;
+        transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s;
     }
     .corpus-meta {
         font-size: 0.8rem;
@@ -114,11 +142,25 @@
 <div class="corpus-grid">
     {% for p in projects %}
     <div class="corpus-card{% if p.is_draft %} is-draft{% endif %}">
-        {# T-4715: the gallery never showed the per-version picture /api/thumb serves.
-           Not a link (the ?load nonce test counts editor anchors); removes itself
-           when a map has no thumbnail so no broken-image icon appears. #}
-        <img class="corpus-thumb" src="/api/thumb?id={{ p.id }}&amp;v={{ p.latest_v }}"
-             alt="Diagram of {{ p.title }}" onerror="this.remove()">
+        {# 832 T-1048: a plain image, deliberately NOT a link — the card's one editor link
+           must keep minting its click-time nonce (T-2596, test_card_links_mint_clicktime_nonce). #}
+        {% if p.thumb_url %}
+        {# 832 T-1171: the fly-out's Open and a click on the thumbnail CLICK the card's editor link below, so that
+           link stays the card's only ?load link and keeps minting the T-2596 nonce. #}
+        <div class="corpus-thumb-wrap">
+            <div class="corpus-thumb" onclick="corpusOpenCard(this)" title="Hover to enlarge, click to open">
+                <img src="{{ p.thumb_url }}" alt="{{ p.title }} preview" loading="lazy"></div>
+            <div class="corpus-flyout" aria-hidden="true">
+                <img src="{{ p.thumb_url }}" alt="{{ p.title }} preview, enlarged" loading="lazy" onclick="corpusOpenCard(this)">
+                <div class="corpus-flyout-bar">
+                    <span>{{ p.title }} · v{{ p.latest_v }}</span>
+                    <button type="button" class="corpus-flyout-open" onclick="corpusOpenCard(this)">Open &rarr;</button>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="corpus-thumb no-thumb">no preview</div>
+        {% endif %}
         <h4>{{ p.title }}{% if p.is_draft %}<span class="draft-badge">DRAFT</span>{% endif %}</h4>
         <span class="corpus-id">{{ p.id }}</span>
         <span class="corpus-meta">v{{ p.latest_v }} · {{ p.version_count }} version{{ '' if p.version_count == 1 else 's' }} · saved {{ p.saved_h }}</span>
@@ -148,3 +190,41 @@
     </div>
     {% endfor %}
 </div>
+
+<script>
+(function () {
+  // 832 T-1171: open = click the card's own editor link (it mints the T-2596 nonce and stays the only ?load link).
+  window.corpusOpenCard = function (el) {
+    var card = el.closest('.corpus-card');
+    var a = card && card.querySelector('a.corpus-open:not(.corpus-overlay)');
+    if (a) a.click();
+  };
+  var SHOW_MS = 160, HIDE_MS = 120;
+  function place(wrap) {
+    var fly = wrap.querySelector('.corpus-flyout');
+    if (!fly) return;
+    var r = wrap.getBoundingClientRect(), w = fly.offsetWidth, h = fly.offsetHeight, m = 8;
+    var cx = r.left + r.width / 2, left = cx - w / 2;
+    var fx = Math.min(Math.max(left, m), window.innerWidth - w - m) - left;
+    var top = r.top - 24, fy = 0;
+    if (top < m) fy = m - top;
+    else if (top + h > window.innerHeight - m) fy = Math.max(m - top, window.innerHeight - m - h - top);
+    fly.style.setProperty('--fx', fx + 'px');
+    fly.style.setProperty('--fy', fy + 'px');
+  }
+  // Wire each wrap once, however often htmx re-inserts this page.
+  document.querySelectorAll('.corpus-thumb-wrap').forEach(function (wrap) {
+    if (wrap.__flyWired) return;
+    wrap.__flyWired = true;
+    var tShow = null, tHide = null;
+    wrap.addEventListener('mouseenter', function () {
+      clearTimeout(tHide);
+      tShow = setTimeout(function () { place(wrap); wrap.classList.add('fly'); }, SHOW_MS);
+    });
+    wrap.addEventListener('mouseleave', function () {
+      clearTimeout(tShow);
+      tHide = setTimeout(function () { wrap.classList.remove('fly'); }, HIDE_MS);
+    });
+  });
+})();
+</script>
