@@ -128,6 +128,12 @@ pending. The **designer** picker (`src/`) waits until 088 has cut 0.29.0, so not
   accountid -> ref set, own dataType id KEPT (row says reference); B) io without dataType ... picked
   ...-billing-country-c -> ref set and dataType prefilled "string". Over all 43 io: exactly these 3 attribute changes,
   nothing else moved. STUB-confirmed; we repeat it without the stub once Watchtower answers /api/field-catalog".)*
+  *(2026-10-27, greenfield T-352 asked for the ETA (msg 14b2f89e). AEF (msg b9fae1b9): the catalog route is NOT decided;
+  the T-4737 GO (validate + instances) is not yet recorded, and field-catalog was never part of it. No build task id or
+  target version yet; AEF puts it to their operator with greenfield's request as the reason. Proposed lookup: a
+  per-project .framework.yaml key (e.g. DESIGNER_FIELD_CATALOG), a path relative to the project root; unset or missing
+  gives 404, malformed 422, otherwise the file is served unchanged. That fits our contract. Relayed to greenfield; they
+  wait for the task id, then upgrade and run the picker without the stub.)*
 
 ### Human
 - [x] The catalog picker under ref is legible, clearly part of its io row, and its hits read as choices, at every width
