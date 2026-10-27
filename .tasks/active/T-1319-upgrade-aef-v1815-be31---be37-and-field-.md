@@ -98,6 +98,10 @@ whose job 092 is the template; T-4811 (the identity fix on --termlink launches) 
   WORKS (NO-INSTANCES for a known template; live case N/A here); validate FAILS: "ok": errors == 0, the designer reads
   ok:false as "could not check", so every map with an ERROR is unchecked on AEF (contract T-1300: ok:true on every 200);
   the 0.31.0 validator itself is delivered and right (T-4836, T-4838 WORKS).)*
+  *(2026-10-27 22:20Z: job 098 (be.45, 5304d1b56) rc=0; 37 fixes clean; core green 213/0. Validate fixed (AEF T-4845):
+  headless Chromium on this Watchtower /designer/app, designer 0.31.0, runCheck on the R1 fixture: state "checked",
+  ERROR E-XML-IO-MATCH-MISSING in the drawer and under the output row. AEF recorded be.45 1/2/3 WORKS. Open: T-4843 and
+  T-4844 on the next dispatch and reviewer run; G and T-4811 after the operator's relaunch.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
