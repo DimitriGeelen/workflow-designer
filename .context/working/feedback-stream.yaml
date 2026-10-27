@@ -19555,3 +19555,21 @@ scan_id: R-a09e451b
 task_id: T-1320
 payload:
   task_file: .tasks/active/T-1320-lan-address-gate-leaves-the-unscrubbed-t.md
+---
+kind: scan_emitted
+timestamp: '2026-10-27T19:00:08Z'
+scan_id: R-a8855338
+task_id: T-1321
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-27T19:00:08Z'
+scan_id: R-a8855338
+task_id: T-1321
+payload:
+  task_file: .tasks/active/T-1321-release-designer-0310-io-lint-findings-o.md

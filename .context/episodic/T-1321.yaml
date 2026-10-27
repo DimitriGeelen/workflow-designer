@@ -1,0 +1,111 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1321: Release designer 0.31.0: io lint findings on the io (T-1303), legible req and x (T-1310)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-27T19:00:22Z
+# ============================================================================
+
+task_id: T-1321
+task_name: "Release designer 0.31.0: io lint findings on the io (T-1303), legible req and x (T-1310)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-27T15:50:35Z
+completed: 2026-10-27T19:00:05Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-27T17:00:00+01:00
+last_commit: 2026-10-27T20:00:03+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release notes 0.31.0 and job 096 (from job 090); the corpus-impact scan is wired into the T-1303 lint test (it must flag each rule fixture as the validator does; unwired-guard census back to 90). 0.31.0 — VERSION and APP_VERSION bumped by the release job (parity ok). release designer 0.31.0 — mapping v1.1 io lint shown under the io; req and x legible; kit calibrated on its bytes. job 096 dry-run record (sha e0d930292dd0; the job ran to done rc=0). criteria ticked with evidence (released, served by AEF), Verification
+
+# Key outcomes
+outcomes:
+  - 'Release notes `docs/releases/RELEASE-NOTES-0.31.0.md` (not a draft; the five endpoints AEF does not serve named) and'
+  - 'The operator ran job 096 to the end: kit calibrated PASS by both reviewers, `designer-v0.31.0` tagged and pushed,'
+  - 'AEF told (version, tag, sha256, bytes, what changes) and serves 0.31.0 (`tools/_t1187-aef-pin-lag.sh` CURRENT);'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'release notes 0.31.0 and job 096 (from job 090); the corpus-impact scan is wired into the T-1303 lint test (it must flag each rule fixture as the validator does; unwired-guard census back to 90)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/096-release-designer-0.31.0/dryrun.ok'
+  - '.context/runme/096-release-designer-0.31.0/job.sh'
+  - '.tasks/active/T-1321-release-designer-0310-io-lint-findings-o.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.31.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.31.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.31.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.31.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.31.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.31.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.31.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.31.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.31.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.31.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.31.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.31.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.31.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.31.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.31.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.31.0.html'
+  - 'docs/authoring-kit/calibration-records/0.31.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.31.0.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/test_t1303_io_lint.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-27T17:00:00'
+    action: 'T-1321: release notes 0.31.0 and job 096 (from job 090); the corpus-impact scan is wired into the T-1303 lint test (it must flag each rule fixture as the validator does; unwired-guard census back to 90)'
+  - time: '2026-10-27T17:06:45'
+    action: 'T-1321: 0.31.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-10-27T18:48:39'
+    action: 'T-1321: release designer 0.31.0 — mapping v1.1 io lint shown under the io; req and x legible; kit calibrated on its bytes'
+  - time: '2026-10-27T19:46:54'
+    action: 'T-1321: job 096 dry-run record (sha e0d930292dd0; the job ran to done rc=0)'
+  - time: '2026-10-27T20:00:03'
+    action: 'T-1321: criteria ticked with evidence (released, served by AEF), Verification'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 189 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 189
+  commits: 6
+  files_changed: 28
+  lines_added: 20208
+  lines_removed: 20
+  footprint_refreshed_at: '2026-10-27T19:00:33Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1321-release-designer-0310-io-lint-findings-o.md
+generated_by: context-agent-hybrid
