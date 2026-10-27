@@ -29,7 +29,8 @@ sys.path.insert(0, os.environ["FW_DIR"]); os.chdir(os.environ["FW_DIR"])
 from web.app import app
 c = app.test_client()
 out = {}
-land = c.get("/designer")
+# AEF T-4716 (be.31, T-1281): the card gallery moved from /designer (now the designer's project browser) to /designer/corpus
+land = c.get("/designer/corpus")
 html = land.get_data(as_text=True)
 m = re.search(r'href="(/designer/open\?load=[^"]+)"', html)
 out["landing_status"] = land.status_code

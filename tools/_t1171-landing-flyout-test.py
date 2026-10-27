@@ -23,7 +23,9 @@ PROBE = r'''
 import json, os, re, sys
 sys.path.insert(0, os.environ["FW_DIR"]); os.chdir(os.environ["FW_DIR"])
 from web.app import app
-html = app.test_client().get("/designer").get_data(as_text=True)
+# AEF T-4716 (be.31, T-1281): /designer is now the designer's own project browser (302 to /designer/app?browse=1);
+# the card gallery this guards moved to /designer/corpus.
+html = app.test_client().get("/designer/corpus").get_data(as_text=True)
 cards = re.split(r'<div class="corpus-card', html)[1:]
 out = {"cards": len(cards), "rows": []}
 for c in cards:
