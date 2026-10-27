@@ -1,0 +1,105 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1316: Release designer 0.30.0 (T-1312 catalog picker, T-1314 field order)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-27T00:08:05Z
+# ============================================================================
+
+task_id: T-1316
+task_name: "Release designer 0.30.0 (T-1312 catalog picker, T-1314 field order)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-26T22:37:35Z
+completed: 2026-10-27T00:07:57Z
+duration_days: 1
+updates_count: 1
+first_commit: 2026-10-27T00:01:58+01:00
+last_commit: 2026-10-27T00:36:10+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  job 090 — release designer 0.30.0 (catalog picker, field order); as 088 but both commits name their paths, the release commit names only T-1316, and the notes check covers five endpoints. Dry-run passed, step 1 rehearsed. 0.30.0 — VERSION and APP_VERSION bumped by the release job (parity ok). release designer 0.30.0 — pick a ref from the project's field catalog; a new field lands with the fields; kit calibrated on its bytes. 0.30.0 released by job 090 (all 9 steps; calibration PASS x2; core green; tag on origin and mirror); AEF and greenfield told. T-1313: last criterion met (090 commits by pathspec)
+
+# Key outcomes
+outcomes:
+  - 'Job 090 passes its dry-run (step 1 rehearsed), is committed and handed over, with the watcher armed.'
+  - 'After the run: tag `designer-v0.30.0` on origin and the GitHub mirror; AEF and aef-greenfield-test told (version,'
+  - 'AEF''s pin is followed until `tools/_t1187-aef-pin-lag.sh` reads CURRENT. *(repin is AEF T-4795, dispatched 2026-10-27;'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/090-release-designer-0.30.0/dryrun.ok'
+  - '.context/runme/090-release-designer-0.30.0/job.sh'
+  - '.tasks/active/T-1313-core-tier-sandboxes-stage-files-in-the-r.md'
+  - '.tasks/active/T-1316-release-designer-0300-t-1312-catalog-pic.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.30.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.30.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.30.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.30.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.30.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.30.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.30.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.30.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.30.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.30.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.30.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.30.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.30.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.30.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.30.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.30.0.html'
+  - 'docs/authoring-kit/calibration-records/0.30.0.yaml'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-27T00:01:58'
+    action: 'T-1316: job 090 — release designer 0.30.0 (catalog picker, field order); as 088 but both commits name their paths, the release commit names only T-1316, and the notes check covers five endpoints. Dry-run passed, step 1 rehearsed'
+  - time: '2026-10-27T00:10:05'
+    action: 'T-1316: 0.30.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-10-27T00:18:24'
+    action: 'T-1316: release designer 0.30.0 — pick a ref from the project''s field catalog; a new field lands with the fields; kit calibrated on its bytes'
+  - time: '2026-10-27T00:36:10'
+    action: 'T-1316: 0.30.0 released by job 090 (all 9 steps; calibration PASS x2; core green; tag on origin and mirror); AEF and greenfield told. T-1313: last criterion met (090 commits by pathspec)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 90 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:structured-io]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 90
+  commits: 6
+  files_changed: 29
+  lines_added: 20044
+  lines_removed: 18
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1316-release-designer-0300-t-1312-catalog-pic.md
+generated_by: context-agent-hybrid
