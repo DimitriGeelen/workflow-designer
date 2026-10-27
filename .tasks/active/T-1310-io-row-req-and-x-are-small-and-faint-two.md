@@ -2,12 +2,17 @@
 id: T-1310
 name: "io row 'req' and 'x' are small and faint (two sweeps flagged it)"
 description: >
-  T-1305 and T-1302 advisory sweeps (codex): the 'req' label and the remove 'x' at the right of io rows and field rows are tiny and low-contrast (.io-del color var(--text-faint), 14px; .io-req span). The person-sees gate's contrast check passes, so measure them against AA for small text and the target-size guidance before changing. Pre-existing; arc-006 polish.
+  T-1305 and T-1302 advisory sweeps (codex): the 'req' label and the remove 'x' at
+  the right of io rows and field rows are tiny and low-contrast (.io-del color var(--text-faint),
+  14px; .io-req span). The person-sees gate's contrast check passes, so measure them
+  against AA for small text and the target-size guidance before changing. Pre-existing;
+  arc-006 polish.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-26T11:31:42Z
-last_update: 2026-10-26T11:31:42Z
-date_finished: null
+last_update: '2026-10-27T08:17:34Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,22 +55,65 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-27T08:17:34Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1310: io row 'req' and 'x' are small and faint (two sweeps flagged it)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Two advisory sweeps (T-1305, T-1302) found the io row's "req" label and remove "×" (and the same in field rows) tiny and
+faint. The person-sees gate's contrast check passes, so first measure what a person gets, then change only what fails.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Measured, in the rendered designer (dark and light theme), for the io row's req label, its checkbox, the io ×, the
+  field row's req and ×: the text contrast ratio against the actual background (WCAG AA small text: 4.5:1; for the ×,
+  a non-text control glyph: 3:1), and the clickable box size (WCAG 2.2 target size minimum 24×24 px, or spacing that
+  meets it). Numbers recorded here, per control and theme.
+  *(The designer has ONE theme (dark; `--text-faint` is defined once). `tools/_t1310-req-x-cdp.mjs --report`, 0.30.0
+  source, identical at 1024 and 1440: io req and field req — colour #5a6173 (`--text-faint`), 2.84:1 (needs 4.5:1),
+  box 37×14.5 px; io × and field × — 2.84:1 (needs 3:1), box 15.6×14 px. All four fail both checks. The gate's contrast
+  check does not cover these muted controls.)*
+- [x] Only what fails changes: colour (a token that meets the ratio in both themes) and/or the clickable area (padding
+  so the target is >= 24×24 without moving the row's layout). A CDP leg asserts the ratios and target sizes; red on the
+  current source for each control that fails, green after.
+  *(`.io-req`/`.io-del`: `--text-dim` (5.58:1) and a 24 px minimum box, glyph centred. `tools/_t1310-req-x-cdp.mjs`
+  (browser leg `_leg_198`): 16 failures on the 0.30.0 source (4 controls x contrast and size x 2 widths), 0 now.
+  `_t1301`, `_t1312`, `_t1249` green.)*
+- [ ] Person-sees gate exit 0; screenshots of io rows and field rows at 1024/1440/1920 read control by control; the
+  advisory sweep has run.
 
 ### Human
+- [ ] The io row and field row controls (req, ×) read clearly and are easy to hit, without drawing more attention than
+  the row's name and type, at every width
+  For the independent reviewer: `fw reviewer judge T-1310 --criterion 1` (render-surface, no operator carve-out).
+  **Steps:** 1. Open the T-1310 evidence screenshots named in `## Visual Verification` (io rows closed and open, field
+  rows) at 1024/1440/1920. 2. Compare with the same states in `docs/reports/T-1312-evidence/`.
+  **Expected:** req and × are legible and clearly controls; neither competes with the name/type fields; nothing moved
+  otherwise.
+  **If not:** name the file, the row and the control.
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -111,7 +159,19 @@ date_finished: null
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
 
+## Visual Verification
+
+Screenshots: `docs/reports/T-1310-evidence/` (`T1249S_CATALOG=1 node tools/_t1249-v11-io-shots.mjs docs/reports/T-1310-evidence`,
+121 files, every state of T-1312-evidence). Person-sees gate exit 0 (240 s). Read control by control:
+- `stylea-step-1440-panel`: each of the three io rows: name, type select, req (checkbox + label) and × at the panel's label
+  grey, legible; they read as quieter than name/type; rows at the same positions as in T-1312-evidence.
+- `fields-edit-1024-panel-end`: each field row's line 2 (role, cardinality, req, ×): req and × legible beside the
+  cardinality select; each row still two lines; "+ add field" unchanged; the closed outputs below unchanged.
+Measured (the CDP leg): 5.58:1 (was 2.84:1); boxes req 37×24, × 24×24 (were 37×14.5, 15.6×14), at 1024 and 1440.
+
 ## Verification
+
+node tools/_t1310-req-x-cdp.mjs > .context/working/t1310-v.out 2>&1 && head -2 .context/working/t1310-v.out | grep -q '"ok": true'
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -345,3 +405,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1310-io-row-req-and-x-are-small-and-faint-two.md
 - **Context:** Initial task creation
+
+### 2026-10-27T08:17:33Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

@@ -1423,6 +1423,21 @@ else
 fi
 }
 leg browser "_t1312-catalog-picker-cdp" _leg_197
+_leg_198() {
+
+# ── T-1310: the io row's and field row's "req" and "×" are legible and big enough to hit ──
+# Measured in the rendered designer at 1024 and 1440: label contrast >= 4.5:1, × >= 3:1 against the effective
+# background, clickable box >= 24×24 px (WCAG 2.2 target minimum). Red on the 0.30.0 source (2.84:1, 37×14.5 and 15.6×14).
+if node "$ROOT/tools/_t1310-req-x-cdp.mjs" > "$TMP/leg-_t1310.out" 2>&1 \
+   && head -2 "$TMP/leg-_t1310.out" | grep -q '"ok": true'; then
+  pass=$((pass + 1))
+else
+  report FAIL "an io/field row's req or × is below AA contrast or the 24×24 px target size again (run 'node tools/_t1310-req-x-cdp.mjs'; T-1310)"
+  show_output "$TMP/leg-_t1310.out" "_t1310-req-x-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1310-req-x-cdp" _leg_198
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
