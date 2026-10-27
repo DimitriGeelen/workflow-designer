@@ -350,6 +350,12 @@ Read control by control:
   under the editor; the editor's rows (typeRef, operation, fields) unchanged.
 Measured (the CDP leg `_leg_200`): each finding under its own io only; a clean step's panel byte-identical (inline style
 aside) before and after Check; every line inside the panel and on top at 1024 and 1440; red on 0.30.0 (a, b, f).
+Person-sees gate: exit 0 (243 s).
+- **Sweep (codex, `.context/working/t1303-sweep.out`): 5 OK, 1 minor.** OK: each finding reads as belonging to the row
+  above it (contact ERROR, account WARN, opp's two ERRORs, and with an editor open); orange vs red edge distinct; clean
+  rows show nothing; no clipping or overlap at any width. Minor: the rule id is small and muted, "similar to the summary
+  labels". Kept on purpose: the rule id is reference text, in the panel's label grey (the same token the gate's contrast
+  check passes for the summary), and the severity word plus the message carry the meaning.
 
 ## RCA
 
