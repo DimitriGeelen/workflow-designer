@@ -106,7 +106,7 @@ faint. The person-sees gate's contrast check passes, so first measure what a per
   advisory sweep has run.
 
 ### Human
-- [ ] The io row and field row controls (req, ×) read clearly and are easy to hit, without drawing more attention than
+- [x] The io row and field row controls (req, ×) read clearly and are easy to hit, without drawing more attention than
   the row's name and type, at every width
   For the independent reviewer: `fw reviewer judge T-1310 --criterion 1` (render-surface, no operator carve-out).
   **Steps:** 1. Open the T-1310 evidence screenshots named in `## Visual Verification` (io rows closed and open, field
@@ -159,6 +159,7 @@ faint. The person-sees gate's contrast check passes, so first measure what a per
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261027-384fba71 — reviewer-judge-t-1310-r3-dc7a8cb02372:reviewer (rung rung-3-termlink-single-reviewer), digest b926bbf2fcb0; dispatch judge-t-1310-r3-dc7a8cb02372; evidence: .context/reviews/evidence/T-1310/AC1-judge-t-1310-r3-dc7a8cb02372.md, .context/reviews/evidence/T-1310/stylea-step-1440-panel-cmp-judge-t-1310-r3-dc7a8cb02372.png, .context/reviews/evidence/T-1310/fields-edit-1024-panel-end-cmp-judge-t-1310-r3-dc7a8cb02372.png; ledger .context/reviews/verdicts.jsonl
 
 ## Visual Verification
 
