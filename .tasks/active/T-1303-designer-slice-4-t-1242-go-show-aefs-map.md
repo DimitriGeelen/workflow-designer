@@ -1,13 +1,17 @@
 ---
 id: T-1303
-name: "Designer slice 4 (T-1242 GO): show AEF's mapping v1.1 lint findings on the io"
+name: "Designer slice 4 (T-1242 GO): show AEF's mapping v1.1 lint findings on the
+  io"
 description: >
-  After slice 3: surface AEF's v1.1 lint rules (e.g. a match without fieldRef/path, update/upsert/delete without a match field, undeclared prefix) on the io in the designer, through the one validator (/api/validate), not a JS copy.
+  After slice 3: surface AEF's v1.1 lint rules (e.g. a match without fieldRef/path,
+  update/upsert/delete without a match field, undeclared prefix) on the io in the
+  designer, through the one validator (/api/validate), not a JS copy.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [arc:structured-io]
 components: []
 related_tasks: []
@@ -39,8 +43,8 @@ arc_id: structured-io
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-24T21:04:24Z
-last_update: 2026-10-24T22:20:31Z
-date_finished: null
+last_update: '2026-10-27T08:47:20Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -51,20 +55,64 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-27T08:47:20Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1303: Designer slice 4 (T-1242 GO): show AEF's mapping v1.1 lint findings on the io
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Slice 4 of arc-006. AEF's mapping v1.1 spec (vendored: `.agentic-framework/docs/reports/T-4415-structured-io-attributes.md`)
+names lint rules. The ones decidable from the map alone, in scope here:
+- **R1, ERROR:** an io with `operation` update, upsert or delete and no `aef:field role="match"` (spec: "A map must never
+  be readable as 'delete everything' or 'update everything'").
+- **R2, ERROR:** an undeclared prefix in `fieldRef`, `typeRef` or `conceptRef` (io attribute or `aef:field`) — not in
+  `ref` (v1 attribute; its read rule is separate) and not `http`/`https`/`urn` (the designer's hint, T-1301, uses the same
+  test).
+- **R3, WARN:** a `role="match"` field with neither `fieldRef` nor `path` ("a key exists but is not yet determined").
+Out of scope, recorded: the type-level rules (an expectation contradicting / implied by its type; `path` must resolve in
+the type) need AEF's type registry; the summary/detail key mismatch needs the linked map.
+
+**Scoping found (2026-10-27):** the validator has TWO forms kept equal by a parity census (XML `XmlValidator` and the
+canonical YAML form, T-320/T-322), and rule ids feed the authoring kit's rule table (the dialect axis,
+`tests/test_rule_dialect_axis.py`), a release input that is calibrated. So R1-R3 land in both forms, the parity census,
+and the kit; the designer then shows the findings on the io. Not started at the end of a long session on purpose.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Corpus first: how many maps in this repo (and greenfield's VZN-T1 shape fixtures) would each rule flag; an ERROR on a
+  map that saves today is a behaviour change (check whether `POST /api/save` refuses on ERROR, T-973) and is decided
+  before the rule ships, not after.
+- [ ] R1-R3 in BOTH validator forms with the same ids and severities; the parity census stays green; a test per rule with
+  a positive and a negative map (and R2's http/urn and `ref` exclusions); red before, green after.
+- [ ] The kit's rule table and dialect axis carry the new ids (`tests/test_rule_dialect_axis.py` green); the kit change
+  is noted for the next release's calibration.
+- [ ] Designer: after Check, a finding whose location is an io shows under that io row in the panel (rule id, message),
+  besides the existing drawer and canvas marker; a CDP leg drives Check against the real server and asserts it; no
+  finding = the panel exactly as before.
+- [ ] Person-sees gate exit 0; screenshots of an io with each finding at 1024/1440/1920; sweep; reviewer criterion.
+- [ ] Released, then greenfield sees a finding on a copy of its own map (arc-006 rule), on AEF once AEF serves
+  `/api/validate` (T-4737 GO for validate, 2026-10-27).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -349,3 +397,7 @@ date_finished: null
 
 ### 2026-10-24T22:20:31Z — status-update [task-update-agent]
 - **Change:** tags: +arc:structured-io
+
+### 2026-10-27T08:47:20Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
