@@ -1,13 +1,20 @@
 ---
 id: T-1281
-name: "Upgrade AEF be.8 -> v1.8.15-be.9 or later (batched): T-4689 runtime ignores, T-4690/T-4694 episodic not dirtied, T-4691/T-4692 upgrade summary, T-4693 watchtower current"
+name: "Upgrade AEF be.8 -> v1.8.15-be.9 or later (batched): T-4689 runtime ignores,
+  T-4690/T-4694 episodic not dirtied, T-4691/T-4692 upgrade summary, T-4693 watchtower
+  current"
 description: >
-  AEF cut v1.8.15-be.9 at e9fb67bc9 (msg 710fe81b) while 832 was mid-suite on be.8. None of its fixes blocks 832, so it is batched with whatever tag is newest when this task starts, instead of a fourth operator upgrade run in one day. Same path as T-1280 (job 081). After upgrading, run fw git install-hooks (AEF's note for T-4690) and check our three pre-commit gates survive it.
+  AEF cut v1.8.15-be.9 at e9fb67bc9 (msg 710fe81b) while 832 was mid-suite on be.8.
+  None of its fixes blocks 832, so it is batched with whatever tag is newest when
+  this task starts, instead of a fourth operator upgrade run in one day. Same path
+  as T-1280 (job 081). After upgrading, run fw git install-hooks (AEF's note for T-4690)
+  and check our three pre-commit gates survive it.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [upgrade, framework]
 components: []
 related_tasks: []
@@ -38,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-23T13:55:00Z
-last_update: 2026-10-23T13:55:00Z
-date_finished: null
+last_update: '2026-10-26T23:52:14Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +57,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-26T23:52:14Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 2
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 2
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=2 (body:telemetry-or-audit-entry); D3=0 (no-signal);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=termlink); F1=0 (basis: task body — no hypothesis, so this
+      score has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1281: Upgrade AEF be.8 -> v1.8.15-be.9 or later (batched): T-4689 runtime ignores, T-4690/T-4694 episodic not dirtied, T-4691/T-4692 upgrade summary, T-4693 watchtower current
@@ -154,9 +181,16 @@ Tags to batch (take the newest when this starts):
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] **Job 091 ran to `done`:** be.8 (04dc39868) -> v1.8.15-be.28 (81c2d5e82, lightweight tag); version_sha 81c2d5e82;
+  pristine and baseline commits present; TermLink key settings unchanged; crontab on the vendored fw; templates settled.
+- [ ] **832's local fixes re-applied** (re-vendor protocol, T-1000): `tools/_t517` OK; every `*.bak` diffed and removed or
+  reported (CLAUDE.md rule); `_t1192` templates settled; the pre-push hook re-installed (`tools/_t1000-install-hook.sh`).
+- [ ] **Core tier green** on the upgraded tree (the push gate); anything red is explained (ours / AEF's / environment) and
+  owned, never pushed past.
+- [ ] **AEF field report** on `aef-v1815-be3`, WORKS/FAILS per fix exercised, at least: T-4777 (a sandbox close no longer
+  stages into an enclosing repo: run `_t630` with the T-1313 ceiling REMOVED and the index stays empty), T-4779 (a release
+  commit's dist/ copy no longer withdraws a verdict), T-4768 (decide commits the provenance row; our pathspec guards
+  accept it), T-4781 (per-project tmux server after the operator's relaunch).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -438,3 +472,7 @@ Tags to batch (take the newest when this starts):
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1281-upgrade-aef-be8---v1815-be9-or-later-bat.md
 - **Context:** Initial task creation
+
+### 2026-10-26T23:52:13Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
