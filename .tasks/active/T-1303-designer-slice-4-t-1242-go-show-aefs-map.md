@@ -130,15 +130,20 @@ and the kit; the designer then shows the findings on the io. Not started at the 
   *(Dialect axis: carrier `aef:io v1.1` (semantic-optional, UNRATIFIED 5 -> 6: v1.1 is AEF's spec, not the frozen v1
   standard), CONSTRAINS, so all three derive UNIVERSAL. A scratch kit build lists all three rows in CONFORMANCE.md.
   **For the next release:** the kit's validator bytes change, so the kit needs recalibrating (an operator job).)*
-- [ ] Designer: after Check, a finding whose location is an io shows under that io row in the panel (rule id, message),
+- [x] Designer: after Check, a finding whose location is an io shows under that io row in the panel (rule id, message),
   besides the existing drawer and canvas marker; a CDP leg drives Check against the real server and asserts it; no
   finding = the panel exactly as before.
-- [ ] Person-sees gate exit 0; screenshots of an io with each finding at 1024/1440/1920; sweep; reviewer criterion.
+  *(`ioFindingsBlock` (51e7db08), matched on node, kind, index and name. `tools/_t1303-io-findings-cdp.mjs`, browser leg
+  `_leg_200`: green 4/4 runs, red on the 0.30.0 source (a, b, f).)*
+- [x] Person-sees gate exit 0; screenshots of an io with each finding at 1024/1440/1920; sweep; reviewer criterion.
+  *(Gate exit 0 (243 s); `docs/reports/T-1303-evidence/findings-*`; sweep 5 OK / 1 minor kept; reviewer GREEN-DEGRADED
+  V-20261027-cb560298 (claude-code and codex green; opencode: rounds 1-2 voided by a .pyc the harness's server wrote,
+  fixed in 3af04462; round 3 no verdict, its sandbox refused a write to its own scratch directory).)*
 - [ ] Released, then greenfield sees a finding on a copy of its own map (arc-006 rule), on AEF once AEF serves
   `/api/validate` (T-4737 GO for validate, 2026-10-27).
 
 ### Human
-- [ ] A Check finding on an io reads as belonging to that io and says what is wrong, without crowding the io's own
+- [x] A Check finding on an io reads as belonging to that io and says what is wrong, without crowding the io's own
   rows, at every width
   For the independent reviewer: `fw reviewer judge T-1303 --criterion 1` (render-surface, no operator carve-out).
   **Steps:** 1. Open the `findings-*` screenshots in `docs/reports/T-1303-evidence/` named in `## Visual Verification`
@@ -192,6 +197,7 @@ and the kit; the designer then shows the findings on the io. Not started at the 
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261027-cb560298 — reviewer-judge-t-1303-r5-codex-2eba7f7f961e:codex (rung rung-5-panel:codex), digest a875f67f8d97; dispatch judge-t-1303-r5-codex-2eba7f7f961e; GREEN-DEGRADED: run run-t-1303-05571671cb closed on 2 green seat(s) of distinct vendors (claude-code [anthropic], codex [openai]); unavailable: opencode (exit 0, no verdict (dispatch judge-t-1303-r5-opencode-554edd6226fa)); evidence: .context/reviews/evidence/T-1303/AC1-judge-t-1303-r5-codex-2eba7f7f961e.md; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
