@@ -1,0 +1,219 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1310: io row 'req' and 'x' are small and faint (two sweeps flagged it)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-27T08:34:25Z
+# ============================================================================
+
+task_id: T-1310
+task_name: "io row 'req' and 'x' are small and faint (two sweeps flagged it)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-26T11:31:42Z
+completed: 2026-10-27T08:34:14Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-27T09:25:03+01:00
+last_commit: 2026-10-27T09:34:13+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  io and field rows' req and × measured (2.84:1 contrast, 37×14.5 and 15.6×14 px boxes: every control failed AA and the 24 px target) and fixed (--text-dim 5.58:1, 24 px boxes); tools/_t1310-req-x-cdp.mjs (browser leg) red on 0.30.0, green now; gate exit 0; 121 shots. the 24 px target comes from a ::after hit area, not bigger boxes — the sweep found the boxes had narrowed name/type and made field rows taller; the leg now probes a 24×24 square by elementFromPoint and fails if a box grows; shots geometrically identical to 0.30.0 apart from the lighter req/×; gate exit 0. gate, shots and sweep criterion met. reviewer verdict. reviewer green applied
+
+# Key outcomes
+outcomes:
+  - 'Measured, in the rendered designer (dark and light theme), for the io row''s req label, its checkbox, the io ×, the'
+  - 'Only what fails changes: colour (a token that meets the ratio in both themes) and/or the clickable area (padding'
+  - 'Person-sees gate exit 0; screenshots of io rows and field rows at 1024/1440/1920 read control by control; the'
+  - 'The io row and field row controls (req, ×) read clearly and are easy to hit, without drawing more attention than'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'io and field rows'' req and × measured (2.84:1 contrast, 37×14.5 and 15.6×14 px boxes: every control failed AA and the 24 px target) and fixed (--text-dim 5.58:1, 24 px boxes); tools/_t1310-req-x-cdp.mjs (browser leg) red on 0.30.0, green now; gate exit 0; 121 shots'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1310/AC1-judge-t-1310-r3-dc7a8cb02372.md'
+  - '.context/reviews/evidence/T-1310/fields-edit-1024-panel-end-cmp-judge-t-1310-r3-dc7a8cb02372.png'
+  - '.context/reviews/evidence/T-1310/stylea-step-1440-panel-cmp-judge-t-1310-r3-dc7a8cb02372.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1310-io-row-req-and-x-are-small-and-faint-two.md'
+  - 'docs/reports/T-1310-evidence/catalog-more-1024-panel-end.png'
+  - 'docs/reports/T-1310-evidence/catalog-more-1024-panel.png'
+  - 'docs/reports/T-1310-evidence/catalog-more-1024.png'
+  - 'docs/reports/T-1310-evidence/catalog-more-1440-panel-end.png'
+  - 'docs/reports/T-1310-evidence/catalog-more-1440-panel.png'
+  - 'docs/reports/T-1310-evidence/catalog-more-1440.png'
+  - 'docs/reports/T-1310-evidence/catalog-more-1920-panel-end.png'
+  - 'docs/reports/T-1310-evidence/catalog-more-1920-panel.png'
+  - 'docs/reports/T-1310-evidence/catalog-more-1920.png'
+  - 'docs/reports/T-1310-evidence/catalog-none-1024-panel-end.png'
+  - 'docs/reports/T-1310-evidence/catalog-none-1024-panel.png'
+  - 'docs/reports/T-1310-evidence/catalog-none-1024.png'
+  - 'docs/reports/T-1310-evidence/catalog-none-1440-panel.png'
+  - 'docs/reports/T-1310-evidence/catalog-none-1440.png'
+  - 'docs/reports/T-1310-evidence/catalog-none-1920-panel.png'
+  - 'docs/reports/T-1310-evidence/catalog-none-1920.png'
+  - 'docs/reports/T-1310-evidence/catalog-stylea-1024-panel-end.png'
+  - 'docs/reports/T-1310-evidence/catalog-stylea-1024-panel.png'
+  - 'docs/reports/T-1310-evidence/catalog-stylea-1024.png'
+  - 'docs/reports/T-1310-evidence/catalog-stylea-1440-panel-end.png'
+  - 'docs/reports/T-1310-evidence/catalog-stylea-1440-panel.png'
+  - 'docs/reports/T-1310-evidence/catalog-stylea-1440.png'
+  - 'docs/reports/T-1310-evidence/catalog-stylea-1920-panel-end.png'
+  - 'docs/reports/T-1310-evidence/catalog-stylea-1920-panel.png'
+  - 'docs/reports/T-1310-evidence/catalog-stylea-1920.png'
+  - 'docs/reports/T-1310-evidence/catalog-v1-1024-panel-end.png'
+  - 'docs/reports/T-1310-evidence/catalog-v1-1024-panel.png'
+  - 'docs/reports/T-1310-evidence/catalog-v1-1024.png'
+  - 'docs/reports/T-1310-evidence/catalog-v1-1440-panel-end.png'
+  - 'docs/reports/T-1310-evidence/catalog-v1-1440-panel.png'
+  - 'docs/reports/T-1310-evidence/catalog-v1-1440.png'
+  - 'docs/reports/T-1310-evidence/catalog-v1-1920-panel-end.png'
+  - 'docs/reports/T-1310-evidence/catalog-v1-1920-panel.png'
+  - 'docs/reports/T-1310-evidence/catalog-v1-1920.png'
+  - 'docs/reports/T-1310-evidence/empty-step-1024-panel.png'
+  - 'docs/reports/T-1310-evidence/empty-step-1024.png'
+  - 'docs/reports/T-1310-evidence/empty-step-1440-panel.png'
+  - 'docs/reports/T-1310-evidence/empty-step-1440.png'
+  - 'docs/reports/T-1310-evidence/empty-step-1920-panel.png'
+  - 'docs/reports/T-1310-evidence/empty-step-1920.png'
+  - 'docs/reports/T-1310-evidence/field-add-1024-panel-end.png'
+  - 'docs/reports/T-1310-evidence/field-add-1024-panel.png'
+  - 'docs/reports/T-1310-evidence/field-add-1024.png'
+  - 'docs/reports/T-1310-evidence/field-add-1440-panel-end.png'
+  - 'docs/reports/T-1310-evidence/field-add-1440-panel.png'
+  - 'docs/reports/T-1310-evidence/field-add-1440.png'
+  - 'docs/reports/T-1310-evidence/field-add-1920-panel-end.png'
+  - 'docs/reports/T-1310-evidence/field-add-1920-panel.png'
+  - 'docs/reports/T-1310-evidence/field-add-1920.png'
+  - 'docs/reports/T-1310-evidence/fields-edit-1024-panel-end.png'
+  - 'docs/reports/T-1310-evidence/fields-edit-1024-panel.png'
+  - 'docs/reports/T-1310-evidence/fields-edit-1024.png'
+  - 'docs/reports/T-1310-evidence/fields-edit-1440-panel-end.png'
+  - 'docs/reports/T-1310-evidence/fields-edit-1440-panel.png'
+  - 'docs/reports/T-1310-evidence/fields-edit-1440.png'
+  - 'docs/reports/T-1310-evidence/fields-edit-1920-panel-end.png'
+  - 'docs/reports/T-1310-evidence/fields-edit-1920-panel.png'
+  - 'docs/reports/T-1310-evidence/fields-edit-1920.png'
+  - 'docs/reports/T-1310-evidence/fields-when-1024-panel-end.png'
+  - 'docs/reports/T-1310-evidence/fields-when-1024-panel.png'
+  - 'docs/reports/T-1310-evidence/fields-when-1024.png'
+  - 'docs/reports/T-1310-evidence/fields-when-1440-panel-end.png'
+  - 'docs/reports/T-1310-evidence/fields-when-1440-panel.png'
+  - 'docs/reports/T-1310-evidence/fields-when-1440.png'
+  - 'docs/reports/T-1310-evidence/fields-when-1920-panel-end.png'
+  - 'docs/reports/T-1310-evidence/fields-when-1920-panel.png'
+  - 'docs/reports/T-1310-evidence/fields-when-1920.png'
+  - 'docs/reports/T-1310-evidence/hint-edit-1024-panel.png'
+  - 'docs/reports/T-1310-evidence/hint-edit-1024.png'
+  - 'docs/reports/T-1310-evidence/hint-edit-1440-panel.png'
+  - 'docs/reports/T-1310-evidence/hint-edit-1440.png'
+  - 'docs/reports/T-1310-evidence/hint-edit-1920-panel.png'
+  - 'docs/reports/T-1310-evidence/hint-edit-1920.png'
+  - 'docs/reports/T-1310-evidence/longname-1024-panel-end.png'
+  - 'docs/reports/T-1310-evidence/longname-1024-panel.png'
+  - 'docs/reports/T-1310-evidence/longname-1024.png'
+  - 'docs/reports/T-1310-evidence/longname-1440-panel.png'
+  - 'docs/reports/T-1310-evidence/longname-1440.png'
+  - 'docs/reports/T-1310-evidence/longname-1920-panel.png'
+  - 'docs/reports/T-1310-evidence/longname-1920.png'
+  - 'docs/reports/T-1310-evidence/stylea-edit-1024-panel-end.png'
+  - 'docs/reports/T-1310-evidence/stylea-edit-1024-panel.png'
+  - 'docs/reports/T-1310-evidence/stylea-edit-1024.png'
+  - 'docs/reports/T-1310-evidence/stylea-edit-1440-panel-end.png'
+  - 'docs/reports/T-1310-evidence/stylea-edit-1440-panel.png'
+  - 'docs/reports/T-1310-evidence/stylea-edit-1440.png'
+  - 'docs/reports/T-1310-evidence/stylea-edit-1920-panel-end.png'
+  - 'docs/reports/T-1310-evidence/stylea-edit-1920-panel.png'
+  - 'docs/reports/T-1310-evidence/stylea-edit-1920.png'
+  - 'docs/reports/T-1310-evidence/stylea-step-1024-panel.png'
+  - 'docs/reports/T-1310-evidence/stylea-step-1024.png'
+  - 'docs/reports/T-1310-evidence/stylea-step-1440-panel.png'
+  - 'docs/reports/T-1310-evidence/stylea-step-1440.png'
+  - 'docs/reports/T-1310-evidence/stylea-step-1920-panel.png'
+  - 'docs/reports/T-1310-evidence/stylea-step-1920.png'
+  - 'docs/reports/T-1310-evidence/v1-edit-1024-panel.png'
+  - 'docs/reports/T-1310-evidence/v1-edit-1024.png'
+  - 'docs/reports/T-1310-evidence/v1-edit-1440-panel.png'
+  - 'docs/reports/T-1310-evidence/v1-edit-1440.png'
+  - 'docs/reports/T-1310-evidence/v1-edit-1920-panel.png'
+  - 'docs/reports/T-1310-evidence/v1-edit-1920.png'
+  - 'docs/reports/T-1310-evidence/v1-step-1024-panel.png'
+  - 'docs/reports/T-1310-evidence/v1-step-1024.png'
+  - 'docs/reports/T-1310-evidence/v1-step-1440-panel.png'
+  - 'docs/reports/T-1310-evidence/v1-step-1440.png'
+  - 'docs/reports/T-1310-evidence/v1-step-1920-panel.png'
+  - 'docs/reports/T-1310-evidence/v1-step-1920.png'
+  - 'docs/reports/T-1310-evidence/v11-step-1024-panel-end.png'
+  - 'docs/reports/T-1310-evidence/v11-step-1024-panel.png'
+  - 'docs/reports/T-1310-evidence/v11-step-1024.png'
+  - 'docs/reports/T-1310-evidence/v11-step-1440-panel-end.png'
+  - 'docs/reports/T-1310-evidence/v11-step-1440-panel.png'
+  - 'docs/reports/T-1310-evidence/v11-step-1440.png'
+  - 'docs/reports/T-1310-evidence/v11-step-1920-panel.png'
+  - 'docs/reports/T-1310-evidence/v11-step-1920.png'
+  - 'docs/reports/T-1310-evidence/workflow-1024-panel.png'
+  - 'docs/reports/T-1310-evidence/workflow-1024.png'
+  - 'docs/reports/T-1310-evidence/workflow-1440-panel.png'
+  - 'docs/reports/T-1310-evidence/workflow-1440.png'
+  - 'docs/reports/T-1310-evidence/workflow-1920-panel.png'
+  - 'docs/reports/T-1310-evidence/workflow-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1310-req-x-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-27T09:25:03'
+    action: 'T-1310: io and field rows'' req and × measured (2.84:1 contrast, 37×14.5 and 15.6×14 px boxes: every control failed AA and the 24 px target) and fixed (--text-dim 5.58:1, 24 px boxes); tools/_t1310-req-x-cdp.mjs (browser leg) red on 0.30.0, green now; gate exit 0; 121 shots'
+  - time: '2026-10-27T09:32:08'
+    action: 'T-1310: the 24 px target comes from a ::after hit area, not bigger boxes — the sweep found the boxes had narrowed name/type and made field rows taller; the leg now probes a 24×24 square by elementFromPoint and fails if a box grows; shots geometrically identical to 0.30.0 apart from the lighter req/×; gate exit 0'
+  - time: '2026-10-27T09:32:17'
+    action: 'T-1310: gate, shots and sweep criterion met'
+  - time: '2026-10-27T09:33:39'
+    action: 'T-1310: reviewer verdict'
+  - time: '2026-10-27T09:34:13'
+    action: 'T-1310: reviewer green applied'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 1262 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1262
+  commits: 5
+  files_changed: 134
+  lines_added: 296
+  lines_removed: 27
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1310-io-row-req-and-x-are-small-and-faint-two.md
+generated_by: context-agent-hybrid
