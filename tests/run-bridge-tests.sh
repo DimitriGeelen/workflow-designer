@@ -1439,6 +1439,22 @@ else
 fi
 }
 leg browser "_t1310-req-x-cdp" _leg_198
+_leg_200() {
+
+# ── T-1303: after Check, a mapping v1.1 lint finding shows under the io row it names ──
+# The real editor against the real server's /api/validate: each finding under its own io (input vs output, index and
+# name), none on a clean io or step (that panel unchanged), drawer and canvas unchanged, a renamed io and a closed
+# drawer show none, every line inside the panel at 1024 and 1440. Red on the 0.30.0 source (a, b, f).
+if node "$ROOT/tools/_t1303-io-findings-cdp.mjs" > "$TMP/leg-_t1303.out" 2>&1 \
+   && head -2 "$TMP/leg-_t1303.out" | grep -q '"ok": true'; then
+  pass=$((pass + 1))
+else
+  report FAIL "a Check finding on an io no longer shows under that io's row, shows under the wrong one, or changes a clean step's panel (run 'node tools/_t1303-io-findings-cdp.mjs'; T-1303)"
+  show_output "$TMP/leg-_t1303.out" "_t1303-io-findings-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1303-io-findings-cdp" _leg_200
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
