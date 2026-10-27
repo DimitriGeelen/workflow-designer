@@ -141,6 +141,12 @@ ANCHOR = {
     "E-XML-LANE-AUTHORING-DEFAULT":     "LANE",   # "lane '<id>'"
     "E-XML-META-AUTHORITY":             "NODE",   # "node '<id>'"
     "W-XML-AUTHORITY-DEFAULT-MISMATCH": "NODE",   # "node '<id>'"
+    # T-1303: mapping v1.1 io lint. The location is node '<id>' <input|output>[i] "<name>": the node's id is the only
+    # single-quoted token, so the canvas marks the step; the io part lets the panel place it under that io row. Witnessed by
+    # tests/fixtures/invalid/E-XML-IO-*.bpmn and warn/W-XML-IO-MATCH-UNRESOLVED.bpmn (no corpus map uses v1.1 yet).
+    "E-XML-IO-MATCH-MISSING":           "NODE",
+    "E-XML-IO-PREFIX-UNDECLARED":       "NODE",
+    "W-XML-IO-MATCH-UNRESOLVED":        "NODE",
 }
 
 GUTTERABLE = {"NODE", "LANE"}

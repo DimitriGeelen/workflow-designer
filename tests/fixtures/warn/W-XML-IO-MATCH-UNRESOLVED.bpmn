@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-1303 R3 fixture: a match field with neither fieldRef nor path -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t"><bpmn:extensionElements><aef:meta mappingVersion="1.1"><aef:prefixes><aef:prefix name="sfdc" iri="https://example.org/sfdc#" kind="field"/></aef:prefixes></aef:meta></bpmn:extensionElements>
+    <bpmn:laneSet id="LS"><bpmn:lane id="agent" name="Agent">
+      <bpmn:flowNodeRef>s</bpmn:flowNodeRef><bpmn:flowNodeRef>T1</bpmn:flowNodeRef><bpmn:flowNodeRef>e</bpmn:flowNodeRef>
+    </bpmn:lane></bpmn:laneSet>
+    <bpmn:startEvent id="s"/>
+    <bpmn:task id="T1" name="Write"><bpmn:extensionElements><aef:io><aef:output name="opp" typeRef="sfdc:Opp" operation="update"><aef:field role="match"/></aef:output></aef:io></bpmn:extensionElements></bpmn:task>
+    <bpmn:endEvent id="e"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="s" targetRef="T1"/>
+    <bpmn:sequenceFlow id="f2" sourceRef="T1" targetRef="e"/>
+  </bpmn:process>
+</bpmn:definitions>

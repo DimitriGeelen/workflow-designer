@@ -248,6 +248,16 @@ PARITY = {
     "W-XML-GW-DEFAULT-NOT-OWN": (OUT_OF_SCOPE, "T-1284: the YAML form has no default REFERENCE (its default is "
                                                "simply the one unconditioned edge), so a default naming another "
                                                "node's flow cannot be written there"),
+    # T-1303: mapping v1.1 lint on the io (AEF spec T-4415). OUT-OF-SCOPE by measurement, not by corpus: the YAML
+    # form reaches BPMN only through tools/yaml-to-bpmn.py, which writes an io's name, type and required and nothing
+    # else, so operation, fieldRef / typeRef / conceptRef, aef:field and aef:prefixes cannot be written there. The
+    # probe reads the bridge: the day it emits any of them, these turn into GAPs.
+    "E-XML-IO-MATCH-MISSING":     (OUT_OF_SCOPE, "T-1303 R1: io operation + aef:field role=match; the YAML "
+                                                 "bridge writes neither"),
+    "E-XML-IO-PREFIX-UNDECLARED": (OUT_OF_SCOPE, "T-1303 R2: fieldRef/typeRef/conceptRef against aef:prefixes; "
+                                                 "the YAML bridge writes none of them"),
+    "W-XML-IO-MATCH-UNRESOLVED":  (OUT_OF_SCOPE, "T-1303 R3: aef:field role=match without fieldRef/path; the YAML "
+                                                 "bridge writes no aef:field"),
     "W-XML-PGW-CONDITION":  (PAIRED, "W-PGW-CONDITION"),
     "W-XML-PGW-NOOP":       (PAIRED, "W-PGW-NOOP"),
     "W-XML-PGW-UNBALANCED": (PAIRED, "W-PGW-UNBALANCED"),
@@ -330,10 +340,28 @@ def _yaml_bridge_emits_gateway_default(_corpus):
             if re.search(r"""(\bdefault=\\?["'{]|["']default["']\s*[:,\]])""", ln) and not ln.lstrip().startswith("#")]
 
 
+def _yaml_bridge_emits_io_v11(_corpus):
+    """T-1303 probe: can the YAML form carry mapping v1.1's io constructs (operation, fieldRef / typeRef /
+    conceptRef, aef:field, aef:prefixes)?
+
+    Answered from the bridge's source, as for T-1284: any non-comment line that writes one of them makes the
+    constructs expressible and turns the three T-1303 rules into GAPs.
+    """
+    path = os.path.join(ROOT, "tools", "yaml-to-bpmn.py")
+    src = open(path, encoding="utf-8").read()   # missing bridge RAISES: never a silent "not expressible"
+    return [ln.strip() for ln in src.splitlines()
+            if re.search(r"""(\b(operation|fieldRef|typeRef|conceptRef)=|aef:field\b|aef:prefix)""", ln)
+            and not ln.lstrip().startswith("#")]
+
+
 # T-1284: the first real entry. Until then this table was empty and exercised only by the negative controls.
 OUT_OF_SCOPE_PROBES = {
     "W-XML-GW-DEFAULT-NOT-OWN": ("a gateway default reference (BPMN @default) on the YAML form",
                                  _yaml_bridge_emits_gateway_default),
+    "E-XML-IO-MATCH-MISSING":     ("an io operation or aef:field on the YAML form", _yaml_bridge_emits_io_v11),
+    "E-XML-IO-PREFIX-UNDECLARED": ("fieldRef / typeRef / conceptRef or aef:prefixes on the YAML form",
+                                   _yaml_bridge_emits_io_v11),
+    "W-XML-IO-MATCH-UNRESOLVED":  ("an aef:field on the YAML form", _yaml_bridge_emits_io_v11),
 }
 
 # Counted tolerance. Derived by hand from the census, re-derive it there rather

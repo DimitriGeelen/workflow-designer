@@ -113,10 +113,23 @@ and the kit; the designer then shows the findings on the io. Not started at the 
   release. **Save:** save-time validation is advisory and never refuses (`tools/gallery-serve.py` `_save_validation`,
   T-956 ruling), so an ERROR changes what a person sees, never whether a map saves. Decision: ship R1/R2 as ERROR and R3
   as WARN, as the spec says.)*
-- [ ] R1-R3 in BOTH validator forms with the same ids and severities; the parity census stays green; a test per rule with
+- [x] R1-R3 in BOTH validator forms with the same ids and severities; the parity census stays green; a test per rule with
   a positive and a negative map (and R2's http/urn and `ref` exclusions); red before, green after.
-- [ ] The kit's rule table and dialect axis carry the new ids (`tests/test_rule_dialect_axis.py` green); the kit change
+  *(Measured correction: the YAML form CANNOT write these constructs. Its only road to BPMN, `tools/yaml-to-bpmn.py`,
+  writes an io's name, type and required, nothing else, so R1-R3 are XML-only and classified OUT-OF-SCOPE in
+  `tests/test_rule_form_parity.py` with a probe that reads the bridge's source (the day it writes operation /
+  fieldRef / typeRef / conceptRef / aef:field / aef:prefix, they turn into GAPs); parity OK, 4 out-of-scope re-measured.
+  Ids: E-XML-IO-MATCH-MISSING (R1, ERROR), E-XML-IO-PREFIX-UNDECLARED (R2, ERROR), W-XML-IO-MATCH-UNRESOLVED (R3, WARN),
+  in `XmlValidator._check_io_v11`. Location `node '<id>' output[i] "<name>"` (single quotes mark ids, so the name is
+  double-quoted; anchorability test: NODE, 35/37 rows verified). `tests/test_t1303_io_lint.py`: 4 passed / 5 failed
+  before the rules, 9/9 after (positives, negatives, http/https/urn, non-CURIE and `ref` exemptions, no prefix map,
+  index order, a v1 map untouched); a core leg. Fixtures `tests/fixtures/invalid/E-XML-IO-*.bpmn`,
+  `warn/W-XML-IO-MATCH-UNRESOLVED.bpmn`: validator suite 73/73.)*
+- [x] The kit's rule table and dialect axis carry the new ids (`tests/test_rule_dialect_axis.py` green); the kit change
   is noted for the next release's calibration.
+  *(Dialect axis: carrier `aef:io v1.1` (semantic-optional, UNRATIFIED 5 -> 6: v1.1 is AEF's spec, not the frozen v1
+  standard), CONSTRAINS, so all three derive UNIVERSAL. A scratch kit build lists all three rows in CONFORMANCE.md.
+  **For the next release:** the kit's validator bytes change, so the kit needs recalibrating (an operator job).)*
 - [ ] Designer: after Check, a finding whose location is an io shows under that io row in the panel (rule id, message),
   besides the existing drawer and canvas marker; a CDP leg drives Check against the real server and asserts it; no
   finding = the panel exactly as before.

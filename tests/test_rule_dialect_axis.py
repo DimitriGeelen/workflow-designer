@@ -184,6 +184,10 @@ CARRIER_CLASS = {
     # the rule states house convention, and calling it universal would be the 47-of-48
     # mistake (W-XML-GW-AMBIGUOUS) made on purpose.
     "aef:workflowMeta":             SEMANTIC_OPTIONAL,  # UNRATIFIED
+    # T-1303: mapping v1.1's io attributes (operation, fieldRef / typeRef / conceptRef, aef:field, aef:prefixes),
+    # read by R1-R3. Semantic (they say what a step does to which instance and field) and optional (a map need not
+    # carry them). UNRATIFIED because they come from AEF's v1.1 spec (T-4415), not the frozen v1 standard here.
+    "aef:io v1.1":                  SEMANTIC_OPTIONAL,  # UNRATIFIED
 }
 
 # Carriers whose class above is this file's reading rather than the standard's
@@ -208,8 +212,12 @@ UNRATIFIED_CARRIERS = {
     "aef:workflowMeta":       "§1 has no document-level class at all; read as optional "
                               "because nothing in the standard mandates it, so firing on "
                               "its absence is a house demand, declared as one (T-972)",
+    # T-1303: 5 -> 6, a decision. The v1.1 attributes are AEF's mapping v1.1 (vendored spec T-4415), which names
+    # R1-R3 as lint; docs/standards/aef-bpmn-mapping-v1.md is v1 and does not contain them yet.
+    "aef:io v1.1":            "mapping v1.1 (AEF T-4415) is not in the frozen v1 standard; read as semantic and "
+                              "optional because the v1.1 spec says what each attribute means and mandates none (T-1303)",
 }
-EXPECTED_UNRATIFIED = 5
+EXPECTED_UNRATIFIED = 6
 
 
 # --------------------------------------------------------------------------
@@ -317,6 +325,12 @@ RULE_CARRIERS = {
     "W-XML-GW-OUTGOING":        (("sequenceFlow",), STRUCTURAL),
     "W-XML-GW-AMBIGUOUS":       (("conditionExpression",), REQUIRES),
     "W-XML-GW-DEFAULT-NOT-OWN": (("sequenceFlow",), STRUCTURAL),   # T-1284: default vs the gateway's own flows
+    # T-1303: R1-R3, CONSTRAINS: each fires on v1.1 attributes that are PRESENT and malformed (an update with no match
+    # field, a prefix the map does not declare, a match field naming nothing). A map without them draws none, so no
+    # rule demands an optional carrier: derived UNIVERSAL, not DIALECT-RELATIVE.
+    "E-XML-IO-MATCH-MISSING":     (("aef:io v1.1",), CONSTRAINS),
+    "E-XML-IO-PREFIX-UNDECLARED": (("aef:io v1.1",), CONSTRAINS),
+    "W-XML-IO-MATCH-UNRESOLVED":  (("aef:io v1.1",), CONSTRAINS),
     # T-891: promoted WARN -> ERROR and renamed. Same carrier, same axis — what changed is
     # severity, because the editor no longer silently repairs the state (it used to default
     # an unclaimed node to lanes[0]).

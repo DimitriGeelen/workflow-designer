@@ -678,6 +678,7 @@ orphan_legs=(
   "core|tests/test_t1315_notes_pick.py|the host-contract notes check no longer reads the newest release notes at or above VERSION (it demands the published notes name an endpoint that release does not use, or reads a lower version's) (T-1315)"
   "core|tests/test_t1313_sandbox_index.py|a core-tier sandbox without its own .git can again reach this repo's index (GIT_CEILING_DIRECTORIES gone from the run TMPDIR), or .context/st/ is no longer ignored (T-1313)"
   "core|tests/test_t1307_t344_lock_wait.py|_t344 no longer waits out a full audit holding the lock, or reports a lock still held as a stale anchor instead of UNMEASURED (T-1307)"
+  "core|tests/test_t1303_io_lint.py|mapping v1.1 io lint (R1 update/upsert/delete without a match field, R2 undeclared prefix, R3 match field naming nothing) stopped firing, fires on its exemptions, or lost its io location (T-1303)"
   "core|tests/test_t1312_field_catalog.py|GET /api/field-catalog no longer serves a v1 catalog, refuses a malformed one whole (422), answers 404 without one, or reads a path from the request (T-1312)"
   "core|tests/test_boundary_inventory_unclassified.py|the boundary inventory's unclassified-route check stopped biting, or the real route set went unclassified (T-941)"
   "core|tests/test_session_start_alerts.py|the /resume session-start check stopped delegating mail to fw sidecar alerts correctly: output or flags lost, a NOT CHECKED / failing / missing verb read as nothing, or the runme section hidden (T-1046, T-1059)"
