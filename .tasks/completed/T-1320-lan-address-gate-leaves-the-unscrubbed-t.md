@@ -9,13 +9,13 @@ description: >
   commit without pathspec would commit the addresses. Seen 2026-10-27 on the S-2026-1027-1118
   handover and job 093's doctor captures.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [bug]
-components: []
+components: [tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-27T12:12:10Z
-last_update: '2026-10-27T14:36:52Z'
-date_finished:
+last_update: 2026-10-27T14:52:46Z
+date_finished: 2026-10-27T14:52:46Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -91,11 +91,11 @@ worktree equals HEAD and the index differs from HEAD by the scrub alone. See ## 
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] After a pathspec commit (`git commit -- <file>`) of a text file holding a LAN address, HEAD, the index and the
+- [x] After a pathspec commit (`git commit -- <file>`) of a text file holding a LAN address, HEAD, the index and the
   working tree all hold the placeholder (`git diff --cached` empty, `git diff` empty for that file); the same for a plain
   `git add` + `git commit`
-- [ ] A partly staged file keeps its unstaged part: the index is reset only where the working tree already equals HEAD
-- [ ] The installer (`tools/_t1239-install-hook.sh`) puts the post-commit half in place and is idempotent; a test in the
+- [x] A partly staged file keeps its unstaged part: the index is reset only where the working tree already equals HEAD
+- [x] The installer (`tools/_t1239-install-hook.sh`) puts the post-commit half in place and is idempotent; a test in the
   core tier proves the three cases above on a scratch repo
 
 ### Human
@@ -400,3 +400,20 @@ HEAD, index and worktree are equal, and it is a core leg (`_leg_199`), so every 
 
 ### 2026-10-27T14:36:51Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-10-27T14:52:46Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a09e451b
+- **Timestamp:** 2026-10-27T14:52:48Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
