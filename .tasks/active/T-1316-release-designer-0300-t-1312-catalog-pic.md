@@ -72,7 +72,8 @@ T-4779 / be.27, not vendored yet); the notes check covers all five endpoints AEF
   (recorded as partial, T-1312).
   *(tag f66c1e7d on origin; GitHub mirror 200; sha256 137810095a…1bcd6, 1261404 bytes; kit SHA256SUMS 66f0c3ba…92fb;
   AEF on 832-designer-repin-0.20.0, greenfield on gf-io-v11-check-2026-10-24.)*
-- [ ] AEF's pin is followed until `tools/_t1187-aef-pin-lag.sh` reads CURRENT. *(repin is AEF T-4795, dispatched 2026-10-27.)*
+- [x] AEF's pin is followed until `tools/_t1187-aef-pin-lag.sh` reads CURRENT. *(repin is AEF T-4795, dispatched 2026-10-27;
+  in AEF be.31 (0cd951409); pin-lag 2026-10-27: "CURRENT: AEF serves designer 0.30.0, 832's latest release".)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -125,6 +126,8 @@ T-4779 / be.27, not vendored yet); the notes check covers all five endpoints AEF
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+git ls-remote --exit-code --tags origin designer-v0.30.0
+bash tools/_t1187-aef-pin-lag.sh
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
@@ -297,6 +300,12 @@ T-4779 / be.27, not vendored yet); the notes check covers all five endpoints AEF
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-10-27 — the release job carries its lessons
+- **What changed:** 088's shape plus three fixes learned the day before: commits by pathspec (T-1313), a release commit
+  naming only its own task (the stale-review withdrawals), the notes check over five endpoints (T-1315). It ran clean.
+- **Plan impact:** release jobs are written from 090 from now on.
+- **Triggered:** nothing new; AEF served 0.30.0 within the hour (be.31).
 
 ## Recommendation
 

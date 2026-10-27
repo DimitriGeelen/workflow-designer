@@ -1,0 +1,1 @@
+Superseded before it ran by job 092 (be.8 -> v1.8.15-be.31, 0cd951409): AEF tagged be.31 on 2026-10-27, adding the designer 0.30.0 pin (T-4795) and the tmux kill guard (T-4783). Same steps and fixes; only the target moved.

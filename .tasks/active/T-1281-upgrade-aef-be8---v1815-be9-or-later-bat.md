@@ -181,7 +181,8 @@ Tags to batch (take the newest when this starts):
 ## Acceptance Criteria
 
 ### Agent
-- [ ] **Job 091 ran to `done`:** be.8 (04dc39868) -> v1.8.15-be.28 (81c2d5e82, lightweight tag); version_sha 81c2d5e82;
+- [ ] **Job 092 ran to `done`:** be.8 (04dc39868) -> v1.8.15-be.31 (0cd951409, lightweight tag); version_sha 0cd951409
+  (job 091, be.28, retired unrun when be.31 was tagged);
   pristine and baseline commits present; TermLink key settings unchanged; crontab on the vendored fw; templates settled.
 - [ ] **832's local fixes re-applied** (re-vendor protocol, T-1000): `tools/_t517` OK; every `*.bak` diffed and removed or
   reported (CLAUDE.md rule); `_t1192` templates settled; the pre-push hook re-installed (`tools/_t1000-install-hook.sh`).
