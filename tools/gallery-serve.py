@@ -68,6 +68,11 @@ import xml.etree.ElementTree as ET
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
+# T-1303: the server loads tools/*.py (the validator, the bridge) by path; without this Python writes their bytecode to
+# tools/__pycache__ inside the tree it serves. A reviewer seat that ran a harness against this server had its review
+# voided for "modifying the export" (AEF T-3986, T-4835) by exactly that file.
+sys.dont_write_bytecode = True
+
 ID_RE = re.compile(r'^[a-z0-9][a-z0-9_-]*$')
 
 # T-955: the validator is a script with a dash in its name, so it loads by spec rather

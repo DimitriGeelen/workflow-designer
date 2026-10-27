@@ -35,9 +35,9 @@ Patterns searched: `subprocess`, `os\.system`, `os\.popen`, `\bexec\(`, `\beval\
 **4 match(es) found — so this is NOT a bare absence:**
 
 - `gallery-serve.py:61` — `import subprocess`
-- `gallery-serve.py:1020` — `p = subprocess.run([sys.executable, tool, '--root', REPO, 'snapshot', tpl],`
-- `gallery-serve.py:1302` — `import subprocess`
-- `gallery-serve.py:1303` — `ip = subprocess.check_output(['hostname', '-I']).decode().split()[0]`
+- `gallery-serve.py:1025` — `p = subprocess.run([sys.executable, tool, '--root', REPO, 'snapshot', tpl],`
+- `gallery-serve.py:1307` — `import subprocess`
+- `gallery-serve.py:1308` — `ip = subprocess.check_output(['hostname', '-I']).decode().split()[0]`
 
 The claim this document makes is therefore the narrow, checkable one: **no route
 reaches an execution primitive, and no execution primitive takes request-derived
@@ -77,21 +77,21 @@ rather than as "safe".
 
 - **DECL** `gallery-serve.py:16` — `.editor-versions/<id>/index.json            (version list — always)`
 - **DECL** `gallery-serve.py:43` — `GET  /api/versions?id=<id>       -> index.json  ([] if none)`
-- **DECL** `gallery-serve.py:428` — `p = os.path.join(versions_dir(id_), 'index.json')`
-- **WRITE** `gallery-serve.py:441` — `with open(os.path.join(d, 'index.json'), 'w', encoding='utf-8') as f:`
-- **DECL** `gallery-serve.py:445` — `# ---- delete/archive (T-166) — deletion is recoverable: sources move to _trash ----`
-- **DECL** `gallery-serve.py:447` — `"""Per-delete archive folder: .editor-versions/_trash/<id>-<ts>/. The '_trash'`
-- **DECL** `gallery-serve.py:449` — `return os.path.join(REPO, '.editor-versions', '_trash', '%s-%d' % (id_, ts))`
-- **DECL** `gallery-serve.py:622` — `# ---- S3b (T-227) — persistent registry twin (.context/designer/registry.yaml) ----`
-- **DECL** `gallery-serve.py:637` — `def registry_path():`
-- **DECL** `gallery-serve.py:640` — `return os.path.join(REPO, '.context', 'designer', 'registry.yaml')`
-- **READ** `gallery-serve.py:647` — `with open(registry_path(), encoding='utf-8') as f:`
-- **DECL** `gallery-serve.py:654` — `def write_registry(reg):`
-- **DECL** `gallery-serve.py:656` — `path = registry_path()`
-- **WRITE** `gallery-serve.py:759` — `write_registry(reg)`
-- **WRITE** `gallery-serve.py:769` — `write_registry(reg)`
-- **WRITE** `gallery-serve.py:791` — `reg.setdefault('claims', []).append(`
-- **WRITE** `gallery-serve.py:793` — `write_registry(reg)`
+- **DECL** `gallery-serve.py:433` — `p = os.path.join(versions_dir(id_), 'index.json')`
+- **WRITE** `gallery-serve.py:446` — `with open(os.path.join(d, 'index.json'), 'w', encoding='utf-8') as f:`
+- **DECL** `gallery-serve.py:450` — `# ---- delete/archive (T-166) — deletion is recoverable: sources move to _trash ----`
+- **DECL** `gallery-serve.py:452` — `"""Per-delete archive folder: .editor-versions/_trash/<id>-<ts>/. The '_trash'`
+- **DECL** `gallery-serve.py:454` — `return os.path.join(REPO, '.editor-versions', '_trash', '%s-%d' % (id_, ts))`
+- **DECL** `gallery-serve.py:627` — `# ---- S3b (T-227) — persistent registry twin (.context/designer/registry.yaml) ----`
+- **DECL** `gallery-serve.py:642` — `def registry_path():`
+- **DECL** `gallery-serve.py:645` — `return os.path.join(REPO, '.context', 'designer', 'registry.yaml')`
+- **READ** `gallery-serve.py:652` — `with open(registry_path(), encoding='utf-8') as f:`
+- **DECL** `gallery-serve.py:659` — `def write_registry(reg):`
+- **DECL** `gallery-serve.py:661` — `path = registry_path()`
+- **WRITE** `gallery-serve.py:764` — `write_registry(reg)`
+- **WRITE** `gallery-serve.py:774` — `write_registry(reg)`
+- **WRITE** `gallery-serve.py:796` — `reg.setdefault('claims', []).append(`
+- **WRITE** `gallery-serve.py:798` — `write_registry(reg)`
 
 The 5 WRITE site(s) are the whole of the editor's ledger authority.
 

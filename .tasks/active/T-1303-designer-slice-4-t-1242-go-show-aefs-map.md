@@ -356,6 +356,11 @@ Person-sees gate: exit 0 (243 s).
   rows show nothing; no clipping or overlap at any width. Minor: the rule id is small and muted, "similar to the summary
   labels". Kept on purpose: the rule id is reference text, in the panel's label grey (the same token the gate's contrast
   check passes for the summary), and the severity word plus the message carry the meaning.
+- **Reviewer, rounds 1 and 2 (rung 5): claude-code green, codex green, opencode VOIDED both times** ("modified the export
+  it reviewed", AEF T-3986), final unknown. Its own verdict was green. Cause, measured: the seat ran the CDP harness, whose
+  `tools/gallery-serve.py` loads the validator by path, and Python wrote `tools/__pycache__/validate-workflow.cpython-312.pyc`
+  into the export (a clean export: 1 .pyc with the old server, 0 with `sys.dont_write_bytecode = True` in the server).
+  Reported to AEF, filed as AEF T-4835 (seats get PYTHONDONTWRITEBYTECODE=1); fixed on our side in gallery-serve.py.
 
 ## RCA
 
