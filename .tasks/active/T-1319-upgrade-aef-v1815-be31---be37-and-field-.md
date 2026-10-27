@@ -86,6 +86,11 @@ whose job 092 is the template; T-4811 (the identity fix on --termlink launches) 
   *(AEF reply 1b4461f3: #100 filed as AEF T-4819; the .upstream template without guidance is AEF T-4814; the word
   block is by design (an accepted cost of fail-closed self-approval protection): write "Tier 0" with a space, name the
   file, or pass the text via a file.)*
+  *(part 2 sent 2026-10-27 (be.38): E dispatch WORKS, T-4775 PARTIAL (the binary+version line exists only on the claude
+  branch; codex records the path in worker_bin, no version), T-4776 N/A; F reviewer: verdict/apply WORK, T-4778 N/A (no
+  [REVIEWER] AC); opencode seat voided twice by a .pyc the harness's server wrote (AEF T-4835; our side fixed in
+  gallery-serve.py), then once with no verdict: its sandbox auto-rejects SEAT_TMP ("external_directory"), reported.
+  Open: G after the operator's relaunch.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
