@@ -102,7 +102,7 @@ faint. The person-sees gate's contrast check passes, so first measure what a per
   space; a first version with 24 px boxes moved the rows, see Visual Verification). `tools/_t1310-req-x-cdp.mjs`
   (browser leg `_leg_198`): red on the 0.30.0 source (contrast and hit area, every control, both widths), green now with
   the boxes at their old size. `_t1301`, `_t1312`, `_t1249` green.)*
-- [ ] Person-sees gate exit 0; screenshots of io rows and field rows at 1024/1440/1920 read control by control; the
+- [x] Person-sees gate exit 0; screenshots of io rows and field rows at 1024/1440/1920 read control by control; the
   advisory sweep has run.
 
 ### Human
