@@ -133,6 +133,21 @@ def _():
         assert not hits(io, rule, prefixes=''), rule
 
 
+@case('the corpus-impact scan (tools/_t1303-corpus-impact.py) flags each rule fixture with the rule the validator fires')
+def _():
+    spec = importlib.util.spec_from_file_location('ci_t1303', os.path.join(ROOT, 'tools', '_t1303-corpus-impact.py'))
+    ci = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(ci)
+    fx = os.path.join(ROOT, 'tests', 'fixtures')
+    for path, want, rule in (('invalid/E-XML-IO-MATCH-MISSING.bpmn', 'R1', R1),
+                             ('invalid/E-XML-IO-PREFIX-UNDECLARED.bpmn', 'R2', R2),
+                             ('warn/W-XML-IO-MATCH-UNRESOLVED.bpmn', 'R3', R3)):
+        got = ci.scan(os.path.join(fx, path))
+        fired = {f.rule for f in vw.run_xml(open(os.path.join(fx, path), encoding='utf-8').read())}
+        assert rule in fired, (path, 'validator', fired)
+        assert got[want] and not any(got[k] for k in ('R1', 'R2', 'R3') if k != want), (path, got)
+
+
 def main():
     failed = 0
     for name, fn in CASES:
