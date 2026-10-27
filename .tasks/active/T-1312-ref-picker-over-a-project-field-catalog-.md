@@ -122,6 +122,12 @@ pending. The **designer** picker (`src/`) waits until 088 has cut 0.29.0, so not
   *(greenfield serves the designer through AEF's Watchtower, not gallery-serve.py (msg 057dc504): the full confirmation
   needs AEF to serve /api/field-catalog (T-4737). Agreed interim: a run with an in-page stub on its real catalog file,
   recorded as PARTIAL; this criterion stays open until the run without the stub.)*
+  *(PARTIAL, 2026-10-27, greenfield T-346 msg 03b69c61, 0.30.0 sha verified: "PARTIAL - STUB ... intercepts the page GET
+  /api/field-catalog via CDP Fetch and answers {ok:true, catalog:<docs/views/nid-attributes.json unchanged>}; the designer
+  loaded 1294 rows. On the real stored VZN-T1 ... A) io with dataType="id" ... picked nid:attr-salesforce-opportunity-
+  accountid -> ref set, own dataType id KEPT (row says reference); B) io without dataType ... picked
+  ...-billing-country-c -> ref set and dataType prefilled "string". Over all 43 io: exactly these 3 attribute changes,
+  nothing else moved. STUB-confirmed; we repeat it without the stub once Watchtower answers /api/field-catalog".)*
 
 ### Human
 - [x] The catalog picker under ref is legible, clearly part of its io row, and its hits read as choices, at every width
