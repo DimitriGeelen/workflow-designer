@@ -100,9 +100,19 @@ and the kit; the designer then shows the findings on the io. Not started at the 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Corpus first: how many maps in this repo (and greenfield's VZN-T1 shape fixtures) would each rule flag; an ERROR on a
+- [x] Corpus first: how many maps in this repo (and greenfield's VZN-T1 shape fixtures) would each rule flag; an ERROR on a
   map that saves today is a behaviour change (check whether `POST /api/save` refuses on ERROR, T-973) and is decided
   before the rule ships, not after.
+  *(2026-10-27, `tools/_t1303-corpus-impact.py`: 303 tracked maps, 98 with io (408 io), 0 with mappingVersion 1.1;
+  **R1 0, R2 0, R3 0 maps** (1 parse error: `tests/fixtures/invalid/E-XML-PARSE.xml`, invalid on purpose). Positive
+  control on a scratch map: R1, R2 (with the https and `ref` exemptions holding) and R3 each found, the clean io not.
+  The VZN-T1-shaped harness fixtures (`tools/_t1249-v11-io-cdp.mjs`): every update/upsert/delete carries a match field
+  (R1 quiet); the `full` state uses `sf:` and `biz:`, undeclared in its prefix map, so R2 will flag it, which is right
+  (that state shows every attribute, not a valid map). Greenfield's real VZN-T1 (as reported, msg 03b69c61: 43 io with
+  `ref` and `dataType` only) carries none of the attributes R1-R3 read, so 0 expected; confirmed with greenfield at
+  release. **Save:** save-time validation is advisory and never refuses (`tools/gallery-serve.py` `_save_validation`,
+  T-956 ruling), so an ERROR changes what a person sees, never whether a map saves. Decision: ship R1/R2 as ERROR and R3
+  as WARN, as the spec says.)*
 - [ ] R1-R3 in BOTH validator forms with the same ids and severities; the parity census stays green; a test per rule with
   a positive and a negative map (and R2's http/urn and `ref` exclusions); red before, green after.
 - [ ] The kit's rule table and dialect axis carry the new ids (`tests/test_rule_dialect_axis.py` green); the kit change
