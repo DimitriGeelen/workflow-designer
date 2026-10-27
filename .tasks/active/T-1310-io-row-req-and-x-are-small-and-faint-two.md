@@ -98,9 +98,10 @@ faint. The person-sees gate's contrast check passes, so first measure what a per
 - [x] Only what fails changes: colour (a token that meets the ratio in both themes) and/or the clickable area (padding
   so the target is >= 24×24 without moving the row's layout). A CDP leg asserts the ratios and target sizes; red on the
   current source for each control that fails, green after.
-  *(`.io-req`/`.io-del`: `--text-dim` (5.58:1) and a 24 px minimum box, glyph centred. `tools/_t1310-req-x-cdp.mjs`
-  (browser leg `_leg_198`): 16 failures on the 0.30.0 source (4 controls x contrast and size x 2 widths), 0 now.
-  `_t1301`, `_t1312`, `_t1249` green.)*
+  *(`.io-req`/`.io-del`: `--text-dim` (5.58:1) and a 24×24 hit area from an absolutely placed `::after` (no layout
+  space; a first version with 24 px boxes moved the rows, see Visual Verification). `tools/_t1310-req-x-cdp.mjs`
+  (browser leg `_leg_198`): red on the 0.30.0 source (contrast and hit area, every control, both widths), green now with
+  the boxes at their old size. `_t1301`, `_t1312`, `_t1249` green.)*
 - [ ] Person-sees gate exit 0; screenshots of io rows and field rows at 1024/1440/1920 read control by control; the
   advisory sweep has run.
 
@@ -168,6 +169,12 @@ Screenshots: `docs/reports/T-1310-evidence/` (`T1249S_CATALOG=1 node tools/_t124
 - `fields-edit-1024-panel-end`: each field row's line 2 (role, cardinality, req, ×): req and × legible beside the
   cardinality select; each row still two lines; "+ add field" unchanged; the closed outputs below unchanged.
 Measured (the CDP leg): 5.58:1 (was 2.84:1); boxes req 37×24, × 24×24 (were 37×14.5, 15.6×14), at 1024 and 1440.
+- **Sweep 1 (codex, `.context/working/t1310-sweep.out`): 3 OK, 2 minor, both real:** the 24 px boxes narrowed name/type and
+  made field rows taller — against this task's own "without moving the row's layout". Reworked: the boxes keep their
+  size and a 24 px HIT AREA comes from an absolutely placed `::after` (no layout space). The leg now probes the four
+  corners of a 24×24 square around each control with elementFromPoint (all land on it) and fails if a box grows past
+  18 px. Shots retaken: `fields-edit-1024-panel-end` here and in T-1312-evidence are geometrically identical (every
+  row, field and select at the same position); only req and × are lighter.
 
 ## Verification
 

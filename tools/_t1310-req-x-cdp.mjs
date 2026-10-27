@@ -67,9 +67,16 @@ const MEASURE = `(function(){
    ['field req', p.querySelectorAll('.io-field-row .io-req'), 4.5], ['field ×', p.querySelectorAll('.io-field-row .io-del'), 3]].forEach(function(t){
     Array.from(t[1]).slice(0, 1).forEach(function(el){
       var textEl = el.classList.contains('io-req') ? (el.querySelector('span') || el) : el;
-      var col = rgb(getComputedStyle(textEl).color), bg = bgOf(el), r = el.getBoundingClientRect();
+      var col = rgb(getComputedStyle(textEl).color), bg = bgOf(el);
+      el.scrollIntoView({ block: 'center' });
+      var r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      // the HIT AREA, as a pointer finds it: the four corners of a 24×24 square centred on the control must land on it
+      // (an ::after hit area counts; a box measure would not see it)
+      var miss = [[-11, -11], [11, -11], [-11, 11], [11, 11]].filter(function(d){
+        var hit = document.elementFromPoint(cx + d[0], cy + d[1]); return !(hit && (hit === el || el.contains(hit)));
+      }).map(function(d){ var h = document.elementFromPoint(cx + d[0], cy + d[1]); return d.join(',') + '->' + (h ? (h.className || h.tagName) : 'nothing'); });
       out.push({ control: t[0], color: getComputedStyle(textEl).color, ratio: Math.round(ratio(col, bg) * 100) / 100, need: t[2],
-                 w: Math.round(r.width * 10) / 10, h: Math.round(r.height * 10) / 10 });
+                 w: Math.round(r.width * 10) / 10, h: Math.round(r.height * 10) / 10, miss: miss });
     });
     if (!t[1].length) out.push({ control: t[0], missing: true });
   });
@@ -108,7 +115,10 @@ async function main() {
       for (const x of m) {
         if (x.missing) { errs.push(`${w}: no ${x.control} found`); continue; }
         if (x.ratio < x.need) errs.push(`${w}: ${x.control} contrast ${x.ratio}:1 < ${x.need}:1 (${x.color})`);
-        if (x.w < 24 || x.h < 24) errs.push(`${w}: ${x.control} target ${x.w}×${x.h} px < 24×24`);
+        if (x.miss.length) errs.push(`${w}: ${x.control} hit area smaller than 24×24 around its centre: ${x.miss.join(' ')}`);
+        // the hit area must not cost layout: the visible box keeps its own height (a 24 px box made field rows taller and
+        // narrowed name/type, T-1310 sweep)
+        if (x.h > 18) errs.push(`${w}: ${x.control} box grew to ${x.w}×${x.h} px: the target must come from the hit area, not the layout`);
       }
     }
     await cmd('Emulation.clearDeviceMetricsOverride');
