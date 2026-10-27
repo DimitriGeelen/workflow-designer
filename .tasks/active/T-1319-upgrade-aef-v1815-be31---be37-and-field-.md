@@ -91,6 +91,13 @@ whose job 092 is the template; T-4811 (the identity fix on --termlink launches) 
   [REVIEWER] AC); opencode seat voided twice by a .pyc the harness's server wrote (AEF T-4835; our side fixed in
   gallery-serve.py), then once with no verdict: its sandbox auto-rejects SEAT_TMP ("external_directory"), reported.
   Open: G after the operator's relaunch.)*
+  *(2026-10-27 evening: jobs 095 (be.40) and 097 (be.43) rc=0; 37 fixes re-applied clean each time; core green 213/0;
+  pushed. T-4819 WORKS on be.40 (doctor: "INFO another project's resolver loop … not this project's"). CLAUDE.md.bak from
+  be.43 diffed: its one backup-only line was a superseded duplicate; removed. be.43 designer APIs, sent on
+  designer-data-api: field-catalog WORKS (200 file unchanged, gzip, 422 duplicate ref, 404 missing/unset); instances
+  WORKS (NO-INSTANCES for a known template; live case N/A here); validate FAILS: "ok": errors == 0, the designer reads
+  ok:false as "could not check", so every map with an ERROR is unchecked on AEF (contract T-1300: ok:true on every 200);
+  the 0.31.0 validator itself is delivered and right (T-4836, T-4838 WORKS).)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
