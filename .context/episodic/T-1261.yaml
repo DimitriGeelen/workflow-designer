@@ -1,0 +1,105 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1261: Original node and flow ids are lost on first open of a third-party map (aef:uid is a one-way hash of the id)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-28T19:41:21Z
+# ============================================================================
+
+task_id: T-1261
+task_name: "Original node and flow ids are lost on first open of a third-party map (aef:uid is a one-way hash of the id)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-21T21:23:59Z
+completed: 2026-10-28T19:41:12Z
+duration_days: 7
+updates_count: 4
+first_commit: 2026-10-28T19:45:12+01:00
+last_commit: 2026-10-28T20:41:11+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the open question (where the original id is carried) with facts and four candidates, for external advice (operator's request); criteria. the independent advisory read recorded verbatim (recommends a documented designer namespace, element-local x832:origin originalId; four fact corrections, each checked against the source and confirmed). AEF's answer recorded verbatim (prefers (1), attribute-only, never 'uid', stable published namespace URI; second choice (4); not (2)/(3)); both advisers agree on (1), differing only on the attribute name. AEF agrees on originalId= (msg 7e06e182); namespace URI awaits the operator. the first open of a third-party file records each node's and flow's original id (job C F3) in <x832:origin originalId=…/> (urn:832-workflow-designer:origin:1), attribute-only, never replaced — the carrier both AEF and an independent read chose; harness _t1261 (browser leg _leg_210) red on the old source; 10 third-party goldens gain one origin per element (156 added, 0 removed). evidence — core GREEN 214/0, gate exit 0; RCA and Verification
+
+# Key outcomes
+outcomes:
+  - 'The carrier is chosen with the advice recorded (AEF''s answer and the advisory read, verbatim findings) and the'
+  - 'On first open of a file without `aef:uid`, each node''s and flow''s original id is recorded in that carrier and'
+  - 'A browser harness proves it, red on the pre-T-1261 source; third-party goldens re-recorded deliberately;'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-10-28 — the origin carrier'
+    chose: '`<x832:origin originalId="…"/>`, attribute-only, inside the element''s `extensionElements`, namespace `urn:832-workflow-designer:origin:1` (fixed once published; matched by URI, not prefix). Recorded on first open of an element without `aef:uid`; the first recorded value is never overwritten.'
+    rationale: 'both external advisers chose it independently (AEF msg 7c1e70d9, the advisory read t1261-advice; both in `docs/reports/T-1261-origin-carrier-advice.md`): it records provenance without changing the frozen meaning of `aef:` data, and AEF''s importer and lint keep it. `originalId`, not `id`: an `id` attribute reads as the element''s own XML id (AEF agreed, msg 7e06e182). Operator, 2026-10-28: "Proceed and suggest the [advice] you got."'
+    alternatives_rejected: ['a new `aef:origin` (a contract edit on both sides for a datum one side produces); `bpmn:documentation` (prose, AEF reads it as an acceptance-criteria seed); one document-level table (drifts from the per-node truth).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1261-original-node-and-flow-ids-are-lost-on-f.md'
+  - 'docs/reports/T-1261-origin-carrier-advice.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/goldens/third-party/bizagi-nested-ns.bpmn.golden'
+  - 'tests/goldens/third-party/boundary-events.bpmn.golden'
+  - 'tests/goldens/third-party/caseagile-local-ns.bpmn.golden'
+  - 'tests/goldens/third-party/collaboration-message-flows.bpmn.golden'
+  - 'tests/goldens/third-party/i18n-documentation.bpmn.golden'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/goldens/third-party/multiple-diagrams.bpmn.golden'
+  - 'tests/goldens/third-party/nested-subprocesses.bpmn.golden'
+  - 'tests/goldens/third-party/simple.bpmn.golden'
+  - 'tests/goldens/third-party/zeebe-service-task.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1261-original-id-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-28T19:45:12'
+    action: 'T-1261: the open question (where the original id is carried) with facts and four candidates, for external advice (operator''s request); criteria'
+  - time: '2026-10-28T19:47:18'
+    action: 'T-1261: the independent advisory read recorded verbatim (recommends a documented designer namespace, element-local x832:origin originalId; four fact corrections, each checked against the source and confirmed)'
+  - time: '2026-10-28T19:50:14'
+    action: 'T-1261: AEF''s answer recorded verbatim (prefers (1), attribute-only, never ''uid'', stable published namespace URI; second choice (4); not (2)/(3)); both advisers agree on (1), differing only on the attribute name'
+  - time: '2026-10-28T19:51:04'
+    action: 'T-1261: AEF agrees on originalId= (msg 7e06e182); namespace URI awaits the operator'
+  - time: '2026-10-28T20:17:39'
+    action: 'T-1261: the first open of a third-party file records each node''s and flow''s original id (job C F3) in <x832:origin originalId=…/> (urn:832-workflow-designer:origin:1), attribute-only, never replaced — the carrier both AEF and an independent read chose; harness _t1261 (browser leg _leg_210) red on the old source; 10 third-party goldens gain one origin per element (156 added, 0 removed)'
+  - time: '2026-10-28T20:41:11'
+    action: 'T-1261: evidence — core GREEN 214/0, gate exit 0; RCA and Verification'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 9977 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [import-loss, cloud-job-c]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 9977
+  commits: 7
+  files_changed: 18
+  lines_added: 701
+  lines_removed: 26
+  footprint_refreshed_at: '2026-10-28T19:41:22Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1261-original-node-and-flow-ids-are-lost-on-f.md
+generated_by: context-agent-hybrid
