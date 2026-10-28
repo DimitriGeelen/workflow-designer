@@ -334,6 +334,21 @@ in substance:
 4. Lower palette entries fall below the screenshot edge. **Not this change:** the palette scrolls, as before.
 No clipped notice text, notice/diagram overlap, or hidden header buttons, close ×, or side-panel toggles found.
 
+**Judge round 1: RED** (`fw reviewer judge T-1264 --criterion 1`, dispatch judge-t-1264-r1-86757aed2b78, claude-code
+seat, 2026-10-28), verbatim: "Layout parts pass (text readable, wraps in notice, no node covered, toolbar reachable, no
+notice on designer map). The sentence is NOT true for nodes the import moved: captureImportedDi runs after lane
+reconcile and records the reconciled position, so those nodes keep the file's DI id/size/attrs and their flows keep the
+file's old waypoints (kitchen-sink golden: la2_gw_gateway moved y1475->1245.5 saved as Gateway_0238ieb_di 50x50
+isMarkerVisible; flow_2 saved at y=1500, ~200px below both its shapes). Capture before reconcile or exclude
+reconcile-moved nodes; add a harness leg with an out-of-lane node; re-record goldens."
+**Fixed as advised:** `at` is now the file's own Bounds position, so a node the import moved counts as moved, and a
+flow is kept only when both ends are where the file put them. Harness: a second lane and a node declared in lane 1 but
+drawn in lane 2's band; the previous commit fails it ("a node the import moved kept its imported geometry (X_di)", "the
+flow into a node the import moved kept its imported route"), the fix passes. Goldens re-recorded (2 files changed vs
+the previous commit); kitchen-sink's `la2_gw_gateway` is now `BPMNShape_la2_gw_gateway`, no `Gateway_0238ieb_di`.
+An end-of-flow check over all 11 goldens (first/last waypoint within 40 px of its shapes): previous commit BAD, now OK
+(0 far of 49 edges). The notice text and the screenshots are unchanged by this fix.
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches

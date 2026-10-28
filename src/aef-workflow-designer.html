@@ -14287,23 +14287,29 @@ function captureImportedDi(doc, s, nodeUidByFileId, flowUidByFileId) {
     else if (el.localName === 'BPMNEdge' && !edges.has(ref)) edges.set(ref, el);
   }
   const byUid = new Map(s.nodes.map(n => [n.uid, n]));
+  // `at` is where the FILE put the shape, not where the node is now: a node this import moved (back into its declared
+  // lane, T-310) then counts as moved, exactly like one the person drags (T-1264 judge finding, 2026-10-28).
+  const fileAt = new Map();
   for (const [fileId, uid] of nodeUidByFileId) {
     const n = byUid.get(uid), el = shapes.get(fileId);
     if (!n || !el || typeof n.x !== 'number' || typeof n.y !== 'number') continue;
     const def = NODE_DEFAULTS[n.type] || { w: 120, h: 48 };
     const k = diShapeParts(el, `BPMNShape_${fileId}`);
     const b = Array.from(el.children).find(c => c.namespaceURI === DC_NS_URI && c.localName === 'Bounds');
-    const w = b && b.getAttribute('width'), h = b && b.getAttribute('height');
+    const bx = b ? parseFloat(b.getAttribute('x')) : NaN, by = b ? parseFloat(b.getAttribute('y')) : NaN;
+    if (!Number.isFinite(bx) || !Number.isFinite(by)) continue;
+    fileAt.set(uid, [bx, by]);
+    const w = b.getAttribute('width'), h = b.getAttribute('height');
     if (w && parseFloat(w) !== def.w) k.w = w;
     if (h && parseFloat(h) !== def.h) k.h = h;
-    if (Object.keys(k).length) n.diKept = { at: [n.x, n.y], ...k };
+    if (Object.keys(k).length) n.diKept = { at: [bx, by], ...k };
   }
   const nodeByUid = uid => byUid.get(uid);
   for (const e of s.edges) {
     const fileId = [...flowUidByFileId].find(([, u]) => u === e.uid);
     const el = fileId && edges.get(fileId[0]);
     const a = nodeByUid(e.source), z = nodeByUid(e.target);
-    if (!el || !a || !z) continue;
+    if (!el || !a || !z || !fileAt.has(a.uid) || !fileAt.has(z.uid)) continue;
     const k = diShapeParts(el, `BPMNEdge_${fileId[0]}`);
     const wps = Array.from(el.children).filter(c => c.namespaceURI === DDI_NS_URI && c.localName === 'waypoint')
       .map(p => [parseFloat(p.getAttribute('x')), parseFloat(p.getAttribute('y'))]);
@@ -14312,7 +14318,7 @@ function captureImportedDi(doc, s, nodeUidByFileId, flowUidByFileId) {
       const computed = computeEdgeGeometry(e, a, z).polyline.map(p => [p.x, p.y]);
       if (fmt(wps) !== fmt(computed)) k.wps = wps;
     }
-    if (Object.keys(k).length) e.diKept = { at: [a.x, a.y, z.x, z.y], sig: edgeRouteSig(e), ...k };
+    if (Object.keys(k).length) e.diKept = { at: [...fileAt.get(a.uid), ...fileAt.get(z.uid)], sig: edgeRouteSig(e), ...k };
   }
 }
 // The kept shape/edge XML for an element still where it was imported, else null (redraw as today).

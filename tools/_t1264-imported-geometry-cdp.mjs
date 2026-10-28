@@ -40,11 +40,15 @@ const MAP = `<?xml version="1.0" encoding="UTF-8"?>
   <bpmn:process id="Proc_1" isExecutable="true">
     <bpmn:laneSet id="LS"><bpmn:lane id="L1" name="Team">
       <bpmn:flowNodeRef>S</bpmn:flowNodeRef><bpmn:flowNodeRef>T</bpmn:flowNodeRef><bpmn:flowNodeRef>G</bpmn:flowNodeRef><bpmn:flowNodeRef>E</bpmn:flowNodeRef>
-    </bpmn:lane></bpmn:laneSet>
+      <bpmn:flowNodeRef>X</bpmn:flowNodeRef>
+    </bpmn:lane><bpmn:lane id="L2" name="Other"><bpmn:flowNodeRef>Y</bpmn:flowNodeRef></bpmn:lane></bpmn:laneSet>
     <bpmn:startEvent id="S" name="Start"/>
     <bpmn:userTask id="T" name="Review"/>
     <bpmn:exclusiveGateway id="G" name="OK?"/>
     <bpmn:endEvent id="E" name="Done"/>
+    <bpmn:task id="X" name="Misplaced"/>
+    <bpmn:task id="Y" name="Elsewhere"/>
+    <bpmn:sequenceFlow id="F4" sourceRef="T" targetRef="X"/>
     <bpmn:sequenceFlow id="F1" sourceRef="S" targetRef="T"/>
     <bpmn:sequenceFlow id="F2" sourceRef="T" targetRef="G"/>
     <bpmn:sequenceFlow id="F3" sourceRef="G" targetRef="E"/>
@@ -57,6 +61,9 @@ const MAP = `<?xml version="1.0" encoding="UTF-8"?>
     <bpmndi:BPMNShape id="E_di" bpmnElement="E"><omgdc:Bounds x="470" y="77" width="36" height="36"/></bpmndi:BPMNShape>
     <bpmndi:BPMNEdge id="F1_di" bpmnElement="F1" sourceElement="S_di" targetElement="T_di"><omgdi:waypoint x="156" y="95"/><omgdi:waypoint x="178" y="95"/><omgdi:waypoint x="178" y="100"/><omgdi:waypoint x="200" y="100"/></bpmndi:BPMNEdge>
     <bpmndi:BPMNEdge id="F2_di" bpmnElement="F2"><omgdi:waypoint x="300" y="100"/><omgdi:waypoint x="330" y="100"/><omgdi:waypoint x="330" y="96"/><omgdi:waypoint x="360" y="96"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNShape id="X_di" bpmnElement="X"><omgdc:Bounds x="250" y="190" width="100" height="80"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="Y_di" bpmnElement="Y"><omgdc:Bounds x="420" y="190" width="100" height="80"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNEdge id="F4_di" bpmnElement="F4"><omgdi:waypoint x="250" y="143"/><omgdi:waypoint x="250" y="166"/><omgdi:waypoint x="300" y="166"/><omgdi:waypoint x="300" y="190"/></bpmndi:BPMNEdge>
     <bpmndi:BPMNEdge id="F3_di" bpmnElement="F3"><omgdi:waypoint x="410" y="96"/><omgdi:waypoint x="470" y="95"/></bpmndi:BPMNEdge>
   </bpmndi:BPMNPlane></bpmndi:BPMNDiagram>
 </bpmn:definitions>`;
@@ -83,8 +90,11 @@ const ASSERT = `(function(){
     if (tag === 'leg1' && n < 2) errs.push('leg1: cannot bite, no sourceElement/targetElement written'); }
   try {
     load(window.__MAP__);
-    var moved =state.nodes.filter(function(n){ var w = { Start: [120, 77], Review: [200, 63], 'OK?': [360, 71], Done: [470, 77] }[n.name]; return !w || n.x !== w[0] || n.y !== w[1]; });
+    var want = { Start: [120, 77], Review: [200, 63], 'OK?': [360, 71], Done: [470, 77] };
+    var moved = state.nodes.filter(function(n){ var w = want[n.name]; return w && (n.x !== w[0] || n.y !== w[1]); });
     if (moved.length) errs.push('setup: the import moved ' + moved.map(function(n){ return n.name + '@' + n.x + ',' + n.y; }).join(' ') + ' (the test cannot bite)');
+    var mis = state.nodes.filter(function(n){ return n.name === 'Misplaced'; })[0];
+    if (!mis || mis.y === 190) errs.push('setup: the import did not move Misplaced back into its lane (the reconcile case cannot bite)');
     var o1 = strip(buildBpmnXml(state)); exports.push(['leg1', o1]);
     var d1 = dom(o1, 'leg1');
     if (d1) {
@@ -102,6 +112,13 @@ const ASSERT = `(function(){
       if (!f2 || f2.getAttribute('id') !== 'F2_di') errs.push('leg1: flow T->G DI id ' + (f2 && f2.getAttribute('id')) + ' (want F2_di)');
       if (wps(f2) !== '300,100 330,100 330,96 360,96') errs.push('leg1: flow T->G waypoints ' + wps(f2));
       if (wps(di(d1, 'BPMNEdge', flowId(d1, S, T))) !== '156,95 178,95 178,100 200,100') errs.push('leg1: flow S->T waypoints ' + wps(di(d1, 'BPMNEdge', flowId(d1, S, T))));
+      // a node the IMPORT moved (declared in L1, drawn in L2's band) is redrawn, and so is its flow
+      var X = idOf(d1, 'task', 'Misplaced'), x = di(d1, 'BPMNShape', X), xb = bounds(x);
+      if (!x || x.getAttribute('id') === 'X_di' || (xb && xb.getAttribute('width') === '100')) errs.push('leg1: a node the import moved kept its imported geometry (' + (x && x.getAttribute('id')) + ')');
+      var f4 = di(d1, 'BPMNEdge', flowId(d1, T, X));
+      if (!f4 || f4.getAttribute('id') === 'F4_di' || wps(f4) === '250,143 250,166 300,166 300,190') errs.push('leg1: the flow into a node the import moved kept its imported route');
+      var yb = bounds(di(d1, 'BPMNShape', idOf(d1, 'task', 'Elsewhere')));
+      if (!yb || yb.getAttribute('width') !== '100') errs.push('leg1: an unmoved node in the second lane lost its size');
     }
     [['leg1', d1]].forEach(function(p){ refsResolve(p[0], p[1]); });
     load(o1);
