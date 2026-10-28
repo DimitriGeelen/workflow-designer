@@ -1,0 +1,73 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1269: XML comments inside the process are dropped on save (only one leading doc comment is kept)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-28T11:22:32Z
+# ============================================================================
+
+task_id: T-1269
+task_name: "XML comments inside the process are dropped on save (only one leading doc comment is kept)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-21T21:24:25Z
+completed: 2026-10-28T11:22:23Z
+duration_days: 7
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  readDocComment keeps one leading comment only. Found by ring20's cloud job C (T-2466) on 8909a9b1, verified by headless round trip, no notice shown; report verbatim in docs/reports/T-2466-cloud-job-C-bughunt.md (F11, C 11/13). Fix theme proposed there: a generic per-element passthrough rather than more allowlist entries.
+
+# Key outcomes
+outcomes:
+  - '**Comments among the process''s children survive open and save**, before the element that followed them (by uid,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 9477 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [import-loss, cloud-job-c]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 9477
+  commits: 1
+  files_changed: 2
+  lines_added: 132
+  lines_removed: 24
+  footprint_refreshed_at: '2026-10-28T11:22:44Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1269-xml-comments-inside-the-process-are-drop.md
+generated_by: context-agent-hybrid
