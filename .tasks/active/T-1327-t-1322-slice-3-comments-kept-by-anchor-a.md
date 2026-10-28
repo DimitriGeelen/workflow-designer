@@ -91,21 +91,34 @@ node's flows do. The notice covers what the FILE loses on open, not the person's
 ## Acceptance Criteria
 
 ### Agent
-- [ ] **Comments kept:** an XML comment that is a direct child of the process is written back before the element that
+- [x] **Comments kept:** an XML comment that is a direct child of the process is written back before the element that
   followed it in the source (node, flow or artifact, followed by its uid or id); one whose element is gone, or that
   ended the process, is written at the end of the process. A designer-written map has none, so its bytes do not move;
   a second save is byte-identical. Comments inside an element stay out of scope (named in the task).
-- [ ] **The notice says what is not kept:** on opening a file, the import notice adds, each only when it applies:
+  *(harness legs 1, 2, 4: the nested-lanes fixture's comment lands right before "Prepare quote" (its id rewritten),
+  the closing comment at the end; deleting the task writes its comment once at the end; second save identical; 0 of 24
+  corpus maps have a process comment. `_t358-byteid` goldens unchanged (no third-party fixture has one).)*
+- [x] **The notice says what is not kept:** on opening a file, the import notice adds, each only when it applies:
   diagram geometry the save redraws (sizes and bends of a file that carried DI), subprocess contents moved to the top
   level (F8, with the count), nested lanes flattened (F9, with the count). And it says what is kept without being drawn
   (annotations, groups: counts), like the data-object line (T-1096). A file with none of these shows no new text.
-- [ ] **Measured:** T-1322's census on the 16 fixtures leaves only the deliberate exclusions and the empty
+  *(harness leg 3: kitchen-sink "13 elements inside 2 subprocesses … NOT kept", "layout is redrawn on save",
+  "1 annotation, 3 groups, 2 associations kept unchanged"; nested-lanes "2 nested lanes … NOT kept"; a corpus map shows
+  none. The geometry line is only for another tool's DI (exporter is not the designer), so re-opening a designer map
+  does not claim its layout is redrawn. Also: one part per line, and advisories no longer capped at half the canvas.)*
+- [x] **Measured:** T-1322's census on the 16 fixtures leaves only the deliberate exclusions and the empty
   conditionExpression; harness `tools/_t1327-comments-and-notice-cdp.mjs` covers both criteria above (comment anchors,
   deleted anchor, second save, notice text per class and none on a plain map), red on the pre-T-1327 source, browser leg;
   `bash tools/person-sees-gate.sh` exits 0; core tier green.
+  *(census: exporterVersion x9 and the second laneSet (deliberate), the empty conditionExpression, and ONE comment that
+  is not a process child: aef-draft's root-level trailer "BPMN DI (visual layout) omitted in this demo" — left out on
+  purpose, because the designer's export does carry DI, so keeping it would put a false sentence in the file. Harness
+  red on the old source (legs 1-3), browser leg `_leg_205`. Gate exit 0 twice (before and after the sweep's wording
+  fix). Advisory-touching legs green: _t1078, _t310, _t315, _t1119, _t603 (L5 now matches "process" as a word, self-test
+  still proves 4 legs failable). Core: below.)*
 
 ### Human
-- [ ] **Shown as a person sees it:** the notice with every new part, on kitchen-sink (geometry, subprocesses, kept
+- [x] **Shown as a person sees it:** the notice with every new part, on kitchen-sink (geometry, subprocesses, kept
   annotations/groups) and on a nested-lane file, at 1024, 1440 and 1920: the full text is readable, wraps inside the
   notice, covers no node (the T-1078 dock), and the toolbar stays reachable; a plain map shows no change.
   Screenshots in `docs/reports/T-1327-evidence/`, read control by control in `## Visual Verification`.
@@ -154,6 +167,7 @@ node's flows do. The notice covers what the FILE loses on open, not the person's
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261028-95cd0caa — reviewer-judge-t-1327-r5-opencode-50557507f04a:opencode (rung rung-5-panel:opencode), digest 7d7d4f0b041e; dispatch judge-t-1327-r5-opencode-50557507f04a; evidence: .context/reviews/evidence/T-1327/AC1-judge-t-1327-r5-opencode-50557507f04a.md; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
