@@ -89,18 +89,21 @@ F4/F12/F13/F3 (all done). Another tool's file only: designer-written DI is the d
 ## Acceptance Criteria
 
 ### Agent
-- [ ] For a file another tool wrote, each node the person has not moved or resized saves its imported
+- [x] For a file another tool wrote, each node the person has not moved or resized saves its imported
       `BPMNShape` geometry (Bounds width/height, `isMarkerVisible`, `BPMNLabel`, its DI id), pointed at the node's
-      current id; a moved node is redrawn as today.
-- [ ] Each flow whose two ends are unmoved and whose route the person has not changed saves its imported
-      `BPMNEdge` waypoints (and label, DI id); otherwise the route is recomputed as today.
-- [ ] Designer-written maps save byte-identically (every corpus map; goldens legs); a second save of an imported
-      file is byte-identical.
-- [ ] The import notice no longer says sizes and bends are not kept; it says they are kept until moved. The
+      current id; a moved node is redrawn as today. *(Also a node the IMPORT moved back into its lane: judge round 1.)*
+- [x] Each flow whose two ends are unmoved and whose route the person has not changed saves its imported
+      `BPMNEdge` waypoints (and label, DI id); otherwise the route is recomputed as today. *(`sourceElement` and
+      `targetElement` re-pointed at the shape ids written; every DI reference resolves in all 11 goldens.)*
+- [x] Designer-written maps save byte-identically (every corpus map; goldens legs); a second save of an imported
+      file is byte-identical. *(Only differences from the designer's own output are recorded; harness legs 3 and 4.)*
+- [x] The import notice no longer says sizes and bends are not kept; it says they are kept until moved. The
       UI rules apply to that change: person-sees gate 0, an advisory sweep, screenshots at 1024/1440/1920 read in
-      `## Visual Verification`, and an independent judge on a `### Human` criterion.
-- [ ] A browser harness proves the first three, red on the pre-T-1264 source; third-party goldens re-recorded
-      deliberately, each changed line checked; core tier green.
+      `## Visual Verification`, and an independent judge on a `### Human` criterion. *(Gate 0 after every source
+      change; sweep t1264-sweep-b39de80390ca, its wording finding acted on; judge red then green, V-20261028-50f42e08.)*
+- [x] A browser harness proves the first three, red on the pre-T-1264 source; third-party goldens re-recorded
+      deliberately, each changed line checked; core tier green. *(`_t1264`, `_leg_211`; goldens: DI lines only, every
+      reference resolves, every flow's ends at its shapes; core GREEN 214/0.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -147,7 +150,7 @@ F4/F12/F13/F3 (all done). Another tool's file only: designer-written DI is the d
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-- [ ] **Shown as a person sees it:** the import notice's changed last line ("on save, shapes that neither you nor this
+- [x] **Shown as a person sees it:** the import notice's changed last line ("on save, shapes that neither you nor this
   import moved keep this file's sizes and labels, and lines between them keep their bends; the file's original pool and
   lane outlines are NOT kept"), on
   kitchen-sink and on a nested-lane file, at 1024, 1440 and 1920: the full text is readable, wraps inside the notice,
@@ -155,6 +158,7 @@ F4/F12/F13/F3 (all done). Another tool's file only: designer-written DI is the d
   back into its lane is redrawn); a plain designer-written map shows no notice.
   Screenshots in `docs/reports/T-1264-evidence/`, read control by control in `## Visual Verification`.
   For the independent reviewer: `fw reviewer judge T-1264 --criterion 1` (render-surface, no operator carve-out).
+  **Reviewer verdict:** green V-20261028-50f42e08 — reviewer-judge-t-1264-r1-84a6eb4a7d18:reviewer (rung rung-1-same-vendor-independent), digest fd171b8e2997; dispatch judge-t-1264-r1-84a6eb4a7d18; evidence: .context/reviews/evidence/T-1264/AC1-judge-t-1264-r1-84a6eb4a7d18.md, .context/reviews/evidence/T-1264/kitchen-sink-1024-judge-t-1264-r1-84a6eb4a7d18.png, .context/reviews/evidence/T-1264/kitchen-sink-1440-judge-t-1264-r1-84a6eb4a7d18.png, .context/reviews/evidence/T-1264/kitchen-sink-1920-judge-t-1264-r1-84a6eb4a7d18.png, .context/reviews/evidence/T-1264/nested-lanes-1024-judge-t-1264-r1-84a6eb4a7d18.png, .context/reviews/evidence/T-1264/nested-lanes-1440-judge-t-1264-r1-84a6eb4a7d18.png, .context/reviews/evidence/T-1264/nested-lanes-1920-judge-t-1264-r1-84a6eb4a7d18.png, .context/reviews/evidence/T-1264/plain-designer-map-1024-judge-t-1264-r1-84a6eb4a7d18.png, .context/reviews/evidence/T-1264/plain-designer-map-1440-judge-t-1264-r1-84a6eb4a7d18.png, .context/reviews/evidence/T-1264/plain-designer-map-1920-judge-t-1264-r1-84a6eb4a7d18.png, .context/reviews/evidence/T-1264/kitchen-sink-1024-notice-judge-t-1264-r1-84a6eb4a7d18.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -364,6 +368,16 @@ An end-of-flow check over all 11 goldens (first/last waypoint within 40 px of it
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** the first save of a modeler's file rewrote its diagram: default shape sizes, recomputed routes, no
+`isMarkerVisible`, no labels, new DI ids (job C F6), so the file looked different when reopened in that tool.
+**Root cause:** import read only each shape's x/y; export wrote every shape and edge from the designer's own model,
+which has no per-element size, label or imported route.
+**Why structurally allowed:** the DI emitter was designed for designer-made maps (T-340: emit DI only when the input
+carried it), and every geometry check compared designer-written files, where the designer's DI is the file's DI.
+**Prevention:** `_t1264-imported-geometry-cdp.mjs` (browser leg `_leg_211`): kept when unmoved, redrawn when moved by
+the person or by the import, references resolve, designer maps record nothing; red on the old source and on the
+round-1 commit. The judge's round-1 finding is the second half of that leg.
 
 ## Evolution
 
