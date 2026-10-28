@@ -345,3 +345,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1261-original-node-and-flow-ids-are-lost-on-f.md
 - **Context:** Initial task creation
+
+### 2026-10-28 — decision brief (T-1329)
+- Still live (`deriveUid` at src :14916/:15219). Options and recommendation (F3: record the original id, keep the
+  display-id rule): `docs/reports/T-1329-open-job-c-findings-brief.md`. Awaits the operator's ruling.

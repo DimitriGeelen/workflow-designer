@@ -345,3 +345,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1267-nested-lanes-childlaneset-are-flattened-.md
 - **Context:** Initial task creation
+
+### 2026-10-28 — decision brief (T-1329)
+- Still live; named by the import notice since T-1327. Recommendation (F9: defer until a real file arrives):
+  `docs/reports/T-1329-open-job-c-findings-brief.md`. Awaits the operator's ruling.

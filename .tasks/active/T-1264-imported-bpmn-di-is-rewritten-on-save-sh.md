@@ -345,3 +345,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1264-imported-bpmn-di-is-rewritten-on-save-sh.md
 - **Context:** Initial task creation
+
+### 2026-10-28 — decision brief (T-1329)
+- Still live; named by the import notice since T-1327. Recommendation (F6: keep imported geometry until the element
+  is moved, after F4/F12/F13): `docs/reports/T-1329-open-job-c-findings-brief.md`. Awaits the operator's ruling.

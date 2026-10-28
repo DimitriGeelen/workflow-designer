@@ -345,3 +345,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1270-opening-a-second-file-with-the-same-proc.md
 - **Context:** Initial task creation
+
+### 2026-10-28 — decision brief (T-1329)
+- Still live (src :13046-13050; project opens use `replace` and are not affected). Recommendation (F12: suffix the
+  library key only): `docs/reports/T-1329-open-job-c-findings-brief.md`. Awaits the operator's ruling.

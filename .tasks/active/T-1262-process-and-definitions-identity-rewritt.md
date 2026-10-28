@@ -345,3 +345,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1262-process-and-definitions-identity-rewritt.md
 - **Context:** Initial task creation
+
+### 2026-10-28 — decision brief (T-1329)
+- Still live (src :13779, :13821; T-1326 keeps every other root/process attribute). Recommendation (F4: keep the
+  file's own values): `docs/reports/T-1329-open-job-c-findings-brief.md`. Awaits the operator's ruling.
