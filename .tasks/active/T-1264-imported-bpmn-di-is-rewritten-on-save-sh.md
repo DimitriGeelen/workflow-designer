@@ -147,8 +147,9 @@ F4/F12/F13/F3 (all done). Another tool's file only: designer-written DI is the d
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-- [ ] **Shown as a person sees it:** the import notice's changed last line ("this file's shape sizes, labels and line
-  bends are kept for shapes that stay where the file put them; its pool and lane outlines are NOT kept"), on
+- [ ] **Shown as a person sees it:** the import notice's changed last line ("on save, shapes that neither you nor this
+  import moved keep this file's sizes and labels, and lines between them keep their bends; the file's original pool and
+  lane outlines are NOT kept"), on
   kitchen-sink and on a nested-lane file, at 1024, 1440 and 1920: the full text is readable, wraps inside the notice,
   covers no node, the toolbar stays reachable, and the sentence is true to what a save does (a node the import moved
   back into its lane is redrawn); a plain designer-written map shows no notice.
@@ -305,7 +306,7 @@ map. Read by the agent, 2026-10-28, after the wording fix below:
 
 | state | control | 1024 | 1440 | 1920 | note |
 |-------|---------|------|------|------|------|
-| kitchen-sink | notice, changed last line | ok | ok | ok | two lines at 1024, wrapping under its bullet; one line at 1440 and 1920 |
+| kitchen-sink | notice, changed last line | ok | ok | ok | three lines at 1024, wrapping under its bullet; one line at 1920 |
 | kitchen-sink | notice dismiss ✕ | ok | ok | ok | right edge, vertically centred |
 | kitchen-sink | Clean nudge + no-authority summary below | ok | ok | ok | stacked, none overlapping |
 | kitchen-sink | diagram under the advisories | ok | ok | ok | pool starts below the last advisory; no node covered (measured) |
@@ -317,6 +318,21 @@ map. Read by the agent, 2026-10-28, after the wording fix below:
 **Wording, found by reading the nested-lanes shot:** the first draft said "kept until you move a shape", while the same
 notice's first line reports two nodes the import itself moved back into their lane, whose geometry is therefore not
 kept. Changed to "kept for shapes that stay where the file put them", which is true in both cases.
+
+**Advisory sweep** (codex `t1264-sweep-b39de80390ca`, 2026-10-28, all 15 images; no verdict asked). Findings, verbatim
+in substance:
+1. The wording "shapes that stay where the file put them" is indirect: it does not say that a move by the person and
+   by the import both count; "line bends … kept for shapes" leaves unclear which lines qualify; "pool and lane outlines
+   are NOT kept" could read as if outlines disappear, though replacement outlines are drawn. **Acted on:** now "on save,
+   shapes that neither you nor this import moved keep this file's sizes and labels, and lines between them keep their
+   bends; the file's original pool and lane outlines are NOT kept". Shots retaken (9/9 measures ok) and re-read: three
+   lines at 1024, two at 1440 (nested-lanes), one at 1920; nothing clipped; controls unchanged.
+2. Kitchen-sink's event circles and labels overlap in the central cluster, and labels are small at fit zoom. **Not this
+   change:** the fixture's own dense geometry at fit-to-view, identical in T-1327's shots.
+3. At 1024 the stacked notices take nearly half the canvas height. **Not this change:** the advisory stack is T-1327's
+   layout; this task adds no line to it.
+4. Lower palette entries fall below the screenshot edge. **Not this change:** the palette scrolls, as before.
+No clipped notice text, notice/diagram overlap, or hidden header buttons, close ×, or side-panel toggles found.
 
 ## RCA
 

@@ -4,13 +4,13 @@
   "width": 1024,
   "shot": "kitchen-sink-1024.png",
   "shown": true,
-  "text": "⚠ 6 nodes were drawn outside their declared lane — moved back into place; 2 lanes could not fit their own content — bands grown, no nodes moved: Lane_1cofr07 (+920px), Lane (+185px); 6 data object/store elements and 4 data associations kept unchanged and saved back, not shown yet; 1 annotation, 3 groups, 2 associations kept unchanged and saved back, not shown yet; 13 elements inside 2 subprocesses shown and saved at the top level — the subprocess nesting is NOT kept; this file's shape sizes, labels and line bends are kept for shapes that stay where the file put them; its pool and lane outlines are NOT kept",
+  "text": "⚠ 6 nodes were drawn outside their declared lane — moved back into place; 2 lanes could not fit their own content — bands grown, no nodes moved: Lane_1cofr07 (+920px), Lane (+185px); 6 data object/store elements and 4 data associations kept unchanged and saved back, not shown yet; 1 annotation, 3 groups, 2 associations kept unchanged and saved back, not shown yet; 13 elements inside 2 subprocesses shown and saved at the top level — the subprocess nesting is NOT kept; on save, shapes that neither you nor this import moved keep this file's sizes and labels, and lines between them keep their bends; the file's original pool and lane outlines are NOT kept",
   "problems": [],
   "rect": [
    232,
    87,
    460,
-   220
+   238
   ]
  },
  {
@@ -18,13 +18,13 @@
   "width": 1024,
   "shot": "nested-lanes-1024.png",
   "shown": true,
-  "text": "⚠ 2 nodes were drawn outside their declared lane — moved back into place; 1 lane could not fit its own content — band grown, no nodes moved: Sales (+78px); 2 nested lanes shown and saved as top-level lanes — the lane nesting is NOT kept; this file's shape sizes, labels and line bends are kept for shapes that stay where the file put them; its pool and lane outlines are NOT kept",
+  "text": "⚠ 2 nodes were drawn outside their declared lane — moved back into place; 1 lane could not fit its own content — band grown, no nodes moved: Sales (+78px); 2 nested lanes shown and saved as top-level lanes — the lane nesting is NOT kept; on save, shapes that neither you nor this import moved keep this file's sizes and labels, and lines between them keep their bends; the file's original pool and lane outlines are NOT kept",
   "problems": [],
   "rect": [
    232,
    87,
    460,
-   145
+   162
   ]
  },
  {
@@ -40,13 +40,13 @@
   "width": 1440,
   "shot": "kitchen-sink-1440.png",
   "shown": true,
-  "text": "⚠ 6 nodes were drawn outside their declared lane — moved back into place; 2 lanes could not fit their own content — bands grown, no nodes moved: Lane_1cofr07 (+920px), Lane (+185px); 6 data object/store elements and 4 data associations kept unchanged and saved back, not shown yet; 1 annotation, 3 groups, 2 associations kept unchanged and saved back, not shown yet; 13 elements inside 2 subprocesses shown and saved at the top level — the subprocess nesting is NOT kept; this file's shape sizes, labels and line bends are kept for shapes that stay where the file put them; its pool and lane outlines are NOT kept",
+  "text": "⚠ 6 nodes were drawn outside their declared lane — moved back into place; 2 lanes could not fit their own content — bands grown, no nodes moved: Lane_1cofr07 (+920px), Lane (+185px); 6 data object/store elements and 4 data associations kept unchanged and saved back, not shown yet; 1 annotation, 3 groups, 2 associations kept unchanged and saved back, not shown yet; 13 elements inside 2 subprocesses shown and saved at the top level — the subprocess nesting is NOT kept; on save, shapes that neither you nor this import moved keep this file's sizes and labels, and lines between them keep their bends; the file's original pool and lane outlines are NOT kept",
   "problems": [],
   "rect": [
-   283,
+   232,
    87,
-   774,
-   133
+   876,
+   151
   ]
  },
  {
@@ -54,13 +54,13 @@
   "width": 1440,
   "shot": "nested-lanes-1440.png",
   "shown": true,
-  "text": "⚠ 2 nodes were drawn outside their declared lane — moved back into place; 1 lane could not fit its own content — band grown, no nodes moved: Sales (+78px); 2 nested lanes shown and saved as top-level lanes — the lane nesting is NOT kept; this file's shape sizes, labels and line bends are kept for shapes that stay where the file put them; its pool and lane outlines are NOT kept",
+  "text": "⚠ 2 nodes were drawn outside their declared lane — moved back into place; 1 lane could not fit its own content — band grown, no nodes moved: Sales (+78px); 2 nested lanes shown and saved as top-level lanes — the lane nesting is NOT kept; on save, shapes that neither you nor this import moved keep this file's sizes and labels, and lines between them keep their bends; the file's original pool and lane outlines are NOT kept",
   "problems": [],
   "rect": [
-   283,
+   232,
    87,
-   774,
-   93
+   876,
+   110
   ]
  },
  {
@@ -76,12 +76,12 @@
   "width": 1920,
   "shot": "kitchen-sink-1920.png",
   "shown": true,
-  "text": "⚠ 6 nodes were drawn outside their declared lane — moved back into place; 2 lanes could not fit their own content — bands grown, no nodes moved: Lane_1cofr07 (+920px), Lane (+185px); 6 data object/store elements and 4 data associations kept unchanged and saved back, not shown yet; 1 annotation, 3 groups, 2 associations kept unchanged and saved back, not shown yet; 13 elements inside 2 subprocesses shown and saved at the top level — the subprocess nesting is NOT kept; this file's shape sizes, labels and line bends are kept for shapes that stay where the file put them; its pool and lane outlines are NOT kept",
+  "text": "⚠ 6 nodes were drawn outside their declared lane — moved back into place; 2 lanes could not fit their own content — bands grown, no nodes moved: Lane_1cofr07 (+920px), Lane (+185px); 6 data object/store elements and 4 data associations kept unchanged and saved back, not shown yet; 1 annotation, 3 groups, 2 associations kept unchanged and saved back, not shown yet; 13 elements inside 2 subprocesses shown and saved at the top level — the subprocess nesting is NOT kept; on save, shapes that neither you nor this import moved keep this file's sizes and labels, and lines between them keep their bends; the file's original pool and lane outlines are NOT kept",
   "problems": [],
   "rect": [
-   523,
+   402,
    60,
-   774,
+   1016,
    133
   ]
  },
@@ -90,12 +90,12 @@
   "width": 1920,
   "shot": "nested-lanes-1920.png",
   "shown": true,
-  "text": "⚠ 2 nodes were drawn outside their declared lane — moved back into place; 1 lane could not fit its own content — band grown, no nodes moved: Sales (+78px); 2 nested lanes shown and saved as top-level lanes — the lane nesting is NOT kept; this file's shape sizes, labels and line bends are kept for shapes that stay where the file put them; its pool and lane outlines are NOT kept",
+  "text": "⚠ 2 nodes were drawn outside their declared lane — moved back into place; 1 lane could not fit its own content — band grown, no nodes moved: Sales (+78px); 2 nested lanes shown and saved as top-level lanes — the lane nesting is NOT kept; on save, shapes that neither you nor this import moved keep this file's sizes and labels, and lines between them keep their bends; the file's original pool and lane outlines are NOT kept",
   "problems": [],
   "rect": [
-   523,
+   402,
    60,
-   774,
+   1016,
    93
   ]
  },

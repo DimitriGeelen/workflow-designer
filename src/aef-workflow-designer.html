@@ -10709,7 +10709,7 @@ function maybeShowLaneFixNotice() {
     `top-level lane${nk.nestedLanes === 1 ? '' : 's'} — the lane nesting is NOT kept`);
   // T-1264: unmoved shapes and lines keep the file's own geometry (a node moved back into its lane, or by the person,
   // is redrawn); pool and lane outlines are still not written back
-  if (nk.diRedrawn) parts.push(`this file's shape sizes, labels and line bends are kept for shapes that stay where the file put them; its pool and lane outlines are NOT kept`);
+  if (nk.diRedrawn) parts.push(`on save, shapes that neither you nor this import moved keep this file's sizes and labels, and lines between them keep their bends; the file's original pool and lane outlines are NOT kept`);
   const show = parts.length > 0;
   // T-1327: one part per line. Run together with semicolons, seven parts made a 300px-tall paragraph at 1024 that
   // nobody reads. The "; " separators stay in the text (hidden), so textContent reads exactly as before.
