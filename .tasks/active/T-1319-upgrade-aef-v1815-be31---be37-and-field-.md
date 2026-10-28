@@ -102,6 +102,13 @@ whose job 092 is the template; T-4811 (the identity fix on --termlink launches) 
   headless Chromium on this Watchtower /designer/app, designer 0.31.0, runCheck on the R1 fixture: state "checked",
   ERROR E-XML-IO-MATCH-MISSING in the drawer and under the output row. AEF recorded be.45 1/2/3 WORKS. Open: T-4843 and
   T-4844 on the next dispatch and reviewer run; G and T-4811 after the operator's relaunch.)*
+  *(2026-10-28, T-1327's sweep and judge: T-4843 WORKS — the sweep worker's meta.json records
+  `worker_bin` (.../@openai/codex/bin/codex.js) and `worker_version` (codex-cli 0.153.4), and each judge seat dir has
+  worker_bin / worker_version.txt. T-4844 WORKS — the opencode seat gave a verdict (first try `not-evaluated`, no image
+  input, it said so and named what it could not see; the retry `green` by decoding the PNGs and checking the measures),
+  where it gave none three times on be.43; and the sweep, which asks for no verdict, closed as
+  `close_state: no-verdict`, named as such. Still open: G and T-4811 after the operator's relaunch (this session still
+  predates be.38).)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
