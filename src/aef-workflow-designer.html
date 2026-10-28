@@ -10707,7 +10707,7 @@ function maybeShowLaneFixNotice() {
     `${nk.hoistingSubs} subprocess${nk.hoistingSubs === 1 ? '' : 'es'} shown and saved at the top level — the subprocess nesting is NOT kept`);
   if (nk.nestedLanes) parts.push(`${nk.nestedLanes} nested lane${nk.nestedLanes === 1 ? '' : 's'} shown and saved as ` +
     `top-level lane${nk.nestedLanes === 1 ? '' : 's'} — the lane nesting is NOT kept`);
-  if (nk.diRedrawn) parts.push(`the layout is redrawn on save: positions are kept, this file's shape sizes and line bends are NOT`);
+  if (nk.diRedrawn) parts.push(`the layout is redrawn on save: positions are kept; this file's shape sizes and line bends are NOT kept`);
   const show = parts.length > 0;
   // T-1327: one part per line. Run together with semicolons, seven parts made a 300px-tall paragraph at 1024 that
   // nobody reads. The "; " separators stay in the text (hidden), so textContent reads exactly as before.

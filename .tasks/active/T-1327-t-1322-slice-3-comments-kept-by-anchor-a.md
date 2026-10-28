@@ -313,6 +313,17 @@ Read by the agent, 2026-10-28, after the bullet layout:
 | nested-lanes | import notice: 4 parts incl. "2 nested lanes … NOT kept" and "layout is redrawn" | ok | ok | ok | Sales, Inside sales, Field sales, Operations drawn as four top-level lanes, as the notice says |
 | plain-designer-map (arc-lifecycle) | no notice | ok | ok | ok | the canvas starts at the top, as before |
 
+Advisory sweep (codex, `sweep-t1327-a2e1ad69d569`, 2026-10-28, all 15 shots read): toolbar unclipped, no advisory over a
+node, lane label or another advisory, every notice line readable and separated; "nesting loss and preservation of
+undrawn elements are understandable". Findings and what was done:
+1. The last line ended "shape sizes and line bends are NOT" — FIXED: "… are NOT kept"; shots retaken (9/9 measures ok).
+2. At 1024 on kitchen-sink the three advisories take about half the canvas height — kept: three separate advisories,
+   each dismissable; this task made the notice shorter (327 px to 220 px), not taller.
+3. Overlapping events and small text in kitchen-sink, small text at fit zoom, empty nested-lane bands — not from this
+   task (the file's own positions, fit zoom, F9 itself, which the notice now names).
+4. "The boxes size to their content, they do not span the full canvas" — correct and intended: max-content up to the
+   canvas width; the brief overstated it.
+
 Not from this task, seen in the shots: kitchen-sink's own layout piles several events on one spot at 1440/1920 (the
 file's positions; Clean layout is offered); nested-lanes moves the two Sales nodes into the parent band (F9 itself,
 which is why the notice says the nesting is not kept).
