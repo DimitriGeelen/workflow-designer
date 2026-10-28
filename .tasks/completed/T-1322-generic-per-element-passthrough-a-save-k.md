@@ -246,6 +246,12 @@ nothing unread, so they do not change.
 - **Change:** status: started-work → work-completed
 - **Reason:** Inception decision: GO
 
+### 2026-10-28T09:35:00Z — build tasks filed [agent]
+- **Builds the GO:** T-1325 (slice 1, per-element passthrough: F1, F2, F7), T-1326 (slice 2, process-level kept content:
+  F5), T-1327 (slice 3, comments by anchor and the open notice: F11, and option C for F6, F8, F9).
+- No `inception_decisions` ids were declared before the decision, and the record is closed now, so the build tasks link
+  back by `related_tasks` and this entry, not by `unlocks_inception_decision`.
+
 ## Reviewer Verdict (v1.5)
 
 - **Scan ID:** R-48cfc253
