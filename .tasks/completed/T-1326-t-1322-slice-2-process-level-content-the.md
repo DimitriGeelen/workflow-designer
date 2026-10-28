@@ -9,13 +9,13 @@ description: >
   id map; a kept element whose reference now points at nothing is dropped and named
   in a notice. After slice 1.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t1326-process-level-kept-cdp.mjs]
 related_tasks: [T-1322, T-1263, T-1325]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: [T-1322, T-1263, T-1325]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-28T09:27:07Z
-last_update: '2026-10-28T10:07:41Z'
-date_finished:
+last_update: 2026-10-28T10:25:30Z
+date_finished: 2026-10-28T10:25:30Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -312,6 +312,8 @@ which T-1119 already keeps verbatim).
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1326-process-level-kept-cdp.mjs > /tmp/t1326.out 2>&1; grep -q '"ok": true' /tmp/t1326.out
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t358-byteid-thirdparty.mjs > /tmp/t1326-358.out 2>&1; grep -q '11 identical, 0 drifted' /tmp/t1326-358.out
 
 ## RCA
 
@@ -413,3 +415,15 @@ which T-1119 already keeps verbatim).
 ### 2026-10-28T10:07:40Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-28T10:25:30Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-07ee58b5
+- **Timestamp:** 2026-10-28T10:25:33Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none

@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1326: T-1322 slice 2: process-level content the designer does not model is kept (annotations, associations, groups, categories, process documentation), dangling references dropped with a notice
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-28T10:25:39Z
+# ============================================================================
+
+task_id: T-1326
+task_name: "T-1322 slice 2: process-level content the designer does not model is kept (annotations, associations, groups, categories, process documentation), dangling references dropped with a notice"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-28T09:27:07Z
+completed: 2026-10-28T10:25:30Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-10-28T11:14:06+01:00
+last_commit: 2026-10-28T11:14:06+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  process, collaboration and root content the designer does not model is kept (T-1322 GO slice 2): annotations, associations (ends follow their element, dropped with their DI when it is deleted), groups and their categories, documentation/attributes/extensions on process, collaboration, our pool and root, and a flow's documentation; census 125 -> 12 lost items (10 deliberate, the comment, an empty condition); third-party goldens re-recorded deliberately; harness _t1326 red on the old source, browser leg _leg_204
+
+# Key outcomes
+outcomes:
+  - '**Artifacts kept:** the process''s `textAnnotation`, `association` and `group` are written back after the flow'
+  - '**References follow:** an association''s `sourceRef`/`targetRef` naming a node or flow is written as that element''s'
+  - '**Process and root:** process `documentation` (before its extensionElements), its unread attributes (not id, name,'
+  - '**Flow documentation:** a sequence flow''s `documentation` is written back first in the flow, before extensionElements.'
+  - '**Unchanged where nothing is kept:** a designer-written map gains no key and the same bytes (all 24 corpus maps);'
+  - '**Measured:** T-1322''s census on the 16 fixtures leaves only: the deliberate exclusions (exporterVersion, the second'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t1326-process-level-kept-cdp.yaml'
+  - '.tasks/active/T-1326-t-1322-slice-2-process-level-content-the.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/goldens/third-party/bizagi-nested-ns.bpmn.golden'
+  - 'tests/goldens/third-party/boundary-events.bpmn.golden'
+  - 'tests/goldens/third-party/caseagile-local-ns.bpmn.golden'
+  - 'tests/goldens/third-party/collaboration-message-flows.bpmn.golden'
+  - 'tests/goldens/third-party/i18n-documentation.bpmn.golden'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/goldens/third-party/nested-subprocesses.bpmn.golden'
+  - 'tests/goldens/third-party/simple.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1326-process-level-kept-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-28T11:14:06'
+    action: 'T-1326: process, collaboration and root content the designer does not model is kept (T-1322 GO slice 2): annotations, associations (ends follow their element, dropped with their DI when it is deleted), groups and their categories, documentation/attributes/extensions on process, collaboration, our pool and root, and a flow''s documentation; census 125 -> 12 lost items (10 deliberate, the comment, an empty condition); third-party goldens re-recorded deliberately; harness _t1326 red on the old source, browser leg _leg_204'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 58 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 58
+  commits: 2
+  files_changed: 16
+  lines_added: 736
+  lines_removed: 30
+  footprint_refreshed_at: '2026-10-28T10:25:47Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1326-t-1322-slice-2-process-level-content-the.md
+generated_by: context-agent-hybrid
