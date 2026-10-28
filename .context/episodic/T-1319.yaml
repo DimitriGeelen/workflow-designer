@@ -1,0 +1,304 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1319: Upgrade AEF v1.8.15-be.31 -> be.37 and field-test A-H for AEF's v1.8.15 release
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-28T15:34:51Z
+# ============================================================================
+
+task_id: T-1319
+task_name: "Upgrade AEF v1.8.15-be.31 -> be.37 and field-test A-H for AEF's v1.8.15 release"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-27T11:15:40Z
+completed: 2026-10-28T15:34:42Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-27T12:16:44+01:00
+last_commit: 2026-10-28T16:34:41+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  job 093 (be.31 -> be.37) from job 092, and the task's criteria. job 093 rehearsed (all 9 steps green in a clone; job.sh sha 3d76fa231d7c). pristine vendor commit — AEF v1.8.15-be.37 (cc5842d89) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.15-be.37 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000). re-apply 832's local fixes onto pristine AEF v1.8.15-be.37 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/0a0d114b6a32, all clean (no three-way); designer_open.html restored (local-only, T-1172/T-1175). tools/_t517: OK, 44 diverged = 44 declared. job 093 done rc=0, local fixes re-applied (_t517 OK), core green 211/0. job 094 (be.37 -> be.38, AEF T-4811) from job 093. job 094 rehearsed (9/9 in a clone; sha ad41b0da94b5); be.37 pushed (4298e3ba). File T-1320 (LAN gate leaves the unscrubbed text staged). field report part 1 sent (A, B, C, D, H). AEF filed T-4819 (resolver timer misattribution); the word block is by design. pristine vendor commit — AEF v1.8.15-be.38 (42360ecb5) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.15-be.38 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000). re-apply 832's local fixes onto pristine AEF v1.8.15-be.38 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/c5c925c89837, all clean; designer_open.html restored (local-only, T-1172/T-1175). tools/_t517: OK. job 094 done rc=0 (be.38, 9/9). job 095 (be.38 -> be.40, AEF T-4819) from job 094; T-1312: AEF's status on the catalog route (not decided; proposed per-project key). job 095 rehearsed (9/9 in a clone; sha 61a1d02fd1f6). field report part 2 sent (E, F; opencode seat sandbox finding). pristine vendor commit — AEF v1.8.15-be.40 (be0b8738a) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.15-be.40 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000). re-apply 832's local fixes onto pristine AEF v1.8.15-be.40 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/6469ac500471, all clean; designer_open.html restored. tools/_t517: OK. job 095 done rc=0 (be.40, 9/9). job 097 (be.40 -> be.43: designer data APIs and the 0.31.0 validator) from job 095. job 097 rehearsed (9/9 in a clone; sha 6cd7cf840867; the only concurrent change was the 20:00 cron audit's runtime files). pristine vendor commit — AEF v1.8.15-be.43 (2cd03ce60) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.15-be.43 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000). re-apply 832's local fixes onto pristine AEF v1.8.15-be.43 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/198c28d202e9, all clean; designer_open.html restored. tools/_t517: OK. CLAUDE.md as the be.43 upgrade synced it: AEF's Worktree Policy (opt-in only) added; the duplicate 'check context budget (checkpoint.sh status)' bullet dropped (the 'checkpoint.sh budget' line beside it stays). CLAUDE.md.bak diffed: its one backup-only line is that superseded duplicate, so it is removed. be.40 and be.43 done and pushed; be.43 designer APIs: catalog and instances WORK, validate FAILS on the ok flag (reported). job 098 (be.43 -> be.45: Check ok flag, worker version, opencode seat temp dir) from job 097. job 098 rehearsed (9/9 in a clone; sha 79c71beb8eda). pristine vendor commit — AEF v1.8.15-be.45 (5304d1b56) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.15-be.45 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000). re-apply 832's local fixes onto pristine AEF v1.8.15-be.45 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/4de110ffee56, all clean; designer_open.html restored. tools/_t517: OK. be.45 done (job 098 rc=0, fixes re-applied, core green 213/0); Check works on AEF end to end. T-4843 and T-4844 WORKS on today's dispatch and reviewer run (sent to AEF); G and T-4811 still wait for the relaunch. job 100 — upgrade AEF be.45 -> be.48 for AEF's release freeze (from job 098; rehearsed, all 9 steps ok in a clone). pristine vendor commit — AEF v1.8.15-be.48 (a936776c7) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.15-be.48 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000). re-apply 832's local fixes onto pristine AEF v1.8.15-be.48 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/696aaee01, 32 clean, 2 three-way, 3 merged by hand — observe.sh (upstream T-4787 summary name + Context block kept, 832 T-912 owner default/id capture/backlink and T-914 resolve kept), create-task.sh (upstream T-4863 set_key supersedes 832 T-774 _fm; 832 T-767 Human-AC seeding kept, heading matched by id after T-776), update-task.sh (upstream T-4791 vendor-sync gate and 832 T-649 warning, both); designer_open.html restored. tools/_t517: OK (44 = 44). _t525 leg 7 tells a concurrent audit's in-flight marker (pid alive: noted) from a leaked one (pid dead: breach) — be.48 (AEF T-4840) puts .audit-inflight.<pid> in .context/audits while an audit runs, and the 13:45 cron audit's marker failed the core tier; proven both ways during a live run (live pid noted, pid 999999 failed). be.48 done (job 100 rc=0, local fixes re-applied with 3 hand merges, core green 213/0); upgrade report sent to AEF for their release freeze. T-4811 and G WORKS after the operator's cockpit restart (identity coverage OK 9/0, registered as 832's key; conversation resumed by id, one live copy); final report sent to AEF (msg 6b486bb8)
+
+# Key outcomes
+outcomes:
+  - 'Job 093 (be.31 -> be.37) written from job 092, rehearsed (`runme.sh --dry-run`), committed; the operator ran it'
+  - '832''s local fixes re-applied onto the pristine be.37 commit (`tools/_t1000-revendor-worklist.py`), and'
+  - 'The core tier is green on the upgraded tree (`tools/_t1288-prepush-gate.sh`), and the upgrade is pushed'
+  - 'The A-H field report is sent on aef-v1815-be3, WORKS/FAILS/N/A per item, with the command and output for each'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'be.48 done (job 100 rc=0, local fixes re-applied with 3 hand merges, core green 213/0); upgrade report sent to AEF for their release freeze'
+    source: git-mined
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.15-be.48 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/696aaee01, 32 clean, 2 three-way, 3 merged by hand — observe.sh (upstream T-4787 summary name + Context block kept, 832 T-912 owner default/id capture/backlink and T-914 resolve kept), create-task.sh (upstream T-4863 set_key supersedes 832 T-774 _fm; 832 T-767 Human-AC seeding kept, heading matched by id after T-776), update-task.sh (upstream T-4791 vendor-sync gate and 832 T-649 warning, both); designer_open.html restored. tools/_t517: OK (44 = 44)'
+    source: git-mined
+  - description: 'be.45 done (job 098 rc=0, fixes re-applied, core green 213/0); Check works on AEF end to end'
+    source: git-mined
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.15-be.45 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/4de110ffee56, all clean; designer_open.html restored. tools/_t517: OK'
+    source: git-mined
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.15-be.43 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/198c28d202e9, all clean; designer_open.html restored. tools/_t517: OK'
+    source: git-mined
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.15-be.40 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/6469ac500471, all clean; designer_open.html restored. tools/_t517: OK'
+    source: git-mined
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.15-be.38 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/c5c925c89837, all clean; designer_open.html restored (local-only, T-1172/T-1175). tools/_t517: OK'
+    source: git-mined
+  - description: 'job 093 done rc=0, local fixes re-applied (_t517 OK), core green 211/0'
+    source: git-mined
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.15-be.37 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/0a0d114b6a32, all clean (no three-way); designer_open.html restored (local-only, T-1172/T-1175). tools/_t517: OK, 44 diverged = 44 declared'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/check-agent-dispatch.sh'
+  - '.agentic-framework/agents/context/check-worktree-governance-write.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/init.sh'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/designer/designer.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/framework-hook-lines.txt'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/agents/termlink/termlink.sh'
+  - '.agentic-framework/bin/claude-fw'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/docs/examples/designer-field-catalog-sample.json'
+  - '.agentic-framework/docs/generated/components/lib-arc_focus_health.md'
+  - '.agentic-framework/docs/generated/components/lib-dispatch_records.md'
+  - '.agentic-framework/docs/generated/components/lib-doctor-tmux.md'
+  - '.agentic-framework/docs/generated/components/lib-task_updates.md'
+  - '.agentic-framework/docs/generated/components/lib-tmp-hygiene.md'
+  - '.agentic-framework/docs/generated/components/tests-conformance-worker-contract-check_mapping.md'
+  - '.agentic-framework/docs/generated/components/tests-conformance-worker-contract-vectors.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t4426_claude_fw_tmux_redraw.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t4736_upgrade_prunes_root_designer.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-test_worker_contract_mapping.md'
+  - '.agentic-framework/docs/generated/components/tools-hook-python-c-substitution-lint.md'
+  - '.agentic-framework/docs/reports/T-1549-escalation-scan-v0.md'
+  - '.agentic-framework/docs/reports/T-4649-ring20-patch-triage.md'
+  - '.agentic-framework/docs/reports/T-4800-wc-v034-draft.md'
+  - '.agentic-framework/docs/reports/T-4801-local-reference-backend.md'
+  - '.agentic-framework/docs/reports/T-4824/received-055-t483.md'
+  - '.agentic-framework/docs/reports/T-4832-field-catalog-design.md'
+  - '.agentic-framework/docs/reports/T-4834/received-055-worktree-gate.md'
+  - '.agentic-framework/docs/reports/field-test-v1.8.15-results.md'
+  - '.agentic-framework/docs/specs/shared-worker-contract-transitions.md'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/arc_focus_health.py'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/config-file.sh'
+  - '.agentic-framework/lib/config.sh'
+  - '.agentic-framework/lib/continuous-mode.sh'
+  - '.agentic-framework/lib/cron-registry.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/dispatch_records.py'
+  - '.agentic-framework/lib/hook-degraded.sh'
+  - '.agentic-framework/lib/human_ac_ticks.py'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/paths.sh'
+  - '.agentic-framework/lib/reviewer/judge_cli.py'
+  - '.agentic-framework/lib/reviewer/static_scan.py'
+  - '.agentic-framework/lib/shell_write_scan.py'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/task_updates.py'
+  - '.agentic-framework/lib/templates/claude-project.md'
+  - '.agentic-framework/lib/tmp-hygiene.sh'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/update.sh'
+  - '.agentic-framework/lib/upgrade.sh'
+  - '.agentic-framework/lib/upgrade_commit_list.py'
+  - '.agentic-framework/lib/upstream.sh'
+  - '.agentic-framework/lib/vendor-visibility.sh'
+  - '.agentic-framework/lib/verdict_ledger.py'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/vendor/designer/aef-workflow-designer-0.31.0.html'
+  - '.agentic-framework/vendor/designer/validate-workflow-0.31.0.py'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/config.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/designer_api.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/smoke_test.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.agentic-framework/web/warmup.py'
+  - '.agentic-framework/web/wsgi.py'
+  - '.context/runme/093-upgrade-aef-v1.8.15-be.37/doctor-after.txt'
+  - '.context/runme/093-upgrade-aef-v1.8.15-be.37/doctor-before.txt'
+  - '.context/runme/093-upgrade-aef-v1.8.15-be.37/done'
+  - '.context/runme/093-upgrade-aef-v1.8.15-be.37/dryrun.ok'
+  - '.context/runme/093-upgrade-aef-v1.8.15-be.37/job.sh'
+  - '.context/runme/093-upgrade-aef-v1.8.15-be.37/run-20261027T124731.log'
+  - '.context/runme/094-upgrade-aef-v1.8.15-be.38/doctor-after.txt'
+  - '.context/runme/094-upgrade-aef-v1.8.15-be.38/doctor-before.txt'
+  - '.context/runme/094-upgrade-aef-v1.8.15-be.38/done'
+  - '.context/runme/094-upgrade-aef-v1.8.15-be.38/dryrun.ok'
+  - '.context/runme/094-upgrade-aef-v1.8.15-be.38/job.sh'
+  - '.context/runme/094-upgrade-aef-v1.8.15-be.38/run-20261027T133148.log'
+  - '.context/runme/095-upgrade-aef-v1.8.15-be.40/doctor-after.txt'
+  - '.context/runme/095-upgrade-aef-v1.8.15-be.40/doctor-before.txt'
+  - '.context/runme/095-upgrade-aef-v1.8.15-be.40/done'
+  - '.context/runme/095-upgrade-aef-v1.8.15-be.40/dryrun.ok'
+  - '.context/runme/095-upgrade-aef-v1.8.15-be.40/job.sh'
+  - '.context/runme/095-upgrade-aef-v1.8.15-be.40/run-20261027T193300.log'
+  - '.context/runme/097-upgrade-aef-v1.8.15-be.43/dryrun.ok'
+  - '.context/runme/097-upgrade-aef-v1.8.15-be.43/job.sh'
+  - '.context/runme/098-upgrade-aef-v1.8.15-be.45/dryrun.ok'
+  - '.context/runme/098-upgrade-aef-v1.8.15-be.45/job.sh'
+  - '.context/runme/100-upgrade-aef-v1.8.15-be.48/dryrun.ok'
+  - '.context/runme/100-upgrade-aef-v1.8.15-be.48/job.sh'
+  - '.framework.yaml'
+  - '.tasks/active/T-1312-ref-picker-over-a-project-field-catalog-.md'
+  - '.tasks/active/T-1319-upgrade-aef-v1815-be31---be37-and-field-.md'
+  - '.tasks/active/T-1320-lan-address-gate-leaves-the-unscrubbed-t.md'
+  - 'CLAUDE.md'
+  - 'tools/_t525-fabric-coverage-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-27T12:16:44'
+    action: 'T-1319: job 093 (be.31 -> be.37) from job 092, and the task''s criteria'
+  - time: '2026-10-27T12:19:03'
+    action: 'T-1319: job 093 rehearsed (all 9 steps green in a clone; job.sh sha 3d76fa231d7c)'
+  - time: '2026-10-27T12:53:49'
+    action: 'T-1319: pristine vendor commit — AEF v1.8.15-be.37 (cc5842d89) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-27T12:53:52'
+    action: 'T-1319: advance the divergence baseline to the pristine AEF v1.8.15-be.37 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-27T12:56:09'
+    action: 'T-1319: re-apply 832''s local fixes onto pristine AEF v1.8.15-be.37 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/0a0d114b6a32, all clean (no three-way); designer_open.html restored (local-only, T-1172/T-1175). tools/_t517: OK, 44 diverged = 44 declared'
+  - time: '2026-10-27T13:10:31'
+    action: 'T-1319: job 093 done rc=0, local fixes re-applied (_t517 OK), core green 211/0'
+  - time: '2026-10-27T13:11:43'
+    action: 'T-1319: job 094 (be.37 -> be.38, AEF T-4811) from job 093'
+  - time: '2026-10-27T13:14:00'
+    action: 'T-1319: job 094 rehearsed (9/9 in a clone; sha ad41b0da94b5); be.37 pushed (4298e3ba). File T-1320 (LAN gate leaves the unscrubbed text staged)'
+  - time: '2026-10-27T13:14:48'
+    action: 'T-1319: field report part 1 sent (A, B, C, D, H)'
+  - time: '2026-10-27T13:15:17'
+    action: 'T-1319: AEF filed T-4819 (resolver timer misattribution); the word block is by design'
+  - time: '2026-10-27T14:39:42'
+    action: 'T-1319: pristine vendor commit — AEF v1.8.15-be.38 (42360ecb5) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-27T15:17:24'
+    action: 'T-1319: advance the divergence baseline to the pristine AEF v1.8.15-be.38 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-27T15:19:20'
+    action: 'T-1319: re-apply 832''s local fixes onto pristine AEF v1.8.15-be.38 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/c5c925c89837, all clean; designer_open.html restored (local-only, T-1172/T-1175). tools/_t517: OK'
+  - time: '2026-10-27T15:19:28'
+    action: 'T-1319: job 094 done rc=0 (be.38, 9/9)'
+  - time: '2026-10-27T15:33:19'
+    action: 'T-1319: job 095 (be.38 -> be.40, AEF T-4819) from job 094; T-1312: AEF''s status on the catalog route (not decided; proposed per-project key)'
+  - time: '2026-10-27T15:36:22'
+    action: 'T-1319: job 095 rehearsed (9/9 in a clone; sha 61a1d02fd1f6)'
+  - time: '2026-10-27T16:47:00'
+    action: 'T-1319: field report part 2 sent (E, F; opencode seat sandbox finding)'
+  - time: '2026-10-27T19:44:55'
+    action: 'T-1319: pristine vendor commit — AEF v1.8.15-be.40 (be0b8738a) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-27T19:44:57'
+    action: 'T-1319: advance the divergence baseline to the pristine AEF v1.8.15-be.40 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-27T19:46:18'
+    action: 'T-1319: re-apply 832''s local fixes onto pristine AEF v1.8.15-be.40 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/6469ac500471, all clean; designer_open.html restored. tools/_t517: OK'
+  - time: '2026-10-27T19:46:22'
+    action: 'T-1319: job 095 done rc=0 (be.40, 9/9)'
+  - time: '2026-10-27T20:00:50'
+    action: 'T-1319: job 097 (be.40 -> be.43: designer data APIs and the 0.31.0 validator) from job 095'
+  - time: '2026-10-27T20:05:58'
+    action: 'T-1319: job 097 rehearsed (9/9 in a clone; sha 6cd7cf840867; the only concurrent change was the 20:00 cron audit''s runtime files)'
+  - time: '2026-10-27T22:05:26'
+    action: 'T-1319: pristine vendor commit — AEF v1.8.15-be.43 (2cd03ce60) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-27T22:05:28'
+    action: 'T-1319: advance the divergence baseline to the pristine AEF v1.8.15-be.43 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-27T22:07:00'
+    action: 'T-1319: re-apply 832''s local fixes onto pristine AEF v1.8.15-be.43 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/198c28d202e9, all clean; designer_open.html restored. tools/_t517: OK'
+  - time: '2026-10-27T22:07:08'
+    action: 'T-1319: CLAUDE.md as the be.43 upgrade synced it: AEF''s Worktree Policy (opt-in only) added; the duplicate ''check context budget (checkpoint.sh status)'' bullet dropped (the ''checkpoint.sh budget'' line beside it stays). CLAUDE.md.bak diffed: its one backup-only line is that superseded duplicate, so it is removed'
+  - time: '2026-10-27T22:30:20'
+    action: 'T-1319: be.40 and be.43 done and pushed; be.43 designer APIs: catalog and instances WORK, validate FAILS on the ok flag (reported)'
+  - time: '2026-10-27T22:47:18'
+    action: 'T-1319: job 098 (be.43 -> be.45: Check ok flag, worker version, opencode seat temp dir) from job 097'
+  - time: '2026-10-27T22:51:44'
+    action: 'T-1319: job 098 rehearsed (9/9 in a clone; sha 79c71beb8eda)'
+  - time: '2026-10-27T23:19:09'
+    action: 'T-1319: pristine vendor commit — AEF v1.8.15-be.45 (5304d1b56) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-27T23:19:12'
+    action: 'T-1319: advance the divergence baseline to the pristine AEF v1.8.15-be.45 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-27T23:20:37'
+    action: 'T-1319: re-apply 832''s local fixes onto pristine AEF v1.8.15-be.45 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/4de110ffee56, all clean; designer_open.html restored. tools/_t517: OK'
+  - time: '2026-10-27T23:39:11'
+    action: 'T-1319: be.45 done (job 098 rc=0, fixes re-applied, core green 213/0); Check works on AEF end to end'
+  - time: '2026-10-28T12:14:04'
+    action: 'T-1319: T-4843 and T-4844 WORKS on today''s dispatch and reviewer run (sent to AEF); G and T-4811 still wait for the relaunch'
+  - time: '2026-10-28T12:17:45'
+    action: 'T-1319: job 100 — upgrade AEF be.45 -> be.48 for AEF''s release freeze (from job 098; rehearsed, all 9 steps ok in a clone)'
+  - time: '2026-10-28T13:05:36'
+    action: 'T-1319: pristine vendor commit — AEF v1.8.15-be.48 (a936776c7) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-28T13:05:39'
+    action: 'T-1319: advance the divergence baseline to the pristine AEF v1.8.15-be.48 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-28T13:11:14'
+    action: 'T-1319: re-apply 832''s local fixes onto pristine AEF v1.8.15-be.48 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/696aaee01, 32 clean, 2 three-way, 3 merged by hand — observe.sh (upstream T-4787 summary name + Context block kept, 832 T-912 owner default/id capture/backlink and T-914 resolve kept), create-task.sh (upstream T-4863 set_key supersedes 832 T-774 _fm; 832 T-767 Human-AC seeding kept, heading matched by id after T-776), update-task.sh (upstream T-4791 vendor-sync gate and 832 T-649 warning, both); designer_open.html restored. tools/_t517: OK (44 = 44)'
+  - time: '2026-10-28T13:40:25'
+    action: 'T-1319: _t525 leg 7 tells a concurrent audit''s in-flight marker (pid alive: noted) from a leaked one (pid dead: breach) — be.48 (AEF T-4840) puts .audit-inflight.<pid> in .context/audits while an audit runs, and the 13:45 cron audit''s marker failed the core tier; proven both ways during a live run (live pid noted, pid 999999 failed)'
+  - time: '2026-10-28T13:52:42'
+    action: 'T-1319: be.48 done (job 100 rc=0, local fixes re-applied with 3 hand merges, core green 213/0); upgrade report sent to AEF for their release freeze'
+  - time: '2026-10-28T16:34:41'
+    action: 'T-1319: T-4811 and G WORKS after the operator''s cockpit restart (identity coverage OK 9/0, registered as 832''s key; conversation resumed by id, one live copy); final report sent to AEF (msg 6b486bb8)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 42 commit(s), 1699 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1699
+  commits: 43
+  files_changed: 130
+  lines_added: 50704
+  lines_removed: 22678
+  footprint_refreshed_at: '2026-10-28T15:35:00Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1319-upgrade-aef-v1815-be31---be37-and-field-.md
+generated_by: context-agent-hybrid
