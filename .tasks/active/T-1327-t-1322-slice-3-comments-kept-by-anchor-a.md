@@ -103,13 +103,13 @@ node's flows do. The notice covers what the FILE loses on open, not the person's
   conditionExpression; harness `tools/_t1327-comments-and-notice-cdp.mjs` covers both criteria above (comment anchors,
   deleted anchor, second save, notice text per class and none on a plain map), red on the pre-T-1327 source, browser leg;
   `bash tools/person-sees-gate.sh` exits 0; core tier green.
+
+### Human
 - [ ] **Shown as a person sees it:** the notice with every new part, on kitchen-sink (geometry, subprocesses, kept
   annotations/groups) and on a nested-lane file, at 1024, 1440 and 1920: the full text is readable, wraps inside the
   notice, covers no node (the T-1078 dock), and the toolbar stays reachable; a plain map shows no change.
   Screenshots in `docs/reports/T-1327-evidence/`, read control by control in `## Visual Verification`.
-  For the independent reviewer: `fw reviewer judge T-1327 --criterion 4`
-
-### Human
+  For the independent reviewer: `fw reviewer judge T-1327 --criterion 1` (render-surface, no operator carve-out).
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
