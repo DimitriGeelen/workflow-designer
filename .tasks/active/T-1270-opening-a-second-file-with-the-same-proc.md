@@ -147,6 +147,7 @@ T-1262 (see Decisions).
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+grep -q 'leg3 process id' tools/_t1262-file-identity-cdp.mjs
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
@@ -295,6 +296,13 @@ T-1262 (see Decisions).
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** opening a second file with the same process id saved it with `_v2` ids (job C F12).
+**Root cause:** the library-collision rename of `workflowMeta.id` (needed: "Save to project" targets that id) fed
+every derived id in the export (T-1262's root cause).
+**Why structurally allowed:** as T-1262: no check compared a third-party file's ids before and after a save.
+**Prevention:** fixed through T-1262 (the file's ids are kept, the rename stays on the designer's id); pinned by
+`_t1262` leg 3.
 
 ## Evolution
 

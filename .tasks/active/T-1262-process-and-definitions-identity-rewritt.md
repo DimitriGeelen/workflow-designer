@@ -104,10 +104,11 @@ Also carries T-1270 (F12), see its Decisions.
       every export parses in expat. *(`tools/_t1262-file-identity-cdp.mjs`, browser leg `_leg_209`: ok, 24 corpus
       maps. Pre-fix source: 14 failures, e.g. "leg1 process id: Process_proc_f (want Proc_F)", "leg2: isExecutable
       written where the file had none: true", "leg3 process id: Process_proc_f_v2 (want Proc_F)".)*
-- [ ] Third-party goldens that change are re-recorded deliberately, each changed line checked; core tier green.
+- [x] Third-party goldens that change are re-recorded deliberately, each changed line checked; core tier green.
       *(`_t358-byteid --record`: 10 of 11 changed, 54 lines each way, every one an identity line: definitions
       id/targetNamespace, collaboration, participant processRef (and participant id `Pool_<id>` on the 5 files with
-      no participant), process id/isExecutable, DI plane and pool shape references. Core tier: pending.)*
+      no participant), process id/isExecutable, DI plane and pool shape references. Core tier GREEN 213/0 with 1
+      quarantined (`_t1273-signal-restore-teeth`, the known timing flake owned by T-1294); person-sees gate exit 0.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -160,6 +161,8 @@ Also carries T-1270 (F12), see its Decisions.
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+grep -q 'leg browser "_t1262-file-identity-cdp" _leg_209' tests/run-bridge-tests.sh
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1262-file-identity-cdp.mjs > /tmp/.t1262 2>&1 && [ "$(sed -n 2p /tmp/.t1262)" = '  "ok": true,' ]
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
@@ -308,6 +311,16 @@ Also carries T-1270 (F12), see its Decisions.
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** the first save of a third-party file rewrote its definitions id, targetNamespace, collaboration id,
+process id and isExecutable (job C F4): a Camunda process lost its deployment key, callers' calledElement broke,
+and a non-executable process became executable.
+**Root cause:** `buildBpmnXml` derived all five from `workflowMeta.id` (`Definitions_<id>`, `Process_<id>`, …) and a
+fixed namespace; import read them only to name the workflow, and nothing carried them to export.
+**Why structurally allowed:** every round-trip check compares designer-written files, whose ids already have the
+derived shape, so the rewrite was invisible; the third-party goldens recorded the rewritten ids as correct.
+**Prevention:** `_t1262-file-identity-cdp.mjs` (browser leg `_leg_209`) pins each value on two third-party shapes,
+the second-open case and the designer-map rename, red on the old source on 14 points.
 
 ## Evolution
 
