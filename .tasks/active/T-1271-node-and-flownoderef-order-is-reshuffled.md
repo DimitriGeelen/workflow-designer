@@ -97,7 +97,8 @@ Operator, 2026-10-28, on the brief: "Proceed as you should fit and suggest" (GO 
       *(Harness leg 3: all 24 corpus maps keep their declared order. `_t358-byteid` re-recorded with `--record`: 8 of
       11 goldens changed, 644 lines moved; for each of the 8 the sorted lines are identical to HEAD's, so the change
       is order only — no line added, lost or renamed.)*
-- [ ] Core tier green.
+- [x] Core tier green. *(214/0, after T-1330 fixed an unrelated flaky leg that reddened the first run;
+      person-sees gate exit 0.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -150,6 +151,8 @@ Operator, 2026-10-28, on the brief: "Proceed as you should fit and suggest" (GO 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+grep -q 'leg browser "_t1271-node-order-cdp" _leg_208' tests/run-bridge-tests.sh
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1271-node-order-cdp.mjs > /tmp/.t1271 2>&1 && [ "$(sed -n 2p /tmp/.t1271)" = '  "ok": true,' ]
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
@@ -298,6 +301,16 @@ Operator, 2026-10-28, on the brief: "Proceed as you should fit and suggest" (GO 
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** the first save of a third-party file regrouped its flow nodes and flowNodeRefs by kind (start and end
+events first, then tasks, then gateways); job C F13.
+**Root cause:** parse built its node work list one allowlisted tag at a time (`for (const tag of nodeTags) for (el of
+byBpmn(proc, tag))`), then appended foreign tags; `state.nodes` took that order and export follows `state.nodes`.
+**Why structurally allowed:** every round-trip check compares a designer-written file, already in the grouped order
+by construction, so the reorder was invisible to them; the third-party goldens recorded the regrouped order as
+correct.
+**Prevention:** `_t1271-node-order-cdp.mjs` (browser leg `_leg_208`) asserts declared order on a mixed-kind
+third-party map, red on the old source.
 
 ## Evolution
 

@@ -67,8 +67,8 @@ Core tier red at 2026-10-28 ~18:40 (T-1271's pre-push run): `_t345` failed becau
 - [x] `_t344` reads the expander's output once into a variable or file and greps that (L-387); no
       `producer | grep -q` remains in `_t344`. *(3 sites: the product-file check, the audit-lock wait, the
       full-coverage read.)*
-- [ ] The same repetition with the fixed check never fails; `_t344` and `_t345` pass; core tier green.
-      *(captured form 0 of 40; `_t344` 9 passed 0 failed; `_t345` PASS; core tier: pending.)*
+- [x] The same repetition with the fixed check never fails; `_t344` and `_t345` pass; core tier green.
+      *(captured form 0 of 40; `_t344` 9 passed 0 failed; `_t345` PASS; core tier GREEN 214/0.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
