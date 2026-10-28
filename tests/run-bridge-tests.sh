@@ -1455,6 +1455,21 @@ else
 fi
 }
 leg browser "_t1303-io-findings-cdp" _leg_200
+_leg_201() {
+
+# ── T-1265: a sequence flow's conditionExpression keeps its language and id on open and save ──
+# Import kept only the text, export wrote a fixed element: language="javascript" was dropped and the engine fell back
+# to its default language (ring20 cloud job C, F7). Red against the pre-T-1265 source (legs 1, 3, 5).
+if node "$ROOT/tools/_t1265-condition-language-cdp.mjs" > "$TMP/leg-_t1265.out" 2>&1 \
+   && head -2 "$TMP/leg-_t1265.out" | grep -q '"ok": true'; then
+  pass=$((pass + 1))
+else
+  report FAIL "a conditionExpression lost its language or id on save, a second save differs, a text edit dropped the language, or a plain condition changed (run 'node tools/_t1265-condition-language-cdp.mjs'; T-1265)"
+  show_output "$TMP/leg-_t1265.out" "_t1265-condition-language-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1265-condition-language-cdp" _leg_201
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

@@ -13898,7 +13898,10 @@ function buildBpmnXml(s) {
     lines.push(`      </bpmn:extensionElements>`);
     // T-690: emitted here, AFTER extensionElements, per tBaseElement's element order.
     if (e.condition) {
-      lines.push(`      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${escText(e.condition)}</bpmn:conditionExpression>`);
+      // T-1265: id and language as imported; neither is written when the source had none.
+      const condId = e.conditionId ? ` id="${escAttr(e.conditionId)}"` : '';
+      const condLang = e.conditionLanguage ? ` language="${escAttr(e.conditionLanguage)}"` : '';
+      lines.push(`      <bpmn:conditionExpression${condId} xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"${condLang}>${escText(e.condition)}</bpmn:conditionExpression>`);
     }
     lines.push(`    </bpmn:sequenceFlow>`);
   }
@@ -14959,7 +14962,15 @@ function parseBpmnXml(text) {
     const name = el.getAttribute('name');
     if (name) edge.name = name;
     const condEl = byBpmn(el, 'conditionExpression')[0];
-    if (condEl) edge.condition = (condEl.textContent || '').trim();
+    if (condEl) {
+      edge.condition = (condEl.textContent || '').trim();
+      // T-1265: the expression's language decides how the engine evaluates it (absent = the engine default, JUEL in
+      // Camunda), so a dropped language="javascript" silently changes what the flow does.
+      const lang = condEl.getAttribute('language');
+      if (lang) edge.conditionLanguage = lang;
+      const condId = condEl.getAttribute('id');
+      if (condId) edge.conditionId = condId;
+    }
     const anchorsEl = byAef(el, 'anchors')[0];
     if (anchorsEl) {
       const sp = anchorsEl.getAttribute('sourcePort');

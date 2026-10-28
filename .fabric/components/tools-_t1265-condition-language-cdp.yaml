@@ -1,0 +1,21 @@
+id: tools/_t1265-condition-language-cdp.mjs
+name: _t1265-condition-language-cdp
+type: script
+subsystem: browser-harness
+location: tools/_t1265-condition-language-cdp.mjs
+tags: []
+
+purpose: "_t1265-condition-language-cdp.mjs — T-1265: a sequence flow's <bpmn:conditionExpression> keeps its language and id attributes on open and save."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-28
+created_by: unknown

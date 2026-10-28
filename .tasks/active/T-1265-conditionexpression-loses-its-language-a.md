@@ -1,13 +1,19 @@
 ---
 id: T-1265
-name: "conditionExpression loses its language attribute (and its id/extensionElements) on save"
+name: "conditionExpression loses its language attribute (and its id/extensionElements)
+  on save"
 description: >
-  A JavaScript condition then evaluates in the engine default language (JUEL in Camunda). Found by ring20's cloud job C (T-2466) on 8909a9b1, verified by headless round trip, no notice shown; report verbatim in docs/reports/T-2466-cloud-job-C-bughunt.md (F7, C 8/13). Fix theme proposed there: a generic per-element passthrough rather than more allowlist entries.
+  A JavaScript condition then evaluates in the engine default language (JUEL in Camunda).
+  Found by ring20's cloud job C (T-2466) on 8909a9b1, verified by headless round trip,
+  no notice shown; report verbatim in docs/reports/T-2466-cloud-job-C-bughunt.md (F7,
+  C 8/13). Fix theme proposed there: a generic per-element passthrough rather than
+  more allowlist entries.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [import-loss, cloud-job-c]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:24:12Z
-last_update: 2026-10-21T21:24:12Z
-date_finished: null
+last_update: '2026-10-28T07:44:39Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,50 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-28T07:44:39Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1265: conditionExpression loses its language attribute (and its id/extensionElements) on save
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+F7 of ring20's cloud job C (docs/reports/T-2466-cloud-job-C-bughunt.md): import keeps only the text of a sequence flow's
+`<bpmn:conditionExpression>` (`parseBpmnXml`, edges loop), and export writes a fixed element (`buildBpmnXml`), so
+`language="javascript"` is dropped and the engine evaluates the script in its default language (JUEL in Camunda).
+Scope: the expression's own `language` and `id` attributes. `extensionElements` inside the expression and foreign
+`extensionElements` on the flow belong to the generic-passthrough question of T-1259, not here. Nothing renders
+differently (the panel edits the text only), so this is not a UI change.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **Scoped** from F7: language and id on the expression; the rest named for T-1259.
+- [ ] **`language` and `id` survive open and save:** a flow with `<conditionExpression xsi:type="bpmn:tFormalExpression"
+  language="javascript" id="Cond_1">a &lt; b</conditionExpression>` exports with both attributes and the same text; a
+  second save is byte-identical; editing the condition text in state keeps the language; a condition without `language`
+  exports exactly as before (no new attribute); a language value with `"` or `&` is escaped and re-reads equal.
+  Harness `tools/_t1265-condition-language-cdp.mjs` drives the real editor runtime; red on the pre-fix source
+  (`T1265_SRC`), registered as a browser leg (`_leg_201`).
+- [ ] **Core tier green** (`tools/_t1288-prepush-gate.sh`).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -345,3 +381,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1265-conditionexpression-loses-its-language-a.md
 - **Context:** Initial task creation
+
+### 2026-10-28T07:44:38Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
