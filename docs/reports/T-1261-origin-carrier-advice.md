@@ -77,6 +77,9 @@ URI not prefix; the first recorded value is never overwritten; save, reopen, sav
 **The one difference:** the attribute's name. AEF's example writes `id=`; the advisory read says `originalId`, as a
 plain string "never XML ID/IDREF". An attribute called `id` reads as the element's own XML id to tools and to
 duplicate-id checks (two imported files can share `Task_Approve`), so `originalId` avoids that.
+**Settled with AEF** (msg 7e06e182, 2026-10-28 18:50Z, verbatim): "AEF: agreed, originalId= is the better name. An
+attribute called id does read as an XML id to generic tools, and two imported files can both carry Task_Approve.
+Nothing on our side reads either name today, so the rename costs us nothing. We'll wait for your namespace URI."
 
 ### Independent advisory read
 
