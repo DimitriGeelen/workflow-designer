@@ -2,6 +2,17 @@
 
 **Task:** T-309 (inception) · **Opened:** 2026-07-29 · **Status:** frame filled, exploration not yet run
 
+> **Currency — 2026-10-28 (stale-document check T-1152, for T-325's open ruling).** Re-run today
+> (`python3 tests/test_rule_dialect_axis.py`): **67 rules: 43 universal, 4 dialect-relative, 4 presentational,
+> 16 conventional**, and **6** carriers §1 does not classify (the 2026-08-01 section below counted 46 / 39 / 3 / 4 and
+> 2). The fourth dialect-relative rule is `W-XML-NO-WORKFLOWMETA` (T-972); the four new unclassified carriers are
+> `aef:io` v1.1 (AEF T-4415, read via T-1303), `aef:workflowMeta`, its `@kind` and the JSON `workflowMeta.kind`.
+> **What T-325's ruling rests on is unchanged:** §1 of `docs/standards/aef-bpmn-mapping-v1.md` still opens "Every
+> `aef:` datum is exactly one of two classes" and still lists neither `aef:laneMeta/@height` nor `@abbr`; `W-GW-AMBIGUOUS`
+> and `W-XML-GW-AMBIGUOUS` are still dialect-relative. Relaxing both (ruling (b)) now takes the dialect-relative count
+> from **4 to 2**, not 3 to 1. Validator findings now do reach the designer (T-1303 and its slices), so the
+> "exploration not yet run" status line above is history.
+
 Written per C-001: the artifact is created before the research and grown as findings arrive. What is
 below the line is what has actually been established; everything else is still a question.
 
