@@ -10707,7 +10707,9 @@ function maybeShowLaneFixNotice() {
     `${nk.hoistingSubs} subprocess${nk.hoistingSubs === 1 ? '' : 'es'} shown and saved at the top level — the subprocess nesting is NOT kept`);
   if (nk.nestedLanes) parts.push(`${nk.nestedLanes} nested lane${nk.nestedLanes === 1 ? '' : 's'} shown and saved as ` +
     `top-level lane${nk.nestedLanes === 1 ? '' : 's'} — the lane nesting is NOT kept`);
-  if (nk.diRedrawn) parts.push(`the layout is redrawn on save: positions are kept; this file's shape sizes and line bends are NOT kept`);
+  // T-1264: unmoved shapes and lines keep the file's own geometry (a node moved back into its lane, or by the person,
+  // is redrawn); pool and lane outlines are still not written back
+  if (nk.diRedrawn) parts.push(`this file's shape sizes, labels and line bends are kept for shapes that stay where the file put them; its pool and lane outlines are NOT kept`);
   const show = parts.length > 0;
   // T-1327: one part per line. Run together with semicolons, seven parts made a 300px-tall paragraph at 1024 that
   // nobody reads. The "; " separators stay in the text (hidden), so textContent reads exactly as before.
@@ -14089,6 +14091,8 @@ function buildBpmnXml(s) {
   for (const n of s.nodes) {
     const def = NODE_DEFAULTS[n.type] || { w: 120, h: 48 };
     if (typeof n.x !== 'number' || typeof n.y !== 'number') continue;
+    const keptShape = keptShapeXml(n, displayIdOf(n));   // T-1264: another tool's geometry, while unmoved
+    if (keptShape) { for (const l of keptShape) lines.push(`      ${l}`); continue; }
     lines.push(`      <bpmndi:BPMNShape id="BPMNShape_${escAttr(displayIdOf(n))}" bpmnElement="${escAttr(displayIdOf(n))}">`);
     lines.push(`        <dc:Bounds x="${n.x.toFixed(1)}" y="${n.y.toFixed(1)}" width="${def.w}" height="${def.h}"/>`);
     lines.push(`      </bpmndi:BPMNShape>`);
@@ -14108,6 +14112,8 @@ function buildBpmnXml(s) {
     const poly = computeEdgeGeometry(e, srcNode, tgtNode).polyline;
     if (poly.length < 2) continue;
     const edgeId = escAttr(displayIdOf(e));
+    const keptEdge = keptEdgeXml(e, srcNode, tgtNode, displayIdOf(e), poly);   // T-1264
+    if (keptEdge) { for (const l of keptEdge) lines.push(`      ${l}`); continue; }
     lines.push(`      <bpmndi:BPMNEdge id="BPMNEdge_${edgeId}" bpmnElement="${edgeId}">`);
     for (const p of poly) {
       lines.push(`        <di:waypoint x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}"/>`);
@@ -14247,6 +14253,92 @@ function keptAttrsXml(attrs) {
     if (ns && p && p !== 'xml' && IO_EXPORT_ROOT_NS[p] !== ns && !decls.has(p)) decls.set(p, ns);
   }
   return [...decls].map(([p, u]) => ` xmlns:${p}="${escAttr(u)}"`).join('') + (attrs || []).map(([q, , v]) => ` ${q}="${escAttr(v)}"`).join('');
+}
+// T-1264 (job C F6): another tool's geometry, kept until the person moves the element. Only what differs from what this
+// designer would write is recorded (a size other than NODE_DEFAULTS, a DI id, isMarkerVisible and other attributes, a
+// BPMNLabel, waypoints other than the computed route), so a designer-written map records nothing and saves as before,
+// and re-opening a saved file records the same differences again (its second save is byte-identical). Runs at the end
+// of parse, with `state` the parsed map, after lane reconciliation: a node the reconcile moved counts as moved.
+const DI_NS_URI = 'http://www.omg.org/spec/BPMN/20100524/DI', DC_NS_URI = 'http://www.omg.org/spec/DD/20100524/DC';
+const DDI_NS_URI = 'http://www.omg.org/spec/DD/20100524/DI';   // di:waypoint is DD's, not BPMN DI's
+const edgeRouteSig = e => JSON.stringify([e.waypoints || [], e.sourcePort || null, e.targetPort || null,
+  e.routingHints || null, e.detourY ?? null, e.forceStraight || null]);
+function diShapeParts(el, defaultId) {
+  const k = {};
+  if (el.getAttribute('id') && el.getAttribute('id') !== defaultId) k.id = el.getAttribute('id');
+  const attrs = [];
+  for (const a of Array.from(el.attributes)) {
+    if (a.name === 'xmlns' || a.name.startsWith('xmlns:') || !XML_ATTR_NAME.test(a.name)) continue;
+    if (!a.namespaceURI && (a.name === 'id' || a.name === 'bpmnElement')) continue;
+    attrs.push([a.name, a.namespaceURI || '', a.value]);
+  }
+  if (attrs.length) k.attrs = attrs;
+  const children = Array.from(el.children).filter(c => !(c.namespaceURI === DC_NS_URI && c.localName === 'Bounds')
+    && !(c.namespaceURI === DDI_NS_URI && c.localName === 'waypoint')).map(keptElementXml);
+  if (children.length) k.children = children;
+  return k;
+}
+function captureImportedDi(doc, s, nodeUidByFileId, flowUidByFileId) {
+  const shapes = new Map(), edges = new Map();
+  for (const el of Array.from(doc.getElementsByTagNameNS(DI_NS_URI, '*'))) {
+    const ref = el.getAttribute('bpmnElement');
+    if (!ref) continue;
+    if (el.localName === 'BPMNShape' && !shapes.has(ref)) shapes.set(ref, el);
+    else if (el.localName === 'BPMNEdge' && !edges.has(ref)) edges.set(ref, el);
+  }
+  const byUid = new Map(s.nodes.map(n => [n.uid, n]));
+  for (const [fileId, uid] of nodeUidByFileId) {
+    const n = byUid.get(uid), el = shapes.get(fileId);
+    if (!n || !el || typeof n.x !== 'number' || typeof n.y !== 'number') continue;
+    const def = NODE_DEFAULTS[n.type] || { w: 120, h: 48 };
+    const k = diShapeParts(el, `BPMNShape_${fileId}`);
+    const b = Array.from(el.children).find(c => c.namespaceURI === DC_NS_URI && c.localName === 'Bounds');
+    const w = b && b.getAttribute('width'), h = b && b.getAttribute('height');
+    if (w && parseFloat(w) !== def.w) k.w = w;
+    if (h && parseFloat(h) !== def.h) k.h = h;
+    if (Object.keys(k).length) n.diKept = { at: [n.x, n.y], ...k };
+  }
+  const nodeByUid = uid => byUid.get(uid);
+  for (const e of s.edges) {
+    const fileId = [...flowUidByFileId].find(([, u]) => u === e.uid);
+    const el = fileId && edges.get(fileId[0]);
+    const a = nodeByUid(e.source), z = nodeByUid(e.target);
+    if (!el || !a || !z) continue;
+    const k = diShapeParts(el, `BPMNEdge_${fileId[0]}`);
+    const wps = Array.from(el.children).filter(c => c.namespaceURI === DDI_NS_URI && c.localName === 'waypoint')
+      .map(p => [parseFloat(p.getAttribute('x')), parseFloat(p.getAttribute('y'))]);
+    const fmt = pts => pts.map(p => `${(+p[0]).toFixed(1)},${(+p[1]).toFixed(1)}`).join(' ');
+    if (wps.length >= 2 && wps.every(p => p.every(Number.isFinite))) {
+      const computed = computeEdgeGeometry(e, a, z).polyline.map(p => [p.x, p.y]);
+      if (fmt(wps) !== fmt(computed)) k.wps = wps;
+    }
+    if (Object.keys(k).length) e.diKept = { at: [a.x, a.y, z.x, z.y], sig: edgeRouteSig(e), ...k };
+  }
+}
+// The kept shape/edge XML for an element still where it was imported, else null (redraw as today).
+function keptShapeXml(n, disp) {
+  const k = n.diKept;
+  if (!k || k.at[0] !== n.x || k.at[1] !== n.y) return null;
+  const def = NODE_DEFAULTS[n.type] || { w: 120, h: 48 };
+  const out = [`<bpmndi:BPMNShape id="${escAttr(k.id || `BPMNShape_${disp}`)}" bpmnElement="${escAttr(disp)}"${keptAttrsXml(k.attrs)}>`,
+    `  <dc:Bounds x="${n.x.toFixed(1)}" y="${n.y.toFixed(1)}" width="${escAttr(k.w || String(def.w))}" height="${escAttr(k.h || String(def.h))}"/>`];
+  for (const c of k.children || []) out.push(`  ${c}`);
+  out.push(`</bpmndi:BPMNShape>`);
+  return out;
+}
+function keptEdgeXml(e, a, z, disp, poly) {
+  const k = e.diKept;
+  if (!k || k.at[0] !== a.x || k.at[1] !== a.y || k.at[2] !== z.x || k.at[3] !== z.y || k.sig !== edgeRouteSig(e)) return null;
+  const pts = k.wps || poly.map(p => [p.x, p.y]);
+  // sourceElement/targetElement name the end SHAPES' DI ids: point them at the ids this save writes for those shapes
+  const shapeId = n => (n.diKept && n.diKept.id) || `BPMNShape_${displayIdOf(n)}`;
+  const attrs = (k.attrs || []).map(([q, ns, v]) => !ns && q === 'sourceElement' ? [q, ns, shapeId(a)]
+    : !ns && q === 'targetElement' ? [q, ns, shapeId(z)] : [q, ns, v]);
+  const out = [`<bpmndi:BPMNEdge id="${escAttr(k.id || `BPMNEdge_${disp}`)}" bpmnElement="${escAttr(disp)}"${keptAttrsXml(attrs)}>`];
+  for (const p of pts) out.push(`  <di:waypoint x="${(+p[0]).toFixed(1)}" y="${(+p[1]).toFixed(1)}"/>`);
+  for (const c of k.children || []) out.push(`  ${c}`);
+  out.push(`</bpmndi:BPMNEdge>`);
+  return out;
 }
 // The kept attributes and children belong to the element's BPMN tag: a retype (task to gateway) writes none of them.
 function nodeKeptFor(n) {
@@ -15429,6 +15521,8 @@ function parseBpmnXml(text) {
       _laneReconcileCount++;
     }
   }
+  // T-1264: what of the file's own geometry differs from ours, at the positions now final (routing reads `state`)
+  if (sourceCarriedDi) { state = result; captureImportedDi(doc, result, displayIdToUid, flowIdToUid); }
   state = prev;
   return result;
 }

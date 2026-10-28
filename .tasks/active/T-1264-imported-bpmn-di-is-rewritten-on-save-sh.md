@@ -1,13 +1,19 @@
 ---
 id: T-1264
-name: "Imported BPMN DI is rewritten on save: shape sizes, isMarkerVisible, BPMNLabel bounds, edge waypoints, pool/lane shapes, DI ids"
+name: "Imported BPMN DI is rewritten on save: shape sizes, isMarkerVisible, BPMNLabel
+  bounds, edge waypoints, pool/lane shapes, DI ids"
 description: >
-  Import reads only Bounds x/y; emit writes NODE_DEFAULTS sizes and recomputed waypoints. Partly the designer layout rule; decide what to keep. Found by ring20's cloud job C (T-2466) on 8909a9b1, verified by headless round trip, no notice shown; report verbatim in docs/reports/T-2466-cloud-job-C-bughunt.md (F6, C 7/13). Fix theme proposed there: a generic per-element passthrough rather than more allowlist entries.
+  Import reads only Bounds x/y; emit writes NODE_DEFAULTS sizes and recomputed waypoints.
+  Partly the designer layout rule; decide what to keep. Found by ring20's cloud job
+  C (T-2466) on 8909a9b1, verified by headless round trip, no notice shown; report
+  verbatim in docs/reports/T-2466-cloud-job-C-bughunt.md (F6, C 7/13). Fix theme proposed
+  there: a generic per-element passthrough rather than more allowlist entries.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [import-loss, cloud-job-c]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:24:09Z
-last_update: 2026-10-21T21:24:09Z
-date_finished: null
+last_update: '2026-10-28T19:43:44Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,51 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-28T19:43:44Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 3
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=3 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1264: Imported BPMN DI is rewritten on save: shape sizes, isMarkerVisible, BPMNLabel bounds, edge waypoints, pool/lane shapes, DI ids
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Job C F6 (`docs/reports/T-2466-cloud-job-C-bughunt.md`); brief `docs/reports/T-1329-open-job-c-findings-brief.md`.
+Operator, 2026-10-28: GO on F6 as recommended (keep imported geometry until the person moves the element), after
+F4/F12/F13/F3 (all done). Another tool's file only: designer-written DI is the designer's own by construction.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] For a file another tool wrote, each node the person has not moved or resized saves its imported
+      `BPMNShape` geometry (Bounds width/height, `isMarkerVisible`, `BPMNLabel`, its DI id), pointed at the node's
+      current id; a moved node is redrawn as today.
+- [ ] Each flow whose two ends are unmoved and whose route the person has not changed saves its imported
+      `BPMNEdge` waypoints (and label, DI id); otherwise the route is recomputed as today.
+- [ ] Designer-written maps save byte-identically (every corpus map; goldens legs); a second save of an imported
+      file is byte-identical.
+- [ ] The import notice no longer says sizes and bends are not kept; it says they are kept until moved. The
+      UI rules apply to that change: person-sees gate 0, an advisory sweep, screenshots at 1024/1440/1920 read in
+      `## Visual Verification`, and an independent judge on a `### Human` criterion.
+- [ ] A browser harness proves the first three, red on the pre-T-1264 source; third-party goldens re-recorded
+      deliberately, each changed line checked; core tier green.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -110,6 +147,13 @@ date_finished: null
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+- [ ] **Shown as a person sees it:** the import notice's changed last line ("this file's shape sizes, labels and line
+  bends are kept for shapes that stay where the file put them; its pool and lane outlines are NOT kept"), on
+  kitchen-sink and on a nested-lane file, at 1024, 1440 and 1920: the full text is readable, wraps inside the notice,
+  covers no node, the toolbar stays reachable, and the sentence is true to what a save does (a node the import moved
+  back into its lane is redrawn); a plain designer-written map shows no notice.
+  Screenshots in `docs/reports/T-1264-evidence/`, read control by control in `## Visual Verification`.
+  For the independent reviewer: `fw reviewer judge T-1264 --criterion 1` (render-surface, no operator carve-out).
 
 ## Verification
 
@@ -248,6 +292,31 @@ date_finished: null
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+grep -q 'leg browser "_t1264-imported-geometry-cdp" _leg_211' tests/run-bridge-tests.sh
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1264-imported-geometry-cdp.mjs > /tmp/.t1264 2>&1 && [ "$(sed -n 2p /tmp/.t1264)" = '  "ok": true,' ]
+test -s docs/reports/T-1264-evidence/kitchen-sink-1024-notice.png
+
+## Visual Verification
+
+Shots: `docs/reports/T-1264-evidence/<state>-<width>.png` (full page) and `<state>-<width>-notice.png` (the notice
+alone), by `tools/_t1327-notice-shots.mjs`, which also measures each (`measures.json`, 9/9 ok): the notice inside the
+viewport, its text not clipped, no drawn node under it, every header button on screen, no notice on a designer-written
+map. Read by the agent, 2026-10-28, after the wording fix below:
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| kitchen-sink | notice, changed last line | ok | ok | ok | two lines at 1024, wrapping under its bullet; one line at 1440 and 1920 |
+| kitchen-sink | notice dismiss ✕ | ok | ok | ok | right edge, vertically centred |
+| kitchen-sink | Clean nudge + no-authority summary below | ok | ok | ok | stacked, none overlapping |
+| kitchen-sink | diagram under the advisories | ok | ok | ok | pool starts below the last advisory; no node covered (measured) |
+| kitchen-sink | header + toolbar (Open project … Save) | ok | ok | ok | every button visible; second toolbar row at 1024 and 1440 as before |
+| kitchen-sink | side panels (palette, properties) | ok | ok | ok | unchanged |
+| nested-lanes | notice, 4 parts incl. the changed line | ok | ok | ok | at 1024 the line reads in full beside "2 nodes … moved back into place" |
+| plain designer map | no notice | ok | ok | ok | none shown |
+
+**Wording, found by reading the nested-lanes shot:** the first draft said "kept until you move a shape", while the same
+notice's first line reports two nodes the import itself moved back into their lane, whose geometry is therefore not
+kept. Changed to "kept for shapes that stay where the file put them", which is true in both cases.
 
 ## RCA
 
@@ -349,3 +418,7 @@ date_finished: null
 ### 2026-10-28 — decision brief (T-1329)
 - Still live; named by the import notice since T-1327. Recommendation (F6: keep imported geometry until the element
   is moved, after F4/F12/F13): `docs/reports/T-1329-open-job-c-findings-brief.md`. Awaits the operator's ruling.
+
+### 2026-10-28T19:43:43Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

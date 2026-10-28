@@ -1607,6 +1607,22 @@ else
 fi
 }
 leg browser "_t1261-original-id-cdp" _leg_210
+_leg_211() {
+
+# ── T-1264: another tool's diagram geometry is kept until the person moves the element (job C F6) ──
+# Sizes, isMarkerVisible, labels, DI ids and waypoints of unmoved shapes and flows; a moved one is redrawn; edge
+# sourceElement/targetElement name shapes the export contains; designer-written maps record nothing. Red against the
+# pre-T-1264 source.
+if node "$ROOT/tools/_t1264-imported-geometry-cdp.mjs" > "$TMP/leg-_t1264.out" 2>&1 \
+   && [ "$(sed -n 2p "$TMP/leg-_t1264.out")" = '  "ok": true,' ]; then
+  pass=$((pass + 1))
+else
+  report FAIL "another tool's unmoved shape or flow lost its geometry on save, a moved one kept it, a DI reference dangles, or a designer-written map recorded geometry (run 'node tools/_t1264-imported-geometry-cdp.mjs'; T-1264)"
+  show_output "$TMP/leg-_t1264.out" "_t1264-imported-geometry-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1264-imported-geometry-cdp" _leg_211
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

@@ -104,40 +104,44 @@
 
   <bpmndi:BPMNDiagram id="BPMNDiagram_process_1">
     <bpmndi:BPMNPlane id="BPMNPlane_process_1" bpmnElement="Process_1">
-      <bpmndi:BPMNShape id="BPMNShape_lan_1_sub" bpmnElement="lan_1_sub">
-        <dc:Bounds x="300.0" y="80.0" width="120" height="64"/>
+      <bpmndi:BPMNShape id="_BPMNShape_SubProcess_2" bpmnElement="lan_1_sub" isExpanded="true">
+        <dc:Bounds x="300.0" y="80.0" width="300.0" height="300.0"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_start_start_2" bpmnElement="lan_start_start_2">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="lan_start_start_2">
         <dc:Bounds x="352.0" y="242.0" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="345" y="285" width="55" height="14"/>
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_2_task" bpmnElement="lan_2_task">
-        <dc:Bounds x="420.0" y="220.0" width="110" height="64"/>
+      <bpmndi:BPMNShape id="_BPMNShape_Task_2" bpmnElement="lan_2_task">
+        <dc:Bounds x="420.0" y="220.0" width="100.0" height="80.0"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_end_end" bpmnElement="lan_end_end">
+      <bpmndi:BPMNShape id="_BPMNShape_EndEvent_2" bpmnElement="lan_end_end">
         <dc:Bounds x="650.0" y="212.0" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="645" y="255" width="51" height="14"/>
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_start_start" bpmnElement="lan_start_start">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_11" bpmnElement="lan_start_start">
         <dc:Bounds x="108.0" y="212.0" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" height="0.0" width="0.0" x="126.0" y="253.0"/>
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1">
-        <di:waypoint x="387.5" y="256.0"/>
-        <di:waypoint x="420.0" y="256.0"/>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1" sourceElement="_BPMNShape_StartEvent_2" targetElement="_BPMNShape_Task_2">
+        <di:waypoint x="388.0" y="260.0"/>
+        <di:waypoint x="420.0" y="260.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="BPMNEdge_flow_2" bpmnElement="flow_2">
-        <di:waypoint x="420.0" y="112.0"/>
-        <di:waypoint x="442.0" y="112.0"/>
-        <di:waypoint x="442.0" y="171.0"/>
-        <di:waypoint x="628.0" y="171.0"/>
-        <di:waypoint x="628.0" y="230.0"/>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_2" bpmnElement="flow_2" sourceElement="_BPMNShape_SubProcess_2" targetElement="_BPMNShape_EndEvent_2">
+        <di:waypoint x="600.0" y="230.0"/>
         <di:waypoint x="650.0" y="230.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="BPMNEdge_flow_3" bpmnElement="flow_3">
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_3" bpmnElement="flow_3" sourceElement="_BPMNShape_StartEvent_11" targetElement="_BPMNShape_SubProcess_2">
         <di:waypoint x="144.0" y="230.0"/>
-        <di:waypoint x="166.0" y="230.0"/>
-        <di:waypoint x="166.0" y="171.0"/>
-        <di:waypoint x="278.0" y="171.0"/>
-        <di:waypoint x="278.0" y="112.0"/>
-        <di:waypoint x="300.0" y="112.0"/>
+        <di:waypoint x="300.0" y="230.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" height="21.0" width="33.0" x="192.0" y="204.0"/>
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

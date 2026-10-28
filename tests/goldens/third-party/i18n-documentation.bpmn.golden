@@ -84,22 +84,25 @@
 
   <bpmndi:BPMNDiagram id="BPMNDiagram_process_0dp8lmr">
     <bpmndi:BPMNPlane id="BPMNPlane_process_0dp8lmr" bpmnElement="Process_0dp8lmr">
-      <bpmndi:BPMNShape id="BPMNShape_lan_start_startevent" bpmnElement="lan_start_startevent">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="lan_start_startevent">
         <dc:Bounds x="179.0" y="99.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_1_activity" bpmnElement="lan_1_activity">
-        <dc:Bounds x="270.0" y="77.0" width="110" height="64"/>
+      <bpmndi:BPMNShape id="Activity_0eb4n4l_di" bpmnElement="lan_1_activity">
+        <dc:Bounds x="270.0" y="77.0" width="100" height="80"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_end_ended" bpmnElement="lan_end_ended">
+      <bpmndi:BPMNShape id="Event_1kw5c3l_di" bpmnElement="lan_end_ended">
         <dc:Bounds x="432.0" y="99.0" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="434" y="142" width="32" height="14"/>
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1">
-        <di:waypoint x="214.5" y="113.0"/>
-        <di:waypoint x="270.0" y="113.0"/>
+      <bpmndi:BPMNEdge id="Flow_1lpbdia_di" bpmnElement="flow_1">
+        <di:waypoint x="215.0" y="117.0"/>
+        <di:waypoint x="270.0" y="117.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="BPMNEdge_flow_2" bpmnElement="flow_2">
-        <di:waypoint x="380.0" y="113.0"/>
-        <di:waypoint x="432.5" y="113.0"/>
+      <bpmndi:BPMNEdge id="Flow_0cg72xx_di" bpmnElement="flow_2">
+        <di:waypoint x="370.0" y="117.0"/>
+        <di:waypoint x="432.0" y="117.0"/>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

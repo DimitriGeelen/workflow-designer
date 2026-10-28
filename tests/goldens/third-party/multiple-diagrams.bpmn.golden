@@ -52,8 +52,8 @@
       <bpmndi:BPMNShape id="BPMNShape_Pool_process_1" bpmnElement="Pool_process_1" isHorizontal="true">
         <dc:Bounds x="30" y="30" width="1540" height="612"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_1_node" bpmnElement="lan_1_node">
-        <dc:Bounds x="156.0" y="81.0" width="110" height="64"/>
+      <bpmndi:BPMNShape id="BpmnDiagram_1_Task_A_di" bpmnElement="lan_1_node">
+        <dc:Bounds x="156.0" y="81.0" width="100" height="80"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BpmnDiagram_2_Task_B_di" bpmnElement="Task_B">
         <omgdc:Bounds xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" x="256" y="81" width="100" height="80"/>
