@@ -1533,6 +1533,20 @@ else
 fi
 }
 leg browser "_t1327-comments-and-notice-cdp" _leg_205
+_leg_206() {
+
+# ── T-1327: the import notice as a person sees it, measured at 1024/1440/1920 ──
+# The shot tool's own measures: the notice inside the viewport, its text not clipped, no node under it, every header
+# button on screen, no notice on a designer-written map. Shots go to $TMP, not the evidence folder.
+if node "$ROOT/tools/_t1327-notice-shots.mjs" "$TMP/t1327-shots" > "$TMP/leg-_t1327s.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the import notice is clipped, off-screen, over a node, pushes a header button off-screen, or shows on a designer-written map (run 'node tools/_t1327-notice-shots.mjs /tmp/out'; T-1327)"
+  show_output "$TMP/leg-_t1327s.out" "_t1327-notice-shots.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1327-notice-shots" _leg_206
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
