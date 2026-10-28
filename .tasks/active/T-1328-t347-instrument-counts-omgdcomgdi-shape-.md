@@ -74,6 +74,7 @@ shape bounds were counted as a foreign vocabulary.
 - [x] Re-run on the corpus: `multiple-diagrams` reads `n/a` for extChildren; every other row is unchanged from
       the 2026-10-28 run before the fix (documentation 0/2, property 0/2, loopChars 0/2, unknownAttrs 0/3 losing).
       *(Diff of the per-file tables: that one row only; extChildren now 0/6; control clean.)*
+- [x] The self-check is a core-tier leg (`_leg_207`, no browser) in `tests/run-bridge-tests.sh`.
 - [x] The two T-347 review docs (its report and the T-397 brief) say the 1/7 was this miscount and that it is fixed.
 
 ### Human
@@ -128,6 +129,7 @@ shape bounds were counted as a foreign vocabulary.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
 PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t347-accepted-element-content-cdp.mjs --selftest > /tmp/.t1328-st 2>&1 && grep -q 'selftest: OK' /tmp/.t1328-st
+grep -q 'leg core "_t347-instrument-selftest" _leg_207' tests/run-bridge-tests.sh
 grep -q 'Fixed by T-1328' docs/reports/T-347-accepted-element-content.md
 grep -q 'Fixed by T-1328' docs/reports/T-397-import-repair-semantics-brief.md
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be

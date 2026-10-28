@@ -1547,6 +1547,21 @@ else
 fi
 }
 leg browser "_t1327-notice-shots" _leg_206
+_leg_207() {
+
+# ── T-1328: the T-347 instrument tells spec from foreign by the bound namespace URI ──
+# No browser. bpmn-js binds the DD namespaces to omgdc/omgdi; judged by prefix spelling, its shape bounds read as a
+# lost foreign extension. The self-check pins both directions (a name-based mutant fails 2 of its 7 cases).
+if node "$ROOT/tools/_t347-accepted-element-content-cdp.mjs" --selftest > "$TMP/leg-_t1328.out" 2>&1 \
+   && grep -q 'selftest: OK' "$TMP/leg-_t1328.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "the T-347 instrument judges a namespace prefix by its spelling again, or no longer matches a re-prefixed vocabulary by URI (run 'node tools/_t347-accepted-element-content-cdp.mjs --selftest'; T-1328)"
+  show_output "$TMP/leg-_t1328.out" "_t347-accepted-element-content-cdp.mjs --selftest"
+  fail=$((fail + 1))
+fi
+}
+leg core "_t347-instrument-selftest" _leg_207
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
