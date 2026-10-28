@@ -25,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:34:19Z
-last_update: 2026-10-10T12:38:57Z
+last_update: 2026-10-21T21:30:13Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -296,13 +296,21 @@ than a widened leg on an existing one.
       Human AC below. The three candidates are the same set T-337 faces: (a) preserve
       unconsumed content verbatim and re-emit it, (b) consume it into `state` as typed
       fields, (c) refuse the document.
-- [ ] Whichever is chosen, `tools/_t338-input-fidelity-cdp.mjs` leg 6 reflects it and
+- [x] Whichever is chosen, `tools/_t338-input-fidelity-cdp.mjs` leg 6 reflects it and
       `EXPECTED_CONTENT` is updated **deliberately** — the guard fails on an improvement it
       is not told about, which is the mechanism that stops this becoming a permission list.
+      *(T-1325, 2026-10-28, commit e515492c1's parent: the guard went red on ext-foreign-child, multiInstanceLoop and
+      unknown-attribute measuring PRESERVED; flipped DROPPED -> PRESERVED with the reason and the independent harness
+      named (`tools/_t1325-element-passthrough-cdp.mjs`); then OK. documentation and property had moved earlier
+      (T-602, T-1096). All five shapes now PRESERVED.)*
 - [ ] The T-259 carrier (`aef:eventDef`) is covered by the same mechanism rather than
       remaining a special case — a fix that resolves one granularity without asking about
       the others is a fix, not a remedy.
-- [ ] Bridge suite `0 failed` and the widened instrument green after the change.
+- [x] Bridge suite `0 failed` and the widened instrument green after the change.
+      *(T-1325: core tier 213 passed 0 failed; `_t338` OK; the third-party browser legs green; `_t358-byteid` goldens
+      re-recorded deliberately for the 6 files that now keep content.)*
+      *(Still open: AC 3 above. `aef:eventDef` keeps its own channel (T-259 fields); T-1325's mechanism covers content
+      the designer does not read, and eventDef is read. Folding it in is a separate change.)*
 
 ### Human
 - [ ] [REVIEW] Choose repair semantics for unconsumed element content
