@@ -1,13 +1,19 @@
 ---
 id: T-1263
-name: "textAnnotation, association, group and process-level documentation are dropped on save (with their DI)"
+name: "textAnnotation, association, group and process-level documentation are dropped
+  on save (with their DI)"
 description: >
-  captureProcessData keeps data objects only; no notice covers these. Found by ring20's cloud job C (T-2466) on 8909a9b1, verified by headless round trip, no notice shown; report verbatim in docs/reports/T-2466-cloud-job-C-bughunt.md (F5, C 6/13). Fix theme proposed there: a generic per-element passthrough rather than more allowlist entries.
+  captureProcessData keeps data objects only; no notice covers these. Found by ring20's
+  cloud job C (T-2466) on 8909a9b1, verified by headless round trip, no notice shown;
+  report verbatim in docs/reports/T-2466-cloud-job-C-bughunt.md (F5, C 6/13). Fix
+  theme proposed there: a generic per-element passthrough rather than more allowlist
+  entries.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: next
+horizon: null
 tags: [import-loss, cloud-job-c]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:24:06Z
-last_update: 2026-10-21T21:24:06Z
-date_finished: null
+last_update: 2026-10-28T11:21:41Z
+date_finished: 2026-10-28T11:21:41Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,41 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-28T11:21:25Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 1
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=1 (body:fix-without-learning); D2=0 (no-signal); D3=0 (no-signal);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1263: textAnnotation, association, group and process-level documentation are dropped on save (with their DI)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+F5 of ring20's cloud job C. Fixed by T-1326 (T-1322 GO slice 2, process-level kept content); the import notice that
+says they are kept but not drawn yet is T-1327.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **Annotations, associations, groups and process documentation survive open and save**, with their DI; an
+  association follows its node or flow and is dropped with it; a group's root category is kept.
+  *(T-1326 harness legs 1-3; kitchen-sink and caseagile goldens; T-1322 census: 0 lost.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -248,22 +275,17 @@ date_finished: null
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1326-process-level-kept-cdp.mjs > /tmp/t1263.out 2>&1; grep -q '"ok": true' /tmp/t1263.out
 
 ## RCA
-
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
-
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
-
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
+**Symptom:** a third-party map saved once lost its annotations, associations, groups and process documentation, with no
+notice (the data-object notice did not cover them).
+**Root cause:** the importer skipped these process children (PROCESS_NON_FLOWNODE) and nothing captured them, so export,
+which writes only from state, had nothing to write.
+**Why structurally allowed:** every fidelity instrument counted nodes, flows and lanes, which did not move; the one that
+counted more (`_t356`) had a broken control (T-1323). T-1322 measured it for the first time.
+**Prevention:** T-1326 keeps process-level content by default; `_t358-byteid`'s goldens (kitchen-sink, caseagile) and the
+T-1326 harness fail on any return of the drop; the T-1327 notice says they are kept but not drawn yet.
 
 ## Evolution
 
@@ -345,3 +367,19 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1263-textannotation-association-group-and-pro.md
 - **Context:** Initial task creation
+
+### 2026-10-28T11:21:24Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-28T11:21:41Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-5039860b
+- **Timestamp:** 2026-10-28T11:21:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
