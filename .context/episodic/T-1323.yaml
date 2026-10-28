@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1323: _t356 third-party fidelity harness: its positive control reads HARNESS BROKEN (counts the DI the export now adds as a loss)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-28T09:38:25Z
+# ============================================================================
+
+task_id: T-1323
+task_name: "_t356 third-party fidelity harness: its positive control reads HARNESS BROKEN (counts the DI the export now adds as a loss)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-28T08:28:50Z
+completed: 2026-10-28T09:38:17Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-10-28T09:59:20+01:00
+last_commit: 2026-10-28T10:25:21+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  _t356 counts only a decrease as a loss (the DI the export adds had voided its positive control); additions printed apart; control clean, 8/11 fixtures still LOSSY. a broken positive control exits 2 instead of 0 (nothing runs _t356, so a void run looked like a measurement); RCA recorded
+
+# Key outcomes
+outcomes:
+  - '**Only a decrease is a loss:** `_t356` marks a property lost only when its output count is below its input count;'
+  - '**Still bites:** on today''s designer the third-party rows that lose content (label bounds, documentation) still read'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: '_t356 counts only a decrease as a loss (the DI the export adds had voided its positive control); additions printed apart; control clean, 8/11 fixtures still LOSSY'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1323-t356-third-party-fidelity-harness-its-po.md'
+  - 'tools/_t356-third-party-fidelity-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-28T09:59:20'
+    action: 'T-1323: _t356 counts only a decrease as a loss (the DI the export adds had voided its positive control); additions printed apart; control clean, 8/11 fixtures still LOSSY'
+  - time: '2026-10-28T10:25:21'
+    action: 'T-1323: a broken positive control exits 2 instead of 0 (nothing runs _t356, so a void run looked like a measurement); RCA recorded'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 69 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 69
+  commits: 3
+  files_changed: 5
+  lines_added: 187
+  lines_removed: 21
+  footprint_refreshed_at: '2026-10-28T09:38:32Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1323-t356-third-party-fidelity-harness-its-po.md
+generated_by: context-agent-hybrid
