@@ -7,7 +7,7 @@ description: >
 status: captured
 workflow_type: build
 owner: agent
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -345,3 +345,8 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1332-duplicate-display-ids-two-end-events-in-.md
 - **Context:** Initial task creation
+
+### 2026-10-28 — duplicate of T-1102
+- Same bug as T-1102 (filed 2026-10-08, kitchen-sink duplicate ids from events inside subprocesses), seen again under
+  today's id shape. The evidence is added to T-1102; work it there. Horizon set to later so this one does not
+  compete with it.

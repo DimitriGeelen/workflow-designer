@@ -1,13 +1,21 @@
 ---
 id: T-1266
-name: "subProcess contents are hoisted to the process on save, leaving an empty subProcess (two start events, different semantics)"
+name: "subProcess contents are hoisted to the process on save, leaving an empty subProcess
+  (two start events, different semantics)"
 description: >
-  T-523 comment acknowledges it but no notice is shown; inner nodes also lose their lane. Found by ring20's cloud job C (T-2466) on 8909a9b1, verified by headless round trip, no notice shown; report verbatim in docs/reports/T-2466-cloud-job-C-bughunt.md (F8, C 9/13). Fix theme proposed there: a generic per-element passthrough rather than more allowlist entries.
+  T-523 comment acknowledges it but no notice is shown; inner nodes also lose their
+  lane. Found by ring20's cloud job C (T-2466) on 8909a9b1, verified by headless round
+  trip, no notice shown; report verbatim in docs/reports/T-2466-cloud-job-C-bughunt.md
+  (F8, C 9/13). Fix theme proposed there: a generic per-element passthrough rather
+  than more allowlist entries.
 
-status: captured
-workflow_type: build
+status: started-work
+workflow_type: inception
+target_blast_radius: 3
+voi_score: 0.5
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [import-loss, cloud-job-c]
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:24:15Z
-last_update: 2026-10-21T21:24:15Z
-date_finished: null
+last_update: '2026-10-28T20:29:01Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +58,74 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-28T20:26:58Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
+  - ts: '2026-10-28T20:29:01Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 3
+      D2: 3
+      D3: 3
+      D4: 3
+      F-RECALL: 3
+      F2: 3
+      F4: 3
+      F3: 3
+      F1: 3
+    rationale: D1=3 (voi:decision-with-alternatives~'go/no-go'); D2=3 
+      (voi:decision-with-alternatives~'go/no-go'); D3=3 
+      (voi:decision-with-alternatives~'go/no-go'); D4=3 
+      (voi:decision-with-alternatives~'go/no-go'); F-RECALL=3 
+      (voi:decision-with-alternatives~'go/no-go'); F2=3 
+      (voi:decision-with-alternatives~'go/no-go'); F4=3 
+      (voi:decision-with-alternatives~'go/no-go'); F3=3 
+      (voi:decision-with-alternatives~'go/no-go'); F1=3 
+      (voi:decision-with-alternatives~'go/no-go')
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1266: subProcess contents are hoisted to the process on save, leaving an empty subProcess (two start events, different semantics)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Job C F8 (`docs/reports/T-2466-cloud-job-C-bughunt.md`); brief `docs/reports/T-1329-open-job-c-findings-brief.md`.
+Operator, 2026-10-28, on the brief: an inception for option (a), not a build. Changed from build to inception the same
+day. Today a save moves a subprocess's contents up into the process (`foreignContainers`; the saved process has two
+start events and an empty subprocess, which an engine runs differently); the import notice says so (T-1327). 5 of 11
+third-party fixtures carry a subprocess; AEF's own maps carry none with contents.
+
+## Open Questions
+
+- **IW-1: Can the designer write a subprocess's contents back inside it on save, while still drawing them flat,
+  without breaking lanes, flows that cross the subprocess boundary, display ids, or validation?** Options to weigh:
+  (a) remember each node's parent subprocess and nest it on export, drawn flat; (b) a real nested subprocess model;
+  (c) keep the notice only. Not started; research artifact `docs/reports/T-1266-*.md` first (C-001).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] A research artifact answers IW-1 with evidence from the fixtures (which shapes of subprocess occur, which cross
+      the boundary), and the options' costs and risks.
+- [ ] A go/no-go recommendation is written for the operator's `fw inception decide` (an operator-only step, handed over
+      as a runme job).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -349,3 +411,26 @@ date_finished: null
 ### 2026-10-28 — decision brief (T-1329)
 - Still live; named by the import notice since T-1327. Recommendation (F8: an inception for writing contents back
   inside the subprocess, drawn flat): `docs/reports/T-1329-open-job-c-findings-brief.md`. Awaits the operator's ruling.
+
+### 2026-10-28T20:26:57Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-28T20:27:19Z — status-update [task-update-agent]
+- **Change:** workflow_type: build → inception
+
+### 2026-10-28T20:27:33Z — status-update [task-update-agent]
+- **Change:** horizon: now → next
+- **Change:** status: started-work → captured (auto-sync)
+
+### 2026-10-28T20:29:00Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+## Hypothesis
+
+<!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
+
+We believe that subProcess contents are hoisted to the process on save, leaving an empty subProcess (two start events, different semantics),
+we will achieve T-523 comment acknowledges it but no notice is shown; inner nodes also lose their lane.
+We will know that we are successful when we see 5 of 11 third-party fixtures carry a su.

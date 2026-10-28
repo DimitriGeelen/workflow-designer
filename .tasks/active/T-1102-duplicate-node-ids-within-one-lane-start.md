@@ -320,3 +320,9 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1102-duplicate-node-ids-within-one-lane-start.md
 - **Context:** Initial task creation
+
+### 2026-10-28 — still live under today's display ids (found again as T-1332, now marked its duplicate)
+- T-1264's id-uniqueness check over the third-party goldens (bleeding-edge, 2026-10-28): kitchen-sink's export has two
+  `bpmn:endEvent id="lan_end_event"`, and `lan_start_event`, `lan_start_event_2` likewise twice (before T-1264 they also
+  showed as duplicate `BPMNShape_` ids). Same class as this task, under the current `<lane>_<slug>` id shape. Check:
+  parse `tests/goldens/third-party/kitchen-sink.bpmn.golden` and count repeated `id` values.

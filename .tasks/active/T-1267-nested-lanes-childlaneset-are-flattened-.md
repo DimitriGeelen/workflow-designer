@@ -7,7 +7,7 @@ description: >
 status: captured
 workflow_type: build
 owner: agent
-horizon: next
+horizon: later
 tags: [import-loss, cloud-job-c]
 components: []
 related_tasks: []
@@ -349,3 +349,8 @@ date_finished: null
 ### 2026-10-28 — decision brief (T-1329)
 - Still live; named by the import notice since T-1327. Recommendation (F9: defer until a real file arrives):
   `docs/reports/T-1329-open-job-c-findings-brief.md`. Awaits the operator's ruling.
+
+### 2026-10-28 — deferred (operator's ruling)
+- Operator, 2026-10-28, on the brief: "Proceed as you should fit and suggest" — F9 deferred until a real file with
+  nested lanes arrives (none of the 11 third-party fixtures nor AEF's maps has one; what authority a child lane has is
+  a model question for the operator and AEF together). Horizon set to later. The import notice already names the loss.
