@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1329: Decision brief: the seven job-C findings still open after T-1322 (F3, F4, F6, F8, F9, F12, F13)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-28T16:13:50Z
+# ============================================================================
+
+task_id: T-1329
+task_name: "Decision brief: the seven job-C findings still open after T-1322 (F3, F4, F6, F8, F9, F12, F13)"
+workflow_type: specification
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-28T15:59:01Z
+completed: 2026-10-28T16:13:43Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-28T17:13:39+01:00
+last_commit: 2026-10-28T17:13:39+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  decision brief for the seven job-C findings open after T-1322 (F3, F4, F6, F8, F9, F12, F13), each re-checked against today's source; recommend GO on F4, F12, F13, F3(a); F6 next; inception for F8; defer F9. Each task points at the brief
+
+# Key outcomes
+outcomes:
+  - '`docs/reports/T-1329-open-job-c-findings-brief.md` exists with one section per finding (F3, F4, F6, F8, F9,'
+  - 'Each of the seven tasks points at the brief (an Updates entry), so whoever opens the task finds it.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1261-original-node-and-flow-ids-are-lost-on-f.md'
+  - '.tasks/active/T-1262-process-and-definitions-identity-rewritt.md'
+  - '.tasks/active/T-1264-imported-bpmn-di-is-rewritten-on-save-sh.md'
+  - '.tasks/active/T-1266-subprocess-contents-are-hoisted-to-the-p.md'
+  - '.tasks/active/T-1267-nested-lanes-childlaneset-are-flattened-.md'
+  - '.tasks/active/T-1270-opening-a-second-file-with-the-same-proc.md'
+  - '.tasks/active/T-1271-node-and-flownoderef-order-is-reshuffled.md'
+  - '.tasks/active/T-1329-decision-brief-the-seven-job-c-findings-.md'
+  - 'docs/reports/T-1329-open-job-c-findings-brief.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-28T17:13:39'
+    action: 'T-1329: decision brief for the seven job-C findings open after T-1322 (F3, F4, F6, F8, F9, F12, F13), each re-checked against today''s source; recommend GO on F4, F12, F13, F3(a); F6 next; inception for F8; defer F9. Each task points at the brief'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 14 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 14
+  commits: 2
+  files_changed: 12
+  lines_added: 595
+  lines_removed: 4
+  footprint_refreshed_at: '2026-10-28T16:13:57Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1329-decision-brief-the-seven-job-c-findings-.md
+generated_by: context-agent-hybrid

@@ -4,10 +4,11 @@ name: "Decision brief: the seven job-C findings still open after T-1322 (F3, F4,
 description: >
   One page so the operator can rule on T-1261, T-1262, T-1264, T-1266, T-1267, T-1270, T-1271 in one pass: what breaks today, who is exposed (AEF vs third-party files), the options, and a recommendation each.
 
-status: started-work
+status: work-completed
 workflow_type: specification
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-28T15:59:01Z
-last_update: 2026-10-28T15:59:01Z
-date_finished: null
+last_update: 2026-10-28T16:13:43Z
+date_finished: 2026-10-28T16:13:43Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -350,3 +351,15 @@ for t in 1261 1262 1264 1266 1267 1270 1271; do grep -q 'T-1329-open-job-c-findi
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1329-decision-brief-the-seven-job-c-findings-.md
 - **Context:** Initial task creation
+
+### 2026-10-28T16:13:43Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a09d7321
+- **Timestamp:** 2026-10-28T16:13:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
