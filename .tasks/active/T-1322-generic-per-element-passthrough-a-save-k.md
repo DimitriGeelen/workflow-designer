@@ -157,6 +157,7 @@ choices of their own.
 ### Human
 <!-- @auto-tick-on-decide -->
 - [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+  **Why you:** direction — whether the designer becomes lossless for files from other tools (and spends three build slices on it) is product direction; and `fw inception decide` is operator-only
   **Steps:**
   1. Run: `fw task review T-1322` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
