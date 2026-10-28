@@ -99,11 +99,12 @@ asked for external advice (2026-10-28): AEF and an independent advisory read. Ev
       written on save; a second save is byte-identical; designer-written maps gain nothing.
       *(`readOriginalId` / `originXml`; the T-1325 passthrough no longer keeps the origin element as a foreign
       extension, so it is read, not duplicated.)*
-- [ ] A browser harness proves it, red on the pre-T-1261 source; third-party goldens re-recorded deliberately;
+- [x] A browser harness proves it, red on the pre-T-1261 source; third-party goldens re-recorded deliberately;
       core tier green. *(`tools/_t1261-original-id-cdp.mjs`, browser leg `_leg_210`: ok, 24 corpus maps; pre-fix
       source: 9 failures, "Approve carries 0 origin(s)", "flow into Approve origin missing (want Flow_1)".
       `_t358-byteid --record`: 10 of 11 goldens, 156 lines added, 0 removed, every added line an origin; per file the
-      origin count equals the aef:uid count (kitchen-sink 81/81, simple 8/8). Core tier: pending.)*
+      origin count equals the aef:uid count (kitchen-sink 81/81, simple 8/8). Core tier GREEN 214/0; person-sees
+      gate exit 0.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -156,6 +157,8 @@ asked for external advice (2026-10-28): AEF and an independent advisory read. Ev
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+grep -q 'leg browser "_t1261-original-id-cdp" _leg_210' tests/run-bridge-tests.sh
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1261-original-id-cdp.mjs > /tmp/.t1261 2>&1 && [ "$(sed -n 2p /tmp/.t1261)" = '  "ok": true,' ]
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
@@ -304,6 +307,15 @@ asked for external advice (2026-10-28): AEF and an independent advisory read. Ev
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** the first save of a third-party file replaced every node and flow id (`Task_Approve` -> `app_1_approve`)
+and kept no record of the original; `aef:uid` is a one-way hash of it (job C F3).
+**Root cause:** import derived the uid from the id and dropped the id; export writes the display id only. No state
+field carried the original.
+**Why structurally allowed:** the display-id rule (0.20) was designed for designer-made maps, where the id is the
+designer's own; the third-party case was never stated, so no check asked whether an original id survived.
+**Prevention:** `_t1261-original-id-cdp.mjs` (browser leg `_leg_210`) pins the record, its carrier and its
+never-replaced rule, red on the old source.
 
 ## Evolution
 
