@@ -7,6 +7,21 @@
 
 ---
 
+## Currency — 2026-10-28: Q1a is BUILT (832 T-1322, T-1325-T-1327)
+
+- **Q1a · T-347's ruling (a) is built.** The operator's GO on T-1322 (job 099, commit b8e937c5f) chose a generic
+  passthrough: every attribute, child and extension the designer does not read is kept per element and written back
+  in place (T-1325); process-, collaboration- and root-level content, artifacts with their DI, and comments too
+  (T-1326, T-1327); the import notice names what a save still does not keep (subprocess nesting, nested lanes,
+  another tool's shape geometry). Re-run 2026-10-28 (`node tools/_t347-accepted-element-content-cdp.mjs`):
+  documentation **0/2** carriers lose it, property **0/2**, loop characteristics **0/2**, unknown attributes **0/3**,
+  foreign extension children **1/7**. That one, `multiple-diagrams`, carries no extension at all: the instrument's
+  `SPEC_PREFIX` lacks `omgdc`, so it counts that file's shape bounds (`omgdc:Bounds`, the second process's
+  geometry) as foreign content. The live measure of what one unedited save loses is T-1322's census
+  (`docs/reports/T-1322-evidence/classify-losses.py`): 394 items before, 11 after (deliberate exclusions and one empty
+  conditionExpression). Still open on T-347: folding `aef:eventDef` into the same mechanism (its Agent AC 3).
+- The section below (2026-10-18) is kept as history; its "awaits confirmation" for R1a is superseded by the T-1322 GO.
+
 ## Currency — what changed after this brief (2026-10-18, 832 T-1201)
 
 This brief was last edited 2026-08-10. Three of the tasks it covers learned things since, recorded in the tasks and

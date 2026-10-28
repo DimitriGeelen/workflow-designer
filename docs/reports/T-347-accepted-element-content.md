@@ -1,5 +1,13 @@
 # T-347 — what happens to content INSIDE an element the importer accepts
 
+> **Currency — 2026-10-28 (832 T-1322, T-1325-T-1327): BUILT.** The ruling is now implemented as a generic
+> passthrough (operator GO on T-1322, job 099): content the designer does not read is kept per element and written
+> back in place. Same instrument, re-run 2026-10-28: documentation **0/2** carriers lose it, property **0/2**, loop
+> characteristics **0/2**, unknown attributes **0/3**, foreign extensionElements children **1/7**. The one,
+> `multiple-diagrams`, has no extension: `SPEC_PREFIX` lacks `omgdc`, so the instrument counts its second process's
+> shape bounds as foreign content. The tables below are the 2026-08-03 measurement, kept as history. Still open:
+> `aef:eventDef` folded into the same mechanism (T-347 Agent AC 3).
+
 > **Currency — 2026-10-18 (832 T-1201).** Two things happened after this report:
 > 1. **The repair semantics are RULED** (operator, 2026-10-10; T-347 Decisions, commit d436d048): **(a) preserve
 >    and re-emit** what the designer does not consume (R1); an unknown kind becomes a real field only **as a
