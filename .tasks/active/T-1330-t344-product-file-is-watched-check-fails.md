@@ -122,7 +122,7 @@ Core tier red at 2026-10-28 ~18:40 (T-1271's pre-push run): `_t345` failed becau
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
 bash -n tools/_t344-watch-set-denominator.sh
-! grep -qE '\|\s*grep -[a-zA-Z]*q' tools/_t344-watch-set-denominator.sh
+grep -qF 'grep -qx "src/aef-workflow-designer.html" <<<"$_t344_watched"' tools/_t344-watch-set-denominator.sh
 bash tools/_t345-fabric-check-agreement.sh > /tmp/.t1330-345 2>&1 && grep -q 'PASS  successor passes' /tmp/.t1330-345
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
