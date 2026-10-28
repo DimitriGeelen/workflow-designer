@@ -34,46 +34,46 @@
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="lan_start_start_2" name="Start Event 1">
-      <bpmn:extensionElements>
-        <aef:uid value="u1"/>
-        <aef:position x="352.0" y="242.0"/>
-      </bpmn:extensionElements>
-      <bpmn:outgoing>flow_1</bpmn:outgoing>
-    </bpmn:startEvent>
-
-    <bpmn:startEvent id="lan_start_start" name="Start">
-      <bpmn:extensionElements>
-        <aef:uid value="u2"/>
-        <aef:position x="108.0" y="212.0"/>
-      </bpmn:extensionElements>
-      <bpmn:outgoing>flow_3</bpmn:outgoing>
-    </bpmn:startEvent>
-
-    <bpmn:endEvent id="lan_end_end" name="End Event">
-      <bpmn:extensionElements>
-        <aef:uid value="u3"/>
-        <aef:position x="650.0" y="212.0"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>flow_2</bpmn:incoming>
-    </bpmn:endEvent>
-
     <bpmn:subProcess id="lan_1_sub" name="Sub Process 1">
       <bpmn:extensionElements>
-        <aef:uid value="u4"/>
+        <aef:uid value="u1"/>
         <aef:position x="300.0" y="80.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_3</bpmn:incoming>
       <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:subProcess>
 
+    <bpmn:startEvent id="lan_start_start_2" name="Start Event 1">
+      <bpmn:extensionElements>
+        <aef:uid value="u2"/>
+        <aef:position x="352.0" y="242.0"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
     <bpmn:task id="lan_2_task" name="Task">
       <bpmn:extensionElements>
-        <aef:uid value="u5"/>
+        <aef:uid value="u3"/>
         <aef:position x="420.0" y="220.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_1</bpmn:incoming>
     </bpmn:task>
+
+    <bpmn:endEvent id="lan_end_end" name="End Event">
+      <bpmn:extensionElements>
+        <aef:uid value="u4"/>
+        <aef:position x="650.0" y="212.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:startEvent id="lan_start_start" name="Start">
+      <bpmn:extensionElements>
+        <aef:uid value="u5"/>
+        <aef:position x="108.0" y="212.0"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+    </bpmn:startEvent>
 
     <bpmn:sequenceFlow id="flow_1" sourceRef="lan_start_start_2" targetRef="lan_2_task">
       <bpmn:extensionElements>
@@ -96,20 +96,20 @@
 
   <bpmndi:BPMNDiagram id="BPMNDiagram_process_1">
     <bpmndi:BPMNPlane id="BPMNPlane_process_1" bpmnElement="Process_process_1">
+      <bpmndi:BPMNShape id="BPMNShape_lan_1_sub" bpmnElement="lan_1_sub">
+        <dc:Bounds x="300.0" y="80.0" width="120" height="64"/>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_lan_start_start_2" bpmnElement="lan_start_start_2">
         <dc:Bounds x="352.0" y="242.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_start_start" bpmnElement="lan_start_start">
-        <dc:Bounds x="108.0" y="212.0" width="36" height="36"/>
+      <bpmndi:BPMNShape id="BPMNShape_lan_2_task" bpmnElement="lan_2_task">
+        <dc:Bounds x="420.0" y="220.0" width="110" height="64"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_lan_end_end" bpmnElement="lan_end_end">
         <dc:Bounds x="650.0" y="212.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_1_sub" bpmnElement="lan_1_sub">
-        <dc:Bounds x="300.0" y="80.0" width="120" height="64"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_2_task" bpmnElement="lan_2_task">
-        <dc:Bounds x="420.0" y="220.0" width="110" height="64"/>
+      <bpmndi:BPMNShape id="BPMNShape_lan_start_start" bpmnElement="lan_start_start">
+        <dc:Bounds x="108.0" y="212.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1">
         <di:waypoint x="387.5" y="256.0"/>

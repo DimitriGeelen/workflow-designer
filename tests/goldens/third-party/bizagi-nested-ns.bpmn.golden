@@ -75,25 +75,10 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="lan_end_id">
-      <bpmn:extensionElements>
-        <aef:uid value="u2"/>
-        <aef:position x="392.0" y="115.0"/>
-        <aef:meta slug="id"/>
-        <bizagi:BizagiExtensions xmlns:bizagi="http://www.bizagi.com/bpmn20">
-          <bizagi:BizagiProperties>
-            <bizagi:BizagiProperty name="bgColor" value="#EEAAAA"/>
-            <bizagi:BizagiProperty name="borderColor" value="#990000"/>
-          </bizagi:BizagiProperties>
-        </bizagi:BizagiExtensions>
-      </bpmn:extensionElements>
-      <bpmn:incoming>flow_2</bpmn:incoming>
-    </bpmn:endEvent>
-
     <bpmn:task id="lan_1_aufgabe" name="Aufgabe 1">
       <bpmn:documentation></bpmn:documentation>
       <bpmn:extensionElements>
-        <aef:uid value="u3"/>
+        <aef:uid value="u2"/>
         <aef:position x="220.0" y="90.0"/>
         <bizagi:BizagiExtensions xmlns:bizagi="http://www.bizagi.com/bpmn20">
           <bizagi:BizagiProperties>
@@ -105,6 +90,21 @@
       <bpmn:incoming>flow_1</bpmn:incoming>
       <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:task>
+
+    <bpmn:endEvent id="lan_end_id">
+      <bpmn:extensionElements>
+        <aef:uid value="u3"/>
+        <aef:position x="392.0" y="115.0"/>
+        <aef:meta slug="id"/>
+        <bizagi:BizagiExtensions xmlns:bizagi="http://www.bizagi.com/bpmn20">
+          <bizagi:BizagiProperties>
+            <bizagi:BizagiProperty name="bgColor" value="#EEAAAA"/>
+            <bizagi:BizagiProperty name="borderColor" value="#990000"/>
+          </bizagi:BizagiProperties>
+        </bizagi:BizagiExtensions>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+    </bpmn:endEvent>
 
     <bpmn:sequenceFlow id="flow_1" sourceRef="lan_start_id" targetRef="lan_1_aufgabe">
       <documentation xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
@@ -145,11 +145,11 @@
       <bpmndi:BPMNShape id="BPMNShape_lan_start_id" bpmnElement="lan_start_id">
         <dc:Bounds x="136.0" y="115.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_end_id" bpmnElement="lan_end_id">
-        <dc:Bounds x="392.0" y="115.0" width="36" height="36"/>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_lan_1_aufgabe" bpmnElement="lan_1_aufgabe">
         <dc:Bounds x="220.0" y="90.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_lan_end_id" bpmnElement="lan_end_id">
+        <dc:Bounds x="392.0" y="115.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1">
         <di:waypoint x="171.1" y="127.5"/>

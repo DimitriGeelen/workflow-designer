@@ -14894,6 +14894,10 @@ function parseBpmnXml(text) {
       nodeWork.push([foreignDisplayTag(local), el, local]);
     }
   }
+  // T-1271: the list above is built one tag at a time; put it back in the order the file declares the nodes, which is
+  // the order state.nodes, the display-id numbering and the export follow. A designer-written map is already in its
+  // own order, so it re-saves byte-identically; a third-party one is no longer regrouped by kind.
+  nodeWork.sort((a, b) => a[1] === b[1] ? 0 : (a[1].compareDocumentPosition(b[1]) & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1);
 
   {
     const nodeWorkEls = new Set(nodeWork.map(w => w[1]));   // T-1325: a subprocess's own nodes are not its kept children

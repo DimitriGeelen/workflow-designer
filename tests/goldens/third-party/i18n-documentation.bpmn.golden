@@ -47,22 +47,22 @@
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="lan_end_ended" name="Ended">
-      <bpmn:extensionElements>
-        <aef:uid value="u2"/>
-        <aef:position x="432.0" y="99.0"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>flow_2</bpmn:incoming>
-    </bpmn:endEvent>
-
     <bpmn:task id="lan_1_activity" name="Activity_0eb4n4l">
       <bpmn:extensionElements>
-        <aef:uid value="u3"/>
+        <aef:uid value="u2"/>
         <aef:position x="270.0" y="77.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_1</bpmn:incoming>
       <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:task>
+
+    <bpmn:endEvent id="lan_end_ended" name="Ended">
+      <bpmn:extensionElements>
+        <aef:uid value="u3"/>
+        <aef:position x="432.0" y="99.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+    </bpmn:endEvent>
 
     <bpmn:sequenceFlow id="flow_1" sourceRef="lan_start_startevent" targetRef="lan_1_activity">
       <bpmn:extensionElements>
@@ -82,11 +82,11 @@
       <bpmndi:BPMNShape id="BPMNShape_lan_start_startevent" bpmnElement="lan_start_startevent">
         <dc:Bounds x="179.0" y="99.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_end_ended" bpmnElement="lan_end_ended">
-        <dc:Bounds x="432.0" y="99.0" width="36" height="36"/>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_lan_1_activity" bpmnElement="lan_1_activity">
         <dc:Bounds x="270.0" y="77.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_lan_end_ended" bpmnElement="lan_end_ended">
+        <dc:Bounds x="432.0" y="99.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1">
         <di:waypoint x="214.5" y="113.0"/>

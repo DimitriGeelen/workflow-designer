@@ -129,31 +129,31 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="hir" authority="none" height="130"/>
         </bpmn:extensionElements>
+        <bpmn:flowNodeRef>hir_gw_job</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>hir_start_job</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>hir_1_write</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>hir_2_approve</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>hir_gw_job</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="_b4703b36-7f21-42bb-8d74-1717bcff8d1a" name="Recruitment">
         <bpmn:extensionElements>
           <aef:laneMeta abbr="rec" authority="none" height="245"/>
         </bpmn:extensionElements>
+        <bpmn:flowNodeRef>rec_2_select</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>rec_end_job</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>rec_gw_9a9ec640</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>rec_gw_4ea95b48</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>rec_3_publish</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>rec_4_publish</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>rec_1_complete</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>rec_gw_9a9ec640</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>rec_gw_4ea95b48</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>rec_2_select</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="hir_start_job" name="Job vacancy to be  advertised">
+    <bpmn:businessRuleTask id="rec_2_select" name="Select 3rd party platforms for publishing">
       <bpmn:extensionElements>
         <aef:uid value="u1"/>
-        <aef:position x="187.0" y="109.0"/>
+        <aef:position x="1015.0" y="282.5"/>
         <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
-          <caseagile:element id="a4f62c38-de55-468f-9a5d-83b266542951"/>
+          <caseagile:element id="302c3d88-8332-4014-851a-89ed4015a43d"/>
           <caseagile:principal id="User"/>
           <caseagile:created date="2020-04-08 07:10:27"/>
           <caseagile:modified date="2020-04-08 07:10:27"/>
@@ -165,8 +165,9 @@
           </caseagile:values>
         </caseagile:model>
       </bpmn:extensionElements>
-      <bpmn:outgoing>flow_5</bpmn:outgoing>
-    </bpmn:startEvent>
+      <bpmn:incoming>flow_8</bpmn:incoming>
+      <bpmn:outgoing>flow_10</bpmn:outgoing>
+    </bpmn:businessRuleTask>
 
     <bpmn:endEvent id="rec_end_job" name="Job vacancy advertised">
       <bpmn:extensionElements>
@@ -188,9 +189,75 @@
       <bpmn:incoming>flow_11</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:serviceTask id="rec_3_publish" name="Publish job advertisement on homepage">
+    <bpmn:exclusiveGateway id="hir_gw_job" name="Job advertisement approved?">
       <bpmn:extensionElements>
         <aef:uid value="u3"/>
+        <aef:position x="838.0" y="103.0"/>
+        <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
+          <caseagile:element id="6938608d-551a-4d40-8ac4-df0466770583"/>
+          <caseagile:principal id="User"/>
+          <caseagile:created date="2020-04-08 07:10:27"/>
+          <caseagile:modified date="2020-04-08 07:10:27"/>
+          <caseagile:properties>
+            <caseagile:property name="bgcolor" description="Background Color" type="int" format="hex" default="FFFFFF" minimum="000000" maximum="FFFFFF" visible="True" readOnly="False"/>
+          </caseagile:properties>
+          <caseagile:values>
+            <caseagile:value name="bgcolor" value="FFFFFF"/>
+          </caseagile:values>
+        </caseagile:model>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_6</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:parallelGateway id="rec_gw_9a9ec640" name="_9a9ec640-4cd2-465f-b9e3-3a8edc6f4375">
+      <bpmn:extensionElements>
+        <aef:uid value="u4"/>
+        <aef:position x="952.0" y="290.5"/>
+        <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
+          <caseagile:element id="7eeec36d-e958-4341-92f4-de51760f3ae4"/>
+          <caseagile:principal id="User"/>
+          <caseagile:created date="2020-04-08 07:10:27"/>
+          <caseagile:modified date="2020-04-08 07:10:27"/>
+          <caseagile:properties>
+            <caseagile:property name="bgcolor" description="Background Color" type="int" format="hex" default="FFFFFF" minimum="000000" maximum="FFFFFF" visible="True" readOnly="False"/>
+          </caseagile:properties>
+          <caseagile:values>
+            <caseagile:value name="bgcolor" value="FFFFFF"/>
+          </caseagile:values>
+        </caseagile:model>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+      <bpmn:outgoing>flow_7</bpmn:outgoing>
+      <bpmn:outgoing>flow_8</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <bpmn:parallelGateway id="rec_gw_4ea95b48" name="_4ea95b48-6f9d-4787-bd32-24727837cd01">
+      <bpmn:extensionElements>
+        <aef:uid value="u5"/>
+        <aef:position x="1348.0" y="290.5"/>
+        <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
+          <caseagile:element id="64cd0c59-b649-493e-8454-1814edb18065"/>
+          <caseagile:principal id="User"/>
+          <caseagile:created date="2020-04-08 07:10:27"/>
+          <caseagile:modified date="2020-04-08 07:10:27"/>
+          <caseagile:properties>
+            <caseagile:property name="bgcolor" description="Background Color" type="int" format="hex" default="FFFFFF" minimum="000000" maximum="FFFFFF" visible="True" readOnly="False"/>
+          </caseagile:properties>
+          <caseagile:values>
+            <caseagile:value name="bgcolor" value="FFFFFF"/>
+          </caseagile:values>
+        </caseagile:model>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_9</bpmn:incoming>
+      <bpmn:incoming>flow_12</bpmn:incoming>
+      <bpmn:outgoing>flow_11</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <bpmn:serviceTask id="rec_3_publish" name="Publish job advertisement on homepage">
+      <bpmn:extensionElements>
+        <aef:uid value="u6"/>
         <aef:position x="1101.0" y="282.5"/>
         <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
           <caseagile:element id="4d7d7e02-6195-4cbe-aa87-c7a63b255906"/>
@@ -211,7 +278,7 @@
 
     <bpmn:serviceTask id="rec_4_publish" name="Publish job on 3rd party platforms">
       <bpmn:extensionElements>
-        <aef:uid value="u4"/>
+        <aef:uid value="u7"/>
         <aef:position x="1207.0" y="282.5"/>
         <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
           <caseagile:element id="62f9b821-6843-4010-a85a-1f68209d786f"/>
@@ -233,9 +300,29 @@
       </multiInstanceLoopCharacteristics>
     </bpmn:serviceTask>
 
+    <bpmn:startEvent id="hir_start_job" name="Job vacancy to be  advertised">
+      <bpmn:extensionElements>
+        <aef:uid value="u8"/>
+        <aef:position x="187.0" y="109.0"/>
+        <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
+          <caseagile:element id="a4f62c38-de55-468f-9a5d-83b266542951"/>
+          <caseagile:principal id="User"/>
+          <caseagile:created date="2020-04-08 07:10:27"/>
+          <caseagile:modified date="2020-04-08 07:10:27"/>
+          <caseagile:properties>
+            <caseagile:property name="bgcolor" description="Background Color" type="int" format="hex" default="FFFFFF" minimum="000000" maximum="FFFFFF" visible="True" readOnly="False"/>
+          </caseagile:properties>
+          <caseagile:values>
+            <caseagile:value name="bgcolor" value="FFFFFF"/>
+          </caseagile:values>
+        </caseagile:model>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
+    </bpmn:startEvent>
+
     <bpmn:userTask id="hir_1_write" name="Write job description">
       <bpmn:extensionElements>
-        <aef:uid value="u5"/>
+        <aef:uid value="u9"/>
         <aef:position x="274.0" y="95.0"/>
         <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
           <caseagile:element id="c36f554c-7a83-44a3-aa4e-38703e6943dd"/>
@@ -256,7 +343,7 @@
 
     <bpmn:userTask id="hir_2_approve" name="Approve job advertisement">
       <bpmn:extensionElements>
-        <aef:uid value="u6"/>
+        <aef:uid value="u10"/>
         <aef:position x="663.0" y="95.0"/>
         <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
           <caseagile:element id="266fcbc7-4394-430f-9bfc-c5dc2d7fceee"/>
@@ -360,7 +447,7 @@
 
     <bpmn:userTask id="rec_1_complete" name="Complete job advertisement">
       <bpmn:extensionElements>
-        <aef:uid value="u7"/>
+        <aef:uid value="u11"/>
         <aef:position x="456.0" y="282.5"/>
         <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
           <caseagile:element id="8d7a80a0-97bb-4364-8a5c-fac709cce9e7"/>
@@ -379,93 +466,6 @@
       <bpmn:incoming>flow_3</bpmn:incoming>
       <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:userTask>
-
-    <bpmn:exclusiveGateway id="hir_gw_job" name="Job advertisement approved?">
-      <bpmn:extensionElements>
-        <aef:uid value="u8"/>
-        <aef:position x="838.0" y="103.0"/>
-        <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
-          <caseagile:element id="6938608d-551a-4d40-8ac4-df0466770583"/>
-          <caseagile:principal id="User"/>
-          <caseagile:created date="2020-04-08 07:10:27"/>
-          <caseagile:modified date="2020-04-08 07:10:27"/>
-          <caseagile:properties>
-            <caseagile:property name="bgcolor" description="Background Color" type="int" format="hex" default="FFFFFF" minimum="000000" maximum="FFFFFF" visible="True" readOnly="False"/>
-          </caseagile:properties>
-          <caseagile:values>
-            <caseagile:value name="bgcolor" value="FFFFFF"/>
-          </caseagile:values>
-        </caseagile:model>
-      </bpmn:extensionElements>
-      <bpmn:incoming>flow_6</bpmn:incoming>
-      <bpmn:outgoing>flow_3</bpmn:outgoing>
-      <bpmn:outgoing>flow_4</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-
-    <bpmn:parallelGateway id="rec_gw_9a9ec640" name="_9a9ec640-4cd2-465f-b9e3-3a8edc6f4375">
-      <bpmn:extensionElements>
-        <aef:uid value="u9"/>
-        <aef:position x="952.0" y="290.5"/>
-        <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
-          <caseagile:element id="7eeec36d-e958-4341-92f4-de51760f3ae4"/>
-          <caseagile:principal id="User"/>
-          <caseagile:created date="2020-04-08 07:10:27"/>
-          <caseagile:modified date="2020-04-08 07:10:27"/>
-          <caseagile:properties>
-            <caseagile:property name="bgcolor" description="Background Color" type="int" format="hex" default="FFFFFF" minimum="000000" maximum="FFFFFF" visible="True" readOnly="False"/>
-          </caseagile:properties>
-          <caseagile:values>
-            <caseagile:value name="bgcolor" value="FFFFFF"/>
-          </caseagile:values>
-        </caseagile:model>
-      </bpmn:extensionElements>
-      <bpmn:incoming>flow_4</bpmn:incoming>
-      <bpmn:outgoing>flow_7</bpmn:outgoing>
-      <bpmn:outgoing>flow_8</bpmn:outgoing>
-    </bpmn:parallelGateway>
-
-    <bpmn:parallelGateway id="rec_gw_4ea95b48" name="_4ea95b48-6f9d-4787-bd32-24727837cd01">
-      <bpmn:extensionElements>
-        <aef:uid value="u10"/>
-        <aef:position x="1348.0" y="290.5"/>
-        <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
-          <caseagile:element id="64cd0c59-b649-493e-8454-1814edb18065"/>
-          <caseagile:principal id="User"/>
-          <caseagile:created date="2020-04-08 07:10:27"/>
-          <caseagile:modified date="2020-04-08 07:10:27"/>
-          <caseagile:properties>
-            <caseagile:property name="bgcolor" description="Background Color" type="int" format="hex" default="FFFFFF" minimum="000000" maximum="FFFFFF" visible="True" readOnly="False"/>
-          </caseagile:properties>
-          <caseagile:values>
-            <caseagile:value name="bgcolor" value="FFFFFF"/>
-          </caseagile:values>
-        </caseagile:model>
-      </bpmn:extensionElements>
-      <bpmn:incoming>flow_9</bpmn:incoming>
-      <bpmn:incoming>flow_12</bpmn:incoming>
-      <bpmn:outgoing>flow_11</bpmn:outgoing>
-    </bpmn:parallelGateway>
-
-    <bpmn:businessRuleTask id="rec_2_select" name="Select 3rd party platforms for publishing">
-      <bpmn:extensionElements>
-        <aef:uid value="u11"/>
-        <aef:position x="1015.0" y="282.5"/>
-        <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
-          <caseagile:element id="302c3d88-8332-4014-851a-89ed4015a43d"/>
-          <caseagile:principal id="User"/>
-          <caseagile:created date="2020-04-08 07:10:27"/>
-          <caseagile:modified date="2020-04-08 07:10:27"/>
-          <caseagile:properties>
-            <caseagile:property name="bgcolor" description="Background Color" type="int" format="hex" default="FFFFFF" minimum="000000" maximum="FFFFFF" visible="True" readOnly="False"/>
-          </caseagile:properties>
-          <caseagile:values>
-            <caseagile:value name="bgcolor" value="FFFFFF"/>
-          </caseagile:values>
-        </caseagile:model>
-      </bpmn:extensionElements>
-      <bpmn:incoming>flow_8</bpmn:incoming>
-      <bpmn:outgoing>flow_10</bpmn:outgoing>
-    </bpmn:businessRuleTask>
 
     <bpmn:sequenceFlow id="flow_1" sourceRef="hir_1_write" targetRef="rec_1_complete">
       <bpmn:extensionElements>
@@ -856,26 +856,11 @@
 
   <bpmndi:BPMNDiagram id="BPMNDiagram_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3">
     <bpmndi:BPMNPlane id="BPMNPlane_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3" bpmnElement="Process_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3">
-      <bpmndi:BPMNShape id="BPMNShape_hir_start_job" bpmnElement="hir_start_job">
-        <dc:Bounds x="187.0" y="109.0" width="36" height="36"/>
+      <bpmndi:BPMNShape id="BPMNShape_rec_2_select" bpmnElement="rec_2_select">
+        <dc:Bounds x="1015.0" y="282.5" width="110" height="64"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_rec_end_job" bpmnElement="rec_end_job">
         <dc:Bounds x="1476.0" y="296.5" width="36" height="36"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_rec_3_publish" bpmnElement="rec_3_publish">
-        <dc:Bounds x="1101.0" y="282.5" width="110" height="64"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_rec_4_publish" bpmnElement="rec_4_publish">
-        <dc:Bounds x="1207.0" y="282.5" width="110" height="64"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_hir_1_write" bpmnElement="hir_1_write">
-        <dc:Bounds x="274.0" y="95.0" width="110" height="64"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_hir_2_approve" bpmnElement="hir_2_approve">
-        <dc:Bounds x="663.0" y="95.0" width="110" height="64"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_rec_1_complete" bpmnElement="rec_1_complete">
-        <dc:Bounds x="456.0" y="282.5" width="110" height="64"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_hir_gw_job" bpmnElement="hir_gw_job">
         <dc:Bounds x="838.0" y="103.0" width="48" height="48"/>
@@ -886,8 +871,23 @@
       <bpmndi:BPMNShape id="BPMNShape_rec_gw_4ea95b48" bpmnElement="rec_gw_4ea95b48">
         <dc:Bounds x="1348.0" y="290.5" width="48" height="48"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_rec_2_select" bpmnElement="rec_2_select">
-        <dc:Bounds x="1015.0" y="282.5" width="110" height="64"/>
+      <bpmndi:BPMNShape id="BPMNShape_rec_3_publish" bpmnElement="rec_3_publish">
+        <dc:Bounds x="1101.0" y="282.5" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_rec_4_publish" bpmnElement="rec_4_publish">
+        <dc:Bounds x="1207.0" y="282.5" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hir_start_job" bpmnElement="hir_start_job">
+        <dc:Bounds x="187.0" y="109.0" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hir_1_write" bpmnElement="hir_1_write">
+        <dc:Bounds x="274.0" y="95.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hir_2_approve" bpmnElement="hir_2_approve">
+        <dc:Bounds x="663.0" y="95.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_rec_1_complete" bpmnElement="rec_1_complete">
+        <dc:Bounds x="456.0" y="282.5" width="110" height="64"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1">
         <di:waypoint x="329.0" y="159.0"/>

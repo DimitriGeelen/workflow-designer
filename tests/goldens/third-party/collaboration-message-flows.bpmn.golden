@@ -39,21 +39,21 @@
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:endEvent id="lan_end_endevent">
+    <bpmn:task id="lan_1_task" name="Task_1">
       <bpmn:extensionElements>
         <aef:uid value="u1"/>
+        <aef:position x="360.0" y="134.0"/>
+      </bpmn:extensionElements>
+    </bpmn:task>
+
+    <bpmn:endEvent id="lan_end_endevent">
+      <bpmn:extensionElements>
+        <aef:uid value="u2"/>
         <aef:position x="653.0" y="178.0"/>
         <aef:meta slug="endevent"/>
       </bpmn:extensionElements>
       <bpmn2:messageEventDefinition xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" id="MessageEventDefinition_2"/>
     </bpmn:endEvent>
-
-    <bpmn:task id="lan_1_task" name="Task_1">
-      <bpmn:extensionElements>
-        <aef:uid value="u2"/>
-        <aef:position x="360.0" y="134.0"/>
-      </bpmn:extensionElements>
-    </bpmn:task>
 
     <bpmn:task id="lan_2_task" name="Task_2">
       <bpmn:extensionElements>
@@ -74,11 +74,11 @@
       <bpmndi:BPMNShape id="BPMNShape_Participant_2" bpmnElement="Participant_2" isHorizontal="true">
         <dc:Bounds x="30" y="30" width="1540" height="612"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_lan_end_endevent" bpmnElement="lan_end_endevent">
-        <dc:Bounds x="653.0" y="178.0" width="36" height="36"/>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_lan_1_task" bpmnElement="lan_1_task">
         <dc:Bounds x="360.0" y="134.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_lan_end_endevent" bpmnElement="lan_end_endevent">
+        <dc:Bounds x="653.0" y="178.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_lan_2_task" bpmnElement="lan_2_task">
         <dc:Bounds x="516.0" y="134.0" width="110" height="64"/>

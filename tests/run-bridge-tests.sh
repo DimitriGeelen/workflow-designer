@@ -1562,6 +1562,21 @@ else
 fi
 }
 leg core "_t347-instrument-selftest" _leg_207
+_leg_208() {
+
+# ── T-1271: a save keeps the nodes in the order the file declares them (job C F13) ──
+# Import collected nodes one tag at a time, so a third-party file's first save regrouped them by kind, in the process
+# and in each lane's flowNodeRefs. Designer-written maps must keep their own order. Red against the pre-T-1271 source.
+if node "$ROOT/tools/_t1271-node-order-cdp.mjs" > "$TMP/leg-_t1271.out" 2>&1 \
+   && head -2 "$TMP/leg-_t1271.out" | grep -q '"ok": true'; then
+  pass=$((pass + 1))
+else
+  report FAIL "a save reorders the flow nodes or flowNodeRefs of a file, or a designer-written map saves its nodes in another order (run 'node tools/_t1271-node-order-cdp.mjs'; T-1271)"
+  show_output "$TMP/leg-_t1271.out" "_t1271-node-order-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1271-node-order-cdp" _leg_208
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

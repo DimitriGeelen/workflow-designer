@@ -2,12 +2,16 @@
 id: T-1271
 name: "Node and flowNodeRef order is reshuffled on save (grouped by kind)"
 description: >
-  Low semantic weight; a diff-noise and review-noise issue. Found by ring20's cloud job C (T-2466) on 8909a9b1, verified by headless round trip, no notice shown; report verbatim in docs/reports/T-2466-cloud-job-C-bughunt.md (F13, C 12/13). Fix theme proposed there: a generic per-element passthrough rather than more allowlist entries.
+  Low semantic weight; a diff-noise and review-noise issue. Found by ring20's cloud
+  job C (T-2466) on 8909a9b1, verified by headless round trip, no notice shown; report
+  verbatim in docs/reports/T-2466-cloud-job-C-bughunt.md (F13, C 12/13). Fix theme
+  proposed there: a generic per-element passthrough rather than more allowlist entries.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [import-loss, cloud-job-c]
 components: []
 related_tasks: []
@@ -38,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:24:31Z
-last_update: 2026-10-21T21:24:31Z
-date_finished: null
+last_update: '2026-10-28T17:02:17Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +54,50 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-28T17:02:17Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L1:keyword=flownoderef);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1271: Node and flowNodeRef order is reshuffled on save (grouped by kind)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Job C F13 (`docs/reports/T-2466-cloud-job-C-bughunt.md`); brief `docs/reports/T-1329-open-job-c-findings-brief.md`.
+Operator, 2026-10-28, on the brief: "Proceed as you should fit and suggest" (GO on F13: keep document order).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Import keeps the nodes in the order the file declares them (start, task, end stays start, task, end), and
+      the save writes nodes and `flowNodeRef`s in that order. *(`nodeWork` sorted by document position after it is
+      collected; export already follows `state.nodes`.)*
+- [x] A browser harness proves it on a third-party file and is red on the current source.
+      *(`tools/_t1271-node-order-cdp.mjs`, browser leg `_leg_208`. Pre-fix source: "flow nodes saved as Start, Done,
+      Check, Approve, OK?, Archive (declared Start, Check, OK?, Archive, Approve, Done)", rc 1; fixed: ok, 24 corpus.)*
+- [x] Every designer-written corpus map still saves byte-identically (the existing round-trip and goldens legs);
+      any third-party golden that changes is re-recorded deliberately, with each moved line checked.
+      *(Harness leg 3: all 24 corpus maps keep their declared order. `_t358-byteid` re-recorded with `--record`: 8 of
+      11 goldens changed, 644 lines moved; for each of the 8 the sorted lines are identical to HEAD's, so the change
+      is order only — no line added, lost or renamed.)*
+- [ ] Core tier green.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -349,3 +383,7 @@ date_finished: null
 ### 2026-10-28 — decision brief (T-1329)
 - Still live (import collects per kind, src :14879). Recommendation (F13: keep document order):
   `docs/reports/T-1329-open-job-c-findings-brief.md`. Awaits the operator's ruling.
+
+### 2026-10-28T17:02:16Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
