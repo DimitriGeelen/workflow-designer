@@ -1,13 +1,19 @@
 ---
 id: T-1326
-name: "T-1322 slice 2: process-level content the designer does not model is kept (annotations, associations, groups, categories, process documentation), dangling references dropped with a notice"
+name: "T-1322 slice 2: process-level content the designer does not model is kept (annotations,
+  associations, groups, categories, process documentation), dangling references dropped
+  with a notice"
 description: >
-  T-1322 GO (operator, job 099). Closes F5 (T-1263). Kept as a list at process level, written back in place, sourceRef/targetRef/categoryValueRef rewritten through the id map; a kept element whose reference now points at nothing is dropped and named in a notice. After slice 1.
+  T-1322 GO (operator, job 099). Closes F5 (T-1263). Kept as a list at process level,
+  written back in place, sourceRef/targetRef/categoryValueRef rewritten through the
+  id map; a kept element whose reference now points at nothing is dropped and named
+  in a notice. After slice 1.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: [T-1322, T-1263, T-1325]
@@ -38,8 +44,8 @@ related_tasks: [T-1322, T-1263, T-1325]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-28T09:27:07Z
-last_update: 2026-10-28T09:27:07Z
-date_finished: null
+last_update: '2026-10-28T10:07:41Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,78 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-28T10:07:41Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=export)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1326: T-1322 slice 2: process-level content the designer does not model is kept (annotations, associations, groups, categories, process documentation), dangling references dropped with a notice
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Slice 2 of T-1322's GO (operator, job 099; `docs/reports/T-1322-third-party-passthrough.md` §4 A, §5), after T-1325's
+per-element passthrough. Closes F5 (T-1263) and the root/process attributes T-1325 left. Also a T-1325 gap found here:
+a sequence flow's `<documentation>` is in the read set but only nodes read it, so it is still dropped.
+Out: artifacts inside a subprocess (F8), DI geometry beyond the kept elements' own shapes (F6). Widened while building
+(2026-10-28): the census showed kitchen-sink's groups sit in the COLLABORATION and Bizagi's documentation on the
+collaboration and our participant; both are rewritten on save like the process, so their artifacts, documentation,
+unread attributes and extensions are kept the same way (only OUR participant: the [0] fallback may be another pool,
+which T-1119 already keeps verbatim).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **Artifacts kept:** the process's `textAnnotation`, `association` and `group` are written back after the flow
+  elements, with their DI (`BPMNShape`/`BPMNEdge`); the root `category` elements a kept group names are written back too.
+  *(harness leg 1: annotation with its unicode text, both associations, the annotation's shape and the association's
+  edge; a group in the collaboration (written after its message flows, tCollaboration order) and its root category.)*
+- [x] **References follow:** an association's `sourceRef`/`targetRef` naming a node or flow is written as that element's
+  current id; an association whose node or flow was deleted is dropped with its DI edge (and listed in state for T-1327's
+  notice); one naming an annotation keeps the id.
+  *(harness leg 2: As1 at the task's new id (not `A`), As2 at the flow's new id, targetRef T1 kept,
+  associationDirection kept; task deleted: As1 and its edge gone, the annotation stays,
+  `processLevelKeptOut(state).dropped` names As1.)*
+- [x] **Process and root:** process `documentation` (before its extensionElements), its unread attributes (not id, name,
+  isExecutable) and its foreign extensions are written back; the `definitions` root's unread attributes (not id, exporter,
+  exporterVersion, targetNamespace: ours by T-399/T-407) are written back, foreign prefixes declared.
+  *(harness leg 3: process doc first, camunda:versionTag and the executionListener; root typeLanguage and
+  modeler:executionPlatform in their namespace; collaboration and participant documentation first and their camunda
+  extensions. Goldens: the root keeps name/expressionLanguage/typeLanguage/xsi:schemaLocation, the collaboration its
+  name.)*
+- [x] **Flow documentation:** a sequence flow's `documentation` is written back first in the flow, before extensionElements.
+  *(harness leg 4.)*
+- [x] **Unchanged where nothing is kept:** a designer-written map gains no key and the same bytes (all 24 corpus maps);
+  second save byte-identical; well-formed (DOMParser and expat); core tier green; `_t358-byteid` goldens re-recorded
+  deliberately only where content now survives, each diff read.
+  *(harness leg 5: 0 of 24 corpus maps gain procKept/keptDocs; second save identical; expat on both exports. 20 neighbouring
+  browser legs green (T-1325, _t338, T-1119/T-1120 collaboration, T-1096 data, T-407 exporter, T-311 doc comment, the
+  third-party legs, T-1243/T-1265/T-1268). `_t358-byteid` drifted on 8 files; every removed line was an opening tag
+  (root, collaboration, our participant) returning with its kept attributes or children; re-recorded, 11/11 identical.
+  Core: below.)*
+- [x] **Measured:** T-1322's census on the 16 fixtures leaves only: the deliberate exclusions (exporterVersion, the second
+  laneSet), collaboration/participant extensions, the comment (T-1327), and the empty conditionExpression. Harness
+  `tools/_t1326-process-level-kept-cdp.mjs`, red on the pre-T-1326 source, browser leg.
+  *(census: 125 lost items after T-1325, 12 now: exporterVersion x9 and the second laneSet (deliberate), the comment
+  (T-1327), one empty `<conditionExpression/>`. Collaboration/participant extensions are now kept too, so none remain.
+  Every export well-formed in expat. kitchen-sink's second save still re-orders lane membership, as before T-1325
+  (T-579). Harness red on the old source: 19 errors over legs 1-4. Browser leg `_leg_204`.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -345,3 +409,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1326-t-1322-slice-2-process-level-content-the.md
 - **Context:** Initial task creation
+
+### 2026-10-28T10:07:40Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

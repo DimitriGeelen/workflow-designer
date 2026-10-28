@@ -1,0 +1,21 @@
+id: tools/_t1326-process-level-kept-cdp.mjs
+name: _t1326-process-level-kept-cdp
+type: script
+subsystem: browser-harness
+location: tools/_t1326-process-level-kept-cdp.mjs
+tags: []
+
+purpose: "_t1326-process-level-kept-cdp.mjs — T-1326 (T-1322 GO slice 2): what a save dropped at process, collaboration and root level is kept: artifacts (text annotation, association, group) with their DI and the root categories a group names…"
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-28
+created_by: unknown

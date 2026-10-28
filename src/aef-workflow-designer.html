@@ -13729,7 +13729,12 @@ function buildBpmnXml(s) {
   // structural marker we emit (same namespaces, same targetNamespace, same
   // Definitions_ id shape) because conforming to it is the point.
   lines.push(`                  exporter="${BPMN_EXPORTER}"`);
-  lines.push(`                  targetNamespace="https://aef.anchorpoint.dev/workflows">`);
+  // T-1326: the source root's attributes the designer does not read (typeLanguage, xml:lang, a modeler's
+  // executionPlatform), with any prefix they need declared here.
+  const pk = s.procKept || null;
+  const pkOut = processLevelKeptOut(s);
+  const rootKept = pk && pk.rootAttrs ? keptAttrsXml(pk.rootAttrs) : '';
+  lines.push(`                  targetNamespace="https://aef.anchorpoint.dev/workflows"${rootKept}>`);
   lines.push(``);
   // T-311: the authored rationale leads the document, ahead of the collaboration —
   // that position is what makes AEF's reader find the doc rather than our trailer.
@@ -13738,8 +13743,17 @@ function buildBpmnXml(s) {
     lines.push(`  <!--${safeCommentData(s.docComment)}-->`);
     lines.push(``);
   }
-  lines.push(`  <bpmn:collaboration id="Collaboration_${escAttr(s.workflowMeta.id)}">`);
-  lines.push(`    <bpmn:participant id="${escAttr(s.pool.id)}" name="${escAttr(s.pool.name)}" processRef="Process_${escAttr(s.workflowMeta.id)}"/>`);
+  lines.push(`  <bpmn:collaboration id="Collaboration_${escAttr(s.workflowMeta.id)}"${pk && pk.collabAttrs ? keptAttrsXml(pk.collabAttrs) : ''}>`);
+  // T-1326: the collaboration's and our pool's documentation and other tools' extensions, as they arrived
+  for (const x of (pk && pk.collabDocs) || []) lines.push(`    ${x}`);
+  if (pk && pk.collabExt) { lines.push(`    <bpmn:extensionElements>`); for (const x of pk.collabExt) lines.push(`      ${x}`); lines.push(`    </bpmn:extensionElements>`); }
+  const partOpen = `    <bpmn:participant id="${escAttr(s.pool.id)}" name="${escAttr(s.pool.name)}" processRef="Process_${escAttr(s.workflowMeta.id)}"${pk && pk.partAttrs ? keptAttrsXml(pk.partAttrs) : ''}`;
+  if (pk && (pk.partDocs || pk.partExt)) {
+    lines.push(`${partOpen}>`);
+    for (const x of pk.partDocs || []) lines.push(`      ${x}`);
+    if (pk.partExt) { lines.push(`      <bpmn:extensionElements>`); for (const x of pk.partExt) lines.push(`        ${x}`); lines.push(`      </bpmn:extensionElements>`); }
+    lines.push(`    </bpmn:participant>`);
+  } else lines.push(`${partOpen}/>`);
   // T-1119: the other pools and the messageFlows, verbatim; a flow's end that named an element of OUR
   // process is re-pointed at the id written below (ids are re-derived on save), and our process / pool
   // ids at the ones this export uses. Ends naming another pool or process are left exactly as read.
@@ -13759,9 +13773,12 @@ function buildBpmnXml(s) {
       lines.push(`    ${f.xml.replace(/\b(sourceRef|targetRef)="([^"]*)"/g, (m, k, v) => `${k}="${escAttr(repoint(v))}"`)}`);
     }
   }
+  for (const x of pkOut.collabArtifacts) lines.push(`    ${x}`);   // T-1326: tCollaboration's artifacts follow the flows
   lines.push(`  </bpmn:collaboration>`);
   lines.push(``);
-  lines.push(`  <bpmn:process id="Process_${escAttr(s.workflowMeta.id)}" isExecutable="true">`);
+  lines.push(`  <bpmn:process id="Process_${escAttr(s.workflowMeta.id)}" isExecutable="true"${pk && pk.procAttrs ? keptAttrsXml(pk.procAttrs) : ''}>`);
+  // T-1326: the process's documentation, first (tBaseElement order)
+  for (const x of (pk && pk.procDocs) || []) lines.push(`    ${x}`);
   // workflow-level aef:workflowMeta
   const wm = s.workflowMeta;
   lines.push(`    <bpmn:extensionElements>`);
@@ -13786,6 +13803,7 @@ function buildBpmnXml(s) {
   if (wm.kind) wmAttrs.push(`kind="${escAttr(wm.kind)}"`);
   lines.push(`      <aef:workflowMeta ${wmAttrs.join(' ')}/>`);
   for (const x of s.procMetaKept || []) lines.push(`      ${x}`);   // T-1249: process-level aef:meta, verbatim
+  for (const x of (pk && pk.procExt) || []) lines.push(`      ${x}`);   // T-1326: other tools' process extensions
   lines.push(`    </bpmn:extensionElements>`);
   // T-1096: the process's own ioSpecification, kept — tCallableElement places it before the laneSet
   if (s.dataKept) for (const x of s.dataKept.procIo || []) lines.push(`    ${x}`);
@@ -13886,6 +13904,7 @@ function buildBpmnXml(s) {
     const srcRef = srcNode ? displayIdOf(srcNode) : e.source;
     const tgtRef = tgtNode ? displayIdOf(tgtNode) : e.target;
     lines.push(`    <bpmn:sequenceFlow id="${escAttr(edgeDisplayId)}"${nameAttr} sourceRef="${escAttr(srcRef)}" targetRef="${escAttr(tgtRef)}"${e.kept ? keptAttrsXml(e.kept.attrs) : ''}>`);   // T-1325
+    for (const x of e.keptDocs || []) lines.push(`      ${x}`);   // T-1326: documentation first in tBaseElement
     // T-690: extensionElements MUST precede conditionExpression. BPMN's tBaseElement declares
     // extensionElements as the first element of the sequence, and tSequenceFlow extends it, so
     // conditionExpression can only follow. This emitted them the other way round for the life of
@@ -13939,12 +13958,16 @@ function buildBpmnXml(s) {
 
   // T-1096: the process's kept data objects and stores, verbatim
   if (s.dataKept) for (const x of s.dataKept.elements || []) { lines.push(``); lines.push(`    ${x}`); }
+  // T-1326: the artifacts, after the flow elements (tProcess order), each association at its ends' current ids
+  for (const x of pkOut.artifacts) { lines.push(``); lines.push(`    ${x}`); }
 
   lines.push(`  </bpmn:process>`);
   // T-1119: the processes behind the other pools and the messages the kept flows name, verbatim.
   if (s.collab) for (const x of [...(s.collab.processes || []), ...(s.collab.messages || [])]) { lines.push(``); lines.push(`  ${x}`); }
   // T-1222: the root elements kept native event definitions name, verbatim.
   for (const x of s.eventRoots || []) { lines.push(``); lines.push(`  ${x}`); }
+  // T-1326: the root categories a kept group names
+  for (const x of (pk && pk.categories) || []) { lines.push(``); lines.push(`  ${x}`); }
   lines.push(``);
   // SUPERSEDED 2026-08-23 (T-423). This block previously read:
   //
@@ -14044,6 +14067,7 @@ function buildBpmnXml(s) {
     if (comp) for (const [ref, x] of comp) if (!done.has(ref)) lines.push(`      ${x}`);
   }
   for (const x of dataKeptDiLines(s)) lines.push(`      ${x}`);   // T-1096: data shapes and association edges
+  for (const x of pkOut.di) lines.push(`      ${x}`);   // T-1326: artifact shapes and association edges
   lines.push(`    </bpmndi:BPMNPlane>`);
   lines.push(`  </bpmndi:BPMNDiagram>`);
   lines.push(`</bpmn:definitions>`);
@@ -14237,6 +14261,85 @@ function dataKeptDiLines(s) {
   (k.procIo || []).forEach(note);
   for (const n of s.nodes || []) for (const xs of Object.values((k.perNode || {})[n.uid] || {})) xs.forEach(note);
   return (k.di || []).filter(d => live.has(d.ref)).map(d => d.xml);
+}
+
+// T-1326 (T-1322 GO slice 2): what a save kept dropping at process and root level. The process's artifacts (text
+// annotations, associations, groups) with their DI and the root categories the groups name; the process's
+// documentation, unread attributes and other tools' extensions; the definitions root's unread attributes. An
+// association names its ends by id, and node and flow ids are rewritten on save, so `ends` keeps them by uid; an end
+// that is an annotation (or anything else not a node or flow) keeps its id. null when nothing is kept: a map the
+// designer wrote parses to exactly the state it always did.
+const ARTIFACT_TAGS = new Set(['textAnnotation', 'association', 'group']);
+const PROC_READ_ATTRS = new Set(['id', 'name', 'isExecutable']);
+const ROOT_READ_ATTRS = new Set(['id', 'exporter', 'exporterVersion', 'targetNamespace']);
+function captureProcessLevelKept(doc, proc, displayIdToUid, flowIdToUid, partEl) {
+  const B = IO_EXPORT_ROOT_NS.bpmn;
+  const artifacts = [], keptIds = new Set(), categoryRefs = new Set();
+  const endOf = id => displayIdToUid.has(id) ? { node: displayIdToUid.get(id) } : flowIdToUid.has(id) ? { flow: flowIdToUid.get(id) } : { id };
+  // a collaboration carries artifacts too (a modeler puts groups there); ours is rewritten, so they are kept the same way
+  const collabEl = partEl && partEl.parentNode && partEl.parentNode.localName === 'collaboration' ? partEl.parentNode : null;
+  for (const [where, host] of [['process', proc], ['collab', collabEl]]) {
+    if (!host) continue;
+    for (const c of Array.from(host.children)) {
+      if (c.namespaceURI !== B || !ARTIFACT_TAGS.has(c.localName)) continue;
+      const a = { xml: keptElementXml(c), ...(where === 'collab' ? { inCollab: true } : {}) };
+      if (c.localName === 'association') a.ends = { sourceRef: endOf(c.getAttribute('sourceRef') || ''), targetRef: endOf(c.getAttribute('targetRef') || '') };
+      if (c.localName === 'group' && c.getAttribute('categoryValueRef')) categoryRefs.add(c.getAttribute('categoryValueRef'));
+      if (c.getAttribute('id')) keptIds.add(c.getAttribute('id'));
+      artifacts.push(a);
+    }
+  }
+  // the collaboration's and our pool's own documentation, unread attributes and other tools' extensions
+  const docsOf = el => el ? Array.from(el.children).filter(c => c.namespaceURI === B && c.localName === 'documentation').map(keptElementXml) : [];
+  const ck = collabEl ? elementKept(collabEl, new Set(['id']), () => true) : null;
+  const ptk = partEl ? elementKept(partEl, new Set(['id', 'name', 'processRef']), () => true) : null;
+  const collabDocs = docsOf(collabEl), partDocs = docsOf(partEl);
+  const categories = Array.from(doc.documentElement.children).filter(c => c.namespaceURI === B && c.localName === 'category'
+    && Array.from(c.children).some(v => categoryRefs.has(v.getAttribute('id')))).map(keptElementXml);
+  const di = [];
+  for (const el of doc.getElementsByTagNameNS(IO_EXPORT_ROOT_NS.bpmndi, '*')) {
+    if ((el.localName === 'BPMNShape' || el.localName === 'BPMNEdge') && keptIds.has(el.getAttribute('bpmnElement'))) {
+      di.push({ ref: el.getAttribute('bpmnElement'), xml: keptElementXml(el) });
+    }
+  }
+  const procDocs = Array.from(proc.children).filter(c => c.namespaceURI === B && c.localName === 'documentation').map(keptElementXml);
+  const pk = elementKept(proc, PROC_READ_ATTRS, () => true);   // its children are the process's content; only attrs + ext
+  const rk = elementKept(doc.documentElement, ROOT_READ_ATTRS, () => true);
+  const out = {
+    ...(artifacts.length ? { artifacts } : {}), ...(categories.length ? { categories } : {}), ...(di.length ? { di } : {}),
+    ...(procDocs.length ? { procDocs } : {}),
+    ...(pk && pk.attrs.length ? { procAttrs: pk.attrs } : {}), ...(pk && pk.ext.length ? { procExt: pk.ext } : {}),
+    ...(rk && rk.attrs.length ? { rootAttrs: rk.attrs } : {}),
+    ...(ck && ck.attrs.length ? { collabAttrs: ck.attrs } : {}), ...(ck && ck.ext.length ? { collabExt: ck.ext } : {}),
+    ...(collabDocs.length ? { collabDocs } : {}),
+    ...(ptk && ptk.attrs.length ? { partAttrs: ptk.attrs } : {}), ...(ptk && ptk.ext.length ? { partExt: ptk.ext } : {}),
+    ...(partDocs.length ? { partDocs } : {}),
+  };
+  return Object.keys(out).length ? out : null;
+}
+// The artifacts a save writes, each association's ends at their current ids. An association whose node or flow is gone
+// is left out (with its DI edge) and named in `dropped`, for the open notice (T-1327).
+function processLevelKeptOut(s) {
+  const k = s && s.procKept;
+  if (!k || !k.artifacts) return { artifacts: [], collabArtifacts: [], di: [], dropped: [] };
+  const artifacts = [], collabArtifacts = [], dropped = [], live = new Set();
+  for (const a of k.artifacts) {
+    let xml = a.xml, ok = true;
+    if (a.ends) {
+      for (const [attr, end] of Object.entries(a.ends)) {
+        let id = end.id;
+        if (end.node) { const n = s.nodes.find(x => x.uid === end.node); id = n ? displayIdOf(n) : null; }
+        if (end.flow) { const e = s.edges.find(x => x.uid === end.flow); id = e ? displayIdOf(e) : null; }
+        if (id == null) { ok = false; break; }
+        xml = xml.replace(new RegExp(`\\b${attr}="[^"]*"`), `${attr}="${escAttr(id)}"`);
+      }
+    }
+    const idm = /\bid="([^"]*)"/.exec(a.xml);
+    if (!ok) { dropped.push(idm ? idm[1] : ''); continue; }
+    if (idm) live.add(idm[1]);
+    (a.inCollab ? collabArtifacts : artifacts).push(xml);
+  }
+  return { artifacts, collabArtifacts, di: (k.di || []).filter(d => live.has(d.ref)).map(d => d.xml), dropped };
 }
 
 // T-1120 (P2): draw the kept pools, read-only, and route the message flows — ONE layout for the canvas and
@@ -15085,6 +15188,9 @@ function parseBpmnXml(text) {
     }
     const kept = elementKept(el, FLOW_READ_ATTRS);   // T-1325
     if (kept) edge.kept = kept;
+    // T-1326: a flow's documentation (only nodes read theirs), written first in the flow as tBaseElement orders it
+    const fdocs = Array.from(el.children).filter(c => c.namespaceURI === IO_EXPORT_ROOT_NS.bpmn && c.localName === 'documentation').map(keptElementXml);
+    if (fdocs.length) edge.keptDocs = fdocs;
     edges.push(edge);
   }
   // T-1325: a gateway's default flow, by uid from here on (its id is rewritten on save). A default naming no flow in
@@ -15109,6 +15215,9 @@ function parseBpmnXml(text) {
   const collab = captureCollaboration(doc, proc, partEl, displayIdToUid);   // T-1119
   const dataKept = captureProcessData(doc, proc, displayIdToUid);         // T-1096
   const eventRoots = captureEventRoots(doc, nodes, collab);              // T-1222
+  // T-1326: our participant only when it names this process (the [0] fallback may be another pool, kept by T-1119)
+  const ourPart = partEl && partEl.getAttribute('processRef') === proc.getAttribute('id') ? partEl : null;
+  const procKept = captureProcessLevelKept(doc, proc, displayIdToUid, flowIdToUid, ourPart);   // T-1326
 
   // Snap y-coords to lane centers for nodes that lacked explicit positions
   const result = {
@@ -15143,6 +15252,8 @@ function parseBpmnXml(text) {
     ...(eventRoots.length ? { eventRoots } : {}),
     // T-1249: the process-level <aef:meta> (mapping v1.1: mappingVersion, aef:prefixes), verbatim (null: byte-identical).
     ...(procMetaKept ? { procMetaKept } : {}),
+    // T-1326: artifacts, process documentation/attributes/extensions and root attributes (null: byte-identical).
+    ...(procKept ? { procKept } : {}),
   };
   // Use a temporary state so laneCenterY() resolves correctly during patching
   const prev = state;

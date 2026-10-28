@@ -1501,6 +1501,22 @@ else
 fi
 }
 leg browser "_t1325-element-passthrough-cdp" _leg_203
+_leg_204() {
+
+# ── T-1326: process, collaboration and root content the designer does not model is kept ──
+# T-1322 GO slice 2: annotations, associations (ends at current ids, dropped with their DI when an end is deleted),
+# groups and their categories, documentation/attributes/extensions on process, collaboration, our pool and the root, and
+# a flow's documentation. Red against the pre-T-1326 source (legs 1-4).
+if node "$ROOT/tools/_t1326-process-level-kept-cdp.mjs" > "$TMP/leg-_t1326.out" 2>&1 \
+   && head -2 "$TMP/leg-_t1326.out" | grep -q '"ok": true'; then
+  pass=$((pass + 1))
+else
+  report FAIL "an annotation, association, group or category, or the documentation, attributes or extensions of the process, collaboration, pool or root, or a flow's documentation, was dropped or misplaced on save; an association no longer follows its end; a second save differs; or a designer-written map grew a key (run 'node tools/_t1326-process-level-kept-cdp.mjs'; T-1326)"
+  show_output "$TMP/leg-_t1326.out" "_t1326-process-level-kept-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1326-process-level-kept-cdp" _leg_204
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

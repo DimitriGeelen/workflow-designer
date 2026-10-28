@@ -6,7 +6,7 @@
                   xmlns:aef="http://anchorpoint.framework/aef/extensions"
                   id="Definitions_process_0dp8lmr"
                   exporter="aef-workflow-designer"
-                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+                  targetNamespace="https://aef.anchorpoint.dev/workflows" xmlns:modeler="http://camunda.org/schema/modeler/1.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0" xml:lang="en">
 
   <bpmn:collaboration id="Collaboration_process_0dp8lmr">
     <bpmn:participant id="Process_0dp8lmr" name="Process_0dp8lmr" processRef="Process_process_0dp8lmr"/>

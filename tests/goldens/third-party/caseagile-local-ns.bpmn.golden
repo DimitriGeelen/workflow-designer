@@ -6,15 +6,41 @@
                   xmlns:aef="http://anchorpoint.framework/aef/extensions"
                   id="Definitions_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3"
                   exporter="aef-workflow-designer"
-                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+                  targetNamespace="https://aef.anchorpoint.dev/workflows" name="Advertise a job vacancy" expressionLanguage="https://www.ecma-international.org/publications/standards/Ecma-334.htm" typeLanguage="http://www.w3.org/2001/XMLSchema">
 
-  <bpmn:collaboration id="Collaboration_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3">
+  <bpmn:collaboration id="Collaboration_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3" name="">
+    <bpmn:extensionElements>
+      <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
+        <caseagile:element id="bf36ed5c-a157-4fdb-981a-75b8139b566f"/>
+        <caseagile:principal id="User"/>
+        <caseagile:created date="2020-04-08 07:10:27"/>
+        <caseagile:modified date="2020-04-08 07:10:27"/>
+        <caseagile:properties>
+          <caseagile:property name="bgcolor" description="Background Color" type="int" format="hex" default="FFFFFF" minimum="000000" maximum="FFFFFF" visible="True" readOnly="False"/>
+        </caseagile:properties>
+        <caseagile:values>
+          <caseagile:value name="bgcolor" value="FFFFFF"/>
+        </caseagile:values>
+      </caseagile:model>
+    </bpmn:extensionElements>
     <bpmn:participant id="_9c3d9edd-e594-4ecf-af64-ae5ceb2fa680" name="EU Bank" processRef="Process_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3"/>
   </bpmn:collaboration>
 
   <bpmn:process id="Process_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3" isExecutable="true">
     <bpmn:extensionElements>
       <aef:workflowMeta id="009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3" version="1" schemaVersion="2" title="EU Bank" tier_default="2"/>
+      <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
+        <caseagile:element id="292b8da1-beb8-4afc-88c6-33e55be267dd"/>
+        <caseagile:principal id="User"/>
+        <caseagile:created date="2020-04-08 07:10:27"/>
+        <caseagile:modified date="2020-04-08 07:10:27"/>
+        <caseagile:properties>
+          <caseagile:property name="bgcolor" description="Background Color" type="int" format="hex" default="FFFFFF" minimum="000000" maximum="FFFFFF" visible="True" readOnly="False"/>
+        </caseagile:properties>
+        <caseagile:values>
+          <caseagile:value name="bgcolor" value="FFFFFF"/>
+        </caseagile:values>
+      </caseagile:model>
     </bpmn:extensionElements>
     <ioSpecification xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" id="_e8aff608-71ef-46e2-90de-0a3d5f5cdc90">
       <extensionElements>
@@ -758,6 +784,74 @@
         </caseagile:model>
       </extensionElements>
     </dataObjectReference>
+
+    <association xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" id="_d7e79c49-2434-4cc2-a27a-0e8c93c3d345" sourceRef="_b3fea5c2-af80-4890-9506-bed34496c96e" targetRef="rec_1_complete" associationDirection="One">
+      <extensionElements>
+        <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
+          <caseagile:element id="09658709-2091-47a3-a2b5-49ad51e0c573"/>
+          <caseagile:principal id="User"/>
+          <caseagile:created date="2020-04-08 07:10:27"/>
+          <caseagile:modified date="2020-04-08 07:10:27"/>
+          <caseagile:properties>
+            <caseagile:property name="bgcolor" description="Background Color" type="int" format="hex" default="FFFFFF" minimum="000000" maximum="FFFFFF" visible="True" readOnly="False"/>
+          </caseagile:properties>
+          <caseagile:values>
+            <caseagile:value name="bgcolor" value="FFFFFF"/>
+          </caseagile:values>
+        </caseagile:model>
+      </extensionElements>
+    </association>
+
+    <association xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" id="_83d03deb-6880-4078-afdd-93fe9db0ceb5" sourceRef="_f34b6efe-1241-49bf-a817-165e6ddaf5dd" targetRef="hir_2_approve" associationDirection="One">
+      <extensionElements>
+        <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
+          <caseagile:element id="e6b6f377-14aa-4afd-99f8-1a9df0345dba"/>
+          <caseagile:principal id="User"/>
+          <caseagile:created date="2020-04-08 07:10:27"/>
+          <caseagile:modified date="2020-04-08 07:10:27"/>
+          <caseagile:properties>
+            <caseagile:property name="bgcolor" description="Background Color" type="int" format="hex" default="FFFFFF" minimum="000000" maximum="FFFFFF" visible="True" readOnly="False"/>
+          </caseagile:properties>
+          <caseagile:values>
+            <caseagile:value name="bgcolor" value="FFFFFF"/>
+          </caseagile:values>
+        </caseagile:model>
+      </extensionElements>
+    </association>
+
+    <association xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" id="_583aadc0-f134-4dc9-8f20-d58f3a19fa46" sourceRef="hir_1_write" targetRef="_b3fea5c2-af80-4890-9506-bed34496c96e" associationDirection="One">
+      <extensionElements>
+        <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
+          <caseagile:element id="5be3c3d8-140a-4cb0-9642-414425eef383"/>
+          <caseagile:principal id="User"/>
+          <caseagile:created date="2020-04-08 07:10:27"/>
+          <caseagile:modified date="2020-04-08 07:10:27"/>
+          <caseagile:properties>
+            <caseagile:property name="bgcolor" description="Background Color" type="int" format="hex" default="FFFFFF" minimum="000000" maximum="FFFFFF" visible="True" readOnly="False"/>
+          </caseagile:properties>
+          <caseagile:values>
+            <caseagile:value name="bgcolor" value="FFFFFF"/>
+          </caseagile:values>
+        </caseagile:model>
+      </extensionElements>
+    </association>
+
+    <association xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" id="_e7cf0c57-ba2d-4e52-b72d-56f6d7fa5d70" sourceRef="rec_1_complete" targetRef="_f34b6efe-1241-49bf-a817-165e6ddaf5dd" associationDirection="One">
+      <extensionElements>
+        <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
+          <caseagile:element id="3d38fe08-b0fa-4f94-8e4c-3b590fce820d"/>
+          <caseagile:principal id="User"/>
+          <caseagile:created date="2020-04-08 07:10:27"/>
+          <caseagile:modified date="2020-04-08 07:10:27"/>
+          <caseagile:properties>
+            <caseagile:property name="bgcolor" description="Background Color" type="int" format="hex" default="FFFFFF" minimum="000000" maximum="FFFFFF" visible="True" readOnly="False"/>
+          </caseagile:properties>
+          <caseagile:values>
+            <caseagile:value name="bgcolor" value="FFFFFF"/>
+          </caseagile:values>
+        </caseagile:model>
+      </extensionElements>
+    </association>
   </bpmn:process>
 
   <bpmndi:BPMNDiagram id="BPMNDiagram_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3">
@@ -876,6 +970,26 @@
       <BPMNShape xmlns="http://www.omg.org/spec/BPMN/20100524/DI" id="_b5245571-a3b8-4174-8fe1-f40f43c4de67" bpmnElement="_42dff389-e0ee-4af7-9a65-45ea1fb610ef" isHorizontal="false" isExpanded="false" isMarkerVisible="false" isMessageVisible="false">
         <Bounds xmlns="http://www.omg.org/spec/DD/20100524/DC" x="1168" y="834" width="33" height="39"/>
       </BPMNShape>
+      <BPMNEdge xmlns="http://www.omg.org/spec/BPMN/20100524/DI" id="_3e97b032-a5a0-478c-95dd-e51097517b2f" bpmnElement="_d7e79c49-2434-4cc2-a27a-0e8c93c3d345">
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="392" y="236"/>
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="485" y="236"/>
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="485" y="621"/>
+      </BPMNEdge>
+      <BPMNEdge xmlns="http://www.omg.org/spec/BPMN/20100524/DI" id="_cdd5c377-389e-4785-ad8e-e5a7881c1a45" bpmnElement="_83d03deb-6880-4078-afdd-93fe9db0ceb5">
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="609" y="777"/>
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="711" y="777"/>
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="711" y="388"/>
+      </BPMNEdge>
+      <BPMNEdge xmlns="http://www.omg.org/spec/BPMN/20100524/DI" id="_a898545d-7f92-4cf4-b33e-9c7f0f5a8d56" bpmnElement="_583aadc0-f134-4dc9-8f20-d58f3a19fa46">
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="322" y="312"/>
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="322" y="236"/>
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="358" y="236"/>
+      </BPMNEdge>
+      <BPMNEdge xmlns="http://www.omg.org/spec/BPMN/20100524/DI" id="_31918a76-ffa4-47aa-923c-b1807d8ba664" bpmnElement="_e7cf0c57-ba2d-4e52-b72d-56f6d7fa5d70">
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="515" y="701"/>
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="515" y="777"/>
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="574" y="777"/>
+      </BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

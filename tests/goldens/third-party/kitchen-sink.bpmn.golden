@@ -6,7 +6,7 @@
                   xmlns:aef="http://anchorpoint.framework/aef/extensions"
                   id="Definitions_process_0k3ryf8"
                   exporter="aef-workflow-designer"
-                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+                  targetNamespace="https://aef.anchorpoint.dev/workflows" xmlns:modeler="http://camunda.org/schema/modeler/1.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.3.0">
 
   <bpmn:collaboration id="Collaboration_process_0k3ryf8">
     <bpmn:participant id="Participant_1pudv9f" name="Participant" processRef="Process_process_0k3ryf8"/>
@@ -15,6 +15,9 @@
     </bpmn:participant>
     <bpmn:messageFlow id="Flow_0mefziq" sourceRef="Participant_1pudv9f" targetRef="Participant_0tuweou" messageRef="Message_1"/>
     <bpmn:messageFlow id="Flow_14s7yr5" sourceRef="Participant_0tuweou" targetRef="Participant_1pudv9f"/>
+    <bpmn:group id="Group_0306c6g" categoryValueRef="CategoryValue_19ltlrt"/>
+    <bpmn:group id="Group_06zgfh5" categoryValueRef="CategoryValue_1e5k8u4"/>
+    <bpmn:group id="Group_1uodo9r" categoryValueRef="CategoryValue_1yjf52e"/>
   </bpmn:collaboration>
 
   <bpmn:process id="Process_process_0k3ryf8" isExecutable="true">
@@ -810,9 +813,29 @@
     <bpmn:dataObjectReference id="DataObjectReference_05ngfcy" name="Data Object Reference" dataObjectRef="DataObject_13ulk9j"/>
 
     <bpmn:dataObject id="DataObject_13ulk9j" isCollection="true"/>
+
+    <bpmn:textAnnotation id="TextAnnotation_1xqm9d8">
+      <bpmn:text>Textannotation</bpmn:text>
+    </bpmn:textAnnotation>
+
+    <bpmn:association id="Association_057v11v" sourceRef="la2_4_activity" targetRef="TextAnnotation_1xqm9d8"/>
+
+    <bpmn:association id="Association_1n0wnaa" associationDirection="One" sourceRef="la2_link_event" targetRef="la2_3_activity"/>
   </bpmn:process>
 
   <bpmn:message id="Message_1" name="Message"/>
+
+  <bpmn:category id="Category_1tbggvc">
+    <bpmn:categoryValue id="CategoryValue_19ltlrt" value="Tasks"/>
+  </bpmn:category>
+
+  <bpmn:category id="Category_0jku76b">
+    <bpmn:categoryValue id="CategoryValue_1e5k8u4" value="Gateways"/>
+  </bpmn:category>
+
+  <bpmn:category id="Category_0m97nlo">
+    <bpmn:categoryValue id="CategoryValue_1yjf52e" value="Events"/>
+  </bpmn:category>
 
   <bpmndi:BPMNDiagram id="BPMNDiagram_process_0k3ryf8">
     <bpmndi:BPMNPlane id="BPMNPlane_process_0k3ryf8" bpmnElement="Collaboration_process_0k3ryf8">
@@ -1104,6 +1127,37 @@
         <di:waypoint x="453" y="1290"/>
         <di:waypoint x="565" y="1290"/>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="TextAnnotation_1xqm9d8_di" bpmnElement="TextAnnotation_1xqm9d8">
+        <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="800" y="1270" width="99.98694034205708" height="29.992818085003794"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_057v11v_di" bpmnElement="Association_057v11v">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="796" y="1350"/>
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="838" y="1300"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_1n0wnaa_di" bpmnElement="Association_1n0wnaa">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="453" y="1448"/>
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="453" y="1500"/>
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="530" y="1500"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Group_0306c6g_di" bpmnElement="Group_0306c6g">
+        <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="190" y="80" width="1210" height="150"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="781" y="87" width="29" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Group_06zgfh5_di" bpmnElement="Group_06zgfh5">
+        <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="190" y="250" width="1210" height="120"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="770" y="257" width="50" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Group_1uodo9r_di" bpmnElement="Group_1uodo9r">
+        <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="190" y="390" width="1210" height="810"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="778" y="397" width="35" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

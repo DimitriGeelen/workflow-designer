@@ -6,7 +6,7 @@
                   xmlns:aef="http://anchorpoint.framework/aef/extensions"
                   id="Definitions_process_1"
                   exporter="aef-workflow-designer"
-                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+                  targetNamespace="https://aef.anchorpoint.dev/workflows" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
 
   <bpmn:collaboration id="Collaboration_process_1">
     <bpmn:participant id="Process_1" name="Process_1" processRef="Process_process_1"/>

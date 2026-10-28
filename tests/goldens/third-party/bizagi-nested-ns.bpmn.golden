@@ -8,8 +8,19 @@
                   exporter="aef-workflow-designer"
                   targetNamespace="https://aef.anchorpoint.dev/workflows">
 
-  <bpmn:collaboration id="Collaboration_id_1f46c2af-002d-4b63-b1d1-7f181acc6065">
-    <bpmn:participant id="Id_f5303751-594f-4be3-bfba-9ed026dbb78c" name="Prozess 1" processRef="Process_id_1f46c2af-002d-4b63-b1d1-7f181acc6065"/>
+  <bpmn:collaboration id="Collaboration_id_1f46c2af-002d-4b63-b1d1-7f181acc6065" name="Diagramm  1">
+    <documentation xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+    <bpmn:participant id="Id_f5303751-594f-4be3-bfba-9ed026dbb78c" name="Prozess 1" processRef="Process_id_1f46c2af-002d-4b63-b1d1-7f181acc6065">
+      <documentation xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+      <bpmn:extensionElements>
+        <bizagi:BizagiExtensions xmlns:bizagi="http://www.bizagi.com/bpmn20">
+          <bizagi:BizagiProperties>
+            <bizagi:BizagiProperty name="bgColor" value="#FFFFFF"/>
+            <bizagi:BizagiProperty name="borderColor" value="#000000"/>
+          </bizagi:BizagiProperties>
+        </bizagi:BizagiExtensions>
+      </bpmn:extensionElements>
+    </bpmn:participant>
     <participant xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Id_c13bd51d-300b-4a9b-9ed9-96a0415f9c76" name="Hauptprozess" processRef="Id_f2afc6ec-e5fc-4205-837c-4f637bf95ba6">
       <documentation/>
       <extensionElements>
@@ -25,6 +36,7 @@
   </bpmn:collaboration>
 
   <bpmn:process id="Process_id_1f46c2af-002d-4b63-b1d1-7f181acc6065" isExecutable="true">
+    <documentation xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
     <bpmn:extensionElements>
       <aef:workflowMeta id="id_1f46c2af-002d-4b63-b1d1-7f181acc6065" version="1" schemaVersion="2" title="Id_1f46c2af-002d-4b63-b1d1-7f181acc6065" tier_default="2"/>
     </bpmn:extensionElements>
@@ -95,6 +107,7 @@
     </bpmn:task>
 
     <bpmn:sequenceFlow id="flow_1" sourceRef="lan_start_id" targetRef="lan_1_aufgabe">
+      <documentation xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
       <bpmn:extensionElements>
         <aef:uid value="u4"/>
         <bizagi:BizagiExtensions xmlns:bizagi="http://www.bizagi.com/bpmn20">
