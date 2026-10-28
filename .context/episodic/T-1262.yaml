@@ -1,0 +1,95 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1262: Process and definitions identity rewritten on save (process id, isExecutable, definitions id, targetNamespace, collaboration id)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-28T18:28:46Z
+# ============================================================================
+
+task_id: T-1262
+task_name: "Process and definitions identity rewritten on save (process id, isExecutable, definitions id, targetNamespace, collaboration id)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-21T21:24:02Z
+completed: 2026-10-28T18:28:36Z
+duration_days: 7
+updates_count: 4
+first_commit: 2026-10-28T19:13:01+01:00
+last_commit: 2026-10-28T19:13:01+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a save keeps a file's own definitions/collaboration/process ids, targetNamespace and isExecutable (job C F4; F12/T-1270 through it) — state.fileIds records them only where they differ from what export derives, so designer-written maps record nothing and still rename; a pool with no participant is Pool_<id>, not the process id; harness _t1262 (browser leg _leg_209) red on the old source on 14 points; 10 third-party goldens re-recorded, 54 identity lines each way
+
+# Key outcomes
+outcomes:
+  - 'A file whose definitions id, `targetNamespace`, collaboration id, process id or `isExecutable` differ from what'
+  - 'A file with no collaboration does not get a participant whose id equals the kept process id.'
+  - 'Opening a second file with the same process id (T-1270): its saved ids are the file''s own; the designer''s own'
+  - 'Designer-written maps record nothing and save byte-identically (every corpus map; goldens legs); renaming a'
+  - 'A browser harness proves all of the above, red on the pre-T-1262 source; a second save is byte-identical;'
+  - 'Third-party goldens that change are re-recorded deliberately, each changed line checked; core tier green.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1262-process-and-definitions-identity-rewritt.md'
+  - '.tasks/active/T-1270-opening-a-second-file-with-the-same-proc.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/goldens/third-party/bizagi-nested-ns.bpmn.golden'
+  - 'tests/goldens/third-party/boundary-events.bpmn.golden'
+  - 'tests/goldens/third-party/caseagile-local-ns.bpmn.golden'
+  - 'tests/goldens/third-party/collaboration-message-flows.bpmn.golden'
+  - 'tests/goldens/third-party/i18n-documentation.bpmn.golden'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/goldens/third-party/multiple-diagrams.bpmn.golden'
+  - 'tests/goldens/third-party/nested-subprocesses.bpmn.golden'
+  - 'tests/goldens/third-party/simple.bpmn.golden'
+  - 'tests/goldens/third-party/zeebe-service-task.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1262-file-identity-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-28T19:13:01'
+    action: 'T-1262: a save keeps a file''s own definitions/collaboration/process ids, targetNamespace and isExecutable (job C F4; F12/T-1270 through it) — state.fileIds records them only where they differ from what export derives, so designer-written maps record nothing and still rename; a pool with no participant is Pool_<id>, not the process id; harness _t1262 (browser leg _leg_209) red on the old source on 14 points; 10 third-party goldens re-recorded, 54 identity lines each way'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 9904 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [import-loss, cloud-job-c]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 9904
+  commits: 2
+  files_changed: 18
+  lines_added: 531
+  lines_removed: 89
+  footprint_refreshed_at: '2026-10-28T18:28:48Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1262-process-and-definitions-identity-rewritt.md
+generated_by: context-agent-hybrid

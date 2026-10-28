@@ -19887,3 +19887,21 @@ scan_id: R-2b265d75
 task_id: T-1271
 payload:
   task_file: .tasks/active/T-1271-node-and-flownoderef-order-is-reshuffled.md
+---
+kind: scan_emitted
+timestamp: '2026-10-28T18:28:40Z'
+scan_id: R-1261ca4d
+task_id: T-1262
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-28T18:28:40Z'
+scan_id: R-1261ca4d
+task_id: T-1262
+payload:
+  task_file: .tasks/active/T-1262-process-and-definitions-identity-rewritt.md
