@@ -39,6 +39,7 @@
         <aef:uid value="u1"/>
         <aef:position x="172.0" y="99.0"/>
         <aef:meta slug="startevent"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="StartEvent_1"/>
       </bpmn:extensionElements>
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
@@ -48,6 +49,7 @@
         <aef:uid value="u2"/>
         <aef:position x="552.0" y="99.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1ijl6th"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_2</bpmn:incoming>
     </bpmn:endEvent>
@@ -68,6 +70,7 @@
           <zeebe:header key="resultVariable"/>
           <zeebe:header key="resultExpression" value="= {&#10;  name: response.body.name&#10;}"/>
         </zeebe:taskHeaders>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_08bosyf"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_3</bpmn:incoming>
       <bpmn:outgoing>flow_2</bpmn:outgoing>
@@ -77,6 +80,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u4"/>
         <aef:position x="250.0" y="77.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_07q9qya"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_1</bpmn:incoming>
       <bpmn:outgoing>flow_3</bpmn:outgoing>
@@ -85,18 +89,21 @@
     <bpmn:sequenceFlow id="flow_1" sourceRef="lan_start_startevent" targetRef="lan_1_activity">
       <bpmn:extensionElements>
         <aef:uid value="u5"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_1m4ktm6"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_2" sourceRef="lan_2_activity" targetRef="lan_end_event">
       <bpmn:extensionElements>
         <aef:uid value="u6"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_03z9kxx"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_3" sourceRef="lan_1_activity" targetRef="lan_2_activity">
       <bpmn:extensionElements>
         <aef:uid value="u7"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_0c67oso"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
   </bpmn:process>

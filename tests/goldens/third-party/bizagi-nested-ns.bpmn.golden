@@ -71,6 +71,7 @@
             <bizagi:BizagiProperty name="runtimeProperties" value="{}"/>
           </bizagi:BizagiProperties>
         </bizagi:BizagiExtensions>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Id_8582749e-b374-4721-b307-743d473e76db"/>
       </bpmn:extensionElements>
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
@@ -86,6 +87,7 @@
             <bizagi:BizagiProperty name="borderColor" value="#03689A"/>
           </bizagi:BizagiProperties>
         </bizagi:BizagiExtensions>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Id_b9ff4ef1-7f18-4c42-8667-122fc9c12929"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_1</bpmn:incoming>
       <bpmn:outgoing>flow_2</bpmn:outgoing>
@@ -102,6 +104,7 @@
             <bizagi:BizagiProperty name="borderColor" value="#990000"/>
           </bizagi:BizagiProperties>
         </bizagi:BizagiExtensions>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Id_e673ec36-e00a-4857-b74d-bcd82c4eeff5"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_2</bpmn:incoming>
     </bpmn:endEvent>
@@ -116,6 +119,7 @@
             <bizagi:BizagiProperty name="borderColor" value="#000000"/>
           </bizagi:BizagiProperties>
         </bizagi:BizagiExtensions>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Id_101c0e9e-4037-4dce-8290-d7753b6b8041"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
@@ -128,6 +132,7 @@
             <bizagi:BizagiProperty name="borderColor" value="Black"/>
           </bizagi:BizagiProperties>
         </bizagi:BizagiExtensions>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Id_1c76c425-0be8-499f-a486-08fd3dcbe887"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
   </bpmn:process>

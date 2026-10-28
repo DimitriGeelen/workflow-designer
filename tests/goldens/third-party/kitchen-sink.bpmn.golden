@@ -106,6 +106,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u1"/>
         <aef:position x="220.0" y="120.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_1ketqts"/>
       </bpmn:extensionElements>
     </bpmn:businessRuleTask>
 
@@ -113,6 +114,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u2"/>
         <aef:position x="370.0" y="120.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_1aw7nq3"/>
       </bpmn:extensionElements>
     </bpmn:manualTask>
 
@@ -120,6 +122,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u3"/>
         <aef:position x="520.0" y="120.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_09glvdf"/>
       </bpmn:extensionElements>
     </bpmn:receiveTask>
 
@@ -127,6 +130,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u4"/>
         <aef:position x="245.0" y="295.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Gateway_0w4fbsk"/>
       </bpmn:extensionElements>
     </bpmn:exclusiveGateway>
 
@@ -134,6 +138,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u5"/>
         <aef:position x="395.0" y="295.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Gateway_0lwqw3q"/>
       </bpmn:extensionElements>
     </bpmn:inclusiveGateway>
 
@@ -141,6 +146,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u6"/>
         <aef:position x="545.0" y="295.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Gateway_0im7nvs"/>
       </bpmn:extensionElements>
     </bpmn:complexGateway>
 
@@ -148,6 +154,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u7"/>
         <aef:position x="695.0" y="295.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Gateway_1gp70qr"/>
       </bpmn:extensionElements>
     </bpmn:eventBasedGateway>
 
@@ -155,6 +162,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u8"/>
         <aef:position x="340.0" y="430.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_088fmm5"/>
       </bpmn:extensionElements>
     </bpmn:subProcess>
 
@@ -163,6 +171,7 @@
         <aef:uid value="u9"/>
         <aef:position x="402.0" y="472.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1l5ozbh"/>
       </bpmn:extensionElements>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1digjva"/>
     </bpmn:startEvent>
@@ -172,6 +181,7 @@
         <aef:uid value="u10"/>
         <aef:position x="552.0" y="472.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1h3k36g"/>
       </bpmn:extensionElements>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1ilob41"/>
     </bpmn:startEvent>
@@ -181,6 +191,7 @@
         <aef:uid value="u11"/>
         <aef:position x="402.0" y="532.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1p4tub5"/>
       </bpmn:extensionElements>
       <bpmn:timerEventDefinition id="TimerEventDefinition_1bg6z6t"/>
     </bpmn:startEvent>
@@ -190,6 +201,7 @@
         <aef:uid value="u12"/>
         <aef:position x="552.0" y="532.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_16k3ggm"/>
       </bpmn:extensionElements>
       <bpmn:timerEventDefinition id="TimerEventDefinition_1ji0j4r"/>
     </bpmn:startEvent>
@@ -199,6 +211,7 @@
         <aef:uid value="u13"/>
         <aef:position x="402.0" y="592.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_139t55w"/>
       </bpmn:extensionElements>
       <bpmn:conditionalEventDefinition id="ConditionalEventDefinition_1kitwxn">
           <bpmn:condition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="bpmn:tFormalExpression"/>
@@ -210,6 +223,7 @@
         <aef:uid value="u14"/>
         <aef:position x="552.0" y="592.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1q5v0sf"/>
       </bpmn:extensionElements>
       <bpmn:conditionalEventDefinition id="ConditionalEventDefinition_02cyrya">
           <bpmn:condition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="bpmn:tFormalExpression"/>
@@ -221,6 +235,7 @@
         <aef:uid value="u15"/>
         <aef:position x="402.0" y="712.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1g4mqp3"/>
       </bpmn:extensionElements>
       <bpmn:signalEventDefinition id="SignalEventDefinition_1jigagb"/>
     </bpmn:startEvent>
@@ -230,6 +245,7 @@
         <aef:uid value="u16"/>
         <aef:position x="552.0" y="712.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1f81cds"/>
       </bpmn:extensionElements>
       <bpmn:signalEventDefinition id="SignalEventDefinition_0smt1cj"/>
     </bpmn:startEvent>
@@ -239,6 +255,7 @@
         <aef:uid value="u17"/>
         <aef:position x="402.0" y="772.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_19ahha0"/>
       </bpmn:extensionElements>
       <bpmn:errorEventDefinition id="ErrorEventDefinition_1h5lmci"/>
     </bpmn:startEvent>
@@ -248,6 +265,7 @@
         <aef:uid value="u18"/>
         <aef:position x="402.0" y="832.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_00h2mai"/>
       </bpmn:extensionElements>
       <bpmn:escalationEventDefinition id="EscalationEventDefinition_1n1jtk8"/>
     </bpmn:startEvent>
@@ -257,6 +275,7 @@
         <aef:uid value="u19"/>
         <aef:position x="552.0" y="832.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_0eql2pf"/>
       </bpmn:extensionElements>
       <bpmn:escalationEventDefinition id="EscalationEventDefinition_0hilmhu"/>
     </bpmn:startEvent>
@@ -266,6 +285,7 @@
         <aef:uid value="u20"/>
         <aef:position x="402.0" y="952.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_09uyr4s"/>
       </bpmn:extensionElements>
       <bpmn:compensateEventDefinition id="CompensateEventDefinition_08fcqrr"/>
     </bpmn:startEvent>
@@ -274,6 +294,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u21"/>
         <aef:position x="252.0" y="472.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_0m5cdgr"/>
       </bpmn:extensionElements>
       <bpmn:messageEventDefinition id="MessageEventDefinition_09axst2" messageRef="Message_1"/>
     </bpmn:startEvent>
@@ -282,6 +303,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u22"/>
         <aef:position x="702.0" y="472.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1vk962b"/>
       </bpmn:extensionElements>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1wqfsoo"/>
     </bpmn:intermediateCatchEvent>
@@ -290,6 +312,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u23"/>
         <aef:position x="870.0" y="430.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_0pzvbay"/>
       </bpmn:extensionElements>
       <bpmn:multiInstanceLoopCharacteristics/>
     </bpmn:subProcess>
@@ -298,6 +321,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u24"/>
         <aef:position x="1152.0" y="472.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1njhrf7"/>
       </bpmn:extensionElements>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1x65mcp"/>
     </bpmn:intermediateThrowEvent>
@@ -307,6 +331,7 @@
         <aef:uid value="u25"/>
         <aef:position x="252.0" y="532.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_0az045q"/>
       </bpmn:extensionElements>
       <bpmn:timerEventDefinition id="TimerEventDefinition_1ups2va"/>
     </bpmn:startEvent>
@@ -315,6 +340,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u26"/>
         <aef:position x="702.0" y="532.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_0rd4z0d"/>
       </bpmn:extensionElements>
       <bpmn:timerEventDefinition id="TimerEventDefinition_071dkih"/>
     </bpmn:intermediateCatchEvent>
@@ -324,6 +350,7 @@
         <aef:uid value="u27"/>
         <aef:position x="1302.0" y="472.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_00twu86"/>
       </bpmn:extensionElements>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1rjms9w"/>
     </bpmn:endEvent>
@@ -333,6 +360,7 @@
         <aef:uid value="u28"/>
         <aef:position x="252.0" y="592.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1faweyu"/>
       </bpmn:extensionElements>
       <bpmn:conditionalEventDefinition id="ConditionalEventDefinition_19su4pq">
         <bpmn:condition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="bpmn:tFormalExpression"/>
@@ -343,6 +371,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u29"/>
         <aef:position x="702.0" y="592.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_01o5kun"/>
       </bpmn:extensionElements>
       <bpmn:conditionalEventDefinition id="ConditionalEventDefinition_160s4nq">
         <bpmn:condition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="bpmn:tFormalExpression"/>
@@ -353,6 +382,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u30"/>
         <aef:position x="702.0" y="652.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_0a3nmhs"/>
       </bpmn:extensionElements>
       <bpmn:linkEventDefinition id="LinkEventDefinition_0eu3m1j"/>
     </bpmn:intermediateCatchEvent>
@@ -361,6 +391,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u31"/>
         <aef:position x="1152.0" y="652.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_0nn7qi2"/>
       </bpmn:extensionElements>
       <bpmn:linkEventDefinition id="LinkEventDefinition_0xn074p"/>
     </bpmn:intermediateThrowEvent>
@@ -369,6 +400,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u32"/>
         <aef:position x="702.0" y="712.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_0cvqzwg"/>
       </bpmn:extensionElements>
       <bpmn:signalEventDefinition id="SignalEventDefinition_1yy1u3c"/>
     </bpmn:intermediateCatchEvent>
@@ -378,6 +410,7 @@
         <aef:uid value="u33"/>
         <aef:position x="252.0" y="712.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_0jf1q45"/>
       </bpmn:extensionElements>
       <bpmn:signalEventDefinition id="SignalEventDefinition_17493ur"/>
     </bpmn:startEvent>
@@ -386,6 +419,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u34"/>
         <aef:position x="1152.0" y="712.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_0d3edlz"/>
       </bpmn:extensionElements>
       <bpmn:signalEventDefinition id="SignalEventDefinition_1hgl68h"/>
     </bpmn:intermediateThrowEvent>
@@ -395,6 +429,7 @@
         <aef:uid value="u35"/>
         <aef:position x="1302.0" y="712.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_0mf406j"/>
       </bpmn:extensionElements>
       <bpmn:signalEventDefinition id="SignalEventDefinition_1o7kcql"/>
     </bpmn:endEvent>
@@ -404,6 +439,7 @@
         <aef:uid value="u36"/>
         <aef:position x="1302.0" y="772.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1tb0m8u"/>
       </bpmn:extensionElements>
       <bpmn:errorEventDefinition id="ErrorEventDefinition_0lnltwf"/>
     </bpmn:endEvent>
@@ -412,6 +448,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u37"/>
         <aef:position x="1152.0" y="832.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1folo0q"/>
       </bpmn:extensionElements>
       <bpmn:escalationEventDefinition id="EscalationEventDefinition_18btf0r"/>
     </bpmn:intermediateThrowEvent>
@@ -421,6 +458,7 @@
         <aef:uid value="u38"/>
         <aef:position x="1302.0" y="832.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1lhkn4m"/>
       </bpmn:extensionElements>
       <bpmn:escalationEventDefinition id="EscalationEventDefinition_0wu33ji"/>
     </bpmn:endEvent>
@@ -430,6 +468,7 @@
         <aef:uid value="u39"/>
         <aef:position x="1302.0" y="892.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_0tlcssq"/>
       </bpmn:extensionElements>
       <bpmn:terminateEventDefinition id="TerminateEventDefinition_0qzb9lz"/>
     </bpmn:endEvent>
@@ -439,6 +478,7 @@
         <aef:uid value="u40"/>
         <aef:position x="1302.0" y="952.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1d1oeak"/>
       </bpmn:extensionElements>
       <bpmn:compensateEventDefinition id="CompensateEventDefinition_04gpe8z"/>
     </bpmn:endEvent>
@@ -447,6 +487,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u41"/>
         <aef:position x="1152.0" y="952.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1bjbr5h"/>
       </bpmn:extensionElements>
       <bpmn:compensateEventDefinition id="CompensateEventDefinition_1dpuxy8"/>
     </bpmn:intermediateThrowEvent>
@@ -455,6 +496,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u42"/>
         <aef:position x="870.0" y="1050.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_0djfr8f"/>
       </bpmn:extensionElements>
       <bpmn:multiInstanceLoopCharacteristics/>
     </bpmn:transaction>
@@ -464,6 +506,7 @@
         <aef:uid value="u43"/>
         <aef:position x="1302.0" y="1092.0"/>
         <aef:meta slug="event"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1cutsq6"/>
       </bpmn:extensionElements>
       <bpmn:cancelEventDefinition id="CancelEventDefinition_0fr4bjf"/>
     </bpmn:endEvent>
@@ -473,6 +516,7 @@
         <aef:uid value="u44"/>
         <aef:position x="852.0" y="1092.0"/>
         <aef:meta hostRef="n_e9879ff7" interrupting="true"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_11fzkjc"/>
       </bpmn:extensionElements>
       <bpmn:cancelEventDefinition id="CancelEventDefinition_1q9o9vy"/>
     </bpmn:boundaryEvent>
@@ -483,6 +527,7 @@
         <aef:position x="852.0" y="952.0"/>
         <aef:meta hostRef="n_8d5e5fcf" interrupting="true"/>
         <aef:boundaryPos value="0.5326"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_0t86sxc"/>
       </bpmn:extensionElements>
       <bpmn:compensateEventDefinition id="CompensateEventDefinition_00rw9ri"/>
     </bpmn:boundaryEvent>
@@ -493,6 +538,7 @@
         <aef:position x="1002.0" y="832.0"/>
         <aef:meta hostRef="n_8d5e5fcf" interrupting="false"/>
         <aef:boundaryPos value="0.5563"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1o9cjfb"/>
       </bpmn:extensionElements>
       <bpmn:escalationEventDefinition id="EscalationEventDefinition_07fctt8"/>
     </bpmn:boundaryEvent>
@@ -503,6 +549,7 @@
         <aef:position x="852.0" y="832.0"/>
         <aef:meta hostRef="n_8d5e5fcf" interrupting="true"/>
         <aef:boundaryPos value="0.5800"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1cax1xl"/>
       </bpmn:extensionElements>
       <bpmn:escalationEventDefinition id="EscalationEventDefinition_0tj2w4d"/>
     </bpmn:boundaryEvent>
@@ -513,6 +560,7 @@
         <aef:position x="852.0" y="772.0"/>
         <aef:meta hostRef="n_8d5e5fcf" interrupting="true"/>
         <aef:boundaryPos value="0.6038"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_01qiiyi"/>
       </bpmn:extensionElements>
       <bpmn:errorEventDefinition id="ErrorEventDefinition_1y2eafx"/>
     </bpmn:boundaryEvent>
@@ -523,6 +571,7 @@
         <aef:position x="1002.0" y="712.0"/>
         <aef:meta hostRef="n_8d5e5fcf" interrupting="false"/>
         <aef:boundaryPos value="0.6275"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_0ncmtxn"/>
       </bpmn:extensionElements>
       <bpmn:signalEventDefinition id="SignalEventDefinition_04gift3"/>
     </bpmn:boundaryEvent>
@@ -533,6 +582,7 @@
         <aef:position x="852.0" y="712.0"/>
         <aef:meta hostRef="n_8d5e5fcf" interrupting="true"/>
         <aef:boundaryPos value="0.6512"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1ks4j21"/>
       </bpmn:extensionElements>
       <bpmn:signalEventDefinition id="SignalEventDefinition_1xvs6nt"/>
     </bpmn:boundaryEvent>
@@ -543,6 +593,7 @@
         <aef:position x="1002.0" y="592.0"/>
         <aef:meta hostRef="n_8d5e5fcf" interrupting="false"/>
         <aef:boundaryPos value="0.6749"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1pdjezb"/>
       </bpmn:extensionElements>
       <bpmn:conditionalEventDefinition id="ConditionalEventDefinition_1ulkndr">
         <bpmn:condition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="bpmn:tFormalExpression"/>
@@ -555,6 +606,7 @@
         <aef:position x="852.0" y="592.0"/>
         <aef:meta hostRef="n_8d5e5fcf" interrupting="true"/>
         <aef:boundaryPos value="0.6986"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_13xao98"/>
       </bpmn:extensionElements>
       <bpmn:conditionalEventDefinition id="ConditionalEventDefinition_0wkuo44">
         <bpmn:condition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="bpmn:tFormalExpression"/>
@@ -567,6 +619,7 @@
         <aef:position x="1002.0" y="532.0"/>
         <aef:meta hostRef="n_8d5e5fcf" interrupting="false"/>
         <aef:boundaryPos value="0.7223"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1x9von4"/>
       </bpmn:extensionElements>
       <bpmn:timerEventDefinition id="TimerEventDefinition_1gysdks"/>
     </bpmn:boundaryEvent>
@@ -577,6 +630,7 @@
         <aef:position x="852.0" y="532.0"/>
         <aef:meta hostRef="n_8d5e5fcf" interrupting="true"/>
         <aef:boundaryPos value="0.7460"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_0ikqxya"/>
       </bpmn:extensionElements>
       <bpmn:timerEventDefinition id="TimerEventDefinition_0kct1ik"/>
     </bpmn:boundaryEvent>
@@ -587,6 +641,7 @@
         <aef:position x="1002.0" y="472.0"/>
         <aef:meta hostRef="n_8d5e5fcf" interrupting="false"/>
         <aef:boundaryPos value="0.7698"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_0j90wfw"/>
       </bpmn:extensionElements>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0mkmbes"/>
     </bpmn:boundaryEvent>
@@ -597,6 +652,7 @@
         <aef:position x="852.0" y="472.0"/>
         <aef:meta hostRef="n_8d5e5fcf" interrupting="true"/>
         <aef:boundaryPos value="0.7935"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_1ks0id1"/>
       </bpmn:extensionElements>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0a4jz6j"/>
     </bpmn:boundaryEvent>
@@ -605,6 +661,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u57"/>
         <aef:position x="920.0" y="1350.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_0hcpwc9"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_1</bpmn:incoming>
       <bpmn:multiInstanceLoopCharacteristics isSequential="true"/>
@@ -614,6 +671,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u58"/>
         <aef:position x="353.0" y="1350.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_0vheewc"/>
       </bpmn:extensionElements>
       <bpmn:property id="Property_0bs4ymr" name="__targetRef_placeholder"/>
       <bpmn:dataInputAssociation id="DataInputAssociation_0i6cauf">
@@ -630,6 +688,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u59"/>
         <aef:position x="713.0" y="1350.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_1sosl74"/>
       </bpmn:extensionElements>
       <bpmn:outgoing>flow_1</bpmn:outgoing>
       <bpmn:multiInstanceLoopCharacteristics/>
@@ -639,6 +698,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u60"/>
         <aef:position x="353.0" y="1250.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_0brc3us"/>
       </bpmn:extensionElements>
       <bpmn:dataOutputAssociation id="DataOutputAssociation_1dph7uw">
         <bpmn:targetRef>DataStoreReference_1wvmfek</bpmn:targetRef>
@@ -653,6 +713,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u61"/>
         <aef:position x="340.0" y="1050.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_08egzqv"/>
       </bpmn:extensionElements>
       <bpmn:standardLoopCharacteristics/>
     </bpmn:adHocSubProcess>
@@ -661,6 +722,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u62"/>
         <aef:position x="738.0" y="1245.5"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Gateway_0238ieb"/>
       </bpmn:extensionElements>
       <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -669,6 +731,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u63"/>
         <aef:position x="920.0" y="1237.5"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_0pfhghz"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_2</bpmn:incoming>
       <bpmn:outgoing>flow_3</bpmn:outgoing>
@@ -678,6 +741,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u64"/>
         <aef:position x="1160.0" y="1237.5"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_0gi9n9o"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_3</bpmn:incoming>
     </bpmn:task>
@@ -687,6 +751,7 @@
         <aef:uid value="u65"/>
         <aef:position x="1160.0" y="1350.0"/>
         <zeebe:calledElement xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" propagateAllChildVariables="false"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_1ivfc6a"/>
       </bpmn:extensionElements>
       <bpmn:standardLoopCharacteristics/>
     </bpmn:callActivity>
@@ -696,6 +761,7 @@
         <aef:uid value="u66"/>
         <aef:position x="435.0" y="1251.5"/>
         <aef:meta hostRef="n_79889849" interrupting="true"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Event_11sdw9z"/>
       </bpmn:extensionElements>
       <bpmn:compensateEventDefinition id="CompensateEventDefinition_04l674p"/>
     </bpmn:boundaryEvent>
@@ -704,6 +770,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u67"/>
         <aef:position x="530.0" y="1237.5"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_1ndsz41"/>
       </bpmn:extensionElements>
     </bpmn:task>
 
@@ -711,6 +778,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u68"/>
         <aef:position x="1160.0" y="1250.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_0g37k20"/>
       </bpmn:extensionElements>
     </bpmn:subProcess>
 
@@ -718,6 +786,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u69"/>
         <aef:position x="820.0" y="120.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_1125q3g"/>
       </bpmn:extensionElements>
     </bpmn:sendTask>
 
@@ -725,6 +794,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u70"/>
         <aef:position x="970.0" y="120.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_1ldvx66"/>
       </bpmn:extensionElements>
     </bpmn:serviceTask>
 
@@ -732,6 +802,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u71"/>
         <aef:position x="1120.0" y="120.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_011s9cd"/>
       </bpmn:extensionElements>
     </bpmn:scriptTask>
 
@@ -739,6 +810,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u72"/>
         <aef:position x="1270.0" y="120.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_1a96i3e"/>
       </bpmn:extensionElements>
     </bpmn:userTask>
 
@@ -746,6 +818,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u73"/>
         <aef:position x="670.0" y="120.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_0e5q7rs"/>
       </bpmn:extensionElements>
     </bpmn:receiveTask>
 
@@ -753,6 +826,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u74"/>
         <aef:position x="845.0" y="295.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Gateway_1la6tas"/>
       </bpmn:extensionElements>
     </bpmn:eventBasedGateway>
 
@@ -760,6 +834,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u75"/>
         <aef:position x="995.0" y="295.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Gateway_01lyed4"/>
       </bpmn:extensionElements>
     </bpmn:eventBasedGateway>
 
@@ -767,6 +842,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u76"/>
         <aef:position x="1280.0" y="1250.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_0r6ceyw"/>
       </bpmn:extensionElements>
     </bpmn:adHocSubProcess>
 
@@ -774,6 +850,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u77"/>
         <aef:position x="1280.0" y="1350.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_137lgd1"/>
       </bpmn:extensionElements>
     </bpmn:transaction>
 
@@ -781,24 +858,28 @@
       <bpmn:extensionElements>
         <aef:uid value="u78"/>
         <aef:position x="1280.0" y="1237.5"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Activity_1fi82ot"/>
       </bpmn:extensionElements>
     </bpmn:subProcess>
 
     <bpmn:sequenceFlow id="flow_1" sourceRef="la2_4_activity" targetRef="la2_5_activity">
       <bpmn:extensionElements>
         <aef:uid value="u79"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_0802uvc"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_2" sourceRef="la2_gw_gateway" targetRef="la2_6_activity">
       <bpmn:extensionElements>
         <aef:uid value="u80"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_0a4nevl"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_3" sourceRef="la2_6_activity" targetRef="la2_8_activity">
       <bpmn:extensionElements>
         <aef:uid value="u81"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_16zflj8"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 

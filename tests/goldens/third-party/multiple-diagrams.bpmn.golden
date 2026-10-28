@@ -38,6 +38,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u1"/>
         <aef:position x="156.0" y="81.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Task_A"/>
       </bpmn:extensionElements>
     </bpmn:task>
   </bpmn:process>

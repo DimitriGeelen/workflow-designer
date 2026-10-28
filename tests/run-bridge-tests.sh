@@ -1592,6 +1592,21 @@ else
 fi
 }
 leg browser "_t1262-file-identity-cdp" _leg_209
+_leg_210() {
+
+# ── T-1261: the first open of a third-party file records each element's original id (job C F3) ──
+# <x832:origin originalId="…"/> (urn:832-workflow-designer:origin:1), attribute-only, never replaced once recorded;
+# designer-written maps gain nothing. Red against the pre-T-1261 source.
+if node "$ROOT/tools/_t1261-original-id-cdp.mjs" > "$TMP/leg-_t1261.out" 2>&1 \
+   && [ "$(sed -n 2p "$TMP/leg-_t1261.out")" = '  "ok": true,' ]; then
+  pass=$((pass + 1))
+else
+  report FAIL "a third-party element's original id is not recorded (or recorded twice, replaced, or with text content), or a designer-written map gained an origin (run 'node tools/_t1261-original-id-cdp.mjs'; T-1261)"
+  show_output "$TMP/leg-_t1261.out" "_t1261-original-id-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1261-original-id-cdp" _leg_210
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

@@ -43,6 +43,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u1"/>
         <aef:position x="360.0" y="134.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Task_1"/>
       </bpmn:extensionElements>
     </bpmn:task>
 
@@ -51,6 +52,7 @@
         <aef:uid value="u2"/>
         <aef:position x="653.0" y="178.0"/>
         <aef:meta slug="endevent"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="EndEvent_1"/>
       </bpmn:extensionElements>
       <bpmn2:messageEventDefinition xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" id="MessageEventDefinition_2"/>
     </bpmn:endEvent>
@@ -59,6 +61,7 @@
       <bpmn:extensionElements>
         <aef:uid value="u3"/>
         <aef:position x="516.0" y="134.0"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Task_2"/>
       </bpmn:extensionElements>
     </bpmn:task>
   </bpmn:process>

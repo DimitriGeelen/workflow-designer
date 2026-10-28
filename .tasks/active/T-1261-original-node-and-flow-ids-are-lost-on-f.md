@@ -92,12 +92,18 @@ asked for external advice (2026-10-28): AEF and an independent advisory read. Ev
 ## Acceptance Criteria
 
 ### Agent
-- [ ] The carrier is chosen with the advice recorded (AEF's answer and the advisory read, verbatim findings) and the
-      operator's pick in `## Decisions`.
-- [ ] On first open of a file without `aef:uid`, each node's and flow's original id is recorded in that carrier and
+- [x] The carrier is chosen with the advice recorded (AEF's answer and the advisory read, verbatim findings) and the
+      operator's pick in `## Decisions`. *(`docs/reports/T-1261-origin-carrier-advice.md`; AEF msgs 7c1e70d9,
+      7e06e182; advisory t1261-advice-f667c406bf03; Decisions 2026-10-28.)*
+- [x] On first open of a file without `aef:uid`, each node's and flow's original id is recorded in that carrier and
       written on save; a second save is byte-identical; designer-written maps gain nothing.
+      *(`readOriginalId` / `originXml`; the T-1325 passthrough no longer keeps the origin element as a foreign
+      extension, so it is read, not duplicated.)*
 - [ ] A browser harness proves it, red on the pre-T-1261 source; third-party goldens re-recorded deliberately;
-      core tier green.
+      core tier green. *(`tools/_t1261-original-id-cdp.mjs`, browser leg `_leg_210`: ok, 24 corpus maps; pre-fix
+      source: 9 failures, "Approve carries 0 origin(s)", "flow into Approve origin missing (want Flow_1)".
+      `_t358-byteid --record`: 10 of 11 goldens, 156 lines added, 0 removed, every added line an origin; per file the
+      origin count equals the aef:uid count (kitchen-sink 81/81, simple 8/8). Core tier: pending.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -362,6 +368,17 @@ asked for external advice (2026-10-28): AEF and an independent advisory read. Ev
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-10-28 — the origin carrier
+- **Chose:** `<x832:origin originalId="…"/>`, attribute-only, inside the element's `extensionElements`, namespace
+  `urn:832-workflow-designer:origin:1` (fixed once published; matched by URI, not prefix). Recorded on first open of
+  an element without `aef:uid`; the first recorded value is never overwritten.
+- **Why:** both external advisers chose it independently (AEF msg 7c1e70d9, the advisory read t1261-advice; both in
+  `docs/reports/T-1261-origin-carrier-advice.md`): it records provenance without changing the frozen meaning of `aef:`
+  data, and AEF's importer and lint keep it. `originalId`, not `id`: an `id` attribute reads as the element's own XML
+  id (AEF agreed, msg 7e06e182). Operator, 2026-10-28: "Proceed and suggest the [advice] you got."
+- **Rejected:** a new `aef:origin` (a contract edit on both sides for a datum one side produces); `bpmn:documentation`
+  (prose, AEF reads it as an acceptance-criteria seed); one document-level table (drifts from the per-node truth).
 
 ## Decision
 
