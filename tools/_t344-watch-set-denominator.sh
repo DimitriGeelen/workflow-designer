@@ -55,7 +55,10 @@ fi
 # The product file is the one this arc is about; a watch set that misses it is
 # tailored in name only. Named explicitly rather than trusted to a count: 146
 # files could be watched with this one absent and leg 1 would still be green.
-if python3 "$EXPANDER" "$WATCH" "$REPO" 2>/dev/null | grep -qx "src/aef-workflow-designer.html"; then
+# T-1330: captured first, then grepped. Piped, `grep -qx` exits at the match (line 1 of ~660), the expander dies on
+# the closed pipe, and pipefail turns that into "NOT watched" (6 of 40 runs, 2026-10-28; L-387).
+_t344_watched=$(python3 "$EXPANDER" "$WATCH" "$REPO" 2>/dev/null)
+if grep -qx "src/aef-workflow-designer.html" <<<"$_t344_watched"; then
   ok "the product file src/aef-workflow-designer.html is in the watch set"
 else
   bad "src/aef-workflow-designer.html is NOT watched — the ~10k-line file this arc"
@@ -183,7 +186,7 @@ else
   _t344_wait=0; _t344_held=0
   while :; do
     audit_out=$("$_t344_fw" audit --section structure 2>&1)
-    printf '%s\n' "$audit_out" | grep -q 'Another audit is already running' || break
+    grep -q 'Another audit is already running' <<<"$audit_out" || break   # T-1330: no pipe into grep -q
     if [ "$_t344_wait" -ge "$_t344_max" ]; then _t344_held=1; break; fi
     _t344_wait=$((_t344_wait + (_t344_step > 0 ? _t344_step : 1)))
     sleep "$_t344_step"
@@ -220,7 +223,7 @@ if [ "${_t344_held:-0}" = 1 ]; then
 elif [ -z "$n1" ] || [ -z "$c2" ]; then
   # Full coverage is the one legitimate reason a count is absent, and it too must be read off
   # a severity-marked finding rather than from anywhere in the report.
-  if printf '%s\n' "$findings" | grep -qE '^\[[A-Z]*\] Fabric: [0-9]+ registered, 0 unregistered'; then
+  if grep -qE '^\[[A-Z]*\] Fabric: [0-9]+ registered, 0 unregistered' <<<"$findings"; then
     ok "both coverage checks report full coverage over a non-empty watch set"
   else
     bad "could not read both coverage counts from the audit's own findings (coverage="
