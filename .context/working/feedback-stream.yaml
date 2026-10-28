@@ -19725,3 +19725,75 @@ scan_id: R-f64ccf07
 task_id: T-1327
 payload:
   task_file: .tasks/active/T-1327-t-1322-slice-3-comments-kept-by-anchor-a.md
+---
+kind: scan_emitted
+timestamp: '2026-10-28T11:20:16Z'
+scan_id: R-d034fbd7
+task_id: T-1259
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-28T11:20:16Z'
+scan_id: R-d034fbd7
+task_id: T-1259
+payload:
+  task_file: .tasks/active/T-1259-vendor-attributes-and-extensionelements-.md
+---
+kind: scan_emitted
+timestamp: '2026-10-28T11:21:02Z'
+scan_id: R-6407fc3c
+task_id: T-1260
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-28T11:21:02Z'
+scan_id: R-6407fc3c
+task_id: T-1260
+payload:
+  task_file: .tasks/active/T-1260-standard-bpmn-node-semantics-dropped-on-.md
+---
+kind: scan_emitted
+timestamp: '2026-10-28T11:21:44Z'
+scan_id: R-5039860b
+task_id: T-1263
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-28T11:21:44Z'
+scan_id: R-5039860b
+task_id: T-1263
+payload:
+  task_file: .tasks/active/T-1263-textannotation-association-group-and-pro.md
+---
+kind: scan_emitted
+timestamp: '2026-10-28T11:22:26Z'
+scan_id: R-43de7d3e
+task_id: T-1269
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-28T11:22:26Z'
+scan_id: R-43de7d3e
+task_id: T-1269
+payload:
+  task_file: .tasks/active/T-1269-xml-comments-inside-the-process-are-drop.md
