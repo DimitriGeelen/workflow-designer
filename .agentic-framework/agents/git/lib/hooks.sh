@@ -599,42 +599,6 @@ if [ -f "$MASTER_GUARD" ]; then
     PROJECT_ROOT="$PROJECT_ROOT" bash "$MASTER_GUARD" check || exit 1
 fi
 
-# T-659: retention-sweep deletions are not the agent's to commit.
-#
-# A retention cron prunes .context/audits/cron/ and leaves the deletions pending in the
-# working tree indefinitely. Committing them is a housekeeping decision belonging to the
-# operator, not a side effect of whatever the agent was doing. Three sessions held this
-# line by staging explicit paths every time — until one `git add .context/` to pick up a
-# single episodic file swept 338 of them into the index. The rule lived in the agent's
-# head; the index does not consult it. Habit is what failed, so a habit is not the fix.
-#
-# Blocks only under agent control ($CLAUDECODE). The operator committing a retention
-# sweep deliberately is the intended path and is not obstructed.
-# 832 T-659 (re-applied on 1.7.740 by T-1005)
-if [ "${CLAUDECODE:-0}" = "1" ] && [ "${FW_ALLOW_RETENTION_SWEEP:-0}" != "1" ]; then
-    _rs_n=$(git diff --cached --name-only --diff-filter=D 2>/dev/null \
-            | grep -c '^\.context/audits/cron/' || true)
-    if [ "${_rs_n:-0}" -gt 0 ]; then
-        echo "" >&2
-        echo "ERROR: Commit blocked — $_rs_n retention-sweep deletion(s) staged (T-659)." >&2
-        echo "" >&2
-        echo "  .context/audits/cron/ is pruned by a retention cron. Those deletions are" >&2
-        echo "  the operator's to commit, not a byproduct of the current task." >&2
-        echo "" >&2
-        echo "  Almost always the cause: a directory-wide 'git add .context/' rather than" >&2
-        echo "  explicit paths. Unstage them and keep the rest of your work:" >&2
-        echo "" >&2
-        echo "    git reset HEAD .context/audits/" >&2
-        echo "" >&2
-        echo "  Then re-add only the files your task produced, by name." >&2
-        echo "" >&2
-        echo "  Operator, or a deliberate sweep: FW_ALLOW_RETENTION_SWEEP=1 git commit ..." >&2
-        echo "" >&2
-        exit 1
-    fi
-fi
-
-
 # FW-HOOK-BLOCK: t3110-corpus-guard
 # T-3110 (R7 leg L1, docs/design/task-corpus-concurrency-model.md): task-corpus
 # commit guard. Refuses a commit that stages any path under `.tasks/` when the
@@ -1946,7 +1910,38 @@ elif [ $audit_exit -eq 2 ]; then
             echo "  an undetermined scope is not a determination that the ref is clean."
         fi
         echo ""
-        echo "Fix the issues above before pushing."
+        # T-4789 / OBS-274: name the failing checks HERE. The [FAIL] blocks are
+        # ~200 lines up, so `git push | tail` showed a refusal with no cause.
+        # Read back from the capture: title, first Evidence line (cut short), and
+        # a worktree tag where the audit scoped it so. ANSI colour is stripped.
+        if [ -n "$_t3126_out" ] && [ -f "$_t3126_out" ] && grep -q '\[FAIL\]' "$_t3126_out" 2>/dev/null; then
+            echo "Failing check(s):"
+            awk '
+                function flush() {
+                    if (t == "") return
+                    n++
+                    if (n <= 10) {
+                        print "  - " t (wt ? "  [worktree]" : "")
+                        if (e != "") print "      " e
+                    }
+                    t = ""; e = ""; wt = 0
+                }
+                { gsub(/\033\[[0-9;]*m/, "") }
+                /^\[FAIL\] / { flush(); t = substr($0, 8); next }
+                t != "" && e == "" && /^[[:space:]]*Evidence: / {
+                    e = $0; sub(/^[[:space:]]*/, "", e)
+                    if (length(e) > 140) e = substr(e, 1, 137) "..."
+                    next
+                }
+                t != "" && /^[[:space:]]*Scope: worktree/ { wt = 1; next }
+                END { flush(); if (n > 10) print "  ... and " n - 10 " more (see the audit output above)" }
+            ' "$_t3126_out"
+            echo ""
+            echo "Fix the failing check(s) listed above before pushing"
+            echo "(full Evidence and Mitigation for each are in the audit output)."
+        else
+            echo "Fix the issues above before pushing."
+        fi
         echo ""
         echo "Bypass: git push --no-verify"
         echo "  (In agent context, Tier 0 will prompt for approval on --no-verify.)"

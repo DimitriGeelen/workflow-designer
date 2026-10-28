@@ -100,8 +100,18 @@ FOCUS_FILE=$(_resolve_focus_file)   # T-3038: re-resolve, PROJECT_ROOT just move
 #
 # Kept as ONE definition on purpose: the gate below consumes this result rather
 # than re-deriving it, so the two call sites cannot drift apart.
-_fw_drift_target_in_clause() {
+_fw_extract_drift_target() {
     local c="$1"
+    # T-4825: a `fw sidecar send --body` value is a message, not the command's target.
+    # Blank it with the tick guard's lexer (T-4817, _blank_data_args): every quoting of
+    # the text is data, a substitution bash runs in it stays. Lexer unavailable → keep c.
+    if [[ "$c" == *--body* && "$c" == *sidecar* ]]; then
+        local _blanked
+        if _blanked=$(python3 -c 'import sys; sys.path.insert(0, sys.argv[1]); from shell_write_scan import _blank_data_args; sys.stdout.write(_blank_data_args(sys.argv[2])[0])' \
+                "$FRAMEWORK_ROOT/lib" "$c" 2>/dev/null); then
+            c="$_blanked"
+        fi
+    fi
     # Pattern 1: fw task update T-NNNN (mutation)
     if [[ "$c" =~ (^|[[:space:]])(bin/)?fw[[:space:]]+task[[:space:]]+update[[:space:]]+(T-[0-9]+) ]]; then
         printf '%s' "${BASH_REMATCH[3]}"; return 0
@@ -149,72 +159,6 @@ _fw_drift_target_in_clause() {
        [[ "$c" =~ (^|[[:space:]])(-[a-zA-Z]*m[a-zA-Z]*|--message)(=|[[:space:]]+)[\'\"]?(T-[0-9]+): ]]; then
         printf '%s' "${BASH_REMATCH[4]}"; return 0
     fi
-    return 0
-}
-
-# 832 T-639 (re-applied on 1.7.740 by T-1005): the target is read from a clause that IS the
-# command, never from text that merely MENTIONS one. The regexes above, run on the whole line,
-# took `T-1` out of a quoted test fixture, a heredoc body or an echo'd example and blocked the
-# command as "drift to T-1" (reproduced live 2026-10-02). Heredoc bodies are dropped, the line
-# is split into clauses on UNQUOTED ; && || | (upstream _fw_chain_split), and only a clause
-# that starts with fw / */fw / git is matched. Without the splitter: old whole-text behaviour.
-_fw_extract_drift_target() {
-    local c="$1" stripped="" line term="" clause hit
-    if ! declare -F _fw_chain_split >/dev/null 2>&1; then
-        _fw_drift_target_in_clause "$c"; return 0
-    fi
-    while IFS= read -r line || [ -n "$line" ]; do
-        if [ -n "$term" ]; then
-            [ "${line//[[:space:]]/}" = "$term" ] && term=""
-            continue
-        fi
-        stripped+="$line"$'\n'
-        if [[ "$line" =~ \<\<-?[[:space:]]*[\'\"]?([A-Za-z_][A-Za-z0-9_]*)[\'\"]? ]]; then
-            term="${BASH_REMATCH[1]}"
-        fi
-    done <<< "$c"
-    while IFS= read -r -d '' clause; do
-        clause="${clause#"${clause%%[![:space:]]*}"}"
-        while [[ "$clause" =~ ^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+ ]]; do
-            clause="${clause#"${BASH_REMATCH[0]}"}"
-        done
-        # A path to fw (/opt/p/.agentic-framework/bin/fw task update T-42 ...) is fw.
-        if [[ "$clause" =~ ^[^[:space:]]*/fw([[:space:]].*)$ ]]; then clause="fw${BASH_REMATCH[1]}"; fi
-        # 832 T-921 (re-applied on 1.7.740 by T-1005), two halves measured by T-920:
-        # (a) a shell invoker's quoted payload IS a command -- `bash -c "cd /x && fw task
-        #     update T-9"` updates T-9, and skipping the clause let it past the gate;
-        if [[ "$clause" =~ ^(bash|sh)[[:space:]]+-c[[:space:]]+(.*)$ ]]; then
-            local payload="${BASH_REMATCH[2]}"
-            payload="${payload%"${payload##*[![:space:]]}"}"
-            case "$payload" in
-                \"*\") payload="${payload:1:${#payload}-2}"; payload="${payload//\\\"/\"}" ;;
-                \'*\') payload="${payload:1:${#payload}-2}" ;;
-            esac
-            hit=$(_fw_extract_drift_target "$payload")
-            [ -n "$hit" ] && { printf '%s' "$hit"; return 0; }
-            continue
-        fi
-        # (b) quoted arguments are data -- `fw note "... fw task update T-9 ..."` names a
-        #     command, it does not run one. fw clauses and exec wrappers (xargs / find -exec /
-        #     sudo / env / timeout / nohup / nice / time / exec, whose verb is unquoted) are
-        #     matched on the quote-stripped view (upstream _fw_strip_quoted; unbalanced quotes
-        #     fall back to raw). git keeps the raw view (pattern 3 reads the quoted -m message),
-        #     and so does ssh, whose arguments ARE a remote command line. Anything else (echo,
-        #     grep, python, ...) is data. The wrapper and ssh rows are _t921's regression list,
-        #     which clause-scoping alone (T-639 above) had silently dropped.
-        case "$clause" in
-            fw[[:space:]]git[[:space:]]commit*) ;;   # T-1023: raw, like git -- pattern 3 reads the quoted -m message
-            fw[[:space:]]*|xargs[[:space:]]*|find[[:space:]]*|sudo[[:space:]]*|env[[:space:]]*|timeout[[:space:]]*|nohup[[:space:]]*|nice[[:space:]]*|time[[:space:]]*|exec[[:space:]]*)
-                if declare -F _fw_strip_quoted >/dev/null 2>&1; then
-                    local view
-                    view=$(_fw_strip_quoted "$clause") && clause="$view"
-                fi ;;
-            git[[:space:]]*|ssh[[:space:]]*) ;;
-            *) continue ;;
-        esac
-        hit=$(_fw_drift_target_in_clause "$clause")
-        [ -n "$hit" ] && { printf '%s' "$hit"; return 0; }
-    done < <(_fw_chain_split "$stripped")
     return 0
 }
 
@@ -402,50 +346,6 @@ fi
 # the whole command. Widening it would admit `fw work-on X > .claude/settings.json`.
 # The bug is that six sites advertise a remedy without its precondition. This
 # emits the precondition; permissions are unchanged.
-
-# 832 T-662 (restored by T-1038 on 1.7.740): committing a just-completed task is NOT blocked
-# with no focus. is_commit_checkpoint_command admits a commit line (T-2054/T-3221, and since
-# 832 T-1037 `fw git commit`), so when such a line is refused it is because something else on it
-# voided that exemption. Say which, or the agent reads it as a deadlock and reaches for a
-# borrowed focus or a Tier-2 bypass (what happened at T-643). Prints ONLY for a line that
-# contains a commit clause (PL-299: an advisory on every block carries no information).
-# Diagnosis mirrors the predicate's own order. Permissions are unchanged.
-_null_focus_commit_advisory() {
-    local cmd="${1:-}" seg why="" bad=""
-    [ -n "$cmd" ] || return 0
-    type _fw_is_git_commit_clause &>/dev/null || return 0
-    local -a segs=()
-    while IFS= read -r -d '' seg; do segs+=("$seg"); done < <(_fw_chain_split "$cmd" 2>/dev/null)
-    local has_commit=0
-    for seg in "${segs[@]}"; do _fw_is_git_commit_clause "$seg" && has_commit=1; done
-    [ "$has_commit" -eq 1 ] || return 0
-    local view; view="$(_fw_strip_quoted "$cmd" 2>/dev/null)" || view="$cmd"
-    case "$cmd" in
-        *'$('*|*'`'*) why="a \$(...) or \`...\` substitution sharing the line with the commit: its contents count as another clause (T-638)" ;;
-    esac
-    if [ -z "$why" ] && [[ "$cmd" =~ (^|[[:space:]])(--no-verify|-n)([[:space:]]|$) ]]; then
-        why="--no-verify (or -n): it skips the commit-msg hook that makes the no-focus exemption sound"
-    fi
-    if [ -z "$why" ] && type has_bash_write_pattern &>/dev/null && has_bash_write_pattern "$view"; then
-        why="a redirect or other write on the same line as the commit"
-    fi
-    if [ -z "$why" ]; then
-        for seg in "${segs[@]}"; do
-            [[ "$seg" =~ ^[[:space:]]*$ ]] && continue
-            _fw_is_git_commit_clause "$seg" && continue
-            _fw_single_command_is_safe "$seg" 2>/dev/null || bad="${bad:+$bad, }'${seg#"${seg%%[![:space:]]*}"}'"
-        done
-        [ -n "$bad" ] && why="a clause beside the commit that is not admissible with no task: ${bad:0:160}"
-    fi
-    [ -n "$why" ] || return 0
-    echo "" >&2
-    echo "Committing a just-completed task is NOT blocked, even with no focus (T-2054)." >&2
-    echo "What blocks this line is $why." >&2
-    echo "Put the commit on its own line:" >&2
-    echo "     git add <explicit paths>" >&2
-    echo "     $(_fw_cmd) git commit -m \"T-XXX: ...\"" >&2
-}
-
 _bootstrap_shape_hint() {
     local cmd="${1:-}"
     [ -n "$cmd" ] || return 0
@@ -570,19 +470,35 @@ _bash_gate_reason() {
     # No write pattern: the refusal came from recognition, not modification. Name the
     # segment that was not recognised — with a chained command that is the one datum
     # that turns "why is my read blocked?" into a one-second answer.
-    local _seg _bad=""
+    local _seg _op _s _bad=""
     if type _fw_chain_split &>/dev/null && type _fw_single_command_is_safe &>/dev/null; then
+        # T-4827: judge each segment in the context the verdict used
+        # (is_bash_safe_command): the git cwd starts at the payload cwd and follows
+        # the chain's cd. Without it every git segment failed here and the first
+        # one was named, sending the reader to file an allowlist gap that does
+        # not exist.
+        local _FW_GIT_CWD _FW_LIT_VARS=" "
+        _FW_GIT_CWD="$(_fw_initial_git_cwd 2>/dev/null)"
         # T-3223: `-d ''` — _fw_chain_split emits NUL-terminated segments, so a
         # quoted argument containing a newline stays one segment. Reading this
         # as lines is what made a multi-line commit message report five prose
         # fragments as "not on the read-only allowlist".
-        while IFS= read -r -d '' _seg; do
+        while IFS= read -r -d '' _seg && IFS= read -r -d '' _op; do
             [[ "$_seg" =~ ^[[:space:]]*$ ]] && continue
-            if ! _fw_single_command_is_safe "$_seg"; then
-                _bad=$(printf '%s' "$_seg" | sed 's/^[[:space:]]*//' | head -c 60)
+            # T-4827: loop keywords are grammar, not commands (T-4396). Judge the
+            # command a `do`/`while`/`until` carries; a `for` header or `done`
+            # names nothing — if the loop as a whole is refused, the reason is
+            # its shape, which the fallback message below states.
+            _s="${_seg#"${_seg%%[![:space:]]*}"}"
+            while [[ "$_s" =~ ^(do|while|until)[[:space:]]+(.*)$ ]]; do _s="${BASH_REMATCH[2]}"; done
+            [[ "$_s" =~ ^(for|done|do|while|until)([[:space:]]|$) ]] && continue
+            if ! _fw_single_command_is_safe "$_s" 2>/dev/null; then
+                _bad=$(printf '%s' "$_s" | head -c 60)
                 break
             fi
-        done < <(_fw_chain_split "$BASH_CMD")
+            type _fw_advance_cwd &>/dev/null && _fw_advance_cwd "$_s" "$_op" 2>/dev/null
+            type _fw_note_literal_vars &>/dev/null && _fw_note_literal_vars "$_s" "$_op" 2>/dev/null
+        done < <(_fw_chain_split "$BASH_CMD" ops)
     fi
 
     if [ -n "$_bad" ]; then
@@ -1020,14 +936,9 @@ if [ -z "$CURRENT_TASK" ]; then
     echo "To unblock:" >&2
     echo "  1. Create a task:  $(_fw_cmd) task create --name '...' --type build --start" >&2
     echo "  2. Set focus:      $(_fw_cmd) context focus T-XXX" >&2
-    # 832 OBS-479 (T-1038): offer the WM-* workflow tasks only where they exist. Without them
-    # `fw context focus WM-002` exits 1 silently, so the advice is a dead end.
-    if ls "$PROJECT_ROOT"/.tasks/active/WM-0*.md >/dev/null 2>&1; then
-        echo "  3. Workflow work?  $(_fw_cmd) context focus WM-001   (selection/discovery)" >&2
-        echo "                     $(_fw_cmd) context focus WM-002   (close-out, trailing work)" >&2
-        echo "                     $(_fw_cmd) context focus WM-003   (session lifecycle)" >&2
-    fi
-    _null_focus_commit_advisory "${BASH_CMD:-}"
+    echo "  3. Workflow work?  $(_fw_cmd) context focus WM-001   (selection/discovery)" >&2
+    echo "                     $(_fw_cmd) context focus WM-002   (close-out, trailing work)" >&2
+    echo "                     $(_fw_cmd) context focus WM-003   (session lifecycle)" >&2
     _bootstrap_shape_hint "${BASH_CMD:-}"
     _commit_shape_hint "${BASH_CMD:-}"
     echo "" >&2
