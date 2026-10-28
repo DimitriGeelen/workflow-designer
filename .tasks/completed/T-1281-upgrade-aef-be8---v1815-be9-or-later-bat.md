@@ -10,11 +10,11 @@ description: >
   as T-1280 (job 081). After upgrading, run fw git install-hooks (AEF's note for T-4690)
   and check our three pre-commit gates survive it.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [upgrade, framework]
 components: []
 related_tasks: []
@@ -45,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-23T13:55:00Z
-last_update: '2026-10-26T23:52:14Z'
-date_finished:
+last_update: 2026-10-28T07:41:40Z
+date_finished: 2026-10-28T07:41:40Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -196,7 +196,7 @@ Tags to batch (take the newest when this starts):
   *(first run RED 209/2: `_t1171`, `_t1172` tested the gallery at /designer, which AEF T-4716 turned into a 302 to the
   designer's project browser (their operator's option 1) and moved to /designer/corpus; the guards follow the move
   (cccec51a); then GREEN 211/0; pushed.)*
-- [ ] **AEF field report** on `aef-v1815-be3`, WORKS/FAILS per fix exercised, at least: T-4777 (a sandbox close no longer
+- [x] **AEF field report** on `aef-v1815-be3`, WORKS/FAILS per fix exercised, at least: T-4777 (a sandbox close no longer
   stages into an enclosing repo: run `_t630` with the T-1313 ceiling REMOVED and the index stays empty), T-4779 (a release
   commit's dist/ copy no longer withdraws a verdict), T-4768 (decide commits the provenance row; our pathspec guards
   accept it), T-4781 (per-project tmux server after the operator's relaunch).
@@ -208,6 +208,10 @@ Tags to batch (take the newest when this starts):
   OK. T-4454 FAILS: `termlink spawn --backend auto` starts the register process on the tmux server without
   TERMLINK_IDENTITY_FILE (its /proc environ), so it registers as the host key d1993c2c3ec44c94. AEF confirmed and filed
   T-4811 for v1.8.15 (msg f86a82dc). AEF then asked for a be.37 field test, A-H (msg 6b13a90a); that is a new upgrade.)*
+  *(2026-10-28, closing: T-4779 WORKS — release 0.31.0's commit f80a924dd (2026-10-27 17:48Z, 18 paths incl. the dist/
+  designer and kit copies) came after T-1303's verdict V-20261027-cb560298 (applied 15:45Z), and the ledger still counts it
+  (`withdrawn: []`, `lib/verdict_ledger.py audit` lists it as green-degraded, not withdrawn). T-4768 NOT EXERCISED: no
+  inception was decided on be.31+; T-4811 and the rest of the field test continue under T-1319, which replaced this task.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -392,6 +396,9 @@ Tags to batch (take the newest when this starts):
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+bash tools/_t1000-install-hook.sh --check
+python3 tools/_t517-vendor-divergence.py
+grep -q '^version_sha: [0-9a-f]\{40\}$' .framework.yaml
 
 ## RCA
 
@@ -493,3 +500,15 @@ Tags to batch (take the newest when this starts):
 ### 2026-10-26T23:52:13Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-28T07:41:40Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8b6bc353
+- **Timestamp:** 2026-10-28T07:41:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
