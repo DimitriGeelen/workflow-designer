@@ -109,6 +109,14 @@ whose job 092 is the template; T-4811 (the identity fix on --termlink launches) 
   where it gave none three times on be.43; and the sweep, which asks for no verdict, closed as
   `close_state: no-verdict`, named as such. Still open: G and T-4811 after the operator's relaunch (this session still
   predates be.38).)*
+  *(2026-10-28 12:08Z: AEF release freeze (msg bee292bf) — job 100 (be.45 -> be.48, a936776c7) rc=0. Re-vendor: 37
+  patches, 32 clean, 2 three-way, 3 merged by hand against AEF's be.46-48 work (observe.sh promote: T-4787 + our
+  T-912/T-914; create-task.sh: T-4863 set_key supersedes our T-774, our T-767 --human-ac seeding kept; update-task.sh:
+  T-4791 gate + our T-649 warning), e7d4b0aed; `_t517` OK 44 = 44; Watchtower restarted, 200s; Check works.
+  fw doctor 0 FAIL before and after. Core: red twice, both ours — the notice shot tool had lost its caller (wired as
+  `_leg_206`, 8620f9447) and `_t525` leg 7 caught the 13:45 cron audit's new T-4840 in-flight marker (live pid now
+  noted, dead pid still a breach, proven both ways, cceb25268) — then GREEN 213/0, pushed. Upgrade report sent to AEF
+  (msg b17f135d), with the marker heads-up for other testers.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
