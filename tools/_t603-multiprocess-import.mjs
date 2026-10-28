@@ -144,7 +144,9 @@ function legs(r) {
       detail: `${sk.length} skip record(s), notice ${JSON.stringify(b.notice.slice(0, 70))}, kept ${JSON.stringify(b.kept)}` },
     { id: 'L4', ok: b.notice.includes(SKIPPED_ID) || ((b.kept || []).includes(SKIPPED_ID) && b.bands > 0),
       detail: `notice names it: ${b.notice.includes(SKIPPED_ID)}; kept and its pool drawn: ${(b.kept || []).includes(SKIPPED_ID)} / ${b.bands} band(s)` },
-    { id: 'L5', ok: (s.skipped || []).length === 0 && !/process/i.test(s.notice), detail: `simple.bpmn notice ${JSON.stringify(s.notice.slice(0, 50))}` },
+    // T-1327: \b, because the notice may now rightly say a SUBprocess's nesting is not kept (simple.bpmn has one); the
+    // false alarm this leg guards against is about other processes.
+    { id: 'L5', ok: (s.skipped || []).length === 0 && !/\bprocess/i.test(s.notice), detail: `simple.bpmn notice ${JSON.stringify(s.notice.slice(0, 50))}` },
     { id: 'L6', ok: f.nodes === 2 && f.names.includes('Alpha'), detail: `first-richest imported [${f.names.join(', ')}]` },
   ];
 }

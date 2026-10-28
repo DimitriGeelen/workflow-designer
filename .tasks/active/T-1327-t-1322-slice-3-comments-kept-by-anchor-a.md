@@ -1,13 +1,18 @@
 ---
 id: T-1327
-name: "T-1322 slice 3: comments kept by anchor, and an open notice naming what a save still drops (geometry, subprocess nesting, nested lanes)"
+name: "T-1322 slice 3: comments kept by anchor, and an open notice naming what a save
+  still drops (geometry, subprocess nesting, nested lanes)"
 description: >
-  T-1322 GO (operator, job 099). Closes F11 (T-1269) and adds option C: on open, a notice lists by class what the next save will not keep (F6, F8, F9) until each has its own model. UI change: person-sees gate, advisory sweep, screenshots, reviewer. After slice 2.
+  T-1322 GO (operator, job 099). Closes F11 (T-1269) and adds option C: on open, a
+  notice lists by class what the next save will not keep (F6, F8, F9) until each has
+  its own model. UI change: person-sees gate, advisory sweep, screenshots, reviewer.
+  After slice 2.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: [T-1322, T-1269, T-1264, T-1266, T-1267, T-1326]
@@ -38,8 +43,8 @@ related_tasks: [T-1322, T-1269, T-1264, T-1266, T-1267, T-1326]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-28T09:27:07Z
-last_update: 2026-10-28T09:27:07Z
-date_finished: null
+last_update: '2026-10-28T10:27:20Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +55,59 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-28T10:27:20Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1327: T-1322 slice 3: comments kept by anchor, and an open notice naming what a save still drops (geometry, subprocess nesting, nested lanes)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Slice 3 of T-1322's GO (operator, job 099; `docs/reports/T-1322-third-party-passthrough.md` §4 A + C, §5). Closes F11
+(T-1269) and adds option C: on opening a file, the existing import notice (`#lane-fix-notice`, `maybeShowLaneFixNotice`)
+says what a save will not keep, and what it keeps without drawing. A UI change: person-sees gate, advisory sweep,
+screenshots at 1024/1440/1920, independent reviewer (CLAUDE.md, operator 2026-10-14).
+Decision: an association dropped because the person deleted its node is NOT announced; it goes with the node, as the
+node's flows do. The notice covers what the FILE loses on open, not the person's own edits.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] **Comments kept:** an XML comment that is a direct child of the process is written back before the element that
+  followed it in the source (node, flow or artifact, followed by its uid or id); one whose element is gone, or that
+  ended the process, is written at the end of the process. A designer-written map has none, so its bytes do not move;
+  a second save is byte-identical. Comments inside an element stay out of scope (named in the task).
+- [ ] **The notice says what is not kept:** on opening a file, the import notice adds, each only when it applies:
+  diagram geometry the save redraws (sizes and bends of a file that carried DI), subprocess contents moved to the top
+  level (F8, with the count), nested lanes flattened (F9, with the count). And it says what is kept without being drawn
+  (annotations, groups: counts), like the data-object line (T-1096). A file with none of these shows no new text.
+- [ ] **Measured:** T-1322's census on the 16 fixtures leaves only the deliberate exclusions and the empty
+  conditionExpression; harness `tools/_t1327-comments-and-notice-cdp.mjs` covers both criteria above (comment anchors,
+  deleted anchor, second save, notice text per class and none on a plain map), red on the pre-T-1327 source, browser leg;
+  `bash tools/person-sees-gate.sh` exits 0; core tier green.
+- [ ] **Shown as a person sees it:** the notice with every new part, on kitchen-sink (geometry, subprocesses, kept
+  annotations/groups) and on a nested-lane file, at 1024, 1440 and 1920: the full text is readable, wraps inside the
+  notice, covers no node (the T-1078 dock), and the toolbar stays reachable; a plain map shows no change.
+  Screenshots in `docs/reports/T-1327-evidence/`, read control by control in `## Visual Verification`.
+  For the independent reviewer: `fw reviewer judge T-1327 --criterion 4`
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -248,6 +292,30 @@ date_finished: null
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1327-comments-and-notice-cdp.mjs > /tmp/t1327.out 2>&1; grep -q '"ok": true' /tmp/t1327.out
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1327-notice-shots.mjs /tmp/t1327-shots > /tmp/t1327-shots.out 2>&1; grep -c '^ok' /tmp/t1327-shots.out | grep -qx 9
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t603-multiprocess-import.mjs > /tmp/t1327-603.out 2>&1; grep -q '^PASS' /tmp/t1327-603.out
+
+## Visual Verification
+
+Shots: `docs/reports/T-1327-evidence/<state>-<width>.png` (full page) and `<state>-<width>-notice.png` (the notice
+alone), by `tools/_t1327-notice-shots.mjs`, which also measures each (`measures.json`): the notice inside the viewport,
+its text not clipped, no drawn node under it, every header button on screen, and no notice on a designer-written map.
+Read by the agent, 2026-10-28, after the bullet layout:
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| kitchen-sink | import notice: 6 parts, one per line, bulleted | ok | ok | ok | 460 px wide at 1024 (was 242 px, 327 px tall, before the max-content fix); wrapped lines hang under their bullet |
+| kitchen-sink | notice dismiss ✕ | ok | ok | ok | on the right edge, vertically centred |
+| kitchen-sink | Clean nudge + no-authority summary below it | ok | ok | ok | stacked under the notice, none overlapping; both now use the canvas width too |
+| kitchen-sink | diagram under the advisories | ok | ok | ok | the pool starts below the last advisory (T-1078 dock); no node covered (measured) |
+| kitchen-sink | header toolbar (Open project … Save) | ok | ok | ok | two rows at 1024 and 1440, one at 1920; every button on screen (measured) |
+| nested-lanes | import notice: 4 parts incl. "2 nested lanes … NOT kept" and "layout is redrawn" | ok | ok | ok | Sales, Inside sales, Field sales, Operations drawn as four top-level lanes, as the notice says |
+| plain-designer-map (arc-lifecycle) | no notice | ok | ok | ok | the canvas starts at the top, as before |
+
+Not from this task, seen in the shots: kitchen-sink's own layout piles several events on one spot at 1440/1920 (the
+file's positions; Clean layout is offered); nested-lanes moves the two Sales nodes into the parent band (F9 itself,
+which is why the notice says the nesting is not kept).
 
 ## RCA
 
@@ -345,3 +413,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1327-t-1322-slice-3-comments-kept-by-anchor-a.md
 - **Context:** Initial task creation
+
+### 2026-10-28T10:27:19Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

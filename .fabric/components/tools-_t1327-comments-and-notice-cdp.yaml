@@ -1,0 +1,21 @@
+id: tools/_t1327-comments-and-notice-cdp.mjs
+name: _t1327-comments-and-notice-cdp
+type: script
+subsystem: browser-harness
+location: tools/_t1327-comments-and-notice-cdp.mjs
+tags: []
+
+purpose: "_t1327-comments-and-notice-cdp.mjs — T-1327 (T-1322 GO slice 3): comments among a process's children are kept, and the import notice says what a save of the file will not keep. Drives the REAL editor runtime headless: 1."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-28
+created_by: unknown

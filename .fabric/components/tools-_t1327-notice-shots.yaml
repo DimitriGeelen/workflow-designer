@@ -1,0 +1,21 @@
+id: tools/_t1327-notice-shots.mjs
+name: _t1327-notice-shots
+type: script
+subsystem: instruments
+location: tools/_t1327-notice-shots.mjs
+tags: []
+
+purpose: "_t1327-notice-shots.mjs — T-1327 screenshots: the import notice after opening a file as a person does, at the three review widths (CLAUDE.md, operator 2026-10-14)."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-28
+created_by: unknown

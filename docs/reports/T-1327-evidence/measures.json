@@ -1,0 +1,110 @@
+[
+ {
+  "state": "kitchen-sink",
+  "width": 1024,
+  "shot": "kitchen-sink-1024.png",
+  "shown": true,
+  "text": "⚠ 6 nodes were drawn outside their declared lane — moved back into place; 2 lanes could not fit their own content — bands grown, no nodes moved: Lane_1cofr07 (+920px), Lane (+185px); 6 data object/store elements and 4 data associations kept unchanged and saved back, not shown yet; 1 annotation, 3 groups, 2 associations kept unchanged and saved back, not shown yet; 13 elements inside 2 subprocesses shown and saved at the top level — the subprocess nesting is NOT kept; the layout is redrawn on save: positions are kept, this file's shape sizes and line bends are NOT",
+  "problems": [],
+  "rect": [
+   232,
+   87,
+   460,
+   220
+  ]
+ },
+ {
+  "state": "nested-lanes",
+  "width": 1024,
+  "shot": "nested-lanes-1024.png",
+  "shown": true,
+  "text": "⚠ 2 nodes were drawn outside their declared lane — moved back into place; 1 lane could not fit its own content — band grown, no nodes moved: Sales (+78px); 2 nested lanes shown and saved as top-level lanes — the lane nesting is NOT kept; the layout is redrawn on save: positions are kept, this file's shape sizes and line bends are NOT",
+  "problems": [],
+  "rect": [
+   232,
+   87,
+   460,
+   145
+  ]
+ },
+ {
+  "state": "plain-designer-map",
+  "width": 1024,
+  "shot": "plain-designer-map-1024.png",
+  "shown": false,
+  "text": "",
+  "problems": []
+ },
+ {
+  "state": "kitchen-sink",
+  "width": 1440,
+  "shot": "kitchen-sink-1440.png",
+  "shown": true,
+  "text": "⚠ 6 nodes were drawn outside their declared lane — moved back into place; 2 lanes could not fit their own content — bands grown, no nodes moved: Lane_1cofr07 (+920px), Lane (+185px); 6 data object/store elements and 4 data associations kept unchanged and saved back, not shown yet; 1 annotation, 3 groups, 2 associations kept unchanged and saved back, not shown yet; 13 elements inside 2 subprocesses shown and saved at the top level — the subprocess nesting is NOT kept; the layout is redrawn on save: positions are kept, this file's shape sizes and line bends are NOT",
+  "problems": [],
+  "rect": [
+   348,
+   87,
+   645,
+   133
+  ]
+ },
+ {
+  "state": "nested-lanes",
+  "width": 1440,
+  "shot": "nested-lanes-1440.png",
+  "shown": true,
+  "text": "⚠ 2 nodes were drawn outside their declared lane — moved back into place; 1 lane could not fit its own content — band grown, no nodes moved: Sales (+78px); 2 nested lanes shown and saved as top-level lanes — the lane nesting is NOT kept; the layout is redrawn on save: positions are kept, this file's shape sizes and line bends are NOT",
+  "problems": [],
+  "rect": [
+   392,
+   87,
+   556,
+   93
+  ]
+ },
+ {
+  "state": "plain-designer-map",
+  "width": 1440,
+  "shot": "plain-designer-map-1440.png",
+  "shown": false,
+  "text": "",
+  "problems": []
+ },
+ {
+  "state": "kitchen-sink",
+  "width": 1920,
+  "shot": "kitchen-sink-1920.png",
+  "shown": true,
+  "text": "⚠ 6 nodes were drawn outside their declared lane — moved back into place; 2 lanes could not fit their own content — bands grown, no nodes moved: Lane_1cofr07 (+920px), Lane (+185px); 6 data object/store elements and 4 data associations kept unchanged and saved back, not shown yet; 1 annotation, 3 groups, 2 associations kept unchanged and saved back, not shown yet; 13 elements inside 2 subprocesses shown and saved at the top level — the subprocess nesting is NOT kept; the layout is redrawn on save: positions are kept, this file's shape sizes and line bends are NOT",
+  "problems": [],
+  "rect": [
+   588,
+   60,
+   645,
+   133
+  ]
+ },
+ {
+  "state": "nested-lanes",
+  "width": 1920,
+  "shot": "nested-lanes-1920.png",
+  "shown": true,
+  "text": "⚠ 2 nodes were drawn outside their declared lane — moved back into place; 1 lane could not fit its own content — band grown, no nodes moved: Sales (+78px); 2 nested lanes shown and saved as top-level lanes — the lane nesting is NOT kept; the layout is redrawn on save: positions are kept, this file's shape sizes and line bends are NOT",
+  "problems": [],
+  "rect": [
+   632,
+   60,
+   556,
+   93
+  ]
+ },
+ {
+  "state": "plain-designer-map",
+  "width": 1920,
+  "shot": "plain-designer-map-1920.png",
+  "shown": false,
+  "text": "",
+  "problems": []
+ }
+]

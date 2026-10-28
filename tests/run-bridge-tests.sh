@@ -1517,6 +1517,22 @@ else
 fi
 }
 leg browser "_t1326-process-level-kept-cdp" _leg_204
+_leg_205() {
+
+# ── T-1327: comments among the process's children are kept, and the import notice names what a save does not keep ──
+# T-1322 GO slice 3 (F11 + option C): a comment before its element (end of process when the element is gone), second
+# save stable; the notice counts subprocess contents moved up, nested lanes flattened, a redrawn layout and the kept
+# annotations/groups, and shows none of it for a designer-written map. Red against the pre-T-1327 source (legs 1-3).
+if node "$ROOT/tools/_t1327-comments-and-notice-cdp.mjs" > "$TMP/leg-_t1327.out" 2>&1 \
+   && head -2 "$TMP/leg-_t1327.out" | grep -q '"ok": true'; then
+  pass=$((pass + 1))
+else
+  report FAIL "a process comment was dropped or moved on save, a second save differs, or the import notice no longer says what a save of the file does not keep (or says it for a designer-written map) (run 'node tools/_t1327-comments-and-notice-cdp.mjs'; T-1327)"
+  show_output "$TMP/leg-_t1327.out" "_t1327-comments-and-notice-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1327-comments-and-notice-cdp" _leg_205
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

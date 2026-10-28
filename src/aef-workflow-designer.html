@@ -572,6 +572,14 @@ font-family: 'Outfit';
      one line (it was nowrap). */
   .clean-nudge { max-width: calc(100% - 24px); }
   .clean-nudge .clean-nudge-msg { white-space: normal; }
+  /* T-1327: at left:50% an absolutely placed box shrinks to fit the HALF of the canvas right of its left edge, so a long
+     advisory wrapped in half the width it has (242px of a 484px canvas at 1024). max-content up to the max-width above
+     uses the whole canvas; a short advisory keeps its natural width. And the import notice states one part per line. */
+  .clean-nudge { width: max-content; }
+  .clean-nudge-msg .notice-part { display: block; padding-left: 1.2em; text-indent: -1.2em; }
+  .clean-nudge-msg .notice-part + .notice-part::before { content: '•'; display: inline-block; width: 1.2em; text-indent: 0; }
+  .clean-nudge-msg .notice-part + .notice-part { margin-top: 3px; }
+  .clean-nudge-msg .notice-sep { display: none; }
   /* T-310: a malformed map can trigger BOTH advisories at once — the lane-fix
      notice takes the top slot (it reports a change already made to the document's
      appearance) and pushes the Clean nudge (an offer) below it. The fallback offset
@@ -2944,6 +2952,12 @@ let _processSkipReport = [];
 // it is a real edit to the document, not a render-time fudge. What stays out is
 // the narration about it.)
 let _laneGrowReport = [];
+
+// T-1327 (T-1322 GO, option C): what the last parse could not keep, for the import notice. A file from another tool
+// loses its own shape sizes and line bends (the designer lays out), the nesting of a subprocess (its contents are
+// drawn and saved at the top level, F8) and nested lanes (flattened, F9). Same discipline as above: a report about
+// the import, outside `state`.
+let _importNotKeptReport = null;
 
 // ============================================================================
 //  Fault record (T-821, F-05) — failures become evidence
@@ -10678,8 +10692,35 @@ function maybeShowLaneFixNotice() {
     if ((kd.skipped || []).length) parts.push(`${kd.skipped.length} data association${kd.skipped.length === 1 ? '' : 's'} NOT kept — ` +
       `${kd.skipped.length === 1 ? 'it points' : 'they point'} at something not in this file: ` + kd.skipped.map(s => `${s.id} → ${s.missing.join(', ')}`).join('; '));
   }
+  // T-1326/T-1327: annotations, groups and associations are kept and saved back, but not drawn yet.
+  const pk = (typeof state === 'object' && state && state.procKept) || null;
+  if (pk && (pk.artifacts || []).length) {
+    const count = tag => pk.artifacts.filter(a => new RegExp(`^<(?:[\\w.-]+:)?${tag}[\\s/>]`).test(a.xml)).length;
+    const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+    const kinds = [['textAnnotation', 'annotation'], ['group', 'group'], ['association', 'association']]
+      .map(([t, w]) => [count(t), w]).filter(([n]) => n).map(([n, w]) => plural(n, w));
+    if (kinds.length) parts.push(`${kinds.join(', ')} kept unchanged and saved back, not shown yet`);
+  }
+  // T-1327: what a save of THIS file will not keep (T-1322 option C), stated last like the T-603 line.
+  const nk = _importNotKeptReport || {};
+  if (nk.hoistedNodes) parts.push(`${nk.hoistedNodes} element${nk.hoistedNodes === 1 ? '' : 's'} inside ` +
+    `${nk.hoistingSubs} subprocess${nk.hoistingSubs === 1 ? '' : 'es'} shown and saved at the top level — the subprocess nesting is NOT kept`);
+  if (nk.nestedLanes) parts.push(`${nk.nestedLanes} nested lane${nk.nestedLanes === 1 ? '' : 's'} shown and saved as ` +
+    `top-level lane${nk.nestedLanes === 1 ? '' : 's'} — the lane nesting is NOT kept`);
+  if (nk.diRedrawn) parts.push(`the layout is redrawn on save: positions are kept, this file's shape sizes and line bends are NOT`);
   const show = parts.length > 0;
-  if (show && msg) msg.textContent = '⚠ ' + parts.join('; ');
+  // T-1327: one part per line. Run together with semicolons, seven parts made a 300px-tall paragraph at 1024 that
+  // nobody reads. The "; " separators stay in the text (hidden), so textContent reads exactly as before.
+  if (show && msg) {
+    msg.textContent = '';
+    parts.forEach((p, i) => {
+      const line = document.createElement('span');
+      line.className = 'notice-part';
+      if (i) { const sep = document.createElement('span'); sep.className = 'notice-sep'; sep.textContent = '; '; line.appendChild(sep); }
+      line.appendChild(document.createTextNode((i ? '' : '⚠ ') + p));
+      msg.appendChild(line);
+    });
+  }
   el.style.display = show ? '' : 'none';
   if (nudge) nudge.classList.toggle('stacked', show);
 }
@@ -13733,6 +13774,7 @@ function buildBpmnXml(s) {
   // executionPlatform), with any prefix they need declared here.
   const pk = s.procKept || null;
   const pkOut = processLevelKeptOut(s);
+  const cmt = keptCommentsPlan(s);   // T-1327
   const rootKept = pk && pk.rootAttrs ? keptAttrsXml(pk.rootAttrs) : '';
   lines.push(`                  targetNamespace="https://aef.anchorpoint.dev/workflows"${rootKept}>`);
   lines.push(``);
@@ -13858,6 +13900,7 @@ function buildBpmnXml(s) {
     const nk = nodeKeptFor(n);
     const dflt = nk && nk.defaultFlow ? s.edges.find(e => e.uid === nk.defaultFlow && e.source === n.id) : null;
     const keptAttrs = (nk ? keptAttrsXml(nk.attrs) : '') + (dflt ? ` default="${escAttr(displayIdOf(dflt))}"` : '');
+    lines.push(...cmt.take('node', n.uid));   // T-1327
     lines.push(`    <bpmn:${tag} id="${escAttr(nodeDisplayId)}"${n.name ? ` name="${escAttr(n.name)}"` : ''}${boundaryAttrs}${keptAttrs}>`);
     // T-602: documentation first — the BPMN XSD orders tBaseElement as
     // documentation* then extensionElements?, so emitting it after the aef block
@@ -13903,6 +13946,7 @@ function buildBpmnXml(s) {
     const tgtNode = findNode(e.target);
     const srcRef = srcNode ? displayIdOf(srcNode) : e.source;
     const tgtRef = tgtNode ? displayIdOf(tgtNode) : e.target;
+    lines.push(...cmt.take('flow', e.uid));   // T-1327
     lines.push(`    <bpmn:sequenceFlow id="${escAttr(edgeDisplayId)}"${nameAttr} sourceRef="${escAttr(srcRef)}" targetRef="${escAttr(tgtRef)}"${e.kept ? keptAttrsXml(e.kept.attrs) : ''}>`);   // T-1325
     for (const x of e.keptDocs || []) lines.push(`      ${x}`);   // T-1326: documentation first in tBaseElement
     // T-690: extensionElements MUST precede conditionExpression. BPMN's tBaseElement declares
@@ -13959,7 +14003,13 @@ function buildBpmnXml(s) {
   // T-1096: the process's kept data objects and stores, verbatim
   if (s.dataKept) for (const x of s.dataKept.elements || []) { lines.push(``); lines.push(`    ${x}`); }
   // T-1326: the artifacts, after the flow elements (tProcess order), each association at its ends' current ids
-  for (const x of pkOut.artifacts) { lines.push(``); lines.push(`    ${x}`); }
+  for (const x of pkOut.artifacts) {
+    const aid = (/\bid="([^"]*)"/.exec(x) || [])[1];
+    lines.push(``); if (aid) lines.push(...cmt.take('id', aid)); lines.push(`    ${x}`);
+  }
+  // T-1327: comments whose element is gone, or that ended the process
+  const restC = cmt.rest();
+  if (restC.length) { lines.push(``); lines.push(...restC); }
 
   lines.push(`  </bpmn:process>`);
   // T-1119: the processes behind the other pools and the messages the kept flows name, verbatim.
@@ -14303,11 +14353,23 @@ function captureProcessLevelKept(doc, proc, displayIdToUid, flowIdToUid, partEl)
     }
   }
   const procDocs = Array.from(proc.children).filter(c => c.namespaceURI === B && c.localName === 'documentation').map(keptElementXml);
+  // T-1327 (F11): a comment among the process's children is kept before the element that followed it (a node or flow
+  // by uid, an artifact by id); one with nothing anchorable after it is written at the end of the process.
+  const comments = [];
+  for (const c of Array.from(proc.childNodes)) {
+    if (c.nodeType !== 8) continue;
+    let nx = c.nextSibling;
+    while (nx && nx.nodeType !== 1) nx = nx.nextSibling;
+    const id = nx && nx.namespaceURI === B ? nx.getAttribute('id') : null;
+    const end = id ? endOf(id) : null;
+    const at = end && (end.node || end.flow || (ARTIFACT_TAGS.has(nx.localName) && end.id)) ? end : null;
+    comments.push({ text: c.data, ...(at ? { at } : {}) });
+  }
   const pk = elementKept(proc, PROC_READ_ATTRS, () => true);   // its children are the process's content; only attrs + ext
   const rk = elementKept(doc.documentElement, ROOT_READ_ATTRS, () => true);
   const out = {
     ...(artifacts.length ? { artifacts } : {}), ...(categories.length ? { categories } : {}), ...(di.length ? { di } : {}),
-    ...(procDocs.length ? { procDocs } : {}),
+    ...(procDocs.length ? { procDocs } : {}), ...(comments.length ? { comments } : {}),
     ...(pk && pk.attrs.length ? { procAttrs: pk.attrs } : {}), ...(pk && pk.ext.length ? { procExt: pk.ext } : {}),
     ...(rk && rk.attrs.length ? { rootAttrs: rk.attrs } : {}),
     ...(ck && ck.attrs.length ? { collabAttrs: ck.attrs } : {}), ...(ck && ck.ext.length ? { collabExt: ck.ext } : {}),
@@ -14340,6 +14402,19 @@ function processLevelKeptOut(s) {
     (a.inCollab ? collabArtifacts : artifacts).push(xml);
   }
   return { artifacts, collabArtifacts, di: (k.di || []).filter(d => live.has(d.ref)).map(d => d.xml), dropped };
+}
+// T-1327: the kept comments, each handed out once: before its element (take), the rest at the end of the process.
+function keptCommentsPlan(s) {
+  const all = ((s && s.procKept && s.procKept.comments) || []).map(c => ({ ...c, done: false }));
+  const line = c => `    <!--${safeCommentData(c.text)}-->`;
+  return {
+    take(kind, key) {
+      const out = [];
+      for (const c of all) if (!c.done && c.at && c.at[kind] === key) { c.done = true; out.push(line(c)); }
+      return out;
+    },
+    rest() { return all.filter(c => !c.done).map(c => { c.done = true; return line(c); }); },
+  };
 }
 
 // T-1120 (P2): draw the kept pools, read-only, and route the message flows — ONE layout for the canvas and
@@ -15218,6 +15293,16 @@ function parseBpmnXml(text) {
   // T-1326: our participant only when it names this process (the [0] fallback may be another pool, kept by T-1119)
   const ourPart = partEl && partEl.getAttribute('processRef') === proc.getAttribute('id') ? partEl : null;
   const procKept = captureProcessLevelKept(doc, proc, displayIdToUid, flowIdToUid, ourPart);   // T-1326
+  // T-1327: what this file loses on save, for the import notice. A file the designer wrote has its geometry by
+  // construction, so only another tool's DI is "redrawn".
+  const SUBPROC_TAGS = new Set(['subProcess', 'transaction', 'adHocSubProcess']);
+  const hoisted = nodeWork.filter(w => w[1].parentNode && SUBPROC_TAGS.has(w[1].parentNode.localName));
+  _importNotKeptReport = {
+    diRedrawn: sourceCarriedDi && doc.documentElement.getAttribute('exporter') !== BPMN_EXPORTER,
+    hoistedNodes: hoisted.length,
+    hoistingSubs: new Set(hoisted.map(w => w[1].parentNode)).size,
+    nestedLanes: byBpmn(proc, 'childLaneSet').reduce((a, c) => a + byBpmn(c, 'lane').length, 0),
+  };
 
   // Snap y-coords to lane centers for nodes that lacked explicit positions
   const result = {
