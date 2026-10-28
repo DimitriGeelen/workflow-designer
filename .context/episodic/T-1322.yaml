@@ -1,0 +1,92 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1322: Generic per-element passthrough: a save keeps the BPMN content the designer does not model
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-28T09:26:24Z
+# ============================================================================
+
+task_id: T-1322
+task_name: "Generic per-element passthrough: a save keeps the BPMN content the designer does not model"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-28T08:24:02Z
+completed: 2026-10-28T09:26:16Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-10-28T09:29:19+01:00
+last_commit: 2026-10-28T10:12:35+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception — measured what one save loses from third-party BPMN (7 of 11 fixtures, 383 non-DI items; census in docs/reports/T-1322-evidence), classified F1-F13 by fix; recommendation GO on a generic per-element passthrough with an open notice for the rest; T-1323 filed (the _t356 harness's control reads BROKEN). job 099 for the operator's decision (GO recommended); both steps step_outward because the rehearsal runs in the agent session, where decide refuses (gap filed as T-1324). the operator criterion names why it is the operator's (Why you: direction); the core tier's T-1066 leg refused it
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'inception — measured what one save loses from third-party BPMN (7 of 11 fixtures, 383 non-DI items; census in docs/reports/T-1322-evidence), classified F1-F13 by fix; recommendation GO on a generic per-element passthrough with an open notice for the rest; T-1323 filed (the _t356 harness''s control reads BROKEN)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/099-decide-t1322-passthrough/dryrun.ok'
+  - '.context/runme/099-decide-t1322-passthrough/job.sh'
+  - 'docs/reports/T-1322-evidence/classify-losses.out'
+  - 'docs/reports/T-1322-evidence/classify-losses.py'
+  - 'docs/reports/T-1322-evidence/export-third-party.mjs'
+  - 'docs/reports/T-1322-third-party-passthrough.md'
+  - '.tasks/active/T-1322-generic-per-element-passthrough-a-save-k.md'
+  - '.tasks/active/T-1323-t356-third-party-fidelity-harness-its-po.md'
+  - '.tasks/active/T-1324-runme-rehearsal-cannot-exercise-an-opera.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-28T09:29:19'
+    action: 'T-1322: inception — measured what one save loses from third-party BPMN (7 of 11 fixtures, 383 non-DI items; census in docs/reports/T-1322-evidence), classified F1-F13 by fix; recommendation GO on a generic per-element passthrough with an open notice for the rest; T-1323 filed (the _t356 harness''s control reads BROKEN)'
+  - time: '2026-10-28T09:31:05'
+    action: 'T-1322: job 099 for the operator''s decision (GO recommended); both steps step_outward because the rehearsal runs in the agent session, where decide refuses (gap filed as T-1324)'
+  - time: '2026-10-28T10:12:35'
+    action: 'T-1322: the operator criterion names why it is the operator''s (Why you: direction); the core tier''s T-1066 leg refused it'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 62 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 62
+  commits: 4
+  files_changed: 13
+  lines_added: 1563
+  lines_removed: 10
+  footprint_refreshed_at: '2026-10-28T09:26:25Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1322-generic-per-element-passthrough-a-save-k.md
+generated_by: context-agent-hybrid

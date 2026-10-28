@@ -19627,3 +19627,29 @@ scan_id: R-bf12fc85
 task_id: T-1268
 payload:
   task_file: .tasks/active/T-1268-unknown-aef-child-elements-on-a-node-are.md
+---
+kind: scan_emitted
+timestamp: '2026-10-28T09:26:17Z'
+scan_id: R-48cfc253
+task_id: T-1322
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-28T09:26:17Z'
+scan_id: R-48cfc253
+task_id: T-1322
+payload:
+  task_file: .tasks/active/T-1322-generic-per-element-passthrough-a-save-k.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-10-28T09:26:17Z'
+scan_id: RC-f37d503f
+task_id: T-1322
+payload:
+  overall: CONFIRMED
+  claim_count: 6

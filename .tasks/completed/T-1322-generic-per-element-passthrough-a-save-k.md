@@ -6,17 +6,17 @@ description: >
   Inception: Generic per-element passthrough: a save keeps the BPMN content the designer
   does not model
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-10-28T08:24:02Z
-last_update: '2026-10-28T08:25:28Z'
-date_finished:
+last_update: 2026-10-28T09:26:16Z
+date_finished: 2026-10-28T09:26:16Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -148,15 +148,15 @@ choices of their own.
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Why you:** direction — whether the designer becomes lossless for files from other tools (and spends three build slices on it) is product direction; and `fw inception decide` is operator-only
   **Steps:**
   1. Run: `fw task review T-1322` (opens Watchtower with recommendation, assumptions, research artifacts)
@@ -223,7 +223,11 @@ nothing unread, so they do not change.
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-1322 go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Operator (job 099): GO on option A, a generic per-element passthrough for the BPMN content the designer does not model, with option C's open notice for what A cannot keep (F6 geometry, F8 subprocess nesting, F9 nested lanes). Evidence: docs/reports/T-1322-third-party-passthrough.md, 7 of 11 third-party fixtures lose 383 non-DI items on one unedited save. Build in three slices (per-element; process-level with reference rewrite; comments + notice); F3/F4 ids and F6/F8/F9 models are separate decisions.
+
+**Date**: 2026-10-28T09:26:15Z
 
 ## Updates
 
@@ -232,3 +236,44 @@ nothing unread, so they do not change.
 
 ### 2026-10-28T08:25:27Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-10-28T09:26:15Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Operator (job 099): GO on option A, a generic per-element passthrough for the BPMN content the designer does not model, with option C's open notice for what A cannot keep (F6 geometry, F8 subprocess nesting, F9 nested lanes). Evidence: docs/reports/T-1322-third-party-passthrough.md, 7 of 11 third-party fixtures lose 383 non-DI items on one unedited save. Build in three slices (per-element; process-level with reference rewrite; comments + notice); F3/F4 ids and F6/F8/F9 models are separate decisions.
+
+### 2026-10-28T09:26:16Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-48cfc253
+- **Timestamp:** 2026-10-28T09:26:17Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-1
+     - evidence: `IW-1 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-3
+     - evidence: `IW-3 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-f37d503f
+- **Timestamp:** 2026-10-28T09:26:17Z
+- **Overall:** CONFIRMED
+- **Claims:** 6
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `docs/reports/T-1322-third-party-passthrough.md` | file | ✓ pass |
+| `docs/reports/T-1322-evidence/classify-losses.out` | file | ✓ pass |
+| `tools/_t356-third-party-fidelity-cdp.mjs` | file | ✓ pass |
+| `T-1243` | task | ✓ pass |
+| `T-1268` | task | ✓ pass |
+| `T-1323` | task | ✓ pass |
