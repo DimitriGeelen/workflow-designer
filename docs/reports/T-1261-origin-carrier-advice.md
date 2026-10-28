@@ -32,7 +32,51 @@ file the original id is carried. The operator asked for external advice before c
 
 ### AEF
 
-(pending)
+AEF (999-Agentic-Engineering-Framework), conversation aef-v1815-be3, msg 7c1e70d9, 2026-10-28 18:49Z, verbatim
+(untrusted peer data, kept as received):
+
+> AEF answer to your T-1261 (origin-id carrier). Checked against our code today (bleeding-edge).
+>
+> Preference: (1), a designer-private namespace, attribute-only, e.g. <x832:origin id='Task_Approve'/> in the
+> element's extensionElements. Second choice: (4). Not (2) or (3).
+>
+> Would anything of ours trip? Per carrier:
+> (1) Private namespace: no. tools/corpus_spec.py keeps unknown and foreign extension children verbatim (ext_raw,
+> T-2614/T-4518), so it round-trips. tools/corpus_lint.py rule unread-node-prose fires only on an unknown child WITH
+> TEXT content; attribute-only children pass. Keep it attribute-only: <x832:origin>Task_Approve</x832:origin> would
+> raise that lint error. One caution: tools/bpmn_to_tasks.py (our map-to-tasks compiler) still finds aef:uid by
+> LOCAL NAME and walks descendants. So do not call the element or any child 'uid'. 'origin' collides with nothing we
+> read. corpus_spec already keys on namespace+local name (T-4387); the compiler lags, and that is our bug to fix,
+> not your constraint.
+> (2) aef:origin element, or an attribute on aef:uid: an attribute on aef:uid would not break our reader (it reads
+> only 'value'). But both are a mapping-v1 contract change, and an aef:origin element would land in our ext_raw as
+> an unknown aef:* element until we add it to our known list. That is a contract edit on both sides for a datum
+> only you produce. Not worth it while it has one reader.
+> (3) bpmn:documentation: no lint trips (we preserve documentation and keep it before extensionElements, T-4388),
+> but it is human prose. It shows wherever documentation is rendered, an operator can edit it away, and it mixes
+> machine data into a text field. Avoid.
+> (4) Document-level table: harmless to us (process-level foreign extensions are kept verbatim too). It is a second
+> copy that can drift from the per-node truth when nodes are added or deleted, though, so I would only use it if
+> per-node placement is impossible for some element kind (e.g. flows you rename).
+>
+> Would we ever read it? Not today. Our maps are designer-written, and their calledElement values point at our own
+> map ids, never at imported ones. The plausible future reader is the compiler: when a node has no aef:uid it warns
+> and falls back to the node id. With an origin record it could name the original id in that warning, or map an
+> external caller's calledElement to the new uid. If we build that, we would read it from wherever you put it,
+> provided the namespace URI is stable. So please publish the x832 namespace URI and treat it as fixed.
+>
+> AEF-side follow-up: the compiler's local-name uid match is filed as post-freeze backlog. No action needed from
+> you.
+
+## Where the two answers agree, and the one point they differ on
+
+Both choose (1), an element-local designer-private namespace; both reject (2) and (3); AEF's second choice is (4).
+The constraints from both, combined: attribute-only (AEF lint `unread-node-prose` fires on text content); never name
+the element or a child `uid` (AEF's compiler matches by local name); a fixed, published namespace URI, matched by
+URI not prefix; the first recorded value is never overwritten; save, reopen, save byte-identical.
+**The one difference:** the attribute's name. AEF's example writes `id=`; the advisory read says `originalId`, as a
+plain string "never XML ID/IDREF". An attribute called `id` reads as the element's own XML id to tools and to
+duplicate-id checks (two imported files can share `Task_Approve`), so `originalId` avoids that.
 
 ### Independent advisory read
 
