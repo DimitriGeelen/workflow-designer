@@ -19941,3 +19941,21 @@ scan_id: R-ba4a207b
 task_id: T-1261
 payload:
   task_file: .tasks/active/T-1261-original-node-and-flow-ids-are-lost-on-f.md
+---
+kind: scan_emitted
+timestamp: '2026-10-28T20:25:28Z'
+scan_id: R-ede93003
+task_id: T-1264
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-28T20:25:28Z'
+scan_id: R-ede93003
+task_id: T-1264
+payload:
+  task_file: .tasks/active/T-1264-imported-bpmn-di-is-rewritten-on-save-sh.md

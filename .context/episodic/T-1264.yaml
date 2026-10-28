@@ -1,0 +1,148 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1264: Imported BPMN DI is rewritten on save: shape sizes, isMarkerVisible, BPMNLabel bounds, edge waypoints, pool/lane shapes, DI ids
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-28T20:25:35Z
+# ============================================================================
+
+task_id: T-1264
+task_name: "Imported BPMN DI is rewritten on save: shape sizes, isMarkerVisible, BPMNLabel bounds, edge waypoints, pool/lane shapes, DI ids"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-21T21:24:09Z
+completed: 2026-10-28T20:25:22Z
+duration_days: 7
+updates_count: 4
+first_commit: 2026-10-28T20:57:55+01:00
+last_commit: 2026-10-28T21:25:21+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  another tool's diagram geometry is kept until the person moves the element (job C F6) — sizes, isMarkerVisible and other DI attributes, labels, DI ids and waypoints of unmoved shapes and flows, recorded only where they differ from what the designer writes (designer maps record nothing; second save byte-identical); edge sourceElement/targetElement re-pointed at the shape ids written; import notice reworded; harness _t1264 (browser leg _leg_211) red on the old source; 10 third-party goldens re-recorded, DI lines only, every DI reference resolves; person-sees gate 0; shots read at 1024/1440/1920. Found and filed: duplicate display ids at HEAD (T-1332). notice wording after the advisory sweep (says who moving counts, which lines keep bends, that the ORIGINAL outlines are not kept); shots retaken and re-read; gate 0; sweep findings recorded with dispositions. reviewer verdict. judge round 1 RED fixed — kept geometry is anchored to where the FILE put the shape, so a node the import moved back into its lane (and its flows) is redrawn instead of keeping a DI that no longer matches; harness leg with an out-of-lane node (previous commit red on it); goldens re-recorded (2 files); every flow's ends now at its shapes across all goldens; gate 0. evidence — judge green (V-20261028-50f42e08) applied, core GREEN 214/0; criteria and RCA
+
+# Key outcomes
+outcomes:
+  - 'For a file another tool wrote, each node the person has not moved or resized saves its imported'
+  - 'Each flow whose two ends are unmoved and whose route the person has not changed saves its imported'
+  - 'Designer-written maps save byte-identically (every corpus map; goldens legs); a second save of an imported'
+  - 'The import notice no longer says sizes and bends are not kept; it says they are kept until moved. The'
+  - 'A browser harness proves the first three, red on the pre-T-1264 source; third-party goldens re-recorded'
+  - '**Shown as a person sees it:** the import notice''s changed last line ("on save, shapes that neither you nor this'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'judge round 1 RED fixed — kept geometry is anchored to where the FILE put the shape, so a node the import moved back into its lane (and its flows) is redrawn instead of keeping a DI that no longer matches; harness leg with an out-of-lane node (previous commit red on it); goldens re-recorded (2 files); every flow''s ends now at its shapes across all goldens; gate 0'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1264/AC1-judge-t-1264-r1-84a6eb4a7d18.md'
+  - '.context/reviews/evidence/T-1264/AC1-judge-t-1264-r1-86757aed2b78.md'
+  - '.context/reviews/evidence/T-1264/kitchen-sink-1024-judge-t-1264-r1-84a6eb4a7d18.png'
+  - '.context/reviews/evidence/T-1264/kitchen-sink-1024-judge-t-1264-r1-86757aed2b78.png'
+  - '.context/reviews/evidence/T-1264/kitchen-sink-1024-notice-judge-t-1264-r1-84a6eb4a7d18.png'
+  - '.context/reviews/evidence/T-1264/kitchen-sink-1440-judge-t-1264-r1-84a6eb4a7d18.png'
+  - '.context/reviews/evidence/T-1264/kitchen-sink-1440-judge-t-1264-r1-86757aed2b78.png'
+  - '.context/reviews/evidence/T-1264/kitchen-sink-1920-judge-t-1264-r1-84a6eb4a7d18.png'
+  - '.context/reviews/evidence/T-1264/kitchen-sink-1920-judge-t-1264-r1-86757aed2b78.png'
+  - '.context/reviews/evidence/T-1264/nested-lanes-1024-judge-t-1264-r1-84a6eb4a7d18.png'
+  - '.context/reviews/evidence/T-1264/nested-lanes-1024-judge-t-1264-r1-86757aed2b78.png'
+  - '.context/reviews/evidence/T-1264/nested-lanes-1440-judge-t-1264-r1-84a6eb4a7d18.png'
+  - '.context/reviews/evidence/T-1264/nested-lanes-1440-judge-t-1264-r1-86757aed2b78.png'
+  - '.context/reviews/evidence/T-1264/nested-lanes-1920-judge-t-1264-r1-84a6eb4a7d18.png'
+  - '.context/reviews/evidence/T-1264/nested-lanes-1920-judge-t-1264-r1-86757aed2b78.png'
+  - '.context/reviews/evidence/T-1264/plain-designer-map-1024-judge-t-1264-r1-84a6eb4a7d18.png'
+  - '.context/reviews/evidence/T-1264/plain-designer-map-1024-judge-t-1264-r1-86757aed2b78.png'
+  - '.context/reviews/evidence/T-1264/plain-designer-map-1440-judge-t-1264-r1-84a6eb4a7d18.png'
+  - '.context/reviews/evidence/T-1264/plain-designer-map-1920-judge-t-1264-r1-84a6eb4a7d18.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1264-imported-bpmn-di-is-rewritten-on-save-sh.md'
+  - '.tasks/active/T-1332-duplicate-display-ids-two-end-events-in-.md'
+  - 'docs/reports/T-1264-evidence/kitchen-sink-1024-notice.png'
+  - 'docs/reports/T-1264-evidence/kitchen-sink-1024.png'
+  - 'docs/reports/T-1264-evidence/kitchen-sink-1440-notice.png'
+  - 'docs/reports/T-1264-evidence/kitchen-sink-1440.png'
+  - 'docs/reports/T-1264-evidence/kitchen-sink-1920-notice.png'
+  - 'docs/reports/T-1264-evidence/kitchen-sink-1920.png'
+  - 'docs/reports/T-1264-evidence/measures.json'
+  - 'docs/reports/T-1264-evidence/nested-lanes-1024-notice.png'
+  - 'docs/reports/T-1264-evidence/nested-lanes-1024.png'
+  - 'docs/reports/T-1264-evidence/nested-lanes-1440-notice.png'
+  - 'docs/reports/T-1264-evidence/nested-lanes-1440.png'
+  - 'docs/reports/T-1264-evidence/nested-lanes-1920-notice.png'
+  - 'docs/reports/T-1264-evidence/nested-lanes-1920.png'
+  - 'docs/reports/T-1264-evidence/plain-designer-map-1024.png'
+  - 'docs/reports/T-1264-evidence/plain-designer-map-1440.png'
+  - 'docs/reports/T-1264-evidence/plain-designer-map-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/goldens/third-party/bizagi-nested-ns.bpmn.golden'
+  - 'tests/goldens/third-party/boundary-events.bpmn.golden'
+  - 'tests/goldens/third-party/caseagile-local-ns.bpmn.golden'
+  - 'tests/goldens/third-party/collaboration-message-flows.bpmn.golden'
+  - 'tests/goldens/third-party/i18n-documentation.bpmn.golden'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/goldens/third-party/multiple-diagrams.bpmn.golden'
+  - 'tests/goldens/third-party/nested-subprocesses.bpmn.golden'
+  - 'tests/goldens/third-party/simple.bpmn.golden'
+  - 'tests/goldens/third-party/zeebe-service-task.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1264-imported-geometry-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-28T20:57:55'
+    action: 'T-1264: another tool''s diagram geometry is kept until the person moves the element (job C F6) — sizes, isMarkerVisible and other DI attributes, labels, DI ids and waypoints of unmoved shapes and flows, recorded only where they differ from what the designer writes (designer maps record nothing; second save byte-identical); edge sourceElement/targetElement re-pointed at the shape ids written; import notice reworded; harness _t1264 (browser leg _leg_211) red on the old source; 10 third-party goldens re-recorded, DI lines only, every DI reference resolves; person-sees gate 0; shots read at 1024/1440/1920. Found and filed: duplicate display ids at HEAD (T-1332)'
+  - time: '2026-10-28T21:04:23'
+    action: 'T-1264: notice wording after the advisory sweep (says who moving counts, which lines keep bends, that the ORIGINAL outlines are not kept); shots retaken and re-read; gate 0; sweep findings recorded with dispositions'
+  - time: '2026-10-28T21:07:25'
+    action: 'T-1264: reviewer verdict'
+  - time: '2026-10-28T21:13:49'
+    action: 'T-1264: judge round 1 RED fixed — kept geometry is anchored to where the FILE put the shape, so a node the import moved back into its lane (and its flows) is redrawn instead of keeping a DI that no longer matches; harness leg with an out-of-lane node (previous commit red on it); goldens re-recorded (2 files); every flow''s ends now at its shapes across all goldens; gate 0'
+  - time: '2026-10-28T21:15:13'
+    action: 'T-1264: reviewer verdict'
+  - time: '2026-10-28T21:25:21'
+    action: 'T-1264: evidence — judge green (V-20261028-50f42e08) applied, core GREEN 214/0; criteria and RCA'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 10021 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [import-loss, cloud-job-c]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 10021
+  commits: 7
+  files_changed: 60
+  lines_added: 1671
+  lines_removed: 467
+  footprint_refreshed_at: '2026-10-28T20:25:36Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1264-imported-bpmn-di-is-rewritten-on-save-sh.md
+generated_by: context-agent-hybrid
