@@ -1485,6 +1485,22 @@ else
 fi
 }
 leg browser "_t1268-node-aef-children-cdp" _leg_202
+_leg_203() {
+
+# ── T-1325: a flow node or flow keeps the attributes and children the designer does not read ──
+# T-1322 GO slice 1, T-347 ruling (a): vendor attributes/extensions, standard attributes and children, a gateway's
+# default by its flow's current id, retype rule, second save stable, no designer map grows a key. Red against the
+# pre-T-1325 source (legs 1-4).
+if node "$ROOT/tools/_t1325-element-passthrough-cdp.mjs" > "$TMP/leg-_t1325.out" 2>&1 \
+   && head -2 "$TMP/leg-_t1325.out" | grep -q '"ok": true'; then
+  pass=$((pass + 1))
+else
+  report FAIL "an element lost an attribute or child the designer does not read, a gateway's default no longer follows its flow, a retype kept the old tag's content, a second save differs, or a designer-written map grew a kept key (run 'node tools/_t1325-element-passthrough-cdp.mjs'; T-1325)"
+  show_output "$TMP/leg-_t1325.out" "_t1325-element-passthrough-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1325-element-passthrough-cdp" _leg_203
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

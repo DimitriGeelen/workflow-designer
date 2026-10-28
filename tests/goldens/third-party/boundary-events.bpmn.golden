@@ -90,7 +90,7 @@
       </bpmn:extensionElements>
     </bpmn:task>
 
-    <bpmn:task id="lan_4_compensationtask" name="CompensationTask">
+    <bpmn:task id="lan_4_compensationtask" name="CompensationTask" isForCompensation="true">
       <bpmn:extensionElements>
         <aef:uid value="u8"/>
         <aef:position x="795.0" y="249.0"/>

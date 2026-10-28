@@ -52,6 +52,13 @@
         <aef:uid value="u1"/>
         <aef:position x="136.0" y="115.0"/>
         <aef:meta slug="id"/>
+        <bizagi:BizagiExtensions xmlns:bizagi="http://www.bizagi.com/bpmn20">
+          <bizagi:BizagiProperties>
+            <bizagi:BizagiProperty name="bgColor" value="#E6FF97"/>
+            <bizagi:BizagiProperty name="borderColor" value="#62A716"/>
+            <bizagi:BizagiProperty name="runtimeProperties" value="{}"/>
+          </bizagi:BizagiProperties>
+        </bizagi:BizagiExtensions>
       </bpmn:extensionElements>
       <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
@@ -61,6 +68,12 @@
         <aef:uid value="u2"/>
         <aef:position x="392.0" y="115.0"/>
         <aef:meta slug="id"/>
+        <bizagi:BizagiExtensions xmlns:bizagi="http://www.bizagi.com/bpmn20">
+          <bizagi:BizagiProperties>
+            <bizagi:BizagiProperty name="bgColor" value="#EEAAAA"/>
+            <bizagi:BizagiProperty name="borderColor" value="#990000"/>
+          </bizagi:BizagiProperties>
+        </bizagi:BizagiExtensions>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_2</bpmn:incoming>
     </bpmn:endEvent>
@@ -70,6 +83,12 @@
       <bpmn:extensionElements>
         <aef:uid value="u3"/>
         <aef:position x="220.0" y="90.0"/>
+        <bizagi:BizagiExtensions xmlns:bizagi="http://www.bizagi.com/bpmn20">
+          <bizagi:BizagiProperties>
+            <bizagi:BizagiProperty name="bgColor" value="#ECEFFF"/>
+            <bizagi:BizagiProperty name="borderColor" value="#03689A"/>
+          </bizagi:BizagiProperties>
+        </bizagi:BizagiExtensions>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_1</bpmn:incoming>
       <bpmn:outgoing>flow_2</bpmn:outgoing>
@@ -78,12 +97,24 @@
     <bpmn:sequenceFlow id="flow_1" sourceRef="lan_start_id" targetRef="lan_1_aufgabe">
       <bpmn:extensionElements>
         <aef:uid value="u4"/>
+        <bizagi:BizagiExtensions xmlns:bizagi="http://www.bizagi.com/bpmn20">
+          <bizagi:BizagiProperties>
+            <bizagi:BizagiProperty name="bgColor" value="White"/>
+            <bizagi:BizagiProperty name="borderColor" value="#000000"/>
+          </bizagi:BizagiProperties>
+        </bizagi:BizagiExtensions>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_2" sourceRef="lan_1_aufgabe" targetRef="lan_end_id">
       <bpmn:extensionElements>
         <aef:uid value="u5"/>
+        <bizagi:BizagiExtensions xmlns:bizagi="http://www.bizagi.com/bpmn20">
+          <bizagi:BizagiProperties>
+            <bizagi:BizagiProperty name="bgColor" value="White"/>
+            <bizagi:BizagiProperty name="borderColor" value="Black"/>
+          </bizagi:BizagiProperties>
+        </bizagi:BizagiExtensions>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
   </bpmn:process>

@@ -108,7 +108,7 @@
       <bpmn:messageEventDefinition id="MessageEventDefinition_1digjva"/>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_11">
+    <bpmn:startEvent id="lan_start_event_11" isInterrupting="false">
       <bpmn:extensionElements>
         <aef:uid value="u2"/>
         <aef:position x="552.0" y="472.0"/>
@@ -126,7 +126,7 @@
       <bpmn:timerEventDefinition id="TimerEventDefinition_1bg6z6t"/>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_8">
+    <bpmn:startEvent id="lan_start_event_8" isInterrupting="false">
       <bpmn:extensionElements>
         <aef:uid value="u4"/>
         <aef:position x="552.0" y="532.0"/>
@@ -146,7 +146,7 @@
         </bpmn:conditionalEventDefinition>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_9">
+    <bpmn:startEvent id="lan_start_event_9" isInterrupting="false">
       <bpmn:extensionElements>
         <aef:uid value="u6"/>
         <aef:position x="552.0" y="592.0"/>
@@ -166,7 +166,7 @@
       <bpmn:signalEventDefinition id="SignalEventDefinition_1jigagb"/>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_12">
+    <bpmn:startEvent id="lan_start_event_12" isInterrupting="false">
       <bpmn:extensionElements>
         <aef:uid value="u8"/>
         <aef:position x="552.0" y="712.0"/>
@@ -193,7 +193,7 @@
       <bpmn:escalationEventDefinition id="EscalationEventDefinition_1n1jtk8"/>
     </bpmn:startEvent>
 
-    <bpmn:startEvent id="lan_start_event_10">
+    <bpmn:startEvent id="lan_start_event_10" isInterrupting="false">
       <bpmn:extensionElements>
         <aef:uid value="u11"/>
         <aef:position x="552.0" y="832.0"/>
@@ -339,7 +339,7 @@
       </bpmn:extensionElements>
     </bpmn:exclusiveGateway>
 
-    <bpmn:exclusiveGateway id="la2_gw_gateway" name="Gateway_0238ieb">
+    <bpmn:exclusiveGateway id="la2_gw_gateway" name="Gateway_0238ieb" default="flow_2">
       <bpmn:extensionElements>
         <aef:uid value="u28"/>
         <aef:position x="738.0" y="1245.5"/>
@@ -571,7 +571,7 @@
       <bpmn:compensateEventDefinition id="CompensateEventDefinition_04l674p"/>
     </bpmn:boundaryEvent>
 
-    <bpmn:subProcess id="lan_3_event" name="Event-Subprocess">
+    <bpmn:subProcess id="lan_3_event" name="Event-Subprocess" triggeredByEvent="true">
       <bpmn:extensionElements>
         <aef:uid value="u53"/>
         <aef:position x="340.0" y="430.0"/>
@@ -583,6 +583,7 @@
         <aef:uid value="u54"/>
         <aef:position x="870.0" y="430.0"/>
       </bpmn:extensionElements>
+      <bpmn:multiInstanceLoopCharacteristics/>
     </bpmn:subProcess>
 
     <bpmn:subProcess id="la2_9_activity" name="Activity_0g37k20">
@@ -592,7 +593,7 @@
       </bpmn:extensionElements>
     </bpmn:subProcess>
 
-    <bpmn:subProcess id="la2_10_activity" name="Activity_1fi82ot">
+    <bpmn:subProcess id="la2_10_activity" name="Activity_1fi82ot" triggeredByEvent="true">
       <bpmn:extensionElements>
         <aef:uid value="u56"/>
         <aef:position x="1280.0" y="1237.5"/>
@@ -646,6 +647,7 @@
         <aef:uid value="u63"/>
         <aef:position x="870.0" y="1050.0"/>
       </bpmn:extensionElements>
+      <bpmn:multiInstanceLoopCharacteristics/>
     </bpmn:transaction>
 
     <bpmn:task id="la2_5_activity" name="Activity_0hcpwc9">
@@ -654,6 +656,7 @@
         <aef:position x="920.0" y="1350.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true"/>
     </bpmn:task>
 
     <bpmn:task id="la2_2_activity" name="Activity_0vheewc">
@@ -678,6 +681,7 @@
         <aef:position x="713.0" y="1350.0"/>
       </bpmn:extensionElements>
       <bpmn:outgoing>flow_1</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics/>
     </bpmn:task>
 
     <bpmn:task id="la2_1_activity" name="Activity_0brc3us">
@@ -691,6 +695,7 @@
       <bpmn:dataOutputAssociation id="DataOutputAssociation_14ddyds">
         <bpmn:targetRef>DataObjectReference_05ngfcy</bpmn:targetRef>
       </bpmn:dataOutputAssociation>
+      <bpmn:standardLoopCharacteristics/>
     </bpmn:task>
 
     <bpmn:adHocSubProcess id="lan_2_ad" name="Ad-Hoc Subprocess">
@@ -698,6 +703,7 @@
         <aef:uid value="u68"/>
         <aef:position x="340.0" y="1050.0"/>
       </bpmn:extensionElements>
+      <bpmn:standardLoopCharacteristics/>
     </bpmn:adHocSubProcess>
 
     <bpmn:task id="la2_6_activity" name="Activity_0pfhghz">
@@ -721,10 +727,12 @@
       <bpmn:extensionElements>
         <aef:uid value="u71"/>
         <aef:position x="1160.0" y="1350.0"/>
+        <zeebe:calledElement xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" propagateAllChildVariables="false"/>
       </bpmn:extensionElements>
+      <bpmn:standardLoopCharacteristics/>
     </bpmn:callActivity>
 
-    <bpmn:task id="la2_3_activity" name="Activity_1ndsz41">
+    <bpmn:task id="la2_3_activity" name="Activity_1ndsz41" isForCompensation="true">
       <bpmn:extensionElements>
         <aef:uid value="u72"/>
         <aef:position x="530.0" y="1237.5"/>
@@ -738,21 +746,21 @@
       </bpmn:extensionElements>
     </bpmn:sendTask>
 
-    <bpmn:receiveTask id="lan_6_activity" name="Activity_0e5q7rs">
+    <bpmn:receiveTask id="lan_6_activity" name="Activity_0e5q7rs" instantiate="true">
       <bpmn:extensionElements>
         <aef:uid value="u74"/>
         <aef:position x="670.0" y="120.0"/>
       </bpmn:extensionElements>
     </bpmn:receiveTask>
 
-    <bpmn:eventBasedGateway id="lan_gw_gateway_4" name="Gateway_1la6tas">
+    <bpmn:eventBasedGateway id="lan_gw_gateway_4" name="Gateway_1la6tas" instantiate="true">
       <bpmn:extensionElements>
         <aef:uid value="u75"/>
         <aef:position x="845.0" y="295.0"/>
       </bpmn:extensionElements>
     </bpmn:eventBasedGateway>
 
-    <bpmn:eventBasedGateway id="lan_gw_gateway_5" name="Gateway_01lyed4">
+    <bpmn:eventBasedGateway id="lan_gw_gateway_5" name="Gateway_01lyed4" eventGatewayType="Parallel">
       <bpmn:extensionElements>
         <aef:uid value="u76"/>
         <aef:position x="995.0" y="295.0"/>

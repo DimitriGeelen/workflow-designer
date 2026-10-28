@@ -1,11 +1,21 @@
 ---
 id: T-1325
-name: "T-1322 slice 1: each element keeps the attributes and children the designer does not read (vendor extensions, standard semantics), references rewritten to display ids"
+name: "T-1322 slice 1: each element keeps the attributes and children the designer
+  does not read (vendor extensions, standard semantics), references rewritten to display
+  ids"
 description: >
-  T-1322 GO (operator, job 099). Per-element passthrough: on import every BPMN element keeps its unread attributes and child elements in source order (keptElementXml, T-1243/T-1268), foreign namespace declarations carried (T-1272 rule); on export written back in place; BPMN reference attributes (default, sourceRef, targetRef, attachedToRef, messageRef, ...) rewritten through the export's id map. Closes F1 (T-1259), F2 (T-1260), F7 rest (T-1265 follow-up). Edit rules from docs/reports/T-1322-third-party-passthrough.md section 4 A. Success: T-1322's census (docs/reports/T-1322-evidence) shows 0 lost per-element items on the 11 third-party fixtures.
+  T-1322 GO (operator, job 099). Per-element passthrough: on import every BPMN element
+  keeps its unread attributes and child elements in source order (keptElementXml,
+  T-1243/T-1268), foreign namespace declarations carried (T-1272 rule); on export
+  written back in place; BPMN reference attributes (default, sourceRef, targetRef,
+  attachedToRef, messageRef, ...) rewritten through the export's id map. Closes F1
+  (T-1259), F2 (T-1260), F7 rest (T-1265 follow-up). Edit rules from docs/reports/T-1322-third-party-passthrough.md
+  section 4 A. Success: T-1322's census (docs/reports/T-1322-evidence) shows 0 lost
+  per-element items on the 11 third-party fixtures.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +48,8 @@ related_tasks: [T-1322, T-1259, T-1260, T-1265]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-28T09:27:07Z
-last_update: 2026-10-28T09:27:07Z
-date_finished: null
+last_update: '2026-10-28T09:40:01Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +60,81 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-28T09:40:01Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1325: T-1322 slice 1: each element keeps the attributes and children the designer does not read (vendor extensions, standard semantics), references rewritten to display ids
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Slice 1 of T-1322's GO (operator, job 099; report `docs/reports/T-1322-third-party-passthrough.md` §4 A, §5). It is
+also the build for T-347's operator ruling of 2026-10-10, "(a) preserve and re-emit" content inside an accepted element
+the designer does not consume (T-347 `## Decisions`). T-1322's report did not cite that ruling; the two agree.
+Scope: flow nodes and sequence flows. Process-level elements, and the definitions/process attributes, are slice 2 (T-1326).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **Unread attributes kept:** on a flow node or sequence flow, every attribute the designer does not read (standard,
+  such as `isForCompensation`, `instantiate`, `isInterrupting`, `triggeredByEvent`, `eventGatewayType`; and foreign, such as
+  `camunda:assignee`, `zeebe:modelerTemplate`) is written back on that element, in source order. A foreign prefix the
+  export root does not declare is declared on the element, so the export is well-formed.
+  *(harness legs 1, 6; golden diffs: kitchen-sink isInterrupting x5, triggeredByEvent x2, instantiate x2,
+  eventGatewayType, isForCompensation; zeebe `xmlns:zeebe` declared on the task with its modelerTemplate attributes.)*
+- [x] **Unread children kept:** child elements of a flow node the designer does not read (`multiInstanceLoopCharacteristics`
+  with its `loopCardinality`, `standardLoopCharacteristics`, `script`, `ioSpecification`, ...) are written back after
+  incoming/outgoing: for an activity after its kept data content (tActivity order), for an event before its event
+  definitions (they close tCatchEvent/tThrowEvent); foreign children of `extensionElements` (camunda/zeebe/Bizagi) are
+  written back inside it, after the aef elements.
+  *(harness leg 2: loop after the outgoing refs, script text `x = 1 < 2` exact, camunda formData on the task and
+  properties on the flow inside extensionElements.)*
+- [x] **References follow their target:** a gateway's `default` names its flow by uid in state, is written as that
+  flow's current id, and is dropped when the flow is deleted.
+  *(harness leg 3: `default` equals the yes-flow's new id, not `F3`; no `default` after the flow is deleted; it is also
+  only written while the flow still leaves that gateway, so a duplicated gateway does not point at another's flow.
+  kitchen-sink golden: `default="flow_2"`.)*
+- [x] **Retype:** a node whose BPMN tag changes (task to gateway) drops the kept attributes and children of the old tag
+  (the notice is T-1327's).
+  *(harness leg 4: userTask to serviceTask drops camunda:assignee and the loop, keeps the camunda extension.)*
+- [x] **Designer-written maps unchanged:** a map without unread content parses to the state it always did (no new key) and
+  exports the same bytes; core tier green. `tools/_t338-input-fidelity-cdp.mjs` `EXPECTED_CONTENT` updated deliberately for
+  what is now kept (T-347 AC 2).
+  *(harness leg 5: 0 of 24 corpus maps grow a `kept` key. `_t338`: ext-foreign-child, multiInstanceLoop, unknown-attribute
+  DROPPED -> PRESERVED, then OK. The browser legs that read third-party files all green (_t1134, _t1217, _t1131, _t1119,
+  _t1120, _t511, _t513, _t563, _t358-lane-provenance, _roundtrip-serialization, _t565, _t1096). `_t358-byteid` drifted on
+  the 6 files that now keep content (old source: 11/11 identical); each removed golden line was the same tag and id coming
+  back with its kept attributes, so re-recorded deliberately; the golden diff is the review record. Core: below.)*
+- [x] **Measured:** T-1322's census (`docs/reports/T-1322-evidence/classify-losses.py`) on the 16 fixtures shows 0 lost
+  per-element items (node and flow attributes, node children, extension elements); what remains is process-level (slice 2)
+  or root attributes (slice 2), listed in the task. Harness `tools/_t1325-element-passthrough-cdp.mjs` covers each
+  criterion above, red on the pre-T-1325 source, browser leg.
+  *(census over all 16 files, deliberate exclusions included: 394 lost items before, 125 after, none on a flow node or
+  flow. Left, all slice 2 or 3 or deliberate: definitions
+  attributes (executionPlatform x2, executionPlatformVersion x2, xml:lang, typeLanguage, expressionLanguage, exporterVersion
+  x9 deliberate); associations 6, groups 3, categories 3, textAnnotation 1 with its text; process/collaboration/
+  participant/association extensions (caseagile 54, bizagi participant 4); bizagi process documentation 4; one empty
+  conditionExpression; the second laneSet (deliberate); 1 comment (slice 3). Harness red on the old source: legs 1-4
+  (10 errors). Browser leg `_leg_203`. Not changed by this task and seen while measuring: kitchen-sink's second save
+  re-orders lane membership and display ids, identically before and after T-1325 (T-579's uid-less tie groups).)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -345,3 +416,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1325-t-1322-slice-1-each-element-keeps-the-at.md
 - **Context:** Initial task creation
+
+### 2026-10-28T09:40:00Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

@@ -1,0 +1,21 @@
+id: tools/_t1325-element-passthrough-cdp.mjs
+name: _t1325-element-passthrough-cdp
+type: script
+subsystem: browser-harness
+location: tools/_t1325-element-passthrough-cdp.mjs
+tags: []
+
+purpose: "_t1325-element-passthrough-cdp.mjs — T-1325 (T-1322 GO slice 1; T-347 ruling (a)): a flow node or sequence flow keeps the attributes and children the designer does not read, and a save writes them back in place."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-28
+created_by: unknown

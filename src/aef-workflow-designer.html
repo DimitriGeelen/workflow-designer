@@ -13498,6 +13498,9 @@ function aefExtensionXml(node) {
   }
   // T-1268: aef elements the designer does not read, as they arrived.
   for (const x of node.aefKept || []) out += `        ${x}\n`;
+  // T-1325: other tools' extensions (camunda, zeebe, Bizagi), as they arrived. They do not depend on the BPMN tag, so a
+  // retype keeps them.
+  for (const x of (node.kept && node.kept.ext) || []) out += `        ${x}\n`;
 
   out += '      </bpmn:extensionElements>\n';
   return out;
@@ -13832,7 +13835,12 @@ function buildBpmnXml(s) {
     const outgoing = s.edges.filter(e => e.source === n.id).map(e => `      <bpmn:outgoing>${displayIdOf(e)}</bpmn:outgoing>`).join('\n');
     lines.push(``);
     // T-1218: no name is written as no name attribute, not as name="" (no committed map carries name="").
-    lines.push(`    <bpmn:${tag} id="${escAttr(nodeDisplayId)}"${n.name ? ` name="${escAttr(n.name)}"` : ''}${boundaryAttrs}>`);
+    // T-1325: what the designer does not read on this element, as it arrived (none after a retype); the default flow
+    // by its current id, and only while it still leaves this gateway.
+    const nk = nodeKeptFor(n);
+    const dflt = nk && nk.defaultFlow ? s.edges.find(e => e.uid === nk.defaultFlow && e.source === n.id) : null;
+    const keptAttrs = (nk ? keptAttrsXml(nk.attrs) : '') + (dflt ? ` default="${escAttr(displayIdOf(dflt))}"` : '');
+    lines.push(`    <bpmn:${tag} id="${escAttr(nodeDisplayId)}"${n.name ? ` name="${escAttr(n.name)}"` : ''}${boundaryAttrs}${keptAttrs}>`);
     // T-602: documentation first — the BPMN XSD orders tBaseElement as
     // documentation* then extensionElements?, so emitting it after the aef block
     // would produce a schema-invalid element.
@@ -13845,6 +13853,10 @@ function buildBpmnXml(s) {
     if (aefBlock) lines.push(aefBlock.trimEnd());
     if (incoming) lines.push(incoming);
     if (outgoing) lines.push(outgoing);
+    // T-1325: an event's kept children (dataOutput, outputSet, ...) come before its event definitions, which close
+    // tCatchEvent/tThrowEvent; an activity's come last (below).
+    const keptKids = (nk && nk.children) || [], eventHost = /Event$/.test(tag);
+    if (eventHost) for (const x of keptKids) lines.push(`      ${x}`);
     // T-1217: the kept native link definition, named by the current linkId so an edit in the panel
     // keeps throw and catch paired in both encodings.
     if (n.linkDef && (n.type === 'linkEventThrow' || n.type === 'linkEventCatch')) {
@@ -13857,6 +13869,9 @@ function buildBpmnXml(s) {
     // T-1096: the task's kept data content, after incoming/outgoing in tActivity's order
     const kd = s.dataKept && s.dataKept.perNode && s.dataKept.perNode[n.uid];
     if (kd) for (const t of DATA_TASK_TAGS) for (const x of kd[t] || []) lines.push(`      ${x}`);
+    // T-1325: kept children after the data content (tActivity: ... dataOutputAssociation, resourceRole,
+    // loopCharacteristics; then a scriptTask's script), in source order.
+    if (!eventHost) for (const x of keptKids) lines.push(`      ${x}`);
     lines.push(`    </bpmn:${tag}>`);
   }
 
@@ -13870,7 +13885,7 @@ function buildBpmnXml(s) {
     const tgtNode = findNode(e.target);
     const srcRef = srcNode ? displayIdOf(srcNode) : e.source;
     const tgtRef = tgtNode ? displayIdOf(tgtNode) : e.target;
-    lines.push(`    <bpmn:sequenceFlow id="${escAttr(edgeDisplayId)}"${nameAttr} sourceRef="${escAttr(srcRef)}" targetRef="${escAttr(tgtRef)}">`);
+    lines.push(`    <bpmn:sequenceFlow id="${escAttr(edgeDisplayId)}"${nameAttr} sourceRef="${escAttr(srcRef)}" targetRef="${escAttr(tgtRef)}"${e.kept ? keptAttrsXml(e.kept.attrs) : ''}>`);   // T-1325
     // T-690: extensionElements MUST precede conditionExpression. BPMN's tBaseElement declares
     // extensionElements as the first element of the sequence, and tSequenceFlow extends it, so
     // conditionExpression can only follow. This emitted them the other way round for the life of
@@ -13909,6 +13924,7 @@ function buildBpmnXml(s) {
       }
       lines.push(`        </aef:routing>`);
     }
+    for (const x of (e.kept && e.kept.ext) || []) lines.push(`        ${x}`);   // T-1325
     lines.push(`      </bpmn:extensionElements>`);
     // T-690: emitted here, AFTER extensionElements, per tBaseElement's element order.
     if (e.condition) {
@@ -13917,6 +13933,7 @@ function buildBpmnXml(s) {
       const condLang = e.conditionLanguage ? ` language="${escAttr(e.conditionLanguage)}"` : '';
       lines.push(`      <bpmn:conditionExpression${condId} xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"${condLang}>${escText(e.condition)}</bpmn:conditionExpression>`);
     }
+    for (const x of (e.kept && e.kept.children) || []) lines.push(`      ${x}`);   // T-1325
     lines.push(`    </bpmn:sequenceFlow>`);
   }
 
@@ -14103,6 +14120,50 @@ const DATA_PROC_TAGS = new Set(['dataObject', 'dataObjectReference', 'dataStoreR
 // task output -> process output) — keeping the association without it would write a dangling reference.
 const DATA_TASK_TAGS = ['ioSpecification', 'property', 'dataInputAssociation', 'dataOutputAssociation'];
 const DATA_ASSOC_TAGS = new Set(['dataInputAssociation', 'dataOutputAssociation']);
+// T-1325 (T-1322 GO slice 1; T-347's operator ruling (a), 2026-10-10): an element keeps what the designer does not
+// read, and the save writes it back in place. A third-party file lost 383 such items on one unedited save (T-1322 §2):
+// vendor attributes and extensions (camunda, zeebe, Bizagi), standard attributes (isInterrupting, instantiate,
+// isForCompensation, a gateway's default flow) and children (loop characteristics, scripts). Kept per element as
+// { attrs: [[qname, nsURI, value]], children: [xml], ext: [xml] }, set only when something is kept, so a map the
+// designer wrote parses to exactly the state it always did. Children read elsewhere are listed here; the elements a
+// subprocess contains are nodes and flows in their own right (and annotations/data are slice 2, T-1326).
+const ELEMENT_READ_CHILDREN = new Set(['documentation', 'extensionElements', 'incoming', 'outgoing', 'linkEventDefinition',
+  'conditionExpression', ...DATA_TASK_TAGS, 'sequenceFlow', 'dataObject', 'dataObjectReference', 'dataStoreReference',
+  'association', 'textAnnotation', 'group', 'laneSet']);
+const NODE_READ_ATTRS = new Set(['id', 'name', 'attachedToRef', 'cancelActivity', 'default']);
+const FLOW_READ_ATTRS = new Set(['id', 'name', 'sourceRef', 'targetRef']);
+function elementKept(el, readAttrs, skipChild) {
+  const B = IO_EXPORT_ROOT_NS.bpmn, attrs = [], children = [], ext = [];
+  for (const a of Array.from(el.attributes)) {
+    if (a.name === 'xmlns' || a.name.startsWith('xmlns:') || !XML_ATTR_NAME.test(a.name)) continue;
+    if (!a.namespaceURI && readAttrs.has(a.name)) continue;
+    attrs.push([a.name, a.namespaceURI || '', a.value]);
+  }
+  for (const c of Array.from(el.children)) {
+    if (c.namespaceURI === B && c.localName === 'extensionElements') {
+      for (const x of Array.from(c.children)) if (x.namespaceURI !== IO_EXPORT_ROOT_NS.aef) ext.push(keptElementXml(x));
+      continue;
+    }
+    if (c.namespaceURI === B && (ELEMENT_READ_CHILDREN.has(c.localName) || /EventDefinition$/.test(c.localName))) continue;
+    if (skipChild && skipChild(c)) continue;
+    children.push(keptElementXml(c));
+  }
+  return (attrs.length || children.length || ext.length) ? { attrs, children, ext } : null;
+}
+// A foreign prefix the export root does not declare is declared on the element that uses it (xml: needs none).
+function keptAttrsXml(attrs) {
+  const decls = new Map();
+  for (const [q, ns] of attrs || []) {
+    const p = q.includes(':') ? q.split(':')[0] : '';
+    if (ns && p && p !== 'xml' && IO_EXPORT_ROOT_NS[p] !== ns && !decls.has(p)) decls.set(p, ns);
+  }
+  return [...decls].map(([p, u]) => ` xmlns:${p}="${escAttr(u)}"`).join('') + (attrs || []).map(([q, , v]) => ` ${q}="${escAttr(v)}"`).join('');
+}
+// The kept attributes and children belong to the element's BPMN tag: a retype (task to gateway) writes none of them.
+function nodeKeptFor(n) {
+  const k = n.kept;
+  return k && k.type === n.type && (k.foreignTag || '') === (n.foreignTag || '') ? k : null;
+}
 // T-1222: a kept native event definition can name a root-level element (messageRef, signalRef, errorRef,
 // escalationRef). Keep each such element verbatim so the export never points at an id it does not contain;
 // a message the collaboration capture already keeps (T-1119) is not kept twice. Empty for every map without them.
@@ -14657,6 +14718,7 @@ function parseBpmnXml(text) {
   }
 
   {
+    const nodeWorkEls = new Set(nodeWork.map(w => w[1]));   // T-1325: a subprocess's own nodes are not its kept children
     for (const [tag, el, foreignTag] of nodeWork) {
       const displayId = el.getAttribute('id') || '';
       // T-1218: an unnamed start or end event stays unnamed. The id used to stand in as its name, so the
@@ -14901,6 +14963,11 @@ function parseBpmnXml(text) {
       const slug = unnamedEvent ? (aef.slug || deriveSlug(displayId)) : deriveSlug(name);
       if (tag === 'startEvent' || tag === 'endEvent') delete aef.slug;
       const aefKept = nodeAefKeptXml(el);   // T-1268
+      // T-1325: what the designer does not read on this element. A gateway's default names a flow by id; it is
+      // resolved to the flow's uid once the flows are read (below), and written as that flow's current id.
+      const kept = elementKept(el, NODE_READ_ATTRS, c => nodeWorkEls.has(c));
+      const defaultRef = el.getAttribute('default');
+      const keptNode = (kept || defaultRef) ? { type, ...(foreignTag ? { foreignTag } : {}), ...(kept || { attrs: [], children: [], ext: [] }), ...(defaultRef ? { defaultRef } : {}) } : null;
 
       // Default position if none was encoded — simple flow layout per lane
       if (x == null || isNaN(x) || y == null || isNaN(y)) {
@@ -14922,6 +14989,7 @@ function parseBpmnXml(text) {
         ...(linkDef ? { linkDef } : {}),
         ...(nativeEventDefs.length ? { nativeEventDefs } : {}),
         ...(aefKept ? { aefKept } : {}),
+        ...(keptNode ? { kept: keptNode } : {}),
       });
       displayIdToUid.set(displayId, uid);
     }
@@ -14967,9 +15035,11 @@ function parseBpmnXml(text) {
 
   // ---- edges ----
   const edges = [];
+  const flowIdToUid = new Map();   // T-1325: resolves a gateway's kept default flow
   for (const el of byBpmn(proc, 'sequenceFlow')) {
     const uidEl = byAef(el, 'uid')[0];
     const uid = uidEl?.getAttribute('value') || deriveUid('e', el.getAttribute('id') || '');
+    if (el.getAttribute('id')) flowIdToUid.set(el.getAttribute('id'), uid);
     const srcDisplayId = el.getAttribute('sourceRef');
     const tgtDisplayId = el.getAttribute('targetRef');
     const source = displayIdToUid.get(srcDisplayId) || srcDisplayId;
@@ -15013,7 +15083,19 @@ function parseBpmnXml(text) {
       }
       if (wps.length) edge.waypoints = wps;
     }
+    const kept = elementKept(el, FLOW_READ_ATTRS);   // T-1325
+    if (kept) edge.kept = kept;
     edges.push(edge);
+  }
+  // T-1325: a gateway's default flow, by uid from here on (its id is rewritten on save). A default naming no flow in
+  // the file is dropped: written back, it would point at nothing.
+  for (const n of nodes) {
+    const k = n.kept;
+    if (!k || !k.defaultRef) continue;
+    const u = flowIdToUid.get(k.defaultRef);
+    delete k.defaultRef;
+    if (u) k.defaultFlow = u;
+    if (!k.defaultFlow && !k.attrs.length && !k.children.length && !k.ext.length) delete n.kept;
   }
 
   // ---- pool ----

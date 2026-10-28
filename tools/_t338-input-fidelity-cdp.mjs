@@ -266,13 +266,17 @@ const EXPECTED_CONTENT = {
   // description: reverting T-602's emit turns this row red again, which is the property
   // that makes the flip safe to make. Every other row is untouched.
   'documentation':       'CONTENT-PRESERVED',
-  'ext-foreign-child':   'CONTENT-DROPPED',
+  // T-1325: ext-foreign-child, multiInstanceLoop and unknown-attribute DROPPED -> PRESERVED on 2026-10-28. An element now
+  // keeps the attributes and children the designer does not read (T-1322 GO, T-347 ruling (a)). Measured independently
+  // by tools/_t1325-element-passthrough-cdp.mjs (namespace, order after the outgoing refs, text, retype, second save) and
+  // by T-1322's census over the third-party fixtures. Ratchet as above.
+  'ext-foreign-child':   'CONTENT-PRESERVED',
   // T-1096: DROPPED -> PRESERVED on 2026-10-12. A task's <bpmn:property> is now kept with its data associations
   // (captureProcessData). Measured independently by tools/_t1096-data-objects-roundtrip-cdp.mjs (property, data
   // input/output associations, data objects/stores and their DI; 0.18.0 measured 2/10 there). Ratchet as above.
   'property':            'CONTENT-PRESERVED',
-  'multiInstanceLoop':   'CONTENT-DROPPED',
-  'unknown-attribute':   'CONTENT-DROPPED',
+  'multiInstanceLoop':   'CONTENT-PRESERVED',
+  'unknown-attribute':   'CONTENT-PRESERVED',
   'incoming-ref':        'CONTENT-DROPPED',
   'conditionExpression': 'CONTENT-PRESERVED',
 };
