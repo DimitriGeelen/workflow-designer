@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1271: Node and flowNodeRef order is reshuffled on save (grouped by kind)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-28T18:07:49Z
+# ============================================================================
+
+task_id: T-1271
+task_name: "Node and flowNodeRef order is reshuffled on save (grouped by kind)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-21T21:24:31Z
+completed: 2026-10-28T18:07:42Z
+duration_days: 7
+updates_count: 4
+first_commit: 2026-10-28T18:06:34+01:00
+last_commit: 2026-10-28T18:06:34+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  import keeps nodes in the order the file declares them (job C F13) — nodeWork was built one tag at a time, so a third-party file's first save regrouped nodes and flowNodeRefs by kind; harness _t1271 (browser leg _leg_208) red on the old source; 8 third-party goldens re-recorded, order only (sorted lines identical to HEAD); designer-written maps unchanged
+
+# Key outcomes
+outcomes:
+  - 'Import keeps the nodes in the order the file declares them (start, task, end stays start, task, end), and'
+  - 'A browser harness proves it on a third-party file and is red on the current source.'
+  - 'Every designer-written corpus map still saves byte-identically (the existing round-trip and goldens legs);'
+  - 'Core tier green. *(214/0, after T-1330 fixed an unrelated flaky leg that reddened the first run;'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1271-node-and-flownoderef-order-is-reshuffled.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/goldens/third-party/bizagi-nested-ns.bpmn.golden'
+  - 'tests/goldens/third-party/boundary-events.bpmn.golden'
+  - 'tests/goldens/third-party/caseagile-local-ns.bpmn.golden'
+  - 'tests/goldens/third-party/collaboration-message-flows.bpmn.golden'
+  - 'tests/goldens/third-party/i18n-documentation.bpmn.golden'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/goldens/third-party/nested-subprocesses.bpmn.golden'
+  - 'tests/goldens/third-party/simple.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1271-node-order-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-28T18:06:34'
+    action: 'T-1271: import keeps nodes in the order the file declares them (job C F13) — nodeWork was built one tag at a time, so a third-party file''s first save regrouped nodes and flowNodeRefs by kind; harness _t1271 (browser leg _leg_208) red on the old source; 8 third-party goldens re-recorded, order only (sorted lines identical to HEAD); designer-written maps unchanged'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 9883 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [import-loss, cloud-job-c]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 9883
+  commits: 3
+  files_changed: 28
+  lines_added: 5582
+  lines_removed: 659
+  footprint_refreshed_at: '2026-10-28T18:07:57Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1271-node-and-flownoderef-order-is-reshuffled.md
+generated_by: context-agent-hybrid

@@ -19869,3 +19869,21 @@ scan_id: R-10697f95
 task_id: T-1330
 payload:
   task_file: .tasks/active/T-1330-t344-product-file-is-watched-check-fails.md
+---
+kind: scan_emitted
+timestamp: '2026-10-28T18:07:44Z'
+scan_id: R-2b265d75
+task_id: T-1271
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-28T18:07:44Z'
+scan_id: R-2b265d75
+task_id: T-1271
+payload:
+  task_file: .tasks/active/T-1271-node-and-flownoderef-order-is-reshuffled.md
