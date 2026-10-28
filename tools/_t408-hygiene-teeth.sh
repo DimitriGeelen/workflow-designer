@@ -335,7 +335,7 @@ else
     id="${probe%%:*}"; want="${probe##*:}"
     python3 "$TMP/tools/_t350-verification-hygiene.py" "$id" >/dev/null 2>&1
     t350_rc=$?
-    if python3 "$TMP/tools/verification-hygiene.py" --adopt 2>/dev/null | grep -q .; then :; fi
+    if grep -q . <<<"$(python3 "$TMP/tools/verification-hygiene.py" --adopt 2>/dev/null)"; then :; fi   # T-1331
     ours=$(python3 - "$TMP/tools/verification-hygiene-baseline.json" "$id" <<'PY'
 import json,sys
 d=json.load(open(sys.argv[1])); tid=sys.argv[2]

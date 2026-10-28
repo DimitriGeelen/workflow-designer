@@ -51,20 +51,21 @@ mk(){ # mk <id> <owner> <agent-acs> <human-block>
 run(){ python3 "$WORK/pred.py" "$WORK/active" 2>/dev/null; }
 
 echo "=== T-833 CTL-029 controls ==="
+# T-1331: each check greps a capture of run(), not a pipe (grep -q closing the pipe under pipefail, T-1330)
 rm -rf "$WORK/active"; mk T-001 agent "- [x] done" ""
-if run | grep -q "^T-001|"; then ok "abandoned agent-owned task -> STILL FIRES"
+if grep -q "^T-001|" <<<"$(run)"; then ok "abandoned agent-owned task -> STILL FIRES"
 else bad "abandoned task suppressed" "the narrowing swallowed the case CTL-029 exists for"; fi
 
 rm -rf "$WORK/active"; mk T-002 human "- [x] done" "- [ ] [REVIEW] rule on it"
-if run | grep -q "^T-002|"; then bad "partial-complete still fires" "the fix did not take; the undoable-work warnings continue"
+if grep -q "^T-002|" <<<"$(run)"; then bad "partial-complete still fires" "the fix did not take; the undoable-work warnings continue"
 else ok "partial-complete (human + unticked Human AC) -> SUPPRESSED"; fi
 
 rm -rf "$WORK/active"; mk T-003 human "- [x] done" "- [x] [REVIEW] already ruled"
-if run | grep -q "^T-003|"; then ok "human-owned with Human ACs ALL ticked -> STILL FIRES (genuinely unclosed)"
+if grep -q "^T-003|" <<<"$(run)"; then ok "human-owned with Human ACs ALL ticked -> STILL FIRES (genuinely unclosed)"
 else bad "genuinely completable suppressed" "a task whose human side is DONE now hides in active/ forever — the exact defect CTL-029 catches"; fi
 
 rm -rf "$WORK/active"; mk T-004 human "- [x] done" ""
-if run | grep -q "^T-004|"; then ok "human-owned with NO ### Human section -> STILL FIRES (mis-filed, not partial)"
+if grep -q "^T-004|" <<<"$(run)"; then ok "human-owned with NO ### Human section -> STILL FIRES (mis-filed, not partial)"
 else bad "mis-filed task suppressed" "owner: human with no Human AC is the T-767 defect, not partial-complete"; fi
 
 echo; echo "PASS=$PASS FAIL=$FAIL"

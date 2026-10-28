@@ -111,7 +111,7 @@ c_no_new_identifier() {
     # a FIELD, not the word: T-878 IW-3 is named in the tool's own prose, and that is fine.
     # control: the same pattern hits where an identifier field IS written (the pinned artefact carries aef:uuid)
     grep -qE "(uuid|instance_id|instanceId)['\":=]" "$ROOT/examples/aef-processes/rendered/task-lifecycle.bpmn" \
-        && ! grep -vE '^\s*#' "$SUBJECT" | grep -qE "(uuid|instance_id|instanceId)['\":=]" \
+        && ! grep -qE "(uuid|instance_id|instanceId)['\":=]" <<<"$(grep -vE '^\s*#' "$SUBJECT")" \
         && ok no_new_identifier || bad no_new_identifier "the delivered surface mints or names a new identifier"
 }
 c_ac_gate_hint_points_at_existing_node() {

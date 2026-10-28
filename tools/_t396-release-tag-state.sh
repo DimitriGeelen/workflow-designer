@@ -76,7 +76,7 @@ fi
 echo
 echo "-- branch B: tag absent -> must report NOT YET TAGGED and name the command --"
 git clone --quiet --no-tags "$REPO" "$SCRATCH/no-tag" 2>/dev/null || { echo "  CANNOT MEASURE: clone failed"; exit 3; }
-if git -C "$SCRATCH/no-tag" tag -l | grep -q .; then
+if grep -q . <<<"$(git -C "$SCRATCH/no-tag" tag -l)"; then   # T-1331: no pipe into grep -q
     echo "  CANNOT MEASURE: --no-tags clone still carries tags; branch B has no fixture"
     exit 3
 fi

@@ -96,7 +96,7 @@ ok "the read is capped (HEADER_BYTES), so the raster is never loaded" \
 # Empty candidate set must not read as a clean bill of health (T-3105).
 rm -f "$TMP"/* 2>/dev/null
 ok "an empty directory exits 0 with an explicit 'no findings' line, not silence" \
-   "$(python3 "$TOOL" --root "$TMP" 2>&1 | grep -q 'no stray screen captures found' && echo 0 || echo 1)"
+   "$(grep -q 'no stray screen captures found' <<<"$(python3 "$TOOL" --root "$TMP" 2>&1)" && echo 0 || echo 1)"
 echo
 
 echo "=== SUMMARY ==="

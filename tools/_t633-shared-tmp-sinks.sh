@@ -204,7 +204,7 @@ fi
 # certify the convenient shape.
 printf '#!/bin/bash\npython3 - <<PY\nopen("/tmp/t631-bashmatched.txt", "w").write("x")\nPY\n' \
     > "$SANDBOX/tools-mutant/_t633-heredoc-probe.sh"
-if scan_tools "$SANDBOX/tools-mutant" | grep -q '/tmp/t631-bashmatched.txt'; then
+if grep -q '/tmp/t631-bashmatched.txt' <<<"$(scan_tools "$SANDBOX/tools-mutant")"; then   # T-1331: no pipe into grep -q
     ok "teeth: the real pre-fix shape (double-quoted, inside a heredoc) is detected"
 else
     bad "teeth: the census misses the shape it was written to catch"
@@ -212,7 +212,7 @@ fi
 # And the inverse: a single-quoted hook fixture must NOT be flagged, or the census would
 # be noise that everyone learns to ignore.
 printf '#!/bin/bash\nrun_hook "$H" %s\n' "'echo probe > /tmp/fixture.marker'" > "$SANDBOX/tools-mutant/_t633-fixture-probe.sh"
-if scan_tools "$SANDBOX/tools-mutant" | grep -q '/tmp/fixture.marker'; then
+if grep -q '/tmp/fixture.marker' <<<"$(scan_tools "$SANDBOX/tools-mutant")"; then
     bad "teeth: a never-executed hook fixture is flagged — the census cries wolf"
 else
     ok "teeth: a single-quoted hook fixture is not flagged — the census is specific"
@@ -235,7 +235,7 @@ else
     bad "teeth: the fixture skip also hides a real sink — the census went blind"
 fi
 printf 'echo x > /var/tmp/zz-vartmp.txt\n' > "$SANDBOX/tools-mutant/_t633-vartmp-probe.sh"
-if scan_tools "$SANDBOX/tools-mutant" | grep -q 'zz-vartmp'; then
+if grep -q 'zz-vartmp' <<<"$(scan_tools "$SANDBOX/tools-mutant")"; then
     bad "teeth: a var-tmp path is reported as if it were a shared-tmp path"
 else
     ok "teeth: /var/tmp is not mistaken for /tmp"

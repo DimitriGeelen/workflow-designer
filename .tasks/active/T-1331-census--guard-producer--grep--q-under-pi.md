@@ -1,13 +1,19 @@
 ---
 id: T-1331
-name: "Census + guard: 'producer | grep -q' under pipefail across tools/ and tests/ (the T-1330 class)"
+name: "Census + guard: 'producer | grep -q' under pipefail across tools/ and tests/
+  (the T-1330 class)"
 description: >
-  T-1330 found _t344 failing 6/40 runs because an expander piped into grep -qx under pipefail dies on the closed pipe. The same shape appears in many pipefail scripts (e.g. tools/_t850, _t408, tests/run-bridge-tests.sh, 16 each). Classify each by producer (long-running command vs a short captured string), fix the long-producer ones, and add a census leg so a new one is caught.
+  T-1330 found _t344 failing 6/40 runs because an expander piped into grep -qx under
+  pipefail dies on the closed pipe. The same shape appears in many pipefail scripts
+  (e.g. tools/_t850, _t408, tests/run-bridge-tests.sh, 16 each). Classify each by
+  producer (long-running command vs a short captured string), fix the long-producer
+  ones, and add a census leg so a new one is caught.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-28T17:42:11Z
-last_update: 2026-10-28T17:42:11Z
-date_finished: null
+last_update: '2026-10-28T23:11:22Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,56 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-28T23:11:22Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1331: Census + guard: 'producer | grep -q' under pipefail across tools/ and tests/ (the T-1330 class)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Follow-up of T-1330: `_t344` piped the watch-set expander into `grep -qx` under `set -o pipefail`; grep exits at the
+first match, the expander dies on the closed pipe, pipefail reports the check as failed (6 of 40 runs) and the core tier
+went red while the leg passed standalone. The shape recurs across many pipefail scripts.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A census tool lists every `producer | grep -q…` in a pipefail script under tools/, tests/ and scripts/, and
+      classifies it: a builtin echo/printf of a string (safe below the pipe buffer) vs any other producer (a command
+      whose output can continue after the match, the T-1330 shape). *(`tools/_t1331-pipe-grep-q-census.py`: 461
+      sites before the fix — 432 builtin echo/printf, 5 bounded `head`/`sed -n <addr>p`, 24 RISKY. Its own
+      selftest caught two of its first regex bugs: `el?if` made the `e` mandatory, and `$((…))` was split as a
+      command substitution.)*
+- [x] Every command-producer site in a script the core tier runs is fixed (capture, then grep the capture) or shown
+      safe with a reason the tool records; the count of the remaining risky sites is stated. *(All 24 rewritten,
+      in 14 scripts, to `grep … <<<"$(producer)"`; risky now 0 of 437, baseline 0. Each edited script re-run: 12 exit
+      0 as before; `_t1006` same result as HEAD for L16/L21/L24; `_t396` fails identically on HEAD (stale probe,
+      filed T-1333). One self-inflicted break caught and fixed: a `# T-1331` comment placed mid-line in `_t833`
+      swallowed `ok`'s message argument (`$1: unbound`).)*
+- [x] The census is a core leg with a ratchet (fails when the risky count rises above its baseline) and teeth (a
+      planted risky line is flagged; a captured form and a short echo are not). *(`_leg_212`; selftest 10 cases
+      incl. `elif echo`, one-line and few-line `sed -n`, a pattern-range `sed` (risky), a comment and a non-pipefail
+      file.)*
+- [ ] Core tier green.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -116,6 +158,9 @@ date_finished: null
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+python3 tools/_t1331-pipe-grep-q-census.py --selftest > /tmp/.t1331-st 2>&1 && grep -q 'selftest: OK' /tmp/.t1331-st
+python3 tools/_t1331-pipe-grep-q-census.py > /tmp/.t1331 2>&1 && grep -q 'risky now 0 ' /tmp/.t1331
+grep -q 'leg core "_t1331-pipe-grep-q-census" _leg_212' tests/run-bridge-tests.sh
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
@@ -345,3 +390,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1331-census--guard-producer--grep--q-under-pi.md
 - **Context:** Initial task creation
+
+### 2026-10-28T23:11:21Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

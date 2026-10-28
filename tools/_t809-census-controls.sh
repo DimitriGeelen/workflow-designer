@@ -104,7 +104,7 @@ PY
 if [ -z "$_injected" ]; then
     bad "B setup" "could not find a task-like node carrying <aef:meta> to inject into"
 else
-    if run_census | grep -q 'horizon: 0 -> 1'; then
+    if grep -q 'horizon: 0 -> 1' <<<"$(run_census)"; then   # T-1331: no pipe into grep -q
         ok "B coverage rose -> census SEES it (not vacuous; injected into $_injected)"
     else
         bad "B added key should be COUNTED" \

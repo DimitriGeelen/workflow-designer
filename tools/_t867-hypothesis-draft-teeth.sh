@@ -159,7 +159,7 @@ else bad no_observable_yields_needs_you "a body with nothing checkable produced 
 mkfix "$WORK/needs.md" "$NO_NUMBERS" "" "We believe that x,
 we will achieve y.
 We will know that we are successful when we see $(printf '%s' '[NEEDS YOU: name something checkable]')."
-if printf '%s' "$(gate "$WORK/needs.md")" | grep -q 'RC=1'; then
+if grep -q 'RC=1' <<<"$(gate "$WORK/needs.md")"; then   # T-1331: no pipe into grep -q
     ok needs_you_still_refused_by_gate
 else bad needs_you_still_refused_by_gate "S1 accepted a draft whose success clause is an open TODO"; fi
 

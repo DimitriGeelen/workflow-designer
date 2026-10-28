@@ -114,7 +114,7 @@ c_no_template_distinct() {
 c_flows_come_from_the_artefact() {
     # The artefact carries the flow the legal hop used; the tool's code carries no node id.
     grep -q 'sourceRef="frw_1_start" targetRef="agt_2_perform"' "$ROOT/$TPL" \
-        && ! python3 -c "import ast,sys;t=ast.parse(open(sys.argv[1]).read());t.body=[n for n in t.body if not (isinstance(n,ast.Expr) and isinstance(getattr(n,'value',None),ast.Constant))];print(ast.unparse(t))" "$SUBJECT" | grep -qE '\b(frw|agt|hum)_[0-9]+_[a-z]+\b' \
+        && ! grep -qE '\b(frw|agt|hum)_[0-9]+_[a-z]+\b' <<<"$(python3 -c "import ast,sys;t=ast.parse(open(sys.argv[1]).read());t.body=[n for n in t.body if not (isinstance(n,ast.Expr) and isinstance(getattr(n,'value',None),ast.Constant))];print(ast.unparse(t))" "$SUBJECT")" \
         && ok flows_come_from_the_artefact || bad flows_come_from_the_artefact "a node id is written into the tool, or the artefact lacks the flow"
 }
 CONTROL_CASES="c_legal_transition_recorded c_gateway_branch_a_legal c_gateway_branch_b_legal c_first_hop_onto_start c_first_hop_mid_flow_refused_names_start c_inception_moves_within_template c_set_places_from_no_position c_set_refused_once_placed c_no_entity_distinct c_no_template_distinct c_flows_come_from_the_artefact"

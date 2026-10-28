@@ -162,7 +162,7 @@ for c in /etc/cron.d/* /etc/crontab; do
     grep -l -F "$SWEEP_NAME" "$c" 2>/dev/null && hits="$hits $c"
 done
 if crontab -l >/dev/null 2>&1; then
-    crontab -l 2>/dev/null | grep -qF "$SWEEP_NAME" && hits="$hits user-crontab"
+    grep -qF "$SWEEP_NAME" <<<"$(crontab -l 2>/dev/null)" && hits="$hits user-crontab"   # T-1331
 fi
 ok "the corrector appears in no deployed crontab" \
    "$([ -z "$hits" ] && echo 0 || echo 1)" \

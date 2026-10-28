@@ -35,7 +35,7 @@ L16)  # a rule shipped in the 0.15.2 inputs that the clean map broke; only the r
   grep -n -i -A2 'real calibration' "$ROOT/docs/releases/RELEASE-NOTES-0.15.2.md" | head -6 | sed 's/^/   /'
   say "-- was any rule check against clean.bpmn part of the release path before calibration? kit tests naming clean.bpmn:"
   say "   $(grep -rl 'clean.bpmn' "$ROOT/tests" 2>/dev/null | wc -l) test file(s); release runme mentions calibrate: $(git -C "$ROOT" show 9999dcd2:runme.sh 2>/dev/null | grep -c -i calibrat)"
-  git -C "$ROOT" show 4db14034 -- docs/authoring-kit/RUBRIC.md | grep -q '^-.*gateway added there IS invented' ;;
+  grep -q '^-.*gateway added there IS invented' <<<"$(git -C "$ROOT" show 4db14034 -- docs/authoring-kit/RUBRIC.md)" ;;   # T-1331: no pipe into grep -q
 L17)  # loop.sh's agent() appends the prompt as the LAST argv element of KIT_*_CMD
   printf '#!/bin/sh\nfor a; do last=$a; done\nprintf "argv: %%s | last: %%.30s\\n" "$*" "$last"\n' > "$W/agent"; chmod +x "$W/agent"
   eval "$(sed -n '/^agent() {/,/^}/p' "$KIT/loop.sh")"   # loop.sh's own function, verbatim
@@ -116,7 +116,7 @@ L21)  # the clean control names an end result the source never states, which the
   say "-- the full source text (does it state a final result?):"; sed 's/^/   | /' "$CAL/SOURCE.md"
   say "-- 0.15.2 shipped (499c2896) after the K3 rule landed (9999dcd2); was clean.bpmn's end event touched in between?"
   git -C "$ROOT" log --oneline 9999dcd2^..499c2896 -- docs/authoring-kit/calibration/clean.bpmn | sed 's/^/   /'; say "   (no lines = not touched)"
-  grep -A1 'name="Accepted order delivered and invoiced"' "$CAL/clean.bpmn" | grep -q 'source: unstated' \
+  grep -q 'source: unstated' <<<"$(grep -A1 'name="Accepted order delivered and invoiced"' "$CAL/clean.bpmn")" \
     && ! grep -q -i 'delivered and invoiced' "$CAL/SOURCE.md" && grep -q -i 'Do not invent start and end events' "$KIT/AUTHORING.md" ;;
 L22)  # partner hit 'is detailed in process X'; the guide has no rule for it
   notes_say 'K14' && ! grep -q -i -E 'callActivity|calledElement|detailed in' "$KIT/AUTHORING.md" \
@@ -131,7 +131,7 @@ L24)  # K2 (one step precedes two, relation unstated) speaks of sequence-flow su
   python3 -c "import yaml;d=yaml.safe_load(open('$ROOT/docs/learning-ledger.yaml'));x=[e for e in d['learnings'] if e['id']=='L27'][0];print('   ',x['proposed_change'])"
   say "-- the partner's report:"
   notes_say 'K16' && grep -n -i 'both or either\|either or both' "$KIT/AUTHORING.md" | cut -c1-160 | head -3
-  ! grep -i 'both or either\|either or both' "$KIT/AUTHORING.md" | grep -q -i 'hand-over\|handover\|link' \
+  ! grep -q -i 'hand-over\|handover\|link' <<<"$(grep -i 'both or either\|either or both' "$KIT/AUTHORING.md")" \
     && say "the both-or-either rule in AUTHORING.md never mentions hand-overs/link events" ;;
 L25)  # no citation format for several source lines
   notes_say 'K17' && ! grep -q -i -E 'several (source )?lines|multiple quotes|more than one (line|quote)|quotes? (are )?joined' "$KIT/AUTHORING.md" \

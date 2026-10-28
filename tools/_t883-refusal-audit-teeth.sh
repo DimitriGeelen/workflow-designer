@@ -111,7 +111,7 @@ t_leg3_wiring_p010_p011_refusal_not_bypass() {
         && sed -n "$p010,$((p010+3))p" "$UPD" | grep -q 'exit 1' \
         && sed -n "$p011,$((p011+3))p" "$UPD" | grep -q 'exit 1' \
         && [ "$(grep -c 'fw_instance_refused "$TASK_ID"' "$UPD")" -eq 3 ] \
-        && ! grep -B3 'fw_instance_refused "$TASK_ID" unmet-input-contract' "$UPD" | grep -q 'SKIP_' \
+        && ! grep -q 'SKIP_' <<<"$(grep -B3 'fw_instance_refused "$TASK_ID" unmet-input-contract' "$UPD")" \
         && grep -q 'command -v fw_instance_refused >/dev/null 2>&1 || fw_instance_refused() { return 0; }' "$UPD" \
         && bash -n "$UPD" \
         && ok leg3_wiring_p010_p011_refusal_not_bypass || bad leg3_wiring_p010_p011_refusal_not_bypass "p010=$p010 p011=$p011"

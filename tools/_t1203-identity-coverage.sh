@@ -31,7 +31,7 @@ HOST_FP=$(env -u TERMLINK_IDENTITY_FILE -u TERMLINK_AGENT_ID -u TERMLINK_IDENTIT
 echo "=== T-1203 identity coverage: every entry point must sign as $FP (host key: ${HOST_FP:-?}) ==="
 
 # 0. the key itself
-if [ -f "$K" ] && [ "$(stat -c %a "$K")" = 600 ] && ! getfacl -p "$K" 2>/dev/null | grep -qE '^(user|group):[^:]'; then
+if [ -f "$K" ] && [ "$(stat -c %a "$K")" = 600 ] && ! grep -qE '^(user|group):[^:]' <<<"$(getfacl -p "$K" 2>/dev/null)"; then   # T-1331
     got=$(TERMLINK_IDENTITY_FILE="$K" termlink identity show --resolve --no-create 2>/dev/null | awk '/Fingerprint/{print $2}')
     [ "$got" = "$FP" ] && ok "key file" "mode 600, no extended ACL, resolves to $FP" || bad "key file" "resolves to '${got:-nothing}', expected $FP"
 else

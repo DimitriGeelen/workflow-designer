@@ -76,20 +76,20 @@ c_entity_no_template_distinct() {
         && ok entity_no_template_distinct || bad entity_no_template_distinct "rc=$rc out=$out"
 }
 c_no_position_named_per_entity() {
-    run instances task-lifecycle | grep -q '^  T-9972 NO-POSITION$' \
+    grep -q '^  T-9972 NO-POSITION$' <<<"$(run instances task-lifecycle)" \
         && ok no_position_named_per_entity || bad no_position_named_per_entity "$(run instances task-lifecycle)"
 }
 c_examined_count_states_population() {
     # the spike entity binds to nothing but IS examined — the population is the whole live dir
-    run instances task-lifecycle | grep -q '(examined 4 live entities)' \
+    grep -q '(examined 4 live entities)' <<<"$(run instances task-lifecycle)" \
         && ok examined_count_states_population || bad examined_count_states_population "$(run instances task-lifecycle | head -1)"
 }
 c_yaml_id_does_not_resolve() {
     # c_sovereignty is a node id in the canonical YAML and not in the rendered artefact
     grep -q 'c_sovereignty' "$ROOT/examples/aef-processes/task-lifecycle.workflow.yaml" \
-        && ! run nodes task-lifecycle | grep -qx 'c_sovereignty' \
+        && ! grep -qx 'c_sovereignty' <<<"$(run nodes task-lifecycle)" \
         && [[ "$(run set T-9972 c_sovereignty)" == REFUSED* ]] \
-        && run nodes task-lifecycle | grep -qx 'frw_1_start' \
+        && grep -qx 'frw_1_start' <<<"$(run nodes task-lifecycle)" \
         && ! grep -q 'frw_1_start' "$ROOT/examples/aef-processes/task-lifecycle.workflow.yaml" \
         && ok yaml_id_does_not_resolve || bad yaml_id_does_not_resolve "c_sovereignty resolved, or frw_1_start did not"
 }

@@ -1623,6 +1623,21 @@ else
 fi
 }
 leg browser "_t1264-imported-geometry-cdp" _leg_211
+_leg_212() {
+
+# ── T-1331: no `command | grep -q` under pipefail (the T-1330 class) ──
+# grep -q exits at its first match; a producer still writing dies of SIGPIPE and pipefail turns a found match into a
+# failure, red in the suite and green standalone. Teeth (--selftest) first, then the ratchet over tools/ tests/ scripts/.
+if python3 "$ROOT/tools/_t1331-pipe-grep-q-census.py" --selftest > "$TMP/leg-_t1331.out" 2>&1 \
+   && python3 "$ROOT/tools/_t1331-pipe-grep-q-census.py" >> "$TMP/leg-_t1331.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a script under set -o pipefail pipes a command into grep -q again (capture the output, then grep the capture), or the census lost its teeth (run 'python3 tools/_t1331-pipe-grep-q-census.py'; T-1331)"
+  show_output "$TMP/leg-_t1331.out" "_t1331-pipe-grep-q-census.py"
+  fail=$((fail + 1))
+fi
+}
+leg core "_t1331-pipe-grep-q-census" _leg_212
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
