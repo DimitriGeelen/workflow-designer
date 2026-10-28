@@ -383,6 +383,17 @@ if BRANCHES_ONLY:
     print("  SKIP  7 (branch scope — nothing in this mode writes to the subject's write-set)")
 else:
     breaches = write_set_violations(before, after, allowed_writes)
+    # T-1319 (AEF be.48, T-4840): every audit body now keeps `.audit-inflight.<pid>` in .context/audits while it
+    # runs and removes it on exit. A cron audit (:15/:30/:45) running alongside this one shows its own marker here,
+    # which is not this subject's write. A marker whose pid is still alive is that other audit, and is set aside; a
+    # marker whose pid is dead was left behind, which IS a leak and stays a breach.
+    def _concurrent_marker(b):
+        m = re.match(r"CREATED  \.context/audits/\.audit-inflight\.(\d+)(?:\.fired)? ", b)
+        return bool(m) and os.path.exists("/proc/%s" % m.group(1))
+    concurrent = [b for b in breaches if _concurrent_marker(b)]
+    breaches = [b for b in breaches if b not in concurrent]
+    for b in concurrent:
+        print("  note: another audit was running alongside (its in-flight marker, pid alive): %s" % b.split()[1])
     # T-552: hermeticity is a negative claim and a negative claim is satisfied by silence
     # (T-524), so the leg also requires that the subject DID write. `fw audit` stamps its report
     # with a timestamp, so an audit that ran always moves at least one declared output; an empty
