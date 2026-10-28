@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1270: Opening a second file with the same process id saves it with _v2 ids (definitions, process, collaboration, DI, workflowMeta)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-28T18:29:15Z
+# ============================================================================
+
+task_id: T-1270
+task_name: "Opening a second file with the same process id saves it with _v2 ids (definitions, process, collaboration, DI, workflowMeta)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-21T21:24:28Z
+completed: 2026-10-28T18:29:05Z
+duration_days: 7
+updates_count: 4
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  adoptImportedXml renames workflowMeta.id on a library collision; many modeler files share Process_1. Found by ring20's cloud job C (T-2466) on 8909a9b1, verified by headless round trip, no notice shown; report verbatim in docs/reports/T-2466-cloud-job-C-bughunt.md (F12, C 12/13). Fix theme proposed there: a generic per-element passthrough rather than more allowlist entries.
+
+# Key outcomes
+outcomes:
+  - 'Opening two third-party files that share a process id, then saving the second: its definitions id, process id,'
+  - 'The library still keeps the two maps apart (`_v2` stays on the designer''s own `aef:workflowMeta` id and library'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-10-28 — where the `_v2` belongs'
+    chose: 'keep the `_v2` rename on the designer''s own identity (library key, `aef:workflowMeta` id, the project a "Save to project" targets) and stop it reaching the file''s ids, by writing the file''s own definitions, process and collaboration ids on save (T-1262).'
+    rationale: '"Save to project" targets `workflowMeta.id` (T-263 ruling: no second identity authority). Two open maps with the same id would make the second''s save overwrite the first''s project, the rail-225 trap the rename guards.'
+    alternatives_rejected: ['the brief''s "suffix the library key only" (keeps both maps'' `workflowMeta.id` equal, so the trap above); asking on collision (a dialog for a case that needs no decision).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 9904 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [import-loss, cloud-job-c]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 9904
+  commits: 2
+  files_changed: 5
+  lines_added: 135
+  lines_removed: 7
+  footprint_refreshed_at: '2026-10-28T18:29:16Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1270-opening-a-second-file-with-the-same-proc.md
+generated_by: context-agent-hybrid

@@ -9,11 +9,11 @@ description: >
   (F12, C 12/13). Fix theme proposed there: a generic per-element passthrough rather
   than more allowlist entries.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [import-loss, cloud-job-c]
 components: []
 related_tasks: []
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:24:28Z
-last_update: '2026-10-28T17:00:43Z'
-date_finished:
+last_update: 2026-10-28T18:29:05Z
+date_finished: 2026-10-28T18:29:05Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -401,3 +401,15 @@ every derived id in the export (T-1262's root cause).
 ### 2026-10-28T17:00:41Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-28T18:29:05Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-60107cc7
+- **Timestamp:** 2026-10-28T18:29:07Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
