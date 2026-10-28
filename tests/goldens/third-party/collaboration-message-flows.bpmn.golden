@@ -4,12 +4,12 @@
                   xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
                   xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
                   xmlns:aef="http://anchorpoint.framework/aef/extensions"
-                  id="Definitions_process_1"
+                  id="_pHDz0KojEeOJhIBv1RySdg"
                   exporter="aef-workflow-designer"
-                  targetNamespace="https://aef.anchorpoint.dev/workflows" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+                  targetNamespace="http://bpmn.io/schema/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
 
-  <bpmn:collaboration id="Collaboration_process_1">
-    <bpmn:participant id="Participant_2" name="Pool" processRef="Process_process_1"/>
+  <bpmn:collaboration id="_Collaboration_2">
+    <bpmn:participant id="Participant_2" name="Pool" processRef="Process_1"/>
     <bpmn2:participant xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Participant_1" name="Pool" processRef="Process_2"/>
     <bpmn2:messageFlow xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" id="MessageFlow_1" name="" sourceRef="lan_2_task" targetRef="Participant_1"/>
     <bpmn2:messageFlow xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" id="MessageFlow_2" name="" sourceRef="Participant_1" targetRef="Participant_2"/>
@@ -17,7 +17,7 @@
     <bpmn2:messageFlow xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" id="MessageFlow_5" name="" sourceRef="lan_end_endevent" targetRef="Participant_1"/>
   </bpmn:collaboration>
 
-  <bpmn:process id="Process_process_1" isExecutable="true">
+  <bpmn:process id="Process_1" isExecutable="false">
     <bpmn:extensionElements>
       <aef:workflowMeta id="process_1" version="1" schemaVersion="2" title="Process_1" tier_default="2"/>
     </bpmn:extensionElements>
@@ -70,7 +70,7 @@
   </bpmn2:process>
 
   <bpmndi:BPMNDiagram id="BPMNDiagram_process_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_process_1" bpmnElement="Collaboration_process_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_process_1" bpmnElement="_Collaboration_2">
       <bpmndi:BPMNShape id="BPMNShape_Participant_2" bpmnElement="Participant_2" isHorizontal="true">
         <dc:Bounds x="30" y="30" width="1540" height="612"/>
       </bpmndi:BPMNShape>

@@ -1,13 +1,19 @@
 ---
 id: T-1270
-name: "Opening a second file with the same process id saves it with _v2 ids (definitions, process, collaboration, DI, workflowMeta)"
+name: "Opening a second file with the same process id saves it with _v2 ids (definitions,
+  process, collaboration, DI, workflowMeta)"
 description: >
-  adoptImportedXml renames workflowMeta.id on a library collision; many modeler files share Process_1. Found by ring20's cloud job C (T-2466) on 8909a9b1, verified by headless round trip, no notice shown; report verbatim in docs/reports/T-2466-cloud-job-C-bughunt.md (F12, C 12/13). Fix theme proposed there: a generic per-element passthrough rather than more allowlist entries.
+  adoptImportedXml renames workflowMeta.id on a library collision; many modeler files
+  share Process_1. Found by ring20's cloud job C (T-2466) on 8909a9b1, verified by
+  headless round trip, no notice shown; report verbatim in docs/reports/T-2466-cloud-job-C-bughunt.md
+  (F12, C 12/13). Fix theme proposed there: a generic per-element passthrough rather
+  than more allowlist entries.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [import-loss, cloud-job-c]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:24:28Z
-last_update: 2026-10-21T21:24:28Z
-date_finished: null
+last_update: '2026-10-28T17:00:43Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,45 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-28T17:00:43Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1270: Opening a second file with the same process id saves it with _v2 ids (definitions, process, collaboration, DI, workflowMeta)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Job C F12 (`docs/reports/T-2466-cloud-job-C-bughunt.md`); brief `docs/reports/T-1329-open-job-c-findings-brief.md`.
+Operator, 2026-10-28, on the brief: "Proceed as you should fit and suggest" (GO on F12 as recommended). Fixed through
+T-1262 (see Decisions).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Opening two third-party files that share a process id, then saving the second: its definitions id, process id,
+      collaboration id and `isExecutable` are the file's own (proved by T-1262's harness, collision case).
+      *(`_t1262` leg 3: Proc_F / Defs_F / Collab_F on the second open; pre-T-1262 source: Process_proc_f_v2 etc.)*
+- [x] The library still keeps the two maps apart (`_v2` stays on the designer's own `aef:workflowMeta` id and library
+      key), so "Save to project" of the second never overwrites the first's project.
+      *(Same leg: a second library entry, workflowMeta id with the `_v` suffix; `adoptImportedXml` unchanged.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -329,6 +360,15 @@ date_finished: null
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-10-28 — where the `_v2` belongs
+- **Chose:** keep the `_v2` rename on the designer's own identity (library key, `aef:workflowMeta` id, the project a
+  "Save to project" targets) and stop it reaching the file's ids, by writing the file's own definitions, process and
+  collaboration ids on save (T-1262).
+- **Why:** "Save to project" targets `workflowMeta.id` (T-263 ruling: no second identity authority). Two open maps
+  with the same id would make the second's save overwrite the first's project, the rail-225 trap the rename guards.
+- **Rejected:** the brief's "suffix the library key only" (keeps both maps' `workflowMeta.id` equal, so the trap
+  above); asking on collision (a dialog for a case that needs no decision).
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -349,3 +389,7 @@ date_finished: null
 ### 2026-10-28 — decision brief (T-1329)
 - Still live (src :13046-13050; project opens use `replace` and are not affected). Recommendation (F12: suffix the
   library key only): `docs/reports/T-1329-open-job-c-findings-brief.md`. Awaits the operator's ruling.
+
+### 2026-10-28T17:00:41Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

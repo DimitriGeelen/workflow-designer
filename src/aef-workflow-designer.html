@@ -13755,13 +13755,14 @@ function safeCommentData(raw) {
 
 function buildBpmnXml(s) {
   const lines = [];
+  const ids = exportIdsOf(s);   // T-1262
   lines.push(`<?xml version="1.0" encoding="UTF-8"?>`);
   lines.push(`<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"`);
   lines.push(`                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"`);
   lines.push(`                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"`);
   lines.push(`                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"`);
   lines.push(`                  xmlns:aef="http://anchorpoint.framework/aef/extensions"`);
-  lines.push(`                  id="Definitions_${escAttr(s.workflowMeta.id)}"`);
+  lines.push(`                  id="${escAttr(ids.defs)}"`);
   // T-399: producer identity. BPMN 2.0 defines `exporter` on <definitions> for
   // exactly this question, so we answer it with the standard's own carrier rather
   // than inventing one (Portability). Before this, NOTHING in our output said who
@@ -13776,7 +13777,7 @@ function buildBpmnXml(s) {
   const pkOut = processLevelKeptOut(s);
   const cmt = keptCommentsPlan(s);   // T-1327
   const rootKept = pk && pk.rootAttrs ? keptAttrsXml(pk.rootAttrs) : '';
-  lines.push(`                  targetNamespace="https://aef.anchorpoint.dev/workflows"${rootKept}>`);
+  lines.push(`                  targetNamespace="${escAttr(ids.tns)}"${rootKept}>`);
   lines.push(``);
   // T-311: the authored rationale leads the document, ahead of the collaboration —
   // that position is what makes AEF's reader find the doc rather than our trailer.
@@ -13785,11 +13786,11 @@ function buildBpmnXml(s) {
     lines.push(`  <!--${safeCommentData(s.docComment)}-->`);
     lines.push(``);
   }
-  lines.push(`  <bpmn:collaboration id="Collaboration_${escAttr(s.workflowMeta.id)}"${pk && pk.collabAttrs ? keptAttrsXml(pk.collabAttrs) : ''}>`);
+  lines.push(`  <bpmn:collaboration id="${escAttr(ids.collab)}"${pk && pk.collabAttrs ? keptAttrsXml(pk.collabAttrs) : ''}>`);
   // T-1326: the collaboration's and our pool's documentation and other tools' extensions, as they arrived
   for (const x of (pk && pk.collabDocs) || []) lines.push(`    ${x}`);
   if (pk && pk.collabExt) { lines.push(`    <bpmn:extensionElements>`); for (const x of pk.collabExt) lines.push(`      ${x}`); lines.push(`    </bpmn:extensionElements>`); }
-  const partOpen = `    <bpmn:participant id="${escAttr(s.pool.id)}" name="${escAttr(s.pool.name)}" processRef="Process_${escAttr(s.workflowMeta.id)}"${pk && pk.partAttrs ? keptAttrsXml(pk.partAttrs) : ''}`;
+  const partOpen = `    <bpmn:participant id="${escAttr(s.pool.id)}" name="${escAttr(s.pool.name)}" processRef="${escAttr(ids.proc)}"${pk && pk.partAttrs ? keptAttrsXml(pk.partAttrs) : ''}`;
   if (pk && (pk.partDocs || pk.partExt)) {
     lines.push(`${partOpen}>`);
     for (const x of pk.partDocs || []) lines.push(`      ${x}`);
@@ -13806,7 +13807,7 @@ function buildBpmnXml(s) {
         const n = s.nodes.find(x => x.uid === collab.idMap[ref]);
         if (n) return displayIdOf(n);
       }
-      if (ref === collab.ourProcessId) return `Process_${s.workflowMeta.id}`;
+      if (ref === collab.ourProcessId) return ids.proc;
       if (ref === collab.ourParticipantId) return s.pool.id;
       return ref;
     };
@@ -13818,7 +13819,7 @@ function buildBpmnXml(s) {
   for (const x of pkOut.collabArtifacts) lines.push(`    ${x}`);   // T-1326: tCollaboration's artifacts follow the flows
   lines.push(`  </bpmn:collaboration>`);
   lines.push(``);
-  lines.push(`  <bpmn:process id="Process_${escAttr(s.workflowMeta.id)}" isExecutable="true"${pk && pk.procAttrs ? keptAttrsXml(pk.procAttrs) : ''}>`);
+  lines.push(`  <bpmn:process id="${escAttr(ids.proc)}"${ids.exec == null ? '' : ` isExecutable="${escAttr(ids.exec)}"`}${pk && pk.procAttrs ? keptAttrsXml(pk.procAttrs) : ''}>`);
   // T-1326: the process's documentation, first (tBaseElement order)
   for (const x of (pk && pk.procDocs) || []) lines.push(`    ${x}`);
   // workflow-level aef:workflowMeta
@@ -14064,12 +14065,12 @@ function buildBpmnXml(s) {
   // T-1119: with several pools the plane draws the COLLABORATION (BPMN DI), and our pool needs its own
   // shape; a one-pool map keeps the plane on the process, byte-identical to before.
   if (s.collab) {
-    lines.push(`    <bpmndi:BPMNPlane id="BPMNPlane_${wfId}" bpmnElement="Collaboration_${wfId}">`);
+    lines.push(`    <bpmndi:BPMNPlane id="BPMNPlane_${wfId}" bpmnElement="${escAttr(ids.collab)}">`);
     lines.push(`      <bpmndi:BPMNShape id="BPMNShape_${escAttr(s.pool.id)}" bpmnElement="${escAttr(s.pool.id)}" isHorizontal="true">`);
     lines.push(`        <dc:Bounds x="${POOL_X}" y="${POOL_Y}" width="${Math.round(contentRightEdge() - POOL_X)}" height="${Math.round(poolHeight())}"/>`);
     lines.push(`      </bpmndi:BPMNShape>`);
   } else {
-    lines.push(`    <bpmndi:BPMNPlane id="BPMNPlane_${wfId}" bpmnElement="Process_${wfId}">`);
+    lines.push(`    <bpmndi:BPMNPlane id="BPMNPlane_${wfId}" bpmnElement="${escAttr(ids.proc)}">`);
   }
   for (const n of s.nodes) {
     const def = NODE_DEFAULTS[n.type] || { w: 120, h: 48 };
@@ -14322,6 +14323,16 @@ function dataKeptDiLines(s) {
 const ARTIFACT_TAGS = new Set(['textAnnotation', 'association', 'group']);
 const PROC_READ_ATTRS = new Set(['id', 'name', 'isExecutable']);
 const ROOT_READ_ATTRS = new Set(['id', 'exporter', 'exporterVersion', 'targetNamespace']);
+const AEF_TARGET_NS = 'https://aef.anchorpoint.dev/workflows';
+// T-1262: the ids a save writes — the file's own where it had its own (state.fileIds), else derived from the workflow
+// id as always. exec null = write no isExecutable.
+function exportIdsOf(s) {
+  const k = s.fileIds || {}, w = s.workflowMeta.id;
+  return {
+    defs: k.defs ?? `Definitions_${w}`, tns: k.tns ?? AEF_TARGET_NS, collab: k.collab ?? `Collaboration_${w}`,
+    proc: k.proc ?? `Process_${w}`, exec: 'exec' in k ? (k.exec === '' ? null : k.exec) : 'true',
+  };
+}
 function captureProcessLevelKept(doc, proc, displayIdToUid, flowIdToUid, partEl) {
   const B = IO_EXPORT_ROOT_NS.bpmn;
   const artifacts = [], keptIds = new Set(), categoryRefs = new Set();
@@ -15297,6 +15308,21 @@ function parseBpmnXml(text) {
   // T-1326: our participant only when it names this process (the [0] fallback may be another pool, kept by T-1119)
   const ourPart = partEl && partEl.getAttribute('processRef') === proc.getAttribute('id') ? partEl : null;
   const procKept = captureProcessLevelKept(doc, proc, displayIdToUid, flowIdToUid, ourPart);   // T-1326
+  // T-1262 (F4): the file's own identity, kept only where it differs from what export derives from the workflow id,
+  // so a designer-written map records nothing (and a rename still renames its Process_/Definitions_ ids). The process
+  // id is an engine's deployment key and callers' calledElement target; isExecutable decides what an engine deploys.
+  const fileIds = (() => {
+    const w = workflowMeta.id, root = doc.documentElement, ids = {};
+    const pid = proc.getAttribute('id'), did = root.getAttribute('id'), tns = root.getAttribute('targetNamespace');
+    const cEl = ourPart && ourPart.parentNode && ourPart.parentNode.localName === 'collaboration' ? ourPart.parentNode : null;
+    const cid = cEl && cEl.getAttribute('id'), ex = proc.getAttribute('isExecutable');
+    if (pid && pid !== `Process_${w}`) ids.proc = pid;
+    if (did && did !== `Definitions_${w}`) ids.defs = did;
+    if (tns && tns !== AEF_TARGET_NS) ids.tns = tns;
+    if (cid && cid !== `Collaboration_${w}`) ids.collab = cid;
+    if (ex !== 'true') ids.exec = ex == null ? '' : ex;   // '' = the file had none, and gets none
+    return Object.keys(ids).length ? ids : null;
+  })();
   // T-1327: what this file loses on save, for the import notice. A file the designer wrote has its geometry by
   // construction, so only another tool's DI is "redrawn".
   const SUBPROC_TAGS = new Set(['subProcess', 'transaction', 'adHocSubProcess']);
@@ -15310,7 +15336,9 @@ function parseBpmnXml(text) {
 
   // Snap y-coords to lane centers for nodes that lacked explicit positions
   const result = {
-    pool: { id: partEl?.getAttribute('id') || proc.getAttribute('id') || 'Pool_imported',
+    // T-1262: with no participant to read, the pool is the designer's own Pool_<id>, never the process id, which
+    // the process itself now keeps (one id, two elements).
+    pool: { id: partEl?.getAttribute('id') || `Pool_${workflowMeta.id}`,
             name: partEl?.getAttribute('name') || procName },
     workflowMeta,
     lanes,
@@ -15343,6 +15371,9 @@ function parseBpmnXml(text) {
     ...(procMetaKept ? { procMetaKept } : {}),
     // T-1326: artifacts, process documentation/attributes/extensions and root attributes (null: byte-identical).
     ...(procKept ? { procKept } : {}),
+    // T-1262: definitions/process/collaboration ids, targetNamespace and isExecutable as the file had them (null:
+    // byte-identical; see exportIdsOf).
+    ...(fileIds ? { fileIds } : {}),
   };
   // Use a temporary state so laneCenterY() resolves correctly during patching
   const prev = state;

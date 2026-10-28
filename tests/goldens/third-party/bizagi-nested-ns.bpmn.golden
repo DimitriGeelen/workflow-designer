@@ -4,13 +4,13 @@
                   xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
                   xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
                   xmlns:aef="http://anchorpoint.framework/aef/extensions"
-                  id="Definitions_id_1f46c2af-002d-4b63-b1d1-7f181acc6065"
+                  id="_2016021908093"
                   exporter="aef-workflow-designer"
-                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+                  targetNamespace="http://www.bizagi.com/definitions/_2016021908093">
 
-  <bpmn:collaboration id="Collaboration_id_1f46c2af-002d-4b63-b1d1-7f181acc6065" name="Diagramm  1">
+  <bpmn:collaboration id="Id_6542cd13-ad91-46f4-a3ab-f8661c2ed4ee" name="Diagramm  1">
     <documentation xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
-    <bpmn:participant id="Id_f5303751-594f-4be3-bfba-9ed026dbb78c" name="Prozess 1" processRef="Process_id_1f46c2af-002d-4b63-b1d1-7f181acc6065">
+    <bpmn:participant id="Id_f5303751-594f-4be3-bfba-9ed026dbb78c" name="Prozess 1" processRef="Id_1f46c2af-002d-4b63-b1d1-7f181acc6065">
       <documentation xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
       <bpmn:extensionElements>
         <bizagi:BizagiExtensions xmlns:bizagi="http://www.bizagi.com/bpmn20">
@@ -35,7 +35,7 @@
     </participant>
   </bpmn:collaboration>
 
-  <bpmn:process id="Process_id_1f46c2af-002d-4b63-b1d1-7f181acc6065" isExecutable="true">
+  <bpmn:process id="Id_1f46c2af-002d-4b63-b1d1-7f181acc6065">
     <documentation xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
     <bpmn:extensionElements>
       <aef:workflowMeta id="id_1f46c2af-002d-4b63-b1d1-7f181acc6065" version="1" schemaVersion="2" title="Id_1f46c2af-002d-4b63-b1d1-7f181acc6065" tier_default="2"/>
@@ -138,7 +138,7 @@
   </process>
 
   <bpmndi:BPMNDiagram id="BPMNDiagram_id_1f46c2af-002d-4b63-b1d1-7f181acc6065">
-    <bpmndi:BPMNPlane id="BPMNPlane_id_1f46c2af-002d-4b63-b1d1-7f181acc6065" bpmnElement="Collaboration_id_1f46c2af-002d-4b63-b1d1-7f181acc6065">
+    <bpmndi:BPMNPlane id="BPMNPlane_id_1f46c2af-002d-4b63-b1d1-7f181acc6065" bpmnElement="Id_6542cd13-ad91-46f4-a3ab-f8661c2ed4ee">
       <bpmndi:BPMNShape id="BPMNShape_Id_f5303751-594f-4be3-bfba-9ed026dbb78c" bpmnElement="Id_f5303751-594f-4be3-bfba-9ed026dbb78c" isHorizontal="true">
         <dc:Bounds x="30" y="30" width="1540" height="612"/>
       </bpmndi:BPMNShape>

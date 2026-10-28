@@ -1,13 +1,19 @@
 ---
 id: T-1262
-name: "Process and definitions identity rewritten on save (process id, isExecutable, definitions id, targetNamespace, collaboration id)"
+name: "Process and definitions identity rewritten on save (process id, isExecutable,
+  definitions id, targetNamespace, collaboration id)"
 description: >
-  The process id is the Camunda deployment key and the calledElement target, so callers break; without a collaboration a participant is invented. Found by ring20's cloud job C (T-2466) on 8909a9b1, verified by headless round trip, no notice shown; report verbatim in docs/reports/T-2466-cloud-job-C-bughunt.md (F4, C 5/13). Fix theme proposed there: a generic per-element passthrough rather than more allowlist entries.
+  The process id is the Camunda deployment key and the calledElement target, so callers
+  break; without a collaboration a participant is invented. Found by ring20's cloud
+  job C (T-2466) on 8909a9b1, verified by headless round trip, no notice shown; report
+  verbatim in docs/reports/T-2466-cloud-job-C-bughunt.md (F4, C 5/13). Fix theme proposed
+  there: a generic per-element passthrough rather than more allowlist entries.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [import-loss, cloud-job-c]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:24:02Z
-last_update: 2026-10-21T21:24:02Z
-date_finished: null
+last_update: '2026-10-28T18:08:58Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,58 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-28T18:08:58Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1262: Process and definitions identity rewritten on save (process id, isExecutable, definitions id, targetNamespace, collaboration id)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Job C F4 (`docs/reports/T-2466-cloud-job-C-bughunt.md`); brief `docs/reports/T-1329-open-job-c-findings-brief.md`.
+Operator, 2026-10-28, on the brief: "Proceed as you should fit and suggest" (GO on F4: keep the file's own values).
+AEF, 2026-10-28 (msg 6f5d2d3b): nothing on their side derives the workflow id from the process or definitions id.
+Also carries T-1270 (F12), see its Decisions.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A file whose definitions id, `targetNamespace`, collaboration id, process id or `isExecutable` differ from what
+      the designer would derive saves them as the file had them (an absent `isExecutable` stays absent); every
+      reference to them (participant `processRef`, message-flow ends, the DI plane) follows.
+      *(`state.fileIds`, captured in parse only where it differs; `exportIdsOf(s)` used at every site.)*
+- [x] A file with no collaboration does not get a participant whose id equals the kept process id.
+      *(Pool id is `Pool_<id>` when there is no participant; was the process id, which would now collide.)*
+- [x] Opening a second file with the same process id (T-1270): its saved ids are the file's own; the designer's own
+      `aef:workflowMeta` id and library key still take the `_v2`.
+- [x] Designer-written maps record nothing and save byte-identically (every corpus map; goldens legs); renaming a
+      designer-written map still renames its `Process_`/`Definitions_`/`Collaboration_` ids.
+- [x] A browser harness proves all of the above, red on the pre-T-1262 source; a second save is byte-identical;
+      every export parses in expat. *(`tools/_t1262-file-identity-cdp.mjs`, browser leg `_leg_209`: ok, 24 corpus
+      maps. Pre-fix source: 14 failures, e.g. "leg1 process id: Process_proc_f (want Proc_F)", "leg2: isExecutable
+      written where the file had none: true", "leg3 process id: Process_proc_f_v2 (want Proc_F)".)*
+- [ ] Third-party goldens that change are re-recorded deliberately, each changed line checked; core tier green.
+      *(`_t358-byteid --record`: 10 of 11 changed, 54 lines each way, every one an identity line: definitions
+      id/targetNamespace, collaboration, participant processRef (and participant id `Pool_<id>` on the 5 files with
+      no participant), process id/isExecutable, DI plane and pool shape references. Core tier: pending.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -349,3 +393,7 @@ date_finished: null
 ### 2026-10-28 — decision brief (T-1329)
 - Still live (src :13779, :13821; T-1326 keeps every other root/process attribute). Recommendation (F4: keep the
   file's own values): `docs/reports/T-1329-open-job-c-findings-brief.md`. Awaits the operator's ruling.
+
+### 2026-10-28T18:08:57Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

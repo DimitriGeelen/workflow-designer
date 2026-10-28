@@ -4,11 +4,11 @@
                   xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
                   xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
                   xmlns:aef="http://anchorpoint.framework/aef/extensions"
-                  id="Definitions_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3"
+                  id="_f3f4debc-8cae-4e5b-ad68-156e841dce43"
                   exporter="aef-workflow-designer"
-                  targetNamespace="https://aef.anchorpoint.dev/workflows" name="Advertise a job vacancy" expressionLanguage="https://www.ecma-international.org/publications/standards/Ecma-334.htm" typeLanguage="http://www.w3.org/2001/XMLSchema">
+                  targetNamespace="http://caseagile.com/schema/BPMN/20170414/MODEL" name="Advertise a job vacancy" expressionLanguage="https://www.ecma-international.org/publications/standards/Ecma-334.htm" typeLanguage="http://www.w3.org/2001/XMLSchema">
 
-  <bpmn:collaboration id="Collaboration_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3" name="">
+  <bpmn:collaboration id="_c2f769b2-3184-442a-944b-e6f88152a071" name="">
     <bpmn:extensionElements>
       <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
         <caseagile:element id="bf36ed5c-a157-4fdb-981a-75b8139b566f"/>
@@ -23,10 +23,10 @@
         </caseagile:values>
       </caseagile:model>
     </bpmn:extensionElements>
-    <bpmn:participant id="_9c3d9edd-e594-4ecf-af64-ae5ceb2fa680" name="EU Bank" processRef="Process_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3"/>
+    <bpmn:participant id="_9c3d9edd-e594-4ecf-af64-ae5ceb2fa680" name="EU Bank" processRef="_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3"/>
   </bpmn:collaboration>
 
-  <bpmn:process id="Process_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3" isExecutable="true">
+  <bpmn:process id="_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3" isExecutable="false">
     <bpmn:extensionElements>
       <aef:workflowMeta id="009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3" version="1" schemaVersion="2" title="EU Bank" tier_default="2"/>
       <caseagile:model xmlns:caseagile="http://caseagile.com/schema/BPMN/20170414/MODEL">
@@ -855,7 +855,7 @@
   </bpmn:process>
 
   <bpmndi:BPMNDiagram id="BPMNDiagram_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3">
-    <bpmndi:BPMNPlane id="BPMNPlane_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3" bpmnElement="Process_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3">
+    <bpmndi:BPMNPlane id="BPMNPlane_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3" bpmnElement="_009164cd-aecf-4dc6-9c8d-a3aa5e1b73b3">
       <bpmndi:BPMNShape id="BPMNShape_rec_2_select" bpmnElement="rec_2_select">
         <dc:Bounds x="1015.0" y="282.5" width="110" height="64"/>
       </bpmndi:BPMNShape>

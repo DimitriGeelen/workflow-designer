@@ -1577,6 +1577,21 @@ else
 fi
 }
 leg browser "_t1271-node-order-cdp" _leg_208
+_leg_209() {
+
+# ── T-1262: a save keeps a file's own definitions, collaboration and process ids, targetNamespace and isExecutable ──
+# Job C F4 (and F12 through it): the process id is an engine's deployment key. Designer-written maps record nothing
+# and still rename; a second open of the same file renames the designer's id only. Red against the pre-T-1262 source.
+if node "$ROOT/tools/_t1262-file-identity-cdp.mjs" > "$TMP/leg-_t1262.out" 2>&1 \
+   && [ "$(sed -n 2p "$TMP/leg-_t1262.out")" = '  "ok": true,' ]; then
+  pass=$((pass + 1))
+else
+  report FAIL "a save rewrites a file's own definitions/collaboration/process id, targetNamespace or isExecutable, a second open's _v2 reaches the saved ids, or a designer-written map no longer renames (run 'node tools/_t1262-file-identity-cdp.mjs'; T-1262)"
+  show_output "$TMP/leg-_t1262.out" "_t1262-file-identity-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1262-file-identity-cdp" _leg_209
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
