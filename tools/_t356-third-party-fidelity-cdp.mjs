@@ -146,8 +146,12 @@ async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = awa
       const r = await roundTrip(s.text);
       if (r.threw) { rows.push({ ...s, threw: r.threw }); continue; }
       const a = census(s.text), b = census(r.xml);
-      const delta = {}; for (const k of KEYS) if (a[k] !== b[k]) delta[k] = [a[k], b[k]];
-      rows.push({ name: s.name, kind: s.kind, input: a, output: b, delta, lossy: Object.keys(delta).length > 0 });
+      // T-1323: only a count that went DOWN is a loss. The export adds DI and its own exporter by design (T-340/T-423,
+      // T-407), so an in=0 out=N read as "lost" voided the positive control and every row with it. Additions are kept
+      // and printed apart: some are not benign (a lane or pool fabricated for a laneless file, T-358).
+      const delta = {}, added = {};
+      for (const k of KEYS) if (b[k] < a[k]) delta[k] = [a[k], b[k]]; else if (b[k] > a[k]) added[k] = [a[k], b[k]];
+      rows.push({ name: s.name, kind: s.kind, input: a, output: b, delta, added, lossy: Object.keys(delta).length > 0 });
     }
   } finally {
     try { cl && cl.close(); } catch (_) {}
@@ -170,7 +174,8 @@ async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = awa
     if (r.threw) { console.log(`${r.name}\n  THREW: ${r.threw}`); continue; }
     console.log(`${r.name}  ${r.lossy ? 'LOSSY' : 'clean'}`);
     for (const [k, [i, o]] of Object.entries(r.delta)) console.log(`    ${k.padEnd(13)} in=${i}  out=${o}`);
-    if (!r.lossy) console.log('    (no counted property moved — see the note below before reading this as good)');
+    for (const [k, [i, o]] of Object.entries(r.added)) console.log(`    ${k.padEnd(13)} in=${i}  out=${o}  (added)`);
+    if (!r.lossy) console.log('    (no counted property went down — see the note below before reading this as good)');
   }
 
   const lossy = subs.filter(r => r.lossy || r.threw).length;

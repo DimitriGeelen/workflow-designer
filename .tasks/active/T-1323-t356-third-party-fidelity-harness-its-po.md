@@ -1,13 +1,21 @@
 ---
 id: T-1323
-name: "_t356 third-party fidelity harness: its positive control reads HARNESS BROKEN (counts the DI the export now adds as a loss)"
+name: "_t356 third-party fidelity harness: its positive control reads HARNESS BROKEN
+  (counts the DI the export now adds as a loss)"
 description: >
-  Found in T-1322 (2026-10-28): node tools/_t356-third-party-fidelity-cdp.mjs prints 'positive control ... HARNESS BROKEN — control lost: diagrams [0,1], diShapes [0,14] ...' — in=0 out=N is an ADDITION (T-340/T-423 made the export add DI), but the harness treats any count change as a loss, so every row it prints is void by its own rule. It still exits 0, and no leg runs it. Fix: count only decreases as loss, or measure additions separately; T-1322's census (docs/reports/T-1322-evidence/classify-losses.py) is a per-class alternative.
+  Found in T-1322 (2026-10-28): node tools/_t356-third-party-fidelity-cdp.mjs prints
+  'positive control ... HARNESS BROKEN — control lost: diagrams [0,1], diShapes [0,14]
+  ...' — in=0 out=N is an ADDITION (T-340/T-423 made the export add DI), but the harness
+  treats any count change as a loss, so every row it prints is void by its own rule.
+  It still exits 0, and no leg runs it. Fix: count only decreases as loss, or measure
+  additions separately; T-1322's census (docs/reports/T-1322-evidence/classify-losses.py)
+  is a per-class alternative.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-28T08:28:50Z
-last_update: 2026-10-28T08:28:50Z
-date_finished: null
+last_update: '2026-10-28T08:58:03Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-28T08:58:03Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=export)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1323: _t356 third-party fidelity harness: its positive control reads HARNESS BROKEN (counts the DI the export now adds as a loss)
@@ -62,8 +90,15 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **Only a decrease is a loss:** `_t356` marks a property lost only when its output count is below its input count;
+  an increase is printed apart as `(added)` and does not make a row lossy. Its positive control (a corpus map) reads
+  `clean` on today's designer, where it read `HARNESS BROKEN`.
+  *(2026-10-28: control arc-lifecycle `clean`; before: `HARNESS BROKEN — control lost: diagrams [0,1], diShapes [0,14] …`.)*
+- [x] **Still bites:** on today's designer the third-party rows that lose content (label bounds, documentation) still read
+  LOSSY, so the harness is not made blind by the change.
+  *(8/11 LOSSY: bounds 15→9, 12→6, 17→8, 9→5, 4→3; bizagi docs 8→4; kitchen-sink diagrams 5→1, shapes 90→84; was 11/11
+  with the additions counted. caseagile and zeebe read clean here because this census counts structure only; their
+  extension losses are in T-1322's per-class census, docs/reports/T-1322-evidence/classify-losses.out.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -248,6 +283,8 @@ date_finished: null
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t356-third-party-fidelity-cdp.mjs > /tmp/t1323.out 2>&1; grep -q 'clean — the round-trip path itself is sound' /tmp/t1323.out
+grep -q 'LOSSY' /tmp/t1323.out
 
 ## RCA
 
@@ -345,3 +382,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1323-t356-third-party-fidelity-harness-its-po.md
 - **Context:** Initial task creation
+
+### 2026-10-28T08:58:02Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
