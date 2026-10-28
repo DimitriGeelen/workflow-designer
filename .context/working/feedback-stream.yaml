@@ -19609,3 +19609,21 @@ scan_id: R-78c2ee20
 task_id: T-1265
 payload:
   task_file: .tasks/active/T-1265-conditionexpression-loses-its-language-a.md
+---
+kind: scan_emitted
+timestamp: '2026-10-28T08:22:11Z'
+scan_id: R-bf12fc85
+task_id: T-1268
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-28T08:22:11Z'
+scan_id: R-bf12fc85
+task_id: T-1268
+payload:
+  task_file: .tasks/active/T-1268-unknown-aef-child-elements-on-a-node-are.md

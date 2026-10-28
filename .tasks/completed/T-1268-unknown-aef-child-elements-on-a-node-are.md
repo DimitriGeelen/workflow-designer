@@ -9,13 +9,13 @@ description: >
   docs/reports/T-2466-cloud-job-C-bughunt.md (F10, C 11/13). Fix theme proposed there:
   a generic per-element passthrough rather than more allowlist entries.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [import-loss, cloud-job-c]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t1268-node-aef-children-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:24:22Z
-last_update: '2026-10-28T08:04:50Z'
-date_finished:
+last_update: 2026-10-28T08:22:08Z
+date_finished: 2026-10-28T08:22:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -92,12 +92,16 @@ needs no decision on the generic passthrough (T-1259, foreign namespaces). Not a
 ### Agent
 - [x] **Scoped** from F10: unknown `aef:*` direct children of a flow node's `extensionElements`; foreign namespaces stay
   with T-1259.
-- [ ] **Unknown aef children survive open and save:** a node carrying `<aef:customNote text="keep me too"/>` and a nested
+- [x] **Unknown aef children survive open and save:** a node carrying `<aef:customNote text="keep me too"/>` and a nested
   unknown `<aef:future level="2"><aef:part ref="x">t</aef:part></aef:future>` exports both, in source order, inside its
   `extensionElements`, with no extra namespace declaration; a second save is byte-identical; editing the node's name keeps
   them; a node without unknown children exports exactly as before; the export is well-formed (DOMParser and expat).
   Harness `tools/_t1268-node-aef-children-cdp.mjs`, red on the pre-fix source (`T1268_SRC`), browser leg.
-- [ ] **Core tier green** (`tools/_t1288-prepush-gate.sh`).
+  *(bd35530fe: green; on the pre-fix source red on legs 1 (both dropped, not verbatim) and 3 (a rename lost them). Browser
+  leg `_leg_202`. The io serialiser is now shared (`keptElementXml`); `_t1243` and `_t1249` still green. No .bpmn in the
+  repo carries an unknown aef node element, so no saved byte of an existing map moves. The text in the harness fixture is
+  `t &amp; u`, not `t`, to cover escaping.)*
+- [x] **Core tier green** (`tools/_t1288-prepush-gate.sh`). *(213 passed, 0 failed, 807 s, on bd35530fe.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -282,6 +286,8 @@ needs no decision on the generic passthrough (T-1259, foreign namespaces). Not a
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1268-node-aef-children-cdp.mjs > /tmp/t1268.out 2>&1; grep -q '"ok": true' /tmp/t1268.out
+bash tests/run-bridge-tests.sh --list-legs > /tmp/t1268-legs.out 2>&1; grep -q '^browser _t1268-node-aef-children-cdp$' /tmp/t1268-legs.out
 
 ## RCA
 
@@ -383,3 +389,20 @@ needs no decision on the generic passthrough (T-1259, foreign namespaces). Not a
 ### 2026-10-28T08:04:50Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-28T08:22:08Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-bf12fc85
+- **Timestamp:** 2026-10-28T08:22:11Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — **Core tier green** (`tools/_t1288-prepush-gate.sh`). *(213 passed, 0 failed, 807 s, on bd35530fe.)*
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t1288-prepush-gate.sh in: **Core tier green** (`tools/_t1288-prepush-gate.sh`). *(213 passed, 0 failed, 807 s, on bd35530fe.)*`
