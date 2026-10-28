@@ -13,13 +13,13 @@ description: >
   section 4 A. Success: T-1322's census (docs/reports/T-1322-evidence) shows 0 lost
   per-element items on the 11 third-party fixtures.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t1325-element-passthrough-cdp.mjs, tools/_t338-input-fidelity-cdp.mjs]
 related_tasks: [T-1322, T-1259, T-1260, T-1265]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -48,8 +48,8 @@ related_tasks: [T-1322, T-1259, T-1260, T-1265]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-28T09:27:07Z
-last_update: '2026-10-28T09:40:01Z'
-date_finished:
+last_update: 2026-10-28T10:03:04Z
+date_finished: 2026-10-28T10:03:04Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -319,6 +319,9 @@ Scope: flow nodes and sequence flows. Process-level elements, and the definition
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1325-element-passthrough-cdp.mjs > /tmp/t1325.out 2>&1; grep -q '"ok": true' /tmp/t1325.out
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t338-input-fidelity-cdp.mjs > /tmp/t1325-338.out 2>&1; grep -q '^OK: every measured fidelity verdict' /tmp/t1325-338.out
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t358-byteid-thirdparty.mjs > /tmp/t1325-358.out 2>&1; grep -q '11 identical, 0 drifted' /tmp/t1325-358.out
 
 ## RCA
 
@@ -419,3 +422,20 @@ Scope: flow nodes and sequence flows. Process-level elements, and the definition
 
 ### 2026-10-28T09:40:00Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-10-28T10:03:04Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a1e12a9a
+- **Timestamp:** 2026-10-28T10:03:18Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#6 (Agent)** — **Measured:** T-1322's census (`docs/reports/T-1322-evidence/classify-losses.py`) on the 16 fixtures shows 0 lost
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=docs/reports/T-1322-evidence/classify-losses.py in: **Measured:** T-1322's census (`docs/reports/T-1322-evidence/classify-losses.py`) on the 16 fixtures shows 0 lost`

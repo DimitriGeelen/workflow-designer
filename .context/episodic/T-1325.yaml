@@ -1,0 +1,97 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1325: T-1322 slice 1: each element keeps the attributes and children the designer does not read (vendor extensions, standard semantics), references rewritten to display ids
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-28T10:03:24Z
+# ============================================================================
+
+task_id: T-1325
+task_name: "T-1322 slice 1: each element keeps the attributes and children the designer does not read (vendor extensions, standard semantics), references rewritten to display ids"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-28T09:27:07Z
+completed: 2026-10-28T10:03:04Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-10-28T10:37:59+01:00
+last_commit: 2026-10-28T10:50:00+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file T-1322's three build slices (T-1325 per-element, T-1326 process-level, T-1327 comments + open notice), linked to T-1322 and the findings each closes. an element keeps the attributes and children the designer does not read (T-1322 GO slice 1, T-347 ruling (a)); a gateway's default follows its flow; retype drops the old tag's content; census 394 -> 125 lost items, none on a node or flow; _t338 EXPECTED_CONTENT and the third-party goldens re-recorded deliberately (each removed golden line returns with its kept attributes); harness _t1325 red on the old source, browser leg _leg_203
+
+# Key outcomes
+outcomes:
+  - '**Unread attributes kept:** on a flow node or sequence flow, every attribute the designer does not read (standard,'
+  - '**Unread children kept:** child elements of a flow node the designer does not read (`multiInstanceLoopCharacteristics`'
+  - '**References follow their target:** a gateway''s `default` names its flow by uid in state, is written as that'
+  - '**Retype:** a node whose BPMN tag changes (task to gateway) drops the kept attributes and children of the old tag'
+  - '**Designer-written maps unchanged:** a map without unread content parses to the state it always did (no new key) and'
+  - '**Measured:** T-1322''s census (`docs/reports/T-1322-evidence/classify-losses.py`) on the 16 fixtures shows 0 lost'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t1325-element-passthrough-cdp.yaml'
+  - '.tasks/active/T-1325-t-1322-slice-1-each-element-keeps-the-at.md'
+  - '.tasks/active/T-1326-t-1322-slice-2-process-level-content-the.md'
+  - '.tasks/active/T-1327-t-1322-slice-3-comments-kept-by-anchor-a.md'
+  - '.tasks/completed/T-1322-generic-per-element-passthrough-a-save-k.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/goldens/third-party/bizagi-nested-ns.bpmn.golden'
+  - 'tests/goldens/third-party/boundary-events.bpmn.golden'
+  - 'tests/goldens/third-party/caseagile-local-ns.bpmn.golden'
+  - 'tests/goldens/third-party/i18n-documentation.bpmn.golden'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/goldens/third-party/zeebe-service-task.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1325-element-passthrough-cdp.mjs'
+  - 'tools/_t338-input-fidelity-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-28T10:37:59'
+    action: 'T-1325: file T-1322''s three build slices (T-1325 per-element, T-1326 process-level, T-1327 comments + open notice), linked to T-1322 and the findings each closes'
+  - time: '2026-10-28T10:50:00'
+    action: 'T-1325: an element keeps the attributes and children the designer does not read (T-1322 GO slice 1, T-347 ruling (a)); a gateway''s default follows its flow; retype drops the old tag''s content; census 394 -> 125 lost items, none on a node or flow; _t338 EXPECTED_CONTENT and the third-party goldens re-recorded deliberately (each removed golden line returns with its kept attributes); harness _t1325 red on the old source, browser leg _leg_203'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 35 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 35
+  commits: 3
+  files_changed: 18
+  lines_added: 1915
+  lines_removed: 36
+  footprint_refreshed_at: '2026-10-28T10:03:38Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1325-t-1322-slice-1-each-element-keeps-the-at.md
+generated_by: context-agent-hybrid
