@@ -19591,3 +19591,21 @@ scan_id: R-8b6bc353
 task_id: T-1281
 payload:
   task_file: .tasks/active/T-1281-upgrade-aef-be8---v1815-be9-or-later-bat.md
+---
+kind: scan_emitted
+timestamp: '2026-10-28T08:00:07Z'
+scan_id: R-78c2ee20
+task_id: T-1265
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-28T08:00:07Z'
+scan_id: R-78c2ee20
+task_id: T-1265
+payload:
+  task_file: .tasks/active/T-1265-conditionexpression-loses-its-language-a.md

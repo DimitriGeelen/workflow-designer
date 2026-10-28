@@ -9,13 +9,13 @@ description: >
   C 8/13). Fix theme proposed there: a generic per-element passthrough rather than
   more allowlist entries.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [import-loss, cloud-job-c]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t1265-condition-language-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:24:12Z
-last_update: '2026-10-28T07:44:39Z'
-date_finished:
+last_update: 2026-10-28T08:00:01Z
+date_finished: 2026-10-28T08:00:01Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -93,13 +93,16 @@ differently (the panel edits the text only), so this is not a UI change.
 
 ### Agent
 - [x] **Scoped** from F7: language and id on the expression; the rest named for T-1259.
-- [ ] **`language` and `id` survive open and save:** a flow with `<conditionExpression xsi:type="bpmn:tFormalExpression"
+- [x] **`language` and `id` survive open and save:** a flow with `<conditionExpression xsi:type="bpmn:tFormalExpression"
   language="javascript" id="Cond_1">a &lt; b</conditionExpression>` exports with both attributes and the same text; a
   second save is byte-identical; editing the condition text in state keeps the language; a condition without `language`
   exports exactly as before (no new attribute); a language value with `"` or `&` is escaped and re-reads equal.
   Harness `tools/_t1265-condition-language-cdp.mjs` drives the real editor runtime; red on the pre-fix source
   (`T1265_SRC`), registered as a browser leg (`_leg_201`).
-- [ ] **Core tier green** (`tools/_t1288-prepush-gate.sh`).
+  *(8727d7ef1: green, 0 errors; on the pre-fix source red on legs 1 (language and id null), 3 (language lost after a
+  text edit) and 5 (escaped language null); legs 2 and 4 pass there too, as they must: the old output was stable and
+  plain conditions are unchanged.)*
+- [x] **Core tier green** (`tools/_t1288-prepush-gate.sh`). *(213 passed, 0 failed, 672 s, on 8727d7ef1.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -284,6 +287,8 @@ differently (the panel edits the text only), so this is not a UI change.
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1265-condition-language-cdp.mjs > /tmp/t1265.out 2>&1 && head -2 /tmp/t1265.out | grep -q '"ok": true'
+bash tests/run-bridge-tests.sh --list-legs > /tmp/t1265-legs.out 2>&1 && grep -q '^browser _t1265-condition-language-cdp$' /tmp/t1265-legs.out
 
 ## RCA
 
@@ -385,3 +390,25 @@ differently (the panel edits the text only), so this is not a UI change.
 ### 2026-10-28T07:44:38Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-28T08:00:01Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-78c2ee20
+- **Timestamp:** 2026-10-28T08:00:07Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — **Core tier green** (`tools/_t1288-prepush-gate.sh`). *(213 passed, 0 failed, 672 s, on 8727d7ef1.)*
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t1288-prepush-gate.sh in: **Core tier green** (`tools/_t1288-prepush-gate.sh`). *(213 passed, 0 failed, 672 s, on 8727d7ef1.)*`
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 136
+     - evidence: `PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1265-condition-language-cdp.mjs > /tmp/t1265.out 2>&1 && head -2 /tmp/t1265.out | grep -q '"ok": true'`

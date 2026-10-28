@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1265: conditionExpression loses its language attribute (and its id/extensionElements) on save
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-28T08:00:35Z
+# ============================================================================
+
+task_id: T-1265
+task_name: "conditionExpression loses its language attribute (and its id/extensionElements) on save"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-21T21:24:12Z
+completed: 2026-10-28T08:00:01Z
+duration_days: 7
+updates_count: 3
+first_commit: 2026-10-28T08:47:49+01:00
+last_commit: 2026-10-28T08:47:49+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a sequence flow's conditionExpression keeps its language and id on open and save (ring20 job C F7: language="javascript" was dropped, so the engine fell back to JUEL); harness _t1265 red on the old source (legs 1, 3, 5), browser leg _leg_201
+
+# Key outcomes
+outcomes:
+  - '**Scoped** from F7: language and id on the expression; the rest named for T-1259.'
+  - '**`language` and `id` survive open and save:** a flow with `<conditionExpression xsi:type="bpmn:tFormalExpression"'
+  - '**Core tier green** (`tools/_t1288-prepush-gate.sh`). *(213 passed, 0 failed, 672 s, on 8727d7ef1.)*'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t1265-condition-language-cdp.yaml'
+  - '.tasks/active/T-1265-conditionexpression-loses-its-language-a.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1265-condition-language-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-28T08:47:49'
+    action: 'T-1265: a sequence flow''s conditionExpression keeps its language and id on open and save (ring20 job C F7: language="javascript" was dropped, so the engine fell back to JUEL); harness _t1265 red on the old source (legs 1, 3, 5), browser leg _leg_201'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 9275 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [import-loss, cloud-job-c]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 9275
+  commits: 2
+  files_changed: 8
+  lines_added: 379
+  lines_removed: 20
+  footprint_refreshed_at: '2026-10-28T08:00:44Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1265-conditionexpression-loses-its-language-a.md
+generated_by: context-agent-hybrid
