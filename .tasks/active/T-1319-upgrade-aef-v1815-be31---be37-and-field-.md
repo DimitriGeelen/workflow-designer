@@ -76,7 +76,7 @@ whose job 092 is the template; T-4811 (the identity fix on --termlink launches) 
   *(86700ea8: 37 patches, all clean, no three-way; _t517 OK, 44 diverged = 44 declared.)*
 - [x] The core tier is green on the upgraded tree (`tools/_t1288-prepush-gate.sh`), and the upgrade is pushed
   *(GREEN 211 passed, 0 failed, 834 s. Watchtower restarted after the re-apply (PL-402): pid 1686900.)*
-- [ ] The A-H field report is sent on aef-v1815-be3, WORKS/FAILS/N/A per item, with the command and output for each
+- [x] The A-H field report is sent on aef-v1815-be3, WORKS/FAILS/N/A per item, with the command and output for each
   FAILS, and recorded here
   *(part 1 sent 2026-10-27 on aef-v1815-be3: A WORKS; B #99/#101/tmux WORKS, arc focus correct, #100 resolver timer
   MISATTRIBUTED (AEF's own timer reported as 832's; bin/fw ~4876 never compares WorkingDirectory); C T-4783 WORKS (hook
@@ -117,6 +117,12 @@ whose job 092 is the template; T-4811 (the identity fix on --termlink launches) 
   `_leg_206`, 8620f9447) and `_t525` leg 7 caught the 13:45 cron audit's new T-4840 in-flight marker (live pid now
   noted, dead pid still a breach, proven both ways, cceb25268) — then GREEN 213/0, pushed. Upgrade report sent to AEF
   (msg b17f135d), with the marker heads-up for other testers.)*
+  *(2026-10-28 16:33 CET, after the operator's restart from the fleet cockpit (new claude-fw pid 3834410, vendored
+  be.48, `--resume 572fe488… --termlink`): T-4811 WORKS — `_t1203-identity-coverage.sh` OK 9 / FAIL 0, "session
+  registration: claude-master-3834410 registered as 05c467b46a0bdf5e" (before: the 27 Oct 11:30 process registered
+  as the host key d1993c2c3ec44c94). G WORKS — the restart resumed the conversation by id, the SessionStart hook
+  injected the handover ("Resumed session … No compaction happened"), one claude-fw holds the id (no duplicate, cf.
+  T-1052). Final report sent (msg 6b486bb8, RECEIVED): A-H all WORKS or N/A, no open FAILS on be.48.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -169,6 +175,7 @@ whose job 092 is the template; T-4811 (the identity fix on --termlink launches) 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+bash tools/_t1203-identity-coverage.sh > /tmp/.t1319-idcov 2>&1 && grep -q 'FAIL 0' /tmp/.t1319-idcov
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
