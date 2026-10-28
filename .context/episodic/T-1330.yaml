@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1330: _t344 'product file is watched' check fails intermittently: expander | grep -qx under pipefail (SIGPIPE)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-28T18:07:19Z
+# ============================================================================
+
+task_id: T-1330
+task_name: "_t344 'product file is watched' check fails intermittently: expander | grep -qx under pipefail (SIGPIPE)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-28T17:34:17Z
+completed: 2026-10-28T18:06:33Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-28T18:42:57+01:00
+last_commit: 2026-10-28T18:54:41+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  _t344 greps a capture of the watch-set expander, not a pipe — under pipefail 'expander | grep -qx' failed 6 of 40 runs (the designer file is line 1 of 660; grep exits, the expander dies on the closed pipe) and reddened the core tier via _t345 while passing standalone; three sites fixed; class-wide census filed as T-1331. Verification asserts the captured grep is present instead of a bare absence (the T-560 census ratchet, 74 -> 75, reddened core)
+
+# Key outcomes
+outcomes:
+  - 'The cause is shown, not assumed: the old pipeline, repeated, fails some of the time while the file is in the'
+  - '`_t344` reads the expander''s output once into a variable or file and greps that (L-387); no'
+  - 'The same repetition with the fixed check never fails; `_t344` and `_t345` pass; core tier green.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: '_t344 greps a capture of the watch-set expander, not a pipe — under pipefail ''expander | grep -qx'' failed 6 of 40 runs (the designer file is line 1 of 660; grep exits, the expander dies on the closed pipe) and reddened the core tier via _t345 while passing standalone; three sites fixed; class-wide census filed as T-1331'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1330-t344-product-file-is-watched-check-fails.md'
+  - '.tasks/active/T-1331-census--guard-producer--grep--q-under-pi.md'
+  - 'tools/_t344-watch-set-denominator.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-28T18:42:57'
+    action: 'T-1330: _t344 greps a capture of the watch-set expander, not a pipe — under pipefail ''expander | grep -qx'' failed 6 of 40 runs (the designer file is line 1 of 660; grep exits, the expander dies on the closed pipe) and reddened the core tier via _t345 while passing standalone; three sites fixed; class-wide census filed as T-1331'
+  - time: '2026-10-28T18:54:41'
+    action: 'T-1330: Verification asserts the captured grep is present instead of a bare absence (the T-560 census ratchet, 74 -> 75, reddened core)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 32 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 32
+  commits: 4
+  files_changed: 7
+  lines_added: 856
+  lines_removed: 12
+  footprint_refreshed_at: '2026-10-28T18:07:26Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1330-t344-product-file-is-watched-check-fails.md
+generated_by: context-agent-hybrid
