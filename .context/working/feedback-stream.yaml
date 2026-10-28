@@ -19959,3 +19959,21 @@ scan_id: R-ede93003
 task_id: T-1264
 payload:
   task_file: .tasks/active/T-1264-imported-bpmn-di-is-rewritten-on-save-sh.md
+---
+kind: scan_emitted
+timestamp: '2026-10-28T23:28:29Z'
+scan_id: R-92031c8a
+task_id: T-1331
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-28T23:28:29Z'
+scan_id: R-92031c8a
+task_id: T-1331
+payload:
+  task_file: .tasks/active/T-1331-census--guard-producer--grep--q-under-pi.md

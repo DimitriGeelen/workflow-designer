@@ -9,13 +9,13 @@ description: >
   producer (long-running command vs a short captured string), fix the long-producer
   ones, and add a census leg so a new one is caught.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t396-release-tag-state.sh, tools/_t408-hygiene-teeth.sh, tools/_t633-shared-tmp-sinks.sh, tools/_t809-census-controls.sh, tools/_t833-ctl029-partial-complete-controls.sh, tools/_t867-hypothesis-draft-teeth.sh, tools/_t880-instance-node-teeth.sh, tools/_t881-resolution-teeth.sh, tools/_t882-advance-teeth.sh, tools/_t883-refusal-audit-teeth.sh, tools/_t931-ownership-teeth.sh, tools/_t936-capture-scan-teeth.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-28T17:42:11Z
-last_update: '2026-10-28T23:11:22Z'
-date_finished:
+last_update: 2026-10-28T23:28:27Z
+date_finished: 2026-10-28T23:28:27Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -403,3 +403,15 @@ that plants each shape.
 ### 2026-10-28T23:11:21Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-28T23:28:27Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-92031c8a
+- **Timestamp:** 2026-10-28T23:28:29Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none

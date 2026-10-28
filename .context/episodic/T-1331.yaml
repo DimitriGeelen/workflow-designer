@@ -1,0 +1,99 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1331: Census + guard: 'producer | grep -q' under pipefail across tools/ and tests/ (the T-1330 class)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-28T23:28:35Z
+# ============================================================================
+
+task_id: T-1331
+task_name: "Census + guard: 'producer | grep -q' under pipefail across tools/ and tests/ (the T-1330 class)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-28T17:42:11Z
+completed: 2026-10-28T23:28:27Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-10-29T00:16:38+01:00
+last_commit: 2026-10-29T00:28:27+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  census + ratchet for 'command | grep -q' under pipefail (the T-1330 class) — 24 risky sites in 14 scripts rewritten to grep a capture (<<<"$(producer)"), risky now 0 of 437, baseline 0; core leg _leg_212 with a 10-case selftest; every edited script re-run (same result as HEAD); stale _t396 probe found failing on HEAD, filed T-1333. evidence — core GREEN 215/0; RCA
+
+# Key outcomes
+outcomes:
+  - 'A census tool lists every `producer | grep -q…` in a pipefail script under tools/, tests/ and scripts/, and'
+  - 'Every command-producer site in a script the core tier runs is fixed (capture, then grep the capture) or shown'
+  - 'The census is a core leg with a ratchet (fails when the risky count rises above its baseline) and teeth (a'
+  - 'Core tier green. *(GREEN 215/0 at c92149172, 680 s.)*'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1331-census--guard-producer--grep--q-under-pi.md'
+  - '.tasks/active/T-1333-t396-release-tag-state-probe-fails-on-he.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1006-lesson-evidence.sh'
+  - 'tools/_t1203-identity-coverage.sh'
+  - 'tools/_t1331-pipe-grep-q-baseline.txt'
+  - 'tools/_t1331-pipe-grep-q-census.py'
+  - 'tools/_t396-release-tag-state.sh'
+  - 'tools/_t408-hygiene-teeth.sh'
+  - 'tools/_t633-shared-tmp-sinks.sh'
+  - 'tools/_t809-census-controls.sh'
+  - 'tools/_t833-ctl029-partial-complete-controls.sh'
+  - 'tools/_t867-hypothesis-draft-teeth.sh'
+  - 'tools/_t880-instance-node-teeth.sh'
+  - 'tools/_t881-resolution-teeth.sh'
+  - 'tools/_t882-advance-teeth.sh'
+  - 'tools/_t883-refusal-audit-teeth.sh'
+  - 'tools/_t931-ownership-teeth.sh'
+  - 'tools/_t936-capture-scan-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-29T00:16:38'
+    action: 'T-1331: census + ratchet for ''command | grep -q'' under pipefail (the T-1330 class) — 24 risky sites in 14 scripts rewritten to grep a capture (<<<"$(producer)"), risky now 0 of 437, baseline 0; core leg _leg_212 with a 10-case selftest; every edited script re-run (same result as HEAD); stale _t396 probe found failing on HEAD, filed T-1333'
+  - time: '2026-10-29T00:28:27'
+    action: 'T-1331: evidence — core GREEN 215/0; RCA'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 346 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 346
+  commits: 3
+  files_changed: 22
+  lines_added: 748
+  lines_removed: 41
+  footprint_refreshed_at: '2026-10-28T23:28:35Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1331-census--guard-producer--grep--q-under-pi.md
+generated_by: context-agent-hybrid
