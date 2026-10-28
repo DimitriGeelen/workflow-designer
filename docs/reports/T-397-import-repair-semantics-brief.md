@@ -16,8 +16,8 @@
   another tool's shape geometry). Re-run 2026-10-28 (`node tools/_t347-accepted-element-content-cdp.mjs`):
   documentation **0/2** carriers lose it, property **0/2**, loop characteristics **0/2**, unknown attributes **0/3**,
   foreign extension children **1/7**. That one, `multiple-diagrams`, carries no extension at all: the instrument's
-  `SPEC_PREFIX` lacks `omgdc`, so it counts that file's shape bounds (`omgdc:Bounds`, the second process's
-  geometry) as foreign content. The live measure of what one unedited save loses is T-1322's census
+  `SPEC_PREFIX` lacked `omgdc`, so it counted that file's shape bounds (`omgdc:Bounds`) as foreign content.
+  Fixed by T-1328 (decided by the bound namespace URI): re-run, extension children **0/6**; no shape lost anywhere. The live measure of what one unedited save loses is T-1322's census
   (`docs/reports/T-1322-evidence/classify-losses.py`): 394 items before, 11 after (deliberate exclusions and one empty
   conditionExpression). Still open on T-347: folding `aef:eventDef` into the same mechanism (its Agent AC 3).
 - The section below (2026-10-18) is kept as history; its "awaits confirmation" for R1a is superseded by the T-1322 GO.

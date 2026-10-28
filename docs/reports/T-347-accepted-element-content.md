@@ -4,8 +4,9 @@
 > passthrough (operator GO on T-1322, job 099): content the designer does not read is kept per element and written
 > back in place. Same instrument, re-run 2026-10-28: documentation **0/2** carriers lose it, property **0/2**, loop
 > characteristics **0/2**, unknown attributes **0/3**, foreign extensionElements children **1/7**. The one,
-> `multiple-diagrams`, has no extension: `SPEC_PREFIX` lacks `omgdc`, so the instrument counts its second process's
-> shape bounds as foreign content. The tables below are the 2026-08-03 measurement, kept as history. Still open:
+> `multiple-diagrams`, has no extension: `SPEC_PREFIX` lacked `omgdc`, so the instrument counted its shape bounds as
+> foreign content. **Fixed by T-1328** (spec vs foreign is now decided by the bound namespace URI, `--selftest`):
+> re-run, foreign extensionElements children **0/6**, `multiple-diagrams` n/a; **no shape is lost on any carrier.** The tables below are the 2026-08-03 measurement, kept as history. Still open:
 > `aef:eventDef` folded into the same mechanism (T-347 Agent AC 3).
 
 > **Currency — 2026-10-18 (832 T-1201).** Two things happened after this report:

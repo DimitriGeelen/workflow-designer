@@ -52,9 +52,26 @@ const JSON_OUT = process.argv.includes('--json');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 // ── the measurement ────────────────────────────────────────────────────────
-// Spec-reserved prefixes. Anything else namespaced is a foreign vocabulary, which
-// is what "foreign extensionElements child" and "unknown attribute" mean here.
+// Spec namespaces. Anything else namespaced is a foreign vocabulary, which is what
+// "foreign extensionElements child" and "unknown attribute" mean here. Decided by the
+// URI a prefix is BOUND to, not by its spelling (T-1328): a prefix is a local name, so
+// bpmn-js's `omgdc:Bounds` is spec DI and a vendor's `dc:` bound elsewhere is not.
+const SPEC_NS = new Set([
+  'http://www.omg.org/spec/BPMN/20100524/MODEL',
+  'http://www.omg.org/spec/BPMN/20100524/DI',
+  'http://www.omg.org/spec/DD/20100524/DC',
+  'http://www.omg.org/spec/DD/20100524/DI',
+  'http://www.w3.org/2001/XMLSchema-instance',
+  'http://www.w3.org/2001/XMLSchema',
+  'http://www.w3.org/XML/1998/namespace',
+]);
+// Fallback only, for a prefix the document never declares.
 const SPEC_PREFIX = /^(bpmn|bpmn2|bpmndi|dc|di|semantic|xsi|xsd|xml|xmlns)$/;
+const nsBindings = xml => {
+  const m = { xml: 'http://www.w3.org/XML/1998/namespace' };
+  for (const [, p, dq, sq] of xml.matchAll(/\sxmlns:([a-zA-Z][\w.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/g)) m[p] = dq ?? sq;
+  return m;
+};
 
 const count = (xml, re) => (xml.match(re) || []).length;
 
@@ -66,11 +83,17 @@ const count = (xml, re) => (xml.match(re) || []).length;
 // SUBSTITUTION, and it fails toward the reassuring answer. Counting per prefix, and
 // only over the prefixes the INPUT actually had, is substitution-proof: content we
 // emit ourselves can never repay a debt in someone else's vocabulary.
+// Keyed by namespace URI (the prefix itself when undeclared), so the same vocabulary
+// under a different prefix on export still matches the input's.
 function prefixTally(xml, re, slice) {
-  const out = {};
+  const ns = nsBindings(xml), out = {};
   for (const t of xml.match(re) || []) {
     const p = slice(t);
-    if (!SPEC_PREFIX.test(p)) out[p] = (out[p] || 0) + 1;
+    if (p === 'xmlns') continue;
+    const uri = ns[p];
+    if (uri !== undefined ? SPEC_NS.has(uri) : SPEC_PREFIX.test(p)) continue;
+    const key = uri !== undefined ? uri : 'prefix:' + p;
+    out[key] = (out[key] || 0) + 1;
   }
   return out;
 }
@@ -98,6 +121,34 @@ const prefixesOf = xml => ({
   attrs: new Set(Object.keys(foreignAttrs(xml))),
 });
 const KEYS = Object.keys(census('<x/>'));
+
+// --selftest (T-1328): the spec/foreign split, both directions, no browser.
+if (process.argv.includes('--selftest')) {
+  const DC = 'http://www.omg.org/spec/DD/20100524/DC';
+  const doc = (decl, body) => `<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" ${decl}>${body}</definitions>`;
+  const cases = [
+    ['omgdc bound to DD DC is spec', doc(`xmlns:omgdc="${DC}"`, '<omgdc:Bounds x="1"/>'), 0, 0],
+    ['dc bound to DD DC is spec', doc(`xmlns:dc='${DC}'`, '<dc:Bounds x="1"/>'), 0, 0],
+    ['zeebe element and attribute are foreign', doc('xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"',
+      '<task zeebe:x="1"><extensionElements><zeebe:taskDefinition type="t"/></extensionElements></task>'), 1, 1],
+    ['dc bound to a vendor URI is foreign', doc('xmlns:dc="urn:vendor:not-dd"', '<dc:Bounds x="1"/>'), 1, 0],
+    ['undeclared omgdc falls back to the name list: foreign', '<omgdc:Bounds x="1"/>', 1, 0],
+    ['undeclared dc falls back to the name list: spec', '<dc:Bounds x="1"/>', 0, 0],
+  ];
+  let bad = 0;
+  for (const [what, xml, els, attrs] of cases) {
+    const c = census(xml), ok = c.extChildren === els && c.unknownAttrs === attrs;
+    if (!ok) bad++;
+    console.log(`  ${ok ? 'PASS' : 'FAIL'}  ${what} (extChildren ${c.extChildren}/${els}, unknownAttrs ${c.unknownAttrs}/${attrs})`);
+  }
+  // same vocabulary, different prefix on export: still the input's debt, repaid
+  const inp = doc('xmlns:z="urn:z"', '<z:a/><z:b/>'), out = doc('xmlns:y="urn:z"', '<y:a/><y:b/>');
+  const kept = census(out, prefixesOf(inp)).extChildren === 2;
+  if (!kept) bad++;
+  console.log(`  ${kept ? 'PASS' : 'FAIL'}  a vocabulary re-prefixed on export is matched by URI`);
+  console.log(bad ? `selftest: ${bad} FAILED` : 'selftest: OK');
+  process.exit(bad ? 1 : 0);
+}
 
 // ── plumbing (same shape as _t356) ─────────────────────────────────────────
 function findChrome() {
