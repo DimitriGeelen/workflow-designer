@@ -105,7 +105,7 @@ went red while the leg passed standalone. The shape recurs across many pipefail 
       planted risky line is flagged; a captured form and a short echo are not). *(`_leg_212`; selftest 10 cases
       incl. `elif echo`, one-line and few-line `sed -n`, a pattern-range `sed` (risky), a comment and a non-pipefail
       file.)*
-- [ ] Core tier green.
+- [x] Core tier green. *(GREEN 215/0 at c92149172, 680 s.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -309,6 +309,15 @@ grep -q 'leg core "_t1331-pipe-grep-q-census" _leg_212' tests/run-bridge-tests.s
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** a core leg red in the suite and green standalone (T-1330's `_t344`), the class behind it present in 24
+more places.
+**Root cause:** `command | grep -q` under `set -o pipefail`: grep exits at its first match, the producer dies writing
+to the closed pipe, and pipefail reports the found match as a failure (or, under `!`, a missed one as a pass).
+**Why structurally allowed:** the L-387 hint lives only in task Verification templates; nothing scanned the scripts
+themselves, and the failure is timing-dependent, so each instance looks like a one-off flake.
+**Prevention:** `tools/_t1331-pipe-grep-q-census.py`, core leg `_leg_212`: ratchet at 0 risky sites, with a selftest
+that plants each shape.
 
 ## Evolution
 
