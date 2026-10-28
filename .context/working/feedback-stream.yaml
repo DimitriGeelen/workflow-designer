@@ -19815,3 +19815,21 @@ scan_id: R-da23dcb0
 task_id: T-1319
 payload:
   task_file: .tasks/active/T-1319-upgrade-aef-v1815-be31---be37-and-field-.md
+---
+kind: scan_emitted
+timestamp: '2026-10-28T16:13:07Z'
+scan_id: R-8ea4e5b4
+task_id: T-1328
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-28T16:13:07Z'
+scan_id: R-8ea4e5b4
+task_id: T-1328
+payload:
+  task_file: .tasks/active/T-1328-t347-instrument-counts-omgdcomgdi-shape-.md

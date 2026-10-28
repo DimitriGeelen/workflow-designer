@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1328: _t347 instrument counts omgdc/omgdi shape geometry as foreign extension content
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-28T16:13:13Z
+# ============================================================================
+
+task_id: T-1328
+task_name: "_t347 instrument counts omgdc/omgdi shape geometry as foreign extension content"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-28T15:54:40Z
+completed: 2026-10-28T16:13:06Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-28T16:57:26+01:00
+last_commit: 2026-10-28T16:58:00+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  _t347 decides spec vs foreign by the bound namespace URI, not the prefix spelling — bpmn-js's omgdc/omgdi DI was tallied as a foreign vocabulary (multiple-diagrams 'ext children LOST 2->1' with no extension in it); --selftest 7/7, a name-based mutant fails 2; re-run: no shape lost on any carrier (ext children 0/6). wire the instrument's --selftest as core leg _leg_207 (no browser)
+
+# Key outcomes
+outcomes:
+  - 'The instrument decides "spec or foreign" by the namespace URI a prefix is bound to in that document'
+  - 'A self-check (`--selftest`, no browser) proves both directions: `omgdc:Bounds` bound to the DD DC URI is NOT'
+  - 'Re-run on the corpus: `multiple-diagrams` reads `n/a` for extChildren; every other row is unchanged from'
+  - 'The self-check is a core-tier leg (`_leg_207`, no browser) in `tests/run-bridge-tests.sh`.'
+  - 'The two T-347 review docs (its report and the T-397 brief) say the 1/7 was this miscount and that it is fixed.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: '_t347 decides spec vs foreign by the bound namespace URI, not the prefix spelling — bpmn-js''s omgdc/omgdi DI was tallied as a foreign vocabulary (multiple-diagrams ''ext children LOST 2->1'' with no extension in it); --selftest 7/7, a name-based mutant fails 2; re-run: no shape lost on any carrier (ext children 0/6)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1328-t347-instrument-counts-omgdcomgdi-shape-.md'
+  - 'docs/reports/T-347-accepted-element-content.md'
+  - 'docs/reports/T-397-import-repair-semantics-brief.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t347-accepted-element-content-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-28T16:57:26'
+    action: 'T-1328: _t347 decides spec vs foreign by the bound namespace URI, not the prefix spelling — bpmn-js''s omgdc/omgdi DI was tallied as a foreign vocabulary (multiple-diagrams ''ext children LOST 2->1'' with no extension in it); --selftest 7/7, a name-based mutant fails 2; re-run: no shape lost on any carrier (ext children 0/6)'
+  - time: '2026-10-28T16:58:00'
+    action: 'T-1328: wire the instrument''s --selftest as core leg _leg_207 (no browser)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 18 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 18
+  commits: 3
+  files_changed: 8
+  lines_added: 572
+  lines_removed: 13
+  footprint_refreshed_at: '2026-10-28T16:13:22Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1328-t347-instrument-counts-omgdcomgdi-shape-.md
+generated_by: context-agent-hybrid

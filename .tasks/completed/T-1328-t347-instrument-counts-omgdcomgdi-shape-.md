@@ -4,12 +4,13 @@ name: "_t347 instrument counts omgdc/omgdi shape geometry as foreign extension c
 description: >
   tools/_t347-accepted-element-content-cdp.mjs SPEC_PREFIX lacks omgdc/omgdi (the DD prefixes bpmn-js and others use for dc/di), so a file's shape bounds count as foreign extensionElements children; multiple-diagrams reads 'ext children LOST 2->1' with no extension in it.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t347-accepted-element-content-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-28T15:54:40Z
-last_update: 2026-10-28T15:54:40Z
-date_finished: null
+last_update: 2026-10-28T16:13:06Z
+date_finished: 2026-10-28T16:13:06Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -372,3 +373,15 @@ spec-looking prefix; re-prefixed vocabulary matched by URI), proven able to fail
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1328-t347-instrument-counts-omgdcomgdi-shape-.md
 - **Context:** Initial task creation
+
+### 2026-10-28T16:13:06Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8ea4e5b4
+- **Timestamp:** 2026-10-28T16:13:07Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
