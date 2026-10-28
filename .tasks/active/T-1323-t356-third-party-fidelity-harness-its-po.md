@@ -13,7 +13,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_3_run
 owner: agent
 horizon: now
 tags: []
@@ -301,6 +301,14 @@ grep -q 'LOSSY' /tmp/t1323.out
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+**Symptom:** `_t356` printed `HARNESS BROKEN — control lost: diagrams [0,1], diShapes [0,14] …` for its positive
+control, so by its own rule every row it printed was void; it still exited 0.
+**Root cause:** the delta treated any count change as a loss. When the export began adding DI (T-340/T-423) and its own
+`exporter` (T-407), every map's counts went up, and the designer-made control read as lossy.
+**Why structurally allowed:** nothing runs `_t356` (no leg, no sweep, no caller in tools/ or tests/), and a broken
+control only printed, with exit 0, so no runner would have noticed either. It surfaced only when T-1322 read its output.
+**Prevention:** a broken control now exits 2 (NOT CHECKED), so any future caller sees it; additions are reported apart,
+so the next export change that adds content cannot void the control again.
 
 ## Evolution
 

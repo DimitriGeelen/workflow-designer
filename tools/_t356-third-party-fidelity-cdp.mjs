@@ -166,8 +166,9 @@ async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = awa
 
   console.log('== T-356 third-party import fidelity ==\n');
   console.log(`positive control (designer-produced, must be clean): ${ctl.name}`);
-  if (ctl.threw) console.log(`  HARNESS BROKEN — control threw: ${ctl.threw}`);
-  else if (ctl.lossy) console.log(`  HARNESS BROKEN — control lost: ${JSON.stringify(ctl.delta)}`);
+  // T-1323: a broken control exits 2, so a caller cannot read a void run as a measurement (it printed and exited 0).
+  if (ctl.threw) { console.log(`  HARNESS BROKEN — control threw: ${ctl.threw}`); process.exitCode = 2; }
+  else if (ctl.lossy) { console.log(`  HARNESS BROKEN — control lost: ${JSON.stringify(ctl.delta)}`); process.exitCode = 2; }
   else console.log('  clean — the round-trip path itself is sound, so subject losses are real\n');
 
   for (const r of subs) {
