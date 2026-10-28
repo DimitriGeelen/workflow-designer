@@ -1,13 +1,19 @@
 ---
 id: T-1268
-name: "Unknown aef:* child elements on a node are dropped on save (no passthrough for the own namespace)"
+name: "Unknown aef:* child elements on a node are dropped on save (no passthrough
+  for the own namespace)"
 description: >
-  An element written by a newer AEF or bridge is wiped by an older designer; io children were fixed in T-1243, node-level ones are not. Found by ring20's cloud job C (T-2466) on 8909a9b1, verified by headless round trip, no notice shown; report verbatim in docs/reports/T-2466-cloud-job-C-bughunt.md (F10, C 11/13). Fix theme proposed there: a generic per-element passthrough rather than more allowlist entries.
+  An element written by a newer AEF or bridge is wiped by an older designer; io children
+  were fixed in T-1243, node-level ones are not. Found by ring20's cloud job C (T-2466)
+  on 8909a9b1, verified by headless round trip, no notice shown; report verbatim in
+  docs/reports/T-2466-cloud-job-C-bughunt.md (F10, C 11/13). Fix theme proposed there:
+  a generic per-element passthrough rather than more allowlist entries.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [import-loss, cloud-job-c]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:24:22Z
-last_update: 2026-10-21T21:24:22Z
-date_finished: null
+last_update: '2026-10-28T08:04:50Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,48 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-28T08:04:50Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1268: Unknown aef:* child elements on a node are dropped on save (no passthrough for the own namespace)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+F10 of ring20's cloud job C (docs/reports/T-2466-cloud-job-C-bughunt.md): import reads only the aef children of a node's
+`extensionElements` it names; any other `aef:*` element (written by a newer AEF or bridge) is gone after one save. T-1243
+fixed this for children of `aef:input`/`aef:output`; this is the node level, in the designer's own namespace, so it
+needs no decision on the generic passthrough (T-1259, foreign namespaces). Not a UI change: nothing renders it.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **Scoped** from F10: unknown `aef:*` direct children of a flow node's `extensionElements`; foreign namespaces stay
+  with T-1259.
+- [ ] **Unknown aef children survive open and save:** a node carrying `<aef:customNote text="keep me too"/>` and a nested
+  unknown `<aef:future level="2"><aef:part ref="x">t</aef:part></aef:future>` exports both, in source order, inside its
+  `extensionElements`, with no extra namespace declaration; a second save is byte-identical; editing the node's name keeps
+  them; a node without unknown children exports exactly as before; the export is well-formed (DOMParser and expat).
+  Harness `tools/_t1268-node-aef-children-cdp.mjs`, red on the pre-fix source (`T1268_SRC`), browser leg.
+- [ ] **Core tier green** (`tools/_t1288-prepush-gate.sh`).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -345,3 +379,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1268-unknown-aef-child-elements-on-a-node-are.md
 - **Context:** Initial task creation
+
+### 2026-10-28T08:04:50Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

@@ -1,0 +1,21 @@
+id: tools/_t1268-node-aef-children-cdp.mjs
+name: _t1268-node-aef-children-cdp
+type: script
+subsystem: browser-harness
+location: tools/_t1268-node-aef-children-cdp.mjs
+tags: []
+
+purpose: "_t1268-node-aef-children-cdp.mjs — T-1268: an aef element on a node that the designer does not read survives open and save."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-10-28
+created_by: unknown

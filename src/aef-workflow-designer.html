@@ -13188,15 +13188,27 @@ function ioExtraAttrXml(extra) {
 const IO_EXPORT_ROOT_NS = { bpmn: 'http://www.omg.org/spec/BPMN/20100524/MODEL', bpmndi: 'http://www.omg.org/spec/BPMN/20100524/DI',
                             dc: 'http://www.omg.org/spec/DD/20100524/DC', di: 'http://www.omg.org/spec/DD/20100524/DI',
                             aef: 'http://anchorpoint.framework/aef/extensions' };
+function keptElementXml(c) {
+  const x = new XMLSerializer().serializeToString(c);
+  return x.replace(/^(<[^\s>\/]+)((?:\s+[^\s=>]+="[^"]*")*)/, (m, tag, attrs) => tag + attrs.replace(/\s+xmlns(?::([A-Za-z_][\w.-]*))?="([^"]*)"/g,
+    (d, pfx, uri) => (pfx && IO_EXPORT_ROOT_NS[pfx] === uri) ? '' : d));
+}
 function ioChildXml(el) {
-  const ser = new XMLSerializer(), parts = [];
-  for (const c of Array.from(el.childNodes)) {
-    if (c.nodeType !== 1) continue;
-    let x = ser.serializeToString(c);
-    x = x.replace(/^(<[^\s>\/]+)((?:\s+[^\s=>]+="[^"]*")*)/, (m, tag, attrs) => tag + attrs.replace(/\s+xmlns(?::([A-Za-z_][\w.-]*))?="([^"]*)"/g,
-      (d, pfx, uri) => (pfx && IO_EXPORT_ROOT_NS[pfx] === uri) ? '' : d));
-    parts.push(x);
-  }
+  const parts = Array.from(el.childNodes).filter(c => c.nodeType === 1).map(keptElementXml);
+  return parts.length ? parts : null;
+}
+// T-1268: an aef element on a node that the designer does not read (one a newer AEF or bridge writes) is kept the same
+// way, verbatim and in order, and written back at the end of the node's extensionElements. Only the designer's own
+// namespace: foreign extensions are T-1259's question. Every element the import below reads is listed here; a reader
+// added there without a line here would also be written twice.
+const NODE_AEF_READ = new Set(['uid', 'position', 'meta', 'endpoint', 'contextReads', 'artifactsWrites', 'decisionInput',
+  'decisionOutputs', 'link', 'eventDef', 'boundaryPos', 'io', 'aggregation', 'multiInstance', 'timer', 'constituents',
+  ...Object.keys(STRUCT_LIST_KEYS)]);
+function nodeAefKeptXml(el) {
+  const ext = Array.from(el.children).find(c => c.localName === 'extensionElements' && c.namespaceURI === IO_EXPORT_ROOT_NS.bpmn);
+  if (!ext) return null;
+  const parts = Array.from(ext.children)
+    .filter(c => c.namespaceURI === IO_EXPORT_ROOT_NS.aef && !NODE_AEF_READ.has(c.localName)).map(keptElementXml);
   return parts.length ? parts : null;
 }
 // T-1249: a mapping v1.1 io often names no `name` or `type` (`<aef:output typeRef="sfdc:Account" operation="create">`),
@@ -13484,6 +13496,8 @@ function aefExtensionXml(node) {
       out += `        </aef:${wrap}>\n`;
     }
   }
+  // T-1268: aef elements the designer does not read, as they arrived.
+  for (const x of node.aefKept || []) out += `        ${x}\n`;
 
   out += '      </bpmn:extensionElements>\n';
   return out;
@@ -14886,6 +14900,7 @@ function parseBpmnXml(text) {
       // Derive slug from name if not encoded (T-1218: an unnamed start/end event reads its carried slug, else its id)
       const slug = unnamedEvent ? (aef.slug || deriveSlug(displayId)) : deriveSlug(name);
       if (tag === 'startEvent' || tag === 'endEvent') delete aef.slug;
+      const aefKept = nodeAefKeptXml(el);   // T-1268
 
       // Default position if none was encoded — simple flow layout per lane
       if (x == null || isNaN(x) || y == null || isNaN(y)) {
@@ -14906,6 +14921,7 @@ function parseBpmnXml(text) {
         ...(foreignTag ? { foreignTag } : {}),
         ...(linkDef ? { linkDef } : {}),
         ...(nativeEventDefs.length ? { nativeEventDefs } : {}),
+        ...(aefKept ? { aefKept } : {}),
       });
       displayIdToUid.set(displayId, uid);
     }

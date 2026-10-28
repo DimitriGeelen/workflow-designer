@@ -1470,6 +1470,21 @@ else
 fi
 }
 leg browser "_t1265-condition-language-cdp" _leg_201
+_leg_202() {
+
+# ── T-1268: an aef element on a node that the designer does not read survives open and save ──
+# Import read only the aef children it names, so an element a newer AEF or bridge wrote was wiped by one save (ring20
+# cloud job C, F10). Red against the pre-T-1268 source (legs 1, 3).
+if node "$ROOT/tools/_t1268-node-aef-children-cdp.mjs" > "$TMP/leg-_t1268.out" 2>&1 \
+   && head -2 "$TMP/leg-_t1268.out" | grep -q '"ok": true'; then
+  pass=$((pass + 1))
+else
+  report FAIL "an aef element the designer does not read was dropped or reordered on a node's save, a second save differs, a rename lost it, or a plain node's extension changed (run 'node tools/_t1268-node-aef-children-cdp.mjs'; T-1268)"
+  show_output "$TMP/leg-_t1268.out" "_t1268-node-aef-children-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1268-node-aef-children-cdp" _leg_202
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
