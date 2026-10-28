@@ -1,0 +1,149 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1327: T-1322 slice 3: comments kept by anchor, and an open notice naming what a save still drops (geometry, subprocess nesting, nested lanes)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-28T11:13:32Z
+# ============================================================================
+
+task_id: T-1327
+task_name: "T-1322 slice 3: comments kept by anchor, and an open notice naming what a save still drops (geometry, subprocess nesting, nested lanes)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-28T09:27:07Z
+completed: 2026-10-28T11:13:07Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-10-28T11:39:48+01:00
+last_commit: 2026-10-28T12:01:04+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  comments among the process's children kept before their element (end of process when it is gone); the import notice says what a save does not keep (subprocess nesting, nested lanes, another tool's layout) and what it keeps undrawn (annotations, groups, associations), one part per line; advisories use the whole canvas width (were capped at half by left:50%); _t603 L5 matches 'process' as a word; harness _t1327 red on the old source (browser leg _leg_205), shots + measures at 1024/1440/1920; person-sees gate exit 0. advisory sweep findings handled — the layout line now ends 'NOT kept'; shots retaken; sweep recorded in Visual Verification. the screenshot criterion moves under ### Human (criterion 1), where fw reviewer judge reads reviewer-judged criteria. reviewer verdict. reviewer verdict (codex seat codex, recorded by the runtime). reviewer verdict (opencode seat opencode, recorded by the runtime). reviewer verdict applied (rung 5, 3 seats green); agent criteria evidenced
+
+# Key outcomes
+outcomes:
+  - '**Comments kept:** an XML comment that is a direct child of the process is written back before the element that'
+  - '**The notice says what is not kept:** on opening a file, the import notice adds, each only when it applies:'
+  - '**Measured:** T-1322''s census on the 16 fixtures leaves only the deliberate exclusions and the empty'
+  - '**Shown as a person sees it:** the notice with every new part, on kitchen-sink (geometry, subprocesses, kept'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1327/AC1-judge-t-1327-r5-claude-code-ae549c85f1c8.md'
+  - '.context/reviews/evidence/T-1327/AC1-judge-t-1327-r5-claude-code-b97b1898ba3f.md'
+  - '.context/reviews/evidence/T-1327/AC1-judge-t-1327-r5-codex-4d9258d06766.md'
+  - '.context/reviews/evidence/T-1327/AC1-judge-t-1327-r5-codex-ea48973f72e5.md'
+  - '.context/reviews/evidence/T-1327/AC1-judge-t-1327-r5-opencode-50557507f04a.md'
+  - '.context/reviews/evidence/T-1327/AC1-judge-t-1327-r5-opencode-5d16a6036c2a.md'
+  - '.context/reviews/evidence/T-1327/kitchen-sink-1024-judge-t-1327-r5-claude-code-ae549c85f1c8.png'
+  - '.context/reviews/evidence/T-1327/kitchen-sink-1024-judge-t-1327-r5-claude-code-b97b1898ba3f.png'
+  - '.context/reviews/evidence/T-1327/kitchen-sink-1440-judge-t-1327-r5-claude-code-ae549c85f1c8.png'
+  - '.context/reviews/evidence/T-1327/kitchen-sink-1440-judge-t-1327-r5-claude-code-b97b1898ba3f.png'
+  - '.context/reviews/evidence/T-1327/kitchen-sink-1920-judge-t-1327-r5-claude-code-ae549c85f1c8.png'
+  - '.context/reviews/evidence/T-1327/kitchen-sink-1920-judge-t-1327-r5-claude-code-b97b1898ba3f.png'
+  - '.context/reviews/evidence/T-1327/nested-lanes-1024-judge-t-1327-r5-claude-code-ae549c85f1c8.png'
+  - '.context/reviews/evidence/T-1327/nested-lanes-1024-judge-t-1327-r5-claude-code-b97b1898ba3f.png'
+  - '.context/reviews/evidence/T-1327/nested-lanes-1440-judge-t-1327-r5-claude-code-ae549c85f1c8.png'
+  - '.context/reviews/evidence/T-1327/nested-lanes-1440-judge-t-1327-r5-claude-code-b97b1898ba3f.png'
+  - '.context/reviews/evidence/T-1327/nested-lanes-1920-judge-t-1327-r5-claude-code-ae549c85f1c8.png'
+  - '.context/reviews/evidence/T-1327/nested-lanes-1920-judge-t-1327-r5-claude-code-b97b1898ba3f.png'
+  - '.context/reviews/evidence/T-1327/plain-designer-map-1024-judge-t-1327-r5-claude-code-b97b1898ba3f.png'
+  - '.context/reviews/evidence/T-1327/plain-designer-map-1440-judge-t-1327-r5-claude-code-ae549c85f1c8.png'
+  - '.context/reviews/evidence/T-1327/plain-designer-map-1920-judge-t-1327-r5-claude-code-b97b1898ba3f.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.fabric/components/tools-_t1327-comments-and-notice-cdp.yaml'
+  - '.fabric/components/tools-_t1327-notice-shots.yaml'
+  - '.tasks/active/T-1327-t-1322-slice-3-comments-kept-by-anchor-a.md'
+  - 'docs/reports/T-1327-evidence/kitchen-sink-1024-notice.png'
+  - 'docs/reports/T-1327-evidence/kitchen-sink-1024.png'
+  - 'docs/reports/T-1327-evidence/kitchen-sink-1440-notice.png'
+  - 'docs/reports/T-1327-evidence/kitchen-sink-1440.png'
+  - 'docs/reports/T-1327-evidence/kitchen-sink-1920-notice.png'
+  - 'docs/reports/T-1327-evidence/kitchen-sink-1920.png'
+  - 'docs/reports/T-1327-evidence/measures.json'
+  - 'docs/reports/T-1327-evidence/nested-lanes-1024-notice.png'
+  - 'docs/reports/T-1327-evidence/nested-lanes-1024.png'
+  - 'docs/reports/T-1327-evidence/nested-lanes-1440-notice.png'
+  - 'docs/reports/T-1327-evidence/nested-lanes-1440.png'
+  - 'docs/reports/T-1327-evidence/nested-lanes-1920-notice.png'
+  - 'docs/reports/T-1327-evidence/nested-lanes-1920.png'
+  - 'docs/reports/T-1327-evidence/plain-designer-map-1024.png'
+  - 'docs/reports/T-1327-evidence/plain-designer-map-1440.png'
+  - 'docs/reports/T-1327-evidence/plain-designer-map-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/fixtures/t1327/nested-lanes.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1327-comments-and-notice-cdp.mjs'
+  - 'tools/_t1327-notice-shots.mjs'
+  - 'tools/_t603-multiprocess-import.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-28T11:39:48'
+    action: 'T-1327: comments among the process''s children kept before their element (end of process when it is gone); the import notice says what a save does not keep (subprocess nesting, nested lanes, another tool''s layout) and what it keeps undrawn (annotations, groups, associations), one part per line; advisories use the whole canvas width (were capped at half by left:50%); _t603 L5 matches ''process'' as a word; harness _t1327 red on the old source (browser leg _leg_205), shots + measures at 1024/1440/1920; person-sees gate exit 0'
+  - time: '2026-10-28T11:41:30'
+    action: 'T-1327: advisory sweep findings handled — the layout line now ends ''NOT kept''; shots retaken; sweep recorded in Visual Verification'
+  - time: '2026-10-28T11:46:07'
+    action: 'T-1327: the screenshot criterion moves under ### Human (criterion 1), where fw reviewer judge reads reviewer-judged criteria'
+  - time: '2026-10-28T11:47:52'
+    action: 'T-1327: reviewer verdict'
+  - time: '2026-10-28T11:48:55'
+    action: 'T-1327: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-10-28T11:49:42'
+    action: 'T-1327: reviewer verdict'
+  - time: '2026-10-28T11:50:46'
+    action: 'T-1327: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-10-28T11:51:34'
+    action: 'T-1327: reviewer verdict (opencode seat opencode, recorded by the runtime)'
+  - time: '2026-10-28T11:58:52'
+    action: 'T-1327: reviewer verdict (opencode seat opencode, recorded by the runtime)'
+  - time: '2026-10-28T12:01:04'
+    action: 'T-1327: reviewer verdict applied (rung 5, 3 seats green); agent criteria evidenced'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 10 commit(s), 106 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 106
+  commits: 11
+  files_changed: 56
+  lines_added: 1097
+  lines_removed: 38
+  footprint_refreshed_at: '2026-10-28T11:13:46Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1327-t-1322-slice-3-comments-kept-by-anchor-a.md
+generated_by: context-agent-hybrid

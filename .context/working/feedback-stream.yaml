@@ -19707,3 +19707,21 @@ scan_id: R-07ee58b5
 task_id: T-1326
 payload:
   task_file: .tasks/active/T-1326-t-1322-slice-2-process-level-content-the.md
+---
+kind: scan_emitted
+timestamp: '2026-10-28T11:13:25Z'
+scan_id: R-f64ccf07
+task_id: T-1327
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-28T11:13:25Z'
+scan_id: R-f64ccf07
+task_id: T-1327
+payload:
+  task_file: .tasks/active/T-1327-t-1322-slice-3-comments-kept-by-anchor-a.md
