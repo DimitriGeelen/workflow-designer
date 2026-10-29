@@ -46,7 +46,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:24:15Z
-last_update: 2026-10-29T18:20:25Z
+last_update: 2026-10-29T20:35:43Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -125,9 +125,9 @@ third-party fixtures carry a subprocess; AEF's own maps carry none with contents
 ## Acceptance Criteria
 
 ### Agent
-- [ ] A research artifact answers IW-1 with evidence from the fixtures (which shapes of subprocess occur, which cross
+- [x] A research artifact answers IW-1 with evidence from the fixtures (which shapes of subprocess occur, which cross
       the boundary), and the options' costs and risks.
-- [ ] A go/no-go recommendation is written for the operator's `fw inception decide` (an operator-only step, handed over
+- [x] A go/no-go recommendation is written for the operator's `fw inception decide` (an operator-only step, handed over
       as a runme job).
 
 ### Human
