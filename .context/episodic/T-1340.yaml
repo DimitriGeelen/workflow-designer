@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1340: _t843 absence-gate integration flakes: multi-line printf/echo \"$out\" | grep -q dies of SIGPIPE under pipefail (core push refused)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-29T21:23:08Z
+# ============================================================================
+
+task_id: T-1340
+task_name: "_t843 absence-gate integration flakes: multi-line printf/echo \"$out\" | grep -q dies of SIGPIPE under pipefail (core push refused)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-29T21:18:30Z
+completed: 2026-10-29T21:22:21Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-29T22:22:16+01:00
+last_commit: 2026-10-29T22:22:16+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  _t843 integration's 13 printf|grep -q asserts become here-strings (a multi-line builtin printf writes per line and takes SIGPIPE when grep -q exits early: 2/40 runs failed, now 0/200); probe kept (3000 runs: printf 4, echo 4, here-string 0)
+
+# Key outcomes
+outcomes:
+  - 'Every `printf ''%s'' "$out" | grep -q` in `tools/_t843-absence-gate-integration.sh` is a here-string'
+  - '200 consecutive standalone runs pass (before: 2 of 40 failed). 0 of 200 failed.'
+  - 'The probe that names the cause is kept: `tools/_t1340-builtin-pipe-sigpipe-probe.sh` shows multi-line printf/echo'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1340-t843-absence-gate-integration-flakes-mul.md'
+  - 'tools/_t1340-builtin-pipe-sigpipe-probe.sh'
+  - 'tools/_t843-absence-gate-integration.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-29T22:22:16'
+    action: 'T-1340: _t843 integration''s 13 printf|grep -q asserts become here-strings (a multi-line builtin printf writes per line and takes SIGPIPE when grep -q exits early: 2/40 runs failed, now 0/200); probe kept (3000 runs: printf 4, echo 4, here-string 0)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 3
+  commits: 2
+  files_changed: 6
+  lines_added: 523
+  lines_removed: 18
+  footprint_refreshed_at: '2026-10-29T21:23:13Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1340-t843-absence-gate-integration-flakes-mul.md
+generated_by: context-agent-hybrid

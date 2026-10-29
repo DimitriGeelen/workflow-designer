@@ -20165,3 +20165,21 @@ scan_id: R-1979469d
 task_id: T-1338
 payload:
   task_file: .tasks/active/T-1338-t1327-notice-harness-asserts-the-layout-.md
+---
+kind: scan_emitted
+timestamp: '2026-10-29T21:23:00Z'
+scan_id: R-fa89470e
+task_id: T-1340
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-29T21:23:00Z'
+scan_id: R-fa89470e
+task_id: T-1340
+payload:
+  task_file: .tasks/active/T-1340-t843-absence-gate-integration-flakes-mul.md

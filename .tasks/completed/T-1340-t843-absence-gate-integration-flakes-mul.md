@@ -4,12 +4,13 @@ name: "_t843 absence-gate integration flakes: multi-line printf/echo \"$out\" | 
 description: >
   Core tier RED on push (215/216): _t843-absence-gate-integration.sh test 14 failed, passes alone. Measured: 2/40 standalone runs fail, a different assertion each time (12, 5). Cause: bash's builtin printf/echo writes a multi-line value one line per write(2) (strace: 7 writes for 3 lines); grep -q exits on its first match and a later write takes SIGPIPE, which pipefail turns into a failure. Probe: printf multi-line 1/2000, echo multi-line 3/2000, here-string 0/2000. Fix: the 13 sites to here-strings (grep -q PAT <<<"$out"), the T-1331 form.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t843-absence-gate-integration.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-29T21:18:30Z
-last_update: 2026-10-29T21:22:16Z
-date_finished: null
+last_update: 2026-10-29T21:22:21Z
+date_finished: 2026-10-29T21:22:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -362,3 +363,20 @@ ratchet) is filed as its own task, and the template's advice goes to AEF.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1340-t843-absence-gate-integration-flakes-mul.md
 - **Context:** Initial task creation
+
+### 2026-10-29T21:22:21Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-fa89470e
+- **Timestamp:** 2026-10-29T21:23:00Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — The probe that names the cause is kept: `tools/_t1340-builtin-pipe-sigpipe-probe.sh` shows multi-line printf/echo
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t1340-builtin-pipe-sigpipe-probe.sh in: The probe that names the cause is kept: `tools/_t1340-builtin-pipe-sigpipe-probe.sh` shows multi-line printf/echo`
