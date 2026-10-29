@@ -1653,6 +1653,21 @@ else
 fi
 }
 leg browser "_t1102-unique-display-ids-cdp" _leg_213
+_leg_214() {
+
+# ── T-1333 (T-396): release-designer.sh reports the TAG state both ways ──
+# TAGGED when designer-v<VERSION> exists; a loud NOT-TAGGED warning, the tag name and a one-line remedy when it does
+# not (0.9.0 shipped untagged). The probe restores the release commit's tree in its clones, so source edits made after a
+# release no longer turn it red. Browser tier: the script's render gate drives a browser (about 45 s).
+if bash "$ROOT/tools/_t396-release-tag-state.sh" > "$TMP/leg-_t396.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "release-designer.sh no longer reports the tag state (TAGGED, or the NOT-TAGGED warning with the remedy), or the probe could not measure (run 'bash tools/_t396-release-tag-state.sh'; T-1333)"
+  show_output "$TMP/leg-_t396.out" "_t396-release-tag-state.sh"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t396-release-tag-state" _leg_214
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

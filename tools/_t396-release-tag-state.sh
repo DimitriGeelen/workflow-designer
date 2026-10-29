@@ -47,8 +47,17 @@ fi
 # working-tree script so the probe measures what is actually being changed —
 # same family as [[rehearsed-in-the-wrong-shell]]: the fixture was a different
 # artifact than the one under test.
+#
+# T-1333: the clone is also put back into the state this probe assumes, "VERSION has just been cut": the tree of the
+# commit that tag $TAG names. A clone of HEAD instead carries every src/ and kit change made SINCE that cut, so the
+# script finds dist/ for $VERSION differing from what it would build, refuses to overwrite it (the RELEASE_ALLOW_OVERWRITE
+# remedy), and both branches read that refusal: red from the first source edit after a release until the next release,
+# green right after one. The script under test still comes from the working tree (T396_SCRIPT overrides it: teeth).
+REL_SHA=$(git -C "$REPO" rev-list -n1 "$TAG" 2>/dev/null)
+SCRIPT="${T396_SCRIPT:-$REPO/scripts/release-designer.sh}"
 run_release() { # <clone-dir>
-    cp "$REPO/scripts/release-designer.sh" "$1/scripts/release-designer.sh"
+    git -C "$1" checkout -q "$REL_SHA" -- . || { RC=3; OUT="CANNOT MEASURE: could not restore $TAG's tree"; return; }
+    cp "$SCRIPT" "$1/scripts/release-designer.sh"
     ( cd "$1" && RELEASE_SKIP_ANNOUNCE=1 bash scripts/release-designer.sh ) \
         > "$SCRATCH/out.txt" 2>&1
     RC=$?

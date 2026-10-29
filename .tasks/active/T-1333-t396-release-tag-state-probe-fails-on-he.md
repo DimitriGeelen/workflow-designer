@@ -1,13 +1,21 @@
 ---
 id: T-1333
-name: "_t396 release-tag-state probe fails on HEAD: expects the release script's old final line (TAGGED / NOT YET TAGGED)"
+name: "_t396 release-tag-state probe fails on HEAD: expects the release script's old
+  final line (TAGGED / NOT YET TAGGED)"
 description: >
-  Found by T-1331 (2026-10-29) while re-running every script it edited: tools/_t396-release-tag-state.sh exits 1 on HEAD too (unchanged by T-1331): 'FAIL final line reports TAGGED — got: cd …/with-tag && RELEASE_ALLOW_OVERWRITE=1 scripts/release-designer.sh', plus NOT YET TAGGED, the missing-tag warning, the remedy line and the ordering caveat. scripts/release-designer.sh's last line changed since the probe was written; the probe is not in the core tier, so nothing noticed. Decide: update the probe to the current release output, or retire it if a newer check covers tag state.
+  Found by T-1331 (2026-10-29) while re-running every script it edited: tools/_t396-release-tag-state.sh
+  exits 1 on HEAD too (unchanged by T-1331): 'FAIL final line reports TAGGED — got:
+  cd …/with-tag && RELEASE_ALLOW_OVERWRITE=1 scripts/release-designer.sh', plus NOT
+  YET TAGGED, the missing-tag warning, the remedy line and the ordering caveat. scripts/release-designer.sh's
+  last line changed since the probe was written; the probe is not in the core tier,
+  so nothing noticed. Decide: update the probe to the current release output, or retire
+  it if a newer check covers tag state.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-28T23:16:00Z
-last_update: 2026-10-28T23:16:00Z
-date_finished: null
+last_update: '2026-10-29T16:50:35Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +58,52 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-29T16:50:35Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1333: _t396 release-tag-state probe fails on HEAD: expects the release script's old final line (TAGGED / NOT YET TAGGED)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Found by T-1331 (2026-10-29): `tools/_t396-release-tag-state.sh` exits 1 on HEAD, unchanged by T-1331. It checks that
+`scripts/release-designer.sh` says TAGGED / NOT YET TAGGED at its end; release 0.32.0 (job 104) showed the script still
+warns loudly when the tag is missing, so the behaviour exists and the probe's expectation is what moved.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The cause is shown: what the probe expects vs what `release-designer.sh` prints now, and which commit moved it.
+      *(No commit moved it: the script's output is unchanged. The probe ran the script in a clone of HEAD for VERSION;
+      once src/ changes after a release, dist/ for that VERSION differs from what the script would build, so it
+      refuses to overwrite and prints the RELEASE_ALLOW_OVERWRITE remedy — the "got:" line of 2026-10-29. It passed
+      again the moment 0.32.0 was cut. Reproduced: a scratch clone with one committed src edit after the release; the
+      old probe 4 ok / 5 disagreeing with exactly that line.)*
+- [x] The probe checks the script's current output (TAGGED when the tag exists; the NOT-TAGGED warning, the tag name
+      and the remedy when it does not) and passes; it still fails against a script that drops the warning (teeth).
+      *(Each clone now restores the tree of the commit `designer-v<VERSION>` names, overlaying only the script under
+      test. Current tree 9/9 in 45 s; the drifted scratch clone 9/9 (old probe 4/9); `T396_SCRIPT` = the script minus
+      its `is NOT TAGGED` line: 8/9, FAIL "loud warning names the missing tag".)*
+- [ ] It runs where it can catch the next drift (a core or browser leg, or stated why not); core tier green.
+      *(Browser leg `_leg_214`: the script's render gate drives a browser. Before, it ran in no tier.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -116,6 +156,8 @@ date_finished: null
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+grep -q 'leg browser "_t396-release-tag-state" _leg_214' tests/run-bridge-tests.sh
+bash tools/_t396-release-tag-state.sh > /tmp/.t1333 2>&1 && grep -q '9 as expected, 0 disagreeing' /tmp/.t1333
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
@@ -265,6 +307,16 @@ date_finished: null
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** `tools/_t396-release-tag-state.sh` exited 1 (5 of 9 legs) on an unchanged release script, then passed
+the next day with nothing changed in the script.
+**Root cause:** the probe's fixture was "a clone of HEAD", which equals "VERSION has just been cut" only between a cut
+and the next src/ edit. Outside that window the script correctly refuses to overwrite a released dist/ that no longer
+matches the source, and every leg read that refusal instead of the tag-state report.
+**Why structurally allowed:** the probe ran in no test tier, so its red went unseen; and it was written right after a
+release, the one moment its hidden precondition held.
+**Prevention:** the clones restore the tagged release tree (the precondition made explicit); the probe is a browser leg
+(`_leg_214`); the drifted-tree case and a warning-less mutant were both run against it.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -345,3 +397,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1333-t396-release-tag-state-probe-fails-on-he.md
 - **Context:** Initial task creation
+
+### 2026-10-29T16:49:58Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
