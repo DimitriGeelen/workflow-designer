@@ -4,10 +4,11 @@ name: "Field-test AEF v1.8.15-be.50 (release candidate): upgrade be.48 -> be.50,
 description: >
   AEF msg 5f015110 (2026-10-28 23:24Z): be.50 = be.49 + T-4875 suite flake retry, T-4880 per-addressee peer-mail alerts, T-4881 config parity, T-4883 a test flake; three clean be.50 upgrades release v1.8.15. Report from->to, doctor before/after, tests before/after, WORKS/FAILS per item, and whether fw sidecar alerts runs cleanly. Upgrade is an operator job (runme), re-vendor protocol T-1000.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-28T23:24:43Z
-last_update: 2026-10-28T23:24:43Z
-date_finished: null
+last_update: 2026-10-29T00:18:17Z
+date_finished: 2026-10-29T00:18:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -362,3 +363,20 @@ test -f .context/runme/101-upgrade-aef-v1.8.15-be.50/done
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1334-field-test-aef-v1815-be50-release-candid.md
 - **Context:** Initial task creation
+
+### 2026-10-29T00:18:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-cc70242d
+- **Timestamp:** 2026-10-29T00:18:18Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — 832's local fixes re-applied onto the pristine be.50 commit (`tools/_t1000-revendor-worklist.py`), `designer_open.html`
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t1000-revendor-worklist.py in: 832's local fixes re-applied onto the pristine be.50 commit (`tools/_t1000-revendor-worklist.py`), `designer_open.html``
