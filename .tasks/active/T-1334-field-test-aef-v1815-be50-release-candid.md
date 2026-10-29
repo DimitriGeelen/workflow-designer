@@ -63,13 +63,21 @@ the T-1331 commit (c92149172).
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Job 101 written from job 100 (be.48 -> be.50, preflight checks the tag's PEELED commit), rehearsed with
-      `runme.sh --dry-run`, committed and handed to the operator; the operator ran it.
-- [ ] 832's local fixes re-applied onto the pristine be.50 commit (`tools/_t1000-revendor-worklist.py`), `designer_open.html`
-      restored, `tools/_t517-vendor-divergence.py` OK, Watchtower restarted; core tier green after.
-- [ ] `fw sidecar alerts` run once and its result recorded (T-4880).
-- [ ] The report sent on aef-v1815-be3: from -> to, doctor before/after, tests before/after, WORKS/FAILS for
-      T-4875, T-4880, T-4881, T-4883 (N/A where nothing here exercises it), anything that broke.
+- [x] Job 101 written from job 100 (be.48 -> be.50, preflight checks the tag's PEELED commit), rehearsed with
+      `runme.sh --dry-run`, committed and handed to the operator; the operator ran it. *(ffffab24e; ran 2026-10-29
+      00:54-01:01 local, all 9 steps, rc=0; pristine 044c13784, baseline 086dfb4dc.)*
+- [x] 832's local fixes re-applied onto the pristine be.50 commit (`tools/_t1000-revendor-worklist.py`), `designer_open.html`
+      restored, `tools/_t517-vendor-divergence.py` OK, Watchtower restarted; core tier green after. *(37 patches, 37
+      clean, 0 three-way, 0 conflicts, 75ad1ac8e; `_t517` OK 44 = 44; Watchtower / and /designer/app 200; core
+      before 215/0 at 8d2cba6ba, after 215/0 at 75ad1ac8e. Doctor: before 0 FAIL / 9 warnings, after the job 10 (the
+      expected "Watchtower predates its source"), after the restart 9 again.)*
+- [x] `fw sidecar alerts` run once and its result recorded (T-4880). *(rc 0, "nothing unseen". With
+      FW_SIDECAR_DM_ADDRESS_KEYS=d1993c2c3ec44c94, read-only: 10 unanswered DMs listed, rc 0 — but that is the .107
+      host key, so they are other agents' mail; not set for 832. Without the FW_ prefix the setting is ignored.)*
+- [x] The report sent on aef-v1815-be3: from -> to, doctor before/after, tests before/after, WORKS/FAILS for
+      T-4875, T-4880, T-4881, T-4883 (N/A where nothing here exercises it), anything that broke. *(msg 1e2df855,
+      RECEIVED: alerts WORKS, T-4880 WORKS (two notes: FW_ prefix, host-key caution), T-4875 N/A, T-4883 no failure
+      seen, T-4881 N/A; nothing broke.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -122,6 +130,9 @@ the T-1331 commit (c92149172).
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+grep -q 'g370b2688b' .agentic-framework/VERSION
+python3 tools/_t517-vendor-divergence.py > /tmp/.t1334-517 2>&1 && grep -q '^OK' /tmp/.t1334-517
+test -f .context/runme/101-upgrade-aef-v1.8.15-be.50/done
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
