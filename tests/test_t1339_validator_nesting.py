@@ -7,7 +7,8 @@ E-XML-NODE-UNASSIGNED. Pinned here:
   1. a dangling reference inside a container is reported (the walk reaches it; red on the pre-T-1339 validator);
   2. a nested node in no lane is not E-XML-NODE-UNASSIGNED (Camunda Modeler lists none in the lanes, T-1266 F3),
      while a top-level node in no lane still is (the rule is unchanged for the process's own nodes);
-  3. a container's own children (incoming/outgoing, loop markers, completionCondition) are not taken for flow nodes;
+  3. a container's own children are not taken for flow nodes (pinned on incoming/outgoing: the T-327 guard admits only
+     elements the emitters write, and loop markers / completionCondition arrive only as kept verbatim content);
   4. a process with no nested content is walked exactly as before (the helper returns list(process)).
 """
 import importlib.util
@@ -31,7 +32,6 @@ XML = """<?xml version="1.0" encoding="UTF-8"?>
     <bpmn:subProcess id="sub" name="Inner">
       <bpmn:incoming>f1</bpmn:incoming>
       <bpmn:outgoing>f2</bpmn:outgoing>
-      <bpmn:standardLoopCharacteristics/>
       <bpmn:startEvent id="in_s"/>
       <bpmn:sequenceFlow id="in_f" sourceRef="in_s" targetRef="%(inner_target)s"/>
       <bpmn:endEvent id="in_e"/>
@@ -62,7 +62,7 @@ def test_nested_node_in_no_lane_is_not_unassigned_but_top_level_still_is():
 
 
 def test_container_own_children_are_not_flow_nodes():
-    # incoming/outgoing/standardLoopCharacteristics inside the subProcess would be E-XML-NODE-TYPE if walked as nodes
+    # incoming/outgoing inside the subProcess would be E-XML-NODE-TYPE if walked as nodes
     assert _rules(XML % dict(inner_target='in_e', extra=''), 'E-XML-NODE-TYPE') == []
 
 
