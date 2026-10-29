@@ -1,0 +1,127 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1102: Duplicate node ids within one lane: start events inside (event) subprocesses rank separately and reuse <lane>_<rank>_<slug> ids of top-level nodes (kitchen-sink: lan_3_event x2, lan_5_event x2, lan_6_event x2, lan_8_event = startEvent + subProcess)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-29T01:25:50Z
+# ============================================================================
+
+task_id: T-1102
+task_name: "Duplicate node ids within one lane: start events inside (event) subprocesses rank separately and reuse <lane>_<rank>_<slug> ids of top-level nodes (kitchen-sink: lan_3_event x2, lan_5_event x2, lan_6_event x2, lan_8_event = startEvent + subProcess)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-08T09:14:37Z
+completed: 2026-10-29T01:25:38Z
+duration_days: 21
+updates_count: 4
+first_commit: 2026-10-29T01:49:19+01:00
+last_commit: 2026-10-29T02:25:37+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  every display id unique — lane-less nodes (events inside a subprocess) and nodes in a lane without an abbreviation form one 'unlaned' group whose prefix is made unique against the real lanes (was a shared fallback 'lan' that a lane named 'Lane' also derived, each side numbering from 1: kitchen-sink saved two endEvents as lan_end_event); harness _t1102 (browser leg _leg_213) red on the old source; kitchen-sink golden re-recorded (26 event ids lan_ -> la3_, no repeated id left in any golden); designer maps keep their ids; gate 0 (first run a Name-field timing flake, passed alone 3/3). reviewer verdict. judge round 1 AMBER corrected — the colliding lane is Lane_1cofr07 (abbreviation lan, no name in the source), not the lane named 'Lane' (Lane_1vakzes, abbreviation la2): criterion, Visual Verification row, RCA, source comment, harness header and runner comment fixed; 62d8cff9b's message carried the same mislabel. Advisory sweep recorded. Gate 0; core GREEN 215/0 at 62d8cff9b. evidence — judge green (V-20261029-c362cbdb) applied, core GREEN 215/0 at 21cc68edb; criteria ticked
+
+# Key outcomes
+outcomes:
+  - 'The cause is shown in `computeDisplayId` / `refreshDisplayIds` (why two nodes get one id), not assumed.'
+  - 'Every display id in a map is unique: every corpus map and every third-party fixture saves with no repeated'
+  - 'A browser harness proves it on kitchen-sink and on a minimal case, red on the pre-T-1102 source; the'
+  - 'Core tier green. *(GREEN 215/0 at 62d8cff9b and again at 21cc68edb; gate 0; judge red->green: amber round 1'
+  - '**Shown as a person sees it:** on kitchen-sink at 1024, 1440 and 1920, the node labels under the events read as'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'judge round 1 AMBER corrected — the colliding lane is Lane_1cofr07 (abbreviation lan, no name in the source), not the lane named ''Lane'' (Lane_1vakzes, abbreviation la2): criterion, Visual Verification row, RCA, source comment, harness header and runner comment fixed; 62d8cff9b''s message carried the same mislabel. Advisory sweep recorded. Gate 0; core GREEN 215/0 at 62d8cff9b'
+    source: git-mined
+  - description: 'every display id unique — lane-less nodes (events inside a subprocess) and nodes in a lane without an abbreviation form one ''unlaned'' group whose prefix is made unique against the real lanes (was a shared fallback ''lan'' that a lane named ''Lane'' also derived, each side numbering from 1: kitchen-sink saved two endEvents as lan_end_event); harness _t1102 (browser leg _leg_213) red on the old source; kitchen-sink golden re-recorded (26 event ids lan_ -> la3_, no repeated id left in any golden); designer maps keep their ids; gate 0 (first run a Name-field timing flake, passed alone 3/3)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1102/AC1-judge-t-1102-r1-250ff33144c9.md'
+  - '.context/reviews/evidence/T-1102/AC1-judge-t-1102-r1-43e2fc8d2fc5.md'
+  - '.context/reviews/evidence/T-1102/kitchen-sink-1920-ids-crop-judge-t-1102-r1-250ff33144c9.png'
+  - '.context/reviews/evidence/T-1102/kitchen-sink-1920-ids-crop-judge-t-1102-r1-43e2fc8d2fc5.png'
+  - '.context/reviews/evidence/T-1102/ks1920-lane-Lane-crop-judge-t-1102-r1-250ff33144c9.png'
+  - '.context/reviews/evidence/T-1102/ks1920-lower-lane-la2-judge-t-1102-r1-43e2fc8d2fc5.png'
+  - '.context/reviews/evidence/T-1102/ks1920-right-ends-judge-t-1102-r1-43e2fc8d2fc5.png'
+  - '.context/reviews/evidence/T-1102/ks1920-upper-lane-crop-judge-t-1102-r1-250ff33144c9.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1102-duplicate-node-ids-within-one-lane-start.md'
+  - 'docs/reports/T-1102-evidence/kitchen-sink-1024-notice.png'
+  - 'docs/reports/T-1102-evidence/kitchen-sink-1024.png'
+  - 'docs/reports/T-1102-evidence/kitchen-sink-1440-notice.png'
+  - 'docs/reports/T-1102-evidence/kitchen-sink-1440.png'
+  - 'docs/reports/T-1102-evidence/kitchen-sink-1920-ids-crop.png'
+  - 'docs/reports/T-1102-evidence/kitchen-sink-1920-notice.png'
+  - 'docs/reports/T-1102-evidence/kitchen-sink-1920.png'
+  - 'docs/reports/T-1102-evidence/measures.json'
+  - 'docs/reports/T-1102-evidence/nested-lanes-1024-notice.png'
+  - 'docs/reports/T-1102-evidence/nested-lanes-1024.png'
+  - 'docs/reports/T-1102-evidence/nested-lanes-1440-notice.png'
+  - 'docs/reports/T-1102-evidence/nested-lanes-1440.png'
+  - 'docs/reports/T-1102-evidence/nested-lanes-1920-notice.png'
+  - 'docs/reports/T-1102-evidence/nested-lanes-1920.png'
+  - 'docs/reports/T-1102-evidence/plain-designer-map-1024.png'
+  - 'docs/reports/T-1102-evidence/plain-designer-map-1440.png'
+  - 'docs/reports/T-1102-evidence/plain-designer-map-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1102-unique-display-ids-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-29T01:49:19'
+    action: 'T-1102: every display id unique — lane-less nodes (events inside a subprocess) and nodes in a lane without an abbreviation form one ''unlaned'' group whose prefix is made unique against the real lanes (was a shared fallback ''lan'' that a lane named ''Lane'' also derived, each side numbering from 1: kitchen-sink saved two endEvents as lan_end_event); harness _t1102 (browser leg _leg_213) red on the old source; kitchen-sink golden re-recorded (26 event ids lan_ -> la3_, no repeated id left in any golden); designer maps keep their ids; gate 0 (first run a Name-field timing flake, passed alone 3/3)'
+  - time: '2026-10-29T01:52:42'
+    action: 'T-1102: reviewer verdict'
+  - time: '2026-10-29T02:11:47'
+    action: 'T-1102: judge round 1 AMBER corrected — the colliding lane is Lane_1cofr07 (abbreviation lan, no name in the source), not the lane named ''Lane'' (Lane_1vakzes, abbreviation la2): criterion, Visual Verification row, RCA, source comment, harness header and runner comment fixed; 62d8cff9b''s message carried the same mislabel. Advisory sweep recorded. Gate 0; core GREEN 215/0 at 62d8cff9b'
+  - time: '2026-10-29T02:13:24'
+    action: 'T-1102: reviewer verdict'
+  - time: '2026-10-29T02:25:37'
+    action: 'T-1102: evidence — judge green (V-20261029-c362cbdb) applied, core GREEN 215/0 at 21cc68edb; criteria ticked'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 29771 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 29771
+  commits: 6
+  files_changed: 40
+  lines_added: 670
+  lines_removed: 59
+  footprint_refreshed_at: '2026-10-29T01:25:51Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1102-duplicate-node-ids-within-one-lane-start.md
+generated_by: context-agent-hybrid
