@@ -64,7 +64,9 @@ Same steps as job 101 (T-1334). Tests before: core tier GREEN 215/0 at 21cc68edb
 ### Agent
 - [ ] One ordinary `git push` timed on be.50 (before), with the pre-push hook as it runs.
 - [ ] Job 102 written from job 101 (be.50 -> be.51, lightweight tag), rehearsed, committed, handed to the operator;
-      the operator ran it.
+      the operator ran it. *(Superseded before it ran: AEF released v1.8.15 = 0230eeb9e = be.51 + records (msg
+      b9b485a6), and asks be.50 projects to go to the release tag. Job 102 retired (`retired` file); job 103 (be.50 ->
+      v1.8.15) written from it and rehearsed, 28 ok lines. This criterion is met by job 103 running.)*
 - [ ] 832's local fixes re-applied onto the pristine be.51 commit, `_t517` OK, Watchtower restarted; core tier green.
 - [ ] One ordinary `git push` timed on be.51 (after), the same way.
 - [ ] The report sent on aef-v1815-be3: from -> to, doctor before/after, tests before/after, push time before/after,
