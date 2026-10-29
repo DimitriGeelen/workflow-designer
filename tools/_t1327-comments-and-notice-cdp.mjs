@@ -5,10 +5,11 @@
 //      rewritten); a comment that ended the process is written at its end; a second save is byte-identical;
 //   2. once the comment's element is deleted, the comment is written once, at the end of the process;
 //   3. opening a file as a person does (adoptImportedXml, userImport) puts each new part in the notice when it applies:
-//      kitchen-sink (subprocess contents moved up, layout redrawn, annotations/groups kept), the nested-lane fixture
+//      kitchen-sink (subprocess contents moved up, pool and lane outlines not kept, annotations/groups kept), the nested-lane fixture
 //      (nested lanes flattened); a designer-written corpus map gets none of them;
 //   4. no designer-written corpus map gains a `comments` key;
 //   5. every export parses in Python's expat.
+//   --phrases: no browser; only check that every phrase NEW_PARTS asserts is still a literal in the source (T-1338).
 // T1327_SRC substitutes another designer file (the BITE: on the pre-T-1327 source, legs 1-3 are red).
 // Exit 0 = all legs green; 1 = a leg failed; 2 = misconfig.
 import { makeProfileDir } from './_cdp-profile.mjs';
@@ -36,8 +37,10 @@ function cdp(ws) { const s = new WebSocket(ws); let id = 0; const p = new Map();
 async function ev(cmd, e) { const r = await cmd('Runtime.evaluate', { expression: e, returnByValue: true, awaitPromise: true }); if (r.exceptionDetails) throw new Error('eval: ' + JSON.stringify(r.exceptionDetails)); return r.result.value; }
 async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof parseBpmnXml==='function'&&typeof buildBpmnXml==='function'&&typeof adoptImportedXml==='function'&&_appReady===true&&(typeof _deepLinkSettled==='undefined'||_deepLinkSettled!==null))`).catch(() => false); if (ok) return; if (Date.now() - t0 > (+process.env.CDP_READY_MS || 20000)) throw new Error('editor not ready'); await sleep(150); } }
 
-// Phrases of the new notice parts; a designer-written map must show none of them.
-const NEW_PARTS = ['subprocess nesting is NOT kept', 'lane nesting is NOT kept', 'layout is redrawn on save', 'kept unchanged and saved back, not shown yet'];
+// Phrases of the new notice parts; a designer-written map must show none of them. Each is a literal in the source, which
+// --phrases checks without a browser (T-1338: T-1264 reworded "layout is redrawn on save" and this list was left behind).
+const LOST_GEOMETRY = "the file's original pool and lane outlines are NOT kept";   // T-1264's wording
+const NEW_PARTS = ['subprocess nesting is NOT kept', 'lane nesting is NOT kept', LOST_GEOMETRY, 'kept unchanged and saved back, not shown yet'];
 
 const ASSERT = `(async function(){
   var errs = [], exports = [], notices = {};
@@ -73,7 +76,7 @@ const ASSERT = `(async function(){
     notices.corpus = await openAsPerson(window.__CORPUS__[0][1]);
     function has(t, p){ return t.indexOf(p) > -1; }
     if (!has(notices.kitchen, 'subprocess nesting is NOT kept')) errs.push('leg3: kitchen-sink notice does not say the subprocess nesting is lost');
-    if (!has(notices.kitchen, 'layout is redrawn on save')) errs.push('leg3: kitchen-sink notice does not say its layout is redrawn');
+    if (!has(notices.kitchen, ${JSON.stringify(LOST_GEOMETRY)})) errs.push('leg3: kitchen-sink notice does not say its pool and lane outlines are not kept');
     if (!has(notices.kitchen, '1 annotation, 3 groups, 2 associations kept unchanged')) errs.push('leg3: kitchen-sink notice does not count the kept annotation, groups and associations');
     if (!has(notices.nested, '2 nested lanes')) errs.push('leg3: nested-lane notice does not count the 2 nested lanes: ' + notices.nested.slice(0, 200));
     ${JSON.stringify(NEW_PARTS)}.forEach(function(p){ if (has(notices.corpus, p)) errs.push('leg3: a designer-written map shows "' + p + '"'); });
@@ -86,6 +89,11 @@ const ASSERT = `(async function(){
 
 async function main() {
   if (!existsSync(SRC)) { console.log(JSON.stringify({ ok: false, error: 'designer missing: ' + SRC })); process.exitCode = 2; return; }
+  if (process.argv.includes('--phrases')) {   // T-1338: static, core tier
+    const src = readFileSync(SRC, 'utf8'), missing = NEW_PARTS.filter(p => !src.includes(p));
+    console.log(JSON.stringify({ ok: missing.length === 0, phrases: NEW_PARTS.length, missing }));
+    process.exitCode = missing.length ? 1 : 0; return;
+  }
   const corpus = readdirSync(CORPUS).filter(f => f.endsWith('.bpmn')).sort().map(f => [f, readFileSync(join(CORPUS, f), 'utf8')]);
   const doc = mkdtempSync(join(tmpdir(), 't1327-doc-'));
   const repo = mkdtempSync(join(tmpdir(), 't1327-repo-'));

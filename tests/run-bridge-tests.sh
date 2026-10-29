@@ -1668,6 +1668,22 @@ else
 fi
 }
 leg browser "_t396-release-tag-state" _leg_214
+
+_leg_215() {
+
+# ── T-1338: every import-notice phrase the T-1327 harness asserts is still in the designer source ──
+# No browser. T-1264 reworded the notice's geometry part; the browser-tier T-1327 leg kept asserting the old phrase and
+# nothing ran it before push. A rewording now fails here, in the core tier.
+if node "$ROOT/tools/_t1327-comments-and-notice-cdp.mjs" --phrases > "$TMP/leg-_t1338.out" 2>&1 \
+   && grep -q '"ok":true' "$TMP/leg-_t1338.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "an import-notice phrase the T-1327 harness asserts is no longer in the designer source: the notice was reworded and the harness left behind; update NEW_PARTS in tools/_t1327-comments-and-notice-cdp.mjs (run it with --phrases; T-1338)"
+  show_output "$TMP/leg-_t1338.out" "_t1327-comments-and-notice-cdp.mjs --phrases"
+  fail=$((fail + 1))
+fi
+}
+leg core "_t1327-notice-phrases" _leg_215
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
