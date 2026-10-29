@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1337: A plain bpmn:task inside a transaction or adHocSubProcess is dropped on import (foreignContainers lists only subProcess)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-29T20:52:39Z
+# ============================================================================
+
+task_id: T-1337
+task_name: "A plain bpmn:task inside a transaction or adHocSubProcess is dropped on import (foreignContainers lists only subProcess)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-29T18:26:00Z
+completed: 2026-10-29T20:52:23Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-10-29T21:52:14+01:00
+last_commit: 2026-10-29T21:52:14+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a plain task inside a transaction or adHocSubProcess is imported (walk every subprocess kind via the one SUBPROC_TAGS list; completionCondition is not a node); fixture tests/fixtures/t1337 in the T-1131 harness (red on the old source: 3 nodes missing, 2 dangling refs); goldens unchanged
+
+# Key outcomes
+outcomes:
+  - 'A plain `bpmn:task` (or any other non-allowlisted flow node) inside a `bpmn:transaction` or `bpmn:adHocSubProcess`'
+  - 'An adHocSubProcess''s `completionCondition` is not taken for a flow node.'
+  - 'The T-1131 harness covers the fixture (dangling references and the expected node ids) and fails on the old source.'
+  - 'The third-party goldens are unchanged (no fixture there has a non-allowlisted node in a transaction or adHoc).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'a plain task inside a transaction or adHocSubProcess is imported (walk every subprocess kind via the one SUBPROC_TAGS list; completionCondition is not a node); fixture tests/fixtures/t1337 in the T-1131 harness (red on the old source: 3 nodes missing, 2 dangling refs); goldens unchanged'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1337-a-plain-bpmntask-inside-a-transaction-or.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/fixtures/t1337/transaction-adhoc-tasks.bpmn'
+  - 'tools/_t1131-dangling-refs-thirdparty-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-29T21:52:14'
+    action: 'T-1337: a plain task inside a transaction or adHocSubProcess is imported (walk every subprocess kind via the one SUBPROC_TAGS list; completionCondition is not a node); fixture tests/fixtures/t1337 in the T-1131 harness (red on the old source: 3 nodes missing, 2 dangling refs); goldens unchanged'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 146 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 146
+  commits: 2
+  files_changed: 7
+  lines_added: 243
+  lines_removed: 26
+  footprint_refreshed_at: '2026-10-29T20:52:47Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1337-a-plain-bpmntask-inside-a-transaction-or.md
+generated_by: context-agent-hybrid
