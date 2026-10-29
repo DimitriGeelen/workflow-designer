@@ -39,6 +39,11 @@ with no match, operands fed by xargs / find) is refused when the command mention
 guarded path anywhere. Inline code is opaque: it is refused when the command mentions a
 guarded path anywhere. Fail direction: toward blocking.
 
+A mention is also what the cwd reveals (T-4859): a cwd inside `.tasks` (the hook's, or one
+a `cd` in the text reaches, symlinks followed) makes every command a mention, and a
+`dir/T-NNNN*.md` word counts unless `dir` provably resolves outside `.tasks` from every
+such cwd. A directory that becomes a link into `.tasks` only at run time is not seen.
+
 WHAT THIS DOES NOT SEE (same scope boundary as Tier 0, T-2742)
 ---------------------------------------------------------------
 A script file run by the command (`bash ./x.sh`, `python3 tool.py`, `make`) is not opened;
@@ -46,6 +51,13 @@ a path assembled at run time from pieces the text does not contain (`'.ta'+'sks'
 printf, a path read from a file written by an earlier call) is not seen. Those writes are
 caught after the fact, not before: `fw audit` (lib/human_ac_ticks.py) FAILs on a committed
 `### Human` tick that carries no provenance.
+
+Message arguments (`fw sidecar send --body`, _DATA_ARGS) are blanked so their text is not
+read as commands, but the guarded-path mention is read from the ORIGINAL command (T-4857):
+a path inside a message still reaches the shell through `$_`. Any program called `fw`
+(_FW_VERB matches `*/fw`) gets that blanking; what such a program does with its arguments
+is a script the gate does not open (above). `!$` is history expansion, which is off in the
+non-interactive bash that runs these commands, so it is a literal word.
 """
 from __future__ import annotations
 
@@ -84,6 +96,59 @@ def _mentions(text: str) -> bool:
         if not d.startswith("/") and all(c in (".", "..") for c in d.split("/")):
             return True
     return False
+
+
+def _mentions_from(text: str, cwds: list, guarded: Callable[[str], bool]) -> bool:
+    """T-4859: the mentions only a cwd can reveal. A cwd inside `.tasks` (or one a `cd`
+    reaches) is an implicit mention: from there `active/T-1.md`, `x.md` or `$F` is a task
+    file. A `…/T-NNNN*.md` word is a mention unless its directory provably resolves
+    outside `.tasks` (realpath, so a symlink into it counts) from every cwd the command
+    may run in; an unknown cwd (None) proves nothing. `text` is already normalised."""
+    for c in cwds:
+        if c is not None and guarded(os.path.realpath(c)):
+            return True
+    for m in TASK_NAME_RE.finditer(text):
+        prefix = m.group(1)
+        if not prefix or not prefix.endswith("/"):
+            continue                    # bare name (already a mention) or dispatch-T-1-prompt.md
+        before = text[m.start() - 1] if m.start() else ""
+        if before in "$})`":
+            return True                 # `$D/T-1.md`: the directory is built at run time
+        if before == "~":
+            prefix = os.path.expanduser("~" + prefix)
+        for c in cwds:
+            if not os.path.isabs(prefix) and c is None:
+                return True
+            if guarded(os.path.realpath(os.path.join(c or "/", prefix))):
+                return True
+    return False
+
+
+def _command_cwds(command: str, cwd: str | None) -> list:
+    """T-4859: the cwd the hook reports plus every `cd`/`pushd` destination in the text,
+    followed in order (None once a destination is not known from the text). An
+    over-approximation (subshells, a `cd` word in an argument): it only adds refusals."""
+    toks = _tokens(command)
+    if toks is None:
+        return [cwd, None]
+    cwds, cur = [cwd], cwd
+    for i, t in enumerate(toks):
+        if t not in ("cd", "pushd"):
+            continue
+        dest = next((a for a in toks[i + 1:i + 3] if not a.startswith("-")), None)
+        if dest is None or dest in SEPARATORS or dest in REDIRECT_WRITE or \
+                re.search(r"[$`{}*?\[~]", dest) or (cur is None and not os.path.isabs(dest)):
+            cur = None
+        else:
+            cur = os.path.normpath(os.path.join(cur or "/", dest))
+        cwds.append(cur)
+    return cwds
+
+
+def _seg_mentions(seg_text: str, ctx: "_Ctx") -> bool:
+    """A segment's mention: the text, or (T-4859) what the segment's tracked cwd reveals."""
+    text = normalised(seg_text)
+    return _mentions(text) or _mentions_from(text, [ctx.cwd], ctx.guarded or is_guarded_path)
 
 SEPARATORS = {";", ";;", "&&", "||", "|", "|&", "&", "(", ")", "\n", "!", "{", "}"}
 REDIRECT_WRITE = {">", ">>", ">|", "&>", "&>>", "<>", ">&", "&>|"}
@@ -662,7 +727,11 @@ def awk_program_risk(prog: str) -> str | None:
     system(), `"cmd" | getline`, `print | "cmd"` / printf, and gawk's `|&` coprocess;
     gawk's @load / @include pull in code. String literals, regex literals and comments
     are skipped, so `/a|b/` and `"a|b"` are data; `||` is logical or. Every other `|`,
-    and `system` called as a function, is refused."""
+    and `system` called as a function, is refused. `/` opens a regex only after an
+    operator, `(`, `,`, `{`, `;`, a newline or print/printf/return/in; after an operand
+    (name, number, string, regex, `)`, `]`, postfix `++`/`--`) it divides, and anything
+    unlisted (gawk `case /re/`, `getline /`) reads as division too: division keeps the
+    text scanned, so an undecided `/` fails closed (T-4858)."""
     code: list[str] = []
     i, n, prev = 0, len(prog), ""
     while i < n:
@@ -705,6 +774,12 @@ def awk_program_risk(prog: str) -> str | None:
         elif c.isspace() and c != "\n":
             code.append(c)
             i += 1
+        elif c in "+-" and prog[i + 1:i + 2] == c:
+            # T-4858: `++`/`--` end an operand (`x++ / 2` divides; `++ /re/` is not
+            # awk), so `/` after one divides and the text after it stays scanned.
+            code.append(c + c)
+            prev = c + c
+            i += 2
         elif c.isalnum() or c in "_$":
             j = i
             while j < n and (prog[j].isalnum() or prog[j] in "_$"):
@@ -1327,7 +1402,7 @@ def _segment(seg: list[str], ctx: _Ctx) -> None:
                     else:
                         _check_target(UNRESOLVED, ctx, f"git {sub} {a}")
         if sub in ("checkout", "restore", "apply", "am", "stash", "switch", "reset") and \
-                not ctx.boundary and _mentions(normalised(seg_text)):
+                not ctx.boundary and _seg_mentions(seg_text, ctx):
             ctx.hits.append(Hit(f"git {sub} names a guarded path (writes it from another revision/patch)"))
         elif sub in ("apply", "am"):
             _check_target(UNRESOLVED, ctx, f"git {sub} (paths named inside the patch)")
@@ -1349,7 +1424,7 @@ def _segment(seg: list[str], ctx: _Ctx) -> None:
         flags = "".join(x.lstrip("-") for x in args if x.startswith("-")) + (args[0] if args and verb in ("tar", "bsdtar") and not args[0].startswith("-") else "")
         extracting = ((verb == "unzip" and not re.search(r"[lvtZpz]", flags)) or verb == "busybox" or ("x" in flags if verb in ("tar", "bsdtar", "7z", "7za") else "i" in flags)
                       or any(x in ("--extract", "--get") or (verb in ("7z", "7za") and x in ("x", "e")) for x in args))
-        if extracting and not ctx.boundary and _mentions(normalised(seg_text)):
+        if extracting and not ctx.boundary and _seg_mentions(seg_text, ctx):
             ctx.hits.append(Hit(f"{verb} extracts into a guarded path"))
         return
     if verb in ("eval", "source", "."):
@@ -1464,7 +1539,7 @@ def _boundary_segment(exe: str, verb: str, args: list[str], ctx: _Ctx) -> bool:
 
 def _script_form(verb: str, seg_text: str, ctx: _Ctx) -> None:
     """`python3 tool.py ARGS`: the script is not opened (residual); its ARGUMENTS are seen."""
-    if not ctx.boundary and _mentions(normalised(seg_text)):
+    if not ctx.boundary and _seg_mentions(seg_text, ctx):
         ctx.hits.append(Hit(f"{verb} script is handed a guarded path (the script itself is not inspected)"))
 
 
@@ -1569,12 +1644,15 @@ def scan(command: str, cwd: str | None = None, project_root: str | None = None) 
     `project_root` (T-4336): when given, a `.tasks` target provably outside it is not a
     guarded write. Without it every `.tasks` target is guarded, as before.
     """
-    original = command
-    command, live = _blank_data_args(command)
+    # T-4857: the mention is read from the ORIGINAL command. Blanking a message only stops
+    # its text being parsed as commands; a path in it is still in the shell's hands (`$_`
+    # is the previous command's last argument, a substitution's $F may be that path).
     guarded = _guarded_within(os.path.realpath(project_root)) if project_root else None
-    # T-4817: a substitution bash runs inside a message keeps the message's guarded
-    # mention as its context (its $F may be that path), as before the message was blanked
-    mentions = mentions_guarded(command) or (live and mentions_guarded(original))
+    # T-4859: plus what the cwd reveals — a cwd inside .tasks, or `sub/T-1.md` that
+    # resolves into it — so inline code run from .tasks/ is not read as harmless
+    mentions = mentions_guarded(command) or \
+        _mentions_from(normalised(command), _command_cwds(command, cwd), guarded or is_guarded_path)
+    command, _ = _blank_data_args(command)
     ctx = _Ctx(cwd=cwd, mentions=mentions, guarded=guarded)
     unlexed = "command does not tokenise (unbalanced quote) and names a guarded path"
     try:
