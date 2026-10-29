@@ -40,31 +40,38 @@
         <aef:position x="204.0" y="78.0"/>
         <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="SubProcess_1"/>
       </bpmn:extensionElements>
-    </bpmn:subProcess>
 
-    <bpmn:startEvent id="lan_start_startevent">
-      <bpmn:extensionElements>
+      <bpmn:startEvent id="lan_start_startevent">
+        <bpmn:extensionElements>
         <aef:uid value="u2"/>
         <aef:position x="275.0" y="214.0"/>
         <aef:meta slug="startevent"/>
         <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="StartEvent_1"/>
       </bpmn:extensionElements>
-      <bpmn:outgoing>flow_1</bpmn:outgoing>
-    </bpmn:startEvent>
+        <bpmn:outgoing>flow_1</bpmn:outgoing>
+      </bpmn:startEvent>
 
-    <bpmn:task id="lan_2_task" name="Task_1">
-      <bpmn:extensionElements>
+      <bpmn:task id="lan_2_task" name="Task_1">
+        <bpmn:extensionElements>
         <aef:uid value="u3"/>
         <aef:position x="431.0" y="192.0"/>
         <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Task_1"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>flow_1</bpmn:incoming>
-    </bpmn:task>
+        <bpmn:incoming>flow_1</bpmn:incoming>
+      </bpmn:task>
+
+      <bpmn:sequenceFlow id="flow_1" sourceRef="lan_start_startevent" targetRef="lan_2_task">
+        <bpmn:extensionElements>
+          <aef:uid value="u4"/>
+          <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="SequenceFlow_1"/>
+        </bpmn:extensionElements>
+      </bpmn:sequenceFlow>
+    </bpmn:subProcess>
 
     <bpmn:boundaryEvent id="lan_link_batman" name="batman" attachedToRef="lan_1_subprocess" cancelActivity="true">
       <bpmn:extensionElements>
-        <aef:uid value="u4"/>
-        <aef:position x="185.0" y="349.0"/>
+        <aef:uid value="u5"/>
+        <aef:position x="294.0" y="124.0"/>
         <aef:meta hostRef="n_136434fa" interrupting="true"/>
         <aef:boundaryPos value="0.5326"/>
         <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="BoundaryEvent_1"/>
@@ -73,7 +80,7 @@
 
     <bpmn:task id="lan_3_task" name="Task_2">
       <bpmn:extensionElements>
-        <aef:uid value="u5"/>
+        <aef:uid value="u6"/>
         <aef:position x="795.0" y="75.0"/>
         <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Task_2"/>
       </bpmn:extensionElements>
@@ -81,8 +88,8 @@
 
     <bpmn:boundaryEvent id="lan_link_superman" name="superman" attachedToRef="lan_3_task" cancelActivity="true">
       <bpmn:extensionElements>
-        <aef:uid value="u6"/>
-        <aef:position x="781.0" y="140.0"/>
+        <aef:uid value="u7"/>
+        <aef:position x="832.0" y="121.0"/>
         <aef:meta hostRef="n_8b3cd381" interrupting="true"/>
         <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="BoundaryEvent_2"/>
       </bpmn:extensionElements>
@@ -90,7 +97,7 @@
 
     <bpmn:task id="lan_4_compensationtask" name="CompensationTask" isForCompensation="true">
       <bpmn:extensionElements>
-        <aef:uid value="u7"/>
+        <aef:uid value="u8"/>
         <aef:position x="795.0" y="249.0"/>
         <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="CompensationTask"/>
       </bpmn:extensionElements>
@@ -98,7 +105,7 @@
 
     <bpmn:intermediateThrowEvent id="lan_link_joker" name="joker">
       <bpmn:extensionElements>
-        <aef:uid value="u8"/>
+        <aef:uid value="u9"/>
         <aef:position x="185.0" y="480.0"/>
         <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="IntermediateThrowEvent_1"/>
       </bpmn:extensionElements>
@@ -106,20 +113,13 @@
 
     <bpmn:boundaryEvent id="lan_link_wonder" name="wonder woman" attachedToRef="lan_1_subprocess" cancelActivity="true">
       <bpmn:extensionElements>
-        <aef:uid value="u9"/>
-        <aef:position x="412.0" y="349.0"/>
+        <aef:uid value="u10"/>
+        <aef:position x="198.0" y="124.0"/>
         <aef:meta hostRef="n_136434fa" interrupting="true"/>
         <aef:boundaryPos value="0.7935"/>
         <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="BoundaryEvent_3"/>
       </bpmn:extensionElements>
     </bpmn:boundaryEvent>
-
-    <bpmn:sequenceFlow id="flow_1" sourceRef="lan_start_startevent" targetRef="lan_2_task">
-      <bpmn:extensionElements>
-        <aef:uid value="u10"/>
-        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="SequenceFlow_1"/>
-      </bpmn:extensionElements>
-    </bpmn:sequenceFlow>
   </bpmn:process>
 
   <bpmndi:BPMNDiagram id="BPMNDiagram_process_1">
@@ -136,20 +136,14 @@
       <bpmndi:BPMNShape id="_BPMNShape_Task_2" bpmnElement="lan_2_task">
         <dc:Bounds x="431.0" y="192.0" width="100" height="80"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BoundaryEvent_1_di" bpmnElement="lan_link_batman">
-        <dc:Bounds x="185.0" y="349.0" width="36" height="36"/>
-        <bpmndi:BPMNLabel>
-          <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="155" y="390" width="90" height="20"/>
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNShape id="BPMNShape_lan_link_batman" bpmnElement="lan_link_batman">
+        <dc:Bounds x="294.0" y="124.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_2_di" bpmnElement="lan_3_task">
         <dc:Bounds x="795.0" y="75.0" width="100" height="80"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BoundaryEvent_2_di" bpmnElement="lan_link_superman">
-        <dc:Bounds x="781.0" y="140.0" width="36" height="36"/>
-        <bpmndi:BPMNLabel>
-          <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="754" y="176" width="90" height="20"/>
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNShape id="BPMNShape_lan_link_superman" bpmnElement="lan_link_superman">
+        <dc:Bounds x="832.0" y="121.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="CompensationTask_di" bpmnElement="lan_4_compensationtask">
         <dc:Bounds x="795.0" y="249.0" width="100" height="80"/>
@@ -160,11 +154,8 @@
           <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="191" y="525" width="24" height="14"/>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1kn7msk_di" bpmnElement="lan_link_wonder">
-        <dc:Bounds x="412.0" y="349.0" width="36" height="36"/>
-        <bpmndi:BPMNLabel>
-          <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="393" y="392" width="75" height="14"/>
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNShape id="BPMNShape_lan_link_wonder" bpmnElement="lan_link_wonder">
+        <dc:Bounds x="198.0" y="124.0" width="36" height="36"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1" sourceElement="_BPMNShape_StartEvent_2" targetElement="_BPMNShape_Task_2">
         <di:waypoint x="311.0" y="232.0"/>

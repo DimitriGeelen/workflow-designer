@@ -10710,8 +10710,9 @@ function maybeShowLaneFixNotice() {
   }
   // T-1327: what a save of THIS file will not keep (T-1322 option C), stated last like the T-603 line.
   const nk = _importNotKeptReport || {};
+  // T-1339 (T-1266 GO, slice 1): the nesting is now kept on save; the canvas still draws the contents flat.
   if (nk.hoistedNodes) parts.push(`${nk.hoistedNodes} element${nk.hoistedNodes === 1 ? '' : 's'} inside ` +
-    `${nk.hoistingSubs} subprocess${nk.hoistingSubs === 1 ? '' : 'es'} shown and saved at the top level — the subprocess nesting is NOT kept`);
+    `${nk.hoistingSubs} subprocess${nk.hoistingSubs === 1 ? '' : 'es'} drawn at the top level of the canvas — on save they stay inside their subprocess`);
   if (nk.nestedLanes) parts.push(`${nk.nestedLanes} nested lane${nk.nestedLanes === 1 ? '' : 's'} shown and saved as ` +
     `top-level lane${nk.nestedLanes === 1 ? '' : 's'} — the lane nesting is NOT kept`);
   // T-1264: unmoved shapes and lines keep the file's own geometry (a node moved back into its lane, or by the person,
@@ -13891,8 +13892,9 @@ function buildBpmnXml(s) {
   }
   lines.push(`    </bpmn:laneSet>`);
 
-  // nodes
-  for (const n of s.nodes) {
+  // nodes. T-1339: one node's lines, ending with its close tag (a container's contents go before that, below).
+  const nodeLines = n => {
+    const lines = [];
     // T-337: an element whose BPMN tag is outside the importer's allowlist rides
     // through as `foreignTag` and is re-emitted verbatim. Absent on every node the
     // allowlist could type, so this moves no bytes for well-formed input.
@@ -13935,8 +13937,8 @@ function buildBpmnXml(s) {
     }
     const aefBlock = aefExtensionXml(n);
     if (aefBlock) lines.push(aefBlock.trimEnd());
-    if (incoming) lines.push(incoming);
-    if (outgoing) lines.push(outgoing);
+    if (incoming) lines.push(...incoming.split('\n'));   // T-1339: one entry per line, so a nested node indents each
+    if (outgoing) lines.push(...outgoing.split('\n'));
     // T-1325: an event's kept children (dataOutput, outputSet, ...) come before its event definitions, which close
     // tCatchEvent/tThrowEvent; an activity's come last (below).
     const keptKids = (nk && nk.children) || [], eventHost = /Event$/.test(tag);
@@ -13957,10 +13959,12 @@ function buildBpmnXml(s) {
     // loopCharacteristics; then a scriptTask's script), in source order.
     if (!eventHost) for (const x of keptKids) lines.push(`      ${x}`);
     lines.push(`    </bpmn:${tag}>`);
-  }
+    return lines;
+  };
 
-  // edges
-  for (const e of s.edges) {
+  // edges. T-1339: one flow's lines.
+  const edgeLines = e => {
+    const lines = [];
     lines.push(``);
     const edgeDisplayId = displayIdOf(e);
     const nameAttr = e.name ? ` name="${escAttr(e.name)}"` : '';
@@ -14022,7 +14026,35 @@ function buildBpmnXml(s) {
     }
     for (const x of (e.kept && e.kept.children) || []) lines.push(`      ${x}`);   // T-1325
     lines.push(`    </bpmn:sequenceFlow>`);
+    return lines;
+  };
+
+  // T-1339 (T-1266 GO, slice 1): a node whose container still exists is written inside it, after the container's own
+  // content (tSubProcess extends tActivity: flow elements come last), then the flows whose two ends share that
+  // container; any other flow stays at the process level, as before. With no nested node (every designer-written map)
+  // this writes exactly the old flat sequence: all nodes, then all flows.
+  const liveUids = new Set(s.nodes.map(n => n.uid));
+  const homeOf = n => (n && n.parent && n.parent !== n.uid && liveUids.has(n.parent)) ? n.parent : '';
+  const kidsOf = new Map(), flowsOf = new Map();
+  for (const n of s.nodes) { const k = homeOf(n); if (!kidsOf.has(k)) kidsOf.set(k, []); kidsOf.get(k).push(n); }
+  for (const e of s.edges) {
+    const a = homeOf(findNode(e.source)), k = a && a === homeOf(findNode(e.target)) ? a : '';
+    if (!flowsOf.has(k)) flowsOf.set(k, []);
+    flowsOf.get(k).push(e);
   }
+  // Only each entry's first line: an entry's inner lines can be kept XML, verbatim with the file's own whitespace, which
+  // the next import keeps as it is; indenting them would add two spaces at every save.
+  const indentBy = (arr, d) => d ? arr.map(l => l && '  '.repeat(d) + l) : arr;
+  const emitIn = (home, d, seen) => {
+    for (const n of kidsOf.get(home) || []) {
+      const nl = nodeLines(n), close = nl.pop();
+      lines.push(...indentBy(nl, d));
+      if (!seen.has(n.uid) && (kidsOf.has(n.uid) || flowsOf.has(n.uid))) emitIn(n.uid, d + 1, new Set([...seen, n.uid]));
+      lines.push(...indentBy([close], d));
+    }
+    for (const e of flowsOf.get(home) || []) lines.push(...indentBy(edgeLines(e), d));
+  };
+  emitIn('', 0, new Set());
 
   // T-1096: the process's kept data objects and stores, verbatim
   if (s.dataKept) for (const x of s.dataKept.elements || []) { lines.push(``); lines.push(`    ${x}`); }
@@ -15034,7 +15066,14 @@ function parseBpmnXml(text) {
 
   {
     const nodeWorkEls = new Set(nodeWork.map(w => w[1]));   // T-1325: a subprocess's own nodes are not its kept children
+    const uidByEl = new Map();   // T-1339: element -> node uid, to find each nested node's container
+    const byAefAll = byAef, byBpmnAll = byBpmn;   // T-1339: the loop below narrows these to the node's own content
     for (const [tag, el, foreignTag] of nodeWork) {
+      // T-1339: byAef/byBpmn are descendant queries. Once a saved container holds its nodes, a query on the container
+      // would also find each nested node's aef:position, aef:meta, documentation ... and read them as its own. Here
+      // they stop at another imported node; for an element with no nested node this returns what it always did.
+      const ownOnly = list => list.filter(x => { for (let p = x.parentNode; p && p !== el; p = p.parentNode) if (nodeWorkEls.has(p)) return false; return true; });
+      const byAef = (e, k) => ownOnly(byAefAll(e, k)), byBpmn = (e, k) => ownOnly(byBpmnAll(e, k));
       const displayId = el.getAttribute('id') || '';
       // T-1218: an unnamed start or end event stays unnamed. The id used to stand in as its name, so the
       // canvas showed "Start_8" and the save wrote it back as name="Start_8" (aef-greenfield-test, 41 maps).
@@ -15309,6 +15348,16 @@ function parseBpmnXml(text) {
         ...(originalId ? { originalId } : {}),
       });
       displayIdToUid.set(displayId, uid);
+      uidByEl.set(el, uid);
+    }
+    // T-1339 (T-1266 GO, slice 1): a node inside a subprocess, transaction or adHocSubProcess remembers the uid of its
+    // innermost container, so a save writes it back inside. Only nested nodes get the key, so a designer-written map's
+    // project JSON and export are unchanged. The canvas still draws every node flat.
+    const nodeByUid = new Map(nodes.map(n => [n.uid, n]));
+    for (const [el, uid] of uidByEl) {
+      let p = el.parentNode;
+      while (p && p !== proc && !(SUBPROC_TAGS.has(p.localName) && uidByEl.has(p))) p = p.parentNode;
+      if (p && p !== proc && nodeByUid.has(uid)) nodeByUid.get(uid).parent = uidByEl.get(p);
     }
   }
 

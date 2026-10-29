@@ -21,7 +21,7 @@ if the probe cannot tell the two apart then it cannot tell anyone anything.
 
 Legs:
   1  mutant → probe exits 1 (drift), and the drift NAMES the nested arm
-  2  mutant → the reason is the predicted one: child dropped, attribution says the node is lost.
+  2  mutant → the reason is the predicted one: child flattened, attribution says it was hoisted (T-1339).
      A bare rc check would pass on any red at all, including one caused by the mutant breaking
      something unrelated — which is the failure T-509 found in `_t358` and OBS-255 records.
   3  mutant → the FLAT arm is untouched. Without this, leg 1's red is equally explained by the
@@ -49,9 +49,12 @@ EDITOR = os.path.join(REPO, "src", "aef-workflow-designer.html")
 PROBE = os.path.join(REPO, "tools", "_t523-subprocess-nesting.mjs")
 READER = os.path.join(REPO, "tools", "_t523-xml-structure.py")
 
-TARGET = "for (const tag of nodeTags) for (const el of byBpmn(proc, tag)) nodeWork.push([tag, el, null]);"
-MUTANT = ("for (const tag of nodeTags) for (const el of byBpmn(proc, tag)) "
-          "{ if (el.parentNode !== proc) continue; nodeWork.push([tag, el, null]); }")
+# T-1339: the mutant is the regression that now matters — the export forgets each node's container, so nested
+# nodes are written at the process level again (the pre-T-1339 hoist). The earlier mutant (skip nested nodes at
+# collection) stopped modelling a loss when T-1325 began keeping an uncollected child verbatim inside its subprocess:
+# the probe then measured "survived", and legs 1-2 were red on the browser tier from T-1325 to T-1339.
+TARGET = "const homeOf = n => (n && n.parent && n.parent !== n.uid && liveUids.has(n.parent)) ? n.parent : '';"
+MUTANT = "const homeOf = n => '';"
 
 # T-528: the mutant for the COLLAPSED arm. One line of the export tag map, turning the
 # BPMN-native subProcess tag into a plain task — the "helpful cleanup" AEF named at rail 11926
@@ -166,7 +169,7 @@ print()
 
 tmp = tempfile.mkdtemp(prefix="t523-teeth-")
 try:
-    # ── legs 1-3: mutate the editor so nested nodes are dropped ────────────────────────────
+    # ── legs 1-3: mutate the editor so nested nodes are written at the process level ──────
     mutant_path = os.path.join(tmp, "designer-mutant.html")
     with open(mutant_path, "w") as f:
         f.write(editor_src.replace(TARGET, MUTANT, 1))
@@ -186,8 +189,8 @@ try:
     measured_child = (nested_drift or {}).get("measured", {}).get("child_a", {}).get("outcome")
     attribution = ((out.get("observed") or {}).get("attribution") or "")
     leg(
-        "2 red for the NAMED reason — nested child dropped, attribution says so",
-        measured_child == "dropped" and attribution.startswith("nesting-loses-the-node"),
+        "2 red for the NAMED reason — nested child hoisted to the process, attribution says so",
+        measured_child == "survived-flattened" and attribution.startswith("uid-survives-containment-does-not"),
         "child_a outcome=%r attribution=%r. Asserting only that it went red would pass on a "
         "red caused by anything at all — the OBS-255 failure mode." % (measured_child, attribution),
     )

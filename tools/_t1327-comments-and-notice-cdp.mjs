@@ -5,7 +5,7 @@
 //      rewritten); a comment that ended the process is written at its end; a second save is byte-identical;
 //   2. once the comment's element is deleted, the comment is written once, at the end of the process;
 //   3. opening a file as a person does (adoptImportedXml, userImport) puts each new part in the notice when it applies:
-//      kitchen-sink (subprocess contents moved up, pool and lane outlines not kept, annotations/groups kept), the nested-lane fixture
+//      kitchen-sink (subprocess contents drawn flat and kept nested on save, T-1339; pool and lane outlines not kept, annotations/groups kept), the nested-lane fixture
 //      (nested lanes flattened); a designer-written corpus map gets none of them;
 //   4. no designer-written corpus map gains a `comments` key;
 //   5. every export parses in Python's expat.
@@ -40,7 +40,8 @@ async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = awa
 // Phrases of the new notice parts; a designer-written map must show none of them. Each is a literal in the source, which
 // --phrases checks without a browser (T-1338: T-1264 reworded "layout is redrawn on save" and this list was left behind).
 const LOST_GEOMETRY = "the file's original pool and lane outlines are NOT kept";   // T-1264's wording
-const NEW_PARTS = ['subprocess nesting is NOT kept', 'lane nesting is NOT kept', LOST_GEOMETRY, 'kept unchanged and saved back, not shown yet'];
+const KEPT_NESTING = 'drawn at the top level of the canvas — on save they stay inside their subprocess';   // T-1339
+const NEW_PARTS = [KEPT_NESTING, 'lane nesting is NOT kept', LOST_GEOMETRY, 'kept unchanged and saved back, not shown yet'];
 
 const ASSERT = `(async function(){
   var errs = [], exports = [], notices = {};
@@ -75,7 +76,7 @@ const ASSERT = `(async function(){
     notices.nested = await openAsPerson(window.__NESTED__);
     notices.corpus = await openAsPerson(window.__CORPUS__[0][1]);
     function has(t, p){ return t.indexOf(p) > -1; }
-    if (!has(notices.kitchen, 'subprocess nesting is NOT kept')) errs.push('leg3: kitchen-sink notice does not say the subprocess nesting is lost');
+    if (!has(notices.kitchen, ${JSON.stringify(KEPT_NESTING)})) errs.push('leg3: kitchen-sink notice does not say its subprocess contents are drawn flat and kept nested on save');
     if (!has(notices.kitchen, ${JSON.stringify(LOST_GEOMETRY)})) errs.push('leg3: kitchen-sink notice does not say its pool and lane outlines are not kept');
     if (!has(notices.kitchen, '1 annotation, 3 groups, 2 associations kept unchanged')) errs.push('leg3: kitchen-sink notice does not count the kept annotation, groups and associations');
     if (!has(notices.nested, '2 nested lanes')) errs.push('leg3: nested-lane notice does not count the 2 nested lanes: ' + notices.nested.slice(0, 200));

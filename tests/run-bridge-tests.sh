@@ -1684,6 +1684,38 @@ else
 fi
 }
 leg core "_t1327-notice-phrases" _leg_215
+
+_leg_216() {
+
+# ── T-1339: the validator walks into subprocess containers ──
+# The designer saves another tool's nested nodes and flows inside their container (T-1266 GO, slice 1). A dangling
+# reference inside a container is reported (red on the pre-T-1339 validator, which read direct children only); a nested
+# node in no lane is not E-XML-NODE-UNASSIGNED; a flat process is walked exactly as before.
+if python3 -m pytest -q -p no:cacheprovider "$ROOT/tests/test_t1339_validator_nesting.py" > "$TMP/leg-_t1339v.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the validator no longer sees inside a subprocess, transaction or adHocSubProcess, reports a nested node in no lane as unassigned, or walks a flat process differently (run 'python3 -m pytest tests/test_t1339_validator_nesting.py'; T-1339)"
+  show_output "$TMP/leg-_t1339v.out" "test_t1339_validator_nesting.py"
+  fail=$((fail + 1))
+fi
+}
+leg core "test_t1339_validator_nesting" _leg_216
+
+_leg_217() {
+
+# ── T-1339: an unedited open → save keeps every node and flow in the container the file declared it in ──
+# T-1266 GO, slice 1. The 4 nesting fixtures (23 nested nodes, 6 nested flows), opened as a person opens a file; each
+# element's container in the export is the file's; a second save is byte-identical. Red on the pre-T-1339 source,
+# which wrote every nested element at the process level.
+if node "$ROOT/tools/_t1339-subprocess-nesting-roundtrip-cdp.mjs" > "$TMP/leg-_t1339.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a nested node or flow of a third-party file is saved outside its subprocess, transaction or adHocSubProcess again, or a second save differs (run 'node tools/_t1339-subprocess-nesting-roundtrip-cdp.mjs'; T-1339)"
+  show_output "$TMP/leg-_t1339.out" "_t1339-subprocess-nesting-roundtrip-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1339-subprocess-nesting-roundtrip" _leg_217
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
