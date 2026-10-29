@@ -1716,6 +1716,23 @@ else
 fi
 }
 leg browser "_t1339-subprocess-nesting-roundtrip" _leg_217
+
+_leg_218() {
+
+# ── T-1345: edit rules for another tool's nested nodes ──
+# T-1266 GO, slice 2. In the real editor: a dragged nested node keeps its container; a flow across a subprocess boundary
+# is refused (connect clicks, endpoint re-anchor) with a message and no undo step; deleting a subprocess (single and
+# multi-select) moves its contents to its own container, says so, and undo restores; a palette node is never nested.
+# Red on the pre-T-1345 source for the refusal and delete legs.
+if node "$ROOT/tools/_t1345-nesting-edit-rules-cdp.mjs" > "$TMP/leg-_t1345.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "an edit of another tool's nested nodes broke a T-1266 rule: a flow across a subprocess boundary was created, a deleted subprocess took or stranded its contents silently, a drag changed a node's container, or a multi-delete cannot be undone (run 'node tools/_t1345-nesting-edit-rules-cdp.mjs'; T-1345)"
+  show_output "$TMP/leg-_t1345.out" "_t1345-nesting-edit-rules-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1345-nesting-edit-rules" _leg_218
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-1345: written by hand for the nesting edit rules. Two lanes; a subprocess S1 (lane A) holds a start, a task, an end
+     and a nested subprocess S2, which holds one task. in_task is listed in lane A so a drag into lane B changes its lane.
+     Top level: start, S1, task T (lane B), end. Same shape as other tools write (bpmn.io / Camunda Modeler). -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_t1345" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collab_t1345">
+    <bpmn:participant id="Part_t1345" name="Nested edits" processRef="Process_t1345" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_t1345" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_A" name="Alpha">
+        <bpmn:flowNodeRef>Start_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>S1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>in_task</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_B" name="Beta">
+        <bpmn:flowNodeRef>T</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_1</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_1" name="Begin">
+      <bpmn:outgoing>F1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="F1" sourceRef="Start_1" targetRef="S1" />
+    <bpmn:subProcess id="S1" name="Outer">
+      <bpmn:incoming>F1</bpmn:incoming>
+      <bpmn:outgoing>F2</bpmn:outgoing>
+      <bpmn:startEvent id="in_start" name="In start">
+        <bpmn:outgoing>F_in1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:sequenceFlow id="F_in1" sourceRef="in_start" targetRef="in_task" />
+      <bpmn:task id="in_task" name="Inner task">
+        <bpmn:incoming>F_in1</bpmn:incoming>
+        <bpmn:outgoing>F_in2</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:sequenceFlow id="F_in2" sourceRef="in_task" targetRef="in_end" />
+      <bpmn:endEvent id="in_end" name="In end">
+        <bpmn:incoming>F_in2</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:subProcess id="S2" name="Deep">
+        <bpmn:task id="deep_task" name="Deep task" />
+      </bpmn:subProcess>
+    </bpmn:subProcess>
+    <bpmn:sequenceFlow id="F2" sourceRef="S1" targetRef="T" />
+    <bpmn:task id="T" name="Top task">
+      <bpmn:incoming>F2</bpmn:incoming>
+      <bpmn:outgoing>F3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="F3" sourceRef="T" targetRef="End_1" />
+    <bpmn:endEvent id="End_1" name="Done">
+      <bpmn:incoming>F3</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+</bpmn:definitions>

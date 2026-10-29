@@ -9320,11 +9320,15 @@ document.addEventListener('keydown', e => {
       // Delete the whole multi-selection if it has more than one node
       if (multiSelect.size > 1) {
         const ids = new Set(multiSelect);
+        pushHistory();   // T-1345: a multi-delete is undoable like a single one (it recorded no step before)
+        const movedMsg = moveContentsOutOf([...ids]);
         state.nodes = state.nodes.filter(n => !ids.has(n.id));
         state.edges = state.edges.filter(ed => !ids.has(ed.source) && !ids.has(ed.target));
         selection = null;
         multiSelect = new Set();
+        refreshDisplayIds();
         renderAll();
+        if (movedMsg) showToast(movedMsg);
       } else {
         deleteNode(selection.id);
       }
@@ -9929,6 +9933,11 @@ window.addEventListener('mouseup', e => {
           else edge.targetPort = snapPort;
           edge.waypoints = [];
         }
+      } else if (crossBoundaryRefusal(edgeDrag.role === 'source' ? snapId : edge.source,
+                                      edgeDrag.role === 'source' ? edge.target : snapId)) {
+        // T-1345: re-anchoring would make the flow cross a subprocess boundary; the edge stays as it was
+        showToast(crossBoundaryRefusal(edgeDrag.role === 'source' ? snapId : edge.source,
+                                       edgeDrag.role === 'source' ? edge.target : snapId));
       } else {
         // re-anchor to a different node, with the snapped port
         if (edgeDrag.role === 'source') {
@@ -11518,7 +11527,28 @@ function defaultName(type) {
     subProcess: 'Sub-process',
   })[type] || type;
 }
+// T-1345 (T-1266 GO, slice 2): a node's container, as the export resolves it — the uid of the subprocess, transaction or
+// adHocSubProcess it sits in, '' for the process. Only another tool's file has nested nodes (T-1339); the canvas draws
+// them flat, so these rules are what keep an edit from producing a file BPMN forbids.
+function containerOfNode(n) {
+  return n && n.parent && n.parent !== n.uid && state.nodes.some(x => x.uid === n.parent) ? n.parent : '';
+}
+function containerLabel(uid) {
+  const c = uid && state.nodes.find(x => x.uid === uid);
+  return c ? `subprocess "${c.name || displayIdOf(c)}"` : 'the process';
+}
+// A sequence flow cannot cross a subprocess boundary. Returns the refusal message, or '' when the two may be joined.
+function crossBoundaryRefusal(sourceId, targetId) {
+  const a = findNode(sourceId), b = findNode(targetId);
+  const ca = containerOfNode(a), cb = containerOfNode(b);
+  if (!a || !b || ca === cb) return '';
+  const nm = n => `"${n.name || displayIdOf(n)}"`;
+  return `Not connected: ${nm(a)} is in ${containerLabel(ca)} and ${nm(b)} is in ${containerLabel(cb)} — ` +
+    `a sequence flow cannot cross a subprocess boundary`;
+}
 function addEdge(source, target, opts) {
+  const refused = crossBoundaryRefusal(source, target);   // T-1345: before the undo step, so a refusal records none
+  if (refused) { showToast(refused); return null; }
   pushHistory();   // B5: undo entry before adding an edge (connect gesture only)
   const uid = generateUid('e');
   const edge = { uid, id: uid, source, target };
@@ -11532,14 +11562,37 @@ function addEdge(source, target, opts) {
   refreshDisplayIds();
   renderEdges();
 }
+// T-1345: before nodes are deleted, move what sits inside a deleted subprocess into its nearest surviving container
+// (the process, or the outer subprocess), so nothing is deleted with it unasked and no node names a container that is
+// gone. Flows among the moved nodes follow (the export places a flow by its ends). Returns the message, or ''.
+function moveContentsOutOf(deletedIds) {
+  const gone = new Set(deletedIds), byUid = new Map(state.nodes.map(n => [n.uid, n]));
+  let moved = 0, into = null;
+  for (const n of state.nodes) {
+    if (gone.has(n.id) || !n.parent || !gone.has(n.parent)) continue;
+    let p = n.parent;
+    while (p && gone.has(p)) p = (byUid.get(p) || {}).parent;
+    const dest = p && byUid.has(p) ? p : '';
+    if (dest) n.parent = dest; else delete n.parent;
+    moved++;
+    into = into === null || into === dest ? dest : '*';
+  }
+  if (!moved) return '';
+  const what = `${moved} element${moved === 1 ? '' : 's'}`;
+  const from = gone.size === 1 ? containerLabel([...gone][0]) : 'the deleted subprocesses';
+  return into === '*' ? `${what} moved out of ${from} into their nearest remaining container`
+    : `${what} moved out of ${from} into ${containerLabel(into)}`;
+}
 function deleteNode(id) {
   pushHistory();   // B5: undo entry before deleting a node (+ its incident edges)
+  const movedMsg = moveContentsOutOf([id]);   // T-1345, while the deleted node can still be named
   state.nodes = state.nodes.filter(n => n.id !== id);
   state.edges = state.edges.filter(e => e.source !== id && e.target !== id);
   selection = null;
   multiSelect = new Set();
   refreshDisplayIds();
   renderAll();
+  if (movedMsg) showToast(movedMsg);
 }
 function deleteEdge(id) {
   pushHistory();   // B5: undo entry before deleting an edge
