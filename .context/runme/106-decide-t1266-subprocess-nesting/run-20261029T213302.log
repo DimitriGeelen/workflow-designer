@@ -1,0 +1,41 @@
+runme  106-decide-t1266-subprocess-nesting   sha db88dcd81ec3   rehearsed 2026-10-29T18:51:43Z   log: /opt/832-Workflow-designer/.context/runme/106-decide-t1266-subprocess-nesting/run-20261029T213302.log
+Job:   106-decide-t1266-subprocess-nesting   (T-1266)
+What:  Decide T-1266: GO on keeping subprocess nesting on save (option a, drawn flat; two slices)
+       You said GO (2026-10-29) on the agent's recommendation; this records it (fw inception decide is yours to run).
+       Today a save of another tool's file moves subprocess contents up into the process, so an engine runs a different
+       process (boundary-events gains its only start event at top level; kitchen-sink 4 -> 16 top-level starts). Option (a):
+       remember each nested node's subprocess at import and write nodes and flows back inside it on save, still drawn flat.
+       Slice 1 the plain round-trip (validator and notice updated); slice 2 the edit rules (a moved node stays nested, a flow
+       across the boundary is refused, deleting a subprocess moves its contents up and says so). Designer-written maps do not
+       change. Read: docs/reports/T-1266-subprocess-nesting.md (Findings, Options compared, Recommendation).
+       To decide otherwise, answer n at the step and tell the agent. Nothing is pushed.
+Steps (each asks y/N first):
+  1. T-1266: GO, option (a): keep subprocess nesting on save, drawn flat (two build slices) (outward)
+  2. Commit the decided task (only its files) (outward)
+
+ok    on bleeding-edge
+ok    nothing staged
+ok    T-1266 is an active inception with no decision recorded
+ok    its success clause is real (no template placeholder)
+ok    the decide gate's readiness check passes (fw task review)
+
+Step 1/2: T-1266: GO, option (a): keep subprocess nesting on save, drawn flat (two build slices)
+  runs: decide_go
+        | decide_go () 
+        | { 
+        |     .agentic-framework/bin/fw inception decide T-1266 go --rationale "Operator (2026-10-29, recorded by job 106): GO on option (a) — record each nested node's parent subprocess at import and write nodes and flows back inside their container on save, still drawn flat; slice 1 round-trip (validator walks containers, nested nodes outside lanes are not E-XML-NODE-UNASSIGNED, notice updated, T-523 re-pinned), slice 2 edit rules (moved node stays nested, flow across the boundary refused, deleting a subprocess moves its contents up and says so, new nodes never nested). Not (b): canvas redesign for a case AEF never has. Evidence: docs/reports/T-1266-subprocess-nesting.md."
+        | }
+Run step 1/2? [y/N] ERROR: Cannot record decision — 2/2 agent AC unchecked
+
+Unchecked Agent ACs:
+- [ ] A research artifact answers IW-1 with evidence from the fixtures (which shapes of subprocess occur, which cross
+- [ ] A go/no-go recommendation is written for the operator's `fw inception decide` (an operator-only step, handed over
+
+Hint: task body has a filled `## Recommendation` block — AC content likely present.
+  Tick the [x] boxes for each AC whose work is in place, then re-run decide.
+  See CLAUDE.md §Verification Before Completion → Progressive AC ticking (T-1831 C-4).
+
+Why this gate exists: recording the decision before validating ACs would
+leave the task body with Decision=GO but status stuck at started-work
+(T-1503/P-010). Tick the ACs (or remove them if not needed), then re-run.
+STOPPED: step 1/2 failed (rc=1); later steps not run
