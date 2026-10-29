@@ -20031,3 +20031,39 @@ scan_id: R-f52a5006
 task_id: T-1332
 payload:
   task_file: .tasks/active/T-1332-duplicate-display-ids-two-end-events-in-.md
+---
+kind: scan_emitted
+timestamp: '2026-10-29T06:00:37Z'
+scan_id: R-bad708dd
+task_id: T-593
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-29T06:00:37Z'
+scan_id: R-bad708dd
+task_id: T-593
+payload:
+  task_file: .tasks/active/T-593-ewcr-handoff-envelope-records-an-operato.md
+---
+kind: scan_emitted
+timestamp: '2026-10-29T09:31:08Z'
+scan_id: R-4a4bf067
+task_id: T-1335
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-29T09:31:08Z'
+scan_id: R-4a4bf067
+task_id: T-1335
+payload:
+  task_file: .tasks/active/T-1335-field-test-aef-v1815-be51-upgrade-be50--.md

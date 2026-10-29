@@ -1,0 +1,148 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1335: Field-test AEF v1.8.15-be.51: upgrade be.50 -> be.51 (T-4891 pre-push audit scope), doctor/tests before-after, timed push
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-29T09:31:19Z
+# ============================================================================
+
+task_id: T-1335
+task_name: "Field-test AEF v1.8.15-be.51: upgrade be.50 -> be.51 (T-4891 pre-push audit scope), doctor/tests before-after, timed push"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-29T08:28:40Z
+completed: 2026-10-29T09:31:06Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-29T09:31:48+01:00
+last_commit: 2026-10-29T10:31:05+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  job 102 — upgrade AEF v1.8.15-be.50 -> be.51 (lightweight tag 4bd9b17ac, T-4891), from job 101; rehearsed: 9 checks, 9 steps ok in a clone. AEF released v1.8.15 (0230eeb9e = be.51 + records): job 102 (be.51) retired unrun; job 103 upgrades be.50 -> the release tag v1.8.15, rehearsed ok. pristine vendor commit — AEF v1.8.15 (0230eeb9e) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.15 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000). re-apply 832's local fixes onto pristine AEF v1.8.15 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/06f74ad2ee6f, all 37 clean (no three-way, no conflict); designer_open.html restored by its own patch. tools/_t517: OK. v1.8.15 field test done — job 103 rc=0, 37/37 local fixes clean, doctor 0 FAIL (9 = 9 after restart), core 215/0 before and after, push 74.5 s -> 76.5 s (T-4891 WORKS, no speed-up expected here); report sent (msg dab82e38)
+
+# Key outcomes
+outcomes:
+  - 'One ordinary `git push` timed on be.50 (before), with the pre-push hook as it runs. *(74.5 s, push of'
+  - 'Job 102 written from job 101 (be.50 -> be.51, lightweight tag), rehearsed, committed, handed to the operator;'
+  - '832''s local fixes re-applied onto the pristine be.51 commit, `_t517` OK, Watchtower restarted; core tier green.'
+  - 'One ordinary `git push` timed on be.51 (after), the same way. *(On v1.8.15: 76.5 s, push of 023357ff7, core'
+  - 'The report sent on aef-v1815-be3: from -> to, doctor before/after, tests before/after, push time before/after,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'v1.8.15 field test done — job 103 rc=0, 37/37 local fixes clean, doctor 0 FAIL (9 = 9 after restart), core 215/0 before and after, push 74.5 s -> 76.5 s (T-4891 WORKS, no speed-up expected here); report sent (msg dab82e38)'
+    source: git-mined
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.15 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/06f74ad2ee6f, all 37 clean (no three-way, no conflict); designer_open.html restored by its own patch. tools/_t517: OK'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/docs/generated/components/agents-audit-unit_suite_flaky.md'
+  - '.agentic-framework/docs/generated/components/lib-tracked_files.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-helpers-mcp_fixture.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-test_sidecar_dm_unacted_t4880.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-test_sidecar_inbox_reload_identity_t4883.md'
+  - '.agentic-framework/docs/reports/T-1549-escalation-scan-v0.md'
+  - '.agentic-framework/docs/reports/T-4866-shared-state-sweep.md'
+  - '.agentic-framework/docs/reports/field-test-v1.8.15-results.md'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/tracked_files.py'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.context/runme/102-upgrade-aef-v1.8.15-be.51/dryrun.ok'
+  - '.context/runme/102-upgrade-aef-v1.8.15-be.51/job.sh'
+  - '.context/runme/102-upgrade-aef-v1.8.15-be.51/retired'
+  - '.context/runme/103-upgrade-aef-v1.8.15/dryrun.ok'
+  - '.context/runme/103-upgrade-aef-v1.8.15/job.sh'
+  - '.framework.yaml'
+  - '.tasks/active/T-1335-field-test-aef-v1815-be51-upgrade-be50--.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-29T09:31:48'
+    action: 'T-1335: job 102 — upgrade AEF v1.8.15-be.50 -> be.51 (lightweight tag 4bd9b17ac, T-4891), from job 101; rehearsed: 9 checks, 9 steps ok in a clone'
+  - time: '2026-10-29T10:09:15'
+    action: 'T-1335: AEF released v1.8.15 (0230eeb9e = be.51 + records): job 102 (be.51) retired unrun; job 103 upgrades be.50 -> the release tag v1.8.15, rehearsed ok'
+  - time: '2026-10-29T10:13:12'
+    action: 'T-1335: pristine vendor commit — AEF v1.8.15 (0230eeb9e) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-29T10:13:14'
+    action: 'T-1335: advance the divergence baseline to the pristine AEF v1.8.15 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-29T10:14:40'
+    action: 'T-1335: re-apply 832''s local fixes onto pristine AEF v1.8.15 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/06f74ad2ee6f, all 37 clean (no three-way, no conflict); designer_open.html restored by its own patch. tools/_t517: OK'
+  - time: '2026-10-29T10:31:05'
+    action: 'T-1335: v1.8.15 field test done — job 103 rc=0, 37/37 local fixes clean, doctor 0 FAIL (9 = 9 after restart), core 215/0 before and after, push 74.5 s -> 76.5 s (T-4891 WORKS, no speed-up expected here); report sent (msg dab82e38)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 62 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 62
+  commits: 7
+  files_changed: 59
+  lines_added: 4849
+  lines_removed: 3711
+  footprint_refreshed_at: '2026-10-29T09:31:21Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1335-field-test-aef-v1815-be51-upgrade-be50--.md
+generated_by: context-agent-hybrid

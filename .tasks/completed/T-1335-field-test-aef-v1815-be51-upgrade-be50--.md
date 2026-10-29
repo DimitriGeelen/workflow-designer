@@ -4,10 +4,11 @@ name: "Field-test AEF v1.8.15-be.51: upgrade be.50 -> be.51 (T-4891 pre-push aud
 description: >
   AEF msg 61263282 (2026-10-29 08:28Z), relaying the operator: be.51 = be.50 + T-4891 (the pre-push audit no longer walks the whole project tree); the last gate for v1.8.15. Report from->to, doctor before/after, tests before/after, the time of one ordinary git push (before and after, to show T-4891), WORKS/FAILS, anything that broke. Upgrade is an operator job (runme), re-vendor protocol T-1000.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-29T08:28:40Z
-last_update: 2026-10-29T08:28:40Z
-date_finished: null
+last_update: 2026-10-29T09:31:06Z
+date_finished: 2026-10-29T09:31:06Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -363,3 +364,15 @@ test -f .context/runme/102-upgrade-aef-v1.8.15-be.51/retired
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1335-field-test-aef-v1815-be51-upgrade-be50--.md
 - **Context:** Initial task creation
+
+### 2026-10-29T09:31:06Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4a4bf067
+- **Timestamp:** 2026-10-29T09:31:08Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
