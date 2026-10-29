@@ -102,8 +102,10 @@ warns loudly when the tag is missing, so the behaviour exists and the probe's ex
       *(Each clone now restores the tree of the commit `designer-v<VERSION>` names, overlaying only the script under
       test. Current tree 9/9 in 45 s; the drifted scratch clone 9/9 (old probe 4/9); `T396_SCRIPT` = the script minus
       its `is NOT TAGGED` line: 8/9, FAIL "loud warning names the missing tag".)*
-- [ ] It runs where it can catch the next drift (a core or browser leg, or stated why not); core tier green.
-      *(Browser leg `_leg_214`: the script's render gate drives a browser. Before, it ran in no tier.)*
+- [x] It runs where it can catch the next drift (a core or browser leg, or stated why not); core tier green.
+      *(Browser leg `_leg_214`: the script's render gate drives a browser. Before, it ran in no tier. Wiring it shrank the
+      unwired-guard census by one, which the T-451 ratchet reported as a stale baseline entry; removed (90 -> 89). Core
+      GREEN 215/0 at e3c9b469d.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
