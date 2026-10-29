@@ -62,14 +62,22 @@ Held since 2026-10-28 until AEF released v1.8.15 (done 2026-10-29, msg b9b485a6;
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Release notes for 0.32.0 committed: every shipped change since designer-v0.31.0 with its task, what changes in
+- [x] Release notes for 0.32.0 committed: every shipped change since designer-v0.31.0 with its task, what changes in
       files a save writes (third-party files only; designer-written maps unchanged), and the endpoints AEF serves or
-      not as of v1.8.15.
-- [ ] Job 104 written from job 096, rehearsed, committed and handed to the operator; the operator ran it: kit
+      not as of v1.8.15. *(12c25256c)*
+- [x] Job 104 written from job 096, rehearsed, committed and handed to the operator; the operator ran it: kit
       calibrated PASS by two vendors, cut, release commit naming only T-1336, tag designer-v0.32.0, core green, pushed.
-- [ ] AEF told the same day: version, tag, sha256, bytes, what it brings, what changes in stored files.
+      *(Job 104 ran steps 1-5 (bump beb803315; codex 3/3 and GLM-5.3 3/3 PASS; cut, render gate PASS) and stopped at
+      step 6, unconfirmed. Operator: "Finish the release". Job 104 retired; job 105 = its steps 6-9 unchanged plus a
+      dist/ verify, rehearsed, ran rc=0: release commit 898253cfb (names only T-1336), annotated tag designer-v0.32.0
+      (object cc978ce53) on it, core green, branch and tag pushed.)*
+- [x] AEF told the same day: version, tag, sha256, bytes, what it brings, what changes in stored files. *(msg d8513a55:
+      tag designer-v0.32.0 on 898253cfb, sha256 8ed494c19e3f2f682051d43fd53dc6a89c9907ebf22a312a11d867465efcc604,
+      1298447 bytes, kit SHA256SUMS 9eff2639…, the changes, no change for designer-written maps, no new endpoint; and
+      that the earlier rail announcement came from the cut step before the tag existed.)*
 - [ ] AEF's pin tracked until `tools/_t1187-aef-pin-lag.sh` says CURRENT for 0.32.0 (a release is done only when AEF
-      serves it).
+      serves it). *(2026-10-29 after the push: "BEHIND: AEF serves designer 0.31.0; 832 has released 1 since: 0.32.0".
+      AEF said the re-pin is post-release work on their side (msg 4b848498).)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
