@@ -62,15 +62,22 @@ Same steps as job 101 (T-1334). Tests before: core tier GREEN 215/0 at 21cc68edb
 ## Acceptance Criteria
 
 ### Agent
-- [ ] One ordinary `git push` timed on be.50 (before), with the pre-push hook as it runs.
-- [ ] Job 102 written from job 101 (be.50 -> be.51, lightweight tag), rehearsed, committed, handed to the operator;
+- [x] One ordinary `git push` timed on be.50 (before), with the pre-push hook as it runs. *(74.5 s, push of
+      2b297f94c; core-tier check cached; pre-push structure audit 38 pass / 15 warn / 0 fail.)*
+- [x] Job 102 written from job 101 (be.50 -> be.51, lightweight tag), rehearsed, committed, handed to the operator;
       the operator ran it. *(Superseded before it ran: AEF released v1.8.15 = 0230eeb9e = be.51 + records (msg
       b9b485a6), and asks be.50 projects to go to the release tag. Job 102 retired (`retired` file); job 103 (be.50 ->
-      v1.8.15) written from it and rehearsed, 28 ok lines. This criterion is met by job 103 running.)*
-- [ ] 832's local fixes re-applied onto the pristine be.51 commit, `_t517` OK, Watchtower restarted; core tier green.
-- [ ] One ordinary `git push` timed on be.51 (after), the same way.
-- [ ] The report sent on aef-v1815-be3: from -> to, doctor before/after, tests before/after, push time before/after,
-      WORKS/FAILS for T-4891, anything that broke.
+      v1.8.15) written from it and rehearsed, 28 ok lines. This criterion is met by job 103 running.)* *(Job 103 ran
+      2026-10-29 10:09-10:14 local, all 9 steps rc=0; VERSION 1.8.15; pristine 06f74ad2e, baseline 1eb44dec5.)*
+- [x] 832's local fixes re-applied onto the pristine be.51 commit, `_t517` OK, Watchtower restarted; core tier green.
+      *(Onto v1.8.15 instead: 37 patches, 37 clean, 0 three-way, 0 conflicts, 023357ff7; `_t517` OK; Watchtower / and
+      /designer/app 200; core 215/0 before (21cc68edb) and after (023357ff7). Doctor 0 FAIL / 9 before, 10 right after
+      (Watchtower predates its source), 9 after the restart.)*
+- [x] One ordinary `git push` timed on be.51 (after), the same way. *(On v1.8.15: 76.5 s, push of 023357ff7, core
+      check cached, structure audit 38 / 15 / 0 — the same as be.50 within noise; AEF predicted no speed-up for a tree
+      that is not a home directory.)*
+- [x] The report sent on aef-v1815-be3: from -> to, doctor before/after, tests before/after, push time before/after,
+      WORKS/FAILS for T-4891, anything that broke. *(msg dab82e38: T-4891 WORKS (same time, 0 FAIL); nothing broke.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -123,6 +130,10 @@ Same steps as job 101 (T-1334). Tests before: core tier GREEN 215/0 at 21cc68edb
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+grep -qx '1.8.15' .agentic-framework/VERSION
+python3 tools/_t517-vendor-divergence.py > /tmp/.t1335-517 2>&1 && grep -q '^OK' /tmp/.t1335-517
+test -f .context/runme/103-upgrade-aef-v1.8.15/done
+test -f .context/runme/102-upgrade-aef-v1.8.15-be.51/retired
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
