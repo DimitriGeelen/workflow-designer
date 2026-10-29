@@ -4,12 +4,13 @@ name: "kitchen-sink: a boundary event saved below its lane's band moves on reope
 description: >
   Found by T-1339's harness (and present on HEAD before it): kitchen-sink.bpmn opened and saved writes boundary event Event_11fzkjc (on the transaction) at aef:position y=1096; opening that save puts it at y=569, so the boundary events' display ids renumber and the second save differs in 36 lines. Lane Lane_1cofr07 is written with height 1050, so 1096 is outside its band. Blocks T-1339's 'second save byte-identical' criterion for kitchen-sink.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-29T22:01:37Z
-last_update: 2026-10-29T22:06:59Z
-date_finished: null
+last_update: 2026-10-29T22:08:18Z
+date_finished: 2026-10-29T22:08:18Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -62,12 +63,17 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The root cause is named in `## RCA` from a measurement: which step of the first open places Event_11fzkjc at
-      y=1096 with its lane 1050 high, and which step of the reopen moves it to 569.
-- [ ] kitchen-sink.bpmn opened and saved, then that save reopened and saved, gives byte-identical files
+- [x] The root cause is named in `## RCA` from a measurement: which step of the first open places Event_11fzkjc at
+      y=1096 with its lane 1050 high, and which step of the reopen moves it to 569. First open: the render's
+      `syncBoundaryPositions` (host perimeter); reopen: parse's lane reconcile (T-310). Probe: after parse, y=569 on both
+      the HEAD and the T-1339 save. A second cause found on the way: display ids numbered before the snap.
+- [x] kitchen-sink.bpmn opened and saved, then that save reopened and saved, gives byte-identical files
       (`tools/_t1339-subprocess-nesting-roundtrip-cdp.mjs` green on all 4 fixtures, so T-1339's leg is green).
-- [ ] No other fixture's or corpus map's bytes change unless the diff is this fix (`_t358` third-party goldens reviewed,
-      `_t308` 24/24 identical).
+- [x] No other fixture's or corpus map's bytes change unless the diff is this fix (`_t358` third-party goldens reviewed,
+      `_t308` 24/24 identical). Goldens: kitchen-sink and boundary-events boundary events now sit on their host's
+      perimeter (where every render already put them), and those events' file label boxes are no longer kept (T-1264:
+      kept while unmoved). Boundary harnesses green: `_typed-events`, `_roundtrip-serialization`, `_t356`, `_t513`,
+      `_t338`, `_t1168`, `_t601`.
 
 <!-- No ### Human section: nothing renders differently except where a boundary event is drawn after a reopen. -->
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -252,6 +258,8 @@ date_finished: null
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+node tools/_t1339-subprocess-nesting-roundtrip-cdp.mjs > /tmp/t1342-rt.out 2>&1 && grep -q 'ok   kitchen-sink.bpmn' /tmp/t1342-rt.out
+node tools/_t308-export-byte-identity-cdp.mjs > /tmp/t1342-308.out 2>&1 && grep -q '"drifted": 0' /tmp/t1342-308.out
 
 ## RCA
 
@@ -362,3 +370,15 @@ of a third-party file until T-1339's harness.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1342-kitchen-sink-a-boundary-event-saved-belo.md
 - **Context:** Initial task creation
+
+### 2026-10-29T22:08:18Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-16f5a601
+- **Timestamp:** 2026-10-29T22:08:25Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
