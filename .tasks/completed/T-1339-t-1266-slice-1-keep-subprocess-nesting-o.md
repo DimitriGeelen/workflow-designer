@@ -12,13 +12,13 @@ description: >
   a second save is byte-identical, and designer-written maps are unchanged. Slice
   2 (edit rules) is a separate task. Evidence: docs/reports/T-1266-subprocess-nesting.md.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t1327-comments-and-notice-cdp.mjs, tools/_t523-nesting-teeth.py, tools/validate-workflow.py]
 related_tasks: [T-1266, T-523, T-1327, T-1337]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -47,8 +47,8 @@ related_tasks: [T-1266, T-523, T-1327, T-1337]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-29T20:56:53Z
-last_update: 2026-10-29T22:16:46Z
-date_finished:
+last_update: 2026-10-29T23:24:04Z
+date_finished: 2026-10-29T23:24:04Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -119,8 +119,10 @@ slice 2. Findings, fixtures and source paths: `docs/reports/T-1266-subprocess-ne
 - [x] T-523's pin (`tools/_t523-nesting.pin.json`) is re-pinned with the new measurement, and its harness is green.
       Probe rc 0; teeth 9/9 with the mutant retargeted to the new export rule (the old one stopped modelling a loss at
       T-1325, so teeth legs 1-2 had been red on the browser tier since).
-- [ ] The core tier, the browser-tier legs that read import/export (`_t1131`, `_t1261`, `_t1262`, `_t1264`, `_t1271`,
-      `_t1327`, `_t358`) and `tools/person-sees-gate.sh` are green.
+- [x] The core tier, the browser-tier legs that read import/export (`_t1131`, `_t1261`, `_t1262`, `_t1264`, `_t1271`,
+      `_t1327`, `_t358`) and `tools/person-sees-gate.sh` are green. Core 217/217 (after the T-327 guard refused a loop
+      marker in the validator test, fixed); those legs plus `_t1102`, `_t523` and the boundary harnesses rc 0;
+      person-sees-gate exit 0.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -187,7 +189,7 @@ slice 2. Findings, fixtures and source paths: `docs/reports/T-1266-subprocess-ne
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-  **Reviewer verdict:** green V-20261029-a547098a — reviewer-judge-t-1339-r5-opencode-d0753962a6eb:opencode (rung rung-5-panel:opencode), digest 6ba4962bbf0f; dispatch judge-t-1339-r5-opencode-d0753962a6eb; evidence: .context/reviews/evidence/T-1339/AC1-judge-t-1339-r5-opencode-d0753962a6eb.md; ledger .context/reviews/verdicts.jsonl
+  **Reviewer verdict:** green V-20261029-0ed55b8a — reviewer-judge-t-1339-r5-opencode-fd0eac4d5ad5:opencode (rung rung-5-panel:opencode), digest 6ba4962bbf0f; dispatch judge-t-1339-r5-opencode-fd0eac4d5ad5; evidence: .context/reviews/evidence/T-1339/AC1-judge-t-1339-r5-opencode-fd0eac4d5ad5.md; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -477,3 +479,20 @@ Files: `docs/reports/T-1339-evidence/kitchen-sink-{1024,1440,1920}{,-notice}.png
 
 ### 2026-10-29T20:57:03Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-10-29T23:24:04Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3927b001
+- **Timestamp:** 2026-10-29T23:24:26Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#8 (Agent)** — T-523's pin (`tools/_t523-nesting.pin.json`) is re-pinned with the new measurement, and its harness is green.
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t523-nesting.pin in: T-523's pin (`tools/_t523-nesting.pin.json`) is re-pinned with the new measurement, and its harness is green.`

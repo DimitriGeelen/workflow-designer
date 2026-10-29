@@ -1,0 +1,167 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1339: T-1266 slice 1: keep subprocess nesting on an unedited open and save (third-party files, drawn flat)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-29T23:24:37Z
+# ============================================================================
+
+task_id: T-1339
+task_name: "T-1266 slice 1: keep subprocess nesting on an unedited open and save (third-party files, drawn flat)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-29T20:56:53Z
+completed: 2026-10-29T23:24:04Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-10-29T23:07:45+01:00
+last_commit: 2026-10-30T00:23:33+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a third-party file's subprocess nesting is kept on an unedited open and save (T-1266 GO slice 1) — import records each nested node's container (n.parent), export writes nodes and their flows inside it (flat sequence unchanged with no nesting), node reads no longer take a nested node's aef data as the container's; validator walks containers; notice says kept, drawn flat; T-523 re-pinned, teeth retargeted; new harness (23 nodes / 6 flows, second save identical) and validator test; goldens re-recorded (the 4 nesting fixtures). visual evidence (person-sees gate exit 0; notice shots at 1024/1440/1920, measured and read), Human criterion for the reviewer, decisions (first-line indent, own-node reads, notice wording), verification lines. reviewer verdict. reviewer verdict (codex seat codex, recorded by the runtime). reviewer verdict (opencode seat opencode, recorded by the runtime). Human criterion 1 judged green by the independent reviewer panel (claude-code, codex, opencode; V-20261029-a547098a), applied with fw reviewer verdict apply; advisory sweep clean. validator test pins the container-own-children skip on incoming/outgoing only — the T-327 emitter-fidelity guard (core) refused standardLoopCharacteristics, which the emitters write only as kept verbatim content; still red on the pre-T-1339 validator (2 of 5)
+
+# Key outcomes
+outcomes:
+  - 'Import records, for each node inside a `subProcess`, `transaction` or `adHocSubProcess`, the uid of its innermost'
+  - 'Export writes each nested node inside its container, and each sequence flow inside the container of its two ends'
+  - 'The 4 nesting fixtures (simple, boundary-events, nested-subprocesses, kitchen-sink), opened and saved unedited,'
+  - 'A second save of each is byte-identical to the first. Needed T-1342 for kitchen-sink (its boundary events moved'
+  - 'Every designer-written corpus map (`examples/aef-processes/rendered`) saves byte-identically to before (T-358/T-308'
+  - 'The validator (`validate-workflow.py`) walks into containers: a nested node is found and checked, and a nested'
+  - 'The import notice no longer says "subprocess nesting is NOT kept" for a file whose nesting is now kept'
+  - 'T-523''s pin (`tools/_t523-nesting.pin.json`) is re-pinned with the new measurement, and its harness is green.'
+  - 'The core tier, the browser-tier legs that read import/export (`_t1131`, `_t1261`, `_t1262`, `_t1264`, `_t1271`,'
+  - 'The import notice''s subprocess line says truthfully what a person sees and what a save does, and the notice'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'a third-party file''s subprocess nesting is kept on an unedited open and save (T-1266 GO slice 1) — import records each nested node''s container (n.parent), export writes nodes and their flows inside it (flat sequence unchanged with no nesting), node reads no longer take a nested node''s aef data as the container''s; validator walks containers; notice says kept, drawn flat; T-523 re-pinned, teeth retargeted; new harness (23 nodes / 6 flows, second save identical) and validator test; goldens re-recorded (the 4 nesting fixtures)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-10-29 — indenting nested elements'
+    chose: 'indent only the first line of each written entry by two spaces per nesting level; `incoming`/`outgoing` are written one entry per line so they indent too. A nested node''s `extensionElements` contents sit two spaces short.'
+    rationale: 'an entry''s inner lines can be kept XML (other tools'' extensions, event definitions, documentation text), stored verbatim with the file''s whitespace and read back verbatim. Indenting them added two spaces on every save (the second save differed), and inside `documentation` or a condition it would change the text itself.'
+    alternatives_rejected: ['indenting every line (unstable, alters text content); no indentation for nested elements (stable but unreadable nesting).']
+  - decision: '2026-10-29 — node reads inside a container'
+    chose: 'in the import''s node loop, `byAef`/`byBpmn` stop at another imported node (`ownOnly`).'
+    rationale: 'they are descendant queries. Once a saved container holds its nodes, the container would read a nested node''s `aef:position`, `aef:meta`, documentation … as its own. With no nested node the result is unchanged.'
+    alternatives_rejected: ['rewriting each read as a direct-child query (14 sites, more change for the same result).']
+  - decision: '2026-10-29 — the notice line'
+    chose: 'keep a line for nested contents, flipped to "drawn at the top level of the canvas — on save they stay inside their subprocess".'
+    rationale: 'the canvas still shows them flat, so a person who sees them outside the subprocess needs to know the file is not changed by that.'
+    alternatives_rejected: ['dropping the line (the flat drawing would then read as the file''s truth).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1339/AC1-judge-t-1339-r5-claude-code-66a506082770.md'
+  - '.context/reviews/evidence/T-1339/AC1-judge-t-1339-r5-claude-code-c114243ea574.md'
+  - '.context/reviews/evidence/T-1339/AC1-judge-t-1339-r5-codex-743dd518ac3e.md'
+  - '.context/reviews/evidence/T-1339/AC1-judge-t-1339-r5-codex-7c5378154735.md'
+  - '.context/reviews/evidence/T-1339/AC1-judge-t-1339-r5-opencode-d0753962a6eb.md'
+  - '.context/reviews/evidence/T-1339/AC1-judge-t-1339-r5-opencode-fd0eac4d5ad5.md'
+  - '.context/reviews/evidence/T-1339/kitchen-sink-1024-judge-t-1339-r5-claude-code-66a506082770.png'
+  - '.context/reviews/evidence/T-1339/kitchen-sink-1024-judge-t-1339-r5-claude-code-c114243ea574.png'
+  - '.context/reviews/evidence/T-1339/kitchen-sink-1024-notice-judge-t-1339-r5-claude-code-66a506082770.png'
+  - '.context/reviews/evidence/T-1339/kitchen-sink-1024-notice-judge-t-1339-r5-claude-code-c114243ea574.png'
+  - '.context/reviews/evidence/T-1339/kitchen-sink-1440-notice-judge-t-1339-r5-claude-code-66a506082770.png'
+  - '.context/reviews/evidence/T-1339/kitchen-sink-1440-notice-judge-t-1339-r5-claude-code-c114243ea574.png'
+  - '.context/reviews/evidence/T-1339/kitchen-sink-1920-judge-t-1339-r5-claude-code-66a506082770.png'
+  - '.context/reviews/evidence/T-1339/kitchen-sink-1920-judge-t-1339-r5-claude-code-c114243ea574.png'
+  - '.context/reviews/evidence/T-1339/kitchen-sink-1920-notice-judge-t-1339-r5-claude-code-66a506082770.png'
+  - '.context/reviews/evidence/T-1339/kitchen-sink-1920-notice-judge-t-1339-r5-claude-code-c114243ea574.png'
+  - '.context/reviews/evidence/T-1339/plain-designer-map-1440-judge-t-1339-r5-claude-code-66a506082770.png'
+  - '.context/reviews/evidence/T-1339/plain-designer-map-1440-judge-t-1339-r5-claude-code-c114243ea574.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1339-t-1266-slice-1-keep-subprocess-nesting-o.md'
+  - 'docs/reports/T-1339-evidence/kitchen-sink-1024-notice.png'
+  - 'docs/reports/T-1339-evidence/kitchen-sink-1024.png'
+  - 'docs/reports/T-1339-evidence/kitchen-sink-1440-notice.png'
+  - 'docs/reports/T-1339-evidence/kitchen-sink-1440.png'
+  - 'docs/reports/T-1339-evidence/kitchen-sink-1920-notice.png'
+  - 'docs/reports/T-1339-evidence/kitchen-sink-1920.png'
+  - 'docs/reports/T-1339-evidence/measures.json'
+  - 'docs/reports/T-1339-evidence/nested-lanes-1024-notice.png'
+  - 'docs/reports/T-1339-evidence/nested-lanes-1024.png'
+  - 'docs/reports/T-1339-evidence/nested-lanes-1440-notice.png'
+  - 'docs/reports/T-1339-evidence/nested-lanes-1440.png'
+  - 'docs/reports/T-1339-evidence/nested-lanes-1920-notice.png'
+  - 'docs/reports/T-1339-evidence/nested-lanes-1920.png'
+  - 'docs/reports/T-1339-evidence/plain-designer-map-1024.png'
+  - 'docs/reports/T-1339-evidence/plain-designer-map-1440.png'
+  - 'docs/reports/T-1339-evidence/plain-designer-map-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/goldens/third-party/boundary-events.bpmn.golden'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/goldens/third-party/nested-subprocesses.bpmn.golden'
+  - 'tests/goldens/third-party/simple.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t1339_validator_nesting.py'
+  - 'tools/_t1327-comments-and-notice-cdp.mjs'
+  - 'tools/_t1339-subprocess-nesting-roundtrip-cdp.mjs'
+  - 'tools/_t523-nesting-teeth.py'
+  - 'tools/_t523-nesting.pin.json'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-29T23:07:45'
+    action: 'T-1339: a third-party file''s subprocess nesting is kept on an unedited open and save (T-1266 GO slice 1) — import records each nested node''s container (n.parent), export writes nodes and their flows inside it (flat sequence unchanged with no nesting), node reads no longer take a nested node''s aef data as the container''s; validator walks containers; notice says kept, drawn flat; T-523 re-pinned, teeth retargeted; new harness (23 nodes / 6 flows, second save identical) and validator test; goldens re-recorded (the 4 nesting fixtures)'
+  - time: '2026-10-29T23:16:46'
+    action: 'T-1339: visual evidence (person-sees gate exit 0; notice shots at 1024/1440/1920, measured and read), Human criterion for the reviewer, decisions (first-line indent, own-node reads, notice wording), verification lines'
+  - time: '2026-10-29T23:19:40'
+    action: 'T-1339: reviewer verdict'
+  - time: '2026-10-29T23:20:24'
+    action: 'T-1339: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-10-29T23:23:29'
+    action: 'T-1339: reviewer verdict (opencode seat opencode, recorded by the runtime)'
+  - time: '2026-10-29T23:38:12'
+    action: 'T-1339: Human criterion 1 judged green by the independent reviewer panel (claude-code, codex, opencode; V-20261029-a547098a), applied with fw reviewer verdict apply; advisory sweep clean'
+  - time: '2026-10-29T23:58:19'
+    action: 'T-1339: validator test pins the container-own-children skip on incoming/outgoing only — the T-327 emitter-fidelity guard (core) refused standardLoopCharacteristics, which the emitters write only as kept verbatim content; still red on the pre-T-1339 validator (2 of 5)'
+  - time: '2026-10-30T00:19:39'
+    action: 'T-1339: reviewer verdict'
+  - time: '2026-10-30T00:20:32'
+    action: 'T-1339: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-10-30T00:23:33'
+    action: 'T-1339: reviewer verdict (opencode seat opencode, recorded by the runtime)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 10 commit(s), 147 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 147
+  commits: 11
+  files_changed: 56
+  lines_added: 1605
+  lines_removed: 263
+  footprint_refreshed_at: '2026-10-29T23:24:44Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1339-t-1266-slice-1-keep-subprocess-nesting-o.md
+generated_by: context-agent-hybrid

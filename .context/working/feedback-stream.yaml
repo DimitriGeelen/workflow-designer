@@ -20201,3 +20201,21 @@ scan_id: R-16f5a601
 task_id: T-1342
 payload:
   task_file: .tasks/active/T-1342-kitchen-sink-a-boundary-event-saved-belo.md
+---
+kind: scan_emitted
+timestamp: '2026-10-29T23:24:26Z'
+scan_id: R-3927b001
+task_id: T-1339
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-29T23:24:26Z'
+scan_id: R-3927b001
+task_id: T-1339
+payload:
+  task_file: .tasks/active/T-1339-t-1266-slice-1-keep-subprocess-nesting-o.md
