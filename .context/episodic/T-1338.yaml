@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1338: _t1327 notice harness asserts the layout-redrawn wording T-1264 replaced (browser leg 205 red)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-29T20:56:23Z
+# ============================================================================
+
+task_id: T-1338
+task_name: "_t1327 notice harness asserts the layout-redrawn wording T-1264 replaced (browser leg 205 red)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-29T20:53:00Z
+completed: 2026-10-29T20:56:06Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-29T21:56:01+01:00
+last_commit: 2026-10-29T21:56:01+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the T-1327 notice harness asserts T-1264's wording (pool and lane outlines not kept), green again; --phrases checks every asserted phrase is a literal in the source, run by new core leg _leg_215 (old phrase list fails it)
+
+# Key outcomes
+outcomes:
+  - '`tools/_t1327-comments-and-notice-cdp.mjs` asserts T-1264''s wording for what a save of kitchen-sink still loses'
+  - 'A `--phrases` mode checks, without a browser, that every notice phrase the harness asserts occurs literally in the'
+  - '`tests/test_t1288_tiers` and the T-451 unwired-guard ratchet stay green with the new leg. 10 passed; ratchet 89 = 89.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1338-t1327-notice-harness-asserts-the-layout-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1327-comments-and-notice-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-29T21:56:01'
+    action: 'T-1338: the T-1327 notice harness asserts T-1264''s wording (pool and lane outlines not kept), green again; --phrases checks every asserted phrase is a literal in the source, run by new core leg _leg_215 (old phrase list fails it)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 3
+  commits: 2
+  files_changed: 6
+  lines_added: 513
+  lines_removed: 9
+  footprint_refreshed_at: '2026-10-29T20:56:34Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1338-t1327-notice-harness-asserts-the-layout-.md
+generated_by: context-agent-hybrid

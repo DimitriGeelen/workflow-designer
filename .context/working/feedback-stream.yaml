@@ -20147,3 +20147,21 @@ scan_id: R-67e1c25a
 task_id: T-1337
 payload:
   task_file: .tasks/active/T-1337-a-plain-bpmntask-inside-a-transaction-or.md
+---
+kind: scan_emitted
+timestamp: '2026-10-29T20:56:10Z'
+scan_id: R-1979469d
+task_id: T-1338
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-29T20:56:10Z'
+scan_id: R-1979469d
+task_id: T-1338
+payload:
+  task_file: .tasks/active/T-1338-t1327-notice-harness-asserts-the-layout-.md

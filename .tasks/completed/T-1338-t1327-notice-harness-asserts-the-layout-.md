@@ -4,12 +4,13 @@ name: "_t1327 notice harness asserts the layout-redrawn wording T-1264 replaced 
 description: >
   tools/_t1327-comments-and-notice-cdp.mjs leg 3 requires the kitchen-sink notice to say 'layout is redrawn on save'; T-1264 kept imported geometry and reworded that part ('on save, shapes that neither you nor this import moved keep this file's sizes and labels ... the file's original pool and lane outlines are NOT kept'). Red on HEAD; browser tier, so the pre-push core tier never ran it. Found while closing T-1337.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t1327-comments-and-notice-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-29T20:53:00Z
-last_update: 2026-10-29T20:56:00Z
-date_finished: null
+last_update: 2026-10-29T20:56:06Z
+date_finished: 2026-10-29T20:56:06Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -362,3 +363,20 @@ a rewording now fails at push, not at the next browser-tier run.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1338-t1327-notice-harness-asserts-the-layout-.md
 - **Context:** Initial task creation
+
+### 2026-10-29T20:56:06Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1979469d
+- **Timestamp:** 2026-10-29T20:56:10Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 137
+     - evidence: `node tools/_t1327-comments-and-notice-cdp.mjs > /tmp/t1338-full.out 2>&1 && head -2 /tmp/t1338-full.out | grep -q '"ok": true'`
