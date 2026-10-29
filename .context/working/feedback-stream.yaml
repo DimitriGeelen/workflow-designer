@@ -20013,3 +20013,21 @@ scan_id: R-5f55a0c7
 task_id: T-1102
 payload:
   task_file: .tasks/active/T-1102-duplicate-node-ids-within-one-lane-start.md
+---
+kind: scan_emitted
+timestamp: '2026-10-29T01:26:35Z'
+scan_id: R-f52a5006
+task_id: T-1332
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-29T01:26:35Z'
+scan_id: R-f52a5006
+task_id: T-1332
+payload:
+  task_file: .tasks/active/T-1332-duplicate-display-ids-two-end-events-in-.md
