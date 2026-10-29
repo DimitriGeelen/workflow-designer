@@ -128,8 +128,9 @@ BPMN (an id must be unique in a document). Seen on kitchen-sink (filed 2026-10-0
        `bin/fw reviewer T-1102 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 - [ ] **Shown as a person sees it:** on kitchen-sink at 1024, 1440 and 1920, the node labels under the events read as
-  distinct ids — the events inside the event-subprocess (in no lane) now read `la3_start_event…`, the events in the
-  lane named "Lane" keep `lan_start_event…` — and nothing else on screen changed (toolbar, notice, panels as before).
+  distinct ids — the events inside the event-subprocess (in no lane) now read `la3_start_event…`, the events in lane
+  `Lane_1cofr07` (abbreviation `lan`) keep `lan_start_event…`, and lane "Lane" (`Lane_1vakzes`) keeps `la2_…` — and
+  nothing else on screen changed (toolbar, notice, panels as before).
   Screenshots in `docs/reports/T-1102-evidence/` (full pages, and `kitchen-sink-1920-ids-crop.png` enlarged 3x so the
   labels are legible), read in `## Visual Verification`.
   For the independent reviewer: `fw reviewer judge T-1102 --criterion 1` (render-surface, no operator carve-out).
@@ -274,7 +275,7 @@ labels are ~7 px at fit zoom. Read by the agent, 2026-10-29:
 
 | state | control | 1024 | 1440 | 1920 | note |
 |-------|---------|------|------|------|------|
-| kitchen-sink | event labels under the nodes | ok | ok | ok | crop: lane "Lane" events `lan_start_event`, `_2`, `_3`; event-subprocess events `la3_start_event`, `_2` … `_12`; no two alike |
+| kitchen-sink | event labels under the nodes | ok | ok | ok | crop: lane `Lane_1cofr07` (abbr `lan`) events `lan_start_event`, `_2`, `_3`; event-subprocess events `la3_start_event`, `_2` … `_12`; no two alike. (First written as lane "Lane": wrong, judge round 1 — lane "Lane" is `Lane_1vakzes`, abbr `la2`, reads `la2_…`.) |
 | kitchen-sink | header, toolbar, notice, side panels | ok | ok | ok | unchanged from T-1264's shots |
 | plain designer map | labels | ok | ok | ok | unchanged (designer maps keep every id: harness leg 3) |
 
@@ -282,6 +283,22 @@ Gate: the first run exited 1 on the sweep harness's Name-field leg (at 1440 a na
 1920 typed text stored wrong, focus lost). Run alone it passed twice on this source and once on the old one, so a
 timing flake under load (the half-hourly cron audit falls in that window), not this change; the gate re-run exited 0
 (label-clearance, name-fit, sweep, note-box, toolbar-reach 21/21, project-browser all PASS).
+
+**Advisory sweep** (codex `t1102-sweep-49129db68b25`, 2026-10-29, no verdict asked), in substance: no two readable
+labels alike in the crop (`la3_…` and `lan_…` distinguishable, numbered variants too); no clipping, overlap or hidden
+control attributable to the new prefix; the crowded central cluster and the small 1024 canvas are visible problems but
+the diff changes id assignment, not positions; nested-lanes and the plain map show nothing concerning (it had no
+"before" images: harness leg 3 is that check). One comprehension point: nothing on screen says why `la3_` differs from
+`lan_`. **Disposition:** not acted on here. Before, the lane-less events read `lan_`, which was equally unexplained and
+worse, since it read as a member of the real lane abbreviated `lan`; an explanation of id prefixes is a separate UI
+question.
+
+**Judge round 1: AMBER** (judge-t-1102-r1-250ff33144c9, claude-code seat). Met: the ids are distinct; a pixel diff
+against T-1264's shots changes only event labels (1024: 0 cells; 1440 and 1920: label positions only). Owed: "The
+criterion says the lan_ events are in the lane named 'Lane'. They are in lane Lane_1cofr07 (abbr lan). Lane 'Lane'
+(Lane_1vakzes) has abbr la2 and reads la2_*. Correct the AC text and the Visual Verification row (the commit message
+has the same mislabel), then re-judge." **Done:** criterion, table row, RCA corrected; the source comment and harness
+header corrected in the next commit (62d8cff9b's message keeps the mislabel; this note is its correction).
 
 Not this change: in the crop, the label `la3_start_event` runs under the "Event-Subprocess" box, and several events sit
 close together — kitchen-sink's own geometry (T-1264's sweep noted the same cluster).
@@ -305,7 +322,9 @@ close together — kitchen-sink's own geometry (T-1264's sweep noted the same cl
 **Symptom:** kitchen-sink saved two `bpmn:endEvent id="lan_end_event"` (and three start-event ids twice): invalid BPMN,
 and a second save differed because the duplicates collapsed on re-import.
 **Root cause:** `computeDisplayId` numbers events within the nodes sharing `node.lane`, but takes the prefix from the
-lane's abbreviation with a fallback `lan` for a node whose lane is missing. A real lane named "Lane" also derives `lan`.
+lane's abbreviation with a fallback `lan` for a node whose lane is missing. A real lane can also derive `lan`: in
+kitchen-sink it is `Lane_1cofr07` (no name in the source, abbreviation derived from its id). (Not the lane named
+"Lane", as first written — that one is `Lane_1vakzes`, abbreviation `la2`; corrected after judge round 1.)
 The lane-less events (inside an event subprocess) and that lane's events were two groups with one prefix, each starting
 its count at 1. `uniqueAbbrAmong` kept lane abbreviations unique among lanes (T-1088) but not against the fallback.
 **Why structurally allowed:** every id check ran on designer-written maps, where every node is in a lane; the

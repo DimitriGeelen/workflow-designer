@@ -36,8 +36,9 @@ async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = awa
 
 // Declared order: start, task, gateway, foreign task, task, end. Grouping by kind would put the end event second.
 
-// Minimal case, the shape the kitchen-sink diagnosis named: a real lane called "Lane" (abbreviation `lan`, the same as
-// the no-lane fallback) holding a start event "Begin", and a subprocess whose start event "Begin" is in no lane.
+// Minimal case, the shape the kitchen-sink diagnosis named: a real lane whose abbreviation is `lan`, the same as the
+// no-lane fallback (here a lane called "Lane"; in kitchen-sink it is Lane_1cofr07), holding a start event "Begin", and a
+// subprocess whose start event "Begin" is in no lane.
 const MIN = `<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Defs_1" targetNamespace="http://example.com/t1102">
   <bpmn:process id="Proc_1" isExecutable="false">

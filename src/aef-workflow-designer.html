@@ -2350,8 +2350,9 @@ function isStepNumbered(node) { return stepWordOf(node) === null; }
 // If two nodes share an x exactly, uid order breaks the tie deterministically.
 // T-1102: a node with no lane (an event inside a subprocess, a lane id the map no longer has) or in a lane without an
 // abbreviation belongs to ONE "unlaned" group, prefixed `lan` unless a real lane already has that abbreviation; it then
-// takes the lane-variant scheme's next free one. Before, the fallback `lan` was shared with a real lane named "Lane"
-// (abbr `lan`) while each side numbered on its own, so kitchen-sink saved two endEvents as `lan_end_event`.
+// takes the lane-variant scheme's next free one. Before, the fallback `lan` was shared with a real lane whose
+// abbreviation is also `lan` (kitchen-sink: Lane_1cofr07) while each side numbered on its own, so kitchen-sink saved
+// two endEvents as `lan_end_event`.
 const laneKeyOf = n => { const l = findLane(n.lane); return l && l.abbr ? l.id : null; };
 function computeDisplayId(node) {
   const lane = findLane(node.lane);

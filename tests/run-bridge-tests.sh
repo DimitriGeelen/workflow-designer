@@ -1641,7 +1641,7 @@ leg core "_t1331-pipe-grep-q-census" _leg_212
 _leg_213() {
 
 # ── T-1102: every node's display id is unique within its map (the display id IS the saved element id) ──
-# Lane-less nodes (events inside a subprocess) shared the fallback prefix `lan` with a real lane named "Lane" while each
+# Lane-less nodes (events inside a subprocess) shared the fallback prefix `lan` with a real lane abbreviated `lan` while each
 # side numbered on its own: kitchen-sink saved two endEvents as `lan_end_event`. Red against the pre-T-1102 source.
 if node "$ROOT/tools/_t1102-unique-display-ids-cdp.mjs" > "$TMP/leg-_t1102.out" 2>&1 \
    && [ "$(sed -n 2p "$TMP/leg-_t1102.out")" = '  "ok": true,' ]; then
