@@ -77,7 +77,10 @@ Held since 2026-10-28 until AEF released v1.8.15 (done 2026-10-29, msg b9b485a6;
       that the earlier rail announcement came from the cut step before the tag existed.)*
 - [ ] AEF's pin tracked until `tools/_t1187-aef-pin-lag.sh` says CURRENT for 0.32.0 (a release is done only when AEF
       serves it). *(2026-10-29 after the push: "BEHIND: AEF serves designer 0.31.0; 832 has released 1 since: 0.32.0".
-      AEF said the re-pin is post-release work on their side (msg 4b848498).)*
+      AEF said the re-pin is post-release work on their side (msg 4b848498).)* *(13:51Z AEF reported the re-pin done
+      (msg 11f89a0d: AEF T-4900, commits 46a3a9238 + c81d0c848, every anchor agrees, Watchtower serves 0.32.0); our check
+      still read BEHIND: their PUBLIC bleeding-edge head was a7c6365d5 with `version: "0.31.0"` in
+      policy/designer-pin.yaml, i.e. the re-pin was not pushed there. Asked them to push it (msg 91ca89bc).)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
