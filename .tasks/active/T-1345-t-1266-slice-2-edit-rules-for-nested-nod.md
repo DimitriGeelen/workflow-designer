@@ -114,7 +114,7 @@ subprocess reachability in the validator (F5-10, its own question).
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1345 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-- [ ] The two messages say plainly what happened and why, and read at 1024, 1440 and 1920
+- [x] The two messages say plainly what happened and why, and read at 1024, 1440 and 1920
       **Why you:** whether "Not connected: … a sequence flow cannot cross a subprocess boundary" and "4 elements moved
       out of subprocess "Outer" into the process" tell a person what happened, why, and what is now true is a reading
       judgement; the screenshots are the evidence.
@@ -146,6 +146,7 @@ subprocess reachability in the validator (F5-10, its own question).
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261029-ef521228 — reviewer-judge-t-1345-r3-69a3f7289162:reviewer (rung rung-3-termlink-single-reviewer), digest a5106bed9736; dispatch judge-t-1345-r3-69a3f7289162; evidence: .context/reviews/evidence/T-1345/AC1-judge-t-1345-r3-69a3f7289162.md, .context/reviews/evidence/T-1345/refused-1024-toast-judge-t-1345-r3-69a3f7289162.png, .context/reviews/evidence/T-1345/refused-1440-toast-judge-t-1345-r3-69a3f7289162.png, .context/reviews/evidence/T-1345/refused-1920-toast-judge-t-1345-r3-69a3f7289162.png, .context/reviews/evidence/T-1345/deleted-1024-toast-judge-t-1345-r3-69a3f7289162.png, .context/reviews/evidence/T-1345/deleted-1440-toast-judge-t-1345-r3-69a3f7289162.png, .context/reviews/evidence/T-1345/deleted-1920-toast-judge-t-1345-r3-69a3f7289162.png, .context/reviews/evidence/T-1345/refused-1024-judge-t-1345-r3-69a3f7289162.png, .context/reviews/evidence/T-1345/deleted-1024-judge-t-1345-r3-69a3f7289162.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
