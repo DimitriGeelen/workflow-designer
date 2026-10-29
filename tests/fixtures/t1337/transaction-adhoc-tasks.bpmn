@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-1337: plain bpmn:task nodes inside a transaction and an adHocSubProcess (written by hand for the test; no DI). -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_t1337" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="Process_t1337" isExecutable="false">
+    <bpmn:startEvent id="Start_1">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="Start_1" targetRef="Tx_1" />
+    <bpmn:transaction id="Tx_1" name="Book trip">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+      <bpmn:startEvent id="TxStart_1">
+        <bpmn:outgoing>Flow_Tx1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:sequenceFlow id="Flow_Tx1" sourceRef="TxStart_1" targetRef="TxTask_1" />
+      <bpmn:task id="TxTask_1" name="Reserve seat">
+        <bpmn:incoming>Flow_Tx1</bpmn:incoming>
+        <bpmn:outgoing>Flow_Tx2</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:sequenceFlow id="Flow_Tx2" sourceRef="TxTask_1" targetRef="TxEnd_1" />
+      <bpmn:endEvent id="TxEnd_1">
+        <bpmn:incoming>Flow_Tx2</bpmn:incoming>
+      </bpmn:endEvent>
+    </bpmn:transaction>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Tx_1" targetRef="Adhoc_1" />
+    <bpmn:adHocSubProcess id="Adhoc_1" name="Prepare">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+      <bpmn:task id="AdhocTask_1" name="Pack bag" />
+      <bpmn:sendTask id="AdhocTask_2" name="Tell family" />
+      <bpmn:completionCondition xsi:type="bpmn:tFormalExpression">done</bpmn:completionCondition>
+    </bpmn:adHocSubProcess>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Adhoc_1" targetRef="End_1" />
+    <bpmn:endEvent id="End_1">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+</bpmn:definitions>

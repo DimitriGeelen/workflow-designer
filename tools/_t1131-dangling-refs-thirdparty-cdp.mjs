@@ -4,6 +4,8 @@
 // recorded passes them forever; this checks validity instead of bytes. Scans, in the real editor's output:
 //   attributes sourceRef / targetRef / bpmnElement / dataObjectRef / processRef / attachedToRef / default, and the
 //   text of <sourceRef>/<targetRef>/<incoming>/<outgoing>/<flowNodeRef> elements.
+// T-1337: also tests/fixtures/t1337 (a plain task in a transaction and in an adHocSubProcess), where the imported
+// nodes must be exactly the file's flow nodes: two of them have no flows, so the reference scan alone would not miss them.
 //   node tools/_t1131-dangling-refs-thirdparty-cdp.mjs [--designer PATH]
 // Exit 0 = no dangling reference in any export; 1 = some; 2 = misconfig.
 import { makeProfileDir } from './_cdp-profile.mjs';
@@ -19,6 +21,8 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
 const SERVER = join(HERE, 'gallery-serve.py');
 const FIXDIR = join(REPO, 'tests', 'fixtures', 'third-party');
+const T1337 = join(REPO, 'tests', 'fixtures', 't1337', 'transaction-adhoc-tasks.bpmn');
+const T1337_NODES = ['Start_1', 'Tx_1', 'TxStart_1', 'TxTask_1', 'TxEnd_1', 'Adhoc_1', 'AdhocTask_1', 'AdhocTask_2', 'End_1'];
 const argv = process.argv.slice(2);
 const DESIGNER = (argv.indexOf('--designer') >= 0 && argv[argv.indexOf('--designer') + 1]) || join(REPO, 'src', 'aef-workflow-designer.html');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -48,7 +52,8 @@ const SCAN = `(function(xml){
 
 async function main() {
   if (!existsSync(DESIGNER)) { console.log(JSON.stringify({ ok: false, error: 'missing ' + DESIGNER })); process.exitCode = 2; return; }
-  const fixtures = readdirSync(FIXDIR).filter(f => f.endsWith('.bpmn')).sort();
+  const fixtures = readdirSync(FIXDIR).filter(f => f.endsWith('.bpmn')).sort().map(f => [f, join(FIXDIR, f), null]);
+  fixtures.push(['t1337/transaction-adhoc-tasks.bpmn', T1337, T1337_NODES]);
   const doc = mkdtempSync(join(tmpdir(), 't1131-doc-'));
   const repo = mkdtempSync(join(tmpdir(), 't1131-repo-'));
   copyFileSync(DESIGNER, join(doc, 'designer.html'));
@@ -66,9 +71,13 @@ async function main() {
     await cmd('Page.enable'); await cmd('Runtime.enable');
     await cmd('Page.addScriptToEvaluateOnNewDocument', { source: 'window.alert = function(){}; window.confirm = function(){ return true; };' });
     await cmd('Page.navigate', { url: `${BASE}/designer.html` }); await waitReady(cmd); await sleep(300);
-    for (const f of fixtures) {
-      const xml = readFileSync(join(FIXDIR, f), 'utf8');
-      const r = await ev(cmd, `(function(){ try { adoptImportedXml(${JSON.stringify(xml)}, { userImport: true }); renderAll(); return ${SCAN}(buildBpmnXml(state)); } catch (e) { return { error: String(e) }; } })()`);
+    for (const [f, path, wantNodes] of fixtures) {
+      const xml = readFileSync(path, 'utf8');
+      const r = await ev(cmd, `(function(){ try { adoptImportedXml(${JSON.stringify(xml)}, { userImport: true }); renderAll(); var r = ${SCAN}(buildBpmnXml(state)); r.nodes = state.nodes.map(function(n){ return n.originalId || n.id; }); return r; } catch (e) { return { error: String(e) }; } })()`);
+      if (wantNodes && r && r.bad) {
+        const got = (r.nodes || []).slice().sort().join(','), want = wantNodes.slice().sort().join(',');
+        if (got !== want) r.bad.push(`nodes: got [${got}], want [${want}]`);
+      }
       rows.push({ f, r });
     }
   } catch (e) {

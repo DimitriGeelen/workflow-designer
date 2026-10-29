@@ -15012,9 +15012,12 @@ function parseBpmnXml(text) {
   // bpmn:task) nested in a subProcess was not, so its flows were written pointing at an id the export did not contain
   // (third-party simple.bpmn, boundary-events.bpmn: targetRef="Task_1"). A subProcess's own non-node children
   // (incoming/outgoing, loop characteristics, data associations) are skipped as well as the process-level ones.
+  // T-1337: every subprocess kind BPMN has, not only subProcess: a plain task inside a transaction or an
+  // adHocSubProcess was never collected (dangling flows, the T-1131 class). completionCondition is an adHoc's own.
   const SUBPROC_NON_FLOWNODE = new Set(['incoming', 'outgoing', 'standardLoopCharacteristics',
-    'multiInstanceLoopCharacteristics', 'dataInputAssociation', 'dataOutputAssociation']);
-  const foreignContainers = [proc, ...byBpmn(proc, 'subProcess')];
+    'multiInstanceLoopCharacteristics', 'dataInputAssociation', 'dataOutputAssociation', 'completionCondition']);
+  const SUBPROC_TAGS = new Set(['subProcess', 'transaction', 'adHocSubProcess']);
+  const foreignContainers = [proc, ...Array.from(proc.getElementsByTagNameNS(BPMN_NS, '*')).filter(el => SUBPROC_TAGS.has(el.localName))];
   for (const cont of foreignContainers) {
     for (const el of Array.from(cont.children || [])) {
       if (el.namespaceURI !== BPMN_NS) continue;
@@ -15448,8 +15451,7 @@ function parseBpmnXml(text) {
   })();
   // T-1327: what this file loses on save, for the import notice. A file the designer wrote has its geometry by
   // construction, so only another tool's DI is "redrawn".
-  const SUBPROC_TAGS = new Set(['subProcess', 'transaction', 'adHocSubProcess']);
-  const hoisted = nodeWork.filter(w => w[1].parentNode && SUBPROC_TAGS.has(w[1].parentNode.localName));
+  const hoisted =nodeWork.filter(w => w[1].parentNode && SUBPROC_TAGS.has(w[1].parentNode.localName));
   _importNotKeptReport = {
     diRedrawn: sourceCarriedDi && doc.documentElement.getAttribute('exporter') !== BPMN_EXPORTER,
     hoistedNodes: hoisted.length,

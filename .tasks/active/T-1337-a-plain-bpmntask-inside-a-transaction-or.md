@@ -1,13 +1,21 @@
 ---
 id: T-1337
-name: "A plain bpmn:task inside a transaction or adHocSubProcess is dropped on import (foreignContainers lists only subProcess)"
+name: "A plain bpmn:task inside a transaction or adHocSubProcess is dropped on import
+  (foreignContainers lists only subProcess)"
 description: >
-  Found by T-1266's research (2026-10-29): parseBpmnXml collects allowlisted nodes at any depth (byBpmn descendant query, src :15009) but non-allowlisted ones (bpmn:task, sendTask ...) only by walking foreignContainers = [proc, ...byBpmn(proc,'subProcess')] (:15017). A transaction or adHocSubProcess is not in that list, so a bpmn:task inside one is never collected and its flows point at an id the export does not contain (the T-1131 dangling-ref class). No fixture has the case today; fix by walking every subprocess kind, with a fixture that has it.
+  Found by T-1266's research (2026-10-29): parseBpmnXml collects allowlisted nodes
+  at any depth (byBpmn descendant query, src :15009) but non-allowlisted ones (bpmn:task,
+  sendTask ...) only by walking foreignContainers = [proc, ...byBpmn(proc,'subProcess')]
+  (:15017). A transaction or adHocSubProcess is not in that list, so a bpmn:task inside
+  one is never collected and its flows point at an id the export does not contain
+  (the T-1131 dangling-ref class). No fixture has the case today; fix by walking every
+  subprocess kind, with a fixture that has it.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-29T18:26:00Z
-last_update: 2026-10-29T18:26:00Z
-date_finished: null
+last_update: 2026-10-29T20:52:14Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,22 +58,54 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-29T20:48:12Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1337: A plain bpmn:task inside a transaction or adHocSubProcess is dropped on import (foreignContainers lists only subProcess)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Found by T-1266's research. The non-allowlisted-node walk (T-1131) visits the process and every `subProcess`, but not the
+other two subprocess kinds BPMN has. Same behaviour as a node in a subProcess afterwards: it is collected and written at
+the top level (moved up), which T-1266's build slice 1 replaces with keeping it nested. This task only stops it being lost.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A plain `bpmn:task` (or any other non-allowlisted flow node) inside a `bpmn:transaction` or `bpmn:adHocSubProcess`
+      is imported as a node and is in the export, like one inside a `bpmn:subProcess` (T-1131). Fixture
+      `tests/fixtures/t1337/transaction-adhoc-tasks.bpmn`: all 9 flow nodes come back, and the flows into and out of the
+      transaction's task point at ids the export contains.
+- [x] An adHocSubProcess's `completionCondition` is not taken for a flow node.
+- [x] The T-1131 harness covers the fixture (dangling references and the expected node ids) and fails on the old source.
+      Old source: FAIL, `task/incoming=Flow_Tx1`, `task/outgoing=Flow_Tx2`, nodes missing TxTask_1, AdhocTask_1,
+      AdhocTask_2. New source: 12/12 ok.
+- [x] The third-party goldens are unchanged (no fixture there has a non-allowlisted node in a transaction or adHoc).
+      `_t358-byteid-thirdparty.mjs` rc 0; `_t1271`, `_t1261`, `_t1264`, `_t523` rc 0. `_t1327` is red on HEAD too, from
+      a stale wording check (T-1264), not from this change; filed separately.
 
-### Human
+<!-- No ### Human section: nothing here needs a person; what renders is one more node, already checked by the
+     harnesses. -->
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -248,6 +288,8 @@ date_finished: null
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+node tools/_t1131-dangling-refs-thirdparty-cdp.mjs > /tmp/t1337-1131.out 2>&1 && grep -q 'ok   t1337/transaction-adhoc-tasks.bpmn' /tmp/t1337-1131.out
+grep -q "SUBPROC_TAGS.has(el.localName)" src/aef-workflow-designer.html
 
 ## RCA
 
@@ -264,6 +306,15 @@ date_finished: null
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** a plain `bpmn:task` (or sendTask, …) inside a `bpmn:transaction` or `bpmn:adHocSubProcess` is not imported;
+flows into or out of it are kept and name an id the export does not contain (T-1131's dangling-reference class).
+**Root cause:** `parseBpmnXml` walks the process and `byBpmn(proc, 'subProcess')` for non-allowlisted nodes; the other
+two subprocess kinds were never in that list, though the same file already knew them (`SUBPROC_TAGS`, T-1327).
+**Why structurally allowed:** T-1131's harness checks every third-party fixture, but no fixture had a non-allowlisted
+node in a transaction or adHocSubProcess (kitchen-sink's hold only an endEvent and loop markers), so it passed.
+**Prevention:** a fixture with exactly that case, checked by the T-1131 harness (`_leg_079`, browser tier) for both dangling ids and the
+expected node set; the walk now uses the one shared list of subprocess kinds.
 
 ## Evolution
 
@@ -345,3 +396,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1337-a-plain-bpmntask-inside-a-transaction-or.md
 - **Context:** Initial task creation
+
+### 2026-10-29T20:47:21Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
