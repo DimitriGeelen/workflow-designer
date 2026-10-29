@@ -1,13 +1,19 @@
 ---
 id: T-1332
-name: "Duplicate display ids: two end events in kitchen-sink.bpmn both save as lan_end_event (invalid BPMN)"
+name: "Duplicate display ids: two end events in kitchen-sink.bpmn both save as lan_end_event
+  (invalid BPMN)"
 description: >
-  Found by T-1264's id-uniqueness check over the third-party goldens (2026-10-28): kitchen-sink.bpmn's export at HEAD has two bpmn:endEvent id=lan_end_event (and lan_start_event, lan_start_event_2 duplicated likewise, visible before T-1264 as duplicate BPMNShape_ ids). computeDisplayId does not guarantee uniqueness for some same-lane, same-slug events; an id must be unique in a BPMN document. Pre-existing, not caused by T-1264.
+  Found by T-1264's id-uniqueness check over the third-party goldens (2026-10-28):
+  kitchen-sink.bpmn's export at HEAD has two bpmn:endEvent id=lan_end_event (and lan_start_event,
+  lan_start_event_2 duplicated likewise, visible before T-1264 as duplicate BPMNShape_
+  ids). computeDisplayId does not guarantee uniqueness for some same-lane, same-slug
+  events; an id must be unique in a BPMN document. Pre-existing, not caused by T-1264.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-28T19:51:26Z
-last_update: 2026-10-28T19:51:26Z
-date_finished: null
+last_update: '2026-10-29T01:25:58Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,39 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-29T01:25:58Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 1
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=1 (body:fix-without-learning); D2=0 (no-signal); D3=0 (no-signal);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=export)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1332: Duplicate display ids: two end events in kitchen-sink.bpmn both save as lan_end_event (invalid BPMN)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Duplicate of T-1102 (same bug, found again 2026-10-28 under the current id shape). Closed by T-1102's fix.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Fixed by T-1102 (closed 2026-10-29): kitchen-sink's golden has no repeated id, and the T-1102 harness (browser
+      leg `_leg_213`) guards every fixture and corpus map.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -116,6 +141,8 @@ date_finished: null
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+test -f .tasks/completed/T-1102-duplicate-node-ids-within-one-lane-start.md
+grep -q 'leg browser "_t1102-unique-display-ids-cdp" _leg_213' tests/run-bridge-tests.sh
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
@@ -265,6 +292,11 @@ date_finished: null
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+Duplicate of T-1102; its RCA applies (`.tasks/completed/T-1102-duplicate-node-ids-within-one-lane-start.md`):
+**Symptom:** kitchen-sink saved two endEvents as `lan_end_event`. **Root cause:** the no-lane fallback prefix `lan`
+equalled a real lane's abbreviation while each group numbered on its own. **Why structurally allowed:** id checks ran
+only on designer-written maps. **Prevention:** T-1102's harness, browser leg `_leg_213`.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -350,3 +382,7 @@ date_finished: null
 - Same bug as T-1102 (filed 2026-10-08, kitchen-sink duplicate ids from events inside subprocesses), seen again under
   today's id shape. The evidence is added to T-1102; work it there. Horizon set to later so this one does not
   compete with it.
+
+### 2026-10-29T01:25:57Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
