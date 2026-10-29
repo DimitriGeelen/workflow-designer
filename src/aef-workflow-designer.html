@@ -15531,11 +15531,18 @@ function parseBpmnXml(text) {
     // Deliberately NOT silent: the count drives a dismissible notice on user import.
     // Rewriting the operator's geometry without saying so is the same sin as
     // rewriting their membership without saying so.
+    // T-1342: an attached boundary event is where its host's perimeter is (syncBoundaryPositions, before every render),
+    // not where a lane band says; moving it here wrote a position the next render undoes, and counted it as moved.
+    if (n.aef && n.aef.hostRef && nodes.some(h => h.uid === n.aef.hostRef)) continue;
     if (findLane(n.lane) && laneAtY(n.y + def.h / 2) !== n.lane) {
       n.y = laneCenterY(n.lane) - def.h / 2;
       _laneReconcileCount++;
     }
   }
+  // T-1342: attached boundary events onto their hosts now, as every render would. Display ids are numbered by position
+  // (computeDisplayId), so numbering a file's boundary events at its own coordinates and saving them at their hosts'
+  // renumbered them on the next open.
+  state = result; syncBoundaryPositions();
   // T-1264: what of the file's own geometry differs from ours, at the positions now final (routing reads `state`)
   if (sourceCarriedDi) { state = result; captureImportedDi(doc, result, displayIdToUid, flowIdToUid); }
   state = prev;
