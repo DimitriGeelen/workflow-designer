@@ -90,12 +90,20 @@ BPMN (an id must be unique in a document). Seen on kitchen-sink (filed 2026-10-0
 ## Acceptance Criteria
 
 ### Agent
-- [ ] The cause is shown in `computeDisplayId` / `refreshDisplayIds` (why two nodes get one id), not assumed.
-- [ ] Every display id in a map is unique: every corpus map and every third-party fixture saves with no repeated
+- [x] The cause is shown in `computeDisplayId` / `refreshDisplayIds` (why two nodes get one id), not assumed.
+      *(The harness printed each duplicate's lanes: one node `lane=null` (UNRESOLVED), its twin in `Lane_1cofr07`
+      whose abbreviation is `lan`, the same as the fallback; see RCA.)*
+- [x] Every display id in a map is unique: every corpus map and every third-party fixture saves with no repeated
       `id` value; designer-written maps whose ids are already unique keep exactly the ids they had (byte-identical).
-- [ ] A browser harness proves it on kitchen-sink and on a minimal case, red on the pre-T-1102 source; the
-      third-party goldens that change are re-recorded deliberately, each changed line checked.
-- [ ] Core tier green.
+      *(Harness legs 2 and 3: 11 fixtures + 24 corpus maps; repeated-id check on BPMN/BPMN-DI elements — the vendor's
+      own `caseagile:principal id="User"` repeats in its source and is carried verbatim, so it is not counted.)*
+- [x] A browser harness proves it on kitchen-sink and on a minimal case, red on the pre-T-1102 source; the
+      third-party goldens that change are re-recorded deliberately, each changed line checked. *(`_t1102`, `_leg_213`;
+      old source: minimal map `lan_start_begin` x2 and `lan_end_finish` x2, kitchen-sink 4 duplicates and an unstable
+      second save. Golden: kitchen-sink only, 26 lines each way, every one a lane-less event id `lan_` -> `la3_`; no
+      repeated id in any of the 11 goldens.)*
+- [x] Core tier green. *(GREEN 215/0 at 62d8cff9b and again at 21cc68edb; gate 0; judge red->green: amber round 1
+      on a mislabelled lane, green round 2, V-20261029-c362cbdb applied.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -127,13 +135,14 @@ BPMN (an id must be unique in a document). Seen on kitchen-sink (filed 2026-10-0
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1102 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-- [ ] **Shown as a person sees it:** on kitchen-sink at 1024, 1440 and 1920, the node labels under the events read as
+- [x] **Shown as a person sees it:** on kitchen-sink at 1024, 1440 and 1920, the node labels under the events read as
   distinct ids — the events inside the event-subprocess (in no lane) now read `la3_start_event…`, the events in lane
   `Lane_1cofr07` (abbreviation `lan`) keep `lan_start_event…`, and lane "Lane" (`Lane_1vakzes`) keeps `la2_…` — and
   nothing else on screen changed (toolbar, notice, panels as before).
   Screenshots in `docs/reports/T-1102-evidence/` (full pages, and `kitchen-sink-1920-ids-crop.png` enlarged 3x so the
   labels are legible), read in `## Visual Verification`.
   For the independent reviewer: `fw reviewer judge T-1102 --criterion 1` (render-surface, no operator carve-out).
+  **Reviewer verdict:** green V-20261029-c362cbdb — reviewer-judge-t-1102-r1-43e2fc8d2fc5:reviewer (rung rung-1-same-vendor-independent), digest 66647fabb6f0; dispatch judge-t-1102-r1-43e2fc8d2fc5; evidence: .context/reviews/evidence/T-1102/AC1-judge-t-1102-r1-43e2fc8d2fc5.md, .context/reviews/evidence/T-1102/kitchen-sink-1920-ids-crop-judge-t-1102-r1-43e2fc8d2fc5.png, .context/reviews/evidence/T-1102/ks1920-lower-lane-la2-judge-t-1102-r1-43e2fc8d2fc5.png, .context/reviews/evidence/T-1102/ks1920-right-ends-judge-t-1102-r1-43e2fc8d2fc5.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
