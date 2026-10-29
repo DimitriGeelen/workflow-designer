@@ -152,7 +152,7 @@ slice 2. Findings, fixtures and source paths: `docs/reports/T-1266-subprocess-ne
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1339 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-- [ ] The import notice's subprocess line says truthfully what a person sees and what a save does, and the notice
+- [x] The import notice's subprocess line says truthfully what a person sees and what a save does, and the notice
       still reads and fits at 1024, 1440 and 1920
       **Why you:** the line's claim flipped (from "NOT kept" to "drawn at the top level of the canvas — on save they
       stay inside their subprocess"); whether a person reading it understands that the canvas is flat but the file is
@@ -187,6 +187,7 @@ slice 2. Findings, fixtures and source paths: `docs/reports/T-1266-subprocess-ne
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261029-a547098a — reviewer-judge-t-1339-r5-opencode-d0753962a6eb:opencode (rung rung-5-panel:opencode), digest 6ba4962bbf0f; dispatch judge-t-1339-r5-opencode-d0753962a6eb; evidence: .context/reviews/evidence/T-1339/AC1-judge-t-1339-r5-opencode-d0753962a6eb.md; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
