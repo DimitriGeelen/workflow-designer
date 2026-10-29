@@ -47,7 +47,7 @@ related_tasks: [T-1266, T-523, T-1327, T-1337]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-29T20:56:53Z
-last_update: 2026-10-29T22:07:45Z
+last_update: 2026-10-29T22:16:46Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -152,6 +152,26 @@ slice 2. Findings, fixtures and source paths: `docs/reports/T-1266-subprocess-ne
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1339 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+- [ ] The import notice's subprocess line says truthfully what a person sees and what a save does, and the notice
+      still reads and fits at 1024, 1440 and 1920
+      **Why you:** the line's claim flipped (from "NOT kept" to "drawn at the top level of the canvas — on save they
+      stay inside their subprocess"); whether a person reading it understands that the canvas is flat but the file is
+      not is a reading judgement, and the screenshots are the evidence.
+      For the independent reviewer: `fw reviewer judge T-1339 --criterion 1`
+      **Steps:**
+      1. Open `docs/reports/T-1339-evidence/kitchen-sink-1024-notice.png`, `kitchen-sink-1440-notice.png` and
+         `kitchen-sink-1920-notice.png`: the notice after opening `tests/fixtures/third-party/kitchen-sink.bpmn` as a
+         person does.
+      2. Read the fifth line ("13 elements inside 2 subprocesses drawn at the top level of the canvas — on save they stay
+         inside their subprocess") against what `tests/goldens/third-party/kitchen-sink.bpmn.golden` shows a save writes
+         (the 12 start events inside `Activity_088fmm5`'s subProcess, the end event inside the transaction).
+      3. Open `kitchen-sink-1024.png` and `kitchen-sink-1920.png` (full window): the notice is inside the viewport, not
+         clipped, its close button reachable, and the toolbar above it is uncovered.
+      4. Open `plain-designer-map-1440.png`: a designer-written map shows no notice.
+      **Expected:** the line is true and understandable (flat on the canvas, nested in the file); every line of the
+      notice is readable at all three widths; no toolbar control is covered; the plain map has no notice.
+      **If not:** name the screenshot and the line or control; the wording is at `src/aef-workflow-designer.html`
+      (search "on save they stay inside their subprocess").
 
 <!--
   Render-touching build tasks (web/templates, web/static, web/blueprints, web/shared.py,
@@ -305,6 +325,35 @@ slice 2. Findings, fixtures and source paths: `docs/reports/T-1266-subprocess-ne
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+node tools/_t1339-subprocess-nesting-roundtrip-cdp.mjs > /tmp/t1339-rt.out 2>&1 && grep -q 'T-1339: GREEN' /tmp/t1339-rt.out
+python3 -m pytest -q -p no:cacheprovider tests/test_t1339_validator_nesting.py > /tmp/t1339-v.out 2>&1 && grep -q '5 passed' /tmp/t1339-v.out
+node tools/_t308-export-byte-identity-cdp.mjs > /tmp/t1339-308.out 2>&1 && grep -q '"drifted": 0' /tmp/t1339-308.out
+node tools/_t358-byteid-thirdparty.mjs > /tmp/t1339-358.out 2>&1 && grep -q 'PASS' /tmp/t1339-358.out
+node tools/_t1327-comments-and-notice-cdp.mjs --phrases > /tmp/t1339-phr.out 2>&1 && grep -q '"ok":true' /tmp/t1339-phr.out
+python3 tools/_t523-nesting-teeth.py > /tmp/t1339-523.out 2>&1 && grep -q '9/9 legs passed' /tmp/t1339-523.out
+
+## Visual Verification
+
+Gate first: `bash tools/person-sees-gate.sh` exit 0 (334 s; label-clearance, name-fit, sweep, note-box, toolbar-reach
+21/21, project-browser: 0 errors). Shots: `node tools/_t1327-notice-shots.mjs docs/reports/T-1339-evidence` rc 0, which
+also measures each (notice in the viewport, no overflow, covers no node, every header button in the viewport; plain map
+has no notice). Read by me, control by control:
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| kitchen-sink opened | notice, subprocess line | ok | ok | ok | "13 elements inside 2 subprocesses drawn at the top level of the canvas — on save they stay inside their subprocess"; wraps to 2 lines at 1024, 1 line at 1440/1920 |
+| kitchen-sink opened | notice, other 5 lines | ok | ok | ok | "5 nodes … moved back" (was 6: T-1342 no longer counts a boundary event); geometry line unchanged |
+| kitchen-sink opened | notice close (×) | ok | ok | ok | right edge, vertically centred |
+| kitchen-sink opened | toolbar (Open project … Save) | ok | ok | ok | notice starts below the toolbar at every width |
+| kitchen-sink opened | Clean layout / authority notices | ok | ok | ok | stacked below, not overlapping |
+| nested-lanes opened | notice | ok | ok | ok | unchanged by this task (lane line) |
+| plain designer map | notice | ok | ok | ok | none shown |
+
+Canvas, 1920: six boundary events on the event subprocess are drawn stacked on its bottom edge. Not from this task
+(every render has snapped them there, `syncBoundaryPositions`); filed as T-1344.
+
+Files: `docs/reports/T-1339-evidence/kitchen-sink-{1024,1440,1920}{,-notice}.png`,
+`nested-lanes-{1024,1440,1920}{,-notice}.png`, `plain-designer-map-{1024,1440,1920}.png`, `measures.json`.
 
 ## RCA
 
@@ -385,6 +434,28 @@ slice 2. Findings, fixtures and source paths: `docs/reports/T-1266-subprocess-ne
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-10-29 — indenting nested elements
+- **Chose:** indent only the first line of each written entry by two spaces per nesting level; `incoming`/`outgoing`
+  are written one entry per line so they indent too. A nested node's `extensionElements` contents sit two spaces short.
+- **Why:** an entry's inner lines can be kept XML (other tools' extensions, event definitions, documentation text),
+  stored verbatim with the file's whitespace and read back verbatim. Indenting them added two spaces on every save (the
+  second save differed), and inside `documentation` or a condition it would change the text itself.
+- **Rejected:** indenting every line (unstable, alters text content); no indentation for nested elements (stable but
+  unreadable nesting).
+
+### 2026-10-29 — node reads inside a container
+- **Chose:** in the import's node loop, `byAef`/`byBpmn` stop at another imported node (`ownOnly`).
+- **Why:** they are descendant queries. Once a saved container holds its nodes, the container would read a nested
+  node's `aef:position`, `aef:meta`, documentation … as its own. With no nested node the result is unchanged.
+- **Rejected:** rewriting each read as a direct-child query (14 sites, more change for the same result).
+
+### 2026-10-29 — the notice line
+- **Chose:** keep a line for nested contents, flipped to "drawn at the top level of the canvas — on save they stay inside
+  their subprocess".
+- **Why:** the canvas still shows them flat, so a person who sees them outside the subprocess needs to know the file
+  is not changed by that.
+- **Rejected:** dropping the line (the flat drawing would then read as the file's truth).
 
 ## Decision
 
