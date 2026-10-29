@@ -1,0 +1,119 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1336: Release designer 0.32.0 (third-party fidelity: passthrough, identity, original ids, geometry, unique ids, node order)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-29T13:57:45Z
+# ============================================================================
+
+task_id: T-1336
+task_name: "Release designer 0.32.0 (third-party fidelity: passthrough, identity, original ids, geometry, unique ids, node order)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-29T09:32:32Z
+completed: 2026-10-29T13:57:21Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-29T10:34:21+01:00
+last_commit: 2026-10-29T14:57:19+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release notes for designer 0.32.0 (third-party fidelity since 0.31.0; designer-written maps unchanged; AEF v1.8.15 endpoint table). job 104 — release designer 0.32.0, from job 096 (0.31.0); rehearsed: 15 checks ok, step 1 ok in a clone, steps 2-9 outward. 0.32.0 — VERSION and APP_VERSION bumped by the release job (parity ok). job 105 — finish release 0.32.0 (job 104's steps 6-9 unchanged, plus a dist/ verify step); job 104 retired (stopped at step 6, unconfirmed; operator: finish the release). Rehearsed: 6 checks ok. release designer 0.32.0 — a file from another tool keeps what the designer does not model: content, ids, identity, geometry, order; kit calibrated on its bytes. designer 0.32.0 released (job 105: tag designer-v0.32.0 on 898253cfb, pushed); AEF told (msg d8513a55); pin BEHIND until AEF re-pins — task stays open for that. AEF reports the re-pin to 0.32.0 (T-4900), but their public bleeding-edge still pins 0.31.0 (head a7c6365d5); asked them to push. AEF serves designer 0.32.0 — public pin CURRENT (GitHub bleeding-edge 594e85cf1, sha256 matches)
+
+# Key outcomes
+outcomes:
+  - 'Release notes for 0.32.0 committed: every shipped change since designer-v0.31.0 with its task, what changes in'
+  - 'Job 104 written from job 096, rehearsed, committed and handed to the operator; the operator ran it: kit'
+  - 'AEF told the same day: version, tag, sha256, bytes, what it brings, what changes in stored files. *(msg d8513a55:'
+  - 'AEF''s pin tracked until `tools/_t1187-aef-pin-lag.sh` says CURRENT for 0.32.0 (a release is done only when AEF'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/104-release-designer-0.32.0/dryrun.ok'
+  - '.context/runme/104-release-designer-0.32.0/job.sh'
+  - '.context/runme/104-release-designer-0.32.0/retired'
+  - '.context/runme/105-finish-release-designer-0.32.0/dryrun.ok'
+  - '.context/runme/105-finish-release-designer-0.32.0/job.sh'
+  - '.tasks/active/T-1336-release-designer-0320-third-party-fideli.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.32.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.32.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.32.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.32.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.32.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.32.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.32.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.32.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.32.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.32.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.32.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.32.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.32.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.32.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.32.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.32.0.html'
+  - 'docs/authoring-kit/calibration-records/0.32.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.32.0.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-29T10:34:21'
+    action: 'T-1336: release notes for designer 0.32.0 (third-party fidelity since 0.31.0; designer-written maps unchanged; AEF v1.8.15 endpoint table)'
+  - time: '2026-10-29T10:34:47'
+    action: 'T-1336: job 104 — release designer 0.32.0, from job 096 (0.31.0); rehearsed: 15 checks ok, step 1 ok in a clone, steps 2-9 outward'
+  - time: '2026-10-29T10:37:42'
+    action: 'T-1336: 0.32.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-10-29T12:46:40'
+    action: 'T-1336: job 105 — finish release 0.32.0 (job 104''s steps 6-9 unchanged, plus a dist/ verify step); job 104 retired (stopped at step 6, unconfirmed; operator: finish the release). Rehearsed: 6 checks ok'
+  - time: '2026-10-29T12:50:50'
+    action: 'T-1336: release designer 0.32.0 — a file from another tool keeps what the designer does not model: content, ids, identity, geometry, order; kit calibrated on its bytes'
+  - time: '2026-10-29T14:47:58'
+    action: 'T-1336: designer 0.32.0 released (job 105: tag designer-v0.32.0 on 898253cfb, pushed); AEF told (msg d8513a55); pin BEHIND until AEF re-pins — task stays open for that'
+  - time: '2026-10-29T14:52:06'
+    action: 'T-1336: AEF reports the re-pin to 0.32.0 (T-4900), but their public bleeding-edge still pins 0.31.0 (head a7c6365d5); asked them to push'
+  - time: '2026-10-29T14:57:19'
+    action: 'T-1336: AEF serves designer 0.32.0 — public pin CURRENT (GitHub bleeding-edge 594e85cf1, sha256 matches)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 264 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 264
+  commits: 9
+  files_changed: 30
+  lines_added: 20780
+  lines_removed: 25
+  footprint_refreshed_at: '2026-10-29T13:57:48Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1336-release-designer-0320-third-party-fideli.md
+generated_by: context-agent-hybrid

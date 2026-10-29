@@ -4,12 +4,13 @@ name: "Release designer 0.32.0 (third-party fidelity: passthrough, identity, ori
 description: >
   Ships the import-fidelity work since designer-v0.31.0 (T-1265, T-1268, T-1325, T-1326, T-1327, T-1271, T-1262/T-1270, T-1261, T-1264, T-1102). AEF v1.8.15 is out (the hold reason). Release job from job 096 (0.31.0): bump, calibrate the kit with codex and GLM-5.3, gate, cut, commit, tag designer-v0.32.0, core, push; then AEF gets version, tag, sha256, bytes and changes, and its pin is tracked until CURRENT (_t1187).
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-29T09:32:32Z
-last_update: 2026-10-29T09:32:32Z
-date_finished: null
+last_update: 2026-10-29T13:57:21Z
+date_finished: 2026-10-29T13:57:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -369,3 +370,22 @@ bash tools/_t1187-aef-pin-lag.sh > /tmp/.t1336-pin 2>&1; grep -q '^CURRENT: AEF 
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1336-release-designer-0320-third-party-fideli.md
 - **Context:** Initial task creation
+
+### 2026-10-29T13:57:21Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d6362bae
+- **Timestamp:** 2026-10-29T13:57:24Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 4
+     - evidence: `git rev-parse -q --verify refs/tags/designer-v0.32.0 >/dev/null`
+  2. **empty-output-success** (partial, heuristic) @ Verification:line 5
+     - evidence: `git ls-files --error-unmatch dist/aef-workflow-designer-0.32.0.html >/dev/null`

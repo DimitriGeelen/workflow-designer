@@ -20067,3 +20067,21 @@ scan_id: R-4a4bf067
 task_id: T-1335
 payload:
   task_file: .tasks/active/T-1335-field-test-aef-v1815-be51-upgrade-be50--.md
+---
+kind: scan_emitted
+timestamp: '2026-10-29T13:57:24Z'
+scan_id: R-d6362bae
+task_id: T-1336
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-29T13:57:24Z'
+scan_id: R-d6362bae
+task_id: T-1336
+payload:
+  task_file: .tasks/active/T-1336-release-designer-0320-third-party-fideli.md
