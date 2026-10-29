@@ -75,12 +75,15 @@ Held since 2026-10-28 until AEF released v1.8.15 (done 2026-10-29, msg b9b485a6;
       tag designer-v0.32.0 on 898253cfb, sha256 8ed494c19e3f2f682051d43fd53dc6a89c9907ebf22a312a11d867465efcc604,
       1298447 bytes, kit SHA256SUMS 9eff2639…, the changes, no change for designer-written maps, no new endpoint; and
       that the earlier rail announcement came from the cut step before the tag existed.)*
-- [ ] AEF's pin tracked until `tools/_t1187-aef-pin-lag.sh` says CURRENT for 0.32.0 (a release is done only when AEF
+- [x] AEF's pin tracked until `tools/_t1187-aef-pin-lag.sh` says CURRENT for 0.32.0 (a release is done only when AEF
       serves it). *(2026-10-29 after the push: "BEHIND: AEF serves designer 0.31.0; 832 has released 1 since: 0.32.0".
       AEF said the re-pin is post-release work on their side (msg 4b848498).)* *(13:51Z AEF reported the re-pin done
       (msg 11f89a0d: AEF T-4900, commits 46a3a9238 + c81d0c848, every anchor agrees, Watchtower serves 0.32.0); our check
       still read BEHIND: their PUBLIC bleeding-edge head was a7c6365d5 with `version: "0.31.0"` in
-      policy/designer-pin.yaml, i.e. the re-pin was not pushed there. Asked them to push it (msg 91ca89bc).)*
+      policy/designer-pin.yaml, i.e. the re-pin was not pushed there. Asked them to push it (msg 91ca89bc).)* *(AEF had
+      pushed to their OneDev origin only; the GitHub mirror syncs every 15 minutes (msg bd9fa9e4). After their sync:
+      GitHub bleeding-edge 594e85cf1, pin `version: "0.32.0"`, sha256 8ed494c1…c604 = ours; `_t1187` "CURRENT: AEF
+      serves designer 0.32.0, 832's latest release". Confirmed to AEF.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -133,6 +136,10 @@ Held since 2026-10-28 until AEF released v1.8.15 (done 2026-10-29, msg b9b485a6;
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+git rev-parse -q --verify refs/tags/designer-v0.32.0 >/dev/null
+git ls-files --error-unmatch dist/aef-workflow-designer-0.32.0.html >/dev/null
+test -f .context/runme/105-finish-release-designer-0.32.0/done
+bash tools/_t1187-aef-pin-lag.sh > /tmp/.t1336-pin 2>&1; grep -q '^CURRENT: AEF serves designer 0.32.0' /tmp/.t1336-pin
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
