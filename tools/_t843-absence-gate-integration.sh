@@ -45,21 +45,21 @@ echo "GATE-RETURNED-0"' _ "$block" 2>&1
 UNCTRL="test -f .context/working/.gate-bypass-log.yaml
 ! grep -q 'FW_ALLOW_UNCONTROLLED_ABSENCE' .context/working/.gate-bypass-log.yaml"
 out=$(run "$UNCTRL"); rc=$?
-if [ "$rc" -ne 0 ] && ! printf '%s' "$out" | grep -q 'GATE-RETURNED-0'; then
+if [ "$rc" -ne 0 ] && ! grep -q 'GATE-RETURNED-0' <<<"$out"; then
     ok "uncontrolled absence assertion is REFUSED (rc=$rc)"
 else
     bad "uncontrolled absence assertion was ADMITTED (rc=$rc) — the gate does not bite"
 fi
-printf '%s' "$out" | grep -q 'ERROR: Cannot complete — uncontrolled absence assertion' \
+grep -q 'ERROR: Cannot complete — uncontrolled absence assertion' <<<"$out" \
   && ok "refusal names the defect" || bad "refusal does not name the defect"
-printf '%s' "$out" | grep -q "greps the SAME pattern where it IS present" \
+grep -q "greps the SAME pattern where it IS present" <<<"$out" \
   && ok "refusal names repair route 1" || bad "refusal omits repair route 1"
-printf '%s' "$out" | grep -q 'assert the positive fact directly' \
+grep -q 'assert the positive fact directly' <<<"$out" \
   && ok "refusal names repair route 2" || bad "refusal omits repair route 2"
-printf '%s' "$out" | grep -q 'FW_ALLOW_UNCONTROLLED_ABSENCE=1' \
+grep -q 'FW_ALLOW_UNCONTROLLED_ABSENCE=1' <<<"$out" \
   && ok "refusal names its own escape (not PL-304)" || bad "refusal hides its escape — PL-304"
 # The weaker control must be named as weaker, not as sufficient.
-printf '%s' "$out" | grep -q 'proves the PATH but not the PATTERN' \
+grep -q 'proves the PATH but not the PATTERN' <<<"$out" \
   && ok "refusal says test -f is the WEAKER control, not a fix" \
   || bad "refusal implies test -f is sufficient — the documented overstatement"
 
@@ -70,29 +70,29 @@ REMEDIED="grep -q 'FW_ALLOW_UNCONTROLLED_ABSENCE' .agentic-framework/agents/task
 test -f .context/working/.gate-bypass-log.yaml
 ! grep -q 'FW_ALLOW_UNCONTROLLED_ABSENCE' .context/working/.gate-bypass-log.yaml"
 out=$(run "$REMEDIED"); rc=$?
-if [ "$rc" -eq 0 ] && printf '%s' "$out" | grep -q 'GATE-RETURNED-0'; then
+if [ "$rc" -eq 0 ] && grep -q 'GATE-RETURNED-0' <<<"$out"; then
     ok "THE PRINTED REMEDY CLEARS THE GATE — route 1 applied verbatim"
 else
     bad "the remedy the gate prints does NOT clear it (rc=$rc) — an un-actionable check"
 fi
-printf '%s' "$out" | grep -q 'ERROR' && bad "remedied block still printed an ERROR" \
+grep -q 'ERROR' <<<"$out" && bad "remedied block still printed an ERROR" \
                                      || ok "remedied block produces no error output"
 
 # ── 3. A CLEAN BLOCK IS NOT TOUCHED (negative control) ────────────────────────
 CLEAN="git diff --quiet HEAD -- README.md
 grep -q 'hello' README.md"
 out=$(run "$CLEAN"); rc=$?
-[ "$rc" -eq 0 ] && printf '%s' "$out" | grep -q 'GATE-RETURNED-0' \
+[ "$rc" -eq 0 ] && grep -q 'GATE-RETURNED-0' <<<"$out" \
   && ok "a block with no absence legs passes untouched" \
   || bad "a clean block was refused (rc=$rc) — false positive"
 
 # ── 4. NOT EVALUATED: an unreadable pattern must NOT block ────────────────────
 UNREAD='! grep -q $T843_PATTERN some-file.txt'
 out=$(run "$UNREAD"); rc=$?
-[ "$rc" -eq 0 ] && printf '%s' "$out" | grep -q 'GATE-RETURNED-0' \
+[ "$rc" -eq 0 ] && grep -q 'GATE-RETURNED-0' <<<"$out" \
   && ok "unreadable absence leg does NOT block the close" \
   || bad "unreadable absence leg BLOCKED the close — failing over a parser limit"
-printf '%s' "$out" | grep -q 'NOT EVALUATED' \
+grep -q 'NOT EVALUATED' <<<"$out" \
   && ok "unreadable absence leg is reported as NOT EVALUATED" \
   || bad "unreadable absence leg passed SILENTLY — claims coverage it does not have"
 
@@ -105,14 +105,14 @@ if [ "$rc" -eq 0 ]; then
 else
     bad "classifier absent: close was BLOCKED (rc=$rc) — would break every project without the census"
 fi
-printf '%s' "$out" | grep -q 'NOT EVALUATED' \
+grep -q 'NOT EVALUATED' <<<"$out" \
   && ok "classifier absent is reported as NOT EVALUATED, not as a pass" \
   || bad "classifier absent passed SILENTLY — the exact false green this gate is for"
 
 # ── 6. THE ESCAPE WORKS AND IS LOGGED ─────────────────────────────────────────
 out=$(run "$UNCTRL" FW_ALLOW_UNCONTROLLED_ABSENCE=1); rc=$?
 [ "$rc" -eq 0 ] && ok "documented escape admits the block" || bad "documented escape does not work (rc=$rc)"
-printf '%s' "$out" | grep -q 'BYPASS-LOGGED:FW_ALLOW_UNCONTROLLED_ABSENCE' \
+grep -q 'BYPASS-LOGGED:FW_ALLOW_UNCONTROLLED_ABSENCE' <<<"$out" \
   && ok "the escape is LOGGED (a silent bypass is not a bypass)" \
   || bad "the escape is NOT logged"
 
