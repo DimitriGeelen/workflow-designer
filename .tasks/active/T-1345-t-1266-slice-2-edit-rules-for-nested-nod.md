@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-29T23:34:09Z
-last_update: 2026-10-29T23:39:38Z
+last_update: 2026-10-29T23:45:39Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -66,18 +66,22 @@ subprocess reachability in the validator (F5-10, its own question).
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A nested node keeps its container through a drag and through a lane change (the canvas shows no boundary, so
-      nothing implies it left); its save still writes it inside.
-- [ ] A flow between two nodes in different containers (nested ↔ top level, two different subprocesses, a subprocess
+- [x] A nested node keeps its container through a drag and through a lane change (the canvas shows no boundary, so
+      nothing implies it left); its save still writes it inside. Harness L1 (real mouse drag into lane B).
+- [x] A flow between two nodes in different containers (nested ↔ top level, two different subprocesses, a subprocess
       and its own content) is refused: by the connect gesture and by re-anchoring an edge end to another node. No edge is
       created or changed, no undo step is recorded, and a message says why. A flow within one container, or between two
-      top-level nodes, is created as before.
-- [ ] Deleting a subprocess (single delete and multi-select delete) moves its direct contents into the subprocess's own
+      top-level nodes, is created as before. Harness L2 (real clicks, 4 cases), L3 (the endpoint mouseup handler).
+- [x] Deleting a subprocess (single delete and multi-select delete) moves its direct contents into the subprocess's own
       container (the process, or the outer subprocess at depth 2), flows among them follow, and a message says how many
-      elements moved and where. Undo restores the subprocess with its contents inside.
-- [ ] A node added from the palette is never nested.
-- [ ] A new harness drives each rule in the real editor and is red on the current source for the refusal and the
+      elements moved and where. Undo restores the subprocess with its contents inside. Harness L4-L6; the multi-select
+      delete recorded no undo step before (fixed here, and it now refreshes display ids as the single delete does).
+- [x] A node added from the palette is never nested. Harness L7.
+- [x] A new harness drives each rule in the real editor and is red on the current source for the refusal and the
       delete rules; designer-written maps are unaffected (no designer-written map has nesting: `_t308` 24/24).
+      `tools/_t1345-nesting-edit-rules-cdp.mjs` 10/10; on the pre-T-1345 source 4/10 (L2 ×2, L3, L4, L5, L6 red).
+      Also green: `_t1339`, `_editor-behavior-verify`, `_t293`, `_endpoint-hover-verify`, `_roundtrip-serialization`,
+      `_t308` (24/24), `_t358`, `_typed-events`, `_t1131`.
 - [ ] The core tier and `tools/person-sees-gate.sh` are green; the message is screenshot at 1024/1440/1920.
 
 ### Human
@@ -110,6 +114,23 @@ subprocess reachability in the validator (F5-10, its own question).
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1345 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+- [ ] The two messages say plainly what happened and why, and read at 1024, 1440 and 1920
+      **Why you:** whether "Not connected: … a sequence flow cannot cross a subprocess boundary" and "4 elements moved
+      out of subprocess "Outer" into the process" tell a person what happened, why, and what is now true is a reading
+      judgement; the screenshots are the evidence.
+      For the independent reviewer: `fw reviewer judge T-1345 --criterion 1`
+      **Steps:**
+      1. Open `docs/reports/T-1345-evidence/refused-1024-toast.png`, `refused-1440-toast.png`, `refused-1920-toast.png`:
+         the message after a flow from "Inner task" (inside subprocess "Outer") to "Top task" (top level) was refused.
+      2. Open `deleted-1024-toast.png`, `deleted-1440-toast.png`, `deleted-1920-toast.png`: the message after subprocess
+         "Outer" was deleted.
+      3. Open the full windows `refused-1024.png`, `deleted-1920.png` (and the other widths): the message is inside the
+         window and unclipped. At 1024 it overlaps the bottom of the right panel and the "Mode" badge for its 6 seconds:
+         every toast in the designer sits there (`showToast`), this task adds no new placement.
+      **Expected:** each message names the elements involved, the reason (refusal) or the destination (delete), and is
+      readable at every width.
+      **If not:** name the screenshot and the wording that misleads; the texts are in `src/aef-workflow-designer.html`
+      (`crossBoundaryRefusal`, `moveContentsOutOf`).
 
 <!--
   Render-touching build tasks (web/templates, web/static, web/blueprints, web/shared.py,
@@ -263,6 +284,25 @@ subprocess reachability in the validator (F5-10, its own question).
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+node tools/_t1345-nesting-edit-rules-cdp.mjs > /tmp/t1345-rules.out 2>&1 && grep -q 'T-1345: GREEN' /tmp/t1345-rules.out
+node tools/_t1345-message-shots.mjs /tmp/t1345-shots > /tmp/t1345-shots.out 2>&1 && grep -q 'ok   deleted @1920' /tmp/t1345-shots.out
+node tools/_t1339-subprocess-nesting-roundtrip-cdp.mjs > /tmp/t1345-rt.out 2>&1 && grep -q 'T-1339: GREEN' /tmp/t1345-rt.out
+
+## Visual Verification
+
+Gate first: `bash tools/person-sees-gate.sh` exit 0 (255 s, every check 0 errors, toolbar-reach 21/21). Shots:
+`node tools/_t1345-message-shots.mjs` rc 0, measured per shot (toast shown with the expected text, inside the window,
+not clipped, covering no toolbar button). Read by me, control by control:
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| flow refused | message text | ok | ok | ok | wraps to 2 lines at 1024 and 1440, 1 line at 1920; names both nodes, both containers, the reason |
+| flow refused | toolbar | ok | ok | ok | uncovered |
+| flow refused | right panel / Mode badge | overlap | ok | ok | 1024: the bottom-centred toast covers the lower "Recently opened" rows and part of "Mode: select" for 6 s; every toast sits there (`showToast`), not new |
+| subprocess deleted | message text | ok | ok | ok | one line at every width: count, from where, to where |
+| subprocess deleted | canvas after delete | ok | ok | ok | the contents stay drawn where they were; the fixture has no DI, so its layout is the designer's auto-placement ("In end" above the lane, "Deep" over the lane header) — not this task |
+
+Files: `docs/reports/T-1345-evidence/{refused,deleted}-{1024,1440,1920}{,-toast}.png`, `measures.json`.
 
 ## RCA
 

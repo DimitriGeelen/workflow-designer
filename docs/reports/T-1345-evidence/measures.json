@@ -1,0 +1,98 @@
+[
+  {
+    "name": "refused",
+    "w": 1024,
+    "ok": true,
+    "shown": true,
+    "text": "Not connected: \"Inner task\" is in subprocess \"Outer\" and \"Top task\" is in the process — a sequence flow cannot cross a subprocess boundary",
+    "rect": [
+      256,
+      696,
+      768,
+      750
+    ],
+    "inView": true,
+    "clipped": false,
+    "covers": []
+  },
+  {
+    "name": "deleted",
+    "w": 1024,
+    "ok": true,
+    "shown": true,
+    "text": "4 elements moved out of subprocess \"Outer\" into the process",
+    "rect": [
+      311,
+      714,
+      713,
+      750
+    ],
+    "inView": true,
+    "clipped": false,
+    "covers": []
+  },
+  {
+    "name": "refused",
+    "w": 1440,
+    "ok": true,
+    "shown": true,
+    "text": "Not connected: \"Inner task\" is in subprocess \"Outer\" and \"Top task\" is in the process — a sequence flow cannot cross a subprocess boundary",
+    "rect": [
+      360,
+      828,
+      1080,
+      882
+    ],
+    "inView": true,
+    "clipped": false,
+    "covers": []
+  },
+  {
+    "name": "deleted",
+    "w": 1440,
+    "ok": true,
+    "shown": true,
+    "text": "4 elements moved out of subprocess \"Outer\" into the process",
+    "rect": [
+      519,
+      846,
+      921,
+      882
+    ],
+    "inView": true,
+    "clipped": false,
+    "covers": []
+  },
+  {
+    "name": "refused",
+    "w": 1920,
+    "ok": true,
+    "shown": true,
+    "text": "Not connected: \"Inner task\" is in subprocess \"Outer\" and \"Top task\" is in the process — a sequence flow cannot cross a subprocess boundary",
+    "rect": [
+      519,
+      1026,
+      1401,
+      1062
+    ],
+    "inView": true,
+    "clipped": false,
+    "covers": []
+  },
+  {
+    "name": "deleted",
+    "w": 1920,
+    "ok": true,
+    "shown": true,
+    "text": "4 elements moved out of subprocess \"Outer\" into the process",
+    "rect": [
+      759,
+      1026,
+      1161,
+      1062
+    ],
+    "inView": true,
+    "clipped": false,
+    "covers": []
+  }
+]
