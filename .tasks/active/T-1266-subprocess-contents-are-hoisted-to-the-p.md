@@ -117,7 +117,10 @@ third-party fixtures carry a subprocess; AEF's own maps carry none with contents
 - **IW-1: Can the designer write a subprocess's contents back inside it on save, while still drawing them flat,
   without breaking lanes, flows that cross the subprocess boundary, display ids, or validation?** Options to weigh:
   (a) remember each node's parent subprocess and nest it on export, drawn flat; (b) a real nested subprocess model;
-  (c) keep the notice only. Not started; research artifact `docs/reports/T-1266-*.md` first (C-001).
+  (c) keep the notice only.
+  confidence: 2
+  disposition: answered
+  rationale: yes, with rules — docs/reports/T-1266-subprocess-nesting.md F1-F5: no flow crosses a boundary in any fixture (0 of 30), so a flow's container follows from its ends; lanes are untouched (nested nodes are in no lane); display ids already group lane-less nodes (T-1102); the validator must learn to walk containers (it reads only process children today); 12 edit cases need a rule (slice 2).
 
 ## Acceptance Criteria
 
@@ -380,6 +383,17 @@ third-party fixtures carry a subprocess; AEF's own maps carry none with contents
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
 
+**Recommendation:** GO — option (a), in two slices (round-trip, then edit rules)
+**Rationale:** The hoist is the last case where an unedited open→save changes a third-party process's meaning
+(boundary-events gains its only start event at top level; kitchen-sink 4 → 16 top-level starts). No flow crosses a
+boundary in any fixture, so (a) needs one field per nested node; (b) is a canvas redesign for a case AEF never has.
+**Evidence:**
+- F1-F2: 4 of 11 fixtures nest contents, 23 nodes / 6 flows, depth ≤ 2; 0 of 30 flows cross a boundary.
+- F3: nested nodes are in no lane (Camunda leaves them out); today they draw E-XML-NODE-UNASSIGNED after the hoist.
+- F4: import already reads nested nodes in document order, subprocess first; export closes each node at once (the
+  part to change); the validator reads only process children.
+- Full: `docs/reports/T-1266-subprocess-nesting.md` (Findings, Options compared, Recommendation).
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -447,6 +461,10 @@ third-party fixtures carry a subprocess; AEF's own maps carry none with contents
 
 <!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
 
-We believe that subProcess contents are hoisted to the process on save, leaving an empty subProcess (two start events, different semantics),
-we will achieve T-523 comment acknowledges it but no notice is shown; inner nodes also lose their lane.
-We will know that we are successful when we see 5 of 11 third-party fixtures carry a su.
+We believe that recording each nested node's parent subprocess at import and writing nodes and flows back inside their
+container on save (drawn flat, option a), we will achieve an unedited open→save that no longer changes what an engine
+runs for files with subprocess contents.
+We will know that we are successful when we see the 4 third-party fixtures with subprocess contents (simple,
+boundary-events, nested-subprocesses, kitchen-sink) re-saved unedited with every one of their 23 nested nodes and 6
+nested flows inside the same container as in the source, a second save byte-identical, and designer-written maps
+unchanged.
