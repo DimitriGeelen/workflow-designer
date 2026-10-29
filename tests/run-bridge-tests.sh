@@ -1638,6 +1638,21 @@ else
 fi
 }
 leg core "_t1331-pipe-grep-q-census" _leg_212
+_leg_213() {
+
+# ── T-1102: every node's display id is unique within its map (the display id IS the saved element id) ──
+# Lane-less nodes (events inside a subprocess) shared the fallback prefix `lan` with a real lane named "Lane" while each
+# side numbered on its own: kitchen-sink saved two endEvents as `lan_end_event`. Red against the pre-T-1102 source.
+if node "$ROOT/tools/_t1102-unique-display-ids-cdp.mjs" > "$TMP/leg-_t1102.out" 2>&1 \
+   && [ "$(sed -n 2p "$TMP/leg-_t1102.out")" = '  "ok": true,' ]; then
+  pass=$((pass + 1))
+else
+  report FAIL "two nodes share a display id (so the saved BPMN repeats an id), a designer-written map changed its ids, or a second save differs (run 'node tools/_t1102-unique-display-ids-cdp.mjs'; T-1102)"
+  show_output "$TMP/leg-_t1102.out" "_t1102-unique-display-ids-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1102-unique-display-ids-cdp" _leg_213
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

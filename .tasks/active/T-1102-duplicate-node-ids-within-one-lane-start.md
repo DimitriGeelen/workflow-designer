@@ -1,13 +1,20 @@
 ---
 id: T-1102
-name: "Duplicate node ids within one lane: start events inside (event) subprocesses rank separately and reuse <lane>_<rank>_<slug> ids of top-level nodes (kitchen-sink: lan_3_event x2, lan_5_event x2, lan_6_event x2, lan_8_event = startEvent + subProcess)"
+name: "Duplicate node ids within one lane: start events inside (event) subprocesses
+  rank separately and reuse <lane>_<rank>_<slug> ids of top-level nodes (kitchen-sink:
+  lan_3_event x2, lan_5_event x2, lan_6_event x2, lan_8_event = startEvent + subProcess)"
 description: >
-  Found by T-1088 while reviewing the re-recorded third-party golden tests/goldens/third-party/kitchen-sink.bpmn.golden: after the lane-abbr fix 8 duplicate id attributes remain (4 node ids + their BPMNShape ids), all in lane 1. Duplicate ids make the saved BPMN invalid. Separate cause from T-1088 (lane prefix clash). Check computeDisplayId's ranking for nested nodes and whether a slug like 'event' from 'Event-Subprocess' can collide with an event node.
+  Found by T-1088 while reviewing the re-recorded third-party golden tests/goldens/third-party/kitchen-sink.bpmn.golden:
+  after the lane-abbr fix 8 duplicate id attributes remain (4 node ids + their BPMNShape
+  ids), all in lane 1. Duplicate ids make the saved BPMN invalid. Separate cause from
+  T-1088 (lane prefix clash). Check computeDisplayId's ranking for nested nodes and
+  whether a slug like 'event' from 'Event-Subprocess' can collide with an event node.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-08T09:14:37Z
-last_update: 2026-10-08T09:14:37Z
-date_finished: null
+last_update: '2026-10-29T00:26:23Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +57,45 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-29T00:26:23Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=2 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L2:keyword=export)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1102: Duplicate node ids within one lane: start events inside (event) subprocesses rank separately and reuse <lane>_<rank>_<slug> ids of top-level nodes (kitchen-sink: lan_3_event x2, lan_5_event x2, lan_6_event x2, lan_8_event = startEvent + subProcess)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Two distinct nodes can get the same display id, and the display id IS the saved element id, so the export is invalid
+BPMN (an id must be unique in a document). Seen on kitchen-sink (filed 2026-10-08; again 2026-10-28 as T-1332:
+`lan_end_event` x2, `lan_start_event`, `lan_start_event_2` x2), events inside subprocesses.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] The cause is shown in `computeDisplayId` / `refreshDisplayIds` (why two nodes get one id), not assumed.
+- [ ] Every display id in a map is unique: every corpus map and every third-party fixture saves with no repeated
+      `id` value; designer-written maps whose ids are already unique keep exactly the ids they had (byte-identical).
+- [ ] A browser harness proves it on kitchen-sink and on a minimal case, red on the pre-T-1102 source; the
+      third-party goldens that change are re-recorded deliberately, each changed line checked.
+- [ ] Core tier green.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -95,12 +127,21 @@ date_finished: null
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1102 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+- [ ] **Shown as a person sees it:** on kitchen-sink at 1024, 1440 and 1920, the node labels under the events read as
+  distinct ids — the events inside the event-subprocess (in no lane) now read `la3_start_event…`, the events in the
+  lane named "Lane" keep `lan_start_event…` — and nothing else on screen changed (toolbar, notice, panels as before).
+  Screenshots in `docs/reports/T-1102-evidence/` (full pages, and `kitchen-sink-1920-ids-crop.png` enlarged 3x so the
+  labels are legible), read in `## Visual Verification`.
+  For the independent reviewer: `fw reviewer judge T-1102 --criterion 1` (render-surface, no operator carve-out).
 
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+grep -q 'leg browser "_t1102-unique-display-ids-cdp" _leg_213' tests/run-bridge-tests.sh
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1102-unique-display-ids-cdp.mjs > /tmp/.t1102 2>&1 && [ "$(sed -n 2p /tmp/.t1102)" = '  "ok": true,' ]
+test -s docs/reports/T-1102-evidence/kitchen-sink-1920-ids-crop.png
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
@@ -224,6 +265,27 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+## Visual Verification
+
+Shots by `tools/_t1327-notice-shots.mjs` into `docs/reports/T-1102-evidence/` (its own measures 9/9 ok: notice in the
+viewport, text unclipped, no node under it, header buttons on screen, no notice on a designer map), plus an enlarged
+crop of the kitchen-sink 1920 canvas (`kitchen-sink-1920-ids-crop.png`, region x290-620 y520-820, 3x) because node
+labels are ~7 px at fit zoom. Read by the agent, 2026-10-29:
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| kitchen-sink | event labels under the nodes | ok | ok | ok | crop: lane "Lane" events `lan_start_event`, `_2`, `_3`; event-subprocess events `la3_start_event`, `_2` … `_12`; no two alike |
+| kitchen-sink | header, toolbar, notice, side panels | ok | ok | ok | unchanged from T-1264's shots |
+| plain designer map | labels | ok | ok | ok | unchanged (designer maps keep every id: harness leg 3) |
+
+Gate: the first run exited 1 on the sweep harness's Name-field leg (at 1440 a name cut in error-escalation-ladder; at
+1920 typed text stored wrong, focus lost). Run alone it passed twice on this source and once on the old one, so a
+timing flake under load (the half-hourly cron audit falls in that window), not this change; the gate re-run exited 0
+(label-clearance, name-fit, sweep, note-box, toolbar-reach 21/21, project-browser all PASS).
+
+Not this change: in the crop, the label `la3_start_event` runs under the "Event-Subprocess" box, and several events sit
+close together — kitchen-sink's own geometry (T-1264's sweep noted the same cluster).
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -239,6 +301,17 @@ date_finished: null
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** kitchen-sink saved two `bpmn:endEvent id="lan_end_event"` (and three start-event ids twice): invalid BPMN,
+and a second save differed because the duplicates collapsed on re-import.
+**Root cause:** `computeDisplayId` numbers events within the nodes sharing `node.lane`, but takes the prefix from the
+lane's abbreviation with a fallback `lan` for a node whose lane is missing. A real lane named "Lane" also derives `lan`.
+The lane-less events (inside an event subprocess) and that lane's events were two groups with one prefix, each starting
+its count at 1. `uniqueAbbrAmong` kept lane abbreviations unique among lanes (T-1088) but not against the fallback.
+**Why structurally allowed:** every id check ran on designer-written maps, where every node is in a lane; the
+third-party goldens recorded the duplicate ids as correct.
+**Prevention:** `_t1102-unique-display-ids-cdp.mjs` (browser leg `_leg_213`): no repeated BPMN id in any fixture or
+corpus map, a minimal two-group case, designer maps keep their ids, second saves stable; red on the old source.
 
 ## Evolution
 
@@ -326,3 +399,7 @@ date_finished: null
   `bpmn:endEvent id="lan_end_event"`, and `lan_start_event`, `lan_start_event_2` likewise twice (before T-1264 they also
   showed as duplicate `BPMNShape_` ids). Same class as this task, under the current `<lane>_<slug>` id shape. Check:
   parse `tests/goldens/third-party/kitchen-sink.bpmn.golden` and count repeated `id` values.
+
+### 2026-10-29T00:26:22Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

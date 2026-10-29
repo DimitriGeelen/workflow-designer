@@ -2348,11 +2348,17 @@ function isStepNumbered(node) { return stepWordOf(node) === null; }
 // An event or gateway is `<abbr>_<word>_<slug>`; a second one in the lane with the same word and slug
 // takes `_2`, `_3` in x order (slugs never contain `_`, so the suffix cannot collide with another id).
 // If two nodes share an x exactly, uid order breaks the tie deterministically.
+// T-1102: a node with no lane (an event inside a subprocess, a lane id the map no longer has) or in a lane without an
+// abbreviation belongs to ONE "unlaned" group, prefixed `lan` unless a real lane already has that abbreviation; it then
+// takes the lane-variant scheme's next free one. Before, the fallback `lan` was shared with a real lane named "Lane"
+// (abbr `lan`) while each side numbered on its own, so kitchen-sink saved two endEvents as `lan_end_event`.
+const laneKeyOf = n => { const l = findLane(n.lane); return l && l.abbr ? l.id : null; };
 function computeDisplayId(node) {
   const lane = findLane(node.lane);
-  const abbr = lane?.abbr || 'lan';
+  const key = laneKeyOf(node);
+  const abbr = key !== null ? lane.abbr : uniqueAbbrAmong(state.lanes.filter(l => l.abbr), 'lan');
   const sameLane = state.nodes
-    .filter(n => n.lane === node.lane)
+    .filter(n => laneKeyOf(n) === key)
     .slice()
     .sort((a, b) => a.x - b.x || a.uid.localeCompare(b.uid));
   const slugOf = n => n.slug || deriveSlug(n.name);
