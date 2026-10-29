@@ -9,13 +9,13 @@ description: >
   (F8, C 9/13). Fix theme proposed there: a generic per-element passthrough rather
   than more allowlist entries.
 
-status: started-work
+status: work-completed
 workflow_type: inception
 target_blast_radius: 3
 voi_score: 0.5
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [import-loss, cloud-job-c]
 components: []
 related_tasks: []
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:24:15Z
-last_update: 2026-10-29T20:36:07Z
-date_finished:
+last_update: 2026-10-29T20:46:20Z
+date_finished: 2026-10-29T20:46:20Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -407,13 +407,11 @@ boundary in any fixture, so (a) needs one field per nested node; (b) is a canvas
 
 ## Decision
 
-<!-- Filled at completion of inception tasks via:
-     fw inception decide T-1266 go|no-go|defer --rationale "..."
+**Decision**: GO
 
-     For non-inception tasks this section is ignored. Kept in template
-     so `fw inception decide` (lib/inception.sh) finds the anchor heading
-     without auto-creating; T-1832 added auto-create as fallback for
-     legacy tasks lacking this section. -->
+**Rationale**: Operator (2026-10-29, recorded by job 107): GO on option (a) — record each nested node's parent subprocess at import and write nodes and flows back inside their container on save, still drawn flat; slice 1 round-trip (validator walks containers, nested nodes outside lanes are not E-XML-NODE-UNASSIGNED, notice updated, T-523 re-pinned), slice 2 edit rules (moved node stays nested, flow across the boundary refused, deleting a subprocess moves its contents up and says so, new nodes never nested). Not (b): canvas redesign for a case AEF never has. Evidence: docs/reports/T-1266-subprocess-nesting.md.
+
+**Date**: 2026-10-29T20:46:19Z
 
 ## Updates
 
@@ -457,6 +455,15 @@ boundary in any fixture, so (a) needs one field per nested node; (b) is a canvas
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
 
+### 2026-10-29T20:46:19Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Operator (2026-10-29, recorded by job 107): GO on option (a) — record each nested node's parent subprocess at import and write nodes and flows back inside their container on save, still drawn flat; slice 1 round-trip (validator walks containers, nested nodes outside lanes are not E-XML-NODE-UNASSIGNED, notice updated, T-523 re-pinned), slice 2 edit rules (moved node stays nested, flow across the boundary refused, deleting a subprocess moves its contents up and says so, new nodes never nested). Not (b): canvas redesign for a case AEF never has. Evidence: docs/reports/T-1266-subprocess-nesting.md.
+
+### 2026-10-29T20:46:20Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
+
 ## Hypothesis
 
 <!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
@@ -468,3 +475,26 @@ We will know that we are successful when we see the 4 third-party fixtures with 
 boundary-events, nested-subprocesses, kitchen-sink) re-saved unedited with every one of their 23 nested nodes and 6
 nested flows inside the same container as in the source, a second save byte-identical, and designer-written maps
 unchanged.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-f0dacf8d
+- **Timestamp:** 2026-10-29T20:46:22Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-11ee27d4
+- **Timestamp:** 2026-10-29T20:46:22Z
+- **Overall:** CONTRADICTED
+- **Claims:** 4
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `lib/review.sh:205-211` | file | ✗ fail — file not found at PROJECT_ROOT |
+| `docs/reports/T-1266-subprocess-nesting.md` | file | ✓ pass |
+| `T-2945` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
+| `T-2421` | task | ✗ fail — no task file in .tasks/{active,completed}/ |

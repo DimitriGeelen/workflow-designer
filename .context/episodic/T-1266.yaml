@@ -1,0 +1,106 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1266: subProcess contents are hoisted to the process on save, leaving an empty subProcess (two start events, different semantics)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-29T20:46:36Z
+# ============================================================================
+
+task_id: T-1266
+task_name: "subProcess contents are hoisted to the process on save, leaving an empty subProcess (two start events, different semantics)"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-21T21:24:15Z
+completed: 2026-10-29T20:46:20Z
+duration_days: 8
+updates_count: 12
+first_commit: 2026-10-28T21:29:21+01:00
+last_commit: 2026-10-29T21:36:07+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  made an inception with IW-1 framed (operator's ruling on the T-1329 brief); T-1267 (F9) deferred, horizon later; T-1332 marked a duplicate of T-1102 (evidence moved there, horizon later). research artifact framed (C-001), research not started. research done (worker t1266-research: 4 of 11 fixtures nest contents, 23 nodes, 0 boundary-crossing flows, nested nodes outside lanes, source paths and 12 edit cases) and the recommendation: GO on (a) in two slices (round-trip, then edit rules); found and filed T-1337 (task inside transaction/adHocSubProcess dropped). handover note — research and recommendation done; next: inception sections + decision job; T-1337 filed. decision-ready — success clause (4 fixtures, 23 nodes / 6 flows keep their container), Recommendation GO (a), IW-1 answered; fw task review passes. job 106 — record the operator's GO (option a, two slices), from job 099; rehearsed ok (first rehearsal's readiness check failed unexplained in the clone, passed after replacing a printf|grep -q with a here-string and printing the review on failure). tick the two Agent criteria (research artifact and recommendation, both done) — job 106 stopped at fw inception decide because they were open; job 107 = 106 plus a preflight check for open Agent criteria; 106 retired. job 107 rehearsed ok (checks incl. the new open-Agent-criteria one; both steps operator-only); job 106's stopped run log
+
+# Key outcomes
+outcomes:
+  - 'A research artifact answers IW-1 with evidence from the fixtures (which shapes of subprocess occur, which cross'
+  - 'A go/no-go recommendation is written for the operator''s `fw inception decide` (an operator-only step, handed over'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'decision-ready — success clause (4 fixtures, 23 nodes / 6 flows keep their container), Recommendation GO (a), IW-1 answered; fw task review passes'
+    source: git-mined
+  - description: 'research done (worker t1266-research: 4 of 11 fixtures nest contents, 23 nodes, 0 boundary-crossing flows, nested nodes outside lanes, source paths and 12 edit cases) and the recommendation: GO on (a) in two slices (round-trip, then edit rules); found and filed T-1337 (task inside transaction/adHocSubProcess dropped)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/handovers/S-2026-1029-1854.md'
+  - '.context/runme/106-decide-t1266-subprocess-nesting/dryrun.ok'
+  - '.context/runme/106-decide-t1266-subprocess-nesting/job.sh'
+  - '.context/runme/106-decide-t1266-subprocess-nesting/retired'
+  - '.context/runme/106-decide-t1266-subprocess-nesting/run-20261029T213302.log'
+  - '.context/runme/107-decide-t1266-subprocess-nesting-2/dryrun.ok'
+  - '.context/runme/107-decide-t1266-subprocess-nesting-2/job.sh'
+  - 'docs/reports/T-1266-subprocess-nesting.md'
+  - '.tasks/active/T-1102-duplicate-node-ids-within-one-lane-start.md'
+  - '.tasks/active/T-1266-subprocess-contents-are-hoisted-to-the-p.md'
+  - '.tasks/active/T-1267-nested-lanes-childlaneset-are-flattened-.md'
+  - '.tasks/active/T-1332-duplicate-display-ids-two-end-events-in-.md'
+  - '.tasks/active/T-1337-a-plain-bpmntask-inside-a-transaction-or.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-28T21:29:21'
+    action: 'T-1266: made an inception with IW-1 framed (operator''s ruling on the T-1329 brief); T-1267 (F9) deferred, horizon later; T-1332 marked a duplicate of T-1102 (evidence moved there, horizon later)'
+  - time: '2026-10-28T21:31:00'
+    action: 'T-1266: research artifact framed (C-001), research not started'
+  - time: '2026-10-29T19:26:48'
+    action: 'T-1266: research done (worker t1266-research: 4 of 11 fixtures nest contents, 23 nodes, 0 boundary-crossing flows, nested nodes outside lanes, source paths and 12 edit cases) and the recommendation: GO on (a) in two slices (round-trip, then edit rules); found and filed T-1337 (task inside transaction/adHocSubProcess dropped)'
+  - time: '2026-10-29T19:27:12'
+    action: 'T-1266: handover note — research and recommendation done; next: inception sections + decision job; T-1337 filed'
+  - time: '2026-10-29T19:46:45'
+    action: 'T-1266: decision-ready — success clause (4 fixtures, 23 nodes / 6 flows keep their container), Recommendation GO (a), IW-1 answered; fw task review passes'
+  - time: '2026-10-29T19:52:10'
+    action: 'T-1266: job 106 — record the operator''s GO (option a, two slices), from job 099; rehearsed ok (first rehearsal''s readiness check failed unexplained in the clone, passed after replacing a printf|grep -q with a here-string and printing the review on failure)'
+  - time: '2026-10-29T21:35:43'
+    action: 'T-1266: tick the two Agent criteria (research artifact and recommendation, both done) — job 106 stopped at fw inception decide because they were open; job 107 = 106 plus a preflight check for open Agent criteria; 106 retired'
+  - time: '2026-10-29T21:36:07'
+    action: 'T-1266: job 107 rehearsed ok (checks incl. the new open-Agent-criteria one; both steps operator-only); job 106''s stopped run log'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 11482 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [import-loss, cloud-job-c]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 11482
+  commits: 9
+  files_changed: 16
+  lines_added: 1082
+  lines_removed: 38
+  footprint_refreshed_at: '2026-10-29T20:46:38Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1266-subprocess-contents-are-hoisted-to-the-p.md
+generated_by: context-agent-hybrid
