@@ -191,7 +191,6 @@ _t386-drift-remedy-reachable.sh
 _t387-manifest-fields.sh
 _t389-release-envelope.sh
 _t391-p011-multiline-guard.sh
-_t396-release-tag-state.sh
 _t407-exporter-passthrough-cdp.mjs
 _t418-capture-attribution.sh
 _t418-producer-attribution.py
