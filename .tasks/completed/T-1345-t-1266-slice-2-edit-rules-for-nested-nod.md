@@ -4,12 +4,13 @@ name: "T-1266 slice 2: edit rules for nested nodes (moves keep the container, cr
 description: >
   T-1266 GO (option a), slice 2 of 2, after T-1339. Rules from the operator's GO and the research (docs/reports/T-1266-subprocess-nesting.md F5): a nested node keeps its container through moves and lane changes; a flow between nodes in different containers is refused with a message (connect gesture and endpoint re-anchor); deleting a subprocess moves its contents to the subprocess's own container and says so, undo restores; new nodes are never nested. Each rule with a harness leg.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-29T23:34:09Z
-last_update: 2026-10-29T23:45:39Z
-date_finished: null
+last_update: 2026-10-30T00:29:14Z
+date_finished: 2026-10-30T00:29:14Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -82,7 +83,8 @@ subprocess reachability in the validator (F5-10, its own question).
       `tools/_t1345-nesting-edit-rules-cdp.mjs` 10/10; on the pre-T-1345 source 4/10 (L2 ×2, L3, L4, L5, L6 red).
       Also green: `_t1339`, `_editor-behavior-verify`, `_t293`, `_endpoint-hover-verify`, `_roundtrip-serialization`,
       `_t308` (24/24), `_t358`, `_typed-events`, `_t1131`.
-- [ ] The core tier and `tools/person-sees-gate.sh` are green; the message is screenshot at 1024/1440/1920.
+- [x] The core tier and `tools/person-sees-gate.sh` are green; the message is screenshot at 1024/1440/1920.
+      Core 217/217 (after T-1341 removed a SIGPIPE flake in `_t658`); gate exit 0; shots in `docs/reports/T-1345-evidence`.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -401,3 +403,20 @@ Files: `docs/reports/T-1345-evidence/{refused,deleted}-{1024,1440,1920}{,-toast}
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1345-t-1266-slice-2-edit-rules-for-nested-nod.md
 - **Context:** Initial task creation
+
+### 2026-10-30T00:29:14Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-31b012a3
+- **Timestamp:** 2026-10-30T00:29:37Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#6 (Agent)** — The core tier and `tools/person-sees-gate.sh` are green; the message is screenshot at 1024/1440/1920.
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/person-sees-gate.sh in: The core tier and `tools/person-sees-gate.sh` are green; the message is screenshot at 1024/1440/1920.`

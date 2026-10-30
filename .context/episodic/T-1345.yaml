@@ -1,0 +1,121 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1345: T-1266 slice 2: edit rules for nested nodes (moves keep the container, cross-boundary flows refused, deleting a subprocess moves its contents up)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-30T00:29:48Z
+# ============================================================================
+
+task_id: T-1345
+task_name: "T-1266 slice 2: edit rules for nested nodes (moves keep the container, cross-boundary flows refused, deleting a subprocess moves its contents up)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-29T23:34:09Z
+completed: 2026-10-30T00:29:14Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-30T00:39:38+01:00
+last_commit: 2026-10-30T00:48:18+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  edit rules for another tool's nested nodes (T-1266 GO slice 2) — a flow across a subprocess boundary is refused with a message (connect gesture, endpoint re-anchor; no undo step), deleting a subprocess moves its contents to its own container and says so (single and multi-select; multi-delete now records an undo step), drags and palette adds leave containers as they are; harness _t1345 (10 legs, 6 red on the pre-T-1345 source), browser leg 218. visual evidence (person-sees gate exit 0; both messages shot and measured at 1024/1440/1920, read), Human criterion for the reviewer, agent criteria ticked with evidence, verification lines. reviewer verdict. Human criterion 1 judged green by the independent reviewer, applied with fw reviewer verdict apply; advisory sweep clean
+
+# Key outcomes
+outcomes:
+  - 'A nested node keeps its container through a drag and through a lane change (the canvas shows no boundary, so'
+  - 'A flow between two nodes in different containers (nested ↔ top level, two different subprocesses, a subprocess'
+  - 'Deleting a subprocess (single delete and multi-select delete) moves its direct contents into the subprocess''s own'
+  - 'A node added from the palette is never nested. Harness L7.'
+  - 'A new harness drives each rule in the real editor and is red on the current source for the refusal and the'
+  - 'The core tier and `tools/person-sees-gate.sh` are green; the message is screenshot at 1024/1440/1920.'
+  - 'The two messages say plainly what happened and why, and read at 1024, 1440 and 1920'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1345/AC1-judge-t-1345-r3-69a3f7289162.md'
+  - '.context/reviews/evidence/T-1345/deleted-1024-judge-t-1345-r3-69a3f7289162.png'
+  - '.context/reviews/evidence/T-1345/deleted-1024-toast-judge-t-1345-r3-69a3f7289162.png'
+  - '.context/reviews/evidence/T-1345/deleted-1440-toast-judge-t-1345-r3-69a3f7289162.png'
+  - '.context/reviews/evidence/T-1345/deleted-1920-toast-judge-t-1345-r3-69a3f7289162.png'
+  - '.context/reviews/evidence/T-1345/refused-1024-judge-t-1345-r3-69a3f7289162.png'
+  - '.context/reviews/evidence/T-1345/refused-1024-toast-judge-t-1345-r3-69a3f7289162.png'
+  - '.context/reviews/evidence/T-1345/refused-1440-toast-judge-t-1345-r3-69a3f7289162.png'
+  - '.context/reviews/evidence/T-1345/refused-1920-toast-judge-t-1345-r3-69a3f7289162.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1345-t-1266-slice-2-edit-rules-for-nested-nod.md'
+  - 'docs/reports/T-1345-evidence/deleted-1024-toast.png'
+  - 'docs/reports/T-1345-evidence/deleted-1024.png'
+  - 'docs/reports/T-1345-evidence/deleted-1440-toast.png'
+  - 'docs/reports/T-1345-evidence/deleted-1440.png'
+  - 'docs/reports/T-1345-evidence/deleted-1920-toast.png'
+  - 'docs/reports/T-1345-evidence/deleted-1920.png'
+  - 'docs/reports/T-1345-evidence/measures.json'
+  - 'docs/reports/T-1345-evidence/refused-1024-toast.png'
+  - 'docs/reports/T-1345-evidence/refused-1024.png'
+  - 'docs/reports/T-1345-evidence/refused-1440-toast.png'
+  - 'docs/reports/T-1345-evidence/refused-1440.png'
+  - 'docs/reports/T-1345-evidence/refused-1920-toast.png'
+  - 'docs/reports/T-1345-evidence/refused-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/fixtures/t1345/nested-two-lanes.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1345-message-shots.mjs'
+  - 'tools/_t1345-nesting-edit-rules-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-30T00:39:38'
+    action: 'T-1345: edit rules for another tool''s nested nodes (T-1266 GO slice 2) — a flow across a subprocess boundary is refused with a message (connect gesture, endpoint re-anchor; no undo step), deleting a subprocess moves its contents to its own container and says so (single and multi-select; multi-delete now records an undo step), drags and palette adds leave containers as they are; harness _t1345 (10 legs, 6 red on the pre-T-1345 source), browser leg 218'
+  - time: '2026-10-30T00:45:40'
+    action: 'T-1345: visual evidence (person-sees gate exit 0; both messages shot and measured at 1024/1440/1920, read), Human criterion for the reviewer, agent criteria ticked with evidence, verification lines'
+  - time: '2026-10-30T00:47:44'
+    action: 'T-1345: reviewer verdict'
+  - time: '2026-10-30T00:48:18'
+    action: 'T-1345: Human criterion 1 judged green by the independent reviewer, applied with fw reviewer verdict apply; advisory sweep clean'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 55 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 55
+  commits: 5
+  files_changed: 37
+  lines_added: 1115
+  lines_removed: 16
+  footprint_refreshed_at: '2026-10-30T00:29:54Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1345-t-1266-slice-2-edit-rules-for-nested-nod.md
+generated_by: context-agent-hybrid
