@@ -1733,6 +1733,22 @@ else
 fi
 }
 leg browser "_t1345-nesting-edit-rules" _leg_218
+
+_leg_219() {
+
+# ── T-1345: the nesting edit rules' two messages as a person sees them, measured at 1024/1440/1920 ──
+# The shot tool's own measures: the toast shows the expected text, lies inside the window, is not clipped, covers no
+# toolbar button. Shots go to $TMP, not the evidence folder. Wired by T-1346: closing T-1345 left the tool with no live
+# caller (its task Verification was its only one), which the unwired-guard ratchet caught in job 108's core tier.
+if node "$ROOT/tools/_t1345-message-shots.mjs" "$TMP/t1345-shots" > "$TMP/leg-_t1345s.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a nesting edit-rule message (flow refused, subprocess deleted) is missing, clipped, off-screen or over a toolbar button (run 'node tools/_t1345-message-shots.mjs /tmp/out'; T-1345)"
+  show_output "$TMP/leg-_t1345s.out" "_t1345-message-shots.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1345-message-shots" _leg_219
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
