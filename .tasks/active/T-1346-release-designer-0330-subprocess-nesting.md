@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-30T01:11:43Z
-last_update: 2026-10-30T01:14:07Z
+last_update: 2026-10-30T01:15:03Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -64,10 +64,11 @@ and push are outward); the agent writes and rehearses it, then hands AEF the rel
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `docs/releases/RELEASE-NOTES-0.33.0.md` is committed, not a draft, names every designer change since 0.32.0, says
-      what changes in stored maps, and names the five endpoints with AEF's current serving state.
-- [ ] A release job (from job 104's shape) is written, rehearsed with `bash runme.sh --dry-run`, and committed with its
-      `dryrun.ok`; the release commit names only T-1346.
+- [x] `docs/releases/RELEASE-NOTES-0.33.0.md` is committed, not a draft, names every designer change since 0.32.0, says
+      what changes in stored maps, and names the five endpoints with AEF's current serving state. T-1337, T-1339,
+      T-1342, T-1345 (`git log designer-v0.32.0..HEAD -- src/aef-workflow-designer.html`).
+- [x] A release job (from job 104's shape) is written, rehearsed with `bash runme.sh --dry-run`, and committed with its
+      `dryrun.ok`; the release commit names only T-1346. Job 108, sha 4ee18ca3b085; 15 checks ok, step 1 rehearsed.
 - [ ] After the operator's run: `designer-v0.33.0` is on origin and the artifact equals `src` at the tag.
 - [ ] AEF is sent version, tag, sha256, bytes and the changes, with what is new for their importer (nested contents in
       a third-party file's save), and asked for their task id.
