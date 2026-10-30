@@ -85,7 +85,7 @@ run() {
 # ---------------------------------------------------------------------------
 echo "--- an ordinary failure is still an ordinary failure"
 OUT=$(run "$REGION" 'exit 1')
-if echo "$OUT" | grep -q 'FAIL' && ! echo "$OUT" | grep -q 'DID NOT FINISH'; then
+if grep -q 'FAIL' <<<"$OUT" && ! grep -q 'DID NOT FINISH' <<<"$OUT"; then
     ok "exit 1 -> FAIL, no kill language (the change is additive)"
 else
     bad "exit 1 misclassified: $(echo "$OUT" | tr '\n' ' ' | head -c 200)"
@@ -96,7 +96,7 @@ echo "--- timeout(1) and signal deaths are named as not-finished"
 for spec in "124:timeout" "137:signal 9" "143:signal 15"; do
     code="${spec%%:*}"; want="${spec#*:}"
     OUT=$(run "$REGION" "exit $code")
-    if echo "$OUT" | grep -q 'DID NOT FINISH' && echo "$OUT" | grep -q "$want"; then
+    if grep -q 'DID NOT FINISH' <<<"$OUT" && grep -q "$want" <<<"$OUT"; then
         ok "exit $code -> DID NOT FINISH ($want)"
     else
         bad "exit $code not reported as killed/$want: $(echo "$OUT" | tr '\n' ' ' | head -c 200)"
@@ -111,13 +111,13 @@ echo "--- boundaries: 128, 127 and 2 stay ordinary failures"
 BOUND_BAD=""; BOUND_MUTE=""
 for code in 128 127 2; do
     OUT=$(run "$REGION" "exit $code")
-    echo "$OUT" | grep -q 'DID NOT FINISH' && BOUND_BAD="$BOUND_BAD $code"
+    grep -q 'DID NOT FINISH' <<<"$OUT" && BOUND_BAD="$BOUND_BAD $code"
     # An absence-assertion passes on a run that produced NOTHING. Caught live here: a
     # harness syntax error made every other leg fail while this one reported PASS, because
     # "no kill language" is trivially true of an error message. Require the positive too.
     # T-1005: 1.7.740 reports 127 as NOT RUNNABLE (upstream adopted our T-871) — still a
     # non-pass verdict, which is all this positive control needs.
-    echo "$OUT" | grep -qE 'FAIL|NOT RUNNABLE' || BOUND_MUTE="$BOUND_MUTE $code"
+    grep -qE 'FAIL|NOT RUNNABLE' <<<"$OUT" || BOUND_MUTE="$BOUND_MUTE $code"
 done
 if [ -n "$BOUND_MUTE" ]; then
     bad "PRECONDITION FAILED — no FAIL verdict at all for exit code(s):$BOUND_MUTE (the run did not happen; absence of kill language proves nothing)"
@@ -130,7 +130,7 @@ fi
 # ---------------------------------------------------------------------------
 echo "--- a kill with no output says so, instead of printing an empty evidence block"
 OUT=$(run "$REGION" 'exit 137')
-if echo "$OUT" | grep -q 'no output captured'; then
+if grep -q 'no output captured' <<<"$OUT"; then
     ok "silence after a kill is stated, not left blank"
 else
     bad "empty evidence block after a kill — the thing that made the incident unreadable"
@@ -142,10 +142,10 @@ fi
 echo "--- the summary separates the two kinds and keeps the total whole"
 OUT=$(run "$REGION" 'true' 'exit 1' 'exit 124')
 MISSING=""
-echo "$OUT" | grep -q '2/3 verification(s) did not pass' || MISSING="$MISSING the-whole-total"
-echo "$OUT" | grep -q '1 ran and reported a failure'      || MISSING="$MISSING the-ran-group"
-echo "$OUT" | grep -q '1 never finished'                  || MISSING="$MISSING the-killed-group"
-echo "$OUT" | grep -q 'RUNNER DEFECT'                     && MISSING="$MISSING broke-T630-reconciliation"
+grep -q '2/3 verification(s) did not pass' <<<"$OUT" || MISSING="$MISSING the-whole-total"
+grep -q '1 ran and reported a failure' <<<"$OUT"      || MISSING="$MISSING the-ran-group"
+grep -q '1 never finished' <<<"$OUT"                  || MISSING="$MISSING the-killed-group"
+grep -q 'RUNNER DEFECT' <<<"$OUT"                     && MISSING="$MISSING broke-T630-reconciliation"
 if [ -z "$MISSING" ]; then
     ok "summary names both groups, total preserved, reconciliation intact"
 else
@@ -154,7 +154,7 @@ fi
 
 # ---------------------------------------------------------------------------
 echo "--- ...and points at the fw audit hazard that causes it (OBS-332a)"
-if echo "$OUT" | grep -q 'fw audit --section'; then
+if grep -q 'fw audit --section' <<<"$OUT"; then
     ok "remedy names --section as the supported form"
 else
     bad "the timeout branch does not mention the whole-audit hazard"
@@ -163,7 +163,7 @@ fi
 # ---------------------------------------------------------------------------
 echo "--- an all-failed run is unchanged: no kill language, no kill advice"
 OUT=$(run "$REGION" 'exit 1' 'exit 2')
-if echo "$OUT" | grep -q '2/2 verification(s) failed' && ! echo "$OUT" | grep -q 'never finished'; then
+if grep -q '2/2 verification(s) failed' <<<"$OUT" && ! grep -q 'never finished' <<<"$OUT"; then
     ok "ordinary failures read exactly as before"
 else
     bad "kill language leaked into a run with no kills: $(echo "$OUT" | tr '\n' ' ' | head -c 200)"
@@ -172,7 +172,7 @@ fi
 # ---------------------------------------------------------------------------
 echo "--- a clean run still passes"
 OUT=$(run "$REGION" 'true' 'true')
-if echo "$OUT" | grep -q 'Verification: 2/2 passed'; then
+if grep -q 'Verification: 2/2 passed' <<<"$OUT"; then
     ok "2/2 passed"
 else
     bad "a clean run no longer passes: $(echo "$OUT" | tr '\n' ' ' | head -c 200)"
@@ -186,12 +186,12 @@ BASELINE=$(run "$REGION" 'exit 124')
 # T-661: completeness, not a marker count. See tools/lib/mutation-assert.sh.
 if ! MUTATED=$(assert_mutation_complete "$REGION" "$MUT" '^            if \[ -n "\$_vk_signal" \]; then' 'classification branch'); then
     bad "$MUTATED"
-elif ! echo "$BASELINE" | grep -q 'DID NOT FINISH'; then
+elif ! grep -q 'DID NOT FINISH' <<<"$BASELINE"; then
     # PL-297: silence after a mutation only means something if there was noise before it.
     bad "PRECONDITION FAILED — unmutated region does not classify 124, so the mutant's silence proves nothing"
 else
     OUT=$(run "$MUT" 'exit 124')
-    if ! echo "$OUT" | grep -q 'DID NOT FINISH'; then
+    if ! grep -q 'DID NOT FINISH' <<<"$OUT"; then
         ok "mutant loses a distinction the unmutated region demonstrably makes"
     else
         bad "mutant still classified; the legs above cannot fail and prove nothing"
