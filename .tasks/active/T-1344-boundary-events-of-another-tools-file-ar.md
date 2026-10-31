@@ -47,7 +47,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-29T22:15:42Z
-last_update: 2026-10-31T22:44:01Z
+last_update: 2026-10-31T22:45:09Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -144,7 +144,7 @@ designer-written map is unchanged byte for byte.
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1344 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-- [ ] Another tool's boundary events read as placed around their host, as the file drew them, not stacked on one spot
+- [x] Another tool's boundary events read as placed around their host, as the file drew them, not stacked on one spot
       **Why you:** whether the result reads better for a person (events on the host's sides, labels readable) is a
       reading judgement; the screenshots are the evidence, and a known limit is stated below.
       For the independent reviewer: `fw reviewer judge T-1344 --criterion 1`
@@ -177,6 +177,7 @@ designer-written map is unchanged byte for byte.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261031-d3d3e180 — reviewer-judge-t-1344-r3-230312ce09cb:reviewer (rung rung-3-termlink-single-reviewer), digest fd0240019063; dispatch judge-t-1344-r3-230312ce09cb; evidence: .context/reviews/evidence/T-1344/AC1-judge-t-1344-r3-230312ce09cb.md, .context/reviews/evidence/T-1344/kitchen-sink-1920-host-zoom-before-judge-t-1344-r3-230312ce09cb.png, .context/reviews/evidence/T-1344/kitchen-sink-1920-host-zoom-judge-t-1344-r3-230312ce09cb.png, .context/reviews/evidence/T-1344/kitchen-sink-1920-judge-t-1344-r3-230312ce09cb.png, .context/reviews/evidence/T-1344/kitchen-sink-1440-judge-t-1344-r3-230312ce09cb.png, .context/reviews/evidence/T-1344/kitchen-sink-1024-judge-t-1344-r3-230312ce09cb.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
