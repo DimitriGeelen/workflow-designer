@@ -1,0 +1,188 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1348: Upgrade AEF v1.8.15 -> v1.8.16-be.2 (brings T-4920, the Tier-0 pre-filter fix; drops our local patch)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-31T16:05:14Z
+# ============================================================================
+
+task_id: T-1348
+task_name: "Upgrade AEF v1.8.15 -> v1.8.16-be.2 (brings T-4920, the Tier-0 pre-filter fix; drops our local patch)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-31T13:09:57Z
+completed: 2026-10-31T16:04:30Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-31T14:11:21+01:00
+last_commit: 2026-10-31T16:42:54+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  job 110 — upgrade AEF v1.8.15 -> v1.8.16-be.2 (T-4920, the Tier-0 pre-filter fix), job 103's code with version strings swapped and a check that designer 0.33.0 is pushed first; preflight passes except that check, so the rehearsal follows job 109. retarget to v1.8.16-be.3 (AEF T-4921: two more hook fail-opens closed, notice 6d6e0298); job 110 to be replaced once the tag is public. retire job 110 unrun (superseded by the be.3 job); an operator batch that included it was refused as unrehearsed. job 111 — upgrade AEF v1.8.15 -> v1.8.16-be.3 (4965587d4, security fixes T-4920 and T-4921, notice 0b9aef25), job 110's code retargeted; rehearsal after job 109. job 111 rehearsed ok (10 checks incl. 0.33.0 on origin; all 9 steps, the upgrade included, ran in a clone). pristine vendor commit — AEF v1.8.16-be.3 (4965587d4) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.16-be.3 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000). commit the task template(s) fw upgrade synced, identical to the vendored copy: .tasks/templates/default.md. re-apply 832's local fixes onto pristine AEF v1.8.16-be.3 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/9dc648848183, 36 clean, 1 three-way (audit.sh, no conflict), 0 failed; patch 05 (check-tier0.sh, T-1347) not re-applied — superseded by AEF T-4920, its manifest entry removed. tools/_t517 OK (44 declared); drain ratchet 41; probe 0 of 80000 on be.3's hook; _t631 17/17, _t866 10/10. _t628's teeth anchor on the G-020 exemption specifically — be.3's T-4907 context gate added an exemption of the same shape, so the old anchor matched twice and the mutant could not be built; 13/13 with teeth again. _t770's precedence pin follows AEF T-4916 (be.3: deterministic criteria route to REVIEWER-JUDGES) — it asserts the class moves (deterministic -> render-surface) and the delegation is REVIEWER-JUDGES both ways; it failed deterministically under be.3 (I first misread it as _t932, which passes)
+
+# Key outcomes
+outcomes:
+  - 'An upgrade job (job 103''s code; tag v1.8.16-be.3 = 4965587d4, from v1.8.15 = 0230eeb9e; job 111, replacing job 110'
+  - 'After the operator''s run: `.framework.yaml` names 4965587d4 (be.3; the criterion said bf112edce before the'
+  - 'Re-vendor protocol: every declared local fix the upgrade overwrote is re-applied or resolved as superseded'
+  - '`tools/_t1347-t0-prefilter-probe.sh` 4 x 20000 in parallel: 0 waved through on the upgraded hook; `_t631` 17/17.'
+  - 'Backups the upgrade leaves (`*.bak`) are diffed and removed or reported (CLAUDE.md rule); templates handled by'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.16-be.3 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/9dc648848183, 36 clean, 1 three-way (audit.sh, no conflict), 0 failed; patch 05 (check-tier0.sh, T-1347) not re-applied — superseded by AEF T-4920, its manifest entry removed. tools/_t517 OK (44 declared); drain ratchet 41; probe 0 of 80000 on be.3''s hook; _t631 17/17, _t866 10/10'
+    source: git-mined
+  - description: 'job 111 — upgrade AEF v1.8.15 -> v1.8.16-be.3 (4965587d4, security fixes T-4920 and T-4921, notice 0b9aef25), job 110''s code retargeted; rehearsal after job 109'
+    source: git-mined
+  - description: 'job 110 — upgrade AEF v1.8.15 -> v1.8.16-be.2 (T-4920, the Tier-0 pre-filter fix), job 103''s code with version strings swapped and a check that designer 0.33.0 is pushed first; preflight passes except that check, so the rehearsal follows job 109'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/.tasks/templates/default.md'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/audit/unit-suite.sh'
+  - '.agentic-framework/agents/context/budget-gate.sh'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/check-agent-dispatch.sh'
+  - '.agentic-framework/agents/context/check-project-boundary.sh'
+  - '.agentic-framework/agents/context/check-tier0.sh'
+  - '.agentic-framework/agents/context/check-visual-verification.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/continuous-driver.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/git/lib/large-file-scan.sh'
+  - '.agentic-framework/agents/git/lib/secret-scan.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/docs/generated/components/tests-unit-t3445_delegation_close_path.md'
+  - '.agentic-framework/docs/releases/v1.8.15-notes.md'
+  - '.agentic-framework/docs/reports/T-1549-escalation-scan-v0.md'
+  - '.agentic-framework/docs/reports/T-4635-session-kill-rca.md'
+  - '.agentic-framework/docs/reports/field-test-v1.8.15-results.md'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/delegation.py'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/gh_links.py'
+  - '.agentic-framework/lib/governance_known.py'
+  - '.agentic-framework/lib/hook-degraded.sh'
+  - '.agentic-framework/lib/hook-dispatch.sh'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/issues.py'
+  - '.agentic-framework/lib/release.sh'
+  - '.agentic-framework/lib/review_cost.py'
+  - '.agentic-framework/lib/review_model_preflight.py'
+  - '.agentic-framework/lib/reviewer/judge_cli.py'
+  - '.agentic-framework/lib/reviewer/static_scan.py'
+  - '.agentic-framework/lib/runme.sh'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/task_context.py'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/upgrade.sh'
+  - '.agentic-framework/lib/upgrade_template_shipped.py'
+  - '.agentic-framework/lib/vendor_preserve.py'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/vendor/designer/aef-workflow-designer-0.32.0.html'
+  - '.agentic-framework/vendor/designer/validate-workflow-0.32.0.py'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/templates/task_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.context/runme/110-upgrade-aef-v1.8.16-be.2/job.sh'
+  - '.context/runme/110-upgrade-aef-v1.8.16-be.2/retired'
+  - '.context/runme/111-upgrade-aef-v1.8.16-be.3/dryrun.ok'
+  - '.context/runme/111-upgrade-aef-v1.8.16-be.3/job.sh'
+  - '.framework.yaml'
+  - '.tasks/active/T-1348-upgrade-aef-v1815---v1816-be2-brings-t-4.md'
+  - '.tasks/templates/default.md'
+  - 'tools/_t628-g020-remedy-reachable.sh'
+  - 'tools/_t770-delegation-boundary.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-31T14:11:21'
+    action: 'T-1348: job 110 — upgrade AEF v1.8.15 -> v1.8.16-be.2 (T-4920, the Tier-0 pre-filter fix), job 103''s code with version strings swapped and a check that designer 0.33.0 is pushed first; preflight passes except that check, so the rehearsal follows job 109'
+  - time: '2026-10-31T14:12:52'
+    action: 'T-1348: retarget to v1.8.16-be.3 (AEF T-4921: two more hook fail-opens closed, notice 6d6e0298); job 110 to be replaced once the tag is public'
+  - time: '2026-10-31T14:20:34'
+    action: 'T-1348: retire job 110 unrun (superseded by the be.3 job); an operator batch that included it was refused as unrehearsed'
+  - time: '2026-10-31T14:26:22'
+    action: 'T-1348: job 111 — upgrade AEF v1.8.15 -> v1.8.16-be.3 (4965587d4, security fixes T-4920 and T-4921, notice 0b9aef25), job 110''s code retargeted; rehearsal after job 109'
+  - time: '2026-10-31T14:32:00'
+    action: 'T-1348: job 111 rehearsed ok (10 checks incl. 0.33.0 on origin; all 9 steps, the upgrade included, ran in a clone)'
+  - time: '2026-10-31T15:50:27'
+    action: 'T-1348: pristine vendor commit — AEF v1.8.16-be.3 (4965587d4) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-31T15:52:14'
+    action: 'T-1348: advance the divergence baseline to the pristine AEF v1.8.16-be.3 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-31T15:52:24'
+    action: 'T-1348: commit the task template(s) fw upgrade synced, identical to the vendored copy: .tasks/templates/default.md'
+  - time: '2026-10-31T16:10:57'
+    action: 'T-1348: re-apply 832''s local fixes onto pristine AEF v1.8.16-be.3 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/9dc648848183, 36 clean, 1 three-way (audit.sh, no conflict), 0 failed; patch 05 (check-tier0.sh, T-1347) not re-applied — superseded by AEF T-4920, its manifest entry removed. tools/_t517 OK (44 declared); drain ratchet 41; probe 0 of 80000 on be.3''s hook; _t631 17/17, _t866 10/10'
+  - time: '2026-10-31T16:25:45'
+    action: 'T-1348: _t628''s teeth anchor on the G-020 exemption specifically — be.3''s T-4907 context gate added an exemption of the same shape, so the old anchor matched twice and the mutant could not be built; 13/13 with teeth again'
+  - time: '2026-10-31T16:42:54'
+    action: 'T-1348: _t770''s precedence pin follows AEF T-4916 (be.3: deterministic criteria route to REVIEWER-JUDGES) — it asserts the class moves (deterministic -> render-surface) and the delegation is REVIEWER-JUDGES both ways; it failed deterministically under be.3 (I first misread it as _t932, which passes)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 11 commit(s), 174 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 174
+  commits: 12
+  files_changed: 87
+  lines_added: 6786
+  lines_removed: 3945
+  footprint_refreshed_at: '2026-10-31T16:05:20Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1348-upgrade-aef-v1815---v1816-be2-brings-t-4.md
+generated_by: context-agent-hybrid

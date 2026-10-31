@@ -4,12 +4,13 @@ name: "Upgrade AEF v1.8.15 -> v1.8.16-be.2 (brings T-4920, the Tier-0 pre-filter
 description: >
   AEF fixed 832's Tier-0 finding (T-1347) as their T-4920 on v1.8.16-be.2 (msg 3bf7d701, 2026-10-31): here-string pre-filter, regression test t4920. Upgrade through an operator job modelled on job 103 (T-1335): full clone of the tag, fw upgrade, pristine vendor commit, divergence baseline advanced, templates. Then the re-vendor protocol (T-1000): re-apply our declared local fixes, except check-tier0.sh, which upstream now has (its divergence entry is removed as superseded). Runs only after designer 0.33.0 is pushed (job 109).
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t628-g020-remedy-reachable.sh, tools/_t770-delegation-boundary.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-31T13:09:57Z
-last_update: 2026-10-31T15:10:57Z
-date_finished: null
+last_update: 2026-10-31T16:04:30Z
+date_finished: 2026-10-31T16:04:30Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -83,14 +84,21 @@ job on the be.3 tag once it is on the public mirror (not yet at 13:15Z).
 - [x] An upgrade job (job 103's code; tag v1.8.16-be.3 = 4965587d4, from v1.8.15 = 0230eeb9e; job 111, replacing job 110
       for be.2, retired unrun) is written, refuses to
       run before `designer-v0.33.0` is on origin, is rehearsed and committed with its `dryrun.ok`.
-- [ ] After the operator's run: `.framework.yaml` names bf112edce; the pristine vendor commit and the divergence
-      baseline commit exist; fw doctor after has no new FAIL against before.
-- [ ] Re-vendor protocol: every declared local fix the upgrade overwrote is re-applied or resolved as superseded
+- [x] After the operator's run: `.framework.yaml` names 4965587d4 (be.3; the criterion said bf112edce before the
+      retarget); the pristine vendor commit (9dc648848) and the divergence baseline commit (c788ee2be) exist; fw doctor
+      after has no new FAIL against before (0 FAIL both; the one new WARN, Watchtower older than its source, cleared by
+      a restart).
+- [x] Re-vendor protocol: every declared local fix the upgrade overwrote is re-applied or resolved as superseded
       (`tools/_t1000-revendor-worklist.py` empty); `check-tier0.sh` is upstream's (T-4920) and its divergence entry is
-      removed as superseded; `tools/_t517-vendor-divergence.py` and the drain ratchet are green.
-- [ ] `tools/_t1347-t0-prefilter-probe.sh` 4 x 20000 in parallel: 0 waved through on the upgraded hook; `_t631` 17/17.
-- [ ] Backups the upgrade leaves (`*.bak`) are diffed and removed or reported (CLAUDE.md rule); templates handled by
-      `tools/_t1192-upgrade-templates.sh`; the core tier is green and the upgrade is pushed; AEF is told.
+      removed as superseded; `tools/_t517-vendor-divergence.py` and the drain ratchet are green. 37 patches: 36 clean,
+      1 three-way (audit.sh, no conflict), 0 failed; worklist 0 stale; `_t517` OK (44 declared); drain 41.
+- [x] `tools/_t1347-t0-prefilter-probe.sh` 4 x 20000 in parallel: 0 waved through on the upgraded hook; `_t631` 17/17.
+      Also `_t631` and `_t866` 30/30 each.
+- [x] Backups the upgrade leaves (`*.bak`) are diffed and removed or reported (CLAUDE.md rule); templates handled by
+      `tools/_t1192-upgrade-templates.sh`; the core tier is green and the upgrade is pushed; AEF is told. No `*.bak`
+      left; templates b5e2f73d8 (default.md synced, inception.md.upstream superseded); core 217/0 after two 832 tests
+      were brought in line with be.3 (`_t628`: T-4907's exemption doubled its anchor; `_t770`: T-4916 routes
+      deterministic to REVIEWER-JUDGES); pushed fda6be658; AEF told WORKS (msg be8285bb).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -275,6 +283,11 @@ job on the be.3 tag once it is on the public mirror (not yet at 13:15Z).
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+grep -q '^version_sha: 4965587d473cdd10dee12a65cec0515a24c7934a' .framework.yaml
+python3 tools/_t517-vendor-divergence.py > /tmp/t1348-517.out 2>&1 && grep -q 'OK — every diverged path is declared' /tmp/t1348-517.out
+python3 tools/_t688-divergence-drain-ratchet.py > /tmp/t1348-688.out 2>&1 && grep -q '^\[OK\]' /tmp/t1348-688.out
+bash tools/_t1347-t0-prefilter-probe.sh 20000
+python3 tools/_t770-delegation-boundary.py --self-test > /tmp/t1348-770.out 2>&1 && grep -q 'SELF-TEST PASSED' /tmp/t1348-770.out
 
 ## RCA
 
@@ -291,6 +304,16 @@ job on the be.3 tag once it is on the public mirror (not yet at 13:15Z).
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** the vendored Tier-0 gate could let a guarded command through unchecked (found in 832 as random core reds,
+T-1347); AEF then found the project-boundary gate and both gates' fail-closed fallbacks failing open the same way.
+**Root cause:** in the framework, not 832: under `set -o pipefail`, pipes into `grep -q` in the hooks (SIGPIPE turned a
+match into "no match"), and an env-var hand-off capped at 128 KB in the project-boundary hook. Analysed in T-1347.
+**Why structurally allowed:** 832 carries the framework vendored and receives its fixes only by upgrading; until this
+task 832 had a local patch for one of the three holes.
+**Prevention:** this upgrade takes AEF's fixes (T-4920, T-4921) with their regression tests and their lint against new
+pipes into `grep -q` in pipefail hooks; 832 keeps `tools/_t1347-t0-prefilter-probe.sh`, which reads the block from the
+hook, so a regression in a future re-vendor is measured.
 
 ## Evolution
 
@@ -372,3 +395,16 @@ job on the be.3 tag once it is on the public mirror (not yet at 13:15Z).
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1348-upgrade-aef-v1815---v1816-be2-brings-t-4.md
 - **Context:** Initial task creation
+
+### 2026-10-31T16:04:30Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-10b699bf
+- **Timestamp:** 2026-10-31T16:05:08Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
