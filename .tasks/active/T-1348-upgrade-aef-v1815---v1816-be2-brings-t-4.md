@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-31T13:09:57Z
-last_update: 2026-10-31T13:09:57Z
+last_update: 2026-10-31T13:11:22Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -58,6 +58,14 @@ date_finished: null
 
 The operator approved taking AEF's fix (2026-10-31, "proceed as you see fit" on the agent's plan: release 0.33.0 first,
 then an upgrade job to be.2). Same procedure as T-1335 (v1.8.15): job 103's code, then the re-vendor protocol.
+
+**Retarget to be.3 (2026-10-31 13:12Z, AEF notice 6d6e0298):** AEF T-4921 (our T-1341's class) goes into
+v1.8.16-be.3 "shortly": 12 pipes into grep -q in 9 pipefail hooks become here-strings, and two more fail-opens are
+closed — lib/hook-degraded.sh (the fail-CLOSED fallbacks used printf|grep -q, including the T-4920 pipe in the degraded
+Tier-0 path) and check-project-boundary.sh (the command went to its matcher in an env var, capped at 128 KB, so a longer
+command fell into that fallback: `cp x /etc/…` allowed with a 150 KB comment). Their Verification template drops the
+64 KB rule; a lint forbids new pipes into grep -q in pipefail hooks. Job 110 is to be retired unrun and replaced by a
+job on the be.3 tag once it is on the public mirror (not yet at 13:15Z).
 
 ## Acceptance Criteria
 
