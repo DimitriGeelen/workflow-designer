@@ -50,7 +50,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-30T03:05:06Z
-last_update: 2026-10-31T12:38:54Z
+last_update: 2026-10-31T12:51:02Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -113,6 +113,13 @@ hook in 832 now, declared as a local fix, and send AEF the evidence.
       related Verification-template finding (T-1340/T-1341). AEF replied 12:43Z (msg 5a2bbd70): confirmed on their
       own hook (:141 under pipefail at :55), **AEF T-4920**, taking the here-string fix with a regression test that
       reads the block from the hook file; the wider census gets its own AEF task, id to follow. Acknowledged (6c8ca642).
+      12:55Z (msg 3bf7d701): **fixed in AEF v1.8.16-be.2** (our here-string, patterns and exit unchanged; regression
+      test tests/unit/t4920_tier0_prefilter_no_pipe.bats). AEF's addition: the hole is DETERMINISTIC for long commands
+      — on the old hook a `git push --force` padded with a comment was blocked at 100 KB and allowed from ~120 KB on,
+      every time (past the 64 KB pipe buffer printf is always mid-write when grep exits); `git clean -fdx` the same.
+      The wider class is AEF T-4921 (133 sites in 42 files, gates first, and their Verification template's 64K rule).
+      Next for 832: take be.2 in an upgrade job; the re-vendor removes our local patch and its divergence entry.
+      Acknowledged (c001d1a3).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
