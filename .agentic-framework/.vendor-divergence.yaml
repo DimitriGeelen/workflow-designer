@@ -1320,3 +1320,16 @@ entries:
       012, T-1118). Adds a hypothesis-unready blocker, asked only when the recommendation is GO and
       only when audit_inception_hypothesis is loaded (NO-GO/DEFER stay decidable). tools/_t1123 8/8
       (2 fail on the old code). Sent as an addendum to patch 0010 (docs/upstream-pickups/I-t1123-handoff-hypothesis-gate).
+
+  - path: .agentic-framework/agents/context/check-tier0.sh
+    kind: content
+    task: T-1347
+    upstream: fix
+    reason: >-
+      SECURITY, fail-open. The fast-path pre-filter was `! printf '%s\n%s\n' "$COMMAND" "$T0_DEQUOTED" | grep -qEi
+      '<patterns>'` -> exit 0, under `set -uo pipefail`. grep -q exits at the first line's match; printf's second
+      write could take SIGPIPE; pipefail failed the pipeline and the `!` read it as "no pattern", so the hook exited 0
+      without checking a guarded command (git push/reset, rm -, the Tier-0 verb, fw --force, fw inception decide).
+      Measured: tools/_t1347-t0-prefilter-probe.sh (reads the block from this file), 4 parallel x 20000 -> 1 waved
+      through before, 0 after; with a short pattern 7 of 20000 at idle. Seen as random core reds (_t631 x2, _t866).
+      Fix: the same test fed by a here-string; patterns and exit unchanged. Sent to AEF with the probe.
