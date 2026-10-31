@@ -12,13 +12,13 @@ description: >
   (every render already snapped them). Fix: at import, derive boundaryPos from the
   event's DI centre projected on the host's perimeter.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -47,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-29T22:15:42Z
-last_update: 2026-10-31T22:45:09Z
-date_finished:
+last_update: 2026-10-31T23:00:42Z
+date_finished: 2026-10-31T23:00:42Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -102,17 +102,24 @@ designer-written map is unchanged byte for byte.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] An attached boundary event with no `aef:boundaryPos` and a diagram shape in the file gets `boundaryPos` = its
+- [x] An attached boundary event with no `aef:boundaryPos` and a diagram shape in the file gets `boundaryPos` = its
       centre's position along the host's outline (clockwise from the top-left corner, as `boundaryPerimeterPoint` reads
-      it), computed with the host's and the event's sizes in the file.
-- [ ] kitchen-sink.bpmn and boundary-events.bpmn: every boundary event drawn in the file sits on the same edge of its host
+      it), computed with the host's and the event's sizes in the file. Refined while building: the edge and the
+      position along it come from the file, and the fraction is rebuilt on the designer's host size (a plain perimeter
+      fraction changed edge when the two hosts' proportions differ), kept 8–92% along the edge (off the corners).
+- [x] kitchen-sink.bpmn and boundary-events.bpmn: every boundary event drawn in the file sits on the same edge of its host
       as in the file, in the file's order along that edge, and no two on one host share a point. (Rewritten from "no
       two closer than the event size": kitchen-sink puts 6 events on a host edge the designer draws 64 px long, where
       36 px events overlap however they are placed. Drawing hosts at the file's size is a separate question.)
-- [ ] A designer-written map is byte-identical (`_t308` 24/24); a second save of each third-party file is byte-identical
+      `_t1344` GREEN: 17 events (14 + 3), edge, order and distinct points.
+- [x] A designer-written map is byte-identical (`_t308` 24/24); a second save of each third-party file is byte-identical
       (`_t1339` harness); the third-party goldens are re-recorded deliberately (boundaryPos added, positions moved).
-- [ ] A harness checks the placement (edge and order along it) against the file, red on the pre-T-1344 source.
-- [ ] The core tier and `tools/person-sees-gate.sh` are green; kitchen-sink is screenshot at 1024/1440/1920.
+      `_t308` 24/24; `_t1339` GREEN; goldens: kitchen-sink and boundary-events only (boundaryPos from the file, event
+      positions on the host's edges); boundary harnesses (`_typed-events`, `_t356`, `_t513`, `_roundtrip`) rc 0.
+- [x] A harness checks the placement (edge and order along it) against the file, red on the pre-T-1344 source.
+      `tools/_t1344-boundary-placement-cdp.mjs`, browser leg 220; RED on the pre-T-1344 source (wrong edges, order).
+- [x] The core tier and `tools/person-sees-gate.sh` are green; kitchen-sink is screenshot at 1024/1440/1920. Core
+      217/0, pushed 1394fd52a; gate exit 0; shots and before/after zoom in `docs/reports/T-1344-evidence`.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -434,3 +441,21 @@ Files: `docs/reports/T-1344-evidence/kitchen-sink-{1024,1440,1920}.png`, `kitche
 ### 2026-10-31T22:34:53Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-31T23:00:42Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b9bf9996
+- **Timestamp:** 2026-10-31T23:00:56Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#5 (Agent)** — The core tier and `tools/person-sees-gate.sh` are green; kitchen-sink is screenshot at 1024/1440/1920. Core
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/person-sees-gate.sh in: The core tier and `tools/person-sees-gate.sh` are green; kitchen-sink is screenshot at 1024/1440/1920. Core`

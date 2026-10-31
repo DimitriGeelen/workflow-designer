@@ -1,0 +1,124 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1344: Boundary events of another tool's file are stacked on one point of their host (the file's placement is not read into boundaryPos)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-31T23:01:02Z
+# ============================================================================
+
+task_id: T-1344
+task_name: "Boundary events of another tool's file are stacked on one point of their host (the file's placement is not read into boundaryPos)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-29T22:15:42Z
+completed: 2026-10-31T23:00:42Z
+duration_days: 2
+updates_count: 3
+first_commit: 2026-10-31T23:38:58+01:00
+last_commit: 2026-10-31T23:46:32+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  another tool's boundary events are placed where the file drew them — at import, the edge nearest the event's centre on the file's host and its position along that edge become boundaryPos on the designer's host (off the corners); the bottom-edge spread (T-1222) stays as the fallback for files without DI. Harness _t1344 (17 events: edge, order, distinct points, second save), red on the old source; goldens re-recorded (kitchen-sink, boundary-events); designer maps 24/24 identical. visual evidence (person-sees gate exit 0; kitchen-sink at 1024/1440/1920; host region before/after, 4x), Human criterion for the reviewer, verification lines. advisory sweep — after reads better; remaining label overlap on a dense host filed as T-1350 and stated in the Human criterion. reviewer verdict. Human criterion 1 judged green by the independent reviewer, applied with fw reviewer verdict apply
+
+# Key outcomes
+outcomes:
+  - 'An attached boundary event with no `aef:boundaryPos` and a diagram shape in the file gets `boundaryPos` = its'
+  - 'kitchen-sink.bpmn and boundary-events.bpmn: every boundary event drawn in the file sits on the same edge of its host'
+  - 'A designer-written map is byte-identical (`_t308` 24/24); a second save of each third-party file is byte-identical'
+  - 'A harness checks the placement (edge and order along it) against the file, red on the pre-T-1344 source.'
+  - 'The core tier and `tools/person-sees-gate.sh` are green; kitchen-sink is screenshot at 1024/1440/1920. Core'
+  - 'Another tool''s boundary events read as placed around their host, as the file drew them, not stacked on one spot'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1344/AC1-judge-t-1344-r3-230312ce09cb.md'
+  - '.context/reviews/evidence/T-1344/kitchen-sink-1024-judge-t-1344-r3-230312ce09cb.png'
+  - '.context/reviews/evidence/T-1344/kitchen-sink-1440-judge-t-1344-r3-230312ce09cb.png'
+  - '.context/reviews/evidence/T-1344/kitchen-sink-1920-host-zoom-before-judge-t-1344-r3-230312ce09cb.png'
+  - '.context/reviews/evidence/T-1344/kitchen-sink-1920-host-zoom-judge-t-1344-r3-230312ce09cb.png'
+  - '.context/reviews/evidence/T-1344/kitchen-sink-1920-judge-t-1344-r3-230312ce09cb.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1344-boundary-events-of-another-tools-file-ar.md'
+  - 'docs/reports/T-1344-evidence/kitchen-sink-1024-notice.png'
+  - 'docs/reports/T-1344-evidence/kitchen-sink-1024.png'
+  - 'docs/reports/T-1344-evidence/kitchen-sink-1440-notice.png'
+  - 'docs/reports/T-1344-evidence/kitchen-sink-1440.png'
+  - 'docs/reports/T-1344-evidence/kitchen-sink-1920-host-zoom-before.png'
+  - 'docs/reports/T-1344-evidence/kitchen-sink-1920-host-zoom.png'
+  - 'docs/reports/T-1344-evidence/kitchen-sink-1920-notice.png'
+  - 'docs/reports/T-1344-evidence/kitchen-sink-1920.png'
+  - 'docs/reports/T-1344-evidence/measures.json'
+  - 'docs/reports/T-1344-evidence/nested-lanes-1024-notice.png'
+  - 'docs/reports/T-1344-evidence/nested-lanes-1024.png'
+  - 'docs/reports/T-1344-evidence/nested-lanes-1440-notice.png'
+  - 'docs/reports/T-1344-evidence/nested-lanes-1440.png'
+  - 'docs/reports/T-1344-evidence/nested-lanes-1920-notice.png'
+  - 'docs/reports/T-1344-evidence/nested-lanes-1920.png'
+  - 'docs/reports/T-1344-evidence/plain-designer-map-1024.png'
+  - 'docs/reports/T-1344-evidence/plain-designer-map-1440.png'
+  - 'docs/reports/T-1344-evidence/plain-designer-map-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/goldens/third-party/boundary-events.bpmn.golden'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1344-boundary-placement-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-31T23:38:58'
+    action: 'T-1344: another tool''s boundary events are placed where the file drew them — at import, the edge nearest the event''s centre on the file''s host and its position along that edge become boundaryPos on the designer''s host (off the corners); the bottom-edge spread (T-1222) stays as the fallback for files without DI. Harness _t1344 (17 events: edge, order, distinct points, second save), red on the old source; goldens re-recorded (kitchen-sink, boundary-events); designer maps 24/24 identical'
+  - time: '2026-10-31T23:44:01'
+    action: 'T-1344: visual evidence (person-sees gate exit 0; kitchen-sink at 1024/1440/1920; host region before/after, 4x), Human criterion for the reviewer, verification lines'
+  - time: '2026-10-31T23:45:09'
+    action: 'T-1344: advisory sweep — after reads better; remaining label overlap on a dense host filed as T-1350 and stated in the Human criterion'
+  - time: '2026-10-31T23:46:09'
+    action: 'T-1344: reviewer verdict'
+  - time: '2026-10-31T23:46:32'
+    action: 'T-1344: Human criterion 1 judged green by the independent reviewer, applied with fw reviewer verdict apply'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 2925 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2925
+  commits: 6
+  files_changed: 39
+  lines_added: 1006
+  lines_removed: 82
+  footprint_refreshed_at: '2026-10-31T23:01:08Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1344-boundary-events-of-another-tools-file-ar.md
+generated_by: context-agent-hybrid
