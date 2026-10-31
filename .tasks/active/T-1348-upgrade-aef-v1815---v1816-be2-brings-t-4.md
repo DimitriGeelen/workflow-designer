@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-31T13:09:57Z
-last_update: 2026-10-31T13:26:23Z
+last_update: 2026-10-31T15:10:57Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -56,8 +56,17 @@ date_finished: null
 
 ## Context
 
-The operator approved taking AEF's fix (2026-10-31, "proceed as you see fit" on the agent's plan: release 0.33.0 first,
-then an upgrade job to be.2). Same procedure as T-1335 (v1.8.15): job 103's code, then the re-vendor protocol.
+**Background / trigger:** 832 found the vendored Tier-0 gate failing open (T-1347); AEF fixed it (T-4920) and then the
+whole class in their hooks (T-4921), released in v1.8.16-be.3. The operator approved taking it (2026-10-31, "proceed as
+you see fit" on the agent's plan: release 0.33.0 first, then the upgrade).
+**Problem / hypothesis:** 832 runs v1.8.15 with a local patch for the Tier-0 line only; the project-boundary gate and
+both gates' fail-closed fallbacks can still fail open here for long or many-line commands.
+**Goal:** upgrade to be.3 by an operator job (job 103's code), then the re-vendor protocol (T-1000): re-apply 832's
+declared local fixes, drop the Tier-0 one as superseded.
+**Expected outcome:** 832 on be.3 with AEF's gate fixes, every surviving local fix re-applied and declared, the probe at
+0 wave-throughs, the core tier green and pushed.
+
+Same procedure as T-1335 (v1.8.15).
 
 **Retarget to be.3 (2026-10-31 13:12Z, AEF notice 6d6e0298):** AEF T-4921 (our T-1341's class) goes into
 v1.8.16-be.3 "shortly": 12 pipes into grep -q in 9 pipefail hooks become here-strings, and two more fail-opens are
