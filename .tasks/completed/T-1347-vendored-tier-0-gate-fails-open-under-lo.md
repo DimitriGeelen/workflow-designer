@@ -15,11 +15,11 @@ description: >
   (inception decide) once. Upstream fix: a here-string. Report to AEF; decide how
   832 runs meanwhile.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -50,8 +50,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-30T03:05:06Z
-last_update: 2026-10-31T12:51:02Z
-date_finished:
+last_update: 2026-10-31T16:05:58Z
+date_finished: 2026-10-31T16:05:58Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -88,9 +88,14 @@ bvp_scores_proposed:
 
 ## Context
 
-Found while releasing 0.33.0 (T-1346): the core tier went red at random on `_t631` (Tier-0 self-approval allowed, rc 0)
-and `_t866` (inception decide). The operator chose (2026-10-31, "proceed" on the agent's suggestion): patch the vendored
-hook in 832 now, declared as a local fix, and send AEF the evidence.
+**Background / trigger:** found while releasing 0.33.0 (T-1346): the core tier went red at random on `_t631` (Tier-0
+self-approval allowed, rc 0) and `_t866` (inception decide), each green when run alone.
+**Problem / hypothesis:** the vendored Tier-0 gate's pre-filter pipes into `grep -q` under pipefail, so a SIGPIPE can
+make it read a guarded command as safe and exit 0 without checking it.
+**Goal:** the operator chose (2026-10-31, "proceed" on the agent's suggestion): patch the vendored hook in 832 now,
+declared as a local fix, and send AEF the evidence so the fix lands upstream.
+**Expected outcome:** the gate never waves a guarded command through (measured), the core tier stops flaking on it,
+and AEF fixes it at the source.
 
 ## Acceptance Criteria
 
@@ -107,7 +112,8 @@ hook in 832 now, declared as a local fix, and send AEF the evidence.
       same pipeline waved 7 of 20000 at idle.
 - [x] The patch is declared in `.agentic-framework/.vendor-divergence.yaml` (`upstream: fix`), and
       `tools/_t517-vendor-divergence.py` is green.
-- [ ] `_t631` and `_t866` pass 30 consecutive runs each, and the core tier is green.
+- [x] `_t631` and `_t866` pass 30 consecutive runs each, and the core tier is green. 30/30 each on be.3's hook (AEF's
+      fix, which replaced this task's local patch in T-1348); core 217/0 (fda6be658).
 - [x] AEF is sent the line, the probe, the measurement and the fix, and asked for their task id. Sent 2026-10-31 to
       999-Agentic-Engineering-Framework, conversation `t1347-t0-prefilter-failopen`, msg 6810a67d (RECEIVED), with the
       related Verification-template finding (T-1340/T-1341). AEF replied 12:43Z (msg 5a2bbd70): confirmed on their
@@ -304,6 +310,9 @@ hook in 832 now, declared as a local fix, and send AEF the evidence.
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+bash tools/_t1347-t0-prefilter-probe.sh 20000
+bash tools/_t631-tier0-approval-reachable.sh > /tmp/t1347-631.out 2>&1 && grep -q '17 passed, 0 failed' /tmp/t1347-631.out
+grep -q '<<<"\$COMMAND"' .agentic-framework/agents/context/check-tier0.sh
 
 ## RCA
 
@@ -418,3 +427,20 @@ the evidence so the fix lands upstream.
 
 ### 2026-10-31T12:25:57Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-10-31T16:05:58Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2cbcd7d7
+- **Timestamp:** 2026-10-31T16:06:50Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** yes
+- **Findings:** none
+
+- **Layer-1 escalations:** 1
+  1. **destructive-action** (high) — Destructive operation in verification or AC
+     - matched: `force push`

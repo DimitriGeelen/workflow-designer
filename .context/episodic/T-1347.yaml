@@ -1,0 +1,94 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1347: Vendored Tier-0 gate fails open under load: its pre-filter printf|grep -q dies of SIGPIPE under pipefail and waves a dangerous command through
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-31T16:06:56Z
+# ============================================================================
+
+task_id: T-1347
+task_name: "Vendored Tier-0 gate fails open under load: its pre-filter printf|grep -q dies of SIGPIPE under pipefail and waves a dangerous command through"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-30T03:05:06Z
+completed: 2026-10-31T16:05:58Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-10-31T13:25:46+01:00
+last_commit: 2026-10-31T13:55:30+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the vendored Tier-0 gate's pre-filter reads a here-string, not printf|grep -q — under pipefail a SIGPIPE made the gate wave a guarded command through unchecked (probe: 1 of 80000 under load before, 0 after); declared as a local upstream fix; probe kept. AEF has the report (msg 6810a67d, RECEIVED); the divergence entry is marked delivered: reported, so the drain ratchet holds at 41. AEF confirmed on their own hook and took the fix as AEF T-4920 (msg 5a2bbd70); acknowledged. AEF fixed it as T-4920 in v1.8.16-be.2 and found the hole deterministic for commands past ~120 KB; wider class AEF T-4921; acknowledged
+
+# Key outcomes
+outcomes:
+  - 'The pre-filter in `.agentic-framework/agents/context/check-tier0.sh` feeds grep a here-string instead of a pipe;'
+  - '`tools/_t1347-t0-prefilter-probe.sh` (no "tier0" in its name: the gate would block running it) runs the hook''s'
+  - 'The patch is declared in `.agentic-framework/.vendor-divergence.yaml` (`upstream: fix`), and'
+  - '`_t631` and `_t866` pass 30 consecutive runs each, and the core tier is green. 30/30 each on be.3''s hook (AEF''s'
+  - 'AEF is sent the line, the probe, the measurement and the fix, and asked for their task id. Sent 2026-10-31 to'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'AEF fixed it as T-4920 in v1.8.16-be.2 and found the hole deterministic for commands past ~120 KB; wider class AEF T-4921; acknowledged'
+    source: git-mined
+  - description: 'AEF confirmed on their own hook and took the fix as AEF T-4920 (msg 5a2bbd70); acknowledged'
+    source: git-mined
+  - description: 'the vendored Tier-0 gate''s pre-filter reads a here-string, not printf|grep -q — under pipefail a SIGPIPE made the gate wave a guarded command through unchecked (probe: 1 of 80000 under load before, 0 after); declared as a local upstream fix; probe kept'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/agents/context/check-tier0.sh'
+  - '.tasks/active/T-1347-vendored-tier-0-gate-fails-open-under-lo.md'
+  - 'tools/_t1347-t0-prefilter-probe.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-31T13:25:46'
+    action: 'T-1347: the vendored Tier-0 gate''s pre-filter reads a here-string, not printf|grep -q — under pipefail a SIGPIPE made the gate wave a guarded command through unchecked (probe: 1 of 80000 under load before, 0 after); declared as a local upstream fix; probe kept'
+  - time: '2026-10-31T13:38:53'
+    action: 'T-1347: AEF has the report (msg 6810a67d, RECEIVED); the divergence entry is marked delivered: reported, so the drain ratchet holds at 41'
+  - time: '2026-10-31T13:51:02'
+    action: 'T-1347: AEF confirmed on their own hook and took the fix as AEF T-4920 (msg 5a2bbd70); acknowledged'
+  - time: '2026-10-31T13:55:30'
+    action: 'T-1347: AEF fixed it as T-4920 in v1.8.16-be.2 and found the hole deterministic for commands past ~120 KB; wider class AEF T-4921; acknowledged'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 2220 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2220
+  commits: 5
+  files_changed: 7
+  lines_added: 628
+  lines_removed: 21
+  footprint_refreshed_at: '2026-10-31T16:07:02Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1347-vendored-tier-0-gate-fails-open-under-lo.md
+generated_by: context-agent-hybrid
