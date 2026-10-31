@@ -47,7 +47,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-29T22:15:42Z
-last_update: 2026-10-31T22:38:58Z
+last_update: 2026-10-31T22:44:01Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -144,6 +144,22 @@ designer-written map is unchanged byte for byte.
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1344 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+- [ ] Another tool's boundary events read as placed around their host, as the file drew them, not stacked on one spot
+      **Why you:** whether the result reads better for a person (events on the host's sides, labels readable) is a
+      reading judgement; the screenshots are the evidence, and a known limit is stated below.
+      For the independent reviewer: `fw reviewer judge T-1344 --criterion 1`
+      **Steps:**
+      1. Compare `docs/reports/T-1344-evidence/kitchen-sink-1920-host-zoom-before.png` (before T-1344) with
+         `kitchen-sink-1920-host-zoom.png` (after): the "Subprocess" host (Activity_0pzvbay) with its 12 boundary events,
+         enlarged 4x from the 1920 window shot.
+      2. Open the full windows `kitchen-sink-1024.png`, `kitchen-sink-1440.png`, `kitchen-sink-1920.png` in the same
+         folder: nothing else on the canvas moved; the notices and toolbar are as before.
+      3. Known limit, not a defect of this task: 6 events on a host edge the designer draws 64 px long overlap each other
+         within that edge (36 px each); before, all 12 overlapped in one row.
+      **Expected:** after, the events sit on the host's left and right edges (as in the file) with their labels mostly
+      readable outside the host; before, all in one illegible row along the bottom.
+      **If not:** name the screenshot and what reads worse; the placement code is in `src/aef-workflow-designer.html`
+      (search "T-1344: first, the file's own placement").
 
 <!--
   Render-touching build tasks (web/templates, web/static, web/blueprints, web/shared.py,
@@ -297,6 +313,23 @@ designer-written map is unchanged byte for byte.
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+node tools/_t1344-boundary-placement-cdp.mjs > /tmp/t1344-bp.out 2>&1 && grep -q 'T-1344: GREEN' /tmp/t1344-bp.out
+node tools/_t308-export-byte-identity-cdp.mjs > /tmp/t1344-308.out 2>&1 && grep -q '"drifted": 0' /tmp/t1344-308.out
+node tools/_t358-byteid-thirdparty.mjs > /tmp/t1344-358.out 2>&1 && grep -q 'PASS' /tmp/t1344-358.out
+
+## Visual Verification
+
+Gate first: `bash tools/person-sees-gate.sh` exit 0 (236 s). Shots: `node tools/_t1327-notice-shots.mjs
+docs/reports/T-1344-evidence` (kitchen-sink at 1024/1440/1920, measured: notice in view, not clipped); the host region
+cropped and enlarged 4x from the 1920 shot, before (T-1339's evidence) and after. Read by me:
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| kitchen-sink opened | boundary events on Activity_0pzvbay | ok | ok | overlap | 1920 zoom: on the host's left and right edges as in the file (was one row at the bottom); within an edge the 36 px circles overlap: 6 on a 64 px edge, stated limit |
+| kitchen-sink opened | other canvas nodes | ok | ok | ok | unchanged |
+| kitchen-sink opened | notices, toolbar | ok | ok | ok | as in T-1339's shots |
+
+Files: `docs/reports/T-1344-evidence/kitchen-sink-{1024,1440,1920}.png`, `kitchen-sink-1920-host-zoom{,-before}.png`.
 
 ## RCA
 
