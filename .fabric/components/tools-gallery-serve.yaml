@@ -99,8 +99,6 @@ depended_by:
   type: calls
 - target: tools/_t367-aef-injection-footprint.mjs
   type: calls
-- target: tools/_t372-aef-cycle-roundtrip.mjs
-  type: calls
 - target: tools/_t406-doc-comment-provenance-cdp.mjs
   type: calls
 - target: tools/_t407-exporter-passthrough-cdp.mjs
@@ -246,8 +244,6 @@ depended_by:
 - target: tools/_t366-uid-shape-agnostic.mjs
   type: called_by
 - target: tools/_t367-aef-injection-footprint.mjs
-  type: called_by
-- target: tools/_t372-aef-cycle-roundtrip.mjs
   type: called_by
 - target: tools/_t406-doc-comment-provenance-cdp.mjs
   type: called_by

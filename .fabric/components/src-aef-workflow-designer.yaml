@@ -136,8 +136,6 @@ depended_by:
   type: reads
 - target: tools/_t367-injection-footprint-teeth.py
   type: reads
-- target: tools/_t372-aef-cycle-roundtrip.mjs
-  type: reads
 - target: tools/_t382-release-lag.py
   type: reads
 - target: tools/_t387-manifest-fields.sh
@@ -397,8 +395,6 @@ depended_by:
 - target: tools/_t367-aef-injection-footprint.mjs
   type: read_by
 - target: tools/_t367-injection-footprint-teeth.py
-  type: read_by
-- target: tools/_t372-aef-cycle-roundtrip.mjs
   type: read_by
 - target: tools/_t382-release-lag.py
   type: read_by
