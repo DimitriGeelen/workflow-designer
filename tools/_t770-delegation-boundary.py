@@ -73,6 +73,8 @@ _RENDER_LIB = os.path.join(_ROOT, ".agentic-framework", "lib", "render_surface.s
 # The classes `--render-surface` can still change. AEF's precedence puts tier0/sovereignty/
 # act-in-the-world BEFORE render-surface, and every other class already routes to REVIEWER-JUDGES,
 # same as render-surface — so only these two can move. The self-test pins that precedence.
+# Since AEF T-4916 (v1.8.16-be.3, their operator 2026-10-30) `deterministic` routes to REVIEWER-JUDGES
+# as well, so nothing produces REVIEWER-CLOSEABLE today; it stays listed in case AEF reverts that.
 _RENDER_MOVABLE = ("REVIEWER-CLOSEABLE", "AGENT-SELF")
 
 
@@ -434,9 +436,13 @@ def self_test():
               (plain[0]["delegation_class"], flag[0]["delegation_class"]), (OPERATOR_ONLY, OPERATOR_ONLY))
         check("precedence pin: taste routes like render-surface",
               (plain[1]["delegation_class"], flag[1]["delegation_class"]), (REVIEWER_JUDGES, REVIEWER_JUDGES))
-        check("precedence pin: a movable class is moved by --render-surface",
-              (plain[2]["delegation_class"] in _RENDER_MOVABLE, flag[2]["delegation_class"]),
-              (True, REVIEWER_JUDGES))
+        # T-1348: AEF T-4916 routes `deterministic` to REVIEWER-JUDGES, so the flag no longer changes this row's
+        # delegation; it still changes its CLASS (render-surface takes precedence over deterministic), which is the
+        # precedence this pin exists for. Asserted on the class, and the delegation is the same both ways.
+        check("precedence pin: --render-surface takes precedence over deterministic (class moves)",
+              (plain[2].get("class"), flag[2].get("class")), ("deterministic", "render-surface"))
+        check("precedence pin: deterministic and render-surface both route to REVIEWER-JUDGES (AEF T-4916)",
+              (plain[2]["delegation_class"], flag[2]["delegation_class"]), (REVIEWER_JUDGES, REVIEWER_JUDGES))
 
     # Leg 9 — owner:human demotes the delegated shape. Negative control is leg 1 above,
     # which is the identical file with owner:agent.
