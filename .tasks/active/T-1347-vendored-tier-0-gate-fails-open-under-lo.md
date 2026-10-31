@@ -50,7 +50,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-30T03:05:06Z
-last_update: '2026-10-31T12:25:58Z'
+last_update: 2026-10-31T12:38:54Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -110,7 +110,9 @@ hook in 832 now, declared as a local fix, and send AEF the evidence.
 - [ ] `_t631` and `_t866` pass 30 consecutive runs each, and the core tier is green.
 - [x] AEF is sent the line, the probe, the measurement and the fix, and asked for their task id. Sent 2026-10-31 to
       999-Agentic-Engineering-Framework, conversation `t1347-t0-prefilter-failopen`, msg 6810a67d (RECEIVED), with the
-      related Verification-template finding (T-1340/T-1341). Their task id: awaiting reply.
+      related Verification-template finding (T-1340/T-1341). AEF replied 12:43Z (msg 5a2bbd70): confirmed on their
+      own hook (:141 under pipefail at :55), **AEF T-4920**, taking the here-string fix with a regression test that
+      reads the block from the hook file; the wider census gets its own AEF task, id to follow. Acknowledged (6c8ca642).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
