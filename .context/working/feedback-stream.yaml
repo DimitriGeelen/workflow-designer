@@ -20327,3 +20327,21 @@ scan_id: R-a4c7ffd9
 task_id: T-1341
 payload:
   task_file: .tasks/active/T-1341-t-1331-census-misses-the-builtin-form-pr.md
+---
+kind: scan_emitted
+timestamp: '2026-10-31T22:31:54Z'
+scan_id: R-ed604d71
+task_id: T-1349
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-31T22:31:54Z'
+scan_id: R-ed604d71
+task_id: T-1349
+payload:
+  task_file: .tasks/active/T-1349-upgrade-aef-v1816-be3---v1816-be4-t-4892.md
