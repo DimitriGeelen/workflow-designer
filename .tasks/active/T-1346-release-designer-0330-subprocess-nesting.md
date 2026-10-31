@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-30T01:11:43Z
-last_update: 2026-10-30T01:15:03Z
+last_update: 2026-10-30T02:26:24Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -69,9 +69,13 @@ and push are outward); the agent writes and rehearses it, then hands AEF the rel
       T-1342, T-1345 (`git log designer-v0.32.0..HEAD -- src/aef-workflow-designer.html`).
 - [x] A release job (from job 104's shape) is written, rehearsed with `bash runme.sh --dry-run`, and committed with its
       `dryrun.ok`; the release commit names only T-1346. Job 108, sha 4ee18ca3b085; 15 checks ok, step 1 rehearsed.
-- [ ] After the operator's run: `designer-v0.33.0` is on origin and the artifact equals `src` at the tag.
-- [ ] AEF is sent version, tag, sha256, bytes and the changes, with what is new for their importer (nested contents in
-      a third-party file's save), and asked for their task id.
+- [x] After the operator's run: `designer-v0.33.0` is on origin and the artifact equals `src` at the tag. Job 108 ran
+      steps 1-7 (calibrations PASS 3/3 + 3/3) and stopped at its core tier (an unwired tool, fixed); job 109 verified,
+      found the core tier cached green and pushed (2026-10-31 13:30Z). Tag on 59a2ad081; sha256 6d1c6a3c…f5f5,
+      1306427 bytes.
+- [x] AEF is sent version, tag, sha256, bytes and the changes, with what is new for their importer (nested contents in
+      a third-party file's save), and asked for their task id. Msg 6fa49ac6 (RECEIVED), conversation
+      designer-0.33.0-release; pin then BEHIND (0.32.0), task id awaited.
 - [ ] AEF serves it: `tools/_t1187-aef-pin-lag.sh` reports CURRENT.
 
 ### Human
