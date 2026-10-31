@@ -1,0 +1,1 @@
+Retired unrun on 2026-10-31: superseded by v1.8.16-be.3 (AEF T-4921 closes two more hook fail-opens, notice 6d6e0298); a job on the be.3 tag replaces it once the tag is public. It was never rehearsed (its preflight waits for designer 0.33.0 on origin), and an operator batch including it was refused at 13:20Z.
