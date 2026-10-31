@@ -234,9 +234,10 @@ import re, sys
 src = open(sys.argv[1]).read()
 # Strip the T-628 exemption: the is_task_metadata_update_command check block.
 #
-# Anchored on "is_task_metadata_update_command" which is unique to this exemption.
-# Match from the "if [ "$TOOL_NAME" = "Bash" ]" line through its closing "fi".
-pat = re.compile(r'( +)if \[ "\$TOOL_NAME" = "Bash" \] && \[ -n "\$\{BASH_CMD:-\}" \] && \\\n.*?is_task_metadata_update_command "\$BASH_CMD"; then\n.*?exit 0\n\1fi\n', re.S)
+# Anchored on "is_task_metadata_update_command" AND the G-020 note on the line after `then`: since AEF
+# v1.8.16-be.3 the T-4907 context gate has an exemption of the same shape (832 T-1348), so the call alone
+# matched twice. Match from the "if [ "$TOOL_NAME" = "Bash" ]" line through its closing "fi".
+pat = re.compile(r'( +)if \[ "\$TOOL_NAME" = "Bash" \] && \[ -n "\$\{BASH_CMD:-\}" \] && \\\n[^\n]*\n[^\n]*is_task_metadata_update_command "\$BASH_CMD"; then\n[^\n]*\(G-020\)[^\n]*\n[^\n]*exit 0\n\1fi\n')
 new, n = pat.subn('\n', src)
 if n != 1:
     sys.stderr.write("MUTATION FAILED: T-628 exemption not found (%d matches) — teeth cannot certify anything\n" % n)
