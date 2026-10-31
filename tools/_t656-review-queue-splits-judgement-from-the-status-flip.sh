@@ -85,10 +85,10 @@ verdict() {
 echo "--- mixed >30d queue: the two kinds are counted and named separately"
 OUT=$(verdict "$(scan 'T-1:800:2' 'T-2:800:0')")
 MISSING=""
-echo "$OUT" | grep -q '^FAIL::'                                  || MISSING="$MISSING not-a-fail"
-echo "$OUT" | grep -q '2 task(s) waiting >30d'                   || MISSING="$MISSING the-total"
-echo "$OUT" | grep -q '1 awaiting judgement: T-1'                || MISSING="$MISSING the-judgement-group"
-echo "$OUT" | grep -q '1 signed off, awaiting only the status flip: T-2' || MISSING="$MISSING the-flip-group"
+grep -q '^FAIL::' <<<"$OUT"                                  || MISSING="$MISSING not-a-fail"
+grep -q '2 task(s) waiting >30d' <<<"$OUT"                   || MISSING="$MISSING the-total"
+grep -q '1 awaiting judgement: T-1' <<<"$OUT"                || MISSING="$MISSING the-judgement-group"
+grep -q '1 signed off, awaiting only the status flip: T-2' <<<"$OUT" || MISSING="$MISSING the-flip-group"
 if [ -z "$MISSING" ]; then
     ok "both groups named, total preserved (neither is dropped)"
 else
@@ -98,7 +98,7 @@ fi
 # ---------------------------------------------------------------------------
 echo "--- an all-signed-off queue does not claim anyone is awaiting judgement"
 OUT=$(verdict "$(scan 'T-1:800:0' 'T-2:900:0')")
-if echo "$OUT" | grep -q '2 signed off' && ! echo "$OUT" | grep -q 'awaiting judgement'; then
+if grep -q '2 signed off' <<<"$OUT" && ! grep -q 'awaiting judgement' <<<"$OUT"; then
     ok "says signed off, says nothing about judgement"
 else
     bad "an all-signed-off queue still reported judgement: $(echo "$OUT" | tr '\n' ' ' | head -c 200)"
@@ -106,7 +106,7 @@ fi
 
 # ---------------------------------------------------------------------------
 echo "--- ...and its remediation names the command that actually clears them"
-if echo "$OUT" | grep -q 'work-completed'; then
+if grep -q 'work-completed' <<<"$OUT"; then
     ok "remediation offers the status flip, not just 'fw task verify'"
 else
     bad "remediation for signed-off tasks does not mention closing them: $(echo "$OUT" | tr '\n' ' ' | head -c 200)"
@@ -115,7 +115,7 @@ fi
 # ---------------------------------------------------------------------------
 echo "--- an all-unticked queue is unchanged: no flip language, no flip advice"
 OUT=$(verdict "$(scan 'T-1:800:3' 'T-2:800:1')")
-if ! echo "$OUT" | grep -q 'signed off' && ! echo "$OUT" | grep -q 'work-completed'; then
+if ! grep -q 'signed off' <<<"$OUT" && ! grep -q 'work-completed' <<<"$OUT"; then
     ok "genuine review backlog reads exactly as before — the change is additive"
 else
     bad "flip language leaked into a queue with nothing signed off: $(echo "$OUT" | tr '\n' ' ' | head -c 200)"
@@ -124,7 +124,7 @@ fi
 # ---------------------------------------------------------------------------
 echo "--- a scan with no 'unticked' field (pre-T-656) is treated as awaiting judgement"
 OUT=$(verdict "$(scan 'T-1:800:')")
-if echo "$OUT" | grep -q 'awaiting judgement' && ! echo "$OUT" | grep -q 'signed off'; then
+if grep -q 'awaiting judgement' <<<"$OUT" && ! grep -q 'signed off' <<<"$OUT"; then
     ok "absent field sorts to the conservative side — an unknown is not a sign-off"
 else
     bad "a missing 'unticked' was read as signed off: $(echo "$OUT" | tr '\n' ' ' | head -c 200)"
@@ -133,13 +133,13 @@ fi
 # ---------------------------------------------------------------------------
 echo "--- the >14d tier splits too, and a young queue still passes"
 OUT=$(verdict "$(scan 'T-1:400:0' 'T-2:400:2')")
-if echo "$OUT" | grep -q '^WARN::' && echo "$OUT" | grep -q 'signed off' && echo "$OUT" | grep -q 'awaiting judgement'; then
+if grep -q '^WARN::' <<<"$OUT" && grep -q 'signed off' <<<"$OUT" && grep -q 'awaiting judgement' <<<"$OUT"; then
     ok ">14d tier: warns and splits"
 else
     bad ">14d tier did not split: $(echo "$OUT" | tr '\n' ' ' | head -c 200)"
 fi
 OUT=$(verdict "$(scan 'T-1:100:0')")
-if echo "$OUT" | grep -q '^PASS::.*awaiting human action (normal)'; then
+if grep -q '^PASS::.*awaiting human action (normal)' <<<"$OUT"; then
     ok "a young queue still passes — the split did not promote anything"
 else
     bad "a 4-day queue no longer passes: $(echo "$OUT" | tr '\n' ' ' | head -c 200)"
@@ -159,7 +159,7 @@ if ! REVERTED=$(assert_mutation_complete "$D2" "$MUT" 'if \[ "\$unticked" -eq 0 
     bad "$REVERTED"
 else
     OUT=$(verdict "$(scan 'T-1:800:2' 'T-2:800:0')" "$MUT")
-    if ! echo "$OUT" | grep -q 'signed off' && echo "$OUT" | grep -q '2 awaiting judgement'; then
+    if ! grep -q 'signed off' <<<"$OUT" && grep -q '2 awaiting judgement' <<<"$OUT"; then
         ok "mutant lumps both into judgement — the split is what produces the distinction"
     else
         bad "mutant still split the queue — the legs above cannot fail and prove nothing"

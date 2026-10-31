@@ -108,9 +108,9 @@ echo "--- a risen failure count produces a WARN naming the rise"
 ROSE=$(make_root rose)
 OUT=$(verdict "$ROSE")
 MISSING=""
-echo "$OUT" | grep -q '^WARN::'   || MISSING="$MISSING not-a-warn"
-echo "$OUT" | grep -q 'ROSE'      || MISSING="$MISSING the-verdict"
-echo "$OUT" | grep -q '41'        || MISSING="$MISSING the-count"
+grep -q '^WARN::' <<<"$OUT"   || MISSING="$MISSING not-a-warn"
+grep -q 'ROSE' <<<"$OUT"      || MISSING="$MISSING the-verdict"
+grep -q '41' <<<"$OUT"        || MISSING="$MISSING the-count"
 if [ -z "$MISSING" ]; then
     ok "red ratchet -> WARN carrying the risen count"
 else
@@ -122,7 +122,7 @@ fi
 # hardcoded sentence would satisfy every leg above. Assert the line carries bytes that
 # exist ONLY in this run's stub output.
 echo "--- ...and the WARN carries the TOOL's own bytes, not a hardcoded message"
-if echo "$OUT" | grep -q 'STUBCANARY\|STUBFLOOR'; then
+if grep -q 'STUBCANARY\|STUBFLOOR' <<<"$OUT"; then
     ok "evidence quotes the stub's unique output — the line surfaces what the tool said"
 else
     bad "the WARN never quoted the tool's output; it could be reporting anything"
@@ -132,7 +132,7 @@ fi
 echo "--- a held floor passes, and names the measurement"
 HELD=$(make_root held)
 OUT=$(verdict "$HELD")
-if echo "$OUT" | grep -q '^PASS::' && echo "$OUT" | grep -q '32'; then
+if grep -q '^PASS::' <<<"$OUT" && grep -q '32' <<<"$OUT"; then
     ok "green ratchet -> PASS naming the held floor"
 else
     bad "held floor did not pass cleanly: $(echo "$OUT" | tr '\n' ' ' | head -c 200)"
@@ -142,7 +142,7 @@ fi
 echo "--- staleness reaches the line too, not just a failure count"
 STALE=$(make_root stale)
 OUT=$(verdict "$STALE")
-if echo "$OUT" | grep -q '^WARN::' && echo "$OUT" | grep -qi '48h limit\|old'; then
+if grep -q '^WARN::' <<<"$OUT" && grep -qi '48h limit\|old' <<<"$OUT"; then
     ok "a stale run reaches the audit as a WARN — a dead schedule is visible"
 else
     bad "staleness did not surface: $(echo "$OUT" | tr '\n' ' ' | head -c 200)"
@@ -155,7 +155,7 @@ cat > "$BARE/tools/_t952-bridge-suite-ratchet.py" <<'PY'
 raise SystemExit(0)
 PY
 OUT=$(verdict "$BARE")
-if echo "$OUT" | grep -q '^WARN::' && echo "$OUT" | grep -q 'NOT EVALUATED'; then
+if grep -q '^WARN::' <<<"$OUT" && grep -q 'NOT EVALUATED' <<<"$OUT"; then
     ok "absent history -> NOT EVALUATED warning, not a silent pass"
 else
     bad "absent history produced: $(echo "$OUT" | tr '\n' ' ' | head -c 200)"
@@ -180,11 +180,11 @@ sed 's|^    if \[ "\$_rc" -eq 0 \]; then|    if true; then|' "$BLOCK" > "$MUT"
 BASELINE=$(verdict "$ROSE")
 if ! MUTATED=$(assert_mutation_complete "$BLOCK" "$MUT" '^    if \[ "\$_rc" -eq 0 \]; then' 'success-branch test'); then
     bad "$MUTATED"
-elif ! echo "$BASELINE" | grep -q '^WARN::'; then
+elif ! grep -q '^WARN::' <<<"$BASELINE"; then
     bad "PRECONDITION FAILED — the unmutated block does not warn on the risen fixture, so its silence under mutation proves nothing"
 else
     OUT=$(verdict "$ROSE" "$MUT")
-    if ! echo "$OUT" | grep -q '^WARN::'; then
+    if ! grep -q '^WARN::' <<<"$OUT"; then
         ok "mutant swallows a verdict the unmutated block demonstrably emits"
     else
         bad "mutant still warned; the legs above cannot fail and prove nothing"

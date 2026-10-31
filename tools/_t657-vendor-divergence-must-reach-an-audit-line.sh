@@ -118,9 +118,9 @@ echo "--- an undeclared divergence produces a WARN that names the count"
 RED=$(make_root red)
 OUT=$(verdict "$RED" "$TMP/framework")
 MISSING=""
-echo "$OUT" | grep -q '^WARN::'            || MISSING="$MISSING not-a-warn"
-echo "$OUT" | grep -q '2 undeclared'       || MISSING="$MISSING the-count"
-echo "$OUT" | grep -q 'T-657'              || MISSING="$MISSING the-provenance"
+grep -q '^WARN::' <<<"$OUT"            || MISSING="$MISSING not-a-warn"
+grep -q '2 undeclared' <<<"$OUT"       || MISSING="$MISSING the-count"
+grep -q 'T-657' <<<"$OUT"              || MISSING="$MISSING the-provenance"
 if [ -z "$MISSING" ]; then
     ok "red tool -> WARN carrying the count"
 else
@@ -133,7 +133,7 @@ fi
 # wrong branch entirely and read as a pass. So assert the WARN carries bytes that exist
 # ONLY in this run's stub output.
 echo "--- ...and the WARN carries the TOOL's own bytes, not a hardcoded message"
-if echo "$OUT" | grep -q 'CANARY_ONE'; then
+if grep -q 'CANARY_ONE' <<<"$OUT"; then
     ok "evidence contains the stub's unique path — the line surfaces what the tool said"
 else
     bad "the WARN never quoted the tool's output; it could be reporting anything"
@@ -143,7 +143,7 @@ fi
 echo "--- a clean tree passes, and reports the declared count it was given"
 GREEN=$(make_root green)
 OUT=$(verdict "$GREEN" "$TMP/framework")
-if echo "$OUT" | grep -q '^PASS::' && echo "$OUT" | grep -q '45 diverged path'; then
+if grep -q '^PASS::' <<<"$OUT" && grep -q '45 diverged path' <<<"$OUT"; then
     ok "green tool -> PASS naming 45 declared paths"
 else
     bad "clean tree did not pass cleanly: $(echo "$OUT" | tr '\n' ' ' | head -c 200)"
@@ -207,7 +207,7 @@ BASELINE=$(verdict "$RED" "$TMP/framework")
 # landed mutation from an `if false` the subject already contained.
 if ! MUTATED=$(assert_mutation_complete "$BLOCK" "$MUT" '^    if \[ "\$_rc" -eq 0 \]; then' 'success-branch test'); then
     bad "$MUTATED"
-elif ! echo "$BASELINE" | grep -q '^WARN::'; then
+elif ! grep -q '^WARN::' <<<"$BASELINE"; then
     # AND assert the FIXTURE landed. Caught live while writing this: an unbound-variable
     # bug left $RED empty, the unmutated block emitted nothing, the mutant also emitted
     # nothing, and this leg reported PASS — certifying teeth on a subject that was never
@@ -215,7 +215,7 @@ elif ! echo "$BASELINE" | grep -q '^WARN::'; then
     bad "PRECONDITION FAILED — the unmutated block does not warn on the red fixture, so its silence under mutation proves nothing"
 else
     OUT=$(verdict "$RED" "$TMP/framework" "$MUT")
-    if ! echo "$OUT" | grep -q '^WARN::'; then
+    if ! grep -q '^WARN::' <<<"$OUT"; then
         ok "mutant swallows a verdict the unmutated block demonstrably emits"
     else
         bad "mutant still warned; the legs above cannot fail and prove nothing"

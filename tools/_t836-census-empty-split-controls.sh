@@ -85,7 +85,7 @@ S2=$(shapes "$(run "$R2")")
 
 # Leg 5 — the regression this task's own false premise came from.
 # emits must NEVER be classified EMPTY on the untouched corpus.
-if echo "$B" | grep -qE '^  emits .* carrier: children$'; then
+if grep -qE '^  emits .* carrier: children$' <<<"$B"; then
   ok "emits classified by its real carrier (children), not as empty"
 else
   no "emits classification" "emits is not reported as a children carrier — the original false premise is back"

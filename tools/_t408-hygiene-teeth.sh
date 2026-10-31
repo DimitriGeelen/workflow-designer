@@ -96,10 +96,10 @@ out="$(run)"; rc=$?
 if [ "$rc" -ne 1 ]; then
   fail "(a) a NEW port carrier must exit 1, got rc=$rc
 $out"
-elif ! echo "$out" | grep -q "T-905-new-port"; then
+elif ! grep -q "T-905-new-port" <<<"$out"; then
   fail "(a) exited 1 but never named T-905-new-port — it went red about something else
 $out"
-elif ! echo "$out" | grep -q "hardcoded-port"; then
+elif ! grep -q "hardcoded-port" <<<"$out"; then
   fail "(a) named the file but not the carrier KIND (hardcoded-port)
 $out"
 else
@@ -113,10 +113,10 @@ out="$(run)"; rc=$?
 if [ "$rc" -ne 1 ]; then
   fail "(b) a NEW serve-root diff must exit 1, got rc=$rc
 $out"
-elif ! echo "$out" | grep -q "T-906-new-diff"; then
+elif ! grep -q "T-906-new-diff" <<<"$out"; then
   fail "(b) exited 1 but never named T-906-new-diff
 $out"
-elif ! echo "$out" | grep -q "serve-root-diff"; then
+elif ! grep -q "serve-root-diff" <<<"$out"; then
   fail "(b) named the file but not the carrier KIND (serve-root-diff)
 $out"
 else
@@ -130,10 +130,10 @@ out="$(run)"; rc=$?
 if [ "$rc" -ne 1 ]; then
   fail "(b3) a NEW population-pinned leg must exit 1, got rc=$rc
 $out"
-elif ! echo "$out" | grep -q "T-908-new-poppin"; then
+elif ! grep -q "T-908-new-poppin" <<<"$out"; then
   fail "(b3) exited 1 but never named T-908-new-poppin — it went red about something else
 $out"
-elif ! echo "$out" | grep -q "population-pinned"; then
+elif ! grep -q "population-pinned" <<<"$out"; then
   fail "(b3) named the file but not the carrier KIND (population-pinned)
 $out"
 else
@@ -158,7 +158,7 @@ if [ "$rc" -ne 0 ]; then
   fail "(b4) the four look-alike shapes must NOT be carriers, got rc=$rc.
 Whichever is named below is being misclassified as population-pinned:
 $out"
-elif echo "$out" | grep -qE "T-909|T-910|T-911|T-912"; then
+elif grep -qE "T-909|T-910|T-911|T-912" <<<"$out"; then
   fail "(b4) exited 0 but a look-alike was still named — check the notice lines:
 $out"
 else
@@ -175,7 +175,7 @@ if [ "$rc" -ne 1 ]; then
   fail "(b5) anti-vacuity: adding a real carrier to (b4)'s tree must exit 1, got rc=$rc.
 (b4)'s green may have been vacuous — the four files may never have been scanned.
 $out"
-elif ! echo "$out" | grep -q "T-913-poppin-again"; then
+elif ! grep -q "T-913-poppin-again" <<<"$out"; then
   fail "(b5) exited 1 but did not name T-913-poppin-again
 $out"
 else
@@ -192,7 +192,7 @@ out="$(run)"; rc=$?
 if [ "$rc" -ne 1 ]; then
   fail "(b2) a NEW line in a grandfathered file must exit 1 (per-file excuse is not a slot), got rc=$rc
 $out"
-elif ! echo "$out" | grep -q "9999"; then
+elif ! grep -q "9999" <<<"$out"; then
   fail "(b2) exited 1 but did not quote the offending new line
 $out"
 else
@@ -208,10 +208,10 @@ out="$(run)"; rc=$?
 if [ "$rc" -ne 0 ]; then
   fail "(c) removing a carrier must NOT fail the scan, got rc=$rc
 $out"
-elif ! echo "$out" | grep -q "RATCHET AVAILABLE"; then
+elif ! grep -q "RATCHET AVAILABLE" <<<"$out"; then
   fail "(c) exited 0 but issued no standing notice — the slot would stay open silently
 $out"
-elif ! echo "$out" | grep -q "T-901-legacy-diff"; then
+elif ! grep -q "T-901-legacy-diff" <<<"$out"; then
   fail "(c) issued the notice but did not name the file whose entry is stale
 $out"
 else
@@ -239,7 +239,7 @@ if [ "$rc" -ne 2 ]; then
   fail "(d) an empty population must exit 2 (vacuity), got rc=$rc — a clean verdict over
      nothing would otherwise read exactly like a clean tree
 $out"
-elif ! echo "$out" | grep -q "VACUOUS"; then
+elif ! grep -q "VACUOUS" <<<"$out"; then
   fail "(d) exited 2 but not for the stated vacuity reason
 $out"
 else
@@ -256,7 +256,7 @@ PY
 out="$(run)"; rc=$?
 if [ "$rc" -ne 2 ]; then
   fail "(e) an empty baseline must exit 2, got rc=$rc"
-elif ! echo "$out" | grep -q "VACUOUS"; then
+elif ! grep -q "VACUOUS" <<<"$out"; then
   fail "(e) exited 2 but not for the stated vacuity reason
 $out"
 else
@@ -275,7 +275,7 @@ if [ "$rc" -ne 0 ]; then
   fail "(g) completing a grandfathered task must NOT go red — the carrier moved with the
      file, it is the same task. rc=$rc
 $out"
-elif echo "$out" | grep -q "RATCHET AVAILABLE"; then
+elif grep -q "RATCHET AVAILABLE" <<<"$out"; then
   fail "(g) exited 0 but issued a stale notice for a file that merely MOVED — that notice
      would invite --tighten, which would then drop a still-present carrier from the baseline
 $out"
@@ -292,7 +292,7 @@ if [ "$rc" -ne 2 ]; then
   fail "(g2) a basename present in BOTH directories must exit 2 — one file's exemption
      would otherwise cover the other's carrier. got rc=$rc
 $out"
-elif ! echo "$out" | grep -q "COLLISION"; then
+elif ! grep -q "COLLISION" <<<"$out"; then
   fail "(g2) exited 2 but not for the stated collision reason
 $out"
 else

@@ -40,7 +40,7 @@ self_test() {
     # LEG 1 — the negative control. The old shape must be REFUSED.
     out="$(PROJECT_ROOT="$r" "$CREATE" --name "leg1 old shape" --description "d" \
              --type build --owner human 2>&1)"; rc=$?
-    if [ "$rc" -ne 0 ] && echo "$out" | grep -q -- '--human-ac'; then
+    if [ "$rc" -ne 0 ] && grep -q -- '--human-ac' <<<"$out"; then
         ok "owner:human with no Human AC is refused, and the message names --human-ac"
     else
         bad "old shape was NOT refused (rc=$rc) — the gate is gone or silent"

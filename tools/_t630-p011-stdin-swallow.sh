@@ -120,7 +120,7 @@ echo "--- the fix, through the LIVE gate: a stdin-reader must not eat the list"
 LIVE="$SANDBOX/live"
 make_sandbox "$LIVE" "T-902" "$SWALLOW"
 run_gate "$GATE" "$LIVE" "T-902"
-if printf '%s' "$OUT" | grep -q 'Verification: 4/4 passed'; then
+if grep -q 'Verification: 4/4 passed' <<<"$OUT"; then
     ok "live gate: all four declared commands reported (4/4)"
 else
     bad "live gate: not all four reported — the redirect is gone or the fixture missed:"
@@ -160,7 +160,7 @@ else
     # Half one: the redirect is load-bearing. Without it the same fixture loses commands.
     # T-1005: 1.7.740 adopted this fix upstream (the redirect and the reconciliation, crediting
     # 832's report) and words it its own way: "N command(s) never ran" / "does not reconcile".
-    if printf '%s' "$OUT" | grep -qE 'only [0-9]+ produced a verdict|command\(s\) never ran'; then
+    if grep -qE 'only [0-9]+ produced a verdict|command\(s\) never ran' <<<"$OUT"; then
         ok "teeth: without the redirect the stdin-reader eats the list — the fix is real"
     else
         bad "teeth: no commands were swallowed without the redirect — the fixture no longer bites:"
@@ -170,7 +170,7 @@ else
     # Half two: and the reconciliation guard catches it. THIS IS THE FIRST TIME THAT GUARD
     # IS EXERCISED AGAINST THE LIVE GATE — no Verification-block input can reach it (leg
     # below), so mutation is the only instrument that can.
-    if printf '%s' "$OUT" | grep -qE 'RUNNER DEFECT|verification count does not reconcile'; then
+    if grep -qE 'RUNNER DEFECT|verification count does not reconcile' <<<"$OUT"; then
         ok "teeth: reconciliation names it a runner defect, not a verification failure"
     else
         bad "teeth: a swallowed command did not trip reconciliation — the guard is inert"
@@ -203,9 +203,9 @@ BLANKY=$'echo one\n \necho three'
 GAP="$SANDBOX/gap"
 make_sandbox "$GAP" "T-905" "$BLANKY"
 run_gate "$GATE" "$GAP" "T-905"
-if printf '%s' "$OUT" | grep -q 'Running 2 verification command(s)'; then
+if grep -q 'Running 2 verification command(s)' <<<"$OUT"; then
     ok "a whitespace-only line is filtered BEFORE counting — it never enters the denominator"
-elif printf '%s' "$OUT" | grep -q 'Running 3 verification command(s)'; then
+elif grep -q 'Running 3 verification command(s)' <<<"$OUT"; then
     bad "the blank line IS counted — extraction changed, and reconciliation is now input-reachable"
 else
     bad "could not read a command count from the gate's output:"

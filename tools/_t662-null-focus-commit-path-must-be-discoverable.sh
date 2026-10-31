@@ -105,7 +105,7 @@ else
         rc0*) ok "control: the same \$(...) is fine without a commit — the pairing is the cause" ;;
         *)    bad "control failed: \$(...) blocks on its own, so the advisory misattributes it" ;;
     esac
-    if printf '%s' "$R" | grep -q 'substitution sharing the line'; then
+    if grep -q 'substitution sharing the line' <<<"$R"; then
         ok "the refusal names the actual cause and the way through"
     else
         bad "refusal does not name the cause — this is the whole defect: ${R:0:200}"
@@ -119,7 +119,7 @@ echo "--- the advisory does not print on unrelated blocked work"
 R=$(run 'python3 tools/some-script.py --rebuild')
 if [ "${R%%|*}" = "rc0" ]; then
     bad "PRECONDITION FAILED — unrelated work was admitted, so its silence proves nothing"
-elif printf '%s' "$R" | grep -q 'substitution sharing the line'; then
+elif grep -q 'substitution sharing the line' <<<"$R"; then
     bad "advisory printed on unrelated work — it is decoration, not a signal"
 else
     ok "advisory is specific to git add/commit, and that block still fires"
@@ -137,7 +137,7 @@ if ! MSG=$(bash -c '. "'"$PROJ"'/tools/lib/mutation-assert.sh"; assert_mutation_
     bad "$MSG"
 else
     R=$(run "$SUBST" "$MUT")
-    if printf '%s' "$R" | grep -q 'substitution sharing the line'; then
+    if grep -q 'substitution sharing the line' <<<"$R"; then
         bad "mutant still prints the advisory; the leg above cannot fail and proves nothing"
     else
         ok "advisory absent under mutation — the discoverability leg is load-bearing"

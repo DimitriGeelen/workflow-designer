@@ -109,7 +109,7 @@ echo "--- 2. clean root"
 echo "--- 3. a 0-byte untracked root file is caught and named"
 : > "$REPO/Supersedes"
 OUT=$(run_check)
-if echo "$OUT" | grep -q '^WARN' && echo "$OUT" | grep -q 'Supersedes'; then
+if grep -q '^WARN' <<<"$OUT" && grep -q 'Supersedes' <<<"$OUT"; then
     ok "caught and named it"
 else
     bad "not caught: $(echo "$OUT" | head -2 | tr '\n' ' ')"
@@ -120,9 +120,9 @@ printf 'PNG\n' > "$REPO/screenshot.png"     # untracked but real content
 : > "$REPO/sub/nested-empty"                # untracked, empty, but NOT at root
 OUT=$(run_check)
 MISFIRE=""
-echo "$OUT" | grep -q 'screenshot.png'  && MISFIRE="$MISFIRE non-empty-file"
-echo "$OUT" | grep -q 'nested-empty'    && MISFIRE="$MISFIRE nested-file"
-echo "$OUT" | grep -q 'tracked-empty'   && MISFIRE="$MISFIRE tracked-empty-file"
+grep -q 'screenshot.png' <<<"$OUT"  && MISFIRE="$MISFIRE non-empty-file"
+grep -q 'nested-empty' <<<"$OUT"    && MISFIRE="$MISFIRE nested-file"
+grep -q 'tracked-empty' <<<"$OUT"   && MISFIRE="$MISFIRE tracked-empty-file"
 if [ -z "$MISFIRE" ]; then
     ok "ignores non-empty, nested, and tracked-empty files"
 else
@@ -139,7 +139,7 @@ elif diff -q "$CHK" "$MUT" >/dev/null; then
     bad "MUTATION FAILED — size test not found to remove; the leg above is untested"
 else
     MOUT=$(run_check "$MUT")
-    if echo "$MOUT" | grep -q 'screenshot.png'; then
+    if grep -q 'screenshot.png' <<<"$MOUT"; then
         ok "without the size test the screenshot IS flagged — the discriminator is load-bearing"
     else
         bad "mutant still ignores the screenshot — leg 4 cannot fail and proves nothing"

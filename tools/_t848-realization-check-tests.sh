@@ -34,12 +34,12 @@ EOF
 
 out=$(python3 "$CHK" "$S/led.jsonl" 2>&1) || true
 
-echo "$out" | grep -q 'OBSERVED_TRUE *: *1'  && ok "counts OBSERVED_TRUE"      || bad "OBSERVED_TRUE count wrong"
-echo "$out" | grep -q 'OBSERVED_FALSE *: *1' && ok "counts OBSERVED_FALSE"     || bad "OBSERVED_FALSE count wrong"
-echo "$out" | grep -q 'NOT_YET_DUE *: *2'    && ok "counts NOT_YET_DUE"        || bad "NOT_YET_DUE count wrong"
+grep -q 'OBSERVED_TRUE *: *1' <<<"$out"  && ok "counts OBSERVED_TRUE"      || bad "OBSERVED_TRUE count wrong"
+grep -q 'OBSERVED_FALSE *: *1' <<<"$out" && ok "counts OBSERVED_FALSE"     || bad "OBSERVED_FALSE count wrong"
+grep -q 'NOT_YET_DUE *: *2' <<<"$out"    && ok "counts NOT_YET_DUE"        || bad "NOT_YET_DUE count wrong"
 
 # THE CENTRAL ASSERTION: untriggered rows must not be reported as satisfied.
-echo "$out" | grep -qi 'NOT a pass\|not counted as satisfied\|not satisfied' \
+grep -qi 'NOT a pass\|not counted as satisfied\|not satisfied' <<<"$out" \
   && ok "states plainly that NOT_YET_DUE is not a pass" \
   || bad "does not say NOT_YET_DUE is unsatisfied — a reader will count it as holding"
 
@@ -47,27 +47,27 @@ echo "$out" | grep -qi 'NOT a pass\|not counted as satisfied\|not satisfied' \
 # -i: the checker prints "RESOLVED rows only" in caps. The first draft of this line grepped
 # lowercase and failed on a correct implementation — a false RED, which is the cheap direction
 # to be wrong in but still a bug in the test rather than the code.
-echo "$out" | grep -qi 'resolved' && ok "reports a denominator of RESOLVED rows" \
+grep -qi 'resolved' <<<"$out" && ok "reports a denominator of RESOLVED rows" \
                                   || bad "no resolved-row denominator — a rate over the total is misleading"
 
 # ── malformed rows are reported, never silently skipped ──────────────────────
 printf '%s\n' '{not json' >> "$S/led.jsonl"
 out2=$(python3 "$CHK" "$S/led.jsonl" 2>&1) || true
-echo "$out2" | grep -qi 'unparseable\|malformed\|skipped' \
+grep -qi 'unparseable\|malformed\|skipped' <<<"$out2" \
   && ok "an unparseable row is REPORTED, not dropped" \
   || bad "unparseable row vanished — a ledger that silently skips is a ledger that lies"
 
 # ── empty ledger must NOT read as success ───────────────────────────────────
 : > "$S/empty.jsonl"
 out3=$(python3 "$CHK" "$S/empty.jsonl" 2>&1) || true
-echo "$out3" | grep -qi 'no rows\|empty' \
+grep -qi 'no rows\|empty' <<<"$out3" \
   && ok "an empty ledger says so rather than reporting a clean run" \
   || bad "empty ledger reported as if it had measured something"
 
 # ── an unknown status value must not be silently bucketed ───────────────────
 printf '%s\n' '{"id":"R-009","source":"T-q","prediction":"x","observable":"y","status":"PROBABLY"}' > "$S/bad.jsonl"
 out4=$(python3 "$CHK" "$S/bad.jsonl" 2>&1) || true
-echo "$out4" | grep -qi 'unknown status' \
+grep -qi 'unknown status' <<<"$out4" \
   && ok "an unrecognised status is named, not bucketed" \
   || bad "unrecognised status was silently absorbed"
 

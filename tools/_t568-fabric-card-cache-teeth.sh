@@ -192,7 +192,7 @@ check_mutant() { # check_mutant <name> <leg that must go red> <label>
       [ "$leg" = "$want" ] || wrong="$wrong $leg=$v"
     fi
   done
-  if ! echo "$red" | grep -qw "$want"; then
+  if ! grep -qw "$want" <<<"$red"; then
     report FAIL "mutant $name killed ($label)" "leg '$want' stayed GREEN under the mutation — that leg asserts nothing"
     echo "$out" | sed 's/^/      | /'
   elif [ -n "$wrong" ]; then

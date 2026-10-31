@@ -80,8 +80,8 @@ R=$(make_repo)
 OUT=$(run_guard "$R" 1)
 MISSING=""
 case "$OUT" in rc1\|*) ;; *) MISSING="$MISSING did-not-block";; esac
-echo "$OUT" | grep -q '2 retention-sweep deletion'  || MISSING="$MISSING the-count"
-echo "$OUT" | grep -q 'git reset HEAD .context/audits/' || MISSING="$MISSING the-remedy"
+grep -q '2 retention-sweep deletion' <<<"$OUT"  || MISSING="$MISSING the-count"
+grep -q 'git reset HEAD .context/audits/' <<<"$OUT" || MISSING="$MISSING the-remedy"
 if [ -z "$MISSING" ]; then
     ok "blocked, counted, and told the agent exactly how to unstage"
 else
@@ -96,8 +96,8 @@ echo "--- the remedy it prints actually works, and keeps the legitimate file sta
 ( cd "$R" && git reset -q HEAD .context/audits/ )
 OUT=$(run_guard "$R" 1)
 STAGED=$( cd "$R" && git diff --cached --name-only )
-if [ "${OUT%%|*}" = "rc0" ] && echo "$STAGED" | grep -q 'episodic/T-002.yaml' \
-   && ! echo "$STAGED" | grep -q 'audits/cron'; then
+if [ "${OUT%%|*}" = "rc0" ] && grep -q 'episodic/T-002.yaml' <<<"$STAGED" \
+   && ! grep -q 'audits/cron' <<<"$STAGED"; then
     ok "after the printed remedy: guard passes, episodic still staged, cron gone"
 else
     bad "the printed remedy did not leave a committable index: rc=${OUT%%|*} staged=[$(echo "$STAGED" | tr '\n' ' ')]"
@@ -153,7 +153,7 @@ elif [ "${BASE%%|*}" != "rc0" ]; then
     bad "PRECONDITION FAILED — unmutated guard already blocks the operator, so the mutant proves nothing"
 else
     OUT=$( cd "$R4" && CLAUDECODE=0 bash "$MUT" 2>&1; echo "rc$?" )
-    if echo "$OUT" | grep -q 'rc1'; then
+    if grep -q 'rc1' <<<"$OUT"; then
         ok "mutant blocks the operator the real guard demonstrably lets through"
     else
         bad "mutant changed nothing; the legs above cannot fail and prove nothing"

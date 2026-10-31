@@ -71,7 +71,7 @@ echo "subject: $LIB"
 
 P1="$T/p1"; mkfab "$P1"
 out=$(impact "$P1" src/target.py); rc=$?
-if [ "$rc" -eq 0 ] && printf '%s' "$out" | grep -q "src/user.py"; then
+if [ "$rc" -eq 0 ] && grep -q "src/user.py" <<<"$out"; then
   ok "plain-string entries in the corpus no longer crash the traversal: src/user.py is in the chain"
 else
   bad "plain-string entries in the corpus must not empty the chain (rc=$rc; src/user.py not named)" "$out"
@@ -80,7 +80,7 @@ fi
 P2="$T/p2"; mkfab "$P2"
 printf 'id: broken\nlocation: src/user.py\ndepends_on: 7\n' > "$P2/.fabric/components/zz-broken.yaml"
 out=$(impact "$P2" src/target.py); rc=$?
-if [ "$rc" -ne 0 ] && printf '%s' "$out" | grep -q "IMPACT NOT COMPUTED"; then
+if [ "$rc" -ne 0 ] && grep -q "IMPACT NOT COMPUTED" <<<"$out"; then
   ok "a traversal that crashes is REFUSED (rc=$rc, 'IMPACT NOT COMPUTED'), not shown as an empty chain"
 else
   bad "a crashing traversal must refuse loudly (rc=$rc)" "$out"

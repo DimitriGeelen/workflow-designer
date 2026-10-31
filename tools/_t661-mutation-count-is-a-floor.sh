@@ -92,7 +92,7 @@ M="$TMP/partial.sh"; awk 'BEGIN{d=0} /^  if \[ \$\? -ne 0 \]; then/ && d==0 {pri
 if OUT=$(assert_mutation_complete "$S" "$M" "$PATTERN"); then
     bad "a half-mutated subject was accepted — this is the failure the count existed to prevent"
 else
-    echo "$OUT" | grep -q 'MUTATION INCOMPLETE' \
+    grep -q 'MUTATION INCOMPLETE' <<<"$OUT" \
         && ok "partial mutation reported as incomplete, with the survivor count" \
         || bad "partial mutation rejected for the wrong reason: $OUT"
 fi
@@ -107,7 +107,7 @@ M=$(mutate "$S")
 if OUT=$(assert_mutation_complete "$S" "$M" "$PATTERN"); then
     bad "a no-op mutation was accepted — the prober would certify teeth it does not have"
 else
-    echo "$OUT" | grep -q 'STALE ANCHOR' \
+    grep -q 'STALE ANCHOR' <<<"$OUT" \
         && ok "stale anchor named distinctly from an incomplete mutation" \
         || bad "stale anchor not distinguished: $OUT"
 fi
@@ -118,7 +118,7 @@ S=$(subject_with 1)
 if OUT=$(assert_mutation_complete "$S" "$TMP/does-not-exist.sh" "$PATTERN"); then
     bad "a missing mutant was accepted as a complete mutation"
 else
-    echo "$OUT" | grep -q 'UNMEASURABLE' && ok "missing mutant -> UNMEASURABLE" \
+    grep -q 'UNMEASURABLE' <<<"$OUT" && ok "missing mutant -> UNMEASURABLE" \
         || bad "missing mutant rejected for the wrong reason: $OUT"
 fi
 

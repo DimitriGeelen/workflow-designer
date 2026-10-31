@@ -6,9 +6,15 @@ THE DEFECT. `grep -q` exits at its first match and closes the pipe. A producer s
 the condition reads FALSE although the match was found. T-1330: `_t344` piped a 660-line expander into `grep -qx`
 with the matched path on line 1, failed 6 of 40 runs, and reddened the core tier while passing standalone (L-387).
 
-WHAT IS SAFE. A builtin `echo`/`printf` of a string writes once into the pipe buffer before grep can read it, so it
-cannot be cut off below the buffer size (64 KiB); a `head`/`sed -n` with a small bound writes little and stops. Every
-other producer (python3, fw, git, curl, cat, sed over a file, a script) can still be writing when grep exits: RISKY.
+WHAT IS SAFE. A builtin `echo`/`printf` of a LITERAL with no newline writes once and is safe; a `head`/`sed -n` with a
+small bound writes little, through stdio's buffer, and stops. Every other producer (python3, fw, git, curl, cat, sed
+over a file, a script) can still be writing when grep exits: RISKY.
+
+T-1341 (after T-1340, T-1347): `echo "$v"` / `printf '%s' "$v"` used to be classed safe ("writes once into the pipe
+buffer"). That is false for a multi-line value: bash's builtins write ONE LINE PER write(2) (strace), so grep -q can
+exit between them at any size. Measured 4 of 3000 each for a 40-line value (tools/_t1340-builtin-pipe-sigpipe-probe.sh);
+it reddened two core runs (_t843, _t658) and, in AEF's Tier-0 hook, waved guarded commands through (AEF T-4920/T-4921).
+So a builtin whose argument contains an expansion (`$`) or a `\n` is RISKY:builtin-expansion.
 
 THE FIX for a risky site: capture once, then grep the capture (`out=$(cmd); grep -q PAT <<<"$out"`, or redirect to a
 file and grep the file).
@@ -43,7 +49,8 @@ def classify(producer):
     p = producer.strip()
     first = p.split()[0] if p.split() else ''
     if first in ('echo', 'printf'):
-        return 'safe:builtin-string'
+        # T-1341: a literal is one line, one write; anything expanded (or a \n) can be many lines, many writes
+        return 'RISKY:builtin-expansion' if ('$' in p or '\\n' in p) else 'safe:builtin-literal'
     if SMALL_BOUND.match(p):
         return 'safe:small-bound'
     return 'RISKY:command'
@@ -101,23 +108,24 @@ def selftest():
         body = '\n'.join([
             '#!/usr/bin/env bash', 'set -uo pipefail',
             'python3 expand.py w r | grep -qx "src/x.html" && echo ok',          # 3 risky
-            'echo "$out" | grep -q PAT',                                            # 4 safe builtin
+            'echo "$out" | grep -q PAT',                                            # 4 risky builtin (T-1341)
             'out=$(python3 expand.py w r); grep -qx "src/x.html" <<<"$out"',       # 5 not a pipe
             'if git log --oneline | grep -qE "^abc"; then :; fi',                   # 6 risky
             '# python3 x | grep -q y',                                              # 7 comment
             'head -2 "$f" | grep -q ok',                                            # 8 safe small bound
-            'printf "%s\\n" "$x" | grep -Eq y',                                     # 9 safe builtin
-            'elif echo "$out" | grep -q z; then :',                                 # 10 safe builtin after elif
-            'sed -n "${W_LINE}p" "$f" | grep -q w',                                 # 11 safe one-line sed
-            'sed -n "$((a-3)),${b}p" "$f" | grep -q w',                             # 12 safe few-line sed
-            'sed -n "/x/,/y/p" "$f" | grep -q w',                                   # 13 risky: a pattern range
+            'printf "%s\\n" "$x" | grep -Eq y',                                     # 9 risky builtin (T-1341)
+            'elif echo "$out" | grep -q z; then :',                                 # 10 risky builtin after elif
+            'echo "fixed text" | grep -q fix',                                       # 11 safe literal
+            'sed -n "${W_LINE}p" "$f" | grep -q w',                                 # 12 safe one-line sed
+            'sed -n "$((a-3)),${b}p" "$f" | grep -q w',                             # 13 safe few-line sed
+            'sed -n "/x/,/y/p" "$f" | grep -q w',                                   # 14 risky: a pattern range
         ])
         open(os.path.join(t, 'tools', 'a.sh'), 'w').write(body)
         open(os.path.join(t, 'tools', 'nopf.sh'), 'w').write('#!/bin/bash\npython3 x | grep -q y\n')  # no pipefail
         rows = census(t)
         got = {(r[1], r[2].split(':')[0]) for r in rows}
-        want = {(3, 'RISKY'), (4, 'safe'), (6, 'RISKY'), (8, 'safe'), (9, 'safe'), (10, 'safe'), (11, 'safe'),
-                (12, 'safe'), (13, 'RISKY')}
+        want = {(3, 'RISKY'), (4, 'RISKY'), (6, 'RISKY'), (8, 'safe'), (9, 'RISKY'), (10, 'RISKY'), (11, 'safe'),
+                (12, 'safe'), (13, 'safe'), (14, 'RISKY')}
         for w in sorted(want):
             ok = w in got
             bad += not ok

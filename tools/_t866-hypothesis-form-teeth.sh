@@ -105,7 +105,7 @@ PYEOF
     echo
     broken=""
     for c in $CONTROL_CASES; do
-        printf '%s' "$out" | grep -q "PASS  $c\$" || broken="$broken $c"
+        grep -q "PASS  $c\$" <<<"$out" || broken="$broken $c"
     done
     if [ -n "$broken" ]; then
         echo "MUTATION SETUP BROKEN — cases that should survive an always-pass gate also failed:$broken"
@@ -114,7 +114,7 @@ PYEOF
     fi
     survivors=""
     for c in $GATE_CASES; do
-        printf '%s' "$out" | grep -q "PASS  $c\$" && survivors="$survivors $c"
+        grep -q "PASS  $c\$" <<<"$out" && survivors="$survivors $c"
     done
     [ -n "$survivors" ] && { echo "MUTATION FAILED — these pass against a gate that refuses nothing:$survivors"; exit 1; }
     echo "MUTATION OK — controls green, every refusal case went red."
@@ -128,45 +128,45 @@ echo
 # ── GATE CASES: the refusals ────────────────────────────────────────────────
 mk "$WORK/empty.md" ""
 out=$(run_gate "$WORK/empty.md" go)
-if printf '%s' "$out" | grep -q 'RC=1' && printf '%s' "$out" | grep -q 'missing or empty'; then
+if grep -q 'RC=1' <<<"$out" && grep -q 'missing or empty' <<<"$out"; then
     ok empty_section_refused
 else bad empty_section_refused "an absent hypothesis was accepted for GO: $(printf '%s' "$out" | tr '\n' '/')"; fi
 
 mk "$WORK/partial.md" "We believe that the importer is wrong, and we should fix it."
 out=$(run_gate "$WORK/partial.md" go)
-if printf '%s' "$out" | grep -q 'RC=1' && printf '%s' "$out" | grep -q 'three-part form'; then
+if grep -q 'RC=1' <<<"$out" && grep -q 'three-part form' <<<"$out"; then
     ok missing_clause_refused
 else bad missing_clause_refused "a one-clause hypothesis passed: $(printf '%s' "$out" | tr '\n' '/')"; fi
 
 mk "$WORK/vague.md" "$FULL_VAGUE"
 out=$(run_gate "$WORK/vague.md" go)
-if printf '%s' "$out" | grep -q 'RC=1' && printf '%s' "$out" | grep -q 'nothing anyone could go and look at'; then
+if grep -q 'RC=1' <<<"$out" && grep -q 'nothing anyone could go and look at' <<<"$out"; then
     ok vague_success_refused
 else bad vague_success_refused "THE REAL POPULATION passed — a sincere vague clause is the failure that actually occurs: $(printf '%s' "$out" | tr '\n' '/')"; fi
 
 # A refusal that does not tell the author what to do is a warning with a worse
 # exit code, which is precisely T-624's failure.
 out=$(run_gate "$WORK/partial.md" go)
-if printf '%s' "$out" | grep -q "we will achieve"; then
+if grep -q "we will achieve" <<<"$out"; then
     ok refusal_names_what_is_missing
 else bad refusal_names_what_is_missing "the refusal did not name the absent clause"; fi
 
 # ── CONTROL CASES: what must NOT be refused ─────────────────────────────────
 mk "$WORK/good.md" "$FULL_GOOD"
 out=$(run_gate "$WORK/good.md" go)
-if printf '%s' "$out" | grep -q 'RC=0'; then ok checkable_success_accepted
+if grep -q 'RC=0' <<<"$out"; then ok checkable_success_accepted
 else bad checkable_success_accepted "a checkable clause was refused — authors route around a gate that refuses everything: $(printf '%s' "$out" | tr '\n' '/')"; fi
 
 out=$(run_gate "$WORK/vague.md" no-go)
-if printf '%s' "$out" | grep -q 'RC=0'; then ok nogo_passes_untouched
+if grep -q 'RC=0' <<<"$out"; then ok nogo_passes_untouched
 else bad nogo_passes_untouched "NO-GO was gated; it takes on no claim, so this is bureaucracy"; fi
 
 out=$(run_gate "$WORK/vague.md" defer)
-if printf '%s' "$out" | grep -q 'RC=0'; then ok defer_passes_untouched
+if grep -q 'RC=0' <<<"$out"; then ok defer_passes_untouched
 else bad defer_passes_untouched "DEFER was gated; it takes on no claim"; fi
 
 out=$(run_gate "$WORK/nope.md" go)
-if printf '%s' "$out" | grep -q 'RC=2'; then ok unreadable_file_errors
+if grep -q 'RC=2' <<<"$out"; then ok unreadable_file_errors
 else bad unreadable_file_errors "a missing file did not report rc=2 — it must be distinguishable from a refusal"; fi
 
 # Prose-form acceptance is reported but not gated on: it documents that the
@@ -174,7 +174,7 @@ else bad unreadable_file_errors "a missing file did not report rc=2 — it must 
 out=$(run_gate "$WORK/good2.md" go) 2>/dev/null
 mk "$WORK/good2.md" "$FULL_WORDY_GOOD"
 out=$(run_gate "$WORK/good2.md" go)
-printf '%s' "$out" | grep -q 'RC=0' \
+grep -q 'RC=0' <<<"$out" \
   && echo "  note  non-numeric but checkable clause accepted ('no longer reports')" \
   || echo "  note  non-numeric checkable clause REFUSED — proxy is stricter than intended"
 
@@ -184,7 +184,7 @@ printf '%s' "$out" | grep -q 'RC=0' \
 # a fake claim to pass a gate, which teaches authors to write fiction.
 mk "$WORK/research.md" "" "inception_kind: research"
 out=$(run_gate "$WORK/research.md" go)
-if printf '%s' "$out" | grep -q 'RC=0' && printf '%s' "$out" | grep -q 'exempt'; then
+if grep -q 'RC=0' <<<"$out" && grep -q 'exempt' <<<"$out"; then
     ok research_kind_exempt
 else bad research_kind_exempt "a declared research inception was still gated: $(printf '%s' "$out" | tr '\n' '/')"; fi
 
@@ -193,7 +193,7 @@ else bad research_kind_exempt "a declared research inception was still gated: $(
 # mentions research escapes, and the gate has a hole shaped like a common word.
 mk "$WORK/researchword.md" "" "" "We need to research how the importer handles lanes. Research is the point."
 out=$(run_gate "$WORK/researchword.md" go)
-if printf '%s' "$out" | grep -q 'RC=1'; then
+if grep -q 'RC=1' <<<"$out"; then
     ok research_word_in_body_still_gated
 else bad research_word_in_body_still_gated "the word 'research' in prose exempted the task — the exemption must be a declared field, not a word match"; fi
 

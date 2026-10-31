@@ -46,7 +46,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-29T21:23:20Z
-last_update: 2026-10-30T00:09:50Z
+last_update: 2026-10-31T19:49:47Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -84,10 +84,17 @@ bvp_scores_proposed:
 
 ## Context
 
-T-1340 measured that a captured multi-line value piped by a bash builtin (`echo "$v" | grep -q`, `printf '%s' "$v" |
-grep -q`) can die of SIGPIPE under pipefail at any size (`tools/_t1340-builtin-pipe-sigpipe-probe.sh`). The T-1331 census
-treats the form as safe. Two core-tier pushes in one session were refused by it (`_t843`, fixed in T-1340; `_t658`,
-2026-10-30, exit-124 assertion red while the output contained the expected text).
+**Background / trigger:** T-1340 measured that a captured multi-line value piped by a bash builtin (`echo "$v" | grep
+-q`, `printf '%s' "$v" | grep -q`) can die of SIGPIPE under pipefail at any size
+(`tools/_t1340-builtin-pipe-sigpipe-probe.sh`). Two core-tier pushes were refused by it (`_t843`, fixed in T-1340;
+`_t658`, fixed here), and the same form in AEF's Tier-0 hook waved guarded commands through (T-1347; AEF T-4920/T-4921
+fixed theirs).
+**Problem / hypothesis:** the T-1331 census classes the builtin form as safe ("writes once into the pipe buffer"), so
+832's ~414 such sites in pipefail scripts are invisible to it, and each is an intermittent false result waiting to land.
+**Goal:** the census flags the builtin form with an expansion, the sites the core tier runs are converted to
+here-strings, and the rest are held by a ratchet that can only fall.
+**Expected outcome:** no core-tier script can flake this way; a new instance anywhere in tools/tests/scripts is refused
+at push by the census leg.
 
 ## Acceptance Criteria
 
@@ -95,12 +102,19 @@ treats the form as safe. Two core-tier pushes in one session were refused by it 
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] `tools/_t658-p011-must-distinguish-killed-from-failed.sh` asserts with here-strings, and 100 consecutive runs pass.
       17 sites rewritten; 0 of 100 failed; 11 passed per run.
-- [ ] The T-1331 census flags the builtin form (`echo`/`printf` of a quoted variable piped into `grep -q`) in scripts
+- [x] The T-1331 census flags the builtin form (`echo`/`printf` of a quoted variable piped into `grep -q`) in scripts
       under `set -o pipefail`, its `--selftest` has a case for each spelling and a negative control (a here-string), and
-      the baseline holds today's count as a ratchet (it may fall, never rise).
-- [ ] Every flagged script that the core tier runs is converted; the baseline counts only scripts outside the core tier.
-- [ ] AEF is sent the probe's result and the template line it contradicts (their Verification template, "capture first
-      ... valid while $out fits the 65536-byte pipe buffer"), with their task id requested.
+      the baseline holds today's count as a ratchet (it may fall, never rise). `classify`: a builtin whose argument has
+      an expansion or `\n` is RISKY:builtin-expansion, a literal stays safe; selftest OK (echo, printf, elif, literal,
+      the captured form not flagged). 406 risky of 411 before conversion.
+- [x] Every flagged script that the core tier runs is converted; the baseline counts only scripts outside the core tier.
+      17 files the core tier runs directly, 124 sites, converted mechanically (quote-aware; only forms whose meaning is
+      unchanged); each parses and exits as before (17 of 17 rc 0). Baseline 282 = the 57 files outside the core tier;
+      0 core-run files left. The baseline rose from 0 because the census's definition changed, not to pass.
+- [x] AEF is sent the probe's result and the template line it contradicts (their Verification template, "capture first
+      ... valid while $out fits the 65536-byte pipe buffer"), with their task id requested. Sent in T-1347's report
+      (msg 6810a67d); AEF T-4921 fixed their template (drops the 64 KB rule, cites our 40-line measurement) and their 12
+      hook sites, and added a lint (notice 6d6e0298).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

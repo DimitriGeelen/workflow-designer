@@ -57,7 +57,7 @@ audit_lines() { [ -f "$FW_INSTANCE_REFUSAL_LOG" ] && wc -l < "$FW_INSTANCE_REFUS
 # ── controls (must hold under the mutant too) ────────────────────────────────
 c_close_walk_to_end_lands() {
     local out; out=$(run walk T-9961 frw_end_task); local rc=$?
-    [ $rc -eq 0 ] && [ "$(node_of T-9961)" = "frw_end_task" ] && echo "$out" | grep -q '^HOP ' \
+    [ $rc -eq 0 ] && [ "$(node_of T-9961)" = "frw_end_task" ] && grep -q '^HOP ' <<<"$out" \
         && ok close_walk_to_end_lands || bad close_walk_to_end_lands "rc=$rc out=$out"
 }
 c_partial_complete_walks_on() {
@@ -72,8 +72,8 @@ c_active_advance_unaffected() {
 }
 c_successors_lists_legal_hops() {
     local out; out=$(run successors T-9963); local rc=$?
-    [ $rc -eq 0 ] && echo "$out" | grep -q '^SUCCESSORS frw_gw_outcome task-lifecycle: .*frw_2_enter' \
-        && echo "$out" | grep -q 'agt_3_request' \
+    [ $rc -eq 0 ] && grep -q '^SUCCESSORS frw_gw_outcome task-lifecycle: .*frw_2_enter' <<<"$out" \
+        && grep -q 'agt_3_request' <<<"$out" \
         && ok successors_lists_legal_hops || bad successors_lists_legal_hops "rc=$rc out=$out"
 }
 c_successors_agrees_with_advance() {
@@ -87,17 +87,17 @@ c_successors_agrees_with_advance() {
 }
 c_successors_no_position_is_start() {
     local out; out=$(run successors T-9967); local rc=$?
-    [ $rc -eq 0 ] && echo "$out" | grep -q '^SUCCESSORS NO-POSITION task-lifecycle: frw_start_task (startEvent)$' \
+    [ $rc -eq 0 ] && grep -q '^SUCCESSORS NO-POSITION task-lifecycle: frw_start_task (startEvent)$' <<<"$out" \
         && ok successors_no_position_is_start || bad successors_no_position_is_start "rc=$rc out=$out"
 }
 c_successors_end_has_none() {
     local out; out=$(run successors T-9968); local rc=$?
-    [ $rc -eq 0 ] && echo "$out" | grep -q '^SUCCESSORS frw_end_task task-lifecycle: (none' \
+    [ $rc -eq 0 ] && grep -q '^SUCCESSORS frw_end_task task-lifecycle: (none' <<<"$out" \
         && ok successors_end_has_none || bad successors_end_has_none "rc=$rc out=$out"
 }
 c_successors_flags_closed() {
     local out; out=$(run successors T-9964); local rc=$?
-    [ $rc -eq 0 ] && echo "$out" | grep -q '^CLOSED .*T-9964-fixture.md: only an end event is accepted (.*frw_end_task' \
+    [ $rc -eq 0 ] && grep -q '^CLOSED .*T-9964-fixture.md: only an end event is accepted (.*frw_end_task' <<<"$out" \
         && ok successors_flags_closed || bad successors_flags_closed "rc=$rc out=$out"
 }
 c_successors_writes_nothing() {
@@ -159,13 +159,13 @@ PY
     broken=""
     for c in $CONTROL_CASES; do
         name=${c#c_}
-        echo "$out" | grep -q "^  PASS  $name\$" || broken="$broken $name"
+        grep -q "^  PASS  $name\$" <<<"$out" || broken="$broken $name"
     done
     [ -n "$broken" ] && { echo "MUTATION SETUP BROKEN — controls failed under the mutant:$broken"; exit 1; }
     survivors=""
     for c in $GATE_CASES; do
         name=${c#g_}
-        echo "$out" | grep -q "^  FAIL  $name\$" || survivors="$survivors $name"
+        grep -q "^  FAIL  $name\$" <<<"$out" || survivors="$survivors $name"
     done
     [ -n "$survivors" ] && { echo "MUTATION FAILED — these pass against a guard that refuses nothing:$survivors"; exit 1; }
     echo "MUTATION OK — controls green, every refusal case went red."
