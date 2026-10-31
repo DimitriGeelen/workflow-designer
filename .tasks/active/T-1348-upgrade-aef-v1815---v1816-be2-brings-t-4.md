@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-31T13:09:57Z
-last_update: 2026-10-31T13:11:22Z
+last_update: 2026-10-31T13:20:34Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -71,7 +71,8 @@ job on the be.3 tag once it is on the public mirror (not yet at 13:15Z).
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] An upgrade job (job 103's code; tag v1.8.16-be.2 = bf112edce, from v1.8.15 = 0230eeb9e) is written, refuses to
+- [ ] An upgrade job (job 103's code; tag v1.8.16-be.3 = 4965587d4, from v1.8.15 = 0230eeb9e; job 111, replacing job 110
+      for be.2, retired unrun) is written, refuses to
       run before `designer-v0.33.0` is on origin, is rehearsed and committed with its `dryrun.ok`.
 - [ ] After the operator's run: `.framework.yaml` names bf112edce; the pristine vendor commit and the divergence
       baseline commit exist; fw doctor after has no new FAIL against before.
