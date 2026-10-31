@@ -155,7 +155,9 @@ designer-written map is unchanged byte for byte.
       2. Open the full windows `kitchen-sink-1024.png`, `kitchen-sink-1440.png`, `kitchen-sink-1920.png` in the same
          folder: nothing else on the canvas moved; the notices and toolbar are as before.
       3. Known limit, not a defect of this task: 6 events on a host edge the designer draws 64 px long overlap each other
-         within that edge (36 px each); before, all 12 overlapped in one row.
+         within that edge (36 px each), and so do some of their labels; before, all 12 overlapped in one row. The
+         advisory sweep (codex) read the after image as better and flagged the remaining label overlap as should-fix;
+         that is filed as T-1350 (draw a dense host at the file's size, or lay out its boundary labels).
       **Expected:** after, the events sit on the host's left and right edges (as in the file) with their labels mostly
       readable outside the host; before, all in one illegible row along the bottom.
       **If not:** name the screenshot and what reads worse; the placement code is in `src/aef-workflow-designer.html`
