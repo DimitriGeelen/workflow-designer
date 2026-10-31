@@ -4,12 +4,12 @@ name: "Release designer 0.33.0 (subprocess nesting kept; edit rules) and hand it
 description: >
   Release 0.33.0 (minor) through an operator job modelled on jobs 104/105 (T-1336): bump, calibrate the kit with codex and GLM-5.3, cut, commit, tag designer-v0.33.0, core tier, push. Brings T-1337, T-1339, T-1342, T-1345 (T-1266 GO). Designer-written maps unchanged; a file from another tool now saves its subprocess contents inside their subprocess, which is new input for AEF's importer. Done when AEF serves it (tools/_t1187-aef-pin-lag.sh CURRENT); AEF gets version, tag, sha256, bytes and the changes.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +38,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-30T01:11:43Z
-last_update: 2026-10-30T02:26:24Z
-date_finished: null
+last_update: 2026-10-31T15:08:18Z
+date_finished: 2026-10-31T15:08:18Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -56,9 +56,14 @@ date_finished: null
 
 ## Context
 
-The operator asked for it on 2026-10-30 ("yes, prepare the 0.33.0 release"). Designer changes since `designer-v0.32.0`:
-T-1337, T-1342, T-1339, T-1345 (the last two are T-1266's GO). The release itself is an operator job (model calls, tag
-and push are outward); the agent writes and rehearses it, then hands AEF the release.
+**Background / trigger:** the operator asked for it on 2026-10-30 ("yes, prepare the 0.33.0 release") after T-1266's
+build (T-1339, T-1345) closed. Designer changes since `designer-v0.32.0`: T-1337, T-1342, T-1339, T-1345.
+**Problem / hypothesis:** those changes exist only on `bleeding-edge`; AEF, the designer's main consumer, serves 0.32.0,
+so a third-party file saved through AEF still loses its subprocess structure.
+**Goal:** release 0.33.0 through an operator job (model calls, tag and push are outward; the agent writes and
+rehearses it) and hand it to AEF with what is new for their importer.
+**Expected outcome:** `designer-v0.33.0` on origin, AEF serves it (`tools/_t1187-aef-pin-lag.sh` CURRENT), and AEF knows
+a third-party save can now carry nested flow nodes.
 
 ## Acceptance Criteria
 
@@ -76,7 +81,9 @@ and push are outward); the agent writes and rehearses it, then hands AEF the rel
 - [x] AEF is sent version, tag, sha256, bytes and the changes, with what is new for their importer (nested contents in
       a third-party file's save), and asked for their task id. Msg 6fa49ac6 (RECEIVED), conversation
       designer-0.33.0-release; pin then BEHIND (0.32.0), task id awaited.
-- [ ] AEF serves it: `tools/_t1187-aef-pin-lag.sh` reports CURRENT.
+- [x] AEF serves it: `tools/_t1187-aef-pin-lag.sh` reports CURRENT. AEF T-4924 re-pinned and verified the pull at the
+      tag (sha256, bytes, validator anchors agree; msg 17b6b6bb); CURRENT on the public pin 2026-10-31 ~14:30Z. Their
+      importer check confirmed the note: their spec derivation read direct children only, filed as AEF T-4925.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -261,6 +268,9 @@ and push are outward); the agent writes and rehearses it, then hands AEF the rel
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+git ls-remote --exit-code --tags origin designer-v0.33.0
+bash -c 'git show designer-v0.33.0:src/aef-workflow-designer.html | cmp -s - dist/aef-workflow-designer-0.33.0.html'
+python3 tools/kit-calibration-gate.py check --version 0.33.0
 
 ## RCA
 
@@ -358,3 +368,21 @@ and push are outward); the agent writes and rehearses it, then hands AEF the rel
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1346-release-designer-0330-subprocess-nesting.md
 - **Context:** Initial task creation
+
+### 2026-10-31T15:08:18Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d85d5956
+- **Timestamp:** 2026-10-31T15:08:19Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#5 (Agent)** — AEF serves it: `tools/_t1187-aef-pin-lag.sh` reports CURRENT. AEF T-4924 re-pinned and verified the pull at the
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t1187-aef-pin-lag.sh in: AEF serves it: `tools/_t1187-aef-pin-lag.sh` reports CURRENT. AEF T-4924 re-pinned and verified the pull at the`

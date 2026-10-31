@@ -20237,3 +20237,39 @@ scan_id: R-31b012a3
 task_id: T-1345
 payload:
   task_file: .tasks/active/T-1345-t-1266-slice-2-edit-rules-for-nested-nod.md
+---
+kind: scan_emitted
+timestamp: '2026-10-31T07:05:53Z'
+scan_id: R-7584d810
+task_id: T-593
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-31T07:05:53Z'
+scan_id: R-7584d810
+task_id: T-593
+payload:
+  task_file: .tasks/active/T-593-ewcr-handoff-envelope-records-an-operato.md
+---
+kind: scan_emitted
+timestamp: '2026-10-31T15:08:19Z'
+scan_id: R-d85d5956
+task_id: T-1346
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-10-31T15:08:19Z'
+scan_id: R-d85d5956
+task_id: T-1346
+payload:
+  task_file: .tasks/active/T-1346-release-designer-0330-subprocess-nesting.md
