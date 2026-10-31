@@ -1,11 +1,23 @@
 ---
 id: T-1347
-name: "Vendored Tier-0 gate fails open under load: its pre-filter printf|grep -q dies of SIGPIPE under pipefail and waves a dangerous command through"
+name: "Vendored Tier-0 gate fails open under load: its pre-filter printf|grep -q dies
+  of SIGPIPE under pipefail and waves a dangerous command through"
 description: >
-  check-tier0.sh (AEF, vendored) runs under set -uo pipefail and pre-filters with: ! printf of the command and its dequoted form, piped into grep -qEi of the dangerous patterns, then exit 0. grep -q exits on the first line's match; printf's second-line write can take SIGPIPE (141), the pipeline fails, the negation reads it as 'no pattern', the hook exits 0 and the command is not checked. Measured: the exact pipeline waves a Tier-0 self-approval command through 7 of 20000 at idle (here-string form 0 of 20000); probe in the scratchpad, to be kept under tools/. Patterns behind that pre-filter include git push/reset, rm -, the Tier-0 verb, fw --force, fw inception decide. Seen as intermittent core reds: _t631 (self-approval allowed, rc 0) twice, _t866 (inception decide) once. Upstream fix: a here-string. Report to AEF; decide how 832 runs meanwhile.
+  check-tier0.sh (AEF, vendored) runs under set -uo pipefail and pre-filters with:
+  ! printf of the command and its dequoted form, piped into grep -qEi of the dangerous
+  patterns, then exit 0. grep -q exits on the first line's match; printf's second-line
+  write can take SIGPIPE (141), the pipeline fails, the negation reads it as 'no pattern',
+  the hook exits 0 and the command is not checked. Measured: the exact pipeline waves
+  a Tier-0 self-approval command through 7 of 20000 at idle (here-string form 0 of
+  20000); probe in the scratchpad, to be kept under tools/. Patterns behind that pre-filter
+  include git push/reset, rm -, the Tier-0 verb, fw --force, fw inception decide.
+  Seen as intermittent core reds: _t631 (self-approval allowed, rc 0) twice, _t866
+  (inception decide) once. Upstream fix: a here-string. Report to AEF; decide how
+  832 runs meanwhile.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +50,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-30T03:05:06Z
-last_update: 2026-10-31T12:25:46Z
-date_finished: null
+last_update: '2026-10-31T12:25:58Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +62,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-10-31T12:25:58Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 1
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=1 (body:fix-without-learning); D2=0 (no-signal); D3=0 (no-signal);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1347: Vendored Tier-0 gate fails open under load: its pre-filter printf|grep -q dies of SIGPIPE under pipefail and waves a dangerous command through
@@ -76,7 +108,9 @@ hook in 832 now, declared as a local fix, and send AEF the evidence.
 - [x] The patch is declared in `.agentic-framework/.vendor-divergence.yaml` (`upstream: fix`), and
       `tools/_t517-vendor-divergence.py` is green.
 - [ ] `_t631` and `_t866` pass 30 consecutive runs each, and the core tier is green.
-- [ ] AEF is sent the line, the probe, the measurement and the fix, and asked for their task id.
+- [x] AEF is sent the line, the probe, the measurement and the fix, and asked for their task id. Sent 2026-10-31 to
+      999-Agentic-Engineering-Framework, conversation `t1347-t0-prefilter-failopen`, msg 6810a67d (RECEIVED), with the
+      related Verification-template finding (T-1340/T-1341). Their task id: awaiting reply.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -372,3 +406,6 @@ the evidence so the fix lands upstream.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1347-vendored-tier-0-gate-fails-open-under-lo.md
 - **Context:** Initial task creation
+
+### 2026-10-31T12:25:57Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

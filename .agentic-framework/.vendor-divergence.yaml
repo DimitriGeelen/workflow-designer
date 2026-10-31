@@ -1333,3 +1333,5 @@ entries:
       Measured: tools/_t1347-t0-prefilter-probe.sh (reads the block from this file), 4 parallel x 20000 -> 1 waved
       through before, 0 after; with a short pattern 7 of 20000 at idle. Seen as random core reds (_t631 x2, _t866).
       Fix: the same test fed by a here-string; patterns and exit unchanged. Sent to AEF with the probe.
+    delivered: reported
+    delivered_ref: "sidecar 2026-10-31 to 999-Agentic-Engineering-Framework, conversation t1347-t0-prefilter-failopen, msg 6810a67d (RECEIVED); line, mechanism, probe, measurements and the fix; their task id awaited"
