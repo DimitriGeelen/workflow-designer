@@ -14803,7 +14803,9 @@ function parseBpmnXml(text) {
     const y = parseFloat(b.getAttribute('y'));
     // A shape carrying a non-numeric or absent x/y is skipped rather than defaulted
     // to 0 — a node silently stacked at the origin is worse than one auto-laid-out.
-    if (Number.isFinite(x) && Number.isFinite(y)) diBounds.set(ref, { x, y });
+    // T-1344: width/height too (absent stays undefined), so a boundary event can be placed on its host as the file drew it
+    const w = parseFloat(b.getAttribute('width')), h = parseFloat(b.getAttribute('height'));
+    if (Number.isFinite(x) && Number.isFinite(y)) diBounds.set(ref, { x, y, ...(w > 0 && h > 0 ? { w, h } : {}) });
   }
   // Did the INPUT carry DI? The export side re-emits DI only when this is true, which
   // is the whole of ruling (b)'s export half. Corpus measurement 2026-08-14, 145 .bpmn
@@ -15430,9 +15432,34 @@ function parseBpmnXml(text) {
   // boundary, or one typed from its native definition) are placed: the designer's own boundary events, with or
   // without a position, are untouched, so its own maps save byte-identically.
   {
-    const byHost = new Map();
+    // T-1344: first, the file's own placement. An event and its host both drawn in the file: the event's centre,
+    // projected onto the host's outline as the FILE sized it, becomes the perimeter fraction (clockwise from the
+    // top-left corner, the walk boundaryPerimeterPoint takes). The designer draws the host at its own size, so the
+    // fraction, not the coordinate, is what carries over. Events placed here are left out of the spread below.
+    const fileIdOf = new Map(Array.from(displayIdToUid, ([did, uid]) => [uid, did]));
+    const fromFile = new Set();
     for (const n of nodes) {
       if (!n.aef || !n.aef.hostRef || n.aef.boundaryPos) continue;
+      const thirdParty = (n.type === 'linkEventCatch' && !n.linkDef) || (n.nativeEventDefs || []).length > 0;
+      const eb = diBounds.get(fileIdOf.get(n.uid)), hb = diBounds.get(fileIdOf.get(n.aef.hostRef));
+      if (!thirdParty || !eb || !hb || !hb.w || !eb.w) continue;
+      const cx = eb.x + eb.w / 2, cy = eb.y + eb.h / 2, W = hb.w, H = hb.h;
+      // the edge nearest the centre in the FILE, and how far along it (0..1, in the walk's direction); the fraction is
+      // then rebuilt on the designer's host size, so the event keeps its edge whatever the two hosts' proportions
+      const s = Math.min(Math.max((cx - hb.x) / W, 0), 1), t = Math.min(Math.max((cy - hb.y) / H, 0), 1);
+      const edge = [[Math.abs(cy - hb.y), 0, s], [Math.abs(cx - (hb.x + W)), 1, t],
+                    [Math.abs(cy - (hb.y + H)), 2, 1 - s], [Math.abs(cx - hb.x), 3, 1 - t]]
+        .reduce((a, b) => (b[0] < a[0] ? b : a));
+      edge[2] = 0.08 + 0.84 * edge[2];   // off the corners: on one, the edge it belongs to is a tie
+      const host = nodes.find(h => h.uid === n.aef.hostRef);
+      const hd = (host && NODE_DEFAULTS[host.type]) || NODE_DEFAULTS.serviceTask;
+      const lens = [hd.w, hd.h, hd.w, hd.h], start = [0, hd.w, hd.w + hd.h, 2 * hd.w + hd.h][edge[1]];
+      n.aef.boundaryPos = ((start + edge[2] * lens[edge[1]]) / (2 * (hd.w + hd.h))).toFixed(4);
+      fromFile.add(n.uid);
+    }
+    const byHost = new Map();
+    for (const n of nodes) {
+      if (!n.aef || !n.aef.hostRef || n.aef.boundaryPos || fromFile.has(n.uid)) continue;
       const thirdParty = (n.type === 'linkEventCatch' && !n.linkDef) || (n.nativeEventDefs || []).length > 0;
       if (!thirdParty) continue;
       if (!byHost.has(n.aef.hostRef)) byHost.set(n.aef.hostRef, []);

@@ -1749,6 +1749,22 @@ else
 fi
 }
 leg browser "_t1345-message-shots" _leg_219
+
+_leg_220() {
+
+# ── T-1344: another tool's boundary events sit where the file placed them on their host ──
+# kitchen-sink and boundary-events opened as a person opens them: every boundary event drawn in the file is on the same
+# edge of its host, in the file's order along it, and no two on one host share a point; a second save is identical.
+# Red on the pre-T-1344 source (events stacked at the bottom-centre or spread along the bottom edge only).
+if node "$ROOT/tools/_t1344-boundary-placement-cdp.mjs" > "$TMP/leg-_t1344.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "another tool's boundary events are no longer placed where the file drew them on their host (wrong edge, wrong order, or stacked on one point), or a second save differs (run 'node tools/_t1344-boundary-placement-cdp.mjs'; T-1344)"
+  show_output "$TMP/leg-_t1344.out" "_t1344-boundary-placement-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1344-boundary-placement" _leg_220
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
