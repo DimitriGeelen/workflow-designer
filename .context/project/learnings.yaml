@@ -2959,3 +2959,9 @@ learnings:
   task: T-1298
   date: 2026-10-24
   context: Added via context agent
+- id: PL-429
+  learning: "Re-vendor re-apply: stage with git add -u PLUS every file the patches recreate (git status '??' under .agentic-framework, runtime .context excluded). git add -u skips a file the pristine commit deleted, so a restored file lives only in the working tree: _t517 reads the tree and passes, and the next fw upgrade wipes it (T-1348 lost designer_open.html this way; restored in T-1349)."
+  source: unknown
+  task: T-1349
+  date: 2026-10-31
+  context: Added via context agent
