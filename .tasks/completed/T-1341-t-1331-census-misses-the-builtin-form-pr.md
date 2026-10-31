@@ -11,13 +11,13 @@ description: >
   The framework's Verification template recommends the same form ('capture first ...
   valid while $out fits the 65536-byte pipe buffer'): report to AEF with the probe.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t1160-closed-record-teeth.sh, tools/_t408-hygiene-teeth.sh, tools/_t568-fabric-card-cache-teeth.sh, tools/_t630-p011-stdin-swallow.sh, tools/_t649-completing-with-uncommitted-work-warns.sh, tools/_t651-stray-root-files-are-caught.sh, tools/_t656-review-queue-splits-judgement-from-the-status-flip.sh, tools/_t657-vendor-divergence-must-reach-an-audit-line.sh, tools/_t658-p011-must-distinguish-killed-from-failed.sh, tools/_t659-retention-sweep-must-not-be-agent-staged.sh, tools/_t661-mutation-count-is-a-floor.sh, tools/_t662-null-focus-commit-path-must-be-discoverable.sh, tools/_t767-ownership-correspondence.sh, tools/_t836-census-empty-split-controls.sh, tools/_t848-realization-check-tests.sh, tools/_t866-hypothesis-form-teeth.sh, tools/_t952-audit-rail-teeth.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-29T21:23:20Z
-last_update: 2026-10-31T19:49:47Z
-date_finished:
+last_update: 2026-10-31T20:03:11Z
+date_finished: 2026-10-31T20:03:11Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -299,6 +299,9 @@ at push by the census leg.
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+python3 tools/_t1331-pipe-grep-q-census.py --selftest > /tmp/t1341-self.out 2>&1 && grep -q 'selftest: OK' /tmp/t1341-self.out
+python3 tools/_t1331-pipe-grep-q-census.py > /tmp/t1341-cen.out 2>&1 && grep -q 'PASS: no increase' /tmp/t1341-cen.out
+bash -c 'for i in $(seq 20); do bash tools/_t658-p011-must-distinguish-killed-from-failed.sh >/dev/null 2>&1 || exit 1; done'
 
 ## RCA
 
@@ -400,3 +403,16 @@ at push by the census leg.
 ### 2026-10-30T00:07:44Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-10-31T20:03:11Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a4c7ffd9
+- **Timestamp:** 2026-10-31T20:03:25Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

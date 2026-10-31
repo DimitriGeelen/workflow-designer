@@ -1,0 +1,101 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1341: T-1331 census misses the builtin form: printf/echo \"$captured\" | grep -q fails under pipefail for multi-line values (414 sites, 85 files)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-31T20:03:31Z
+# ============================================================================
+
+task_id: T-1341
+task_name: "T-1331 census misses the builtin form: printf/echo \"$captured\" | grep -q fails under pipefail for multi-line values (414 sites, 85 files)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-29T21:23:20Z
+completed: 2026-10-31T20:03:11Z
+duration_days: 2
+updates_count: 3
+first_commit: 2026-10-30T01:09:50+01:00
+last_commit: 2026-10-31T20:49:47+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  _t658's 17 echo|grep -q asserts become here-strings — it refused a core push (exit-124 leg red with the expected text in its output, the T-1340 SIGPIPE class); 0/100 runs fail; criteria for the census extension written. the pipe-into-grep -q census flags echo/printf of an expansion (one write per line, T-1340), 406 of 411 sites; the 124 in the 17 scripts the core tier runs become here-strings (each parses and passes as before); baseline 282 for the 57 files outside the core tier — raised from 0 because the definition changed, not to pass
+
+# Key outcomes
+outcomes:
+  - '`tools/_t658-p011-must-distinguish-killed-from-failed.sh` asserts with here-strings, and 100 consecutive runs pass.'
+  - 'The T-1331 census flags the builtin form (`echo`/`printf` of a quoted variable piped into `grep -q`) in scripts'
+  - 'Every flagged script that the core tier runs is converted; the baseline counts only scripts outside the core tier.'
+  - 'AEF is sent the probe''s result and the template line it contradicts (their Verification template, "capture first'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1341-t-1331-census-misses-the-builtin-form-pr.md'
+  - 'tools/_t1025-fabric-impact-teeth.sh'
+  - 'tools/_t1160-closed-record-teeth.sh'
+  - 'tools/_t1331-pipe-grep-q-baseline.txt'
+  - 'tools/_t1331-pipe-grep-q-census.py'
+  - 'tools/_t408-hygiene-teeth.sh'
+  - 'tools/_t568-fabric-card-cache-teeth.sh'
+  - 'tools/_t630-p011-stdin-swallow.sh'
+  - 'tools/_t649-completing-with-uncommitted-work-warns.sh'
+  - 'tools/_t651-stray-root-files-are-caught.sh'
+  - 'tools/_t656-review-queue-splits-judgement-from-the-status-flip.sh'
+  - 'tools/_t657-vendor-divergence-must-reach-an-audit-line.sh'
+  - 'tools/_t658-p011-must-distinguish-killed-from-failed.sh'
+  - 'tools/_t659-retention-sweep-must-not-be-agent-staged.sh'
+  - 'tools/_t661-mutation-count-is-a-floor.sh'
+  - 'tools/_t662-null-focus-commit-path-must-be-discoverable.sh'
+  - 'tools/_t767-ownership-correspondence.sh'
+  - 'tools/_t836-census-empty-split-controls.sh'
+  - 'tools/_t848-realization-check-tests.sh'
+  - 'tools/_t866-hypothesis-form-teeth.sh'
+  - 'tools/_t952-audit-rail-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-30T01:09:50'
+    action: 'T-1341: _t658''s 17 echo|grep -q asserts become here-strings — it refused a core push (exit-124 leg red with the expected text in its output, the T-1340 SIGPIPE class); 0/100 runs fail; criteria for the census extension written'
+  - time: '2026-10-31T20:49:47'
+    action: 'T-1341: the pipe-into-grep -q census flags echo/printf of an expansion (one write per line, T-1340), 406 of 411 sites; the 124 in the 17 scripts the core tier runs become here-strings (each parses and passes as before); baseline 282 for the 57 files outside the core tier — raised from 0 because the definition changed, not to pass'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 2799 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2799
+  commits: 3
+  files_changed: 24
+  lines_added: 696
+  lines_removed: 151
+  footprint_refreshed_at: '2026-10-31T20:03:36Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1341-t-1331-census-misses-the-builtin-form-pr.md
+generated_by: context-agent-hybrid
