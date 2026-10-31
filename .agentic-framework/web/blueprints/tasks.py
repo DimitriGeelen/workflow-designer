@@ -1,6 +1,5 @@
 """Tasks blueprint — task list, detail, status API."""
 
-from markupsafe import Markup
 import re as re_mod
 from html import escape as _html_escape
 from urllib.parse import urlencode
@@ -374,17 +373,10 @@ def _render_md_inline(text):
     """Render text as Markdown HTML for inline display (T-1551).
     Strips <p> wrapper for use inside <li> contexts. safe_mode='escape'
     blocks raw HTML — only Markdown syntax (links, code, emphasis) renders.
-    Returns '' for empty input.
-
-    T-606: returns markupsafe.Markup. The old contract was "the caller must mark
-    returned strings safe", i.e. correctness lived in every template author's memory
-    rather than in this function. Two of the four consumers forgot, and the operator
-    read 205 escaped &lt;code&gt; on /approvals for as long as that page has existed.
-    Escaping is decided HERE (markdown2 safe_mode='escape' still neutralises raw HTML
-    in the task file); marking the result Markup only stops Jinja escaping it twice.
+    Returns '' for empty input. The caller must mark returned strings safe.
     """
     if not text:
-        return Markup('')
+        return ''
     text = resolve_watchtower_refs(text)  # T-4624
     text = _auto_link_watchtower_paths(text)
     text = _auto_link_task_refs(text)
@@ -397,22 +389,14 @@ def _render_md_inline(text):
     html = _linkify_code_urls(html)
     html = link_route_code_spans(html)  # T-4624
     # T-1722: artefact paths → /file/ anchors (existence-gated, idempotent).
-    return Markup(_auto_link_files(html))
+    return _auto_link_files(html)
 
 
 def _render_md_block(text):
     """Same as _render_md_inline but keeps <p> wrapping for block contexts
-    (Expected, If-not). T-1551.
-
-    T-606: returns markupsafe.Markup. The old contract was "the caller must mark
-    returned strings safe", i.e. correctness lived in every template author's memory
-    rather than in this function. Two of the four consumers forgot, and the operator
-    read 205 escaped &lt;code&gt; on /approvals for as long as that page has existed.
-    Escaping is decided HERE (markdown2 safe_mode='escape' still neutralises raw HTML
-    in the task file); marking the result Markup only stops Jinja escaping it twice.
-    """
+    (Expected, If-not). T-1551."""
     if not text:
-        return Markup('')
+        return ''
     text = resolve_watchtower_refs(text)  # T-4624
     text = _auto_link_watchtower_paths(text)
     text = _auto_link_task_refs(text)
@@ -423,7 +407,7 @@ def _render_md_block(text):
     html = _linkify_code_urls(html)
     html = link_route_code_spans(html)  # T-4624
     # T-1722: artefact paths → /file/ anchors (existence-gated, idempotent).
-    return Markup(_auto_link_files(html))
+    return _auto_link_files(html)
 
 
 # T-3224: an AC field heading is `**<marker><suffix>:**`, where the optional
@@ -505,13 +489,33 @@ def _link_plain_text(text):
     to text that is shown as-is (description, Agent criterion). Escaping first
     keeps `<script>` and friends as text.
     """
-    return _auto_link_files(_html_escape(text))
+    return _link_task_ids(_auto_link_files(_html_escape(text)))
+
+
+# T-4904: a bare task id in already-escaped HTML. Not preceded by a path or word
+# character (so `.tasks/active/T-12-x.md` stays one path) and not inside an existing
+# <a>…</a>, whose text or href may already carry the id.
+_TASK_ID_IN_HTML_RE = re_mod.compile(r"(?<![\w/.#-])(T-\d{1,6})(?![\w-])")
+_ANCHOR_RE = re_mod.compile(r"<a\b[^>]*>.*?</a>", re_mod.S)
+
+
+def _link_task_ids(html):
+    """T-4904: link every bare `T-NNNN` in escaped HTML to its task page, as the
+    review page does (T-1575). Text inside existing anchors is left alone."""
+    out, pos = [], 0
+    for a in _ANCHOR_RE.finditer(html):
+        out.append(_TASK_ID_IN_HTML_RE.sub(r'<a href="/tasks/\1">\1</a>', html[pos:a.start()]))
+        out.append(a.group(0))
+        pos = a.end()
+    out.append(_TASK_ID_IN_HTML_RE.sub(r'<a href="/tasks/\1">\1</a>', html[pos:]))
+    return "".join(out)
 
 
 def _link_task_body(body):
     """T-4044: the raw Task Body with file paths linked in `## Context` and
-    `### Agent` only. Every line is escaped; other sections are not linked, so
-    the Verification and Human text stays exactly as it was."""
+    `### Agent` only. Every line is escaped; other sections get no path links, so
+    the Verification and Human text stays exactly as it was.
+    T-4904: task ids are linked in every section (the text itself is unchanged)."""
     out = []
     in_scope = False
     for line in body.split("\n"):
@@ -521,7 +525,7 @@ def _link_task_body(body):
                 in_scope = heading.group(2) == "Context"
             else:
                 in_scope = heading.group(2) == "Agent"
-        out.append(_link_plain_text(line) if in_scope else _html_escape(line))
+        out.append(_link_plain_text(line) if in_scope else _link_task_ids(_html_escape(line)))
     return "\n".join(out)
 
 

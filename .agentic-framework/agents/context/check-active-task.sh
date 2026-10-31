@@ -100,7 +100,7 @@ FOCUS_FILE=$(_resolve_focus_file)   # T-3038: re-resolve, PROJECT_ROOT just move
 #
 # Kept as ONE definition on purpose: the gate below consumes this result rather
 # than re-deriving it, so the two call sites cannot drift apart.
-_fw_drift_target_in_clause() {
+_fw_extract_drift_target() {
     local c="$1"
     # T-4825: a `fw sidecar send --body` value is a message, not the command's target.
     # Blank it with the tick guard's lexer (T-4817, _blank_data_args): every quoting of
@@ -159,72 +159,6 @@ _fw_drift_target_in_clause() {
        [[ "$c" =~ (^|[[:space:]])(-[a-zA-Z]*m[a-zA-Z]*|--message)(=|[[:space:]]+)[\'\"]?(T-[0-9]+): ]]; then
         printf '%s' "${BASH_REMATCH[4]}"; return 0
     fi
-    return 0
-}
-
-# 832 T-639 (re-applied on 1.7.740 by T-1005): the target is read from a clause that IS the
-# command, never from text that merely MENTIONS one. The regexes above, run on the whole line,
-# took `T-1` out of a quoted test fixture, a heredoc body or an echo'd example and blocked the
-# command as "drift to T-1" (reproduced live 2026-10-02). Heredoc bodies are dropped, the line
-# is split into clauses on UNQUOTED ; && || | (upstream _fw_chain_split), and only a clause
-# that starts with fw / */fw / git is matched. Without the splitter: old whole-text behaviour.
-_fw_extract_drift_target() {
-    local c="$1" stripped="" line term="" clause hit
-    if ! declare -F _fw_chain_split >/dev/null 2>&1; then
-        _fw_drift_target_in_clause "$c"; return 0
-    fi
-    while IFS= read -r line || [ -n "$line" ]; do
-        if [ -n "$term" ]; then
-            [ "${line//[[:space:]]/}" = "$term" ] && term=""
-            continue
-        fi
-        stripped+="$line"$'\n'
-        if [[ "$line" =~ \<\<-?[[:space:]]*[\'\"]?([A-Za-z_][A-Za-z0-9_]*)[\'\"]? ]]; then
-            term="${BASH_REMATCH[1]}"
-        fi
-    done <<< "$c"
-    while IFS= read -r -d '' clause; do
-        clause="${clause#"${clause%%[![:space:]]*}"}"
-        while [[ "$clause" =~ ^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+ ]]; do
-            clause="${clause#"${BASH_REMATCH[0]}"}"
-        done
-        # A path to fw (/opt/p/.agentic-framework/bin/fw task update T-42 ...) is fw.
-        if [[ "$clause" =~ ^[^[:space:]]*/fw([[:space:]].*)$ ]]; then clause="fw${BASH_REMATCH[1]}"; fi
-        # 832 T-921 (re-applied on 1.7.740 by T-1005), two halves measured by T-920:
-        # (a) a shell invoker's quoted payload IS a command -- `bash -c "cd /x && fw task
-        #     update T-9"` updates T-9, and skipping the clause let it past the gate;
-        if [[ "$clause" =~ ^(bash|sh)[[:space:]]+-c[[:space:]]+(.*)$ ]]; then
-            local payload="${BASH_REMATCH[2]}"
-            payload="${payload%"${payload##*[![:space:]]}"}"
-            case "$payload" in
-                \"*\") payload="${payload:1:${#payload}-2}"; payload="${payload//\\\"/\"}" ;;
-                \'*\') payload="${payload:1:${#payload}-2}" ;;
-            esac
-            hit=$(_fw_extract_drift_target "$payload")
-            [ -n "$hit" ] && { printf '%s' "$hit"; return 0; }
-            continue
-        fi
-        # (b) quoted arguments are data -- `fw note "... fw task update T-9 ..."` names a
-        #     command, it does not run one. fw clauses and exec wrappers (xargs / find -exec /
-        #     sudo / env / timeout / nohup / nice / time / exec, whose verb is unquoted) are
-        #     matched on the quote-stripped view (upstream _fw_strip_quoted; unbalanced quotes
-        #     fall back to raw). git keeps the raw view (pattern 3 reads the quoted -m message),
-        #     and so does ssh, whose arguments ARE a remote command line. Anything else (echo,
-        #     grep, python, ...) is data. The wrapper and ssh rows are _t921's regression list,
-        #     which clause-scoping alone (T-639 above) had silently dropped.
-        case "$clause" in
-            fw[[:space:]]git[[:space:]]commit*) ;;   # T-1023: raw, like git -- pattern 3 reads the quoted -m message
-            fw[[:space:]]*|xargs[[:space:]]*|find[[:space:]]*|sudo[[:space:]]*|env[[:space:]]*|timeout[[:space:]]*|nohup[[:space:]]*|nice[[:space:]]*|time[[:space:]]*|exec[[:space:]]*)
-                if declare -F _fw_strip_quoted >/dev/null 2>&1; then
-                    local view
-                    view=$(_fw_strip_quoted "$clause") && clause="$view"
-                fi ;;
-            git[[:space:]]*|ssh[[:space:]]*) ;;
-            *) continue ;;
-        esac
-        hit=$(_fw_drift_target_in_clause "$clause")
-        [ -n "$hit" ] && { printf '%s' "$hit"; return 0; }
-    done < <(_fw_chain_split "$stripped")
     return 0
 }
 
@@ -412,50 +346,6 @@ fi
 # the whole command. Widening it would admit `fw work-on X > .claude/settings.json`.
 # The bug is that six sites advertise a remedy without its precondition. This
 # emits the precondition; permissions are unchanged.
-
-# 832 T-662 (restored by T-1038 on 1.7.740): committing a just-completed task is NOT blocked
-# with no focus. is_commit_checkpoint_command admits a commit line (T-2054/T-3221, and since
-# 832 T-1037 `fw git commit`), so when such a line is refused it is because something else on it
-# voided that exemption. Say which, or the agent reads it as a deadlock and reaches for a
-# borrowed focus or a Tier-2 bypass (what happened at T-643). Prints ONLY for a line that
-# contains a commit clause (PL-299: an advisory on every block carries no information).
-# Diagnosis mirrors the predicate's own order. Permissions are unchanged.
-_null_focus_commit_advisory() {
-    local cmd="${1:-}" seg why="" bad=""
-    [ -n "$cmd" ] || return 0
-    type _fw_is_git_commit_clause &>/dev/null || return 0
-    local -a segs=()
-    while IFS= read -r -d '' seg; do segs+=("$seg"); done < <(_fw_chain_split "$cmd" 2>/dev/null)
-    local has_commit=0
-    for seg in "${segs[@]}"; do _fw_is_git_commit_clause "$seg" && has_commit=1; done
-    [ "$has_commit" -eq 1 ] || return 0
-    local view; view="$(_fw_strip_quoted "$cmd" 2>/dev/null)" || view="$cmd"
-    case "$cmd" in
-        *'$('*|*'`'*) why="a \$(...) or \`...\` substitution sharing the line with the commit: its contents count as another clause (T-638)" ;;
-    esac
-    if [ -z "$why" ] && [[ "$cmd" =~ (^|[[:space:]])(--no-verify|-n)([[:space:]]|$) ]]; then
-        why="--no-verify (or -n): it skips the commit-msg hook that makes the no-focus exemption sound"
-    fi
-    if [ -z "$why" ] && type has_bash_write_pattern &>/dev/null && has_bash_write_pattern "$view"; then
-        why="a redirect or other write on the same line as the commit"
-    fi
-    if [ -z "$why" ]; then
-        for seg in "${segs[@]}"; do
-            [[ "$seg" =~ ^[[:space:]]*$ ]] && continue
-            _fw_is_git_commit_clause "$seg" && continue
-            _fw_single_command_is_safe "$seg" 2>/dev/null || bad="${bad:+$bad, }'${seg#"${seg%%[![:space:]]*}"}'"
-        done
-        [ -n "$bad" ] && why="a clause beside the commit that is not admissible with no task: ${bad:0:160}"
-    fi
-    [ -n "$why" ] || return 0
-    echo "" >&2
-    echo "Committing a just-completed task is NOT blocked, even with no focus (T-2054)." >&2
-    echo "What blocks this line is $why." >&2
-    echo "Put the commit on its own line:" >&2
-    echo "     git add <explicit paths>" >&2
-    echo "     $(_fw_cmd) git commit -m \"T-XXX: ...\"" >&2
-}
-
 _bootstrap_shape_hint() {
     local cmd="${1:-}"
     [ -n "$cmd" ] || return 0
@@ -639,7 +529,7 @@ except:
 case "$FILE_PATH" in
     */settings.json)
         # Only block if it's the Claude Code settings file
-        if echo "$FILE_PATH" | grep -q '\.claude/settings\.json$'; then
+        if grep -q '\.claude/settings\.json$' <<<"$FILE_PATH"; then  # T-4921: no pipe into grep -q
             # T-3050: name the sanctioned route. This refusal used to end at
             # "requires human review" and offer no mechanism, so every agent that
             # tripped it escalated to the operator for a JSON paste-in — for a
@@ -1046,14 +936,9 @@ if [ -z "$CURRENT_TASK" ]; then
     echo "To unblock:" >&2
     echo "  1. Create a task:  $(_fw_cmd) task create --name '...' --type build --start" >&2
     echo "  2. Set focus:      $(_fw_cmd) context focus T-XXX" >&2
-    # 832 OBS-479 (T-1038): offer the WM-* workflow tasks only where they exist. Without them
-    # `fw context focus WM-002` exits 1 silently, so the advice is a dead end.
-    if ls "$PROJECT_ROOT"/.tasks/active/WM-0*.md >/dev/null 2>&1; then
-        echo "  3. Workflow work?  $(_fw_cmd) context focus WM-001   (selection/discovery)" >&2
-        echo "                     $(_fw_cmd) context focus WM-002   (close-out, trailing work)" >&2
-        echo "                     $(_fw_cmd) context focus WM-003   (session lifecycle)" >&2
-    fi
-    _null_focus_commit_advisory "${BASH_CMD:-}"
+    echo "  3. Workflow work?  $(_fw_cmd) context focus WM-001   (selection/discovery)" >&2
+    echo "                     $(_fw_cmd) context focus WM-002   (close-out, trailing work)" >&2
+    echo "                     $(_fw_cmd) context focus WM-003   (session lifecycle)" >&2
     _bootstrap_shape_hint "${BASH_CMD:-}"
     _commit_shape_hint "${BASH_CMD:-}"
     echo "" >&2
@@ -1451,7 +1336,7 @@ if [ ! -f "$ONBOARDING_MARKER" ]; then
         # short-circuits the whole block on this repo. In a project without that
         # marker it fires, and the block message names onboarding tasks the
         # operator does not have.
-        if head -20 "$tf" | grep -qE '^tags:[[:space:]]*\[?([^]]*,)?[[:space:]]*onboarding[[:space:]]*(,|\]|$)' 2>/dev/null; then
+        if grep -qE '^tags:[[:space:]]*\[?([^]]*,)?[[:space:]]*onboarding[[:space:]]*(,|\]|$)' <<<"$(head -20 "$tf" 2>/dev/null)" 2>/dev/null; then  # T-4921
             tf_owner=$({ grep "^owner:" "$tf" 2>/dev/null || true; } | head -1 | sed 's/owner:[[:space:]]*//')
             [ "$tf_owner" = "human" ] && continue
             tf_status=$({ grep "^status:" "$tf" 2>/dev/null || true; } | head -1 | sed 's/status:[[:space:]]*//')
@@ -1466,7 +1351,7 @@ if [ ! -f "$ONBOARDING_MARKER" ]; then
     if [ -n "$INCOMPLETE_ONBOARDING" ]; then
         # Check if current task is an onboarding task
         CURRENT_IS_ONBOARDING=false
-        if [ -n "$ACTIVE_FILE" ] && head -20 "$ACTIVE_FILE" | grep -q '^tags:.*onboarding' 2>/dev/null; then
+        if [ -n "$ACTIVE_FILE" ] && grep -q '^tags:.*onboarding' <<<"$(head -20 "$ACTIVE_FILE" 2>/dev/null)" 2>/dev/null; then  # T-4921
             CURRENT_IS_ONBOARDING=true
         fi
 
@@ -1657,6 +1542,53 @@ if [ -n "$ACTIVE_FILE" ]; then
             fi
             ;;
     esac
+fi
+
+# --- Task context gate (T-4907) ---
+# Operator 2026-10-29: tasks did not say why they exist — the reason sat in a one-line
+# frontmatter description and ## Context was the template's empty comment. Every
+# non-inception task must state Background / trigger, Problem / hypothesis, Goal and
+# Expected outcome before source is edited under it ("a, before work starts"). Placed
+# beside G-020 and with the same scope: task files themselves stay writable, which is
+# the remedy. lib/task_context.py is the one decision point. Exit 1 = incomplete;
+# any other result (no python3, unreadable file) lets the write through with a NOTE,
+# so a broken helper can never lock every session out of the repo.
+# Test-only opt-out: hook tests of OTHER gates use minimal fixture tasks with no
+# ## Context; they export FW_TEST_SKIP_TASK_CONTEXT_GATE=1. Honoured only under bats
+# (BATS_TEST_FILENAME set), so it does nothing in a real session.
+if [ -n "$ACTIVE_FILE" ] && [ "${WORKFLOW_TYPE:-}" != "inception" ] && \
+   [ -f "$FRAMEWORK_ROOT/lib/task_context.py" ] && \
+   ! { [ "${FW_TEST_SKIP_TASK_CONTEXT_GATE:-0}" = "1" ] && [ -n "${BATS_TEST_FILENAME:-}" ]; }; then
+    T4907_RC=0
+    T4907_OUT=$(python3 -I "$FRAMEWORK_ROOT/lib/task_context.py" "$ACTIVE_FILE" 2>/dev/null) || T4907_RC=$?
+    if [ "$T4907_RC" -eq 1 ]; then
+        if [ "$TOOL_NAME" = "Bash" ] && [ -n "${BASH_CMD:-}" ] && \
+           type is_task_metadata_update_command &>/dev/null && \
+           is_task_metadata_update_command "$BASH_CMD"; then
+            echo "NOTE: $CURRENT_TASK has no human-readable context (T-4907) — allowing metadata-only 'fw task update'." >&2
+            exit 0
+        fi
+        T4907_MISSING="${T4907_OUT#missing: }"
+        echo "" >&2
+        echo "BLOCKED: Task $CURRENT_TASK has no human-readable context (missing: $T4907_MISSING)." >&2
+        echo "" >&2
+        echo "Every task must say why it exists before source is edited under it" >&2
+        echo "(T-4907, operator ruling 2026-10-29: \"before work starts\")." >&2
+        echo "" >&2
+        echo "To unblock: edit the task file's ## Context with the Write/Edit TOOL (the task" >&2
+        echo "file is exempt) and fill all four parts in plain language:" >&2
+        echo "  **Background / trigger:** what happened, who reported it, evidence" >&2
+        echo "  **Problem / hypothesis:** what we think is wrong and why" >&2
+        echo "  **Goal:** what we are trying to achieve" >&2
+        echo "  **Expected outcome:** what will be different when this is done" >&2
+        echo "Or shelve it: $(_fw_cmd) task update $CURRENT_TASK --horizon later" >&2
+        echo "" >&2
+        echo "$(_blocked_subject)" >&2
+        echo "Policy: T-4907 (task context gate)" >&2
+        exit 2
+    elif [ "$T4907_RC" -ne 0 ]; then
+        echo "NOTE: task context check for $CURRENT_TASK could not run (rc=$T4907_RC) — write allowed (T-4907)." >&2
+    fi
 fi
 
 # --- Fabric awareness advisory (T-244) ---
