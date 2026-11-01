@@ -145,6 +145,16 @@ def main():
         # ── T-1087: watched peer topics, against a stub termlink ──
         topics_legs(tmp, stub, leg)
 
+        # ── T-1359: Greenfield's DM topic to 832's (host-shared) key is watched, read the same way as the topics above ──
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("ssa", os.path.join(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__))), "tools", "session-start-alerts.py"))
+        ssa = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(ssa)
+        dm = [w for w in ssa.WATCHED if w[0] == "dm:90d4553895d5a9a6:d1993c2c3ec44c94"]
+        leg(len(dm) == 1 and dm[0][1] == "90d4553895d5a9a6",
+            "T-1359 Greenfield's DM topic (dm:<greenfield>:<832 host key>) is in the watched list, sender Greenfield")
+
     if fails:
         print("\n%d failed leg(s)" % len(fails))
         return 1

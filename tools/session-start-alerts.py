@@ -52,9 +52,14 @@ MAIL_WATCH = os.environ.get("ALERTS_MAIL_WATCH", os.path.join(ROOT, ".context", 
 # unseen on 2026-10-07 until the operator relayed it. Each entry: topic, the peer's sender id, a
 # label, and the offset we had already read when this was wired (used until --mark-seen writes a
 # marker). Retire an entry once that peer is on a sidecar conversation with us.
+# T-1359: Greenfield also DMs 832 on the canonical `dm:<a>:<b>` topic between its key and the host-shared key 832 signs
+# with (d1993c2c3ec44c94). Something else on this host holding that key posts a read receipt within the minute, and
+# nothing in 832 read DM topics, so its 2026-10-29 field-test results (offsets 101, 103) sat unseen for three days.
+# Only Greenfield's DM topic: other agents' DMs to the host-shared key may be for other projects on this host (T-1203).
 WATCHED = [
     ("xfer-evergreen-corpus", "90d4553895d5a9a6", "Greenfield", 36),
     ("xfer-evergreen-kit", "90d4553895d5a9a6", "Greenfield", 38),
+    ("dm:90d4553895d5a9a6:d1993c2c3ec44c94", "90d4553895d5a9a6", "Greenfield DM", 104),
 ]
 TERMLINK = os.environ.get("ALERTS_TERMLINK", "termlink")
 SEEN_FILE = os.environ.get("ALERTS_TOPICS_SEEN",
