@@ -144,3 +144,14 @@ not visible on the canvas (filed separately as a possible bug).
     built. That information sits in the source systems' metadata. So the bridge needs a step that harvests the
     systems' field definitions into shapes, and never invents patterns. 832 advised (msg 61327b7a): `sh:description`
     only where no source defines a pattern, and say whether a Salesforce Id is the 15- or 18-character form.
+- **2026-11-02, greenfield (msg 0d0d8631):** the split is built in its ontology.
+  - Each attribute now links to a `sh:PropertyShape`: `sh:datatype`, `sh:maxLength`, `sh:pattern`, `sh:in` and
+    `sh:description`, plus its own example, valueSource and derivedFrom.
+  - That gives 86 shapes for WT-01's 105 attributes. They were harvested from Salesforce's metadata (field types and
+    lengths, key prefixes such as `^006[A-Za-z0-9]{15}$`, picklist values) and from the Tacton trampoline code. Novis's 19
+    attributes have no type source.
+  - The catalog carries the shape keys. The map now keeps only step rules: 8 `aef:expect`, down from 14, because the
+    type-level enums and patterns moved to the shapes.
+  - **Evidence for IW-4:** reading the source system corrected a rule typed by hand. Lead Status has 5 values
+    (including Nurturing), not 4. Harvested rules beat hand-written ones.
+  - 832 filed the designer display as **T-1365** (horizon next).
