@@ -1,13 +1,19 @@
 ---
 id: T-1364
-name: "A named intermediate message catch event from another tool's file is drawn without its name (greenfield wt01-order-proef, designer 0.31.0)"
+name: "A named intermediate message catch event from another tool's file is drawn
+  without its name (greenfield wt01-order-proef, designer 0.31.0)"
 description: >
-  Greenfield 2026-11-01 (msg 2ae64148): an intermediateCatchEvent with messageEventDefinition named 'Getekende orderbevestiging ontvangen (van de klant)', with a DI shape, loads as eventMessage and is drawn, but its name is not shown as a label. Reproduce on the current designer (0.35.0) with a minimal fixture; find whether event names are drawn at all for imported events, and fix if they should be. Evidence for T-1363.
+  Greenfield 2026-11-01 (msg 2ae64148): an intermediateCatchEvent with messageEventDefinition
+  named 'Getekende orderbevestiging ontvangen (van de klant)', with a DI shape, loads
+  as eventMessage and is drawn, but its name is not shown as a label. Reproduce on
+  the current designer (0.35.0) with a minimal fixture; find whether event names are
+  drawn at all for imported events, and fix if they should be. Evidence for T-1363.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T21:26:36Z
-last_update: 2026-11-01T21:26:36Z
-date_finished: null
+last_update: '2026-11-01T23:38:15Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-01T23:38:15Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 1
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=1 (body:fix-without-learning); D2=0 (no-signal); D3=0 (no-signal);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1364: A named intermediate message catch event from another tool's file is drawn without its name (greenfield wt01-order-proef, designer 0.31.0)
@@ -57,20 +83,34 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** Greenfield reported this in msg 2ae64148 (wt01-order-proef, designer 0.31.0): an intermediate
+message catch event "Getekende orderbevestiging ontvangen (van de klant)" is drawn without its name. Follow-up data
+(msg adfa24a3, map wt01-io-v11 v8): four events are generated the same way (aef:position, BPMNShape 36x36, no
+BPMNLabel bounds on any). The three that show their names have 25-35 characters and sit in the Salesforce or Tacton
+lane. The one that doesn't (`ev_ver_7_getekende`) has 51 characters and sits in the Verkoper lane. Greenfield's check
+looked for the substring "orderbevestiging ontvangen" in the `.node-label` text, so a wrapped or ellipsised label
+would also have read as "not drawn".
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** Two hypotheses:
+- H1: the long name is drawn but wrapped or cut (an ellipsis), so a substring check misses it. If the cut label can
+  still be read whole (hover, panel), that is not a defect.
+- H2: the name really is not drawn, or is cut so that a person cannot read it. Possible causes: length, the lane, or a
+  collision move that pushes the label out of view.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** Reproduce on 0.35.0 with greenfield's file (sha256 a9687a70…, kept out of the repo), and decide between H1
+and H2 from the rendered DOM and a screenshot.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** Either a closed non-defect with the evidence, or a fix so that a named event's name can always be
+read in full on the canvas or on hover.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Reproduced on 0.35.0 with greenfield's wt01-io-v11 v8: for each of the four intermediate events, record the
+  rendered label text, whether it is cut, and its box, with a screenshot read in this task.
+- [ ] H1 or H2 decided from that evidence (`## RCA`). For H2: a fix, plus a harness leg with a synthetic fixture (a
+  51-character event name in a lane) that fails before the fix and passes after.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -353,3 +393,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1364-a-named-intermediate-message-catch-event.md
 - **Context:** Initial task creation
+
+### 2026-11-01T23:38:15Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
