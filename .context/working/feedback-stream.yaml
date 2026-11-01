@@ -20633,3 +20633,21 @@ scan_id: R-88c36a51
 task_id: T-1362
 payload:
   task_file: .tasks/active/T-1362-upgrade-aef-v1816-be4---v1816-be15-t-494.md
+---
+kind: scan_emitted
+timestamp: '2026-11-01T19:53:40Z'
+scan_id: R-3e93ce61
+task_id: T-1360
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-01T19:53:40Z'
+scan_id: R-3e93ce61
+task_id: T-1360
+payload:
+  task_file: .tasks/active/T-1360-release-designer-0350-the-validator-acce.md

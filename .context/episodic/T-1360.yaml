@@ -1,0 +1,117 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1360: Release designer 0.35.0: the validator accepts the plain BPMN task subtypes (sendTask, receiveTask, manualTask, businessRuleTask)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-01T19:53:44Z
+# ============================================================================
+
+task_id: T-1360
+task_name: "Release designer 0.35.0: the validator accepts the plain BPMN task subtypes (sendTask, receiveTask, manualTask, businessRuleTask)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-01T16:07:27Z
+completed: 2026-11-01T19:53:38Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-01T17:08:32+01:00
+last_commit: 2026-11-01T20:53:38+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release notes 0.35.0 (T-1358 validator only; designer source unchanged since 0.34.0, measured). job 115 — release designer 0.35.0 (job 113's code); dry-run rehearsed. 0.35.0 — VERSION and APP_VERSION bumped by the release job (parity ok). release designer 0.35.0 — the validator accepts the plain BPMN task subtypes (sendTask, receiveTask, manualTask, businessRuleTask); kit calibrated on its bytes. 0.35.0 tagged and pushed (job 115 done); AEF sent the release with the kit anchors (msg 041d0f42), greenfield told; T-1203 records AEF T-4941/T-4970; T-1361 filed for WT-01's io with greenfield. AEF re-pin is T-4977. AEF serves 0.35.0 (T-4977, be.16); pin CURRENT
+
+# Key outcomes
+outcomes:
+  - 'Release notes `docs/releases/RELEASE-NOTES-0.35.0.md` committed: changes, stored maps (none: designer source unchanged), the endpoint table for AEF'
+  - 'Operator job written with `tools/runme-new.sh`, dry-run rehearsed, committed (job 115, sha 0b4faf230816)'
+  - 'The operator''s run ends `done`; tag designer-v0.35.0 is on origin (job 115 done 2026-11-01 17:08, all 9 steps, core 218/0; tag on 9c8de5682; artifact sha256 af559a13…97b0, 1310486 bytes; kit SHA256SUMS 8c628658…5546, validate-workflow.py c9c57d88…3046, 116871 bytes)'
+  - '*(sent 2026-11-01: AEF msg 041d0f42 RECEIVED with the kit anchors; greenfield told the version, msg 4a5801a8; AEF T-4977 pinned and served 0.35.0 in v1.8.16-be.16 (893cc8d8f), all three anchors verified, /api/validate reads a sendTask map as an ordinary flow node; pin CURRENT 2026-11-01)* AEF sent version, tag, sha256, bytes, changes AND the kit anchors (SHA256SUMS sha256, validate-workflow.py sha256 and bytes); `tools/_t1187-aef-pin-lag.sh` reads CURRENT; greenfield told the version'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/115-release-designer-0.35.0/done'
+  - '.context/runme/115-release-designer-0.35.0/dryrun.ok'
+  - '.context/runme/115-release-designer-0.35.0/job.sh'
+  - '.tasks/active/T-1203-832-signs-with-its-own-termlink-key-at-e.md'
+  - '.tasks/active/T-1360-release-designer-0350-the-validator-acce.md'
+  - '.tasks/active/T-1361-wt-01-with-greenfield-each-io-contract-r.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.35.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.35.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.35.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.35.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.35.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.35.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.35.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.35.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.35.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.35.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.35.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.35.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.35.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.35.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.35.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.35.0.html'
+  - 'docs/authoring-kit/calibration-records/0.35.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.35.0.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-01T17:08:32'
+    action: 'T-1360: release notes 0.35.0 (T-1358 validator only; designer source unchanged since 0.34.0, measured)'
+  - time: '2026-11-01T17:08:56'
+    action: 'T-1360: job 115 — release designer 0.35.0 (job 113''s code); dry-run rehearsed'
+  - time: '2026-11-01T17:22:30'
+    action: 'T-1360: 0.35.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-11-01T17:49:25'
+    action: 'T-1360: release designer 0.35.0 — the validator accepts the plain BPMN task subtypes (sendTask, receiveTask, manualTask, businessRuleTask); kit calibrated on its bytes'
+  - time: '2026-11-01T18:09:53'
+    action: 'T-1360: 0.35.0 tagged and pushed (job 115 done); AEF sent the release with the kit anchors (msg 041d0f42), greenfield told; T-1203 records AEF T-4941/T-4970; T-1361 filed for WT-01''s io with greenfield'
+  - time: '2026-11-01T18:15:23'
+    action: 'T-1360: AEF re-pin is T-4977'
+  - time: '2026-11-01T20:53:38'
+    action: 'T-1360: AEF serves 0.35.0 (T-4977, be.16); pin CURRENT'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 226 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 226
+  commits: 8
+  files_changed: 30
+  lines_added: 21283
+  lines_removed: 27
+  footprint_refreshed_at: '2026-11-01T19:53:49Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1360-release-designer-0350-the-validator-acce.md
+generated_by: context-agent-hybrid
