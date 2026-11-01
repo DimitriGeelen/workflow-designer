@@ -43,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T10:49:21Z
-last_update: 2026-11-01T10:51:57Z
+last_update: 2026-11-01T11:22:36Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -96,7 +96,7 @@ bvp_scores_proposed:
 - [x] `tools/_t1355-browser-tier-age.py` reads `tests/.run-history.tsv` (rows with tier `browser` or a full run with no tier), prints one line: OK / RED (N failed) / STALE (framework changed since, or older than 7 days) with age and commit; exit 0 ok, 1 red or stale, 3 no browser run recorded (NOT CHECKED, never "ok")
 - [x] The session-start alerts print it as "Browser tier: …" beside the AEF pin line, informational (never changes the exit code), skipped under ALERTS_SKIP_LIVE_CHECKS
 - [x] `tests/test_t1355_browser_tier_age.py` (hermetic: temp history and a temp git repo) covers fresh green, red, stale by framework commit, stale by age, no browser run; wired as a core leg
-- [ ] Core tier green
+- [x] Core tier green (218/0 with the new leg, 625 s); browser tier re-run GREEN 132/0 after T-1351/T-1352, so the line now reads OK
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
