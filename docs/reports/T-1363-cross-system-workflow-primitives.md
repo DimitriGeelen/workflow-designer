@@ -76,3 +76,6 @@ generalisation request; to be confirmed with a second project's map.
 - **2026-11-01, greenfield (msg 6914e504):** the practice case, owner-approved ("share as much as is sensible — this is a
   development exercise that should make the designer better for other projects too"). Arrived intact (trailing newline
   dropped in transit; restored, sha matches).
+- **2026-11-01, operator: "Let's run it"** — yes to the mapping for WT-01's non-data io: instructions and screen states
+  as the step's documentation (visible: acceptance criteria and human trigger), documents as BPMN data objects, state
+  changes as events (triggers), the TactonEvent as an object. Per-io proposal for all 36 written and sent the same day.

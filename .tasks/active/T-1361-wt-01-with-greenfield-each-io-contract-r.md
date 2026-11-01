@@ -48,7 +48,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T17:09:47Z
-last_update: 2026-11-01T20:30:31Z
+last_update: 2026-11-01T21:15:08Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -101,6 +101,12 @@ bvp_scores_proposed:
 - [x] The lead io proposed in greenfield's real identifiers and validated (no findings) — v2 sent 2026-11-01 (msg 44153feb): output on v_lead `typeRef nid:de-lead targetSystem nid:app-salesforce operation create`, 12 write rows (Address as 5 components, Status as nid:attr-sf-lead-status); input on sf_lead with the same rows read
 - [x] Greenfield's catalog carries the standard Lead fields and the one io is in a copy of WT-01: Check clean, field rows picked from the catalog (greenfield reports) — WORKS (msg 9555f49c, 2026-11-01): copy `wt01-lead-io-proef` (original untouched; stored ids ver_1_lead / sal_1_lead), Check via /api/validate 33 findings identical to the original WT-01 and 0 io findings on the two lead steps; buildBpmnXml keeps all 24 aef:field rows, typeRef, targetSystem, operation; /api/field-catalog (1295 rows) knows all 12 fieldRefs; validate-workflow-0.31.0.py agrees — catalog: CORRECTED by greenfield (msg b0f0b4c3): all 11 standard refs exist as proposed (its first search filtered on the empty notation column); Status = nid:attr-salesforce-lead-status (proposal updated, still valid); only Lead Id missing (needed for a later update match, not for this create). Waiting for the Check report.
 - [ ] WT-01 received (their owner's send), every io inventoried, and the remaining io proposed in the same shape — received 2026-11-01 (msg c6711715, owner-approved, 54220 bytes, sha256 4242ed44e4b1aacf verified; kept in the session scratchpad only, never committed: greenfield's project data). Validates 0 errors on the current validator. Inventory: 25 steps, 36 io, all mode (a): ~13 business objects with attribute lists (convert directly), ~10 free-text flows (split / name the field), ~12 not data (screen states, instructions, TactonEvent, quote PDFs) — operator asked how the last group should appear (suggested: drop screen states/instructions, keep documents and the event as objects). Greenfield holds its generator change until the per-io proposal (msg to greenfield 2026-11-01).
+  Operator 2026-11-01 "Let's run it": yes to the non-data mapping. Per-io proposal for all 36 written (rules A-F:
+  object / free-text flow / instruction+screen state as bpmn:documentation / document as data object / state change as
+  event / system message as object), 3 notes, 2 questions where WT-01 and the practice case disagree (what the customer
+  signs; when the open order is created). Kept beside greenfield's files in git-ignored build/peer-data/greenfield/
+  (WT-01-per-io-proposal.md); sent (msg 1a8254e9). Elements used validated (documentation, dataObjectReference with
+  dataState, conditional intermediate event).
 - [ ] Greenfield's generator emits the object level (typeRef + system + field rows) for WT-01 (their change; reported)
 
 ### Human
