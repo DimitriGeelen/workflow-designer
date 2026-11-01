@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T12:20:46Z
-last_update: 2026-11-01T12:33:44Z
+last_update: 2026-11-01T12:49:36Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -96,7 +96,7 @@ bvp_scores_proposed:
 ### Agent
 - [x] Hypothesis tested: an SSH session to origin held idle for the length of a core run is dropped without keepalives and survives with them (or the hypothesis is disproved and the next one tested) — 660 s idle: plain rc 255 "Received disconnect … Protocol error or corrupt packet", ServerAliveInterval=30 rc 0
 - [x] Fix in place, gate unchanged: the core tier still runs and still refuses a red push — `core.sshCommand = ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=6` (local), set by `_t1000-install-hook.sh`; `_t1288` gate untouched (`--check` installed), t1240 hook test green
-- [ ] A push that runs the full (uncached) core tier lands on the first attempt
+- [x] A push that runs the full (uncached) core tier lands on the first attempt — 962c43f42..9ff14e75b after an 876 s uncached core run (218/0), exit 0, no disconnect (the morning's lost pushes idled 848 s and 625 s)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
