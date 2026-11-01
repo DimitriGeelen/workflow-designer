@@ -45,7 +45,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-31T22:44:47Z
-last_update: 2026-11-01T00:33:41Z
+last_update: 2026-11-01T00:49:45Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -99,7 +99,7 @@ bvp_scores_proposed:
 - [x] Node geometry is read through one helper, `dims(n)` (a node's own `drawSize`, else its type's size): no `NODE_DEFAULTS[<node>.type]` geometry read is left in `src/aef-workflow-designer.html`
 - [x] On import, a host whose file-placed boundary events overflow an edge at the type's size gets `drawSize` = the file's size, grown further if needed to give every event 44 px on its edge; hosts that fit get none
 - [x] `tools/_t1350-dense-boundary-cdp.mjs` on kitchen-sink: Activity_0pzvbay drawn at least 150x600, no two of its 12 boundary circles overlap, each sits on the edge the file drew it on, the saved DI keeps the host's size, and a second save is byte-identical to the first; wired as leg 221 in the browser tier (where every CDP harness sits, beside T-1344's leg 220)
-- [ ] Corpus goldens: only files with an overflowing host change (re-recorded deliberately, named in the commit); designer-made maps save byte-identically
+- [x] Corpus goldens: only files with an overflowing host change (re-recorded deliberately, named in the commit); designer-made maps save byte-identically (third-party goldens: only kitchen-sink drifted, re-recorded in 74cbede38; the 25 examples/ maps export byte-identical between ea60efe21's source and this one, T-1129's export check pointed at the pre-T-1350 source; browser tier 129/3, the 3 reds not T-1350's: T-1129 E and T-1048 check 6 identical on the pre-T-1350 tree, filed T-1352 and T-1351; t255 pool-width is T-1238's flake, green alone)
 - [x] `bash tools/person-sees-gate.sh` exits 0; core tier green (gate exit 0 in 246 s; core GREEN 217/0 in 770 s on 74cbede38)
 
 ### Human
@@ -132,7 +132,7 @@ bvp_scores_proposed:
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1350 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-- [ ] A host crowded with another tool's boundary events reads clearly: each event and its label can be told apart, and the taller host does not crowd its neighbours
+- [x] A host crowded with another tool's boundary events reads clearly: each event and its label can be told apart, and the taller host does not crowd its neighbours
   **Steps:**
   1. Compare `docs/reports/T-1350-evidence/kitchen-sink-1920-host-zoom-before.png` (T-1344: host drawn 120x64) with
      `kitchen-sink-1920-host-zoom.png` (T-1350: host drawn at the file's 150x600): the "Subprocess" host (Activity_0pzvbay) and
@@ -158,6 +158,7 @@ bvp_scores_proposed:
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261101-9a968a0e — reviewer-judge-t-1350-r3-e55f84e7d09e:reviewer (rung rung-3-termlink-single-reviewer), digest 838e5cf310ca; dispatch judge-t-1350-r3-e55f84e7d09e; evidence: .context/reviews/evidence/T-1350/AC1-judge-t-1350-r3-e55f84e7d09e.md, .context/reviews/evidence/T-1350/kitchen-sink-1920-host-zoom-before-judge-t-1350-r3-e55f84e7d09e.png, .context/reviews/evidence/T-1350/kitchen-sink-1920-host-zoom-judge-t-1350-r3-e55f84e7d09e.png, .context/reviews/evidence/T-1350/kitchen-sink-1024-judge-t-1350-r3-e55f84e7d09e.png, .context/reviews/evidence/T-1350/kitchen-sink-1440-judge-t-1350-r3-e55f84e7d09e.png, .context/reviews/evidence/T-1350/kitchen-sink-1920-judge-t-1350-r3-e55f84e7d09e.png, .context/reviews/evidence/T-1350/host-region-1920-x3-judge-t-1350-r3-e55f84e7d09e.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
