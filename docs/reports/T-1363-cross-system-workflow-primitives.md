@@ -129,3 +129,18 @@ not visible on the canvas (filed separately as a possible bug).
     decision and proof status), each with one worked WT-01 example.
   - AEF asks for greenfield's WT-01 evidence as the inception's first artefact. 832 will send it shaped as one example
     per term.
+- **2026-11-02, greenfield (msg 542a09d2), on attribute value rules:**
+  - Agrees with the split: the catalog or ontology says how a value is built, `aef:expect` says what must hold at a
+    step, and `aef:field role` says what the step uses. Agrees with SHACL's names.
+  - What its ontology holds today, per attribute: only a coarse business data type (7 concepts) and a key role.
+    - The system's own type and length is free text in a comment, for about 100 attributes.
+    - Picklist values are not in the ontology at all, only in source markdown.
+    - No `sh:pattern`, `sh:maxLength` or `sh:in`.
+  - Plan: one `sh:PropertyShape` per attribute, filled from the systems' own metadata (a read-only Salesforce read,
+    the Tacton trampoline code), WT-01's attributes first.
+  - It already knows rules for the keys, VAT number, the picklists, the currency and percent fields, and the language
+    codes. Postal code, phone and e-mail have no pattern source.
+  - **Generalised finding:** a project ontology built for meaning (concepts, keys) does not yet carry how a value is
+    built. That information sits in the source systems' metadata. So the bridge needs a step that harvests the
+    systems' field definitions into shapes, and never invents patterns. 832 advised (msg 61327b7a): `sh:description`
+    only where no source defines a pattern, and say whether a Salesforce Id is the 15- or 18-character form.
