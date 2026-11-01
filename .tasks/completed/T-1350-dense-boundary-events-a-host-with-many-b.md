@@ -10,13 +10,13 @@ description: >
   boundary events, or lay out boundary labels on dense hosts. Needs a design choice;
   not a regression.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t1350-dense-boundary-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -45,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-31T22:44:47Z
-last_update: 2026-11-01T00:49:45Z
-date_finished:
+last_update: 2026-11-01T00:49:46Z
+date_finished: 2026-11-01T00:49:46Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -430,3 +430,21 @@ free-standing events, host inside its lane at all three widths, no host grown in
 
 ### 2026-11-01T00:10:57Z — status-update [task-update-agent]
 - **Change:** horizon: now → now
+
+### 2026-11-01T00:49:46Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-082e9e7c
+- **Timestamp:** 2026-11-01T00:49:54Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#5 (Agent)** — `bash tools/person-sees-gate.sh` exits 0; core tier green (gate exit 0 in 246 s; core GREEN 217/0 in 770 s on 74cbede38)
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/person-sees-gate.sh in: `bash tools/person-sees-gate.sh` exits 0; core tier green (gate exit 0 in 246 s; core GREEN 217/0 in 770 s on 74cbede38)`

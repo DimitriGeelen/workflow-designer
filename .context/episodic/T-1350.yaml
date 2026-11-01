@@ -1,0 +1,129 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1350: Dense boundary events: a host with many boundary events overlaps them and their labels (host drawn at the designer's size, not the file's)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-01T00:50:00Z
+# ============================================================================
+
+task_id: T-1350
+task_name: "Dense boundary events: a host with many boundary events overlaps them and their labels (host drawn at the designer's size, not the file's)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-31T22:44:47Z
+completed: 2026-11-01T00:49:46Z
+duration_days: 1
+updates_count: 4
+first_commit: 2026-11-01T01:19:55+01:00
+last_commit: 2026-11-01T01:49:45+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a host crowded with boundary events is drawn at the file's size — node geometry read through dims(n) (a node's own drawSize, else its type's size; 76 reads swapped); on import a host the file draws bigger than its type, whose boundary events (centred on its outline in the file) overflow an edge at the type's size, gets drawSize = the file's size, grown to fit if needed. Kitchen-sink's subprocess now 150x600 with its 12 events apart (was 23 overlapping pairs on 120x64). Harness _t1350 (leg 221, red on HEAD~), _t1344 reads the drawn host size; kitchen-sink golden re-recorded deliberately (12 events' positions and fractions, 2 DI shapes reordered); evidence at 1024/1440/1920 + host zoom. gate and core green (217/0), advisory sweep clean; harness criterion names its tier (browser, leg 221). reviewer verdict. goldens criterion met (only kitchen-sink drifted; 25 designer maps byte-identical pre/post); reviewer verdict green applied; browser tier's 3 pre-existing reds filed as T-1351 (T-1048 check 6 vs AEF T-4716's /designer redirect) and T-1352 (T-1129 export pin)
+
+# Key outcomes
+outcomes:
+  - 'Node geometry is read through one helper, `dims(n)` (a node''s own `drawSize`, else its type''s size): no `NODE_DEFAULTS[<node>.type]` geometry read is left in `src/aef-workflow-designer.html`'
+  - 'On import, a host whose file-placed boundary events overflow an edge at the type''s size gets `drawSize` = the file''s size, grown further if needed to give every event 44 px on its edge; hosts that fit get none'
+  - '`tools/_t1350-dense-boundary-cdp.mjs` on kitchen-sink: Activity_0pzvbay drawn at least 150x600, no two of its 12 boundary circles overlap, each sits on the edge the file drew it on, the saved DI keeps the host''s size, and a second save is byte-identical to the first; wired as leg 221 in the browser tier (where every CDP harness sits, beside T-1344''s leg 220)'
+  - 'Corpus goldens: only files with an overflowing host change (re-recorded deliberately, named in the commit); designer-made maps save byte-identically (third-party goldens: only kitchen-sink drifted, re-recorded in 74cbede38; the 25 examples/ maps export byte-identical between ea60efe21''s source and this one, T-1129''s export check pointed at the pre-T-1350 source; browser tier 129/3, the 3 reds not T-1350''s: T-1129 E and T-1048 check 6 identical on the pre-T-1350 tree, filed T-1352 and T-1351; t255 pool-width is T-1238''s flake, green alone)'
+  - '`bash tools/person-sees-gate.sh` exits 0; core tier green (gate exit 0 in 246 s; core GREEN 217/0 in 770 s on 74cbede38)'
+  - 'A host crowded with another tool''s boundary events reads clearly: each event and its label can be told apart, and the taller host does not crowd its neighbours'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-11-01 — host at the file''s size, not label layout'
+    chose: '(a) draw a host whose boundary events overflow at the file''s size (grown to fit if the file''s is too small), via a per-node `drawSize` read through `dims(n)`.'
+    rationale: '6-7 circles of 36 px cannot share a 64 px edge; no label layout fixes overlapping circles. The file already laid its neighbours out around the bigger host, so its size is the one that fits the rest of its drawing. Operator said "proceed as suggested" without picking; the agent chose and records it here.'
+    alternatives_rejected: ['(b) label layout only — leaves the circles overlapping; shrinking boundary circles on dense hosts — makes one host''s events look unlike every other''s.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1350/AC1-judge-t-1350-r3-e55f84e7d09e.md'
+  - '.context/reviews/evidence/T-1350/host-region-1920-x3-judge-t-1350-r3-e55f84e7d09e.png'
+  - '.context/reviews/evidence/T-1350/kitchen-sink-1024-judge-t-1350-r3-e55f84e7d09e.png'
+  - '.context/reviews/evidence/T-1350/kitchen-sink-1440-judge-t-1350-r3-e55f84e7d09e.png'
+  - '.context/reviews/evidence/T-1350/kitchen-sink-1920-host-zoom-before-judge-t-1350-r3-e55f84e7d09e.png'
+  - '.context/reviews/evidence/T-1350/kitchen-sink-1920-host-zoom-judge-t-1350-r3-e55f84e7d09e.png'
+  - '.context/reviews/evidence/T-1350/kitchen-sink-1920-judge-t-1350-r3-e55f84e7d09e.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.fabric/components/tools-_t1350-dense-boundary-cdp.yaml'
+  - '.tasks/active/T-1350-dense-boundary-events-a-host-with-many-b.md'
+  - '.tasks/active/T-1351-t-1048-check-6-reads-watchtower-designer.md'
+  - '.tasks/active/T-1352-t-1129-harness-export-of-the-25-examples.md'
+  - 'docs/reports/T-1350-evidence/kitchen-sink-1024-notice.png'
+  - 'docs/reports/T-1350-evidence/kitchen-sink-1024.png'
+  - 'docs/reports/T-1350-evidence/kitchen-sink-1440-notice.png'
+  - 'docs/reports/T-1350-evidence/kitchen-sink-1440.png'
+  - 'docs/reports/T-1350-evidence/kitchen-sink-1920-host-zoom-before.png'
+  - 'docs/reports/T-1350-evidence/kitchen-sink-1920-host-zoom.png'
+  - 'docs/reports/T-1350-evidence/kitchen-sink-1920-notice.png'
+  - 'docs/reports/T-1350-evidence/kitchen-sink-1920.png'
+  - 'docs/reports/T-1350-evidence/measures.json'
+  - 'docs/reports/T-1350-evidence/nested-lanes-1024-notice.png'
+  - 'docs/reports/T-1350-evidence/nested-lanes-1024.png'
+  - 'docs/reports/T-1350-evidence/nested-lanes-1440-notice.png'
+  - 'docs/reports/T-1350-evidence/nested-lanes-1440.png'
+  - 'docs/reports/T-1350-evidence/nested-lanes-1920-notice.png'
+  - 'docs/reports/T-1350-evidence/nested-lanes-1920.png'
+  - 'docs/reports/T-1350-evidence/plain-designer-map-1024.png'
+  - 'docs/reports/T-1350-evidence/plain-designer-map-1440.png'
+  - 'docs/reports/T-1350-evidence/plain-designer-map-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1344-boundary-placement-cdp.mjs'
+  - 'tools/_t1350-dense-boundary-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-01T01:19:55'
+    action: 'T-1350: a host crowded with boundary events is drawn at the file''s size — node geometry read through dims(n) (a node''s own drawSize, else its type''s size; 76 reads swapped); on import a host the file draws bigger than its type, whose boundary events (centred on its outline in the file) overflow an edge at the type''s size, gets drawSize = the file''s size, grown to fit if needed. Kitchen-sink''s subprocess now 150x600 with its 12 events apart (was 23 overlapping pairs on 120x64). Harness _t1350 (leg 221, red on HEAD~), _t1344 reads the drawn host size; kitchen-sink golden re-recorded deliberately (12 events'' positions and fractions, 2 DI shapes reordered); evidence at 1024/1440/1920 + host zoom'
+  - time: '2026-11-01T01:33:41'
+    action: 'T-1350: gate and core green (217/0), advisory sweep clean; harness criterion names its tier (browser, leg 221)'
+  - time: '2026-11-01T01:35:17'
+    action: 'T-1350: reviewer verdict'
+  - time: '2026-11-01T01:49:45'
+    action: 'T-1350: goldens criterion met (only kitchen-sink drifted; 25 designer maps byte-identical pre/post); reviewer verdict green applied; browser tier''s 3 pre-existing reds filed as T-1351 (T-1048 check 6 vs AEF T-4716''s /designer redirect) and T-1352 (T-1129 export pin)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 124 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 124
+  commits: 5
+  files_changed: 43
+  lines_added: 1775
+  lines_removed: 129
+  footprint_refreshed_at: '2026-11-01T00:50:05Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1350-dense-boundary-events-a-host-with-many-b.md
+generated_by: context-agent-hybrid
