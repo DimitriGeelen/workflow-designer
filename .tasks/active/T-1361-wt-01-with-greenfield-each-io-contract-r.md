@@ -1,11 +1,21 @@
 ---
 id: T-1361
-name: "WT-01 with greenfield: each io contract reads as one business object (type, source system, one field row per attribute from the catalog), not a clump of attributes"
+name: "WT-01 with greenfield: each io contract reads as one business object (type,
+  source system, one field row per attribute from the catalog), not a clump of attributes"
 description: >
-  Operator 2026-11-01, reviewing greenfield's map [WT-01] 'Walkthrough to-be verkoop - wie doet wat, welke gegevens gaan over': its io contracts carry bedrijf, name, email, telephone, address, bron, status together in one object. Wanted: per io one object with a name/type, a source, and its attributes as field rows (values only at run time, in an instance). Work with greenfield (their map, their store): get WT-01 and their generator's io shape (asked, msg 4a5801a8), inventory the io, propose the mapping v1.1 structured shape (typeRef, targetSystem, aef:field fieldRef+role from nid-attributes.json), convert ONE io together and check it in the designer, then greenfield converts the rest.
+  Operator 2026-11-01, reviewing greenfield's map [WT-01] 'Walkthrough to-be verkoop
+  - wie doet wat, welke gegevens gaan over': its io contracts carry bedrijf, name,
+  email, telephone, address, bron, status together in one object. Wanted: per io one
+  object with a name/type, a source, and its attributes as field rows (values only
+  at run time, in an instance). Work with greenfield (their map, their store): get
+  WT-01 and their generator's io shape (asked, msg 4a5801a8), inventory the io, propose
+  the mapping v1.1 structured shape (typeRef, targetSystem, aef:field fieldRef+role
+  from nid-attributes.json), convert ONE io together and check it in the designer,
+  then greenfield converts the rest.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +48,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T17:09:47Z
-last_update: 2026-11-01T17:09:47Z
-date_finished: null
+last_update: 2026-11-01T19:51:17Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +60,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-01T19:25:15Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1361: WT-01 with greenfield: each io contract reads as one business object (type, source system, one field row per attribute from the catalog), not a clump of attributes
@@ -57,20 +87,21 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** Operator, 2026-11-01, reviewing greenfield's map [WT-01] "Walkthrough to-be verkoop — wie doet wat, welke gegevens gaan over": its io contracts lump bedrijf, naam, e-mail, telefoon, adres, bron, status into one object. Wanted: per io one business object with a type, a source/target system, and one field row per attribute; values only at run time.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** Greenfield's generator (`scripts/tobe-flow-bpmn.py`, msg 2756b080) writes WT-01 in mode (a): each labelled cross-lane flow becomes one `aef:input name="<label>" type="object"`, no refs, no roles. Its mode (b) writes per-attribute io with ref/role but no object level and no system. The lump is one Salesforce Lead: Company, FirstName/LastName, Email, Phone, Address, LeadSource ("bron" = Lead.LeadSource, an attribute), Status.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** WT-01's lead flow, then every io in it, in mapping v1.1 structured form: `aef:output`/`aef:input` with `typeRef` (the ontology entity), `targetSystem`/`sourceSystem`, `operation`, and `aef:field fieldRef role` rows from greenfield's catalog. Greenfield owns and edits the map; 832 proposes, validates, and checks it in the designer.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** In the designer, each WT-01 io reads as one object with its system and field rows picked from the catalog, Check clean; greenfield's generator emits that shape.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The lead io proposed in greenfield's real identifiers and validated (no findings) — v2 sent 2026-11-01 (msg 44153feb): output on v_lead `typeRef nid:de-lead targetSystem nid:app-salesforce operation create`, 12 write rows (Address as 5 components, Status as nid:attr-sf-lead-status); input on sf_lead with the same rows read
+- [ ] Greenfield's catalog carries the standard Lead fields (their task; they reported only custom Lead.*__c fields and Status exist) and the one io is in a copy of WT-01: Check clean, field rows picked from the catalog (greenfield reports)
+- [ ] WT-01 received (their owner's send), every io inventoried, and the remaining io proposed in the same shape
+- [ ] Greenfield's generator emits the object level (typeRef + system + field rows) for WT-01 (their change; reported)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -353,3 +384,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1361-wt-01-with-greenfield-each-io-contract-r.md
 - **Context:** Initial task creation
+
+### 2026-11-01T19:25:15Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

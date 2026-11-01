@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- WT-01 proposal v2 (832 T-1361), greenfield's identifiers (msg 3425fe9f): v_lead creates the Lead, sf_lead reads it. -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="wt01-proposal-v2"/>
+      <aef:meta mappingVersion="1.1"><aef:prefixes>
+        <aef:prefix name="nid" iri="https://nooteboom.com/ontology/landscape/id/" kind="field"/>
+      </aef:prefixes></aef:meta>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LS">
+      <bpmn:lane id="verkoper" name="Verkoper"><bpmn:extensionElements><aef:laneMeta authority="sovereignty"/></bpmn:extensionElements>
+        <bpmn:flowNodeRef>s</bpmn:flowNodeRef><bpmn:flowNodeRef>v_lead</bpmn:flowNodeRef></bpmn:lane>
+      <bpmn:lane id="salesforce" name="Salesforce"><bpmn:extensionElements><aef:laneMeta authority="external"/></bpmn:extensionElements>
+        <bpmn:flowNodeRef>sf_lead</bpmn:flowNodeRef><bpmn:flowNodeRef>e</bpmn:flowNodeRef></bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="s"/>
+    <bpmn:userTask id="v_lead" name="Lead invoeren en kwalificeren"><bpmn:extensionElements><aef:io>
+          <aef:output name="lead" typeRef="nid:de-lead" targetSystem="nid:app-salesforce" operation="create">
+            <aef:field fieldRef="nid:attr-salesforce-lead-company" role="write"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-firstname" role="write"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-lastname" role="write"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-email" role="write"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-phone" role="write"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-street" role="write"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-city" role="write"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-state" role="write"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-postalcode" role="write"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-country" role="write"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-leadsource" role="write"/>
+            <aef:field fieldRef="nid:attr-sf-lead-status" role="write"/>
+          </aef:output>
+    </aef:io></bpmn:extensionElements></bpmn:userTask>
+    <bpmn:serviceTask id="sf_lead" name="Lead (status Qualified)"><bpmn:extensionElements><aef:io>
+          <aef:input name="lead" typeRef="nid:de-lead" sourceSystem="nid:app-salesforce">
+            <aef:field fieldRef="nid:attr-salesforce-lead-company" role="read"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-firstname" role="read"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-lastname" role="read"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-email" role="read"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-phone" role="read"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-street" role="read"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-city" role="read"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-state" role="read"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-postalcode" role="read"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-country" role="read"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-leadsource" role="read"/>
+            <aef:field fieldRef="nid:attr-sf-lead-status" role="read"/>
+          </aef:input>
+    </aef:io></bpmn:extensionElements></bpmn:serviceTask>
+    <bpmn:endEvent id="e"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="s" targetRef="v_lead"/>
+    <bpmn:sequenceFlow id="f2" sourceRef="v_lead" targetRef="sf_lead" name="Lead"/>
+    <bpmn:sequenceFlow id="f3" sourceRef="sf_lead" targetRef="e"/>
+  </bpmn:process>
+</bpmn:definitions>
