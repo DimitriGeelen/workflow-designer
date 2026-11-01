@@ -53,6 +53,21 @@ WT-01 step by step). IW-2: needs 1-3 and 6-7 map onto existing BPMN elements the
 or edit; 4 and 5 need an AEF extension. IW-3: all seven are stated as general by greenfield and match the operator's
 generalisation request; to be confirmed with a second project's map.
 
+## Measured in the designer (greenfield, copy wt01-order-proef, designer 0.31.0, 2026-11-01, msg 2ae64148)
+
+The signing part converted per rules C/D/E: documentation with Instruction / Screen / Decision lines; one bpmn:dataObject
+with two references "Orderbevestiging" (dataState sent -> input; signed -> output); an intermediate message catch event
+"Getekende orderbevestiging ontvangen (van de klant)" before the Closed Won step; DI shapes for all three.
+
+| Element | Check | Shown | Kept on save |
+|---|---|---|---|
+| message catch event | no new finding | drawn as eventMessage; **its name is not shown** | yes (messageEventDefinition) |
+| data objects with dataState + associations | no new finding | **not in the node state, not drawn** | yes, all of it |
+| step documentation (3 labelled lines) | no new finding | in the properties panel as the step documentation | yes, every line |
+
+So: nothing lost, nothing flagged; the gaps are display: documents (need 1) are invisible, and a named event's name is
+not visible on the canvas (filed separately as a possible bug).
+
 ## Dialogue log
 
 - **2026-11-01, operator:** WT-01's io lump bedrijf/naam/e-mail/telefoon/adres/bron/status into one object; an io should
