@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T14:50:30Z
-last_update: 2026-11-01T15:46:09Z
+last_update: 2026-11-01T15:59:37Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -97,8 +97,8 @@ bvp_scores_proposed:
 - [x] `tools/validate-workflow.py`: sendTask, receiveTask, manualTask, businessRuleTask in XML_ONLY_NODE_TYPES, TYPE_PERFORMER (None) and the occupancy table (64), with the reason beside them
 - [x] `tests/test_xml_node_type_vocab.py` gains a check: every task-like XML-only type is in TYPE_PERFORMER and the occupancy table (red if one is missed) — check (5); mutant without manualTask in NODE_OCCUPANCY: red naming it
 - [x] A map with each of the four types in an authority-bearing lane validates with no E-XML-NODE-TYPE; the same map before the change gives one per node — `tests/fixtures/t1358/task-subtypes.xml` (lane without laneMeta): before 4x E-XML-NODE-TYPE, after 0 errors and W-XML-LANE-NO-AUTHORITY counting "4 task(s)" (so they are examined, not just admitted); pinned as check (6), red against the old validator
-- [ ] The validator's other core tests (dialect axis, rule-form parity, finding anchorability) pass; core tier green
-- [ ] Greenfield told the verdict and from which release it applies
+- [x] The validator's other core tests (dialect axis, rule-form parity, finding anchorability) pass; core tier green (also corpus fixture pins, t313 lane capacity, cross-form agreement, t1339 nesting; core 218/0 on cad9aa350, after one red on the T-560 census, fixed with a positive control)
+- [x] Greenfield told the verdict and from which release it applies (2026-11-01: a validator gap, maps unchanged; reaches them with the next designer release, since AEF vendors the validator in the kit; version to follow when tagged)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -304,6 +304,13 @@ python3 tests/test_rule_dialect_axis.py > /tmp/.t1358b.out 2>&1
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+**Symptom:** designer Check on greenfield's tobe-sales-without-novis gave 7x E-XML-NODE-TYPE (ERROR) on `<bpmn:sendTask>`, an element the designer itself imports and saves back unchanged.
+
+**Root cause:** the XML node vocabulary is a deliberately small declared set (`XML_ONLY_NODE_TYPES`); T-970 widened it to plain `<task>` for a stated reason (O-1: lane decides, type presentational) that applies equally to the other plain BPMN task subtypes, which were not considered then.
+
+**Why structurally allowed:** nothing compares the validator's accepted vocabulary with what the designer round-trips: the designer keeps any unknown element as a foreign node, so an editor-valid, validator-invalid map can only be found on a real third-party corpus (greenfield's, as with T-970).
+
+**Prevention:** the four subtypes admitted in all three tables; the vocab test fails when an accepted task type misses TYPE_PERFORMER or NODE_OCCUPANCY (the T-972/T-975 class) and validates a four-subtype fixture end to end.
 
 ## Evolution
 
