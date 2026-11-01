@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1358: Validator rejects bpmn:sendTask (E-XML-NODE-TYPE) that the editor round-trips: deliberate (not executable in AEF) or a gap?
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-01T15:59:45Z
+# ============================================================================
+
+task_id: T-1358
+task_name: "Validator rejects bpmn:sendTask (E-XML-NODE-TYPE) that the editor round-trips: deliberate (not executable in AEF) or a gap?"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-01T14:50:30Z
+completed: 2026-11-01T15:59:37Z
+duration_days: 0
+updates_count: 4
+first_commit: 2026-11-01T16:33:00+01:00
+last_commit: 2026-11-01T16:59:37+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the validator accepts sendTask, receiveTask, manualTask and businessRuleTask on the XML side like <task> (T-970: lane decides, type presentational) — in all three tables (XML_ONLY_NODE_TYPES, TYPE_PERFORMER, NODE_OCCUPANCY); the vocab test now fails when an accepted task type misses a table (T-972/T-975 class) and runs a four-subtype fixture end to end. Greenfield's 7 sendTask errors (its T-361). positive control for the absence leg (the E-XML-NODE-TYPE fixture still draws it), so the T-560 census stays at its baseline 74. core green, greenfield told (gap, maps unchanged, next release); RCA
+
+# Key outcomes
+outcomes:
+  - '`tools/validate-workflow.py`: sendTask, receiveTask, manualTask, businessRuleTask in XML_ONLY_NODE_TYPES, TYPE_PERFORMER (None) and the occupancy table (64), with the reason beside them'
+  - '`tests/test_xml_node_type_vocab.py` gains a check: every task-like XML-only type is in TYPE_PERFORMER and the occupancy table (red if one is missed) — check (5); mutant without manualTask in NODE_OCCUPANCY: red naming it'
+  - 'A map with each of the four types in an authority-bearing lane validates with no E-XML-NODE-TYPE; the same map before the change gives one per node — `tests/fixtures/t1358/task-subtypes.xml` (lane without laneMeta): before 4x E-XML-NODE-TYPE, after 0 errors and W-XML-LANE-NO-AUTHORITY counting "4 task(s)" (so they are examined, not just admitted); pinned as check (6), red against the old validator'
+  - 'The validator''s other core tests (dialect axis, rule-form parity, finding anchorability) pass; core tier green (also corpus fixture pins, t313 lane capacity, cross-form agreement, t1339 nesting; core 218/0 on cad9aa350, after one red on the T-560 census, fixed with a positive control)'
+  - 'Greenfield told the verdict and from which release it applies (2026-11-01: a validator gap, maps unchanged; reaches them with the next designer release, since AEF vendors the validator in the kit; version to follow when tagged)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'positive control for the absence leg (the E-XML-NODE-TYPE fixture still draws it), so the T-560 census stays at its baseline 74'
+    source: git-mined
+  - description: 'the validator accepts sendTask, receiveTask, manualTask and businessRuleTask on the XML side like <task> (T-970: lane decides, type presentational) — in all three tables (XML_ONLY_NODE_TYPES, TYPE_PERFORMER, NODE_OCCUPANCY); the vocab test now fails when an accepted task type misses a table (T-972/T-975 class) and runs a four-subtype fixture end to end. Greenfield''s 7 sendTask errors (its T-361)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1358-validator-rejects-bpmnsendtask-e-xml-nod.md'
+  - 'tests/fixtures/t1358/task-subtypes.xml'
+  - 'tests/test_xml_node_type_vocab.py'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-01T16:33:00'
+    action: 'T-1358: the validator accepts sendTask, receiveTask, manualTask and businessRuleTask on the XML side like <task> (T-970: lane decides, type presentational) — in all three tables (XML_ONLY_NODE_TYPES, TYPE_PERFORMER, NODE_OCCUPANCY); the vocab test now fails when an accepted task type misses a table (T-972/T-975 class) and runs a four-subtype fixture end to end. Greenfield''s 7 sendTask errors (its T-361)'
+  - time: '2026-11-01T16:46:09'
+    action: 'T-1358: positive control for the absence leg (the E-XML-NODE-TYPE fixture still draws it), so the T-560 census stays at its baseline 74'
+  - time: '2026-11-01T16:59:37'
+    action: 'T-1358: core green, greenfield told (gap, maps unchanged, next release); RCA'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 69 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 69
+  commits: 4
+  files_changed: 7
+  lines_added: 608
+  lines_removed: 10
+  footprint_refreshed_at: '2026-11-01T15:59:50Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1358-validator-rejects-bpmnsendtask-e-xml-nod.md
+generated_by: context-agent-hybrid

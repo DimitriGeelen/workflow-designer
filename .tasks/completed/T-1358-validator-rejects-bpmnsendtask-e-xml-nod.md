@@ -9,13 +9,13 @@ description: >
   AEF's executable set) and should say so, or whether the validator should accept
   or warn on it; tell greenfield.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [bug]
-components: []
+components: [tests/test_xml_node_type_vocab.py, tools/validate-workflow.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -45,7 +45,7 @@ related_tasks: []
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T14:50:30Z
 last_update: 2026-11-01T15:59:37Z
-date_finished:
+date_finished: 2026-11-01T15:59:37Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -399,3 +399,16 @@ python3 tests/test_rule_dialect_axis.py > /tmp/.t1358b.out 2>&1
 
 ### 2026-11-01T15:32:59Z — status-update [task-update-agent]
 - **Change:** tags: +bug
+
+### 2026-11-01T15:59:37Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6a8c1452
+- **Timestamp:** 2026-11-01T15:59:39Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
