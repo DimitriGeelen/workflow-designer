@@ -49,7 +49,7 @@ arc_id: structured-io
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-26T11:53:48Z
-last_update: 2026-10-26T21:08:15Z
+last_update: 2026-11-01T14:38:45Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -86,6 +86,18 @@ bvp_scores_proposed:
 # T-1312: ref picker over a project field catalog (GET /api/field-catalog, greenfield's nid-attributes.json)
 
 ## Context
+
+**Background / trigger:** Greenfield (2026-10-26) asked to pick an io's `ref` from its own field catalog
+(`docs/views/nid-attributes.json`, 1294 rows) instead of typing it.
+
+**Problem / hypothesis:** The designer had no way to read a project's field catalog, so every `ref` was typed by hand
+and could name a field that does not exist.
+
+**Goal:** `GET /api/field-catalog` on the host (832's reference server, and AEF's Watchtower) and a picker under an io's
+`ref` that searches it.
+
+**Expected outcome:** Greenfield picks a ref from its own catalog on its own map, served by AEF, with no stub; the
+criterion below stays open until that run.
 
 Built in two parts. The **server** part (`tools/gallery-serve.py`, not a release input) can go while release job 088 is
 pending. The **designer** picker (`src/`) waits until 088 has cut 0.29.0, so nothing unreviewed reaches that release.
@@ -134,6 +146,9 @@ pending. The **designer** picker (`src/`) waits until 088 has cut 0.29.0, so not
   per-project .framework.yaml key (e.g. DESIGNER_FIELD_CATALOG), a path relative to the project root; unset or missing
   gives 404, malformed 422, otherwise the file is served unchanged. That fits our contract. Relayed to greenfield; they
   wait for the task id, then upgrade and run the picker without the stub.)*
+  *(2026-11-01: AEF built it as T-4832 (`DESIGNER_FIELD_CATALOG`, max bytes `DESIGNER_FIELD_CATALOG_MAX_BYTES`), in the
+  vendored be.4 code (`web/blueprints/designer_api.py` /api/field-catalog); 832's host-contract check counts it served.
+  Greenfield asked to repeat the T-346 run without the stub on be.13+ (msg da657fe7, conversation gf-io-v11-check-2026-10-24).)*
 
 ### Human
 - [x] The catalog picker under ref is legible, clearly part of its io row, and its hits read as choices, at every width

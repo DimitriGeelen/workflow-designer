@@ -141,6 +141,8 @@ and the kit; the designer then shows the findings on the io. Not started at the 
   fixed in 3af04462; round 3 no verdict, its sandbox refused a write to its own scratch directory).)*
 - [ ] Released, then greenfield sees a finding on a copy of its own map (arc-006 rule), on AEF once AEF serves
   `/api/validate` (T-4737 GO for validate, 2026-10-27).
+  *(2026-11-01: AEF serves POST /api/validate (T-4830, vendored be.4). Greenfield asked to Check a copy of its own map
+  on be.13+ and confirm a finding under its io (msg da657fe7, conversation gf-io-v11-check-2026-10-24).)*
 
 ### Human
 - [x] A Check finding on an io reads as belonging to that io and says what is wrong, without crowding the io's own
