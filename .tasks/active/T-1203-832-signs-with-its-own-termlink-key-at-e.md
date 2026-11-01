@@ -164,6 +164,10 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
   the registered session by pid walk whatever the environment, so the "host default" measured equals 832's own key
   (05c467b4 == 05c467b4); the real host default is d1993c2c (`termlink identity show` in a clean env). Reported to AEF
   (msg 4ebbef7c, RECEIVED, conversation 832-t1151-termlink-identity), task id asked.
+  AEF (msg 30b77694): diagnosis right, already fixed as AEF T-4941 in v1.8.16-be.11+ (`termlink identity sign` with the
+  identity env stripped, accepted only when source == host_default); 832's be.4 predates it. Residual found by our
+  report: the code still falls back to whoami when `identity sign` fails, filed AEF T-4970 (unknown host key = no WARN).
+  Next: upgrade to be.15 (operator job), then confirm the WARN is gone (replied, msg fac4316a).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

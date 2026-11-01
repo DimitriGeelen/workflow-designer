@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T16:07:27Z
-last_update: 2026-11-01T16:08:56Z
+last_update: 2026-11-01T17:09:52Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -96,8 +96,8 @@ bvp_scores_proposed:
 ### Agent
 - [x] Release notes `docs/releases/RELEASE-NOTES-0.35.0.md` committed: changes, stored maps (none: designer source unchanged), the endpoint table for AEF
 - [x] Operator job written with `tools/runme-new.sh`, dry-run rehearsed, committed (job 115, sha 0b4faf230816)
-- [ ] The operator's run ends `done`; tag designer-v0.35.0 is on origin
-- [ ] AEF sent version, tag, sha256, bytes, changes AND the kit anchors (SHA256SUMS sha256, validate-workflow.py sha256 and bytes); `tools/_t1187-aef-pin-lag.sh` reads CURRENT; greenfield told the version
+- [x] The operator's run ends `done`; tag designer-v0.35.0 is on origin (job 115 done 2026-11-01 17:08, all 9 steps, core 218/0; tag on 9c8de5682; artifact sha256 af559a13…97b0, 1310486 bytes; kit SHA256SUMS 8c628658…5546, validate-workflow.py c9c57d88…3046, 116871 bytes)
+- [ ] *(sent 2026-11-01: AEF msg 041d0f42 RECEIVED with the kit anchors; greenfield told the version, msg 4a5801a8; pin CURRENT pending)* AEF sent version, tag, sha256, bytes, changes AND the kit anchors (SHA256SUMS sha256, validate-workflow.py sha256 and bytes); `tools/_t1187-aef-pin-lag.sh` reads CURRENT; greenfield told the version
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
