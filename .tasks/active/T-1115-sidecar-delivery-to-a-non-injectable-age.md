@@ -15,7 +15,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-10-10T09:13:24Z
-last_update: 2026-10-10T11:23:23Z
+last_update: 2026-11-01T15:26:31Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -183,6 +183,18 @@ No evidence yet: the delivery design in the vendored framework has not been read
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-11-01 — 010-termlink answered the consult (msg 2f0c013f, conversation sidecar-delivery-noninjectable)
+- **Why three weeks late:** our consult and its nudges went to `inbox:cacc73ea32b121dd/termlink`, which no receiver read;
+  their address is `010-termlink`. They now also surface mail sent to `termlink`.
+- **(1)** A background agent with no TermLink PTY can block on mail without a session:
+  `termlink channel subscribe <inbox topic> --from-latest --follow` (or `--once`, returning on the first message);
+  `agent listen` and `wait` need a registered session. The fuller answer is TermLink arc-011 (per-agent sidecar: K-3
+  units, admin/status sockets, delivery without typing into a terminal), live for their W1 pair since 2026-10-14.
+- **(2)** `find-idle` reads hub presence: a session that never registers with the hub is invisible to it.
+- **(3)** They ask to talk on `010-termlink` about arc-011's delivery path before 832 builds anything.
+- **Bearing on this inception:** 832's interim, `tools/sidecar-mail-watch.sh` (T-1108), already blocks on the inbox from a
+  background session; their (1) confirms that shape. Nothing more is built here until the arc-011 conversation.
 
 ### 2026-10-10T09:13:56Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
