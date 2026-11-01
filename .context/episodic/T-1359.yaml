@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1359: Greenfield's DMs of 2026-10-29 (offsets 101, 103) never surfaced in 832: find the route that was not watched
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-01T15:25:45Z
+# ============================================================================
+
+task_id: T-1359
+task_name: "Greenfield's DMs of 2026-10-29 (offsets 101, 103) never surfaced in 832: find the route that was not watched"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-01T14:50:31Z
+completed: 2026-11-01T15:25:24Z
+duration_days: 0
+updates_count: 4
+first_commit: 2026-11-01T15:58:26+01:00
+last_commit: 2026-11-01T15:58:26+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  session-start alerts watch Greenfield's DM topic (dm:90d45538…:d1993c2c…, the host-shared key 832 signs with) — its 2026-10-29 field-test results and sendTask FYI sat there unseen 3 days, auto-receipted by another holder of the key; read by 832's own offset marker, pinned by a test
+
+# Key outcomes
+outcomes:
+  - 'The 2026-10-29 DMs are located (hub, topic, offsets 101 and 103) and read; anything in them not already handled is handled — local hub, `dm:90d4553895d5a9a6:d1993c2c3ec44c94` (Greenfield ↔ the host-shared key 832 signs with); 101 = the field-test WORKS (resent 2026-11-01, T-1312/T-1303), 103 = the sendTask FYI (now in T-1358). Each got a read receipt from d1993c2c within the minute, from something else on this host holding that key; 99 (2026-10-28, an acknowledgement) also unseen'
+  - 'The session-start alerts list unseen posts on Greenfield''s DM topic by name, with the same seen marker and NOT CHECKED handling as the watched topics (only Greenfield''s: other agents'' DMs to the host-shared key may be for other projects on this host, T-1203) — shown with the baseline moved back: offsets 99, 101, 103 listed'
+  - '`tests/test_session_start_alerts.py` covers it (the watched list carries the DM topic, sender Greenfield; reading and marking are the T-1087 legs'' stub-termlink cases); core leg green'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1359-greenfields-dms-of-2026-10-29-offsets-10.md'
+  - 'tests/test_session_start_alerts.py'
+  - 'tools/session-start-alerts.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-01T15:58:26'
+    action: 'T-1359: session-start alerts watch Greenfield''s DM topic (dm:90d45538…:d1993c2c…, the host-shared key 832 signs with) — its 2026-10-29 field-test results and sendTask FYI sat there unseen 3 days, auto-receipted by another holder of the key; read by 832''s own offset marker, pinned by a test'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 34 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 34
+  commits: 2
+  files_changed: 6
+  lines_added: 527
+  lines_removed: 5
+  footprint_refreshed_at: '2026-11-01T15:25:54Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1359-greenfields-dms-of-2026-10-29-offsets-10.md
+generated_by: context-agent-hybrid

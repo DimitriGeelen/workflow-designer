@@ -20579,3 +20579,21 @@ scan_id: R-ba6fdfcf
 task_id: T-1303
 payload:
   task_file: .tasks/active/T-1303-designer-slice-4-t-1242-go-show-aefs-map.md
+---
+kind: scan_emitted
+timestamp: '2026-11-01T15:25:39Z'
+scan_id: R-0e04639c
+task_id: T-1359
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-01T15:25:39Z'
+scan_id: R-0e04639c
+task_id: T-1359
+payload:
+  task_file: .tasks/active/T-1359-greenfields-dms-of-2026-10-29-offsets-10.md
