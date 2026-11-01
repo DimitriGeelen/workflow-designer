@@ -1,0 +1,121 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1353: Release designer 0.34.0: another tool's boundary events placed as the file drew them; crowded hosts at the file's size
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-01T11:03:49Z
+# ============================================================================
+
+task_id: T-1353
+task_name: "Release designer 0.34.0: another tool's boundary events placed as the file drew them; crowded hosts at the file's size"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-01T08:35:25Z
+completed: 2026-11-01T11:03:18Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-01T09:37:31+01:00
+last_commit: 2026-11-01T12:02:49+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release notes 0.34.0 (T-1344, T-1350; 25 of 25 example maps byte-identical to 0.33.0, measured). job 113 — release designer 0.34.0 (job 108's code; the unwired-guard ratchet moved into preflight); dry-run rehearsed. 0.34.0 — VERSION and APP_VERSION bumped by the release job (parity ok). release designer 0.34.0 — another tool's boundary events drawn where its file drew them, a crowded host at the file's size; kit calibrated on its bytes. job 113 retired (stopped at step 8, core red on T-1354's race; steps 1-7 done, tag local); job 114 finishes steps 8-9, dry-run rehearsed. 0.34.0 pushed (job 114 done); AEF sent the release (msg a52b3eac, RECEIVED); pin BEHIND until they re-pin. AEF tracks the re-pin as T-4957; kit anchors sent. AEF serves 0.34.0 (T-4957, be.13); pin CURRENT
+
+# Key outcomes
+outcomes:
+  - 'Release notes `docs/releases/RELEASE-NOTES-0.34.0.md` committed: changes, what changes in stored maps, what is not kept yet, the endpoint table for AEF'
+  - 'Operator job written with `tools/runme-new.sh`, dry-run rehearsed (`dryrun.ok`), committed (job 113, sha 9dd127d9f306)'
+  - 'The operator''s run ends `done`; tag designer-v0.34.0 is on origin (job 113 stopped at step 8 on T-1354''s race and was retired after steps 1-7; job 114 done 2026-11-01 10:18, tag on 2262815ff, sha256 47fa180a00caccfb1658e77c49e5a053b02d847825bf03fc55e9a37fc66fa3b2, 1310486 bytes)'
+  - 'AEF sent version, tag, sha256, bytes and changes; `tools/_t1187-aef-pin-lag.sh` reads CURRENT (2026-11-01 10:56: AEF T-4957 pinned 0.34.0 in v1.8.16-be.13 c5bb76f89, all anchors agreed, /designer/app serves 47fa180a…, 1310486 bytes; pin CURRENT) (sent: msg a52b3eac, RECEIVED, conversation designer-0.34.0-release; pin BEHIND 0.33.0, task id asked). AEF replied (msg 25e062a5): re-pin tracked as AEF T-4957, asked for the kit anchors; sent (msg f02fcf23): SHA256SUMS sha256 29cbacdd…914b, validate-workflow.py unchanged from 0.33.0 (b82eaff0…e4f3, 115706 bytes)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/113-release-designer-0.34.0/dryrun.ok'
+  - '.context/runme/113-release-designer-0.34.0/job.sh'
+  - '.context/runme/113-release-designer-0.34.0/retired'
+  - '.context/runme/114-finish-release-designer-0.34.0/done'
+  - '.context/runme/114-finish-release-designer-0.34.0/dryrun.ok'
+  - '.context/runme/114-finish-release-designer-0.34.0/job.sh'
+  - '.context/runme/114-finish-release-designer-0.34.0/run-20261101T111501.log'
+  - '.tasks/active/T-1353-release-designer-0340-another-tools-boun.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.34.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.34.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.34.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.34.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.34.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.34.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.34.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.34.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.34.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.34.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.34.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.34.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.34.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.34.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.34.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.34.0.html'
+  - 'docs/authoring-kit/calibration-records/0.34.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.34.0.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-01T09:37:31'
+    action: 'T-1353: release notes 0.34.0 (T-1344, T-1350; 25 of 25 example maps byte-identical to 0.33.0, measured)'
+  - time: '2026-11-01T09:37:56'
+    action: 'T-1353: job 113 — release designer 0.34.0 (job 108''s code; the unwired-guard ratchet moved into preflight); dry-run rehearsed'
+  - time: '2026-11-01T09:43:18'
+    action: 'T-1353: 0.34.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-11-01T10:05:43'
+    action: 'T-1353: release designer 0.34.0 — another tool''s boundary events drawn where its file drew them, a crowded host at the file''s size; kit calibrated on its bytes'
+  - time: '2026-11-01T10:48:58'
+    action: 'T-1353: job 113 retired (stopped at step 8, core red on T-1354''s race; steps 1-7 done, tag local); job 114 finishes steps 8-9, dry-run rehearsed'
+  - time: '2026-11-01T11:19:23'
+    action: 'T-1353: 0.34.0 pushed (job 114 done); AEF sent the release (msg a52b3eac, RECEIVED); pin BEHIND until they re-pin'
+  - time: '2026-11-01T11:29:58'
+    action: 'T-1353: AEF tracks the re-pin as T-4957; kit anchors sent'
+  - time: '2026-11-01T12:02:49'
+    action: 'T-1353: AEF serves 0.34.0 (T-4957, be.13); pin CURRENT'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 147 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 147
+  commits: 9
+  files_changed: 32
+  lines_added: 21395
+  lines_removed: 29
+  footprint_refreshed_at: '2026-11-01T11:04:20Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1353-release-designer-0340-another-tools-boun.md
+generated_by: context-agent-hybrid

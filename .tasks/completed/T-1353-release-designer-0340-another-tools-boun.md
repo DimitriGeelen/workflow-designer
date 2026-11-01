@@ -9,13 +9,13 @@ description: >
   Notes, then an operator job (bump, kit calibration codex + GLM-5.3, cut, commit,
   tag, core, push); then AEF told and its pin tracked to CURRENT.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T08:35:25Z
-last_update: 2026-11-01T11:02:49Z
-date_finished:
+last_update: 2026-11-01T11:03:18Z
+date_finished: 2026-11-01T11:03:18Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -283,6 +283,10 @@ bvp_scores_proposed:
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+git ls-remote --exit-code --tags origin designer-v0.34.0
+bash -c 'git show designer-v0.34.0:src/aef-workflow-designer.html | cmp -s - dist/aef-workflow-designer-0.34.0.html'
+python3 tools/kit-calibration-gate.py check --version 0.34.0
+out=$(bash tools/_t1187-aef-pin-lag.sh 2>&1); grep -q 'CURRENT: AEF serves designer 0.34.0' <<<"$out"
 
 ## RCA
 
@@ -383,3 +387,21 @@ bvp_scores_proposed:
 
 ### 2026-11-01T08:35:29Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-01T11:03:18Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ec7cc155
+- **Timestamp:** 2026-11-01T11:03:23Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — Operator job written with `tools/runme-new.sh`, dry-run rehearsed (`dryrun.ok`), committed (job 113, sha 9dd127d9f306)
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/runme-new.sh in: Operator job written with `tools/runme-new.sh`, dry-run rehearsed (`dryrun.ok`), committed (job 113, sha 9dd127d9f306)`
