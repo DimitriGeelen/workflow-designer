@@ -48,7 +48,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T17:09:47Z
-last_update: 2026-11-01T19:51:17Z
+last_update: 2026-11-01T20:07:55Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -99,7 +99,7 @@ bvp_scores_proposed:
 
 ### Agent
 - [x] The lead io proposed in greenfield's real identifiers and validated (no findings) — v2 sent 2026-11-01 (msg 44153feb): output on v_lead `typeRef nid:de-lead targetSystem nid:app-salesforce operation create`, 12 write rows (Address as 5 components, Status as nid:attr-sf-lead-status); input on sf_lead with the same rows read
-- [ ] Greenfield's catalog carries the standard Lead fields (their task; they reported only custom Lead.*__c fields and Status exist) and the one io is in a copy of WT-01: Check clean, field rows picked from the catalog (greenfield reports)
+- [ ] Greenfield's catalog carries the standard Lead fields and the one io is in a copy of WT-01: Check clean, field rows picked from the catalog (greenfield reports) — catalog: CORRECTED by greenfield (msg b0f0b4c3): all 11 standard refs exist as proposed (its first search filtered on the empty notation column); Status = nid:attr-salesforce-lead-status (proposal updated, still valid); only Lead Id missing (needed for a later update match, not for this create). Waiting for the Check report.
 - [ ] WT-01 received (their owner's send), every io inventoried, and the remaining io proposed in the same shape
 - [ ] Greenfield's generator emits the object level (typeRef + system + field rows) for WT-01 (their change; reported)
 

@@ -28,7 +28,7 @@
             <aef:field fieldRef="nid:attr-salesforce-lead-postalcode" role="write"/>
             <aef:field fieldRef="nid:attr-salesforce-lead-country" role="write"/>
             <aef:field fieldRef="nid:attr-salesforce-lead-leadsource" role="write"/>
-            <aef:field fieldRef="nid:attr-sf-lead-status" role="write"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-status" role="write"/>
           </aef:output>
     </aef:io></bpmn:extensionElements></bpmn:userTask>
     <bpmn:serviceTask id="sf_lead" name="Lead (status Qualified)"><bpmn:extensionElements><aef:io>
@@ -44,7 +44,7 @@
             <aef:field fieldRef="nid:attr-salesforce-lead-postalcode" role="read"/>
             <aef:field fieldRef="nid:attr-salesforce-lead-country" role="read"/>
             <aef:field fieldRef="nid:attr-salesforce-lead-leadsource" role="read"/>
-            <aef:field fieldRef="nid:attr-sf-lead-status" role="read"/>
+            <aef:field fieldRef="nid:attr-salesforce-lead-status" role="read"/>
           </aef:input>
     </aef:io></bpmn:extensionElements></bpmn:serviceTask>
     <bpmn:endEvent id="e"/>
