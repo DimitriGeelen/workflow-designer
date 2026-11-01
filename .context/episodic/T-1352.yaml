@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1352: T-1129 harness: export of the 25 examples no longer matches 0.17.0 (customer-refund participant id and processRef), browser-tier red
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-01T10:29:19Z
+# ============================================================================
+
+task_id: T-1352
+task_name: "T-1129 harness: export of the 25 examples no longer matches 0.17.0 (customer-refund participant id and processRef), browser-tier red"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-01T00:48:56Z
+completed: 2026-11-01T10:28:57Z
+duration_days: 0
+updates_count: 4
+first_commit: 2026-11-01T11:28:55+01:00
+last_commit: 2026-11-01T11:28:55+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  _t1129 check E masks the deliberate changes since 0.17.0 — container ids and isExecutable (T-1262), node order (T-1271), compared as sorted blocks, each still byte for byte; 5/5, red on one changed field value
+
+# Key outcomes
+outcomes:
+  - 'Check E''s normaliser masks the definitions, collaboration, participant and process ids and processRef (T-1262), with the reason beside it'
+  - 'Every remaining difference between 0.17.0''s and the current export of the 25 examples is listed here and explained, or there is none (customer-refund only: isExecutable, T-1262; node order = the file''s own, T-1271; every block otherwise identical, see RCA)'
+  - '`node tools/_t1129-optional-select-empty-cdp.mjs` exits 0 (5/5)'
+  - 'Teeth: a changed field value in one example''s export still turns E red (determinism stochastic→human in customer-refund: E red at that line)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1352-t-1129-harness-export-of-the-25-examples.md'
+  - 'tools/_t1129-optional-select-empty-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-01T11:28:55'
+    action: 'T-1352: _t1129 check E masks the deliberate changes since 0.17.0 — container ids and isExecutable (T-1262), node order (T-1271), compared as sorted blocks, each still byte for byte; 5/5, red on one changed field value'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 580 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 580
+  commits: 2
+  files_changed: 5
+  lines_added: 188
+  lines_removed: 21
+  footprint_refreshed_at: '2026-11-01T10:29:49Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1352-t-1129-harness-export-of-the-25-examples.md
+generated_by: context-agent-hybrid
