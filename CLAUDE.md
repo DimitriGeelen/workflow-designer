@@ -40,7 +40,9 @@ becomes a JOB, and the operator always runs exactly:
    (`.context/rehearse/`, with this repo's git hooks; the real repo read-only to them and asserted unchanged), so a
    gate that refuses a step fails the dry-run, not the operator's run. Declare a step that acts outside the repo
    (push, tag push, `/etc`, model or reviewer calls, host services), and any step that needs its result, as
-   `step_outward "<what>" '<cmd>'`: listed, never rehearsed, and run like any step for real.
+   `step_outward "<what>" '<cmd>'`: listed, never rehearsed, and run like any step for real. A verb only the operator
+   may run (`fw inception decide`, which refuses in the agent's session) is `step_operator "<what>" '<cmd>'` (T-1324):
+   listed as "operator only", never rehearsed, run like any step for real; never declare it `step_outward`.
 3. Commit the job dir, hand over the one command, arm the watcher (below).
 The launcher shows the operator the job name, sha and rehearsal time; refuses a job with no
 dry-run or changed since it; re-runs the checks; asks y/N before every step (terminal only);

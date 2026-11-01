@@ -17,6 +17,7 @@
 #     preflight() { check "on bleeding-edge" '[ "$(git rev-parse --abbrev-ref HEAD)" = bleeding-edge ]'; }
 #     steps()     { step "Run the upgrade" 'run_upgrade'; step "Commit it" 'git commit ...'; }
 #     steps()     { ...; step_outward "Push the tag" 'git push origin "$TAG"'; }   # acts outside the repo
+#     steps()     { ...; step_operator "Record the GO" 'fw inception decide T-1 go ...'; }   # only the operator may run it
 #     run_upgrade() { ... }               # helper functions are fine; they run only inside a step
 # Scaffold one with:  bash tools/runme-new.sh <name>
 #
@@ -26,7 +27,8 @@
 #                     copies in this repo's .git/hooks and the job dir, and runs the checks and then every `step`
 #                     there (cwd = clone, PROJECT_ROOT/CONTEXT_DIR/TASKS_DIR unset), so a gate that refuses a step
 #                     refuses it here, before the operator sees the job. A `step_outward` (push, tag push, /etc,
-#                     model or reviewer calls, host services) is listed, never run. The clone is removed, the real
+#                     model or reviewer calls, host services) is listed, never run, and so is a `step_operator` (T-1324: a verb only
+#                     the operator may run, e.g. `fw inception decide`, which refuses in the agent's session). The clone is removed, the real
 #                     repo is asserted unchanged (HEAD, refs, index, working tree, hooks). Only when all of that
 #                     passes: records the job's sha256 in dryrun.ok and makes job.sh read-only.
 #   real run          lists pending jobs; when several, the operator picks one or a BATCH in their own order
@@ -80,7 +82,7 @@ load_job() {  # load_job <dir>  — refuses anything but a definitions-only job
     # Load-time side effects: source it with NO usable PATH. A job that only defines things loads
     # silently; one that runs an external command at load time reports "command not found".
     probe=$(env -i PATH=/nonexistent HOME=/nonexistent "$BASH" --norc --noprofile -c \
-        'check(){ :; }; step(){ :; }; step_outward(){ :; }; source "$1"' _ "$f" 2>&1)
+        'check(){ :; }; step(){ :; }; step_outward(){ :; }; step_operator(){ :; }; source "$1"' _ "$f" 2>&1)
     if grep -q 'command not found\|No such file' <<<"$probe"; then
         fail "$(basename "$d")/job.sh runs a command when it is loaded; a job may only define JOB_* variables and functions ($(head -1 <<<"$probe"))"
     fi
@@ -99,8 +101,8 @@ load_job() {  # load_job <dir>  — refuses anything but a definitions-only job
             W) IFS= read -r -d '' JOB_WHY ;;
             N) has_steps=1 ;;
             C) IFS= read -r -d '' a; IFS= read -r -d '' b; CHECK_T+=("$a"); CHECK_C+=("$b") ;;
-            S|O) IFS= read -r -d '' a; IFS= read -r -d '' b; STEP_T+=("$a"); STEP_C+=("$b")
-                 [ "$kind" = O ] && STEP_O+=(1) || STEP_O+=(0) ;;
+            S|O|P) IFS= read -r -d '' a; IFS= read -r -d '' b; STEP_T+=("$a"); STEP_C+=("$b")
+                 case "$kind" in O) STEP_O+=(1) ;; P) STEP_O+=(2) ;; *) STEP_O+=(0) ;; esac ;;   # T-1324: 2 = operator only
             F) IFS= read -r -d '' a; IFS= read -r -d '' b; FN_BODY[$a]=$b ;;
         esac
     done < <("$BASH" --norc --noprofile -c '
@@ -108,6 +110,7 @@ load_job() {  # load_job <dir>  — refuses anything but a definitions-only job
         check() { builtin printf "C\0%s\0%s\0" "$1" "$2" >&4; }
         step()  { builtin printf "S\0%s\0%s\0" "$1" "$2" >&4; }
         step_outward() { builtin printf "O\0%s\0%s\0" "$1" "$2" >&4; }   # T-1286: a step that acts outside the repo
+        step_operator() { builtin printf "P\0%s\0%s\0" "$1" "$2" >&4; }  # T-1324: a step only the operator may run
         __pre=" $(compgen -A function | tr "\n" " ") "
         source "$1" || exit 97
         for __f in $(compgen -A function); do   # T-1234: the body of every function the JOB defines
@@ -126,7 +129,7 @@ load_job() {  # load_job <dir>  — refuses anything but a definitions-only job
 
 job_shell() {  # job_shell <command>: runs one check or step in a child bash that sources the job (so its helpers
     # work), never in this shell, and with the answers fd (3) closed, so a step cannot read the operator's answers
-    "$BASH" --norc --noprofile -c 'check() { :; }; step() { :; }; step_outward() { :; }; source "$1" || exit 97; eval "$2"' _ "$JOB_FILE" "$1" 3<&-
+    "$BASH" --norc --noprofile -c 'check() { :; }; step() { :; }; step_outward() { :; }; step_operator() { :; }; source "$1" || exit 97; eval "$2"' _ "$JOB_FILE" "$1" 3<&-
 }
 
 step_code() {  # step_code <command>: T-1234 (AEF T-4470 finding 4): print the body of every job function the command
@@ -163,7 +166,7 @@ show_plan() {
     say "What:  $JOB_TITLE"
     [ -n "${JOB_WHY:-}" ] && sed 's/^/       /' <<<"$JOB_WHY"
     say "Steps (each asks y/N first):"
-    for i in "${!STEP_T[@]}"; do say "  $((i + 1)). ${STEP_T[$i]}$([ "${STEP_O[$i]}" = 1 ] && printf ' (outward)')"; done
+    for i in "${!STEP_T[@]}"; do say "  $((i + 1)). ${STEP_T[$i]}$(case "${STEP_O[$i]}" in 1) printf ' (outward)' ;; 2) printf ' (operator only)' ;; esac)"; done
 }
 
 # ---------------------------------------------------------------- rehearsal (T-1286)
@@ -218,7 +221,7 @@ rehearse_run() {  # rehearse_run <clone> <job.sh in it> <command> <output file>:
     # T-1298: GIT_CEILING_DIRECTORIES stops git's repo discovery at the clone, so a step whose clone lost its .git fails
     # instead of finding the project's repo above it.
     local inner='cd "$C" && exec setsid env -u PROJECT_ROOT -u CONTEXT_DIR -u TASKS_DIR GIT_CEILING_DIRECTORIES="$(dirname "$C")" "$BASH" --norc --noprofile -c \
-        '"'"'check() { :; }; step() { :; }; step_outward() { :; }; source "$1" || exit 97; eval "$2"'"'"' _ "$J" "$X"'
+        '"'"'check() { :; }; step() { :; }; step_outward() { :; }; step_operator() { :; }; source "$1" || exit 97; eval "$2"'"'"' _ "$J" "$X"'
     if [ "$REHEARSE_GUARDED" = 1 ]; then
         # T-1288: a TMPDIR inside the project (the core suite tier's short .context/st) is scratch, not the project:
         # it stays writable like the clone, or every step that makes a temp file there fails under the guard.
@@ -305,6 +308,9 @@ rehearse_locked() {
         [ "$bad" = 0 ] || break
         if [ "${STEP_O[$i]}" = 1 ]; then
             say "skip  step $((i + 1))/$n: ${STEP_T[$i]} — not rehearsed: acts outside the repo"; continue
+        fi
+        if [ "${STEP_O[$i]}" = 2 ]; then   # T-1324
+            say "skip  step $((i + 1))/$n: ${STEP_T[$i]} — not rehearsed: operator only (refused in the agent's session)"; continue
         fi
         if rehearse_run "$clone" "$cjob" "${STEP_C[$i]}" "$out"; then
             say "ok    step $((i + 1))/$n: ${STEP_T[$i]}"

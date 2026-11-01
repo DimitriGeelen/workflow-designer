@@ -1,13 +1,22 @@
 ---
 id: T-1324
-name: "runme rehearsal cannot exercise an operator-only verb (fw inception decide refuses under CLAUDECODE=1)"
+name: "runme rehearsal cannot exercise an operator-only verb (fw inception decide
+  refuses under CLAUDECODE=1)"
 description: >
-  Found writing job 099 (T-1322, 2026-10-28): since T-1286 the dry-run rehearses every step in a clone, but it runs in the agent's session, so 'fw inception decide' refuses (T-679) and the dry-run fails. Job 099 declares the decide and its commit as step_outward, which is honest about not rehearsing them but not what step_outward means (acts outside the repo). Options: a step_operator kind (listed, never rehearsed, its readiness covered by preflight checks), or a rehearsal env without CLAUDECODE for those steps only (weaker: the agent then runs the verb). Jobs 066-084 predate T-1286 and never met this.
+  Found writing job 099 (T-1322, 2026-10-28): since T-1286 the dry-run rehearses every
+  step in a clone, but it runs in the agent's session, so 'fw inception decide' refuses
+  (T-679) and the dry-run fails. Job 099 declares the decide and its commit as step_outward,
+  which is honest about not rehearsing them but not what step_outward means (acts
+  outside the repo). Options: a step_operator kind (listed, never rehearsed, its readiness
+  covered by preflight checks), or a rehearsal env without CLAUDECODE for those steps
+  only (weaker: the agent then runs the verb). Jobs 066-084 predate T-1286 and never
+  met this.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-28T08:30:47Z
-last_update: 2026-10-28T08:30:47Z
-date_finished: null
+last_update: 2026-11-01T13:25:33Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +59,46 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-01T13:22:01Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 3
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=2 (body:learning-ref); D2=0 (no-signal); D3=3 (body:component-discoverability);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1324: runme rehearsal cannot exercise an operator-only verb (fw inception decide refuses under CLAUDECODE=1)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Background / trigger:** Writing job 099 (T-1322, 2026-10-28): since T-1286 `runme.sh --dry-run` rehearses every `step` in a clone, from the agent's session, so `fw inception decide` (operator-only, refuses under CLAUDECODE=1, T-679) failed the dry-run. Job 099 declared the decide as `step_outward`, which keeps it out of the rehearsal but says something untrue (it acts inside the repo).
+
+**Problem / hypothesis:** The job language has no way to say "only the operator may run this step". `step_outward` is the nearest, and misusing it hides what the step is from the operator reading the plan and from the next agent writing a job.
+
+**Goal:** A `step_operator "<what>" '<cmd>'` kind: listed in the plan as operator-only, never rehearsed (the rehearsal says why), run like any step on the operator's real run. Rejected: rehearsing such steps with CLAUDECODE stripped, which would have the agent run an operator-only verb.
+
+**Expected outcome:** The next job with an inception decide or another operator-only verb declares it honestly and its dry-run passes.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `tools/runme-launcher.sh` accepts `step_operator`: plan shows "(operator only)", the rehearsal prints "skip … not rehearsed: operator only" and never runs it, a real run asks y/N and runs it like any step; every place that stubs the job's verbs knows it
+- [x] `tests/test_t1286_rehearsal.py` covers it (plan line, skipped in rehearsal with its marker never made, run for real); the existing legs still pass, and `tests/test_t1055_runme_launcher.py` too
+- [x] `tools/runme-new.sh`'s job header and CLAUDE.md's runme rule name `step_operator` beside `step_outward`
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -248,6 +283,9 @@ date_finished: null
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+python3 tests/test_t1286_rehearsal.py > /tmp/.t1324a.out 2>&1 && grep -q 'PASS  3c step_operator' /tmp/.t1324a.out && grep -q 'PASS  3d' /tmp/.t1324a.out
+python3 tests/test_t1055_runme_launcher.py > /tmp/.t1324b.out 2>&1
+bash -n tools/runme-launcher.sh && grep -q 'step_operator' tools/runme-new.sh && grep -q 'step_operator' CLAUDE.md
 
 ## RCA
 
@@ -345,3 +383,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1324-runme-rehearsal-cannot-exercise-an-opera.md
 - **Context:** Initial task creation
+
+### 2026-11-01T13:22:00Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

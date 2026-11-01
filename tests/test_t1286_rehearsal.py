@@ -186,6 +186,26 @@ steps() {
             and os.path.exists(os.path.join(d, "done")),
             "3b the real run treats step_outward like step: y/N, run, event, done", tail(r.stdout))
 
+        # 3c/3d T-1324 step_operator: a verb only the operator may run (fw inception decide refuses in the agent's
+        # session). In the plan as (operator only), never run by the rehearsal, run like any step for real.
+        d = f.job("003b-operator", '''JOB_TITLE="One operator-only step"
+preflight() { check "true" 'true'; }
+steps() {
+    step "inside" 'git status --short >/dev/null'
+    step_operator "only the operator may run this" 'touch @OUT@/operator'
+}
+''')
+        rc, out = f.dry("003b-operator")
+        leg(rc == 0 and "2. only the operator may run this (operator only)" in out
+            and "skip  step 2/2: only the operator may run this — not rehearsed: operator only" in out and not f.made("operator"),
+            "3c step_operator: shown (operator only), listed as not rehearsed, its marker never made", tail(out))
+        with open(answers, "w") as fh:
+            fh.write("y\ny\n")
+        r = subprocess.run(["bash", RUNME], capture_output=True, text=True, env=f.env(RUNME_TTY=answers), timeout=60)
+        leg(r.returncode == 0 and f.made("operator") and "Run step 2/2? [y/N]" in r.stdout
+            and os.path.exists(os.path.join(d, "done")),
+            "3d the real run treats step_operator like step: y/N, run, done", tail(r.stdout))
+
         # 4 an undeclared push fails the rehearsal and lands nowhere (the clone's push url refuses)
         f.job("004-push", '''JOB_TITLE="Push without declaring it"
 steps() { step "push a branch" 'git push origin HEAD:refs/heads/rehearsal-leak'; }

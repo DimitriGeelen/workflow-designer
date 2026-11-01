@@ -20,6 +20,8 @@ cat > "$d/job.sh" <<'EOF'
 # anything when loaded. Steps run from the project root, each after the operator's y/N.
 # --dry-run rehearses every `step` in a clone of HEAD; a step that acts outside the repo (push, tag push, /etc,
 # model calls, host services), or needs such a step's result, is `step_outward "<what>" '<cmd>'` instead.
+# A verb only the operator may run (fw inception decide, …), which refuses in the agent's session, is
+# `step_operator "<what>" '<cmd>'` (T-1324): listed as operator only, never rehearsed, run for real like any step.
 JOB_TITLE="TODO one line: what this does"
 JOB_TASK="T-XXXX"
 JOB_WHY="TODO: why now, and what the operator should know before saying y."
