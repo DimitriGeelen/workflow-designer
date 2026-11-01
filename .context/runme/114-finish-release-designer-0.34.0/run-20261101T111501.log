@@ -1,0 +1,409 @@
+runme  114-finish-release-designer-0.34.0   sha 57bb4e8d1b9c   rehearsed 2026-11-01T09:48:11Z   log: /opt/832-Workflow-designer/.context/runme/114-finish-release-designer-0.34.0/run-20261101T111501.log
+Job:   114-finish-release-designer-0.34.0   (T-1353)
+What:  Finish release designer 0.34.0: verify the tagged release, core tier, push bleeding-edge and designer-v0.34.0 (job 113's steps 8-9)
+       Job 113 stopped at step 8 (core tier RED): a test that the audit writes only its own files caught a cron audit's
+       lock file appearing and vanishing during the run (new since the be.4 upgrade). The agent fixed the test (T-1354, a
+       test-tool change only; the designer and the release are untouched). Already done by job 113: VERSION 0.34.0, kit
+       calibrated PASS by codex and GLM-5.3, release cut and announced, release commit and tag designer-v0.34.0 (local).
+       Not done: the core tier and the push, so AEF has no tag to fetch yet. Step 1 re-checks the release (artifact == src at
+       the tag, the kit verifies, the calibration gate passes, the tag is on the release commit). Step 2 runs the core tier
+       (the agent ran it first, so it should be cached green and instant) and stops the job if red; step 3 pushes
+       bleeding-edge and the tag. Answer y at each. Afterwards the agent tells AEF.
+Steps (each asks y/N first):
+  1. Verify the release: dist/aef-workflow-designer-0.34.0.html == src at designer-v0.34.0, the kit verifies, the calibration gate passes (outward)
+  2. Run the core tier now (about 20 minutes, or cached), so the push finds it green (outward)
+  3. Push bleeding-edge and designer-v0.34.0 to origin (outward)
+
+ok    on bleeding-edge
+ok    ./VERSION is 0.34.0 (job 113 step 1 bumped and committed it)
+ok    APP_VERSION in src matches VERSION (T-808)
+ok    the index holds nothing staged
+ok    dist/aef-workflow-designer-0.34.0.html, dist/aef-authoring-kit-0.34.0 and docs/authoring-kit/calibration-records/0.34.0.yaml are committed
+ok    tag designer-v0.34.0 exists locally (job 113 step 7)
+ok    tag designer-v0.34.0 is not on origin yet
+ok    the unwired-guard ratchet holds
+ok    the hermeticity snapshot skips audits in-flight markers (the leg that stopped job 113, T-1354)
+
+Step 1/3: Verify the release: dist/aef-workflow-designer-0.34.0.html == src at designer-v0.34.0, the kit verifies, the calibration gate passes
+  runs: do_verify
+        | do_verify () 
+        | { 
+        |     local rel;
+        |     rel=$(git rev-parse "$TAG^{commit}") || { 
+        |         echo "cannot resolve $TAG";
+        |         return 1
+        |     };
+        |     [ "$(git log -1 --format=%H -- "$ART")" = "$rel" ] || { 
+        |         echo "$TAG is not on the commit that carries $ART";
+        |         return 1
+        |     };
+        |     git show "$TAG:src/aef-workflow-designer.html" | cmp -s - "$ART" || { 
+        |         echo "$ART differs from src at $TAG";
+        |         return 1
+        |     };
+        |     cmp -s src/aef-workflow-designer.html "$ART" || { 
+        |         echo "src has changed since the release (it should not have)";
+        |         return 1
+        |     };
+        |     ( cd "$KIT" && sha256sum -c SHA256SUMS --quiet ) || { 
+        |         echo "the kit does not verify against its SHA256SUMS";
+        |         return 1
+        |     };
+        |     python3 tools/kit-calibration-gate.py check --version "$V" || { 
+        |         echo "calibration gate refuses $V";
+        |         return 1
+        |     };
+        |     echo "ok  $TAG on $(git rev-parse --short "$rel"); artifact == src (sha256 $(sha256sum "$ART" | cut -c1-16)..., $(stat -c %s "$ART") bytes); kit verifies; gate passes"
+        | }
+Run step 1/3? [y/N] kit 0.34.0 calibrated: codex (openai) 3/3, glm-5.3 (zai) 3/3
+ok  designer-v0.34.0 on 2262815ff; artifact == src (sha256 47fa180a00caccfb..., 1310486 bytes); kit verifies; gate passes
+ok    step 1/3
+
+Step 2/3: Run the core tier now (about 20 minutes, or cached), so the push finds it green
+  runs: do_core
+        | do_core () 
+        | { 
+        |     PATH="$NODEBIN:$PATH" bash tools/_t1288-prepush-gate.sh || { 
+        |         echo "core tier RED (see .context/working/prepush-core.log); nothing pushed — the agent brings it to you";
+        |         return 1
+        |     };
+        |     echo "ok  core tier green for this tree; the push hook will find it cached"
+        | }
+Run step 2/3? [y/N] T-1288 pre-push: core tier already GREEN for this tree (src/tools/tests/kit/framework unchanged) — no run needed
+ok  core tier green for this tree; the push hook will find it cached
+ok    step 2/3
+
+Step 3/3: Push bleeding-edge and designer-v0.34.0 to origin
+  runs: do_push
+        | do_push () 
+        | { 
+        |     git push origin bleeding-edge || { 
+        |         echo "push of bleeding-edge failed";
+        |         return 1
+        |     };
+        |     git push origin "$TAG" || { 
+        |         echo "push of $TAG failed";
+        |         return 1
+        |     };
+        |     echo "DONE: release $V cut, committed, tagged $TAG and pushed."
+        | }
+Run step 3/3? [y/N] T-1288 pre-push: core tier already GREEN for this tree (src/tools/tests/kit/framework unchanged) — no run needed
+VERSION is tracked — not stamped (fw release is its only writer, T-3821)
+
+=== Pre-Push Audit Check ===
+
+Another audit is already running — exiting (no verdict produced)
+
+Audit lock held — waiting up to 360s for it to free (FW_PREPUSH_LOCK_WAIT=360, 0 disables)...
+  lock held by pid 2830857 (audit.sh --section oe-fast,oe-research --cron) for 9s
+=== AUDIT REPORT ===
+Timestamp: 2026-11-01T11:15:16+01:00
+Project: /opt/832-Workflow-designer
+Sections: structure
+
+=== STRUCTURE CHECKS ===
+[PASS] Tasks directory exists
+[PASS] Tasks/active directory exists
+[PASS] Tasks/completed directory exists
+[PASS] Tasks/templates directory exists
+[PASS] Task template exists
+[PASS] No duplicate task IDs — examined 1353 task file(s) across 1 corpus view(s)
+[PASS] All project YAML files parse correctly — examined 16 project YAML file(s)
+[PASS] All arc anchor_task references resolve to existing tasks — examined 3 arc anchor_task reference(s)
+[WARN] All onboarding-seed corpus references resolve to existing maps — NOT EVALUATED: candidate set empty (0 onboarding-seed corpus reference(s))
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: No 'fw corpus explain <id>' reference was found in lib/seeds/tasks — either the seeds stopped routing to maps, or lib/seeds/tasks is absent
+[WARN] Arc 'hypothesis-first-inceptions' has no task commits in the last 30 days (6 task(s) in arc)
+       Evidence: Arc is in-progress but its constituent tasks show no recent git activity — may have stalled
+       Mitigation: Either close/abandon the arc via 'fw arc close' or run 'fw task update T-XXX --last-update $(date -u +%FT%TZ)' on a relevant task. Configurable via FW_STALE_ARC_DAYS (default 30).
+[INFO] free driver F2: retire_when text present, no recognition heuristic — manual review
+[PASS] No inline arc:<slug> tag-only scans outside canonical lib (T-1881) — examined 420 source file(s) under lib/ web/ agents/ bin/ tools/
+[PASS] No Python arc-membership derivation outside canonical import (T-3516, OBS-546) — examined 219 Python file(s) under lib/ web/ agents/ bin/ tools/
+[WARN] No PROJECT_ROOT resolution of framework-owned assets (T-2648, OBS-097) — NOT EVALUATED: candidate set empty (0 Python file(s) under web/ + lib/)
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: The scan walked no .py files under web/ or lib/ — the OBS-097 rail asserted nothing this run
+[WARN] No stale-slice-references (L-417) — NOT EVALUATED: candidate set empty (0 file(s) under web/templates web/blueprints lib)
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: The scan walked no files — the L-417 rail asserted nothing this run
+[WARN] 7 GO'd inception(s) have NO declared build link — whether they were built is UNKNOWN (0 not even mentioned by a later task; 4 mentioned by an open task; 3 mentioned only by closed tasks; of 56 GO-recorded completed inception(s) examined). A mention is not a build (T-3562).
+       Evidence: T-1285, T-1215, T-301, T-281, T-103 (+2 more unlinked)
+       Mitigation: For each: find the task that builds it and declare unlocks_inception_decision: [T-XXXX:<decision-id>] on it, or record that it was never built. The tiers are mentions only; the unmentioned ones are the likeliest abandoned, but a mention proves nothing either way (T-3475 was mentioned and unbuilt). Triage per tier: cat /opt/832-Workflow-designer/.context/audits/go-scope-unpropagated/LATEST.md (origin: T-2078, T-2091, T-3099; tiers T-3469/OBS-535; wording T-3562)
+[PASS] Fabric: 536 registered card(s)
+[WARN] Fabric: 200/536 cards have no edges
+       Evidence: Graph coverage below target
+       Mitigation: Run: fw fabric enrich
+[WARN] Fabric: 536 registered, 157 unregistered (of 672 watched — 79% covered, cards flat since earlier today (536))
+       Evidence: 157 file(s) matching watch-patterns.yaml have no component card; registered is unchanged while the watch set moves, so any change in the unregistered count is tree growth, not carding activity
+       Mitigation: Run: fw fabric scan
+[WARN] Fabric: 21 card(s) point at files no watch pattern covers
+       Evidence: The registry already treats these as components; drift checks cannot see them, so coverage is measured over a subset
+       Mitigation: Widen .fabric/watch-patterns.yaml, or remove the cards if they are not components
+[PASS] Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer
+[WARN] Reviewer-verdict ledger: non-counting rows only (acknowledged/void/provisional) — verdict ledger: 174 row(s), 0 failure(s), 1 acknowledged refusal(s), 4 void/provisional row(s)
+       Evidence: WARN acknowledged: V-20261020-2c550c7f (T-1215) superseded by T-1225 — introduced by other: the commit that added this row (c2ba7be91) was made by ['Dimitri Geelen'], not by its worker 'reviewer-judge-t-1215-r3-ce5c8564a414';WARN void: V-20261020-6ba9cb1c (T-209) worker failed — the worker exited 143 — a green from a failed or killed review does not count; never counts, a later verdict on the criterion supersedes it;WARN void: V-20261020-5a4ff53f (T-209) worker failed — the worker exited 143 — a green from a failed or killed review does not count; never counts, a later verdict on the criterion supersedes it;
+       Mitigation: Inspect: python3 lib/verdict_ledger.py audit — acknowledged, void and provisional rows never count as verdicts; a later verdict on the criterion supersedes a void one
+[PASS] Human-AC ticks: no unprovenanced ### Human ticks in commits since detector commit b37861b597
+[PASS] Watchtower decisions: 0 Watchtower decision(s) no longer at HEAD (last 60 days)
+[PASS] Index reconcile: no armed stale index entries
+[WARN] Reviewer green-degraded closes: 1 criterion close(s) on a panel with unavailable seats (per ISO week: 2026-W44 1;)
+       Evidence: WARN green-degraded: T-1303 AC#1 V-20261027-cb560298: run run-t-1303-05571671cb closed on 2 green seat(s) of distinct vendors (claude-code [anthropic], codex [openai]); unavailable: opencode (exit 0, no verdict (dispatch judge-t-1303-r5-opencode-554edd6226fa));
+       Mitigation: Fix the unavailable seat kinds (fw reviewer judge names each reason); opt out per project: fw config set REVIEW_GREEN_DEGRADED 0
+[PASS] CLAUDE.md: no pending governance-rewrite review — examined 1 CLAUDE.md, no CLAUDE.md.bak alongside it
+[PASS] Watchtower currency: running pid 3771461 is newer than every file under web/
+[PASS] Temp filesystem /tmp is 65% full (under TMP_USE_WARN_PCT=85)
+[PASS] Process placement: no long-lived agent process in a non-lingering session scope
+[PASS] Exec-bit parity: every 100755-indexed script is executable on disk — examined 340 indexed-100755 script(s) (*.sh + bin/fw)
+[WARN] Cron exec-bit: every script cron execs directly is executable — NOT EVALUATED: candidate set empty (0 directly-invoked script(s) in the deployed crontab)
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: Confirm that 0 directly-invoked script(s) in the deployed crontab is the real corpus state and not a mis-scoped enumeration or a predicate that matches nothing
+[PASS] Branch hygiene: no stale branches, worktrees or remote refs
+[PASS] Hook threshold: no hooks failing over threshold
+[WARN] Stray root files: 1 zero-byte untracked file(s) in repo root (T-651)
+       Evidence: ...
+       Mitigation: Shell-redirect debris from unquoted markdown. Verify none collide with a tracked path, then remove by explicit name (never a glob — such names can contain *)
+[PASS] Large-file gate: tracked tree clean
+[INFO] Invariant suite (tests/lint) skipped — framework-repo property; PROJECT_ROOT is not the framework repo
+[INFO] Dead-negation lint (tests/) skipped — framework-repo property; PROJECT_ROOT is not the framework repo
+[INFO] Unit suite (tests/unit) skipped — no suite at /opt/832-Workflow-designer/.agentic-framework/tests/unit to run (832 T-934)
+[INFO] Integration suite not graded at pre-push — graded by the */30 and daily audits (T-4634)
+[PASS] Designer ghost registry: ghost↔task joins clean
+[PASS] Cron outputs: every declared output is committed by its job or untracked
+[WARN] Silent-zero store greps: 16 grep(s) can read a reshaped store as empty
+       Evidence: lib/harvest.sh:334: fixed-indent-store-grep: project_decisions=$(grep "^  description:" "$project_file" 2>/dev/null | sed 's/.*description:[;lib/harvest.sh:343: fixed-indent-store-grep: framework_decisions=$(grep "^  description:" "$framework_file" 2>/dev/null | sed 's/.*descripti;lib/harvest.sh:427: fixed-indent-store-grep: project_practices=$(grep "^    name:" "$project_file" 2>/dev/null | sed 's/.*name:[[:space:]]*/
+       Mitigation: Make the pattern indent-tolerant (^[[:space:]]*key:) or parse the YAML; for counts, fail loudly when the store is unreadable instead of '|| echo 0'. Full list: python3 lib/silent_zero_scan.py (T-2680)
+[WARN] Sidecar: 3 consult(s) recorded UNKNOWN — sent, never confirmed delivered
+       Evidence: fw sidecar status: UNKNOWN=3 of 182 message(s) (0 of them dead-lettered); a peer never saw these
+       Mitigation: Run: .agentic-framework/bin/fw sidecar status — the retry ladder (T-3434, D-600) re-posts and escalates these automatically; an UNKNOWN that is NOT a dead-letter was recorded some other way and is worth reading
+[PASS] Sidecar watcher live: seq 74579, last tick 20.9s ago, self-probe 9.2ms
+[PASS] No peer mail held unsurfaced past 24h
+[PASS] No orphan inboxes on this hub
+[PASS] BVP drivers: every active free and arc-scoped driver is scorable (handler or scoring: spec)
+[PASS] Delegation surface: reviewer-closeable 0, reviewer-judges 47, agent-self 2, operator-only 18 across 59 active task(s) with open Human criteria
+[WARN] Fabric: 207 under-populated card(s)
+       Evidence: TODO purpose: 12, unknown subsystem: 1, no edges: 200 — e.g. .context/inbox.yaml, .context/project/concerns.yaml, docs/authoring-kit/loop.sh
+       Mitigation: Run: .agentic-framework/bin/fw fabric enrich --describe-only (fills purpose/subsystem from each file's own header; names what it refuses). Zero-edge cards want a look, not a re-run: .agentic-framework/bin/fw fabric drift
+[PASS] Design-conformance register: every row has a live or finished-and-built owner
+[PASS] Stale keystones: none captured >3 days
+[PASS] Issue-ledger lag: every linked task's GitHub issue has the stage its state implies
+
+=== SUMMARY ===
+Pass: 38
+Warn: 15
+Fail: 0
+
+=== PRIORITY ACTIONS ===
+     1	Confirm that 0 directly-invoked script(s) in the deployed crontab is the real corpus state and not a mis-scoped enumeration or a predicate that matches nothing
+     2	Either close/abandon the arc via 'fw arc close' or run 'fw task update T-XXX --last-update $(date -u +%FT%TZ)' on a relevant task. Configurable via FW_STALE_ARC_DAYS (default 30).
+     3	Fix the unavailable seat kinds (fw reviewer judge names each reason); opt out per project: fw config set REVIEW_GREEN_DEGRADED 0
+     4	For each: find the task that builds it and declare unlocks_inception_decision: [T-XXXX:<decision-id>] on it, or record that it was never built. The tiers are mentions only; the unmentioned ones are the likeliest abandoned, but a mention proves nothing either way (T-3475 was mentioned and unbuilt). Triage per tier: cat /opt/832-Workflow-designer/.context/audits/go-scope-unpropagated/LATEST.md (origin: T-2078, T-2091, T-3099; tiers T-3469/OBS-535; wording T-3562)
+     5	Inspect: python3 lib/verdict_ledger.py audit — acknowledged, void and provisional rows never count as verdicts; a later verdict on the criterion supersedes a void one
+
+=== TREND ANALYSIS ===
+Repeated issues detected in last 14 days (candidates for practice):
+  - All onboarding-seed corpus references resolve to existing maps — NOT EVALUATED: candidate set empty (0 onboarding-seed corpus reference(s)) (11 times)
+  - Cron exec-bit: every script cron execs directly is executable — NOT EVALUATED: candidate set empty (0 directly-invoked script(s) in the deployed crontab) (11 times)
+  - Fabric: 21 card(s) point at files no watch pattern covers (11 times)
+  - Fabric: 206 under-populated card(s) (11 times)
+  - Fabric: 199/536 cards have no edges (11 times)
+  - 7 GO'd inception(s) have NO declared build link — whether they were built is UNKNOWN (0 not even mentioned by a later task; 4 mentioned by an open task; 3 mentioned only by closed tasks; of 56 GO-recorded completed inception(s) examined). A mention is not a build (T-3562). (11 times)
+  - No PROJECT_ROOT resolution of framework-owned assets (T-2648, OBS-097) — NOT EVALUATED: candidate set empty (0 Python file(s) under web/ + lib/) (11 times)
+  - No stale-slice-references (L-417) — NOT EVALUATED: candidate set empty (0 file(s) under web/templates web/blueprints lib) (11 times)
+  - Reviewer-verdict ledger: non-counting rows only (acknowledged/void/provisional) — verdict ledger: 173 row(s), 0 failure(s), 1 acknowledged refusal(s), 4 void/provisional row(s) (11 times)
+  - Sidecar: 3 consult(s) recorded UNKNOWN — sent, never confirmed delivered (11 times)
+  - Stray root files: 1 zero-byte untracked file(s) in repo root (T-651) (11 times)
+  - Silent-zero store greps: 16 grep(s) can read a reshaped store as empty (10 times)
+  - Continuous-run wrapper last recorded ARMED but the turn driver is not (7 times)
+  - DM rail dm:90d4553895d5a9a6:d1993c2c3ec44c94 has 4 unread post(s), oldest 9.1d (7 times)
+  - Fabric: 536 registered, 157 unregistered (of 672 watched — 79% covered, cards flat since earlier today (536)) (7 times)
+  - DM rail dm:3bba15e681b3a078:d1993c2c3ec44c94 has 3 unread post(s), oldest 7.4d (6 times)
+  - DM rail dm:9219671e28054458:d1993c2c3ec44c94 has 4 unread post(s), oldest 7.6d (6 times)
+  - Reviewer green-degraded closes: 1 criterion close(s) on a panel with unavailable seats (per ISO week: 2026-W44 1;) (5 times)
+  - CTL-028: T-9002 is in .tasks/completed/ but frontmatter status='started-work' (expected: work-completed) (4 times)
+  - CTL-029: T-041 has all Agent ACs ticked but status='started-work' — completable, not closed (4 times)
+  - CTL-029: T-101 has all Agent ACs ticked but status='started-work' — completable, not closed (4 times)
+  - CTL-029: T-286 has all Agent ACs ticked but status='started-work' — completable, not closed (4 times)
+  - Fabric: 536 registered, 155 unregistered (of 670 watched — 80% covered, cards flat since 2026-10-29 (536)) (4 times)
+  - Task T-9003-inflight.md missing Updates section (4 times)
+  - Arc 'hypothesis-first-inceptions' has no task commits in the last 30 days (6 task(s) in arc) (3 times)
+  - CTL-029: T-1212 has all Agent ACs ticked but status='started-work' — completable, not closed (3 times)
+  - CTL-029: T-1219 has all Agent ACs ticked but status='started-work' — completable, not closed (3 times)
+
+Consider creating a practice to address these recurring issues.
+Run: fw context add-learning "description" --task T-XXX
+
+Audit history: 16 audit(s) across 14 day(s) in last 14 days + today
+  Coverage: 1 full, 15 partial (section-scoped). Trends can only
+  surface a check that was actually RUN in the records above (T-677).
+
+Audit saved to: /opt/832-Workflow-designer/.context/audits/2026-11-01.yaml
+
+AUDIT-SCOPE: fails=0 ref=0 worktree=0
+=== END AUDIT ===
+
+WARNING: Audit has warnings (push allowed)
+Consider addressing the issues above.
+
+remote:          
+remote: Create a pull request for 'bleeding-edge' by visiting:        
+remote:     https://onedev.docker.ring20.geelenandcompany.com/workflow-designer/~pulls/new?target=45:master&source=45:bleeding-edge        
+remote:          
+To ssh://<git-host>:6611/workflow-designer
+   14972e2d0..e59e5fa4e  bleeding-edge -> bleeding-edge
+T-1288 pre-push: core tier already GREEN for this tree (src/tools/tests/kit/framework unchanged) — no run needed
+VERSION is tracked — not stamped (fw release is its only writer, T-3821)
+
+=== Pre-Push Audit Check ===
+
+=== AUDIT REPORT ===
+Timestamp: 2026-11-01T11:17:07+01:00
+Project: /opt/832-Workflow-designer
+Sections: structure
+
+=== STRUCTURE CHECKS ===
+[PASS] Tasks directory exists
+[PASS] Tasks/active directory exists
+[PASS] Tasks/completed directory exists
+[PASS] Tasks/templates directory exists
+[PASS] Task template exists
+[PASS] No duplicate task IDs — examined 1353 task file(s) across 1 corpus view(s)
+[PASS] All project YAML files parse correctly — examined 16 project YAML file(s)
+[PASS] All arc anchor_task references resolve to existing tasks — examined 3 arc anchor_task reference(s)
+[WARN] All onboarding-seed corpus references resolve to existing maps — NOT EVALUATED: candidate set empty (0 onboarding-seed corpus reference(s))
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: No 'fw corpus explain <id>' reference was found in lib/seeds/tasks — either the seeds stopped routing to maps, or lib/seeds/tasks is absent
+[WARN] Arc 'hypothesis-first-inceptions' has no task commits in the last 30 days (6 task(s) in arc)
+       Evidence: Arc is in-progress but its constituent tasks show no recent git activity — may have stalled
+       Mitigation: Either close/abandon the arc via 'fw arc close' or run 'fw task update T-XXX --last-update $(date -u +%FT%TZ)' on a relevant task. Configurable via FW_STALE_ARC_DAYS (default 30).
+[INFO] free driver F2: retire_when text present, no recognition heuristic — manual review
+[PASS] No inline arc:<slug> tag-only scans outside canonical lib (T-1881) — examined 420 source file(s) under lib/ web/ agents/ bin/ tools/
+[PASS] No Python arc-membership derivation outside canonical import (T-3516, OBS-546) — examined 219 Python file(s) under lib/ web/ agents/ bin/ tools/
+[WARN] No PROJECT_ROOT resolution of framework-owned assets (T-2648, OBS-097) — NOT EVALUATED: candidate set empty (0 Python file(s) under web/ + lib/)
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: The scan walked no .py files under web/ or lib/ — the OBS-097 rail asserted nothing this run
+[WARN] No stale-slice-references (L-417) — NOT EVALUATED: candidate set empty (0 file(s) under web/templates web/blueprints lib)
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: The scan walked no files — the L-417 rail asserted nothing this run
+[WARN] 7 GO'd inception(s) have NO declared build link — whether they were built is UNKNOWN (0 not even mentioned by a later task; 4 mentioned by an open task; 3 mentioned only by closed tasks; of 56 GO-recorded completed inception(s) examined). A mention is not a build (T-3562).
+       Evidence: T-1285, T-1215, T-301, T-281, T-103 (+2 more unlinked)
+       Mitigation: For each: find the task that builds it and declare unlocks_inception_decision: [T-XXXX:<decision-id>] on it, or record that it was never built. The tiers are mentions only; the unmentioned ones are the likeliest abandoned, but a mention proves nothing either way (T-3475 was mentioned and unbuilt). Triage per tier: cat /opt/832-Workflow-designer/.context/audits/go-scope-unpropagated/LATEST.md (origin: T-2078, T-2091, T-3099; tiers T-3469/OBS-535; wording T-3562)
+[PASS] Fabric: 536 registered card(s)
+[WARN] Fabric: 200/536 cards have no edges
+       Evidence: Graph coverage below target
+       Mitigation: Run: fw fabric enrich
+[WARN] Fabric: 536 registered, 157 unregistered (of 672 watched — 79% covered, cards flat since earlier today (536))
+       Evidence: 157 file(s) matching watch-patterns.yaml have no component card; registered is unchanged while the watch set moves, so any change in the unregistered count is tree growth, not carding activity
+       Mitigation: Run: fw fabric scan
+[WARN] Fabric: 21 card(s) point at files no watch pattern covers
+       Evidence: The registry already treats these as components; drift checks cannot see them, so coverage is measured over a subset
+       Mitigation: Widen .fabric/watch-patterns.yaml, or remove the cards if they are not components
+[PASS] Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer
+[WARN] Reviewer-verdict ledger: non-counting rows only (acknowledged/void/provisional) — verdict ledger: 174 row(s), 0 failure(s), 1 acknowledged refusal(s), 4 void/provisional row(s)
+       Evidence: WARN acknowledged: V-20261020-2c550c7f (T-1215) superseded by T-1225 — introduced by other: the commit that added this row (c2ba7be91) was made by ['Dimitri Geelen'], not by its worker 'reviewer-judge-t-1215-r3-ce5c8564a414';WARN void: V-20261020-6ba9cb1c (T-209) worker failed — the worker exited 143 — a green from a failed or killed review does not count; never counts, a later verdict on the criterion supersedes it;WARN void: V-20261020-5a4ff53f (T-209) worker failed — the worker exited 143 — a green from a failed or killed review does not count; never counts, a later verdict on the criterion supersedes it;
+       Mitigation: Inspect: python3 lib/verdict_ledger.py audit — acknowledged, void and provisional rows never count as verdicts; a later verdict on the criterion supersedes a void one
+[PASS] Human-AC ticks: no unprovenanced ### Human ticks in commits since detector commit b37861b597
+[PASS] Watchtower decisions: 0 Watchtower decision(s) no longer at HEAD (last 60 days)
+[PASS] Index reconcile: no armed stale index entries
+[WARN] Reviewer green-degraded closes: 1 criterion close(s) on a panel with unavailable seats (per ISO week: 2026-W44 1;)
+       Evidence: WARN green-degraded: T-1303 AC#1 V-20261027-cb560298: run run-t-1303-05571671cb closed on 2 green seat(s) of distinct vendors (claude-code [anthropic], codex [openai]); unavailable: opencode (exit 0, no verdict (dispatch judge-t-1303-r5-opencode-554edd6226fa));
+       Mitigation: Fix the unavailable seat kinds (fw reviewer judge names each reason); opt out per project: fw config set REVIEW_GREEN_DEGRADED 0
+[PASS] CLAUDE.md: no pending governance-rewrite review — examined 1 CLAUDE.md, no CLAUDE.md.bak alongside it
+[PASS] Watchtower currency: running pid 3771461 is newer than every file under web/
+[PASS] Temp filesystem /tmp is 63% full (under TMP_USE_WARN_PCT=85)
+[PASS] Process placement: no long-lived agent process in a non-lingering session scope
+[PASS] Exec-bit parity: every 100755-indexed script is executable on disk — examined 340 indexed-100755 script(s) (*.sh + bin/fw)
+[WARN] Cron exec-bit: every script cron execs directly is executable — NOT EVALUATED: candidate set empty (0 directly-invoked script(s) in the deployed crontab)
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: Confirm that 0 directly-invoked script(s) in the deployed crontab is the real corpus state and not a mis-scoped enumeration or a predicate that matches nothing
+[PASS] Branch hygiene: no stale branches, worktrees or remote refs
+[PASS] Hook threshold: no hooks failing over threshold
+[WARN] Stray root files: 1 zero-byte untracked file(s) in repo root (T-651)
+       Evidence: ...
+       Mitigation: Shell-redirect debris from unquoted markdown. Verify none collide with a tracked path, then remove by explicit name (never a glob — such names can contain *)
+[PASS] Large-file gate: tracked tree clean
+[INFO] Invariant suite (tests/lint) skipped — framework-repo property; PROJECT_ROOT is not the framework repo
+[INFO] Dead-negation lint (tests/) skipped — framework-repo property; PROJECT_ROOT is not the framework repo
+[INFO] Unit suite (tests/unit) skipped — no suite at /opt/832-Workflow-designer/.agentic-framework/tests/unit to run (832 T-934)
+[INFO] Integration suite not graded at pre-push — graded by the */30 and daily audits (T-4634)
+[PASS] Designer ghost registry: ghost↔task joins clean
+[PASS] Cron outputs: every declared output is committed by its job or untracked
+[WARN] Silent-zero store greps: 16 grep(s) can read a reshaped store as empty
+       Evidence: lib/harvest.sh:334: fixed-indent-store-grep: project_decisions=$(grep "^  description:" "$project_file" 2>/dev/null | sed 's/.*description:[;lib/harvest.sh:343: fixed-indent-store-grep: framework_decisions=$(grep "^  description:" "$framework_file" 2>/dev/null | sed 's/.*descripti;lib/harvest.sh:427: fixed-indent-store-grep: project_practices=$(grep "^    name:" "$project_file" 2>/dev/null | sed 's/.*name:[[:space:]]*/
+       Mitigation: Make the pattern indent-tolerant (^[[:space:]]*key:) or parse the YAML; for counts, fail loudly when the store is unreadable instead of '|| echo 0'. Full list: python3 lib/silent_zero_scan.py (T-2680)
+[WARN] Sidecar: 3 consult(s) recorded UNKNOWN — sent, never confirmed delivered
+       Evidence: fw sidecar status: UNKNOWN=3 of 182 message(s) (0 of them dead-lettered); a peer never saw these
+       Mitigation: Run: .agentic-framework/bin/fw sidecar status — the retry ladder (T-3434, D-600) re-posts and escalates these automatically; an UNKNOWN that is NOT a dead-letter was recorded some other way and is worth reading
+[PASS] Sidecar watcher live: seq 74582, last tick 14.9s ago, self-probe 11.4ms
+[PASS] No peer mail held unsurfaced past 24h
+[PASS] No orphan inboxes on this hub
+[PASS] BVP drivers: every active free and arc-scoped driver is scorable (handler or scoring: spec)
+[PASS] Delegation surface: reviewer-closeable 0, reviewer-judges 47, agent-self 2, operator-only 18 across 59 active task(s) with open Human criteria
+[WARN] Fabric: 207 under-populated card(s)
+       Evidence: TODO purpose: 12, unknown subsystem: 1, no edges: 200 — e.g. .context/inbox.yaml, .context/project/concerns.yaml, docs/authoring-kit/loop.sh
+       Mitigation: Run: .agentic-framework/bin/fw fabric enrich --describe-only (fills purpose/subsystem from each file's own header; names what it refuses). Zero-edge cards want a look, not a re-run: .agentic-framework/bin/fw fabric drift
+[PASS] Design-conformance register: every row has a live or finished-and-built owner
+[PASS] Stale keystones: none captured >3 days
+[PASS] Issue-ledger lag: every linked task's GitHub issue has the stage its state implies
+
+=== SUMMARY ===
+Pass: 38
+Warn: 15
+Fail: 0
+
+=== PRIORITY ACTIONS ===
+     1	Confirm that 0 directly-invoked script(s) in the deployed crontab is the real corpus state and not a mis-scoped enumeration or a predicate that matches nothing
+     2	Either close/abandon the arc via 'fw arc close' or run 'fw task update T-XXX --last-update $(date -u +%FT%TZ)' on a relevant task. Configurable via FW_STALE_ARC_DAYS (default 30).
+     3	Fix the unavailable seat kinds (fw reviewer judge names each reason); opt out per project: fw config set REVIEW_GREEN_DEGRADED 0
+     4	For each: find the task that builds it and declare unlocks_inception_decision: [T-XXXX:<decision-id>] on it, or record that it was never built. The tiers are mentions only; the unmentioned ones are the likeliest abandoned, but a mention proves nothing either way (T-3475 was mentioned and unbuilt). Triage per tier: cat /opt/832-Workflow-designer/.context/audits/go-scope-unpropagated/LATEST.md (origin: T-2078, T-2091, T-3099; tiers T-3469/OBS-535; wording T-3562)
+     5	Inspect: python3 lib/verdict_ledger.py audit — acknowledged, void and provisional rows never count as verdicts; a later verdict on the criterion supersedes a void one
+
+=== TREND ANALYSIS ===
+Repeated issues detected in last 14 days (candidates for practice):
+  - All onboarding-seed corpus references resolve to existing maps — NOT EVALUATED: candidate set empty (0 onboarding-seed corpus reference(s)) (11 times)
+  - Cron exec-bit: every script cron execs directly is executable — NOT EVALUATED: candidate set empty (0 directly-invoked script(s) in the deployed crontab) (11 times)
+  - Fabric: 21 card(s) point at files no watch pattern covers (11 times)
+  - Fabric: 206 under-populated card(s) (11 times)
+  - Fabric: 199/536 cards have no edges (11 times)
+  - 7 GO'd inception(s) have NO declared build link — whether they were built is UNKNOWN (0 not even mentioned by a later task; 4 mentioned by an open task; 3 mentioned only by closed tasks; of 56 GO-recorded completed inception(s) examined). A mention is not a build (T-3562). (11 times)
+  - No PROJECT_ROOT resolution of framework-owned assets (T-2648, OBS-097) — NOT EVALUATED: candidate set empty (0 Python file(s) under web/ + lib/) (11 times)
+  - No stale-slice-references (L-417) — NOT EVALUATED: candidate set empty (0 file(s) under web/templates web/blueprints lib) (11 times)
+  - Reviewer-verdict ledger: non-counting rows only (acknowledged/void/provisional) — verdict ledger: 173 row(s), 0 failure(s), 1 acknowledged refusal(s), 4 void/provisional row(s) (11 times)
+  - Sidecar: 3 consult(s) recorded UNKNOWN — sent, never confirmed delivered (11 times)
+  - Stray root files: 1 zero-byte untracked file(s) in repo root (T-651) (11 times)
+  - Silent-zero store greps: 16 grep(s) can read a reshaped store as empty (10 times)
+  - Continuous-run wrapper last recorded ARMED but the turn driver is not (7 times)
+  - DM rail dm:90d4553895d5a9a6:d1993c2c3ec44c94 has 4 unread post(s), oldest 9.1d (7 times)
+  - Fabric: 536 registered, 157 unregistered (of 672 watched — 79% covered, cards flat since earlier today (536)) (7 times)
+  - DM rail dm:3bba15e681b3a078:d1993c2c3ec44c94 has 3 unread post(s), oldest 7.4d (6 times)
+  - DM rail dm:9219671e28054458:d1993c2c3ec44c94 has 4 unread post(s), oldest 7.6d (6 times)
+  - Reviewer green-degraded closes: 1 criterion close(s) on a panel with unavailable seats (per ISO week: 2026-W44 1;) (5 times)
+  - CTL-028: T-9002 is in .tasks/completed/ but frontmatter status='started-work' (expected: work-completed) (4 times)
+  - CTL-029: T-041 has all Agent ACs ticked but status='started-work' — completable, not closed (4 times)
+  - CTL-029: T-101 has all Agent ACs ticked but status='started-work' — completable, not closed (4 times)
+  - CTL-029: T-286 has all Agent ACs ticked but status='started-work' — completable, not closed (4 times)
+  - Fabric: 536 registered, 155 unregistered (of 670 watched — 80% covered, cards flat since 2026-10-29 (536)) (4 times)
+  - Task T-9003-inflight.md missing Updates section (4 times)
+  - Arc 'hypothesis-first-inceptions' has no task commits in the last 30 days (6 task(s) in arc) (3 times)
+  - CTL-029: T-1212 has all Agent ACs ticked but status='started-work' — completable, not closed (3 times)
+  - CTL-029: T-1219 has all Agent ACs ticked but status='started-work' — completable, not closed (3 times)
+
+Consider creating a practice to address these recurring issues.
+Run: fw context add-learning "description" --task T-XXX
+
+Audit history: 16 audit(s) across 14 day(s) in last 14 days + today
+  Coverage: 1 full, 15 partial (section-scoped). Trends can only
+  surface a check that was actually RUN in the records above (T-677).
+
+Audit saved to: /opt/832-Workflow-designer/.context/audits/2026-11-01.yaml
+
+AUDIT-SCOPE: fails=0 ref=0 worktree=0
+=== END AUDIT ===
+
+WARNING: Audit has warnings (push allowed)
+Consider addressing the issues above.
+
+To ssh://<git-host>:6611/workflow-designer
+ * [new tag]             designer-v0.34.0 -> designer-v0.34.0
+DONE: release 0.34.0 cut, committed, tagged designer-v0.34.0 and pushed.
+ok    step 3/3
+
+DONE: 114-finish-release-designer-0.34.0 — all 3 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/114-finish-release-designer-0.34.0/run-20261101T111501.log)
