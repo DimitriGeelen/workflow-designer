@@ -10,7 +10,7 @@ description: >
 status: started-work
 workflow_type: build
 current_node: frw_3_run
-owner: human
+owner: agent
 horizon: now
 tags: [arc:structured-io]
 components: []
@@ -43,7 +43,7 @@ arc_id: structured-io
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-24T21:04:24Z
-last_update: 2026-11-01T14:55:27Z
+last_update: 2026-11-01T15:10:13Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -159,7 +159,7 @@ and the kit; the designer then shows the findings on the io. Not started at the 
   sal_2_configurator gave E-XML-IO-MATCH-MISSING located at input[0] "sfdc:Opportunity.Id", under the io it belongs to.)*
 
 ### Human
-- [ ] A Check finding on an io reads as belonging to that io and says what is wrong, without crowding the io's own
+- [x] A Check finding on an io reads as belonging to that io and says what is wrong, without crowding the io's own
   rows, at every width
   For the independent reviewer: `fw reviewer judge T-1303 --criterion 1` (render-surface, no operator carve-out).
   **Steps:** 1. Open the `findings-*` screenshots in `docs/reports/T-1303-evidence/` named in `## Visual Verification`
@@ -213,6 +213,7 @@ and the kit; the designer then shows the findings on the io. Not started at the 
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261101-4a93722d — reviewer-judge-t-1303-r5-opencode-61ac3720d07d:opencode (rung rung-5-panel:opencode), digest a875f67f8d97; dispatch judge-t-1303-r5-opencode-61ac3720d07d; evidence: .context/reviews/evidence/T-1303/AC1-judge-t-1303-r5-opencode-61ac3720d07d.md; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -422,6 +423,15 @@ Person-sees gate: exit 0 (243 s).
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+### 2026-10-27 — the field check waits on the host
+- **What changed:** greenfield runs the designer inside AEF's Watchtower, so Check needs AEF to serve `/api/validate`; on 1.8.10 it answered 403.
+- **Plan impact:** the field criterion stayed open after release until AEF served it (T-4830, T-4737 GO for validate).
+- **Triggered:** nothing new on 832's side.
+
+### 2026-11-01 — confirmed, and the screens re-reviewed
+- **What changed:** greenfield's WORKS (sent by DM 2026-10-29, seen 2026-11-01, T-1359). Closing found the 2026-10-27 screen verdict void: the designer had changed since (T-1344, T-1350). Screens retaken, gate exit 0, panel green again (V-20261101-4a93722d, three vendors).
+- **Plan impact:** none; closes.
+- **Triggered:** T-1359 (the missed DM route).
 
 ## Recommendation
 
