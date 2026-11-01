@@ -9,8 +9,8 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
-owner: agent
+current_node: frw_3_run
+owner: human
 horizon: now
 tags: [arc:structured-io]
 components: []
@@ -43,7 +43,7 @@ arc_id: structured-io
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-24T21:04:24Z
-last_update: '2026-10-27T08:47:20Z'
+last_update: 2026-11-01T14:55:27Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -80,6 +80,17 @@ bvp_scores_proposed:
 # T-1303: Designer slice 4 (T-1242 GO): show AEF's mapping v1.1 lint findings on the io
 
 ## Context
+
+**Background / trigger:** T-1242 GO (arc-006, structured io): AEF's mapping v1.1 spec names lint rules a map can break;
+authors only learned of them when AEF refused a map.
+
+**Problem / hypothesis:** The designer showed no lint findings, so a map that reads as "update everything" or names an
+undeclared prefix was saved silently.
+
+**Goal:** Check runs the validator's v1.1 lint (R1-R3) and shows each finding under the io it belongs to.
+
+**Expected outcome:** Greenfield sees a finding under the right io on a copy of its own map, on AEF (confirmed
+2026-11-01, msg f0df25da); the screens pass an independent review on the current source.
 
 Slice 4 of arc-006. AEF's mapping v1.1 spec (vendored: `.agentic-framework/docs/reports/T-4415-structured-io-attributes.md`)
 names lint rules. The ones decidable from the map alone, in scope here:
@@ -148,7 +159,7 @@ and the kit; the designer then shows the findings on the io. Not started at the 
   sal_2_configurator gave E-XML-IO-MATCH-MISSING located at input[0] "sfdc:Opportunity.Id", under the io it belongs to.)*
 
 ### Human
-- [x] A Check finding on an io reads as belonging to that io and says what is wrong, without crowding the io's own
+- [ ] A Check finding on an io reads as belonging to that io and says what is wrong, without crowding the io's own
   rows, at every width
   For the independent reviewer: `fw reviewer judge T-1303 --criterion 1` (render-surface, no operator carve-out).
   **Steps:** 1. Open the `findings-*` screenshots in `docs/reports/T-1303-evidence/` named in `## Visual Verification`
@@ -202,7 +213,6 @@ and the kit; the designer then shows the findings on the io. Not started at the 
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-  **Reviewer verdict:** green V-20261027-cb560298 — reviewer-judge-t-1303-r5-codex-2eba7f7f961e:codex (rung rung-5-panel:codex), digest a875f67f8d97; dispatch judge-t-1303-r5-codex-2eba7f7f961e; GREEN-DEGRADED: run run-t-1303-05571671cb closed on 2 green seat(s) of distinct vendors (claude-code [anthropic], codex [openai]); unavailable: opencode (exit 0, no verdict (dispatch judge-t-1303-r5-opencode-554edd6226fa)); evidence: .context/reviews/evidence/T-1303/AC1-judge-t-1303-r5-codex-2eba7f7f961e.md; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
