@@ -120,7 +120,19 @@ async function main() {
     // T-1168 changed node ids on purpose (activities-only step numbers): 0.17.0 writes `frw_7_all`, now `frw_gw_all`.
     // E is about field VALUES, so node-id tokens are masked on both sides; every other byte still has to match.
     const ID = /(?<![A-Za-z0-9.-])[a-z][a-z0-9]{1,2}_(?:\d+|start|end|gw|link|error|timer|message|ev)_[a-z0-9-]+(?:_\d+(?![a-z]))?/g;
-    const norm = (f, x) => (/<aef:workflowMeta[^>]*\suuid="/.test(readFileSync(f, 'utf8')) ? x : x.replace(/(<aef:workflowMeta[^>]*?)\suuid="[^"]*"/, '$1')).replace(ID, 'ID');
+    // T-1352: T-1262 (0.32.0) changed the container ids on purpose: a save keeps the file's own definitions,
+    // collaboration and process ids where 0.17.0 renamed them (customer-refund: process `Pool_customer_refund`,
+    // 0.17.0 `Process_customer-refund`). Each side's own container ids are masked as whole attribute values, so
+    // their declarations and every reference to them (processRef, bpmnElement) read the same; values still compare.
+    const CONT = /<bpmn:(?:definitions|collaboration|participant|process)\b[^>]*?\sid="([^"]+)"/g;
+    const maskCont = x => { let y = x; for (const m of new Set(Array.from(x.matchAll(CONT), m => m[1]))) y = y.split(`"${m}"`).join('"CONT"'); return y; };
+    // T-1352: two more deliberate changes since 0.17.0. T-1262 keeps the file's isExecutable (0.17.0 added
+    // isExecutable="true" to customer-refund, which declares none), and T-1271 keeps nodes in the order the file
+    // declares them (0.17.0 grouped them by type). So the attribute is dropped and the export is compared as a sorted
+    // list of its blocks (each element, each diagram shape and edge): every block must still match byte for byte.
+    const blocks = x => x.replace(/(<bpmn:process\b[^>]*?)\sisExecutable="[^"]*"/g, '$1')
+      .split(/\n\s*\n|(?=\n\s*<bpmndi:BPMN(?:Shape|Edge) )/).map(b => b.trim().replace(/[ \t]+/g, ' ')).filter(Boolean).sort().join('\n');
+    const norm = (f, x) => blocks(maskCont((/<aef:workflowMeta[^>]*\suuid="/.test(readFileSync(f, 'utf8')) ? x : x.replace(/(<aef:workflowMeta[^>]*?)\suuid="[^"]*"/, '$1')).replace(ID, 'ID')));
     const diffs = corpus.filter(f => norm(f, now[f]) !== norm(f, was[f])).map(f => ({ file: f.replace(REPO + '/', ''), at: firstDiff(norm(f, now[f]), norm(f, was[f])) }));
     leg(diffs.length === 0, `E export of ${corpus.length} examples identical to 0.17.0`, diffs);
   } catch (e) {

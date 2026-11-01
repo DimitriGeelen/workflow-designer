@@ -1,14 +1,21 @@
 ---
 id: T-1352
-name: "T-1129 harness: export of the 25 examples no longer matches 0.17.0 (customer-refund participant id and processRef), browser-tier red"
+name: "T-1129 harness: export of the 25 examples no longer matches 0.17.0 (customer-refund
+  participant id and processRef), browser-tier red"
 description: >
-  Browser tier on 74cbede38: _t1129-optional-select-empty-cdp.mjs check E fails at examples/app-processes/rendered/customer-refund.bpmn line 12: now <bpmn:participant id=Pool_customer-refund ... processRef=Pool_customer_refund>, was id=Pool_customer_refund processRef=Process_customer-refund. Identical failure on the pre-T-1350 tree (ea60efe21, plain export), so it predates T-1350. Needs: find the commit that moved it, decide whether the example or the pin is stale.
+  Browser tier on 74cbede38: _t1129-optional-select-empty-cdp.mjs check E fails at
+  examples/app-processes/rendered/customer-refund.bpmn line 12: now <bpmn:participant
+  id=Pool_customer-refund ... processRef=Pool_customer_refund>, was id=Pool_customer_refund
+  processRef=Process_customer-refund. Identical failure on the pre-T-1350 tree (ea60efe21,
+  plain export), so it predates T-1350. Needs: find the commit that moved it, decide
+  whether the example or the pin is stale.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
-tags: []
+horizon: now
+tags: [bug]
 components: []
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
@@ -38,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T00:48:56Z
-last_update: 2026-11-01T00:48:56Z
-date_finished: null
+last_update: 2026-11-01T10:28:55Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +57,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-01T10:24:23Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=pool); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=2 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L2:keyword=export)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1352: T-1129 harness: export of the 25 examples no longer matches 0.17.0 (customer-refund participant id and processRef), browser-tier red
@@ -57,20 +84,21 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** Browser tier on 74cbede38 (T-1350's full run, 2026-11-01): `_t1129-optional-select-empty-cdp.mjs` check E red at `examples/app-processes/rendered/customer-refund.bpmn` line 12. Same result on the pre-T-1350 tree.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** Check E pins the export of every `examples/` map to 0.17.0's, masking node ids (T-1168 changed them on purpose). T-1262 (2026-10-28, released in 0.32.0) made a save keep the file's own definitions, collaboration and process ids. 0.17.0 renamed customer-refund's process `Pool_customer_refund` to `Process_customer-refund`; the designer now keeps it, so the pin differs on ids E is not about.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** Check E compares field values with the container ids T-1262 changed on purpose masked, as T-1168's node ids already are, and is red again only on a real value change.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** `_t1129` green; any difference left behind the id lines is found and either explained or fixed; E still red on a changed field value.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Check E's normaliser masks the definitions, collaboration, participant and process ids and processRef (T-1262), with the reason beside it
+- [x] Every remaining difference between 0.17.0's and the current export of the 25 examples is listed here and explained, or there is none (customer-refund only: isExecutable, T-1262; node order = the file's own, T-1271; every block otherwise identical, see RCA)
+- [x] `node tools/_t1129-optional-select-empty-cdp.mjs` exits 0 (5/5)
+- [x] Teeth: a changed field value in one example's export still turns E red (determinism stochastic→human in customer-refund: E red at that line)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -256,6 +284,8 @@ date_finished: null
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+export PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH"; node tools/_t1129-optional-select-empty-cdp.mjs > /tmp/.t1352.out 2>&1 && grep -q 'T-1129: 5/5' /tmp/.t1352.out
+grep -q 'T-1352' tools/_t1129-optional-select-empty-cdp.mjs
 
 ## RCA
 
@@ -272,6 +302,13 @@ date_finished: null
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+**Symptom:** browser tier red on `_t1129` check E, first difference at customer-refund's participant/process ids.
+
+**Root cause:** check E pins every example's export to 0.17.0's bytes, masking only the node ids T-1168 changed. Two later deliberate fidelity changes moved customer-refund's export: T-1262 (keep the file's container ids and isExecutable) and T-1271 (keep the file's node order). The pin was not updated for either. Measured: with ids masked, 109 differing lines remained, all in customer-refund; as a multiset of blocks the two exports are identical (36 and 36, none on one side only) apart from isExecutable, and the current order is exactly the source file's (0.17.0 grouped by type). The other 24 examples were identical.
+
+**Why structurally allowed:** the leg is in the browser tier, which no push runs; T-1262 and T-1271 ran their own legs and core, so a stale pin in another browser leg went unseen from 2026-10-28 until a full browser run.
+
+**Prevention:** the normaliser now names each deliberate change it masks (T-1168, T-1262, T-1271) and still compares every block byte for byte; teeth: one field value changed in one export turns E red at that line. The broader gap (browser tier unrun on push) is the same as T-1351's.
 
 ## Evolution
 
@@ -353,3 +390,10 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1352-t-1129-harness-export-of-the-25-examples.md
 - **Context:** Initial task creation
+
+### 2026-11-01T10:24:23Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-01T10:28:55Z — status-update [task-update-agent]
+- **Change:** tags: +bug
