@@ -20525,3 +20525,21 @@ scan_id: R-33b68a7b
 task_id: T-1357
 payload:
   task_file: .tasks/active/T-1357-a-push-whose-pre-push-core-run-is-long-l.md
+---
+kind: scan_emitted
+timestamp: '2026-11-01T13:26:15Z'
+scan_id: R-aa92f693
+task_id: T-1324
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-01T13:26:15Z'
+scan_id: R-aa92f693
+task_id: T-1324
+payload:
+  task_file: .tasks/active/T-1324-runme-rehearsal-cannot-exercise-an-opera.md
