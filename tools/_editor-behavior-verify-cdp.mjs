@@ -684,13 +684,20 @@ async function main() {
     })()`);
     // drag far inward: clears the authored floor (back to auto-fit, attribute gone)
     const h2 = await settledHandle();
+    // T-1238: readings that say WHY w6 fails when it does — undo history depth around the inward drag and undo,
+    // whether a pool drag is still live, and where the press landed
+    const diag = { histBefore: await ev(cmd, `_history.length`), h2,
+                   hitAtH2: await ev(cmd, `(function(){ const e = document.elementFromPoint(${h2.x}, ${h2.y}); return e ? (e.getAttribute('class') || e.tagName) : null; })()`) };
     if (!process.env.T1238_SKIP_INWARD) await mDrag(h2.x, h2.y, Math.max(60, h2.x - 900), h2.y);   // skip = bite control
     await waitState(`!state.workflowMeta.pageWidth`);
     const w5 = await ev(cmd, `({ pw: state.workflowMeta.pageWidth || null, edge: Math.round(contentRightEdge()), attrInXml: /pageWidth="/.test(buildBpmnXml(state)) })`);
+    Object.assign(diag, await ev(cmd, `({ histAfterDrag: _history.length, dragLive: !!poolResizeDrag,
+      topHasPw: _history.length ? /pageWidth="/.test(_history[_history.length - 1]) : null })`));
     // T-132: one undo step per gesture — undo restores the authored width the inward drag cleared
     await ev(cmd, `undo()`);
     await waitState(`state.workflowMeta.pageWidth === ${w1.pw === null ? 'null' : w1.pw}`);
     const w6 = await ev(cmd, `({ pw: state.workflowMeta.pageWidth || null })`);
+    Object.assign(diag, await ev(cmd, `({ histAfterUndo: _history.length, dragLiveAfterUndo: !!poolResizeDrag })`));
     const leg10 = w0.handle && w0.pw === null && !w0.attrInXml && w0.edge === w0.natural
       && w1.pw !== null && w1.edge > w0.edge + 100 && w1.edge === w0.poolX + w1.pw && w1.nodeX === w0.nodeX
       && w2.pw === w1.pw && w2.edge === w1.edge
@@ -698,7 +705,7 @@ async function main() {
       && w4.grew > w4.authoredEdge && w4.restored === w1.edge
       && w5.pw === null && w5.edge === w0.natural && !w5.attrInXml
       && w6.pw === w1.pw;
-    verdict.legs.push({ leg: 't255-pool-width', pass: leg10, got: { w0, h1, w1, w2, w3, w4, w5, w6 } });
+    verdict.legs.push({ leg: 't255-pool-width', pass: leg10, got: { w0, h1, w1, w2, w3, w4, w5, w6, diag } });
 
     verdict.pass = verdict.legs.every(l => l.pass);
     process.stdout.write(JSON.stringify(verdict, null, 2) + '\n');

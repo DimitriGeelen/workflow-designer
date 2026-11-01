@@ -9,11 +9,11 @@ description: >
   in the 308/0 runs earlier the same day. Find the timing assumption (drag, rAF, layout
   settle) and make the leg wait on the state it asserts, not on time.
 
-status: started-work
+status: captured
 workflow_type: build
 current_node: frw_1_start
 owner: agent
-horizon: now
+horizon: next
 tags: [bug, flaky]
 components: []
 related_tasks: []
@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-20T17:26:14Z
-last_update: 2026-10-21T07:52:53Z
+last_update: 2026-11-01T13:01:37Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -83,13 +83,18 @@ bvp_scores_proposed:
 
 ## Context
 
-The T-255 leg in `tools/_editor-behavior-verify-cdp.mjs` drives real mouse drags on the pool's resize handle and
-reads state after a fixed `sleep(150)` (after each drag and after undo); under full-suite load that is a race.
+**Background / trigger:** `tests/test_editor_behavior.py` leg t255-pool-width failed in the be.3 bridge run (2026-10-20, 306/2) and again in the browser-tier run of 2026-11-01 00:47 (129/3); both times standalone it passes. Both failures read `w6.pw = null` (all of w0-w5 as expected).
+
+**Problem / hypothesis:** The T-255 leg in `tools/_editor-behavior-verify-cdp.mjs` drives real mouse drags on the pool's resize handle. The fixed sleeps were already replaced by waits on state (2026-10-21), yet w6 (the width after `undo()` of the inward drag) still reads null under load. Hypothesis: the drag clears `pageWidth` during mousemove, but its undo step is recorded on mouseup; the leg's wait sees the width cleared and calls `undo()` before mouseup has run, so undo reverts the earlier outward drag (also null) and the later mouseup then records the inward drag.
+
+**Goal:** The leg waits until the inward drag's gesture is finished (its undo step recorded) before calling `undo()`, so it measures undo, not the race.
+
+**Expected outcome:** t255-pool-width passes under load as it does standalone; it still fails when undo or the resize handler is broken.
 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] The failed run's readings are read and the sub-check that failed is named (which of w1-w6)
+- [x] The failed run's readings are read and the sub-check that failed is named (which of w1-w6) — w6 (after undo of the inward drag) read pw null in both failures (2026-10-20, 2026-11-01 00:47); w0-w5 as expected
 - [ ] Each fixed sleep in the leg is replaced by a wait on the state the next reading asserts (polled, with a
       timeout that reports what it last saw), so a slow machine waits longer instead of reading early
 - [ ] The leg still bites: with the resize handler disabled (mutant) the leg fails; the leg passes 5 runs in a row
@@ -399,6 +404,18 @@ The task should stay open, or be closed on the fix's code-reading argument only 
 
 ## Updates
 
+### 2026-11-01 — second failure investigated; three hypotheses ruled out, not reproduced; diagnostics added
+- **Failure:** browser tier 2026-11-01 00:47 (129/3): w6.pw null again, w0-w5 as expected. Passed standalone the same day,
+  and in the full browser-tier run at 12:15 (132/0).
+- **Ruled out by the code:** (1) the inward drag's undo step recorded late: it is recorded at mousedown
+  (`onPoolResizeMouseDown` → `pushHistory()`), not mouseup; (3) history coalescing: `commitHistory` pushes every entry.
+- **Ruled out by measurement:** (2) a drag still live when `undo()` runs. The leg now records `diag`: history depth before
+  the inward drag, after it and after undo, whether `poolResizeDrag` is live at each, whether the top history entry
+  carries pageWidth, and what element the press hits. Healthy: histBefore 1, histAfterDrag 2, topHasPw true,
+  histAfterUndo 1, dragLive false. 10 runs with all 24 cores busy-looping: 10/10 pass, every reading healthy.
+- **Not reproduced**, so not fixed: the next failure in a suite run carries `diag` in its verdict, which says which
+  of these went wrong (e.g. histAfterDrag 1 = the press missed the handle and no gesture was recorded). Kept open, horizon next.
+
 ### 2026-10-20T17:26:14Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1238-editor-behaviour-leg-t255-pool-width-is-.md
@@ -407,3 +424,7 @@ The task should stay open, or be closed on the fix's code-reading argument only 
 ### 2026-10-20T19:01:51Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-01T13:01:37Z — status-update [task-update-agent]
+- **Change:** horizon: now → next
+- **Change:** status: started-work → captured (auto-sync)
