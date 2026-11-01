@@ -2971,3 +2971,9 @@ learnings:
   task: T-1354
   date: 2026-11-01
   context: Added via context agent
+- id: PL-431
+  learning: "Every verification line that asserts something is ABSENT (! grep) needs a sibling line that greps the same pattern where it IS present (the emitting source, a fixture that triggers it) — the T-560 census refuses the close and the push otherwise; hit twice on 2026-11-01 (T-1358, T-1362)"
+  source: unknown
+  task: T-1362
+  date: 2026-11-01
+  context: Added via context agent
