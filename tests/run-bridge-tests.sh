@@ -675,6 +675,7 @@ orphan_legs=(
   # is the only reason either is here, and the reason it must never be relaxed to make a red run
   # green.
   "core|tests/test_gallery_instances_api.py|the /api/instances endpoint's own contract broke (T-884)"
+  "core|tests/test_t1355_browser_tier_age.py|the session-start browser-tier line misreads the run history: a red last run, a framework commit after it, or a run over 7 days old no longer flagged, or no browser run read as OK (run 'python3 tests/test_t1355_browser_tier_age.py'; T-1355)"
   "core|tests/test_t1315_notes_pick.py|the host-contract notes check no longer reads the newest release notes at or above VERSION (it demands the published notes name an endpoint that release does not use, or reads a lower version's) (T-1315)"
   "core|tests/test_t1313_sandbox_index.py|a core-tier sandbox without its own .git can again reach this repo's index (GIT_CEILING_DIRECTORIES gone from the run TMPDIR), or .context/st/ is no longer ignored (T-1313)"
   "core|tests/test_t1307_t344_lock_wait.py|_t344 no longer waits out a full audit holding the lock, or reports a lock still held as a stale anchor instead of UNMEASURED (T-1307)"

@@ -19,6 +19,9 @@ Two sections, runme first so a failing mail check can never hide it:
   5. Stale [REVIEW] documents (T-1152, OBS-291): an open [REVIEW] criterion that asks someone to read a docs/
      document older than its task's content. One line from tools/_t1152-stale-review-doc.py naming the
      tasks; informational too.
+  6. Browser tier (T-1355): the browser tier's last run from tests/.run-history.tsv, via
+     tools/_t1355-browser-tier-age.py: OK, RED, or STALE when the vendored framework changed since or it is over
+     7 days old. Pushes run only the core tier, so this is where a red or unrun browser tier shows. Informational.
 
 The user-level /resume skill (step 7) runs `scripts/session-start-alerts.sh --limit 10`; the
 script may run with no task in focus (T-1047 allowlist).
@@ -340,6 +343,19 @@ def identity_coverage():
     print("TermLink identity: %s" % line)
 
 
+def browser_tier():
+    """T-1355: when the browser tier last ran, and whether the framework moved since. One line; never fails the run."""
+    tool = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "_t1355-browser-tier-age.py")
+    try:
+        r = subprocess.run([sys.executable, tool], capture_output=True, text=True, timeout=60)
+        line = (r.stdout.strip().splitlines() or ["(no output)"])[-1]
+        if r.returncode not in (0, 1, 3):
+            line = "NOT CHECKED — exit %d: %s" % (r.returncode, (r.stderr.strip().splitlines() or [""])[-1][:120])
+    except (OSError, subprocess.TimeoutExpired) as e:
+        line = "NOT CHECKED — %s" % e
+    print("Browser tier: %s" % line)
+
+
 def mark_seen_ids(ids):
     """T-1248: mark as shown ONLY the messages named (full id or a unique prefix of one listed now). A blanket
     --mark-seen marks every listed message, read or not, and a shown message is withheld from the mail watcher
@@ -388,6 +404,7 @@ def main(argv=None):
         aef_host_contract()
         stale_review_docs()
         identity_coverage()
+        browser_tier()
     return max(rc_mail, rc_topics)
 
 

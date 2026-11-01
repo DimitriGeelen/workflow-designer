@@ -1,0 +1,21 @@
+id: tests/test_t1355_browser_tier_age.py
+name: test_t1355_browser_tier_age
+type: script
+subsystem: tests
+location: tests/test_t1355_browser_tier_age.py
+tags: []
+
+purpose: "T-1355: the browser tier's age line — green, red, stale by a framework commit, stale by age, no run recorded."
+purpose_source: docstring
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-11-01
+created_by: unknown
