@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T09:26:23Z
-last_update: 2026-11-01T09:29:27Z
+last_update: 2026-11-01T09:48:16Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -97,7 +97,7 @@ bvp_scores_proposed:
 - [x] `snapshot()` in `tools/_writeset_hermeticity.py` skips files named `.audit-inflight.*` (any pid, with or without the `.fired` suffix), and says why
 - [x] Reproduced, then fixed: a marker created before and removed after the first snapshot shows as a change with the old helper and none with the new one; a stray file of any other name still shows
 - [x] `_t525-fabric-coverage-teeth.py`, `_t552-writeset-hermeticity-teeth.py`, `_t532-hermeticity-scope-census.py`, `_t558-hermeticity-census-teeth.py` all pass
-- [ ] Core tier green
+- [x] Core tier green (217/0, 1095 s, on the T-1354 commits)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
