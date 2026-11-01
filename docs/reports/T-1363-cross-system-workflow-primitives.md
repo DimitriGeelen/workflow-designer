@@ -79,3 +79,10 @@ generalisation request; to be confirmed with a second project's map.
 - **2026-11-01, operator: "Let's run it"** — yes to the mapping for WT-01's non-data io: instructions and screen states
   as the step's documentation (visible: acceptance criteria and human trigger), documents as BPMN data objects, state
   changes as events (triggers), the TactonEvent as an object. Per-io proposal for all 36 written and sent the same day.
+- **2026-11-01, greenfield (msg 4a5ca75d):** the map was out of date where it disagreed with the practice case (it
+  predates the owner's decisions): the binding document is the signed order confirmation, not the quote; the open order
+  comes at the verbal yes, before the confirmation; "Closed Won after the signed confirmation" is a working assumption
+  they want MARKED as such; a new decided-but-not-built object (Sales Order mirroring the CPQ order states). Evidence for
+  need 4 (decision status per step) and need 2 (state transitions as triggers): a design map in a live project mixes
+  decided, assumed and open, and the map drifted from decisions made after it. Interim agreed: a `Decision:` line in the
+  step documentation.
