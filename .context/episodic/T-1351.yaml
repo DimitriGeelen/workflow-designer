@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1351: T-1048 check 6 reads Watchtower /designer, which since AEF T-4716 redirects to the project browser: 0 cards, browser-tier red
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-01T10:24:09Z
+# ============================================================================
+
+task_id: T-1351
+task_name: "T-1048 check 6 reads Watchtower /designer, which since AEF T-4716 redirects to the project browser: 0 cards, browser-tier red"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-01T00:48:56Z
+completed: 2026-11-01T10:24:00Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-01T11:23:59+01:00
+last_commit: 2026-11-01T11:23:59+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  _t1048 check 6 reads /designer/corpus — since AEF T-4716 (vendored with be.31) /designer redirects to the project browser and the cards moved; green on 6 cards, red when pointed back at /designer
+
+# Key outcomes
+outcomes:
+  - 'Check 6 of `tools/_t1048-gallery-thumbs.py` fetches `/designer/corpus` (the card list since AEF T-4716) and names that URL in its label'
+  - '`python3 tools/_t1048-gallery-thumbs.py` exits 0 against the running Watchtower, check 6 counting more than 0 cards'
+  - 'Teeth: pointed back at `/designer`, check 6 is red (0 cards), so it still fails on a page without cards'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1351-t-1048-check-6-reads-watchtower-designer.md'
+  - 'tools/_t1048-gallery-thumbs.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-01T11:23:59'
+    action: 'T-1351: _t1048 check 6 reads /designer/corpus — since AEF T-4716 (vendored with be.31) /designer redirects to the project browser and the cards moved; green on 6 cards, red when pointed back at /designer'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 575 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 575
+  commits: 2
+  files_changed: 5
+  lines_added: 173
+  lines_removed: 21
+  footprint_refreshed_at: '2026-11-01T10:24:14Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1351-t-1048-check-6-reads-watchtower-designer.md
+generated_by: context-agent-hybrid
