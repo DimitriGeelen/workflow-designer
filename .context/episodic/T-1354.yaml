@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1354: Hermeticity snapshot counts a concurrent audit's in-flight marker (.audit-inflight.<pid>, AEF T-4840) as a write: _t525 leg 7 red when a cron audit straddles the core run
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-01T09:48:34Z
+# ============================================================================
+
+task_id: T-1354
+task_name: "Hermeticity snapshot counts a concurrent audit's in-flight marker (.audit-inflight.<pid>, AEF T-4840) as a write: _t525 leg 7 red when a cron audit straddles the core run"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-01T09:26:23Z
+completed: 2026-11-01T09:48:17Z
+duration_days: 0
+updates_count: 4
+first_commit: 2026-11-01T10:29:08+01:00
+last_commit: 2026-11-01T10:48:16+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the hermeticity snapshot skips audits' in-flight markers (.audit-inflight.<pid>, AEF T-4840) — a cron audit straddling _t525's run read as a stray deletion and stopped job 113 at step 8; reproduced (marker counted, stray counted) then fixed (stray only); _t525/_t552/_t532/_t558 green. learning PL-430 — after an upgrade, diff the audit's footprint in .context/audits/ against the hermeticity exclusions. core green 217/0 with the fix
+
+# Key outcomes
+outcomes:
+  - '`snapshot()` in `tools/_writeset_hermeticity.py` skips files named `.audit-inflight.*` (any pid, with or without the `.fired` suffix), and says why'
+  - 'Reproduced, then fixed: a marker created before and removed after the first snapshot shows as a change with the old helper and none with the new one; a stray file of any other name still shows'
+  - '`_t525-fabric-coverage-teeth.py`, `_t552-writeset-hermeticity-teeth.py`, `_t532-hermeticity-scope-census.py`, `_t558-hermeticity-census-teeth.py` all pass'
+  - 'Core tier green (217/0, 1095 s, on the T-1354 commits)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'core green 217/0 with the fix'
+    source: git-mined
+  - description: 'the hermeticity snapshot skips audits'' in-flight markers (.audit-inflight.<pid>, AEF T-4840) — a cron audit straddling _t525''s run read as a stray deletion and stopped job 113 at step 8; reproduced (marker counted, stray counted) then fixed (stray only); _t525/_t552/_t532/_t558 green'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-1354-hermeticity-snapshot-counts-a-concurrent.md'
+  - 'tools/_writeset_hermeticity.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-01T10:29:08'
+    action: 'T-1354: the hermeticity snapshot skips audits'' in-flight markers (.audit-inflight.<pid>, AEF T-4840) — a cron audit straddling _t525''s run read as a stray deletion and stopped job 113 at step 8; reproduced (marker counted, stray counted) then fixed (stray only); _t525/_t552/_t532/_t558 green'
+  - time: '2026-11-01T10:29:27'
+    action: 'T-1354: learning PL-430 — after an upgrade, diff the audit''s footprint in .context/audits/ against the hermeticity exclusions'
+  - time: '2026-11-01T10:48:16'
+    action: 'T-1354: core green 217/0 with the fix'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 21 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 21
+  commits: 4
+  files_changed: 6
+  lines_added: 544
+  lines_removed: 9
+  footprint_refreshed_at: '2026-11-01T09:48:41Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1354-hermeticity-snapshot-counts-a-concurrent.md
+generated_by: context-agent-hybrid
