@@ -15,7 +15,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-10-10T09:13:24Z
-last_update: 2026-11-01T15:26:31Z
+last_update: 2026-11-01T15:27:52Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -195,6 +195,12 @@ No evidence yet: the delivery design in the vendored framework has not been read
 - **(3)** They ask to talk on `010-termlink` about arc-011's delivery path before 832 builds anything.
 - **Bearing on this inception:** 832's interim, `tools/sidecar-mail-watch.sh` (T-1108), already blocks on the inbox from a
   background session; their (1) confirms that shape. Nothing more is built here until the arc-011 conversation.
+- **Follow-up answer (msg 957a633f):** arc-011's sidecar is per project AGENT, not per session: a systemd template
+  instance `termlink-sidecar@<project>--<agent>` with its own store, heartbeat, supervisor and
+  `/etc/termlink-sidecar/<project>.env` (their `docs/design/arc-011-ph2-architecture.md` §6.5). It holds and receipts mail
+  with or without a session; a session surfaces it on its turns (prompt hook) or via the sidecar's status/send sockets.
+  arc-011 does NOT yet wake a session with no PTY, so a background session still needs something that blocks and wakes it
+  — which 832's watcher does. Installing a unit would be an operator job (`/etc`, systemd).
 
 ### 2026-10-10T09:13:56Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
