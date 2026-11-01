@@ -33,8 +33,8 @@ behind WT-01: a build-to-order quoting process across a CRM, a CPQ tool, two pie
 and finance, with each system's role and what it is master of; every step with who, which system, and what decides the
 next step; every cross-system exchange with object, means and trigger; the documents and which change state; the
 state transitions that start other steps; and why WT-01 carries screen states and instructions. The document itself is
-greenfield's client data and is kept out of this repo (session scratchpad only); what follows is 832's generalised
-reading of it.
+greenfield's client data and is kept out of this repo: on this host only, in the git-ignored
+`build/peer-data/greenfield/` (mode 700; with WT-01 itself), for this work. What follows is 832's generalised reading.
 
 **Requirements greenfield draws for the designer (its §6), with 832's first mapping to BPMN:**
 
