@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T08:35:25Z
-last_update: 2026-11-01T10:19:23Z
+last_update: 2026-11-01T10:29:58Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -97,7 +97,7 @@ bvp_scores_proposed:
 - [x] Release notes `docs/releases/RELEASE-NOTES-0.34.0.md` committed: changes, what changes in stored maps, what is not kept yet, the endpoint table for AEF
 - [x] Operator job written with `tools/runme-new.sh`, dry-run rehearsed (`dryrun.ok`), committed (job 113, sha 9dd127d9f306)
 - [x] The operator's run ends `done`; tag designer-v0.34.0 is on origin (job 113 stopped at step 8 on T-1354's race and was retired after steps 1-7; job 114 done 2026-11-01 10:18, tag on 2262815ff, sha256 47fa180a00caccfb1658e77c49e5a053b02d847825bf03fc55e9a37fc66fa3b2, 1310486 bytes)
-- [ ] AEF sent version, tag, sha256, bytes and changes; `tools/_t1187-aef-pin-lag.sh` reads CURRENT (sent: msg a52b3eac, RECEIVED, conversation designer-0.34.0-release; pin BEHIND 0.33.0, task id asked)
+- [ ] AEF sent version, tag, sha256, bytes and changes; `tools/_t1187-aef-pin-lag.sh` reads CURRENT (sent: msg a52b3eac, RECEIVED, conversation designer-0.34.0-release; pin BEHIND 0.33.0, task id asked). AEF replied (msg 25e062a5): re-pin tracked as AEF T-4957, asked for the kit anchors; sent (msg f02fcf23): SHA256SUMS sha256 29cbacdd…914b, validate-workflow.py unchanged from 0.33.0 (b82eaff0…e4f3, 115706 bytes)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
