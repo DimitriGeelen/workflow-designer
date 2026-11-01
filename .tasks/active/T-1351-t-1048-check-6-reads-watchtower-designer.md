@@ -1,13 +1,19 @@
 ---
 id: T-1351
-name: "T-1048 check 6 reads Watchtower /designer, which since AEF T-4716 redirects to the project browser: 0 cards, browser-tier red"
+name: "T-1048 check 6 reads Watchtower /designer, which since AEF T-4716 redirects
+  to the project browser: 0 cards, browser-tier red"
 description: >
-  Browser tier on 74cbede38: _t1048-gallery-thumbs.py check 6 fetches $WT/designer and counts corpus cards; AEF T-4716 (operator option 1, 2026-10-23) made /designer a 302 to /designer/app?browse=1 and moved the card list to /designer/corpus, so the check finds 0 cards. Passes where Watchtower is absent (NOT CHECKED). Not T-1350's: same result with the pre-T-1350 tree's tool against the live Watchtower.
+  Browser tier on 74cbede38: _t1048-gallery-thumbs.py check 6 fetches $WT/designer
+  and counts corpus cards; AEF T-4716 (operator option 1, 2026-10-23) made /designer
+  a 302 to /designer/app?browse=1 and moved the card list to /designer/corpus, so
+  the check finds 0 cards. Passes where Watchtower is absent (NOT CHECKED). Not T-1350's:
+  same result with the pre-T-1350 tree's tool against the live Watchtower.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T00:48:56Z
-last_update: 2026-11-01T00:48:56Z
-date_finished: null
+last_update: 2026-11-01T10:23:59Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-01T10:22:43Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1351: T-1048 check 6 reads Watchtower /designer, which since AEF T-4716 redirects to the project browser: 0 cards, browser-tier red
@@ -57,20 +83,20 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** Browser tier on 74cbede38 (T-1350's full run, 2026-11-01): `_t1048-gallery-thumbs.py` check 6 red, "0 cards, 0 img tiles, 0 bad".
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** Check 6 fetches Watchtower's `/designer` and counts its corpus cards. AEF T-4716 (operator option 1, 2026-10-23) made `/designer` a 302 to the base designer's project browser (`/designer/app?browse=1`) and moved AEF's card list to `/designer/corpus`. The check follows the redirect to a page with no cards. `/designer/corpus` serves 6 cards with tiles and links today.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** Check 6 measures the page that now carries Watchtower's design cards.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** `_t1048` green with check 6 counting the cards on `/designer/corpus`; a page with no cards still fails it.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Check 6 of `tools/_t1048-gallery-thumbs.py` fetches `/designer/corpus` (the card list since AEF T-4716) and names that URL in its label
+- [x] `python3 tools/_t1048-gallery-thumbs.py` exits 0 against the running Watchtower, check 6 counting more than 0 cards
+- [x] Teeth: pointed back at `/designer`, check 6 is red (0 cards), so it still fails on a page without cards
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -256,6 +282,8 @@ date_finished: null
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+python3 tools/_t1048-gallery-thumbs.py > /tmp/.t1351.out 2>&1 && grep -q 'PASS  6 live /designer/corpus' /tmp/.t1351.out
+T1351_CARDS_PAGE=/designer python3 tools/_t1048-gallery-thumbs.py > /tmp/.t1351t.out 2>&1; grep -q 'FAIL  6 live /designer:' /tmp/.t1351t.out
 
 ## RCA
 
@@ -272,6 +300,13 @@ date_finished: null
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+**Symptom:** browser tier red on `_t1048` check 6: the live Watchtower designer page has 0 cards.
+
+**Root cause:** the check hard-codes `/designer` as the page holding Watchtower's design cards. AEF T-4716 moved that list to `/designer/corpus` and turned `/designer` into a redirect to the project browser, which has no card markup.
+
+**Why structurally allowed:** the browser tier is not run on push (only core is), so a red browser leg after a framework upgrade goes unseen until someone runs the full suite; the upgrade jobs run the core tier only.
+
+**Prevention:** the check now targets `/designer/corpus` with a teeth run showing it red on a cardless page; the broader gap (browser tier not run after an upgrade) is noted in this task for the next upgrade job to run the browser tier as well.
 
 ## Evolution
 
@@ -353,3 +388,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1351-t-1048-check-6-reads-watchtower-designer.md
 - **Context:** Initial task creation
+
+### 2026-11-01T10:22:42Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

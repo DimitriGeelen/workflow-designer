@@ -116,11 +116,14 @@ def main():
         leg(False, "5 Watchtower card template renders", "%s: %s" % (type(e).__name__, e))
 
     import urllib.request
+    CARDS_PAGE = os.environ.get("T1351_CARDS_PAGE", "/designer/corpus")
     try:
         base = open(os.path.join(ROOT, ".context", "working", "watchtower.url")).read().strip()
-        page = urllib.request.urlopen(base + "/designer", timeout=10).read().decode("utf-8", "replace")
+        # T-1351: since AEF T-4716 (vendored with be.31, T-1281) /designer redirects to the base designer's project
+        # browser, and Watchtower's design cards live at /designer/corpus.
+        page = urllib.request.urlopen(base + CARDS_PAGE, timeout=10).read().decode("utf-8", "replace")
     except Exception as e:  # noqa: BLE001
-        print("NOT CHECKED  6 live /designer page — Watchtower not reachable (%s). Leg 5 still covers the template." % type(e).__name__)
+        print("NOT CHECKED  6 live " + CARDS_PAGE + " page — Watchtower not reachable (%s). Leg 5 still covers the template." % type(e).__name__)
     else:
         n_cards = page.count('class="corpus-card')
         srcs = re.findall(r'<img src="(/api/thumb\?[^"]+)"', page)
@@ -136,7 +139,7 @@ def main():
         n_tiles = page.count('class="corpus-thumb"') + page.count('class="corpus-thumb no-thumb"')
         leg(n_cards > 0 and n_tiles == n_cards and not bad
             and page.count("onclick=\"this.href=") == n_cards,
-            "6 live /designer: every card has a tile, every tile is a real PNG, one nonce link per card",
+            "6 live " + CARDS_PAGE + ": every card has a tile, every tile is a real PNG, one nonce link per card",
             "%d cards, %d img tiles, %d bad%s" % (n_cards, len(srcs), len(bad), (": %s" % bad) if bad else ""))
 
     stale = [m for m in maps for d in CORPORA
