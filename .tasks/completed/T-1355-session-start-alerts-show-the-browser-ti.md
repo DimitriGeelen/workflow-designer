@@ -8,13 +8,13 @@ description: >
   jobs run only the core tier and _t813's suite-age report counts full runs only and
   goes to syslog. A line in the alerts every session reads closes that.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tests/test_t1355_browser_tier_age.py, tools/_t1355-browser-tier-age.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T10:49:21Z
 last_update: 2026-11-01T11:22:36Z
-date_finished:
+date_finished: 2026-11-01T11:22:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -385,3 +385,21 @@ grep -q 'browser_tier()' tools/session-start-alerts.py && grep -q 'test_t1355_br
 
 ### 2026-11-01T10:49:26Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-01T11:22:36Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-62f9cc1f
+- **Timestamp:** 2026-11-01T11:22:49Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — `tools/_t1355-browser-tier-age.py` reads `tests/.run-history.tsv` (rows with tier `browser` or a full run with no tier), prints one line: OK / RED (N failed) / STALE (framework changed since, or older
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t1355-browser-tier-age.py in: `tools/_t1355-browser-tier-age.py` reads `tests/.run-history.tsv` (rows with tier `browser` or a full run with no tier), prints one line: OK / RED (N `
