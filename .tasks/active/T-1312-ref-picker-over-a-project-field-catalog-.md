@@ -49,7 +49,7 @@ arc_id: structured-io
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-26T11:53:48Z
-last_update: 2026-11-01T14:38:45Z
+last_update: 2026-11-01T14:48:56Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -130,7 +130,11 @@ pending. The **designer** picker (`src/`) waits until 088 has cut 0.29.0, so not
   `docs/views/nid-attributes.json`.
   *(`docs/reports/T-1312-field-catalog-contract.md`; sent to AEF on 832-t4415-priority and to greenfield on
   gf-io-v11-check-2026-10-24, 2026-10-26.)*
-- [ ] Released, then greenfield picks a ref from its own catalog on its own map and confirms (arc-006 rule).
+- [x] Released, then greenfield picks a ref from its own catalog on its own map and confirms (arc-006 rule).
+  *(WORKS, 2026-11-01, greenfield msg f0df25da (first reported 2026-10-29, DM offset 101): on AEF fw v1.8.15+2, designer
+  0.31.0, DESIGNER_FIELD_CATALOG=docs/views/nid-attributes.json, NO stub: Watchtower GET /api/field-catalog served 1294
+  rows, 0 intercepted requests; on the stored VZN-T1 case A ref changed with its own dataType kept, case B ref set and
+  dataType prefilled; exactly 3 attribute differences in buildBpmnXml.)*
   *(greenfield serves the designer through AEF's Watchtower, not gallery-serve.py (msg 057dc504): the full confirmation
   needs AEF to serve /api/field-catalog (T-4737). Agreed interim: a run with an in-page stub on its real catalog file,
   recorded as PARTIAL; this criterion stays open until the run without the stub.)*

@@ -139,10 +139,13 @@ and the kit; the designer then shows the findings on the io. Not started at the 
   *(Gate exit 0 (243 s); `docs/reports/T-1303-evidence/findings-*`; sweep 5 OK / 1 minor kept; reviewer GREEN-DEGRADED
   V-20261027-cb560298 (claude-code and codex green; opencode: rounds 1-2 voided by a .pyc the harness's server wrote,
   fixed in 3af04462; round 3 no verdict, its sandbox refused a write to its own scratch directory).)*
-- [ ] Released, then greenfield sees a finding on a copy of its own map (arc-006 rule), on AEF once AEF serves
+- [x] Released, then greenfield sees a finding on a copy of its own map (arc-006 rule), on AEF once AEF serves
   `/api/validate` (T-4737 GO for validate, 2026-10-27).
   *(2026-11-01: AEF serves POST /api/validate (T-4830, vendored be.4). Greenfield asked to Check a copy of its own map
   on be.13+ and confirm a finding under its io (msg da657fe7, conversation gf-io-v11-check-2026-10-24).)*
+  *(WORKS, 2026-11-01, greenfield msg f0df25da (first reported 2026-10-29): on AEF fw v1.8.15+2, designer 0.31.0,
+  /api/validate answered; negative control in memory (nothing saved): operation=update without a match field on node
+  sal_2_configurator gave E-XML-IO-MATCH-MISSING located at input[0] "sfdc:Opportunity.Id", under the io it belongs to.)*
 
 ### Human
 - [x] A Check finding on an io reads as belonging to that io and says what is wrong, without crowding the io's own
