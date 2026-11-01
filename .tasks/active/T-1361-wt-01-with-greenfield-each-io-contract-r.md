@@ -388,6 +388,24 @@ bvp_scores_proposed:
 - **Rejected:** format rules on each `aef:field` in the map. They would be repeated on every step and could contradict the type.
 - **Open:** greenfield's answer (does its ontology hold lengths, picklists and formats?). The designer does not show
   the new catalog keys yet; displaying them is a separate 832 build task, filed once greenfield agrees.
+- **Correction (msg 32e76d28):** use SHACL's names (datatype, maxLength, pattern, in, description) or a shape reference.
+  Only example, valueSource and derivedFrom stay as 832's own keys.
+
+### 2026-11-02 — greenfield's conversion wt01-io-v11 (msg ed2086a1) and 832's first answers (msg ca5d8a37)
+- **Greenfield's result:**
+  - 27 steps, 40 io, 180 aef:field, all resolved to its catalog (35 attributes added).
+  - 14 aef:expect as format rules and 26 `Mapping:` lines.
+  - Events: 3 message, 1 conditional. Data objects with dataState.
+  - Validator 0.31.0: 33 findings, the same as before (7 sendTask, fixed in 0.35.0).
+  - Round trip identical. One message event name not drawn (before ver_7, T-1364).
+- **832's answers, in principle and to be checked against the file:**
+  - Mapping lines: keep them, but name the rule's IRI. A field-level construct is a candidate term for AEF T-4991.
+  - An expect on an output that acts as a precondition: move it to an input. On an input it is a precondition, on an
+    output a postcondition.
+  - Pass-through system: sourceSystem = the carrier the step receives from (NavGateway). The fieldRefs stay
+    Salesforce's while passed through unchanged, plus a `Master:` line in the documentation. Carrier vs system of
+    record is a candidate term for T-4991.
+- **Next:** greenfield sends the file (owner-approved, kept out of the repo). Then 832 reviews each io.
 
 ## Decision
 
