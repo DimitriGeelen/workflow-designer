@@ -1,0 +1,181 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1362: Upgrade AEF v1.8.16-be.4 -> v1.8.16-be.15 (T-4941: the false host-shared-key WARN; re-vendor 832's local fixes; browser tier after)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-01T19:53:07Z
+# ============================================================================
+
+task_id: T-1362
+task_name: "Upgrade AEF v1.8.16-be.4 -> v1.8.16-be.15 (T-4941: the false host-shared-key WARN; re-vendor 832's local fixes; browser tier after)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-01T17:11:28Z
+completed: 2026-11-01T19:53:00Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-01T18:12:28+01:00
+last_commit: 2026-11-01T20:52:59+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  upgrade task (be.4 -> be.15) with context and criteria. job 116 — upgrade AEF be.4 -> be.15 (job 112's code); all 9 steps rehearsed in a clone. pristine vendor commit — AEF v1.8.16-be.15 (0522186b9) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.16-be.15 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000). re-apply 832's local fixes onto pristine AEF v1.8.16-be.15 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/0ac8eaf66bcb, all clean, incl. web/templates/designer_open.html (T-1172/T-1175, added); divergence 44 = 44 declared; templates: inception.md.upstream superseded; no .bak left. be.15 upgrade done, local fixes re-applied (37 clean), the false host-shared WARN gone (AEF told); core 218/0, browser tier running. browser tier 132/0 and core 218/0 on be.15; verification. positive control for the no-WARN line (census back to 74); learning on absence assertions
+
+# Key outcomes
+outcomes:
+  - 'Upgrade job written from job 112''s code, dry-run rehearsed, committed; the operator''s run ends `done` (job 116: all 9 steps rehearsed in a clone; real run done 2026-11-01 19:22, rc 0; framework 1.8.15+415.g0522186b9)'
+  - 'Re-vendor protocol completed: every local fix the upgrade overwrote is re-applied or dropped with a reason; divergence check clean; `designer_open.html` and other `??` paths staged (be.4 learning) — 37 patches from build/revendor-worklist/0ac8eaf66bcb, all clean (36 M + designer_open.html A); `_t517`: 44 diverged = 44 declared, OK'
+  - 'Upgrade backups (`*.bak`) diffed and removed per the operator''s rule; templates handled by `_t1192-upgrade-templates.sh` — no .bak left by this upgrade; step 8: inception.md.upstream superseded and removed'
+  - 'Core tier and browser tier green after the upgrade (core 218/0 in 904 s, browser 132/0 in 802 s, on the re-applied tree)'
+  - '`fw sidecar alerts` no longer prints the host-shared-key WARN; AEF told (one line) — 0 WARN lines after the upgrade; AEF told (msg 128aaa36)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'be.15 upgrade done, local fixes re-applied (37 clean), the false host-shared WARN gone (AEF told); core 218/0, browser tier running'
+    source: git-mined
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.16-be.15 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/0ac8eaf66bcb, all clean, incl. web/templates/designer_open.html (T-1172/T-1175, added); divergence 44 = 44 declared; templates: inception.md.upstream superseded; no .bak left'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/audit/unit_suite_baseline.py'
+  - '.agentic-framework/agents/audit/unit_tier.py'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/check-project-boundary.sh'
+  - '.agentic-framework/agents/context/check-tier0.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/agents/termlink/termlink.sh'
+  - '.agentic-framework/agents/ux-review/ux_shots.py'
+  - '.agentic-framework/bin/claude-fw'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/docs/generated/components/bin-claude-fw.md'
+  - '.agentic-framework/docs/generated/components/lib-governance_known.md'
+  - '.agentic-framework/docs/generated/components/lib-review_seat_evidence.md'
+  - '.agentic-framework/docs/generated/components/lib-reviewer-restatement_cli.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t4932_judge_get_routes_test.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t4933_review_seat_evidence_test.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t4935_boundary_extra_read_symlink.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t4943_capture_every_required_page_test.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-test_t4930_restatement.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-test_t4941_host_fingerprint_signing.md'
+  - '.agentic-framework/docs/reports/T-1549-escalation-scan-v0.md'
+  - '.agentic-framework/docs/reports/T-4944-harness-seat-vision.md'
+  - '.agentic-framework/docs/reports/T-4953-readonly-pipe-consult.md'
+  - '.agentic-framework/docs/reports/T-4961-driver-sets.md'
+  - '.agentic-framework/docs/reports/T-4965-scoped-access-grants.md'
+  - '.agentic-framework/docs/reports/field-test-v1.8.16-results.md'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/arc_close_readiness.py'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/delegation.py'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/govd_sandbox.py'
+  - '.agentic-framework/lib/hook-dispatch.sh'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/review.sh'
+  - '.agentic-framework/lib/review_cost.py'
+  - '.agentic-framework/lib/review_seat_evidence.py'
+  - '.agentic-framework/lib/reviewer/judge_cli.py'
+  - '.agentic-framework/lib/reviewer/restatement_cli.py'
+  - '.agentic-framework/lib/sidecar/dm.py'
+  - '.agentic-framework/lib/sidecar/retry.py'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/verdict_ledger.py'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/policy/review-backends.yaml'
+  - '.agentic-framework/vendor/designer/aef-workflow-designer-0.34.0.html'
+  - '.agentic-framework/vendor/designer/validate-workflow-0.34.0.py'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/approvals.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.context/project/learnings.yaml'
+  - '.context/runme/116-upgrade-aef-v1.8.16-be.15/dryrun.ok'
+  - '.context/runme/116-upgrade-aef-v1.8.16-be.15/job.sh'
+  - '.framework.yaml'
+  - '.tasks/active/T-1362-upgrade-aef-v1816-be4---v1816-be15-t-494.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-01T18:12:28'
+    action: 'T-1362: upgrade task (be.4 -> be.15) with context and criteria'
+  - time: '2026-11-01T18:14:03'
+    action: 'T-1362: job 116 — upgrade AEF be.4 -> be.15 (job 112''s code); all 9 steps rehearsed in a clone'
+  - time: '2026-11-01T20:21:30'
+    action: 'T-1362: pristine vendor commit — AEF v1.8.16-be.15 (0522186b9) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-11-01T20:21:32'
+    action: 'T-1362: advance the divergence baseline to the pristine AEF v1.8.16-be.15 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000)'
+  - time: '2026-11-01T20:23:33'
+    action: 'T-1362: re-apply 832''s local fixes onto pristine AEF v1.8.16-be.15 (re-vendor protocol step 3, T-1000): 37 patches from build/revendor-worklist/0ac8eaf66bcb, all clean, incl. web/templates/designer_open.html (T-1172/T-1175, added); divergence 44 = 44 declared; templates: inception.md.upstream superseded; no .bak left'
+  - time: '2026-11-01T20:39:52'
+    action: 'T-1362: be.15 upgrade done, local fixes re-applied (37 clean), the false host-shared WARN gone (AEF told); core 218/0, browser tier running'
+  - time: '2026-11-01T20:52:44'
+    action: 'T-1362: browser tier 132/0 and core 218/0 on be.15; verification'
+  - time: '2026-11-01T20:52:59'
+    action: 'T-1362: positive control for the no-WARN line (census back to 74); learning on absence assertions'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 161 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 161
+  commits: 9
+  files_changed: 88
+  lines_added: 6323
+  lines_removed: 3909
+  footprint_refreshed_at: '2026-11-01T19:53:12Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1362-upgrade-aef-v1816-be4---v1816-be15-t-494.md
+generated_by: context-agent-hybrid
