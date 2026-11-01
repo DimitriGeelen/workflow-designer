@@ -152,7 +152,7 @@ We will know that we are successful when we see <measurable signal>.
   rationale: operator asked to generalise
 - **IW-4: Should the cross-system primitives (document + state, state change as trigger, user-started system action, key between systems, decision/proof status, attribute value rules) be a small shared workflow-design vocabulary reusing BPMN, SHACL and PROV-O — and who owns which part (ontocraft unchanged for building ontologies; AEF the vocabulary and spec; 832 the ontology↔map bridge: catalog from ontology incl. SHACL, validator checks, designer display, an authoring-kit skill)?**
   confidence: 1
-  disposition: (open — proposed to AEF 2026-11-01; first evidence: greenfield's answer on what its ontology holds, msg b04ef4c6)
+  disposition: (open — AEF filed it as T-4991, an inception; whether AEF owns the vocabulary is AEF's operator's call; AEF's own view: yes to SHACL for value rules; few linking terms, each with one WT-01 example; msg 4150db95)
   rationale: operator 2026-11-01 asked whether workflow design needs ontology tooling and who builds it (832 adapting the ontocraft plugin, 832's own skill, or AEF); agent recommended the split, operator said yes
 
 ## Exploration Plan

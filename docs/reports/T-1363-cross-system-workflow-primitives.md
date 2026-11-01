@@ -121,3 +121,11 @@ not visible on the canvas (filed separately as a possible bug).
   - **AEF in general** (an ontology for tasks and governance) is AEF's operator's call. Raise it only after this works
     for workflow design.
   - The catalog keys proposed to greenfield should take SHACL's names, to avoid a home-made format.
+- **2026-11-01, AEF (msg 4150db95):** filed as **T-4991**, an inception like T-4415.
+  - Whether AEF owns the vocabulary is its operator's decision. It is on his list, and nothing is built before 832's
+    T-1363 decision.
+  - AEF's own view: SHACL for value rules. The shape lives with the producer's type, and the map refers to it.
+  - Open design point: keep the linking terms few (document state as trigger, user-started system action, key mapping,
+    decision and proof status), each with one worked WT-01 example.
+  - AEF asks for greenfield's WT-01 evidence as the inception's first artefact. 832 will send it shaped as one example
+    per term.
