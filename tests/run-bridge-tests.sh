@@ -1765,6 +1765,22 @@ else
 fi
 }
 leg browser "_t1344-boundary-placement" _leg_220
+
+_leg_221() {
+
+# ── T-1350: a host carrying more boundary events than its edges hold at its type's size is drawn at the file's size ──
+# kitchen-sink's subprocess (12 events, 150x600 in the file) drawn at least that size with no two circles overlapping;
+# a host that fits (boundary-events) gets no size of its own; the save keeps the size, the reparse keeps it (undo), and
+# a second save is identical. Red on the pre-T-1350 source (23 overlapping pairs on a 120x64 host).
+if node "$ROOT/tools/_t1350-dense-boundary-cdp.mjs" > "$TMP/leg-_t1350.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a host dense with boundary events is drawn at its type's size again (circles overlap), a host that fits got a size of its own, or the size is lost on save or reparse (run 'node tools/_t1350-dense-boundary-cdp.mjs'; T-1350)"
+  show_output "$TMP/leg-_t1350.out" "_t1350-dense-boundary-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1350-dense-boundary" _leg_221
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

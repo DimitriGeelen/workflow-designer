@@ -1,0 +1,21 @@
+id: tools/_t1350-dense-boundary-cdp.mjs
+name: _t1350-dense-boundary-cdp
+type: script
+subsystem: browser-harness
+location: tools/_t1350-dense-boundary-cdp.mjs
+tags: []
+
+purpose: "_t1350-dense-boundary-cdp.mjs — T-1350: a host carrying more boundary events than its edges hold at its type's size is drawn at the file's size, so its events sit apart."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-11-01
+created_by: unknown

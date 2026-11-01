@@ -4,8 +4,8 @@
 // boundary event attached to a host that is drawn in the file:
 //   1. the edge it sits on in the designer (top/right/bottom/left of its host) is the edge it sits on in the file;
 //   2. events on one edge of one host keep the file's order along that edge;
-//   3. no two events on one host sit on the same point (under 2 px apart) — the stacking T-1344 fixes. Not "36 px apart":
-//      kitchen-sink puts 6 events on a host edge the designer draws 64 px long, where 36 px events cannot avoid overlap;
+//   3. no two events on one host sit on the same point (under 2 px apart) — the stacking T-1344 fixes. Overlap on a
+//      dense host (kitchen-sink's 6 per edge) is T-1350's, measured by _t1350-dense-boundary-cdp.mjs;
 //   4. a second save (reparse the first) is byte-identical.
 //   node tools/_t1344-boundary-placement-cdp.mjs        T1344_SRC=<designer.html> substitutes another source
 // Exit 0 = all green; 1 = a check failed; 2 = misconfig.
@@ -55,7 +55,7 @@ const CHECK = `(async function(xml){
   Object.keys(file).forEach(function(id){
     var n = byOrig[id], h = n && byOrig[file[id].host];
     if (!n || !h) { errs.push(id + ': not imported with its host'); return; }
-    var nd = NODE_DEFAULTS[n.type], hd = NODE_DEFAULTS[h.type];
+    var nd = NODE_DEFAULTS[n.type], hd = h.drawSize || NODE_DEFAULTS[h.type];   // T-1350: a dense host has its own size
     got[id] = Object.assign({ host: file[id].host, cx: n.x + nd.w / 2, cy: n.y + nd.h / 2 },
       edgeOf(n.x + nd.w / 2, n.y + nd.h / 2, { x: h.x, y: h.y, w: hd.w, h: hd.h }));
     if (got[id].edge !== file[id].edge) errs.push(id + ': on the ' + got[id].edge + ' edge, the file has it on the ' + file[id].edge);
