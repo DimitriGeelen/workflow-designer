@@ -68,6 +68,11 @@ def snapshot(repo, subdir, exclude_subdir=CRON):
         if rel_dir != "." and (rel_dir + os.sep).startswith(exclude_subdir):
             continue
         for name in filenames:
+            # T-1354: since AEF T-4840 every audit body, cron's included, keeps an in-flight marker
+            # `.audit-inflight.<pid>` (and `.fired`) beside the reports while it runs. It is a lock,
+            # not content: a cron audit straddling the two snapshots read as a deletion by the subject.
+            if name.startswith(".audit-inflight."):
+                continue
             path = os.path.join(dirpath, name)
             try:
                 with open(path, "rb") as fh:
