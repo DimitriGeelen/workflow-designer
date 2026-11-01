@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1356: Prune 832's finished Claude session scratch under /tmp/claude-0 on .107 (operator-approved 2026-11-01, peer dimitri-mint-dev's .107 load request)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-01T12:19:14Z
+# ============================================================================
+
+task_id: T-1356
+task_name: "Prune 832's finished Claude session scratch under /tmp/claude-0 on .107 (operator-approved 2026-11-01, peer dimitri-mint-dev's .107 load request)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-01T12:17:20Z
+completed: 2026-11-01T12:19:08Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-01T13:19:08+01:00
+last_commit: 2026-11-01T13:19:08+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  pruned 832's Claude scratch on .107 with the operator's approval — 3.0 GB to 12 MB (three finished repo copies in this session's scratchpad; 10 empty finished-session dirs); peer told
+
+# Key outcomes
+outcomes:
+  - 'Every session directory under /tmp/claude-0/-opt-832-Workflow-designer is classified live or finished before anything is deleted (live = this session, or held open by a running process, or written in the last hour) — 11 dirs: 572fe488 (this session) live, 3072 MB; the other 10 finished and EMPTY (0 files)'
+  - 'Only finished sessions'' directories are deleted; this session''s and every live one''s are untouched — the 10 empty dirs removed (each re-checked empty first). The space was in this session''s own scratchpad: three repo copies from finished investigations (rc 1349 MB, drift 1349 MB, base 353 MB) plus headtree 10 MB, none open by any process (lsof: only tasks/ outputs open); removed. tasks/ and small scratch files kept.'
+  - 'Size before and after recorded here; operator and dimitri-mint-dev told what was freed — 3.0 GB before, 12 MB after; peer told (notice, conversation dmd-107-load-2026-11-01)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1356-prune-832s-finished-claude-session-scrat.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-01T13:19:08'
+    action: 'T-1356: pruned 832''s Claude scratch on .107 with the operator''s approval — 3.0 GB to 12 MB (three finished repo copies in this session''s scratchpad; 10 empty finished-session dirs); peer told'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1
+  commits: 2
+  files_changed: 4
+  lines_added: 497
+  lines_removed: 4
+  footprint_refreshed_at: '2026-11-01T12:19:20Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1356-prune-832s-finished-claude-session-scrat.md
+generated_by: context-agent-hybrid
