@@ -39,7 +39,7 @@ unlocks_inception_decision: ["T-1151:own-key-identity-file"]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-18T13:52:55Z
-last_update: 2026-11-01T16:14:04Z
+last_update: 2026-11-01T20:24:41Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -168,6 +168,9 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
   identity env stripped, accepted only when source == host_default); 832's be.4 predates it. Residual found by our
   report: the code still falls back to whoami when `identity sign` fails, filed AEF T-4970 (unknown host key = no WARN).
   Next: upgrade to be.15 (operator job), then confirm the WARN is gone (replied, msg fac4316a).
+  — 2026-11-01: upgraded to be.15 (T-1362, job 116); the WARN is gone; AEF told (msg 128aaa36). AEF T-4970 (no whoami
+  fallback) shipped in v1.8.16-be.18 (65d8a7307, msg fd1c13e2): confirm `fw doctor` shows no host-shared WARN after
+  832's next upgrade, then tell AEF. Remaining here: the drain window (both fingerprints with no unread DMs).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
