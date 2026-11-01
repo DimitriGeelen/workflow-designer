@@ -374,6 +374,21 @@ bvp_scores_proposed:
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-11-01 — where attribute rules ("how a value is built up") live (proposed to greenfield, msg b04ef4c6)
+- **Operator:** each io should name the object, the source/target system, the attributes relevant to that input or output,
+  and guidance on how each attribute's value is built up (format, structure), never the actual value.
+- **Proposed:**
+  - *Which attributes:* one `aef:field` per attribute the step uses, role read / write / match. Never the whole entity.
+  - *How a value is built:* the catalog row (nid-attributes.json, catalog v1 allows extra keys). The optional keys are
+    `format`, `pattern` (ECMA-262), `maxLength`, `allowedValues`, `unit`, `example` (made-up shape only),
+    `valueSource` and `derivedFrom`.
+  - *Rules that hold only at one step:* `aef:expect` on the io.
+- **Why:** AEF spec T-4415 C says type-level rules belong in the referenced type, never in the map. One definition per
+  attribute avoids repeating (and drifting) the same format on every io.
+- **Rejected:** format rules on each `aef:field` in the map. They would be repeated on every step and could contradict the type.
+- **Open:** greenfield's answer (does its ontology hold lengths, picklists and formats?). The designer does not show
+  the new catalog keys yet; displaying them is a separate 832 build task, filed once greenfield agrees.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
