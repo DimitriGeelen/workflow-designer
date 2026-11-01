@@ -39,7 +39,7 @@ unlocks_inception_decision: ["T-1151:own-key-identity-file"]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-18T13:52:55Z
-last_update: 2026-10-20T13:52:51Z
+last_update: 2026-11-01T16:14:04Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -56,6 +56,18 @@ date_finished: null
 # T-1203: 832 signs with its own TermLink key at every entry point (T-1151 GO): spike, mint, roll out, verify, announce
 
 ## Context
+
+**Background / trigger:** T-1151 (GO, operator 2026-10-18, job 042): 832 signed with the host key d1993c2c3ec44c94 that
+126 sessions share, so any of them could read or acknowledge 832's DMs. Still biting on 2026-11-01: greenfield's
+2026-10-29 DMs to that key were read-receipted by another holder and never surfaced (T-1359).
+
+**Problem / hypothesis:** A shared identity makes 832's mail other agents' mail. The key is minted and every entry point
+uses it (coverage OK 9/9); what remains is the transition: peers that still address the host key, and the sidecar's
+host-shared WARN, which on 2026-11-01 proved a false positive in AEF's check (whoami resolves the session by pid walk).
+
+**Goal:** Every peer addresses 832's own fingerprint (05c467b46a0bdf5e); DMs on both keys drained; the false WARN fixed upstream.
+
+**Expected outcome:** No 832 mail on the host key's rails; the session-start alerts stop warning that 832 signs with the host key.
 
 Build for T-1151's GO (operator, 2026-10-18, job 042): 832 stops signing with the host key d1993c2c3ec44c94 that 126
 sessions share. Design, evidence and safeguards: `docs/reports/T-1151-termlink-identity.md` (TermLink source and an
@@ -143,6 +155,15 @@ runme job for the operator's y/N; the agent never mints. AEF's answers on the si
   (report a running MCP server's fingerprint). No dates promised. Once T-3467 lands, sessions, the MCP server and
   the receiver can also refuse a missing key. Still open: the drain window, which ends at the first session start where both
   fingerprints show no unread DMs. Tick then.
+  — 2026-11-01: (a) the announcement reached AEF but never greenfield, which kept DMing the host key; its 2026-10-29
+  DMs (offsets 101, 103) were read-receipted by another holder of d1993c2c and never surfaced (T-1359 now watches that
+  rail). Greenfield told 832's fingerprint (msg 29161bfa) and uses the sidecar conversation. No DM topic on
+  05c467b46a0bdf5e exists yet; 27 topics on the host key, all but greenfield's other agents'/tests'. (b) The
+  session-start "WARN this project signs with the host-shared TermLink key" is a FALSE POSITIVE in AEF's
+  `lib/sidecar/dm.py` `identity_is_host_shared()`: both fingerprints come from `termlink whoami --json`, which resolves
+  the registered session by pid walk whatever the environment, so the "host default" measured equals 832's own key
+  (05c467b4 == 05c467b4); the real host default is d1993c2c (`termlink identity show` in a clean env). Reported to AEF
+  (msg 4ebbef7c, RECEIVED, conversation 832-t1151-termlink-identity), task id asked.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
