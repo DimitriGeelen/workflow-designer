@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T14:50:30Z
-last_update: 2026-11-01T15:33:00Z
+last_update: 2026-11-01T15:46:09Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -286,6 +286,7 @@ bvp_scores_proposed:
 -->
 python3 tests/test_xml_node_type_vocab.py > /tmp/.t1358.out 2>&1 && grep -q 'vocabulary: OK' /tmp/.t1358.out
 out=$(python3 tools/validate-workflow.py tests/fixtures/t1358/task-subtypes.xml 2>&1); grep -q '4 task(s)' <<<"$out" && ! grep -q 'E-XML-NODE-TYPE' <<<"$out"
+out=$(python3 tools/validate-workflow.py tests/fixtures/invalid/E-XML-NODE-TYPE.xml 2>&1); grep -q 'E-XML-NODE-TYPE' <<<"$out"
 python3 tests/test_rule_dialect_axis.py > /tmp/.t1358b.out 2>&1
 
 ## RCA
