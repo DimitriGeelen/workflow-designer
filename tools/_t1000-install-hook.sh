@@ -34,9 +34,22 @@ T1239="$ROOT/tools/_t1239-install-hook.sh"   # T-1239: the LAN-address gate, sam
 # T-1288: the core-tier gate in .git/hooks/pre-push, erased by the same reinstall. Installed here so every upgrade
 # job re-installs it; its --check joins the one below once the operator has installed it the first time.
 T1288="$ROOT/tools/_t1288-install-hook.sh"
+# T-1357: git opens the SSH connection to origin BEFORE the pre-push hook and leaves it idle while the T-1288 gate runs
+# the core tier (10-20 min); origin drops an idle connection ("Received disconnect ... Protocol error or corrupt packet",
+# measured: dropped at 11 min without keepalives, kept with ServerAliveInterval=30), and the push is lost. A keepalive
+# for this repo's git ssh keeps it. Local git config, which a re-clone loses, so this installer (run by every upgrade
+# job) sets it; --check reports it without failing, since a sandbox clone the core tier checks does not carry it.
+KEEPALIVE="ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=6"
+keepalive_line() {
+    local cur; cur=$(git -C "$ROOT" config --local --get core.sshCommand 2>/dev/null)
+    case "$cur" in *ServerAliveInterval*) echo "ssh keepalive for pushes: set ($cur)";;
+        "") echo "ssh keepalive for pushes: NOT set (a long pre-push core run can lose the push; run tools/_t1000-install-hook.sh)";;
+        *) echo "ssh keepalive for pushes: core.sshCommand is '$cur' without ServerAliveInterval (left as it is)";; esac
+}
 
 if [ "${1:-}" = "--check" ]; then
     rc=0
+    keepalive_line
     if active "$HOOK"; then echo "revendor gate: installed in $HOOK"
     else echo "revendor gate: NOT installed in $HOOK (a hook reinstall removes it; run tools/_t1000-install-hook.sh)"; rc=1; fi
     [ -f "$T1161" ] && { bash "$T1161" --check || rc=1; }
@@ -46,6 +59,9 @@ fi
 [ -f "$T1161" ] && bash "$T1161" >/dev/null
 [ -f "$T1239" ] && bash "$T1239" >/dev/null
 [ -f "$T1288" ] && bash "$T1288" >/dev/null
+# T-1357: set the keepalive unless someone already chose a core.sshCommand of their own
+[ -z "$(git -C "$ROOT" config --local --get core.sshCommand 2>/dev/null)" ] && git -C "$ROOT" config --local core.sshCommand "$KEEPALIVE"
+keepalive_line
 [ -f "$HOOK" ] || { echo "no $HOOK: run fw git install-hooks first" >&2; exit 2; }
 if active "$HOOK"; then echo "already installed"; exit 0; fi
 drop_commented "$HOOK"
