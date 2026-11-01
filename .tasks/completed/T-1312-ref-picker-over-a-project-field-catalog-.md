@@ -13,13 +13,13 @@ description: >
   may prefill dataType. 832: gallery-serve.py route + designer picker + harness; AEF:
   serving it is their data-API lane (T-4737) — propose it there. Arc-006.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:structured-io]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -49,8 +49,8 @@ arc_id: structured-io
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-26T11:53:48Z
-last_update: 2026-11-01T14:48:56Z
-date_finished:
+last_update: 2026-11-01T14:49:41Z
+date_finished: 2026-11-01T14:49:41Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -418,6 +418,15 @@ python3 tests/test_t1312_field_catalog.py
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+### 2026-10-27 — the host, not the designer, is where the field test stalls
+- **What changed:** greenfield serves the designer through AEF's Watchtower, not 832's gallery-serve.py, so the server half built here could not be exercised by them; AEF had not decided the route.
+- **Plan impact:** the field criterion was split: a PARTIAL run with an in-page stub on their real catalog (2026-10-27), the criterion left open until AEF served the route.
+- **Triggered:** AEF T-4832 (`DESIGNER_FIELD_CATALOG`), vendored with be.4.
+
+### 2026-11-01 — confirmed without the stub
+- **What changed:** greenfield ran the picker on AEF without the stub (they had on 2026-10-29; that report reached 832 only on 2026-11-01).
+- **Plan impact:** none; closes.
+- **Triggered:** a check of why greenfield's 2026-10-29 DM never surfaced here (filed separately).
 
 ## Recommendation
 
@@ -481,3 +490,28 @@ python3 tests/test_t1312_field_catalog.py
 
 ### 2026-10-26T13:10:59Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-01T14:49:41Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2eecb476
+- **Timestamp:** 2026-11-01T14:49:48Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 3
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — The route is classified in the boundary inventory (`tools/_t682-boundary-inventory.py`, the T-682 report row, and
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t682-boundary-inventory.py in: The route is classified in the boundary inventory (`tools/_t682-boundary-inventory.py`, the T-682 report row, and`
+- **AC#5 (Agent)** — `bash tools/person-sees-gate.sh` exits 0; the advisory sweep has run; screenshots of the picker (v1 io and style-A
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/person-sees-gate.sh in: `bash tools/person-sees-gate.sh` exits 0; the advisory sweep has run; screenshots of the picker (v1 io and style-A`
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 1
+     - evidence: `node tools/_t1312-catalog-picker-cdp.mjs > .context/working/t1312-v.out 2>&1 && head -2 .context/working/t1312-v.out | grep -q '"ok": true'`

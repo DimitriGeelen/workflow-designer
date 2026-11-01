@@ -1,0 +1,253 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1312: ref picker over a project field catalog (GET /api/field-catalog, greenfield's nid-attributes.json)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-01T14:49:54Z
+# ============================================================================
+
+task_id: T-1312
+task_name: "ref picker over a project field catalog (GET /api/field-catalog, greenfield's nid-attributes.json)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-26T11:53:48Z
+completed: 2026-11-01T14:49:41Z
+duration_days: 6
+updates_count: 4
+first_commit: 2026-10-26T23:06:09+01:00
+last_commit: 2026-11-01T15:48:56+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the ref field offers a searchable picker over the project's field catalog — every word against notation, label and ref, at most 8 hits; a hit writes ref, and dataType only when the io has none; no catalog (404) leaves the editor as before; the search survives a re-render. tools/_t1312-catalog-picker-cdp.mjs (browser leg) against the real server: green 3/3, red on 0.29.0. Shots script gains an opt-in catalog and two picker states. the GET /api/field-catalog contract for AEF T-4737 (request, responses, absence = no picker, reference tests); sent to AEF; greenfield told how to point the server at its nid-attributes.json. picker hits break only after . : - (notation on its own line, label below) and the search reads as a search (dashed edge, glyph) — my read of the first shots found names split mid-word; screenshots (105) at 1024/1440/1920 incl. catalog-v1 and catalog-stylea; person-sees gate exit 0; harness green. sweep fixes — shorter placeholder ("search catalog…", was cut at every width), hits bordered like choices; shots retaken, gate exit 0, harness green; Visual Verification written. gate, sweep and screenshots criterion met. reviewer verdict. reviewer amber answered — shots of the 'N more' line (catalog-more, 11 matches) and of no match (catalog-none) at 1024/1440/1920, read and recorded; criterion names them. re-judged green (V-20261026-abe19443) and applied; greenfield serves the designer through AEF's Watchtower, so the full confirmation waits for AEF T-4737 (stub run agreed as partial). T-1281: be.27 noted (carries 832's T-4777 and T-4779), the upgrade target. greenfield stub-confirmed the picker on its real VZN-T1 and full catalog (msg 03b69c61; partial until AEF serves /api/field-catalog). Also confirmed on its real path: T-1314's field order (0.30.0). AEF serves /api/field-catalog (T-4832) and /api/validate (T-4830); greenfield asked for the stub-free picker run and a Check on its own map (msg da657fe7), closing T-1312 and T-1303; T-1312 given its four-part context. greenfield confirms both field tests WORKS on AEF without stubs (msg f0df25da): the catalog picker on its stored VZN-T1 (T-1312) and a Check finding under its io (T-1303)
+
+# Key outcomes
+outcomes:
+  - '`GET /api/field-catalog` in the reference server: 200 `{ok: true, catalog: <file>}` for a well-formed v1 file; 404'
+  - 'The route is classified in the boundary inventory (`tools/_t682-boundary-inventory.py`, the T-682 report row, and'
+  - 'A test (`tests/test_t1312_field_catalog.py`, core tier) covers 200, 404 and each 422 case, through the real HTTP'
+  - 'Designer (after job 088): the ref field in the io editor offers a searchable picker over the catalog (notation and'
+  - '`bash tools/person-sees-gate.sh` exits 0; the advisory sweep has run; screenshots of the picker (v1 io and style-A'
+  - 'AEF gets the contract (request, responses, fallback) for its T-4737; greenfield is told how to point the server at'
+  - 'Released, then greenfield picks a ref from its own catalog on its own map and confirms (arc-006 rule).'
+  - 'The catalog picker under ref is legible, clearly part of its io row, and its hits read as choices, at every width'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'sweep fixes — shorter placeholder ("search catalog…", was cut at every width), hits bordered like choices; shots retaken, gate exit 0, harness green; Visual Verification written'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1312/AC1-judge-t-1312-r3-39aa11490eb8.md'
+  - '.context/reviews/evidence/T-1312/AC1-judge-t-1312-r3-80758f40be44.md'
+  - '.context/reviews/evidence/T-1312/catalog-more-1024-panel-end-judge-t-1312-r3-80758f40be44.png'
+  - '.context/reviews/evidence/T-1312/catalog-more-1920-judge-t-1312-r3-80758f40be44.png'
+  - '.context/reviews/evidence/T-1312/catalog-none-1024-panel-judge-t-1312-r3-80758f40be44.png'
+  - '.context/reviews/evidence/T-1312/catalog-stylea-1440-panel-judge-t-1312-r3-39aa11490eb8.png'
+  - '.context/reviews/evidence/T-1312/catalog-stylea-1440-zoom-judge-t-1312-r3-39aa11490eb8.png'
+  - '.context/reviews/evidence/T-1312/catalog-stylea-1920-panel-judge-t-1312-r3-80758f40be44.png'
+  - '.context/reviews/evidence/T-1312/catalog-v1-1024-panel-end-judge-t-1312-r3-39aa11490eb8.png'
+  - '.context/reviews/evidence/T-1312/catalog-v1-1024-panel-judge-t-1312-r3-39aa11490eb8.png'
+  - '.context/reviews/evidence/T-1312/catalog-v1-1024-panel-judge-t-1312-r3-80758f40be44.png'
+  - '.context/reviews/evidence/T-1312/sbs-stylea-edit-1440-panel-T1302-vs-T1312-judge-t-1312-r3-80758f40be44.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1281-upgrade-aef-be8---v1815-be9-or-later-bat.md'
+  - '.tasks/active/T-1303-designer-slice-4-t-1242-go-show-aefs-map.md'
+  - '.tasks/active/T-1312-ref-picker-over-a-project-field-catalog-.md'
+  - 'docs/reports/T-1312-evidence/catalog-more-1024-panel-end.png'
+  - 'docs/reports/T-1312-evidence/catalog-more-1024-panel.png'
+  - 'docs/reports/T-1312-evidence/catalog-more-1024.png'
+  - 'docs/reports/T-1312-evidence/catalog-more-1440-panel-end.png'
+  - 'docs/reports/T-1312-evidence/catalog-more-1440-panel.png'
+  - 'docs/reports/T-1312-evidence/catalog-more-1440.png'
+  - 'docs/reports/T-1312-evidence/catalog-more-1920-panel-end.png'
+  - 'docs/reports/T-1312-evidence/catalog-more-1920-panel.png'
+  - 'docs/reports/T-1312-evidence/catalog-more-1920.png'
+  - 'docs/reports/T-1312-evidence/catalog-none-1024-panel-end.png'
+  - 'docs/reports/T-1312-evidence/catalog-none-1024-panel.png'
+  - 'docs/reports/T-1312-evidence/catalog-none-1024.png'
+  - 'docs/reports/T-1312-evidence/catalog-none-1440-panel.png'
+  - 'docs/reports/T-1312-evidence/catalog-none-1440.png'
+  - 'docs/reports/T-1312-evidence/catalog-none-1920-panel.png'
+  - 'docs/reports/T-1312-evidence/catalog-none-1920.png'
+  - 'docs/reports/T-1312-evidence/catalog-stylea-1024-panel-end.png'
+  - 'docs/reports/T-1312-evidence/catalog-stylea-1024-panel.png'
+  - 'docs/reports/T-1312-evidence/catalog-stylea-1024.png'
+  - 'docs/reports/T-1312-evidence/catalog-stylea-1440-panel-end.png'
+  - 'docs/reports/T-1312-evidence/catalog-stylea-1440-panel.png'
+  - 'docs/reports/T-1312-evidence/catalog-stylea-1440.png'
+  - 'docs/reports/T-1312-evidence/catalog-stylea-1920-panel-end.png'
+  - 'docs/reports/T-1312-evidence/catalog-stylea-1920-panel.png'
+  - 'docs/reports/T-1312-evidence/catalog-stylea-1920.png'
+  - 'docs/reports/T-1312-evidence/catalog-v1-1024-panel-end.png'
+  - 'docs/reports/T-1312-evidence/catalog-v1-1024-panel.png'
+  - 'docs/reports/T-1312-evidence/catalog-v1-1024.png'
+  - 'docs/reports/T-1312-evidence/catalog-v1-1440-panel-end.png'
+  - 'docs/reports/T-1312-evidence/catalog-v1-1440-panel.png'
+  - 'docs/reports/T-1312-evidence/catalog-v1-1440.png'
+  - 'docs/reports/T-1312-evidence/catalog-v1-1920-panel-end.png'
+  - 'docs/reports/T-1312-evidence/catalog-v1-1920-panel.png'
+  - 'docs/reports/T-1312-evidence/catalog-v1-1920.png'
+  - 'docs/reports/T-1312-evidence/empty-step-1024-panel.png'
+  - 'docs/reports/T-1312-evidence/empty-step-1024.png'
+  - 'docs/reports/T-1312-evidence/empty-step-1440-panel.png'
+  - 'docs/reports/T-1312-evidence/empty-step-1440.png'
+  - 'docs/reports/T-1312-evidence/empty-step-1920-panel.png'
+  - 'docs/reports/T-1312-evidence/empty-step-1920.png'
+  - 'docs/reports/T-1312-evidence/field-add-1024-panel-end.png'
+  - 'docs/reports/T-1312-evidence/field-add-1024-panel.png'
+  - 'docs/reports/T-1312-evidence/field-add-1024.png'
+  - 'docs/reports/T-1312-evidence/field-add-1440-panel-end.png'
+  - 'docs/reports/T-1312-evidence/field-add-1440-panel.png'
+  - 'docs/reports/T-1312-evidence/field-add-1440.png'
+  - 'docs/reports/T-1312-evidence/field-add-1920-panel-end.png'
+  - 'docs/reports/T-1312-evidence/field-add-1920-panel.png'
+  - 'docs/reports/T-1312-evidence/field-add-1920.png'
+  - 'docs/reports/T-1312-evidence/fields-edit-1024-panel-end.png'
+  - 'docs/reports/T-1312-evidence/fields-edit-1024-panel.png'
+  - 'docs/reports/T-1312-evidence/fields-edit-1024.png'
+  - 'docs/reports/T-1312-evidence/fields-edit-1440-panel-end.png'
+  - 'docs/reports/T-1312-evidence/fields-edit-1440-panel.png'
+  - 'docs/reports/T-1312-evidence/fields-edit-1440.png'
+  - 'docs/reports/T-1312-evidence/fields-edit-1920-panel-end.png'
+  - 'docs/reports/T-1312-evidence/fields-edit-1920-panel.png'
+  - 'docs/reports/T-1312-evidence/fields-edit-1920.png'
+  - 'docs/reports/T-1312-evidence/fields-when-1024-panel-end.png'
+  - 'docs/reports/T-1312-evidence/fields-when-1024-panel.png'
+  - 'docs/reports/T-1312-evidence/fields-when-1024.png'
+  - 'docs/reports/T-1312-evidence/fields-when-1440-panel-end.png'
+  - 'docs/reports/T-1312-evidence/fields-when-1440-panel.png'
+  - 'docs/reports/T-1312-evidence/fields-when-1440.png'
+  - 'docs/reports/T-1312-evidence/fields-when-1920-panel-end.png'
+  - 'docs/reports/T-1312-evidence/fields-when-1920-panel.png'
+  - 'docs/reports/T-1312-evidence/fields-when-1920.png'
+  - 'docs/reports/T-1312-evidence/hint-edit-1024-panel.png'
+  - 'docs/reports/T-1312-evidence/hint-edit-1024.png'
+  - 'docs/reports/T-1312-evidence/hint-edit-1440-panel.png'
+  - 'docs/reports/T-1312-evidence/hint-edit-1440.png'
+  - 'docs/reports/T-1312-evidence/hint-edit-1920-panel.png'
+  - 'docs/reports/T-1312-evidence/hint-edit-1920.png'
+  - 'docs/reports/T-1312-evidence/longname-1024-panel-end.png'
+  - 'docs/reports/T-1312-evidence/longname-1024-panel.png'
+  - 'docs/reports/T-1312-evidence/longname-1024.png'
+  - 'docs/reports/T-1312-evidence/longname-1440-panel.png'
+  - 'docs/reports/T-1312-evidence/longname-1440.png'
+  - 'docs/reports/T-1312-evidence/longname-1920-panel.png'
+  - 'docs/reports/T-1312-evidence/longname-1920.png'
+  - 'docs/reports/T-1312-evidence/stylea-edit-1024-panel-end.png'
+  - 'docs/reports/T-1312-evidence/stylea-edit-1024-panel.png'
+  - 'docs/reports/T-1312-evidence/stylea-edit-1024.png'
+  - 'docs/reports/T-1312-evidence/stylea-edit-1440-panel-end.png'
+  - 'docs/reports/T-1312-evidence/stylea-edit-1440-panel.png'
+  - 'docs/reports/T-1312-evidence/stylea-edit-1440.png'
+  - 'docs/reports/T-1312-evidence/stylea-edit-1920-panel-end.png'
+  - 'docs/reports/T-1312-evidence/stylea-edit-1920-panel.png'
+  - 'docs/reports/T-1312-evidence/stylea-edit-1920.png'
+  - 'docs/reports/T-1312-evidence/stylea-step-1024-panel.png'
+  - 'docs/reports/T-1312-evidence/stylea-step-1024.png'
+  - 'docs/reports/T-1312-evidence/stylea-step-1440-panel.png'
+  - 'docs/reports/T-1312-evidence/stylea-step-1440.png'
+  - 'docs/reports/T-1312-evidence/stylea-step-1920-panel.png'
+  - 'docs/reports/T-1312-evidence/stylea-step-1920.png'
+  - 'docs/reports/T-1312-evidence/v1-edit-1024-panel.png'
+  - 'docs/reports/T-1312-evidence/v1-edit-1024.png'
+  - 'docs/reports/T-1312-evidence/v1-edit-1440-panel.png'
+  - 'docs/reports/T-1312-evidence/v1-edit-1440.png'
+  - 'docs/reports/T-1312-evidence/v1-edit-1920-panel.png'
+  - 'docs/reports/T-1312-evidence/v1-edit-1920.png'
+  - 'docs/reports/T-1312-evidence/v1-step-1024-panel.png'
+  - 'docs/reports/T-1312-evidence/v1-step-1024.png'
+  - 'docs/reports/T-1312-evidence/v1-step-1440-panel.png'
+  - 'docs/reports/T-1312-evidence/v1-step-1440.png'
+  - 'docs/reports/T-1312-evidence/v1-step-1920-panel.png'
+  - 'docs/reports/T-1312-evidence/v1-step-1920.png'
+  - 'docs/reports/T-1312-evidence/v11-step-1024-panel-end.png'
+  - 'docs/reports/T-1312-evidence/v11-step-1024-panel.png'
+  - 'docs/reports/T-1312-evidence/v11-step-1024.png'
+  - 'docs/reports/T-1312-evidence/v11-step-1440-panel-end.png'
+  - 'docs/reports/T-1312-evidence/v11-step-1440-panel.png'
+  - 'docs/reports/T-1312-evidence/v11-step-1440.png'
+  - 'docs/reports/T-1312-evidence/v11-step-1920-panel.png'
+  - 'docs/reports/T-1312-evidence/v11-step-1920.png'
+  - 'docs/reports/T-1312-evidence/workflow-1024-panel.png'
+  - 'docs/reports/T-1312-evidence/workflow-1024.png'
+  - 'docs/reports/T-1312-evidence/workflow-1440-panel.png'
+  - 'docs/reports/T-1312-evidence/workflow-1440.png'
+  - 'docs/reports/T-1312-evidence/workflow-1920-panel.png'
+  - 'docs/reports/T-1312-evidence/workflow-1920.png'
+  - 'docs/reports/T-1312-field-catalog-contract.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1249-v11-io-shots.mjs'
+  - 'tools/_t1312-catalog-picker-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-26T23:06:09'
+    action: 'T-1312: the ref field offers a searchable picker over the project''s field catalog — every word against notation, label and ref, at most 8 hits; a hit writes ref, and dataType only when the io has none; no catalog (404) leaves the editor as before; the search survives a re-render. tools/_t1312-catalog-picker-cdp.mjs (browser leg) against the real server: green 3/3, red on 0.29.0. Shots script gains an opt-in catalog and two picker states'
+  - time: '2026-10-26T23:07:06'
+    action: 'T-1312: the GET /api/field-catalog contract for AEF T-4737 (request, responses, absence = no picker, reference tests); sent to AEF; greenfield told how to point the server at its nid-attributes.json'
+  - time: '2026-10-26T23:18:52'
+    action: 'T-1312: picker hits break only after . : - (notation on its own line, label below) and the search reads as a search (dashed edge, glyph) — my read of the first shots found names split mid-word; screenshots (105) at 1024/1440/1920 incl. catalog-v1 and catalog-stylea; person-sees gate exit 0; harness green'
+  - time: '2026-10-26T23:30:33'
+    action: 'T-1312: sweep fixes — shorter placeholder ("search catalog…", was cut at every width), hits bordered like choices; shots retaken, gate exit 0, harness green; Visual Verification written'
+  - time: '2026-10-26T23:30:46'
+    action: 'T-1312: gate, sweep and screenshots criterion met'
+  - time: '2026-10-26T23:32:34'
+    action: 'T-1312: reviewer verdict'
+  - time: '2026-10-26T23:34:54'
+    action: 'T-1312: reviewer amber answered — shots of the ''N more'' line (catalog-more, 11 matches) and of no match (catalog-none) at 1024/1440/1920, read and recorded; criterion names them'
+  - time: '2026-10-26T23:36:47'
+    action: 'T-1312: reviewer verdict'
+  - time: '2026-10-27T00:01:56'
+    action: 'T-1312: re-judged green (V-20261026-abe19443) and applied; greenfield serves the designer through AEF''s Watchtower, so the full confirmation waits for AEF T-4737 (stub run agreed as partial). T-1281: be.27 noted (carries 832''s T-4777 and T-4779), the upgrade target'
+  - time: '2026-10-27T10:05:10'
+    action: 'T-1312: greenfield stub-confirmed the picker on its real VZN-T1 and full catalog (msg 03b69c61; partial until AEF serves /api/field-catalog). Also confirmed on its real path: T-1314''s field order (0.30.0)'
+  - time: '2026-11-01T15:38:45'
+    action: 'T-1312: AEF serves /api/field-catalog (T-4832) and /api/validate (T-4830); greenfield asked for the stub-free picker run and a Check on its own map (msg da657fe7), closing T-1312 and T-1303; T-1312 given its four-part context'
+  - time: '2026-11-01T15:48:56'
+    action: 'T-1312: greenfield confirms both field tests WORKS on AEF without stubs (msg f0df25da): the catalog picker on its stored VZN-T1 (T-1312) and a Check finding under its io (T-1303)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 15 commit(s), 8815 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:structured-io]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 8815
+  commits: 16
+  files_changed: 157
+  lines_added: 1602
+  lines_removed: 36
+  footprint_refreshed_at: '2026-11-01T14:50:00Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1312-ref-picker-over-a-project-field-catalog-.md
+generated_by: context-agent-hybrid
