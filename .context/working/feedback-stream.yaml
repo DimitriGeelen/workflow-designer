@@ -20561,3 +20561,21 @@ scan_id: R-2eecb476
 task_id: T-1312
 payload:
   task_file: .tasks/active/T-1312-ref-picker-over-a-project-field-catalog-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-01T15:10:41Z'
+scan_id: R-ba6fdfcf
+task_id: T-1303
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-01T15:10:41Z'
+scan_id: R-ba6fdfcf
+task_id: T-1303
+payload:
+  task_file: .tasks/active/T-1303-designer-slice-4-t-1242-go-show-aefs-map.md

@@ -1,0 +1,294 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1303: Designer slice 4 (T-1242 GO): show AEF's mapping v1.1 lint findings on the io
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-01T15:10:48Z
+# ============================================================================
+
+task_id: T-1303
+task_name: "Designer slice 4 (T-1242 GO): show AEF's mapping v1.1 lint findings on the io"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-24T21:04:24Z
+completed: 2026-11-01T15:10:34Z
+duration_days: 8
+updates_count: 4
+first_commit: 2026-10-27T09:47:59+01:00
+last_commit: 2026-11-01T16:10:13+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  scoped — R1-R3 from AEF's mapping v1.1 spec (update/upsert/delete without a match field = ERROR; undeclared prefix = ERROR; match without fieldRef/path = WARN), type-level and linked-map rules out of scope; found that the work spans both validator forms (parity census), the kit's rule table and the io panel; corpus impact decided before any ERROR ships. corpus first — R1/R2/R3 flag 0 of 303 tracked maps (none uses mapping v1.1 yet); save never refuses on a finding (T-956), so R1/R2 ship as ERROR, R3 as WARN; tools/_t1303-corpus-impact.py, positive control recorded. mapping v1.1 io lint R1-R3 in the validator (XML form; the YAML form cannot write these constructs, measured, OUT-OF-SCOPE with a bridge probe): E-XML-IO-MATCH-MISSING, E-XML-IO-PREFIX-UNDECLARED (ERROR), W-XML-IO-MATCH-UNRESOLVED (WARN), located on the io; test 9/9 (red 4/5 before), fixtures, parity, dialect axis (carrier aef:io v1.1, unratified), anchorability; a core leg. designer shows a Check finding under the io row it names (mapping v1.1 lint): matched on node, kind, index and name, so a moved or renamed io shows none; drawer and canvas unchanged; no finding = the panel as before. CDP harness tools/_t1303-io-findings-cdp.mjs (browser leg _leg_200): green 4/4, red on 0.30.0 (a, b, f). screenshots of the io findings (findings-lint, findings-v11, findings-lint-edit at 1024/1440/1920; T1249S_FINDINGS=1 in the shots tool), visual verification read control by control, the reviewer criterion. person-sees gate exit 0; sweep 5 OK, 1 minor (rule id muted, kept on purpose). reviewer verdict. reviewer verdict (codex seat codex, recorded by the runtime). reviewer verdict (opencode seat opencode, recorded by the runtime). gallery-serve.py writes no Python bytecode into the tree it serves (sys.dont_write_bytecode): a reviewer seat running the CDP harness had its green voided twice by tools/__pycache__/validate-workflow.pyc in the export (AEF T-3986; AEF T-4835 filed); clean export: 1 .pyc before, 0 after. Boundary inventory citations re-pointed (+5 lines). reviewer green (V-20261027-cb560298, two vendors; opencode unavailable), applied; designer and UI-routine criteria ticked. Open: release, then greenfield on AEF's /api/validate. screens retaken on the current source (the 2026-10-27 verdict was voided by later designer changes: T-1344, T-1350); person-sees gate exit 0; greenfield's field run WORKS recorded; four-part context added. panel green on the retaken screens (V-20261101-4a93722d: claude-code, codex, opencode), verdict applied; Evolution recorded
+
+# Key outcomes
+outcomes:
+  - 'Corpus first: how many maps in this repo (and greenfield''s VZN-T1 shape fixtures) would each rule flag; an ERROR on a'
+  - 'R1-R3 in BOTH validator forms with the same ids and severities; the parity census stays green; a test per rule with'
+  - 'The kit''s rule table and dialect axis carry the new ids (`tests/test_rule_dialect_axis.py` green); the kit change'
+  - 'Designer: after Check, a finding whose location is an io shows under that io row in the panel (rule id, message),'
+  - 'Person-sees gate exit 0; screenshots of an io with each finding at 1024/1440/1920; sweep; reviewer criterion.'
+  - 'Released, then greenfield sees a finding on a copy of its own map (arc-006 rule), on AEF once AEF serves'
+  - 'A Check finding on an io reads as belonging to that io and says what is wrong, without crowding the io''s own'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'mapping v1.1 io lint R1-R3 in the validator (XML form; the YAML form cannot write these constructs, measured, OUT-OF-SCOPE with a bridge probe): E-XML-IO-MATCH-MISSING, E-XML-IO-PREFIX-UNDECLARED (ERROR), W-XML-IO-MATCH-UNRESOLVED (WARN), located on the io; test 9/9 (red 4/5 before), fixtures, parity, dialect axis (carrier aef:io v1.1, unratified), anchorability; a core leg'
+    source: git-mined
+  - description: 'corpus first — R1/R2/R3 flag 0 of 303 tracked maps (none uses mapping v1.1 yet); save never refuses on a finding (T-956), so R1/R2 ship as ERROR, R3 as WARN; tools/_t1303-corpus-impact.py, positive control recorded'
+    source: git-mined
+  - description: 'scoped — R1-R3 from AEF''s mapping v1.1 spec (update/upsert/delete without a match field = ERROR; undeclared prefix = ERROR; match without fieldRef/path = WARN), type-level and linked-map rules out of scope; found that the work spans both validator forms (parity census), the kit''s rule table and the io panel; corpus impact decided before any ERROR ships'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1303/AC1-judge-t-1303-r5-claude-code-ad19336d5052.md'
+  - '.context/reviews/evidence/T-1303/AC1-judge-t-1303-r5-claude-code-c687d1b6b73b.md'
+  - '.context/reviews/evidence/T-1303/AC1-judge-t-1303-r5-claude-code-e650fe86b3ac.md'
+  - '.context/reviews/evidence/T-1303/AC1-judge-t-1303-r5-claude-code-fb97ba5c4d33.md'
+  - '.context/reviews/evidence/T-1303/AC1-judge-t-1303-r5-codex-2eba7f7f961e.md'
+  - '.context/reviews/evidence/T-1303/AC1-judge-t-1303-r5-codex-69433d7d7c40.md'
+  - '.context/reviews/evidence/T-1303/AC1-judge-t-1303-r5-codex-c0040f92e3c2.md'
+  - '.context/reviews/evidence/T-1303/AC1-judge-t-1303-r5-codex-fad3d6295d0c.md'
+  - '.context/reviews/evidence/T-1303/AC1-judge-t-1303-r5-opencode-1e33eef65c8f.md'
+  - '.context/reviews/evidence/T-1303/AC1-judge-t-1303-r5-opencode-4c42f12268a4.md'
+  - '.context/reviews/evidence/T-1303/AC1-judge-t-1303-r5-opencode-61ac3720d07d.md'
+  - '.context/reviews/evidence/T-1303/fields-edit-1024-panel-judge-t-1303-r5-claude-code-ad19336d5052.png'
+  - '.context/reviews/evidence/T-1303/fields-when-1440-panel-judge-t-1303-r5-claude-code-e650fe86b3ac.png'
+  - '.context/reviews/evidence/T-1303/findings-lint-1024-judge-t-1303-r5-claude-code-ad19336d5052.png'
+  - '.context/reviews/evidence/T-1303/findings-lint-1024-judge-t-1303-r5-claude-code-c687d1b6b73b.png'
+  - '.context/reviews/evidence/T-1303/findings-lint-1024-judge-t-1303-r5-claude-code-e650fe86b3ac.png'
+  - '.context/reviews/evidence/T-1303/findings-lint-1024-judge-t-1303-r5-claude-code-fb97ba5c4d33.png'
+  - '.context/reviews/evidence/T-1303/findings-lint-1024-panel-judge-t-1303-r5-claude-code-e650fe86b3ac.png'
+  - '.context/reviews/evidence/T-1303/findings-lint-1440-panel-judge-t-1303-r5-claude-code-ad19336d5052.png'
+  - '.context/reviews/evidence/T-1303/findings-lint-1440-panel-judge-t-1303-r5-claude-code-c687d1b6b73b.png'
+  - '.context/reviews/evidence/T-1303/findings-lint-1440-panel-judge-t-1303-r5-claude-code-e650fe86b3ac.png'
+  - '.context/reviews/evidence/T-1303/findings-lint-1440-panel-judge-t-1303-r5-claude-code-fb97ba5c4d33.png'
+  - '.context/reviews/evidence/T-1303/findings-lint-1920-panel-judge-t-1303-r5-claude-code-ad19336d5052.png'
+  - '.context/reviews/evidence/T-1303/findings-lint-1920-panel-judge-t-1303-r5-claude-code-e650fe86b3ac.png'
+  - '.context/reviews/evidence/T-1303/findings-lint-edit-1024-panel-end-judge-t-1303-r5-claude-code-fb97ba5c4d33.png'
+  - '.context/reviews/evidence/T-1303/findings-lint-edit-1440-panel-end-judge-t-1303-r5-claude-code-ad19336d5052.png'
+  - '.context/reviews/evidence/T-1303/findings-lint-edit-1440-panel-end-judge-t-1303-r5-claude-code-c687d1b6b73b.png'
+  - '.context/reviews/evidence/T-1303/findings-lint-edit-1440-panel-end-judge-t-1303-r5-claude-code-e650fe86b3ac.png'
+  - '.context/reviews/evidence/T-1303/findings-v11-1440-panel-judge-t-1303-r5-claude-code-ad19336d5052.png'
+  - '.context/reviews/evidence/T-1303/findings-v11-1440-panel-judge-t-1303-r5-claude-code-c687d1b6b73b.png'
+  - '.context/reviews/evidence/T-1303/findings-v11-1440-panel-judge-t-1303-r5-claude-code-e650fe86b3ac.png'
+  - '.context/reviews/evidence/T-1303/findings-v11-1440-panel-judge-t-1303-r5-claude-code-fb97ba5c4d33.png'
+  - '.context/reviews/evidence/T-1303/v11-step-1440-panel-judge-t-1303-r5-claude-code-ad19336d5052.png'
+  - '.context/reviews/evidence/T-1303/v11-step-1440-panel-judge-t-1303-r5-claude-code-c687d1b6b73b.png'
+  - '.context/reviews/evidence/T-1303/v11-step-1440-panel-judge-t-1303-r5-claude-code-e650fe86b3ac.png'
+  - '.context/reviews/evidence/T-1303/v11-step-1440-panel-judge-t-1303-r5-claude-code-fb97ba5c4d33.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1303-designer-slice-4-t-1242-go-show-aefs-map.md'
+  - 'docs/reports/T-1303-evidence/empty-step-1024-panel.png'
+  - 'docs/reports/T-1303-evidence/empty-step-1024.png'
+  - 'docs/reports/T-1303-evidence/empty-step-1440-panel.png'
+  - 'docs/reports/T-1303-evidence/empty-step-1440.png'
+  - 'docs/reports/T-1303-evidence/empty-step-1920-panel.png'
+  - 'docs/reports/T-1303-evidence/empty-step-1920.png'
+  - 'docs/reports/T-1303-evidence/field-add-1024-panel-end.png'
+  - 'docs/reports/T-1303-evidence/field-add-1024-panel.png'
+  - 'docs/reports/T-1303-evidence/field-add-1024.png'
+  - 'docs/reports/T-1303-evidence/field-add-1440-panel-end.png'
+  - 'docs/reports/T-1303-evidence/field-add-1440-panel.png'
+  - 'docs/reports/T-1303-evidence/field-add-1440.png'
+  - 'docs/reports/T-1303-evidence/field-add-1920-panel-end.png'
+  - 'docs/reports/T-1303-evidence/field-add-1920-panel.png'
+  - 'docs/reports/T-1303-evidence/field-add-1920.png'
+  - 'docs/reports/T-1303-evidence/fields-edit-1024-panel-end.png'
+  - 'docs/reports/T-1303-evidence/fields-edit-1024-panel.png'
+  - 'docs/reports/T-1303-evidence/fields-edit-1024.png'
+  - 'docs/reports/T-1303-evidence/fields-edit-1440-panel-end.png'
+  - 'docs/reports/T-1303-evidence/fields-edit-1440-panel.png'
+  - 'docs/reports/T-1303-evidence/fields-edit-1440.png'
+  - 'docs/reports/T-1303-evidence/fields-edit-1920-panel-end.png'
+  - 'docs/reports/T-1303-evidence/fields-edit-1920-panel.png'
+  - 'docs/reports/T-1303-evidence/fields-edit-1920.png'
+  - 'docs/reports/T-1303-evidence/fields-when-1024-panel-end.png'
+  - 'docs/reports/T-1303-evidence/fields-when-1024-panel.png'
+  - 'docs/reports/T-1303-evidence/fields-when-1024.png'
+  - 'docs/reports/T-1303-evidence/fields-when-1440-panel-end.png'
+  - 'docs/reports/T-1303-evidence/fields-when-1440-panel.png'
+  - 'docs/reports/T-1303-evidence/fields-when-1440.png'
+  - 'docs/reports/T-1303-evidence/fields-when-1920-panel-end.png'
+  - 'docs/reports/T-1303-evidence/fields-when-1920-panel.png'
+  - 'docs/reports/T-1303-evidence/fields-when-1920.png'
+  - 'docs/reports/T-1303-evidence/findings-lint-1024-panel.png'
+  - 'docs/reports/T-1303-evidence/findings-lint-1024.png'
+  - 'docs/reports/T-1303-evidence/findings-lint-1440-panel.png'
+  - 'docs/reports/T-1303-evidence/findings-lint-1440.png'
+  - 'docs/reports/T-1303-evidence/findings-lint-1920-panel.png'
+  - 'docs/reports/T-1303-evidence/findings-lint-1920.png'
+  - 'docs/reports/T-1303-evidence/findings-lint-edit-1024-panel-end.png'
+  - 'docs/reports/T-1303-evidence/findings-lint-edit-1024-panel.png'
+  - 'docs/reports/T-1303-evidence/findings-lint-edit-1024.png'
+  - 'docs/reports/T-1303-evidence/findings-lint-edit-1440-panel-end.png'
+  - 'docs/reports/T-1303-evidence/findings-lint-edit-1440-panel.png'
+  - 'docs/reports/T-1303-evidence/findings-lint-edit-1440.png'
+  - 'docs/reports/T-1303-evidence/findings-lint-edit-1920-panel.png'
+  - 'docs/reports/T-1303-evidence/findings-lint-edit-1920.png'
+  - 'docs/reports/T-1303-evidence/findings-v11-1024-panel-end.png'
+  - 'docs/reports/T-1303-evidence/findings-v11-1024-panel.png'
+  - 'docs/reports/T-1303-evidence/findings-v11-1024.png'
+  - 'docs/reports/T-1303-evidence/findings-v11-1440-panel-end.png'
+  - 'docs/reports/T-1303-evidence/findings-v11-1440-panel.png'
+  - 'docs/reports/T-1303-evidence/findings-v11-1440.png'
+  - 'docs/reports/T-1303-evidence/findings-v11-1920-panel-end.png'
+  - 'docs/reports/T-1303-evidence/findings-v11-1920-panel.png'
+  - 'docs/reports/T-1303-evidence/findings-v11-1920.png'
+  - 'docs/reports/T-1303-evidence/hint-edit-1024-panel.png'
+  - 'docs/reports/T-1303-evidence/hint-edit-1024.png'
+  - 'docs/reports/T-1303-evidence/hint-edit-1440-panel.png'
+  - 'docs/reports/T-1303-evidence/hint-edit-1440.png'
+  - 'docs/reports/T-1303-evidence/hint-edit-1920-panel.png'
+  - 'docs/reports/T-1303-evidence/hint-edit-1920.png'
+  - 'docs/reports/T-1303-evidence/longname-1024-panel-end.png'
+  - 'docs/reports/T-1303-evidence/longname-1024-panel.png'
+  - 'docs/reports/T-1303-evidence/longname-1024.png'
+  - 'docs/reports/T-1303-evidence/longname-1440-panel.png'
+  - 'docs/reports/T-1303-evidence/longname-1440.png'
+  - 'docs/reports/T-1303-evidence/longname-1920-panel.png'
+  - 'docs/reports/T-1303-evidence/longname-1920.png'
+  - 'docs/reports/T-1303-evidence/stylea-edit-1024-panel-end.png'
+  - 'docs/reports/T-1303-evidence/stylea-edit-1024-panel.png'
+  - 'docs/reports/T-1303-evidence/stylea-edit-1024.png'
+  - 'docs/reports/T-1303-evidence/stylea-edit-1440-panel-end.png'
+  - 'docs/reports/T-1303-evidence/stylea-edit-1440-panel.png'
+  - 'docs/reports/T-1303-evidence/stylea-edit-1440.png'
+  - 'docs/reports/T-1303-evidence/stylea-edit-1920-panel-end.png'
+  - 'docs/reports/T-1303-evidence/stylea-edit-1920-panel.png'
+  - 'docs/reports/T-1303-evidence/stylea-edit-1920.png'
+  - 'docs/reports/T-1303-evidence/stylea-step-1024-panel.png'
+  - 'docs/reports/T-1303-evidence/stylea-step-1024.png'
+  - 'docs/reports/T-1303-evidence/stylea-step-1440-panel.png'
+  - 'docs/reports/T-1303-evidence/stylea-step-1440.png'
+  - 'docs/reports/T-1303-evidence/stylea-step-1920-panel.png'
+  - 'docs/reports/T-1303-evidence/stylea-step-1920.png'
+  - 'docs/reports/T-1303-evidence/v1-edit-1024-panel.png'
+  - 'docs/reports/T-1303-evidence/v1-edit-1024.png'
+  - 'docs/reports/T-1303-evidence/v1-edit-1440-panel.png'
+  - 'docs/reports/T-1303-evidence/v1-edit-1440.png'
+  - 'docs/reports/T-1303-evidence/v1-edit-1920-panel.png'
+  - 'docs/reports/T-1303-evidence/v1-edit-1920.png'
+  - 'docs/reports/T-1303-evidence/v1-step-1024-panel.png'
+  - 'docs/reports/T-1303-evidence/v1-step-1024.png'
+  - 'docs/reports/T-1303-evidence/v1-step-1440-panel.png'
+  - 'docs/reports/T-1303-evidence/v1-step-1440.png'
+  - 'docs/reports/T-1303-evidence/v1-step-1920-panel.png'
+  - 'docs/reports/T-1303-evidence/v1-step-1920.png'
+  - 'docs/reports/T-1303-evidence/v11-step-1024-panel-end.png'
+  - 'docs/reports/T-1303-evidence/v11-step-1024-panel.png'
+  - 'docs/reports/T-1303-evidence/v11-step-1024.png'
+  - 'docs/reports/T-1303-evidence/v11-step-1440-panel-end.png'
+  - 'docs/reports/T-1303-evidence/v11-step-1440-panel.png'
+  - 'docs/reports/T-1303-evidence/v11-step-1440.png'
+  - 'docs/reports/T-1303-evidence/v11-step-1920-panel.png'
+  - 'docs/reports/T-1303-evidence/v11-step-1920.png'
+  - 'docs/reports/T-1303-evidence/workflow-1024-panel.png'
+  - 'docs/reports/T-1303-evidence/workflow-1024.png'
+  - 'docs/reports/T-1303-evidence/workflow-1440-panel.png'
+  - 'docs/reports/T-1303-evidence/workflow-1440.png'
+  - 'docs/reports/T-1303-evidence/workflow-1920-panel.png'
+  - 'docs/reports/T-1303-evidence/workflow-1920.png'
+  - 'docs/reports/T-682-arc-2-boundary-inventory.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/fixtures/invalid/E-XML-IO-MATCH-MISSING.bpmn'
+  - 'tests/fixtures/invalid/E-XML-IO-PREFIX-UNDECLARED.bpmn'
+  - 'tests/fixtures/warn/W-XML-IO-MATCH-UNRESOLVED.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_finding_anchorability.py'
+  - 'tests/test_rule_dialect_axis.py'
+  - 'tests/test_rule_form_parity.py'
+  - 'tests/test_t1303_io_lint.py'
+  - 'tools/_t1249-v11-io-shots.mjs'
+  - 'tools/_t1303-corpus-impact.py'
+  - 'tools/_t1303-io-findings-cdp.mjs'
+  - 'tools/gallery-serve.py'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-27T09:47:59'
+    action: 'T-1303: scoped — R1-R3 from AEF''s mapping v1.1 spec (update/upsert/delete without a match field = ERROR; undeclared prefix = ERROR; match without fieldRef/path = WARN), type-level and linked-map rules out of scope; found that the work spans both validator forms (parity census), the kit''s rule table and the io panel; corpus impact decided before any ERROR ships'
+  - time: '2026-10-27T15:56:39'
+    action: 'T-1303: corpus first — R1/R2/R3 flag 0 of 303 tracked maps (none uses mapping v1.1 yet); save never refuses on a finding (T-956), so R1/R2 ship as ERROR, R3 as WARN; tools/_t1303-corpus-impact.py, positive control recorded'
+  - time: '2026-10-27T16:03:42'
+    action: 'T-1303: mapping v1.1 io lint R1-R3 in the validator (XML form; the YAML form cannot write these constructs, measured, OUT-OF-SCOPE with a bridge probe): E-XML-IO-MATCH-MISSING, E-XML-IO-PREFIX-UNDECLARED (ERROR), W-XML-IO-MATCH-UNRESOLVED (WARN), located on the io; test 9/9 (red 4/5 before), fixtures, parity, dialect axis (carrier aef:io v1.1, unratified), anchorability; a core leg'
+  - time: '2026-10-27T16:08:46'
+    action: 'T-1303: designer shows a Check finding under the io row it names (mapping v1.1 lint): matched on node, kind, index and name, so a moved or renamed io shows none; drawer and canvas unchanged; no finding = the panel as before. CDP harness tools/_t1303-io-findings-cdp.mjs (browser leg _leg_200): green 4/4, red on 0.30.0 (a, b, f)'
+  - time: '2026-10-27T16:11:14'
+    action: 'T-1303: screenshots of the io findings (findings-lint, findings-v11, findings-lint-edit at 1024/1440/1920; T1249S_FINDINGS=1 in the shots tool), visual verification read control by control, the reviewer criterion'
+  - time: '2026-10-27T16:14:35'
+    action: 'T-1303: person-sees gate exit 0; sweep 5 OK, 1 minor (rule id muted, kept on purpose)'
+  - time: '2026-10-27T16:15:52'
+    action: 'T-1303: reviewer verdict'
+  - time: '2026-10-27T16:16:44'
+    action: 'T-1303: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-10-27T16:29:58'
+    action: 'T-1303: reviewer verdict (opencode seat opencode, recorded by the runtime)'
+  - time: '2026-10-27T16:32:07'
+    action: 'T-1303: reviewer verdict'
+  - time: '2026-10-27T16:33:22'
+    action: 'T-1303: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-10-27T16:39:15'
+    action: 'T-1303: reviewer verdict (opencode seat opencode, recorded by the runtime)'
+  - time: '2026-10-27T16:40:50'
+    action: 'T-1303: gallery-serve.py writes no Python bytecode into the tree it serves (sys.dont_write_bytecode): a reviewer seat running the CDP harness had its green voided twice by tools/__pycache__/validate-workflow.pyc in the export (AEF T-3986; AEF T-4835 filed); clean export: 1 .pyc before, 0 after. Boundary inventory citations re-pointed (+5 lines)'
+  - time: '2026-10-27T16:42:26'
+    action: 'T-1303: reviewer verdict'
+  - time: '2026-10-27T16:43:27'
+    action: 'T-1303: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-10-27T16:45:50'
+    action: 'T-1303: reviewer green (V-20261027-cb560298, two vendors; opencode unavailable), applied; designer and UI-routine criteria ticked. Open: release, then greenfield on AEF''s /api/validate'
+  - time: '2026-11-01T15:55:27'
+    action: 'T-1303: screens retaken on the current source (the 2026-10-27 verdict was voided by later designer changes: T-1344, T-1350); person-sees gate exit 0; greenfield''s field run WORKS recorded; four-part context added'
+  - time: '2026-11-01T15:56:36'
+    action: 'T-1303: reviewer verdict'
+  - time: '2026-11-01T15:57:32'
+    action: 'T-1303: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-11-01T16:09:10'
+    action: 'T-1303: reviewer verdict (opencode seat opencode, recorded by the runtime)'
+  - time: '2026-11-01T16:10:13'
+    action: 'T-1303: panel green on the retaken screens (V-20261101-4a93722d: claude-code, codex, opencode), verdict applied; Evolution recorded'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 21 commit(s), 11166 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:structured-io]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 11166
+  commits: 22
+  files_changed: 171
+  lines_added: 1727
+  lines_removed: 51
+  footprint_refreshed_at: '2026-11-01T15:10:54Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1303-designer-slice-4-t-1242-go-show-aefs-map.md
+generated_by: context-agent-hybrid

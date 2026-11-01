@@ -7,13 +7,13 @@ description: >
   update/upsert/delete without a match field, undeclared prefix) on the io in the
   designer, through the one validator (/api/validate), not a JS copy.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_run
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:structured-io]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tests/test_finding_anchorability.py, tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/gallery-serve.py, tools/validate-workflow.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -43,8 +43,8 @@ arc_id: structured-io
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-24T21:04:24Z
-last_update: 2026-11-01T15:10:13Z
-date_finished:
+last_update: 2026-11-01T15:10:34Z
+date_finished: 2026-11-01T15:10:34Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -352,6 +352,8 @@ and the kit; the designer then shows the findings on the io. Not started at the 
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+python3 tests/test_t1303_io_lint.py > /tmp/.t1303.out 2>&1 && grep -q '0 failed' /tmp/.t1303.out
+test -f docs/reports/T-1303-evidence/findings-lint-1440-panel.png
 
 ## Visual Verification
 
@@ -496,3 +498,21 @@ Person-sees gate: exit 0 (243 s).
 ### 2026-10-27T08:47:20Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-01T15:10:34Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ba6fdfcf
+- **Timestamp:** 2026-11-01T15:10:41Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — The kit's rule table and dialect axis carry the new ids (`tests/test_rule_dialect_axis.py` green); the kit change
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/test_rule_dialect_axis.py in: The kit's rule table and dialect axis carry the new ids (`tests/test_rule_dialect_axis.py` green); the kit change`
