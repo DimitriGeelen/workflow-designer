@@ -42,3 +42,5 @@ this repo):
 - **2026-11-01, agent -> greenfield (msg dfb7c376):** asked for the process start to end, every system-to-system exchange
   (object, means, trigger), the documents and which change state, the state changes that trigger, and what the
   walkthrough labels are for.
+- **2026-11-01, greenfield (msg 7a3f87a1):** the five questions need a full description of their client process, more
+  than the map the owner approved; asked the owner first. If approved, the answer follows in greenfield's next session.
