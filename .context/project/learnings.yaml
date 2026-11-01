@@ -2965,3 +2965,9 @@ learnings:
   task: T-1349
   date: 2026-10-31
   context: Added via context agent
+- id: PL-430
+  learning: "After a framework upgrade, diff what fw audit writes under .context/audits/ (reports, timing, in-flight markers) against the hermeticity helper's exclusions: be.4's T-4840 marker made a cron audit straddling a core run read as a stray write (job 113 stopped at step 8)"
+  source: unknown
+  task: T-1354
+  date: 2026-11-01
+  context: Added via context agent
