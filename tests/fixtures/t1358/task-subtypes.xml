@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-1358: the four plain BPMN 2.0 task subtypes the designer imports and saves back unchanged (sendTask, receiveTask,
+     manualTask, businessRuleTask), in a lane with no laneMeta. Expected: no E-XML-NODE-TYPE, and
+     W-XML-LANE-NO-AUTHORITY counting "4 task(s)": each subtype takes part in ownership checks like a plain <task>
+     (T-970, T-972), not merely accepted and then left unexamined. Greenfield's map tobe-sales-without-novis carries
+     7 sendTasks (greenfield T-361). -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="t"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LS">
+      <bpmn:lane id="ops" name="Operations">
+        <bpmn:flowNodeRef>n_s</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_send</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_recv</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_man</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_rule</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_e</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="n_s"/>
+    <bpmn:sendTask id="n_send" name="Send offer"/>
+    <bpmn:receiveTask id="n_recv" name="Receive signature"/>
+    <bpmn:manualTask id="n_man" name="File the contract"/>
+    <bpmn:businessRuleTask id="n_rule" name="Score the deal"/>
+    <bpmn:endEvent id="n_e"/>
+    <bpmn:sequenceFlow id="f0" sourceRef="n_s" targetRef="n_send"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="n_send" targetRef="n_recv"/>
+    <bpmn:sequenceFlow id="f2" sourceRef="n_recv" targetRef="n_man"/>
+    <bpmn:sequenceFlow id="f3" sourceRef="n_man" targetRef="n_rule"/>
+    <bpmn:sequenceFlow id="f4" sourceRef="n_rule" targetRef="n_e"/>
+  </bpmn:process>
+</bpmn:definitions>

@@ -33,6 +33,7 @@ tests/run-bridge-tests.sh.
 import importlib.util
 import os
 import re
+import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -125,6 +126,28 @@ def failures():
             fails.append(
                 "(4) %r is declared XML-only but an emitter can produce it -- "
                 "it is part of the translation, not an extension" % t)
+
+    # (5) T-1358: admitting a task type takes THREE tables. T-970 admitted <task> in this one only; T-972 found it
+    #     missing from TYPE_PERFORMER (every ownership check keys on it, so plain tasks went unexamined) and T-975
+    #     from NODE_OCCUPANCY (lanes holding one were skipped by capacity checking). A task-like XML-only type must
+    #     be in both, or it is accepted and then silently not checked.
+    for t in sorted(v.XML_ONLY_NODE_TYPES):
+        if t != "task" and not t.endswith("Task"):
+            continue
+        for table in ("TYPE_PERFORMER", "NODE_OCCUPANCY"):
+            if t not in getattr(v, table, {}):
+                fails.append(
+                    "(5) %r is accepted (XML_ONLY_NODE_TYPES) but missing from %s -- it would pass validation "
+                    "and then be skipped by the checks that key on that table (T-972, T-975)" % (t, table))
+
+    # (6) T-1358: the four plain task subtypes, end to end through the real validator: accepted (no E-XML-NODE-TYPE)
+    #     AND examined (the authority-less lane's warning counts all four as tasks with no derivable owner).
+    fixture = os.path.join(ROOT, "tests", "fixtures", "t1358", "task-subtypes.xml")
+    r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "validate-workflow.py"), fixture],
+                       capture_output=True, text=True, timeout=60)
+    if "E-XML-NODE-TYPE" in r.stdout or "4 task(s)" not in r.stdout:
+        fails.append("(6) tests/fixtures/t1358/task-subtypes.xml: expected no E-XML-NODE-TYPE and the lane warning "
+                     "counting 4 task(s); got: %s" % " | ".join(r.stdout.strip().splitlines()[:4]))
 
     return fails
 
