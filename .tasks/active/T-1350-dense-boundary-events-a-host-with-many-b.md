@@ -45,7 +45,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-31T22:44:47Z
-last_update: 2026-11-01T00:19:55Z
+last_update: 2026-11-01T00:33:41Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -98,9 +98,9 @@ bvp_scores_proposed:
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] Node geometry is read through one helper, `dims(n)` (a node's own `drawSize`, else its type's size): no `NODE_DEFAULTS[<node>.type]` geometry read is left in `src/aef-workflow-designer.html`
 - [x] On import, a host whose file-placed boundary events overflow an edge at the type's size gets `drawSize` = the file's size, grown further if needed to give every event 44 px on its edge; hosts that fit get none
-- [x] `tools/_t1350-dense-boundary-cdp.mjs` on kitchen-sink: Activity_0pzvbay drawn at least 150x600, no two of its 12 boundary circles overlap, each sits on the edge the file drew it on, the saved DI keeps the host's size, and a second save is byte-identical to the first; wired as a core leg
+- [x] `tools/_t1350-dense-boundary-cdp.mjs` on kitchen-sink: Activity_0pzvbay drawn at least 150x600, no two of its 12 boundary circles overlap, each sits on the edge the file drew it on, the saved DI keeps the host's size, and a second save is byte-identical to the first; wired as leg 221 in the browser tier (where every CDP harness sits, beside T-1344's leg 220)
 - [ ] Corpus goldens: only files with an overflowing host change (re-recorded deliberately, named in the commit); designer-made maps save byte-identically
-- [ ] `bash tools/person-sees-gate.sh` exits 0; core tier green
+- [x] `bash tools/person-sees-gate.sh` exits 0; core tier green (gate exit 0 in 246 s; core GREEN 217/0 in 770 s on 74cbede38)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -317,6 +317,9 @@ view, not clipped); the host region cropped from the 1920 shot and enlarged 3x, 
 | nested-lanes, plain designer map | whole canvas | ok | ok | ok | no host grows; unchanged |
 
 Files: `docs/reports/T-1350-evidence/kitchen-sink-{1024,1440,1920}.png`, `kitchen-sink-1920-host-zoom{,-before}.png`.
+
+Advisory sweep (codex, t1350-sweep-96605f360d20): OVERALL clean — events separated, labels clear of neighbours and of the
+free-standing events, host inside its lane at all three widths, no host grown in nested-lanes or the plain designer map.
 
 ## RCA
 
