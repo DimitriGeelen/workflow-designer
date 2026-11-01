@@ -101,3 +101,23 @@ not visible on the canvas (filed separately as a possible bug).
   need 4 (decision status per step) and need 2 (state transitions as triggers): a design map in a live project mixes
   decided, assumed and open, and the map drifted from decisions made after it. Interim agreed: a `Decision:` line in the
   step documentation.
+- **2026-11-01, operator:** each io should give the object, its source or target system, the attributes relevant to
+  that input or output, and guidance on how each attribute's value is built up (format, structure), never the value
+  itself. -> proposed to greenfield (msg b04ef4c6), recorded in T-1361:
+  - which attributes: field rows by role;
+  - how a value is built: the catalog row (format, pattern, maxLength, allowedValues, unit, example, valueSource,
+    derivedFrom);
+  - rules that hold at one step only: `aef:expect`.
+- **2026-11-01, operator:** "does that mean we need to, or could, start introducing ontologies for workflow design
+  activities too, also in general in AEF?" Then: "either we as workflow designers adapt the ontology skill or plugin, or
+  develop one, or AEF needs to do that." Agent's recommendation, which the operator accepted ("yes") -> IW-4:
+  - **Building ontologies:** the ontocraft plugin, unchanged (no fork).
+  - **AEF:** a small workflow-design vocabulary and its spec (documents and their states, state-change triggers,
+    user-started system actions, keys between systems, decision and proof status), reusing BPMN 2.0, SHACL (value rules:
+    `sh:pattern`, `sh:maxLength`, `sh:in`, `sh:datatype`) and PROV-O (who decided what, when).
+  - **832:** the bridge between ontology and map: generating the catalog from the ontology (SHACL included), validator
+    checks that fieldRefs exist and expectations do not contradict the shapes, the designer display, and an authoring-kit
+    skill.
+  - **AEF in general** (an ontology for tasks and governance) is AEF's operator's call. Raise it only after this works
+    for workflow design.
+  - The catalog keys proposed to greenfield should take SHACL's names, to avoid a home-made format.
