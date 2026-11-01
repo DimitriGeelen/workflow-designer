@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1357: A push whose pre-push core run is long loses its SSH connection to origin ('Received disconnect … Protocol error or corrupt packet'), so nothing lands
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-01T12:49:44Z
+# ============================================================================
+
+task_id: T-1357
+task_name: "A push whose pre-push core run is long loses its SSH connection to origin ('Received disconnect … Protocol error or corrupt packet'), so nothing lands"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-01T12:20:46Z
+completed: 2026-11-01T12:49:37Z
+duration_days: 0
+updates_count: 4
+first_commit: 2026-11-01T13:33:44+01:00
+last_commit: 2026-11-01T13:49:36+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  SSH keepalive for this repo's git (core.sshCommand ServerAliveInterval=30), set by _t1000-install-hook.sh — origin drops an idle connection (measured: lost at 660 s without, kept with), and git holds one idle through the pre-push core run, so long pushes were lost. an uncached 876 s core run's push landed first time
+
+# Key outcomes
+outcomes:
+  - 'Hypothesis tested: an SSH session to origin held idle for the length of a core run is dropped without keepalives and survives with them (or the hypothesis is disproved and the next one tested) — 660 s idle: plain rc 255 "Received disconnect … Protocol error or corrupt packet", ServerAliveInterval=30 rc 0'
+  - 'Fix in place, gate unchanged: the core tier still runs and still refuses a red push — `core.sshCommand = ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=6` (local), set by `_t1000-install-hook.sh`; `_t1288` gate untouched (`--check` installed), t1240 hook test green'
+  - 'A push that runs the full (uncached) core tier lands on the first attempt — 962c43f42..9ff14e75b after an 876 s uncached core run (218/0), exit 0, no disconnect (the morning''s lost pushes idled 848 s and 625 s)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1357-a-push-whose-pre-push-core-run-is-long-l.md'
+  - 'tools/_t1000-install-hook.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-01T13:33:44'
+    action: 'T-1357: SSH keepalive for this repo''s git (core.sshCommand ServerAliveInterval=30), set by _t1000-install-hook.sh — origin drops an idle connection (measured: lost at 660 s without, kept with), and git holds one idle through the pre-push core run, so long pushes were lost'
+  - time: '2026-11-01T13:49:36'
+    action: 'T-1357: an uncached 876 s core run''s push landed first time'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 28 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 28
+  commits: 3
+  files_changed: 5
+  lines_added: 533
+  lines_removed: 7
+  footprint_refreshed_at: '2026-11-01T12:49:49Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1357-a-push-whose-pre-push-core-run-is-long-l.md
+generated_by: context-agent-hybrid
