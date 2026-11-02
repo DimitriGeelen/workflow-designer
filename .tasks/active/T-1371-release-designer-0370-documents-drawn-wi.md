@@ -86,7 +86,9 @@ taller lanes, and that the validator takes `--field-catalog`.
   9 steps: kit PASS by codex and GLM-5.3, core green. Tag on release commit 6b23cb11a. Artifact sha256 47fff62e…d28c,
   1329546 bytes. Kit SHA256SUMS 04f026d2…86d5. validate-workflow.py a74c8d2b…3767, 125022 bytes, changed.)*
 - [ ] *(sent 2026-11-02, msg 6d4d2664 RECEIVED, with the moved kit anchors, the taller-lanes change and the
-  `--field-catalog` note for its Check; waiting for AEF's task id and pin)* AEF is sent the version, tag, sha256, bytes, changes AND the kit anchors (SHA256SUMS sha256, validate-workflow.py
+  `--field-catalog` note for its Check. AEF folded it into **T-5015** (msg 13795dd0): it pins 0.37.0 directly, skipping
+  0.36.0, against our hashes including the changed validator, and decides there whether /api/validate passes its catalog.
+  It reports the be-tag; then `tools/_t1187-aef-pin-lag.sh` must read CURRENT.)* AEF is sent the version, tag, sha256, bytes, changes AND the kit anchors (SHA256SUMS sha256, validate-workflow.py
   sha256 and bytes), plus the stored-map change. `tools/_t1187-aef-pin-lag.sh` reads CURRENT.
 - [x] Greenfield is sent the release with a WORKS/BROKEN re-test on wt01-io-v12: its 5 documents, and the validator
   with its catalog. Its answer is recorded here. *(greenfield T-386, msg d4a8f38c: WORKS on all 4 items on
