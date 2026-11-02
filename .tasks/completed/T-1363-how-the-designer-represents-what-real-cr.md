@@ -8,17 +8,17 @@ description: >
   screen states, documents (BPMN data objects), state changes as triggers, system-to-system
   data exchange (from WT-01, generalised)
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-11-01T20:38:40Z
-last_update: 2026-11-01T21:27:04Z
-date_finished:
+last_update: 2026-11-02T12:59:07Z
+date_finished: 2026-11-02T12:59:07Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -225,7 +225,7 @@ Done 2026-11-01..02, in dialogue with greenfield (T-1361) and AEF, all recorded 
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Why you:** direction — whether the designer takes on documents, state-change triggers and value rules (and which part AEF owns) is product direction; and `fw inception decide` is operator-only
   **Steps:**
   1. Run: `fw task review T-1363` (opens Watchtower with recommendation, assumptions, research artifacts)
@@ -324,7 +324,11 @@ match rows; the click step plus system step pattern).
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-1363 go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Operator (2026-11-02, recorded by job 118): GO for 832's part. Greenfield's WT-01 (five systems) fits standard BPMN plus mapping v1.1 by rules A-F; value rules live in the producer's ontology (SHACL shapes, via the field catalog). The gap was display and checking, not modelling. Already shipped in 0.36.0: conditional/signal events by kind (T-1366), value rules in the io panel (T-1365). Build next: B1 draw documents (data objects with dataState, save unchanged); B2 a validator check against the field catalog (field object = io typeRef; aef:expect contradicting the shape is an error, repeating it a warning). Conditions: each tested on a synthetic map that is not WT-01; no build on decision status, keys or the user-started action before AEF T-4991; client data stays out of the repo. Evidence: docs/reports/T-1363-cross-system-workflow-primitives.md.
+
+**Date**: 2026-11-02T12:59:07Z
 
 ## Updates
 
@@ -333,3 +337,46 @@ match rows; the click step plus system step pattern).
 
 ### 2026-11-01T20:41:07Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-02T12:59:07Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Operator (2026-11-02, recorded by job 118): GO for 832's part. Greenfield's WT-01 (five systems) fits standard BPMN plus mapping v1.1 by rules A-F; value rules live in the producer's ontology (SHACL shapes, via the field catalog). The gap was display and checking, not modelling. Already shipped in 0.36.0: conditional/signal events by kind (T-1366), value rules in the io panel (T-1365). Build next: B1 draw documents (data objects with dataState, save unchanged); B2 a validator check against the field catalog (field object = io typeRef; aef:expect contradicting the shape is an error, repeating it a warning). Conditions: each tested on a synthetic map that is not WT-01; no build on decision status, keys or the user-started action before AEF T-4991; client data stays out of the repo. Evidence: docs/reports/T-1363-cross-system-workflow-primitives.md.
+
+### 2026-11-02T12:59:07Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-225f60e5
+- **Timestamp:** 2026-11-02T12:59:08Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-3
+     - evidence: `IW-3 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-0be51fa0
+- **Timestamp:** 2026-11-02T12:59:08Z
+- **Overall:** CONTRADICTED
+- **Claims:** 7
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `docs/reports/T-1363-cross-system-workflow-primitives.md` | file | ✓ pass |
+| `T-4991` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
+| `T-1366` | task | ✓ pass |
+| `T-1365` | task | ✓ pass |
+| `T-4415` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
+| `T-1361` | task | ✓ pass |
+| `T-5015` | task | ✗ fail — no task file in .tasks/{active,completed}/ |

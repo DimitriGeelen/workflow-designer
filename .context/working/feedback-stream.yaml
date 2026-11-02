@@ -20705,3 +20705,29 @@ scan_id: R-d1a6892c
 task_id: T-1365
 payload:
   task_file: .tasks/active/T-1365-designer-shows-an-attributes-value-rule-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-02T12:59:08Z'
+scan_id: R-225f60e5
+task_id: T-1363
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-02T12:59:08Z'
+scan_id: R-225f60e5
+task_id: T-1363
+payload:
+  task_file: .tasks/active/T-1363-how-the-designer-represents-what-real-cr.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-11-02T12:59:08Z'
+scan_id: RC-0be51fa0
+task_id: T-1363
+payload:
+  overall: CONTRADICTED
+  claim_count: 7
