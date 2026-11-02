@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1364: A named intermediate message catch event from another tool's file is drawn without its name (greenfield wt01-order-proef, designer 0.31.0)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-02T07:25:31Z
+# ============================================================================
+
+task_id: T-1364
+task_name: "A named intermediate message catch event from another tool's file is drawn without its name (greenfield wt01-order-proef, designer 0.31.0)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-01T21:26:36Z
+completed: 2026-11-02T07:25:24Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-02T00:38:36+01:00
+last_commit: 2026-11-02T08:25:23+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  context and ACs from greenfield's data (msg adfa24a3): the undrawn name is 51 chars vs 25-35; H1 wrapped/cut label vs H2 really not drawn; reproduce on 0.35.0 with wt01-io-v11 v8. reproduced on 0.35.0 with wt01-io-v11 at 1024/1440/1920 — the 51-char name is drawn in full on two wrapped lines (H1, not a defect); greenfield's substring check spanned the wrap; side finding: conditional catch event opens as link catch (filed separately)
+
+# Key outcomes
+outcomes:
+  - 'Reproduced on 0.35.0 with greenfield''s wt01-io-v11 v8: for each of the four intermediate events, record the'
+  - 'H1 or H2 decided from that evidence (`## RCA`). For H2: a fix, plus a harness leg with a synthetic fixture (a'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1364-a-named-intermediate-message-catch-event.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-02T00:38:36'
+    action: 'T-1364: context and ACs from greenfield''s data (msg adfa24a3): the undrawn name is 51 chars vs 25-35; H1 wrapped/cut label vs H2 really not drawn; reproduce on 0.35.0 with wt01-io-v11 v8'
+  - time: '2026-11-02T08:25:23'
+    action: 'T-1364: reproduced on 0.35.0 with wt01-io-v11 at 1024/1440/1920 — the 51-char name is drawn in full on two wrapped lines (H1, not a defect); greenfield''s substring check spanned the wrap; side finding: conditional catch event opens as link catch (filed separately)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 598 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 598
+  commits: 3
+  files_changed: 4
+  lines_added: 206
+  lines_removed: 22
+  footprint_refreshed_at: '2026-11-02T07:25:36Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1364-a-named-intermediate-message-catch-event.md
+generated_by: context-agent-hybrid
