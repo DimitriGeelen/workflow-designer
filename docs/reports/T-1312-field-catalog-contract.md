@@ -31,6 +31,26 @@ Only `ref` (non-empty text) is required per row. `notation`, `label`, `system`, 
 `keyRole`, when present, must be text (an empty string is fine). Other keys (`generatedBy`, `count`, `sources`, ...) are
 carried through untouched. The designer reads `ref`, `notation`, `label` and `dataType`.
 
+**Value rules (T-1365, designer 0.36.0).** Since 0.36.0 the designer also reads these optional keys and shows them,
+read-only, under each io field whose `fieldRef` matches the row's `ref`. They say how a value of the attribute is
+built. They are named after SHACL because the producer's rule lives in its ontology as a `sh:PropertyShape` (agreed
+with greenfield and AEF, 832 T-1361 / T-1363):
+
+| Key | Shown as | Type |
+|---|---|---|
+| `datatype` | type (`xsd:` dropped) | text |
+| `maxLength` | max length | text or number |
+| `pattern` | pattern (ECMA-262), shown as written | text |
+| `in` | allowed values | array of text, or one `\|`-separated text |
+| `description` | format (plain words) | text |
+| `example` | example, marked "made up, shape only" | text |
+| `valueSource` / `derivedFrom` | comes from / derived | text |
+| `unit` | appended to the type | text |
+| `shape` | the rule's id | text |
+
+None is required. A key that is absent is not shown, and a row with none of them shows only the attribute's name.
+They are not validated (a wrong type shows as text, or not at all), so the T-1312 refusal rule is unchanged.
+
 **404:** `{"ok": false, "error": "no field catalog"}` — the project has none.
 
 **422:** `{"ok": false, "error": "field catalog refused: <why>"}` — the file exists but is not JSON, has no `version: 1`,
