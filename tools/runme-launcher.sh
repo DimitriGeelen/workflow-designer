@@ -68,7 +68,9 @@ fi
 REHEARSE_ROOT="$PROJ/.context/rehearse"
 
 say()  { printf '%s\n' "$*"; }
-fail() { say "STOPPED: $*"; exit 1; }
+# T-1368: the reason also goes into the STOPPED event (runme-signal.sh's EXIT trap reads RUNME_STOP_WHY), so the agent
+# woken by the event reads WHY the run stopped instead of guessing it (job 118: "not confirmed" was reported as "No").
+fail() { RUNME_STOP_WHY="$*"; say "STOPPED: $*"; exit 1; }
 
 # ---------------------------------------------------------------- job loading
 CHECK_T=(); CHECK_C=(); STEP_T=(); STEP_C=(); STEP_O=(); declare -A FN_BODY=()
@@ -370,13 +372,30 @@ job_line() { local d=$1 t; t=$(job_title "$d"); echo "$(basename "$d")${t:+ — 
 
 # ---------------------------------------------------------------- terminal answers
 open_tty() { exec 3<"$TTY" || fail "cannot read answers from $TTY (run this in a terminal)"; }
-ask() {  # ask <prompt> -> REPLY ; discards typeahead from a real terminal first
-    local _junk
+ask() {  # ask <prompt> -> REPLY, ANSWER ; discards typeahead from a real terminal first
+    # T-1368: ANSWER says what was RECEIVED, for the log and a STOPPED reason: the text, an empty Enter, or end of input,
+    # plus how many typed-ahead characters were discarded. Before, all three read as "not confirmed" and the agent
+    # guessed which (job 118, 2026-11-02). RUNME_TYPEAHEAD (tests only) feeds characters to the discard.
+    local _junk _n=0 _rc
     if [ "$TTY" = /dev/tty ]; then
-        while read -r -t 0.05 -n 10000 _junk <&3 2>/dev/null; do :; done
+        while :; do
+            IFS= read -r -t 0.05 -n 10000 _junk <&3 2>/dev/null; _rc=$?
+            _n=$(( _n + ${#_junk} ))
+            [ "$_rc" = 0 ] || break
+            _n=$(( _n + 1 ))   # the newline that ended the line
+        done
     fi
+    local _ta="${RUNME_TYPEAHEAD:-}"; _n=$(( _n + ${#_ta} )); RUNME_TYPEAHEAD=""
     printf '%s ' "$1"
-    REPLY=""; read -r REPLY <&3 || REPLY=""
+    REPLY=""
+    if read -r REPLY <&3; then
+        if [ -z "$REPLY" ]; then ANSWER="an empty Enter"; else ANSWER="'$REPLY'"; fi
+    elif [ -n "$REPLY" ]; then
+        ANSWER="'$REPLY' then end of input"
+    else
+        ANSWER="end of input (no answer typed: Ctrl-D, or the terminal closed)"
+    fi
+    [ "$_n" -gt 0 ] && ANSWER="$ANSWER; $_n character(s) typed before the prompt were discarded (typeahead never answers a step)"
     [ "$TTY" = /dev/tty ] || say "$REPLY"   # echo test answers into the log
 }
 confirm() { ask "$1 [y/N]"; [ "$REPLY" = y ] || [ "$REPLY" = Y ]; }
@@ -622,7 +641,7 @@ run_one() {  # run_one <job dir> — one job, end to end; runs in a subshell so 
         say "Step $((i + 1))/$n: ${STEP_T[$i]}"
         say "  runs: ${STEP_C[$i]}"
         step_code "${STEP_C[$i]}"
-        confirm "Run step $((i + 1))/$n?" || fail "not confirmed at step $((i + 1))/$n; steps before it ran, nothing after"
+        confirm "Run step $((i + 1))/$n?" || fail "not confirmed at step $((i + 1))/$n (received: $ANSWER); steps before it ran, nothing after"
         runme_signal step "$((i + 1))/$n ${STEP_T[$i]}"
         (cd "$PROJ" && job_shell "${STEP_C[$i]}") || fail "step $((i + 1))/$n failed (rc=$?); later steps not run"
         say "ok    step $((i + 1))/$n"

@@ -59,7 +59,11 @@ event (started / step / done / STOPPED, the last two from an EXIT/INT/TERM/HUP t
 `.context/working/runme.events`, posted to TermLink topic `runme-832` (detached, never slows or
 breaks the run); a refusal is a STOPPED event too. When handing a job to the operator,
 the agent arms `bash tools/runme-watch.sh` as a BACKGROUND task: it exits on the first new event,
-which wakes the agent; read the log, act, re-arm. A sidecar message alone does not wake the agent
+which wakes the agent; read the log, act, re-arm. **Re-arm after EVERY event, a STOPPED one included** (T-1368): the
+operator often re-runs a stopped job within a minute (job 118, 2026-11-02: stopped 12:58:28, re-run 12:59:00, done
+12:59:46, unseen because the watch was not re-armed). The watch ends its output with `RE-ARM NOW` and the jobs still
+pending. **Report a stop with what the log recorded, never a guessed cause**: an unconfirmed step names what it received
+(`'n'`, an empty Enter, end of input, typeahead discarded), in the log and in the STOPPED event. A sidecar message alone does not wake the agent
 (the inbox is read at the next prompt) — that is why the watcher exists. The watch dies with the
 session that armed it (T-1050): it records who armed it in `.context/working/runme.watch`, and the
 session-start check (`scripts/session-start-alerts.sh`) prints **WATCH LOST** when that session is

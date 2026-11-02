@@ -48,15 +48,31 @@ done
 mkdir -p "$(dirname "$WATCH")" 2>/dev/null
 printf 'watch_pid=%s claude_pid=%s armed=%s\n' "$$" "${armer:-none}" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$WATCH" 2>/dev/null
 
+# T-1368: the watch ends on its FIRST event (that exit is what wakes the agent), so every event needs a re-arm, a STOPPED
+# one included: on 2026-11-02 the operator re-ran job 118 32 s after it stopped, and the agent, which had not re-armed,
+# missed the whole run. So the text that wakes the agent ends with what is still pending, in the launcher's own words
+# (--list), and the re-arm command. RUNME_WATCH_LIST_CMD is for tests.
+rearm_note() {
+    local list
+    list=$(${RUNME_WATCH_LIST_CMD:-bash "$ROOT/runme.sh" --list} 2>/dev/null | grep -v '^no pending jobs$')
+    if [ -n "$list" ]; then
+        echo "RE-ARM NOW (before anything else): bash tools/runme-watch.sh, in the background. Still pending — the operator"
+        echo "may run or re-run any of these at once:"
+        echo "$list" | sed 's/^/  /'
+    else
+        echo "no job pending; re-arm with the next hand-over."
+    fi
+}
+
 start=$(date +%s)
 while [ "$LIMIT" -eq 0 ] || [ $(( $(date +%s) - start )) -lt "$LIMIT" ]; do
     f=$(lines)
     if [ "$f" -gt "$f0" ]; then
-        echo "runme event (file):"; tail -n +"$((f0 + 1))" "$FILE"; rm -f "$WATCH"; exit 0
+        echo "runme event (file):"; tail -n +"$((f0 + 1))" "$FILE"; rm -f "$WATCH"; rearm_note; exit 0
     fi
     if command -v termlink >/dev/null 2>&1; then
         new=$(timeout 20 termlink channel subscribe "$TOPIC" --cursor "$t0" --limit 50 2>/dev/null | grep -E '^\[[0-9]+\]' | grep -F " $LABEL ")
-        [ -n "$new" ] && { echo "runme event (topic $TOPIC):"; echo "$new" | cut -c1-400; rm -f "$WATCH"; exit 0; }
+        [ -n "$new" ] && { echo "runme event (topic $TOPIC):"; echo "$new" | cut -c1-400; rm -f "$WATCH"; rearm_note; exit 0; }
     fi
     sleep 3
 done

@@ -686,6 +686,7 @@ orphan_legs=(
   "core|tests/test_t1055_runme_launcher.py|the runme launcher no longer enforces the operator's safeguards itself: a job that runs at load time, has no dry-run, changed since its dry-run, or is already done can run, or a step runs without its y/N (T-1055)"
   "core|tests/test_t1286_rehearsal.py|runme --dry-run no longer rehearses a job's steps in a throwaway clone: a step a framework gate refuses passes the dry-run, a step_outward is executed in rehearsal, or the rehearsal changed the real repo (T-1286)"
   "core|tests/test_t1050_runme_alerts.py|the session-start check no longer tells a new session that a handed-over runme.sh has nothing watching it (WATCH LOST), or misreports an in-flight / unrecorded run (T-1050)"
+  "core|tests/test_t1368_runme_watch_rearm.py|the runme watch no longer ends with RE-ARM NOW and the still-pending jobs, so a re-run of a stopped job can go unwatched again (T-1368)"
   "core|tests/test_t1145_decision_handover_guard.py|the Stop hook no longer blocks a reply that hands the operator an unready inception's decision link, blocks a ready or link-free reply, loops, or fails closed (T-1145)"
 )
 # T-1288: each entry is its own leg, its tier the entry's first field (five of these drive a browser).

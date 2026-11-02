@@ -45,7 +45,7 @@ origin: {kind: "operator"}
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-02T12:59:52Z
-last_update: '2026-11-02T13:00:32Z'
+last_update: 2026-11-02T13:05:21Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -110,12 +110,16 @@ launcher received.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The launcher's log and STOPPED event name what an unconfirmed step received: `n`/other text, an empty Enter, end
+<!-- Criterion 2 revised 2026-11-02 while building: a watch that kept running after a STOPPED would no longer wake the
+     agent on the stop (its exit IS the wake-up, T-1003), so the stop would go unreported. Instead every exit ends with
+     RE-ARM NOW and the still-pending jobs: the re-arm is in front of the agent, not in its memory. -->
+- [x] The launcher's log and STOPPED event name what an unconfirmed step received: `n`/other text, an empty Enter, end
   of input, and whether typeahead was discarded. A test in `tests/test_t1055_runme_launcher.py` drives each case.
-- [ ] `tools/runme-watch.sh` keeps watching after a STOPPED event while a job is still pending (not done or retired).
-  It exits only on `done`, or on a STOPPED with nothing pending, so a re-run of a stopped job is seen without a re-arm.
-  Tested.
-- [ ] CLAUDE.md's runme section states it: re-arm after every event; a stop is reported with the answer the launcher
+  *(legs 35-38)*
+- [x] `tools/runme-watch.sh` still exits on every event (that wakes the agent), and its output now ends with
+  `RE-ARM NOW` and the launcher's list of jobs still pending. With nothing pending it says so. Tested by
+  `tests/test_t1368_runme_watch_rearm.py` (core tier), whose legs are red on the old watch.
+- [x] CLAUDE.md's runme section states it: re-arm after every event; a stop is reported with the answer the launcher
   recorded, never a guess.
 
 ### Human
@@ -302,6 +306,10 @@ launcher received.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+python3 tests/test_t1055_runme_launcher.py >/dev/null
+python3 tests/test_t1368_runme_watch_rearm.py >/dev/null
+grep -q "Re-arm after EVERY event, a STOPPED one included" CLAUDE.md
+grep -q 'test_t1368_runme_watch_rearm.py' tests/run-bridge-tests.sh
 
 ## RCA
 
@@ -318,6 +326,27 @@ launcher received.
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** The operator re-ran job 118 at 12:59:00, after its 12:58:28 stop, and it completed at 12:59:46. The agent
+saw none of it. When asked, it offered a re-run of a job already done. It had also reported the stop as "you answered
+No", which the log did not show.
+
+**Root cause:**
+- **(a)** The watch ends on its first event, by design (its exit wakes the agent), so a re-arm is needed after every
+  event. After the STOPPED event the agent reported but did not re-arm. Nothing in the wake-up text asked for it.
+- **(b)** The launcher's `ask()` recorded an empty Enter, end of input and `n` alike ("not confirmed"), and discarded
+  typeahead silently. The log could not say what happened, which invited a guess.
+
+**Why structurally allowed:**
+- The re-arm lived in the agent's discipline only. WATCH LOST (T-1050) is checked at session start, not after each
+  event within a session.
+- The launcher tests asserted that a step stops, never what the stop records.
+
+**Prevention:**
+- Every watch exit now ends with `RE-ARM NOW` and the launcher's list of pending jobs (test_t1368, core).
+- The STOPPED event and the log carry what the launcher received (legs 35-38).
+- CLAUDE.md states both rules.
+- Learning recorded on T-1368.
 
 ## Evolution
 

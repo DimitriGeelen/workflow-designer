@@ -52,11 +52,12 @@ class Box:
             fh.write(body.replace("@OUT@", self.out))
         return d
 
-    def run(self, *args, answers="", picker=False):
+    def run(self, *args, answers="", picker=False, extra_env=None):
         with open(self.answers, "w") as fh:
             fh.write(answers)
         env = dict(os.environ, RUNME_JOBS_DIR=self.jobs, RUNME_EVENTS_FILE=self.events, RUNME_REPO=FIXTURE,
-                   RUNME_SIGNAL_NO_TERMLINK="1", RUNME_TTY=self.answers, RUNME_PICKER="1" if picker else "0")
+                   RUNME_SIGNAL_NO_TERMLINK="1", RUNME_TTY=self.answers, RUNME_PICKER="1" if picker else "0",
+                   **(extra_env or {}))
         r = subprocess.run(["bash", RUNME] + list(args), capture_output=True, text=True, env=env, timeout=60)
         if "--dry-run" in args:   # T-1286: what the rehearsal made, then cleared for the legs that follow
             self.rehearsed = sorted(os.listdir(self.out))
@@ -398,6 +399,23 @@ do_y() { : MARK_Y_BODY; touch @OUT@/s1; }
         ask_at = out.find("Run step 1/1?")
         leg(rc == 0 and b.made("s1") and -1 < out.find("MARK_X_BODY") < ask_at and -1 < out.find("MARK_Y_BODY") < ask_at,
             "34 a step shows its helpers' bodies (do_x and the do_y it calls) before the y/N")
+
+        # 35-38 (T-1368) a step that is not confirmed names what it RECEIVED, in the log and in the STOPPED event, so the
+        #    agent reports the real cause (job 118, 2026-11-02: no answer in the log, reported as "you answered No")
+        cases = [("35", "\n", None, "an empty Enter"),
+                 ("36", "n\n", None, "'n'"),
+                 ("37", "", None, "end of input"),
+                 ("38", "\n", {"RUNME_TYPEAHEAD": "y"}, "1 character(s) typed before the prompt were discarded")]
+        for tag, ans, env_x, want in cases:
+            b = Box(tmp, "l" + tag)
+            d = b.job("001-two", TWO_STEPS)
+            b.run("--dry-run")
+            rc, out = b.run(answers=ans, extra_env=env_x)
+            ev = [l for l in b.events_text().splitlines() if " STOPPED " in l]
+            leg(rc != 0 and not b.made("s1") and ("received: " in out and want in out)
+                and ev and "not confirmed at step 1/2" in ev[-1] and want in ev[-1],
+                "%s unconfirmed step names what it received (%s), in the log and the STOPPED event" % (tag, want),
+                (ev[-1] if ev else out[-300:]))
 
     print("\n%d failed leg(s)" % len(fails) if fails else "\nall legs passed")
     return 1 if fails else 0

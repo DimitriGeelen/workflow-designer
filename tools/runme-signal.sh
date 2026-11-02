@@ -44,7 +44,9 @@ runme_signal() {  # runme_signal <event> <text...>
 
 runme_signal_init() {  # runme_signal_init <what this run does> [log path]
     runme_signal started "$1${2:+ — log: $2}"
-    trap '_rc=$?; if [ "$_rc" = 0 ]; then runme_signal done "rc=0"; else runme_signal STOPPED "rc=$_rc"; fi' EXIT
+    # T-1368: a stop carries its reason (RUNME_STOP_WHY, set by the launcher's fail()), so the event that wakes the agent
+    # says why, e.g. "not confirmed at step 1/2 (received: an empty Enter)".
+    trap '_rc=$?; if [ "$_rc" = 0 ]; then runme_signal done "rc=0"; else runme_signal STOPPED "rc=$_rc${RUNME_STOP_WHY:+ — $RUNME_STOP_WHY}"; fi' EXIT
     trap 'runme_signal STOPPED "interrupted (Ctrl-C)"; trap - INT EXIT; kill -INT $$' INT
     trap 'runme_signal STOPPED "terminated (SIGTERM)"; trap - TERM EXIT; kill -TERM $$' TERM
     trap 'runme_signal STOPPED "terminal closed (SIGHUP)"; trap - HUP EXIT; kill -HUP $$' HUP
