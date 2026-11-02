@@ -177,11 +177,11 @@ findings with its script's.
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated *(the consumer's maps and its rules file; AUTHORING.md mentions io once)*
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested *(each rule checked against validate-workflow.py 0.37.0: three covered, six new, W-05 deferred; the W-03 noise risk measured as 13 of 77 maps carrying io)*
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale *(GO: two builds, kit text and validator warnings with --strict)*
 
 ### Human
 <!-- @auto-tick-on-decide -->
