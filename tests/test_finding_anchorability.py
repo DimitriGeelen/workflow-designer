@@ -147,6 +147,12 @@ ANCHOR = {
     "E-XML-IO-MATCH-MISSING":           "NODE",
     "E-XML-IO-PREFIX-UNDECLARED":       "NODE",
     "W-XML-IO-MATCH-UNRESOLVED":        "NODE",
+    # T-1370: the catalog checks use R1-R3's location (node '<id>' <input|output>[i] "<name>"). Witnessed by
+    # tests/fixtures/{invalid,warn}/*-XML-IO-{FIELD,EXPECT}-*.bpmn with their catalogs in tests/fixtures/catalogs/.
+    "W-XML-IO-FIELD-UNKNOWN":           "NODE",
+    "W-XML-IO-FIELD-ENTITY":            "NODE",
+    "E-XML-IO-EXPECT-CONTRADICTS":      "NODE",
+    "W-XML-IO-EXPECT-REDUNDANT":        "NODE",
 }
 
 GUTTERABLE = {"NODE", "LANE"}
@@ -380,7 +386,11 @@ def main():
             idx, carriers = _index(root), _carriers(root)
         except ET.ParseError:
             idx, carriers = {}, collections.Counter()
-        for f in vw.run_xml(text):
+        # T-1370: a fixture whose rules need the project's field catalog keeps it at tests/fixtures/catalogs/<name>.json
+        cat_path = (os.path.join(ROOT, "tests", "fixtures", "catalogs", os.path.splitext(label[len("fixture:"):])[0] + ".json")
+                    if label.startswith("fixture:") else "")
+        catalog = vw.load_field_catalog(cat_path) if cat_path and os.path.isfile(cat_path) else None
+        for f in vw.run_xml(text, catalog):
             if f.rule not in ANCHOR:
                 continue
             ids = _ids_in(f.location)

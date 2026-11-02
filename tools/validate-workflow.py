@@ -22,7 +22,11 @@ Exit codes (AEF audit convention):
 
 Usage:
     python3 tools/validate-workflow.py <file> [--format {auto,yaml,xml}]
-                                              [--json] [--quiet]
+                                              [--json] [--quiet] [--field-catalog PATH]
+
+    --field-catalog (T-1370): also check each io field and aef:expect against the project's field catalog (832 T-1312
+    format v1): unknown fieldRef, a field of another object, an expectation the attribute's rule forbids (error) or
+    merely repeats. An unreadable catalog is a load failure (exit 2). Without it, nothing changes.
 
 Standalone by design (not wired into the vendored `fw` CLI) to respect the
 product/framework boundary and Directive 4 (Portability); the framework may
@@ -1093,8 +1097,11 @@ class Validator:
 class XmlValidator:
     """Validates the BPMN-XML export form (docs/designer/schema.md section 7)."""
 
-    def __init__(self):
+    def __init__(self, catalog=None):
         self.findings = []
+        # T-1370: the project's field catalog (load_field_catalog), or None. Only the catalog checks read it; without
+        # one every other rule behaves exactly as before.
+        self.catalog = catalog
 
     def err(self, rule, location, message):
         self.findings.append(Finding(ERROR, rule, location, message))
@@ -1698,6 +1705,76 @@ class XmlValidator:
                         self.warn("W-XML-IO-MATCH-UNRESOLVED", loc,
                                   "a match field with neither fieldRef nor path: a key exists, but which "
                                   "field it is is not yet determined")
+                if self.catalog is not None:
+                    self._check_io_catalog(io, fields, loc)
+
+    def _check_io_catalog(self, io, fields, loc):
+        """T-1370 (T-1363 GO, build B2): an io's fields and expectations against the project's field catalog (contract
+        832 T-1312; its value-rule keys are SHACL's names, T-1365). Runs only when a catalog is given.
+
+        C1 W-XML-IO-FIELD-UNKNOWN, WARN: an aef:field fieldRef the catalog has no row for.
+        C2 W-XML-IO-FIELD-ENTITY, WARN: a field whose catalog `entity` is not the io's typeRef (an Account field on a
+           Lead io). An io whose typeRef is no entity of the catalog is exempt: a message that carries several objects
+           (rule F of the WT-01 mapping) types itself as the message, not as one object.
+        C3 E-XML-IO-EXPECT-CONTRADICTS, ERROR: an aef:expect whose const or aef:value the attribute's own rule
+           forbids: outside its `in`, failing its `pattern`, longer than its `maxLength` (AEF spec T-4415 C: an
+           expectation that contradicts the type is an error).
+        C4 W-XML-IO-EXPECT-REDUNDANT, WARN: an aef:expect that only restates the attribute's rule: the same pattern, or
+           the same set of allowed values (T-4415 C: one already implied by the type is a warning).
+        C1 and C2 are warnings because a catalog can be partial (greenfield's Novis rows carry no type source); C3 is
+        an error because the step demands what the attribute can never hold. Same location as R1-R3.
+        """
+        cat = self.catalog
+        typeref = io.get("typeRef") or ""
+        for f in fields:
+            ref = f.get("fieldRef")
+            if not ref:
+                continue
+            row = cat["rows"].get(ref)
+            if row is None:
+                self.warn("W-XML-IO-FIELD-UNKNOWN", loc,
+                          "fieldRef \"%s\" is not in the project's field catalog: no object or value rule to check "
+                          "it against" % ref)
+                continue
+            ent = row.get("entity") or ""
+            if typeref and ent and typeref in cat["entities"] and ent != typeref:
+                self.warn("W-XML-IO-FIELD-ENTITY", loc,
+                          "field %s belongs to %s in the catalog, but this io is %s: an attribute of another object "
+                          "(split the io per object, or retype it)" % (_cat_name(row, ref), ent, typeref))
+        for e in [c for c in io if c.tag == "{%s}expect" % AEF_NS]:
+            ref = e.get("fieldRef")
+            row = cat["rows"].get(ref) if ref else None
+            if row is None:
+                continue
+            name = _cat_name(row, ref)
+            allowed = _cat_values(row.get("in"))
+            pat = row.get("pattern") if isinstance(row.get("pattern"), str) else ""
+            maxlen = _cat_int(row.get("maxLength"))
+            literals = ([e.get("const")] if e.get("const") is not None else []) + \
+                       [v.text if v.text is not None else (v.get("value") or "")
+                        for v in e if v.tag == "{%s}value" % AEF_NS]
+            for lit in literals:
+                why = []
+                if allowed and row.get("datatype") != "xsd:boolean" and lit not in allowed:
+                    why.append("is not one of its allowed values (%s)" % " | ".join(allowed))
+                if pat and _cat_regex(pat) is not None and not _cat_regex(pat).search(lit):
+                    why.append("does not match its pattern %s" % pat)
+                if maxlen is not None and len(lit) > maxlen:
+                    why.append("is longer than its maxLength %d" % maxlen)
+                if why:
+                    self.err("E-XML-IO-EXPECT-CONTRADICTS", loc,
+                             "aef:expect on %s requires \"%s\", which the attribute's own rule forbids: it %s"
+                             % (name, lit, "; it ".join(why)))
+            own_vals = [v.text if v.text is not None else (v.get("value") or "")
+                        for v in e if v.tag == "{%s}value" % AEF_NS]
+            if pat and e.get("pattern") == pat:
+                self.warn("W-XML-IO-EXPECT-REDUNDANT", loc,
+                          "aef:expect on %s repeats the attribute's own pattern %s: the catalog already says it"
+                          % (name, pat))
+            elif allowed and own_vals and set(own_vals) == set(allowed):
+                self.warn("W-XML-IO-EXPECT-REDUNDANT", loc,
+                          "aef:expect on %s lists exactly the attribute's own allowed values: the catalog already "
+                          "says it" % name)
 
     def _node_y(self, node_el):
         """The node's drawn y from <aef:position>, or None when unpositioned.
@@ -2305,8 +2382,67 @@ def run_yaml(text):
     return validator.findings
 
 
-def run_xml(text):
-    validator = XmlValidator()
+# ---- T-1370: the project's field catalog (contract 832 T-1312, format v1) ----------------------------------------
+
+def load_field_catalog(path):
+    """Read a field catalog file: {"version": 1, "attributes": [{"ref": ..., "entity": ..., value-rule keys}]}.
+    Returns {"rows": {ref: row}, "entities": {entity, ...}}. Raises ValueError, naming what is wrong, for a file that is
+    not a T-1312 catalog: the checks must not run against half a catalog (the contract refuses it whole, too)."""
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (OSError, ValueError) as exc:
+        raise ValueError("cannot read field catalog %s: %s" % (path, exc))
+    if not isinstance(data, dict) or data.get("version") != 1 or not isinstance(data.get("attributes"), list):
+        raise ValueError("field catalog %s is not format v1 (needs version: 1 and an attributes list)" % path)
+    rows = {}
+    for r in data["attributes"]:
+        if not isinstance(r, dict) or not isinstance(r.get("ref"), str) or not r["ref"].strip():
+            raise ValueError("field catalog %s has a row without a text ref" % path)
+        rows[r["ref"]] = r
+    return {"rows": rows, "entities": {r.get("entity") for r in rows.values() if isinstance(r.get("entity"), str) and r.get("entity")}}
+
+
+def _cat_name(row, ref):
+    """How a finding names an attribute: its notation (sfdc:Account.Id), else its label, else its ref."""
+    for k in ("notation", "label"):
+        if isinstance(row.get(k), str) and row[k].strip():
+            return row[k]
+    return ref
+
+
+def _cat_values(v):
+    """A row's `in`: an array, or one "|"-separated text (contract T-1312)."""
+    if isinstance(v, list):
+        return [str(x) for x in v if x is not None and str(x) != ""]
+    if isinstance(v, str) and v.strip():
+        return [s.strip() for s in v.split("|") if s.strip()]
+    return []
+
+
+def _cat_int(v):
+    try:
+        return int(str(v).strip()) if v is not None and str(v).strip() != "" else None
+    except ValueError:
+        return None
+
+
+_CAT_RE_CACHE = {}
+
+
+def _cat_regex(pattern):
+    """The row's pattern compiled, or None when Python's re cannot read it (the rule is ECMA-262; an unreadable one is
+    skipped, never guessed at)."""
+    if pattern not in _CAT_RE_CACHE:
+        try:
+            _CAT_RE_CACHE[pattern] = re.compile(pattern)
+        except re.error:
+            _CAT_RE_CACHE[pattern] = None
+    return _CAT_RE_CACHE[pattern]
+
+
+def run_xml(text, catalog=None):
+    validator = XmlValidator(catalog)
     try:
         root = ET.fromstring(text)
     except ET.ParseError as exc:
@@ -2359,7 +2495,19 @@ def main(argv=None):
     parser.add_argument(
         "--quiet", action="store_true", help="suppress the human-readable report"
     )
+    parser.add_argument(
+        "--field-catalog", metavar="PATH",
+        help="the project's field catalog (832 T-1312 format v1): also check each io field and aef:expect against it "
+             "(T-1370; XML form only)",
+    )
     args = parser.parse_args(argv)
+    catalog = None
+    if args.field_catalog:
+        try:
+            catalog = load_field_catalog(args.field_catalog)
+        except ValueError as exc:
+            sys.stderr.write("error: %s\n" % exc)
+            return 2
 
     try:
         with open(args.file, "r") as fh:
@@ -2370,7 +2518,7 @@ def main(argv=None):
         findings = [Finding(ERROR, "E-LOAD", args.file, "cannot read file: %s" % exc)]
     else:
         fmt = args.format if args.format != "auto" else detect_format(args.file, text)
-        findings = run_xml(text) if fmt == "xml" else run_yaml(text)
+        findings = run_xml(text, catalog) if fmt == "xml" else run_yaml(text)
 
     # relabel the '<file>' placeholder location with the real path
     for f in findings:

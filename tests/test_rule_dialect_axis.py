@@ -331,6 +331,12 @@ RULE_CARRIERS = {
     "E-XML-IO-MATCH-MISSING":     (("aef:io v1.1",), CONSTRAINS),
     "E-XML-IO-PREFIX-UNDECLARED": (("aef:io v1.1",), CONSTRAINS),
     "W-XML-IO-MATCH-UNRESOLVED":  (("aef:io v1.1",), CONSTRAINS),
+    # T-1370: C1-C4, the io against the project's field catalog (only with --field-catalog). CONSTRAINS like R1-R3: each
+    # fires on a fieldRef / aef:expect that is PRESENT and disagrees with the catalog; a map without them draws none.
+    "W-XML-IO-FIELD-UNKNOWN":      (("aef:io v1.1",), CONSTRAINS),
+    "W-XML-IO-FIELD-ENTITY":       (("aef:io v1.1",), CONSTRAINS),
+    "E-XML-IO-EXPECT-CONTRADICTS": (("aef:io v1.1",), CONSTRAINS),
+    "W-XML-IO-EXPECT-REDUNDANT":   (("aef:io v1.1",), CONSTRAINS),
     # T-891: promoted WARN -> ERROR and renamed. Same carrier, same axis — what changed is
     # severity, because the editor no longer silently repairs the state (it used to default
     # an unclaimed node to lanes[0]).

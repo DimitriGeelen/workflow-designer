@@ -258,6 +258,15 @@ PARITY = {
                                                  "the YAML bridge writes none of them"),
     "W-XML-IO-MATCH-UNRESOLVED":  (OUT_OF_SCOPE, "T-1303 R3: aef:field role=match without fieldRef/path; the YAML "
                                                  "bridge writes no aef:field"),
+    # T-1370: the catalog checks read aef:field fieldRef and aef:expect, which the YAML bridge writes none of.
+    "W-XML-IO-FIELD-UNKNOWN":      (OUT_OF_SCOPE, "T-1370 C1: aef:field fieldRef against the field catalog; the YAML "
+                                                  "bridge writes no aef:field"),
+    "W-XML-IO-FIELD-ENTITY":       (OUT_OF_SCOPE, "T-1370 C2: aef:field fieldRef's entity vs the io typeRef; the YAML "
+                                                  "bridge writes neither"),
+    "E-XML-IO-EXPECT-CONTRADICTS": (OUT_OF_SCOPE, "T-1370 C3: aef:expect against the attribute's rule; the YAML "
+                                                  "bridge writes no aef:expect"),
+    "W-XML-IO-EXPECT-REDUNDANT":   (OUT_OF_SCOPE, "T-1370 C4: aef:expect repeating the attribute's rule; the YAML "
+                                                  "bridge writes no aef:expect"),
     "W-XML-PGW-CONDITION":  (PAIRED, "W-PGW-CONDITION"),
     "W-XML-PGW-NOOP":       (PAIRED, "W-PGW-NOOP"),
     "W-XML-PGW-UNBALANCED": (PAIRED, "W-PGW-UNBALANCED"),
@@ -350,7 +359,7 @@ def _yaml_bridge_emits_io_v11(_corpus):
     path = os.path.join(ROOT, "tools", "yaml-to-bpmn.py")
     src = open(path, encoding="utf-8").read()   # missing bridge RAISES: never a silent "not expressible"
     return [ln.strip() for ln in src.splitlines()
-            if re.search(r"""(\b(operation|fieldRef|typeRef|conceptRef)=|aef:field\b|aef:prefix)""", ln)
+            if re.search(r"""(\b(operation|fieldRef|typeRef|conceptRef)=|aef:field\b|aef:expect\b|aef:prefix)""", ln)   # T-1370: + aef:expect
             and not ln.lstrip().startswith("#")]
 
 
@@ -362,6 +371,10 @@ OUT_OF_SCOPE_PROBES = {
     "E-XML-IO-PREFIX-UNDECLARED": ("fieldRef / typeRef / conceptRef or aef:prefixes on the YAML form",
                                    _yaml_bridge_emits_io_v11),
     "W-XML-IO-MATCH-UNRESOLVED":  ("an aef:field on the YAML form", _yaml_bridge_emits_io_v11),
+    "W-XML-IO-FIELD-UNKNOWN":      ("an aef:field on the YAML form", _yaml_bridge_emits_io_v11),
+    "W-XML-IO-FIELD-ENTITY":       ("an aef:field or io typeRef on the YAML form", _yaml_bridge_emits_io_v11),
+    "E-XML-IO-EXPECT-CONTRADICTS": ("an aef:expect on the YAML form", _yaml_bridge_emits_io_v11),
+    "W-XML-IO-EXPECT-REDUNDANT":   ("an aef:expect on the YAML form", _yaml_bridge_emits_io_v11),
 }
 
 # Counted tolerance. Derived by hand from the census, re-derive it there rather

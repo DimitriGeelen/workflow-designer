@@ -156,11 +156,21 @@ def paths(globs):
     return [p for p in out if os.path.isfile(p)]
 
 
+CATALOG_DIR = os.path.join(ROOT, "tests", "fixtures", "catalogs")
+
+
+def catalog_for(path):
+    """T-1370: a fixture that needs the project's field catalog keeps it at tests/fixtures/catalogs/<its name>.json
+    (outside the swept fixture dirs, so the catalog is never read as a document). None for every other document."""
+    c = os.path.join(CATALOG_DIR, os.path.splitext(os.path.basename(path))[0] + ".json")
+    return vw.load_field_catalog(c) if os.path.isfile(c) else None
+
+
 def findings_of(path):
     text = open(path, encoding="utf-8").read()
     try:
         if vw.detect_format(path, text) == "xml":
-            return {f.rule for f in vw.run_xml(text)}
+            return {f.rule for f in vw.run_xml(text, catalog_for(path))}
         return {f.rule for f in vw.run_yaml(text)}
     except Exception:
         return None            # unparseable: counted apart, never read as silence

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-1370 W-XML-IO-FIELD-UNKNOWN fixture: a fieldRef the catalog has no row for. Run with its catalog tests/fixtures/catalogs/W-XML-IO-FIELD-UNKNOWN.json (made-up rows) -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t"><bpmn:extensionElements><aef:meta mappingVersion="1.1"><aef:prefixes><aef:prefix name="ex" iri="https://example.org/catalog#" kind="field"/></aef:prefixes></aef:meta></bpmn:extensionElements>
+    <bpmn:laneSet id="LS"><bpmn:lane id="agent" name="Agent">
+      <bpmn:flowNodeRef>s</bpmn:flowNodeRef><bpmn:flowNodeRef>T1</bpmn:flowNodeRef><bpmn:flowNodeRef>e</bpmn:flowNodeRef>
+    </bpmn:lane></bpmn:laneSet>
+    <bpmn:startEvent id="s"/>
+    <bpmn:task id="T1" name="Write"><bpmn:extensionElements><aef:io><aef:output name="order" typeRef="ex:entity-order" operation="create"><aef:field fieldRef="ex:attr-order-missing" role="write"/></aef:output></aef:io></bpmn:extensionElements></bpmn:task>
+    <bpmn:endEvent id="e"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="s" targetRef="T1"/>
+    <bpmn:sequenceFlow id="f2" sourceRef="T1" targetRef="e"/>
+  </bpmn:process>
+</bpmn:definitions>

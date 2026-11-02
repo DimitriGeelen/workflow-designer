@@ -68,6 +68,22 @@ The picker is simply not shown: the `ref` field stays free text and the "use a r
 Only a 200 with `ok` and an `attributes` array turns it on; a 404, 422, a non-JSON body or no answer leaves today's
 behaviour (a network failure is recorded as a fault, `field-catalog:load`). Read-only: nothing is written to the server.
 
+## The validator reads it too (T-1370)
+
+`tools/validate-workflow.py --field-catalog PATH` checks each io against the same file. Four findings, located like
+R1-R3 (`node '<id>' <input|output>[i] "<name>"`), so the designer shows them under the io row:
+
+| Rule | Severity | When |
+|---|---|---|
+| W-XML-IO-FIELD-UNKNOWN | WARN | an `aef:field fieldRef` with no row |
+| W-XML-IO-FIELD-ENTITY | WARN | the row's `entity` is not the io's `typeRef`; an io typed as no catalog entity (a message) is exempt |
+| E-XML-IO-EXPECT-CONTRADICTS | ERROR | an `aef:expect` const or `aef:value` outside `in`, failing `pattern`, or longer than `maxLength` |
+| W-XML-IO-EXPECT-REDUNDANT | WARN | an `aef:expect` repeating the row's `pattern`, or listing exactly its `in` |
+
+A file that is not format v1 is refused whole (exit 2). Without `--field-catalog` nothing changes. For AEF's Check
+(`POST /api/validate`) to report these, its wrapper would pass the project's catalog; until then they come from the
+CLI and the authoring kit.
+
 ## Cost for AEF, as 832 sees it
 
 | Data it needs | Writes? |

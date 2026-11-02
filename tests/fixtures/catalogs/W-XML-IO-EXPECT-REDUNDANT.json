@@ -1,0 +1,35 @@
+{
+ "version": 1,
+ "generatedBy": "T-1370 synthetic fixture (made-up rows, no client data)",
+ "attributes": [
+  {
+   "ref": "ex:attr-order-id",
+   "notation": "crm:Order.Id",
+   "label": "Id (CRM Order)",
+   "entity": "ex:entity-order",
+   "datatype": "xsd:string",
+   "maxLength": "18",
+   "pattern": "^ORD[A-Z0-9]{15}$"
+  },
+  {
+   "ref": "ex:attr-order-status",
+   "notation": "crm:Order.Status",
+   "label": "Status (CRM Order)",
+   "entity": "ex:entity-order",
+   "datatype": "xsd:string",
+   "in": [
+    "Open",
+    "Complete",
+    "Cancelled"
+   ]
+  },
+  {
+   "ref": "ex:attr-account-name",
+   "notation": "crm:Account.Name",
+   "label": "Name (CRM Account)",
+   "entity": "ex:entity-account",
+   "datatype": "xsd:string",
+   "maxLength": "255"
+  }
+ ]
+}

@@ -1,11 +1,17 @@
 ---
 id: T-1370
-name: "B2 (T-1363 GO): validator checks io fields against the field catalog — field object = io typeRef; aef:expect contradicting the attribute's shape is an error, repeating it a warning"
+name: "B2 (T-1363 GO): validator checks io fields against the field catalog — field
+  object = io typeRef; aef:expect contradicting the attribute's shape is an error,
+  repeating it a warning"
 description: >
-  With a field catalog available, tools/validate-workflow.py checks each aef:field fieldRef against its catalog row: the attribute's entity must equal the io's typeRef (rule-F messages exempt), and an aef:expect must not contradict the attribute's value rule (error) or merely repeat it (warning), per AEF spec T-4415 C.
+  With a field catalog available, tools/validate-workflow.py checks each aef:field
+  fieldRef against its catalog row: the attribute's entity must equal the io's typeRef
+  (rule-F messages exempt), and an aef:expect must not contradict the attribute's
+  value rule (error) or merely repeat it (warning), per AEF spec T-4415 C.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: []
@@ -39,8 +45,8 @@ origin: {kind: "operator"}
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-02T13:27:46Z
-last_update: 2026-11-02T13:27:46Z
-date_finished: null
+last_update: '2026-11-02T13:56:50Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -51,6 +57,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-02T13:56:50Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1370: B2 (T-1363 GO): validator checks io fields against the field catalog — field object = io typeRef; aef:expect contradicting the attribute's shape is an error, repeating it a warning
@@ -84,9 +110,11 @@ repo.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `tools/validate-workflow.py` takes a field catalog (`--field-catalog PATH`, T-1312 format v1). Without it, every
+- [x] `tools/validate-workflow.py` takes a field catalog (`--field-catalog PATH`, T-1312 format v1). Without it, every
   existing finding on the corpus and the test fixtures is unchanged (the existing validator tests pass as they are).
-- [ ] With a catalog, on a synthetic fixture (`tests/fixtures/t1370/`, made up), it reports:
+- [x] With a catalog, on synthetic fixtures (made up; the fixtures are `tests/fixtures/{invalid,warn}/<code>.bpmn`, with
+  their catalogs in `tests/fixtures/catalogs/<code>.json` so the fixture sweeps never read a catalog as a map), it
+  reports:
   - **W-XML-IO-FIELD-UNKNOWN:** a `fieldRef` the catalog does not have.
   - **W-XML-IO-FIELD-ENTITY:** a field whose catalog `entity` differs from its io's `typeRef`. An io whose `typeRef`
     is no catalog entity (a message that carries several objects, rule F) is exempt.
@@ -94,12 +122,13 @@ repo.
     than its `maxLength`.
   - **W-XML-IO-EXPECT-REDUNDANT:** an `aef:expect` that only restates the shape (the same pattern, the same set of
     values).
-- [ ] Each finding names the node, the io (as in R1-R3's locations) and the attribute's notation. Each code is
-  registered wherever R1-R3 are (finding-code registry, parity and dialect tests, the authoring kit's rule list), so
-  the existing guards pass with the new codes.
-- [ ] A test (`tests/test_t1370_catalog_checks.py`, core tier) covers each code, the rule-F exemption and the
-  no-catalog case, and is red without the change.
-- [ ] Severity is recorded in `## Decisions` with its reason (why the entity check is a warning, not an error: a
+- [x] Each finding names the node, the io (as in R1-R3's locations) and the attribute's notation. Each code is
+  registered wherever R1-R3 are: the dialect axis, form parity (with the YAML-bridge probe now also looking for
+  `aef:expect`), anchorability, and check-pass reachability (the last two pass a fixture its catalog). The authoring
+  kit's rule list is generated from the validator at release. The existing guards pass with the new codes.
+- [x] A test (`tests/test_t1370_catalog_checks.py`, core tier, 9 legs) covers each code, the rule-F exemption, value
+  lists, a bad catalog and the CLI, and is red on the old validator.
+- [x] Severity is recorded in `## Decisions` with its reason (why the entity check is a warning, not an error: a
   catalog can be partial).
 
 ### Human
@@ -286,6 +315,13 @@ repo.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+python3 tests/test_t1370_catalog_checks.py >/dev/null
+python3 tests/test_check_pass_reachability.py >/dev/null
+python3 tests/test_finding_anchorability.py >/dev/null
+python3 tests/test_rule_dialect_axis.py >/dev/null
+python3 tests/test_rule_form_parity.py >/dev/null
+python3 tests/test_t1303_io_lint.py >/dev/null
+grep -q 'test_t1370_catalog_checks.py' tests/run-bridge-tests.sh
 
 ## RCA
 
@@ -367,6 +403,28 @@ repo.
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-11-02 — severities, and where a fixture keeps its catalog
+- **Chose:**
+  - W-XML-IO-FIELD-UNKNOWN and W-XML-IO-FIELD-ENTITY: **WARN**.
+  - E-XML-IO-EXPECT-CONTRADICTS: **ERROR**.
+  - W-XML-IO-EXPECT-REDUNDANT: **WARN**.
+  - A fixture's catalog lives in `tests/fixtures/catalogs/<code>.json`.
+- **Why:**
+  - **Unknown and entity are warnings because a catalog can be partial.** Greenfield's full catalog has 1332 rows, only
+    108 with a shape, and its Novis rows have no type source. An unknown fieldRef or an entity mismatch can be the
+    catalog's gap rather than the map's error. They stay visible (greenfield's own entity check found 15 real errors),
+    but they do not make a map INVALID.
+  - **A contradiction is an error**, as AEF spec T-4415 C says: the step demands a value the attribute can never hold,
+    so either the map or the catalog is wrong, and a generator must not proceed.
+  - **A repetition is a warning**, also per T-4415 C.
+  - **The catalogs live outside the swept fixture folders.** `test_check_pass_reachability` sweeps
+    `tests/fixtures/{invalid,warn,valid}/*` and would read a JSON catalog as a YAML map. The two harnesses that need a
+    catalog look it up by the fixture's name.
+- **Rejected:**
+  - An ERROR for the entity check: it would turn every partial catalog into an invalid map.
+  - A catalog next to the fixture: the sweep would read it as a map.
+  - Having the validator discover a catalog by itself: implicit, and the result would depend on files lying around.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -383,3 +441,6 @@ repo.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1370-b2-t-1363-go-validator-checks-io-fields-.md
 - **Context:** Initial task creation
+
+### 2026-11-02T13:56:49Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
