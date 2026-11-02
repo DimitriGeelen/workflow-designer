@@ -1,0 +1,141 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1366: A conditional intermediate catch event from another tool's file opens as a link catch event (wrong symbol, display id says link)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-02T08:53:14Z
+# ============================================================================
+
+task_id: T-1366
+task_name: "A conditional intermediate catch event from another tool's file opens as a link catch event (wrong symbol, display id says link)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-11-02T07:25:42Z
+completed: 2026-11-02T08:53:03Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-02T09:09:40+01:00
+last_commit: 2026-11-02T09:52:02+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  conditional and signal events from another tool's file draw BPMN's kind marker, name the kind in their display id (not 'link'), and the panel says what they wait for (condition shown as written); leg 222 + synthetic fixture, red on 0.35.0; gate green; evidence at 1024/1440/1920. advisory sweep — markers drawn a step brighter (--text-dim) for contrast; panel says the designer cannot edit the condition yet; screenshots retaken, gate green. reviewer verdict. reviewer verdict green on AC1 (V-20261102-7159f0fa). census baseline — _t1366-shots.mjs is a screenshot generator, not a guard (same class as _t1241-lens-shots); core tier found it. verdict withdrawn by the close check (stale-review: c662f70c5 touched T-1366 work after the reviewed revision); re-judging on the current revision
+
+# Key outcomes
+outcomes:
+  - 'On the synthetic fixture `tests/fixtures/t1366/plain-event-kinds.bpmn` (no client data; one intermediate event per'
+  - 'Display ids of conditional and signal events name the kind (`_conditional_`, `_signal_`) and never `link`.'
+  - 'The side panel heads a conditional event `conditionalEvent`, says what it waits for, and shows the condition as'
+  - 'Every native definition survives a save (`tools/_t1222-event-definitions-kept.py` green, 49 → 49), and a second'
+  - '`tools/_t1366-plain-event-kinds-cdp.mjs` asserts the above (leg 222, browser tier) and is red on the pre-T-1366'
+  - '`bash tools/person-sees-gate.sh` exits 0, and screenshots at 1024/1440/1920 are read in `## Visual Verification`.'
+  - '[REVIEW] A conditional or signal event from another tool''s file reads as what it is: on the canvas and in the panel'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'conditional and signal events from another tool''s file draw BPMN''s kind marker, name the kind in their display id (not ''link''), and the panel says what they wait for (condition shown as written); leg 222 + synthetic fixture, red on 0.35.0; gate green; evidence at 1024/1440/1920'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-11-02 — display the kind on the plain event, do not add node types'
+    chose: 'keep conditional and signal events on T-1222''s plain-event path (node type unchanged). Read their kind from the native definition kept on import. Draw BPMN''s marker, use the kind as the id word, and head and explain them in the panel.'
+    rationale: 'it is a display defect, and the data was already right. New node types would touch about 15 tables (palette, sizes, field plans, export tags, EVENT_KIND, the validator''s vocabulary, the YAML bridge) and invite authoring conditional and signal events, whose editing T-1363 has not decided. The plain-event path also keeps the T-1222 reviewer ruling that these are "never link semantics".'
+    alternatives_rejected: ['typed `eventConditional` / `eventSignal` node types (scope, an undecided authoring model). Shortening the id word to `cond` to keep labels narrow (it reads worse, and the label overlap appeared only in a cramped synthetic layout; see Visual Verification note 1).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1366/AC1-judge-t-1366-r3-64d948a691c1.md'
+  - '.context/reviews/evidence/T-1366/AC1-judge-t-1366-r3-77909b6a8a49.md'
+  - '.context/reviews/evidence/T-1366/events-1024-judge-t-1366-r3-64d948a691c1.png'
+  - '.context/reviews/evidence/T-1366/events-1024-judge-t-1366-r3-77909b6a8a49.png'
+  - '.context/reviews/evidence/T-1366/events-1024-zoom-judge-t-1366-r3-64d948a691c1.png'
+  - '.context/reviews/evidence/T-1366/events-1024-zoom-judge-t-1366-r3-77909b6a8a49.png'
+  - '.context/reviews/evidence/T-1366/events-1440-judge-t-1366-r3-64d948a691c1.png'
+  - '.context/reviews/evidence/T-1366/events-1440-judge-t-1366-r3-77909b6a8a49.png'
+  - '.context/reviews/evidence/T-1366/events-1440-zoom-judge-t-1366-r3-77909b6a8a49.png'
+  - '.context/reviews/evidence/T-1366/events-1920-judge-t-1366-r3-64d948a691c1.png'
+  - '.context/reviews/evidence/T-1366/events-1920-judge-t-1366-r3-77909b6a8a49.png'
+  - '.context/reviews/evidence/T-1366/events-1920-zoom-before-judge-t-1366-r3-64d948a691c1.png'
+  - '.context/reviews/evidence/T-1366/events-1920-zoom-before-judge-t-1366-r3-77909b6a8a49.png'
+  - '.context/reviews/evidence/T-1366/events-1920-zoom-judge-t-1366-r3-64d948a691c1.png'
+  - '.context/reviews/evidence/T-1366/events-1920-zoom-judge-t-1366-r3-77909b6a8a49.png'
+  - '.context/reviews/evidence/T-1366/panel-1024-judge-t-1366-r3-64d948a691c1.png'
+  - '.context/reviews/evidence/T-1366/panel-1024-judge-t-1366-r3-77909b6a8a49.png'
+  - '.context/reviews/evidence/T-1366/panel-1440-judge-t-1366-r3-64d948a691c1.png'
+  - '.context/reviews/evidence/T-1366/panel-1440-judge-t-1366-r3-77909b6a8a49.png'
+  - '.context/reviews/evidence/T-1366/panel-1920-judge-t-1366-r3-64d948a691c1.png'
+  - '.context/reviews/evidence/T-1366/panel-1920-judge-t-1366-r3-77909b6a8a49.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1366-a-conditional-intermediate-catch-event-f.md'
+  - 'docs/reports/T-1366-evidence/events-1024-zoom.png'
+  - 'docs/reports/T-1366-evidence/events-1024.png'
+  - 'docs/reports/T-1366-evidence/events-1440-zoom.png'
+  - 'docs/reports/T-1366-evidence/events-1440.png'
+  - 'docs/reports/T-1366-evidence/events-1920-zoom-before.png'
+  - 'docs/reports/T-1366-evidence/events-1920-zoom.png'
+  - 'docs/reports/T-1366-evidence/events-1920.png'
+  - 'docs/reports/T-1366-evidence/panel-1024.png'
+  - 'docs/reports/T-1366-evidence/panel-1440.png'
+  - 'docs/reports/T-1366-evidence/panel-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/fixtures/t1366/plain-event-kinds.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1366-plain-event-kinds-cdp.mjs'
+  - 'tools/_t1366-shots.mjs'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-02T09:09:40'
+    action: 'T-1366: conditional and signal events from another tool''s file draw BPMN''s kind marker, name the kind in their display id (not ''link''), and the panel says what they wait for (condition shown as written); leg 222 + synthetic fixture, red on 0.35.0; gate green; evidence at 1024/1440/1920'
+  - time: '2026-11-02T09:15:30'
+    action: 'T-1366: advisory sweep — markers drawn a step brighter (--text-dim) for contrast; panel says the designer cannot edit the condition yet; screenshots retaken, gate green'
+  - time: '2026-11-02T09:16:39'
+    action: 'T-1366: reviewer verdict'
+  - time: '2026-11-02T09:17:11'
+    action: 'T-1366: reviewer verdict green on AC1 (V-20261102-7159f0fa)'
+  - time: '2026-11-02T09:34:37'
+    action: 'T-1366: census baseline — _t1366-shots.mjs is a screenshot generator, not a guard (same class as _t1241-lens-shots); core tier found it'
+  - time: '2026-11-02T09:51:03'
+    action: 'T-1366: verdict withdrawn by the close check (stale-review: c662f70c5 touched T-1366 work after the reviewed revision); re-judging on the current revision'
+  - time: '2026-11-02T09:52:02'
+    action: 'T-1366: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 87 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 87
+  commits: 8
+  files_changed: 47
+  lines_added: 730
+  lines_removed: 34
+  footprint_refreshed_at: '2026-11-02T08:53:20Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1366-a-conditional-intermediate-catch-event-f.md
+generated_by: context-agent-hybrid

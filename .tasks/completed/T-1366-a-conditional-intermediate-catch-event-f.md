@@ -8,13 +8,13 @@ description: >
   id sal_link_lead, link-jump UI; the importer only types error/timer/message (EVENT_KIND_TYPE).
   Found reproducing T-1364 with greenfield's wt01-io-v11.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_run
-owner: human
-horizon: now
+current_node: frw_end_task
+owner: agent
+horizon: null
 tags: [bug]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: [T-1364, T-1363, T-1222]
 origin: {kind: "agent"}
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
@@ -44,8 +44,8 @@ origin: {kind: "agent"}
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-02T07:25:42Z
-last_update: '2026-11-02T07:56:56Z'
-date_finished:
+last_update: 2026-11-02T08:53:03Z
+date_finished: 2026-11-02T08:53:03Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -152,7 +152,7 @@ uses a non-link word. The link-jump UI does not appear on it. The save stays byt
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1366 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-- [ ] [REVIEW] A conditional or signal event from another tool's file reads as what it is: on the canvas and in the panel
+- [x] [REVIEW] A conditional or signal event from another tool's file reads as what it is: on the canvas and in the panel
   **Steps:**
   1. Compare `docs/reports/T-1366-evidence/events-1920-zoom-before.png` (0.35.0) with `events-1920-zoom.png` (this
      change): the row Start, Status Qualified (conditional), Recall signal (signal catch), Order received (message),
@@ -182,6 +182,7 @@ uses a non-link word. The link-jump UI does not appear on it. The save stays byt
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261102-43abc78e — reviewer-judge-t-1366-r3-64d948a691c1:reviewer (rung rung-3-termlink-single-reviewer), digest d344c9b81d69; dispatch judge-t-1366-r3-64d948a691c1; evidence: .context/reviews/evidence/T-1366/AC1-judge-t-1366-r3-64d948a691c1.md, .context/reviews/evidence/T-1366/events-1920-zoom-before-judge-t-1366-r3-64d948a691c1.png, .context/reviews/evidence/T-1366/events-1920-zoom-judge-t-1366-r3-64d948a691c1.png, .context/reviews/evidence/T-1366/events-1024-zoom-judge-t-1366-r3-64d948a691c1.png, .context/reviews/evidence/T-1366/events-1024-judge-t-1366-r3-64d948a691c1.png, .context/reviews/evidence/T-1366/events-1440-judge-t-1366-r3-64d948a691c1.png, .context/reviews/evidence/T-1366/events-1920-judge-t-1366-r3-64d948a691c1.png, .context/reviews/evidence/T-1366/panel-1024-judge-t-1366-r3-64d948a691c1.png, .context/reviews/evidence/T-1366/panel-1440-judge-t-1366-r3-64d948a691c1.png, .context/reviews/evidence/T-1366/panel-1920-judge-t-1366-r3-64d948a691c1.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -502,3 +503,28 @@ event. Adding one means one entry in `PLAIN_KIND_WORD` and one branch in `plainK
 ### 2026-11-02T07:56:55Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-02T08:53:03Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4e78d4f8
+- **Timestamp:** 2026-11-02T08:53:09Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 3
+
+**Per-AC findings:**
+
+- **AC#6 (Agent)** — `bash tools/person-sees-gate.sh` exits 0, and screenshots at 1024/1440/1920 are read in `## Visual Verification`.
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/person-sees-gate.sh in: `bash tools/person-sees-gate.sh` exits 0, and screenshots at 1024/1440/1920 are read in `## Visual Verification`.`
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 140
+     - evidence: `export PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH"; node tools/_t1366-plain-event-kinds-cdp.mjs >/dev/null`
+  2. **empty-output-success** (partial, heuristic) @ Verification:line 141
+     - evidence: `export PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH"; python3 tools/_t1222-event-definitions-kept.py >/dev/null`
