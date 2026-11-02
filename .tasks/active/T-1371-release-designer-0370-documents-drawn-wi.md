@@ -88,8 +88,13 @@ taller lanes, and that the validator takes `--field-catalog`.
 - [ ] *(sent 2026-11-02, msg 6d4d2664 RECEIVED, with the moved kit anchors, the taller-lanes change and the
   `--field-catalog` note for its Check; waiting for AEF's task id and pin)* AEF is sent the version, tag, sha256, bytes, changes AND the kit anchors (SHA256SUMS sha256, validate-workflow.py
   sha256 and bytes), plus the stored-map change. `tools/_t1187-aef-pin-lag.sh` reads CURRENT.
-- [ ] Greenfield is sent the release with a WORKS/BROKEN re-test on wt01-io-v12: its 5 documents, and the validator
-  with its catalog. Its answer is recorded here. *(sent 2026-11-02, msg 84da6cdd, 4 items; answer pending)*
+- [x] Greenfield is sent the release with a WORKS/BROKEN re-test on wt01-io-v12: its 5 documents, and the validator
+  with its catalog. Its answer is recorded here. *(greenfield T-386, msg d4a8f38c: WORKS on all 4 items on
+  wt01-io-v12. 5/5 documents drawn with [state], each inside its anchor's lane, 11/11 dotted links. 0 overlaps; lanes
+  with documents 230/208/220 vs 130. A real second save is byte-identical (109754 bytes). The validator with the catalog
+  gives 0 new findings on v12; on v11 it gives 6 W-XML-IO-FIELD-ENTITY, exactly greenfield's own self-check. Every
+  count is kept. Its side note, an event overlapping tac_5_nummer, is pre-existing (same on 0.36.0) and comes from its
+  file: aef:position x=4910 against its own DI x=4490. Explained in msg reply; nothing on our side.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
