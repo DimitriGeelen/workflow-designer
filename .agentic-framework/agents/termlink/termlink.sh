@@ -1628,8 +1628,14 @@ cd "$PROJECT_DIR" || { echo "FATAL: cd $PROJECT_DIR failed" >> "$WDIR/stderr.log
 #   ( _fw_watchdog "$PID" ) &
 WATCHDOG_KILL_GRACE="${WATCHDOG_KILL_GRACE:-10}"
 _fw_watchdog() {
-    local pid="$1" i=0
+    local pid="$1" i=0 c
     sleep "$TIMEOUT"
+    # T-5008: a namespaced seat's recorded PID is `unshare`, which ignores TERM; pass the TERM to
+    # its own direct child (by PID, never by pattern). The KILL below ends unshare, and
+    # --kill-child then ends the whole namespace.
+    if [ "${#SEAT_PIDNS[@]}" -gt 0 ]; then
+        for c in $(cat "/proc/$pid/task/$pid/children" 2>/dev/null); do kill "$c" 2>/dev/null; done
+    fi
     kill "$pid" 2>/dev/null || return 0
     : > "$WDIR/timed_out"
     echo "TIMEOUT" >> "$WDIR/stderr.log"
@@ -1642,6 +1648,45 @@ _fw_watchdog() {
     return 0
 }
 # --- T-4776 watchdog (end)
+
+# --- T-5008 seat PID namespace (start)
+# A harness seat runs as this user on this host, so `pkill -f …` inside it reached a live service
+# with the same command line (ring20-dashboard, 2026-11-01). Each seat gets its own PID namespace:
+# it sees and can signal only its own processes. Probed once per dispatch; where the host refuses
+# it, the seat launches as before and the run log and meta.json say so. FW_SEAT_PIDNS=off|on
+# forces either path (tests).
+SEAT_PIDNS=()
+_fw_seat_pidns() {
+    local why="" cmd=(unshare --pid --fork --mount-proc --kill-child)
+    case "${FW_SEAT_PIDNS:-}" in
+        off) why="FW_SEAT_PIDNS=off" ;;
+        on) : ;;
+        *)
+            if ! command -v unshare >/dev/null 2>&1; then
+                why="unshare not found"
+            elif ! why=$("${cmd[@]}" true 2>&1 < /dev/null); then
+                why=$(printf '%s' "${why:-unshare exited non-zero}" | head -1)
+            else
+                why=""
+            fi ;;
+    esac
+    local rec
+    if [ -z "$why" ]; then
+        SEAT_PIDNS=("${cmd[@]}")
+        rec="own PID namespace"
+        echo "seat process isolation: own PID namespace (T-5008)" >> "$WDIR/stderr.log"
+    else
+        rec="not available: $why"
+        echo "seat process isolation not available: $why" >> "$WDIR/stderr.log"
+    fi
+    if command -v jq >/dev/null 2>&1 && [ -f "$WDIR/meta.json" ]; then
+        jq --arg r "$rec" '.seat_pid_isolation = $r' "$WDIR/meta.json" > "$WDIR/meta.json.tmp" 2>/dev/null \
+            && mv "$WDIR/meta.json.tmp" "$WDIR/meta.json" \
+            || rm -f "$WDIR/meta.json.tmp"
+    fi
+    return 0
+}
+# --- T-5008 seat PID namespace (end)
 
 # --- T-4843 worker binary record (start)
 # Name the binary that actually runs and its version, for EVERY worker kind: one stderr.log line
@@ -1888,10 +1933,19 @@ elif [ -n "$HARNESS" ]; then
         # user), and the export it reviews is fingerprinted before and checked after the run.
         SEAT_TMP="$WDIR/tmp"
         mkdir -p "$SEAT_TMP" && chmod 1777 "$SEAT_TMP"
-        _tree_fp() { ( cd "$TREE" && find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum 2>/dev/null | sha256sum | cut -d' ' -f1 ); }
-        TREE_FP_BEFORE="$(_tree_fp)"
+        # T-4999 (ring20): the run exports the LIVE PROJECT_ROOT/FRAMEWORK_ROOT for its own steps;
+        # a seat inherited them, and an app honouring PROJECT_ROOT wrote the live project's operator
+        # state from inside the export. The seat process gets the export instead (called in its subshell).
+        _fw_seat_env() { export PROJECT_ROOT="$TREE"; unset FRAMEWORK_ROOT; }
+        _tree_list() { ( cd "$TREE" && find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum 2>/dev/null ); }
+        _tree_fp() { _tree_list | sha256sum | cut -d' ' -f1; }
+        # T-4978: keep the per-file list too, so a voided seat names WHAT changed (ring20's opencode
+        # seat was voided and the cause could only be guessed). The fingerprint itself is unchanged.
+        TREE_LIST_BEFORE="$(_tree_list)"
+        TREE_FP_BEFORE="$(printf '%s\n' "$TREE_LIST_BEFORE" | sha256sum | cut -d' ' -f1)"
         PROMPT_TEXT="$(cat "$WDIR/prompt.md")"
         _fw_record_worker_bin "$WORKER_BIN"
+        _fw_seat_pidns
         case "$WORKER_KIND" in
             codex)
                 # -s workspace-write (T-3986, was read-only): writes reach only the workspace (the
@@ -1900,7 +1954,7 @@ elif [ -n "$HARNESS" ]; then
                 # --ignore-user-config and --ignore-rules: no ~/.codex/config.toml or execpolicy
                 # rules (auth still loads); project_doc_max_bytes=0: AGENTS.md is not injected;
                 # --ephemeral: no session files.
-                ( cd "$TREE" && TMPDIR="$SEAT_TMP" exec "$WORKER_BIN" exec -s workspace-write --add-dir "$SEAT_TMP" -c sandbox_workspace_write.exclude_slash_tmp=true -c sandbox_workspace_write.network_access=false --skip-git-repo-check --ignore-user-config --ignore-rules --ephemeral --color never -c project_doc_max_bytes=0 ${MODEL:+-m "$MODEL"} --json -o "$WDIR/result.md" "$PROMPT_TEXT" < /dev/null > "$WDIR/result.jsonl" 2>> "$WDIR/stderr.log" ) &
+                ( cd "$TREE" && _fw_seat_env && TMPDIR="$SEAT_TMP" exec ${SEAT_PIDNS[@]+"${SEAT_PIDNS[@]}"} "$WORKER_BIN" exec -s workspace-write --add-dir "$SEAT_TMP" -c sandbox_workspace_write.exclude_slash_tmp=true -c sandbox_workspace_write.network_access=false --skip-git-repo-check --ignore-user-config --ignore-rules --ephemeral --color never -c project_doc_max_bytes=0 ${MODEL:+-m "$MODEL"} --json -o "$WDIR/result.md" "$PROMPT_TEXT" < /dev/null > "$WDIR/result.jsonl" 2>> "$WDIR/stderr.log" ) &
                 ;;
             opencode)
                 # --agent plan: opencode's built-in no-edit agent; --pure: no external plugins;
@@ -1908,12 +1962,12 @@ elif [ -n "$HARNESS" ]; then
                 # OPENCODE_DISABLE_PROJECT_CONFIG=1 (T-4050, ring20 T-2303): the reviewed project's own
                 # .opencode/ config and plugins are not loaded; otherwise opencode installs the plugin
                 # SDK into the export (+3,650 files) and the seat is voided. Same isolation as codex.
-                ( cd "$TREE" && TMPDIR="$SEAT_TMP" OPENCODE_DISABLE_PROJECT_CONFIG=1 exec "$WORKER_BIN" run ${MODEL:+-m "$MODEL"} --agent plan --pure --format json "$PROMPT_TEXT" < /dev/null > "$WDIR/result.jsonl" 2>> "$WDIR/stderr.log" ) &
+                ( cd "$TREE" && _fw_seat_env && TMPDIR="$SEAT_TMP" OPENCODE_DISABLE_PROJECT_CONFIG=1 exec ${SEAT_PIDNS[@]+"${SEAT_PIDNS[@]}"} "$WORKER_BIN" run ${MODEL:+-m "$MODEL"} --agent plan --pure --format json "$PROMPT_TEXT" < /dev/null > "$WDIR/result.jsonl" 2>> "$WDIR/stderr.log" ) &
                 ;;
             antigravity)
                 # The operator-approved form (2026-09-30), with the registered absolute binary:
                 # sudo's secure_path does not reach ~/.local/bin. sudo drops this environment.
-                ( cd "$TREE" && exec /usr/bin/sudo -n -u dimitri-mint-dev -H "$WORKER_BIN" -p "$PROMPT_TEXT" --mode plan --sandbox < /dev/null > "$WDIR/result.md" 2>> "$WDIR/stderr.log" ) &
+                ( cd "$TREE" && _fw_seat_env && exec ${SEAT_PIDNS[@]+"${SEAT_PIDNS[@]}"} /usr/bin/sudo -n -u dimitri-mint-dev -H "$WORKER_BIN" -p "$PROMPT_TEXT" --mode plan --sandbox < /dev/null > "$WDIR/result.md" 2>> "$WDIR/stderr.log" ) &
                 ;;
         esac
         HARNESS_PID=$!
@@ -1926,6 +1980,10 @@ elif [ -n "$HARNESS" ]; then
         # what it reviewed exits non-zero, so none of its greens can count.
         if [ "$(_tree_fp)" != "$TREE_FP_BEFORE" ]; then
             echo "FATAL: the $WORKER_KIND reviewer modified the export it reviewed (T-3986) — its greens do not count" >> "$WDIR/stderr.log"
+            diff <(printf '%s\n' "$TREE_LIST_BEFORE") <(_tree_list) \
+                | awk '/^[<>] /{p=substr($0,69); s[p]=s[p] substr($0,1,1)}
+                       END{for(p in s){t=(s[p]~/</&&s[p]~/>/)?"modified":(s[p]~/>/?"added":"removed"); print "  export " t ": " p}}' \
+                | LC_ALL=C sort | head -20 >> "$WDIR/stderr.log"
             EXIT_CODE=1
         fi
         # Normalise every harness to one result.md: the worker's final text, no ANSI.
@@ -1934,6 +1992,20 @@ import json, re, sys
 from pathlib import Path
 w, kind = Path(sys.argv[1]), sys.argv[2]
 ansi = re.compile(r"\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07]*\x07")
+# T-4978: a harness that failed (codex 'usage limit') said so only inside result.jsonl, so the run
+# showed exit 1 and an empty result. Name every error event on stderr (this block's stderr is the log).
+_seen = set()
+for line in (w / "result.jsonl").read_text(errors="replace").splitlines() if (w / "result.jsonl").is_file() else []:
+    try:
+        ev = json.loads(line)
+    except ValueError:
+        continue
+    if isinstance(ev, dict) and ev.get("type") in ("error", "turn.failed"):
+        err = ev.get("error")
+        msg = str(ev.get("message") or (err.get("message") if isinstance(err, dict) else err) or "").strip()
+        if msg and msg not in _seen:
+            _seen.add(msg)
+            print(f"HARNESS ERROR ({kind}): {msg[:400]}", file=sys.stderr)
 if kind == "opencode":
     parts = []
     for line in (w / "result.jsonl").read_text(errors="replace").splitlines() if (w / "result.jsonl").is_file() else []:

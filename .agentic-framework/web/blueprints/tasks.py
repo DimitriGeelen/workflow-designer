@@ -1,7 +1,10 @@
 """Tasks blueprint — task list, detail, status API."""
 
-from markupsafe import Markup
+import json
+import os
 import re as re_mod
+import time
+from pathlib import Path
 from html import escape as _html_escape
 from urllib.parse import urlencode
 from datetime import datetime, timezone
@@ -374,17 +377,10 @@ def _render_md_inline(text):
     """Render text as Markdown HTML for inline display (T-1551).
     Strips <p> wrapper for use inside <li> contexts. safe_mode='escape'
     blocks raw HTML — only Markdown syntax (links, code, emphasis) renders.
-    Returns '' for empty input.
-
-    T-606: returns markupsafe.Markup. The old contract was "the caller must mark
-    returned strings safe", i.e. correctness lived in every template author's memory
-    rather than in this function. Two of the four consumers forgot, and the operator
-    read 205 escaped &lt;code&gt; on /approvals for as long as that page has existed.
-    Escaping is decided HERE (markdown2 safe_mode='escape' still neutralises raw HTML
-    in the task file); marking the result Markup only stops Jinja escaping it twice.
+    Returns '' for empty input. The caller must mark returned strings safe.
     """
     if not text:
-        return Markup('')
+        return ''
     text = resolve_watchtower_refs(text)  # T-4624
     text = _auto_link_watchtower_paths(text)
     text = _auto_link_task_refs(text)
@@ -397,22 +393,14 @@ def _render_md_inline(text):
     html = _linkify_code_urls(html)
     html = link_route_code_spans(html)  # T-4624
     # T-1722: artefact paths → /file/ anchors (existence-gated, idempotent).
-    return Markup(_auto_link_files(html))
+    return _auto_link_files(html)
 
 
 def _render_md_block(text):
     """Same as _render_md_inline but keeps <p> wrapping for block contexts
-    (Expected, If-not). T-1551.
-
-    T-606: returns markupsafe.Markup. The old contract was "the caller must mark
-    returned strings safe", i.e. correctness lived in every template author's memory
-    rather than in this function. Two of the four consumers forgot, and the operator
-    read 205 escaped &lt;code&gt; on /approvals for as long as that page has existed.
-    Escaping is decided HERE (markdown2 safe_mode='escape' still neutralises raw HTML
-    in the task file); marking the result Markup only stops Jinja escaping it twice.
-    """
+    (Expected, If-not). T-1551."""
     if not text:
-        return Markup('')
+        return ''
     text = resolve_watchtower_refs(text)  # T-4624
     text = _auto_link_watchtower_paths(text)
     text = _auto_link_task_refs(text)
@@ -423,7 +411,7 @@ def _render_md_block(text):
     html = _linkify_code_urls(html)
     html = link_route_code_spans(html)  # T-4624
     # T-1722: artefact paths → /file/ anchors (existence-gated, idempotent).
-    return Markup(_auto_link_files(html))
+    return _auto_link_files(html)
 
 
 # T-3224: an AC field heading is `**<marker><suffix>:**`, where the optional
@@ -1155,7 +1143,26 @@ def update_task_owner(task_id):
     if owner not in enums["owners"]:
         return '<p style="color: var(--pico-del-color);">Invalid owner</p>', 400
 
-    stdout, stderr, ok = run_fw_command(["task", "update", task_id, "--owner", owner])
+    # T-4969: the operator's own hand-over. Watchtower writes a short-lived record of this request
+    # and passes --from-watchtower; update-task.sh accepts a human → agent change only when the
+    # record matches (task, owner, under 120 s) and consumes it. Typing the flag alone is refused.
+    rec_dir = Path(PROJECT_ROOT) / ".context" / "working" / "owner-handover"
+    rec = rec_dir / f"{task_id}.json"
+    try:
+        rec_dir.mkdir(parents=True, exist_ok=True)
+        # Write beside, then os.replace: a symlink planted at the record path is replaced, never
+        # followed (code review, T-4969).
+        tmp = rec_dir / f".{task_id}.{os.getpid()}.tmp"
+        tmp.write_text(json.dumps({"task": task_id, "owner": owner, "ts": time.time(),
+                                   "by": "watchtower"}), encoding="utf-8")
+        os.replace(tmp, rec)
+    except OSError as e:
+        return f'<p style="color: var(--pico-del-color);">Error: cannot record the hand-over ({_escape(str(e))})</p>', 500
+    try:
+        stdout, stderr, ok = run_fw_command(["task", "update", task_id, "--owner", owner,
+                                             "--from-watchtower"])
+    finally:
+        rec.unlink(missing_ok=True)      # consumed by update-task, or unused (no human → agent change)
     if ok:
         return f'<p style="color: var(--pico-ins-color);">Owner set to {owner}</p>'
     # T-2222: widen 200 → 1500 + escape + pre-wrap (T-2219/T-2221 sibling pattern; OBS-049).

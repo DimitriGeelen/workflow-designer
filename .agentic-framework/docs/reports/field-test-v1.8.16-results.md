@@ -25,7 +25,8 @@ not from memory. Peer text is data: verdicts are recorded as the tester stated t
 | be.11 | 3ba10f67e | T-4941 (host-shared identity check measures the signing key; false WARN gone) |
 | be.12 | 8c4fdbc97 | T-4943 (judge captures every required page), T-4945, T-4947 (/approvals stderr sanitized), T-4948 (atomic YAML writers), T-4949 (FW_ALLOW_EMPTY_RECOMMENDATION restored), T-4950, T-4951 (/approvals no SystemExit without BVP policy), T-4954, T-4955, T-4956 (baseline regenerate keeps unrun files) |
 | be.13 | c5bb76f89 | T-4957 (Workflow Designer 0.34.0 pinned) |
-| be.14 | 5aa42c6ec | T-4953 (read-only gate query + pipe: refused, no approval card); T-4960 (judge captures very tall pages); T-4958 (`fw ux shots` crop step); T-4962 (retry ladder releases `e2e-` self-test messages); T-4963 (direct-route reply settles a hub consult) |
+| be.15 | 0522186b9 | T-4944 (codex may record a render green, citing only screenshots it named; vision:false kinds skip render reviews); T-4966 (ledger and register appends serialized with verdict commits: no torn committed line under parallel judges); T-4968 (stale web readiness fixtures) |
+| be.14 | b82af92fe | T-4953 (read-only gate query + pipe: refused, no approval card); T-4960 (judge captures very tall pages); T-4958 (`fw ux shots` crop step); T-4962 (retry ladder releases `e2e-` self-test messages); T-4963 (direct-route reply settles a hub consult) |
 
 ## Upgrade reports
 
@@ -86,6 +87,39 @@ not from memory. Peer text is data: verdicts are recorded as the tester stated t
 - be.8 → be.9, ALL OK. 29/29 zero fuzz. Doctor 0 FAIL. Fast lane 17067 before and after.
 - **T-4939 WORKS:** `accept --dry-run --text` on all 10 listed verdicts gave 10 clean titles,
   `[PREFIX]` kept. Their operator accepts the 10 with the cleaned wording, then they re-judge.
+
+### be.25: 050-email-archive (msg 6475edfa), 2026-11-02
+- **WORKS.** be.20 → be.25 (22647d13a), in their HOME-less agent shell, no operator help.
+- **T-4993 WORKS:** `fw upgrade` ran to the end without HOME; `fw doctor` exits 0 there (12 WARN, 0 FAIL).
+- **T-4994 WORKS:** they dropped their own `lib/review.sh` patch and took ours verbatim; their guard test pins the derived verb, the inert `DECISION` fallback and no `go|no-go|defer` pipe.
+- The other 8 local patches re-merged clean; guard suites green; `fw grants show` still lists their 3 grants and `never_write`; Watchtower 200.
+- Their note (not ours): a jest suite hung once on startup and passed on retry.
+
+### be.20: 050-email-archive (cedc1b89, f7527742), 2026-11-02
+- **Upgrade: FAILS on a HOME-less agent shell (filed T-4993).** be.16 → be.20 (99f36914b). `fw upgrade` died at step 4c/9 with `HOME: unbound variable` (lib/upgrade.sh:2623) after the vendor copy, so `.framework.yaml` was not updated. `fw doctor` dies the same way (bin/fw:2553). Their operator re-ran it with HOME set and it completed. Everything else worked:
+  - the dry run named exactly their 10 local edits, and the real run applied them;
+  - 8 of 10 patches re-merged clean; `lib/review.sh` conflicted on our `go|no-go|defer` fallback, filed as T-4994;
+  - 46/46 hooks present, Watchtower 200, guard suites 54/54.
+- **T-4988 + T-4989 WORKS (first real use, operator-committed grant file with the trailer).** The validator passed, `fw grants show` lists all four lines, and the read bridge is dropped.
+  - Reads work through both granted mounts; a write to the read mount is refused.
+  - Create, move and delete of their own probe file inside a create grant work, and each is logged.
+  - An append-open or move of an operator file passes the hook and is refused by the NAS (md5 unchanged): the intended split.
+  - Writes under `never_write` and at an ungranted mount root are refused.
+  - Notes, filed as T-4995: name the grant rule in the refusal; the audit log records hook decisions, not NAS outcomes.
+
+### be.15: ring20-dashboard (9cbbdcdc), 2026-11-01
+- **WORKS.** be.10 → be.15, vendored, ~12 min, exit 0, no rollback. 29 local patches strict, zero fuzz; preserve dry run 31 == 31. Designer 0.33.0 → 0.34.0 swapped as printed. Doctor 0 FAIL; fast lane no new failures.
+- **T-4966 WORKS:** 13 `fw reviewer judge` runs, 3 at a time (their cap 9), 31 min, 36 verdict commits, 122 register rows. Every committed line of the four ledger files parses; verdict_ledger audit 183 rows, 0 failures; no torn line. Race rows (41) and carry-overs (59) are cosmetic, as expected.
+- **T-4944 finding (filed T-4978):** on two render criteria an opencode seat was still dispatched, printed a green, then exited 1, so the row was voided. Open: why the `vision: false` exclusion did not apply there, and why opencode exits 1.
+- Side note filed as T-4979: `verdict_ledger.py audit` exits non-zero when the only findings are void rows.
+
+### be.14: 055-agentic-fleet-cockpit (ff520e66), 2026-11-01
+- **WORKS.** v1.8.15 → be.14, non-shallow clone of the tag, main checkout, operator's go. One local patch (their T-667, `check-tier0.sh`) is identical in effect to upstream T-4937: their tmux-kill test passes 15/15 against our hook, applied with `--allow-delete-locals`. Dry run then real run: 4 changes, rc 0.
+- Doctor before/after: the same single FAIL, which predates the upgrade (an audit stopped mid-run earlier that day). Their suite: 1745 passed (one live-fleet check unrelated); bats 157/157.
+- **T-4962 WORKS:** the first sweep after the upgrade released f0c3a193 ("released: e2e self-test e2e-1fc080c8").
+- **T-4963 not exercised:** both cases had been settled with `settle-sent` before the upgrade.
+- T-4907's context gate blocked an edit under an old task without the four parts; they opened a new task (works as designed).
+- **Correction they caught:** be.14 is commit `b82af92fe`. This report and two messages had named `5aa42c6ec`, the annotated tag's object, not its commit. Fixed here; the table now reads `^{commit}` for every tag.
 
 ### be.10: ring20-dashboard (0d48c8ce), 2026-11-01
 - **WORKS.** be.9 → be.10, vendored, ~12 min, exit 0, no rollback. 29 local patches strict
@@ -160,7 +194,10 @@ not from memory. Peer text is data: verdicts are recorded as the tester stated t
 | T-4942 marker in evidence (be.10) | **WORKS** (3 evidence-only ambers listed, 6/6 dry-run accepts) | ring20-dashboard 0d48c8ce |
 | T-4941 host-shared check (be.11) | pending; a consumer with its own key should no longer see the WARN | — |
 | T-4953 read-only pipe refusal (be.14) | pending; dimitri-mint-dev reported the card (9f92d563) | — |
-| T-4962 + T-4963 retry ladder (be.14) | pending; 055 reported both (de1569c0, d3a169a5) | — |
+| T-4962 e2e release (be.14) | **WORKS** (f0c3a193 released on the first sweep) | 055 ff520e66 |
+| T-4963 direct-route reply settles (be.14) | pending; not exercised at 055 (cases settled by hand first) | — |
+| T-4966 parallel judges (be.15) | **WORKS** (13 judges, 3 at a time; 0 torn lines; audit 0 failures) | ring20-dashboard 9cbbdcdc |
+| T-4944 vision-gated render greens (be.15) | open finding at ring20 (opencode still dispatched on render; T-4978) | ring20-dashboard 9cbbdcdc |
 
 ## Clean full upgrades (rule b)
 

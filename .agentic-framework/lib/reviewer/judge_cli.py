@@ -134,6 +134,24 @@ def _load_task(task_id: str, root: Path) -> dict | None:
         return None
 
 
+# T-4978 (ring20): a criterion that describes what an app page shows ("[REVIEW] /classic SSL
+# Certificates widget shows 4 tiles ...") classifies taste or unclassified when its task does not
+# touch AEF's own web/ layout, so `render` stays False and a seat that cannot see images sat it.
+# `page` is the judge's own, wider question: does the criterion name a route of the app? It only
+# decides who may sit the criterion (vision); the ledger's render rules still key on `render`.
+_PAGE_ROUTE_RE = re.compile(r"(?<![\w/.:~-])/([a-z][\w-]*)(?:/[\w-]+)*(?![\w/.-])", re.IGNORECASE)
+_NOT_A_PAGE = {"tmp", "opt", "etc", "usr", "var", "root", "home", "dev", "proc", "bin", "srv", "mnt",
+               "api"}
+
+
+def names_page(text: str) -> bool:
+    """True when `text` names an app route (`/classic`, `/cicd/builds`) or a URL with a path.
+    Filesystem roots and /api/ endpoints are not pages; neither is a token with a file suffix."""
+    if re.search(r"https?://[\w.<>-]+(?::\d+)?/[a-z]", text, re.IGNORECASE):
+        return True
+    return any(m.group(1).lower() not in _NOT_A_PAGE for m in _PAGE_ROUTE_RE.finditer(text))
+
+
 def _partition(task_data: dict, root: Path, task_id: str,
                criterion_n: int | None = None) -> tuple[list[dict], list[dict]]:
     """Split the open Human criteria into (judged, operator_only).
@@ -152,6 +170,7 @@ def _partition(task_data: dict, root: Path, task_id: str,
         item = {"index": len(judged) + 1, "ac_index": crit.index, "text": crit.title.strip(),
                 "body": vl.criterion_body(crit), "class": cl.cls,
                 "render": cl.cls == "render-surface" and bool(vl._RENDER_REVIEW_RE.search(vl.criterion_body(crit)))}
+        item["page"] = item["render"] or names_page(f"{crit.title}\n{item['body']}")
         if cl.delegation_class == REVIEWER_JUDGES:
             judged.append(item)
         elif cl.delegation_class == OPERATOR_ONLY:
@@ -750,6 +769,17 @@ def _build_brief(task_id: str, criteria: list[dict], *, rung: int = 1, rung_reas
             "harness's temp files, a build cache). If what a criterion needs still cannot run, "
             "return `not-evaluated` with the reason — never a verdict on what you could not check.",
             "",
+            # T-4978 (ring20): a seat booted the app under TestClient; the app created its sqlite
+            # state file under its own code root, i.e. inside the export, and the seat was voided.
+            "Running project code: an app or test may write files next to its own code (a SQLite "
+            "database, a cache, a log). Never run it in place. Copy the export first and run the "
+            "copy: `cp -a . \"$TMPDIR/run\" && cd \"$TMPDIR/run\"`. "
+            # T-5008 (ring20-dashboard): a seat stopped its own test server with
+            # `pkill -f 'uvicorn main:app'` and took down the live service with the same line.
+            "Never stop or signal a process you did not start: no `pkill`, no `killall`, no "
+            "`kill $(pgrep …)`. Stop a server you started by the PID you started it with "
+            "(`server & pid=$!` … `kill \"$pid\"`).",
+            "",
             "When you finish, the dispatch runtime records the verdicts you PRINT, under your own "
             "reviewer identity, with your full output as the evidence report, and signs your "
             "completion. Only the format below is read: a criterion you do not print exactly once, "
@@ -1114,7 +1144,8 @@ def judge(task_id: str, root: Path, *, criterion_n: int | None = None, dry_run: 
     judged, operator = _partition(task_data, root, task_id, criterion_n)
     res: dict = {"task_id": task_id, "dry_run": dry_run, "operator_only": [
         {"ac": c["ac_index"], "class": c["class"], "reason": c["reason"]} for c in operator],
-        "criteria": [{"ac": c["ac_index"], "text": c["text"][:80], "class": c["class"]} for c in judged]}
+        "criteria": [{"ac": c["ac_index"], "text": c["text"][:80], "class": c["class"],
+                      "page": bool(c.get("page"))} for c in judged]}
     if not judged:
         res.update(error=f"No REVIEWER_JUDGES criteria found for {task_id}", code=1)
         return res
@@ -1157,7 +1188,7 @@ def judge(task_id: str, root: Path, *, criterion_n: int | None = None, dry_run: 
     # the screenshots. A kind the committed registry declares `vision: false` (opencode: its model
     # takes no images) can only return not-evaluated there, so it does not sit a render run.
     blind = set()
-    if any(c["render"] for c in judged):
+    if any(c["render"] or c.get("page") for c in judged):   # T-4978: page criteria too
         blind = {k for k, seen in vl.kind_vision(root, revision).items() if seen is False}
         res["blind_kinds"] = sorted(blind)
     try:
@@ -1167,6 +1198,12 @@ def judge(task_id: str, root: Path, *, criterion_n: int | None = None, dry_run: 
     except Exception as e:  # noqa: BLE001 - an unreadable registry is a refusal, not a default
         res.update(error=f"review backend registry unavailable: {e}", code=1)
         return res
+    # T-4996: an estate-only project (REVIEW_PAID_BACKENDS=never) gets no paid seats and no
+    # proposals its operator will never approve; each unfilled seat says why instead.
+    paid_never = review_policy.config_value(root, "REVIEW_PAID_BACKENDS", "allowed").strip().lower() == "never"
+    if paid_never:
+        plan["paid"] = []
+        res["paid_backends"] = "never"
     seats, required = plan["seats"], plan["required"]
     degraded = (DEGRADED_SINGLE_VENDOR if rung >= 5 and (len(plan["dispatch"]) < required
                                                          or len(plan["vendors"]) < required) else "")
@@ -1273,6 +1310,9 @@ def judge(task_id: str, root: Path, *, criterion_n: int | None = None, dry_run: 
                                          "status": p.get("status", "pending")})
             except Exception as e:  # noqa: BLE001
                 entry.update(backend=backend, status=f"proposal refused: {e}")
+        elif paid_never:
+            entry["status"] = ("paid backends are not allowed in this project "
+                               "(REVIEW_PAID_BACKENDS=never); no internal backend can fill this seat")
         else:
             entry["status"] = "no backend (internal or paid) can fill this seat"
         for r in entry["results"]:
