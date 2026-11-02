@@ -77,15 +77,19 @@ taller lanes, and that the validator takes `--field-catalog`.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Release notes `docs/releases/RELEASE-NOTES-0.37.0.md` committed. They cover the changes, what changes in stored
+- [x] Release notes `docs/releases/RELEASE-NOTES-0.37.0.md` committed. They cover the changes, what changes in stored
   maps (taller lanes for maps with documents, nodes in the lanes below moved down; no ids or content), the new validator
   option and its four findings, and the endpoint table.
-- [ ] Operator job written with `tools/runme-new.sh`, dry-run rehearsed, committed.
-- [ ] The operator's run ends `done`, and tag designer-v0.37.0 is on origin.
-- [ ] AEF is sent the version, tag, sha256, bytes, changes AND the kit anchors (SHA256SUMS sha256, validate-workflow.py
+- [x] Operator job written with `tools/runme-new.sh`, dry-run rehearsed, committed. *(job 119, sha 9953ba291fea,
+  e1add87eb)*
+- [x] The operator's run ends `done`, and tag designer-v0.37.0 is on origin. *(job 119 done 2026-11-02 18:50 UTC, all
+  9 steps: kit PASS by codex and GLM-5.3, core green. Tag on release commit 6b23cb11a. Artifact sha256 47fff62e…d28c,
+  1329546 bytes. Kit SHA256SUMS 04f026d2…86d5. validate-workflow.py a74c8d2b…3767, 125022 bytes, changed.)*
+- [ ] *(sent 2026-11-02, msg 6d4d2664 RECEIVED, with the moved kit anchors, the taller-lanes change and the
+  `--field-catalog` note for its Check; waiting for AEF's task id and pin)* AEF is sent the version, tag, sha256, bytes, changes AND the kit anchors (SHA256SUMS sha256, validate-workflow.py
   sha256 and bytes), plus the stored-map change. `tools/_t1187-aef-pin-lag.sh` reads CURRENT.
 - [ ] Greenfield is sent the release with a WORKS/BROKEN re-test on wt01-io-v12: its 5 documents, and the validator
-  with its catalog. Its answer is recorded here.
+  with its catalog. Its answer is recorded here. *(sent 2026-11-02, msg 84da6cdd, 4 items; answer pending)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
