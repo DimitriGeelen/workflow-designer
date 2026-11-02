@@ -10846,13 +10846,24 @@ function maybeShowLaneFixNotice() {
     parts.push(`this file declares ${sk.length + 1} processes and only one can be opened — ` +
                `NOT imported, and NOT saved back: ${which}`);
   }
-  // T-1096: process data is KEPT and saved back but not drawn yet — say so; and name any data association that
-  // could not be kept because what it points at is not in the document (writing it would leave a dangling reference).
+  // T-1096: process data is KEPT and saved back; and name any data association that could not be kept because what it
+  // points at is not in the document (writing it would leave a dangling reference).
+  // T-1372: since T-1369 documents are DRAWN. Count them from the layout the canvas draws (dataLayout), and call "not
+  // shown yet" only what still is not: data stores, a document no task links to, and the associations to those. A
+  // bpmn:dataObject definition is never drawn in BPMN (its references are), so it is not counted as hidden. Before,
+  // every element and association read "not shown yet" while the documents were on the canvas (greenfield, 0.37.0).
   const kd = (typeof state === 'object' && state && state.dataKept) || null;
   if (kd) {
-    const nObj = (kd.elements || []).length;
+    const pl = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
     const nAssoc = Object.values(kd.perNode || {}).reduce((a, m) => a + ((m.dataInputAssociation || []).length + (m.dataOutputAssociation || []).length), 0);
-    if (nObj || nAssoc) parts.push(`${nObj} data object/store element${nObj === 1 ? '' : 's'} and ${nAssoc} data association${nAssoc === 1 ? '' : 's'} kept unchanged and saved back, not shown yet`);
+    const L = dataLayout(state);
+    const drawn = L ? L.docs.length : 0, drawnLinks = L ? L.links.length : 0;
+    const stores = (kd.elements || []).filter(x => /^<(?:[\w.-]+:)?dataStoreReference\b/.test(String(x).trim())).length;
+    const unlinked = L ? L.unplaced.length : 0, otherAssoc = Math.max(0, nAssoc - drawnLinks);
+    if (drawn) parts.push(`${pl(drawn, 'document')} drawn under the tasks that make or use ${drawn === 1 ? 'it' : 'them'}, with ${pl(drawnLinks, 'data association')}`);
+    const hidden = [stores && pl(stores, 'data store'), unlinked && `${pl(unlinked, 'document')} no task links to`,
+                    otherAssoc && pl(otherAssoc, 'data association')].filter(Boolean);
+    if (hidden.length) parts.push(`${hidden.join(', ')} kept unchanged and saved back, not shown yet`);
     if ((kd.skipped || []).length) parts.push(`${kd.skipped.length} data association${kd.skipped.length === 1 ? '' : 's'} NOT kept — ` +
       `${kd.skipped.length === 1 ? 'it points' : 'they point'} at something not in this file: ` + kd.skipped.map(s => `${s.id} → ${s.missing.join(', ')}`).join('; '));
   }

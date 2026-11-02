@@ -8,9 +8,11 @@
 //   3. four dotted associations: two outputs (task -> document) and two inputs (document -> task);
 //   4. the save keeps every data element and association (T-1096), and a second open -> save is byte-identical
 //      (the grown lane is saved, so nothing grows twice);
+//   6. (T-1372) the import notice says how many documents and associations are drawn, and names as "not shown yet"
+//      only a data store or a document no task links to;
 //   5. a map WITHOUT documents (kitchen-sink is not one: it has one; so tests/fixtures/t1366/plain-event-kinds.bpmn)
 //      draws nothing in the data layer and its lanes do not change.
-// T1369_SRC substitutes another designer file (the BITE: on the pre-T-1369 source, legs 1-3 are red).
+// T1369_SRC substitutes another designer file (the BITE: on the pre-T-1369 source, legs 1-3 are red; on the 0.37.0 source, leg 6 is red).
 // Exit 0 = all legs green; 1 = a leg failed; 2 = misconfig.
 import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn, spawnSync } from 'node:child_process';
@@ -76,6 +78,20 @@ const ASSERT = `(() => {
   var o2 = strip(buildBpmnXml(state));
   if (o1 !== o2) errs.push('leg4: a second open -> save differs from the first (lanes grew twice?)');
   info.lanesAfterReopen = lanesNow();
+
+  // 6. T-1372: the import notice says what is drawn, and calls "not shown yet" only what is not
+  load(window.__MAP__); if (typeof maybeShowLaneFixNotice === 'function') maybeShowLaneFixNotice();
+  var n1 = (document.getElementById('lane-fix-msg') || {}).textContent || '';
+  info.notice = n1;
+  if (!/2 documents drawn/.test(n1) || !/4 data associations/.test(n1) || /not shown yet/.test(n1))
+    errs.push('leg6: the notice should say 2 documents and 4 associations are drawn and nothing is hidden: ' + JSON.stringify(n1));
+  var extra = window.__MAP__.replace('<bpmn:sequenceFlow id="F1"',
+    '<bpmn:dataStoreReference id="DS1" name="CRM"/><bpmn:dataObjectReference id="R_LOOSE" name="Memo" dataObjectRef="DO_Q"/><bpmn:sequenceFlow id="F1"');
+  load(extra); maybeShowLaneFixNotice();
+  var n2 = (document.getElementById('lane-fix-msg') || {}).textContent || '';
+  info.noticeExtra = n2;
+  if (!/1 data store/.test(n2) || !/1 document no task links to/.test(n2) || !/not shown yet/.test(n2) || !/2 documents drawn/.test(n2))
+    errs.push('leg6: with a data store and an unlinked document, both should be named as not shown: ' + JSON.stringify(n2));
 
   load(window.__PLAIN__);
   var before = JSON.stringify(state.lanes.map(function(l){ return [l.id, l.height]; }));
