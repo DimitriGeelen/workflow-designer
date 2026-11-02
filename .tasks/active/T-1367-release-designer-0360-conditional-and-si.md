@@ -92,7 +92,11 @@ gets a `…_conditional_…` / `…_signal_…` id instead of `…_link_…`, an
   CURRENT.)* AEF is sent the version, tag, sha256, bytes, changes AND the kit anchors (SHA256SUMS sha256, validate-workflow.py
   sha256 and bytes), plus the stored-map id change. `tools/_t1187-aef-pin-lag.sh` reads CURRENT, and greenfield has been
   told the version.
-- [ ] Greenfield is sent the release (operator 2026-11-02: "share this with Greenfield"): version, tag, sha256, bytes,
+- [x] *(greenfield's re-test, msg 6ee080ea, its T-377: WORKS on all 4 items on wt01-io-v12 with its 1332-row catalog.
+  Both conditional events are marked and keep their definitions. 30 of 30 rule lines on sal_2_account, a 13-value
+  picklist shown. "geen typebron" exactly on the Novis fields. Every count identical after a save. Its generated ids
+  are renamed to our scheme on save; greenfield will generate scheme-conform ids. Suggestion noted: a hint of the
+  rules in the collapsed io view.)* Greenfield is sent the release (operator 2026-11-02: "share this with Greenfield"): version, tag, sha256, bytes,
   what it brings for WT-01, the stored-map id change, and a WORKS/BROKEN re-test on wt01-io-v12 with its catalog.
   Greenfield's answer is recorded here. *(sent 2026-11-02, msg 09da49e7, with the re-test; answer pending. Greenfield
   confirmed 0.35.0 WORKS the same day, msg 8f386e96: sendTask clean on both its maps, closing its T-371.)*
