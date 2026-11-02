@@ -7,13 +7,13 @@ description: >
   field catalog, the catalog row's value rule (shape keys from greenfield's SHACL
   property shapes), read-only.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: [T-1361, T-1363, T-1312]
 origin: {kind: "operator"}
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
@@ -43,8 +43,8 @@ origin: {kind: "operator"}
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T23:28:23Z
-last_update: '2026-11-02T08:51:15Z'
-date_finished:
+last_update: 2026-11-02T09:11:23Z
+date_finished: 2026-11-02T09:11:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -166,7 +166,7 @@ map syntax), but its layout should leave room for that outcome.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-- [ ] [REVIEW] A person editing an io can see how each attribute's value must be built, without leaving the panel
+- [x] [REVIEW] A person editing an io can see how each attribute's value must be built, without leaving the panel
   **Steps:**
   1. Look at `docs/reports/T-1365-evidence/panel-{1024,1440,1920}.png`: the step "Register the order" selected, its
      output's editor open, rules folded. Under each field: one summary line.
@@ -182,6 +182,7 @@ map syntax), but its layout should leave room for that outcome.
   **If not:** name the screenshot and what is wrong (unreadable, clipped, confusable with an editable field,
   misleading).
   For the independent reviewer: `fw reviewer judge T-1365 --criterion 1`
+  **Reviewer verdict:** green V-20261102-819cbcdf — reviewer-judge-t-1365-r1-ceb26fa1326f:reviewer (rung rung-1-same-vendor-independent), digest ca16ec55ec8e; dispatch judge-t-1365-r1-ceb26fa1326f; evidence: .context/reviews/evidence/T-1365/AC1-judge-t-1365-r1-ceb26fa1326f.md, .context/reviews/evidence/T-1365/panel-1024-judge-t-1365-r1-ceb26fa1326f.png, .context/reviews/evidence/T-1365/panel-1440-judge-t-1365-r1-ceb26fa1326f.png, .context/reviews/evidence/T-1365/panel-1920-judge-t-1365-r1-ceb26fa1326f.png, .context/reviews/evidence/T-1365/panel-1024-open-judge-t-1365-r1-ceb26fa1326f.png, .context/reviews/evidence/T-1365/fields-1024-open-judge-t-1365-r1-ceb26fa1326f.png, .context/reviews/evidence/T-1365/fields-1920-open-judge-t-1365-r1-ceb26fa1326f.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -477,3 +478,26 @@ Not acted on:
 ### 2026-11-02T08:51:15Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-02T09:11:23Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d1a6892c
+- **Timestamp:** 2026-11-02T09:11:36Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#5 (Agent)** — `bash tools/person-sees-gate.sh` exits 0, and screenshots at 1024/1440/1920 are read in `## Visual Verification`.
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/person-sees-gate.sh in: `bash tools/person-sees-gate.sh` exits 0, and screenshots at 1024/1440/1920 are read in `## Visual Verification`.`
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 140
+     - evidence: `export PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH"; node tools/_t1365-value-rules-cdp.mjs >/dev/null`

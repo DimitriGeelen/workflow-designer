@@ -1,0 +1,120 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1365: Designer shows an attribute's value rule (catalog shape: datatype, maxLength, pattern, allowed values, description, example) on each io field
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-02T09:11:54Z
+# ============================================================================
+
+task_id: T-1365
+task_name: "Designer shows an attribute's value rule (catalog shape: datatype, maxLength, pattern, allowed values, description, example) on each io field"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-11-01T23:28:23Z
+completed: 2026-11-02T09:11:23Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-02T00:29:00+01:00
+last_commit: 2026-11-02T10:09:57+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture — designer shows each io field's value rule from the catalog shape (greenfield's SHACL shapes, msg 0d0d8631); horizon next, after the per-io review. the io panel shows how each attribute's value is built — read-only rule line under every catalogued field (summary folded, full rule opened: format, type, pattern, allowed values, made-up example, source), unknown fields say so; leg 223 + synthetic fixtures, red on the old source; gate green; evidence at 1024/1440/1920. advisory sweep — rule labels and the not-in-catalog line a step brighter (--text-dim), rule text 11px; screenshots retaken, gate green. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'For an `aef:field` whose `fieldRef` matches a catalog row''s `ref`, the io panel shows that row''s `datatype`,'
+  - 'A project with no catalog (404) shows the field rows as today, with no error. With a catalog loaded, a fieldRef'
+  - 'Open → save of a map with structured io gives byte-identical output with and without the catalog: display only.'
+  - 'A CDP harness leg covers the three cases above, using a synthetic catalog fixture (made-up rows, no greenfield'
+  - '`bash tools/person-sees-gate.sh` exits 0, and screenshots at 1024/1440/1920 are read in `## Visual Verification`.'
+  - '[REVIEW] A person editing an io can see how each attribute''s value must be built, without leaving the panel'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the io panel shows how each attribute''s value is built — read-only rule line under every catalogued field (summary folded, full rule opened: format, type, pattern, allowed values, made-up example, source), unknown fields say so; leg 223 + synthetic fixtures, red on the old source; gate green; evidence at 1024/1440/1920'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-11-02 — where and how the value rule shows'
+    chose: 'a read-only line under each field row in the io editor. It starts folded, as one summary line (readable name · type · max length · pattern · example or "one of N"), and a disclosure opens the full rule. The rule keys are read straight from the catalog row (catalog contract T-1312 already carries them through), using SHACL''s names (the split agreed with greenfield and AEF, T-1361 / T-1363 IW-4).'
+    rationale: '- The summary answers the question "how is this value built" at a glance. The full rule is one click away. - The panel stays short for io with many fields: WT-01''s Account output has 9. - Read-only, because the rule belongs to the attribute''s definition in the producer''s ontology, not to the map (AEF T-4415 C).'
+    alternatives_rejected: ['- Always opened: too tall with 9+ fields. - Only a tooltip: not visible, not readable on touch, not in a screenshot. - Editing the rule in the designer: it would write to the wrong place (the map instead of the ontology).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1365/AC1-judge-t-1365-r1-ceb26fa1326f.md'
+  - '.context/reviews/evidence/T-1365/fields-1024-open-judge-t-1365-r1-ceb26fa1326f.png'
+  - '.context/reviews/evidence/T-1365/fields-1920-open-judge-t-1365-r1-ceb26fa1326f.png'
+  - '.context/reviews/evidence/T-1365/panel-1024-judge-t-1365-r1-ceb26fa1326f.png'
+  - '.context/reviews/evidence/T-1365/panel-1024-open-judge-t-1365-r1-ceb26fa1326f.png'
+  - '.context/reviews/evidence/T-1365/panel-1440-judge-t-1365-r1-ceb26fa1326f.png'
+  - '.context/reviews/evidence/T-1365/panel-1920-judge-t-1365-r1-ceb26fa1326f.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1365-designer-shows-an-attributes-value-rule-.md'
+  - 'docs/reports/T-1365-evidence/fields-1024-open.png'
+  - 'docs/reports/T-1365-evidence/fields-1440-open.png'
+  - 'docs/reports/T-1365-evidence/fields-1920-open.png'
+  - 'docs/reports/T-1365-evidence/panel-1024-open.png'
+  - 'docs/reports/T-1365-evidence/panel-1024.png'
+  - 'docs/reports/T-1365-evidence/panel-1440-open.png'
+  - 'docs/reports/T-1365-evidence/panel-1440.png'
+  - 'docs/reports/T-1365-evidence/panel-1920-open.png'
+  - 'docs/reports/T-1365-evidence/panel-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/fixtures/t1365/field-catalog.json'
+  - 'tests/fixtures/t1365/value-rules.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1365-shots.mjs'
+  - 'tools/_t1365-value-rules-cdp.mjs'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-02T00:29:00'
+    action: 'T-1365: capture — designer shows each io field''s value rule from the catalog shape (greenfield''s SHACL shapes, msg 0d0d8631); horizon next, after the per-io review'
+  - time: '2026-11-02T10:02:27'
+    action: 'T-1365: the io panel shows how each attribute''s value is built — read-only rule line under every catalogued field (summary folded, full rule opened: format, type, pattern, allowed values, made-up example, source), unknown fields say so; leg 223 + synthetic fixtures, red on the old source; gate green; evidence at 1024/1440/1920'
+  - time: '2026-11-02T10:08:16'
+    action: 'T-1365: advisory sweep — rule labels and the not-in-catalog line a step brighter (--text-dim), rule text 11px; screenshots retaken, gate green'
+  - time: '2026-11-02T10:09:57'
+    action: 'T-1365: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 583 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 583
+  commits: 5
+  files_changed: 33
+  lines_added: 1051
+  lines_removed: 22
+  footprint_refreshed_at: '2026-11-02T09:12:05Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1365-designer-shows-an-attributes-value-rule-.md
+generated_by: context-agent-hybrid

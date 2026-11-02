@@ -20687,3 +20687,21 @@ scan_id: R-4e78d4f8
 task_id: T-1366
 payload:
   task_file: .tasks/active/T-1366-a-conditional-intermediate-catch-event-f.md
+---
+kind: scan_emitted
+timestamp: '2026-11-02T09:11:36Z'
+scan_id: R-d1a6892c
+task_id: T-1365
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-02T09:11:36Z'
+scan_id: R-d1a6892c
+task_id: T-1365
+payload:
+  task_file: .tasks/active/T-1365-designer-shows-an-attributes-value-rule-.md
