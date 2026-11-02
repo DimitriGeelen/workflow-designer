@@ -680,6 +680,8 @@ font-family: 'Outfit';
   .node-shape { transition: stroke-width 0.1s ease; }
   .node-label { fill: var(--text); font-family: var(--sans); font-size: 11px; font-weight: 500; pointer-events: none; }
   .node-label-sub { fill: var(--text-faint); font-family: var(--mono); font-size: 9px; pointer-events: none; }
+  /* T-1369: a document's [state]: brighter and larger than a sub-label, it is what makes the document a trigger (sweep) */
+  .data-state-label { fill: var(--text-dim); font-family: var(--mono); font-size: 10px; pointer-events: none; }
   /* Global label size (T-085): keyed off data-lsize on the svg root. The
      lane-fit ladder's explicit shrink steps use inline style, which wins
      over these rules by cascade priority. */
@@ -14916,7 +14918,7 @@ function renderCollab() {
 //     task's CURRENT position (a kept BPMNEdge would point where the task was in the file), with an open arrowhead
 //     towards the receiver: task -> document for an output, document -> task for an input.
 // Data stores (bpmn:dataStoreReference) are not drawn yet; they stay kept as before.
-const DATA_DOC_W = 36, DATA_DOC_H = 50, DATA_DOC_GAP = 20, DATA_DOC_SPACING = 24, DATA_LABEL_CH = 18, DATA_LABEL_LINE = 12;
+const DATA_DOC_W = 36, DATA_DOC_H = 50, DATA_DOC_GAP = 34, DATA_DOC_SPACING = 24, DATA_LABEL_CH = 18, DATA_LABEL_LINE = 12;
 const DATA_LANE_MARGIN = 10;   // below the lowest label line, inside the lane
 // The labels under a document: its name wrapped, then [state]; the lines renderData draws and growLanesForDocuments makes room for.
 function dataLabelLines(d) { return [...(d.name ? wrapText(d.name, DATA_LABEL_CH) : []), ...(d.state ? ['[' + d.state + ']'] : [])]; }
@@ -15018,7 +15020,7 @@ function renderData() {
     grp.appendChild(el('path', { d: `M${d.x + d.w - f},${d.y} V${d.y + f} H${d.x + d.w}`, fill: 'none', stroke: 'var(--text-dim)', 'stroke-width': '1.1' }));
     const lines = dataLabelLines(d);
     lines.forEach((t, i) => grp.appendChild(el('text', { x: d.x + d.w / 2, y: d.y + d.h + 13 + i * DATA_LABEL_LINE, 'text-anchor': 'middle',
-      class: i < lines.length - (d.state ? 1 : 0) ? 'node-label' : 'node-label-sub', 'data-data-label': d.id }, [text(t)])));
+      class: i < lines.length - (d.state ? 1 : 0) ? 'node-label' : 'data-state-label', 'data-data-label': d.id }, [text(t)])));
     g.appendChild(grp);
   }
 }

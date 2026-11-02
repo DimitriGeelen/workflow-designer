@@ -119,7 +119,7 @@ below are revised to match.
   tasks, four associations), each reference is drawn as a BPMN data-object shape with its name and `[state]`. It sits
   centred under its producing task (the stated rule, in the code comment), with a dotted association line and an open
   arrowhead per direction (output: task → document; input: document → task).
-- [x] The anchor task's lane grows to hold its documents and their labels (130 → 186 on the fixture), the lanes below
+- [x] The anchor task's lane grows to hold its documents and their labels (130 → 200 on the fixture), the lanes below
   move down with their nodes, and a reopened save is identical (nothing grows twice). Checked on WT-01 too (not
   committed: client data): all 5 documents inside their lanes.
 - [x] The save keeps every data element and association (T-1096 round trip, `_t1222`, `_t1264`, `_t1119`,
@@ -355,7 +355,17 @@ What was read:
     "[sent]" / "[signed]" in the muted mono style;
   - the outputs as short dotted lines down from the task, the inputs as diagonal dotted lines up to the next task's
     lower left, arrowheads open and pointing at the receiver;
-  - the lane grown to 186 px with the labels inside.
+  - the lane grown to 200 px with the labels inside.
+
+**Advisory sweep** (codex, worker t1369-advisory-63f854088d02, 2026-11-02, before the official review). It found the
+relationships understandable, the arrows pointing at the consumer, and nothing overlapping, clipped or leaving the lane.
+Two points were acted on, then the screenshots were retaken and the gate re-run:
+- The producer arrows were short and ran mostly through the task's id caption, so they were hard to tell apart. The gap
+  under the task is now 34 px instead of 20, so each arrow shows below the caption. That costs 14 px of lane height
+  (130 → 200 on the fixture).
+- The [state] labels were dim. They now have their own class, `--text-dim` and 10 px mono, instead of the faint 9 px
+  sub-label.
+Not acted on: small text in the whole-window shots (the fit zoom), and the empty canvas right of a short flow.
 - **WT-01** (not committed: client data): geometry checked by script. All 5 references sit inside their anchor's lane:
   Klant/dealer 216, Verkoper 194 and Tacton CPQ 206, from 130.
 
