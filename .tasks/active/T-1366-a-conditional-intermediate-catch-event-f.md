@@ -1,13 +1,18 @@
 ---
 id: T-1366
-name: "A conditional intermediate catch event from another tool's file opens as a link catch event (wrong symbol, display id says link)"
+name: "A conditional intermediate catch event from another tool's file opens as a
+  link catch event (wrong symbol, display id says link)"
 description: >
-  bpmn:intermediateCatchEvent with a bpmn:conditionalEventDefinition is typed linkEventCatch on import: drawn as a plain double circle without the condition marker, display id sal_link_lead, link-jump UI; the importer only types error/timer/message (EVENT_KIND_TYPE). Found reproducing T-1364 with greenfield's wt01-io-v11.
+  bpmn:intermediateCatchEvent with a bpmn:conditionalEventDefinition is typed linkEventCatch
+  on import: drawn as a plain double circle without the condition marker, display
+  id sal_link_lead, link-jump UI; the importer only types error/timer/message (EVENT_KIND_TYPE).
+  Found reproducing T-1364 with greenfield's wt01-io-v11.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [bug]
 components: []
 related_tasks: [T-1364, T-1363, T-1222]
@@ -39,8 +44,8 @@ origin: {kind: "agent"}
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-02T07:25:42Z
-last_update: 2026-11-02T07:25:42Z
-date_finished: null
+last_update: '2026-11-02T07:56:56Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -51,6 +56,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-02T07:56:56Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 1
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=1 (body:fix-without-learning); D2=0 (no-signal); D3=0 (no-signal);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1366: A conditional intermediate catch event from another tool's file opens as a link catch event (wrong symbol, display id says link)
@@ -81,15 +106,21 @@ uses a non-link word. The link-jump UI does not appear on it. The save stays byt
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A synthetic fixture (no client data) with an intermediate catch event per native kind (conditional, signal,
-  message, timer, error, none) imports with a node type that is not `linkEventCatch` for conditional and signal, and
-  the node shows a kind marker.
-- [ ] Display ids of conditional and signal catch events do not contain `link`.
-- [ ] Open → save is byte-identical to the 0.35.0 output for that fixture and for the third-party corpus
-  (`tools/_t1222-event-definitions-kept.py` stays green).
-- [ ] A CDP harness leg asserts the first two, and fails on 0.35.0 (the bite).
-- [ ] `bash tools/person-sees-gate.sh` exits 0, and screenshots at 1024/1440/1920 of the fixture are read in
-  `## Visual Verification`.
+<!-- Revised 2026-11-02 while building (see Decisions): the node type stays the plain event (T-1222), and the save
+     changes only these events' id word. -->
+- [x] On the synthetic fixture `tests/fixtures/t1366/plain-event-kinds.bpmn` (no client data; one intermediate event per
+  native kind: conditional catch, signal catch, message catch, timer catch, a catch with no definition, signal throw),
+  the conditional catch, signal catch and signal throw each draw BPMN's kind marker (`[data-kind-marker]`).
+  Message and timer keep their typed rendering. The catch with no definition is unchanged.
+- [x] Display ids of conditional and signal events name the kind (`_conditional_`, `_signal_`) and never `link`.
+- [x] The side panel heads a conditional event `conditionalEvent`, says what it waits for, and shows the condition as
+  written. It no longer says "carries no kind" and offers no "Make this a handoff".
+- [x] Every native definition survives a save (`tools/_t1222-event-definitions-kept.py` green, 49 → 49), and a second
+  save is byte-identical. The only saved difference from 0.35.0 is the id word of conditional and signal events
+  (`…_link_…` → `…_conditional_…` / `…_signal_…`), named in the release notes for AEF.
+- [x] `tools/_t1366-plain-event-kinds-cdp.mjs` asserts the above (leg 222, browser tier) and is red on the pre-T-1366
+  source (the bite).
+- [x] `bash tools/person-sees-gate.sh` exits 0, and screenshots at 1024/1440/1920 are read in `## Visual Verification`.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -121,6 +152,21 @@ uses a non-link word. The link-jump UI does not appear on it. The save stays byt
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1366 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+- [ ] [REVIEW] A conditional or signal event from another tool's file reads as what it is: on the canvas and in the panel
+  **Steps:**
+  1. Compare `docs/reports/T-1366-evidence/events-1920-zoom-before.png` (0.35.0) with `events-1920-zoom.png` (this
+     change): the row Start, Status Qualified (conditional), Recall signal (signal catch), Order received (message),
+     Two days (timer), Plain catch (no definition), Send recall (signal throw), Done.
+  2. Look at `docs/reports/T-1366-evidence/events-{1024,1440,1920}.png`: the whole window at three widths.
+  3. Look at `docs/reports/T-1366-evidence/panel-{1024,1440,1920}.png`: the conditional event selected.
+  **Expected:** After the change, the conditional event shows a lined-sheet marker, the signal catch an outlined
+  triangle and the signal throw a filled triangle. Their ids read `tea_conditional_status`, `tea_signal_recall` and
+  `tea_signal_send`, where before they read `tea_link_…`. Message, timer and the plain catch look as before. Every name
+  and id is readable and nothing overlaps. The panel says "conditionalEvent", explains that the flow waits until a
+  condition holds, shows "status = Qualified", and offers no handoff. At all three widths the toolbar and both side
+  panels are complete and unclipped.
+  **If not:** name the screenshot and what is wrong (marker unreadable, label overlap, misleading panel text).
+  For the independent reviewer: `fw reviewer judge T-1366 --criterion 1`
 
 <!--
   Render-touching build tasks (web/templates, web/static, web/blueprints, web/shared.py,
@@ -275,6 +321,46 @@ uses a non-link word. The link-jump UI does not appear on it. The save stays byt
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -q "^function plainEventKind(n)" src/aef-workflow-designer.html
+grep -q 'leg browser "_t1366-plain-event-kinds" _leg_222' tests/run-bridge-tests.sh
+test -f tests/fixtures/t1366/plain-event-kinds.bpmn
+export PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH"; node tools/_t1366-plain-event-kinds-cdp.mjs >/dev/null
+export PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH"; python3 tools/_t1222-event-definitions-kept.py >/dev/null
+test -f docs/reports/T-1366-evidence/events-1920-zoom.png && test -f docs/reports/T-1366-evidence/panel-1024.png
+
+## Visual Verification
+
+Screenshots by `node tools/_t1366-shots.mjs` (with `T1366_BEFORE` = the pre-T-1366 source) of
+`tests/fixtures/t1366/plain-event-kinds.bpmn`, in `docs/reports/T-1366-evidence/`. Each one was read.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| canvas, opening | conditional catch: lined-sheet marker, id `tea_conditional_status` | ok | ok | ok | events-{W}.png; 3x in events-{W}-zoom.png |
+| canvas, opening | signal catch: outlined triangle, id `tea_signal_recall` | ok | ok | ok | |
+| canvas, opening | signal throw: filled triangle, id `tea_signal_send` | ok | ok | ok | |
+| canvas, opening | message, timer, plain catch: unchanged (envelope, clock, empty ring; `tea_link_plain` kept) | ok | ok | ok | compared with events-1920-zoom-before.png |
+| canvas, opening | every name and id below its event, no overlap | ok | ok | ok | see note 1 |
+| panel, conditional selected | header `conditionalEvent`, kind text, condition `status = Qualified`, no handoff button | ok | ok | ok | panel-{W}.png |
+| window | toolbar (two rows at 1024 and 1440, one at 1920), both side panels | ok | ok | ok | nothing clipped or off-screen |
+
+What was read, per screenshot:
+- **events-1920-zoom-before.png (0.35.0):** conditional, signal catch and signal throw are empty double rings, and
+  their ids read `tea_link_status`, `tea_link_recall` and `tea_link_send`.
+- **events-1920-zoom.png:** the three markers are drawn and readable. The message envelope and the timer clock are
+  unchanged, and the plain catch is still an empty ring (`tea_link_plain`, out of scope). All eight labels sit below
+  their events at 150 px spacing.
+- **events-{1024,1440,1920}.png:** a one-lane pool at the opening zoom, with every element inside it. The authority
+  notice is unchanged, and the toolbar and panels are complete.
+- **panel-{1024,1440,1920}.png:** the right panel shows the header, display id, the "Event kind" section with the
+  condition in a quoted mono block, and the I/O contract below. Nothing is cut off at 1024.
+- **Greenfield's real map** (wt01-io-v11, not committed: client data): at 1440 "Lead status Qualified in Salesforce"
+  shows the marker, its id reads `sal_conditional_lead`, and its label stays below the event, unchanged.
+
+Note 1: in a first version of the fixture the events stood 110 px apart. There, the longer id
+(`tea_conditional_status`, 4 characters longer than `tea_link_status`) no longer fitted between its neighbours, and
+the label placer put it above the event, on the pool's title band. That is the existing placement behaviour for any
+long label in a cramped one-lane pool, not something this change introduces. Greenfield's real map and the fixture at
+150 px do not show it. It is recorded here so it is not mistaken for an unseen regression.
 
 ## RCA
 
@@ -291,6 +377,20 @@ uses a non-link word. The link-jump UI does not appear on it. The save stays byt
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** greenfield's state-change trigger ("Lead status Qualified in Salesforce", a `bpmn:conditionalEventDefinition`)
+was drawn as an empty double ring with the id `sal_link_lead`. Its panel said it "carries no kind" and offered "Make
+this a handoff".
+**Root cause:** the importer types an intermediate catch event only when its definition is error, timer or message
+(`EVENT_KIND_TYPE`). Every other kind stays `linkEventCatch`. T-1222 kept those definitions on save and T-308/T-1222
+drew them as a plain event, but nothing read the kept definition for display. So the kind was in memory and in the
+saved file, and never on screen. The id word came from `STEP_WORD[linkEventCatch] = 'link'`.
+**Why structurally allowed:** T-1222's tests asked whether a definition survives a save (49 → 49), not whether a
+person can see which kind it is. The kitchen-sink fixture has conditional and signal events, but no check looked at
+their marker or id word.
+**Prevention:** `tools/_t1366-plain-event-kinds-cdp.mjs` (leg 222) asserts the marker, the id word and the panel text
+per kind, and is red on the old source. Kinds with no marker yet (escalation, compensate, ...) still draw as the plain
+event. Adding one means one entry in `PLAIN_KIND_WORD` and one branch in `plainKindMarker`.
 
 ## Evolution
 
@@ -356,6 +456,20 @@ uses a non-link word. The link-jump UI does not appear on it. The save stays byt
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-11-02 — display the kind on the plain event, do not add node types
+- **Chose:** keep conditional and signal events on T-1222's plain-event path (node type unchanged). Read their kind
+  from the native definition kept on import. Draw BPMN's marker, use the kind as the id word, and head and explain them
+  in the panel.
+- **Why:** it is a display defect, and the data was already right. New node types would touch about 15 tables (palette,
+  sizes, field plans, export tags, EVENT_KIND, the validator's vocabulary, the YAML bridge) and invite authoring
+  conditional and signal events, whose editing T-1363 has not decided. The plain-event path also keeps the T-1222
+  reviewer ruling that these are "never link semantics".
+- **Rejected:** typed `eventConditional` / `eventSignal` node types (scope, an undecided authoring model). Shortening
+  the id word to `cond` to keep labels narrow (it reads worse, and the label overlap appeared only in a cramped
+  synthetic layout; see Visual Verification note 1).
+- **Consequence:** the save renames these events' ids from `…_link_…` to `…_conditional_…` / `…_signal_…`. AEF
+  stores node ids, so the release notes must name it.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -372,3 +486,7 @@ uses a non-link word. The link-jump UI does not appear on it. The save stays byt
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1366-a-conditional-intermediate-catch-event-f.md
 - **Context:** Initial task creation
+
+### 2026-11-02T07:56:55Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

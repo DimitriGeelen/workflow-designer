@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" id="Defs_1366" targetNamespace="http://example.com/t1366" exporter="Camunda Modeler" exporterVersion="5.0.0">
+  <bpmn:process id="Proc_1366" isExecutable="true">
+    <bpmn:laneSet id="LS"><bpmn:lane id="L1" name="Team"><bpmn:flowNodeRef>S</bpmn:flowNodeRef><bpmn:flowNodeRef>C</bpmn:flowNodeRef><bpmn:flowNodeRef>SC</bpmn:flowNodeRef><bpmn:flowNodeRef>M</bpmn:flowNodeRef><bpmn:flowNodeRef>T</bpmn:flowNodeRef><bpmn:flowNodeRef>N</bpmn:flowNodeRef><bpmn:flowNodeRef>ST</bpmn:flowNodeRef><bpmn:flowNodeRef>E</bpmn:flowNodeRef></bpmn:lane></bpmn:laneSet>
+    <bpmn:startEvent id="S" name="Start"/>
+    <bpmn:intermediateCatchEvent id="C" name="Status Qualified"><bpmn:conditionalEventDefinition id="C_def"><bpmn:condition xsi:type="bpmn:tFormalExpression">status = Qualified</bpmn:condition></bpmn:conditionalEventDefinition></bpmn:intermediateCatchEvent>
+    <bpmn:intermediateCatchEvent id="SC" name="Recall signal"><bpmn:signalEventDefinition id="SC_def"/></bpmn:intermediateCatchEvent>
+    <bpmn:intermediateCatchEvent id="M" name="Order received"><bpmn:messageEventDefinition id="M_def"/></bpmn:intermediateCatchEvent>
+    <bpmn:intermediateCatchEvent id="T" name="Two days"><bpmn:timerEventDefinition id="T_def"><bpmn:timeDuration>P2D</bpmn:timeDuration></bpmn:timerEventDefinition></bpmn:intermediateCatchEvent>
+    <bpmn:intermediateCatchEvent id="N" name="Plain catch"></bpmn:intermediateCatchEvent>
+    <bpmn:intermediateThrowEvent id="ST" name="Send recall"><bpmn:signalEventDefinition id="ST_def"/></bpmn:intermediateThrowEvent>
+    <bpmn:endEvent id="E" name="Done"/>
+    <bpmn:sequenceFlow id="F0" sourceRef="S" targetRef="C"/>
+    <bpmn:sequenceFlow id="F1" sourceRef="C" targetRef="SC"/>
+    <bpmn:sequenceFlow id="F2" sourceRef="SC" targetRef="M"/>
+    <bpmn:sequenceFlow id="F3" sourceRef="M" targetRef="T"/>
+    <bpmn:sequenceFlow id="F4" sourceRef="T" targetRef="N"/>
+    <bpmn:sequenceFlow id="F5" sourceRef="N" targetRef="ST"/>
+    <bpmn:sequenceFlow id="F6" sourceRef="ST" targetRef="E"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="D1"><bpmndi:BPMNPlane id="PL1" bpmnElement="Proc_1366">
+    <bpmndi:BPMNShape id="S_di" bpmnElement="S"><omgdc:Bounds x="120" y="77" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="C_di" bpmnElement="C"><omgdc:Bounds x="270" y="77" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="SC_di" bpmnElement="SC"><omgdc:Bounds x="420" y="77" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="M_di" bpmnElement="M"><omgdc:Bounds x="570" y="77" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="T_di" bpmnElement="T"><omgdc:Bounds x="720" y="77" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="N_di" bpmnElement="N"><omgdc:Bounds x="870" y="77" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="ST_di" bpmnElement="ST"><omgdc:Bounds x="1020" y="77" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="E_di" bpmnElement="E"><omgdc:Bounds x="1170" y="77" width="36" height="36"/></bpmndi:BPMNShape>
+  </bpmndi:BPMNPlane></bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -2335,6 +2335,10 @@ const STEP_WORD = {
   eventError: 'error', eventTimer: 'timer', eventMessage: 'message',
 };
 function stepWordOf(node) {
+  // T-1366: a plain third-party event whose native kind the canvas marks (conditional, signal) is named by that kind,
+  // not "link": it is not a link (T-1222 reviewer ruling), and the id said otherwise.
+  const plainWord = PLAIN_KIND_WORD[plainEventKind(node)];
+  if (plainWord) return plainWord;
   if (STEP_WORD[node.type]) return STEP_WORD[node.type];
   const tag = node.foreignTag || '';
   if (/Gateway$/.test(tag)) return 'gw';
@@ -4096,6 +4100,28 @@ function isPlainEvent(n) {
   return !!n && (n.type === 'linkEventCatch' || n.type === 'linkEventThrow') && !n.linkDef
     && (n.nativeEventDefs || []).length > 0;
 }
+// T-1366: the BPMN kind of a plain event's native definition ('conditional', 'signal', 'escalation', ...), or ''.
+// Read from the definition kept verbatim on import (T-1222); only the kinds in PLAIN_KIND_WORD get a marker and an id
+// word, the rest stay the unmarked plain event.
+function plainEventKind(n) {
+  if (!isPlainEvent(n)) return '';
+  const m = /^<(?:[\w.-]+:)?(\w+)EventDefinition\b/.exec(String(n.nativeEventDefs[0] || '').trim());
+  return m ? m[1] : '';
+}
+const PLAIN_KIND_WORD = { conditional: 'conditional', signal: 'signal' };
+const PLAIN_KIND_TYPE = { conditional: 'conditionalEvent', signal: 'signalEvent' };   // panel header / badge
+// T-1366: BPMN's kind marker inside a plain event: conditional = a lined sheet, signal = a triangle (filled on a throw).
+function plainKindMarker(g, n, cx, cy, stroke) {
+  const kind = plainEventKind(n);
+  if (kind === 'conditional') {
+    g.appendChild(el('rect', { x: cx - 5, y: cy - 6.5, width: 10, height: 13, fill: 'none', stroke, 'stroke-width': '1.2', 'data-kind-marker': kind }));
+    g.appendChild(el('path', { d: `M${cx - 3} ${cy - 3.5} H${cx + 3} M${cx - 3} ${cy - 0.5} H${cx + 3} M${cx - 3} ${cy + 2.5} H${cx + 3}`, stroke, 'stroke-width': '1' }));
+  } else if (kind === 'signal') {
+    const throwing = n.type === 'linkEventThrow';
+    g.appendChild(el('path', { d: `M${cx} ${cy - 6.5} L${cx + 6} ${cy + 4.5} L${cx - 6} ${cy + 4.5} Z`, stroke, 'stroke-width': '1.2',
+                               fill: throwing ? stroke : 'none', 'stroke-linejoin': 'round', 'data-kind-marker': kind }));
+  }
+}
 // T-1222: a catch imported from a third-party bpmn:boundaryEvent keeps its host, with or without a definition (a
 // designer-made link event never carries hostRef: that field belongs to the typed-event schema).
 function isPlainBoundary(n) {
@@ -4271,6 +4297,7 @@ function renderNodes() {
       const stroke = 'var(--text-faint)';
       g.appendChild(el('circle', { cx, cy, r, class: 'node-shape', fill: 'var(--surface-2)', stroke, 'stroke-width': '1.5' }));
       g.appendChild(el('circle', { cx, cy, r: r - 3.5, fill: 'none', stroke, 'stroke-width': '1.2' }));
+      plainKindMarker(g, n, cx, cy, stroke);   // T-1366: conditional / signal kind marker
       // T-1222: a plain third-party boundary catch keeps the BPMN boundary ring (dashed when non-interrupting).
       if (boundaryHostOf(n)) {
         const ringAttrs = { cx, cy, r: r + 3, fill: 'none', stroke, 'stroke-width': '1.2' };
@@ -4285,6 +4312,7 @@ function renderNodes() {
       const stroke = 'var(--text-faint)';
       g.appendChild(el('circle', { cx, cy, r, class: 'node-shape', fill: 'var(--surface-2)', stroke, 'stroke-width': '1.5' }));
       g.appendChild(el('circle', { cx, cy, r: r - 3.5, fill: 'var(--text-faint)', 'fill-opacity': '0.35', stroke, 'stroke-width': '1.2' }));
+      plainKindMarker(g, n, cx, cy, stroke);   // T-1366: a signal throw shows the filled triangle
     } else if (n.type === 'linkEventThrow' || n.type === 'linkEventCatch') {
       // Off-page connector: hollow circle with a chevron arrow inside.
       // Throw = chevron pointing right (data leaves); catch = chevron pointing left (data enters).
@@ -8066,7 +8094,8 @@ function _renderPropsInto(props, details) {
   // T-308: a bare catch event is presented as the neutral intermediate event it
   // actually is — the underlying n.type is unchanged and still exports as
   // <bpmn:intermediateCatchEvent>.
-  props.appendChild(propsHeader(isBareCatchEvent(n) ? 'intermediateEvent' : n.type, lensDeco('ids') ? displayIdOf(n) : '',
+  // T-1366: a plain event with a marked native kind (conditional, signal) is headed by that kind.
+  props.appendChild(propsHeader(PLAIN_KIND_TYPE[plainEventKind(n)] || (isBareCatchEvent(n) ? 'intermediateEvent' : n.type), lensDeco('ids') ? displayIdOf(n) : '',
     details ? null : () => deleteNode(n.id)));   // T-1127: no delete from inside the details view
   if (!details) {   // T-1127: every element can open its full details (a handoff's double-click jumps instead)
     const all = document.createElement('button');
@@ -8173,6 +8202,36 @@ function _renderPropsInto(props, details) {
     const note = document.createElement('div');
     note.className = 'field-hint';
     note.style.cssText = 'display:block;margin:2px 0 8px;line-height:1.45';
+    const kind = plainEventKind(n);   // T-1366: a conditional / signal event says what it waits for
+    if (kind === 'conditional' || kind === 'signal') {
+      let cond = '';
+      if (kind === 'conditional') {
+        const NS = 'http://www.omg.org/spec/BPMN/20100524/MODEL';
+        const d = new DOMParser().parseFromString(
+          `<r xmlns:bpmn="${NS}" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${n.nativeEventDefs[0]}</r>`, 'application/xml');
+        // by local name: a source written with BPMN as the default namespace is kept unprefixed (T-1222 strips xmlns)
+        const c = Array.from(d.getElementsByTagName('*')).find(e => e.localName === 'condition');
+        cond = c ? (c.textContent || '').trim() : '';
+      }
+      note.textContent = kind === 'conditional'
+        ? 'A conditional event: the flow waits here until a condition holds' + (cond ? ':' : ' (the source names none).')
+        : 'A signal event: the flow waits here for a broadcast signal.';
+      sBare.appendChild(note);
+      if (cond) {
+        const q = document.createElement('div');
+        q.className = 'field-hint';
+        q.style.cssText = 'display:block;margin:0 0 8px;padding:6px 8px;border-left:2px solid var(--border);'
+          + 'font-family:var(--mono);color:var(--text);white-space:pre-wrap;overflow-wrap:anywhere';
+        q.textContent = cond;
+        sBare.appendChild(q);
+      }
+      const keep = document.createElement('div');
+      keep.className = 'field-hint';
+      keep.style.cssText = 'display:block;margin:0 0 8px;line-height:1.45';
+      keep.textContent = 'Kept exactly as the source wrote it; the designer does not edit this kind yet.';
+      sBare.appendChild(keep);
+      props.appendChild(sBare);
+    } else {
     note.textContent = 'This event carries no kind and no handoff target — the source says only '
       + 'that something is awaited here. It is valid as it stands and exports unchanged.';
     sBare.appendChild(note);
@@ -8185,6 +8244,7 @@ function _renderPropsInto(props, details) {
     mkBtn.onclick = () => { sessionAuthoredLinks.add(n.uid); renderNodes(); renderProperties(); };
     sBare.appendChild(mkBtn);
     props.appendChild(sBare);
+    }
   } else if (n.type === 'linkEventCatch') {
     // Already presenting as a handoff — hold that reading for the rest of the
     // session so clearing the target field mid-edit doesn't flip the panel out
@@ -8491,6 +8551,7 @@ const LENS_TYPE_WORD = {
   scriptTask: 'Script task', subProcess: 'Sub-process', exclusiveGateway: 'Gateway (one path)',
   parallelGateway: 'Gateway (all paths)', linkEventThrow: 'Handoff out', linkEventCatch: 'Handoff in',
   eventError: 'Error event', eventTimer: 'Timer event', eventMessage: 'Message event', intermediateEvent: 'Event',
+  conditionalEvent: 'Conditional event', signalEvent: 'Signal event',   // T-1366: plain events with a marked kind
 };
 function propsHeader(typeName, id, onDelete) {
   const h = document.createElement('div');
@@ -8528,6 +8589,9 @@ function typeBadgeSvg(t) {
   if (t === 'linkEventCatch') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/><path d="M19 8 L11 14 L19 20" stroke="var(--accent)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   // T-308: neutral badge for a bare catch event — matches the canvas double ring.
   if (t === 'intermediateEvent') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--surface-2)" stroke="var(--text-faint)" stroke-width="1.5"/><circle cx="14" cy="14" r="7.5" fill="none" stroke="var(--text-faint)" stroke-width="1.2"/></svg>';
+  // T-1366: plain events with a marked kind: the neutral double ring plus BPMN's marker, as on the canvas.
+  if (t === 'conditionalEvent') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--surface-2)" stroke="var(--text-faint)" stroke-width="1.5"/><circle cx="14" cy="14" r="7.5" fill="none" stroke="var(--text-faint)" stroke-width="1.2"/><rect x="10.5" y="9.5" width="7" height="9" fill="none" stroke="var(--text-faint)" stroke-width="1"/><path d="M12 12 H16 M12 14 H16 M12 16 H16" stroke="var(--text-faint)" stroke-width="0.9"/></svg>';
+  if (t === 'signalEvent') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--surface-2)" stroke="var(--text-faint)" stroke-width="1.5"/><circle cx="14" cy="14" r="7.5" fill="none" stroke="var(--text-faint)" stroke-width="1.2"/><path d="M14 9.5 L18 17 L10 17 Z" fill="none" stroke="var(--text-faint)" stroke-width="1.1" stroke-linejoin="round"/></svg>';
   if (t === 'eventError') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--red-soft)" stroke="var(--red)" stroke-width="1.5"/><path d="M15 7 L9 15 L13 15 L11 21 L18 12 L14 12 Z" fill="var(--red)" stroke="none"/></svg>';
   if (t === 'eventTimer') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="1.5"/><circle cx="14" cy="14" r="6" fill="none" stroke="var(--blue)" stroke-width="1.2"/><path d="M14 14 V9 M14 14 L17.5 16" stroke="var(--blue)" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>';
   if (t === 'eventMessage') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--green-soft)" stroke="var(--green)" stroke-width="1.5"/><rect x="8" y="10" width="12" height="8" rx="1" fill="none" stroke="var(--green)" stroke-width="1.3"/><path d="M8 10.5 L14 15 L20 10.5" stroke="var(--green)" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';

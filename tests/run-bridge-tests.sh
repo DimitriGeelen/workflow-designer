@@ -1782,6 +1782,22 @@ else
 fi
 }
 leg browser "_t1350-dense-boundary" _leg_221
+
+_leg_222() {
+
+# ── T-1366: a conditional or signal event from another tool's file is drawn and named as what it is, not as a link ──
+# Synthetic map, one intermediate event per native kind: conditional catch, signal catch and signal throw draw BPMN's
+# marker and name the kind in their display id; message/timer and a definition-less catch are unchanged; the panel
+# heads the conditional "conditionalEvent"; the save keeps every definition and is stable. Red on the pre-T-1366 source.
+if node "$ROOT/tools/_t1366-plain-event-kinds-cdp.mjs" > "$TMP/leg-_t1366.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a conditional or signal event from another tool's file is drawn without its kind marker or named 'link' again, or a native definition is lost on save (run 'node tools/_t1366-plain-event-kinds-cdp.mjs'; T-1366)"
+  show_output "$TMP/leg-_t1366.out" "_t1366-plain-event-kinds-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1366-plain-event-kinds" _leg_222
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
