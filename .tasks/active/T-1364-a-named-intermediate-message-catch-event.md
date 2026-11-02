@@ -107,9 +107,9 @@ read in full on the canvas or on hover.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Reproduced on 0.35.0 with greenfield's wt01-io-v11 v8: for each of the four intermediate events, record the
+- [x] Reproduced on 0.35.0 with greenfield's wt01-io-v11 v8: for each of the four intermediate events, record the
   rendered label text, whether it is cut, and its box, with a screenshot read in this task.
-- [ ] H1 or H2 decided from that evidence (`## RCA`). For H2: a fix, plus a harness leg with a synthetic fixture (a
+- [x] H1 or H2 decided from that evidence (`## RCA`). For H2: a fix, plus a harness leg with a synthetic fixture (a
   51-character event name in a lane) that fails before the fix and passes after.
 
 ### Human
@@ -296,6 +296,11 @@ read in full on the canvas or on hover.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+# The wrap that splits a long below-label name into several node-label lines exists (the H1 mechanism):
+grep -q "^function wrapOverlongBelowLabels()" src/aef-workflow-designer.html
+# The RCA records the decision and the evidence:
+grep -q "Root cause:\*\* not a designer defect (H1)" .tasks/*/T-1364-*.md
+grep -q "Reproduced 2026-11-02" .tasks/*/T-1364-*.md
 
 ## RCA
 
@@ -312,6 +317,31 @@ read in full on the canvas or on hover.
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Reproduced 2026-11-02** on 0.35.0 (src at HEAD) with greenfield's wt01-io-v11 (sha256 f858979f…, kept in ignored
+build/peer-data/greenfield/). A scratch CDP probe opened the map in the real editor at 1024, 1440 and 1920 and read
+every event's rendered name lines (the probe loads client data, so it is not committed):
+
+| Event | Name length | Rendered | Complete |
+|---|---|---|---|
+| GenerateFirmProposal in Tacton (message) | 30 | 1 line | yes |
+| Getekende orderbevestiging ontvangen (van de klant) (message) | 51 | 2 lines: "Getekende orderbevestiging" / "ontvangen (van de klant)" | yes |
+| CreateOpenOrder in Tacton (message) | 25 | 1 line | yes |
+| Lead status Qualified in Salesforce (conditional, shown as link catch) | 35 | 1 line | yes |
+
+At all three widths every line was visible and inside the viewport. In a 6x clip screenshot at 1440, the two-line
+name stands beside the event, left of `ver_7_getekende`, readable.
+
+**Symptom:** greenfield's check reported the name of `ev_ver_7_getekende` as not drawn.
+**Root cause:** not a designer defect (H1). Names over the cap (165 px at size m) are wrapped onto several `<text>`
+lines by `wrapOverlongBelowLabels` (T-105). The break fell between "orderbevestiging" and "ontvangen", which is
+exactly inside the substring greenfield searched for in a single `.node-label` element.
+**Why structurally allowed:** a check outside the designer read one SVG text element as one name, which does not hold
+for wrapped names.
+**Prevention:** told greenfield to join a node's `.node-label` lines (by `data-nl`) before matching. No designer change.
+**Side finding, filed separately (one bug = one task):** a conditional intermediate catch event opens as a
+`linkEventCatch`. It is drawn as a plain double circle with no condition marker, and its display id reads
+`sal_link_lead`, because the importer only types error, timer and message definitions (EVENT_KIND_TYPE).
 
 ## Evolution
 
