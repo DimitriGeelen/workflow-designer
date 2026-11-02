@@ -407,6 +407,29 @@ bvp_scores_proposed:
     record is a candidate term for T-4991.
 - **Next:** greenfield sends the file (owner-approved, kept out of the repo). Then 832 reviews each io.
 
+### 2026-11-02 — 832's per-io review of wt01-io-v11 (sent to greenfield as msg a32b0d28)
+- **Received:** map f858979f… (two parts, joined and verified) and catalog rows d1c744be… (106 rows, all with a value
+  shape and an object). Both are in ignored build/peer-data/greenfield/, with the review text
+  (wt01-io-v11-review-832.md).
+- **Validator (0.35.0 rules):** 0 errors, 29 warnings (28 lanes with no owner, 1 gateway without conditions).
+- **Script check of all 44 io on 20 steps** (scratch script, not committed: it reads client data):
+  - every fieldRef resolves in the catalog;
+  - every field's object equals its io's typeRef;
+  - every update or upsert has a match;
+  - no input writes;
+  - every expect value fits its attribute's shape;
+  - all 36 Mapping lines name a distinct IRI.
+  The only mismatches are the two agreed by design: pass-through via NavGateway, and the rule-F message.
+- **Judgement findings sent:**
+  1. `nav_3_prospect`: an update that writes nothing.
+  2. Two inputs with no key: use a keyless match (R3) so the gap shows.
+  3. Opportunity contact role should be its own entity.
+  4. Use role create only inside upserts.
+  5. The "not Closed Won" pattern: keep it; "not" is a candidate keyword for AEF.
+  6. 60 catalog rows have no notation.
+- **Also:** T-1364 closed as not a defect (the name was wrapped). New designer bug **T-1366**: conditional catch events
+  open as link catch. Greenfield data: the start event's name is cut off ("Lead binnen (web").
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
