@@ -1,0 +1,38 @@
+{
+ "version": 1,
+ "generatedBy": "T-1365 synthetic fixture (made-up rows, no client data)",
+ "attributes": [
+  {
+   "ref": "ex:attr-order-id",
+   "notation": "crm:Order.Id",
+   "label": "Id (CRM Order)",
+   "system": "ex:app-crm",
+   "systemLabel": "CRM",
+   "entity": "ex:entity-order",
+   "dataType": "id",
+   "keyRole": "keyPrimary",
+   "shape": "ex:shape-attr-order-id",
+   "datatype": "xsd:string",
+   "maxLength": "18",
+   "pattern": "^ORD[A-Z0-9]{15}$",
+   "description": "CRM record id, 18 characters, starts with ORD",
+   "example": "ORD000000000000AAA",
+   "valueSource": "set by the CRM on create"
+  },
+  {
+   "ref": "ex:attr-order-status",
+   "notation": "crm:Order.Status",
+   "label": "Status (CRM Order)",
+   "system": "ex:app-crm",
+   "systemLabel": "CRM",
+   "entity": "ex:entity-order",
+   "dataType": "picklist",
+   "keyRole": "",
+   "shape": "ex:shape-attr-order-status",
+   "datatype": "xsd:string",
+   "description": "CRM picklist",
+   "in": ["Open", "Complete", "Cancelled"],
+   "derivedFrom": "follows the order state in the quoting tool"
+  }
+ ]
+}

@@ -274,3 +274,5 @@ _t1278-shots.py
 _t1282-shots.py
 # screenshot generator for T-1366's evidence (plain conditional/signal event markers and the panel at three widths, before/after), not a guard; same class as _t1241-lens-shots
 _t1366-shots.mjs
+# screenshot generator for T-1365's evidence (the io panel's value rules, folded and opened, at three widths), not a guard; same class as _t1241-lens-shots
+_t1365-shots.mjs

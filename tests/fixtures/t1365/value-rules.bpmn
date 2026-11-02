@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:aef="http://anchorpoint.framework/aef/extensions" id="Defs_1365" targetNamespace="http://example.com/t1365">
+  <bpmn:process id="Proc_1365" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:meta mappingVersion="1.1"><aef:prefixes><aef:prefix name="ex" iri="https://example.com/catalog/"/></aef:prefixes></aef:meta>
+      <aef:workflowMeta id="t1365-value-rules" title="T-1365 value rules (synthetic)"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LS"><bpmn:lane id="L1" name="Sales"><bpmn:flowNodeRef>S</bpmn:flowNodeRef><bpmn:flowNodeRef>T</bpmn:flowNodeRef><bpmn:flowNodeRef>E</bpmn:flowNodeRef></bpmn:lane></bpmn:laneSet>
+    <bpmn:startEvent id="S" name="Start"/>
+    <bpmn:task id="T" name="Register the order">
+      <bpmn:extensionElements>
+        <aef:io>
+          <aef:output name="Order" typeRef="ex:entity-order" targetSystem="ex:app-crm" operation="update">
+            <aef:field fieldRef="ex:attr-order-id" role="match"/>
+            <aef:field fieldRef="ex:attr-order-status" role="write"/>
+            <aef:field fieldRef="ex:attr-order-unknown" role="write"/>
+            <aef:field path="Order.note" role="write"/>
+            <aef:expect fieldRef="ex:attr-order-status" const="Open" description="a new order starts open"/>
+          </aef:output>
+        </aef:io>
+      </bpmn:extensionElements>
+    </bpmn:task>
+    <bpmn:endEvent id="E" name="Done"/>
+    <bpmn:sequenceFlow id="F1" sourceRef="S" targetRef="T"/>
+    <bpmn:sequenceFlow id="F2" sourceRef="T" targetRef="E"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="D1"><bpmndi:BPMNPlane id="PL1" bpmnElement="Proc_1365">
+    <bpmndi:BPMNShape id="S_di" bpmnElement="S"><dc:Bounds x="120" y="77" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="T_di" bpmnElement="T"><dc:Bounds x="220" y="55" width="100" height="80"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="E_di" bpmnElement="E"><dc:Bounds x="390" y="77" width="36" height="36"/></bpmndi:BPMNShape>
+  </bpmndi:BPMNPlane></bpmndi:BPMNDiagram>
+</bpmn:definitions>

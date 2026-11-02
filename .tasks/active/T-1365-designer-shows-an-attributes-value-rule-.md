@@ -1,13 +1,17 @@
 ---
 id: T-1365
-name: "Designer shows an attribute's value rule (catalog shape: datatype, maxLength, pattern, allowed values, description, example) on each io field"
+name: "Designer shows an attribute's value rule (catalog shape: datatype, maxLength,
+  pattern, allowed values, description, example) on each io field"
 description: >
-  The io panel shows, for each aef:field whose fieldRef resolves in the project's field catalog, the catalog row's value rule (shape keys from greenfield's SHACL property shapes), read-only.
+  The io panel shows, for each aef:field whose fieldRef resolves in the project's
+  field catalog, the catalog row's value rule (shape keys from greenfield's SHACL
+  property shapes), read-only.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: [T-1361, T-1363, T-1312]
@@ -39,8 +43,8 @@ origin: {kind: "operator"}
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-01T23:28:23Z
-last_update: 2026-11-01T23:28:23Z
-date_finished: null
+last_update: '2026-11-02T08:51:15Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -51,6 +55,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-02T08:51:15Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1365: Designer shows an attribute's value rule (catalog shape: datatype, maxLength, pattern, allowed values, description, example) on each io field
@@ -83,14 +107,19 @@ map syntax), but its layout should leave room for that outcome.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] For an `aef:field` whose `fieldRef` matches a catalog row's `ref`, the io panel shows that row's `datatype`,
+- [x] For an `aef:field` whose `fieldRef` matches a catalog row's `ref`, the io panel shows that row's `datatype`,
   `maxLength`, `pattern`, `in` (as a list), `description`, `example`, `valueSource` and `derivedFrom`, where present.
   Absent keys are not shown.
-- [ ] A field with no catalog row, or a project with no catalog (404), shows the field as today, with no error.
-- [ ] Open → save of a map with structured io gives byte-identical output with and without the catalog: display only.
-- [ ] A CDP harness leg covers the three cases above, using a synthetic catalog fixture (made-up rows, no greenfield
-  data), and runs in the core tier.
-- [ ] `bash tools/person-sees-gate.sh` exits 0, and screenshots at 1024/1440/1920 are read in `## Visual Verification`.
+<!-- Revised 2026-11-02 while building: with a catalog loaded, a fieldRef it does not know now SAYS so (more useful than
+     silence, and it is how greenfield found its missing rows); the leg is browser tier like every CDP leg (core is
+     hermetic, no browser). -->
+- [x] A project with no catalog (404) shows the field rows as today, with no error. With a catalog loaded, a fieldRef
+  it does not know says "not in the project's field catalog: no value rule", and a field addressed by path gets no
+  rule line.
+- [x] Open → save of a map with structured io gives byte-identical output with and without the catalog: display only.
+- [x] A CDP harness leg covers the three cases above, using a synthetic catalog fixture (made-up rows, no greenfield
+  data): `tools/_t1365-value-rules-cdp.mjs`, leg 223, browser tier, red on the pre-T-1365 source.
+- [x] `bash tools/person-sees-gate.sh` exits 0, and screenshots at 1024/1440/1920 are read in `## Visual Verification`.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -137,6 +166,22 @@ map syntax), but its layout should leave room for that outcome.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+- [ ] [REVIEW] A person editing an io can see how each attribute's value must be built, without leaving the panel
+  **Steps:**
+  1. Look at `docs/reports/T-1365-evidence/panel-{1024,1440,1920}.png`: the step "Register the order" selected, its
+     output's editor open, rules folded. Under each field: one summary line.
+  2. Look at `docs/reports/T-1365-evidence/panel-{1024,1440,1920}-open.png` and `fields-{1024,1440,1920}-open.png`
+     (2x): every rule opened.
+  **Expected:** Under `ex:attr-order-id` the summary reads `crm:Order.Id · string · max 18 · pattern · e.g. ORD…`.
+  Opened, it lists meaning, format, type, pattern `^ORD[A-Z0-9]{15}$`, the example marked "made up, shape only", where
+  the value comes from, the system and the rule id. `ex:attr-order-status` shows "one of 3" and, opened, the allowed
+  values `Open | Complete | Cancelled` and what the status follows. `ex:attr-order-unknown` says it is not in the
+  project's field catalog. `Order.note` (a path) has no rule line. The rule text is readable, distinct from the editable
+  fields above it, and nothing overlaps or is cut off. The toolbar and both side panels are complete at all three
+  widths.
+  **If not:** name the screenshot and what is wrong (unreadable, clipped, confusable with an editable field,
+  misleading).
+  For the independent reviewer: `fw reviewer judge T-1365 --criterion 1`
 
 ## Verification
 
@@ -276,6 +321,35 @@ map syntax), but its layout should leave room for that outcome.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -q "^function ioFieldRule(ref)" src/aef-workflow-designer.html
+grep -q 'leg browser "_t1365-value-rules" _leg_223' tests/run-bridge-tests.sh
+test -f tests/fixtures/t1365/field-catalog.json && test -f tests/fixtures/t1365/value-rules.bpmn
+export PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH"; node tools/_t1365-value-rules-cdp.mjs >/dev/null
+test -f docs/reports/T-1365-evidence/fields-1440-open.png && test -f docs/reports/T-1365-evidence/panel-1024.png
+
+## Visual Verification
+
+Screenshots by `node tools/_t1365-shots.mjs`: the synthetic map `tests/fixtures/t1365/value-rules.bpmn` with the
+synthetic catalog `tests/fixtures/t1365/field-catalog.json` served as `/api/field-catalog`, the step selected and its
+output's editor open. In `docs/reports/T-1365-evidence/`. Each one was read.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| io editor, rules folded | one summary line under each catalogued field (name · type · max · pattern · example / one of N) | ok | ok | ok | panel-{W}.png |
+| io editor, rules opened | meaning, format, type, pattern, example (made up), comes from / derived, allowed, system, rule | ok | ok | ok | panel-{W}-open.png, fields-{W}-open.png (2x) |
+| io editor | unknown fieldRef: "not in the project's field catalog: no value rule" (muted, italic) | ok | ok | ok | |
+| io editor | path field: no rule line | ok | ok | ok | |
+| io editor | the editable controls (kind, address, role, cardinality, req, ×) unchanged above each rule | ok | ok | ok | |
+| window | toolbar, both side panels | ok | ok | ok | at 1024 the panel scrolls to the fields, as before |
+
+What was read:
+- **fields-1440-open.png:** the rules sit under the field's controls in smaller muted text, with a disclosure triangle,
+  so they do not read as fields to edit. The pattern and example are in mono. "(made up, shape only)" stands beside the
+  example. The allowed values are separated by " | ". The muted italic line under the unknown field is distinct from a
+  rule.
+- **panel-1024.png:** the folded summaries fit the 300 px panel. The id summary wraps its example onto a second line,
+  and nothing is clipped. The toolbar wraps to two rows, as before.
+- **panel-1920-open.png:** everything fits. The rule text is small but legible, at the size the rest of the panel uses.
 
 ## RCA
 
@@ -357,6 +431,21 @@ map syntax), but its layout should leave room for that outcome.
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-11-02 — where and how the value rule shows
+- **Chose:** a read-only line under each field row in the io editor. It starts folded, as one summary line (readable
+  name · type · max length · pattern · example or "one of N"), and a disclosure opens the full rule. The rule keys are
+  read straight from the catalog row (catalog contract T-1312 already carries them through), using SHACL's names (the
+  split agreed with greenfield and AEF, T-1361 / T-1363 IW-4).
+- **Why:**
+  - The summary answers the question "how is this value built" at a glance. The full rule is one click away.
+  - The panel stays short for io with many fields: WT-01's Account output has 9.
+  - Read-only, because the rule belongs to the attribute's definition in the producer's ontology, not to the map
+    (AEF T-4415 C).
+- **Rejected:**
+  - Always opened: too tall with 9+ fields.
+  - Only a tooltip: not visible, not readable on touch, not in a screenshot.
+  - Editing the rule in the designer: it would write to the wrong place (the map instead of the ontology).
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -373,3 +462,7 @@ map syntax), but its layout should leave room for that outcome.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1365-designer-shows-an-attributes-value-rule-.md
 - **Context:** Initial task creation
+
+### 2026-11-02T08:51:15Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

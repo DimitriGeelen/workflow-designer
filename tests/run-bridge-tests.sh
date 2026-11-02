@@ -1798,6 +1798,22 @@ else
 fi
 }
 leg browser "_t1366-plain-event-kinds" _leg_222
+
+_leg_223() {
+
+# ── T-1365: the io panel shows how an attribute's value is built, from the project's field catalog ──
+# Synthetic map + catalog: no catalog = field rows as before; with one, a fieldRef the catalog knows shows its rule
+# (datatype, max length, pattern, allowed values, format, made-up example, source), an unknown one says so, a path field
+# gets none; the save is byte-identical before and after (display only). Red on the pre-T-1365 source.
+if node "$ROOT/tools/_t1365-value-rules-cdp.mjs" > "$TMP/leg-_t1365.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "an io field no longer shows its value rule from the field catalog, an unknown or path field shows a wrong one, or showing it changed the save (run 'node tools/_t1365-value-rules-cdp.mjs'; T-1365)"
+  show_output "$TMP/leg-_t1365.out" "_t1365-value-rules-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1365-value-rules" _leg_223
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

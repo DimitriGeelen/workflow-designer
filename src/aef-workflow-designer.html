@@ -1278,6 +1278,15 @@ font-family: 'Outfit';
   .io-field-line2 select { flex: 1 1 0; min-width: 0; width: auto; }
   .io-field-line2 select[data-fattr="cardinality"] { flex-grow: 1.35; }   /* room for "cardinality —" (T-1302 sweep) */
   .io-field-row + .io-field-row { border-top: 1px dotted var(--border); padding-top: 5px; }   /* where a field ends (sweep) */
+  /* T-1365: the attribute's value rule from the project's field catalog, under its field row (read-only) */
+  .io-field-rule { grid-column: 1 / -1; min-width: 0; font-size: 10.5px; line-height: 1.45; color: var(--text-dim); overflow-wrap: anywhere; }
+  .io-field-rule summary { cursor: pointer; list-style-position: inside; }
+  .io-field-rule .r-name { color: var(--text); font-family: var(--mono); }
+  .io-field-rule .r-mono { font-family: var(--mono); }
+  .io-field-rule dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 2px 8px; margin: 4px 0 2px 12px; }
+  .io-field-rule dt { color: var(--text-faint); }
+  .io-field-rule dd { margin: 0; min-width: 0; color: var(--text); }
+  .io-field-rule.none { color: var(--text-faint); font-style: italic; }
   .io-field-when { font-family: var(--mono); font-size: 10px; color: var(--text-dim); white-space: nowrap; }
   .io-attr-hint { grid-column: 2; font-size: 10px; color: var(--orange); }
   .io-attr-hint:empty { display: none; }
@@ -7315,6 +7324,64 @@ async function loadFieldCatalog() {
   } catch (e) { _fieldCatalog = null; aefRecordFault('field-catalog:load', e); }
   if (typeof renderProperties === 'function') renderProperties();
 }
+// T-1365: an attribute's value rule, shown under an aef:field whose fieldRef the catalog knows. The rule keys come from
+// the producer's SHACL property shape (greenfield: datatype, maxLength, pattern, in, description) plus its own
+// example / valueSource / derivedFrom; catalog contract T-1312 carries them through untouched. Read-only: nothing here
+// writes the map. null = no catalog, or the field is addressed by path (no rule to look up).
+function catalogRowFor(ref) { return (_fieldCatalog && ref) ? (_fieldCatalog.find(x => x.ref === ref) || null) : null; }
+function ruleValues(v) {   // `in`: an array, or a "|"-separated text
+  if (Array.isArray(v)) return v.filter(x => x !== null && x !== undefined && String(x) !== '').map(String);
+  return typeof v === 'string' && v.trim() ? v.split('|').map(s => s.trim()).filter(Boolean) : [];
+}
+function ioFieldRule(ref) {
+  if (!_fieldCatalog || !ref) return null;
+  const x = catalogRowFor(ref);
+  const box = document.createElement('div');
+  box.className = 'io-field-rule';
+  if (!x) {
+    box.classList.add('none'); box.dataset.rule = 'none';
+    box.textContent = 'not in the project\'s field catalog: no value rule';
+    return box;
+  }
+  box.dataset.rule = 'catalog';
+  const txt = v => (typeof v === 'string' || typeof v === 'number') ? String(v).trim() : '';
+  const values = ruleValues(x.in);
+  const dtype = txt(x.datatype).replace(/^xsd:/, '');
+  const bits = [];   // the one-line summary
+  if (dtype) bits.push(dtype);
+  if (txt(x.maxLength)) bits.push('max ' + txt(x.maxLength));
+  if (txt(x.pattern)) bits.push('pattern');
+  if (values.length) bits.push('one of ' + values.length);
+  else if (txt(x.example)) bits.push('e.g. ' + txt(x.example));
+  const det = document.createElement('details');
+  const sum = document.createElement('summary');
+  const nm = document.createElement('span');
+  nm.className = 'r-name';
+  nm.textContent = txt(x.notation) || txt(x.label) || x.ref;
+  sum.append(nm, document.createTextNode(bits.length ? ' · ' + bits.join(' · ') : ' · no value rule in the catalog'));
+  sum.title = 'how a value of this attribute is built (from the project\'s field catalog); click for the full rule';
+  det.appendChild(sum);
+  const dl = document.createElement('dl');
+  const add = (k, v, mono) => {
+    if (!v) return;
+    const dt = document.createElement('dt'); dt.textContent = k;
+    const dd = document.createElement('dd'); dd.textContent = v; if (mono) dd.className = 'r-mono';
+    dl.append(dt, dd);
+  };
+  add('meaning', txt(x.label));
+  add('format', txt(x.description));
+  add('type', [dtype, txt(x.maxLength) && ('max length ' + txt(x.maxLength)), txt(x.unit)].filter(Boolean).join(', '));
+  add('pattern', txt(x.pattern), true);
+  add('allowed', values.join(' | '));
+  add('example', txt(x.example) && (txt(x.example) + '  (made up, shape only)'), true);
+  add('comes from', txt(x.valueSource));
+  add('derived', txt(x.derivedFrom));
+  add('system', txt(x.systemLabel) || txt(x.system));
+  add('rule', txt(x.shape), true);
+  det.appendChild(dl);
+  box.appendChild(det);
+  return box;
+}
 const IO_CAT_MAX = 8;   // hits listed at once; type more words to narrow
 function ioCatalogMatches(q) {   // every word of q in the row's notation, label or ref (case-insensitive)
   const words = q.toLowerCase().split(/\s+/).filter(Boolean);
@@ -9344,6 +9411,8 @@ function ioFieldsEditor(item) {
     del.onclick = () => { item.children = item.children.filter((_, j) => j !== i); if (!item.children.length) delete item.children; renderProperties(); };
     line2.appendChild(del);
     row.append(ks, addr, line2);
+    const rule = kind === 'fieldRef' ? ioFieldRule(el.getAttribute('fieldRef')) : null;   // T-1365
+    if (rule) row.appendChild(rule);
     sec.appendChild(row);
   });
   const add = document.createElement('div');
