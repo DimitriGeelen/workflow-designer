@@ -130,6 +130,12 @@ refuses the push on red.
 - **Bypass:** `T1288_PREPUSH_BYPASS="<reason>" git push`, logged to `tests/.prepush-bypass.tsv`. The operator's call,
   not a convenience.
 - **Re-install:** the hook is re-installed by `tools/_t1000-install-hook.sh` after framework upgrades.
+- **A change under `src/` also needs the browser tier before it is pushed** (T-1374): `tests/run-bridge-tests.sh --tier
+  browser`, about 17 minutes. The hook runs only core, and the browser legs (byte-identity goldens, the CDP harnesses)
+  are where a designer change shows. T-1366, T-1369 and T-1372 were pushed on core alone, and 0.36.0 and 0.37.0 shipped
+  with a browser leg red until the be.26 upgrade ran both tiers. An intended change of saved bytes is re-recorded
+  deliberately (`node tools/_t358-byteid-thirdparty.mjs --record`), committed alone with its reason. A release job runs
+  the browser tier before it tags.
 
 ### AEF is the designer's main consumer: a release is done only when AEF serves it (operator, 2026-10-17)
 
