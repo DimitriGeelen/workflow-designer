@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1368: runme launcher: a step that is not confirmed records what it received (n, empty Enter, end of input, discarded typeahead), in the log and the STOPPED event
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-02T13:27:27Z
+# ============================================================================
+
+task_id: T-1368
+task_name: "runme launcher: a step that is not confirmed records what it received (n, empty Enter, end of input, discarded typeahead), in the log and the STOPPED event"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-02T12:59:52Z
+completed: 2026-11-02T13:26:05Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-02T14:01:49+01:00
+last_commit: 2026-11-02T14:11:10+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture — job 118 run 2 went unwatched (no re-arm after a STOPPED) and the stop's cause was guessed; watcher keeps watching a pending job after STOPPED, launcher records what it received. a runme stop names what the launcher received (n, empty Enter, end of input, typeahead discarded) in the log and the STOPPED event; every runme-watch exit ends with RE-ARM NOW and the pending jobs; CLAUDE.md: re-arm after every event, report stops as recorded. Tests: launcher legs 35-38, test_t1368 (core), red on the old watch
+
+# Key outcomes
+outcomes:
+  - 'The launcher''s log and STOPPED event name what an unconfirmed step received: `n`/other text, an empty Enter, end'
+  - '`tools/runme-watch.sh` still exits on every event (that wakes the agent), and its output now ends with'
+  - 'CLAUDE.md''s runme section states it: re-arm after every event; a stop is reported with the answer the launcher'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1368-runme-launcher-a-step-that-is-not-confir.md'
+  - 'CLAUDE.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t1055_runme_launcher.py'
+  - 'tests/test_t1368_runme_watch_rearm.py'
+  - 'tools/runme-launcher.sh'
+  - 'tools/runme-signal.sh'
+  - 'tools/runme-watch.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-02T14:01:49'
+    action: 'T-1368: capture — job 118 run 2 went unwatched (no re-arm after a STOPPED) and the stop''s cause was guessed; watcher keeps watching a pending job after STOPPED, launcher records what it received'
+  - time: '2026-11-02T14:11:10'
+    action: 'T-1368: a runme stop names what the launcher received (n, empty Enter, end of input, typeahead discarded) in the log and the STOPPED event; every runme-watch exit ends with RE-ARM NOW and the pending jobs; CLAUDE.md: re-arm after every event, report stops as recorded. Tests: launcher legs 35-38, test_t1368 (core), red on the old watch'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 26 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug, runme]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 26
+  commits: 3
+  files_changed: 11
+  lines_added: 714
+  lines_removed: 24
+  footprint_refreshed_at: '2026-11-02T13:27:35Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1368-runme-launcher-a-step-that-is-not-confir.md
+generated_by: context-agent-hybrid
