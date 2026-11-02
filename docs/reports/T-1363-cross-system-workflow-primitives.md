@@ -155,3 +155,18 @@ not visible on the canvas (filed separately as a possible bug).
   - **Evidence for IW-4:** reading the source system corrected a rule typed by hand. Lead Status has 5 values
     (including Nurturing), not 4. Harvested rules beat hand-written ones.
   - 832 filed the designer display as **T-1365** (horizon next).
+- **2026-11-02, 832 check of greenfield's catalog rows (106; kept out of the repo) and greenfield's answer (msg
+  ef1f148e):**
+  - All rows are valid under the T-1312 contract. Every pattern compiles, and every example fits its pattern, length
+    and allowed values.
+  - But 68 rows named no object (`entity` empty), so a tool could not tell that an attribute belongs to its io's
+    object.
+  - Greenfield filled them in and added a self-check: field entity = io `typeRef`, with rule-F messages exempt. The
+    check found **15 real mismatches** in the map, among them:
+    - two objects read in one io;
+    - an object typed as Customer while its attributes were Account's;
+    - Contact mixed with OpportunityContactRole;
+    - a Solution matched on the Tacton opportunity's key.
+  - **Generalised finding:** the link attribute → object in the ontology plus a cross-check against the io's type is
+    cheap and catches real modelling errors. A candidate bridge check for 832's validator, once the catalog is
+    available to it.
