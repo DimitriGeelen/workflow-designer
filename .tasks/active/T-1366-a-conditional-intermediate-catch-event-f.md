@@ -10,8 +10,8 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
-owner: agent
+current_node: frw_3_run
+owner: human
 horizon: now
 tags: [bug]
 components: []
@@ -152,7 +152,7 @@ uses a non-link word. The link-jump UI does not appear on it. The save stays byt
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-1366 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-- [x] [REVIEW] A conditional or signal event from another tool's file reads as what it is: on the canvas and in the panel
+- [ ] [REVIEW] A conditional or signal event from another tool's file reads as what it is: on the canvas and in the panel
   **Steps:**
   1. Compare `docs/reports/T-1366-evidence/events-1920-zoom-before.png` (0.35.0) with `events-1920-zoom.png` (this
      change): the row Start, Status Qualified (conditional), Recall signal (signal catch), Order received (message),
@@ -182,7 +182,6 @@ uses a non-link word. The link-jump UI does not appear on it. The save stays byt
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-  **Reviewer verdict:** green V-20261102-7159f0fa — reviewer-judge-t-1366-r3-77909b6a8a49:reviewer (rung rung-3-termlink-single-reviewer), digest d344c9b81d69; dispatch judge-t-1366-r3-77909b6a8a49; evidence: .context/reviews/evidence/T-1366/AC1-judge-t-1366-r3-77909b6a8a49.md, .context/reviews/evidence/T-1366/events-1920-zoom-before-judge-t-1366-r3-77909b6a8a49.png, .context/reviews/evidence/T-1366/events-1920-zoom-judge-t-1366-r3-77909b6a8a49.png, .context/reviews/evidence/T-1366/events-1024-zoom-judge-t-1366-r3-77909b6a8a49.png, .context/reviews/evidence/T-1366/events-1440-zoom-judge-t-1366-r3-77909b6a8a49.png, .context/reviews/evidence/T-1366/events-1024-judge-t-1366-r3-77909b6a8a49.png, .context/reviews/evidence/T-1366/events-1440-judge-t-1366-r3-77909b6a8a49.png, .context/reviews/evidence/T-1366/events-1920-judge-t-1366-r3-77909b6a8a49.png, .context/reviews/evidence/T-1366/panel-1024-judge-t-1366-r3-77909b6a8a49.png, .context/reviews/evidence/T-1366/panel-1440-judge-t-1366-r3-77909b6a8a49.png, .context/reviews/evidence/T-1366/panel-1920-judge-t-1366-r3-77909b6a8a49.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
