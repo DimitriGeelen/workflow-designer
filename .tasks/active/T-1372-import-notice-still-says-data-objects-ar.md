@@ -102,12 +102,13 @@ dangling-association line (T-1096) is unchanged.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] The notice counts drawn documents and their associations from the same layout the canvas draws (`dataLayout`),
-  and names as "kept and saved back, not shown yet" only data stores and references that are not drawn. It no longer
-  counts `bpmn:dataObject` definitions as something not shown.
-- [x] On `tests/fixtures/t1369/documents.bpmn` the notice says 2 documents and 4 associations are drawn, and contains
-  no "not shown yet". On a made-up map with a data store and an unlinked reference, both are named as not shown.
-  Asserted by a leg in `tools/_t1369-documents-cdp.mjs` (red on the 0.37.0 source).
+- [x] The notice counts drawn documents and their links from the same layout the canvas draws (`dataLayout`), and
+  names as "in the file and saved back unchanged, but not drawn" only data stores and references that are not drawn,
+  each by name. It no longer counts `bpmn:dataObject` definitions as something not shown. (Wording after the advisory
+  sweep, below.)
+- [x] On `tests/fixtures/t1369/documents.bpmn` the notice says "2 documents drawn … with 4 links to those tasks" and
+  names nothing as not drawn. On a made-up map with a data store (CRM) and an unlinked reference (Memo), both are
+  named as not drawn. Asserted by leg 6 of `tools/_t1369-documents-cdp.mjs` (red on the 0.37.0 source).
 - [x] `bash tools/person-sees-gate.sh` exits 0, and a screenshot of the notice at 1024/1440/1920 is read in
   `## Visual Verification`.
 
@@ -165,9 +166,10 @@ dangling-association line (T-1096) is unchanged.
   **Expected:**
   - Before: the notice says "3 data object/store elements and 4 data associations kept unchanged and saved back, not
     shown yet" while both documents are drawn. That is the defect.
-  - After: the first line reads "2 documents drawn under the tasks that make or use them, with 4 data associations",
-    and the notice does not say "not shown yet".
-  - Extra: a second line reads "1 data store, 1 document no task links to kept unchanged and saved back, not shown yet".
+  - After: the last line reads "2 documents drawn under the tasks that make or use them, with 4 links to those tasks"
+    (last, so the notice's warning sign stays on a warning), and nothing is named as not drawn.
+  - Extra: the first line reads "1 data store (CRM), 1 document no task links to (Memo): in the file and saved back
+    unchanged, but not drawn".
   - The notice wraps without clipping at 1024. The toolbar and both side panels are complete at every width.
   **If not:** name the screenshot and the wording that is wrong or misleading.
   For the independent reviewer: `fw reviewer judge T-1372 --criterion 1`
@@ -321,10 +323,19 @@ Screenshots by `node tools/_t1372-shots.mjs` (with `T1372_BEFORE` = the 0.37.0 s
 
 | state | control | 1024 | 1440 | 1920 | note |
 |-------|---------|------|------|------|------|
-| import notice | "2 documents drawn under the tasks that make or use them, with 4 data associations", no "not shown yet" | ok | ok | ok | notice-{W}.png |
-| import notice, data store + unlinked document | "1 data store, 1 document no task links to kept unchanged and saved back, not shown yet" | | ok | | notice-1440-extra.png |
+| import notice | last line "2 documents drawn under the tasks that make or use them, with 4 links to those tasks"; nothing named as not drawn | ok | ok | ok | notice-{W}.png |
+| import notice, data store + unlinked document | first line "1 data store (CRM), 1 document no task links to (Memo): in the file and saved back unchanged, but not drawn" | | ok | | notice-1440-extra.png |
 | import notice, 0.37.0 | "3 data object/store elements and 4 data associations … not shown yet" beside the drawn documents | | ok | | notice-1440-before.png: the defect |
-| window | toolbar, both side panels, the notice wrapping | ok | ok | ok | at 1024 the first line wraps onto two lines; nothing clipped |
+| window | toolbar, both side panels, the notice wrapping | ok | ok | ok | at 1024 the lines wrap; nothing clipped |
+
+**Advisory sweep** (codex, worker t1372-advisory-ea1feaf57d9e, 2026-11-02). It found the counts matching the canvas
+and nothing clipped. Three points were acted on, then the screenshots were retaken and the gate re-run:
+- "data associations" was jargon: it now says "links".
+- The not-drawn items were not named: they are now listed by name, and the text says "in the file and saved back
+  unchanged, but not drawn".
+- A warning sign stood before the good news: the drawn-documents line now comes last, so the sign belongs to a warning.
+Not acted on: the tiny fit zoom at 1024, and the authority notice's element count (it predates documents and is
+another task's).
 
 ## RCA
 

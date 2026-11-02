@@ -79,19 +79,19 @@ const ASSERT = `(() => {
   if (o1 !== o2) errs.push('leg4: a second open -> save differs from the first (lanes grew twice?)');
   info.lanesAfterReopen = lanesNow();
 
-  // 6. T-1372: the import notice says what is drawn, and calls "not shown yet" only what is not
+  // 6. T-1372: the import notice says what is drawn, and names as "not drawn" only what is not
   load(window.__MAP__); if (typeof maybeShowLaneFixNotice === 'function') maybeShowLaneFixNotice();
   var n1 = (document.getElementById('lane-fix-msg') || {}).textContent || '';
   info.notice = n1;
-  if (!/2 documents drawn/.test(n1) || !/4 data associations/.test(n1) || /not shown yet/.test(n1))
-    errs.push('leg6: the notice should say 2 documents and 4 associations are drawn and nothing is hidden: ' + JSON.stringify(n1));
+  if (!/2 documents drawn/.test(n1) || !/4 links to those tasks/.test(n1) || /but not drawn|not shown yet/.test(n1))
+    errs.push('leg6: the notice should say 2 documents and 4 links are drawn and nothing is hidden: ' + JSON.stringify(n1));
   var extra = window.__MAP__.replace('<bpmn:sequenceFlow id="F1"',
     '<bpmn:dataStoreReference id="DS1" name="CRM"/><bpmn:dataObjectReference id="R_LOOSE" name="Memo" dataObjectRef="DO_Q"/><bpmn:sequenceFlow id="F1"');
   load(extra); maybeShowLaneFixNotice();
   var n2 = (document.getElementById('lane-fix-msg') || {}).textContent || '';
   info.noticeExtra = n2;
-  if (!/1 data store/.test(n2) || !/1 document no task links to/.test(n2) || !/not shown yet/.test(n2) || !/2 documents drawn/.test(n2))
-    errs.push('leg6: with a data store and an unlinked document, both should be named as not shown: ' + JSON.stringify(n2));
+  if (!/1 data store \\(CRM\\)/.test(n2) || !/1 document no task links to \\(Memo\\)/.test(n2) || !/in the file and saved back unchanged, but not drawn/.test(n2) || !/2 documents drawn/.test(n2))
+    errs.push('leg6: with a data store and an unlinked document, both should be NAMED as not drawn: ' + JSON.stringify(n2));
 
   load(window.__PLAIN__);
   var before = JSON.stringify(state.lanes.map(function(l){ return [l.id, l.height]; }));
