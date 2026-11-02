@@ -1,0 +1,194 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1373: Upgrade AEF v1.8.16-be.15 -> v1.8.16-be.26: peer mail reaches only the operator's main session (TermLink main lease, AEF T-5014)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-02T21:51:07Z
+# ============================================================================
+
+task_id: T-1373
+task_name: "Upgrade AEF v1.8.16-be.15 -> v1.8.16-be.26: peer mail reaches only the operator's main session (TermLink main lease, AEF T-5014)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-02T19:31:02Z
+completed: 2026-11-02T21:50:47Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-11-02T20:31:55+01:00
+last_commit: 2026-11-02T21:17:36+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture the be.15 -> be.26 upgrade (TermLink main-only rollout, AEF T-5014) — context and criteria. operator job 120 — upgrade AEF be.15 -> be.26 (job 116's code; dry-run passed with all 9 steps rehearsed, sha 74baba9929f9). pristine vendor commit — AEF v1.8.16-be.26 (db97fbae4) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.16-be.26 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000). re-apply 832's local fixes onto pristine AEF v1.8.16-be.26 (re-vendor protocol step 3, T-1000)
+
+# Key outcomes
+outcomes:
+  - 'Operator job written with `tools/runme-new.sh` (job 116''s code, be.15 → be.26), dry-run rehearsed, committed.'
+  - 'The operator''s run ends `done`. `.framework.yaml` version_sha is `db97fbae46b03eb413c7e2fed886eabda8758202`, the'
+  - '832''s local fixes are re-applied per the re-vendor protocol (`tools/_t1000-revendor-worklist.py`, `_t517`'
+  - 'BOTH test tiers are green after the upgrade (core, and browser), before anything is pushed.'
+  - 'TermLink''s checks pass: `termlink main status` names the operator''s main session, and'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.16-be.26 (re-vendor protocol step 3, T-1000)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/check-project-boundary.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/context/sidecar-autostart.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/AGENT.md'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/agents/termlink/termlink.sh'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/docs/generated/components/lib-access_grants.md'
+  - '.agentic-framework/docs/generated/components/lib-bvp.md'
+  - '.agentic-framework/docs/generated/components/lib-driver_sets.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t4951_readiness_missing_policy_test.md'
+  - '.agentic-framework/docs/reports/T-1549-escalation-scan-v0.md'
+  - '.agentic-framework/docs/reports/T-4961-driver-sets.md'
+  - '.agentic-framework/docs/reports/T-4965-review-codex.md'
+  - '.agentic-framework/docs/reports/T-4965-review-opencode.md'
+  - '.agentic-framework/docs/reports/T-4965-scoped-access-grants.md'
+  - '.agentic-framework/docs/reports/T-4967-review-codex.md'
+  - '.agentic-framework/docs/reports/T-4967-review-opencode.md'
+  - '.agentic-framework/docs/reports/T-4969-ownership-ruleset-review.md'
+  - '.agentic-framework/docs/reports/T-5006-github-contributions.md'
+  - '.agentic-framework/docs/reports/T-5006-inputs/role-chain/01-T-2222-inception-protocol-v0.3.txt'
+  - '.agentic-framework/docs/reports/T-5006-inputs/role-chain/02-threat-modeler.txt'
+  - '.agentic-framework/docs/reports/T-5006-inputs/role-chain/03-mvp-specialist.txt'
+  - '.agentic-framework/docs/reports/T-5006-inputs/role-chain/04-architect.txt'
+  - '.agentic-framework/docs/reports/T-5006-inputs/role-chain/05-evidence-specialist.txt'
+  - '.agentic-framework/docs/reports/T-5006-inputs/role-chain/06-pseudo-coder.txt'
+  - '.agentic-framework/docs/reports/T-5006-inputs/role-chain/07-review-panel.txt'
+  - '.agentic-framework/docs/reports/T-5006-inputs/role-chain/08-planner.txt'
+  - '.agentic-framework/docs/reports/T-5006-inputs/role-chain/09-adapter-aef.txt'
+  - '.agentic-framework/docs/reports/T-5006-inputs/role-chain/10-remaining-files-list.txt'
+  - '.agentic-framework/docs/reports/T-5006-inputs/role-chain/11-role-chain.yaml.txt'
+  - '.agentic-framework/docs/reports/T-5006-inputs/role-chain/12-role-chain.py.txt'
+  - '.agentic-framework/docs/reports/T-5006-inputs/role-chain/13-role-handback-1.schema.json.txt'
+  - '.agentic-framework/docs/reports/T-5006-inputs/role-chain/14-role-handback-check.py.txt'
+  - '.agentic-framework/docs/reports/T-5006-inputs/role-chain/15-profile-ring20.md.txt'
+  - '.agentic-framework/docs/reports/T-5006-inputs/role-chain/16-test-role-chain.py.txt'
+  - '.agentic-framework/docs/reports/T-5006-requirements.md'
+  - '.agentic-framework/docs/reports/T-5007-pickups-to-github.md'
+  - '.agentic-framework/docs/reports/T-5007-review-codex.md'
+  - '.agentic-framework/docs/reports/T-5007-review-opencode.md'
+  - '.agentic-framework/docs/reports/T-5008-review-codex.md'
+  - '.agentic-framework/docs/reports/T-5021-review-codex.md'
+  - '.agentic-framework/docs/reports/T-5021-review-opencode.md'
+  - '.agentic-framework/docs/reports/field-test-v1.8.16-results.md'
+  - '.agentic-framework/lib/access_grants.py'
+  - '.agentic-framework/lib/arc-driver-review.sh'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/arc_close_readiness.py'
+  - '.agentic-framework/lib/bvp-scorability.sh'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/config.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/driver_sets.py'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/resolver.py'
+  - '.agentic-framework/lib/review.sh'
+  - '.agentic-framework/lib/reviewer/judge_cli.py'
+  - '.agentic-framework/lib/shell_write_scan.py'
+  - '.agentic-framework/lib/sidecar/dm.py'
+  - '.agentic-framework/lib/sidecar/hooks.py'
+  - '.agentic-framework/lib/sidecar/inject.py'
+  - '.agentic-framework/lib/sidecar/main_session.py'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/verdict_ledger.py'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/vendor/designer/aef-workflow-designer-0.35.0.html'
+  - '.agentic-framework/vendor/designer/validate-workflow-0.35.0.py'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/config.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/bvp.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/templates/task_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.context/runme/120-upgrade-aef-v1.8.16-be.26/dryrun.ok'
+  - '.context/runme/120-upgrade-aef-v1.8.16-be.26/job.sh'
+  - '.framework.yaml'
+  - '.tasks/active/T-1373-upgrade-aef-v1816-be15---v1816-be26-peer.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-02T20:31:55'
+    action: 'T-1373: capture the be.15 -> be.26 upgrade (TermLink main-only rollout, AEF T-5014) — context and criteria'
+  - time: '2026-11-02T20:50:13'
+    action: 'T-1373: operator job 120 — upgrade AEF be.15 -> be.26 (job 116''s code; dry-run passed with all 9 steps rehearsed, sha 74baba9929f9)'
+  - time: '2026-11-02T21:13:00'
+    action: 'T-1373: pristine vendor commit — AEF v1.8.16-be.26 (db97fbae4) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-11-02T21:14:30'
+    action: 'T-1373: advance the divergence baseline to the pristine AEF v1.8.16-be.26 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000)'
+  - time: '2026-11-02T21:17:36'
+    action: 'T-1373: re-apply 832''s local fixes onto pristine AEF v1.8.16-be.26 (re-vendor protocol step 3, T-1000)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 139 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 139
+  commits: 6
+  files_changed: 109
+  lines_added: 12077
+  lines_removed: 3925
+  footprint_refreshed_at: '2026-11-02T21:51:50Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1373-upgrade-aef-v1816-be15---v1816-be26-peer.md
+generated_by: context-agent-hybrid

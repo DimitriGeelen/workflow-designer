@@ -20803,3 +20803,21 @@ scan_id: R-2ad37cbc
 task_id: T-1372
 payload:
   task_file: .tasks/active/T-1372-import-notice-still-says-data-objects-ar.md
+---
+kind: scan_emitted
+timestamp: '2026-11-02T21:50:49Z'
+scan_id: R-d12dfc5a
+task_id: T-1373
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-02T21:50:49Z'
+scan_id: R-d12dfc5a
+task_id: T-1373
+payload:
+  task_file: .tasks/active/T-1373-upgrade-aef-v1816-be15---v1816-be26-peer.md

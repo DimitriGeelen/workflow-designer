@@ -4,10 +4,11 @@ name: "Upgrade AEF v1.8.16-be.15 -> v1.8.16-be.26: peer mail reaches only the op
 description: >
   Upgrade AEF v1.8.16-be.15 -> v1.8.16-be.26: peer mail reaches only the operator's main session (TermLink main lease, AEF T-5014)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-02T19:31:02Z
-last_update: 2026-11-02T19:31:02Z
-date_finished: null
+last_update: 2026-11-02T21:50:47Z
+date_finished: 2026-11-02T21:50:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -81,13 +82,13 @@ says "held by main <session>", and another session id gets exit 1 "not-main". 01
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Operator job written with `tools/runme-new.sh` (job 116's code, be.15 → be.26), dry-run rehearsed, committed.
-- [ ] The operator's run ends `done`. `.framework.yaml` version_sha is `db97fbae46b03eb413c7e2fed886eabda8758202`, the
+- [x] Operator job written with `tools/runme-new.sh` (job 116's code, be.15 → be.26), dry-run rehearsed, committed.
+- [x] The operator's run ends `done`. `.framework.yaml` version_sha is `db97fbae46b03eb413c7e2fed886eabda8758202`, the
   TermLink key settings are unchanged, and the pinned designer is still present.
-- [ ] 832's local fixes are re-applied per the re-vendor protocol (`tools/_t1000-revendor-worklist.py`, `_t517`
+- [x] 832's local fixes are re-applied per the re-vendor protocol (`tools/_t1000-revendor-worklist.py`, `_t517`
   divergence check clean), and the backups and templates the upgrade left are handled per the CLAUDE.md rule.
-- [ ] BOTH test tiers are green after the upgrade (core, and browser), before anything is pushed.
-- [ ] TermLink's checks pass: `termlink main status` names the operator's main session, and
+- [x] BOTH test tiers are green after the upgrade (core, and browser), before anything is pushed.
+- [x] TermLink's checks pass: `termlink main status` names the operator's main session, and
   `echo '{"session_id":"x"}' | termlink main am-i --session-from-stdin` exits 1 "not-main". 010 is told LIVE with the
   status line.
 
@@ -275,6 +276,10 @@ says "held by main <session>", and another session id gets exit 1 "not-main". 01
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -q 'version_sha: db97fbae46b03eb413c7e2fed886eabda8758202' .framework.yaml
+test -f .context/runme/120-upgrade-aef-v1.8.16-be.26/done
+python3 tools/_t517-vendor-divergence.py
+sh -c 'echo "{\"session_id\":\"x\"}" | termlink main am-i --session-from-stdin; test $? -eq 1'
 
 ## RCA
 
@@ -372,3 +377,23 @@ says "held by main <session>", and another session id gets exit 1 "not-main". 01
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1373-upgrade-aef-v1816-be15---v1816-be26-peer.md
 - **Context:** Initial task creation
+
+### 2026-11-02T21:50:47Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d12dfc5a
+- **Timestamp:** 2026-11-02T21:50:49Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — Operator job written with `tools/runme-new.sh` (job 116's code, be.15 → be.26), dry-run rehearsed, committed.
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/runme-new.sh in: Operator job written with `tools/runme-new.sh` (job 116's code, be.15 → be.26), dry-run rehearsed, committed.`
+- **AC#3 (Agent)** — 832's local fixes are re-applied per the re-vendor protocol (`tools/_t1000-revendor-worklist.py`, `_t517`
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t1000-revendor-worklist.py in: 832's local fixes are re-applied per the re-vendor protocol (`tools/_t1000-revendor-worklist.py`, `_t517``
