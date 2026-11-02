@@ -85,6 +85,9 @@ gets a `…_conditional_…` / `…_signal_…` id instead of `…_link_…`, an
 - [ ] AEF is sent the version, tag, sha256, bytes, changes AND the kit anchors (SHA256SUMS sha256, validate-workflow.py
   sha256 and bytes), plus the stored-map id change. `tools/_t1187-aef-pin-lag.sh` reads CURRENT, and greenfield has been
   told the version.
+- [ ] Greenfield is sent the release (operator 2026-11-02: "share this with Greenfield"): version, tag, sha256, bytes,
+  what it brings for WT-01, the stored-map id change, and a WORKS/BROKEN re-test on wt01-io-v12 with its catalog.
+  Greenfield's answer is recorded here.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
