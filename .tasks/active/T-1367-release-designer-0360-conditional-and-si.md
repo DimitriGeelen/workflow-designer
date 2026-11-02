@@ -86,8 +86,10 @@ gets a `…_conditional_…` / `…_signal_…` id instead of `…_link_…`, an
 - [x] The operator's run ends `done`, and tag designer-v0.36.0 is on origin. *(job 117 done 2026-11-02 12:42 UTC, all
   9 steps: kit PASS by codex and GLM-5.3, core green. Tag on release commit 37f992fe4. Artifact sha256 d3a36b54…102c,
   1319749 bytes. Kit SHA256SUMS 9903a1b4…726d. validate-workflow.py c9c57d88…3046, 116871 bytes, unchanged.)*
-- [ ] *(sent 2026-11-02, msg af9c1395 RECEIVED, with the kit anchors and the id change; waiting for AEF to pin, then
-  `tools/_t1187-aef-pin-lag.sh` must read CURRENT)* AEF is sent the version, tag, sha256, bytes, changes AND the kit anchors (SHA256SUMS sha256, validate-workflow.py
+- [ ] *(sent 2026-11-02, msg af9c1395 RECEIVED, with the kit anchors and the id change. AEF filed it as **T-5015**
+  (msg 89a7bd06): re-pin against our hashes, map any `_link_` ids it keys on, and check that `/api/field-catalog` passes
+  the T-1312 extra keys through. It reports the be-tag when it lands; then `tools/_t1187-aef-pin-lag.sh` must read
+  CURRENT.)* AEF is sent the version, tag, sha256, bytes, changes AND the kit anchors (SHA256SUMS sha256, validate-workflow.py
   sha256 and bytes), plus the stored-map id change. `tools/_t1187-aef-pin-lag.sh` reads CURRENT, and greenfield has been
   told the version.
 - [ ] Greenfield is sent the release (operator 2026-11-02: "share this with Greenfield"): version, tag, sha256, bytes,
