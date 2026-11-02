@@ -1,0 +1,104 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1372: Import notice still says data objects are 'not shown yet' although 0.37.0 draws documents (T-1369)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-02T19:30:55Z
+# ============================================================================
+
+task_id: T-1372
+task_name: "Import notice still says data objects are 'not shown yet' although 0.37.0 draws documents (T-1369)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-02T19:08:43Z
+completed: 2026-11-02T19:30:42Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-02T20:22:19+01:00
+last_commit: 2026-11-02T20:29:59+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the import notice counts drawn documents from the canvas layout and names as 'not shown yet' only data stores and unlinked documents (was: everything 'not shown yet' since T-1096, stale after T-1369; greenfield's report); leg 6 in _t1369, red on 0.37.0; gate green; evidence at 1024/1440/1920. advisory sweep — the notice says 'links', names what is not drawn, and puts the drawn-documents line last; screenshots retaken, gate green. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'The notice counts drawn documents and their links from the same layout the canvas draws (`dataLayout`), and'
+  - 'On `tests/fixtures/t1369/documents.bpmn` the notice says "2 documents drawn … with 4 links to those tasks" and'
+  - '`bash tools/person-sees-gate.sh` exits 0, and a screenshot of the notice at 1024/1440/1920 is read in'
+  - '[REVIEW] The import notice says what is drawn and names only what is not, so a reader is not told documents are missing when they are on the canvas'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1372/AC1-judge-t-1372-r1-9470a625735d.md'
+  - '.context/reviews/evidence/T-1372/notice-1024-judge-t-1372-r1-9470a625735d.png'
+  - '.context/reviews/evidence/T-1372/notice-1440-before-judge-t-1372-r1-9470a625735d.png'
+  - '.context/reviews/evidence/T-1372/notice-1440-extra-judge-t-1372-r1-9470a625735d.png'
+  - '.context/reviews/evidence/T-1372/notice-1440-judge-t-1372-r1-9470a625735d.png'
+  - '.context/reviews/evidence/T-1372/notice-1920-judge-t-1372-r1-9470a625735d.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1372-import-notice-still-says-data-objects-ar.md'
+  - 'docs/reports/T-1372-evidence/notice-1024.png'
+  - 'docs/reports/T-1372-evidence/notice-1440-before.png'
+  - 'docs/reports/T-1372-evidence/notice-1440-extra.png'
+  - 'docs/reports/T-1372-evidence/notice-1440.png'
+  - 'docs/reports/T-1372-evidence/notice-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tools/_t1369-documents-cdp.mjs'
+  - 'tools/_t1372-shots.mjs'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-02T20:22:19'
+    action: 'T-1372: the import notice counts drawn documents from the canvas layout and names as ''not shown yet'' only data stores and unlinked documents (was: everything ''not shown yet'' since T-1096, stale after T-1369; greenfield''s report); leg 6 in _t1369, red on 0.37.0; gate green; evidence at 1024/1440/1920'
+  - time: '2026-11-02T20:28:56'
+    action: 'T-1372: advisory sweep — the notice says ''links'', names what is not drawn, and puts the drawn-documents line last; screenshots retaken, gate green'
+  - time: '2026-11-02T20:29:59'
+    action: 'T-1372: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 21 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 21
+  commits: 4
+  files_changed: 25
+  lines_added: 757
+  lines_removed: 33
+  footprint_refreshed_at: '2026-11-02T19:31:01Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1372-import-notice-still-says-data-objects-ar.md
+generated_by: context-agent-hybrid

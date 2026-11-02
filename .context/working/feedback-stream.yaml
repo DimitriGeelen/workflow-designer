@@ -20785,3 +20785,21 @@ scan_id: R-7361b32a
 task_id: T-1370
 payload:
   task_file: .tasks/active/T-1370-b2-t-1363-go-validator-checks-io-fields-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-02T19:30:49Z'
+scan_id: R-2ad37cbc
+task_id: T-1372
+payload:
+  overall: CONCERN
+  finding_count: 3
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-02T19:30:49Z'
+scan_id: R-2ad37cbc
+task_id: T-1372
+payload:
+  task_file: .tasks/active/T-1372-import-notice-still-says-data-objects-ar.md

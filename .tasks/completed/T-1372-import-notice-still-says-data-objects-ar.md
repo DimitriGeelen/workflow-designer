@@ -8,13 +8,13 @@ description: >
   should say how many are drawn and name only what is still not shown (data stores,
   unlinked references). Reported by greenfield (msg c8023a9c) on WT-01 v6 in 0.37.0.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [bug]
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: [T-1369, T-1096]
 origin: {kind: "peer"}
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
@@ -44,8 +44,8 @@ origin: {kind: "peer"}
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-02T19:08:43Z
-last_update: '2026-11-02T19:15:21Z'
-date_finished:
+last_update: 2026-11-02T19:30:42Z
+date_finished: 2026-11-02T19:30:42Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -157,7 +157,7 @@ dangling-association line (T-1096) is unchanged.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-- [ ] [REVIEW] The import notice says what is drawn and names only what is not, so a reader is not told documents are missing when they are on the canvas
+- [x] [REVIEW] The import notice says what is drawn and names only what is not, so a reader is not told documents are missing when they are on the canvas
   **Steps:**
   1. Look at `docs/reports/T-1372-evidence/notice-1440-before.png` (0.37.0): the notice above the canvas, and the two
      documents under the tasks.
@@ -173,6 +173,7 @@ dangling-association line (T-1096) is unchanged.
   - The notice wraps without clipping at 1024. The toolbar and both side panels are complete at every width.
   **If not:** name the screenshot and the wording that is wrong or misleading.
   For the independent reviewer: `fw reviewer judge T-1372 --criterion 1`
+  **Reviewer verdict:** green V-20261102-de32787f — reviewer-judge-t-1372-r1-9470a625735d:reviewer (rung rung-1-same-vendor-independent), digest 9a20adfb3230; dispatch judge-t-1372-r1-9470a625735d; evidence: .context/reviews/evidence/T-1372/AC1-judge-t-1372-r1-9470a625735d.md, .context/reviews/evidence/T-1372/notice-1440-before-judge-t-1372-r1-9470a625735d.png, .context/reviews/evidence/T-1372/notice-1440-judge-t-1372-r1-9470a625735d.png, .context/reviews/evidence/T-1372/notice-1440-extra-judge-t-1372-r1-9470a625735d.png, .context/reviews/evidence/T-1372/notice-1024-judge-t-1372-r1-9470a625735d.png, .context/reviews/evidence/T-1372/notice-1920-judge-t-1372-r1-9470a625735d.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -447,3 +448,28 @@ check the notices that said it was hidden.
 
 ### 2026-11-02T19:15:20Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-02T19:30:42Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2ad37cbc
+- **Timestamp:** 2026-11-02T19:30:49Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 3
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — On `tests/fixtures/t1369/documents.bpmn` the notice says "2 documents drawn … with 4 links to those tasks" and
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/fixtures/t1369/documents.bpmn in: On `tests/fixtures/t1369/documents.bpmn` the notice says "2 documents drawn … with 4 links to those tasks" and`
+- **AC#3 (Agent)** — `bash tools/person-sees-gate.sh` exits 0, and a screenshot of the notice at 1024/1440/1920 is read in
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/person-sees-gate.sh in: `bash tools/person-sees-gate.sh` exits 0, and a screenshot of the notice at 1024/1440/1920 is read in`
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 138
+     - evidence: `export PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH"; node tools/_t1369-documents-cdp.mjs >/dev/null`
