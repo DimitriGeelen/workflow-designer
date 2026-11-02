@@ -4297,7 +4297,7 @@ function renderNodes() {
       const stroke = 'var(--text-faint)';
       g.appendChild(el('circle', { cx, cy, r, class: 'node-shape', fill: 'var(--surface-2)', stroke, 'stroke-width': '1.5' }));
       g.appendChild(el('circle', { cx, cy, r: r - 3.5, fill: 'none', stroke, 'stroke-width': '1.2' }));
-      plainKindMarker(g, n, cx, cy, stroke);   // T-1366: conditional / signal kind marker
+      plainKindMarker(g, n, cx, cy, 'var(--text-dim)');   // T-1366: kind marker, a step brighter than the ring (sweep: contrast)
       // T-1222: a plain third-party boundary catch keeps the BPMN boundary ring (dashed when non-interrupting).
       if (boundaryHostOf(n)) {
         const ringAttrs = { cx, cy, r: r + 3, fill: 'none', stroke, 'stroke-width': '1.2' };
@@ -4312,7 +4312,7 @@ function renderNodes() {
       const stroke = 'var(--text-faint)';
       g.appendChild(el('circle', { cx, cy, r, class: 'node-shape', fill: 'var(--surface-2)', stroke, 'stroke-width': '1.5' }));
       g.appendChild(el('circle', { cx, cy, r: r - 3.5, fill: 'var(--text-faint)', 'fill-opacity': '0.35', stroke, 'stroke-width': '1.2' }));
-      plainKindMarker(g, n, cx, cy, stroke);   // T-1366: a signal throw shows the filled triangle
+      plainKindMarker(g, n, cx, cy, 'var(--text-dim)');   // T-1366: a signal throw shows the filled triangle
     } else if (n.type === 'linkEventThrow' || n.type === 'linkEventCatch') {
       // Off-page connector: hollow circle with a chevron arrow inside.
       // Throw = chevron pointing right (data leaves); catch = chevron pointing left (data enters).
@@ -8228,7 +8228,9 @@ function _renderPropsInto(props, details) {
       const keep = document.createElement('div');
       keep.className = 'field-hint';
       keep.style.cssText = 'display:block;margin:0 0 8px;line-height:1.45';
-      keep.textContent = 'Kept exactly as the source wrote it; the designer does not edit this kind yet.';
+      keep.textContent = kind === 'conditional'
+        ? 'The condition is kept exactly as the source wrote it; the designer cannot edit the condition yet.'
+        : 'The signal definition is kept exactly as the source wrote it; the designer cannot edit it yet.';
       sBare.appendChild(keep);
       props.appendChild(sBare);
     } else {
@@ -8590,8 +8592,8 @@ function typeBadgeSvg(t) {
   // T-308: neutral badge for a bare catch event — matches the canvas double ring.
   if (t === 'intermediateEvent') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--surface-2)" stroke="var(--text-faint)" stroke-width="1.5"/><circle cx="14" cy="14" r="7.5" fill="none" stroke="var(--text-faint)" stroke-width="1.2"/></svg>';
   // T-1366: plain events with a marked kind: the neutral double ring plus BPMN's marker, as on the canvas.
-  if (t === 'conditionalEvent') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--surface-2)" stroke="var(--text-faint)" stroke-width="1.5"/><circle cx="14" cy="14" r="7.5" fill="none" stroke="var(--text-faint)" stroke-width="1.2"/><rect x="10.5" y="9.5" width="7" height="9" fill="none" stroke="var(--text-faint)" stroke-width="1"/><path d="M12 12 H16 M12 14 H16 M12 16 H16" stroke="var(--text-faint)" stroke-width="0.9"/></svg>';
-  if (t === 'signalEvent') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--surface-2)" stroke="var(--text-faint)" stroke-width="1.5"/><circle cx="14" cy="14" r="7.5" fill="none" stroke="var(--text-faint)" stroke-width="1.2"/><path d="M14 9.5 L18 17 L10 17 Z" fill="none" stroke="var(--text-faint)" stroke-width="1.1" stroke-linejoin="round"/></svg>';
+  if (t === 'conditionalEvent') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--surface-2)" stroke="var(--text-faint)" stroke-width="1.5"/><circle cx="14" cy="14" r="7.5" fill="none" stroke="var(--text-faint)" stroke-width="1.2"/><rect x="10.5" y="9.5" width="7" height="9" fill="none" stroke="var(--text-dim)" stroke-width="1"/><path d="M12 12 H16 M12 14 H16 M12 16 H16" stroke="var(--text-dim)" stroke-width="0.9"/></svg>';
+  if (t === 'signalEvent') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--surface-2)" stroke="var(--text-faint)" stroke-width="1.5"/><circle cx="14" cy="14" r="7.5" fill="none" stroke="var(--text-faint)" stroke-width="1.2"/><path d="M14 9.5 L18 17 L10 17 Z" fill="none" stroke="var(--text-dim)" stroke-width="1.1" stroke-linejoin="round"/></svg>';
   if (t === 'eventError') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--red-soft)" stroke="var(--red)" stroke-width="1.5"/><path d="M15 7 L9 15 L13 15 L11 21 L18 12 L14 12 Z" fill="var(--red)" stroke="none"/></svg>';
   if (t === 'eventTimer') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="1.5"/><circle cx="14" cy="14" r="6" fill="none" stroke="var(--blue)" stroke-width="1.2"/><path d="M14 14 V9 M14 14 L17.5 16" stroke="var(--blue)" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>';
   if (t === 'eventMessage') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--green-soft)" stroke="var(--green)" stroke-width="1.5"/><rect x="8" y="10" width="12" height="8" rx="1" fill="none" stroke="var(--green)" stroke-width="1.3"/><path d="M8 10.5 L14 15 L20 10.5" stroke="var(--green)" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';

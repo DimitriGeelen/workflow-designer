@@ -356,6 +356,18 @@ What was read, per screenshot:
 - **Greenfield's real map** (wt01-io-v11, not committed: client data): at 1440 "Lead status Qualified in Salesforce"
   shows the marker, its id reads `sal_conditional_lead`, and its label stays below the event, unchanged.
 
+**Advisory sweep** (codex, worker t1366-advisory-f53b96742ec8, 2026-11-02, before the official review). It found no
+overlap, clipping or misleading meaning. Two points were acted on, then the screenshots were retaken and the gate re-run:
+- Marker contrast was weak (grey on dark), most of all the filled triangle. Fixed: markers are drawn in `--text-dim`, a
+  step brighter than the ring's `--text-faint`, on the canvas and in the panel badge.
+- "the designer does not edit this kind yet" was ambiguous next to editable Name and Lane fields. It now reads "the
+  designer cannot edit the condition yet" (and the signal equivalent).
+
+Not acted on, because this change does not cause them:
+- small text at the opening (fit) zoom;
+- the 1024 panel scrolling to reach "add output";
+- the version badge still reading v0.35.0 until the release.
+
 Note 1: in a first version of the fixture the events stood 110 px apart. There, the longer id
 (`tea_conditional_status`, 4 characters longer than `tea_link_status`) no longer fitted between its neighbours, and
 the label placer put it above the event, on the pool's title band. That is the existing placement behaviour for any
