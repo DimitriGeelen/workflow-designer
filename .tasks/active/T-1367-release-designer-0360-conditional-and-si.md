@@ -76,18 +76,24 @@ gets a `…_conditional_…` / `…_signal_…` id instead of `…_link_…`, an
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The core tier is green for the tree that carries T-1365 and T-1366, and bleeding-edge is pushed.
-- [ ] Release notes `docs/releases/RELEASE-NOTES-0.36.0.md` committed. They cover the changes, what changes in stored
+- [x] The core tier is green for the tree that carries T-1365 and T-1366, and bleeding-edge is pushed. *(218/0, 753 s;
+  pushed d7de88c16)*
+- [x] Release notes `docs/releases/RELEASE-NOTES-0.36.0.md` committed. They cover the changes, what changes in stored
   maps (the id word of conditional and signal events on the next save; T-1365 is display only), and the endpoint
-  table for AEF.
-- [ ] Operator job written with `tools/runme-new.sh`, dry-run rehearsed, committed.
-- [ ] The operator's run ends `done`, and tag designer-v0.36.0 is on origin.
-- [ ] AEF is sent the version, tag, sha256, bytes, changes AND the kit anchors (SHA256SUMS sha256, validate-workflow.py
+  table for AEF. *(d3e2abc6e)*
+- [x] Operator job written with `tools/runme-new.sh`, dry-run rehearsed, committed. *(job 117, sha 1d0365b55e5a,
+  f8b186e32)*
+- [x] The operator's run ends `done`, and tag designer-v0.36.0 is on origin. *(job 117 done 2026-11-02 12:42 UTC, all
+  9 steps: kit PASS by codex and GLM-5.3, core green. Tag on release commit 37f992fe4. Artifact sha256 d3a36b54…102c,
+  1319749 bytes. Kit SHA256SUMS 9903a1b4…726d. validate-workflow.py c9c57d88…3046, 116871 bytes, unchanged.)*
+- [ ] *(sent 2026-11-02, msg af9c1395 RECEIVED, with the kit anchors and the id change; waiting for AEF to pin, then
+  `tools/_t1187-aef-pin-lag.sh` must read CURRENT)* AEF is sent the version, tag, sha256, bytes, changes AND the kit anchors (SHA256SUMS sha256, validate-workflow.py
   sha256 and bytes), plus the stored-map id change. `tools/_t1187-aef-pin-lag.sh` reads CURRENT, and greenfield has been
   told the version.
 - [ ] Greenfield is sent the release (operator 2026-11-02: "share this with Greenfield"): version, tag, sha256, bytes,
   what it brings for WT-01, the stored-map id change, and a WORKS/BROKEN re-test on wt01-io-v12 with its catalog.
-  Greenfield's answer is recorded here.
+  Greenfield's answer is recorded here. *(sent 2026-11-02, msg 09da49e7, with the re-test; answer pending. Greenfield
+  confirmed 0.35.0 WORKS the same day, msg 8f386e96: sendTask clean on both its maps, closing its T-371.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
