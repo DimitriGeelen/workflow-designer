@@ -179,7 +179,8 @@ below are revised to match.
      `docs-1920-zoom.png` (this change).
   2. Look at `docs/reports/T-1369-evidence/docs-{1024,1440,1920}.png` and `docs-{1024,1440}-zoom.png`.
   **Expected:**
-  - Under "Send the quote" stands a page with a folded corner labelled "Quote" and "[sent]"; under "Customer signs",
+  - Under "Send the quote" stands a page with a folded corner labelled "Quote" and "[sent]"; under the second task (the
+    signing step),
     "Quote" "[signed]".
   - A dotted line with an open arrowhead runs from each task to the document it produces, and from each document to the
     task that uses it.
