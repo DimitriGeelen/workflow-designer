@@ -1,7 +1,8 @@
 # T-1363 — What real cross-system workflows carry, and how the designer should show it
 
 Research artifact (inception, C-001). Started 2026-11-01 from greenfield's map WT-01 (T-1361). Status: exploration
-not started; waiting for greenfield's account of the process (IW-1).
+done 2026-11-02; recommendation GO for 832's part (see "Synthesis and recommendation" at the end); decision with the
+operator.
 
 ## Starting point
 
@@ -170,3 +171,50 @@ not visible on the canvas (filed separately as a possible bug).
   - **Generalised finding:** the link attribute → object in the ontology plus a cross-check against the io's type is
     cheap and catches real modelling errors. A candidate bridge check for 832's validator, once the catalog is
     available to it.
+
+## Synthesis and recommendation (2026-11-02)
+
+**What the exploration found.** A real multi-system process (WT-01: CRM, CPQ, two middlewares, a legacy order system)
+needs no new modelling language. Everything that was not data in its io maps onto standard BPMN plus mapping v1.1, by
+six rules (A-F, sent with the per-io proposal):
+
+| Need (greenfield's §6) | Form in the map | Designer, as of 0.36.0 | Owner of what is left |
+|---|---|---|---|
+| 1 Documents with a state | `dataObjectReference` + `dataState` + associations | kept on save, **not drawn** | 832: build B1 |
+| 2 State change as trigger | intermediate message / conditional catch event | drawn; conditional and signal with their marker (T-1366) | done |
+| 3 User-started system action | click step + system step (CreateOpenOrder, SendOrderAgreement) | shown as two steps | AEF T-4991 (one term) |
+| 4 Decision and proof status | `Decision:` lines in the step documentation | shown as documentation | AEF T-4991 |
+| 5 Keys between systems | `role="match"` rows; `Keys:` lines; keyless match while undecided | shown; keyless match warned (R3) | AEF T-4991 (key mapping term) |
+| 6 Several objects, replace as a set | one io per object; upsert + line key + a Rule: line | shown | AEF T-4991 (`replace`) |
+| 7 Screen states and instructions | `Instruction:` / `Screen:` lines in `bpmn:documentation` | shown in the panel | done |
+| + How a value is built | SHACL shape in the producer's ontology → catalog row | shown under each field (T-1365) | done; checking it is B2 |
+
+**What generalises:** the seven needs, rules A-F, the three-way split for attribute rules (shape in the ontology; the
+step's own rules as `aef:expect`; the field's role says what the step uses), and two checks:
+- field object = io type;
+- a step rule must not contradict the type rule.
+
+What stays WT-01's: the systems, the trampolines, the Novis gaps.
+
+Evidence that the split pays:
+- Harvesting the systems' metadata corrected a hand-typed picklist.
+- The field-object check found 15 real modelling errors in a reviewed map.
+- Three review rounds then found key errors that the practice case had warned about: a Sales Order created without a
+  key, Solutions matched on a name, a mapping from the wrong source.
+
+**Recommendation: GO for 832's part.** Two bounded builds, then stop until AEF's vocabulary decides:
+- **B1:** draw documents (data objects with their state and associations), keeping the save byte-identical.
+- **B2:** a validator check against the field catalog: field object = io type; an `aef:expect` that contradicts the
+  attribute's shape is an error, and one that repeats it is a warning (T-4415 C).
+
+Conditions:
+- each build is tested on a synthetic map that is not WT-01 (the first test of generality);
+- no designer build on needs 3–6 before AEF's T-4991;
+- client data stays out of the repo.
+
+**Success** (the hypothesis in T-1363): wt01-io-v12 opens in a released designer with
+- 0 free-text io;
+- both conditional triggers marked;
+- every document drawn with its state;
+- every catalogued field showing its value rule;
+- 0 field-object mismatches from the validator's catalog check.
