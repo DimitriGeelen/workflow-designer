@@ -351,6 +351,17 @@ What was read:
   and nothing is clipped. The toolbar wraps to two rows, as before.
 - **panel-1920-open.png:** everything fits. The rule text is small but legible, at the size the rest of the panel uses.
 
+**Advisory sweep** (codex, worker t1365-advisory-c4c7d85efd14, 2026-11-02, before the official review). It found no
+overlap, no clipping and no confusion with editable fields, and called the wording clear. Acted on: the muted labels,
+summaries and italic "not in catalog" line had weak contrast. The labels and that line now use `--text-dim` instead of
+`--text-faint`, and the rule text is 11 px instead of 10.5 px. Screenshots were retaken and the gate re-run.
+Not acted on:
+- "pattern" in the summary needs the opened rule to explain it. That is by design: the summary is a pointer, and the
+  rule is one click away.
+- The made-up format text omits the regex's detail, and "derived" has no state mapping. Those are catalog content
+  (the producer's), not display.
+- The panel's scroll position in the screenshots: the shots scroll to the fields.
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
