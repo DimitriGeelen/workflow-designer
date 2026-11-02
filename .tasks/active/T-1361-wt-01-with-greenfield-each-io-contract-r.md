@@ -430,6 +430,30 @@ bvp_scores_proposed:
 - **Also:** T-1364 closed as not a defect (the name was wrapped). New designer bug **T-1366**: conditional catch events
   open as link catch. Greenfield data: the start event's name is cut off ("Lead binnen (web").
 
+### 2026-11-02 — wt01-io-v12: the six findings folded in plus the practice-case order (832 review msg 77fddd0c)
+- **Received:** map a2171cd7… (two parts) and catalog rows a5f36029… (107). Both are in ignored
+  build/peer-data/greenfield/, with the review text (wt01-io-v12-review-832.md).
+- **Validator:** 0 errors, 33 warnings: 31 lanes with no owner (undecided) and 2 keyless matches (R3, intended).
+- **Script check:** clean, except the two by-design cases.
+- **Fixes:** all six v11 findings are done. Greenfield also found and fixed a bug of its own through the review (an
+  overwritten gateway label), and restored the start event name.
+- **Order now as in the practice case:**
+  1. verbal yes;
+  2. CreateOpenOrder;
+  3. Novis order and the number back;
+  4. OrderComplete (a conditional event: approvals);
+  5. SendOrderAgreement;
+  6. signed confirmation;
+  7. Closed Won (A-002).
+- **Four points sent:**
+  1. The Salesforce Sales Order is created without a key but updated by Id. Use the Tacton key as an external id, or
+     a keyless match plus an Open line.
+  2. The Solution is matched on its name, which is not a key.
+  3. The SendOrderAgreement write is trampoline B: model it like CreateOpenOrder, or state it (need 3, user-started
+     system action).
+  4. kla_1_tekent's note contradicts its own Decision.
+- **Status:** apart from those four, nothing more at the io level.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
