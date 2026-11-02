@@ -62,7 +62,11 @@ bvp_scores_proposed:
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+Rules that 832 and a consumer agree on (io per object, conditions on decision branches, documents as data objects,
+`aef:position` = DI) get lost when an agent drafts, updates or checks a map. They live in sidecar threads, mapping v1.1
+and agent memory, and nothing refuses a map that breaks them. greenfield's own maps showed it: detail maps with no io,
+10 decisions without conditions, 31 of 46 nodes with a stale `aef:position`. The kit's AUTHORING.md mentions io once.
+Research: `docs/reports/T-1375-authoring-kit-map-skill-and-checks.md`.
 
 ## Hypothesis
 
@@ -104,9 +108,9 @@ bvp_scores_proposed:
      correction is sticky — set `hypothesis_source: human` in the frontmatter and no
      automatic pass will ever overwrite it. -->
 
-We believe that <change>,
-we will achieve <outcome>.
-We will know that we are successful when we see <measurable signal>.
+We believe that adding io-and-data sections to AUTHORING.md, a `SKILL.md` entry point in the authoring kit, and six new `validate-workflow.py` warnings with a `--strict` switch,
+we will achieve agreed general map rules that refuse a map instead of living in threads and agent memory.
+We will know that we are successful when we see `validate-workflow.py --strict --field-catalog` report, on greenfield's maps TRB-T1 and KLS-T1, every finding their check-map.py reports under W-02, W-03, W-07, W-10, W-11 and W-14, so greenfield removes those checks from check-map.py and keeps only W-05 and its project rules.
 
 ## Assumptions
 
@@ -131,17 +135,25 @@ We will know that we are successful when we see <measurable signal>.
 -->
 
 - **IW-1: Should the authoring kit carry a general skill (SKILL.md + references) for drafting, updating and checking a workflow map, and in which form?**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: answered
+  rationale: Yes. Add the io and data sections to AUTHORING.md (which mentions io once today), plus a SKILL.md at the kit root that gives the order of work and points to AUTHORING/GENERATE/REVIEW/CORRECT instead of repeating them. The README points to SKILL.md first. Project rules stay in each project. Report section IW-1.
 - **IW-2: Which of greenfield's W-rules (W-03, W-05, W-07, W-08, W-10, W-11, W-14) are general enough to become validate-workflow.py checks, and at what severity?**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: answered
+  rationale: W-01, W-04 and W-08 are already covered (T-1370 field checks; W-XML-LANE-NO-AUTHORITY). New WARNs: IO-INCOMPLETE (W-02), IO-MISSING (W-03, only when the map carries io somewhere; 13 of 77 tracked maps carry io), GW-BRANCH-UNCONDITIONED (W-07), DOC-PREFIX (W-10, our own rule C), DATA-UNLINKED (W-11), POSITION-DI (W-14). --strict raises them to ERROR. W-05 waits on AEF T-4991. Report section IW-2.
 
 ## Exploration Plan
 
-<!-- How will we validate assumptions? Spikes, prototypes, research? Time-box each. -->
+Desk research, one session (done 2026-11-02):
+1. Read greenfield's rules file and check script, received whole with matching hashes, stored only in git-ignored
+   `build/peer-data/greenfield/` and never run.
+2. Compare each checked rule with `tools/validate-workflow.py` 0.37.0.
+3. Survey the kit's text (`dist/aef-authoring-kit-0.37.0/`).
+4. Count the tracked maps that carry io.
+
+The hypothesis is tested in the build tasks: greenfield runs the new validator on TRB-T1 and KLS-T1 and compares the
+findings with its script's.
 
 ## Technical Constraints
 
@@ -153,7 +165,13 @@ We will know that we are successful when we see <measurable signal>.
 
 ## Scope Fence
 
-<!-- What's IN scope for this exploration? What's explicitly OUT? -->
+**IN:** the kit text (AUTHORING.md, SKILL.md, README pointer) and the general rules as validator warnings with `--strict`.
+
+**OUT:**
+- W-05 (Mapping lines; waits on AEF T-4991);
+- judgement rules (W-06, W-09, W-12, W-13, W-16), which go into the skill's text only;
+- greenfield's project rules (W-17, W-18);
+- any change to the designer's drawing.
 
 ## Acceptance Criteria
 
@@ -179,12 +197,13 @@ We will know that we are successful when we see <measurable signal>.
 
 <!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
 **GO if:**
-- Root cause identified with bounded fix path
-- Fix is scoped, testable, and reversible
+- each proposed check is general: it follows from mapping v1.1, BPMN or a rule 832 itself gave, not from one project;
+- each check can be a WARN that leaves today's conforming corpus quiet, with ERROR only under `--strict`;
+- the kit text fits two bounded build tasks.
 
 **NO-GO if:**
-- Problem requires fundamental redesign or unbounded scope
-- Fix cost exceeds benefit given current evidence
+- the rules turn out to be one consumer's conventions, in which case they stay in its own script;
+- the checks would fire on maps that conform today (the T-312 noise).
 
 ## Verification
 
@@ -203,13 +222,20 @@ We will know that we are successful when we see <measurable signal>.
 
 **Rationale:**
 
-Greenfield's own maps show rules agreed with 832 being lost when an agent drafts or checks a map: detail maps with no io, 10 decisions without conditions, 31 nodes with a stale aef:position. Those rules live in sidecar threads, mapping v1.1 and agent memory. T-1370 has already shown the pattern works: a rule moved into validate-workflow.py and was then caught every time. A SKILL.md in the kit gives agents the procedure, and validator checks (W-03/05/08/11/14 as warnings, W-07 in strict mode) make the general rules refuse instead of being remembered. W-10 stays a project rule. Evidence: their check-map.py found 15 and 17 findings on TRB-T1 and KLS-T1.
+Greenfield's own maps show rules agreed with 832 being lost when an agent drafts or checks a map: detail maps with no io, 10 decisions without conditions, 31 nodes with a stale aef:position. Those rules live in sidecar threads, mapping v1.1 and agent memory. T-1370 has already shown the pattern works: a rule moved into validate-workflow.py and was then caught every time. Revised after the reading. Two build tasks follow:
+1. Kit text: AUTHORING.md io/data sections, SKILL.md, README pointer.
+2. Validator: six new WARNs (W-02, W-03 partial-io, W-07, W-10, W-11, W-14) plus `--strict`.
+
+W-01, W-04 and W-08 are already covered. W-05 waits on AEF T-4991. W-10 becomes general, because its prefixes are 832's
+own rule C. Evidence: their check-map.py found 15 and 17 findings on TRB-T1 and KLS-T1.
 
 **Evidence:**
-
-<!-- Add evidence bullets as exploration progresses (file paths,
-     commit hashes, test results). The filing-time recommendation
-     can be revised before fw inception decide. -->
+- `docs/reports/T-1375-authoring-kit-map-skill-and-checks.md`: rule-by-rule comparison, with the validator codes that
+  exist today.
+- `dist/aef-authoring-kit-0.37.0/AUTHORING.md`: one mention of io in 293 lines.
+- `tools/validate-workflow.py`: W-XML-GW-AMBIGUOUS fires only at two or more unconditioned branches;
+  W-XML-LANE-NO-AUTHORITY covers W-08.
+- 13 of 77 tracked .bpmn files carry io, so W-03 can't fire on maps that have no io at all.
 
 ## Decisions
 
