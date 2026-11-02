@@ -9,13 +9,13 @@ description: >
   (rule-F messages exempt), and an aef:expect must not contradict the attribute's
   value rule (error) or merely repeat it (warning), per AEF spec T-4415 C.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tests/test_check_pass_reachability.py, tests/test_finding_anchorability.py, tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/validate-workflow.py]
 related_tasks: [T-1363, T-1361, T-1303, T-1312]
 origin: {kind: "operator"}
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
@@ -45,8 +45,8 @@ origin: {kind: "operator"}
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-02T13:27:46Z
-last_update: '2026-11-02T13:56:50Z'
-date_finished:
+last_update: 2026-11-02T14:31:06Z
+date_finished: 2026-11-02T14:31:06Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -444,3 +444,36 @@ grep -q 'test_t1370_catalog_checks.py' tests/run-bridge-tests.sh
 
 ### 2026-11-02T13:56:49Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-02T14:31:06Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7361b32a
+- **Timestamp:** 2026-11-02T14:31:12Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 7
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — `tools/validate-workflow.py` takes a field catalog (`--field-catalog PATH`, T-1312 format v1). Without it, every
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/validate-workflow.py in: `tools/validate-workflow.py` takes a field catalog (`--field-catalog PATH`, T-1312 format v1). Without it, every`
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 137
+     - evidence: `python3 tests/test_t1370_catalog_checks.py >/dev/null`
+  2. **empty-output-success** (partial, heuristic) @ Verification:line 138
+     - evidence: `python3 tests/test_check_pass_reachability.py >/dev/null`
+  3. **empty-output-success** (partial, heuristic) @ Verification:line 139
+     - evidence: `python3 tests/test_finding_anchorability.py >/dev/null`
+  4. **empty-output-success** (partial, heuristic) @ Verification:line 140
+     - evidence: `python3 tests/test_rule_dialect_axis.py >/dev/null`
+  5. **empty-output-success** (partial, heuristic) @ Verification:line 141
+     - evidence: `python3 tests/test_rule_form_parity.py >/dev/null`
+  6. **empty-output-success** (partial, heuristic) @ Verification:line 142
+     - evidence: `python3 tests/test_t1303_io_lint.py >/dev/null`
