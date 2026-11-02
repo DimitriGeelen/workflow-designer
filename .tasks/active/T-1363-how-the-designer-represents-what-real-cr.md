@@ -184,6 +184,7 @@ We will know that we are successful when we see <measurable signal>.
 ### Human
 <!-- @auto-tick-on-decide -->
 - [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+  **Why you:** direction — whether the designer takes on documents, state-change triggers and value rules (and which part AEF owns) is product direction; and `fw inception decide` is operator-only
   **Steps:**
   1. Run: `fw task review T-1363` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
