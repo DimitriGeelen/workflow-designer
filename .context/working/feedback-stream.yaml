@@ -20821,3 +20821,21 @@ scan_id: R-d12dfc5a
 task_id: T-1373
 payload:
   task_file: .tasks/active/T-1373-upgrade-aef-v1816-be15---v1816-be26-peer.md
+---
+kind: scan_emitted
+timestamp: '2026-11-02T21:52:21Z'
+scan_id: R-adde0c30
+task_id: T-1374
+payload:
+  overall: CONCERN
+  finding_count: 4
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-02T21:52:21Z'
+scan_id: R-adde0c30
+task_id: T-1374
+payload:
+  task_file: .tasks/active/T-1374-browser-tier-red-since-0360-kitchen-sink.md
