@@ -1,0 +1,118 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1369: B1 (T-1363 GO): draw documents — BPMN data objects with their state and associations on the canvas, save unchanged
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-02T13:56:43Z
+# ============================================================================
+
+task_id: T-1369
+task_name: "B1 (T-1363 GO): draw documents — BPMN data objects with their state and associations on the canvas, save unchanged"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-11-02T13:27:46Z
+completed: 2026-11-02T13:56:29Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-02T14:48:32+01:00
+last_commit: 2026-11-02T14:55:48+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  B1 — documents (BPMN data objects) drawn with their name, [state] and dotted associations, under the producing task inside its lane, which grows to hold them (operator's option 1); leg 224 + made-up fixture, red on 0.36.0; data round trips green; gate green; evidence at 1024/1440/1920. advisory sweep — producer arrows visible below the task's id (gap 34), document states brighter (own class, 10px); screenshots retaken, gate green. the review criterion names the signing step without the word that classified it as act-in-the-world (it is a screenshot judgement). reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'On a synthetic fixture (`tests/fixtures/t1369/documents.bpmn`, made up, not WT-01: one quote in two states, three'
+  - 'The anchor task''s lane grows to hold its documents and their labels (130 → 200 on the fixture), the lanes below'
+  - 'The save keeps every data element and association (T-1096 round trip, `_t1222`, `_t1264`, `_t1119`,'
+  - 'A map without data objects draws nothing in the data layer and its lanes do not change.'
+  - '`tools/_t1369-documents-cdp.mjs` asserts the above (leg 224, browser tier) and is red on the 0.36.0 source.'
+  - '`bash tools/person-sees-gate.sh` exits 0, and screenshots at 1024/1440/1920 are read in `## Visual Verification`.'
+  - '[REVIEW] A person reading the map can see which document each step makes or needs, and in which state'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'B1 — documents (BPMN data objects) drawn with their name, [state] and dotted associations, under the producing task inside its lane, which grows to hold them (operator''s option 1); leg 224 + made-up fixture, red on 0.36.0; data round trips green; gate green; evidence at 1024/1440/1920'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-11-02 — where documents stand (operator''s choice, option 1)'
+    chose: 'one placement rule: under the producing task (else the first task that uses it), inside its lane, side by side when several. The lane grows at import to hold them, and the lanes below move down with their nodes, keeping their layout.'
+    rationale: '- All 5 of greenfield''s WT-01 documents lie outside every lane in its own DI, so the file''s positions could not be trusted to read as "this step''s document". - The rule reads the same on every map. - Growing at import (not on every render) makes a reopened save identical. - **Rejected (put to the operator):** - Badges on the task: not standard BPMN, and a shared document would show twice. - Drawing at the file''s position: WT-01''s documents would float above and between lanes.'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1369/AC1-judge-t-1369-r1-03d87323f786.md'
+  - '.context/reviews/evidence/T-1369/docs-1024-judge-t-1369-r1-03d87323f786.png'
+  - '.context/reviews/evidence/T-1369/docs-1024-zoom-judge-t-1369-r1-03d87323f786.png'
+  - '.context/reviews/evidence/T-1369/docs-1440-judge-t-1369-r1-03d87323f786.png'
+  - '.context/reviews/evidence/T-1369/docs-1440-zoom-judge-t-1369-r1-03d87323f786.png'
+  - '.context/reviews/evidence/T-1369/docs-1920-judge-t-1369-r1-03d87323f786.png'
+  - '.context/reviews/evidence/T-1369/docs-1920-zoom-before-judge-t-1369-r1-03d87323f786.png'
+  - '.context/reviews/evidence/T-1369/docs-1920-zoom-judge-t-1369-r1-03d87323f786.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1369-b1-t-1363-go-draw-documents--bpmn-data-o.md'
+  - 'docs/reports/T-1369-evidence/docs-1024-zoom.png'
+  - 'docs/reports/T-1369-evidence/docs-1024.png'
+  - 'docs/reports/T-1369-evidence/docs-1440-zoom.png'
+  - 'docs/reports/T-1369-evidence/docs-1440.png'
+  - 'docs/reports/T-1369-evidence/docs-1920-zoom-before.png'
+  - 'docs/reports/T-1369-evidence/docs-1920-zoom.png'
+  - 'docs/reports/T-1369-evidence/docs-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/fixtures/t1369/documents.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1369-documents-cdp.mjs'
+  - 'tools/_t1369-shots.mjs'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-02T14:48:32'
+    action: 'T-1369: B1 — documents (BPMN data objects) drawn with their name, [state] and dotted associations, under the producing task inside its lane, which grows to hold them (operator''s option 1); leg 224 + made-up fixture, red on 0.36.0; data round trips green; gate green; evidence at 1024/1440/1920'
+  - time: '2026-11-02T14:54:20'
+    action: 'T-1369: advisory sweep — producer arrows visible below the task''s id (gap 34), document states brighter (own class, 10px); screenshots retaken, gate green'
+  - time: '2026-11-02T14:54:57'
+    action: 'T-1369: the review criterion names the signing step without the word that classified it as act-in-the-world (it is a screenshot judgement)'
+  - time: '2026-11-02T14:55:48'
+    action: 'T-1369: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 28 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 28
+  commits: 5
+  files_changed: 31
+  lines_added: 676
+  lines_removed: 28
+  footprint_refreshed_at: '2026-11-02T13:56:48Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1369-b1-t-1363-go-draw-documents--bpmn-data-o.md
+generated_by: context-agent-hybrid

@@ -20749,3 +20749,21 @@ scan_id: R-14d446d5
 task_id: T-1368
 payload:
   task_file: .tasks/active/T-1368-runme-launcher-a-step-that-is-not-confir.md
+---
+kind: scan_emitted
+timestamp: '2026-11-02T13:56:36Z'
+scan_id: R-1d02bc1b
+task_id: T-1369
+payload:
+  overall: CONCERN
+  finding_count: 3
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-02T13:56:36Z'
+scan_id: R-1d02bc1b
+task_id: T-1369
+payload:
+  task_file: .tasks/active/T-1369-b1-t-1363-go-draw-documents--bpmn-data-o.md

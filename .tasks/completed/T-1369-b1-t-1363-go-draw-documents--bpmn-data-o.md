@@ -7,13 +7,13 @@ description: >
   from another tool's file are kept on save but not drawn. Draw them, with their state,
   linked to the steps that make and use them. Display only.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: [T-1363, T-1361, T-1096]
 origin: {kind: "operator"}
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
@@ -43,8 +43,8 @@ origin: {kind: "operator"}
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-02T13:27:46Z
-last_update: '2026-11-02T13:29:09Z'
-date_finished:
+last_update: 2026-11-02T13:56:29Z
+date_finished: 2026-11-02T13:56:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -173,7 +173,7 @@ below are revised to match.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-- [ ] [REVIEW] A person reading the map can see which document each step makes or needs, and in which state
+- [x] [REVIEW] A person reading the map can see which document each step makes or needs, and in which state
   **Steps:**
   1. Compare `docs/reports/T-1369-evidence/docs-1920-zoom-before.png` (0.36.0: documents kept but not drawn) with
      `docs-1920-zoom.png` (this change).
@@ -190,6 +190,7 @@ below are revised to match.
   - The toolbar and both side panels are complete at all three widths.
   **If not:** name the screenshot and what is wrong (unreadable, misleading direction, overlap, clipped).
   For the independent reviewer: `fw reviewer judge T-1369 --criterion 1`
+  **Reviewer verdict:** green V-20261102-7d39bfde — reviewer-judge-t-1369-r1-03d87323f786:reviewer (rung rung-1-same-vendor-independent), digest 7029fdb58693; dispatch judge-t-1369-r1-03d87323f786; evidence: .context/reviews/evidence/T-1369/AC1-judge-t-1369-r1-03d87323f786.md, .context/reviews/evidence/T-1369/docs-1920-zoom-before-judge-t-1369-r1-03d87323f786.png, .context/reviews/evidence/T-1369/docs-1920-zoom-judge-t-1369-r1-03d87323f786.png, .context/reviews/evidence/T-1369/docs-1920-judge-t-1369-r1-03d87323f786.png, .context/reviews/evidence/T-1369/docs-1440-judge-t-1369-r1-03d87323f786.png, .context/reviews/evidence/T-1369/docs-1024-judge-t-1369-r1-03d87323f786.png, .context/reviews/evidence/T-1369/docs-1440-zoom-judge-t-1369-r1-03d87323f786.png, .context/reviews/evidence/T-1369/docs-1024-zoom-judge-t-1369-r1-03d87323f786.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -484,3 +485,28 @@ Not acted on: small text in the whole-window shots (the fit zoom), and the empty
 
 ### 2026-11-02T13:29:09Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-02T13:56:29Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1d02bc1b
+- **Timestamp:** 2026-11-02T13:56:36Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 3
+
+**Per-AC findings:**
+
+- **AC#6 (Agent)** — `bash tools/person-sees-gate.sh` exits 0, and screenshots at 1024/1440/1920 are read in `## Visual Verification`.
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/person-sees-gate.sh in: `bash tools/person-sees-gate.sh` exits 0, and screenshots at 1024/1440/1920 are read in `## Visual Verification`.`
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 140
+     - evidence: `export PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH"; node tools/_t1369-documents-cdp.mjs >/dev/null`
+  2. **empty-output-success** (partial, heuristic) @ Verification:line 141
+     - evidence: `export PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH"; node tools/_t1096-data-objects-roundtrip-cdp.mjs >/dev/null`
