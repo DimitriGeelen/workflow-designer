@@ -96,8 +96,17 @@ change, it's a trigger point").
 **Goal:** Draw each data object reference on the canvas as BPMN draws it: a page with a folded corner, its name, its
 state in brackets, and a dotted association to each step that produces or uses it. Display only.
 
-**Expected outcome:** WT-01's "Orderbevestiging [sent]" and "[signed]" appear beside the steps that make and use them.
-A save is byte-identical to 0.36.0. A map without data objects looks exactly as before.
+**Expected outcome:** WT-01's "Orderbevestiging [sent]" and "[signed]" appear under the steps that make them and are
+linked to the steps that use them. A map without data objects looks and saves exactly as before.
+
+**Operator's choice (2026-11-02, option 1: "let the lane grow"):** found while building, all 5 of WT-01's documents
+lie outside every lane in the file's own DI, so "draw at the file's position" read as broken. Three options were put:
+1. the lane grows to hold its documents;
+2. small badges on the task;
+3. draw where the file says.
+The operator chose 1: each document under its producing task, inside its lane, which grows. So a map WITH documents
+saves with taller lanes, and the lanes below move down with their nodes. No ids and no content change. The criteria
+below are revised to match.
 
 **Conditions from the GO:** tested on a synthetic map that is not WT-01. Client data stays out of the repo.
 
@@ -105,19 +114,19 @@ A save is byte-identical to 0.36.0. A map without data objects looks exactly as 
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] On a synthetic fixture (`tests/fixtures/t1369/`, made up, not WT-01: one data object with two references in
-  different states, produced by one task and used by another), each reference is drawn as a BPMN data-object shape at
-  its DI position. It shows its name and `[state]`, with a dotted association line and arrowhead per direction
-  (output: task → document; input: document → task).
-- [ ] A reference with no DI shape is placed by a stated rule (beside its first associated task, not overlapping it).
-  The rule is written in the code comment and tested.
-- [ ] Open → save is byte-identical to the 0.36.0 output for the fixture and for every map in the third-party corpus
-  (`tools/_t1222-event-definitions-kept.py`, and the T-1096 data-objects round trip stay green). Data objects are not
-  editable in this task.
-- [ ] A map without data objects renders unchanged: the gate's crossing and overlap harnesses report no new finding
-  on the corpus.
-- [ ] A CDP harness leg asserts the above and is red on the 0.36.0 source (the bite).
-- [ ] `bash tools/person-sees-gate.sh` exits 0, and screenshots at 1024/1440/1920 are read in `## Visual Verification`.
+<!-- Revised 2026-11-02 for the operator's option 1 (see Context): placement by one rule, the lane grows. -->
+- [x] On a synthetic fixture (`tests/fixtures/t1369/documents.bpmn`, made up, not WT-01: one quote in two states, three
+  tasks, four associations), each reference is drawn as a BPMN data-object shape with its name and `[state]`. It sits
+  centred under its producing task (the stated rule, in the code comment), with a dotted association line and an open
+  arrowhead per direction (output: task → document; input: document → task).
+- [x] The anchor task's lane grows to hold its documents and their labels (130 → 186 on the fixture), the lanes below
+  move down with their nodes, and a reopened save is identical (nothing grows twice). Checked on WT-01 too (not
+  committed: client data): all 5 documents inside their lanes.
+- [x] The save keeps every data element and association (T-1096 round trip, `_t1222`, `_t1264`, `_t1119`,
+  `_roundtrip-serialization`, `_t1350` all green). Data objects are not editable in this task.
+- [x] A map without data objects draws nothing in the data layer and its lanes do not change.
+- [x] `tools/_t1369-documents-cdp.mjs` asserts the above (leg 224, browser tier) and is red on the 0.36.0 source.
+- [x] `bash tools/person-sees-gate.sh` exits 0, and screenshots at 1024/1440/1920 are read in `## Visual Verification`.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -164,6 +173,22 @@ A save is byte-identical to 0.36.0. A map without data objects looks exactly as 
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+- [ ] [REVIEW] A person reading the map can see which document each step makes or needs, and in which state
+  **Steps:**
+  1. Compare `docs/reports/T-1369-evidence/docs-1920-zoom-before.png` (0.36.0: documents kept but not drawn) with
+     `docs-1920-zoom.png` (this change).
+  2. Look at `docs/reports/T-1369-evidence/docs-{1024,1440,1920}.png` and `docs-{1024,1440}-zoom.png`.
+  **Expected:**
+  - Under "Send the quote" stands a page with a folded corner labelled "Quote" and "[sent]"; under "Customer signs",
+    "Quote" "[signed]".
+  - A dotted line with an open arrowhead runs from each task to the document it produces, and from each document to the
+    task that uses it.
+  - Both documents sit inside the Sales lane, which is taller than in the before shot. Nothing overlaps a task or
+    another label, apart from the short line from a task to its document crossing that task's id caption, which stays
+    readable.
+  - The toolbar and both side panels are complete at all three widths.
+  **If not:** name the screenshot and what is wrong (unreadable, misleading direction, overlap, clipped).
+  For the independent reviewer: `fw reviewer judge T-1369 --criterion 1`
 
 ## Verification
 
@@ -303,6 +328,36 @@ A save is byte-identical to 0.36.0. A map without data objects looks exactly as 
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -q "^function growLanesForDocuments(s)" src/aef-workflow-designer.html
+grep -q 'leg browser "_t1369-documents" _leg_224' tests/run-bridge-tests.sh
+test -f tests/fixtures/t1369/documents.bpmn
+export PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH"; node tools/_t1369-documents-cdp.mjs >/dev/null
+export PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH"; node tools/_t1096-data-objects-roundtrip-cdp.mjs >/dev/null
+test -f docs/reports/T-1369-evidence/docs-1920-zoom.png && test -f docs/reports/T-1369-evidence/docs-1920-zoom-before.png
+
+## Visual Verification
+
+Screenshots by `node tools/_t1369-shots.mjs` (with `T1369_BEFORE` = the 0.36.0 source) of the made-up fixture
+`tests/fixtures/t1369/documents.bpmn`, in `docs/reports/T-1369-evidence/`. Each one was read.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| canvas, opening | "Quote [sent]" under "Send the quote", "Quote [signed]" under "Customer signs" | ok | ok | ok | docs-{W}-zoom.png |
+| canvas, opening | dotted associations with open arrowheads: task → document, document → next task | ok | ok | ok | |
+| canvas, opening | the Sales lane grown to hold both documents and their labels | ok | ok | ok | compare docs-1920-zoom-before.png |
+| canvas, opening | the line from a task down to its document crosses the task's id caption | ok | ok | ok | the caption paints on top and stays readable; noted, not changed |
+| window | toolbar, both side panels | ok | ok | ok | docs-{W}.png |
+
+What was read:
+- **docs-1920-zoom-before.png (0.36.0):** three tasks in a 130 px lane, no documents.
+- **docs-1920-zoom.png:**
+  - two document shapes with folded corners, centred under their producing tasks, each labelled "Quote" with
+    "[sent]" / "[signed]" in the muted mono style;
+  - the outputs as short dotted lines down from the task, the inputs as diagonal dotted lines up to the next task's
+    lower left, arrowheads open and pointing at the receiver;
+  - the lane grown to 186 px with the labels inside.
+- **WT-01** (not committed: client data): geometry checked by script. All 5 references sit inside their anchor's lane:
+  Klant/dealer 216, Verkoper 194 and Tacton CPQ 206, from 130.
 
 ## RCA
 
@@ -383,6 +438,21 @@ A save is byte-identical to 0.36.0. A map without data objects looks exactly as 
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-11-02 — where documents stand (operator's choice, option 1)
+- **Chose:** one placement rule: under the producing task (else the first task that uses it), inside its lane, side by
+  side when several. The lane grows at import to hold them, and the lanes below move down with their nodes, keeping
+  their layout.
+- **Why:**
+  - All 5 of greenfield's WT-01 documents lie outside every lane in its own DI, so the file's positions could not be
+    trusted to read as "this step's document".
+  - The rule reads the same on every map.
+  - Growing at import (not on every render) makes a reopened save identical.
+- **Rejected (put to the operator):**
+  - Badges on the task: not standard BPMN, and a shared document would show twice.
+  - Drawing at the file's position: WT-01's documents would float above and between lanes.
+- **Consequence:** a map with documents saves with taller lanes. No id and no content changes. To be named in the
+  release notes for AEF.
 
 ## Decision
 

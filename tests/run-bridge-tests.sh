@@ -1815,6 +1815,22 @@ else
 fi
 }
 leg browser "_t1365-value-rules" _leg_223
+
+_leg_224() {
+
+# ── T-1369 (T-1363 GO, B1): documents are drawn with their state and associations, inside a lane that grows to hold them ──
+# Made-up quote, sent then signed: both references drawn under their producing task with [state], inside the lane
+# (130 -> grown), four dotted associations in the right direction; the save keeps every data element, a reopened save
+# is identical (nothing grows twice); a map without documents draws nothing. Red on the pre-T-1369 source.
+if node "$ROOT/tools/_t1369-documents-cdp.mjs" > "$TMP/leg-_t1369.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "documents (data objects) are no longer drawn with their state and associations inside a lane grown to hold them, the save lost a data element, or a reopened save grew the lane again (run 'node tools/_t1369-documents-cdp.mjs'; T-1369)"
+  show_output "$TMP/leg-_t1369.out" "_t1369-documents-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1369-documents" _leg_224
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
