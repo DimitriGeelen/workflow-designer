@@ -21027,3 +21027,21 @@ scan_id: R-0d66d295
 task_id: T-1367
 payload:
   task_file: .tasks/active/T-1367-release-designer-0360-conditional-and-si.md
+---
+kind: scan_emitted
+timestamp: '2026-11-03T17:20:49Z'
+scan_id: R-28c8f93a
+task_id: T-1381
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-03T17:20:49Z'
+scan_id: R-28c8f93a
+task_id: T-1381
+payload:
+  task_file: .tasks/active/T-1381-draw-data-stores-bpmndatastorereference-.md

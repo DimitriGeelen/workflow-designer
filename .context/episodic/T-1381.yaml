@@ -1,0 +1,114 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1381: Draw data stores (bpmn:dataStoreReference) under the task that uses them, linked like documents; the import notice counts them as drawn
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-03T17:20:55Z
+# ============================================================================
+
+task_id: T-1381
+task_name: "Draw data stores (bpmn:dataStoreReference) under the task that uses them, linked like documents; the import notice counts them as drawn"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-03T16:17:59Z
+completed: 2026-11-03T17:20:44Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-03T17:29:26+01:00
+last_commit: 2026-11-03T18:06:00+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  data stores drawn as cylinders by the T-1369 rule (under the task that writes them, else the first that reads them; lane grows); elements under one task take a slot as wide as their label, so neighbours no longer overlap; the notice counts drawn stores and names only an unlinked one. sweep fix — a link to a shape anchored under its own task meets the task 8px in from the corner, beside the id badge (Stock's arrowhead was hidden in war_1_check); shots retaken, gate exit 0; [REVIEW] criterion added; sweep finding 3 (opening zoom, pre-existing) filed as an observation. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - '`dataLayout` reads `dataStoreReference` as well, with `kind: ''store''`, and places it by the T-1369 rule:'
+  - 'The import notice counts drawn documents and drawn data stores together, naming both kinds. "Not drawn" names only'
+  - 'A new harness `tools/_t1381-data-stores-cdp.mjs` (browser leg) on a synthetic fixture'
+  - 'Goldens and harnesses that hold data stores (`kitchen-sink`, `_t1096`, `_t1369`) are updated deliberately where'
+  - 'The person-sees gate exits 0; an advisory sweep is done; screenshots at 1024/1440/1920 are read and recorded in'
+  - '[REVIEW] Data stores read as BPMN data stores, beside their task''s documents, with links whose direction can be seen'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'sweep fix — a link to a shape anchored under its own task meets the task 8px in from the corner, beside the id badge (Stock''s arrowhead was hidden in war_1_check); shots retaken, gate exit 0; [REVIEW] criterion added; sweep finding 3 (opening zoom, pre-existing) filed as an observation'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1381/AC1-judge-t-1381-r1-17c89bd22e4b.md'
+  - '.context/reviews/evidence/T-1381/stock-arrow-1024-crop-judge-t-1381-r1-17c89bd22e4b.png'
+  - '.context/reviews/evidence/T-1381/stock-arrow-1920-crop-judge-t-1381-r1-17c89bd22e4b.png'
+  - '.context/reviews/evidence/T-1381/stores-1024-zoom-judge-t-1381-r1-17c89bd22e4b.png'
+  - '.context/reviews/evidence/T-1381/stores-1920-zoom-judge-t-1381-r1-17c89bd22e4b.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1381-draw-data-stores-bpmndatastorereference-.md'
+  - 'docs/reports/T-1381-evidence/ADVISORY-BRIEF.md'
+  - 'docs/reports/T-1381-evidence/stores-1024-zoom.png'
+  - 'docs/reports/T-1381-evidence/stores-1024.png'
+  - 'docs/reports/T-1381-evidence/stores-1440-zoom.png'
+  - 'docs/reports/T-1381-evidence/stores-1440.png'
+  - 'docs/reports/T-1381-evidence/stores-1920-zoom-before.png'
+  - 'docs/reports/T-1381-evidence/stores-1920-zoom.png'
+  - 'docs/reports/T-1381-evidence/stores-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/fixtures/t1381/data-stores.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1096-data-objects-roundtrip-cdp.mjs'
+  - 'tools/_t1369-documents-cdp.mjs'
+  - 'tools/_t1381-data-stores-cdp.mjs'
+  - 'tools/_t1381-shots.mjs'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-03T17:29:26'
+    action: 'T-1381: data stores drawn as cylinders by the T-1369 rule (under the task that writes them, else the first that reads them; lane grows); elements under one task take a slot as wide as their label, so neighbours no longer overlap; the notice counts drawn stores and names only an unlinked one'
+  - time: '2026-11-03T17:36:32'
+    action: 'T-1381: sweep fix — a link to a shape anchored under its own task meets the task 8px in from the corner, beside the id badge (Stock''s arrowhead was hidden in war_1_check); shots retaken, gate exit 0; [REVIEW] criterion added; sweep finding 3 (opening zoom, pre-existing) filed as an observation'
+  - time: '2026-11-03T18:06:00'
+    action: 'T-1381: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 62 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 62
+  commits: 4
+  files_changed: 32
+  lines_added: 1023
+  lines_removed: 41
+  footprint_refreshed_at: '2026-11-03T17:21:01Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1381-draw-data-stores-bpmndatastorereference-.md
+generated_by: context-agent-hybrid
