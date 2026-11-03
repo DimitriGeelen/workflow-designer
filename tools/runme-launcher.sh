@@ -367,10 +367,10 @@ last_outcome() {  # never run | completed <when> | STOPPED <when>: <reason>
     # log; a live process that is a runme launcher means in flight. A pid reused by something else, a dead one, or no
     # pid file (logs from before T-1380) all read as interrupted, as they did before.
     if [ -z "$line" ] && [ -f "$log.pid" ]; then
-        local pid; pid=$(head -c 20 "$log.pid" | tr -cd '0-9')
-        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null && ps -p "$pid" -o args= 2>/dev/null | grep -q 'runme'; then
-            echo "RUNNING since $when (pid $pid)"; return
-        fi
+        local pid args; pid=$(head -c 20 "$log.pid" | tr -cd '0-9')
+        # captured, not piped into grep -q: under pipefail an early-exiting grep can fail the pipe (T-1331)
+        args=$( [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null && ps -p "$pid" -o args= 2>/dev/null )
+        case "$args" in *runme*) echo "RUNNING since $when (pid $pid)"; return ;; esac
     fi
     # a failed step prints its own reason on the line above (after the y/N prompt)
     why=$(grep -B1 '^STOPPED: ' "$log" | tail -2 | head -1 | sed 's/^Run step [0-9]*\/[0-9]*? \[y\/N\] //')
