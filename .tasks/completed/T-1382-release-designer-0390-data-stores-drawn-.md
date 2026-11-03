@@ -8,13 +8,13 @@ description: >
   tag, sha256, bytes and kit anchors; greenfield re-tests the import notice with data
   stores.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-03T19:18:59Z
-last_update: '2026-11-03T19:19:05Z'
-date_finished:
+last_update: 2026-11-03T20:56:54Z
+date_finished: 2026-11-03T20:56:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -97,13 +97,14 @@ the kit's bytes, and AEF and greenfield told.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `docs/releases/RELEASE-NOTES-0.39.0.md` is committed and is not a draft. It covers T-1381 and T-1379, what changes
+- [x] `docs/releases/RELEASE-NOTES-0.39.0.md` is committed and is not a draft. It covers T-1381 and T-1379, what changes
   in stored maps, and the five endpoints with whether AEF serves each (as of 0.38.0).
-- [ ] An operator job written with `tools/runme-new.sh`: job 122's steps in job 123's order (commit, local tag, browser
+- [x] An operator job written with `tools/runme-new.sh`: job 122's steps in job 123's order (commit, local tag, browser
   tier, core tier, push). It is dry-run rehearsed and committed.
-- [ ] The operator's run ends `done`, and the tag `designer-v0.39.0` is on origin. The artifact is identical to src, and
+- [x] *(Job 124 done, rc=0, at 20:55Z, all 10 steps. Tag on e87936463, on origin. Browser 136/0, core 221/0. Artifact
+  sha256 c14dd6ca…0cda, 1334789 bytes.)* The operator's run ends `done`, and the tag `designer-v0.39.0` is on origin. The artifact is identical to src, and
   the kit verifies.
-- [ ] AEF gets the version, tag, sha256, bytes, changes and kit anchors. Greenfield gets the version and the re-test
+- [x] *(AEF msg a71f52a4; greenfield msg f361e43b, with the WORKS/BROKEN re-test request.)* AEF gets the version, tag, sha256, bytes, changes and kit anchors. Greenfield gets the version and the re-test
   request for the import notice and the drawn stores.
 
 ### Human
@@ -290,6 +291,10 @@ the kit's bytes, and AEF and greenfield told.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+test -f .context/runme/124-release-designer-0.39.0/done
+git ls-remote --exit-code --tags origin designer-v0.39.0
+cmp -s src/aef-workflow-designer.html dist/aef-workflow-designer-0.39.0.html
+python3 tools/kit-calibration-gate.py check --version 0.39.0
 
 ## RCA
 
@@ -390,3 +395,21 @@ the kit's bytes, and AEF and greenfield told.
 
 ### 2026-11-03T19:19:04Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-03T20:56:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-52d879d2
+- **Timestamp:** 2026-11-03T20:56:56Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — An operator job written with `tools/runme-new.sh`: job 122's steps in job 123's order (commit, local tag, browser
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/runme-new.sh in: An operator job written with `tools/runme-new.sh`: job 122's steps in job 123's order (commit, local tag, browser`

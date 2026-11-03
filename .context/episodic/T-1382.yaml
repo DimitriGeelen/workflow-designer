@@ -1,0 +1,109 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1382: Release designer 0.39.0: data stores drawn (T-1381), kit says refuse on exit 2 (T-1379)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-03T20:57:02Z
+# ============================================================================
+
+task_id: T-1382
+task_name: "Release designer 0.39.0: data stores drawn (T-1381), kit says refuse on exit 2 (T-1379)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-03T19:18:59Z
+completed: 2026-11-03T20:56:54Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-03T20:20:09+01:00
+last_commit: 2026-11-03T21:17:47+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release notes 0.39.0 (T-1381 data stores drawn, T-1379 kit: refuse on exit 2); maps with a linked data store save with taller lanes once. operator job 124 — release 0.39.0 (job 122 steps in job 123 order: browser tier after the local tag, before the push); dry-run rehearsed. 0.39.0 — VERSION and APP_VERSION bumped by the release job (parity ok). release designer 0.39.0 — data stores drawn (T-1381), kit says refuse on exit 2 (T-1379); kit calibrated on its bytes
+
+# Key outcomes
+outcomes:
+  - '`docs/releases/RELEASE-NOTES-0.39.0.md` is committed and is not a draft. It covers T-1381 and T-1379, what changes'
+  - 'An operator job written with `tools/runme-new.sh`: job 122''s steps in job 123''s order (commit, local tag, browser'
+  - '*(Job 124 done, rc=0, at 20:55Z, all 10 steps. Tag on e87936463, on origin. Browser 136/0, core 221/0. Artifact'
+  - '*(AEF msg a71f52a4; greenfield msg f361e43b, with the WORKS/BROKEN re-test request.)* AEF gets the version, tag, sha256, bytes, changes and kit anchors. Greenfield gets the version and the re-test'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/124-release-designer-0.39.0/dryrun.ok'
+  - '.context/runme/124-release-designer-0.39.0/job.sh'
+  - '.tasks/active/T-1382-release-designer-0390-data-stores-drawn-.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.39.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.39.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.39.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.39.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.39.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.39.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.39.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.39.0/SKILL.md'
+  - 'dist/aef-authoring-kit-0.39.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.39.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.39.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.39.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.39.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.39.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.39.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.39.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.39.0.html'
+  - 'docs/authoring-kit/calibration-records/0.39.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.39.0.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-03T20:20:09'
+    action: 'T-1382: release notes 0.39.0 (T-1381 data stores drawn, T-1379 kit: refuse on exit 2); maps with a linked data store save with taller lanes once'
+  - time: '2026-11-03T20:21:08'
+    action: 'T-1382: operator job 124 — release 0.39.0 (job 122 steps in job 123 order: browser tier after the local tag, before the push); dry-run rehearsed'
+  - time: '2026-11-03T20:39:02'
+    action: 'T-1382: 0.39.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-11-03T21:17:47'
+    action: 'T-1382: release designer 0.39.0 — data stores drawn (T-1381), kit says refuse on exit 2 (T-1379); kit calibrated on its bytes'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 97 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 97
+  commits: 5
+  files_changed: 28
+  lines_added: 21846
+  lines_removed: 22
+  footprint_refreshed_at: '2026-11-03T20:57:33Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1382-release-designer-0390-data-stores-drawn-.md
+generated_by: context-agent-hybrid

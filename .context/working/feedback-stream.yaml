@@ -21045,3 +21045,39 @@ scan_id: R-28c8f93a
 task_id: T-1381
 payload:
   task_file: .tasks/active/T-1381-draw-data-stores-bpmndatastorereference-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-03T20:56:56Z'
+scan_id: R-52d879d2
+task_id: T-1382
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-03T20:56:56Z'
+scan_id: R-52d879d2
+task_id: T-1382
+payload:
+  task_file: .tasks/active/T-1382-release-designer-0390-data-stores-drawn-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-03T20:57:20Z'
+scan_id: R-ef48a441
+task_id: T-1379
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-03T20:57:20Z'
+scan_id: R-ef48a441
+task_id: T-1379
+payload:
+  task_file: .tasks/active/T-1379-kit-say-that-a-gate-refuses-on-exit-2-er.md
