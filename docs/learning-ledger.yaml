@@ -155,7 +155,9 @@ learnings:
   confirmed_by: 'operator (Dimitri Geelen), 2026-10-02: ''confirm L5 to L15, go ahead with 0.15.2'''
   promoted:
     where: docs/authoring-kit/AUTHORING.md
-    marker: Records a step creates or uses
+    # T-1376 (2026-11-03): the lesson stands, reworded. Documents are data objects since designer 0.37.0 draws them
+    # (T-1369), so the bullet that said "use a note until the designer does" now points to section 4b.
+    marker: Documents a step creates or uses
 - id: L12
   learning: the authority table should state the row "a system SUPPORTS a step, performer unstated" ->
     authority none, system as an annotation (Evergreen read it so; it is the intended reading of "lane
