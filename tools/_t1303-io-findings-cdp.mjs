@@ -69,7 +69,7 @@ const MAP = `<?xml version="1.0" encoding="UTF-8"?>
       <bpmn:extensionElements>
         <aef:uid value="t1303_b"/>
         <aef:io>
-          <aef:input name="contact" typeRef="crm:Contact"/>
+          <aef:input name="contact" typeRef="crm:Contact" operation="read" sourceSystem="sys:crm"/>
           <aef:output name="ct" typeRef="sfdc:Contact" operation="upsert">
             <aef:field role="match"/>
           </aef:output>
