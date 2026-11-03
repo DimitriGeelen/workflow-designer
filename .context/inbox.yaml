@@ -3551,3 +3551,10 @@ observations:
   resolved_carrier_kind: "task"
   resolved_at: 2026-11-03T15:43:07Z
   promoted_to: null
+- id: OBS-492
+  text: "Opening view fits the whole pool width, so on a pool much wider than its content (e.g. tests/fixtures/t1381/data-stores.bpmn: content to x~1050, pool to ~1980) task and data names are very small at 1024 and 1440 with unused canvas below. T-1381 advisory sweep finding 3 (codex). Pre-existing, affects every map; candidate: a readable minimum initial scale, or fit to content instead of pool."
+  captured: 2026-11-03T16:36:08Z
+  context_task: T-1381
+  tags: [ux]
+  status: pending
+  promoted_to: null

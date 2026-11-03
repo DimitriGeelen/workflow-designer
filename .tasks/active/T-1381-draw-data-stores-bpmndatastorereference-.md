@@ -102,15 +102,15 @@ stays undrawn and is named as such. Saved bytes change only in lane height and t
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `dataLayout` reads `dataStoreReference` as well, with `kind: 'store'`, and places it by the T-1369 rule:
+- [x] `dataLayout` reads `dataStoreReference` as well, with `kind: 'store'`, and places it by the T-1369 rule:
   - under its producer, the task whose output links to it, else the first that reads it;
   - side by side with that task's documents.
 
   `renderData` draws a store as a cylinder (`data-data-store`), with its name and `[state]` when it has one, and
   `growLanesForDocuments` makes room for it.
-- [ ] The import notice counts drawn documents and drawn data stores together, naming both kinds. "Not drawn" names only
+- [x] The import notice counts drawn documents and drawn data stores together, naming both kinds. "Not drawn" names only
   a store or a document no task links to, and links to those.
-- [ ] A new harness `tools/_t1381-data-stores-cdp.mjs` (browser leg) on a synthetic fixture
+- [x] A new harness `tools/_t1381-data-stores-cdp.mjs` (browser leg) on a synthetic fixture
   `tests/fixtures/t1381/data-stores.bpmn` proves:
   - the cylinder is drawn under its producer, with the right link directions;
   - the lane grows;
@@ -121,7 +121,7 @@ stays undrawn and is named as such. Saved bytes change only in lane height and t
   It is red on HEAD before the change.
 - [ ] Goldens and harnesses that hold data stores (`kitchen-sink`, `_t1096`, `_t1369`) are updated deliberately where
   the saved bytes or the notice change, with the reason. Both test tiers are green before the push.
-- [ ] The person-sees gate exits 0; an advisory sweep is done; screenshots at 1024/1440/1920 are read and recorded in
+- [x] The person-sees gate exits 0; an advisory sweep is done; screenshots at 1024/1440/1920 are read and recorded in
   `## Visual Verification`.
 
 ### Human
@@ -169,6 +169,20 @@ stays undrawn and is named as such. Saved bytes change only in lane height and t
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+
+- [ ] [REVIEW] Data stores read as BPMN data stores, beside their task's documents, with links whose direction can be seen
+  For the independent reviewer: `fw reviewer judge T-1381 --criterion 1`
+  **Steps:**
+  1. Open `docs/reports/T-1381-evidence/stores-1920-zoom.png`, `stores-1440-zoom.png` and `stores-1024-zoom.png`, then the
+     full windows `stores-1024.png`, `stores-1440.png`, `stores-1920.png`. Compare with `stores-1920-zoom-before.png`.
+  2. Check each cylinder (Order book, Stock): it reads as a data store, distinct from the document page, and its name is
+     centred and unclipped.
+  3. Check that Order book and the Order confirmation document under "Record the order" do not touch: shapes or labels.
+  4. Check that each of the four dotted links shows its direction. Stock's arrowhead must be clear of the `war_1_check`
+     badge.
+  5. Check that Stock and its label sit inside the Warehouse lane, and nothing crosses a lane border.
+  **Expected:** all four hold at all three widths; toolbar and panels unclipped.
+  **If not:** name the screenshot and what is wrong; the agent fixes it and retakes the shots.
 
 ## Verification
 
@@ -327,9 +341,18 @@ The person-sees gate passed first (exit 0, 264 s).
 | opened map | toolbar (Open project … Save) | ok | ok | ok | all buttons visible and unclipped; at 1024 the toolbar wraps to two rows as before |
 | opened map | data store Order book (cylinder, name) | ok | ok | ok | under "Record the order", beside the Order confirmation document; shapes and labels apart (the label-width slot) |
 | opened map | data store Stock (cylinder, name) | ok | ok | ok | under "Check stock" in Warehouse, which grew to hold it (130 to 252) |
-| opened map | dotted links (4) | ok | ok | ok | Record to document and to Order book, Order book to Confirm (arrowhead at Confirm), Stock to Check stock. Stock's arrowhead lands under the task's id badge `war_1_check`; noted for the sweep |
+| opened map | dotted links (4) | ok | ok | ok | Record to the document and to Order book, Order book to Confirm (arrowhead at Confirm), Stock to Check stock. After the sweep, a link to a shape anchored under its own task meets the task's bottom edge 8px in from the corner, beside the id badge. Stock's arrowhead is now clear of `war_1_check` (it was hidden in the badge text, sweep finding 4) |
 | opened map | Archive (unlinked store) | ok | ok | ok | not drawn, as intended; the notice names it |
 | before | stores | n/a | n/a | ok | on the pre-T-1381 source no store is drawn and Warehouse is 130 high |
+
+**Advisory sweep** (codex, TermLink worker `t1381-sweep-c8edad604a78`, brief
+`docs/reports/T-1381-evidence/ADVISORY-BRIEF.md`): no blockers.
+- Findings 1, 2, 5 and 6: nothing found (cylinders read as stores, neighbours apart, lane containment, toolbar and
+  panels).
+- Finding 4 (should-fix): Stock's arrowhead was hidden in the id badge. Fixed as above, and the shots were retaken and
+  read again.
+- Finding 3 (should-fix): the opening view at 1024/1440 fits the whole pool width, so names are small. This is
+  pre-existing and affects every map, not this change, so it is filed as an observation for its own task.
 
 Read control by control in each shot. The zooms show the cylinders' top ellipse and two rims, and the labels centred
 under the shapes. The end event's label moves below it in the grown lane, the designer's normal label placement.
