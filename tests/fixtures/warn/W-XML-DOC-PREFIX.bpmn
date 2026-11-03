@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-1377 G4 fixture (synthetic): documentation that uses the prefixes, with one line that does not -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t"><bpmn:extensionElements><aef:workflowMeta id="t1377" version="1" schemaVersion="2"/><aef:meta mappingVersion="1.1"><aef:prefixes><aef:prefix name="ex" iri="https://example.org/catalog#" system="sys:crm" kind="field"/></aef:prefixes></aef:meta></bpmn:extensionElements>
+    <bpmn:laneSet id="LS">
+      <bpmn:lane id="crm" name="CRM"><bpmn:extensionElements><aef:laneMeta authority="authority"/></bpmn:extensionElements><bpmn:flowNodeRef>s</bpmn:flowNodeRef><bpmn:flowNodeRef>T1</bpmn:flowNodeRef><bpmn:flowNodeRef>e</bpmn:flowNodeRef></bpmn:lane>
+      <bpmn:lane id="clerk" name="Clerk"><bpmn:extensionElements><aef:laneMeta authority="initiative"/></bpmn:extensionElements></bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="s"/>
+    <bpmn:serviceTask id="T1" name="Check"><bpmn:documentation>Instruction: check the order
+the clerk then phones the buyer
+Notes
+anything goes here</bpmn:documentation></bpmn:serviceTask>
+    <bpmn:endEvent id="e"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="s" targetRef="T1"/>
+    <bpmn:sequenceFlow id="f2" sourceRef="T1" targetRef="e"/>
+  </bpmn:process>
+</bpmn:definitions>

@@ -1,11 +1,16 @@
 ---
 id: T-1377
-name: "validate-workflow.py: six general map warnings (io incomplete, io missing, unconditioned branch, doc prefix, unlinked document, position vs DI) and --strict (T-1375 build 2)"
+name: "validate-workflow.py: six general map warnings (io incomplete, io missing,
+  unconditioned branch, doc prefix, unlinked document, position vs DI) and --strict
+  (T-1375 build 2)"
 description: >
-  T-1375 GO build 2: the general map rules greenfield checks in its own script become validator warnings that every consumer gets, and --strict raises them to errors for a consumer that refuses on them.
+  T-1375 GO build 2: the general map rules greenfield checks in its own script become
+  validator warnings that every consumer gets, and --strict raises them to errors
+  for a consumer that refuses on them.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-03T07:40:02Z
-last_update: 2026-11-03T07:40:02Z
-date_finished: null
+last_update: '2026-11-03T07:43:12Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +55,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-03T07:43:12Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1377: validate-workflow.py: six general map warnings (io incomplete, io missing, unconditioned branch, doc prefix, unlinked document, position vs DI) and --strict (T-1375 build 2)
@@ -65,8 +90,9 @@ Research: `docs/reports/T-1375-authoring-kit-map-skill-and-checks.md`, the table
 the rules are lost. The six are:
 - W-02: io names its object, system and operation;
 - W-03: a step in an authority lane has io;
-- W-07: every decision branch has a condition. W-XML-GW-AMBIGUOUS fires only at two or more unconditioned branches,
-  and never on inclusive gateways.
+- W-07: every decision branch has a condition. W-XML-GW-AMBIGUOUS fires only at two or more unconditioned branches.
+  Correction while building: inclusive gateways are not in the validator's vocabulary at all, so a map with one
+  already draws E-XML-NODE-TYPE, and G3 covers exclusive gateways only.
 - W-10: known documentation prefixes;
 - W-11: a document linked to a step;
 - W-14: `aef:position` = DI.
@@ -82,28 +108,44 @@ project rules stay there. This is T-1375's success clause.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Six new WARN codes in `tools/validate-workflow.py`:
-  - `W-XML-IO-INCOMPLETE`: an io without typeRef, or without its system (sourceSystem on input, targetSystem on output),
-    or without operation.
-  - `W-XML-IO-MISSING`: a performer step in a lane with authority `authority` has no io, while the map carries io
-    elsewhere.
-  - `W-XML-GW-BRANCH-UNCONDITIONED`: an outgoing flow of an exclusive or inclusive gateway with 2+ outgoing flows has
-    no conditionExpression and is not the default.
+- [x] Six new WARN codes in `tools/validate-workflow.py` (`_check_general_map_rules`, G1-G6):
+  - `W-XML-IO-INCOMPLETE`: an object io (typeRef or aef:field) without typeRef, without its system, or without
+    operation. The system is sourceSystem on an input and targetSystem on an output, derived as mapping v1.1 says:
+    first the io itself, then the step's aef:meta, then the system its typeRef prefix declares.
+  - `W-XML-IO-MISSING`: a performer step in a lane with authority `authority` has no io, while the map carries
+    *object* io elsewhere. Measured: counting v1.0 io (name/type/required) gave 90 warnings on 32 AEF maps, which give
+    an argument io to a few steps, so v1.0 io doesn't count.
+  - `W-XML-GW-BRANCH-UNCONDITIONED`: an outgoing flow of an exclusiveGateway with 2+ outgoing flows has no
+    conditionExpression and is not the default. It stays silent where GW-AMBIGUOUS already reports (two or more such
+    flows), and is located on the gateway, as GW-AMBIGUOUS is.
   - `W-XML-DOC-PREFIX`: a step's documentation line starts with none of the known prefixes. Text after the `Notes`
-    line is free.
+    line is free. By default it runs only in documentation that uses the prefixes at all; under strict, in all of it.
   - `W-XML-DATA-UNLINKED`: a dataObjectReference without a name, or linked to no step.
-  - `W-XML-POSITION-DI`: a node whose `aef:position` and DI bounds differ beyond a stated tolerance.
-- [ ] `--strict` raises these six, and W-XML-GW-AMBIGUOUS, to ERROR. Under `--strict`, a map with performer steps
+  - `W-XML-POSITION-DI`: a node whose `aef:position` and DI bounds differ by more than 0.5, the same tolerance as the
+    consumer's own check. Both carry the top-left corner.
+- [x] `--strict` raises these six, and W-XML-GW-AMBIGUOUS, to ERROR. Under `--strict`, a map with performer steps
   and no io at all gets `W-XML-IO-MISSING` as an ERROR. Without `--strict` nothing changes for maps without io.
-- [ ] The corpus check: the tracked maps that pass today get no new ERROR without `--strict`. The count of new WARNs
-  per code is recorded in the task, and each one has been read and is a real finding.
-- [ ] A warn fixture under `tests/fixtures/warn/` for each code, and a strict fixture. All of them are synthetic, with
-  no client data. They are registered in reachability, anchorability, rule-dialect axis and rule-form parity, as
-  T-1370's codes were.
-- [ ] A core-tier test (`tests/test_t1377_general_map_checks.py`) proves each code fires on its fixture, stays silent
-  on a clean map, and becomes an ERROR under `--strict`.
-- [ ] The kit's copy of the validator is rebuilt. The core tier is green before push, and the browser tier too if
-  anything under `src/` changed.
+- [x] The corpus check (198 tracked maps, release copies and runme clones left out; validator at HEAD against this
+  tree): no new ERROR and no finding lost without `--strict`. 14 new WARNs in 12 maps, each read, each real:
+  - DATA-UNLINKED 4 in 2 maps: kitchen-sink and caseagile, documents with no name or no link.
+  - BRANCH-UNCONDITIONED 1: governance-key-coverage `kflow_4`.
+  - IO-INCOMPLETE 8: our own io fixtures, which leave out operation or system, and the T-1361 proposal map, whose
+    `sf_lead` input has no operation.
+  - POSITION-DI 1: a vendored AEF map, `hum_1_define`, 20 px apart.
+
+  Two maps go from exit 0 to 1: that AEF map and the T-1361 proposal.
+- [x] A warn fixture under `tests/fixtures/warn/` for each code, a clean map
+  (`valid/t1377-general-map-rules-clean.bpmn`) and a strict fixture (`t1377/strict-no-io.bpmn`). All are synthetic,
+  with no client data. They are registered in:
+  - reachability: picked up by its glob;
+  - anchorability: NODE, six rows;
+  - the rule-dialect axis: 6 rows, 2 carrier classes, 2 polarity probes, conventional count 16 → 18 with its reason;
+  - rule-form parity: 5 out of scope, each with a probe of the YAML bridge, and 1 counted GAP, 13 → 14.
+- [x] A core-tier test (`tests/test_t1377_general_map_checks.py`, 15 legs) proves each code fires on its fixture, stays
+  silent on a clean map, and becomes an ERROR under `--strict`.
+- [ ] The kit's copy of the validator is rebuilt. `build-authoring-kit.py` copies the repo's bytes at release, so this
+  holds when the next release's kit is built. The core tier is green before push. Nothing under `src/` changed, so
+  the browser tier is not required.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -289,6 +331,13 @@ project rules stay there. This is T-1375's success clause.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+python3 tests/test_t1377_general_map_checks.py
+python3 tests/test_rule_form_parity.py
+python3 tests/test_rule_dialect_axis.py
+python3 tests/test_finding_anchorability.py
+python3 tests/test_check_pass_reachability.py
+python3 tests/test_t1370_catalog_checks.py
+grep -q 'tests/test_t1377_general_map_checks.py' tests/run-bridge-tests.sh
 
 ## RCA
 
@@ -386,3 +435,6 @@ project rules stay there. This is T-1375's success clause.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1377-validate-workflowpy-six-general-map-warn.md
 - **Context:** Initial task creation
+
+### 2026-11-03T07:43:12Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

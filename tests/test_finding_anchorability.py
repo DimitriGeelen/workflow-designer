@@ -153,6 +153,15 @@ ANCHOR = {
     "W-XML-IO-FIELD-ENTITY":            "NODE",
     "E-XML-IO-EXPECT-CONTRADICTS":      "NODE",
     "W-XML-IO-EXPECT-REDUNDANT":        "NODE",
+    # T-1377: the general map rules, witnessed by tests/fixtures/warn/W-XML-<code>.bpmn. IO-INCOMPLETE uses R1-R3's io
+    # location; BRANCH-UNCONDITIONED marks the gateway, as GW-AMBIGUOUS does; DATA-UNLINKED the document. IO-MISSING's
+    # strict-only "<process>" form is not walked here (the walk runs without --strict).
+    "W-XML-IO-INCOMPLETE":              "NODE",
+    "W-XML-IO-MISSING":                 "NODE",
+    "W-XML-GW-BRANCH-UNCONDITIONED":    "NODE",
+    "W-XML-DOC-PREFIX":                 "NODE",
+    "W-XML-DATA-UNLINKED":              "NODE",
+    "W-XML-POSITION-DI":                "NODE",
 }
 
 GUTTERABLE = {"NODE", "LANE"}

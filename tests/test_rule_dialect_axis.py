@@ -123,6 +123,10 @@ CARRIER_CLASS = {
     "flow-node element":        STRUCTURE,
     "sequenceFlow":             STRUCTURE,
     "flowNodeRef":              STRUCTURE,
+    # T-1377: plain BPMN elements, no aef: datum. A document and its data associations are graph shape; a step's
+    # documentation is free BPMN text, whose prefix convention is ours (W-XML-DOC-PREFIX says so in its message).
+    "dataObjectReference":      STRUCTURE,
+    "documentation":            STRUCTURE,
     # T-330: the XML form's spelling of the YAML carrier "lanes" above. Named
     # for the element rather than reusing "lanes" because every other XML-form
     # carrier in this table is named for its element (sequenceFlow,
@@ -337,6 +341,16 @@ RULE_CARRIERS = {
     "W-XML-IO-FIELD-ENTITY":       (("aef:io v1.1",), CONSTRAINS),
     "E-XML-IO-EXPECT-CONTRADICTS": (("aef:io v1.1",), CONSTRAINS),
     "W-XML-IO-EXPECT-REDUNDANT":   (("aef:io v1.1",), CONSTRAINS),
+    # T-1377: the general map rules. IO-INCOMPLETE, DOC-PREFIX and POSITION-DI fire on a carrier that is PRESENT and
+    # incomplete or disagreeing (CONSTRAINS). IO-MISSING and BRANCH-UNCONDITIONED demand an optional carrier (an io on
+    # a step, a condition on a branch): REQUIRES, so DIALECT-RELATIVE, house convention stated as such, like
+    # W-XML-GW-AMBIGUOUS. DATA-UNLINKED is graph shape over plain BPMN elements (STRUCTURAL).
+    "W-XML-IO-INCOMPLETE":           (("aef:io v1.1",), CONSTRAINS),
+    "W-XML-IO-MISSING":              (("aef:io v1.1",), REQUIRES),
+    "W-XML-GW-BRANCH-UNCONDITIONED": (("conditionExpression",), REQUIRES),
+    "W-XML-DOC-PREFIX":              (("documentation",), CONSTRAINS),
+    "W-XML-DATA-UNLINKED":           (("dataObjectReference",), STRUCTURAL),
+    "W-XML-POSITION-DI":             (("aef:position",), CONSTRAINS),
     # T-891: promoted WARN -> ERROR and renamed. Same carrier, same axis — what changed is
     # severity, because the editor no longer silently repairs the state (it used to default
     # an unclaimed node to lanes[0]).
@@ -442,7 +456,10 @@ RULE_BASIS = {
 _REQUIREMENT_RE = re.compile(r"\b(MUST|SHALL|REQUIRED)\b")
 # Pinned so a basis added or dropped is a decision, not drift (T-1165: 13 graph-shape WARNs + the 2 gateway rules,
 # warnings since T-1212; + W-XML-GW-DEFAULT-NOT-OWN, T-1284, a deliberate 15 -> 16 with the reason above).
-EXPECTED_CONVENTIONAL = 16
+# T-1377, 16 -> 18, deliberately: W-XML-DATA-UNLINKED and W-XML-DOC-PREFIX read only plain BPMN (a data object and its
+# associations; a step's documentation) and no standard text requires either: a document no step uses, and the prefix
+# list, are 832's authoring conventions (the kit's rules D and C), stated as conventions, never as spec.
+EXPECTED_CONVENTIONAL = 18
 # T-1212: none left. An ERROR that rests on no basis refuses documents the standard admits; a new one is a decision.
 EXPECTED_UNCITED_ERRORS = ()
 
@@ -738,6 +755,19 @@ POLARITY_PROBES = {
         '  <bpmn:process id="Pool_t" name="t">\n',
         '  <bpmn:process id="Pool_t" name="t">\n'
         '    <bpmn:extensionElements><aef:workflowMeta id="t"/></bpmn:extensionElements>\n'),
+    # T-1377: the two REQUIRES rules. A condition on the bare branch, and an io on the bare step, must each silence
+    # their rule; nothing else in the fixture changes.
+    "W-XML-GW-BRANCH-UNCONDITIONED": (
+        "warn/W-XML-GW-BRANCH-UNCONDITIONED.bpmn",
+        '<bpmn:sequenceFlow id="f_small" name="small" sourceRef="g" targetRef="T2"/>',
+        '<bpmn:sequenceFlow id="f_small" name="small" sourceRef="g" targetRef="T2">'
+        '<bpmn:conditionExpression>amount &lt;= 1000</bpmn:conditionExpression></bpmn:sequenceFlow>'),
+    "W-XML-IO-MISSING": (
+        "warn/W-XML-IO-MISSING.bpmn",
+        '<bpmn:serviceTask id="T2" name="Store"/>',
+        '<bpmn:serviceTask id="T2" name="Store"><bpmn:extensionElements><aef:io><aef:output name="order" '
+        'typeRef="ex:Order" operation="update"><aef:field fieldRef="ex:Order.Number" role="match"/></aef:output>'
+        '</aef:io></bpmn:extensionElements></bpmn:serviceTask>'),
 }
 
 
@@ -761,6 +791,7 @@ CARRIER_TOKEN = {
     "conditionExpression": "conditionExpression",
     "aef:io":              "io:",
     "aef:workflowMeta":    "aef:workflowMeta",
+    "aef:io v1.1":         "<aef:io>",   # T-1377
 }
 
 
@@ -807,7 +838,7 @@ def probe_failures():
             fails.append("probe for '%s': transform did not change %s" % (rid, rel))
             continue
 
-        is_xml = rel.endswith(".xml")
+        is_xml = rel.endswith((".xml", ".bpmn"))   # T-1377: newer fixtures use .bpmn (T-1303, T-1370)
         carriers, polarity = RULE_CARRIERS[rid]
 
         # The transform's DIRECTION must be the one the declared polarity

@@ -267,6 +267,20 @@ PARITY = {
                                                   "bridge writes no aef:expect"),
     "W-XML-IO-EXPECT-REDUNDANT":   (OUT_OF_SCOPE, "T-1370 C4: aef:expect repeating the attribute's rule; the YAML "
                                                   "bridge writes no aef:expect"),
+    # T-1377: the general map rules. Four read a construct the YAML bridge never writes; the branch rule reads edge
+    # conditions, which the bridge does write, so it is a counted GAP (EXPECTED_GAPS).
+    "W-XML-IO-INCOMPLETE":         (OUT_OF_SCOPE, "T-1377 G1: an object io's typeRef/system/operation; the YAML bridge "
+                                                  "writes no typeRef and no operation"),
+    "W-XML-IO-MISSING":            (OUT_OF_SCOPE, "T-1377 G2: fires only in a map with object io (typeRef or "
+                                                  "aef:field), which the YAML bridge cannot write"),
+    "W-XML-GW-BRANCH-UNCONDITIONED": (GAP, "edge conditions cross the YAML bridge (yaml-to-bpmn.py writes "
+                                           "conditionExpression); no YAML rule for one unconditioned branch"),
+    "W-XML-DOC-PREFIX":            (OUT_OF_SCOPE, "T-1377 G4: bpmn:documentation lines; the YAML bridge writes no "
+                                                  "documentation"),
+    "W-XML-DATA-UNLINKED":         (OUT_OF_SCOPE, "T-1377 G5: dataObjectReference and data associations; the YAML "
+                                                  "bridge writes neither"),
+    "W-XML-POSITION-DI":           (OUT_OF_SCOPE, "T-1377 G6: aef:position against BPMN DI; the YAML bridge writes "
+                                                  "no DI"),
     "W-XML-PGW-CONDITION":  (PAIRED, "W-PGW-CONDITION"),
     "W-XML-PGW-NOOP":       (PAIRED, "W-PGW-NOOP"),
     "W-XML-PGW-UNBALANCED": (PAIRED, "W-PGW-UNBALANCED"),
@@ -349,6 +363,13 @@ def _yaml_bridge_emits_gateway_default(_corpus):
             if re.search(r"""(\bdefault=\\?["'{]|["']default["']\s*[:,\]])""", ln) and not ln.lstrip().startswith("#")]
 
 
+def _yaml_bridge_writes(pattern):
+    """T-1377 probe: the non-comment lines of the YAML bridge that write a construct matching `pattern`. Same rule as
+    the probes above: answered from the bridge's source, and a missing bridge raises."""
+    src = open(os.path.join(ROOT, "tools", "yaml-to-bpmn.py"), encoding="utf-8").read()
+    return [ln.strip() for ln in src.splitlines() if re.search(pattern, ln) and not ln.lstrip().startswith("#")]
+
+
 def _yaml_bridge_emits_io_v11(_corpus):
     """T-1303 probe: can the YAML form carry mapping v1.1's io constructs (operation, fieldRef / typeRef /
     conceptRef, aef:field, aef:prefixes)?
@@ -375,6 +396,15 @@ OUT_OF_SCOPE_PROBES = {
     "W-XML-IO-FIELD-ENTITY":       ("an aef:field or io typeRef on the YAML form", _yaml_bridge_emits_io_v11),
     "E-XML-IO-EXPECT-CONTRADICTS": ("an aef:expect on the YAML form", _yaml_bridge_emits_io_v11),
     "W-XML-IO-EXPECT-REDUNDANT":   ("an aef:expect on the YAML form", _yaml_bridge_emits_io_v11),
+    # T-1377
+    "W-XML-IO-INCOMPLETE":         ("an io typeRef or operation on the YAML form", _yaml_bridge_emits_io_v11),
+    "W-XML-IO-MISSING":            ("an object io (typeRef or aef:field) on the YAML form", _yaml_bridge_emits_io_v11),
+    "W-XML-DOC-PREFIX":            ("bpmn:documentation on the YAML form",
+                                    lambda c: _yaml_bridge_writes(r"bpmn:documentation")),
+    "W-XML-DATA-UNLINKED":         ("a dataObjectReference or data association on the YAML form",
+                                    lambda c: _yaml_bridge_writes(r"dataObjectReference|data(Input|Output)Association")),
+    "W-XML-POSITION-DI":           ("BPMN DI (BPMNShape / dc:Bounds) on the YAML form",
+                                    lambda c: _yaml_bridge_writes(r"BPMNShape|dc:Bounds|bpmndi:")),
 }
 
 # Counted tolerance. Derived by hand from the census, re-derive it there rather
@@ -401,7 +431,8 @@ OUT_OF_SCOPE_PROBES = {
 #    not a measurement.
 # T-902 (2026-09-29): 13 -> 12, re-derived in the census (docs/reports/T-320-rule-form-parity-census.md).
 # -1 T-902 E-XML-META-AUTHORITY — the YAML twin E-META-AUTHORITY was built, so gap #11 closes.
-EXPECTED_GAPS = 13
+# +1 T-1377 W-XML-GW-BRANCH-UNCONDITIONED — edge conditions cross the YAML bridge; no YAML rule for one bare branch.
+EXPECTED_GAPS = 14
 
 
 # --------------------------------------------------------------------------

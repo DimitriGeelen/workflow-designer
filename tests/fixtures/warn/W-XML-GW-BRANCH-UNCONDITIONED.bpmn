@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-1377 G3 fixture (synthetic): a decision with one branch conditioned and one neither conditioned nor default -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t"><bpmn:extensionElements><aef:workflowMeta id="t1377" version="1" schemaVersion="2"/><aef:meta mappingVersion="1.1"><aef:prefixes><aef:prefix name="ex" iri="https://example.org/catalog#" system="sys:crm" kind="field"/></aef:prefixes></aef:meta></bpmn:extensionElements>
+    <bpmn:laneSet id="LS">
+      <bpmn:lane id="crm" name="CRM"><bpmn:extensionElements><aef:laneMeta authority="authority"/></bpmn:extensionElements><bpmn:flowNodeRef>s</bpmn:flowNodeRef><bpmn:flowNodeRef>g</bpmn:flowNodeRef><bpmn:flowNodeRef>T1</bpmn:flowNodeRef><bpmn:flowNodeRef>T2</bpmn:flowNodeRef><bpmn:flowNodeRef>e</bpmn:flowNodeRef></bpmn:lane>
+      <bpmn:lane id="clerk" name="Clerk"><bpmn:extensionElements><aef:laneMeta authority="initiative"/></bpmn:extensionElements></bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="s"/>
+    <bpmn:exclusiveGateway id="g" name="Big?"/>
+    <bpmn:serviceTask id="T1" name="A"/>
+    <bpmn:serviceTask id="T2" name="B"/>
+    <bpmn:endEvent id="e"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="s" targetRef="g"/>
+    <bpmn:sequenceFlow id="f_big" sourceRef="g" targetRef="T1"><bpmn:conditionExpression>amount &gt; 1000</bpmn:conditionExpression></bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f_small" name="small" sourceRef="g" targetRef="T2"/>
+    <bpmn:sequenceFlow id="f2" sourceRef="T1" targetRef="e"/>
+    <bpmn:sequenceFlow id="f3" sourceRef="T2" targetRef="e"/>
+  </bpmn:process>
+</bpmn:definitions>

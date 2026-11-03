@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-1377 clean fixture (synthetic): every T-1377 rule satisfied, strict mode included -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t"><bpmn:extensionElements><aef:workflowMeta id="t1377" version="1" schemaVersion="2"/><aef:meta mappingVersion="1.1"><aef:prefixes><aef:prefix name="ex" iri="https://example.org/catalog#" system="sys:crm" kind="field"/></aef:prefixes></aef:meta></bpmn:extensionElements>
+    <bpmn:laneSet id="LS">
+      <bpmn:lane id="crm" name="CRM"><bpmn:extensionElements><aef:laneMeta authority="authority"/></bpmn:extensionElements><bpmn:flowNodeRef>s</bpmn:flowNodeRef><bpmn:flowNodeRef>T1</bpmn:flowNodeRef><bpmn:flowNodeRef>g</bpmn:flowNodeRef><bpmn:flowNodeRef>T2</bpmn:flowNodeRef><bpmn:flowNodeRef>e</bpmn:flowNodeRef></bpmn:lane>
+      <bpmn:lane id="clerk" name="Clerk"><bpmn:extensionElements><aef:laneMeta authority="initiative"/></bpmn:extensionElements><bpmn:flowNodeRef>H1</bpmn:flowNodeRef></bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="s"/>
+    <bpmn:serviceTask id="T1" name="Read the order"><bpmn:extensionElements><aef:io><aef:input name="order" typeRef="ex:Order" operation="read"><aef:field fieldRef="ex:Order.Number" role="read"/></aef:input></aef:io><aef:position x="200.0" y="40.0"/></bpmn:extensionElements><bpmn:documentation>Instruction: read the order by its number
+Rule: the number is never empty
+Notes
+free text, kept as written</bpmn:documentation></bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="g" name="Order found?" default="f_no"/>
+    <bpmn:serviceTask id="T2" name="Mark the order"><bpmn:extensionElements><aef:io><aef:output name="order" typeRef="ex:Order" targetSystem="sys:crm" operation="update"><aef:field fieldRef="ex:Order.Number" role="match"/><aef:field fieldRef="ex:Order.Status" role="write"/></aef:output></aef:io></bpmn:extensionElements><bpmn:dataInputAssociation id="da1"><bpmn:sourceRef>D1</bpmn:sourceRef></bpmn:dataInputAssociation></bpmn:serviceTask>
+    <bpmn:task id="H1" name="Look into it"/>
+    <bpmn:dataObjectReference id="D1" name="Order form" dataObjectRef="DO1"/><bpmn:dataObject id="DO1"/>
+    <bpmn:endEvent id="e"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="s" targetRef="T1"/>
+    <bpmn:sequenceFlow id="f2" sourceRef="T1" targetRef="g"/>
+    <bpmn:sequenceFlow id="f_yes" sourceRef="g" targetRef="T2"><bpmn:conditionExpression>found</bpmn:conditionExpression></bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f_no" sourceRef="g" targetRef="H1"/>
+    <bpmn:sequenceFlow id="f3" sourceRef="T2" targetRef="e"/>
+    <bpmn:sequenceFlow id="f4" sourceRef="H1" targetRef="e"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="DI"><bpmndi:BPMNPlane id="P" bpmnElement="Pool_t"><bpmndi:BPMNShape id="T1_di" bpmnElement="T1"><dc:Bounds x="200" y="40" width="120" height="64"/></bpmndi:BPMNShape></bpmndi:BPMNPlane></bpmndi:BPMNDiagram>
+</bpmn:definitions>
