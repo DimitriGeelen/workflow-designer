@@ -1,0 +1,117 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1371: Release designer 0.37.0: documents drawn with their state (T-1369), validator checks io against the field catalog (T-1370)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-03T17:06:36Z
+# ============================================================================
+
+task_id: T-1371
+task_name: "Release designer 0.37.0: documents drawn with their state (T-1369), validator checks io against the field catalog (T-1370)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-02T14:31:24Z
+completed: 2026-11-03T17:06:23Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-11-02T15:32:14+01:00
+last_commit: 2026-11-02T19:58:59+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release 0.37.0 task — context and criteria (B1 documents, B2 catalog check). release notes 0.37.0 (documents drawn, lanes grow; validator --field-catalog; kit anchors move). operator job 119 — release designer 0.37.0 (job 117's code; dry-run passed, sha 9953ba291fea). 0.37.0 — VERSION and APP_VERSION bumped by the release job (parity ok). release designer 0.37.0 — documents drawn with their state (T-1369), validator checks io against the field catalog (T-1370); kit calibrated on its bytes. 0.37.0 released (job 119 done, tag on 6b23cb11a, artifact 47fff62e…, kit 04f026d2…, validator a74c8d2b…); sent to AEF (6d4d2664) and greenfield (84da6cdd). greenfield's 0.37.0 re-test — WORKS on all four items (documents, lanes, catalog check incl. the 6 v11 entity findings, counts); its overlap note is pre-existing and in its file. AEF pins 0.37.0 directly under T-5015 (skipping 0.36.0)
+
+# Key outcomes
+outcomes:
+  - 'Release notes `docs/releases/RELEASE-NOTES-0.37.0.md` committed. They cover the changes, what changes in stored'
+  - 'Operator job written with `tools/runme-new.sh`, dry-run rehearsed, committed. *(job 119, sha 9953ba291fea,'
+  - 'The operator''s run ends `done`, and tag designer-v0.37.0 is on origin. *(job 119 done 2026-11-02 18:50 UTC, all'
+  - '*(2026-11-03: AEF pinned 0.38.0 directly under T-5015, in v1.8.16-be.35 (msg 5b25bba9). The pull at the tag was'
+  - 'Greenfield is sent the release with a WORKS/BROKEN re-test on wt01-io-v12: its 5 documents, and the validator'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/119-release-designer-0.37.0/dryrun.ok'
+  - '.context/runme/119-release-designer-0.37.0/job.sh'
+  - '.tasks/active/T-1371-release-designer-0370-documents-drawn-wi.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.37.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.37.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.37.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.37.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.37.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.37.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.37.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.37.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.37.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.37.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.37.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.37.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.37.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.37.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.37.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.37.0.html'
+  - 'docs/authoring-kit/calibration-records/0.37.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.37.0.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-02T15:32:14'
+    action: 'T-1371: release 0.37.0 task — context and criteria (B1 documents, B2 catalog check)'
+  - time: '2026-11-02T15:32:38'
+    action: 'T-1371: release notes 0.37.0 (documents drawn, lanes grow; validator --field-catalog; kit anchors move)'
+  - time: '2026-11-02T15:33:10'
+    action: 'T-1371: operator job 119 — release designer 0.37.0 (job 117''s code; dry-run passed, sha 9953ba291fea)'
+  - time: '2026-11-02T17:47:10'
+    action: 'T-1371: 0.37.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-11-02T18:07:35'
+    action: 'T-1371: release designer 0.37.0 — documents drawn with their state (T-1369), validator checks io against the field catalog (T-1370); kit calibrated on its bytes'
+  - time: '2026-11-02T19:51:31'
+    action: 'T-1371: 0.37.0 released (job 119 done, tag on 6b23cb11a, artifact 47fff62e…, kit 04f026d2…, validator a74c8d2b…); sent to AEF (6d4d2664) and greenfield (84da6cdd)'
+  - time: '2026-11-02T19:58:08'
+    action: 'T-1371: greenfield''s 0.37.0 re-test — WORKS on all four items (documents, lanes, catalog check incl. the 6 v11 entity findings, counts); its overlap note is pre-existing and in its file'
+  - time: '2026-11-02T19:58:59'
+    action: 'T-1371: AEF pins 0.37.0 directly under T-5015 (skipping 0.36.0)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 1594 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1594
+  commits: 9
+  files_changed: 27
+  lines_added: 21399
+  lines_removed: 26
+  footprint_refreshed_at: '2026-11-03T17:07:13Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1371-release-designer-0370-documents-drawn-wi.md
+generated_by: context-agent-hybrid

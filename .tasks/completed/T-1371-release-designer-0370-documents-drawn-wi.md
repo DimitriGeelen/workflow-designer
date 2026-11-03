@@ -4,12 +4,13 @@ name: "Release designer 0.37.0: documents drawn with their state (T-1369), valid
 description: >
   Release designer 0.37.0: documents drawn with their state (T-1369), validator checks io against the field catalog (T-1370)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-02T14:31:24Z
-last_update: 2026-11-02T14:31:24Z
-date_finished: null
+last_update: 2026-11-03T17:06:23Z
+date_finished: 2026-11-03T17:06:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -85,7 +86,10 @@ taller lanes, and that the validator takes `--field-catalog`.
 - [x] The operator's run ends `done`, and tag designer-v0.37.0 is on origin. *(job 119 done 2026-11-02 18:50 UTC, all
   9 steps: kit PASS by codex and GLM-5.3, core green. Tag on release commit 6b23cb11a. Artifact sha256 47fff62e…d28c,
   1329546 bytes. Kit SHA256SUMS 04f026d2…86d5. validate-workflow.py a74c8d2b…3767, 125022 bytes, changed.)*
-- [ ] *(sent 2026-11-02, msg 6d4d2664 RECEIVED, with the moved kit anchors, the taller-lanes change and the
+- [x] *(2026-11-03: AEF pinned 0.38.0 directly under T-5015, in v1.8.16-be.35 (msg 5b25bba9). The pull at the tag was
+  verified against our hashes. `/api/validate` runs without `--field-catalog`: their operator's choice. The probe reads
+  `CURRENT: AEF serves designer 0.38.0`. 0.37.0 is contained in it.)*
+  *(sent 2026-11-02, msg 6d4d2664 RECEIVED, with the moved kit anchors, the taller-lanes change and the
   `--field-catalog` note for its Check. AEF folded it into **T-5015** (msg 13795dd0): it pins 0.37.0 directly, skipping
   0.36.0, against our hashes including the changed validator, and decides there whether /api/validate passes its catalog.
   It reports the be-tag; then `tools/_t1187-aef-pin-lag.sh` must read CURRENT.)* AEF is sent the version, tag, sha256, bytes, changes AND the kit anchors (SHA256SUMS sha256, validate-workflow.py
@@ -282,6 +286,9 @@ taller lanes, and that the validator takes `--field-catalog`.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+git ls-remote --exit-code --tags origin designer-v0.37.0
+test -f dist/aef-workflow-designer-0.37.0.html
+sh -c 'bash tools/_t1187-aef-pin-lag.sh | grep -q "^CURRENT"'
 
 ## RCA
 
@@ -379,3 +386,26 @@ taller lanes, and that the validator takes `--field-catalog`.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1371-release-designer-0370-documents-drawn-wi.md
 - **Context:** Initial task creation
+
+### 2026-11-03T17:06:23Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-f6af484c
+- **Timestamp:** 2026-11-03T17:06:26Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — Operator job written with `tools/runme-new.sh`, dry-run rehearsed, committed. *(job 119, sha 9953ba291fea,
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/runme-new.sh in: Operator job written with `tools/runme-new.sh`, dry-run rehearsed, committed. *(job 119, sha 9953ba291fea,`
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 139
+     - evidence: `sh -c 'bash tools/_t1187-aef-pin-lag.sh | grep -q "^CURRENT"'`

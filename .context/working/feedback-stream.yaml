@@ -20991,3 +20991,39 @@ scan_id: R-5b80d9bd
 task_id: T-702
 payload:
   task_file: .tasks/active/T-702-ra-006-34-urgent-observations-still-pend.md
+---
+kind: scan_emitted
+timestamp: '2026-11-03T17:06:26Z'
+scan_id: R-f6af484c
+task_id: T-1371
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-03T17:06:26Z'
+scan_id: R-f6af484c
+task_id: T-1371
+payload:
+  task_file: .tasks/active/T-1371-release-designer-0370-documents-drawn-wi.md
+---
+kind: scan_emitted
+timestamp: '2026-11-03T17:06:54Z'
+scan_id: R-0d66d295
+task_id: T-1367
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-03T17:06:54Z'
+scan_id: R-0d66d295
+task_id: T-1367
+payload:
+  task_file: .tasks/active/T-1367-release-designer-0360-conditional-and-si.md
