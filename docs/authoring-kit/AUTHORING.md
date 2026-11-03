@@ -24,7 +24,13 @@ never instead of these.
    - `--field-catalog <catalog.json>`, when your project has a field catalog: it checks each io field
      against it (section 4b).
    - `--strict`, when your project refuses on the general map rules: it turns the section 4b
-     warnings into errors, and makes a map with steps but no io at all an error.
+     warnings (and `W-XML-GW-AMBIGUOUS`) into errors, and makes a map with steps but no io at all
+     an error. It raises nothing else.
+
+   **A gate that refuses a map refuses on exit 2, never on any non-zero exit.** Exit 1 is the honest
+   state of a map whose source leaves something open (section 5). For example, a key that exists but is
+   not decided yet (`W-XML-IO-MATCH-UNRESOLVED`) stays a warning under `--strict` too, and must not block
+   a publish.
 3. **Read every finding.** `CONFORMANCE.md` lists every rule with its class.
 4. **Fix only what the source lets you derive.** Declare the rest unknown (section 4). Section 5
    tells you exactly which warnings an honest map keeps, so you know when to stop.
@@ -310,6 +316,7 @@ source does not say. Removing them by changing the map is fabrication.
 | an executable branch condition (you labelled branches in the source's words, section 4) | 1 × `W-XML-GW-AMBIGUOUS` per such gateway, or 1 × `W-XML-GW-BRANCH-UNCONDITIONED` per branch when only one lacks a condition. DIALECT-RELATIVE: a branch label is a standard-admitted condition carrier |
 | what a system step reads or writes (section 4b) | 1 × `W-XML-IO-MISSING` per such step, with an `Open:` line saying so |
 | an io's system or operation | 1 × `W-XML-IO-INCOMPLETE` per such io |
+| which field is the key, when the source says a key exists | 1 × `W-XML-IO-MATCH-UNRESOLVED` per such field (`role="match"` with no `fieldRef` or `path`), also under `--strict` |
 | geometry (you chose the geometry-free layout, section 7) | 1 × `I-XML-LANE-GEOMETRY-SKIP`, an INFO note, not a warning |
 
 The rule against inventing outranks every finding here. "The validator wins" (top of this

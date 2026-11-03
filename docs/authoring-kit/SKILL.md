@@ -41,7 +41,8 @@ A finding the source cannot answer stays; making something up to clear it is the
    ```
 
    Leave out `--field-catalog` if the project has no catalog. Add `--strict` if your project refuses on the general
-   map rules. Read every finding (section 1).
+   map rules. Read every finding (section 1). Exit 0 is clean, 1 is warnings only, 2 is errors: **refuse on 2**, never
+   on 1. A declared open key stays a warning, even under `--strict` (section 5).
 9. **Fix only what the source lets you derive.** Stop when every remaining finding is in the honest end state
    (section 5) and traces to something the source does not say.
 10. **Round trip:** open the map in the designer and save it again. The save must keep every node, flow, lane,
