@@ -8,7 +8,8 @@ description: >
 
 status: started-work
 workflow_type: build
-owner: agent
+current_node: frw_3_run
+owner: human
 horizon: now
 tags: [arc-003, audit-remediation, RA-006]
 components: []
@@ -91,6 +92,19 @@ cost_estimate_proposed:
 
 ## Context
 
+**Background / trigger:** `fw audit` finding RA-006 (cycle 1, 2026-09-16): 34 urgent observations pending in
+`.context/inbox.yaml`. The detail is below.
+
+**Problem / hypothesis:** urgent items sat in the inbox with no drain under agent authority, so "urgent" meant nothing.
+
+**Goal:** no urgent observation waits without a recorded reason or carrier.
+
+**Expected outcome:** the audit reports no urgent observations pending.
+
+*(Context added 2026-11-03. The 2026-11-03 triage under T-703 left the inbox at 0 pending, urgent included. A close
+attempt the same day found the reviewer verdict on the [REVIEW] criterion stale, because the criterion text had changed
+since V-20261020-04a3af08. The gate withdrew it and set the owner to human. The criterion needs a fresh judgement.)*
+
 **Finding RA-006** - cycle 1, 2026-09-16. Source: fw audit. Severity: WARN.
 
 Cycle-1 baseline for regression detection: audit Pass 166 / Warn 31 / Fail 1; doctor 3 warn / 0 fail.
@@ -123,7 +137,7 @@ Dismissing a recorded finding is a judgement about whether it matters. The agent
 
 ### Human
 
-- [x] [REVIEW] Confirm that "named with reason" closes RA-006, or direct a drain
+- [ ] [REVIEW] Confirm that "named with reason" closes RA-006, or direct a drain
   **Steps:**
   1. Open http://<dev-host>:3013/review/T-702; read the census at the top of `docs/reports/T-702-urgent-named.md`
   2. The three orphans are yours alone: OBS-249 (CLAUDE.md budget ladder — T-614 has since rewritten the ladder in percentages; if you agree it is resolved, it is the first candidate for dismissal once the verb records a reason), OBS-251 (mint a project termlink key — the same question OBS-248 raised), OBS-256 (bridge suite: schedule it via /etc/cron.d, or make it deterministic first)
@@ -134,7 +148,6 @@ Dismissing a recorded finding is a judgement about whether it matters. The agent
   **Expected:** a letter on this task; under B, three sub-rulings
   **If not:** RA-006 re-files at the next remediation sweep with a larger number
   **Reviewer escalation (V-20261019-29bab9be, reviewer-judge-t-702-r1-c29bc62f61d5:reviewer, rung rung-1-same-vendor-independent):** Operator decision: whether named-with-reason closes RA-006 (A/B) and dismiss/promote/hold on orphans is a project-direction call, and OBS-251 concerns minting a credential. Before presenting it: the AC text names orphans OBS-249/251/256 (36 items: 25 completed/7 active/1 dangling), but the committed census docs/reports/T-702-urgent-named.md (2026-09-28) lists 28 rows: 25 active and orphans OBS-251, OBS-398 and OBS-407. The agent should regenerate the census, then update AC#1 step 2 and the Decisions rationale so the operator rules on the actual orphans.
-  **Reviewer verdict:** green V-20261020-04a3af08 — reviewer-judge-t-702-r1-465ce9158a29:reviewer (rung rung-1-same-vendor-independent), digest 9ba15f7fe310; dispatch judge-t-702-r1-465ce9158a29; evidence: .context/reviews/evidence/T-702/AC1-judge-t-702-r1-465ce9158a29.md; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
