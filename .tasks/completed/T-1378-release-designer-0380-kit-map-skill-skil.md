@@ -7,13 +7,13 @@ description: >
   browser tier before it tags (T-1374 rule), then send AEF and greenfield the version,
   tag, sha256, bytes and kit anchors.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-03T11:15:36Z
-last_update: '2026-11-03T11:16:01Z'
-date_finished:
+last_update: 2026-11-03T13:41:05Z
+date_finished: 2026-11-03T13:41:05Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -97,14 +97,22 @@ the kit's bytes. AEF and greenfield have the version, tag, sha256, bytes, change
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `docs/releases/RELEASE-NOTES-0.38.0.md` is committed and is not a draft. It covers T-1377, T-1376 and T-1372,
-  what changes in stored maps (nothing), and the five endpoints with whether AEF serves each.
-- [ ] An operator job written with `tools/runme-new.sh`, modelled on job 119. It has a browser-tier step after the cut
-  and before the tag (T-1374), and is dry-run rehearsed and committed.
-- [ ] The operator's run ends `done`. The tag `designer-v0.38.0` is on origin. `dist/aef-workflow-designer-0.38.0.html`
-  is identical to src, and the kit verifies against its SHA256SUMS and ships `SKILL.md`.
-- [ ] AEF gets the version, tag, sha256, bytes, changes and kit anchors (validator and SHA256SUMS sha256 and size).
-  greenfield gets the version and sha for its `--strict` run.
+- [x] `docs/releases/RELEASE-NOTES-0.38.0.md` is committed and is not a draft. It covers T-1377, T-1376 and T-1372,
+  what changes in stored maps (nothing), and the five endpoints with whether AEF serves each. *(23ea397cc)*
+- [x] An operator job written with `tools/runme-new.sh`, modelled on job 119. It has a browser-tier step after the cut
+  and before the tag (T-1374), and is dry-run rehearsed and committed. *(Job 122. It stopped at step 6, browser tier
+  red 133/2:
+  - `_t1303`'s fixture drew the new IO-INCOMPLETE; fixed in 486540427;
+  - `_t396` cannot measure before the tag exists.
+
+  Job 122 is retired. Job 123 resumed from 122's cut, with the browser tier moved after the local tag and before the
+  push. CLAUDE.md now says so.)*
+- [x] The operator's run ends `done`. The tag `designer-v0.38.0` is on origin. `dist/aef-workflow-designer-0.38.0.html`
+  is identical to src, and the kit verifies against its SHA256SUMS and ships `SKILL.md`. *(Job 123 is done, rc=0, at
+  13:37Z. Tag on 55aa47c01, on origin. Browser 135/0, core 221/0. Artifact sha256 178b2d23…, 1331489 bytes.)*
+- [x] AEF gets the version, tag, sha256, bytes, changes and kit anchors (validator and SHA256SUMS sha256 and size).
+  greenfield gets the version and sha for its `--strict` run. *(AEF msg b9113129: it answered d7683ab0, pinning 0.38.0
+  directly under T-5015 after its GitHub switch. greenfield msg 9dfb62c1.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -290,6 +298,11 @@ the kit's bytes. AEF and greenfield have the version, tag, sha256, bytes, change
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+test -f .context/runme/123-release-0.38.0-resume/done
+git ls-remote --exit-code --tags origin designer-v0.38.0
+cmp -s src/aef-workflow-designer.html dist/aef-workflow-designer-0.38.0.html
+test -f dist/aef-authoring-kit-0.38.0/SKILL.md
+python3 tools/kit-calibration-gate.py check --version 0.38.0
 
 ## RCA
 
@@ -390,3 +403,21 @@ the kit's bytes. AEF and greenfield have the version, tag, sha256, bytes, change
 
 ### 2026-11-03T11:16:00Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-03T13:41:05Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d5a694f2
+- **Timestamp:** 2026-11-03T13:41:10Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — An operator job written with `tools/runme-new.sh`, modelled on job 119. It has a browser-tier step after the cut
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/runme-new.sh in: An operator job written with `tools/runme-new.sh`, modelled on job 119. It has a browser-tier step after the cut`

@@ -1,0 +1,117 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1378: Release designer 0.38.0: kit map skill (SKILL.md, section 4b), six general validator warnings and --strict, import notice names what it does not draw
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-03T13:41:27Z
+# ============================================================================
+
+task_id: T-1378
+task_name: "Release designer 0.38.0: kit map skill (SKILL.md, section 4b), six general validator warnings and --strict, import notice names what it does not draw"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-03T11:15:36Z
+completed: 2026-11-03T13:41:05Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-03T12:19:47+01:00
+last_commit: 2026-11-03T13:53:17+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release notes 0.38.0 (T-1377 six general warnings and --strict, T-1376 kit 4b and SKILL.md, T-1372 notice); nothing changes in stored maps. operator job 122 — release 0.38.0, job 119 plus a browser-tier step before the tag (T-1374); dry-run rehearsed. 0.38.0 — VERSION and APP_VERSION bumped by the release job (parity ok). CLAUDE.md — a validator change needs the browser tier too (Check runs it; T-1377 turned _t1303 red); a release job runs the browser tier after the local tag, before the push (the T-396 leg needs the tag; job 122). operator job 123 resumes release 0.38.0 after job 122 (retired): verify the cut, commit, local tag, browser tier, core, push; dry-run rehearsed. release designer 0.38.0 — six general map warnings and --strict (T-1377), kit section 4b and SKILL.md (T-1376), import notice names what it does not draw (T-1372); kit calibrated on its bytes (job 122), browser tier run before the push (job 123)
+
+# Key outcomes
+outcomes:
+  - '`docs/releases/RELEASE-NOTES-0.38.0.md` is committed and is not a draft. It covers T-1377, T-1376 and T-1372,'
+  - 'An operator job written with `tools/runme-new.sh`, modelled on job 119. It has a browser-tier step after the cut'
+  - 'The operator''s run ends `done`. The tag `designer-v0.38.0` is on origin. `dist/aef-workflow-designer-0.38.0.html`'
+  - 'AEF gets the version, tag, sha256, bytes, changes and kit anchors (validator and SHA256SUMS sha256 and size).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/122-release-designer-0.38.0/dryrun.ok'
+  - '.context/runme/122-release-designer-0.38.0/job.sh'
+  - '.context/runme/122-release-designer-0.38.0/retired'
+  - '.context/runme/123-release-0.38.0-resume/dryrun.ok'
+  - '.context/runme/123-release-0.38.0-resume/job.sh'
+  - '.tasks/active/T-1378-release-designer-0380-kit-map-skill-skil.md'
+  - 'CLAUDE.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.38.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.38.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.38.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.38.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.38.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.38.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.38.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.38.0/SKILL.md'
+  - 'dist/aef-authoring-kit-0.38.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.38.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.38.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.38.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.38.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.38.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.38.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.38.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.38.0.html'
+  - 'docs/authoring-kit/calibration-records/0.38.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.38.0.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-03T12:19:47'
+    action: 'T-1378: release notes 0.38.0 (T-1377 six general warnings and --strict, T-1376 kit 4b and SKILL.md, T-1372 notice); nothing changes in stored maps'
+  - time: '2026-11-03T12:21:05'
+    action: 'T-1378: operator job 122 — release 0.38.0, job 119 plus a browser-tier step before the tag (T-1374); dry-run rehearsed'
+  - time: '2026-11-03T12:29:22'
+    action: 'T-1378: 0.38.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-11-03T13:21:53'
+    action: 'T-1378: CLAUDE.md — a validator change needs the browser tier too (Check runs it; T-1377 turned _t1303 red); a release job runs the browser tier after the local tag, before the push (the T-396 leg needs the tag; job 122)'
+  - time: '2026-11-03T13:22:12'
+    action: 'T-1378: operator job 123 resumes release 0.38.0 after job 122 (retired): verify the cut, commit, local tag, browser tier, core, push; dry-run rehearsed'
+  - time: '2026-11-03T13:53:17'
+    action: 'T-1378: release designer 0.38.0 — six general map warnings and --strict (T-1377), kit section 4b and SKILL.md (T-1376), import notice names what it does not draw (T-1372); kit calibrated on its bytes (job 122), browser tier run before the push (job 123)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 145 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 145
+  commits: 7
+  files_changed: 32
+  lines_added: 21932
+  lines_removed: 32
+  footprint_refreshed_at: '2026-11-03T13:41:38Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1378-release-designer-0380-kit-map-skill-skil.md
+generated_by: context-agent-hybrid
