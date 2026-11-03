@@ -127,7 +127,7 @@ Two carry an open tail, which does not change the verdict — the GO propagated:
 **T-038** (T-041, phase P4, `started-work`) and **T-685** (T-341/T-358, both blocked on
 operator rulings, not on filing).
 
-### PARTIAL (8) — the decision propagated, the delivery did not
+### PARTIAL (9) — the decision propagated, the delivery did not
 
 - ~~**T-263** — *Save-to-project target binding.* The slice **was filed**: T-264, and is
   still `captured`. Filed 2026-07-27, never started. **This is the one on the list most
@@ -146,6 +146,13 @@ operator rulings, not on filing).
   - T-1288, the three-tier suite;
   - T-1291, upstreaming local framework patches.
   Evidence: `docs/reports/T-1285-quality-engine.md`. Added when the triage checker flagged it (2026-10-24, T-1293).
+- **T-1375** — *Authoring-kit map skill and general validator checks* (GO 2026-11-03, operator job 121, on greenfield's
+  T-390/T-393 proposal). Filed the same day as two builds:
+  - T-1377, six validator warnings and `--strict`, built (a72d79f5c), waiting on its push;
+  - T-1376, kit text (AUTHORING.md io and data sections, SKILL.md), not started.
+
+  Evidence: `docs/reports/T-1375-authoring-kit-map-skill-and-checks.md`. Added when the triage checker flagged it
+  (2026-11-03, T-1377's core run).
 - **T-281** — *Audience render lenses* (GO 2026-10-20, operator job 063: slice 1, the business lens in the designer).
   The slice is filed as **T-1241** (horizon now, not started), so the decision propagated and the delivery has not.
   Evidence: `docs/reports/T-281-audience-lenses.md`. Added when the triage checker flagged it (2026-10-21).
