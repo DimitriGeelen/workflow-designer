@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1375: Authoring kit: a general skill to draft, update and check a workflow map, and which of greenfield W-rules become validator checks (greenfield T-390/T-393)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-03T07:39:02Z
+# ============================================================================
+
+task_id: T-1375
+task_name: "Authoring kit: a general skill to draft, update and check a workflow map, and which of greenfield W-rules become validator checks (greenfield T-390/T-393)"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-02T22:00:01Z
+completed: 2026-11-03T07:38:55Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-02T23:01:48+01:00
+last_commit: 2026-11-02T23:09:56+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file inception — authoring-kit skill for drafting and checking a map, and which greenfield W-rules become validator checks (recommendation GO). research — rule-by-rule comparison of the consumer checks with validate-workflow.py, kit survey, IW-1/IW-2 answered, hypothesis, GO revised (two build tasks; W-05 waits on AEF T-4991). Agent criteria ticked with their evidence. operator job 121 — record the GO decision (dry-run rehearsed)
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated *(the consumer''s maps and its rules file; AUTHORING.md mentions io once)*'
+  - 'Assumptions tested *(each rule checked against validate-workflow.py 0.37.0: three covered, six new, W-05 deferred; the W-03 noise risk measured as 13 of 77 maps carrying io)*'
+  - 'Recommendation written with rationale *(GO: two builds, kit text and validator warnings with --strict)*'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/121-decide-t1375/dryrun.ok'
+  - '.context/runme/121-decide-t1375/job.sh'
+  - 'docs/reports/T-1375-authoring-kit-map-skill-and-checks.md'
+  - '.tasks/active/T-1375-authoring-kit-a-general-skill-to-draft-u.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-02T23:01:48'
+    action: 'T-1375: file inception — authoring-kit skill for drafting and checking a map, and which greenfield W-rules become validator checks (recommendation GO)'
+  - time: '2026-11-02T23:08:53'
+    action: 'T-1375: research — rule-by-rule comparison of the consumer checks with validate-workflow.py, kit survey, IW-1/IW-2 answered, hypothesis, GO revised (two build tasks; W-05 waits on AEF T-4991)'
+  - time: '2026-11-02T23:09:11'
+    action: 'T-1375: Agent criteria ticked with their evidence'
+  - time: '2026-11-02T23:09:56'
+    action: 'T-1375: operator job 121 — record the GO decision (dry-run rehearsed)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 578 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 578
+  commits: 5
+  files_changed: 8
+  lines_added: 655
+  lines_removed: 31
+  footprint_refreshed_at: '2026-11-03T07:39:03Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1375-authoring-kit-a-general-skill-to-draft-u.md
+generated_by: context-agent-hybrid

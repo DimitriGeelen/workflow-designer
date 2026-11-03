@@ -20839,3 +20839,29 @@ scan_id: R-adde0c30
 task_id: T-1374
 payload:
   task_file: .tasks/active/T-1374-browser-tier-red-since-0360-kitchen-sink.md
+---
+kind: scan_emitted
+timestamp: '2026-11-03T07:38:57Z'
+scan_id: R-1165dd1e
+task_id: T-1375
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-03T07:38:57Z'
+scan_id: R-1165dd1e
+task_id: T-1375
+payload:
+  task_file: .tasks/active/T-1375-authoring-kit-a-general-skill-to-draft-u.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-11-03T07:38:57Z'
+scan_id: RC-478299e9
+task_id: T-1375
+payload:
+  overall: CONTRADICTED
+  claim_count: 5

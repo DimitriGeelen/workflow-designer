@@ -6,17 +6,17 @@ description: >
   Inception: Authoring kit: a general skill to draft, update and check a workflow
   map, and which of greenfield W-rules become validator checks (greenfield T-390/T-393)
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-11-02T22:00:01Z
-last_update: '2026-11-02T22:01:03Z'
-date_finished:
+last_update: 2026-11-03T07:38:55Z
+date_finished: 2026-11-03T07:38:55Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -185,7 +185,7 @@ findings with its script's.
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-1375` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -250,7 +250,11 @@ own rule C. Evidence: their check-map.py found 15 and 17 findings on TRB-T1 and 
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-1375 go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Operator (2026-11-02, recorded by job 121): GO on greenfield's proposal (their T-390/T-393). Agreed general map rules move from threads and memory into the kit. Build 1: AUTHORING.md gets io-and-data sections (io per object with system and operation; fields with fieldRef and role; expect only for this step; Mapping lines; conditions on every branch; documents as data objects; aef:position = DI; documentation prefixes, 832's rule C), a SKILL.md entry point at the kit root, and the README points to it. Build 2: validate-workflow.py gets six WARNs (IO-INCOMPLETE, IO-MISSING only when the map carries io, GW-BRANCH-UNCONDITIONED, DOC-PREFIX, DATA-UNLINKED, POSITION-DI) and --strict to raise them to ERROR, each with fixtures and registry entries. W-05 waits on AEF T-4991; project rules stay in each project. Success: validate-workflow.py --strict --field-catalog reports on TRB-T1 and KLS-T1 every finding check-map.py reports under W-02/03/07/10/11/14. Evidence: docs/reports/T-1375-authoring-kit-map-skill-and-checks.md.
+
+**Date**: 2026-11-03T07:38:55Z
 
 ## Updates
 
@@ -259,3 +263,42 @@ own rule C. Evidence: their check-map.py found 15 and 17 findings on TRB-T1 and 
 
 ### 2026-11-02T22:01:02Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-03T07:38:55Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Operator (2026-11-02, recorded by job 121): GO on greenfield's proposal (their T-390/T-393). Agreed general map rules move from threads and memory into the kit. Build 1: AUTHORING.md gets io-and-data sections (io per object with system and operation; fields with fieldRef and role; expect only for this step; Mapping lines; conditions on every branch; documents as data objects; aef:position = DI; documentation prefixes, 832's rule C), a SKILL.md entry point at the kit root, and the README points to it. Build 2: validate-workflow.py gets six WARNs (IO-INCOMPLETE, IO-MISSING only when the map carries io, GW-BRANCH-UNCONDITIONED, DOC-PREFIX, DATA-UNLINKED, POSITION-DI) and --strict to raise them to ERROR, each with fixtures and registry entries. W-05 waits on AEF T-4991; project rules stay in each project. Success: validate-workflow.py --strict --field-catalog reports on TRB-T1 and KLS-T1 every finding check-map.py reports under W-02/03/07/10/11/14. Evidence: docs/reports/T-1375-authoring-kit-map-skill-and-checks.md.
+
+### 2026-11-03T07:38:55Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1165dd1e
+- **Timestamp:** 2026-11-03T07:38:57Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-1
+     - evidence: `IW-1 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-478299e9
+- **Timestamp:** 2026-11-03T07:38:57Z
+- **Overall:** CONTRADICTED
+- **Claims:** 5
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `docs/reports/T-1375-authoring-kit-map-skill-and-checks.md` | file | ✓ pass |
+| `dist/aef-authoring-kit-0.37.0/AUTHORING.md` | file | ✓ pass |
+| `tools/validate-workflow.py` | file | ✓ pass |
+| `T-1370` | task | ✓ pass |
+| `T-4991` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
