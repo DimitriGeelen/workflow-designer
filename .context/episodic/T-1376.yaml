@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1376: Authoring kit: io-and-data sections in AUTHORING.md, a SKILL.md entry point, the README points to it (T-1375 build 1)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-03T09:00:49Z
+# ============================================================================
+
+task_id: T-1376
+task_name: "Authoring kit: io-and-data sections in AUTHORING.md, a SKILL.md entry point, the README points to it (T-1375 build 1)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-03T07:40:02Z
+completed: 2026-11-03T09:00:38Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-03T09:32:21+01:00
+last_commit: 2026-11-03T09:46:12+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  authoring kit — section 4b on the data a step reads and writes, SKILL.md as the entry point (T-1375 GO, build 1). learning ledger — L11 still promoted, its marker follows the reworded bullet (documents are data objects since 0.37.0)
+
+# Key outcomes
+outcomes:
+  - 'AUTHORING.md has a section on io and data covering:'
+  - '`docs/authoring-kit/SKILL.md` exists with frontmatter `name` and `description`. It gives the order of work:'
+  - '`tools/build-authoring-kit.py` ships SKILL.md in the kit, its SHA256SUMS lists it, and the kit''s first page points'
+  - 'No client data in the kit text: the examples are made up (the `t1365`/`t1369` fixtures'' style), and no greenfield'
+  - 'The core tier is green. *(221/221 at 906d27d95, after the learning-ledger marker for L11 followed the reworded'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1376-authoring-kit-io-and-data-sections-in-au.md'
+  - 'docs/authoring-kit/AUTHORING.md'
+  - 'docs/authoring-kit/SKILL.md'
+  - 'docs/learning-ledger.yaml'
+  - 'tests/test_t974_authoring_kit.py'
+  - 'tools/build-authoring-kit.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-03T09:32:21'
+    action: 'T-1376: authoring kit — section 4b on the data a step reads and writes, SKILL.md as the entry point (T-1375 GO, build 1)'
+  - time: '2026-11-03T09:46:12'
+    action: 'T-1376: learning ledger — L11 still promoted, its marker follows the reworded bullet (documents are data objects since 0.37.0)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 80 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 80
+  commits: 3
+  files_changed: 9
+  lines_added: 380
+  lines_removed: 32
+  footprint_refreshed_at: '2026-11-03T09:00:58Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1376-authoring-kit-io-and-data-sections-in-au.md
+generated_by: context-agent-hybrid

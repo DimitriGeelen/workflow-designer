@@ -20865,3 +20865,21 @@ task_id: T-1375
 payload:
   overall: CONTRADICTED
   claim_count: 5
+---
+kind: scan_emitted
+timestamp: '2026-11-03T09:00:43Z'
+scan_id: R-2a38eb09
+task_id: T-1376
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-03T09:00:43Z'
+scan_id: R-2a38eb09
+task_id: T-1376
+payload:
+  task_file: .tasks/active/T-1376-authoring-kit-io-and-data-sections-in-au.md

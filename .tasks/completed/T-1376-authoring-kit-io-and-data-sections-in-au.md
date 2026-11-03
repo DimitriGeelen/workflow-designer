@@ -7,13 +7,13 @@ description: >
   documents and positions, and SKILL.md gives the order of work, so agreed rules stop
   living only in sidecar threads.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/test_t974_authoring_kit.py, tools/build-authoring-kit.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-03T07:40:02Z
-last_update: '2026-11-03T08:28:35Z'
-date_finished:
+last_update: 2026-11-03T09:00:38Z
+date_finished: 2026-11-03T09:00:38Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -131,7 +131,8 @@ documentation prefixes.
 - [x] No client data in the kit text: the examples are made up (the `t1365`/`t1369` fixtures' style), and no greenfield
   names or systems appear. *(The new text: none. Two older mentions of a client system in section 3 were replaced
   with "the ERP".)*
-- [ ] The core tier is green.
+- [x] The core tier is green. *(221/221 at 906d27d95, after the learning-ledger marker for L11 followed the reworded
+  bullet; pushed.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -422,3 +423,21 @@ sh -c '! grep -qiE "novis|salesforce|tacton|navision|nooteboom|greenfield" docs/
 
 ### 2026-11-03T08:28:35Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-03T09:00:38Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2a38eb09
+- **Timestamp:** 2026-11-03T09:00:43Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — `tools/build-authoring-kit.py` ships SKILL.md in the kit, its SHA256SUMS lists it, and the kit's first page points
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/build-authoring-kit.py in: `tools/build-authoring-kit.py` ships SKILL.md in the kit, its SHA256SUMS lists it, and the kit's first page points`
