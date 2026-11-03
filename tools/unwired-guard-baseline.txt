@@ -278,5 +278,6 @@ _t1366-shots.mjs
 _t1365-shots.mjs
 # screenshot generator for T-1369's evidence (documents and the grown lane at three widths, before/after), not a guard; same class as _t1241-lens-shots
 _t1369-shots.mjs
+_t1381-shots.mjs
 # screenshot generator for T-1372's evidence (the import notice at three widths, a variant and before), not a guard; same class as _t1241-lens-shots
 _t1372-shots.mjs

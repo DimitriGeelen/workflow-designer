@@ -1833,6 +1833,23 @@ else
 fi
 }
 leg browser "_t1369-documents" _leg_224
+
+_leg_225() {
+
+# ── T-1381: data stores are drawn as cylinders by T-1369's rule, under the task that writes them, and their lane grows ──
+# Made-up order book (written then read), stock (read in another lane), an unlinked archive and one document: both linked
+# stores drawn with their name, beside the document without overlap, four dotted links in the right direction; Archive
+# not drawn and named by the notice; the save keeps every data element, a reopened save is identical. Red on the
+# pre-T-1381 source.
+if node "$ROOT/tools/_t1381-data-stores-cdp.mjs" > "$TMP/leg-_t1381.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "data stores are no longer drawn as cylinders under the task that writes or reads them, their lane does not grow, neighbours overlap, the notice miscounts them, or the save lost a data element (run 'node tools/_t1381-data-stores-cdp.mjs'; T-1381)"
+  show_output "$TMP/leg-_t1381.out" "_t1381-data-stores-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1381-data-stores" _leg_225
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

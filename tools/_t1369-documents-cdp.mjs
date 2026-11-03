@@ -90,7 +90,8 @@ const ASSERT = `(() => {
   load(extra); maybeShowLaneFixNotice();
   var n2 = (document.getElementById('lane-fix-msg') || {}).textContent || '';
   info.noticeExtra = n2;
-  if (!/1 data store \\(CRM\\)/.test(n2) || !/1 document no task links to \\(Memo\\)/.test(n2) || !/in the file and saved back unchanged, but not drawn/.test(n2) || !/2 documents drawn/.test(n2))
+  // T-1381: data stores are drawn when a task links to them; this added CRM has no link, so it reads "no task links to".
+  if (!/1 data store no task links to \\(CRM\\)/.test(n2) || !/1 document no task links to \\(Memo\\)/.test(n2) || !/in the file and saved back unchanged, but not drawn/.test(n2) || !/2 documents drawn/.test(n2))
     errs.push('leg6: with a data store and an unlinked document, both should be NAMED as not drawn: ' + JSON.stringify(n2));
 
   load(window.__PLAIN__);

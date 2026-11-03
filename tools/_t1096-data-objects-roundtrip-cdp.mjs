@@ -81,11 +81,12 @@ async function main() {
       var checks = ${JSON.stringify(CHECKS)};
       return { parseError: !!d.getElementsByTagName('parsererror').length, results: checks.map(function(c){ var ok = false; try { ok = !!eval(c[1]); } catch (e) { ok = false; } return [c[0], ok]; }), dangling: dangling() }; })()`);
     leg(!res.parseError, 'export parses', res);
-    // the import notice says what is kept but not drawn. T-1372: since T-1369 documents are drawn, so the notice names only
-    // what is still not drawn (here the data store CRM) and says it is in the file and saved back unchanged.
+    // the import notice says what is drawn and what is kept but not drawn. T-1372: documents are drawn since T-1369.
+    // T-1381: data stores are drawn too; this map's CRM is written by "Send quote", so it is counted as drawn, and
+    // nothing here is "not drawn".
     const notice = await ev(cmd, `(function(){ var m = document.getElementById('lane-fix-msg'); return m ? m.textContent : null; })()`);
-    leg(notice && /1 data store \(CRM\)/.test(notice) && /in the file and saved back unchanged, but not drawn/.test(notice),
-        'import notice: the data store is named as kept and saved back, not drawn', notice);
+    leg(notice && /1 data store drawn|data stores? drawn|and 1 data store drawn/.test(notice) && !/CRM\)?: in the file and saved back unchanged, but not drawn/.test(notice),
+        'import notice: the data store CRM is counted as drawn, not as kept but not drawn', notice);
     for (const [name, ok] of res.results) leg(ok, name, name.startsWith('every') ? res.dangling : '');
 
     // a second save of our own export is identical (idempotent)
