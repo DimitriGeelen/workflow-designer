@@ -90,6 +90,20 @@ cost_estimate_proposed:
 
 ## Context
 
+**Background / trigger:** `fw audit` finding RA-007 (cycle 1, 2026-09-16): 101 observations pending for more than 7
+days in `.context/inbox.yaml`. The detail is below.
+
+**Problem / hypothesis:** the inbox had become an archive, not a queue. The `dismiss` verb then persisted no reason, so
+an agent could drain the inbox mechanically but not auditably.
+
+**Goal:** an inbox that holds only open items, each closed with a recorded reason or carrier.
+
+**Expected outcome:** the audit reports 0 observations over 7 days, and every closed item says why.
+
+*(Context added 2026-11-03 during a triage. By then the inbox held 5 items and is now 0. The vendored `dismiss` now
+persists `dismissed_reason` and `dismissed_at`, and `resolve --carrier` names where the content lives: the fix option A
+asked for. The ruling below is still the operator's.)*
+
 **Finding RA-007** - cycle 1, 2026-09-16. Source: fw audit. Severity: WARN.
 
 Cycle-1 baseline for regression detection: audit Pass 166 / Warn 31 / Fail 1; doctor 3 warn / 0 fail.

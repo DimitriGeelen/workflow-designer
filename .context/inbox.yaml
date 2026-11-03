@@ -3498,7 +3498,9 @@ observations:
   captured: 2026-10-14T02:48:02Z
   context_task: T-1171
   tags: [sidecar]
-  status: pending
+  status: dismissed
+  dismissed_reason: "consult to worker t1039-teeth2 of T-1039 (work-completed); the worker was stopped 2026-10-13 and its sub-agent inbox has no reader, so no reply can come; nothing left to ask"
+  dismissed_at: 2026-11-03T15:43:07Z
   promoted_to: null
 - id: OBS-487
   text: "45 paths under .editor-versions/ (index.json updates + new vN.bpmn/vN.png snapshots, note 'T-300 dialect-preserving Clean re-bake', files dated 2026-10-01) are uncommitted for 16 days. Found by the T-1164 completion gate's uncommitted-files warning. Needs an owner: commit them under the task that made them, or discard if they were a stray run."
@@ -3509,4 +3511,43 @@ observations:
   resolved_carrier: "T-1198"
   resolved_carrier_kind: "task"
   resolved_at: 2026-10-17T22:51:44Z
+  promoted_to: null
+- id: OBS-488
+  text: "render-surface completion gate (lib/render_surface.sh render_surface_files_in) falls back to the task BODY when the task has no commits, and the body includes the default template's own comment naming web/shared.py and web/app.py — so every fresh, uncommitted build/test task reads as 'touches render surface' (T-1198, 832 has no web/). Workaround: commit the task first (git evidence is the primary source). Fix belongs upstream: strip <!-- --> comments before scanning body candidates."
+  captured: 2026-10-17T22:55:38Z
+  context_task: T-1198
+  tags: [bug]
+  status: resolved
+  resolved_carrier: ".agentic-framework/lib/render_surface.sh"
+  resolved_carrier_kind: "path"
+  resolved_at: 2026-11-03T15:43:07Z
+  promoted_to: null
+- id: OBS-489
+  text: "sidecar consult to cacc73ea32b121dd/termlink unanswered after 13 attempt(s) on the retry ladder (rung 6, conversation sidecar-delivery-noninjectable, client_msg_id ab75a2b5-6ee0-4bbc-809a-1f5aec509e3d). Re-posts and inbox nudges have not produced a reply."
+  captured: 2026-10-19T20:18:04Z
+  context_task: T-1217
+  tags: [sidecar]
+  status: resolved
+  resolved_carrier: "T-1115"
+  resolved_carrier_kind: "task"
+  resolved_at: 2026-11-03T15:43:07Z
+  promoted_to: null
+- id: OBS-490
+  text: "sidecar consult to cacc73ea32b121dd/832-Workflow-designer/t1039-teeth2 unanswered after 14 attempt(s) on the retry ladder (rung 6, conversation t1039, client_msg_id 550ad311-6056-482c-b1d6-5299b3a8f35a). Re-posts and inbox nudges have not produced a reply."
+  captured: 2026-10-21T02:53:02Z
+  context_task: T-1243
+  tags: [sidecar]
+  status: dismissed
+  dismissed_reason: "duplicate of OBS-486 (same consult 550ad311 to the stopped T-1039 worker t1039-teeth2); dismissed for the same reason"
+  dismissed_at: 2026-11-03T15:43:07Z
+  promoted_to: null
+- id: OBS-491
+  text: "sidecar consult to cacc73ea32b121dd/termlink unanswered after 14 attempt(s) on the retry ladder (rung 6, conversation sidecar-delivery-noninjectable, client_msg_id ab75a2b5-6ee0-4bbc-809a-1f5aec509e3d). Re-posts and inbox nudges have not produced a reply."
+  captured: 2026-10-26T20:23:02Z
+  context_task: null
+  tags: [sidecar]
+  status: resolved
+  resolved_carrier: "T-1115"
+  resolved_carrier_kind: "task"
+  resolved_at: 2026-11-03T15:43:07Z
   promoted_to: null
