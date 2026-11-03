@@ -417,6 +417,50 @@ do_y() { : MARK_Y_BODY; touch @OUT@/s1; }
                 "%s unconfirmed step names what it received (%s), in the log and the STOPPED event" % (tag, want),
                 (ev[-1] if ev else out[-300:]))
 
+        # 39-43 (T-1380) a run in flight is not labelled STOPPED. Jobs 121-123 (2026-11-03) read "STOPPED … no outcome
+        #    recorded (run interrupted?)" in the menu and in runme-watch's list while they ran. A log with no outcome is
+        #    RUNNING only while its pid is a live runme process; anything else stays "interrupted", as before.
+        b = Box(tmp, "l39")
+        d = b.job("001-two", TWO_STEPS)
+        b.run("--dry-run")
+        b.run(answers="y\ny\n")
+        pids = [f for f in os.listdir(d) if f.startswith("run-") and f.endswith(".log.pid")]
+        leg(pids and open(os.path.join(d, pids[0])).read().strip().isdigit(),
+            "39 a real run writes its pid beside its log", str(sorted(os.listdir(d))))
+
+        def label(tag, pid_text):
+            bb = Box(tmp, "l" + tag)
+            dd = bb.job("001-two", TWO_STEPS)
+            bb.run("--dry-run")
+            log = os.path.join(dd, "run-20261103T120000.log")
+            with open(log, "w") as fh:
+                fh.write("Step 1/2: first\nRun step 1/2? [y/N] \n")      # in flight: neither DONE nor STOPPED yet
+            if pid_text is not None:
+                with open(log + ".pid", "w") as fh:
+                    fh.write(pid_text + "\n")
+            _, o = bb.run("--list")
+            return next((l for l in o.splitlines() if "001-two" in l), o[-300:])
+
+        alive = subprocess.Popen(["bash", "-c", "sleep 60; true", "runme-launcher-probe"])
+        other = subprocess.Popen(["bash", "-c", "sleep 60; true", "unrelated-probe"])
+        gone = subprocess.Popen(["true"]); gone.wait()
+        try:
+            l40 = label("l40", str(alive.pid))
+            l41 = label("l41", str(gone.pid))
+            l42 = label("l42", str(other.pid))
+            l43 = label("l43", None)
+        finally:
+            for p in (alive, other):
+                p.kill(); p.wait()
+        leg("RUNNING since 11-03 12:00 (pid %d)" % alive.pid in l40 and "STOPPED" not in l40,
+            "40 no outcome yet and a live runme pid: RUNNING, not STOPPED", l40)
+        leg("STOPPED 11-03 12:00: no outcome recorded (run interrupted?)" in l41,
+            "41 no outcome and a dead pid: interrupted, as before", l41)
+        leg("STOPPED 11-03 12:00: no outcome recorded (run interrupted?)" in l42 and "RUNNING" not in l42,
+            "42 a live pid that is no runme process (reused) does not count as running", l42)
+        leg("STOPPED 11-03 12:00: no outcome recorded (run interrupted?)" in l43,
+            "43 a log from before T-1380 (no pid file) reads as before", l43)
+
     print("\n%d failed leg(s)" % len(fails) if fails else "\nall legs passed")
     return 1 if fails else 0
 

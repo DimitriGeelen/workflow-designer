@@ -363,6 +363,15 @@ last_outcome() {  # never run | completed <when> | STOPPED <when>: <reason>
     when="${ts:4:2}-${ts:6:2} ${ts:9:2}:${ts:11:2}"
     if grep -q '^DONE: ' "$log"; then echo "completed $when"; return; fi
     line=$(grep '^STOPPED: ' "$log" | tail -1); line=${line#STOPPED: }
+    # T-1380: no outcome yet is either a run in flight or one that was killed. run_one writes the run's pid beside its
+    # log; a live process that is a runme launcher means in flight. A pid reused by something else, a dead one, or no
+    # pid file (logs from before T-1380) all read as interrupted, as they did before.
+    if [ -z "$line" ] && [ -f "$log.pid" ]; then
+        local pid; pid=$(head -c 20 "$log.pid" | tr -cd '0-9')
+        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null && ps -p "$pid" -o args= 2>/dev/null | grep -q 'runme'; then
+            echo "RUNNING since $when (pid $pid)"; return
+        fi
+    fi
     # a failed step prints its own reason on the line above (after the y/N prompt)
     why=$(grep -B1 '^STOPPED: ' "$log" | tail -2 | head -1 | sed 's/^Run step [0-9]*\/[0-9]*? \[y\/N\] //')
     case "$line" in step*failed*) [ -n "$why" ] && line="$line — $why" ;; esac
@@ -614,6 +623,7 @@ run_one() {  # run_one <job dir> — one job, end to end; runs in a subshell so 
     LOG="$d/run-$TS.log"
     chmod u+w "$d" 2>/dev/null
     touch "$LOG" 2>/dev/null || fail "cannot write $LOG"
+    echo "$BASHPID" > "$LOG.pid" 2>/dev/null   # T-1380: lets the menu tell a run in flight from an interrupted one
     exec > >(tee -a "$LOG") 2>&1
     . "$PROJ/tools/runme-signal.sh"
     runme_signal_init "$(basename "$d") [sha ${sha:0:12}]" "$LOG"
