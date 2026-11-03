@@ -9,13 +9,13 @@ description: >
   push), then re-pin Watchtower and send AEF and aef-greenfield-test version, tag,
   sha256, bytes, what it brings and what changes in stored maps.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: [T-1249, T-1241, T-1243, T-1222]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: [T-1249, T-1241, T-1243, T-1222]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T20:14:54Z
-last_update: 2026-10-22T11:06:14Z
-date_finished:
+last_update: 2026-11-03T15:52:47Z
+date_finished: 2026-11-03T15:52:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -83,7 +83,15 @@ bvp_scores_proposed:
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Background / trigger:** after T-1249 (v1.1 io shown and kept), the business lens and event definitions were built
+(October 2026), they needed a release that AEF and greenfield could pin.
+
+**Problem / hypothesis:** the work was on bleeding-edge only. Consumers saw none of it.
+
+**Goal:** release designer 0.25.0 through the operator release job, with the kit calibrated.
+
+**Expected outcome:** tag `designer-v0.25.0` on origin, the artifact in `dist/`, and AEF and greenfield told. *(Context
+added 2026-11-03 when closing. All three criteria were already ticked, and the tag, the artifact and the notes exist.)*
 
 ## Acceptance Criteria
 
@@ -292,6 +300,9 @@ bvp_scores_proposed:
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+git ls-remote --exit-code --tags origin designer-v0.25.0
+test -f dist/aef-workflow-designer-0.25.0.html
+test -f docs/releases/RELEASE-NOTES-0.25.0.md
 
 ## RCA
 
@@ -392,3 +403,16 @@ bvp_scores_proposed:
 
 ### 2026-10-21T20:15:00Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-03T15:52:47Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-38838a77
+- **Timestamp:** 2026-11-03T15:52:49Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

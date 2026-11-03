@@ -20937,3 +20937,21 @@ scan_id: R-60c24dc4
 task_id: T-1380
 payload:
   task_file: .tasks/active/T-1380-runme-launcher-the-pending-list-labels-a.md
+---
+kind: scan_emitted
+timestamp: '2026-11-03T15:52:49Z'
+scan_id: R-38838a77
+task_id: T-1255
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-03T15:52:49Z'
+scan_id: R-38838a77
+task_id: T-1255
+payload:
+  task_file: .tasks/active/T-1255-release-designer-0250-v11-io-shown-and-k.md

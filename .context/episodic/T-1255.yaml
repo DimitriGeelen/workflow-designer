@@ -1,0 +1,113 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1255: Release designer 0.25.0: v1.1 io shown and kept, business lens, event definitions kept
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-03T15:52:54Z
+# ============================================================================
+
+task_id: T-1255
+task_name: "Release designer 0.25.0: v1.1 io shown and kept, business lens, event definitions kept"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-21T20:14:54Z
+completed: 2026-11-03T15:52:47Z
+duration_days: 13
+updates_count: 3
+first_commit: 2026-10-21T22:15:48+02:00
+last_commit: 2026-10-22T13:06:08+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  0.25.0 — VERSION and APP_VERSION bumped (parity ok), release notes (T-1249 v1.1 io shown and kept, T-1243 io children kept, T-1241 business lens and toolbar fit, T-1222 event definitions kept; what changes in stored maps); pending list emptied. T-1241: Agent criteria ticked with evidence. operator job 076 — release designer 0.25.0 (kit calibration codex + GLM-5.3, cut, commit, tag designer-v0.25.0, push); rehearsed, 13/13 preflight. job 076 re-rehearsed on today's tree (13/13 checks ok, sha ec8d4f9e8223); filed T-1273 (sweep cap can leave src mutated) and T-1274 (T-1241 follow-up: flow label beside gateway name, Note box third line). release designer 0.25.0 — saving keeps what third-party maps brought (T-1217, T-1218, T-1220); gateway rules become warnings (T-1212); details view opens at the top (T-1209); kit calibrated on its bytes. designer 0.25.0 released by job 076 (calibrated by codex + GLM-5.3, tag designer-v0.25.0 on 2b6bd876, sha256 2cbcca06…, 1226527 bytes); the release commit's subject was copied from 0.24.0 by mistake (recorded, learning added); AEF and greenfield announced; AEF pin BEHIND by 1 until they re-pin
+
+# Key outcomes
+outcomes:
+  - 'VERSION and APP_VERSION are 0.25.0 (parity check passes); `docs/releases/RELEASE-NOTES-0.25.0.md` carries T-1249,'
+  - 'An operator release job (modelled on 053) is rehearsed: kit calibration (codex, GLM-5.3), cut, commit, tag'
+  - 'After the operator''s run: Watchtower re-pinned to 0.25.0, and AEF and aef-greenfield-test are sent version, tag,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - '.context/runme/076-release-designer-0.25.0/dryrun.ok'
+  - '.context/runme/076-release-designer-0.25.0/job.sh'
+  - '.tasks/active/T-1241-business-lens-in-the-designer-t-281-go-s.md'
+  - '.tasks/active/T-1255-release-designer-0250-v11-io-shown-and-k.md'
+  - '.tasks/active/T-1273-instrument-sweep-90s-cap-can-leave-src-m.md'
+  - '.tasks/active/T-1274-t-1241-follow-up-flow-label-yes--status-.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.25.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.25.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.25.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.25.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.25.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.25.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.25.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.25.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.25.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.25.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.25.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.25.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.25.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.25.0/validate-workflow.py'
+  - 'dist/aef-workflow-designer-0.25.0.html'
+  - 'docs/authoring-kit/calibration-records/0.25.0.yaml'
+  - 'docs/releases/PENDING-next-release.md'
+  - 'docs/releases/RELEASE-NOTES-0.25.0.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-21T22:15:48'
+    action: 'T-1255: 0.25.0 — VERSION and APP_VERSION bumped (parity ok), release notes (T-1249 v1.1 io shown and kept, T-1243 io children kept, T-1241 business lens and toolbar fit, T-1222 event definitions kept; what changes in stored maps); pending list emptied. T-1241: Agent criteria ticked with evidence'
+  - time: '2026-10-21T22:16:10'
+    action: 'T-1255: operator job 076 — release designer 0.25.0 (kit calibration codex + GLM-5.3, cut, commit, tag designer-v0.25.0, push); rehearsed, 13/13 preflight'
+  - time: '2026-10-22T12:24:40'
+    action: 'T-1255: job 076 re-rehearsed on today''s tree (13/13 checks ok, sha ec8d4f9e8223); filed T-1273 (sweep cap can leave src mutated) and T-1274 (T-1241 follow-up: flow label beside gateway name, Note box third line)'
+  - time: '2026-10-22T12:59:01'
+    action: 'T-1255: release designer 0.25.0 — saving keeps what third-party maps brought (T-1217, T-1218, T-1220); gateway rules become warnings (T-1212); details view opens at the top (T-1209); kit calibrated on its bytes'
+  - time: '2026-10-22T13:06:08'
+    action: 'T-1255: designer 0.25.0 released by job 076 (calibrated by codex + GLM-5.3, tag designer-v0.25.0 on 2b6bd876, sha256 2cbcca06…, 1226527 bytes); the release commit''s subject was copied from 0.24.0 by mistake (recorded, learning added); AEF and greenfield announced; AEF pin BEHIND by 1 until they re-pin'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 18457 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 18457
+  commits: 6
+  files_changed: 31
+  lines_added: 20171
+  lines_removed: 51
+  footprint_refreshed_at: '2026-11-03T15:53:01Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1255-release-designer-0250-v11-io-shown-and-k.md
+generated_by: context-agent-hybrid
