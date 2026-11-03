@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1380: runme launcher: the pending list labels a job that is still running 'STOPPED … no outcome recorded (run interrupted?)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-03T14:50:00Z
+# ============================================================================
+
+task_id: T-1380
+task_name: "runme launcher: the pending list labels a job that is still running 'STOPPED … no outcome recorded (run interrupted?)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-03T14:15:00Z
+completed: 2026-11-03T14:49:31Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-03T15:18:14+01:00
+last_commit: 2026-11-03T15:35:11+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the runme menu and watch list say RUNNING for a job in flight (was: STOPPED … no outcome recorded). capture ps output instead of piping it into grep -q (T-1331 pipefail census)
+
+# Key outcomes
+outcomes:
+  - '`run_one` writes `<log>.pid` (the run''s own pid) when the log is created. When the newest log has no outcome,'
+  - '`tests/test_t1055_runme_launcher.py` gains legs:'
+  - 'A real run of a job writes the pid file. *(Leg 39; all launcher legs green; core 221/0 at 45b3f9a0f after the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1380-runme-launcher-the-pending-list-labels-a.md'
+  - 'tests/test_t1055_runme_launcher.py'
+  - 'tools/runme-launcher.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-03T15:18:14'
+    action: 'T-1380: the runme menu and watch list say RUNNING for a job in flight (was: STOPPED … no outcome recorded)'
+  - time: '2026-11-03T15:35:11'
+    action: 'T-1380: capture ps output instead of piping it into grep -q (T-1331 pipefail census)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 34 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 34
+  commits: 3
+  files_changed: 6
+  lines_added: 593
+  lines_removed: 10
+  footprint_refreshed_at: '2026-11-03T14:50:06Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1380-runme-launcher-the-pending-list-labels-a.md
+generated_by: context-agent-hybrid
