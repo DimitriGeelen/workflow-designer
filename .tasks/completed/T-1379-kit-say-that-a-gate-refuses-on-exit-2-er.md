@@ -9,11 +9,11 @@ description: >
   say a project gate refuses on exit 2, and that an open key is not raised. Ships
   in the next release.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-03T13:44:45Z
-last_update: '2026-11-03T14:50:13Z'
-date_finished:
+last_update: 2026-11-03T20:57:18Z
+date_finished: 2026-11-03T20:57:18Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -104,7 +104,8 @@ no need to ask.
   only the section 4b rules and `W-XML-GW-AMBIGUOUS`, so a declared open key (`W-XML-IO-MATCH-UNRESOLVED`) stays a
   warning that never refuses. Section 5's honest end state lists the open key.
 - [x] SKILL.md step 8 says the same in one line.
-- [ ] The kit tests stay green (`test_t974` 4 and 4b name only real rules), and so does the core tier. The change
+- [x] *(Kit tests 17/17 and 18/18, core green at b1ee54bbb. Shipped in 0.39.0: the kit's SKILL.md sha256 166946038…,
+  calibrated PASS by codex and GLM-5.3, job 124.)* The kit tests stay green (`test_t974` 4 and 4b name only real rules), and so does the core tier. The change
   ships in the next release.
 
 ### Human
@@ -395,3 +396,16 @@ python3 tests/test_t974_authoring_kit.py
 ### 2026-11-03T14:50:13Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-03T20:57:18Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ef48a441
+- **Timestamp:** 2026-11-03T20:57:20Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

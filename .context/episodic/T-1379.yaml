@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1379: Kit: say that a gate refuses on exit 2 (errors), not on any non-zero exit; an open key (W-XML-IO-MATCH-UNRESOLVED) stays an honest warning under --strict
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-03T20:57:26Z
+# ============================================================================
+
+task_id: T-1379
+task_name: "Kit: say that a gate refuses on exit 2 (errors), not on any non-zero exit; an open key (W-XML-IO-MATCH-UNRESOLVED) stays an honest warning under --strict"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-03T13:44:45Z
+completed: 2026-11-03T20:57:18Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-03T15:51:49+01:00
+last_commit: 2026-11-03T15:51:49+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  kit — a gate refuses on exit 2, never on any non-zero exit; --strict raises nothing beyond the 4b rules and GW-AMBIGUOUS, so a declared open key stays a warning (greenfield msg 33b2aaac)
+
+# Key outcomes
+outcomes:
+  - 'AUTHORING.md section 1 says a project gate refuses on exit 2, not on any non-zero exit. It says `--strict` raises'
+  - 'SKILL.md step 8 says the same in one line.'
+  - '*(Kit tests 17/17 and 18/18, core green at b1ee54bbb. Shipped in 0.39.0: the kit''s SKILL.md sha256 166946038…,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1379-kit-say-that-a-gate-refuses-on-exit-2-er.md'
+  - 'docs/authoring-kit/AUTHORING.md'
+  - 'docs/authoring-kit/SKILL.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-03T15:51:49'
+    action: 'T-1379: kit — a gate refuses on exit 2, never on any non-zero exit; --strict raises nothing beyond the 4b rules and GW-AMBIGUOUS, so a declared open key stays a warning (greenfield msg 33b2aaac)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 432 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 432
+  commits: 2
+  files_changed: 5
+  lines_added: 507
+  lines_removed: 8
+  footprint_refreshed_at: '2026-11-03T20:57:36Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1379-kit-say-that-a-gate-refuses-on-exit-2-er.md
+generated_by: context-agent-hybrid
