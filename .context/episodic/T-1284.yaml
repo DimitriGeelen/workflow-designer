@@ -1,0 +1,92 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1284: Validator W-XML-GW-AMBIGUOUS ignores a gateway's default and words both cases alike, which misled GLM-5.3's 0.26.0 calibration
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-03T15:55:14Z
+# ============================================================================
+
+task_id: T-1284
+task_name: "Validator W-XML-GW-AMBIGUOUS ignores a gateway's default and words both cases alike, which misled GLM-5.3's 0.26.0 calibration"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-23T21:40:41Z
+completed: 2026-11-03T15:55:00Z
+duration_days: 11
+updates_count: 3
+first_commit: 2026-10-23T23:47:19+02:00
+last_commit: 2026-10-23T23:47:49+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  W-XML-GW-AMBIGUOUS reads the gateway's default and says which case it is (declared default named + unconditioned non-default flows, or no default); new W-XML-GW-DEFAULT-NOT-OWN warns when a default is not one of the gateway's own flows (fixture; CONVENTIONAL 15->16, parity OUT-OF-SCOPE with the first real expressibility probe, never-witnessed 1->2). Cause: job 082's GLM-5.3 calibration raised a false finding on the clean map; GLM withdrew it on re-check and codex confirmed, tracing the misleading identical warning for both gateways to this check. The 0.26.0 record keeps GLM's FAIL (voided when the corrected kit, 760031ce..., is calibrated). Release notes gain the validator section. retire release job 082 (stopped on GLM-5.3's false finding, now remediated) and rehearse job 083, which calibrates the corrected 0.26.0 kit from scratch (record check accepts only an earlier kit's record, whose runs get voided, never deleted)
+
+# Key outcomes
+outcomes:
+  - '**The warning reads the default.** W-XML-GW-AMBIGUOUS still fires on the same condition (more than one'
+  - '**A gateway''s default must be one of its own outgoing flows.** A new check (WARN, for the T-312 reason that'
+  - '**No regression:** the validator fixture suite, `tests/test_t317_gw_ambiguous_parity.py` and the kit build'
+  - '**A new 0.26.0 release job** (calibrating the corrected kit with codex and GLM-5.3 from scratch, then cut, tag'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'W-XML-GW-AMBIGUOUS reads the gateway''s default and says which case it is (declared default named + unconditioned non-default flows, or no default); new W-XML-GW-DEFAULT-NOT-OWN warns when a default is not one of the gateway''s own flows (fixture; CONVENTIONAL 15->16, parity OUT-OF-SCOPE with the first real expressibility probe, never-witnessed 1->2). Cause: job 082''s GLM-5.3 calibration raised a false finding on the clean map; GLM withdrew it on re-check and codex confirmed, tracing the misleading identical warning for both gateways to this check. The 0.26.0 record keeps GLM''s FAIL (voided when the corrected kit, 760031ce..., is calibrated). Release notes gain the validator section'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/082-release-designer-0.26.0/retired'
+  - '.context/runme/083-release-designer-0.26.0-recalibrated/dryrun.ok'
+  - '.context/runme/083-release-designer-0.26.0-recalibrated/job.sh'
+  - '.tasks/active/T-1284-validator-w-xml-gw-ambiguous-ignores-a-g.md'
+  - 'docs/authoring-kit/calibration-records/0.26.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.26.0.md'
+  - 'tests/fixtures/warn/W-XML-GW-DEFAULT-NOT-OWN.xml'
+  - 'tests/test_finding_anchorability.py'
+  - 'tests/test_rule_dialect_axis.py'
+  - 'tests/test_rule_form_parity.py'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-23T23:47:19'
+    action: 'T-1284: W-XML-GW-AMBIGUOUS reads the gateway''s default and says which case it is (declared default named + unconditioned non-default flows, or no default); new W-XML-GW-DEFAULT-NOT-OWN warns when a default is not one of the gateway''s own flows (fixture; CONVENTIONAL 15->16, parity OUT-OF-SCOPE with the first real expressibility probe, never-witnessed 1->2). Cause: job 082''s GLM-5.3 calibration raised a false finding on the clean map; GLM withdrew it on re-check and codex confirmed, tracing the misleading identical warning for both gateways to this check. The 0.26.0 record keeps GLM''s FAIL (voided when the corrected kit, 760031ce..., is calibrated). Release notes gain the validator section'
+  - time: '2026-10-23T23:47:49'
+    action: 'T-1284: retire release job 082 (stopped on GLM-5.3''s false finding, now remediated) and rehearse job 083, which calibrates the corrected 0.26.0 kit from scratch (record check accepts only an earlier kit''s record, whose runs get voided, never deleted)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 15494 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug, kit, validator]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 15494
+  commits: 3
+  files_changed: 14
+  lines_added: 818
+  lines_removed: 15
+  footprint_refreshed_at: '2026-11-03T15:55:21Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1284-validator-w-xml-gw-ambiguous-ignores-a-g.md
+generated_by: context-agent-hybrid

@@ -13,13 +13,13 @@ description: >
   the kit's bytes change, voiding the 0.26.0 runs as in 0.20.0; re-calibrate in a
   new release job.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [bug, kit, validator]
-components: []
+components: [tests/test_finding_anchorability.py, tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/validate-workflow.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -48,8 +48,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-23T21:40:41Z
-last_update: '2026-10-23T21:41:00Z'
-date_finished:
+last_update: 2026-11-03T15:55:00Z
+date_finished: 2026-11-03T15:55:00Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -85,6 +85,18 @@ bvp_scores_proposed:
 # T-1284: Validator W-XML-GW-AMBIGUOUS ignores a gateway's default and words both cases alike, which misled GLM-5.3's 0.26.0 calibration
 
 ## Context
+
+**Background / trigger:** release job 082 (0.26.0, 2026-10-23) failed kit calibration on GLM-5.3. It reported a false
+default on the clean map, and the operator asked why.
+
+**Problem / hypothesis:** W-XML-GW-AMBIGUOUS never read the gateway's `default`. It printed one message for a gateway
+with a correct default and for one with none, which pointed a reviewer at a default problem that does not exist.
+
+**Goal:** the warning reads the default; a default that is not the gateway's own flow is reported; the kit
+re-calibrates on the corrected bytes.
+
+**Expected outcome:** correct messages, W-XML-GW-DEFAULT-NOT-OWN, and 0.26.0 released after a fresh calibration.
+*(Context added 2026-11-03 when closing. All four criteria were already ticked.)*
 
 **Investigation (2026-10-23, after the operator asked why it failed and asked for another opinion):**
 - **The finding.** GLM-5.3's one false finding on the clean map (`.context/runme/082-release-designer-0.26.0/
@@ -312,6 +324,9 @@ bvp_scores_proposed:
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+python3 tests/test_t317_gw_ambiguous_parity.py
+grep -q '"W-XML-GW-DEFAULT-NOT-OWN"' tools/validate-workflow.py
+git ls-remote --exit-code --tags origin designer-v0.26.0
 
 ## RCA
 
@@ -328,6 +343,22 @@ bvp_scores_proposed:
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** release job 082 (0.26.0) failed GLM-5.3's kit calibration. The reviewer reported a gateway default on the
+clean map that does not exist.
+
+**Root cause:** W-XML-GW-AMBIGUOUS counted unconditioned outgoing flows and never read the gateway's `default`. It gave
+the same "at most one may be the default" message for a gateway with a correct default and one with none, so the
+reviewer, which runs the kit's validator, was pointed at a default problem.
+
+**Why structurally allowed:** the rule's tests asserted when it fires, not what its message says about the case. No
+check read `default` at all: a default naming another gateway's flow was silent.
+
+**Prevention:**
+- the message now names the declared default, or says that none is declared (`test_t317_gw_ambiguous_parity.py`);
+- `W-XML-GW-DEFAULT-NOT-OWN`, with fixture `tests/fixtures/warn/W-XML-GW-DEFAULT-NOT-OWN.xml`, is registered in
+  anchorability, parity and the axis;
+- every release re-calibrates the kit on its exact bytes, which is what caught this.
 
 ## Evolution
 
@@ -412,3 +443,16 @@ bvp_scores_proposed:
 
 ### 2026-10-23T21:40:59Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-03T15:55:00Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4ad4b401
+- **Timestamp:** 2026-11-03T15:55:08Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
