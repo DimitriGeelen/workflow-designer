@@ -4,12 +4,13 @@ name: "Release designer 0.36.0: conditional and signal events shown as such (T-1
 description: >
   Release designer 0.36.0: conditional and signal events shown as such (T-1366), value rules in the io panel (T-1365)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-02T09:12:18Z
-last_update: 2026-11-02T09:12:18Z
-date_finished: null
+last_update: 2026-11-03T17:06:52Z
+date_finished: 2026-11-03T17:06:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -86,7 +87,10 @@ gets a `…_conditional_…` / `…_signal_…` id instead of `…_link_…`, an
 - [x] The operator's run ends `done`, and tag designer-v0.36.0 is on origin. *(job 117 done 2026-11-02 12:42 UTC, all
   9 steps: kit PASS by codex and GLM-5.3, core green. Tag on release commit 37f992fe4. Artifact sha256 d3a36b54…102c,
   1319749 bytes. Kit SHA256SUMS 9903a1b4…726d. validate-workflow.py c9c57d88…3046, 116871 bytes, unchanged.)*
-- [ ] *(sent 2026-11-02, msg af9c1395 RECEIVED, with the kit anchors and the id change. AEF filed it as **T-5015**
+- [x] *(2026-11-03: AEF pinned 0.38.0 directly under T-5015, in v1.8.16-be.35 (msg 5b25bba9). It verified our hashes,
+  and `/api/field-catalog` passes the T-1312 extra keys through, now pinned by a test on their side. The probe reads
+  `CURRENT`. 0.36.0 is contained in 0.38.0, and greenfield was told each version.)*
+  *(sent 2026-11-02, msg af9c1395 RECEIVED, with the kit anchors and the id change. AEF filed it as **T-5015**
   (msg 89a7bd06): re-pin against our hashes, map any `_link_` ids it keys on, and check that `/api/field-catalog` passes
   the T-1312 extra keys through. It reports the be-tag when it lands; then `tools/_t1187-aef-pin-lag.sh` must read
   CURRENT.)* AEF is sent the version, tag, sha256, bytes, changes AND the kit anchors (SHA256SUMS sha256, validate-workflow.py
@@ -285,6 +289,9 @@ gets a `…_conditional_…` / `…_signal_…` id instead of `…_link_…`, an
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+git ls-remote --exit-code --tags origin designer-v0.36.0
+test -f dist/aef-workflow-designer-0.36.0.html
+sh -c 'bash tools/_t1187-aef-pin-lag.sh | grep -q "^CURRENT"'
 
 ## RCA
 
@@ -382,3 +389,26 @@ gets a `…_conditional_…` / `…_signal_…` id instead of `…_link_…`, an
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1367-release-designer-0360-conditional-and-si.md
 - **Context:** Initial task creation
+
+### 2026-11-03T17:06:52Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0d66d295
+- **Timestamp:** 2026-11-03T17:06:54Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — Operator job written with `tools/runme-new.sh`, dry-run rehearsed, committed. *(job 117, sha 1d0365b55e5a,
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/runme-new.sh in: Operator job written with `tools/runme-new.sh`, dry-run rehearsed, committed. *(job 117, sha 1d0365b55e5a,`
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 139
+     - evidence: `sh -c 'bash tools/_t1187-aef-pin-lag.sh | grep -q "^CURRENT"'`

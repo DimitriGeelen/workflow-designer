@@ -1,0 +1,121 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1367: Release designer 0.36.0: conditional and signal events shown as such (T-1366), value rules in the io panel (T-1365)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-03T17:07:00Z
+# ============================================================================
+
+task_id: T-1367
+task_name: "Release designer 0.36.0: conditional and signal events shown as such (T-1366), value rules in the io panel (T-1365)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-02T09:12:18Z
+completed: 2026-11-03T17:06:52Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-11-02T10:26:15+01:00
+last_commit: 2026-11-02T14:05:20+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release 0.36.0 task — context and criteria (T-1366 + T-1365; AEF told the stored-map id change). release notes 0.36.0 (T-1366 markers + kind-named ids, T-1365 value rules; the one stored-map change: conditional/signal ids); catalog contract names the value-rule keys. operator job 117 — release designer 0.36.0 (job 115's code; dry-run passed, sha 1d0365b55e5a). share 0.36.0 with greenfield too (operator), with a WORKS/BROKEN re-test on wt01-io-v12. 0.36.0 — VERSION and APP_VERSION bumped by the release job (parity ok). release designer 0.36.0 — conditional and signal events shown as such (T-1366), value rules in the io panel (T-1365); kit calibrated on its bytes. 0.36.0 released (job 117 done, tag on 37f992fe4, artifact d3a36b54…, kit 9903a1b4…); sent to AEF (af9c1395) and greenfield (09da49e7); waiting for AEF's pin and greenfield's re-test. AEF filed the 0.36.0 re-pin as T-5015 (id mapping, catalog key pass-through). greenfield's 0.36.0 re-test on wt01-io-v12 — WORKS on all four items
+
+# Key outcomes
+outcomes:
+  - 'The core tier is green for the tree that carries T-1365 and T-1366, and bleeding-edge is pushed. *(218/0, 753 s;'
+  - 'Release notes `docs/releases/RELEASE-NOTES-0.36.0.md` committed. They cover the changes, what changes in stored'
+  - 'Operator job written with `tools/runme-new.sh`, dry-run rehearsed, committed. *(job 117, sha 1d0365b55e5a,'
+  - 'The operator''s run ends `done`, and tag designer-v0.36.0 is on origin. *(job 117 done 2026-11-02 12:42 UTC, all'
+  - '*(2026-11-03: AEF pinned 0.38.0 directly under T-5015, in v1.8.16-be.35 (msg 5b25bba9). It verified our hashes,'
+  - '*(greenfield''s re-test, msg 6ee080ea, its T-377: WORKS on all 4 items on wt01-io-v12 with its 1332-row catalog.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/117-release-designer-0.36.0/dryrun.ok'
+  - '.context/runme/117-release-designer-0.36.0/job.sh'
+  - '.tasks/active/T-1367-release-designer-0360-conditional-and-si.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.36.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.36.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.36.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.36.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.36.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.36.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.36.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.36.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.36.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.36.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.36.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.36.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.36.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.36.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.36.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.36.0.html'
+  - 'docs/authoring-kit/calibration-records/0.36.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.36.0.md'
+  - 'docs/reports/T-1312-field-catalog-contract.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-02T10:26:15'
+    action: 'T-1367: release 0.36.0 task — context and criteria (T-1366 + T-1365; AEF told the stored-map id change)'
+  - time: '2026-11-02T10:27:59'
+    action: 'T-1367: release notes 0.36.0 (T-1366 markers + kind-named ids, T-1365 value rules; the one stored-map change: conditional/signal ids); catalog contract names the value-rule keys'
+  - time: '2026-11-02T10:28:32'
+    action: 'T-1367: operator job 117 — release designer 0.36.0 (job 115''s code; dry-run passed, sha 1d0365b55e5a)'
+  - time: '2026-11-02T12:59:51'
+    action: 'T-1367: share 0.36.0 with greenfield too (operator), with a WORKS/BROKEN re-test on wt01-io-v12'
+  - time: '2026-11-02T13:03:27'
+    action: 'T-1367: 0.36.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-11-02T13:15:53'
+    action: 'T-1367: release designer 0.36.0 — conditional and signal events shown as such (T-1366), value rules in the io panel (T-1365); kit calibrated on its bytes'
+  - time: '2026-11-02T13:43:42'
+    action: 'T-1367: 0.36.0 released (job 117 done, tag on 37f992fe4, artifact d3a36b54…, kit 9903a1b4…); sent to AEF (af9c1395) and greenfield (09da49e7); waiting for AEF''s pin and greenfield''s re-test'
+  - time: '2026-11-02T13:45:06'
+    action: 'T-1367: AEF filed the 0.36.0 re-pin as T-5015 (id mapping, catalog key pass-through)'
+  - time: '2026-11-02T14:05:20'
+    action: 'T-1367: greenfield''s 0.36.0 re-test on wt01-io-v12 — WORKS on all four items'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 9 commit(s), 1914 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1914
+  commits: 10
+  files_changed: 27
+  lines_added: 21094
+  lines_removed: 28
+  footprint_refreshed_at: '2026-11-03T17:07:16Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1367-release-designer-0360-conditional-and-si.md
+generated_by: context-agent-hybrid
