@@ -130,12 +130,17 @@ refuses the push on red.
 - **Bypass:** `T1288_PREPUSH_BYPASS="<reason>" git push`, logged to `tests/.prepush-bypass.tsv`. The operator's call,
   not a convenience.
 - **Re-install:** the hook is re-installed by `tools/_t1000-install-hook.sh` after framework upgrades.
-- **A change under `src/` also needs the browser tier before it is pushed** (T-1374): `tests/run-bridge-tests.sh --tier
-  browser`, about 17 minutes. The hook runs only core, and the browser legs (byte-identity goldens, the CDP harnesses)
-  are where a designer change shows. T-1366, T-1369 and T-1372 were pushed on core alone, and 0.36.0 and 0.37.0 shipped
-  with a browser leg red until the be.26 upgrade ran both tiers. An intended change of saved bytes is re-recorded
-  deliberately (`node tools/_t358-byteid-thirdparty.mjs --record`), committed alone with its reason. A release job runs
-  the browser tier before it tags.
+- **A change under `src/`, or to `tools/validate-workflow.py`, also needs the browser tier before it is pushed**
+  (T-1374): `tests/run-bridge-tests.sh --tier browser`, about 17 minutes. The hook runs only core, and the browser legs
+  (byte-identity goldens, the CDP harnesses) are where a designer change shows. The designer's Check runs the
+  validator, so CDP harnesses assert its exact findings too. T-1377 was pushed on core alone and its new warning turned
+  `_t1303-io-findings-cdp.mjs` red, caught only by release job 122. T-1366, T-1369 and T-1372 were pushed on core
+  alone, and 0.36.0 and 0.37.0 shipped with a browser leg red until the be.26 upgrade ran both tiers. An intended change
+  of saved bytes is re-recorded deliberately (`node tools/_t358-byteid-thirdparty.mjs --record`), committed alone with
+  its reason.
+- **A release job runs the browser tier after the local tag and before the push.** The tag-state leg
+  (`_t396-release-tag-state.sh`) cannot measure until the version's tag exists (job 122). If the browser tier is red,
+  nothing leaves the machine.
 
 ### AEF is the designer's main consumer: a release is done only when AEF serves it (operator, 2026-10-17)
 
