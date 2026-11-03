@@ -8,13 +8,13 @@ description: >
   validator warnings that every consumer gets, and --strict raises them to errors
   for a consumer that refuses on them.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tests/test_finding_anchorability.py, tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/validate-workflow.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-03T07:40:02Z
-last_update: '2026-11-03T07:43:12Z'
-date_finished:
+last_update: 2026-11-03T13:39:00Z
+date_finished: 2026-11-03T13:39:00Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -143,9 +143,12 @@ project rules stay there. This is T-1375's success clause.
   - rule-form parity: 5 out of scope, each with a probe of the YAML bridge, and 1 counted GAP, 13 → 14.
 - [x] A core-tier test (`tests/test_t1377_general_map_checks.py`, 15 legs) proves each code fires on its fixture, stays
   silent on a clean map, and becomes an ERROR under `--strict`.
-- [ ] The kit's copy of the validator is rebuilt. `build-authoring-kit.py` copies the repo's bytes at release, so this
-  holds when the next release's kit is built. The core tier is green before push. Nothing under `src/` changed, so
-  the browser tier is not required.
+- [x] The kit's copy of the validator is rebuilt. `build-authoring-kit.py` copies the repo's bytes at release, so this
+  holds when the next release's kit is built. The core tier is green before push. *(Released in 0.38.0: the kit's
+  `validate-workflow.py` is byte-identical to the repo's (sha256 88d6a649…, 137965 bytes). Core was green before the
+  push. "Browser not required" was **wrong**: the designer's Check runs the validator, and the new warning turned
+  `_t1303-io-findings-cdp.mjs` red, caught by release job 122. Its fixture was fixed in 486540427. Browser 135/0 in
+  job 123. CLAUDE.md and a learning now say a validator change needs the browser tier.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -438,3 +441,21 @@ grep -q 'tests/test_t1377_general_map_checks.py' tests/run-bridge-tests.sh
 
 ### 2026-11-03T07:43:12Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-03T13:39:00Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9cf64c39
+- **Timestamp:** 2026-11-03T13:39:11Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — Six new WARN codes in `tools/validate-workflow.py` (`_check_general_map_rules`, G1-G6):
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/validate-workflow.py in: Six new WARN codes in `tools/validate-workflow.py` (`_check_general_map_rules`, G1-G6):`

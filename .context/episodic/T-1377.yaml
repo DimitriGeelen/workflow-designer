@@ -1,0 +1,102 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1377: validate-workflow.py: six general map warnings (io incomplete, io missing, unconditioned branch, doc prefix, unlinked document, position vs DI) and --strict (T-1375 build 2)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-03T13:39:27Z
+# ============================================================================
+
+task_id: T-1377
+task_name: "validate-workflow.py: six general map warnings (io incomplete, io missing, unconditioned branch, doc prefix, unlinked document, position vs DI) and --strict (T-1375 build 2)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-03T07:40:02Z
+completed: 2026-11-03T13:39:00Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-03T08:59:46+01:00
+last_commit: 2026-11-03T13:20:42+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  six general map warnings and --strict in validate-workflow.py (T-1375 GO, build 2). T-949 triage — T-1375 GO is PARTIAL (T-1377 built, T-1376 open); found by the core run. the T-1303 io-findings harness fixture gives step B's input its operation and system, so it shows exactly the three T-1303 findings it tests (the new W-XML-IO-INCOMPLETE was the fourth; found by release job 122's browser tier)
+
+# Key outcomes
+outcomes:
+  - 'Six new WARN codes in `tools/validate-workflow.py` (`_check_general_map_rules`, G1-G6):'
+  - '`--strict` raises these six, and W-XML-GW-AMBIGUOUS, to ERROR. Under `--strict`, a map with performer steps'
+  - 'The corpus check (198 tracked maps, release copies and runme clones left out; validator at HEAD against this'
+  - 'A warn fixture under `tests/fixtures/warn/` for each code, a clean map'
+  - 'A core-tier test (`tests/test_t1377_general_map_checks.py`, 15 legs) proves each code fires on its fixture, stays'
+  - 'The kit''s copy of the validator is rebuilt. `build-authoring-kit.py` copies the repo''s bytes at release, so this'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the T-1303 io-findings harness fixture gives step B''s input its operation and system, so it shows exactly the three T-1303 findings it tests (the new W-XML-IO-INCOMPLETE was the fourth; found by release job 122''s browser tier)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1377-validate-workflowpy-six-general-map-warn.md'
+  - 'docs/reports/T-949-go-scope-triage.md'
+  - 'tests/fixtures/t1377/strict-no-io.bpmn'
+  - 'tests/fixtures/valid/t1377-general-map-rules-clean.bpmn'
+  - 'tests/fixtures/warn/W-XML-DATA-UNLINKED.bpmn'
+  - 'tests/fixtures/warn/W-XML-DOC-PREFIX.bpmn'
+  - 'tests/fixtures/warn/W-XML-GW-BRANCH-UNCONDITIONED.bpmn'
+  - 'tests/fixtures/warn/W-XML-IO-INCOMPLETE.bpmn'
+  - 'tests/fixtures/warn/W-XML-IO-MISSING.bpmn'
+  - 'tests/fixtures/warn/W-XML-POSITION-DI.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_finding_anchorability.py'
+  - 'tests/test_rule_dialect_axis.py'
+  - 'tests/test_rule_form_parity.py'
+  - 'tests/test_t1377_general_map_checks.py'
+  - 'tools/_t1303-io-findings-cdp.mjs'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-03T08:59:46'
+    action: 'T-1377: six general map warnings and --strict in validate-workflow.py (T-1375 GO, build 2)'
+  - time: '2026-11-03T09:14:47'
+    action: 'T-1377: T-949 triage — T-1375 GO is PARTIAL (T-1377 built, T-1376 open); found by the core run'
+  - time: '2026-11-03T13:20:42'
+    action: 'T-1377: the T-1303 io-findings harness fixture gives step B''s input its operation and system, so it shows exactly the three T-1303 findings it tests (the new W-XML-IO-INCOMPLETE was the fourth; found by release job 122''s browser tier)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 358 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 358
+  commits: 5
+  files_changed: 21
+  lines_added: 1591
+  lines_removed: 45
+  footprint_refreshed_at: '2026-11-03T13:39:41Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1377-validate-workflowpy-six-general-map-warn.md
+generated_by: context-agent-hybrid
