@@ -13,6 +13,8 @@ CONTENTS of aef-authoring-kit-<VERSION>/:
   CONFORMANCE.md        GENERATED from the validator's own source and the dialect axis:
                         every XML-form rule, its severity, its derived class, its message
   AUTHORING.md          the generator-agent guide (docs/authoring-kit/AUTHORING.md)
+  SKILL.md              the entry point an agent loads as a skill: the order of work, pointing into
+                        AUTHORING.md (docs/authoring-kit/SKILL.md, T-1376)
   RUBRIC.md, GENERATE.md, REVIEW.md, CORRECT.md, loop.sh
                         the generate -> review -> correct loop (T-983)
   calibration/          a source, a clean map, a planted-defect map and expected.json, so
@@ -51,6 +53,8 @@ KITSRC = os.path.join(ROOT, 'docs', 'authoring-kit')
 # docs/authoring-kit/; calibration/ is a subdirectory the builder checks before shipping.
 # T-1290: verify-findings.py checks each finding's map_evidence (quote on the cited line) before it counts.
 LOOP_FILES = ('RUBRIC.md', 'GENERATE.md', 'REVIEW.md', 'CORRECT.md', 'loop.sh', 'verify-findings.py')
+# T-1376 (T-1375 GO): the entry point an agent runtime loads (frontmatter name + description), copied verbatim.
+SKILL = os.path.join(KITSRC, 'SKILL.md')
 CALIBRATION = ('SOURCE.md', 'clean.bpmn', 'planted.bpmn', 'expected.json')
 EXEMPLAR = os.path.join(ROOT, 'examples', 'aef-processes', 'rendered', 'task-lifecycle.bpmn')
 
@@ -206,6 +210,7 @@ def build_into(d, version):
     shutil.copyfile(VALIDATOR, os.path.join(d, 'validate-workflow.py'))
     shutil.copyfile(EXEMPLAR, os.path.join(d, 'exemplar.bpmn'))
     shutil.copyfile(GUIDE, os.path.join(d, 'AUTHORING.md'))
+    shutil.copyfile(SKILL, os.path.join(d, 'SKILL.md'))
     for name in LOOP_FILES:
         shutil.copyfile(os.path.join(KITSRC, name), os.path.join(d, name))
     os.chmod(os.path.join(d, 'loop.sh'), 0o755)

@@ -1,11 +1,15 @@
 ---
 id: T-1376
-name: "Authoring kit: io-and-data sections in AUTHORING.md, a SKILL.md entry point, the README points to it (T-1375 build 1)"
+name: "Authoring kit: io-and-data sections in AUTHORING.md, a SKILL.md entry point,
+  the README points to it (T-1375 build 1)"
 description: >
-  T-1375 GO build 1: the kit tells a generating agent how to write io, conditions, documents and positions, and SKILL.md gives the order of work, so agreed rules stop living only in sidecar threads.
+  T-1375 GO build 1: the kit tells a generating agent how to write io, conditions,
+  documents and positions, and SKILL.md gives the order of work, so agreed rules stop
+  living only in sidecar threads.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-03T07:40:02Z
-last_update: 2026-11-03T07:40:02Z
-date_finished: null
+last_update: '2026-11-03T08:28:35Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +54,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-03T08:28:35Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1376: Authoring kit: io-and-data sections in AUTHORING.md, a SKILL.md entry point, the README points to it (T-1375 build 1)
@@ -78,7 +102,7 @@ documentation prefixes.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] AUTHORING.md has a section on io and data covering:
+- [x] AUTHORING.md has a section on io and data covering:
   - one io per object: typeRef, sourceSystem/targetSystem, operation, cardinality;
   - fields with fieldRef or path, and role read/write/match/create;
   - expect only for this step's rule, while how a value is built stays in the catalog's value rules (T-1312);
@@ -88,15 +112,25 @@ documentation prefixes.
   - `aef:position` = DI;
   - the documentation prefixes Instruction / Screen / Decision / Keys / Open / Rule / Master / Detail / Mapping / Notes.
 
-  Each rule names the validator code that checks it, or says that none does.
-- [ ] `docs/authoring-kit/SKILL.md` exists with frontmatter `name` and `description`. It gives the order of work:
+  Each rule names the validator code that checks it, or says that none does. *(Section 4b. The Mapping-line rule says
+  no check exists yet, and section 8 lists it. Three existing passages that 4b contradicted were corrected:
+  - documents went in notes "because the designer does not draw them", but it has since 0.37.0;
+  - "Do not invent conditions" now says a source-stated test belongs in `conditionExpression`, and the honest end
+    state lists the branch warning;
+  - "DI coordinates as given" now says `aef:position` wins, so keep the two equal.
+
+  Section 1 names `--field-catalog` and `--strict`.)*
+- [x] `docs/authoring-kit/SKILL.md` exists with frontmatter `name` and `description`. It gives the order of work:
   sources → steps and lanes → io → conditions → build → `validate-workflow.py --field-catalog` (and `--strict` when
   the project refuses on warnings) → round trip in the designer → screenshot → publish. It says where project rules
   live.
-- [ ] `tools/build-authoring-kit.py` ships SKILL.md in the kit, its SHA256SUMS lists it, and the kit's first page points
-  to SKILL.md.
-- [ ] No client data in the kit text: the examples are made up (the `t1365`/`t1369` fixtures' style), and no greenfield
-  names or systems appear.
+- [x] `tools/build-authoring-kit.py` ships SKILL.md in the kit, its SHA256SUMS lists it, and the kit's first page points
+  to SKILL.md. *(AUTHORING.md opens with "Start at `SKILL.md`". `test_t974` 1a now lists it exactly, and its new
+  leg 4b checks SKILL.md's frontmatter, that every section it cites is a heading of AUTHORING.md, and that every rule
+  it names exists. 17/17.)*
+- [x] No client data in the kit text: the examples are made up (the `t1365`/`t1369` fixtures' style), and no greenfield
+  names or systems appear. *(The new text: none. Two older mentions of a client system in section 3 were replaced
+  with "the ERP".)*
 - [ ] The core tier is green.
 
 ### Human
@@ -283,6 +317,11 @@ documentation prefixes.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+python3 tests/test_t974_authoring_kit.py
+python3 tests/test_t983_review_loop_kit.py
+grep -q '^## 4b\. ' docs/authoring-kit/AUTHORING.md
+grep -q '^name: ' docs/authoring-kit/SKILL.md
+sh -c '! grep -qiE "novis|salesforce|tacton|navision|nooteboom|greenfield" docs/authoring-kit/AUTHORING.md docs/authoring-kit/SKILL.md'
 
 ## RCA
 
@@ -380,3 +419,6 @@ documentation prefixes.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1376-authoring-kit-io-and-data-sections-in-au.md
 - **Context:** Initial task creation
+
+### 2026-11-03T08:28:35Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

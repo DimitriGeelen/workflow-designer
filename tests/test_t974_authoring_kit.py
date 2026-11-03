@@ -13,6 +13,9 @@ it could quietly stop doing that:
      two cannot share a blind spot;
   4. every rule id AUTHORING.md names exists in the validator (a guide naming a rule that does
      not exist teaches a vendor to look for something that never fires);
+     4b (T-1376). SKILL.md, the entry point, carries frontmatter `name` and `description`, names only
+     rules that exist, and every "section N" it points to is a heading of AUTHORING.md, so the order of
+     work cannot point at a rule that moved;
   5. SELF-CONTAINED: copied to a directory outside this repo and run with `python3 -I`, the
      kit's validator passes its exemplar clean and names both missing carriers on a map shaped
      like the vendor's (synthetic; their content is not ours to commit);
@@ -103,7 +106,7 @@ def main():
                        for r_, _d, fs in os.walk(k1) for f in fs)
         check('1a. kit holds exactly the expected files',
               names == ['AUTHORING.md', 'CONFORMANCE.md', 'CORRECT.md', 'GENERATE.md',
-                        'REVIEW.md', 'RUBRIC.md', 'SHA256SUMS',
+                        'REVIEW.md', 'RUBRIC.md', 'SHA256SUMS', 'SKILL.md',
                         'calibration/SOURCE.md', 'calibration/clean.bpmn',
                         'calibration/expected.json', 'calibration/planted.bpmn',
                         'exemplar.bpmn', 'loop.sh', 'validate-workflow.py',
@@ -133,6 +136,19 @@ def main():
         named = set(re.findall(r'`([EWI]-[A-Z0-9-]+)`', open(GUIDE, encoding='utf-8').read()))
         check('4. every rule AUTHORING.md names exists in the validator',
               named and named <= all_rule_ids(), 'unknown %s' % sorted(named - all_rule_ids()))
+
+        skill = open(os.path.join(k1, 'SKILL.md'), encoding='utf-8').read()
+        front = re.match(r'---\n(.*?)\n---\n', skill, re.S)
+        keys = dict(l.split(':', 1) for l in front.group(1).splitlines() if ':' in l) if front else {}
+        guide = open(GUIDE, encoding='utf-8').read()
+        heads = set(re.findall(r'^## (\d+b?)\. ', guide, re.M))
+        cited = set(re.findall(r'\bsections? (\d+b?)\b', skill))
+        s_named = set(re.findall(r'`([EWI]-[A-Z0-9-]+)`', skill))
+        check('4b. SKILL.md: frontmatter name and description, sections that exist, rules that exist',
+              keys.get('name', '').strip() and keys.get('description', '').strip() and cited and cited <= heads
+              and s_named <= all_rule_ids(),
+              'keys %s; sections cited %s not in %s; unknown rules %s'
+              % (sorted(keys), sorted(cited - heads), sorted(heads), sorted(s_named - all_rule_ids())))
 
         lone = os.path.join(tmp, 'elsewhere', 'kit')
         shutil.copytree(k1, lone)

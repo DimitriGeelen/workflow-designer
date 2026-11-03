@@ -10,13 +10,21 @@ you.
 When this guide and the validator disagree, the validator wins and this guide has a bug.
 Section 8 lists what the validator does **not** check, so you know where you are on your own.
 
+**Start at `SKILL.md`.** It gives the order of work (draft, update or check a map) and points back
+here for each rule. Your project may keep rules of its own on top of these: in its own repository,
+never instead of these.
+
 ## 1. The loop
 
 1. **Write a candidate** map to a file.
 2. **Validate it:** `python3 validate-workflow.py candidate.bpmn` (Python 3, standard library
    only; add `--json` for machine-readable findings). Exit **0** = clean, **1** = warnings only,
    **2** = errors. A wrong command line also exits 2, so if you see 2 with no ERROR line, check
-   your invocation before your map.
+   your invocation before your map. Two options:
+   - `--field-catalog <catalog.json>`, when your project has a field catalog: it checks each io field
+     against it (section 4b).
+   - `--strict`, when your project refuses on the general map rules: it turns the section 4b
+     warnings into errors, and makes a map with steps but no io at all an error.
 3. **Read every finding.** `CONFORMANCE.md` lists every rule with its class.
 4. **Fix only what the source lets you derive.** Declare the rest unknown (section 4). Section 5
    tells you exactly which warnings an honest map keeps, so you know when to stop.
@@ -122,10 +130,10 @@ chart, unless the system IS the performer.
 | an AI or software agent that proposes or acts on initiative | `initiative` | agent |
 | a party outside the organisation (carrier, supplier, customer) | `external` | none: no task is compiled |
 | **nobody the source names** | `none` | none: `W-LANE-NO-OWNER` on each task |
-| a system **supports** the step, but the source names nobody who performs it | `none` | none: put the step in the `none` lane and the system in a note (`System: Novis`) associated to the step |
+| a system **supports** the step, but the source names nobody who performs it | `none` | none: put the step in the `none` lane and the system in a note (`System: the ERP`) associated to the step |
 
 A system that *supports* a step is a tool, not a performer: "the quote is approved in CPQ"
-says where, not who. Only when the source makes the system the actor ("Novis creates the
+says where, not who. Only when the source makes the system the actor ("the ERP creates the
 production order") is it a lane of its own with `authority`.
 
 **Precedence:** a task may carry its own `<aef:meta authority="…"/>`; when it does, that value
@@ -203,12 +211,15 @@ will make up what the source does not say. Do not.
   as reusable behaviour, with `calledElement` resolving to X's BPMN process (a workflowMeta id
   suffices only if your export guarantees that resolution). Never a `subProcess` with content the
   source does not give.
-- **Records a step creates or uses** (an order, a quote, a production order) go in a note
-  associated to the step: `Creates: production order`, cited like any element. BPMN's
-  `dataObjectReference` is valid and the validator accepts it, but the designer does not draw
-  it, so a reader of the map never sees it. Use the note until the designer does.
+- **Documents a step creates or uses** (a quote, an order confirmation, a delivery note) are data
+  objects, linked to that step: section 4b. Since designer 0.37.0 they are drawn under the step.
+  A record that is no document (the order row in a system) is the object of an io, also section 4b.
 - **Do not invent conditions.** Label each exclusive-gateway branch with the source's own words
-  (`name="limit exceeded"`), not an executable expression the source never stated. When the
+  (`name="limit exceeded"`). When the source states the test itself ("credit limit exceeded",
+  "status is Approved"), also write it as the branch's `conditionExpression`, in the source's own
+  terms: that is the condition, and a branch without one is reported
+  (`W-XML-GW-BRANCH-UNCONDITIONED`, `W-XML-GW-AMBIGUOUS`). When the source names the branch but
+  not its test, the label alone is honest and the warning stays (section 5). When the
   source clearly implies an "otherwise" case (a yes/no decision whose other branch it does word),
   make that branch the gateway's unlabelled default flow (`default="<flow id>"` on the gateway)
   rather than inventing words for it. Do not infer a default merely because wording is missing.
@@ -218,6 +229,73 @@ will make up what the source does not say. Do not.
   (`W-XML-GW-OUTGOING`; it was an error until T-1212).
 - **Prose order is evidence, not proof.** "Picks, packs and books a carrier" is a reasonable
   sequence; "inspection and labelling also happen" is not. When in doubt, it is unknown.
+
+## 4b. The data a step reads and writes
+
+A map that says only *who* does *what* cannot say where the data comes from, what each step changes, or what a
+value must look like. These rules say how to write that down (AEF mapping v1.1). Every one of them follows
+section 4: write what the source says, and declare the rest open.
+
+**One io per object.** Each `<aef:input>` or `<aef:output>` (inside the step's `<aef:io>`) is about one business object:
+an order, a customer, a quote. A step that reads two objects has two inputs. A message that carries several objects
+is typed as the message, not as one of them.
+
+| on the io | says | if the source does not say it |
+|---|---|---|
+| `typeRef="ex:Order"` | which object | do not write the io; note the step instead (`Open: which record it reads`) |
+| `sourceSystem` (input) / `targetSystem` (output) | which system | leave it out; the warning stays |
+| `operation` | `read`, `create`, `update`, `upsert` or `delete` | leave it out; the warning stays |
+| `cardinality` | `one` or `many` | leave it out |
+
+A missing object, system or operation on an object io is `W-XML-IO-INCOMPLETE`. The system may also come from the
+step (`<aef:meta sourceSystem="…"/>`) or from the prefix map (`<aef:prefix name="ex" … system="sys:crm"/>`); the
+validator looks in that order. An update, upsert or delete needs a field with `role="match"`: the key that picks
+the record (`E-XML-IO-MATCH-MISSING`).
+
+**Fields.** Each `<aef:field>` names one attribute, by `fieldRef` (an id from the project's field catalog) or, when
+the catalog has none yet, by `path`. Its `role` is `read`, `write`, `match` (the key) or `create` (set only when
+the record is made). With `--field-catalog`, the validator checks that the fieldRef exists (`W-XML-IO-FIELD-UNKNOWN`)
+and that it belongs to the io's object (`W-XML-IO-FIELD-ENTITY`).
+
+**Every step in a system's lane has io** (a lane with `authority="authority"`), once your map gives io at all:
+`W-XML-IO-MISSING`. A system does nothing worth a step without reading or writing something. If the source does not
+say what, keep the step, write `Open: what it reads and writes` in its documentation, and keep the warning.
+
+**`aef:expect` is for this step only.** Use it for what must hold here: the status before the step, the value after it.
+How a value is built in general (its type, length, pattern, allowed values) belongs to the attribute, in the
+project's field catalog or ontology, not in every step that touches it. An expectation the attribute's rule forbids
+is an error (`E-XML-IO-EXPECT-CONTRADICTS`); one that only repeats it is a warning (`W-XML-IO-EXPECT-REDUNDANT`).
+
+**A value written to another system gets a Mapping line.** When a step reads from one system and writes to another,
+each field it writes says where its value comes from, in the step's documentation:
+`Mapping: <mapping id> (source field -> target field): <the rule>`. The validator does not check these yet (section 8).
+
+**Documentation lines start with a known word.** A step's `bpmn:documentation` holds one statement per line, each
+starting with one of these words:
+
+| prefix | the line says |
+|---|---|
+| `Instruction:` | what the person or system does |
+| `Screen:` | the screen or state they see |
+| `Decision:` | what is decided here |
+| `Keys:` | the keys that join records across systems |
+| `Open:` | what the source leaves open |
+| `Rule:` | a business rule that applies |
+| `Master:` | which system is master for the data |
+| `Detail:` | the detail map or document for this step |
+| `Mapping:` | where a written value comes from (above) |
+
+After a line that starts with `Notes`, the text is free and is not checked. A line with no known word, in
+documentation that uses the words, is `W-XML-DOC-PREFIX`.
+
+**Documents are data objects.** A document a step makes or uses is a `dataObjectReference` with a `name`, its state
+as `<bpmn:dataState name="draft"/>` when the source gives one, and a `dataOutputAssociation` (the step makes it) or
+`dataInputAssociation` (the step uses it) on the step. A document with no name, or linked to no step, is
+`W-XML-DATA-UNLINKED`.
+
+**Positions agree.** If you write both `aef:position` and BPMN DI, they hold the same top-left corner. The designer
+draws from `aef:position`, other BPMN tools from DI, so a disagreement shows two different maps
+(`W-XML-POSITION-DI`). After moving nodes by hand in another tool, update both.
 
 ## 5. The honest end state: which warnings stay
 
@@ -229,7 +307,9 @@ source does not say. Removing them by changing the map is fabrication.
 | the order of N unplaced steps | 1 × `W-XML-DISCONNECTED`, plus per step 1 × `W-XML-UNREACHABLE` and 1 × `W-XML-DEADEND` (when the map has a start and an end event) |
 | no stated order at all, so the map has no start or no end event | 1 × `W-XML-NO-START-EVENT` and/or 1 × `W-XML-NO-END-EVENT` for the map, plus 1 × `W-XML-DISCONNECTED` if the steps fall into several parts. Reachability is then not assessed per step. If the source states any chain, mark it with a start and an end (section 4) and the per-step findings above apply instead |
 | who performs a step | 1 × `W-LANE-NO-OWNER` per task in the `none` lane |
-| an executable branch condition (you labelled branches in the source's words, section 4) | 1 × `W-XML-GW-AMBIGUOUS` per such gateway. DIALECT-RELATIVE: a branch label is a standard-admitted condition carrier |
+| an executable branch condition (you labelled branches in the source's words, section 4) | 1 × `W-XML-GW-AMBIGUOUS` per such gateway, or 1 × `W-XML-GW-BRANCH-UNCONDITIONED` per branch when only one lacks a condition. DIALECT-RELATIVE: a branch label is a standard-admitted condition carrier |
+| what a system step reads or writes (section 4b) | 1 × `W-XML-IO-MISSING` per such step, with an `Open:` line saying so |
+| an io's system or operation | 1 × `W-XML-IO-INCOMPLETE` per such io |
 | geometry (you chose the geometry-free layout, section 7) | 1 × `I-XML-LANE-GEOMETRY-SKIP`, an INFO note, not a warning |
 
 The rule against inventing outranks every finding here. "The validator wins" (top of this
@@ -264,7 +344,9 @@ human can read it.
 - **Or** emit no geometry at all, and **write the flow elements in flow order** in the file. The
   designer lays out an unpositioned map in document order; it does not yet layer by flow. A map
   whose end event comes first in the file is drawn with the end first.
-- If you emit BPMN DI (`BPMNShape` bounds), the designer uses those coordinates as given.
+- If you emit BPMN DI (`BPMNShape` bounds), the designer uses those coordinates when a node has no
+  `aef:position`. When it has both, the designer draws `aef:position`, so keep the two equal
+  (`W-XML-POSITION-DI`, section 4b).
 
 ## 8. What the validator does NOT check
 
@@ -276,7 +358,11 @@ complained.
 - the `id`, `version` and `schemaVersion` attributes of `workflowMeta`;
 - whether a lane's authority is **true** of the source (only that the value is in the
   vocabulary);
-- `isExecutable`, branch label wording, annotation text.
+- `isExecutable`, branch label wording, annotation text;
+- the `Mapping:` lines (section 4b): neither that one exists for each value written to another
+  system, nor that the mapping it names exists. That waits for AEF's mapping vocabulary;
+- whether an io's object, fields and expectations are **true** of the source, and, without
+  `--field-catalog`, whether its fields exist at all.
 
 ## 9. Classes of finding
 
