@@ -8,11 +8,11 @@ description: >
   DWG submission due 15.11. Canonical Apache-2.0 text plus a NOTICE with AEF's copyright
   holder, asked of Pen (msg 90d76382).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-03T20:58:55Z
-last_update: 2026-11-03T21:30:53Z
-date_finished:
+last_update: 2026-11-04T06:23:14Z
+date_finished: 2026-11-04T06:23:14Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -103,7 +103,8 @@ is listed.
   msg 90d76382, never guessed). The operator has seen both files before the commit. *(The holder and form are from AEF's
   NOTICE, sent verbatim by Pen (9b9b2c0e) and by AEF (302bc59e): Geelen & Company. The year is 2026, from this repo's
   first commit, 2026-06-04. The operator saw both drafts and answered "1", 2026-11-03.)*
-- [ ] Committed and pushed to the OneDev origin, on `bleeding-edge`, and on `master` as one commit carrying only these
+- [x] *(`bleeding-edge` 329437154. Job 125 done 2026-11-04 06:22Z: `master` 69a0ac734 → 9a9cb9c05, adding only the
+  two files. The GitHub API reports license Apache-2.0 and master 9a9cb9c05175. Pen and AEF sent the id.)* Committed and pushed to the OneDev origin, on `bleeding-edge`, and on `master` as one commit carrying only these
   two files: the operator's option 1, because GitHub shows `master`, last moved 2026-09-30. The master push goes
   through an operator job. Pen and AEF are sent the commit id visible on GitHub.
 
@@ -291,6 +292,10 @@ is listed.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+sh -c '[ "$(sha256sum LICENSE | cut -d" " -f1)" = cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30 ]'
+grep -q '^Copyright 2026 Geelen & Company' NOTICE
+test -f .context/runme/125-licence-onto-master/done
+sh -c 'git ls-remote origin refs/heads/master | grep -q ^9a9cb9c05'
 
 ## RCA
 
@@ -391,3 +396,21 @@ is listed.
 
 ### 2026-11-03T21:30:44Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-04T06:23:14Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1842ae88
+- **Timestamp:** 2026-11-04T06:23:17Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 140
+     - evidence: `sh -c 'git ls-remote origin refs/heads/master | grep -q ^9a9cb9c05'`

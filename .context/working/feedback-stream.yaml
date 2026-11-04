@@ -21081,3 +21081,21 @@ scan_id: R-ef48a441
 task_id: T-1379
 payload:
   task_file: .tasks/active/T-1379-kit-say-that-a-gate-refuses-on-exit-2-er.md
+---
+kind: scan_emitted
+timestamp: '2026-11-04T06:23:17Z'
+scan_id: R-1842ae88
+task_id: T-1383
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-04T06:23:17Z'
+scan_id: R-1842ae88
+task_id: T-1383
+payload:
+  task_file: .tasks/active/T-1383-add-an-apache-20-license-and-notice-at-t.md

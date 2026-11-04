@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1383: Add an Apache-2.0 LICENSE and NOTICE at the repo root (SPRIND DWG submission, operator decision 2026-11-03)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-04T06:23:29Z
+# ============================================================================
+
+task_id: T-1383
+task_name: "Add an Apache-2.0 LICENSE and NOTICE at the repo root (SPRIND DWG submission, operator decision 2026-11-03)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-03T20:58:55Z
+completed: 2026-11-04T06:23:14Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-03T23:10:05+01:00
+last_commit: 2026-11-04T07:21:32+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Apache-2.0 LICENSE (canonical text) and NOTICE (Geelen & Company, 2026) at the repo root — operator decision 2026-11-03 for the SPRIND DWG submission. operator job 125 — the licence commit onto master as one commit adding only LICENSE and NOTICE (no checkout, fast-forward push), so GitHub shows it; dry-run rehearsed, step 2 probed. Apache-2.0 LICENSE and NOTICE (Geelen & Company)
+
+# Key outcomes
+outcomes:
+  - '`LICENSE` at the repo root is the canonical Apache-2.0 text, byte for byte (sha256 `cfc7749b…3d30`, from'
+  - '`NOTICE` at the repo root names the copyright holder exactly as AEF''s NOTICE does (the line asked of Pen,'
+  - '*(`bleeding-edge` 329437154. Job 125 done 2026-11-04 06:22Z: `master` 69a0ac734 → 9a9cb9c05, adding only the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/125-licence-onto-master/dryrun.ok'
+  - '.context/runme/125-licence-onto-master/job.sh'
+  - '.tasks/active/T-1383-add-an-apache-20-license-and-notice-at-t.md'
+  - 'LICENSE'
+  - 'NOTICE'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-03T23:10:05'
+    action: 'T-1383: Apache-2.0 LICENSE (canonical text) and NOTICE (Geelen & Company, 2026) at the repo root — operator decision 2026-11-03 for the SPRIND DWG submission'
+  - time: '2026-11-03T23:12:19'
+    action: 'T-1383: operator job 125 — the licence commit onto master as one commit adding only LICENSE and NOTICE (no checkout, fast-forward push), so GitHub shows it; dry-run rehearsed, step 2 probed'
+  - time: '2026-11-04T07:21:32'
+    action: 'T-1383: Apache-2.0 LICENSE and NOTICE (Geelen & Company)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 564 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 564
+  commits: 4
+  files_changed: 8
+  lines_added: 1014
+  lines_removed: 6
+  footprint_refreshed_at: '2026-11-04T06:23:36Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1383-add-an-apache-20-license-and-notice-at-t.md
+generated_by: context-agent-hybrid
