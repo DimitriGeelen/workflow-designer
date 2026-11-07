@@ -3556,5 +3556,14 @@ observations:
   captured: 2026-11-03T16:36:08Z
   context_task: T-1381
   tags: [ux]
+  status: dismissed
+  dismissed_reason: "Not reproducible through any real open. The T-1381 shot harness (tools/_t1381-shots.mjs) called adoptImportedXml directly, which skips openingZoom (T-1256). A real open (userImport and then openingZoom, as the ?load, Load and restore paths do) opens data-stores.bpmn at 100% with the smallest text at 9px, at 1024, 1440 and 1920 (probe 2026-11-07)."
+  dismissed_at: 2026-11-07T18:08:13Z
+  promoted_to: null
+- id: OBS-493
+  text: "At 1024 a freshly imported map opens with up to three advisory notices stacked above it (import notice, Clean-layout nudge, authority summary). Together they take about 280px of the 685px-high canvas, so the pool starts around y=375 and only its top lane shows. Seen with tests/fixtures/t1381/data-stores.bpmn via a real open, 2026-11-07. Candidate: fold the notices into one collapsible strip, or let them overlay the empty area instead of pushing the map down."
+  captured: 2026-11-07T18:08:14Z
+  context_task: T-1297
+  tags: [ux]
   status: pending
   promoted_to: null
