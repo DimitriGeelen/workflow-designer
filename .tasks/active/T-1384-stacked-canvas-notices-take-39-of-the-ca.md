@@ -390,6 +390,18 @@ Every advisory's warning stays readable or one click away, as the chosen design 
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-11-07 — how the dock gives the map its room back (operator chose option 1)
+- **Chose:** one notice card instead of three boxes.
+  - "Clean layout" becomes a button on the card's top row.
+  - The authority summary is one line in the card.
+  - On a narrow canvas (under about 700px) the import notice shows its first part and a "▸ N more" control; a wider
+    canvas shows every part as now.
+- **Why:** it saves the most room where room is short (1024, both panels open). Nothing is hidden on a wide canvas, and
+  T-1078's rule (no notice on the diagram) is kept.
+- **Rejected:**
+  - Every notice collapsed to one line at every width: it would hide data-loss lines at 1440 and 1920 too.
+  - Only folding the nudge into another box: about 32% at 1024, which misses the 25% target.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
