@@ -488,7 +488,7 @@ green 24/24 here says nothing about the population this repair is aimed at — u
   **Steps:**
   1. Open the 21 screenshots in `docs/reports/T-358-evidence/` (7 maps × 1024/1440/1920).
   2. In each, check the pool outline encloses every task, event and subprocess from top to bottom, no lane band or lane
-     header is drawn, "+ Add another lane" sits below the pool, and the advisory card's controls are reachable.
+     header is drawn, "+ Add a lane" sits below the pool, and the advisory card's controls are reachable.
   3. For collaboration-message-flows, check the second, read-only pool sits below ours without overlapping it.
   **Expected:** every map draws one pool around its whole diagram with no invented lanes, at all three widths.
   **If not:** name the screenshot and what is outside the pool or overlapping, and set the task to issues.
@@ -812,13 +812,13 @@ zeebe-service-task), opened the real way (import + opening zoom), both side pane
 |-------|---------|------|------|------|------|
 | opening | pool outline encloses every node vertically | ok | ok | ok | before the poolHeight fix the pool was its 32px header and every node drew below it |
 | opening | no lane band, no lane header | ok | ok | ok | before: Human · Sovereignty / Framework · Authority / Agent · Initiative |
-| opening | "+ Add another lane" strip below the pool | ok | ok | ok | 1024: its label sits under the right panel, as on any map |
+| opening | "+ Add a lane" strip below the pool | ok | ok | ok | reads "+ Add a lane" when there are no lanes (sweep nit, fixed); 1024: its label sits under the right panel, as on any map |
 | opening | advisory dock (import notice, Clean layout, authority summary) | ok | ok | ok | the authority summary now says the map declares no authority |
 | opening | second participant pool (collaboration-message-flows) | ok | ok | ok | read-only pool below ours; message flows cross the add-lane strip as in 0.40.0 |
 
 Read per screenshot (one per map, the widths not listed read the same):
 - `simple-1440.png`: pool "Process_1 · workflow:process_1" encloses Sub Process 1, Start, Start Event 1, Task and End Event;
-  no lane bands; "+ Add another lane" under the pool. Compare 0.40.0: the same nodes inside three invented lanes.
+  no lane bands; "+ Add a lane" under the pool. Compare 0.40.0: the same nodes inside three invented lanes.
 - `boundary-events-1024.png`: SubProcess_1 with its boundary events (batman, wonder woman), the start event and joker
   inside the pool; the task at the right edge runs under the right panel (canvas scroll, as before).
 - `collaboration-message-flows-1920.png`: our pool encloses Task_1, Task_2 and the end event; "Pool · read-only" below
@@ -830,6 +830,11 @@ Read per screenshot (one per map, the widths not listed read the same):
   "▸ 1 more" on the narrow canvas (T-1384).
 - `multiple-diagrams-1440.png`: one task "A" in the pool; the notice says the second process is kept and saved back.
 - `zeebe-service-task-1920.png`: start, two activities, end inside the pool.
+
+Advisory sweep (codex worker t358-sweep-9fa0e61ef5cd, 2026-11-08): **0 blockers, 0 minor, 1 nit** — with no lanes,
+"+ Add another lane" implied a lane already existed. Fixed: the strip reads "+ Add a lane" when the map has no lanes;
+the 21 screenshots were re-made after the fix and the gate re-run. The sweep also noted that at 1024 the bottom of the
+boundary-events pool is below the captured viewport; L2 measures it from the DOM at every width (green).
 
 ## RCA
 

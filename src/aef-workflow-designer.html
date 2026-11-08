@@ -4127,7 +4127,7 @@ function renderPool() {
   const stripH = 24;
   const addStrip = el('g', { class: 'pool-add-lane-strip' });
   addStrip.appendChild(el('rect', { x: px, y: stripY, width: pw, height: stripH, rx: 3, class: 'pool-add-lane-strip-bg' }));
-  addStrip.appendChild(el('text', { x: px + pw / 2, y: stripY + 16, class: 'pool-add-lane-strip-text', 'text-anchor': 'middle' }, [text('+ Add another lane')]));
+  addStrip.appendChild(el('text', { x: px + pw / 2, y: stripY + 16, class: 'pool-add-lane-strip-text', 'text-anchor': 'middle' }, [text(lanesArr.length ? '+ Add another lane' : '+ Add a lane')]));   // T-358: a map with no lanes has no other
   addStrip.addEventListener('click', ev => { ev.stopPropagation(); addLane(); });
   gPool.appendChild(addStrip);
 }
