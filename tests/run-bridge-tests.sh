@@ -1850,6 +1850,22 @@ else
 fi
 }
 leg browser "_t1381-data-stores" _leg_225
+_leg_226() {
+
+# ── T-1384: the advisory dock is one card and leaves the map its room, without hiding a warning ──
+# data-stores.bpmn opened with all three advisories at 1024/1440/1920: the dock takes <=25% of the canvas at 1024
+# (was 39%), no advisory covers a pool, node or data store, every warning line is still in the text, and under 700px a
+# multi-part notice opens and closes with '▸ N more' / '▾ less'. Self-test: two poison arms (narrow mode off -> D1
+# fails; toggle handler removed -> D3 fails).
+if node "$ROOT/tools/_t1384-advisory-dock-cdp.mjs" --self-test > "$TMP/leg-_t1384.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the stacked advisories take too much of the canvas, cover the diagram, lost a warning line, or the '▸ N more' toggle stopped working (run 'node tools/_t1384-advisory-dock-cdp.mjs --self-test'; T-1384)"
+  show_output "$TMP/leg-_t1384.out" "_t1384-advisory-dock-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1384-advisory-dock" _leg_226
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

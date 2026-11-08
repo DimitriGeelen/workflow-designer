@@ -111,12 +111,12 @@ Every advisory's warning stays readable or one click away, as the chosen design 
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Opening `tests/fixtures/t1381/data-stores.bpmn` the real way (`adoptImportedXml(..., {userImport:true})`, then
+- [x] Opening `tests/fixtures/t1381/data-stores.bpmn` the real way (`adoptImportedXml(..., {userImport:true})`, then
   `openingZoom()`) at 1024×768 with both side panels open leaves the advisory dock's top padding at no more than 25% of
   the canvas height (39% before). At 1440 and 1920 it is no more than its value before (200px and 182px).
-- [ ] No advisory's box overlaps the drawn diagram (pool, nodes, data shapes) at any of the three widths. This is the
+- [x] No advisory's box overlaps the drawn diagram (pool, nodes, data shapes) at any of the three widths. This is the
   T-1078 rule, kept.
-- [ ] Every part of the import notice, the authority summary and the Clean-layout action remains reachable: shown, or
+- [x] Every part of the import notice, the authority summary and the Clean-layout action remains reachable: shown, or
   one click away on a control that names how many parts it hides. Every "NOT kept" or "not drawn" line reads exactly
   as before (`textContent` of each part unchanged).
 - [ ] A new browser-leg harness `tools/_t1384-advisory-dock-cdp.mjs` proves the three criteria above and is red on HEAD
@@ -309,6 +309,9 @@ Every advisory's warning stays readable or one click away, as the chosen design 
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1384-advisory-dock-cdp.mjs --self-test > /tmp/.t1384.out 2>&1 && grep -q "both poison arms caught" /tmp/.t1384.out
+grep -q '_t1384-advisory-dock-cdp.mjs' tests/run-bridge-tests.sh
+test -f .fabric/components/tools-_t1384-advisory-dock-cdp.yaml
 
 ## RCA
 
