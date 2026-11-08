@@ -21099,3 +21099,57 @@ scan_id: R-1842ae88
 task_id: T-1383
 payload:
   task_file: .tasks/active/T-1383-add-an-apache-20-license-and-notice-at-t.md
+---
+kind: scan_emitted
+timestamp: '2026-11-05T06:00:39Z'
+scan_id: R-5eae23e2
+task_id: T-593
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-05T06:00:39Z'
+scan_id: R-5eae23e2
+task_id: T-593
+payload:
+  task_file: .tasks/active/T-593-ewcr-handoff-envelope-records-an-operato.md
+---
+kind: scan_emitted
+timestamp: '2026-11-08T10:44:21Z'
+scan_id: R-6487ebf1
+task_id: T-1294
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-08T10:44:21Z'
+scan_id: R-6487ebf1
+task_id: T-1294
+payload:
+  task_file: .tasks/active/T-1294-t1273-signal-restore-teeth-fixed-python-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-08T10:45:05Z'
+scan_id: R-1b08889e
+task_id: T-1384
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-08T10:45:05Z'
+scan_id: R-1b08889e
+task_id: T-1384
+payload:
+  task_file: .tasks/active/T-1384-stacked-canvas-notices-take-39-of-the-ca.md
