@@ -21153,3 +21153,21 @@ scan_id: R-1b08889e
 task_id: T-1384
 payload:
   task_file: .tasks/active/T-1384-stacked-canvas-notices-take-39-of-the-ca.md
+---
+kind: scan_emitted
+timestamp: '2026-11-08T16:55:30Z'
+scan_id: R-edd29740
+task_id: T-1385
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-08T16:55:30Z'
+scan_id: R-edd29740
+task_id: T-1385
+payload:
+  task_file: .tasks/active/T-1385-release-designer-0400-advisory-dock-as-o.md

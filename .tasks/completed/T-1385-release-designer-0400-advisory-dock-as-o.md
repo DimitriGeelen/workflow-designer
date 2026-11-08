@@ -4,12 +4,13 @@ name: "Release designer 0.40.0: advisory dock as one card (T-1384)"
 description: >
   Release designer 0.40.0: advisory dock as one card (T-1384)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-08T13:16:46Z
-last_update: 2026-11-08T13:16:46Z
-date_finished: null
+last_update: 2026-11-08T16:55:28Z
+date_finished: 2026-11-08T16:55:28Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -81,7 +82,7 @@ tiers green on the release tree, and AEF told with the version, sha256 and bytes
 - [x] After the operator's run: tag `designer-v0.40.0` is on origin and AEF has been sent the release (version, tag,
   sha256, bytes, what it brings). Job 127 done rc=0 (2026-11-08 17:09, browser 137/0, core green); tag bf23bfa5 on
   origin; artifact sha256 49aec7d9…, 1339583 bytes; AEF told, msg 9cb2eaaa (conversation designer-0.40.0), RECEIVED.
-- [ ] AEF serves 0.40.0: `bash tools/_t1187-aef-pin-lag.sh` reports CURRENT (BEHIND 1 on 2026-11-08 right after the
+- [x] AEF serves 0.40.0 (2026-11-08: probe CURRENT; GitHub contents API reads 0.40.0, sha256 49aec7d9…, 1339583 bytes; AEF T-5065 done, msgs 67c57acb, 111ca274): `bash tools/_t1187-aef-pin-lag.sh` reports CURRENT (BEHIND 1 on 2026-11-08 right after the
   announcement). If not within a few days, ask on conversation designer-0.40.0 for their task id.
   AEF filed the repin as **AEF T-5065** (horizon next; msg adadee0b) and confirmed the endpoint table: field-profile and
   field-suggestions still not served. Follow T-5065 until the pin probe says CURRENT.
@@ -133,6 +134,10 @@ tiers green on the release tree, and AEF told with the version, sha256 and bytes
 -->
 
 ## Verification
+
+git ls-remote --exit-code --tags origin designer-v0.40.0
+test -f .context/runme/127-release-designer-0.40.0/done
+bash tools/_t1187-aef-pin-lag.sh > /tmp/.t1385.out 2>&1 && grep -q "^CURRENT" /tmp/.t1385.out
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -367,3 +372,16 @@ tiers green on the release tree, and AEF told with the version, sha256 and bytes
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1385-release-designer-0400-advisory-dock-as-o.md
 - **Context:** Initial task creation
+
+### 2026-11-08T16:55:28Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-edd29740
+- **Timestamp:** 2026-11-08T16:55:30Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

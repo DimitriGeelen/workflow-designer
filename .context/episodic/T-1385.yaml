@@ -1,0 +1,113 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1385: Release designer 0.40.0: advisory dock as one card (T-1384)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-08T16:55:36Z
+# ============================================================================
+
+task_id: T-1385
+task_name: "Release designer 0.40.0: advisory dock as one card (T-1384)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-08T13:16:46Z
+completed: 2026-11-08T16:55:28Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-11-08T14:18:29+01:00
+last_commit: 2026-11-08T17:11:54+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release notes for 0.40.0 (advisory dock as one card, T-1384; nothing changes in stored maps; five endpoints for AEF) and the task's context and ACs. release job 127 (designer 0.40.0), rehearsed: 15 checks ok, step 1 rehearsed in a clone, steps 2-10 outward; sha cbbc053e2c8d. 0.40.0 — VERSION and APP_VERSION bumped by the release job (parity ok). release designer 0.40.0 — the advisory banners are one card, folded on a narrow canvas (T-1384); kit calibrated on its bytes. 0.40.0 released (job 127 done rc=0, tag on origin), AEF told (msg 9cb2eaaa); open until AEF's pin is CURRENT. AEF filed the 0.40.0 repin as their T-5065 and confirmed the endpoint table
+
+# Key outcomes
+outcomes:
+  - '`docs/releases/RELEASE-NOTES-0.40.0.md` is committed and not a draft: it describes T-1384, says saved maps and the'
+  - 'A runme job (`.context/runme/127-release-designer-0.40.0/`) bumps, calibrates the kit (codex, GLM-5.3), cuts,'
+  - 'After the operator''s run: tag `designer-v0.40.0` is on origin and AEF has been sent the release (version, tag,'
+  - 'AEF serves 0.40.0 (2026-11-08: probe CURRENT; GitHub contents API reads 0.40.0, sha256 49aec7d9…, 1339583 bytes; AEF T-5065 done, msgs 67c57acb, 111ca274): `bash tools/_t1187-aef-pin-lag.sh` reports CURRENT (BEHIND 1 on 2026-11-08 right after the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/127-release-designer-0.40.0/dryrun.ok'
+  - '.context/runme/127-release-designer-0.40.0/job.sh'
+  - '.tasks/active/T-1385-release-designer-0400-advisory-dock-as-o.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.40.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.40.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.40.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.40.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.40.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.40.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.40.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.40.0/SKILL.md'
+  - 'dist/aef-authoring-kit-0.40.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.40.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.40.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.40.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.40.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.40.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.40.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.40.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.40.0.html'
+  - 'docs/authoring-kit/calibration-records/0.40.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.40.0.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-08T14:18:29'
+    action: 'T-1385: release notes for 0.40.0 (advisory dock as one card, T-1384; nothing changes in stored maps; five endpoints for AEF) and the task''s context and ACs'
+  - time: '2026-11-08T14:18:51'
+    action: 'T-1385: release job 127 (designer 0.40.0), rehearsed: 15 checks ok, step 1 rehearsed in a clone, steps 2-10 outward; sha cbbc053e2c8d'
+  - time: '2026-11-08T14:47:35'
+    action: 'T-1385: 0.40.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-11-08T15:03:26'
+    action: 'T-1385: release designer 0.40.0 — the advisory banners are one card, folded on a narrow canvas (T-1384); kit calibrated on its bytes'
+  - time: '2026-11-08T17:10:14'
+    action: 'T-1385: 0.40.0 released (job 127 done rc=0, tag on origin), AEF told (msg 9cb2eaaa); open until AEF''s pin is CURRENT'
+  - time: '2026-11-08T17:11:54'
+    action: 'T-1385: AEF filed the 0.40.0 repin as their T-5065 and confirmed the endpoint table'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 218 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 218
+  commits: 7
+  files_changed: 28
+  lines_added: 21864
+  lines_removed: 22
+  footprint_refreshed_at: '2026-11-08T16:55:41Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1385-release-designer-0400-advisory-dock-as-o.md
+generated_by: context-agent-hybrid
