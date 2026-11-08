@@ -7,7 +7,7 @@
 #   python  an unhandled SIGTERM ends the process without running `finally`.
 # This script shows both on throwaway files, never on a real one: the operator declined killing real mutation
 # scripts (2026-10-23). Each dummy mimics a teeth script: back up, mutate, run a long "harness", restore, mutate
-# again, restore. Under `timeout 1`:
+# again, restore. Killed by `timeout` once armed (T-1294):
 #   OLD bash   (trap cleanup EXIT INT TERM, _t910's)            -> resumes, plants mutant-2, cannot restore it;
 #   FIXED bash (trap cleanup EXIT; trap 'exit 143' TERM ...)     -> original, nothing runs after the signal;
 #   OLD py     (restore in finally)                             -> mutant-1 left;
@@ -40,8 +40,8 @@ cat > "$WORK/old.py" <<'PY'
 import sys, time
 f, log, nap = sys.argv[1], sys.argv[2], float(sys.argv[3])
 orig = open(f).read()
-open(f, "w").write("mutant-1\n")
 try:
+    open(f, "w").write("mutant-1\n")
     time.sleep(nap)
 finally:
     open(f, "w").write(orig)
@@ -56,11 +56,19 @@ PY
 grep -q "trap 'exit 143' TERM" "$WORK/fixed.sh" && grep -q "signal.SIGTERM" "$WORK/fixed.py" \
   || { echo "SETUP BROKEN: the fixed dummies were not derived"; exit 1; }
 
-run() {  # run <dummy> <nap> [timeout]  -> sets RC, CONTENT, LOG_TEXT
-  local d="$1" nap="$2" t="${3:-}" f="$WORK/victim-$RANDOM" log="$WORK/log-$RANDOM" r
+run() {  # run <dummy> <nap> [kill]  -> sets RC, CONTENT, LOG_TEXT
+  # With [kill], the dummy runs under `timeout` and is signalled once it has ARMED: every dummy writes mutant-1 only
+  # after its trap or handler is set and inside its try, so seeing mutant-1 means "armed and in the harness". Then
+  # SIGALRM to `timeout` makes it act exactly as on its own expiry (TERM to the group, exit 124). A wall-clock
+  # `timeout 1` raced python's start-up under load (T-1294): TERM before `try`, mutant-1 left, a false red.
+  local d="$1" nap="$2" k="${3:-}" f="$WORK/victim-$RANDOM" log="$WORK/log-$RANDOM" r tp i
   echo original > "$f"; : > "$log"
   case "$d" in *.py) r=python3 ;; *) r=bash ;; esac
-  if [ -n "$t" ]; then timeout "$t" "$r" "$WORK/$d" "$f" "$log" "$nap" >/dev/null 2>&1; else "$r" "$WORK/$d" "$f" "$log" "$nap" >/dev/null 2>&1; fi
+  if [ -n "$k" ]; then
+    timeout 120 "$r" "$WORK/$d" "$f" "$log" "$nap" >/dev/null 2>&1 & tp=$!
+    for i in $(seq 1 1200); do [ "$(cat "$f" 2>/dev/null)" = mutant-1 ] && break; sleep 0.05; done
+    kill -ALRM "$tp" 2>/dev/null; wait "$tp"
+  else "$r" "$WORK/$d" "$f" "$log" "$nap" >/dev/null 2>&1; fi
   RC=$?; CONTENT="$(cat "$f")"; LOG_TEXT="$(tr '\n' ' ' < "$log")"
 }
 
@@ -71,17 +79,17 @@ for d in old.sh fixed.sh old.py fixed.py; do
   ok "$d unkilled: rc 0, file original" "$([ "$RC" = 0 ] && [ "$CONTENT" = original ] && echo 0 || echo 1)" "rc=$RC file=$CONTENT"
 done
 
-echo "killed by timeout 1 mid-harness"
-run old.sh 2 1
+echo "killed by timeout mid-harness, once armed"
+run old.sh 5 kill
 ok "OLD bash resumes after TERM and leaves the mutant (file=$CONTENT, log: $LOG_TEXT)" \
    "$([ "$CONTENT" = mutant-2 ] && [[ "$LOG_TEXT" == *after-signal* ]] && echo 0 || echo 1)"
-run fixed.sh 2 1
+run fixed.sh 5 kill
 ok "FIXED bash restores and runs nothing after TERM (rc=$RC file=$CONTENT)" \
    "$([ "$RC" = 124 ] && [ "$CONTENT" = original ] && [ -z "${LOG_TEXT// /}" ] && echo 0 || echo 1)" "log: $LOG_TEXT"
-run old.py 2 1
+run old.py 5 kill
 ok "OLD python skips finally on TERM and leaves the mutant (file=$CONTENT)" \
    "$([ "$CONTENT" = mutant-1 ] && echo 0 || echo 1)"
-run fixed.py 2 1
+run fixed.py 5 kill
 ok "FIXED python runs finally and nothing after TERM (rc=$RC file=$CONTENT)" \
    "$([ "$RC" = 124 ] && [ "$CONTENT" = original ] && [ -z "${LOG_TEXT// /}" ] && echo 0 || echo 1)" "log: $LOG_TEXT"
 

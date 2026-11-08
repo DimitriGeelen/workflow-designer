@@ -1,13 +1,19 @@
 ---
 id: T-1294
-name: "_t1273 signal-restore teeth: FIXED python dummy fails under load (timeout 1 fires before try/finally is armed)"
+name: "_t1273 signal-restore teeth: FIXED python dummy fails under load (timeout 1
+  fires before try/finally is armed)"
 description: >
-  Core tier red once under nice -n 19 during a T-1288 core run (FIXED python runs finally ... rc=124 file= empty), green 3/3 standalone under nice -n 19 and green with TMPDIR in-project and in a netns. Load-sensitive 1 s timeout. Make the leg independent of interpreter start-up time. Quarantined in tests/quarantine.yaml by T-1288.
+  Core tier red once under nice -n 19 during a T-1288 core run (FIXED python runs
+  finally ... rc=124 file= empty), green 3/3 standalone under nice -n 19 and green
+  with TMPDIR in-project and in a netns. Load-sensitive 1 s timeout. Make the leg
+  independent of interpreter start-up time. Quarantined in tests/quarantine.yaml by
+  T-1288.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [quality-engine, quarantine, T-1288]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-23T23:26:18Z
-last_update: 2026-10-23T23:26:18Z
-date_finished: null
+last_update: '2026-11-08T10:08:03Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +56,55 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-08T10:08:03Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 3
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=2 (body:learning-ref); D2=0 (no-signal); D3=3 (body:component-discoverability);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1294: _t1273 signal-restore teeth: FIXED python dummy fails under load (timeout 1 fires before try/finally is armed)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Background / trigger:** the core tier failed once on `_t1273-signal-restore-teeth` ("FIXED python runs finally and
+nothing after TERM", rc=124, file empty) under nice -n 19, and the leg was quarantined until 2026-11-07. On 2026-11-08 the
+expired entry turned the core tier red and refused T-1384's push.
+
+**Problem / hypothesis:** `tools/_t1273-signal-restore-teeth.sh` kills its dummies with `timeout 1`, a wall clock. Under
+load python has not yet entered its `try` when TERM arrives, so the FIXED dummy cannot restore. The test races, the product
+does not.
+
+**Goal:** the killed runs are signalled only once the dummy is armed, so the leg measures the signal patterns and not the
+host's load.
+
+**Expected outcome:** each dummy writes `mutant-1` inside its armed section, the runner waits for it, then sends SIGALRM
+to `timeout` (which then acts exactly as on expiry: TERM to the group, exit 124), so the assertions are unchanged. The
+quarantine entry is removed and the core tier is green.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The killed runs signal only after the dummy has armed (no wall-clock race); the four assertions and the guard check are
+  unchanged, and the script passes standalone and under `nice -n 19` with the host busy (5/5 runs).
+- [ ] The `_t1273-signal-restore-teeth` entry is removed from `tests/quarantine.yaml` in the same commit, and the core tier is
+  green with no quarantine for this leg.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -113,6 +154,8 @@ date_finished: null
 
 ## Verification
 
+nice -n 19 bash tools/_t1273-signal-restore-teeth.sh > /tmp/.t1294.out 2>&1 && grep -q "RESULT: 9 passed, 0 failed" /tmp/.t1294.out
+! grep -q "_t1273-signal-restore-teeth" tests/quarantine.yaml
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -345,3 +388,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1294-t1273-signal-restore-teeth-fixed-python-.md
 - **Context:** Initial task creation
+
+### 2026-11-08T10:08:02Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
