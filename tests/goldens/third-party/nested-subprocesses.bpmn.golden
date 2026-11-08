@@ -14,25 +14,8 @@
 
   <bpmn:process id="Process_1" isExecutable="false">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="process_1" version="1" schemaVersion="2" title="Process_1" tier_default="2"/>
+      <aef:workflowMeta id="process_1" version="1" schemaVersion="2" title="Process_1" tier_default="2" laneProvenance="defaulted:no-laneset"/>
     </bpmn:extensionElements>
-    <bpmn:laneSet id="LaneSet_1">
-      <bpmn:lane id="human" name="Human · Sovereignty">
-        <bpmn:extensionElements>
-          <aef:laneMeta abbr="hum" authority="sovereignty" height="130"/>
-        </bpmn:extensionElements>
-      </bpmn:lane>
-      <bpmn:lane id="framework" name="Framework · Authority">
-        <bpmn:extensionElements>
-          <aef:laneMeta abbr="frw" authority="authority" height="130"/>
-        </bpmn:extensionElements>
-      </bpmn:lane>
-      <bpmn:lane id="agent" name="Agent · Initiative">
-        <bpmn:extensionElements>
-          <aef:laneMeta abbr="agt" authority="initiative" height="320"/>
-        </bpmn:extensionElements>
-      </bpmn:lane>
-    </bpmn:laneSet>
 
     <bpmn:subProcess id="lan_1_subprocess" name="SubProcess_1">
       <bpmn:extensionElements>

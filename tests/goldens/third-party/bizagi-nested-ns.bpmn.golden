@@ -38,25 +38,8 @@
   <bpmn:process id="Id_1f46c2af-002d-4b63-b1d1-7f181acc6065">
     <documentation xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
     <bpmn:extensionElements>
-      <aef:workflowMeta id="id_1f46c2af-002d-4b63-b1d1-7f181acc6065" version="1" schemaVersion="2" title="Id_1f46c2af-002d-4b63-b1d1-7f181acc6065" tier_default="2"/>
+      <aef:workflowMeta id="id_1f46c2af-002d-4b63-b1d1-7f181acc6065" version="1" schemaVersion="2" title="Id_1f46c2af-002d-4b63-b1d1-7f181acc6065" tier_default="2" laneProvenance="defaulted:empty-laneset"/>
     </bpmn:extensionElements>
-    <bpmn:laneSet id="LaneSet_1">
-      <bpmn:lane id="human" name="Human · Sovereignty">
-        <bpmn:extensionElements>
-          <aef:laneMeta abbr="hum" authority="sovereignty" height="130"/>
-        </bpmn:extensionElements>
-      </bpmn:lane>
-      <bpmn:lane id="framework" name="Framework · Authority">
-        <bpmn:extensionElements>
-          <aef:laneMeta abbr="frw" authority="authority" height="130"/>
-        </bpmn:extensionElements>
-      </bpmn:lane>
-      <bpmn:lane id="agent" name="Agent · Initiative">
-        <bpmn:extensionElements>
-          <aef:laneMeta abbr="agt" authority="initiative" height="320"/>
-        </bpmn:extensionElements>
-      </bpmn:lane>
-    </bpmn:laneSet>
 
     <bpmn:startEvent id="lan_start_id">
       <bpmn:documentation></bpmn:documentation>
@@ -145,7 +128,7 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_id_1f46c2af-002d-4b63-b1d1-7f181acc6065">
     <bpmndi:BPMNPlane id="BPMNPlane_id_1f46c2af-002d-4b63-b1d1-7f181acc6065" bpmnElement="Id_6542cd13-ad91-46f4-a3ab-f8661c2ed4ee">
       <bpmndi:BPMNShape id="BPMNShape_Id_f5303751-594f-4be3-bfba-9ed026dbb78c" bpmnElement="Id_f5303751-594f-4be3-bfba-9ed026dbb78c" isHorizontal="true">
-        <dc:Bounds x="30" y="30" width="1540" height="612"/>
+        <dc:Bounds x="30" y="30" width="1540" height="174"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="DiagramElement_2f6f0d61-40a2-4b55-84bd-54b96c8df216" bpmnElement="lan_start_id">
         <dc:Bounds x="136.0" y="115.0" width="30" height="30"/>
@@ -173,7 +156,7 @@
         <di:waypoint x="392.0" y="130.0"/>
         <extension xmlns="http://www.omg.org/spec/DD/20100524/DI"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="DiagramElement_9cb178c5-b0cd-4e85-9f1b-d5b1c9607d47" bpmnElement="Id_c13bd51d-300b-4a9b-9ed9-96a0415f9c76" isHorizontal="true"><dc:Bounds x="30" y="682" width="1540" height="60"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DiagramElement_9cb178c5-b0cd-4e85-9f1b-d5b1c9607d47" bpmnElement="Id_c13bd51d-300b-4a9b-9ed9-96a0415f9c76" isHorizontal="true"><dc:Bounds x="30" y="244" width="1540" height="60"/></bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>
