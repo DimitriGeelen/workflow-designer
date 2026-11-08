@@ -83,6 +83,8 @@ tiers green on the release tree, and AEF told with the version, sha256 and bytes
   origin; artifact sha256 49aec7d9…, 1339583 bytes; AEF told, msg 9cb2eaaa (conversation designer-0.40.0), RECEIVED.
 - [ ] AEF serves 0.40.0: `bash tools/_t1187-aef-pin-lag.sh` reports CURRENT (BEHIND 1 on 2026-11-08 right after the
   announcement). If not within a few days, ask on conversation designer-0.40.0 for their task id.
+  AEF filed the repin as **AEF T-5065** (horizon next; msg adadee0b) and confirmed the endpoint table: field-profile and
+  field-suggestions still not served. Follow T-5065 until the pin probe says CURRENT.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
