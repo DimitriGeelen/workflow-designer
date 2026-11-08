@@ -73,9 +73,9 @@ tiers green on the release tree, and AEF told with the version, sha256 and bytes
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `docs/releases/RELEASE-NOTES-0.40.0.md` is committed and not a draft: it describes T-1384, says saved maps and the
+- [x] `docs/releases/RELEASE-NOTES-0.40.0.md` is committed and not a draft: it describes T-1384, says saved maps and the
   validator are unchanged, and names all five designer endpoints with AEF's status.
-- [ ] A runme job (`.context/runme/127-release-designer-0.40.0/`) bumps, calibrates the kit (codex, GLM-5.3), cuts,
+- [x] A runme job (`.context/runme/127-release-designer-0.40.0/`) bumps, calibrates the kit (codex, GLM-5.3), cuts,
   commits, tags locally, runs the browser then core tier, and pushes; it passes `runme.sh --dry-run`, and job.sh and
   dryrun.ok are committed.
 - [ ] After the operator's run: tag `designer-v0.40.0` is on origin and AEF has been sent the release (version, tag,
