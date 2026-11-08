@@ -78,8 +78,11 @@ tiers green on the release tree, and AEF told with the version, sha256 and bytes
 - [x] A runme job (`.context/runme/127-release-designer-0.40.0/`) bumps, calibrates the kit (codex, GLM-5.3), cuts,
   commits, tags locally, runs the browser then core tier, and pushes; it passes `runme.sh --dry-run`, and job.sh and
   dryrun.ok are committed.
-- [ ] After the operator's run: tag `designer-v0.40.0` is on origin and AEF has been sent the release (version, tag,
-  sha256, bytes, what it brings).
+- [x] After the operator's run: tag `designer-v0.40.0` is on origin and AEF has been sent the release (version, tag,
+  sha256, bytes, what it brings). Job 127 done rc=0 (2026-11-08 17:09, browser 137/0, core green); tag bf23bfa5 on
+  origin; artifact sha256 49aec7d9…, 1339583 bytes; AEF told, msg 9cb2eaaa (conversation designer-0.40.0), RECEIVED.
+- [ ] AEF serves 0.40.0: `bash tools/_t1187-aef-pin-lag.sh` reports CURRENT (BEHIND 1 on 2026-11-08 right after the
+  announcement). If not within a few days, ask on conversation designer-0.40.0 for their task id.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
