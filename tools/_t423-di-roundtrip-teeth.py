@@ -100,8 +100,10 @@ def case(name, mutate, expect_rc, expect_in_output=None):
 
 
 # T-1218 re-pointed: an empty name is now written as no name attribute, so the emit is conditional.
+# Re-pointed 2026-11-08 (T-347): T-1325 appended ${keptAttrs} to this emit on 2026-10-28; the sweep tier found the
+# anchor gone on its next run.
 NODE_NAME = ('lines.push(`    <bpmn:${tag} id="${escAttr(nodeDisplayId)}"'
-             '${n.name ? ` name="${escAttr(n.name)}"` : \'\'}${boundaryAttrs}>`);')
+             '${n.name ? ` name="${escAttr(n.name)}"` : \'\'}${boundaryAttrs}${keptAttrs}>`);')
 BOUNDS = ('lines.push(`        <dc:Bounds x="${n.x.toFixed(1)}" y="${n.y.toFixed(1)}"'
           ' width="${def.w}" height="${def.h}"/>`);')
 WAYPOINT = 'lines.push(`        <di:waypoint x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}"/>`);'
@@ -122,7 +124,7 @@ def _accumulating_name(body):
     return body.replace(
         NODE_NAME,
         'lines.push(`    <bpmn:${tag} id="${escAttr(nodeDisplayId)}"'
-        '${n.name ? ` name="${escAttr(n.name)}."` : \'\'}${boundaryAttrs}>`);', 1)
+        '${n.name ? ` name="${escAttr(n.name)}."` : \'\'}${boundaryAttrs}${keptAttrs}>`);', 1)
 
 
 def _converging_precision(body):

@@ -14,8 +14,8 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
-owner: human
+current_node: agt_2_perform
+owner: agent
 horizon: now
 tags: []
 components: []
@@ -335,7 +335,7 @@ than a widened leg on an existing one.
       the designer does not read, and eventDef is read. Folding it in is a separate change.)*
 
 ### Human
-- [ ] [REVIEW] Choose repair semantics for unconsumed element content
+- [x] [REVIEW] Choose repair semantics for unconsumed element content
 
       > **Consolidated view: `docs/reports/T-397-import-repair-semantics-brief.md`.** One of
       > four open rulings, all four stated there in current form. Two things from it bear on
@@ -382,6 +382,7 @@ than a widened leg on an existing one.
       migrated" (`src:9656`), and is the only option that also covers content we have not
       thought of. It also changes what we emit for AEF's content, which is why this is
       yours and not mine — same disposition as T-337, T-340 and T-341.
+  **Reviewer verdict:** green V-20261108-b96077d4 — reviewer-judge-t-347-r3-56ec9fc558ad:reviewer (rung rung-3-termlink-single-reviewer), digest 955962ba3d76; dispatch judge-t-347-r3-56ec9fc558ad; evidence: .context/reviews/evidence/T-347/AC1-judge-t-347-r3-56ec9fc558ad.md; ledger .context/reviews/verdicts.jsonl
 
 ## RCA
 
