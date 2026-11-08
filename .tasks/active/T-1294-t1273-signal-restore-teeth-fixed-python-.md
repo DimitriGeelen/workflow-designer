@@ -155,6 +155,7 @@ quarantine entry is removed and the core tier is green.
 ## Verification
 
 nice -n 19 bash tools/_t1273-signal-restore-teeth.sh > /tmp/.t1294.out 2>&1 && grep -q "RESULT: 9 passed, 0 failed" /tmp/.t1294.out
+grep -q "_t1273-signal-restore-teeth" tests/run-bridge-tests.sh
 ! grep -q "_t1273-signal-restore-teeth" tests/quarantine.yaml
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
