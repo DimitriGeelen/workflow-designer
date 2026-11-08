@@ -8,13 +8,13 @@ description: >
   of 685px; only the top lane shows. Reduce that without putting a notice on the diagram
   or hiding a data-loss line.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t1384-advisory-dock-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-07T18:11:21Z
-last_update: '2026-11-07T18:12:01Z'
-date_finished:
+last_update: 2026-11-08T10:44:27Z
+date_finished: 2026-11-08T10:44:27Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -119,10 +119,10 @@ Every advisory's warning stays readable or one click away, as the chosen design 
 - [x] Every part of the import notice, the authority summary and the Clean-layout action remains reachable: shown, or
   one click away on a control that names how many parts it hides. Every "NOT kept" or "not drawn" line reads exactly
   as before (`textContent` of each part unchanged).
-- [ ] A new browser-leg harness `tools/_t1384-advisory-dock-cdp.mjs` proves the three criteria above and is red on HEAD
+- [x] A new browser-leg harness `tools/_t1384-advisory-dock-cdp.mjs` proves the three criteria above and is red on HEAD
   before the change. Harnesses that read the notices (`_t1078`, `_t1327`, `_t1369`, `_t1372`, `_t1381`, as found) stay
   green or are updated deliberately with the reason. Both test tiers are green before the push.
-- [ ] The person-sees gate exits 0. An advisory sweep is done. Screenshots at 1024/1440/1920 are read and recorded in
+- [x] The person-sees gate exits 0. An advisory sweep is done. Screenshots at 1024/1440/1920 are read and recorded in
   `## Visual Verification`.
 
 ### Human
@@ -170,7 +170,7 @@ Every advisory's warning stays readable or one click away, as the chosen design 
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-- [ ] [REVIEW] The advisory dock reads as one card that leaves the map its room and hides no warning
+- [x] [REVIEW] The advisory dock reads as one card that leaves the map its room and hides no warning
   **Why you:** a render-surface judgement on screenshots (CLAUDE.md "UI changes are reviewed on screenshots"); for the independent reviewer: `fw reviewer judge T-1384 --criterion 1`.
   **Steps:**
   1. Read `docs/reports/T-1384-evidence/README.md`.
@@ -179,6 +179,7 @@ Every advisory's warning stays readable or one click away, as the chosen design 
   4. At 1024, compare the collapsed and opened shots: the opened one shows every line of the import notice and the authority summary.
   **Expected:** one card of equal-width rows at every width; nothing covers the diagram; every warning line is reachable (shown, or one click away); at 1024 the card takes about a fifth of the canvas height.
   **If not:** name the screenshot and the control or row that fails, and set the task to issues.
+  **Reviewer verdict:** green V-20261108-50ce3a97 — reviewer-judge-t-1384-r3-b3f291dd7e92:reviewer (rung rung-3-termlink-single-reviewer), digest 046f3816473c; dispatch judge-t-1384-r3-b3f291dd7e92; evidence: .context/reviews/evidence/T-1384/AC1-judge-t-1384-r3-b3f291dd7e92.md, .context/reviews/evidence/T-1384/live-1024-judge-t-1384-r3-b3f291dd7e92.png, .context/reviews/evidence/T-1384/live-1024-open-judge-t-1384-r3-b3f291dd7e92.png, .context/reviews/evidence/T-1384/live-1440-judge-t-1384-r3-b3f291dd7e92.png, .context/reviews/evidence/T-1384/live-1920-judge-t-1384-r3-b3f291dd7e92.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -457,3 +458,21 @@ Advisory sweep (codex worker t1384-sweep-4f204ebb90aa, 2026-11-08): **0 blockers
 
 ### 2026-11-07T18:12:00Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-08T10:44:27Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1b08889e
+- **Timestamp:** 2026-11-08T10:45:05Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — Opening `tests/fixtures/t1381/data-stores.bpmn` the real way (`adoptImportedXml(..., {userImport:true})`, then
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/fixtures/t1381/data-stores.bpmn in: Opening `tests/fixtures/t1381/data-stores.bpmn` the real way (`adoptImportedXml(..., {userImport:true})`, then`
