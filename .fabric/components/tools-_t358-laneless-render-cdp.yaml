@@ -1,0 +1,21 @@
+id: tools/_t358-laneless-render-cdp.mjs
+name: _t358-laneless-render-cdp
+type: script
+subsystem: browser-harness
+location: tools/_t358-laneless-render-cdp.mjs
+tags: []
+
+purpose: "_t358-laneless-render-cdp.mjs — T-358 (operator ruling 2026-11-08, AB: drop + mark): a third-party map that declares no lanes opens with NO lanes, and the canvas still draws it properly."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-11-08
+created_by: unknown

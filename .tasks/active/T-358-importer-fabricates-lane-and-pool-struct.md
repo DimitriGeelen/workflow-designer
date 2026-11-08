@@ -20,7 +20,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T16:12:36Z
-last_update: 2026-10-21T21:26:22Z
+last_update: 2026-11-08T20:53:23Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -106,6 +106,22 @@ cost_estimate_proposed:
 # T-358: Importer FABRICATES lane and pool structure the input never had: every third-party document gains 3 lanes and 1 participant on open
 
 ## Context
+
+**Background / trigger:** `tools/_t356-third-party-fidelity-cdp.mjs` (2026-08-03) showed every third-party BPMN file
+with no lanes gaining `lanes 0→3` and `participants 0→1` on open→save. The operator ruled on 2026-11-08 (option 1, AB:
+drop + mark); re-measured the same day with `tools/_t358-repair-options-cdp.mjs`, AB still fabricates nothing.
+
+**Problem / hypothesis:** `parseBpmnXml` pushes `defaultLanes()` when the input declares none, so a peer's lane-less
+file comes back asserting a `Human · Sovereignty` lane (`authority="sovereignty"`) it never had, and the emitter writes
+that into the saved bytes. Under the T-888 ruling a lane-less file declares no partition: nothing is missing.
+
+**Goal:** build AB. The importer adds no lanes to a file that declares none. The emitter writes no `<bpmn:laneSet>` when
+there are no lanes. "The source declared no lanes" is written as `laneProvenance` on our own `aef:workflowMeta` and read
+back on import. The validator stops calling a file with no `laneSet` an error (an empty `laneSet` stays one).
+
+**Expected outcome:** a lane-less third-party file opens and saves with no lanes and no `sovereignty`; a second save is
+identical and still says "no lanes"; designer-written maps save byte-identically; a new harness proves it and is red on
+the source before the change. The pool half (`participants 0→1`) and migrating already-saved files stay out of scope.
 
 > **Record correction (2026-10-05, T-1045).** Handovers from S-2026-1004 onward listed a red bridge leg
 > as "T-358 — third-party document bytes". That leg was `tools/_t358-byteid-thirdparty.mjs` (the byte-
@@ -425,15 +441,35 @@ written; only its sequencing is recorded.
       > so as a standing gate it would silently compare against an ever-older tree.
       > It is an on-demand instrument; the standing fix belongs to T-364/G-023.
 
-- [ ] **BLOCKED** — Bridge suite green; `_t308` byte-identity still 24/24 (a repair here
+- [ ] Bridge suite green; `_t308` byte-identity still 24/24 (a repair here
       must not change what we emit for existing maps)
+      *(2026-11-08, the lane half, AB: `_t308` 24/24 identical on the change. Ticked once both tiers are green.)*
 
-- [ ] **BLOCKED** — `tools/_t356-third-party-fidelity-cdp.mjs` re-run: `lanes` and
+- [ ] **HALF DONE** — `tools/_t356-third-party-fidelity-cdp.mjs` re-run: `lanes` and
       `participants` deltas gone from all five rows, with the other columns unchanged
       (this task repairs fabrication only, not the DI/pool/node losses those rows also
       carry)
+      *(2026-11-08: the `lanes 0→3` delta is gone from every row. `participants 0→1` remains: the pool half, which the
+      operator's AB ruling does not cover; to be measured and brought to the operator.)*
 
-Both are downstream of the Human ruling below and are marked **BLOCKED** rather than
+- [x] **The lane half of AB is built (operator ruling 2026-11-08).** A document that declares no lanes opens with none
+      (`parseBpmnXml` no longer pushes `defaultLanes()`); the save writes no `<bpmn:laneSet>` and, while the map still
+      has no lanes, `laneProvenance` on `aef:workflowMeta`, which the next open reads back. A pool with no lanes
+      encloses its nodes (`poolHeight()`; without it the pool was as tall as its header and every node drew below it).
+      The validator no longer raises `E-XML-LANES-EMPTY` for a process with no `<bpmn:laneSet>` (an empty laneSet
+      still is one). Evidence:
+      - `tools/_t358-lane-provenance-cdp.mjs` expectations flipped deliberately (defaulted cases 3 → 0 lanes) and
+        extended with the round trip; PASS live, 15 FAIL lines on the pre-change source;
+      - `tools/_t358-teeth.py` 9/9 (case 5 now re-inserts the fabrication; new cases 7-9 drop the marker, write an
+        empty laneSet, stop reading the marker back);
+      - new browser leg 227 `tools/_t358-laneless-render-cdp.mjs --self-test`: 84 legs over the 7 lane-less
+        third-party fixtures at 1024/1440/1920, both poison arms caught;
+      - `tools/_t358-byteid-thirdparty.mjs` goldens re-recorded deliberately for the 8 changed files (marker added,
+        invented laneSet removed, pool DI height follows content; no id or flow changes), committed alone;
+      - `_t308` 24/24, `_t338` OK, `_t1325` ok, `_t358-corpus-lane-provenance-probe.py` PASS, validator suites
+        (anchorability, cross-form, dialect axis, form parity) OK.
+
+The two criteria above the last were downstream of the Human ruling below and were marked **BLOCKED** rather than
 left looking merely undone: there is no repair to verify until a candidate is chosen,
 and a task whose scope is blocked should look blocked (same convention as T-340). The
 diagnosis ACs above are genuinely complete — the block is on the repair, not the
@@ -446,6 +482,16 @@ green 24/24 here says nothing about the population this repair is aimed at — u
 `tools/_t358-byteid-thirdparty.mjs` for that half.
 
 ### Human
+
+- [ ] [REVIEW] A map that declares no lanes reads correctly without the lanes the importer used to invent
+  **Why you:** a render-surface judgement on screenshots (CLAUDE.md "UI changes are reviewed on screenshots"); for the independent reviewer: `fw reviewer judge T-358 --criterion 1`.
+  **Steps:**
+  1. Open the 21 screenshots in `docs/reports/T-358-evidence/` (7 maps × 1024/1440/1920).
+  2. In each, check the pool outline encloses every task, event and subprocess from top to bottom, no lane band or lane
+     header is drawn, "+ Add another lane" sits below the pool, and the advisory card's controls are reachable.
+  3. For collaboration-message-flows, check the second, read-only pool sits below ours without overlapping it.
+  **Expected:** every map draws one pool around its whole diagram with no invented lanes, at all three widths.
+  **If not:** name the screenshot and what is outside the pool or overlapping, and set the task to issues.
 
 - [ ] [REVIEW] Choose the lane/pool fabrication repair: **A · B · C · AB · no repair**
 
@@ -705,6 +751,8 @@ by drift.
 bash tests/run-bridge-tests.sh
 node tools/_t356-third-party-fidelity-cdp.mjs
 python3 tools/_t358-corpus-lane-provenance-probe.py
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t358-lane-provenance-cdp.mjs > /tmp/.t358p.out 2>&1 && grep -q "^PASS" /tmp/.t358p.out
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t358-laneless-render-cdp.mjs --self-test > /tmp/.t358r.out 2>&1 && grep -q "both poison arms caught" /tmp/.t358r.out
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -752,6 +800,36 @@ python3 tools/_t358-corpus-lane-provenance-probe.py
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+## Visual Verification
+
+Lane half of AB, 2026-11-08. Screenshots in `docs/reports/T-358-evidence/`, made by
+`node tools/_t358-laneless-render-cdp.mjs --shots docs/reports/T-358-evidence`: every lane-less third-party fixture
+(boundary-events, collaboration-message-flows, i18n-documentation, multiple-diagrams, nested-subprocesses, simple,
+zeebe-service-task), opened the real way (import + opening zoom), both side panels open.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| opening | pool outline encloses every node vertically | ok | ok | ok | before the poolHeight fix the pool was its 32px header and every node drew below it |
+| opening | no lane band, no lane header | ok | ok | ok | before: Human · Sovereignty / Framework · Authority / Agent · Initiative |
+| opening | "+ Add another lane" strip below the pool | ok | ok | ok | 1024: its label sits under the right panel, as on any map |
+| opening | advisory dock (import notice, Clean layout, authority summary) | ok | ok | ok | the authority summary now says the map declares no authority |
+| opening | second participant pool (collaboration-message-flows) | ok | ok | ok | read-only pool below ours; message flows cross the add-lane strip as in 0.40.0 |
+
+Read per screenshot (one per map, the widths not listed read the same):
+- `simple-1440.png`: pool "Process_1 · workflow:process_1" encloses Sub Process 1, Start, Start Event 1, Task and End Event;
+  no lane bands; "+ Add another lane" under the pool. Compare 0.40.0: the same nodes inside three invented lanes.
+- `boundary-events-1024.png`: SubProcess_1 with its boundary events (batman, wonder woman), the start event and joker
+  inside the pool; the task at the right edge runs under the right panel (canvas scroll, as before).
+- `collaboration-message-flows-1920.png`: our pool encloses Task_1, Task_2 and the end event; "Pool · read-only" below
+  with its start event; message flows dashed between them.
+- `nested-subprocesses-1440.png`: SubProcess_1, SubProcess_2, UserTask_1 and four events inside the pool. The first start
+  event sits 4px left of the pool's left edge, exactly as in 0.40.0 (its x=26 in the file; the pool's left edge never
+  grows): not this change, not judged by L2.
+- `i18n-documentation-1024.png`: start, Activity_0eb4n4l and Ended inside a compact pool; the authority summary folds to
+  "▸ 1 more" on the narrow canvas (T-1384).
+- `multiple-diagrams-1440.png`: one task "A" in the pool; the notice says the second process is kept and saved back.
+- `zeebe-service-task-1920.png`: start, two activities, end inside the pool.
 
 ## RCA
 

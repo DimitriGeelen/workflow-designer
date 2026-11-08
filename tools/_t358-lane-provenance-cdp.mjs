@@ -18,8 +18,13 @@
  * designer map and 3 for a fabricated one, discriminating nothing; `authored-lanes`
  * must come back input-derived (2 lanes in, 2 lanes out, provenance `authored`).
  *
- * Usage: node tools/_t358-lane-provenance-cdp.mjs
- * Exit 0 = all four branches observed, distinct, and lane counts match expectation.
+ * T-358 repair (operator ruling 2026-11-08, AB: drop + mark). The defaulted cases used to come back with our 3-lane
+ * skeleton and `authority: 'sovereignty'` on the first lane; that was pinned here so it could not change unseen. It
+ * now changes on purpose: a defaulted document opens with NO lanes, and saving it writes no <bpmn:laneSet>, no
+ * `sovereignty`, and `laneProvenance` on aef:workflowMeta, which the next open reads back (the round trip below).
+ *
+ * Usage: node tools/_t358-lane-provenance-cdp.mjs   (T358_SRC=<file> runs another designer, e.g. the pre-repair one)
+ * Exit 0 = all four branches observed, distinct, lane counts as ruled, and the round trip keeps the provenance.
  */
 
 import { makeProfileDir } from './_cdp-profile.mjs';
@@ -37,12 +42,12 @@ const SERVER = join(HERE, 'gallery-serve.py');
 const FIXDIR = join(REPO, 'tests', 'fixtures', 'lane-provenance');
 
 // Expectation table. `lanesOut` is what state should hold AFTER parse:
-// the control keeps its own 2; every defaulted case gets our 3-lane skeleton.
+// the control keeps its own 2; every defaulted case keeps NONE (T-358 AB: nothing is invented).
 const CASES = [
   { file: 'authored-lanes.bpmn',         provenance: 'authored',                         lanesOut: 2, note: 'NEGATIVE CONTROL — input-derived, no fabrication' },
-  { file: 'no-laneset.bpmn',             provenance: 'defaulted:no-laneset',             lanesOut: 3, note: 'property of the input' },
-  { file: 'empty-laneset.bpmn',          provenance: 'defaulted:empty-laneset',          lanesOut: 3, note: 'laneSet present, zero lane children' },
-  { file: 'later-laneset-ignored.bpmn',  provenance: 'defaulted:later-laneset-ignored',  lanesOut: 3, note: 'OUR defect — T-348 first-only read discarded real lanes' },
+  { file: 'no-laneset.bpmn',             provenance: 'defaulted:no-laneset',             lanesOut: 0, note: 'property of the input' },
+  { file: 'empty-laneset.bpmn',          provenance: 'defaulted:empty-laneset',          lanesOut: 0, note: 'laneSet present, zero lane children' },
+  { file: 'later-laneset-ignored.bpmn',  provenance: 'defaulted:later-laneset-ignored',  lanesOut: 0, note: 'OUR defect — T-348 first-only read discarded real lanes' },
 ];
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -58,7 +63,7 @@ async function main() {
 
   const doc = mkdtempSync(join(tmpdir(), 't358-doc-'));
   const repo = mkdtempSync(join(tmpdir(), 't358-repo-'));
-  copyFileSync(join(REPO, 'src/aef-workflow-designer.html'), join(doc, 'designer.html'));
+  copyFileSync(process.env.T358_SRC || join(REPO, 'src/aef-workflow-designer.html'), join(doc, 'designer.html'));
   mkdirSync(join(doc, 'rendered'), { recursive: true });
   const port = await freePort();
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
@@ -87,9 +92,19 @@ async function main() {
       const r = await ev(cmd, `(function(){
         var m = parseBpmnXml(window.__IN__);
         if(!m) return null;
+        var strip = function(x){ return x.replace(/<!--[\\s\\S]*?-->/g, ''); };
+        state = m; refreshDisplayIds();
+        var out1 = strip(buildBpmnXml(state));
+        var m2 = parseBpmnXml(out1); state = m2; refreshDisplayIds();
+        var out2 = strip(buildBpmnXml(state));
+        var wm = (out1.match(/<aef:workflowMeta [^>]*>/) || [''])[0];
         return { prov: m.laneProvenance, lanes: (m.lanes||[]).length,
                  laneNames: (m.lanes||[]).map(function(l){return l.name;}),
-                 firstAuthority: (m.lanes && m.lanes[0]) ? m.lanes[0].authority : null };
+                 firstAuthority: (m.lanes && m.lanes[0]) ? m.lanes[0].authority : null,
+                 laneSetOut: /<bpmn:laneSet\\b/.test(out1), sovOut: /sovereignty/.test(out1),
+                 markerOut: (wm.match(/laneProvenance="([^"]*)"/) || [null, null])[1],
+                 reProv: m2 ? m2.laneProvenance : 'reparse-failed', reLanes: m2 ? (m2.lanes||[]).length : -1,
+                 secondSaveSame: out1 === out2 };
       })()`);
       observed.push({ ...c, got: r });
     }
@@ -137,14 +152,23 @@ async function main() {
   }
   const defaulted = observed.filter(o => o.got && String(o.got.prov).startsWith('defaulted:'));
   if (defaulted.length !== 3) fails.push(`expected exactly 3 defaulted cases, saw ${defaulted.length}`);
-  // And the fabrication this task names: every defaulted document is asserted
-  // human-sovereign. Pinned so a silent change to defaultLanes() cannot pass unseen.
+  // T-358 AB: the fabrication this task names is gone — no lane, so no `sovereignty` asserted — and the save says so.
   for (const d of defaulted) {
-    if (d.got.firstAuthority !== 'sovereignty') fails.push(`${d.file}: first lane authority ${JSON.stringify(d.got.firstAuthority)} != 'sovereignty' (the fabricated assertion this task names)`);
+    if (d.got.firstAuthority !== null) fails.push(`${d.file}: a lane was invented (first lane authority ${JSON.stringify(d.got.firstAuthority)}) — the fabrication T-358 removes`);
+    if (d.got.laneSetOut) fails.push(`${d.file}: the save writes a <bpmn:laneSet> for a map with no lanes`);
+    if (d.got.sovOut) fails.push(`${d.file}: the save asserts 'sovereignty'`);
+    if (d.got.markerOut !== d.provenance) fails.push(`${d.file}: the save's laneProvenance marker is ${JSON.stringify(d.got.markerOut)}, expected ${JSON.stringify(d.provenance)}`);
+    if (d.got.reProv !== d.provenance || d.got.reLanes !== 0) fails.push(`${d.file}: re-opening the save gives provenance ${JSON.stringify(d.got.reProv)} with ${d.got.reLanes} lane(s), expected ${JSON.stringify(d.provenance)} with 0`);
   }
+  // The control is the other half: an authored map keeps its laneSet and is never marked.
+  if (ctl && ctl.got) {
+    if (!ctl.got.laneSetOut) fails.push('negative control: the save lost its <bpmn:laneSet>');
+    if (ctl.got.markerOut !== null) fails.push(`negative control: an authored map was marked laneProvenance=${JSON.stringify(ctl.got.markerOut)}`);
+  }
+  for (const o of observed) if (o.got && !o.got.secondSaveSame) fails.push(`${o.file}: a second save differs from the first`);
 
   if (fails.length) { for (const f of fails) console.log('  FAIL ' + f); console.log('\nFAIL'); return 1; }
-  console.log('\nPASS — 4 lane origins, 4 distinct verdicts; partition total; control input-derived (2 in, 2 out)');
+  console.log('\nPASS — 4 lane origins, 4 distinct verdicts; partition total; control input-derived (2 in, 2 out); the 3 lane-less origins open and save with no lanes, no sovereignty, and their provenance marked and read back (T-358 AB)');
   return 0;
 }
 

@@ -12,12 +12,15 @@ none of them:
   2. collapse ALL defaults to one  -> not separable, 2 distinct
   3. delete the provenance field   -> "partition is not total"
   4. default the negative control  -> "negative control was DEFAULTED"
-  5. change defaultLanes authority -> the fabricated-sovereignty assertion goes unpinned
+  5. re-insert the fabrication     -> "a lane was invented" (T-358 AB, 2026-11-08: replaces the old case 5,
+                                      which pinned what the fabricated lane asserted; there is no such lane now)
   6. control's lanes not input-derived -> control check fires independently of provenance
+  7. the marker is not written     -> "laneProvenance marker"
+  8. an empty laneSet is written   -> "writes a <bpmn:laneSet>"
+  9. the marker is not read back   -> "re-opening the save"
 
-Case 5 is the one worth arguing for: without it the leg would still pass if someone
-quietly changed which authority a fabricated lane asserts — and the ASSERTION, not the
-lane count, is the defect this task names.
+Cases 5, 7 and 9 are the ones worth arguing for: the operator's ruling is "drop + mark", and each half must be able
+to go missing without the leg staying green.
 
 Usage: python3 tools/_t358-teeth.py     Exit 0 = every mutation moved the verdict.
 """
@@ -165,15 +168,36 @@ case("negative control stripped of its authored lanes — control must stop repo
          ""),
      "negative control")
 
-# 5. The assertion, not the count: change what a fabricated lane claims.
-case("defaultLanes() first lane no longer asserts sovereignty — the named defect goes unpinned",
-     lambda r: edit_src(r, "authority: 'sovereignty'", "authority: 'none'"),
-     "sovereignty")
+# 5. The defect itself, put back: a lane-less document gains the 3-lane Authority Model again.
+case("the fabrication is re-inserted — a lane-less document gains defaultLanes() again",
+     lambda r: edit_src(r,
+         "  const carriedLaneProv = aefMetaEl && aefMetaEl.getAttribute('laneProvenance');\n",
+         "  const carriedLaneProv = aefMetaEl && aefMetaEl.getAttribute('laneProvenance');\n  if (!lanes.length) lanes.push(...defaultLanes());\n"),
+     "a lane was invented")
 
 # 6. Control's lanes replaced with names that are NOT input-derived.
 case("negative control's lane names diverge from its input — 'input-derived' check must fire",
      lambda r: edit_fixture(r, "authored-lanes.bpmn", 'name="Operations"', 'name="Fabricated"'),
      "input-derived")
+
+# 7. Drop: kept. Mark: gone — the save no longer says the source declared no lanes.
+case("the laneProvenance marker is not written — 'no lanes' survives only by absence (option A, not the ruling)",
+     lambda r: edit_src(r, "wmAttrs.push(`laneProvenance=", "void(`laneProvenance="),
+     "laneProvenance marker")
+
+# 8. The emitter half of constraint section 1: an empty laneSet for a map with no lanes.
+case("the emitter writes <bpmn:laneSet> unconditionally — our own output becomes cause (ii)",
+     lambda r: (edit_src(r, "  if (lanesToEmit.length) lines.push(`    <bpmn:laneSet id=\"LaneSet_1\">`);",
+                            "  lines.push(`    <bpmn:laneSet id=\"LaneSet_1\">`);"),
+                edit_src(r, "  if (lanesToEmit.length) lines.push(`    </bpmn:laneSet>`);",
+                            "  lines.push(`    </bpmn:laneSet>`);")),
+     "writes a <bpmn:laneSet>")
+
+# 9. Mark written but never read: the provenance dies at the first save (the F2 defect).
+case("the marker is never read back — provenance dies at the first save",
+     lambda r: edit_src(r, "  const carriedLaneProv = aefMetaEl && aefMetaEl.getAttribute('laneProvenance');",
+                           "  const carriedLaneProv = null;"),
+     "re-opening the save")
 
 print()
 ok = True

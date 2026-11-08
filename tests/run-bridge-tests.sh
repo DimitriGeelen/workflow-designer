@@ -1866,6 +1866,22 @@ else
 fi
 }
 leg browser "_t1384-advisory-dock" _leg_226
+_leg_227() {
+
+# ── T-358 (operator ruling 2026-11-08, AB): a third-party map with no lanes opens with none and is drawn properly ──
+# Every lane-less fixture in tests/fixtures/third-party, opened the real way at 1024/1440/1920: no lane in state or on the
+# canvas, every node within the pool's height (the pool used to collapse to its header without lanes), and the save
+# writes no laneSet, no 'sovereignty', and the laneProvenance marker. Self-test: the fabrication put back (L1/L3 red) and
+# the no-lane pool height removed (L2 red).
+if node "$ROOT/tools/_t358-laneless-render-cdp.mjs" --self-test > "$TMP/leg-_t358r.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a map that declares no lanes gained lanes again, its nodes fall outside the pool, or its save asserts sovereignty or lost the laneProvenance marker (run 'node tools/_t358-laneless-render-cdp.mjs --self-test'; T-358)"
+  show_output "$TMP/leg-_t358r.out" "_t358-laneless-render-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t358-laneless-render" _leg_227
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
