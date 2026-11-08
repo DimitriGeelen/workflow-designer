@@ -170,6 +170,15 @@ Every advisory's warning stays readable or one click away, as the chosen design 
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+- [ ] [REVIEW] The advisory dock reads as one card that leaves the map its room and hides no warning
+  **Why you:** a render-surface judgement on screenshots (CLAUDE.md "UI changes are reviewed on screenshots"); for the independent reviewer: `fw reviewer judge T-1384 --criterion 1`.
+  **Steps:**
+  1. Read `docs/reports/T-1384-evidence/README.md`.
+  2. Open `docs/reports/T-1384-evidence/live-1024.png`, `live-1024-open.png`, `live-1440.png` and `live-1920.png`.
+  3. In each, check every advisory row, its ✕, the "Clean layout" button and any "▸ N more" / "▾ less" control: visible, unclipped, at the card's right edge; no advisory over the pool, a task, an event, a document or a data store.
+  4. At 1024, compare the collapsed and opened shots: the opened one shows every line of the import notice and the authority summary.
+  **Expected:** one card of equal-width rows at every width; nothing covers the diagram; every warning line is reachable (shown, or one click away); at 1024 the card takes about a fifth of the canvas height.
+  **If not:** name the screenshot and the control or row that fails, and set the task to issues.
 
 ## Verification
 
@@ -312,6 +321,30 @@ Every advisory's warning stays readable or one click away, as the chosen design 
 PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1384-advisory-dock-cdp.mjs --self-test > /tmp/.t1384.out 2>&1 && grep -q "both poison arms caught" /tmp/.t1384.out
 grep -q '_t1384-advisory-dock-cdp.mjs' tests/run-bridge-tests.sh
 test -f .fabric/components/tools-_t1384-advisory-dock-cdp.yaml
+
+## Visual Verification
+
+Person-sees gate: `bash tools/person-sees-gate.sh` exit 0 (2026-11-08, 260s). Screenshots in `docs/reports/T-1384-evidence/`,
+from `node tools/_t1384-advisory-dock-cdp.mjs --shots docs/reports/T-1384-evidence`.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| opening | import notice row (first part, ✕) | ok | ok | ok | 1024: "▸ 2 more" at the right edge; 1440/1920: all three parts shown |
+| opening | Clean-layout nudge row (button, ✕) | ok | ok | ok | button and ✕ right-aligned in the card |
+| opening | authority row (✕) | ok | ok | ok | 1024: head + "▸ 1 more"; wider: full sentence on one line |
+| opening | card vs diagram | ok | ok | ok | pool starts below the card; no task, event, document or data store covered |
+| 1024 opened | "▾ less" ×2, every part | ok | n/a | n/a | live-1024-open.png: all import-notice lines and the full authority sentence shown; pool pushed down, not covered |
+
+Read per screenshot:
+- `live-1024.png`: one card of three equal-width rows, joined by single borders. The first row reads "⚠ 1 data store no task links to (Archive): in the file and saved back unchanged, but not drawn" with "▸ 2 more" and ✕; the nudge row has "Clean layout" and ✕; the authority row reads "⚠ This map declares no authority" with "▸ 1 more" and ✕. The card ends at about y=200; the pool header starts at 240. Nothing is clipped. "Confirm the order" runs under the right panel, which is the canvas scroll and was the same before this change.
+- `live-1024-open.png`: both rows expanded, the controls read "▾ less", every bullet of the notice ("…NOT kept", "1 document and 2 data stores drawn…") and the whole authority sentence ("…not drawn per element)") are visible. The card ends at about y=330 and the pool moved down to 370, so the card covers nothing.
+- `live-1440.png`: card one width (about 875px), three bullets of the notice on their own lines, authority on one line, ✕ at the right of each row. The pool starts at 280; all nodes, Order book and Stock are visible.
+- `live-1920.png`: card centred over the canvas (about 1015px), same content, the pool starts at 235; the full diagram is visible with lots of room.
+
+Advisory sweep (codex worker t1384-sweep-4f204ebb90aa, 2026-11-08): **0 blockers, 2 minor, 1 nit.** Recorded, none fixed here:
+- Muted contrast of "Clean layout" and ✕ (minor): the existing `.btn` / `.clean-nudge-x` styling, unchanged by this task.
+- Opened state at 1024 takes about 35% of the canvas (minor): this is the state a person asks for with one click, and one click undoes it. The opening state is 20%.
+- "▸ N more" does not name what it hides (nit): the control's `title` reads "Show the N hidden part(s) of this notice"; the count is the number of hidden parts.
 
 ## RCA
 
