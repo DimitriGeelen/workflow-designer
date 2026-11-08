@@ -25,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:34:19Z
-last_update: 2026-10-21T21:30:13Z
+last_update: 2026-11-08T16:22:35Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -107,6 +107,22 @@ cost_estimate_proposed:
 # T-347: Content inside an ACCEPTED element is silently dropped on import: documentation, foreign extensionElements children, property, loop characteristics and unknown attributes
 
 ## Context
+
+**Background / trigger:** T-346 found that content inside an element the importer accepts is never read, so one
+unedited save drops it (documentation, foreign extension children, property, loop characteristics, unknown attributes).
+The operator ruled (a) preserve and re-emit on 2026-10-10; T-1325 built it for flow nodes and flows. On 2026-11-08 the
+operator asked to resume this task, and a probe showed the one remaining gap: an `<aef:eventDef>` lost an extra attribute
+and a child on both of its carriers (start event, typed catch).
+
+**Problem / hypothesis:** `<aef:eventDef>` has its own channel (T-204, T-259) that reads `kind` and `binding` and writes
+back only those two, so T-1325's passthrough never reaches inside it. The T-259 carrier is still a special case.
+
+**Goal:** the eventDef carrier keeps what it does not read by the same mechanism (`elementKept` / `keptAttrsXml`), as
+AC3 asks, without changing a designer-written map's bytes.
+
+**Expected outcome:** extra attributes (foreign namespaces included) and children of `<aef:eventDef>` survive a save on
+start and catch carriers; a retype to another kind writes kind and binding alone; the passthrough harness covers it
+(leg 7) and is red on the source before the change; byte-identity goldens unchanged.
 
 > ### 2026-08-03 — T-356 did NOT make this task capable of failing, and the halo is the risk
 >
@@ -303,9 +319,15 @@ than a widened leg on an existing one.
       unknown-attribute measuring PRESERVED; flipped DROPPED -> PRESERVED with the reason and the independent harness
       named (`tools/_t1325-element-passthrough-cdp.mjs`); then OK. documentation and property had moved earlier
       (T-602, T-1096). All five shapes now PRESERVED.)*
-- [ ] The T-259 carrier (`aef:eventDef`) is covered by the same mechanism rather than
+- [x] The T-259 carrier (`aef:eventDef`) is covered by the same mechanism rather than
       remaining a special case — a fix that resolves one granularity without asking about
       the others is a fix, not a remedy.
+      *(2026-11-08: measured first — on both carriers (start event, typed catch) an extra attribute and a child of
+      `<aef:eventDef>` were dropped on one unedited save. Now parse keeps them with `elementKept` (node.eventDefKept,
+      with the kind they came with) and both eventDef writers go through `eventDefXml`, which re-emits them with
+      `keptAttrsXml` while the kind is unchanged; a retype to another kind writes kind and binding alone. Guard:
+      `_t1325-element-passthrough-cdp.mjs` leg 7, green live and red on the pre-change source (4 failures). `_t308`,
+      `_t358-byteid-thirdparty` and `_t338` unchanged and green.)*
 - [x] Bridge suite `0 failed` and the widened instrument green after the change.
       *(T-1325: core tier 213 passed 0 failed; `_t338` OK; the third-party browser legs green; `_t358-byteid` goldens
       re-recorded deliberately for the 6 files that now keep content.)*
@@ -475,6 +497,9 @@ rather than being swept in.
 seven further shapes.
 
 ## Verification
+
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1325-element-passthrough-cdp.mjs > /tmp/.t347.out 2>&1 && grep -q '"ok": true' /tmp/.t347.out
+grep -q "function eventDefXml" src/aef-workflow-designer.html
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.

@@ -13787,7 +13787,7 @@ function aefExtensionXml(node) {
     // T-1222: a node typed from its native definition carries its kind there; <aef:eventDef> is added only once a
     // binding is set, so an unedited open-and-save adds nothing and a user's binding edit is never dropped.
     if (binding || !(node.nativeEventDefs || []).length)
-    out += `        <aef:eventDef kind="${escAttr(EVENT_KIND[node.type])}" binding="${escAttr(binding)}"/>\n`;
+    out += eventDefXml(node, EVENT_KIND[node.type], binding);
   } else if (aef.eventDefKind) {
     // T-259 (T-257 GO): re-emit the preservation passthrough captured at import
     // for hosts the typed-catch override skips (start/throw carriers). Canonical
@@ -13795,7 +13795,7 @@ function aefExtensionXml(node) {
     // AEF's intake already accepted on the surviving catch (fixture v2:238).
     // else-if: a typed-catch node always emits via EVENT_KIND above, so a stale
     // passthrough can never produce a duplicate eventDef.
-    out += `        <aef:eventDef kind="${escAttr(aef.eventDefKind)}" binding="${escAttr(aef.eventDefBinding || '')}"/>\n`;
+    out += eventDefXml(node, aef.eventDefKind, aef.eventDefBinding || '');
   }
   // T-204 Slice 2: boundary perimeter position — presentational layout hint (v1 §1
   // presentational class, like aef:position). The host attachment + interrupting flag
@@ -14573,6 +14573,16 @@ function elementKept(el, readAttrs, skipChild) {
     children.push(keptElementXml(c));
   }
   return (attrs.length || children.length || ext.length) ? { attrs, children, ext } : null;
+}
+// T-347 AC3: <aef:eventDef> with what the source carried beyond kind and binding (node.eventDefKept), kept only while the
+// node's kind is the one it came with: a node retyped to another kind writes kind and binding alone, as T-1325 drops a
+// retyped element's old attributes. A designer-written eventDef carries nothing more, so its bytes do not change.
+const EVENT_DEF_READ_ATTRS = new Set(['kind', 'binding']);
+function eventDefXml(node, kind, binding) {
+  const k = node.eventDefKept && node.eventDefKept.kind === kind ? node.eventDefKept : null;
+  const open = `        <aef:eventDef kind="${escAttr(kind)}" binding="${escAttr(binding)}"${k ? keptAttrsXml(k.attrs) : ''}`;
+  if (!k || !k.children.length) return `${open}/>\n`;
+  return `${open}>\n` + k.children.map(x => `          ${x}\n`).join('') + `        </aef:eventDef>\n`;
 }
 // A foreign prefix the export root does not declare is declared on the element that uses it (xml: needs none).
 function keptAttrsXml(attrs) {
@@ -15778,6 +15788,10 @@ function parseBpmnXml(text) {
       const kept = elementKept(el, NODE_READ_ATTRS, c => nodeWorkEls.has(c));
       const defaultRef = el.getAttribute('default');
       const keptNode = (kept || defaultRef) ? { type, ...(foreignTag ? { foreignTag } : {}), ...(kept || { attrs: [], children: [], ext: [] }), ...(defaultRef ? { defaultRef } : {}) } : null;
+      // T-347 AC3: <aef:eventDef> is read for kind and binding only (T-204, T-259); whatever else it holds is kept with
+      // the kind it came with, and written back by eventDefXml while the node still has that kind.
+      const evKept = eventDefEl ? elementKept(eventDefEl, EVENT_DEF_READ_ATTRS) : null;
+      const eventDefKept = evKept ? { kind: eventDefEl.getAttribute('kind') || '', attrs: evKept.attrs, children: evKept.children } : null;
 
       // Default position if none was encoded — simple flow layout per lane
       if (x == null || isNaN(x) || y == null || isNaN(y)) {
@@ -15800,6 +15814,7 @@ function parseBpmnXml(text) {
         ...(nativeEventDefs.length ? { nativeEventDefs } : {}),
         ...(aefKept ? { aefKept } : {}),
         ...(keptNode ? { kept: keptNode } : {}),
+        ...(eventDefKept ? { eventDefKept } : {}),
         ...(originalId ? { originalId } : {}),
       });
       displayIdToUid.set(displayId, uid);

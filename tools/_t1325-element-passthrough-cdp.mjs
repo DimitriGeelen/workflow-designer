@@ -11,8 +11,12 @@
 //   3. a gateway's default flow is written as that flow's CURRENT id, and is dropped once the flow is deleted;
 //   4. a retype (userTask to serviceTask) drops the old tag's attributes and children, and keeps the extensions;
 //   5. a second save is byte-identical; a map the designer wrote gains no `kept` key (every corpus map checked);
-//   6. every export parses in Python's expat too (an unbound prefix is an error there).
-// T1325_SRC substitutes another designer file (the BITE: run against the pre-T-1325 source, legs 1-3 are red).
+//   6. every export parses in Python's expat too (an unbound prefix is an error there);
+//   7. (T-347 AC3) an <aef:eventDef> keeps what it carries beyond kind and binding (an attribute, a foreign-namespace
+//      attribute, a child) on a start event (the T-259 carrier) and on a typed catch; retyping the catch to another
+//      kind writes kind and binding alone. Before T-347 AC3 both carriers lost the extras on one unedited save.
+// T1325_SRC substitutes another designer file (the BITE: run against the pre-T-1325 source, legs 1-3 are red; against
+// the pre-T-347-AC3 source, leg 7 is red).
 // Exit 0 = all legs green; 1 = a leg failed; 2 = misconfig.
 import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn, spawnSync } from 'node:child_process';
@@ -38,10 +42,16 @@ async function ev(cmd, e) { const r = await cmd('Runtime.evaluate', { expression
 async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof parseBpmnXml==='function'&&typeof buildBpmnXml==='function'&&typeof refreshDisplayIds==='function'&&_appReady===true&&(typeof _deepLinkSettled==='undefined'||_deepLinkSettled!==null))`).catch(() => false); if (ok) return; if (Date.now() - t0 > (+process.env.CDP_READY_MS || 20000)) throw new Error('editor not ready'); await sleep(150); } }
 
 const CAMUNDA = 'http://camunda.org/schema/1.0/bpmn';
+const AEF = 'http://anchorpoint.framework/aef/extensions';   // literal: T-044 checks every xmlns:aef value
 const MAP = `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:camunda="${CAMUNDA}" id="Defs_1" targetNamespace="http://example.com/t1325">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:camunda="${CAMUNDA}" xmlns:aef="${AEF}" id="Defs_1" targetNamespace="http://example.com/t1325">
   <bpmn:process id="Proc_1" name="T-1325" isExecutable="true">
-    <bpmn:startEvent id="S" name="Start"/>
+    <bpmn:startEvent id="S" name="Start">
+      <bpmn:extensionElements><aef:eventDef kind="message" binding="orders.in" priority="high" camunda:retry="3"><aef:note>start carrier</aef:note></aef:eventDef></bpmn:extensionElements>
+    </bpmn:startEvent>
+    <bpmn:intermediateCatchEvent id="W" name="Wait">
+      <bpmn:extensionElements><aef:eventDef kind="message" binding="orders.paid" priority="low"><aef:note>catch carrier</aef:note></aef:eventDef></bpmn:extensionElements>
+    </bpmn:intermediateCatchEvent>
     <bpmn:userTask id="U" name="Approve" camunda:assignee="\${initiator}">
       <bpmn:extensionElements>
         <camunda:formData><camunda:formField id="ok" type="boolean"/></camunda:formData>
@@ -94,6 +104,21 @@ const ASSERT = `(function(){
       if (!g || !f3 || g.getAttribute('default') !== f3.getAttribute('id')) errs.push('leg3: default is ' + (g && g.getAttribute('default')) + ', the yes flow is ' + (f3 && f3.getAttribute('id')));
       if (f3 && f3.getAttribute('id') === 'F3') errs.push('leg3: the test cannot bite, the flow kept its source id');
     }
+    if (d) {   // leg 7 (T-347 AC3)
+      var A = ${JSON.stringify(AEF)};
+      var evOf = function(local, name){ var h = byName(d, local, name); return h && h.getElementsByTagNameNS(A, 'eventDef')[0]; };
+      var es = evOf('startEvent', 'Start'), ew = evOf('intermediateCatchEvent', 'Wait');
+      if (!es || es.getAttribute('binding') !== 'orders.in' || es.getAttribute('priority') !== 'high') errs.push('leg7: start eventDef lost priority or binding');
+      if (!es || es.getAttributeNS(C, 'retry') !== '3') errs.push('leg7: start eventDef lost camunda:retry or its namespace');
+      if (!es || !es.getElementsByTagNameNS(A, 'note').length || es.getElementsByTagNameNS(A, 'note')[0].textContent !== 'start carrier') errs.push('leg7: start eventDef lost its child');
+      if (!ew || ew.getAttribute('priority') !== 'low' || !ew.getElementsByTagNameNS(A, 'note').length) errs.push('leg7: catch eventDef lost its extras');
+    }
+    load(window.__MAP__);
+    node('Wait').type = 'eventTimer';
+    var d7 = dom(strip(buildBpmnXml(state)), 'leg7'), w7 = d7 && byName(d7, 'intermediateCatchEvent', 'Wait');
+    var e7 = w7 && w7.getElementsByTagNameNS(${JSON.stringify(AEF)}, 'eventDef')[0];
+    if (!e7 || e7.getAttribute('kind') !== 'timer') errs.push('leg7: retyped catch has no timer eventDef');
+    else if (e7.hasAttribute('priority') || e7.children.length) errs.push('leg7: a catch retyped to another kind kept the old kind\\'s extras');
     load(out1);
     if (strip(buildBpmnXml(state)) !== out1) errs.push('leg5: second save differs from the first');
     load(window.__MAP__);
