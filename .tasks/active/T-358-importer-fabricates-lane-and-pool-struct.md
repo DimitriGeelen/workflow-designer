@@ -20,7 +20,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T16:12:36Z
-last_update: 2026-10-21T00:46:16Z
+last_update: 2026-10-21T21:26:22Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -803,6 +803,21 @@ python3 tools/_t358-corpus-lane-provenance-probe.py
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-11-08 — the lane fabrication repair (operator ruling, recorded by the agent)
+- **Chose (operator, in chat 2026-11-08, "1, as you recommend"):** **AB, drop + mark.** A file that declares no lanes
+  imports with no lanes and saves with no `<bpmn:laneSet>` (importer AND emitter, constraint §1), and the fact "the
+  source declared no lanes" is written into the document as a provenance marker and read back, so it survives a save.
+- **Condition carried from the recommendation:** the marker must be inert to third parties (a namespaced annotation a
+  foreign tool ignores, never re-imported as `authored`). If it cannot be made inert, AB falls back to A.
+- **Why:** under the T-888 ruling a lane-less file declares no partition, so nothing is missing and nothing may be
+  invented; today's import asserts `sovereignty` on every node of a peer's file. AB over A: A keeps "no lanes" only by
+  absence, the representation this task indicts ("a missing thing and a default thing share one representation").
+- **Rejected:** no repair and B (both still assert sovereignty); C (fabricates one lane, provenance dies at the first
+  save); A alone (accepted as the fallback).
+- **Not decided here:** the participant/pool half (`participants 0→1`), to be measured and brought to the operator
+  separately; whether already-saved files are migrated (a separate task, per the 2026-09-05 note).
+- The `### Human` [REVIEW] criterion stays unticked: ticking is the operator's (sovereignty-field carve-out).
 
 ## Decision
 
