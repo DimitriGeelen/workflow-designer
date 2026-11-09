@@ -100,9 +100,9 @@ AEF serving it.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `docs/releases/RELEASE-NOTES-0.41.0.md` is committed and not a draft: it describes T-358 (lanes, pool, the
+- [x] `docs/releases/RELEASE-NOTES-0.41.0.md` is committed and not a draft: it describes T-358 (lanes, pool, the
   validator change) and T-347, says exactly what changes in stored maps and in Check, and names all five endpoints.
-- [ ] A runme job `.context/runme/128-release-designer-0.41.0/` passes `runme.sh --dry-run`; job.sh and dryrun.ok are
+- [x] A runme job `.context/runme/128-release-designer-0.41.0/` passes `runme.sh --dry-run`; job.sh and dryrun.ok are
   committed.
 - [ ] After the operator's run: tag `designer-v0.41.0` is on origin and AEF has been sent the release.
 - [ ] AEF serves 0.41.0: `bash tools/_t1187-aef-pin-lag.sh` reports CURRENT.
