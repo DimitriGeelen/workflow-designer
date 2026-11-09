@@ -132,7 +132,13 @@ async function main() {
     // list of its blocks (each element, each diagram shape and edge): every block must still match byte for byte.
     const blocks = x => x.replace(/(<bpmn:process\b[^>]*?)\sisExecutable="[^"]*"/g, '$1')
       .split(/\n\s*\n|(?=\n\s*<bpmndi:BPMN(?:Shape|Edge) )/).map(b => b.trim().replace(/[ \t]+/g, ' ')).filter(Boolean).sort().join('\n');
-    const norm = (f, x) => blocks(maskCont((/<aef:workflowMeta[^>]*\suuid="/.test(readFileSync(f, 'utf8')) ? x : x.replace(/(<aef:workflowMeta[^>]*?)\suuid="[^"]*"/, '$1')).replace(ID, 'ID')));
+    // T-358 pool half (operator ruling 2026-11-09, AB): a file that declares no participant (customer-refund, written by
+    // tools/yaml-to-bpmn.py) no longer gains the collaboration + participant 0.17.0 invented, and is marked
+    // poolProvenance on aef:workflowMeta. For such a file only, both are removed from both sides; every other byte
+    // still compares. A file that declares its participant is untouched by this.
+    const noPool = f => !/<(?:[A-Za-z0-9_]+:)?participant\b/.test(readFileSync(f, 'utf8'));
+    const dropPool = (f, x) => noPool(f) ? x.replace(/\n?[ \t]*<bpmn:collaboration\b[\s\S]*?<\/bpmn:collaboration>\n?/, '\n').replace(/\spoolProvenance="[^"]*"/, '') : x;
+    const norm = (f, x0) => { const x = dropPool(f, x0); return blocks(maskCont((/<aef:workflowMeta[^>]*\suuid="/.test(readFileSync(f, 'utf8')) ? x : x.replace(/(<aef:workflowMeta[^>]*?)\suuid="[^"]*"/, '$1')).replace(ID, 'ID'))); };
     const diffs = corpus.filter(f => norm(f, now[f]) !== norm(f, was[f])).map(f => ({ file: f.replace(REPO + '/', ''), at: firstDiff(norm(f, now[f]), norm(f, was[f])) }));
     leg(diffs.length === 0, `E export of ${corpus.length} examples identical to 0.17.0`, diffs);
   } catch (e) {

@@ -482,6 +482,13 @@ written; only its sequencing is recorded.
       re-recorded deliberately for the 6 pool-less sources (5: collaboration + participant removed, marker added;
       multiple-diagrams: marker only), committed alone; `_t308` 24/24, `_t358-lane-provenance` PASS,
       `test_roundtrip_serialization` OK, `_t1325` ok, `_t338` OK.
+      **Reach beyond the measured 35 (found by the browser tier, 2026-11-09):** our own YAML bridge
+      (`tools/yaml-to-bpmn.py`) never writes a participant, so a bridge-generated map
+      (`examples/app-processes/rendered/customer-refund.bpmn`) also saves without the invented collaboration on its
+      first designer save, and is marked. Consistent with the ruling (its source declares no pool); maps the designer
+      saved before keep theirs (AEF's corpus: all 24 declare one, byte-identical). `_t1129` leg E (examples vs 0.17.0)
+      normalises exactly that for a file with no participant, as it already does for T-1168/T-1262/T-1271. For the
+      release notes.
 
 The two criteria above the last were downstream of the Human ruling below and were marked **BLOCKED** rather than
 left looking merely undone: there is no repair to verify until a candidate is chosen,
@@ -497,7 +504,7 @@ green 24/24 here says nothing about the population this repair is aimed at — u
 
 ### Human
 
-- [ ] [REVIEW] A map that declares no lanes reads correctly without the lanes the importer used to invent
+- [x] [REVIEW] A map that declares no lanes reads correctly without the lanes the importer used to invent
   **Why you:** a render-surface judgement on screenshots (CLAUDE.md "UI changes are reviewed on screenshots"); for the independent reviewer: `fw reviewer judge T-358 --criterion 1`.
   **Steps:**
   1. Open the 21 screenshots in `docs/reports/T-358-evidence/` (7 maps × 1024/1440/1920), plus
@@ -516,6 +523,7 @@ green 24/24 here says nothing about the population this repair is aimed at — u
   border and over the "FRAMEWORK · AUTHORITY" lane label (`docs/reports/T-358-evidence/v0.40.0-nested-subprocesses-1440.png`).
   Filed as its own bug, **T-1386**. This criterion judges what removing the invented lanes changes: the vertical extent.
   **If not:** name the screenshot and what is outside the pool's top or bottom, or overlapping, and set the task to issues.
+  **Reviewer verdict:** green V-20261109-22d04ab8 — reviewer-judge-t-358-r5-opencode-d9e22392b6ff:opencode (rung rung-5-panel:opencode), digest 61075e854f7d; dispatch judge-t-358-r5-opencode-d9e22392b6ff; evidence: .context/reviews/evidence/T-358/AC1-judge-t-358-r5-opencode-d9e22392b6ff.md; ledger .context/reviews/verdicts.jsonl
 
 - [ ] [REVIEW] Choose the lane/pool fabrication repair: **A · B · C · AB · no repair**
 
