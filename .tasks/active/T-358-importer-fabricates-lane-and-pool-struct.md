@@ -490,8 +490,14 @@ green 24/24 here says nothing about the population this repair is aimed at — u
   2. In each, check the pool outline encloses every task, event and subprocess from top to bottom, no lane band or lane
      header is drawn, "+ Add a lane" sits below the pool, and the advisory card's controls are reachable.
   3. For collaboration-message-flows, check the second, read-only pool sits below ours without overlapping it.
-  **Expected:** every map draws one pool around its whole diagram with no invented lanes, at all three widths.
-  **If not:** name the screenshot and what is outside the pool or overlapping, and set the task to issues.
+  **Expected:** every map draws one pool whose top and bottom enclose its whole diagram, with no invented lanes, at all
+  three widths.
+  **Scope, narrowed after the first judgement (2026-11-08, red):** the reviewer found nested-subprocesses' first start
+  event drawn across the pool's LEFT border. The left edge is not what this change touches: the pool's left edge is a
+  fixed constant, the file places that event at x=26, left of it, and 0.40.0 draws it the same way and worse, across the
+  border and over the "FRAMEWORK · AUTHORITY" lane label (`docs/reports/T-358-evidence/v0.40.0-nested-subprocesses-1440.png`).
+  Filed as its own bug, **T-1386**. This criterion judges what removing the invented lanes changes: the vertical extent.
+  **If not:** name the screenshot and what is outside the pool's top or bottom, or overlapping, and set the task to issues.
 
 - [ ] [REVIEW] Choose the lane/pool fabrication repair: **A · B · C · AB · no repair**
 
