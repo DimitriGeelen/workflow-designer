@@ -472,6 +472,17 @@ written; only its sequencing is recorded.
       - `_t308` 24/24, `_t338` OK, `_t1325` ok, `_t358-corpus-lane-provenance-probe.py` PASS, validator suites
         (anchorability, cross-form, dialect axis, form parity) OK.
 
+- [x] **The pool half of AB is built (operator ruling 2026-11-09).** `parseBpmnXml` records `poolDeclared` (false when
+      the source declares no participant, or our own save marked it); the emitter then writes no collaboration and
+      participant unless the source's own content needs the collaboration (another pool, a message flow, an artifact),
+      and always marks `poolProvenance="defaulted:no-participant"` on `aef:workflowMeta`, read back on open. Evidence:
+      leg 227 extended with L4 (5 maps lose the invented pool, multiple-diagrams keeps it marked, the negative control
+      collaboration-message-flows keeps its declared pool unmarked) and poison C (collaboration written again → 15 L4
+      legs red): 105 legs, 3/3 poison arms caught; the round-trip guard classifies `poolProvenance`; third-party goldens
+      re-recorded deliberately for the 6 pool-less sources (5: collaboration + participant removed, marker added;
+      multiple-diagrams: marker only), committed alone; `_t308` 24/24, `_t358-lane-provenance` PASS,
+      `test_roundtrip_serialization` OK, `_t1325` ok, `_t338` OK.
+
 The two criteria above the last were downstream of the Human ruling below and were marked **BLOCKED** rather than
 left looking merely undone: there is no repair to verify until a candidate is chosen,
 and a task whose scope is blocked should look blocked (same convention as T-340). The
