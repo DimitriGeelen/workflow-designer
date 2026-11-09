@@ -486,7 +486,8 @@ green 24/24 here says nothing about the population this repair is aimed at — u
 - [ ] [REVIEW] A map that declares no lanes reads correctly without the lanes the importer used to invent
   **Why you:** a render-surface judgement on screenshots (CLAUDE.md "UI changes are reviewed on screenshots"); for the independent reviewer: `fw reviewer judge T-358 --criterion 1`.
   **Steps:**
-  1. Open the 21 screenshots in `docs/reports/T-358-evidence/` (7 maps × 1024/1440/1920).
+  1. Open the 21 screenshots in `docs/reports/T-358-evidence/` (7 maps × 1024/1440/1920), plus
+     `boundary-events-1024-bottom.png` (that map at 1024 scrolled to the pool's bottom).
   2. In each, check the pool outline encloses every task, event and subprocess from top to bottom, no lane band or lane
      header is drawn, "+ Add a lane" sits below the pool, and the advisory card's controls are reachable.
   3. For collaboration-message-flows, check the second, read-only pool sits below ours without overlapping it.
@@ -836,6 +837,9 @@ Read per screenshot (one per map, the widths not listed read the same):
   "▸ 1 more" on the narrow canvas (T-1384).
 - `multiple-diagrams-1440.png`: one task "A" in the pool; the notice says the second process is kept and saved back.
 - `zeebe-service-task-1920.png`: start, two activities, end inside the pool.
+- `boundary-events-1024-bottom.png` (added after the second judgement, amber: at 1024 the pool's bottom was below the
+  frame): the same map at 1024 with the canvas scrolled to the bottom. The pool's bottom border closes below "joker"
+  and its name; the dashed "+ Add a lane" strip sits under it (its left end behind the "Mode: select" badge).
 
 Advisory sweep (codex worker t358-sweep-9fa0e61ef5cd, 2026-11-08): **0 blockers, 0 minor, 1 nit** — with no lanes,
 "+ Add another lane" implied a lane already existed. Fixed: the strip reads "+ Add a lane" when the map has no lanes;
