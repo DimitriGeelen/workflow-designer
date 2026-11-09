@@ -1,0 +1,113 @@
+# T-358 evidence: tools/_t358-laneless-render-cdp.mjs --self-test, run 2026-11-09T20:14:04Z at c11a10462
+# Measured from the page (DOM) at each width; L1 no lane, L2 every node within the pool's height, L3 save has no laneSet/sovereignty + laneProvenance, L4 pool provenance.
+lane-less fixtures: boundary-events.bpmn, collaboration-message-flows.bpmn, i18n-documentation.bpmn, multiple-diagrams.bpmn, nested-subprocesses.bpmn, simple.bpmn, zeebe-service-task.bpmn
+ok    L0 boundary-events@1024                    setup: 9 node(s) drawn, pool outline present
+ok    L1 boundary-events@1024                    no lane: state 0, bands drawn 0
+ok    L2 boundary-events@1024                    every node within the pool's height
+ok    L3 boundary-events@1024                    save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 boundary-events@1024                    save: 0 participant(s), poolProvenance defaulted:no-participant, re-open poolDeclared false
+ok    L0 boundary-events@1440                    setup: 9 node(s) drawn, pool outline present
+ok    L1 boundary-events@1440                    no lane: state 0, bands drawn 0
+ok    L2 boundary-events@1440                    every node within the pool's height
+ok    L3 boundary-events@1440                    save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 boundary-events@1440                    save: 0 participant(s), poolProvenance defaulted:no-participant, re-open poolDeclared false
+ok    L0 boundary-events@1920                    setup: 9 node(s) drawn, pool outline present
+ok    L1 boundary-events@1920                    no lane: state 0, bands drawn 0
+ok    L2 boundary-events@1920                    every node within the pool's height
+ok    L3 boundary-events@1920                    save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 boundary-events@1920                    save: 0 participant(s), poolProvenance defaulted:no-participant, re-open poolDeclared false
+ok    L0 collaboration-message-flows@1024        setup: 3 node(s) drawn, pool outline present
+ok    L1 collaboration-message-flows@1024        no lane: state 0, bands drawn 0
+ok    L2 collaboration-message-flows@1024        every node within the pool's height
+ok    L3 collaboration-message-flows@1024        save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 collaboration-message-flows@1024        the source declares its pool: kept (1 participant(s)), unmarked (null), re-open poolDeclared true
+ok    L0 collaboration-message-flows@1440        setup: 3 node(s) drawn, pool outline present
+ok    L1 collaboration-message-flows@1440        no lane: state 0, bands drawn 0
+ok    L2 collaboration-message-flows@1440        every node within the pool's height
+ok    L3 collaboration-message-flows@1440        save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 collaboration-message-flows@1440        the source declares its pool: kept (1 participant(s)), unmarked (null), re-open poolDeclared true
+ok    L0 collaboration-message-flows@1920        setup: 3 node(s) drawn, pool outline present
+ok    L1 collaboration-message-flows@1920        no lane: state 0, bands drawn 0
+ok    L2 collaboration-message-flows@1920        every node within the pool's height
+ok    L3 collaboration-message-flows@1920        save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 collaboration-message-flows@1920        the source declares its pool: kept (1 participant(s)), unmarked (null), re-open poolDeclared true
+ok    L0 i18n-documentation@1024                 setup: 3 node(s) drawn, pool outline present
+ok    L1 i18n-documentation@1024                 no lane: state 0, bands drawn 0
+ok    L2 i18n-documentation@1024                 every node within the pool's height
+ok    L3 i18n-documentation@1024                 save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 i18n-documentation@1024                 save: 0 participant(s), poolProvenance defaulted:no-participant, re-open poolDeclared false
+ok    L0 i18n-documentation@1440                 setup: 3 node(s) drawn, pool outline present
+ok    L1 i18n-documentation@1440                 no lane: state 0, bands drawn 0
+ok    L2 i18n-documentation@1440                 every node within the pool's height
+ok    L3 i18n-documentation@1440                 save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 i18n-documentation@1440                 save: 0 participant(s), poolProvenance defaulted:no-participant, re-open poolDeclared false
+ok    L0 i18n-documentation@1920                 setup: 3 node(s) drawn, pool outline present
+ok    L1 i18n-documentation@1920                 no lane: state 0, bands drawn 0
+ok    L2 i18n-documentation@1920                 every node within the pool's height
+ok    L3 i18n-documentation@1920                 save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 i18n-documentation@1920                 save: 0 participant(s), poolProvenance defaulted:no-participant, re-open poolDeclared false
+ok    L0 multiple-diagrams@1024                  setup: 1 node(s) drawn, pool outline present
+ok    L1 multiple-diagrams@1024                  no lane: state 0, bands drawn 0
+ok    L2 multiple-diagrams@1024                  every node within the pool's height
+ok    L3 multiple-diagrams@1024                  save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 multiple-diagrams@1024                  save: 1 participant(s) (the source's collaboration content needs one), poolProvenance defaulted:no-participant, re-open poolDeclared false
+ok    L0 multiple-diagrams@1440                  setup: 1 node(s) drawn, pool outline present
+ok    L1 multiple-diagrams@1440                  no lane: state 0, bands drawn 0
+ok    L2 multiple-diagrams@1440                  every node within the pool's height
+ok    L3 multiple-diagrams@1440                  save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 multiple-diagrams@1440                  save: 1 participant(s) (the source's collaboration content needs one), poolProvenance defaulted:no-participant, re-open poolDeclared false
+ok    L0 multiple-diagrams@1920                  setup: 1 node(s) drawn, pool outline present
+ok    L1 multiple-diagrams@1920                  no lane: state 0, bands drawn 0
+ok    L2 multiple-diagrams@1920                  every node within the pool's height
+ok    L3 multiple-diagrams@1920                  save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 multiple-diagrams@1920                  save: 1 participant(s) (the source's collaboration content needs one), poolProvenance defaulted:no-participant, re-open poolDeclared false
+ok    L0 nested-subprocesses@1024                setup: 8 node(s) drawn, pool outline present
+ok    L1 nested-subprocesses@1024                no lane: state 0, bands drawn 0
+ok    L2 nested-subprocesses@1024                every node within the pool's height
+ok    L3 nested-subprocesses@1024                save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 nested-subprocesses@1024                save: 0 participant(s), poolProvenance defaulted:no-participant, re-open poolDeclared false
+ok    L0 nested-subprocesses@1440                setup: 8 node(s) drawn, pool outline present
+ok    L1 nested-subprocesses@1440                no lane: state 0, bands drawn 0
+ok    L2 nested-subprocesses@1440                every node within the pool's height
+ok    L3 nested-subprocesses@1440                save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 nested-subprocesses@1440                save: 0 participant(s), poolProvenance defaulted:no-participant, re-open poolDeclared false
+ok    L0 nested-subprocesses@1920                setup: 8 node(s) drawn, pool outline present
+ok    L1 nested-subprocesses@1920                no lane: state 0, bands drawn 0
+ok    L2 nested-subprocesses@1920                every node within the pool's height
+ok    L3 nested-subprocesses@1920                save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 nested-subprocesses@1920                save: 0 participant(s), poolProvenance defaulted:no-participant, re-open poolDeclared false
+ok    L0 simple@1024                             setup: 5 node(s) drawn, pool outline present
+ok    L1 simple@1024                             no lane: state 0, bands drawn 0
+ok    L2 simple@1024                             every node within the pool's height
+ok    L3 simple@1024                             save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 simple@1024                             save: 0 participant(s), poolProvenance defaulted:no-participant, re-open poolDeclared false
+ok    L0 simple@1440                             setup: 5 node(s) drawn, pool outline present
+ok    L1 simple@1440                             no lane: state 0, bands drawn 0
+ok    L2 simple@1440                             every node within the pool's height
+ok    L3 simple@1440                             save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 simple@1440                             save: 0 participant(s), poolProvenance defaulted:no-participant, re-open poolDeclared false
+ok    L0 simple@1920                             setup: 5 node(s) drawn, pool outline present
+ok    L1 simple@1920                             no lane: state 0, bands drawn 0
+ok    L2 simple@1920                             every node within the pool's height
+ok    L3 simple@1920                             save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 simple@1920                             save: 0 participant(s), poolProvenance defaulted:no-participant, re-open poolDeclared false
+ok    L0 zeebe-service-task@1024                 setup: 4 node(s) drawn, pool outline present
+ok    L1 zeebe-service-task@1024                 no lane: state 0, bands drawn 0
+ok    L2 zeebe-service-task@1024                 every node within the pool's height
+ok    L3 zeebe-service-task@1024                 save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 zeebe-service-task@1024                 save: 0 participant(s), poolProvenance defaulted:no-participant, re-open poolDeclared false
+ok    L0 zeebe-service-task@1440                 setup: 4 node(s) drawn, pool outline present
+ok    L1 zeebe-service-task@1440                 no lane: state 0, bands drawn 0
+ok    L2 zeebe-service-task@1440                 every node within the pool's height
+ok    L3 zeebe-service-task@1440                 save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 zeebe-service-task@1440                 save: 0 participant(s), poolProvenance defaulted:no-participant, re-open poolDeclared false
+ok    L0 zeebe-service-task@1920                 setup: 4 node(s) drawn, pool outline present
+ok    L1 zeebe-service-task@1920                 no lane: state 0, bands drawn 0
+ok    L2 zeebe-service-task@1920                 every node within the pool's height
+ok    L3 zeebe-service-task@1920                 save: laneSet false, sovereignty false, marker defaulted:no-laneset
+ok    L4 zeebe-service-task@1920                 save: 0 participant(s), poolProvenance defaulted:no-participant, re-open poolDeclared false
+poison A (the fabrication is back): caught (42 L13 leg(s) red)
+poison B (no-lane pool height removed): caught (21 L2 leg(s) red)
+poison C (the invented collaboration is written again): caught (15 L4 leg(s) red)
+
+PASS — 105 legs, and all 3 poison arms caught

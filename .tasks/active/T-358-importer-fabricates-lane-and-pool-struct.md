@@ -10,7 +10,7 @@ description: >
 
 status: started-work
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -497,11 +497,14 @@ green 24/24 here says nothing about the population this repair is aimed at — u
 
 ### Human
 
-- [x] [REVIEW] A map that declares no lanes reads correctly without the lanes the importer used to invent
+- [ ] [REVIEW] A map that declares no lanes reads correctly without the lanes the importer used to invent
   **Why you:** a render-surface judgement on screenshots (CLAUDE.md "UI changes are reviewed on screenshots"); for the independent reviewer: `fw reviewer judge T-358 --criterion 1`.
   **Steps:**
   1. Open the 21 screenshots in `docs/reports/T-358-evidence/` (7 maps × 1024/1440/1920), plus
-     `boundary-events-1024-bottom.png` (that map at 1024 scrolled to the pool's bottom).
+     `boundary-events-1024-bottom.png` (that map at 1024 scrolled to the pool's bottom). A seat that cannot view images
+     reads `docs/reports/T-358-evidence/measurements.txt`: the same 7 maps at all three widths measured from the page
+     (lanes in state and drawn, nodes outside the pool's height, what the save writes), 105 legs, with the three
+     poisoned designers that each turn their legs red.
   2. In each, check the pool outline encloses every task, event and subprocess from top to bottom, no lane band or lane
      header is drawn, "+ Add a lane" sits below the pool, and the advisory card's controls are reachable.
   3. For collaboration-message-flows, check the second, read-only pool sits below ours without overlapping it.
@@ -513,7 +516,6 @@ green 24/24 here says nothing about the population this repair is aimed at — u
   border and over the "FRAMEWORK · AUTHORITY" lane label (`docs/reports/T-358-evidence/v0.40.0-nested-subprocesses-1440.png`).
   Filed as its own bug, **T-1386**. This criterion judges what removing the invented lanes changes: the vertical extent.
   **If not:** name the screenshot and what is outside the pool's top or bottom, or overlapping, and set the task to issues.
-  **Reviewer verdict:** green V-20261109-d853c93c — reviewer-judge-t-358-r5-codex-214c33f60560:codex (rung rung-5-panel:codex), digest dd9e1e70e7b3; dispatch judge-t-358-r5-codex-214c33f60560; GREEN-DEGRADED: run run-t-358-b673b38a2a closed on 2 green seat(s) of distinct vendors (claude-code [anthropic], codex [openai]); unavailable: opencode (exit 137, no verdict (dispatch judge-t-358-r5-opencode-928435695d92)); evidence: .context/reviews/evidence/T-358/AC1-judge-t-358-r5-codex-214c33f60560.md; ledger .context/reviews/verdicts.jsonl
 
 - [ ] [REVIEW] Choose the lane/pool fabrication repair: **A · B · C · AB · no repair**
 
