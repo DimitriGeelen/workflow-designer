@@ -8,13 +8,9 @@
                   exporter="aef-workflow-designer"
                   targetNamespace="http://bpmn.io/schema/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0" xml:lang="en">
 
-  <bpmn:collaboration id="Collaboration_process_0dp8lmr">
-    <bpmn:participant id="Pool_process_0dp8lmr" name="Process_0dp8lmr" processRef="Process_0dp8lmr"/>
-  </bpmn:collaboration>
-
   <bpmn:process id="Process_0dp8lmr" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="process_0dp8lmr" version="1" schemaVersion="2" title="Process_0dp8lmr" tier_default="2" laneProvenance="defaulted:no-laneset"/>
+      <aef:workflowMeta id="process_0dp8lmr" version="1" schemaVersion="2" title="Process_0dp8lmr" tier_default="2" laneProvenance="defaulted:no-laneset" poolProvenance="defaulted:no-participant"/>
     </bpmn:extensionElements>
 
     <bpmn:startEvent id="lan_start_startevent">

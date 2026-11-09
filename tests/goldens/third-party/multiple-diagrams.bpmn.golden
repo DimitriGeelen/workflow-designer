@@ -14,7 +14,7 @@
 
   <bpmn:process id="Process_1" isExecutable="false">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="process_1" version="1" schemaVersion="2" title="Process_1" tier_default="2" laneProvenance="defaulted:no-laneset"/>
+      <aef:workflowMeta id="process_1" version="1" schemaVersion="2" title="Process_1" tier_default="2" laneProvenance="defaulted:no-laneset" poolProvenance="defaulted:no-participant"/>
     </bpmn:extensionElements>
 
     <bpmn:task id="lan_1_node" name="A">

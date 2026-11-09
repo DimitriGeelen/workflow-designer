@@ -8,13 +8,9 @@
                   exporter="aef-workflow-designer"
                   targetNamespace="http://activiti.org/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
 
-  <bpmn:collaboration id="Collaboration_process_1">
-    <bpmn:participant id="Pool_process_1" name="Process_1" processRef="Process_1"/>
-  </bpmn:collaboration>
-
   <bpmn:process id="Process_1" isExecutable="false">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="process_1" version="1" schemaVersion="2" title="Process_1" tier_default="2" laneProvenance="defaulted:no-laneset"/>
+      <aef:workflowMeta id="process_1" version="1" schemaVersion="2" title="Process_1" tier_default="2" laneProvenance="defaulted:no-laneset" poolProvenance="defaulted:no-participant"/>
     </bpmn:extensionElements>
 
     <bpmn:subProcess id="lan_1_subprocess" name="SubProcess_1">

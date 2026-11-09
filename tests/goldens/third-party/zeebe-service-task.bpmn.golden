@@ -8,13 +8,9 @@
                   exporter="aef-workflow-designer"
                   targetNamespace="http://bpmn.io/schema/bpmn">
 
-  <bpmn:collaboration id="Collaboration_process_0xvlok0">
-    <bpmn:participant id="Pool_process_0xvlok0" name="Process_0xvlok0" processRef="Process_0xvlok0"/>
-  </bpmn:collaboration>
-
   <bpmn:process id="Process_0xvlok0" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="process_0xvlok0" version="1" schemaVersion="2" title="Process_0xvlok0" tier_default="2" laneProvenance="defaulted:no-laneset"/>
+      <aef:workflowMeta id="process_0xvlok0" version="1" schemaVersion="2" title="Process_0xvlok0" tier_default="2" laneProvenance="defaulted:no-laneset" poolProvenance="defaulted:no-participant"/>
     </bpmn:extensionElements>
 
     <bpmn:startEvent id="lan_start_startevent">
