@@ -14109,6 +14109,7 @@ function buildBpmnXml(s) {
     lines.push(`  <!--${safeCommentData(s.docComment)}-->`);
     lines.push(``);
   }
+  const collabStart = lines.length;   // T-358 pool half: dropped again below when the source declared no participant
   lines.push(`  <bpmn:collaboration id="${escAttr(ids.collab)}"${pk && pk.collabAttrs ? keptAttrsXml(pk.collabAttrs) : ''}>`);
   // T-1326: the collaboration's and our pool's documentation and other tools' extensions, as they arrived
   for (const x of (pk && pk.collabDocs) || []) lines.push(`    ${x}`);
@@ -14142,6 +14143,9 @@ function buildBpmnXml(s) {
   for (const x of pkOut.collabArtifacts) lines.push(`    ${x}`);   // T-1326: tCollaboration's artifacts follow the flows
   lines.push(`  </bpmn:collaboration>`);
   lines.push(``);
+  // T-358 pool half (operator ruling 2026-11-09, AB): a source that declared no participant gets no invented one. The
+  // collaboration stays only when it carries something of the source's (another pool, a message flow, an artifact).
+  if (s.poolDeclared === false && !s.collab && !(pkOut.collabArtifacts || []).length) lines.splice(collabStart, lines.length - collabStart);
   lines.push(`  <bpmn:process id="${escAttr(ids.proc)}"${ids.exec == null ? '' : ` isExecutable="${escAttr(ids.exec)}"`}${pk && pk.procAttrs ? keptAttrsXml(pk.procAttrs) : ''}>`);
   // T-1326: the process's documentation, first (tBaseElement order)
   for (const x of (pk && pk.procDocs) || []) lines.push(`    ${x}`);
@@ -14172,6 +14176,9 @@ function buildBpmnXml(s) {
   // Inert to other tools: an attribute of our own aef:workflowMeta inside bpmn:extensionElements.
   const lanesToEmit = s.lanes || defaultLanes();
   if (!lanesToEmit.length && /^defaulted:/.test(s.laneProvenance || '')) wmAttrs.push(`laneProvenance="${escAttr(s.laneProvenance)}"`);
+  // T-358 pool half (AB): the pool the canvas shows was not declared by the source. Written whether or not the
+  // collaboration below is dropped, so a re-open knows even where it has to be written (multiple-diagrams).
+  if (s.poolDeclared === false) wmAttrs.push(`poolProvenance="defaulted:no-participant"`);
   lines.push(`      <aef:workflowMeta ${wmAttrs.join(' ')}/>`);
   for (const x of s.procMetaKept || []) lines.push(`      ${x}`);   // T-1249: process-level aef:meta, verbatim
   for (const x of (pk && pk.procExt) || []) lines.push(`      ${x}`);   // T-1326: other tools' process extensions
@@ -15430,6 +15437,8 @@ function parseBpmnXml(text) {
   // map this designer saved keeps saying how it came to have none. The values keep their T-358 names ("defaulted:")
   // because the probes and the partition read them; nothing is defaulted any more.
   const carriedLaneProv = aefMetaEl && aefMetaEl.getAttribute('laneProvenance');
+  // T-358 pool half (operator ruling 2026-11-09, AB): a save of a map whose source declared no participant says so here.
+  const carriedPoolProv = aefMetaEl && aefMetaEl.getAttribute('poolProvenance');
   if (!lanes.length && carriedLaneProv && /^defaulted:/.test(carriedLaneProv)) laneProvenance = carriedLaneProv;
 
   // ---- nodes ----
@@ -16062,6 +16071,9 @@ function parseBpmnXml(text) {
   const result = {
     // T-1262: with no participant to read, the pool is the designer's own Pool_<id>, never the process id, which
     // the process itself now keeps (one id, two elements).
+    // T-358 pool half (AB): false when the source declared no participant (or our own save marked it as added), so the
+    // emitter writes no invented collaboration and participant, and marks the pool where it must still write one.
+    poolDeclared: !!partEl && !carriedPoolProv,
     pool: { id: partEl?.getAttribute('id') || `Pool_${workflowMeta.id}`,
             name: partEl?.getAttribute('name') || procName },
     workflowMeta,

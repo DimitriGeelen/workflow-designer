@@ -445,12 +445,15 @@ written; only its sequencing is recorded.
       must not change what we emit for existing maps)
       *(2026-11-08, the lane half, AB: `_t308` 24/24 identical on the change. Ticked once both tiers are green.)*
 
-- [ ] **HALF DONE** — `tools/_t356-third-party-fidelity-cdp.mjs` re-run: `lanes` and
+- [x] `tools/_t356-third-party-fidelity-cdp.mjs` re-run: `lanes` and
       `participants` deltas gone from all five rows, with the other columns unchanged
       (this task repairs fabrication only, not the DI/pool/node losses those rows also
       carry)
-      *(2026-11-08: the `lanes 0→3` delta is gone from every row. `participants 0→1` remains: the pool half, which the
-      operator's AB ruling does not cover; to be measured and brought to the operator.)*
+      *(2026-11-08: the `lanes 0→3` delta is gone from every row. 2026-11-09, after the pool ruling (AB): `participants
+      0→1` is gone from every row but `multiple-diagrams` (added to the population after this criterion was written),
+      whose collaboration must be written to carry its second process; there the pool is marked
+      `poolProvenance="defaulted:no-participant"`, which is what the operator ruled on with that case measured. The
+      other columns unchanged: the remaining LOSSY rows are the DI/pool/node losses this task does not repair.)*
 
 - [x] **The lane half of AB is built (operator ruling 2026-11-08).** A document that declares no lanes opens with none
       (`parseBpmnXml` no longer pushes `defaultLanes()`); the save writes no `<bpmn:laneSet>` and, while the map still
