@@ -3567,3 +3567,10 @@ observations:
   tags: [ux]
   status: pending
   promoted_to: null
+- id: OBS-494
+  text: "_t535-trend-key-teeth.py takes 82s alone at load 12 (7/7 green), against the sweep tier's 90s cap (T509_TIMEOUT); under host load it is killed (rc=124) and turns the sweep tier red as 'did not cover' (seen 2026-11-08/09, blocking T-347's full-suite close twice). Not a regression; the probe needs to get faster or be split, not a raised cap (the sweep's own advice)."
+  captured: 2026-11-09T18:42:52Z
+  context_task: T-347
+  tags: []
+  status: pending
+  promoted_to: null
