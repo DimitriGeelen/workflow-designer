@@ -483,7 +483,7 @@ green 24/24 here says nothing about the population this repair is aimed at — u
 
 ### Human
 
-- [ ] [REVIEW] A map that declares no lanes reads correctly without the lanes the importer used to invent
+- [x] [REVIEW] A map that declares no lanes reads correctly without the lanes the importer used to invent
   **Why you:** a render-surface judgement on screenshots (CLAUDE.md "UI changes are reviewed on screenshots"); for the independent reviewer: `fw reviewer judge T-358 --criterion 1`.
   **Steps:**
   1. Open the 21 screenshots in `docs/reports/T-358-evidence/` (7 maps × 1024/1440/1920), plus
@@ -499,6 +499,7 @@ green 24/24 here says nothing about the population this repair is aimed at — u
   border and over the "FRAMEWORK · AUTHORITY" lane label (`docs/reports/T-358-evidence/v0.40.0-nested-subprocesses-1440.png`).
   Filed as its own bug, **T-1386**. This criterion judges what removing the invented lanes changes: the vertical extent.
   **If not:** name the screenshot and what is outside the pool's top or bottom, or overlapping, and set the task to issues.
+  **Reviewer verdict:** green V-20261109-d853c93c — reviewer-judge-t-358-r5-codex-214c33f60560:codex (rung rung-5-panel:codex), digest dd9e1e70e7b3; dispatch judge-t-358-r5-codex-214c33f60560; GREEN-DEGRADED: run run-t-358-b673b38a2a closed on 2 green seat(s) of distinct vendors (claude-code [anthropic], codex [openai]); unavailable: opencode (exit 137, no verdict (dispatch judge-t-358-r5-opencode-928435695d92)); evidence: .context/reviews/evidence/T-358/AC1-judge-t-358-r5-codex-214c33f60560.md; ledger .context/reviews/verdicts.jsonl
 
 - [ ] [REVIEW] Choose the lane/pool fabrication repair: **A · B · C · AB · no repair**
 
@@ -911,6 +912,19 @@ boundary-events pool is below the captured viewport; L2 measures it from the DOM
 - **Not decided here:** the participant/pool half (`participants 0→1`), to be measured and brought to the operator
   separately; whether already-saved files are migrated (a separate task, per the 2026-09-05 note).
 - The `### Human` [REVIEW] criterion stays unticked: ticking is the operator's (sovereignty-field carve-out).
+
+### 2026-11-09 — the pool/participant fabrication repair (operator ruling, recorded by the agent)
+- **Chose (operator, in chat 2026-11-09, "1"):** **AB, drop + mark**, as for the lanes. A document whose source declares
+  no `bpmn:participant` saves without the collaboration and participant the designer used to add; where the
+  collaboration must be written anyway (it carries another process or message flows: `multiple-diagrams`), the
+  designer's pool is marked `poolProvenance="defaulted:no-participant"` on `aef:workflowMeta`, and the marker is read
+  back so a re-open still knows.
+- **Measured before the ruling** (scratch probe, to become `tools/_t358-pool-options-cdp.mjs`), 35 inputs (11
+  third-party + 24 corpus): today invents 6/6, marks 0/6; A invents 1/6 (multiple-diagrams), marks 0/6, re-import knows
+  5/6; B invents 6/6, marks 6/6; **AB invents 1/6, marks 6/6, re-import knows 6/6**. All four: second save identical,
+  pool name unchanged, the 29 inputs that declare a participant byte-identical to today, all 35 render.
+- **Rejected:** no repair, B (always writes an invented pool), A alone (leaves multiple-diagrams' invented pool
+  unmarked).
 
 ## Decision
 
