@@ -7,13 +7,13 @@ description: >
   halves, the validator no longer raising E-XML-LANES-EMPTY for a process with no
   laneSet, T-347's eventDef passthrough. Announce to AEF and track their pin.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-09T21:15:39Z
-last_update: '2026-11-09T21:16:54Z'
-date_finished:
+last_update: 2026-11-10T23:53:26Z
+date_finished: 2026-11-10T23:53:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -108,7 +108,9 @@ AEF serving it.
   *(2026-11-10: job 128 stopped at the cut (/tmp full, Chromium could not start; retired), resume job 129 done rc=0:
   render check PASS, browser 138/0, core 221/0, tag 65e1e5b5 on origin; artifact sha256 5bc6d19f…, 1344321 bytes;
   AEF told, msg 0f7e1dbe, conversation designer-0.41.0.)*
-- [ ] AEF serves 0.41.0: `bash tools/_t1187-aef-pin-lag.sh` reports CURRENT.
+- [x] AEF serves 0.41.0: `bash tools/_t1187-aef-pin-lag.sh` reports CURRENT.
+  *(2026-11-11: CURRENT; GitHub contents API reads 0.41.0 / 5bc6d19f…; AEF T-5074 done (msgs 9280fd3a, 38fdb8d1): their
+  44 validator tests and designer tests pass, no AEF test pinned E-XML-LANES-EMPTY.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -157,6 +159,10 @@ AEF serving it.
 -->
 
 ## Verification
+
+git ls-remote --exit-code --tags origin designer-v0.41.0
+test -f .context/runme/129-release-0.41.0-resume/done
+bash tools/_t1187-aef-pin-lag.sh > /tmp/.t1387.out 2>&1 && grep -q "^CURRENT" /tmp/.t1387.out
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -394,3 +400,16 @@ AEF serving it.
 
 ### 2026-11-09T21:16:53Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-10T23:53:26Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b9d968b6
+- **Timestamp:** 2026-11-10T23:53:29Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
