@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1388: CDP harnesses _t358-laneless-render and _t1384-advisory-dock leave a temp dir and Chrome profile per run in /tmp
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-10T22:35:44Z
+# ============================================================================
+
+task_id: T-1388
+task_name: "CDP harnesses _t358-laneless-render and _t1384-advisory-dock leave a temp dir and Chrome profile per run in /tmp"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-10T22:31:41Z
+completed: 2026-11-10T22:35:33Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-10T23:35:31+01:00
+last_commit: 2026-11-10T23:35:31+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the lane-less render harness and the advisory-dock harness remove their temp dirs on exit (they left one doc/repo/poison dir per map and width in /tmp, a 32 GB tmpfs that filled and stopped release job 128); both still pass with every poison arm caught, 0 dirs left. Leftovers removed with the operator's approval: 1052 dirs, 698 MB
+
+# Key outcomes
+outcomes:
+  - 'The approved leftovers (`/tmp/t358r-*`, `/tmp/t1384-*`, `/tmp/lv-*`, `/tmp/pool-*`, `/tmp/t1129-*`) are removed,'
+  - 'Both harnesses remove every temp dir they create (doc, repo, Chrome profile, poison copies), also when a leg'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1388-cdp-harnesses-t358-laneless-render-and-t.md'
+  - 'tools/_t1384-advisory-dock-cdp.mjs'
+  - 'tools/_t358-laneless-render-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-10T23:35:31'
+    action: 'T-1388: the lane-less render harness and the advisory-dock harness remove their temp dirs on exit (they left one doc/repo/poison dir per map and width in /tmp, a 32 GB tmpfs that filled and stopped release job 128); both still pass with every poison arm caught, 0 dirs left. Leftovers removed with the operator''s approval: 1052 dirs, 698 MB'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 3
+  commits: 2
+  files_changed: 6
+  lines_added: 549
+  lines_removed: 12
+  footprint_refreshed_at: '2026-11-10T22:35:50Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1388-cdp-harnesses-t358-laneless-render-and-t.md
+generated_by: context-agent-hybrid

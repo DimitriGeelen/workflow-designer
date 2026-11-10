@@ -21171,3 +21171,39 @@ scan_id: R-edd29740
 task_id: T-1385
 payload:
   task_file: .tasks/active/T-1385-release-designer-0400-advisory-dock-as-o.md
+---
+kind: scan_emitted
+timestamp: '2026-11-09T07:07:08Z'
+scan_id: R-1b19c298
+task_id: T-593
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-09T07:07:08Z'
+scan_id: R-1b19c298
+task_id: T-593
+payload:
+  task_file: .tasks/active/T-593-ewcr-handoff-envelope-records-an-operato.md
+---
+kind: scan_emitted
+timestamp: '2026-11-10T22:35:35Z'
+scan_id: R-ac55ffd0
+task_id: T-1388
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-10T22:35:35Z'
+scan_id: R-ac55ffd0
+task_id: T-1388
+payload:
+  task_file: .tasks/active/T-1388-cdp-harnesses-t358-laneless-render-and-t.md
