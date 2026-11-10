@@ -104,7 +104,10 @@ AEF serving it.
   validator change) and T-347, says exactly what changes in stored maps and in Check, and names all five endpoints.
 - [x] A runme job `.context/runme/128-release-designer-0.41.0/` passes `runme.sh --dry-run`; job.sh and dryrun.ok are
   committed.
-- [ ] After the operator's run: tag `designer-v0.41.0` is on origin and AEF has been sent the release.
+- [x] After the operator's run: tag `designer-v0.41.0` is on origin and AEF has been sent the release.
+  *(2026-11-10: job 128 stopped at the cut (/tmp full, Chromium could not start; retired), resume job 129 done rc=0:
+  render check PASS, browser 138/0, core 221/0, tag 65e1e5b5 on origin; artifact sha256 5bc6d19f…, 1344321 bytes;
+  AEF told, msg 0f7e1dbe, conversation designer-0.41.0.)*
 - [ ] AEF serves 0.41.0: `bash tools/_t1187-aef-pin-lag.sh` reports CURRENT.
 
 ### Human
