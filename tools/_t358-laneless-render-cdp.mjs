@@ -22,7 +22,7 @@
 import { makeProfileDir } from './_cdp-profile.mjs';
 import { pageWsUrl } from './_cdp-attach.mjs';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, mkdirSync, existsSync, readFileSync, readdirSync, copyFileSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, existsSync, readFileSync, readdirSync, copyFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,6 +38,11 @@ const shotDir = opt('--shots');
 const SERVER = join(HERE, 'gallery-serve.py');
 const WIDTHS = [[1024, 768], [1440, 900], [1920, 1080]];
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+// T-1388: every temp dir this harness makes (doc, repo, poison copies) is removed when the process ends, whatever the
+// outcome; the Chrome profiles are makeProfileDir's and clean themselves. Before, each run left them in /tmp (a tmpfs).
+const TMPDIRS = [];
+const mkTmp = prefix => { const d = mkdtempSync(join(tmpdir(), prefix)); TMPDIRS.push(d); return d; };
+process.on('exit', () => { for (const d of TMPDIRS) { try { rmSync(d, { recursive: true, force: true }); } catch (_) {} } });
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
 function freePort() { return new Promise((res, rej) => { const s = net.createServer(); s.listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => res(p)); }); s.on('error', rej); }); }
 async function waitPortFile(f) { const t0 = Date.now(); while (Date.now() - t0 < 15000) { if (existsSync(f)) { const t = readFileSync(f, 'utf8').split('\n'); if (t[0] && t[0].trim()) return parseInt(t[0].trim(), 10); } await sleep(100); } throw new Error('no devtools port'); }
@@ -70,7 +75,7 @@ async function run(src, tag) {
   const res = [];
   for (const f of MAPS) for (const [W, H] of WIDTHS) {
     const MAP = readFileSync(join(FIXDIR, f), 'utf8');
-    const doc = mkdtempSync(join(tmpdir(), 't358r-doc-')); const repo = mkdtempSync(join(tmpdir(), 't358r-repo-'));
+    const doc = mkTmp('t358r-doc-'); const repo = mkTmp('t358r-repo-');
     copyFileSync(src, join(doc, 'designer.html'));
     const port = await freePort();
     const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: 'ignore' });
@@ -132,7 +137,7 @@ async function main() {
   let caught = 0;
   for (const [name, [a, b, want]] of Object.entries(POISON)) {
     if (!html.includes(a)) { console.log(`SETUP BROKEN: poison ${name} anchor not found`); process.exit(2); }
-    const p = join(mkdtempSync(join(tmpdir(), 't358r-poison-')), 'designer.html'); writeFileSync(p, html.replace(a, b));
+    const p = join(mkTmp('t358r-poison-'), 'designer.html'); writeFileSync(p, html.replace(a, b));
     const legs = judge(await run(p, 'poison'));
     const red = legs.filter(l => !l.ok && want.test(l.name));
     console.log(`poison ${name}: ${red.length ? `caught (${red.length} ${want.source.replace(/[\^\\[\] ]/g, '')} leg(s) red)` : 'NOT caught'}`);

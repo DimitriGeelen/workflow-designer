@@ -26,7 +26,7 @@
 import { makeProfileDir } from './_cdp-profile.mjs';
 import { pageWsUrl } from './_cdp-attach.mjs';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, mkdirSync, existsSync, readFileSync, readdirSync, copyFileSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, existsSync, readFileSync, readdirSync, copyFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -45,6 +45,11 @@ const AUTH = '⚠ This map declares no authority: none of its 5 elements carries
              '(markers summarised here, not drawn per element)';
 const WIDTHS = [[1024, 768, { pct: 25 }], [1440, 900, { px: 200 }], [1920, 1080, { px: 182 }]];
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+// T-1388: every temp dir this harness makes (doc, repo, poison copies) is removed when the process ends, whatever the
+// outcome; the Chrome profiles are makeProfileDir's and clean themselves. Before, each run left them in /tmp (a tmpfs).
+const TMPDIRS = [];
+const mkTmp = prefix => { const d = mkdtempSync(join(tmpdir(), prefix)); TMPDIRS.push(d); return d; };
+process.on('exit', () => { for (const d of TMPDIRS) { try { rmSync(d, { recursive: true, force: true }); } catch (_) {} } });
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
 function freePort() { return new Promise((res, rej) => { const s = net.createServer(); s.listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => res(p)); }); s.on('error', rej); }); }
 async function waitPortFile(f) { const t0 = Date.now(); while (Date.now() - t0 < 15000) { if (existsSync(f)) { const t = readFileSync(f, 'utf8').split('\n'); if (t[0] && t[0].trim()) return parseInt(t[0].trim(), 10); } await sleep(100); } throw new Error('no devtools port'); }
@@ -75,7 +80,7 @@ const CLICK = id => `(() => { const m = document.querySelector('#${id} .dock-mor
 async function run(src, tag) {
   const out = [];
   for (const [W, H, lim] of WIDTHS) {
-    const doc = mkdtempSync(join(tmpdir(), 't1384-doc-')); const repo = mkdtempSync(join(tmpdir(), 't1384-repo-'));
+    const doc = mkTmp('t1384-doc-'); const repo = mkTmp('t1384-repo-');
     copyFileSync(src, join(doc, 'designer.html'));
     const port = await freePort();
     const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: 'ignore' });
@@ -144,7 +149,7 @@ async function main() {
     { name: 'A — never collapse', must: 'D1', patched: src.replace(NARROW, 'const DOCK_NARROW_PX = 0;') },
     { name: 'B — the more control does nothing', must: 'D3', patched: src.replace(CLICKH, '  return;\n') },
   ];
-  const dir = mkdtempSync(join(tmpdir(), 't1384-poison-'));
+  const dir = mkTmp('t1384-poison-');
   for (const [i, arm] of arms.entries()) {
     const f = join(dir, `poison-${i}.html`); writeFileSync(f, arm.patched);
     console.log(`\npoison arm ${arm.name} — ${arm.must} must FAIL at some width`);
