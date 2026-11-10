@@ -1,0 +1,1 @@
+Superseded by 129-release-0.41.0-resume: stopped at step 5 (the cut) because /tmp was full and Chromium could not start; steps 1-4 (bump f0b1bd6e6, both calibrations PASS, gate) stand and job 129 continues from the cut. A re-run of 128 refuses at preflight by design.
