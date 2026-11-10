@@ -382,7 +382,7 @@ than a widened leg on an existing one.
       migrated" (`src:9656`), and is the only option that also covers content we have not
       thought of. It also changes what we emit for AEF's content, which is why this is
       yours and not mine — same disposition as T-337, T-340 and T-341.
-  **Reviewer verdict:** green V-20261108-502f440e — reviewer-judge-t-347-r3-02b814461c7c:reviewer (rung rung-3-termlink-single-reviewer), digest 955962ba3d76; dispatch judge-t-347-r3-02b814461c7c; evidence: .context/reviews/evidence/T-347/AC1-judge-t-347-r3-02b814461c7c.md; ledger .context/reviews/verdicts.jsonl
+  **Reviewer verdict:** green V-20261110-fd518ff1 — reviewer-judge-t-347-r3-0b5a1372c0ff:reviewer (rung rung-3-termlink-single-reviewer), digest 955962ba3d76; dispatch judge-t-347-r3-0b5a1372c0ff; evidence: .context/reviews/evidence/T-347/AC1-judge-t-347-r3-0b5a1372c0ff.md; ledger .context/reviews/verdicts.jsonl
 
 ## RCA
 
@@ -554,7 +554,7 @@ out=$(timeout 300 node tools/_t347-accepted-element-content-cdp.mjs 2>&1); echo 
 # attempts was a probe killed by its 90s cap under host load, not a regression (OBS-494). Browser 138/0 and core 221/0
 # on 2026-11-09.
 PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tests/run-bridge-tests.sh --tier core
-PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tests/run-bridge-tests.sh --tier browser
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tests/run-bridge-tests.sh --tier browser > /tmp/.t347-browser.out 2>&1 || { grep -E '\[FAIL\]|^tier ' /tmp/.t347-browser.out; false; }
 
 ## RCA
 
