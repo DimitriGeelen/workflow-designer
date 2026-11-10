@@ -2973,6 +2973,17 @@ function contentRightEdgeNatural() {
   }
   return right;
 }
+// T-1386: the pool's left edge, the mirror of contentRightEdge(). POOL_X unless a node lies left of the pool's usable
+// area (left of POOL_X, or over the lane-name column when there are lanes): then the edge moves left to enclose it with
+// a margin, as the right edge grows for the right-most node. Only an imported file with another tool's coordinates puts
+// a node there (nested-subprocesses' start event at x=26); the designer's own layout never does, so its maps draw as
+// before.
+function contentLeftEdge() {
+  const header = getLanes().length ? LANE_HEADER : 0;
+  let left = POOL_X;
+  for (const n of (state?.nodes || [])) left = Math.min(left, n.x - header - 20 /* left margin */);
+  return Math.floor(left);
+}
 function contentRightEdge() {
   // T-255: workflowMeta.pageWidth is an authored FLOOR (pool-relative width set by
   // dragging the pool's right edge), never a replacement — content past it still
@@ -4021,11 +4032,13 @@ function fitLaneLabel(headerG, lane, cx, cy, laneH, isSelected) {
 // scores against the box edge, so the pad cannot feed back into it) and the page-width drag keep the box edge.
 // The bottom works the same way with its own pad (id badges under bottom-lane nodes reached up to 6 px past it):
 // the LAST lane is drawn taller by poolLabelPadBottom; lane.height, which is saved, does not change.
-let poolLabelPad = 0, poolLabelPadBottom = 0;
+// T-1386: the left works the same way with poolLabelPadLeft: a name or id badge centred under a node the pool's left
+// edge (contentLeftEdge) only just encloses hangs past it, and the drawn pool grows left to cover it.
+let poolLabelPad = 0, poolLabelPadBottom = 0, poolLabelPadLeft = 0;
 const POOL_LABEL_MARGIN = 12, POOL_LABEL_MARGIN_BOTTOM = 4;
 function fitPoolToLabels() {
-  const edge = contentRightEdge(), floor = POOL_Y + poolHeight();
-  let right = edge, bottom = floor;
+  const edge = contentRightEdge(), floor = POOL_Y + poolHeight(), leftEdge = contentLeftEdge();
+  let right = edge, bottom = floor, left = leftEdge;
   for (const t of svg.querySelectorAll('#g-nodes .node-label, #g-badges text, #g-badges-top text')) {
     let b; try { b = t.getBBox(); } catch (_) { continue; }
     if (!b.width) continue;
@@ -4033,10 +4046,12 @@ function fitPoolToLabels() {
     // picture-disagrees-with-the-file case LANE-GEOMETRY reports, and widening the drawn lane around it would hide it.
     if (b.x < edge) right = Math.max(right, b.x + b.width + POOL_LABEL_MARGIN);
     if (b.y < floor) bottom = Math.max(bottom, b.y + b.height + POOL_LABEL_MARGIN_BOTTOM);
+    if (b.x + b.width > leftEdge && b.y < floor) left = Math.min(left, b.x - POOL_LABEL_MARGIN);   // T-1386, same rule mirrored
   }
   const pad = Math.ceil(right - edge), padB = getLanes().length ? Math.ceil(bottom - floor) : 0;
-  if (pad !== poolLabelPad || padB !== poolLabelPadBottom) {
-    poolLabelPad = pad; poolLabelPadBottom = padB;
+  const padL = Math.max(0, Math.ceil(leftEdge - left));
+  if (pad !== poolLabelPad || padB !== poolLabelPadBottom || padL !== poolLabelPadLeft) {
+    poolLabelPad = pad; poolLabelPadBottom = padB; poolLabelPadLeft = padL;
     renderPool();
     syncCanvasSize();   // the drawn pool changed size; outside renderAll nothing else would refit the view
   }
@@ -4045,8 +4060,8 @@ function fitPoolToLabels() {
 function renderPool() {
   gPool.innerHTML = '';
   // pool outline
-  const px = POOL_X, py = POOL_Y;
-  const pw = contentRightEdge() - POOL_X + poolLabelPad; // encloses the right-most node (T-043) and its label (T-1154)
+  const px = contentLeftEdge() - poolLabelPadLeft, py = POOL_Y;   // T-1386: grows left to enclose a node an import placed there, and its label
+  const pw = contentRightEdge() - px + poolLabelPad; // encloses the right-most node (T-043) and its label (T-1154)
   const ph = poolHeight() + poolLabelPadBottom;           // T-1154: drawn only; the last lane below carries the pad
 
   // pool header strip
@@ -4811,8 +4826,8 @@ function adjustLabelPlacements() {
   // px/pw/ph, same band stacking from POOL_Y + POOL_HEADER — except the drawn pool's
   // label pad (T-1154): it is derived FROM label placement, so scoring against it
   // would feed back; the box edge is the bound here.
-  const px = POOL_X, py = POOL_Y;
-  const pw = contentRightEdge() - POOL_X;
+  const px = contentLeftEdge(), py = POOL_Y;   // T-1386: the same left edge renderPool() draws
+  const pw = contentRightEdge() - px;
   const ph = poolHeight();
   const bandTop = py + POOL_HEADER;
   const laneBands = [];
@@ -5048,7 +5063,8 @@ function clearLabelsOfFlows() {
   const shapes = state.nodes.map(n => { const d = dims(n); return { x1: n.x - 2, y1: n.y - 2, x2: n.x + d.w + 2, y2: n.y + d.h + 2 }; });
   const bandTop = POOL_Y + POOL_HEADER, lanes = [];
   { let y = bandTop; for (const l of getLanes()) { lanes.push({ y1: y, y2: y + l.height }); y += l.height; } }
-  const pw = contentRightEdge() - POOL_X, ph = poolHeight();
+  const PX = contentLeftEdge();   // T-1386: the left edge renderPool() draws
+  const pw = contentRightEdge() - PX, ph = poolHeight();
   const hasPool = lanes.length > 0 && pw > 0 && ph > 0;
   const isBelow = n => n.type === 'startEvent' || n.type === 'endEvent' ||
     n.type.endsWith('Gateway') || n.type.startsWith('linkEvent') || n.type.startsWith('event');
@@ -5056,7 +5072,7 @@ function clearLabelsOfFlows() {
   const LH = 12, ASC = 9, DESC = 3;
   // T-1068 F1 holds here too: a block never starts on the lane header strip; it is nudged right by its overrun
   // before it is judged, so it is judged where it will be drawn.
-  const headerEdge = POOL_X + LANE_HEADER + 1;
+  const headerEdge = PX + LANE_HEADER + 1;
   const put = (els, x, b0, anchor) => {
     els.forEach((t, i) => { t.setAttribute('x', x); t.setAttribute('y', b0 + i * LH); t.setAttribute('text-anchor', anchor); });
     if (!hasPool) return;
@@ -5095,8 +5111,8 @@ function clearLabelsOfFlows() {
         for (const o of others) if (inter(r, o)) { c += 10; hard++; }
         for (const s of shapes) if (inter(r, s)) c += 30;
         if (hasPool) {
-          if (r.x1 < POOL_X || r.x2 > POOL_X + pw || r.y1 < bandTop || r.y2 > POOL_Y + ph) c += 1;
-          if (r.x1 < POOL_X + LANE_HEADER) c += 2;
+          if (r.x1 < PX || r.x2 > PX + pw || r.y1 < bandTop || r.y2 > POOL_Y + ph) c += 1;
+          if (r.x1 < PX + LANE_HEADER) c += 2;
           if (lane && (r.y1 < lane.y1 - 1 || r.y2 > lane.y2 + 1)) c += 3;
         }
       }

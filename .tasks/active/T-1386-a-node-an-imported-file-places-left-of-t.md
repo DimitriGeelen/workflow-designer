@@ -1,13 +1,19 @@
 ---
 id: T-1386
-name: "A node an imported file places left of the pool's fixed left edge is drawn across the pool border"
+name: "A node an imported file places left of the pool's fixed left edge is drawn
+  across the pool border"
 description: >
-  The pool's left edge is fixed at POOL_X and never grows, unlike its right edge (contentRightEdge). A third-party file that places a node left of it (tests/fixtures/third-party/nested-subprocesses.bpmn, start event at x=26) draws the node across the pool border; in a map with lanes it also covers the lane-name column. Seen by T-358's independent reviewer (red, 2026-11-08) and identical in 0.40.0.
+  The pool's left edge is fixed at POOL_X and never grows, unlike its right edge (contentRightEdge).
+  A third-party file that places a node left of it (tests/fixtures/third-party/nested-subprocesses.bpmn,
+  start event at x=26) draws the node across the pool border; in a map with lanes
+  it also covers the lane-name column. Seen by T-358's independent reviewer (red,
+  2026-11-08) and identical in 0.40.0.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-09T15:13:30Z
-last_update: 2026-11-09T15:13:30Z
-date_finished: null
+last_update: '2026-11-10T23:18:38Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-10T23:18:38Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1386: A node an imported file places left of the pool's fixed left edge is drawn across the pool border
@@ -79,12 +105,32 @@ import's geometry right) is decided in this task, with the saved-bytes consequen
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The two fixes (grow the left edge vs shift the imported geometry) are measured on the third-party fixtures and the
+- [x] The two fixes (grow the left edge vs shift the imported geometry) are measured on the third-party fixtures and the
   corpus (saved-byte drift, render) and one is recorded in `## Decisions` with why.
-- [ ] nested-subprocesses' first start event lies inside the pool outline at 1024/1440/1920, with lanes and without;
+- [x] nested-subprocesses' first start event lies inside the pool outline at 1024/1440/1920, with lanes and without;
   a harness proves it and is red on the source before the fix; `_t308` stays 24/24.
+  *(2026-11-11: `contentLeftEdge()` mirrors `contentRightEdge()` (POOL_X unless a node lies left of the usable area,
+  lane-name column included), and `fitPoolToLabels()` gains a left pad for a label hanging past it (view only, like
+  the right pad, T-1154). renderPool and both label-placement routines use the same left edge. Leg 227
+  (`_t358-laneless-render-cdp.mjs`) now judges L2 on all four sides with labels, adds the with-lane fixture
+  `tests/fixtures/t1386/nested-with-lane.bpmn` (L2 also clear of the lane-name column) and poison D (fixed left edge →
+  6 L2 legs red): 111 legs, 4/4 arms caught; on the source before the fix the same 6 legs are red. `_t308` 24/24,
+  third-party goldens 11/11 identical, `_t1384` 17/17.)*
 
 ### Human
+
+- [ ] [REVIEW] A node an imported file places at the far left is drawn inside its pool, with its name, with and without lanes
+  **Why you:** a render-surface judgement on screenshots (CLAUDE.md "UI changes are reviewed on screenshots"); for the independent reviewer: `fw reviewer judge T-1386 --criterion 1`.
+  **Steps:**
+  1. Open `docs/reports/T-1386-evidence/nested-subprocesses-1024.png`, `-1440.png`, `-1920.png` and
+     `nested-with-lane-1024.png`, `-1440.png`, `-1920.png`; for comparison `docs/reports/T-358-evidence/v0.40.0-nested-subprocesses-1440.png` (before).
+  2. In each, find the start event at the far left ("lan_start_startevent" / "ops_start_startevent") and check it and its
+     id label lie inside the pool outline, and, with a lane, to the right of the lane-name column ("OPS").
+  3. Check nothing else moved: the other maps in `docs/reports/T-1386-evidence/` look as before (their pools start
+     where they did).
+  **Expected:** the start event and its label inside the pool at all three widths, clear of the lane-name column with a
+  lane; the pool's left border simply sits further left on these two maps.
+  **If not:** name the screenshot and what crosses the border or the column, and set the task to issues.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -131,6 +177,25 @@ import's geometry right) is decided in this task, with the saved-bytes consequen
 -->
 
 ## Verification
+
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t358-laneless-render-cdp.mjs --self-test > /tmp/.t1386.out 2>&1 && grep -q "all 4 poison arms caught" /tmp/.t1386.out
+grep -q "function contentLeftEdge" src/aef-workflow-designer.html
+
+## Visual Verification
+
+Screenshots in `docs/reports/T-1386-evidence/` (leg 227 `--shots`): the 7 lane-less third-party fixtures and the
+with-lane fixture, each at 1024/1440/1920, opened the real way.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| opening, no lanes | nested-subprocesses' far-left start event and its id label inside the pool | ok | ok | ok | before: drawn across the left border (T-358 evidence, v0.40.0) |
+| opening, one lane | the same event right of the lane-name column, inside the pool | ok | ok | ok | constructed fixture tests/fixtures/t1386/nested-with-lane.bpmn |
+| opening | the other 6 lane-less maps | ok | ok | ok | pools start where they did; contentLeftEdge is POOL_X for them |
+
+Read: `nested-subprocesses-1440.png` — pool border at x≈236 (was ≈255), "lan_start_startevent" label starts at ≈248,
+inside; every other node and label as before. `nested-with-lane-1440.png` — "OPS" lane-name column at the far left
+of the pool, the start event and "ops_start_startevent" to its right; the notice reports the lane band grown for its
+content (the file's own lane geometry), as for any lane that cannot fit.
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -349,6 +414,15 @@ import's geometry right) is decided in this task, with the saved-bytes consequen
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-11-11 — grow the pool's left edge, not shift the imported geometry
+- **Chose:** grow the left edge (`contentLeftEdge`, the mirror of `contentRightEdge`), plus a view-only left label pad.
+- **Why:** measured on the 11 third-party fixtures and the 24 corpus maps, only nested-subprocesses (x=26, no lanes)
+  places a node in the left zone; the corpus has no DI and is laid out by the designer, never there. Growing the edge
+  changes only the drawing: a one-pool map writes no pool shape, so `_t308` stays 24/24 and the third-party goldens
+  11/11 identical.
+- **Rejected:** shifting the imported geometry right — it rewrites another tool's positions, which T-1264 keeps until a
+  person moves the element, and it changes saved bytes.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -365,3 +439,7 @@ import's geometry right) is decided in this task, with the saved-bytes consequen
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1386-a-node-an-imported-file-places-left-of-t.md
 - **Context:** Initial task creation
+
+### 2026-11-10T23:18:36Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
