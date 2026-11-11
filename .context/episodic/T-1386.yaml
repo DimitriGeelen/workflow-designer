@@ -1,0 +1,141 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1386: A node an imported file places left of the pool's fixed left edge is drawn across the pool border
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-11T01:53:16Z
+# ============================================================================
+
+task_id: T-1386
+task_name: "A node an imported file places left of the pool's fixed left edge is drawn across the pool border"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-11-09T15:13:30Z
+completed: 2026-11-11T01:50:08Z
+duration_days: 2
+updates_count: 3
+first_commit: 2026-11-11T00:41:30+01:00
+last_commit: 2026-11-11T02:16:02+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the pool's left edge grows to enclose a node an import places left of it (contentLeftEdge, the mirror of contentRightEdge) and a view-only left label pad covers its name; renderPool and both label-placement routines use it. Leg 227 judges L2 on all four sides with labels, adds a with-lane fixture (clear of the lane-name column) and poison D: 111 legs, 4/4 arms; red on the source before (6 legs). Saved bytes unchanged (_t308 24/24, third-party goldens 11/11). gate exit 0, advisory sweep 0 blockers / 2 minor (both pre-existing label overlaps from the file's own coordinates), recorded. reviewer verdict. the left edge moves only for a node that lies left of the usable area (it moved for any node within 20 px of the lane-name column, which let T-601's left-edge case put a label on the column: _t601-lane-boundary L1, caught by the browser tier); _t601 6/6, render harness 111 legs 4/4 arms
+
+# Key outcomes
+outcomes:
+  - 'The two fixes (grow the left edge vs shift the imported geometry) are measured on the third-party fixtures and the'
+  - 'nested-subprocesses'' first start event lies inside the pool outline at 1024/1440/1920, with lanes and without;'
+  - '[REVIEW] A node an imported file places at the far left is drawn inside its pool, with its name, with and without lanes'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the pool''s left edge grows to enclose a node an import places left of it (contentLeftEdge, the mirror of contentRightEdge) and a view-only left label pad covers its name; renderPool and both label-placement routines use it. Leg 227 judges L2 on all four sides with labels, adds a with-lane fixture (clear of the lane-name column) and poison D: 111 legs, 4/4 arms; red on the source before (6 legs). Saved bytes unchanged (_t308 24/24, third-party goldens 11/11)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-11-11 — grow the pool''s left edge, not shift the imported geometry'
+    chose: 'grow the left edge (`contentLeftEdge`, the mirror of `contentRightEdge`), plus a view-only left label pad.'
+    rationale: 'measured on the 11 third-party fixtures and the 24 corpus maps, only nested-subprocesses (x=26, no lanes) places a node in the left zone; the corpus has no DI and is laid out by the designer, never there. Growing the edge changes only the drawing: a one-pool map writes no pool shape, so `_t308` stays 24/24 and the third-party goldens 11/11 identical.'
+    alternatives_rejected: ['shifting the imported geometry right — it rewrites another tool''s positions, which T-1264 keeps until a person moves the element, and it changes saved bytes.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1386/AC1-judge-t-1386-r3-277f74ec27e0.md'
+  - '.context/reviews/evidence/T-1386/AC1-judge-t-1386-r3-2cc7d5334764.md'
+  - '.context/reviews/evidence/T-1386/before-v0.40.0-nested-subprocesses-1440-judge-t-1386-r3-277f74ec27e0.png'
+  - '.context/reviews/evidence/T-1386/before-v0.40.0-nested-subprocesses-1440-judge-t-1386-r3-2cc7d5334764.png'
+  - '.context/reviews/evidence/T-1386/nested-subprocesses-1024-judge-t-1386-r3-277f74ec27e0.png'
+  - '.context/reviews/evidence/T-1386/nested-subprocesses-1024-judge-t-1386-r3-2cc7d5334764.png'
+  - '.context/reviews/evidence/T-1386/nested-subprocesses-1440-judge-t-1386-r3-277f74ec27e0.png'
+  - '.context/reviews/evidence/T-1386/nested-subprocesses-1440-judge-t-1386-r3-2cc7d5334764.png'
+  - '.context/reviews/evidence/T-1386/nested-subprocesses-1920-judge-t-1386-r3-277f74ec27e0.png'
+  - '.context/reviews/evidence/T-1386/nested-subprocesses-1920-judge-t-1386-r3-2cc7d5334764.png'
+  - '.context/reviews/evidence/T-1386/nested-with-lane-1024-judge-t-1386-r3-277f74ec27e0.png'
+  - '.context/reviews/evidence/T-1386/nested-with-lane-1024-judge-t-1386-r3-2cc7d5334764.png'
+  - '.context/reviews/evidence/T-1386/nested-with-lane-1440-judge-t-1386-r3-277f74ec27e0.png'
+  - '.context/reviews/evidence/T-1386/nested-with-lane-1440-judge-t-1386-r3-2cc7d5334764.png'
+  - '.context/reviews/evidence/T-1386/nested-with-lane-1920-judge-t-1386-r3-277f74ec27e0.png'
+  - '.context/reviews/evidence/T-1386/nested-with-lane-1920-judge-t-1386-r3-2cc7d5334764.png'
+  - '.context/reviews/evidence/T-1386/rerender-7a135f0a4-nested-subprocesses-1440-judge-t-1386-r3-277f74ec27e0.png'
+  - '.context/reviews/evidence/T-1386/rerender-7a135f0a4-nested-with-lane-1440-judge-t-1386-r3-277f74ec27e0.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1386-a-node-an-imported-file-places-left-of-t.md'
+  - 'docs/reports/T-1386-evidence/boundary-events-1024.png'
+  - 'docs/reports/T-1386-evidence/boundary-events-1440.png'
+  - 'docs/reports/T-1386-evidence/boundary-events-1920.png'
+  - 'docs/reports/T-1386-evidence/collaboration-message-flows-1024.png'
+  - 'docs/reports/T-1386-evidence/collaboration-message-flows-1440.png'
+  - 'docs/reports/T-1386-evidence/collaboration-message-flows-1920.png'
+  - 'docs/reports/T-1386-evidence/i18n-documentation-1024.png'
+  - 'docs/reports/T-1386-evidence/i18n-documentation-1440.png'
+  - 'docs/reports/T-1386-evidence/i18n-documentation-1920.png'
+  - 'docs/reports/T-1386-evidence/multiple-diagrams-1024.png'
+  - 'docs/reports/T-1386-evidence/multiple-diagrams-1440.png'
+  - 'docs/reports/T-1386-evidence/multiple-diagrams-1920.png'
+  - 'docs/reports/T-1386-evidence/nested-subprocesses-1024.png'
+  - 'docs/reports/T-1386-evidence/nested-subprocesses-1440.png'
+  - 'docs/reports/T-1386-evidence/nested-subprocesses-1920.png'
+  - 'docs/reports/T-1386-evidence/nested-with-lane-1024.png'
+  - 'docs/reports/T-1386-evidence/nested-with-lane-1440.png'
+  - 'docs/reports/T-1386-evidence/nested-with-lane-1920.png'
+  - 'docs/reports/T-1386-evidence/simple-1024.png'
+  - 'docs/reports/T-1386-evidence/simple-1440.png'
+  - 'docs/reports/T-1386-evidence/simple-1920.png'
+  - 'docs/reports/T-1386-evidence/zeebe-service-task-1024.png'
+  - 'docs/reports/T-1386-evidence/zeebe-service-task-1440.png'
+  - 'docs/reports/T-1386-evidence/zeebe-service-task-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/fixtures/t1386/nested-with-lane.bpmn'
+  - 'tools/_t358-laneless-render-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-11T00:41:30'
+    action: 'T-1386: the pool''s left edge grows to enclose a node an import places left of it (contentLeftEdge, the mirror of contentRightEdge) and a view-only left label pad covers its name; renderPool and both label-placement routines use it. Leg 227 judges L2 on all four sides with labels, adds a with-lane fixture (clear of the lane-name column) and poison D: 111 legs, 4/4 arms; red on the source before (6 legs). Saved bytes unchanged (_t308 24/24, third-party goldens 11/11)'
+  - time: '2026-11-11T01:03:45'
+    action: 'T-1386: gate exit 0, advisory sweep 0 blockers / 2 minor (both pre-existing label overlaps from the file''s own coordinates), recorded'
+  - time: '2026-11-11T01:46:43'
+    action: 'T-1386: reviewer verdict'
+  - time: '2026-11-11T02:08:48'
+    action: 'T-1386: the left edge moves only for a node that lies left of the usable area (it moved for any node within 20 px of the lane-name column, which let T-601''s left-edge case put a label on the column: _t601-lane-boundary L1, caught by the browser tier); _t601 6/6, render harness 111 legs 4/4 arms'
+  - time: '2026-11-11T02:16:02'
+    action: 'T-1386: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 2076 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2076
+  commits: 6
+  files_changed: 55
+  lines_added: 525
+  lines_removed: 42
+  footprint_refreshed_at: '2026-11-11T01:53:22Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1386-a-node-an-imported-file-places-left-of-t.md
+generated_by: context-agent-hybrid

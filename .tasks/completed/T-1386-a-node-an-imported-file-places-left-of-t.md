@@ -9,13 +9,13 @@ description: >
   it also covers the lane-name column. Seen by T-358's independent reviewer (red,
   2026-11-08) and identical in 0.40.0.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tools/_t358-laneless-render-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-09T15:13:30Z
-last_update: '2026-11-10T23:18:38Z'
-date_finished:
+last_update: 2026-11-11T01:50:08Z
+date_finished: 2026-11-11T01:50:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -119,7 +119,7 @@ import's geometry right) is decided in this task, with the saved-bytes consequen
 
 ### Human
 
-- [ ] [REVIEW] A node an imported file places at the far left is drawn inside its pool, with its name, with and without lanes
+- [x] [REVIEW] A node an imported file places at the far left is drawn inside its pool, with its name, with and without lanes
   **Why you:** a render-surface judgement on screenshots (CLAUDE.md "UI changes are reviewed on screenshots"); for the independent reviewer: `fw reviewer judge T-1386 --criterion 1`.
   **Steps:**
   1. Open `docs/reports/T-1386-evidence/nested-subprocesses-1024.png`, `-1440.png`, `-1920.png` and
@@ -175,6 +175,7 @@ import's geometry right) is decided in this task, with the saved-bytes consequen
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261111-0113da3f — reviewer-judge-t-1386-r3-277f74ec27e0:reviewer (rung rung-3-termlink-single-reviewer), digest 6d1e2db1e58d; dispatch judge-t-1386-r3-277f74ec27e0; evidence: .context/reviews/evidence/T-1386/AC1-judge-t-1386-r3-277f74ec27e0.md, .context/reviews/evidence/T-1386/before-v0.40.0-nested-subprocesses-1440-judge-t-1386-r3-277f74ec27e0.png, .context/reviews/evidence/T-1386/nested-subprocesses-1024-judge-t-1386-r3-277f74ec27e0.png, .context/reviews/evidence/T-1386/nested-subprocesses-1440-judge-t-1386-r3-277f74ec27e0.png, .context/reviews/evidence/T-1386/nested-subprocesses-1920-judge-t-1386-r3-277f74ec27e0.png, .context/reviews/evidence/T-1386/nested-with-lane-1024-judge-t-1386-r3-277f74ec27e0.png, .context/reviews/evidence/T-1386/nested-with-lane-1440-judge-t-1386-r3-277f74ec27e0.png, .context/reviews/evidence/T-1386/nested-with-lane-1920-judge-t-1386-r3-277f74ec27e0.png, .context/reviews/evidence/T-1386/rerender-7a135f0a4-nested-subprocesses-1440-judge-t-1386-r3-277f74ec27e0.png, .context/reviews/evidence/T-1386/rerender-7a135f0a4-nested-with-lane-1440-judge-t-1386-r3-277f74ec27e0.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -451,3 +452,16 @@ The sweep confirms the far-left event and label inside the pool and clear of the
 ### 2026-11-10T23:18:36Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-11T01:50:08Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-5b25c733
+- **Timestamp:** 2026-11-11T01:53:09Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
