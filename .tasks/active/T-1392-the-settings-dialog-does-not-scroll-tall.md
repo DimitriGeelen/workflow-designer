@@ -101,10 +101,14 @@ defaults") can be scrolled into view and clicked at all three widths, red on the
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] At 1024×768, 1440×900 and 1920×1080 the Settings dialog ends inside the window, its body scrolls, and the last
+- [x] At 1024×768, 1440×900 and 1920×1080 the Settings dialog ends inside the window, its body scrolls, and the last
   control ("Reset to defaults") can be scrolled into view and is the element at its own centre (clickable); the header
   with Close stays in view while scrolling.
+  *(`.settings-dialog` max-height calc(100vh - 110px) as a flex column, `.settings-body` overflow-y auto. The dialog
+  now ends at 748/880/1060 px in 768/900/1080 windows; it ended at 1186 px at every width before.)*
 - [ ] A harness proves it and is red on the source before the fix; the gate exits 0.
+  *(`tools/_t1392-settings-reach-cdp.mjs --self-test`: 9 legs + poison caught; on the source before, 6 legs red (S1,
+  S2 at every width). Browser leg 228. Gate: ticked when it exits 0.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -152,7 +156,40 @@ defaults") can be scrolled into view and clicked at all three widths, red on the
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
 
+- [ ] [REVIEW] Settings fits the window and every setting in it can be reached
+  **Why you:** a render-surface judgement on screenshots (CLAUDE.md "UI changes are reviewed on screenshots"); for the independent reviewer: `fw reviewer judge T-1392 --criterion 1`.
+  **Steps:**
+  1. Open `docs/reports/T-1392-evidence/settings-top-1024.png`, `-1440.png`, `-1920.png` (Settings just opened) and
+     `settings-bottom-1024.png`, `-1440.png`, `-1920.png` (scrolled to the end).
+  2. In each, check the dialog's bottom edge is inside the window, the header "Editor Settings" with Close is visible,
+     and the body shows a scrollbar where it is taller than the dialog.
+  3. In the "bottom" shots, check the Labels section and "Reset to defaults" are fully visible and unclipped.
+  **Expected:** at every width the dialog fits the window and its last controls are reachable by scrolling, with the
+  header in view.
+  **If not:** name the screenshot and what is cut off or unreachable, and set the task to issues.
+
 ## Verification
+
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1392-settings-reach-cdp.mjs --self-test > /tmp/.t1392.out 2>&1 && grep -q "poison arm caught" /tmp/.t1392.out
+grep -q "max-height: calc(100vh - 110px);" src/aef-workflow-designer.html
+
+## Visual Verification
+
+Screenshots in `docs/reports/T-1392-evidence/` (`_t1392-settings-reach-cdp.mjs --shots`), on our project server (which
+serves field profiles, so the "Fields shown by default" section is in the dialog — its tallest form), at 1024/1440/1920.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| Settings just opened | dialog bottom edge inside the window | ok | ok | ok | 748/880/1060 px in 768/900/1080 |
+| Settings just opened | header and Close | ok | ok | ok | |
+| scrolled to the end | Labels section, "Reset to defaults" | ok | ok | ok | before: unreachable at every width |
+| scrolled to the end | header and Close still in view | ok | ok | ok | |
+
+Read: `settings-bottom-1440.png` — header "Editor Settings" + Close at the top; the body scrolled to the end shows the
+last fields of "Fields shown by default" (Links, Note, Save/Cancel), all of Labels, the footer "Stored in this browser
+only…" and "Reset to defaults", inside the window with a scrollbar on the right. `settings-bottom-1024.png` (taken
+before the harness waited for the field-profile answer; the section was not shown then): View, Labels and Reset reached
+the same way.
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
