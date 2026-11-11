@@ -106,9 +106,10 @@ defaults") can be scrolled into view and clicked at all three widths, red on the
   with Close stays in view while scrolling.
   *(`.settings-dialog` max-height calc(100vh - 110px) as a flex column, `.settings-body` overflow-y auto. The dialog
   now ends at 748/880/1060 px in 768/900/1080 windows; it ended at 1186 px at every width before.)*
-- [ ] A harness proves it and is red on the source before the fix; the gate exits 0.
+- [x] A harness proves it and is red on the source before the fix; the gate exits 0.
   *(`tools/_t1392-settings-reach-cdp.mjs --self-test`: 9 legs + poison caught; on the source before, 6 legs red (S1,
-  S2 at every width). Browser leg 228. Gate: ticked when it exits 0.)*
+  S2 at every width). Browser leg 228. Gate exit 0 (2026-11-11). Advisory sweep (t1392-sweep-5755dfc4f416): 0
+  blockers, 0 minor, 0 nits.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
