@@ -156,6 +156,13 @@ operator rulings, not on filing).
 - **T-281** — *Audience render lenses* (GO 2026-10-20, operator job 063: slice 1, the business lens in the designer).
   The slice is filed as **T-1241** (horizon now, not started), so the decision propagated and the delivery has not.
   Evidence: `docs/reports/T-281-audience-lenses.md`. Added when the triage checker flagged it (2026-10-21).
+- **T-1219** — *Traceable data elements on aef:io* (GO 2026-10-20). PARTIAL. Its first half, keeping unknown `aef:`
+  attributes through a save, shipped as **T-1220** in 0.24.0 (912f8d3e9, 01beb611d). Its second half, designer fields
+  for ref/role/cardinality/dataType, waited on AEF T-4415. AEF has since ruled it (DRAFT 2), and 832 took it up as
+  inception **T-1242** (above). Slice 1, **T-1249**, reads and shows every v1.1 io construct; it is not started. The
+  captured follow-up **T-1229** is the editable form and stays parked behind T-1249. Evidence:
+  `docs/reports/T-1219-traceable-aef-io.md`, `docs/reports/T-1242-structured-io-attributes.md`. Added when the triage
+  checker flagged it (2026-11-11, T-358's close: T-1219 closed that day and entered the audit).
 - **T-1242** — *Structured attributes on aef:io* (GO 2026-10-21, operator job 073, after AEF ruled T-4415 GO on DRAFT 2
   at AEF f1f7c30dd). Slice 1 filed as **T-1249** (read, show and keep every v1.1 io construct; horizon now); slices 2-4
   follow it. Evidence: `docs/reports/T-1242-structured-io-attributes.md`.

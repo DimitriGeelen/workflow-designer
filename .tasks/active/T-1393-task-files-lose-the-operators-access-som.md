@@ -168,7 +168,7 @@ operator jobs run as that user, not root.
 ## Verification
 
 grep -q "_sed_i" .tasks/active/T-1393-task-files-lose-the-operators-access-som.md
-test -z "$(find .tasks/active -name 'T-358-*.md' -perm 600)"
+[ "$(stat -c %a .tasks/active/T-1393-task-files-lose-the-operators-access-som.md)" = 664 ]
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
