@@ -182,7 +182,9 @@ async function main() {
     const t0 = Date.now(); while (Date.now() - t0 < 15000) { const ok = await ev(cmd, `typeof _appReady !== 'undefined' && _appReady === true`).catch(() => false); if (ok) break; await sleep(150); }
     await sleep(400);
     await ev(cmd, OPEN); r = await ev(cmd, ROWS);
-    leg(r.disabled && /Needs the project server/.test(r.status) && r.mapDisabled, 'H standalone: read-only with the reason', r);
+    // T-1391: with no project server the field settings are hidden, not shown read-only
+    const hidH = await ev(cmd, `getComputedStyle(document.getElementById('set-fd-section')).display`);
+    leg(hidH === 'none', 'H standalone: the field-settings section is hidden (T-1391)', { display: hidH });
     leg(cl.errs.length === 0, 'no page errors', cl.errs.slice(0, 3));
   } catch (e) {
     leg(false, 'harness', String(e && e.stack || e));

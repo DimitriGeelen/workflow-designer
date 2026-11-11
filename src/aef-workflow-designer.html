@@ -7478,6 +7478,13 @@ function _fieldProfileAnswer(r, d) {
 function fieldSettingsSupported() {
   return _apiAvailable && (_fieldProfileStatus === 'none' || _fieldProfileStatus === 'loaded');
 }
+// T-1391 (operator, 2026-11-11, option 2): the field-profile settings are SHOWN only where the host serves
+// /api/field-profile — 'none' and 'loaded', and 'refused' (it serves it, but the project's file is wrong: that error
+// must stay visible). With no project server, or one that does not offer it (AEF, by its T-4737), they are hidden
+// instead of shown read-only; they come back on a host that serves the endpoint.
+function fieldProfileServed() {
+  return _apiAvailable && _fieldProfileStatus !== 'unsupported' && _fieldProfileStatus !== 'standalone';
+}
 let _fieldProfile = null;
 let _fieldProfileBase = 'none';   // T-1128: the version a Settings save must name (409 if it moved)
 let _fieldProfileStatus = 'standalone';
@@ -7587,12 +7594,12 @@ function suggestFieldRow(n, k) {
   b.dataset.testid = 'suggest-field';
   b.dataset.key = k;
   const s = _fieldSuggestions && _fieldSuggestions.get(n.type + '.' + k);
+  // T-1391 (operator, 2026-11-11, option 2): no button where the host does not offer field suggestions (no project
+  // server, or one that does not serve /api/field-suggestions — AEF, by its T-4737); nor while that is still being asked.
+  // It appears once the host answers that it does. The evidence line stays: it is about the map, not the host.
+  let offered = true;
   if (!_apiAvailable || _fieldSuggestionsSupported !== true) {
-    b.textContent = 'Suggest as a field';
-    b.disabled = true;
-    b.title = !_apiAvailable ? 'Needs the project server — suggestions are recorded there for the operator to approve'
-      : _fieldSuggestionsSupported === false ? 'This project server does not offer field suggestions'
-      : 'Checking whether this project server offers field suggestions…';
+    offered = false;
   } else if (s && s.status === 'pending') {
     b.textContent = 'Suggested ✓';
     b.disabled = true;
@@ -7626,7 +7633,7 @@ function suggestFieldRow(n, k) {
     };
   }
   if (_apiAvailable && _fieldSuggestions === null) loadFieldSuggestions();
-  wrap.append(evd, b);
+  if (offered) wrap.append(evd, b); else wrap.append(evd);
   return wrap;
 }
 function fieldMetaFor(k) {
@@ -7690,6 +7697,12 @@ function _fdTidy(profile) {   // drop empty lists and types, keep the file minim
 function renderFieldDefaultsUI() {
   const sel = $('set-fd-type'), rows = $('set-fd-rows'), status = $('set-fd-status');
   if (!sel || !rows) return;
+  // T-1391: hidden where the host does not serve field profiles (the status row and the whole section)
+  const served = fieldProfileServed();
+  const fdSec = $('set-fd-section'), profRow = $('set-field-profile-status') && $('set-field-profile-status').closest('.settings-row');
+  if (fdSec) fdSec.style.display = served ? '' : 'none';
+  if (profRow) profRow.style.display = served ? '' : 'none';
+  if (!served) return;
   const types = Object.keys(AEF_FIELDS).filter(t => (AEF_FIELDS[t] || []).length);
   if (sel.options.length !== types.length) {
     const keep = sel.value;
@@ -8621,8 +8634,10 @@ function _renderPropsInto(props, details) {
     why.className = 'field-hint';
     why.style.cssText = 'display:block;margin:2px 0 8px;line-height:1.45';
     why.textContent = 'Carried by this node in the source document. Shown read-only — these '
-      + 'keys are either derived from the diagram or not authored here. They are not lost. '
-      + '"Suggest as a field" asks the operator to make one an editable field for this project.';
+      + 'keys are either derived from the diagram or not authored here. They are not lost.'
+      // T-1391: the sentence about the button only where the button is offered
+      + (_apiAvailable && _fieldSuggestionsSupported === true
+        ? ' "Suggest as a field" asks the operator to make one an editable field for this project.' : '');
     sOther.appendChild(why);
     for (const k of hiddenKeys) {
       const row = document.createElement('div');

@@ -97,16 +97,22 @@ async function main() {
       rows: sels.length, allDisabled: Array.prototype.every.call(sels, function(s){ return s.disabled; }),
       save: document.getElementById('btn-fd-save').disabled, map: document.querySelector('input[name="set-fd-scope"][value="map"]').disabled,
       text: document.getElementById('set-fd-status').textContent }; })()`);
-    leg(ui.rows > 0 && ui.allDisabled && ui.save && ui.map && /does not offer field settings/.test(ui.text),
-      'B Settings read-only: rows and Save disabled, no map scope, says why', ui);
+    // T-1391 (operator, 2026-11-11, option 2): a host that does not offer field settings no longer shows them read-only;
+    // the "Fields shown by default" section and the "Project field profile" row are hidden.
+    const hid = await ev(cmd, `(function(){ var s = document.getElementById('set-fd-section'), r = document.getElementById('set-field-profile-status').closest('.settings-row');
+      return { section: getComputedStyle(s).display, row: getComputedStyle(r).display }; })()`);
+    leg(hid.section === 'none' && hid.row === 'none', 'B Settings: the field-settings section and profile row are hidden (T-1391)', hid);
     await ev(cmd, `(closeSettings(), true)`);
 
     // C
     await ev(cmd, `(function(){ var n = state.nodes.find(function(x){ return x.name === 'Call the service'; }); selection = { kind: 'node', id: n.uid }; multiSelect = new Set([n.uid]); renderProperties(); return true; })()`);
     await sleep(600);
     await ev(cmd, `(renderProperties(), true)`);
-    const btn = await ev(cmd, `(function(){ var b = document.querySelector('#properties [data-testid="suggest-field"]'); return b ? { disabled: b.disabled, title: b.title } : null; })()`);
-    leg(btn && btn.disabled && /does not offer field suggestions/.test(btn.title), 'C "Suggest as a field" disabled, says the server does not offer it', btn);
+    // T-1391: no "Suggest as a field" button and no sentence about it; the evidence line stays.
+    const btn = await ev(cmd, `(function(){ var b = document.querySelector('#properties [data-testid="suggest-field"]'); var ev = document.querySelectorAll('#properties .suggest-row .field-hint').length;
+      var why = Array.prototype.some.call(document.querySelectorAll('#properties .field-hint'), function(h){ return /Suggest as a field/.test(h.textContent); });
+      return { button: !!b, evidence: ev, sentence: why }; })()`);
+    leg(btn && !btn.button && btn.evidence > 0 && !btn.sentence, 'C "Suggest as a field" hidden, its sentence too; the evidence line stays (T-1391)', btn);
 
     // D
     const fold = await ev(cmd, `(function(){ var r = document.querySelector('#properties .props-empty-fields'); return r ? r.textContent : null; })()`);

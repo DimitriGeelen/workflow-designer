@@ -172,7 +172,8 @@ async function main() {
     await ev(cmd, LOAD(SYN)); const U1c = await ev(cmd, BYNAME('Approve small'));
     await ev(cmd, SELECT(U1c)); p = await ev(cmd, PANEL);
     const gb = p.btns.find(b => b.key === 'approvalLimit');
-    leg(gb && gb.disabled && /project server/.test(gb.title), 'G standalone: disabled, says it needs the project server', gb);
+    // T-1391: with no project server there is no button; the evidence line for the key stays
+    leg(!gb && p.evid.some(e => /^approvalLimit /.test(e)), 'G standalone: no button, the evidence line stays (T-1391)', { button: gb || null, evid: p.evid });
   } catch (e) {
     leg(false, 'harness', String(e && e.stack || e));
   } finally {
