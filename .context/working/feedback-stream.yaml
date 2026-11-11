@@ -21261,3 +21261,75 @@ scan_id: R-5b25c733
 task_id: T-1386
 payload:
   task_file: .tasks/active/T-1386-a-node-an-imported-file-places-left-of-t.md
+---
+kind: scan_emitted
+timestamp: '2026-11-11T13:03:21Z'
+scan_id: R-945b1a62
+task_id: T-1390
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-11T13:03:21Z'
+scan_id: R-945b1a62
+task_id: T-1390
+payload:
+  task_file: .tasks/active/T-1390-cdp-harnesses-wait-only-15-s-for-chromes.md
+---
+kind: scan_emitted
+timestamp: '2026-11-11T13:03:55Z'
+scan_id: R-a1bb3062
+task_id: T-1391
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-11T13:03:55Z'
+scan_id: R-a1bb3062
+task_id: T-1391
+payload:
+  task_file: .tasks/active/T-1391-hide-the-field-profile-settings-and-sugg.md
+---
+kind: scan_emitted
+timestamp: '2026-11-11T13:04:27Z'
+scan_id: R-7230ed48
+task_id: T-1392
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-11T13:04:27Z'
+scan_id: R-7230ed48
+task_id: T-1392
+payload:
+  task_file: .tasks/active/T-1392-the-settings-dialog-does-not-scroll-tall.md
+---
+kind: scan_emitted
+timestamp: '2026-11-11T13:34:50Z'
+scan_id: R-3151e9e3
+task_id: T-347
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-11T13:34:50Z'
+scan_id: R-3151e9e3
+task_id: T-347
+payload:
+  task_file: .tasks/active/T-347-content-inside-an-accepted-element-is-si.md
