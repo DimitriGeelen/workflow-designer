@@ -2981,7 +2981,9 @@ function contentRightEdgeNatural() {
 function contentLeftEdge() {
   const header = getLanes().length ? LANE_HEADER : 0;
   let left = POOL_X;
-  for (const n of (state?.nodes || [])) left = Math.min(left, n.x - header - 20 /* left margin */);
+  // Only a node that lies LEFT of the usable area moves the edge; one at or right of it (the lane-name column's edge
+  // included) leaves the pool where it is, so T-601's left-edge case keeps its label clear of the column.
+  for (const n of (state?.nodes || [])) if (n.x < POOL_X + header) left = Math.min(left, n.x - header - 20 /* left margin */);
   return Math.floor(left);
 }
 function contentRightEdge() {
