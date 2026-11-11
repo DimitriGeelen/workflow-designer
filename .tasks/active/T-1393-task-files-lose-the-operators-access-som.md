@@ -113,7 +113,10 @@ operator jobs run as that user, not root.
   the file; mktemp's 0600 zeroes the ACL mask. `lib/task_updates.py` already keeps the mode. Reported to AEF with a
   portable fix, msg 01a69304, conversation fw-sed-i-mode-600. AEF confirmed and reproduced it: **AEF T-5077**
   (msg 1e055cb4), fix = write back through the original inode, with a mode + ACL regression test; they will name the
-  be-tag. Until it ships, any `fw task update` can make one file 600
+  be-tag. 2026-11-11 (msg 31304b50): fixed on AEF bleeding-edge, commit 0c42d3ddf — keeps the atomic temp + mv and
+  copies mode, owner (as root) and ACL onto the temp file first; tested 0664 stays 0664 and a named-user ACL entry stays
+  effective. No be-tag yet. Remaining here: repin to that be-tag, then check `fw task update` keeps a 0664 task file
+  0664 (then close). Until it ships, any `fw task update` can make one file 600
   again: before handing over an operator job that reads a task file, check its mode.)*
 
 ### Human

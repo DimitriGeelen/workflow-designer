@@ -40,6 +40,36 @@ date_finished: null
 
 ## Context
 
+**Background / trigger:** found under T-975: an Evergreen map with its DI stripped imported with nodes in document
+order (End_12 at x=210 before Assembly at 300), overlapping. Greenfield's map is client data, so it is not a fixture.
+
+**Problem / hypothesis:** `parseBpmnXml` gives an unpositioned node `x = POOL_X + LANE_HEADER + 30 + sameLane.length * 90`
+(src ~15872): its index in the FILE's list within its lane, 90 px apart, so order follows the file and tasks overlap.
+
+**Goal:** a file that positions none of its nodes is laid out along its flows.
+
+**Expected outcome:** every node right of what leads to it (loop-back flows aside), no overlaps; files with positions
+unchanged (corpus bytes identical).
+
+### Prototype (2026-11-11, agent; built and measured in a scratch copy, NOT yet in src)
+Synthetic fixture (no DI, elements listed End-first, two lanes Sales/Warehouse, branch "In stock?" yes→Pick→Ship,
+no→Reject, merge, end, and a loop "recheck" Reject→Check): TODAY 6 of 9 flows point backwards and 2 pairs overlap;
+PROTOTYPE 1 backward flow (the loop), 0 overlaps, order Order received → Check → In stock? → Reject | Pick → Ship → Merge
+→ Done. Recreate the fixture under `tests/fixtures/t976/flow-order-no-di.bpmn` from that description.
+Change (three edits in `parseBpmnXml` + one helper):
+1. after `const nodes = [];` add `const autoPos = new Set();`; in the default-position branch add `autoPos.add(uid);`
+2. before `_laneGrowReport = growUnderDeclaredLanes(lanes, nodes);` add
+   `if (nodes.length && nodes.every(n => autoPos.has(n.uid))) layoutByFlowOrder(nodes, edges);` (only when NO node has a
+   position: a partly positioned file keeps today's placement)
+3. helper `layoutByFlowOrder(nodes, edges)` before `function getLanes()`: PITCH 160; forward edges = edges between
+   known nodes, not self-loops; DFS from sources (nodes with no incoming; then any unvisited) in file order marks an edge
+   to a node still on the stack as a back edge; Kahn's topological order over the rest gives depth = longest path;
+   slot = index of the node among nodes of the same lane at the same depth; column width[d] = max slots of any lane at
+   d; colX[d] = cumulative width × PITCH; x = POOL_X + LANE_HEADER + 30 + colX[depth] + slot × PITCH. y stays 0 (the
+   parse tail puts it at the lane centre).
+Still to do: a harness (order + no overlap, red on the source before), `_t308` 24/24 and third-party goldens unchanged
+(they carry positions), screenshots at three widths, gate, sweep, reviewer, both tiers.
+
 <!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria

@@ -447,6 +447,11 @@ written; only its sequencing is recorded.
       *(2026-11-08, the lane half, AB: `_t308` 24/24 identical on the change. Ticked once both tiers are green.)*
       *(2026-11-11: both tiers green with both halves in — release 0.41.0 (job 129: browser 138/0, core 221/0), and on
       bleeding-edge since (browser 139/0, core green at push e07f3acf4); `_t308` 24/24 throughout.)*
+      *(2026-11-11 evening: the close was refused once more: browser 139/0, but core 219/2, both NOT T-358's code:
+      (1) the absence-assertion census rose — most likely one of today's new verification lines asserting an absence
+      without a positive control (T-1393's `test -z "$(find … -perm 600)"` is the first suspect); (2) the T-949
+      inception triage flags a GO-recorded inception with no verdict. Next session: run
+      `python3 tools/_t560-absence-assertion-census.py` and `tools/_t949*` to name them, fix, then close T-358.)*
 
 - [x] `tools/_t356-third-party-fidelity-cdp.mjs` re-run: `lanes` and
       `participants` deltas gone from all five rows, with the other columns unchanged
