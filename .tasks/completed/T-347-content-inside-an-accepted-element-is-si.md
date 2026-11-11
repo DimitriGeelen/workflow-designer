@@ -12,21 +12,21 @@ description: >
   are dropped correctly since they are derivable. Node/flow/lane counts are unchanged
   throughout, which is why every existing instrument is green.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: agt_2_perform
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tools/_t1325-element-passthrough-cdp.mjs, tools/_t347-accepted-element-content-cdp.mjs, tools/_t423-di-roundtrip-teeth.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:34:19Z
-last_update: 2026-11-08T16:22:35Z
-date_finished:
+last_update: 2026-11-11T13:04:37Z
+date_finished: 2026-11-11T13:04:37Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -713,3 +713,26 @@ well-formed corpus map exports byte-identically (the corpus legs).
 - **Change:** T-1201 added currency sections to `docs/reports/T-347-accepted-element-content.md` and the T-397 brief:
   the 2026-10-10 ruling is recorded there, and the loss was re-measured (still live, R1 not built). The `[REVIEW]`
   criterion is answered by that ruling; ticking it is the operator's.
+
+### 2026-11-11T13:04:37Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3151e9e3
+- **Timestamp:** 2026-11-11T13:34:50Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — Whichever is chosen, `tools/_t338-input-fidelity-cdp.mjs` leg 6 reflects it and
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t338-input-fidelity-cdp.mjs in: Whichever is chosen, `tools/_t338-input-fidelity-cdp.mjs` leg 6 reflects it and`
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 48
+     - evidence: `out=$(timeout 300 node tools/_t347-accepted-element-content-cdp.mjs 2>&1); ! echo "$out" | grep -q 'NO CARRIER'`

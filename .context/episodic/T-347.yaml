@@ -1,0 +1,174 @@
+# ============================================================================
+# EPISODIC MEMORY - T-347: Content inside an ACCEPTED element is silently dropped on import: documentation, foreign extensionElements children, property, loop characteristics and unknown attributes
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-11T13:35:01Z
+# ============================================================================
+
+task_id: T-347
+task_name: "Content inside an ACCEPTED element is silently dropped on import: documentation, foreign extensionElements children, property, loop characteristics and unknown attributes"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-02T11:34:19Z
+completed: 2026-11-11T13:04:37Z
+duration_days: 101
+updates_count: 6
+first_commit: 2026-08-03T18:57:15+02:00
+last_commit: 2026-11-11T00:16:33+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-356 did NOT make this task capable of failing — capability is per-question, not per-population. severity claim 'any file from a third-party modeller carries both' is MEASURED FALSE — 0/5 real files carry either. five vendor-diverse fixtures + per-prefix content census — all 5 shapes LOST on 100% of carriers. content census reported, PROVENANCE second intake, T-359 filed for the validator false positive it exposed. learnings for substitution-vs-preservation and by-product-keyed guards. T-359 resolved, bridge back to 69/0; task remains blocked only on the operator repair-semantics choice. operator ruling recorded — R1 preserve-and-re-emit; R2 as an operator-approved suggestion per unknown kind; field visibility per project and per workflow (R1a pending confirmation). T-1118 inception opened for R2 + visibility. reviewer verdict. build design before code — extend T-1096 kept content (loop characteristics, foreign extension children, unknown attributes), remap reference attributes (gateway default would dangle), eventDef decision, AEF intake asked; criterion 1 ticked (ruling recorded 2026-10-10). AEF probed their intake — silent loss, not hard-fail: prefix rewrite and aef-name collision (T-4387), loop characteristics dropped (T-4388), unknown attributes dropped (T-4389); release held per item behind a flag; bpmn:task gap noted. AEF T-4399 keeps gateway/activity default and validates it names an outgoing flow of the node — our remap must hold the same rule. ring20 cloud job B report kept verbatim (11 foreign/standard inner contents, 7 dropped and 1 made not well-formed at 8909a9b1; a +47/-10 patch keeps all 11, 5 corpus exports change by additions only; 9 risks) — input for T-347 and T-1272, not applied. agent criteria 2 and 4 met by T-1325 (all five content shapes now PRESERVED in _t338; suite green); criterion 3 (eventDef on the same mechanism) and the operator's ruling tick stay open. currency 2026-10-28 on its two [REVIEW] docs — ruling (a) is BUILT (T-1322 GO, T-1325-T-1327); instrument re-run: documentation 0/2, property 0/2, loop 0/2, unknown attrs 0/3, ext children 1/7 (multiple-diagrams: SPEC_PREFIX lacks omgdc, so shape bounds count as foreign content, not an extension loss); eventDef fold-in still open. <aef:eventDef> keeps what it carries beyond kind and binding (attributes incl. foreign-namespace ones, children) on start and catch carriers, via elementKept/keptAttrsXml; a retype to another kind writes kind and binding alone. Passthrough harness leg 7: green live, red on the pre-change source; _t308, _t358-byteid, _t338 green. re-point _t423-di-roundtrip-teeth's node-name anchor (T-1325 added ${keptAttrs} to the emit on 2026-10-28; the sweep tier found it gone and blocked T-347's close); TEETH PASS 4/4; reviewer verdict on AC1 green (V-20261108-b96077d4). verification runs the core and browser tiers (the project's standard, T-1288/T-1374) instead of every tier; the sweep's only red over three close attempts was _t535 killed by its 90s cap under load (OBS-494), not a regression. the browser-tier verification names its failing leg first (the close shows only the first lines of a failure; four closes were lost to one unnamed browser leg under host load)
+
+# Key outcomes
+outcomes:
+  - 'Repair semantics are recorded in `## Decisions` before any code changes — see the'
+  - 'Whichever is chosen, `tools/_t338-input-fidelity-cdp.mjs` leg 6 reflects it and'
+  - 'The T-259 carrier (`aef:eventDef`) is covered by the same mechanism rather than'
+  - 'Bridge suite `0 failed` and the widened instrument green after the change.'
+  - '[REVIEW] Choose repair semantics for unconsumed element content'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'currency 2026-10-28 on its two [REVIEW] docs — ruling (a) is BUILT (T-1322 GO, T-1325-T-1327); instrument re-run: documentation 0/2, property 0/2, loop 0/2, unknown attrs 0/3, ext children 1/7 (multiple-diagrams: SPEC_PREFIX lacks omgdc, so shape bounds count as foreign content, not an extension loss); eventDef fold-in still open'
+    source: git-mined
+  - description: 'AEF probed their intake — silent loss, not hard-fail: prefix rewrite and aef-name collision (T-4387), loop characteristics dropped (T-4388), unknown attributes dropped (T-4389); release held per item behind a flag; bpmn:task gap noted'
+    source: git-mined
+  - description: 'five vendor-diverse fixtures + per-prefix content census — all 5 shapes LOST on 100% of carriers'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-10-10 — what the designer does with content it does not understand (operator ruling, recorded by the agent)'
+    rationale: 'nothing is lost silently (all five shapes were lost to zero on 100% of carrying third-party files); the suggestions double as evidence of which fields real files use.'
+    alternatives_rejected: ['(c) refuse — Greenfield''s maps could not be opened; (b) as an automatic mapping — every kind in, wanted or not.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-08-03-1845.yaml'
+  - '.context/audits/cron/2026-08-03-1915.yaml'
+  - '.context/audits/cron/2026-08-03-1930.yaml'
+  - '.context/audits/cron/2026-08-03-1945.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/episodic/T-359.yaml'
+  - '.context/inbox.yaml'
+  - '.context/locks/T-347.lock'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-347/AC1-judge-t-347-r1-cbcf4197d9ba.md'
+  - '.context/reviews/evidence/T-347/AC1-judge-t-347-r3-02b814461c7c.md'
+  - '.context/reviews/evidence/T-347/AC1-judge-t-347-r3-0b5a1372c0ff.md'
+  - '.context/reviews/evidence/T-347/AC1-judge-t-347-r3-56ec9fc558ad.md'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/episodic-gen/T-359.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.tasks/active/T-1118-unknown-content-kinds-become-designer-fi.md'
+  - '.tasks/active/T-347-content-inside-an-accepted-element-is-si.md'
+  - '.tasks/active/T-358-importer-fabricates-lane-and-pool-struct.md'
+  - '.tasks/active/T-359-validator-reports-legal-non-flow-node-ch.md'
+  - '.tasks/completed/T-359-validator-reports-legal-non-flow-node-ch.md'
+  - 'docs/reports/T-2466-cloud-job-B-foreign-content.md'
+  - 'docs/reports/T-347-accepted-element-content.md'
+  - 'docs/reports/T-356-third-party-fidelity.md'
+  - 'docs/reports/T-397-import-repair-semantics-brief.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/fixtures/third-party/PROVENANCE.md'
+  - 'tests/fixtures/third-party/bizagi-nested-ns.bpmn'
+  - 'tests/fixtures/third-party/caseagile-local-ns.bpmn'
+  - 'tests/fixtures/third-party/i18n-documentation.bpmn'
+  - 'tests/fixtures/third-party/kitchen-sink.bpmn'
+  - 'tests/fixtures/third-party/zeebe-service-task.bpmn'
+  - 'tools/_t1325-element-passthrough-cdp.mjs'
+  - 'tools/_t347-accepted-element-content-cdp.mjs'
+  - 'tools/_t423-di-roundtrip-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-08-03T18:57:15'
+    action: 'T-347: T-356 did NOT make this task capable of failing — capability is per-question, not per-population'
+  - time: '2026-08-03T18:57:43'
+    action: 'T-347: severity claim ''any file from a third-party modeller carries both'' is MEASURED FALSE — 0/5 real files carry either'
+  - time: '2026-08-03T19:24:19'
+    action: 'T-347: five vendor-diverse fixtures + per-prefix content census — all 5 shapes LOST on 100% of carriers'
+  - time: '2026-08-03T19:36:09'
+    action: 'T-347: content census reported, PROVENANCE second intake, T-359 filed for the validator false positive it exposed'
+  - time: '2026-08-03T19:38:24'
+    action: 'T-347: learnings for substitution-vs-preservation and by-product-keyed guards'
+  - time: '2026-08-03T19:45:11'
+    action: 'T-347: T-359 resolved, bridge back to 69/0; task remains blocked only on the operator repair-semantics choice'
+  - time: '2026-10-10T14:39:49'
+    action: 'T-347: operator ruling recorded — R1 preserve-and-re-emit; R2 as an operator-approved suggestion per unknown kind; field visibility per project and per workflow (R1a pending confirmation). T-1118 inception opened for R2 + visibility'
+  - time: '2026-10-19T11:59:54'
+    action: 'T-347: reviewer verdict'
+  - time: '2026-10-19T14:33:23'
+    action: 'T-347: build design before code — extend T-1096 kept content (loop characteristics, foreign extension children, unknown attributes), remap reference attributes (gateway default would dangle), eventDef decision, AEF intake asked; criterion 1 ticked (ruling recorded 2026-10-10)'
+  - time: '2026-10-19T14:37:23'
+    action: 'T-347: AEF probed their intake — silent loss, not hard-fail: prefix rewrite and aef-name collision (T-4387), loop characteristics dropped (T-4388), unknown attributes dropped (T-4389); release held per item behind a flag; bpmn:task gap noted'
+  - time: '2026-10-19T17:23:21'
+    action: 'T-347: AEF T-4399 keeps gateway/activity default and validates it names an outgoing flow of the node — our remap must hold the same rule'
+  - time: '2026-10-21T23:30:12'
+    action: 'T-347: ring20 cloud job B report kept verbatim (11 foreign/standard inner contents, 7 dropped and 1 made not well-formed at 8909a9b1; a +47/-10 patch keeps all 11, 5 corpus exports change by additions only; 9 risks) — input for T-347 and T-1272, not applied'
+  - time: '2026-10-28T11:04:53'
+    action: 'T-347: agent criteria 2 and 4 met by T-1325 (all five content shapes now PRESERVED in _t338; suite green); criterion 3 (eventDef on the same mechanism) and the operator''s ruling tick stay open'
+  - time: '2026-10-28T16:46:54'
+    action: 'T-347: currency 2026-10-28 on its two [REVIEW] docs — ruling (a) is BUILT (T-1322 GO, T-1325-T-1327); instrument re-run: documentation 0/2, property 0/2, loop 0/2, unknown attrs 0/3, ext children 1/7 (multiple-diagrams: SPEC_PREFIX lacks omgdc, so shape bounds count as foreign content, not an extension loss); eventDef fold-in still open'
+  - time: '2026-11-08T17:24:33'
+    action: 'T-347: <aef:eventDef> keeps what it carries beyond kind and binding (attributes incl. foreign-namespace ones, children) on start and catch carriers, via elementKept/keptAttrsXml; a retype to another kind writes kind and binding alone. Passthrough harness leg 7: green live, red on the pre-change source; _t308, _t358-byteid, _t338 green'
+  - time: '2026-11-08T17:59:50'
+    action: 'T-347: reviewer verdict'
+  - time: '2026-11-08T20:02:25'
+    action: 'T-347: re-point _t423-di-roundtrip-teeth''s node-name anchor (T-1325 added ${keptAttrs} to the emit on 2026-10-28; the sweep tier found it gone and blocked T-347''s close); TEETH PASS 4/4; reviewer verdict on AC1 green (V-20261108-b96077d4)'
+  - time: '2026-11-08T20:04:38'
+    action: 'T-347: reviewer verdict'
+  - time: '2026-11-09T19:43:06'
+    action: 'T-347: verification runs the core and browser tiers (the project''s standard, T-1288/T-1374) instead of every tier; the sweep''s only red over three close attempts was _t535 killed by its 90s cap under load (OBS-494), not a regression'
+  - time: '2026-11-10T23:38:45'
+    action: 'T-347: reviewer verdict'
+  - time: '2026-11-11T00:16:33'
+    action: 'T-347: the browser-tier verification names its failing leg first (the close shows only the first lines of a failure; four closes were lost to one unnamed browser leg under host load)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 21 commit(s), 145530 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 145530
+  commits: 22
+  files_changed: 50
+  lines_added: 4171
+  lines_removed: 199
+  footprint_refreshed_at: '2026-11-11T13:35:25Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-347-content-inside-an-accepted-element-is-si.md
+generated_by: context-agent-hybrid
