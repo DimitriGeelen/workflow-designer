@@ -197,6 +197,14 @@ inside; every other node and label as before. `nested-with-lane-1440.png` — "O
 of the pool, the start event and "ops_start_startevent" to its right; the notice reports the lane band grown for its
 content (the file's own lane geometry), as for any lane that cannot fit.
 
+Person-sees gate: exit 0 (2026-11-11, second run; the first flagged one Name-field overflow on arc-lifecycle at 1440
+that the sweep harness did not reproduce on this source nor on the source before it, alone — load ~45).
+Advisory sweep (codex worker t1386-sweep-4fada29562bb): **0 blockers, 2 minor, 0 nits**, both pre-existing and not this
+change: SubProcess_1's id label touches the second start event the file places right under it (nested-subprocesses,
+both variants), and boundary-event circles cover part of their host's id label (boundary-events). Both come from the
+file's own coordinates and look the same in 0.40.0 (`docs/reports/T-358-evidence/v0.40.0-nested-subprocesses-1440.png`).
+The sweep confirms the far-left event and label inside the pool and clear of the OPS column at every width.
+
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
      Write your commands BELOW this comment, one per line.
