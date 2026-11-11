@@ -111,7 +111,9 @@ operator jobs run as that user, not root.
   *(Reproduced: `fw task update T-1393 --add-tag perms` turned the file 664 → 600; the Edit tool keeps 664. Cause: the
   vendored framework's `_sed_i` (`lib/compat.sh`, fallback in `lib/paths.sh`) writes via `mktemp` (0600) and `mv`s it over
   the file; mktemp's 0600 zeroes the ACL mask. `lib/task_updates.py` already keeps the mode. Reported to AEF with a
-  portable fix, msg 01a69304, conversation fw-sed-i-mode-600. Until it ships, any `fw task update` can make one file 600
+  portable fix, msg 01a69304, conversation fw-sed-i-mode-600. AEF confirmed and reproduced it: **AEF T-5077**
+  (msg 1e055cb4), fix = write back through the original inode, with a mode + ACL regression test; they will name the
+  be-tag. Until it ships, any `fw task update` can make one file 600
   again: before handing over an operator job that reads a task file, check its mode.)*
 
 ### Human
