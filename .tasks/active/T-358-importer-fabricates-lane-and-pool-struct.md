@@ -11,7 +11,7 @@ description: >
 status: started-work
 workflow_type: build
 current_node: agt_2_perform
-owner: human
+owner: agent
 horizon: now
 tags: []
 components: []
@@ -21,7 +21,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T16:12:36Z
-last_update: 2026-11-08T20:53:23Z
+last_update: 2026-11-11T17:44:48Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -442,9 +442,11 @@ written; only its sequencing is recorded.
       > so as a standing gate it would silently compare against an ever-older tree.
       > It is an on-demand instrument; the standing fix belongs to T-364/G-023.
 
-- [ ] Bridge suite green; `_t308` byte-identity still 24/24 (a repair here
+- [x] Bridge suite green; `_t308` byte-identity still 24/24 (a repair here
       must not change what we emit for existing maps)
       *(2026-11-08, the lane half, AB: `_t308` 24/24 identical on the change. Ticked once both tiers are green.)*
+      *(2026-11-11: both tiers green with both halves in — release 0.41.0 (job 129: browser 138/0, core 221/0), and on
+      bleeding-edge since (browser 139/0, core green at push e07f3acf4); `_t308` 24/24 throughout.)*
 
 - [x] `tools/_t356-third-party-fidelity-cdp.mjs` re-run: `lanes` and
       `participants` deltas gone from all five rows, with the other columns unchanged
@@ -1067,6 +1069,9 @@ an instance in the corpus.
 
 Also re-run today, unchanged: `11/11 third-party fixtures still lose content` and the
 fabrication live at `lanes in=0 out=3` across the affected rows.
+
+### 2026-11-11T17:44:48Z — status-update [task-update-agent]
+- **Change:** owner: human → agent
 
 ## 2026-09-27 — the T-835 hold is discharged, and the ruling changes the question (T-888)
 
