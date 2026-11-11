@@ -25,6 +25,7 @@ import { tmpdir, homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pageWsUrl } from './_cdp-attach.mjs';
+import { cdp as cdpShared } from './_cdp-client.mjs';   // T-1395: rejects on Chrome's death and after cmdMs, never waits for ever
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
@@ -74,10 +75,7 @@ async function measure(editorPath, tag) {
   try {
     let port; for (let i = 0; i < 200 && !port; i++) { try { port = parseInt(readFileSync(join(udd, 'DevToolsActivePort'), 'utf8').split('\n')[0]); } catch (_) { await sleep(100); } }
     if (!port) throw new Error('Chromium DevTools port timeout');
-    ws = new WebSocket(await pageWsUrl(port)); let id = 0; const p = new Map();
-    ws.addEventListener('message', e => { const m = JSON.parse(e.data); if (m.id && p.has(m.id)) { p.get(m.id)(m); p.delete(m.id); } });
-    await new Promise(r => ws.addEventListener('open', r));
-    const cmd = (method, params = {}) => new Promise((res, rej) => { const i = ++id; p.set(i, m => m.error ? rej(new Error(method + ': ' + m.error.message)) : res(m.result)); ws.send(JSON.stringify({ id: i, method, params })); });
+    ws = cdpShared(await pageWsUrl(port)); await ws.ready; const cmd = ws.cmd;   // T-1395
     const ev = async e => { const r = await cmd('Runtime.evaluate', { expression: e, returnByValue: true }); return r.result.value; };
     await cmd('Page.enable'); await cmd('Runtime.enable');
     await cmd('Page.navigate', { url: 'file://' + editorPath });

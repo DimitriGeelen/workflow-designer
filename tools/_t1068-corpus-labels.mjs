@@ -30,6 +30,7 @@ import { readFileSync, writeFileSync, readdirSync, mkdtempSync, existsSync, rmSy
 import { tmpdir, homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pageWsUrl } from './_cdp-attach.mjs';
+import { cdp as cdpShared } from './_cdp-client.mjs';   // T-1395: rejects on Chrome's death and after cmdMs, never waits for ever
 
 const HERE = resolve(new URL('.', import.meta.url).pathname);
 const ROOT = resolve(HERE, '..');
@@ -94,15 +95,9 @@ async function probe(editorPath, modes = ['orig', 'start', 'all']) {
       await sleep(100);
     }
     if (!port) throw new Error('chromium did not open a DevTools port');
-    ws = new WebSocket(await pageWsUrl(port));
-    let id = 0; const pend = new Map();
-    const cmd = (method, params = {}) => new Promise((res, rej) => { const k = ++id;
-      pend.set(k, m => m.error ? rej(new Error(method + JSON.stringify(m.error))) : res(m.result));
-      ws.send(JSON.stringify({ id: k, method, params })); });
-    ws.addEventListener('message', ev => { const m = JSON.parse(ev.data);
-      if (m.id && pend.has(m.id)) { pend.get(m.id)(m); pend.delete(m.id); }
-      if (m.method === 'Page.javascriptDialogOpening') cmd('Page.handleJavaScriptDialog', { accept: true }); });
-    await new Promise((r, j) => { ws.addEventListener('open', r); ws.addEventListener('error', () => j(new Error('CDP ws error'))); });
+    // T-1395: the shared client; a dialog is still accepted the moment it opens.
+    ws = cdpShared(await pageWsUrl(port), { onEvent: m => { if (m.method === 'Page.javascriptDialogOpening') ws.cmd('Page.handleJavaScriptDialog', { accept: true }).catch(() => {}); } });
+    await ws.ready; const cmd = ws.cmd;
     const ev = async (expression) => { const r = await cmd('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
       if (r.exceptionDetails) throw new Error(JSON.stringify(r.exceptionDetails).slice(0, 500)); return r.result.value; };
     await cmd('Page.enable'); await cmd('Runtime.enable');

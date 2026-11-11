@@ -18,6 +18,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import net from 'node:net';
 import { pageWsUrl } from './_cdp-attach.mjs';
+import { cdp as cdpShared } from './_cdp-client.mjs';   // T-1395: rejects on Chrome's death and after cmdMs, never waits for ever
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
@@ -32,7 +33,7 @@ async function waitPortFile(f) { const t0 = Date.now(); while (Date.now() - t0 <
 async function ev(cmd, e) { const r = await cmd('Runtime.evaluate', { expression: e, returnByValue: true, awaitPromise: true }); if (r.exceptionDetails) throw new Error('eval: ' + JSON.stringify(r.exceptionDetails)); return r.result.value; }
 
 // cdp with events: the alert on the failure path must be dismissed or the page stays blocked.
-function cdpE(ws, onEvent) { const s = new WebSocket(ws); let id = 0; const p = new Map(); s.addEventListener('message', e => { const m = JSON.parse(e.data); if (m.id && p.has(m.id)) { p.get(m.id)(m); p.delete(m.id); } else if (m.method) onEvent(m, cmd); }); const ready = new Promise(r => s.addEventListener('open', r)); function cmd(method, params = {}) { return new Promise((res, rej) => { const i = ++id; p.set(i, m => m.error ? rej(new Error(method + ': ' + m.error.message)) : res(m.result)); s.send(JSON.stringify({ id: i, method, params })); }); } return { cmd, ready, close: () => s.close() }; }
+function cdpE(ws, onEvent) { const c = cdpShared(ws, { onEvent: m => onEvent(m, c.cmd) }); return c; }   // T-1395
 
 const MAP = `<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:aef="http://anchorpoint.framework/aef/extensions" id="d1" targetNamespace="x">

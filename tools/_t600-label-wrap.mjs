@@ -32,6 +32,7 @@ import { readFileSync, writeFileSync, readdirSync, mkdtempSync, existsSync } fro
 import { tmpdir, homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pageWsUrl } from './_cdp-attach.mjs';
+import { cdp as cdpShared } from './_cdp-client.mjs';   // T-1395: rejects on Chrome's death and after cmdMs, never waits for ever
 
 const HERE = resolve(new URL('.', import.meta.url).pathname);
 const ROOT = resolve(HERE, '..');
@@ -60,18 +61,7 @@ async function waitForPortFile(f, timeoutMs = 20000) {
     await sleep(100);
   }
 }
-function cdpClient(wsUrl) {
-  const ws = new WebSocket(wsUrl);
-  let id = 0; const pending = new Map();
-  ws.addEventListener('message', ev => { const m = JSON.parse(ev.data); if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); } });
-  const ready = new Promise((res, rej) => { ws.addEventListener('open', res); ws.addEventListener('error', () => rej(new Error('CDP ws error'))); });
-  const cmd = (method, params = {}) => new Promise((res, rej) => {
-    const mid = ++id;
-    pending.set(mid, m => m.error ? rej(new Error(method + ': ' + JSON.stringify(m.error))) : res(m.result));
-    ws.send(JSON.stringify({ id: mid, method, params }));
-  });
-  return { ready, cmd, close: () => ws.close() };
-}
+function cdpClient(wsUrl) { return cdpShared(wsUrl); }   // T-1395
 async function evalJson(cmd, expression) {
   const r = await cmd('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
   if (r.exceptionDetails) throw new Error('eval threw: ' + JSON.stringify(r.exceptionDetails).slice(0, 400));

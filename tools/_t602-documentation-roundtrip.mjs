@@ -27,6 +27,7 @@ import { readFileSync, writeFileSync, readdirSync, mkdtempSync, existsSync } fro
 import { tmpdir, homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pageWsUrl } from './_cdp-attach.mjs';
+import { cdp as cdpShared } from './_cdp-client.mjs';   // T-1395: rejects on Chrome's death and after cmdMs, never waits for ever
 
 const HERE = resolve(new URL('.', import.meta.url).pathname);
 const EDITOR = join(resolve(HERE, '..'), 'src', 'aef-workflow-designer.html');
@@ -56,18 +57,7 @@ function findChrome() {
   throw new Error('No Chromium under ' + cache);
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-function cdpClient(wsUrl) {
-  const ws = new WebSocket(wsUrl);
-  let id = 0; const pending = new Map();
-  ws.addEventListener('message', ev => { const m = JSON.parse(ev.data); if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); } });
-  const ready = new Promise((res, rej) => { ws.addEventListener('open', res); ws.addEventListener('error', () => rej(new Error('CDP ws error'))); });
-  const cmd = (method, params = {}) => new Promise((res, rej) => {
-    const mid = ++id;
-    pending.set(mid, m => m.error ? rej(new Error(method + ': ' + JSON.stringify(m.error))) : res(m.result));
-    ws.send(JSON.stringify({ id: mid, method, params }));
-  });
-  return { ready, cmd, close: () => ws.close() };
-}
+function cdpClient(wsUrl) { return cdpShared(wsUrl); }   // T-1395
 
 const PROBE = `(function(){ try{
   adoptImportedXml(${JSON.stringify(INPUT)}, {userImport:true});
