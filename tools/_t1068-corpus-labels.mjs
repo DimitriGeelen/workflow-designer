@@ -76,10 +76,15 @@ async function probe(editorPath, modes = ['orig', 'start', 'all']) {
   const exe = chrome();
   if (!exe) throw new Error('no Playwright chromium under ~/.cache/ms-playwright');
   const udd = makeProfileDir('t1068-corpus-');
+  // T-1183: Chromium's own org.chromium.Chromium.* temp folder must not outlive the run. T-1390: it must also have a
+  // SHORT path: Chromium keeps its SingletonSocket there, and a Unix socket path is limited to ~107 bytes. Inside the
+  // profile, under the task close's nested TMPDIR (/tmp/aef-verify-<pid>-<x>/tmp.<x>/t1068-corpus-<x>/), it passed that
+  // limit and Chromium never opened its DevTools port (OBS-496). So it gets its own short folder, removed with the
+  // profile.
+  const ctmp = mkdtempSync('/tmp/t1068c-');
   const proc = spawn(exe, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
     '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'],
-    // T-1183: Chromium's own org.chromium.Chromium.* temp folder lands inside the profile, so it goes with it
-    { stdio: 'ignore', env: { ...process.env, TMPDIR: udd } });
+    { stdio: 'ignore', env: { ...process.env, TMPDIR: ctmp } });
   let ws;
   try {
     let port;
@@ -124,6 +129,7 @@ async function probe(editorPath, modes = ['orig', 'start', 'all']) {
     try { proc.kill('SIGKILL'); } catch (_) {}
     await gone;
     try { rmSync(udd, { recursive: true, force: true }); } catch (_) {}
+    try { rmSync(ctmp, { recursive: true, force: true }); } catch (_) {}   // T-1390
   }
 }
 

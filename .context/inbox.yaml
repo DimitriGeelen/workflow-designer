@@ -3581,3 +3581,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-496
+  text: "CDP harness startup is fragile under host load: on 2026-11-11 04:16 (load ~16) _t1068-corpus-labels failed twice in the browser tier with 'DRIVER ERROR: chromium did not open a DevTools port' (no test ran; passes alone, exit 0). Its waitPortFile allows 15 s; a cold Chrome start under load can exceed that. Same class as the earlier 'did not finish' and one-leg browser reds that blocked T-347's close five times. Candidate fix: one shared startup helper with a longer port wait and one relaunch, used by every CDP harness."
+  captured: 2026-11-11T03:27:56Z
+  context_task: T-347
+  tags: []
+  status: pending
+  promoted_to: null
