@@ -10,6 +10,7 @@ description: >
 
 status: started-work
 workflow_type: build
+current_node: agt_2_perform
 owner: human
 horizon: now
 tags: []
@@ -523,9 +524,8 @@ green 24/24 here says nothing about the population this repair is aimed at — u
   border and over the "FRAMEWORK · AUTHORITY" lane label (`docs/reports/T-358-evidence/v0.40.0-nested-subprocesses-1440.png`).
   Filed as its own bug, **T-1386**. This criterion judges what removing the invented lanes changes: the vertical extent.
   **If not:** name the screenshot and what is outside the pool's top or bottom, or overlapping, and set the task to issues.
-  **Reviewer verdict:** green V-20261109-22d04ab8 — reviewer-judge-t-358-r5-opencode-d9e22392b6ff:opencode (rung rung-5-panel:opencode), digest 61075e854f7d; dispatch judge-t-358-r5-opencode-d9e22392b6ff; evidence: .context/reviews/evidence/T-358/AC1-judge-t-358-r5-opencode-d9e22392b6ff.md; ledger .context/reviews/verdicts.jsonl
 
-- [ ] [REVIEW] Choose the lane/pool fabrication repair: **A · B · C · AB · no repair**
+- [x] [REVIEW] Choose the lane/pool fabrication repair: **A · B · C · AB · no repair**
 
       **This ruling already existed — it was recorded in prose and never filed as an
       AC.** `## Decisions` says *"the default choice remains the operator's"*, and the
@@ -780,11 +780,15 @@ by drift.
 
 ## Verification
 
-bash tests/run-bridge-tests.sh
-node tools/_t356-third-party-fidelity-cdp.mjs
+# 2026-11-11: was `bash tests/run-bridge-tests.sh` (every tier, the sweep included); the standard is core + browser
+# (T-1288/T-1374), as for T-347. The render line now matches the harness's current wording (it has 4 arms since the
+# pool half and T-1386), and every node line runs node 22 (the system node 18 has no WebSocket).
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tests/run-bridge-tests.sh --tier core
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tests/run-bridge-tests.sh --tier browser > /tmp/.t358-browser.out 2>&1 || { grep -E '\[FAIL\]|^tier ' /tmp/.t358-browser.out; false; }
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t356-third-party-fidelity-cdp.mjs
 python3 tools/_t358-corpus-lane-provenance-probe.py
 PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t358-lane-provenance-cdp.mjs > /tmp/.t358p.out 2>&1 && grep -q "^PASS" /tmp/.t358p.out
-PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t358-laneless-render-cdp.mjs --self-test > /tmp/.t358r.out 2>&1 && grep -q "both poison arms caught" /tmp/.t358r.out
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t358-laneless-render-cdp.mjs --self-test > /tmp/.t358r.out 2>&1 && grep -q "poison arms caught" /tmp/.t358r.out && grep -q "^PASS" /tmp/.t358r.out
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
