@@ -9,11 +9,11 @@ description: >
   in the 308/0 runs earlier the same day. Find the timing assumption (drag, rAF, layout
   settle) and make the leg wait on the state it asserts, not on time.
 
-status: captured
+status: started-work
 workflow_type: build
 current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [bug, flaky]
 components: []
 related_tasks: []
@@ -44,7 +44,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-20T17:26:14Z
-last_update: 2026-11-01T13:01:37Z
+last_update: '2026-11-11T16:50:01Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -77,6 +77,25 @@ bvp_scores_proposed:
       no signal); F1=2 (basis: task body — no hypothesis, so this score has no claim
       to be wrong about,L2:keyword=editor)'
     rubric_sha: e4a00f38e801
+  - ts: '2026-11-11T16:50:01Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 3
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=2 (body:learning-ref); D2=0 (no-signal); D3=3 (body:component-discoverability);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L1:keyword=pool);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1238: Editor behaviour leg t255-pool-width is flaky under full-suite load (failed once in the be.3 bridge run, passes standalone)
@@ -95,11 +114,17 @@ bvp_scores_proposed:
 
 ### Agent
 - [x] The failed run's readings are read and the sub-check that failed is named (which of w1-w6) — w6 (after undo of the inward drag) read pw null in both failures (2026-10-20, 2026-11-01 00:47); w0-w5 as expected
-- [ ] Each fixed sleep in the leg is replaced by a wait on the state the next reading asserts (polled, with a
+- [x] Each fixed sleep in the leg is replaced by a wait on the state the next reading asserts (polled, with a
       timeout that reports what it last saw), so a slow machine waits longer instead of reading early
-- [ ] The leg still bites: with the resize handler disabled (mutant) the leg fails; the leg passes 5 runs in a row
+      *(2026-11-11: `waitState` waits within CDP_READY_MS (90 s in the suite, 30 s alone) instead of giving up silently
+      after 5 s, and a wait that runs out is named in `diag.waitsTimedOut`. The race the hypothesis named is closed:
+      before `undo()` the leg now waits until the inward gesture is recorded (`!poolResizeDrag && _history.length >
+      histBefore`), so undo reverts the inward drag, not the outward one.)*
+- [x] The leg still bites: with the resize handler disabled (mutant) the leg fails; the leg passes 5 runs in a row
       standalone and under artificial CPU load (`stress`-style busy loops alongside)
-- [ ] `python3 tests/test_editor_behavior.py` passes
+      *(5/5 with 12 busy loops alongside on the 24-core host (load 15 → 35), `waitsTimedOut` empty every run; the bite
+      control `T1238_SKIP_INWARD=1` (the inward drag never happens) fails the leg.)*
+- [x] `python3 tests/test_editor_behavior.py` passes
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -148,6 +173,9 @@ bvp_scores_proposed:
 -->
 
 ## Verification
+
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" python3 tests/test_editor_behavior.py > /tmp/.t1238.out 2>&1 && grep -q "^OK: editor behavior legs green" /tmp/.t1238.out
+grep -q "inward gesture recorded (mouseup)" tools/_editor-behavior-verify-cdp.mjs
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -428,3 +456,7 @@ The task should stay open, or be closed on the fix's code-reading argument only 
 ### 2026-11-01T13:01:37Z — status-update [task-update-agent]
 - **Change:** horizon: now → next
 - **Change:** status: started-work → captured (auto-sync)
+
+### 2026-11-11T16:50:00Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
