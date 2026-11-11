@@ -1,0 +1,21 @@
+id: tools/_t1395-cdp-client-selftest.mjs
+name: _t1395-cdp-client-selftest
+type: script
+subsystem: instruments
+location: tools/_t1395-cdp-client-selftest.mjs
+tags: []
+
+purpose: "T-1395 — proves the shared CDP client (tools/_cdp-client.mjs) cannot wait for ever, against a real Chrome."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-11-11
+created_by: unknown
