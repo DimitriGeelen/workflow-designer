@@ -108,7 +108,10 @@ def main():
     try:
         write_corpus(sandbox)
         env = dict(os.environ, AUDITS_DIR=sandbox)
-        proc = run_fw_audit([FW, "audit", "--section", "structure"],
+        # T-1389 (OBS-494): the TREND ANALYSIS block runs after ANY section, so the cheapest one reaches it. `structure`
+        # took 82 s at load 12 and 241 s at load 70, past the sweep's 90 s cap; `gaps` takes about 2 s and writes
+        # nothing into the repository (its output goes to AUDITS_DIR, the sandbox).
+        proc = run_fw_audit([FW, "audit", "--section", "gaps"],
                             cwd=ROOT, env=env, capture_output=True, text=True, timeout=600)
         stdout = proc.stdout + proc.stderr
         if proc.returncode == LOCK_HELD:   # T-1166: a held audit lock is not a missing TREND section

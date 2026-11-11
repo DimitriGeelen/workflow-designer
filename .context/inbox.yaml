@@ -3574,3 +3574,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-495
+  text: "verdict_ledger._stale_fault treats a release commit's calibration record (docs/authoring-kit/calibration-records/<V>.yaml) as work: 832's release commit names every shipped task, so each release withdraws those tasks' reviewer verdicts (T-347 on 2026-11-10, cfe7fd81d). _RELEASE_ARTIFACTS exempts only dist/. Proposal for AEF: exempt the calibration record too, or match release commits by their subject."
+  captured: 2026-11-10T22:36:42Z
+  context_task: T-347
+  tags: []
+  status: pending
+  promoted_to: null
