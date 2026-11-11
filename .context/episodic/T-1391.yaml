@@ -1,0 +1,116 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1391: Hide the field-profile settings and 'Suggest as a field' when the host does not serve their endpoints (AEF T-4737: not planned)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-11T13:04:07Z
+# ============================================================================
+
+task_id: T-1391
+task_name: "Hide the field-profile settings and 'Suggest as a field' when the host does not serve their endpoints (AEF T-4737: not planned)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-11T10:17:56Z
+completed: 2026-11-11T13:03:32Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-11T11:20:59+01:00
+last_commit: 2026-11-11T13:17:02+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  hide the field-profile settings and 'Suggest as a field' where the host does not serve their endpoints (no project server, or AEF, which will not by its T-4737) instead of showing them disabled/read-only; operator's option 2. Shown unchanged where served (incl. a refused profile file). Harness legs updated deliberately (_t1134 B/C, _t1128 H, _t1126 G); _t1125 9/9, _t1126 8/8, _t1128 9/9, _t1134 4/4. screenshot evidence (Settings and the properties panel on an endpoint-less portal, 1024/1440/1920; _t1134 --shots), Visual Verification, [REVIEW] criterion. Settings evidence re-taken with the whole dialog in view (the sweep's 3 minor findings: the dialog was cut off; it does not scroll, filed as T-1392); sweep 0 blockers recorded. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'Where `/api/field-suggestions` is not offered (no server, or not served) there is no "Suggest as a field"'
+  - 'Where `/api/field-profile` is not served (no server, or ''unsupported''), the "Fields shown by default" section and'
+  - '[REVIEW] On a host without the field endpoints, Settings and the properties panel read well without the two controls'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1391/AC1-judge-t-1391-r1-18de02a3d5fd.md'
+  - '.context/reviews/evidence/T-1391/AC1-judge-t-1391-r1-7a2373693b86.md'
+  - '.context/reviews/evidence/T-1391/properties-1024-judge-t-1391-r1-18de02a3d5fd.png'
+  - '.context/reviews/evidence/T-1391/properties-1024-judge-t-1391-r1-7a2373693b86.png'
+  - '.context/reviews/evidence/T-1391/properties-1440-judge-t-1391-r1-18de02a3d5fd.png'
+  - '.context/reviews/evidence/T-1391/properties-1440-judge-t-1391-r1-7a2373693b86.png'
+  - '.context/reviews/evidence/T-1391/properties-1920-judge-t-1391-r1-18de02a3d5fd.png'
+  - '.context/reviews/evidence/T-1391/properties-1920-judge-t-1391-r1-7a2373693b86.png'
+  - '.context/reviews/evidence/T-1391/settings-1024-judge-t-1391-r1-18de02a3d5fd.png'
+  - '.context/reviews/evidence/T-1391/settings-1024-judge-t-1391-r1-7a2373693b86.png'
+  - '.context/reviews/evidence/T-1391/settings-1440-judge-t-1391-r1-18de02a3d5fd.png'
+  - '.context/reviews/evidence/T-1391/settings-1440-judge-t-1391-r1-7a2373693b86.png'
+  - '.context/reviews/evidence/T-1391/settings-1920-judge-t-1391-r1-18de02a3d5fd.png'
+  - '.context/reviews/evidence/T-1391/settings-1920-judge-t-1391-r1-7a2373693b86.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1391-hide-the-field-profile-settings-and-sugg.md'
+  - 'docs/reports/T-1391-evidence/properties-1024.png'
+  - 'docs/reports/T-1391-evidence/properties-1440.png'
+  - 'docs/reports/T-1391-evidence/properties-1920.png'
+  - 'docs/reports/T-1391-evidence/settings-1024.png'
+  - 'docs/reports/T-1391-evidence/settings-1440.png'
+  - 'docs/reports/T-1391-evidence/settings-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tools/_t1126-field-suggestions-cdp.mjs'
+  - 'tools/_t1128-field-defaults-settings-cdp.mjs'
+  - 'tools/_t1134-portal-without-endpoints-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-11T11:20:59'
+    action: 'T-1391: hide the field-profile settings and ''Suggest as a field'' where the host does not serve their endpoints (no project server, or AEF, which will not by its T-4737) instead of showing them disabled/read-only; operator''s option 2. Shown unchanged where served (incl. a refused profile file). Harness legs updated deliberately (_t1134 B/C, _t1128 H, _t1126 G); _t1125 9/9, _t1126 8/8, _t1128 9/9, _t1134 4/4'
+  - time: '2026-11-11T11:22:13'
+    action: 'T-1391: screenshot evidence (Settings and the properties panel on an endpoint-less portal, 1024/1440/1920; _t1134 --shots), Visual Verification, [REVIEW] criterion'
+  - time: '2026-11-11T11:32:51'
+    action: 'T-1391: Settings evidence re-taken with the whole dialog in view (the sweep''s 3 minor findings: the dialog was cut off; it does not scroll, filed as T-1392); sweep 0 blockers recorded'
+  - time: '2026-11-11T11:35:06'
+    action: 'T-1391: reviewer verdict'
+  - time: '2026-11-11T13:17:02'
+    action: 'T-1391: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 165 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 165
+  commits: 7
+  files_changed: 43
+  lines_added: 1245
+  lines_removed: 27
+  footprint_refreshed_at: '2026-11-11T13:35:21Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1391-hide-the-field-profile-settings-and-sugg.md
+generated_by: context-agent-hybrid

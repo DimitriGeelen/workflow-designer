@@ -8,13 +8,13 @@ description: >
   on such a host. Operator chose 2026-11-11 (option 2): hide them when the host does
   not serve the endpoint, so they reappear on a host that does.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-11T10:17:56Z
-last_update: '2026-11-11T10:20:43Z'
-date_finished:
+last_update: 2026-11-11T13:03:32Z
+date_finished: 2026-11-11T13:03:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -152,7 +152,7 @@ as before, including the refused-file error.
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
 
-- [ ] [REVIEW] On a host without the field endpoints, Settings and the properties panel read well without the two controls
+- [x] [REVIEW] On a host without the field endpoints, Settings and the properties panel read well without the two controls
   **Why you:** a render-surface judgement on screenshots (CLAUDE.md "UI changes are reviewed on screenshots"); for the independent reviewer: `fw reviewer judge T-1391 --criterion 1`.
   **Steps:**
   1. Open `docs/reports/T-1391-evidence/settings-1024.png`, `-1440.png`, `-1920.png` (Settings open on a portal that
@@ -164,6 +164,7 @@ as before, including the refused-file error.
      "They are not lost." with no sentence about suggesting.
   **Expected:** both places read as complete and tidy with the controls gone, at all three widths.
   **If not:** name the screenshot and what looks broken or leftover, and set the task to issues.
+  **Reviewer verdict:** green V-20261111-7f649715 — reviewer-judge-t-1391-r1-7a2373693b86:reviewer (rung rung-1-same-vendor-independent), digest 580ad2b88154; dispatch judge-t-1391-r1-7a2373693b86; evidence: .context/reviews/evidence/T-1391/AC1-judge-t-1391-r1-7a2373693b86.md, .context/reviews/evidence/T-1391/settings-1024-judge-t-1391-r1-7a2373693b86.png, .context/reviews/evidence/T-1391/settings-1440-judge-t-1391-r1-7a2373693b86.png, .context/reviews/evidence/T-1391/settings-1920-judge-t-1391-r1-7a2373693b86.png, .context/reviews/evidence/T-1391/properties-1024-judge-t-1391-r1-7a2373693b86.png, .context/reviews/evidence/T-1391/properties-1440-judge-t-1391-r1-7a2373693b86.png, .context/reviews/evidence/T-1391/properties-1920-judge-t-1391-r1-7a2373693b86.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -430,3 +431,16 @@ properties shots had no findings.
 
 ### 2026-11-11T10:20:42Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-11T13:03:32Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a1bb3062
+- **Timestamp:** 2026-11-11T13:03:55Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
