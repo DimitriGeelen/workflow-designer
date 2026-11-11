@@ -3139,3 +3139,171 @@ decisions:
     date: 2026-10-22
     task: T-1278
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-428
+    decision: "the CDP leg compares the bytes of a pick from `?browse=1` with the bytes of the same card picked via Open"
+    scope: project
+    date: 2026-10-23
+    task: T-1282
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-429
+    decision: "checked as \"closing the browser leaves the document exactly as the designer started\" (bytes equal)."
+    scope: project
+    date: 2026-10-23
+    task: T-1282
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-430
+    decision: "keep it on the kept element (strip only the five namespaces our export root always declares), the rule"
+    scope: project
+    date: 2026-10-23
+    task: T-1272
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-431
+    decision: "yes. The calibration verdict is unchanged; unverified findings are labelled, not excused."
+    scope: project
+    date: 2026-10-23
+    task: T-1290
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-432
+    decision: "every leg body became a function, registered by one `leg <tier> <name> <fn>` line (mechanical: the"
+    scope: project
+    date: 2026-10-24
+    task: T-1288
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-433
+    decision: "`all` runs the same legs as before, with the same per-check pass/fail counts, and applies the tier rules"
+    scope: project
+    date: 2026-10-24
+    task: T-1288
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-434
+    decision: "`--tier core` re-execs in a private mount + network namespace (only `lo`; Playwright/Chromium binaries and"
+    scope: project
+    date: 2026-10-24
+    task: T-1288
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-435
+    decision: "keep the six T-813 columns and append tier, flaky, quarantined; an `all` run writes its all-row plus one"
+    scope: project
+    date: 2026-10-24
+    task: T-1288
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-436
+    decision: "`PASS  9 …` + `all legs passed`, and push url == fetch url."
+    scope: project
+    date: 2026-10-26
+    task: T-1298
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-437
+    decision: "a per-name `flock` in `.context/rehearse/.lock-<job>`, waiting up to 15 minutes."
+    scope: project
+    date: 2026-10-26
+    task: T-1298
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-438
+    decision: "two layers. (1) A guard: each check and step runs in a private mount namespace (`unshare --mount`),"
+    scope: project
+    date: 2026-10-26
+    task: T-1286
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-439
+    decision: "keep the `_v2` rename on the designer's own identity (library key, `aef:workflowMeta` id, the project a"
+    scope: project
+    date: 2026-10-28
+    task: T-1270
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-440
+    decision: "`<x832:origin originalId=\"…\"/>`, attribute-only, inside the element's `extensionElements`, namespace"
+    scope: project
+    date: 2026-10-28
+    task: T-1261
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-441
+    decision: "indent only the first line of each written entry by two spaces per nesting level; `incoming`/`outgoing`"
+    scope: project
+    date: 2026-10-29
+    task: T-1339
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-442
+    decision: "in the import's node loop, `byAef`/`byBpmn` stop at another imported node (`ownOnly`)."
+    scope: project
+    date: 2026-10-29
+    task: T-1339
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-443
+    decision: "keep a line for nested contents, flipped to \"drawn at the top level of the canvas — on save they stay inside"
+    scope: project
+    date: 2026-10-29
+    task: T-1339
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-444
+    decision: "(a) draw a host whose boundary events overflow at the file's size (grown to fit if the file's is too small), via a per-node `drawSize` read through `dims(n)`."
+    scope: project
+    date: 2026-11-01
+    task: T-1350
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-445
+    decision: "keep conditional and signal events on T-1222's plain-event path (node type unchanged). Read their kind"
+    scope: project
+    date: 2026-11-02
+    task: T-1366
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-446
+    decision: "a read-only line under each field row in the io editor. It starts folded, as one summary line (readable"
+    scope: project
+    date: 2026-11-02
+    task: T-1365
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-447
+    decision: "one placement rule: under the producing task (else the first task that uses it), inside its lane, side by"
+    scope: project
+    date: 2026-11-02
+    task: T-1369
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-448
+    decision: "add `--urgent` to `tools/_t703-inbox-residue.py`."
+    scope: project
+    date: 2026-11-03
+    task: T-702
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-449
+    decision: "one notice card instead of three boxes."
+    scope: project
+    date: 2026-11-08
+    task: T-1384
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-450
+    decision: "grow the left edge (`contentLeftEdge`, the mirror of `contentRightEdge`), plus a view-only left label pad."
+    scope: project
+    date: 2026-11-11
+    task: T-1386
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-451
+    decision: "Release commits name only the release task, not the shipped tasks, until AEF T-5079 (project-declared release-artifact paths) lands; then add docs/authoring-kit/calibration-records to that list"
+    scope: project
+    date: 2026-11-11
+    task: T-1297
+    rationale: "A release commit that names a shipped task and adds the calibration record makes that task's reviewer verdict stale (verdict_ledger _stale_fault; cost T-347 a re-judge on 2026-11-10). Release notes keep listing the shipped tasks, so nothing is lost."
