@@ -187,9 +187,8 @@ serves field profiles, so the "Fields shown by default" section is in the dialog
 
 Read: `settings-bottom-1440.png` — header "Editor Settings" + Close at the top; the body scrolled to the end shows the
 last fields of "Fields shown by default" (Links, Note, Save/Cancel), all of Labels, the footer "Stored in this browser
-only…" and "Reset to defaults", inside the window with a scrollbar on the right. `settings-bottom-1024.png` (taken
-before the harness waited for the field-profile answer; the section was not shown then): View, Labels and Reset reached
-the same way.
+only…" and "Reset to defaults", inside the window with a scrollbar on the right. The 1024 and 1920 shots were made in
+the same run (after the harness waits for the field-profile answer) and reach Labels and Reset the same way.
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
