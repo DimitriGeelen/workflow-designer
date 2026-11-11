@@ -3565,26 +3565,45 @@ observations:
   captured: 2026-11-07T18:08:14Z
   context_task: T-1297
   tags: [ux]
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1384"
+  resolved_carrier_kind: "task"
+  resolved_at: 2026-11-11T16:56:53Z
   promoted_to: null
 - id: OBS-494
   text: "_t535-trend-key-teeth.py takes 82s alone at load 12 (7/7 green), against the sweep tier's 90s cap (T509_TIMEOUT); under host load it is killed (rc=124) and turns the sweep tier red as 'did not cover' (seen 2026-11-08/09, blocking T-347's full-suite close twice). Not a regression; the probe needs to get faster or be split, not a raised cap (the sweep's own advice)."
   captured: 2026-11-09T18:42:52Z
   context_task: T-347
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1389"
+  resolved_carrier_kind: "task"
+  resolved_at: 2026-11-11T16:56:53Z
   promoted_to: null
 - id: OBS-495
   text: "verdict_ledger._stale_fault treats a release commit's calibration record (docs/authoring-kit/calibration-records/<V>.yaml) as work: 832's release commit names every shipped task, so each release withdraws those tasks' reviewer verdicts (T-347 on 2026-11-10, cfe7fd81d). _RELEASE_ARTIFACTS exempts only dist/. Proposal for AEF: exempt the calibration record too, or match release commits by their subject."
   captured: 2026-11-10T22:36:42Z
   context_task: T-347
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "docs/reports"
+  resolved_carrier_kind: "path"
+  resolved_at: 2026-11-11T16:57:04Z
   promoted_to: null
 - id: OBS-496
   text: "CDP harness startup is fragile under host load: on 2026-11-11 04:16 (load ~16) _t1068-corpus-labels failed twice in the browser tier with 'DRIVER ERROR: chromium did not open a DevTools port' (no test ran; passes alone, exit 0). Its waitPortFile allows 15 s; a cold Chrome start under load can exceed that. Same class as the earlier 'did not finish' and one-leg browser reds that blocked T-347's close five times. Candidate fix: one shared startup helper with a longer port wait and one relaunch, used by every CDP harness."
   captured: 2026-11-11T03:27:56Z
   context_task: T-347
   tags: []
-  status: pending
+  status: resolved
+  resolved_carrier: "T-1390"
+  resolved_carrier_kind: "task"
+  resolved_at: 2026-11-11T16:56:54Z
   promoted_to: null
+- id: OBS-497
+  text: "runme watcher misses an event written in the same second as the one that woke it: job 130 logged 'started' and 'STOPPED' at 15:06:47Z; the watcher woke on 'started', the re-armed watcher only waits for events after it starts, so the STOPPED went unreported for ~2 h. The watch should resume from the last event it reported (line count / event id), not from arm time (T-1368's re-arm rule assumed distinct times)."
+  captured: 2026-11-11T16:43:16Z
+  context_task: T-1393
+  tags: []
+  status: promoted
+  promoted_to: T-1394
