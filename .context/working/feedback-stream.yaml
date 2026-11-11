@@ -21333,3 +21333,21 @@ scan_id: R-3151e9e3
 task_id: T-347
 payload:
   task_file: .tasks/active/T-347-content-inside-an-accepted-element-is-si.md
+---
+kind: scan_emitted
+timestamp: '2026-11-11T16:54:54Z'
+scan_id: R-57ec62f6
+task_id: T-1238
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-11T16:54:54Z'
+scan_id: R-57ec62f6
+task_id: T-1238
+payload:
+  task_file: .tasks/active/T-1238-editor-behaviour-leg-t255-pool-width-is-.md

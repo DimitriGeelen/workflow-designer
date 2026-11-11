@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1238: Editor behaviour leg t255-pool-width is flaky under full-suite load (failed once in the be.3 bridge run, passes standalone)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-11T16:55:02Z
+# ============================================================================
+
+task_id: T-1238
+task_name: "Editor behaviour leg t255-pool-width is flaky under full-suite load (failed once in the be.3 bridge run, passes standalone)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-20T17:26:14Z
+completed: 2026-11-11T16:54:41Z
+duration_days: 22
+updates_count: 6
+first_commit: 2026-10-20T21:27:26+02:00
+last_commit: 2026-11-11T17:54:09+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  pool-width leg waits for a settled handle and for the asserted state instead of fixed 150ms sleeps (bite control fails, 5/5 standalone, 5/5 with all cores busy); root cause not reproduced (old harness also 5/5 under CPU load), so the task stays open until three full runs hold. reproduction attempt recorded (worker w-t1238): old harness 10/10 and 8/8 under heavy multi-browser load, so not reproduced; two other old legs (t240-uuid-resolve 7/21, same-map-edit-restore 2/21) failed under that load; task stays open. t255-pool-width records why w6 fails (history depth around the inward drag and undo, drag liveness, top entry, press target) — three hypotheses ruled out, 10/10 green under full CPU load, not reproduced; kept open for the next failure's readings. t255-pool-width waits for the inward drag's gesture to be recorded (mouseup) before undo() — under load it undid the outward drag instead (w6 null in both failures); its waits use CDP_READY_MS and name any that time out. 5/5 under 12 busy loops (load 15->35), bite control still red
+
+# Key outcomes
+outcomes:
+  - 'The failed run''s readings are read and the sub-check that failed is named (which of w1-w6) — w6 (after undo of the inward drag) read pw null in both failures (2026-10-20, 2026-11-01 00:47); w0-w5 as expected'
+  - 'Each fixed sleep in the leg is replaced by a wait on the state the next reading asserts (polled, with a'
+  - 'The leg still bites: with the resize handler disabled (mutant) the leg fails; the leg passes 5 runs in a row'
+  - '`python3 tests/test_editor_behavior.py` passes'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'pool-width leg waits for a settled handle and for the asserted state instead of fixed 150ms sleeps (bite control fails, 5/5 standalone, 5/5 with all cores busy); root cause not reproduced (old harness also 5/5 under CPU load), so the task stays open until three full runs hold'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1238-editor-behaviour-leg-t255-pool-width-is-.md'
+  - 'tools/_editor-behavior-verify-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-20T21:27:26'
+    action: 'T-1238: pool-width leg waits for a settled handle and for the asserted state instead of fixed 150ms sleeps (bite control fails, 5/5 standalone, 5/5 with all cores busy); root cause not reproduced (old harness also 5/5 under CPU load), so the task stays open until three full runs hold'
+  - time: '2026-10-21T09:52:53'
+    action: 'T-1238: reproduction attempt recorded (worker w-t1238): old harness 10/10 and 8/8 under heavy multi-browser load, so not reproduced; two other old legs (t240-uuid-resolve 7/21, same-map-edit-restore 2/21) failed under that load; task stays open'
+  - time: '2026-11-01T14:01:37'
+    action: 'T-1238: t255-pool-width records why w6 fails (history depth around the inward drag and undo, drag liveness, top entry, press target) — three hypotheses ruled out, 10/10 green under full CPU load, not reproduced; kept open for the next failure''s readings'
+  - time: '2026-11-11T17:54:09'
+    action: 'T-1238: t255-pool-width waits for the inward drag''s gesture to be recorded (mouseup) before undo() — under load it undid the outward drag instead (w6 null in both failures); its waits use CDP_READY_MS and name any that time out. 5/5 under 12 busy loops (load 15->35), bite control still red'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 31648 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug, flaky]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 31648
+  commits: 5
+  files_changed: 5
+  lines_added: 669
+  lines_removed: 32
+  footprint_refreshed_at: '2026-11-11T16:55:28Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1238-editor-behaviour-leg-t255-pool-width-is-.md
+generated_by: context-agent-hybrid
