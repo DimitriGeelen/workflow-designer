@@ -8,7 +8,7 @@ mode 600, which locked you out of 634 of them; T-1393), T-5079 (a release commit
 records no longer makes review verdicts stale; we set RELEASE_ARTIFACT_PATHS for it) and T-5081 (your tick on the last
 open Human criterion in Watchtower hands the task back to the agent, as a reviewer verdict already did).
 ONE CHOICE FOR YOU: since AEF T-4239 Watchtower listens on 127.0.0.1 by default. You open it from another machine at
-http://<dev-host>:3013, which works today only because the old default was 0.0.0.0. Step 'Keep Watchtower
+this machine's LAN address on port 3013, which works today only because the old default was 0.0.0.0. Step 'Keep Watchtower
 reachable' sets HOST 0.0.0.0 explicitly, which is what you have now. Answer n there if you want it local-only.
 The agent then re-applies 832's local fixes (re-vendor protocol) and runs BOTH test tiers before anything is pushed.
 Nothing is pushed by this job."
@@ -44,7 +44,7 @@ steps() {
     step "Task templates the upgrade synced: commit the identical ones, name the rest (T-1192)" 'do_templates'
     step "Set RELEASE_ARTIFACT_PATHS to docs/authoring-kit/calibration-records/ and commit .framework.yaml (AEF T-5079)" 'do_release_paths'
     step "Keep Watchtower reachable from your other machine: set HOST 0.0.0.0 (as today) and commit. Answer n to keep it local-only" 'do_host'
-    step_outward "Restart Watchtower so it runs the new framework (with HOST as just set), then check http://<dev-host>:3013 answers" 'do_watchtower_restart'
+    step_outward "Restart Watchtower so it runs the new framework (with HOST as just set), then check it answers at this machine's LAN address, port 3013" 'do_watchtower_restart'
     step "Capture fw doctor AFTER" 'do_doctor after'
 }
 
@@ -178,7 +178,10 @@ do_watchtower_restart() {
     sleep 3
     echo "listening on: $(ss -tln | awk '$4 ~ /:3013$/{print $4}' | tr '\n' ' ')"
     curl -sf -o /dev/null http://127.0.0.1:3013/ && echo "ok  Watchtower answers locally"
-    curl -sf -o /dev/null http://<dev-host>:3013/ && echo "ok  Watchtower answers at http://<dev-host>:3013" \
-        || echo "NOT reachable at http://<dev-host>:3013 (expected only if you answered n to the HOST step)"
+    # The LAN address is read here, at run time: no LAN address may be committed (T-1239's gate rewrites it).
+    local lan; lan=$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{for (i = 1; i < NF; i++) if ($i == "src") print $(i + 1)}')
+    [ -n "$lan" ] || { echo "could not read this machine's LAN address; check Watchtower from your other machine"; return 0; }
+    curl -sf -o /dev/null "http://$lan:3013/" && echo "ok  Watchtower answers at http://$lan:3013" \
+        || echo "NOT reachable at http://$lan:3013 (expected only if you answered n to the HOST step)"
     return 0
 }
