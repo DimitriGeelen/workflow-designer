@@ -3,11 +3,12 @@
 // /api/health, /api/list and /api/save but NOT /api/field-profile or /api/field-suggestions (plain HTML 404, 403 on
 // PUT; Greenfield's portal, DM 73) — the designer must not offer field settings or suggestions:
 //   A  the field-profile status is 'unsupported' and the Settings readout says the server does not offer them
-//   B  Settings -> "Fields shown by default": every row disabled, Save disabled, the map scope not offered, and the
-//      status line says why
-//   C  "Suggest as a field" is disabled with the reason
+//   B  Settings: the "Fields shown by default" section and the "Project field profile" row are hidden (T-1391; until
+//      then shown read-only, every row disabled)
+//   C  no "Suggest as a field" button and no sentence about it; the evidence line stays (T-1391; until then disabled)
 //   D  the panel itself still works: empty fields fold (B1 behaviour, designer default)
-//   node tools/_t1134-portal-without-endpoints-cdp.mjs [--designer PATH]   (0.19.0 must FAIL A and B)
+//   node tools/_t1134-portal-without-endpoints-cdp.mjs [--designer PATH] [--shots DIR]   (0.19.0 must FAIL A and B)
+//   --shots DIR: Settings open, and the properties panel at "Other extensions", at 1024/1440/1920 (T-1391 evidence).
 // Exit 0 = pass; 1 = assertion failed; 2 = misconfig.
 import { makeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
@@ -21,6 +22,7 @@ import { pageWsUrl } from './_cdp-attach.mjs';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
 const argv = process.argv.slice(2);
+const SHOTS = argv.indexOf('--shots') >= 0 ? argv[argv.indexOf('--shots') + 1] : null;
 const DESIGNER = (argv.indexOf('--designer') >= 0 && argv[argv.indexOf('--designer') + 1]) || join(REPO, 'src', 'aef-workflow-designer.html');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -117,6 +119,22 @@ async function main() {
     // D
     const fold = await ev(cmd, `(function(){ var r = document.querySelector('#properties .props-empty-fields'); return r ? r.textContent : null; })()`);
     leg(fold && /empty field/.test(fold), 'D the panel still folds empty fields (designer default)', fold);
+
+    if (SHOTS) {   // T-1391 evidence
+      const { mkdirSync } = await import('node:fs');
+      mkdirSync(SHOTS, { recursive: true });
+      const shot = async name => { const s = await cmd('Page.captureScreenshot', { format: 'png' }); writeFileSync(join(SHOTS, name), Buffer.from(s.data, 'base64')); };
+      for (const [W, H] of [[1024, 768], [1440, 900], [1920, 1080]]) {
+        await cmd('Emulation.setDeviceMetricsOverride', { width: W, height: H, deviceScaleFactor: 1, mobile: false });
+        await sleep(500);
+        await ev(cmd, `(openSettings(), true)`); await sleep(400);
+        await ev(cmd, `(function(){ var r = document.getElementById('set-show-all-fields'); if (r) r.scrollIntoView({ block: 'center' }); return true; })()`); await sleep(200);
+        await shot(`settings-${W}.png`);
+        await ev(cmd, `(closeSettings(), true)`); await sleep(200);
+        await ev(cmd, `(renderProperties(), (function(){ var t = Array.prototype.find.call(document.querySelectorAll('#properties .props-section-title'), function(x){ return /^Other extensions/.test(x.textContent); }); if (t) t.scrollIntoView({ block: 'center' }); return !!t; })())`); await sleep(300);
+        await shot(`properties-${W}.png`);
+      }
+    }
   } catch (e) {
     leg(false, 'harness', String(e && e.stack || e));
   } finally {

@@ -152,7 +152,40 @@ as before, including the refused-file error.
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
 
+- [ ] [REVIEW] On a host without the field endpoints, Settings and the properties panel read well without the two controls
+  **Why you:** a render-surface judgement on screenshots (CLAUDE.md "UI changes are reviewed on screenshots"); for the independent reviewer: `fw reviewer judge T-1391 --criterion 1`.
+  **Steps:**
+  1. Open `docs/reports/T-1391-evidence/settings-1024.png`, `-1440.png`, `-1920.png` (Settings open on a portal that
+     serves neither endpoint) and `properties-1024.png`, `-1440.png`, `-1920.png` (a node's panel at "Other extensions").
+  2. Settings: no "Project field profile" row and no "Fields shown by default" section; the rows around where they were
+     ("Show all fields in the properties panel", then "Labels") sit together without a gap or a stray heading.
+  3. Properties: under "Other extensions" the key (costCentre), its read-only value and its evidence line
+     ("costCentre · on 1 of 1 serviceTask element") show; no "Suggest as a field" button; the explanation ends at
+     "They are not lost." with no sentence about suggesting.
+  **Expected:** both places read as complete and tidy with the controls gone, at all three widths.
+  **If not:** name the screenshot and what looks broken or leftover, and set the task to issues.
+
 ## Verification
+
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1134-portal-without-endpoints-cdp.mjs > /tmp/.t1391a.out 2>&1 && grep -q "T-1134: 4/4" /tmp/.t1391a.out
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1126-field-suggestions-cdp.mjs > /tmp/.t1391b.out 2>&1 && grep -q "T-1126: 8/8" /tmp/.t1391b.out
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1128-field-defaults-settings-cdp.mjs > /tmp/.t1391c.out 2>&1 && grep -q "T-1128: 9/9" /tmp/.t1391c.out
+
+## Visual Verification
+
+Screenshots in `docs/reports/T-1391-evidence/` (`node tools/_t1134-portal-without-endpoints-cdp.mjs --shots …`), on a
+portal that answers health/list/save but neither field endpoint (the AEF / Greenfield shape), at 1024/1440/1920.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| Settings open | "Project field profile" row | hidden | hidden | hidden | intended (T-1391) |
+| Settings open | "Fields shown by default" section | hidden | hidden | hidden | intended; "Show all fields…" is followed by "Labels" |
+| properties, Other extensions | "Suggest as a field" button | hidden | hidden | hidden | intended; evidence line kept |
+| properties, Other extensions | explanation text | ok | ok | ok | ends at "They are not lost." |
+
+Read: `settings-1440.png` — Routing, Snapping, View ("Clean layout when opening a file", "Show all fields in the
+properties panel"), then Labels; no field-profile row or section, no gap. `properties-1440.png` — Other extensions · 1:
+costCentre, value CC-1 read-only, "costCentre · on 1 of 1 serviceTask element"; no button.
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
