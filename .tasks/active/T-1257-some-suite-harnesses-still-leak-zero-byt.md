@@ -1,11 +1,20 @@
 ---
 id: T-1257
-name: "Some suite harnesses still leak zero-byte /tmp/.org.chromium.Chromium.* shm files (89 during one suite run; dimitri-mint-dev T-115)"
+name: "Some suite harnesses still leak zero-byte /tmp/.org.chromium.Chromium.* shm
+  files (89 during one suite run; dimitri-mint-dev T-115)"
 description: >
-  dimitri-mint-dev counts 16,359 zero-byte .org.chromium.Chromium.* files in /tmp, ~4,600-6,200/day since 2026-10-19. Measured 2026-10-21: _t1243 alone leaves 0, and 0 when SIGTERMed mid-run (T-1247 helper); but 89 appeared 21:31-21:38 during a full bridge suite run, and ~1 per 6-12 min while a worker runs harnesses. Find which harnesses leak them (count per harness), make them stop (graceful Chrome shutdown before SIGKILL, or the helper's cleanup, or Playwright scripts), add a suite check that counts new shm files across the run. dimitri-mint-dev's T-115 stays open until the rate is zero.
+  dimitri-mint-dev counts 16,359 zero-byte .org.chromium.Chromium.* files in /tmp,
+  ~4,600-6,200/day since 2026-10-19. Measured 2026-10-21: _t1243 alone leaves 0, and
+  0 when SIGTERMed mid-run (T-1247 helper); but 89 appeared 21:31-21:38 during a full
+  bridge suite run, and ~1 per 6-12 min while a worker runs harnesses. Find which
+  harnesses leak them (count per harness), make them stop (graceful Chrome shutdown
+  before SIGKILL, or the helper's cleanup, or Playwright scripts), add a suite check
+  that counts new shm files across the run. dimitri-mint-dev's T-115 stays open until
+  the rate is zero.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +47,8 @@ related_tasks: [T-1247]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:13:51Z
-last_update: 2026-10-21T21:13:51Z
-date_finished: null
+last_update: '2026-11-11T16:55:50Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,20 +59,62 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-11T16:55:50Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 3
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=2 (body:learning-ref); D2=0 (no-signal); D3=3 (body:component-discoverability);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1257: Some suite harnesses still leak zero-byte /tmp/.org.chromium.Chromium.* shm files (89 during one suite run; dimitri-mint-dev T-115)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Background / trigger:** dimitri-mint-dev T-115 counted thousands of `.org.chromium.Chromium.*` files in /tmp
+(2026-10-21: 89 appeared during one suite run). On 2026-11-11 /tmp (a 32 GB tmpfs) filled up and stopped release job 128;
+3,509 such files (326 MB, mostly 256 KB each, not zero-byte) were in /tmp, dated 2026-11-08..11.
+
+**Problem / hypothesis:** headless Chromium with `--disable-dev-shm-usage` puts its shared-memory files in TMPDIR. A
+launcher that runs Chromium with TMPDIR=/tmp and kills it hard leaves them. Which launcher?
+
+**Goal:** find the launcher that leaves them, fix it, and remove what is ours.
+
+**Expected outcome:** a run of every 832 path that launches Chromium leaves no file in /tmp.
+
+### Measured 2026-11-11 (agent)
+- `_t1392-settings-reach`, `_t1134`, `_t1126` run directly (TMPDIR=/tmp): +0 each.
+- `bash tools/person-sees-gate.sh` (all its render harnesses, outside the suite): +0.
+- `_editor-behavior-verify-cdp.mjs` run directly 7 times (incl. 12 busy loops alongside): +0.
+- The suite and the task close keep Chromium's files in their own TMPDIR (T-1183, T-4846) and remove it.
+- From 16:37Z to 16:55Z no new file appeared at all (so other projects did not create any in that window either).
+- The files cluster by hour where our pipelines ran: 00h, 09-12h, 15h local on 2026-11-11. Not yet measured: the
+  review/sweep WORKER seats (`fw termlink dispatch`, `fw reviewer judge`: codex, claude-code, opencode), which open
+  the screenshots and may start a browser outside any of our TMPDIRs. That is the next hypothesis.
+- Not removed: the files are root's and cannot yet be shown to be ours.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] The launcher that leaves `.org.chromium.Chromium.*` in /tmp is identified by measurement (a run with a count
+  before and after), or every 832 launcher is shown to leave none and the source is named outside 832.
+- [ ] If it is ours, it is fixed (Chromium's TMPDIR contained and removed) and a run leaves +0; the existing files that
+  are ours are removed with the operator's approval.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -345,3 +396,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1257-some-suite-harnesses-still-leak-zero-byt.md
 - **Context:** Initial task creation
+
+### 2026-11-11T16:55:49Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
