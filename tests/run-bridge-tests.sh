@@ -1882,6 +1882,21 @@ else
 fi
 }
 leg browser "_t358-laneless-render" _leg_227
+_leg_228() {
+
+# ── T-1392: every control in Settings can be reached ──
+# At 1024/1440/1920 the dialog ends inside the window, "Reset to defaults" scrolls into view and a click lands on it,
+# and Close stays in view. Until T-1392 the dialog ran past the window's bottom (1186 px at every width) and its lower
+# settings could not be reached. Self-test: the T-1392 rules removed -> S1 and S2 red.
+if node "$ROOT/tools/_t1392-settings-reach-cdp.mjs" --self-test > "$TMP/leg-_t1392.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the Settings dialog runs past the window again, or its last control cannot be scrolled to or clicked (run 'node tools/_t1392-settings-reach-cdp.mjs --self-test'; T-1392)"
+  show_output "$TMP/leg-_t1392.out" "_t1392-settings-reach-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1392-settings-reach" _leg_228
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

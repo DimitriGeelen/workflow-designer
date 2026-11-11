@@ -1385,6 +1385,11 @@ font-family: 'Outfit';
   .settings-dialog {
     width: 560px;
     max-width: calc(100vw - 40px);
+    /* T-1392: never taller than the window below the modal's 90px top padding (plus a 20px margin): the body scrolls
+       under a header that stays in view. Before, it ran past the window's bottom and Labels / Reset were unreachable. */
+    max-height: calc(100vh - 110px);
+    display: flex;
+    flex-direction: column;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -1398,7 +1403,7 @@ font-family: 'Outfit';
     justify-content: space-between;
   }
   .settings-title { font-family: var(--mono); font-size: 13px; color: var(--accent); }
-  .settings-body { padding: 14px 18px 18px; }
+  .settings-body { padding: 14px 18px 18px; overflow-y: auto; min-height: 0; }   /* T-1392: scrolls inside the dialog */
   .settings-section { margin-bottom: 16px; }
   .settings-section-label {
     font-family: var(--mono);
@@ -7500,6 +7505,10 @@ async function loadFieldProfile() {
     aefRecordFault('field-profile:load', e);
   }
   if (typeof renderProperties === 'function') renderProperties();
+  // T-1391: Settings opened before this answer came shows the field settings hidden (not yet known to be served);
+  // refresh it in place, so it does not take a reopen to see them.
+  const _sm = document.getElementById('settings-modal');
+  if (_sm && _sm.classList.contains('visible') && typeof syncSettingsUI === 'function') syncSettingsUI();
 }
 // T-1128: a map's OWN profile, stored on the project server beside the map's versions and keyed by the
 // map id (state.workflowMeta.id — the Save target). Fetched on first use per id and cached; a map saved
