@@ -9,13 +9,13 @@ description: >
   end (Labels section, Reset to defaults) is unreachable. Pre-existing; the person-sees
   gate's toolbar-reach does not open Settings.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t1392-settings-reach-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-11T10:32:27Z
-last_update: '2026-11-11T10:36:25Z'
-date_finished:
+last_update: 2026-11-11T13:04:08Z
+date_finished: 2026-11-11T13:04:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -157,7 +157,7 @@ defaults") can be scrolled into view and clicked at all three widths, red on the
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
 
-- [ ] [REVIEW] Settings fits the window and every setting in it can be reached
+- [x] [REVIEW] Settings fits the window and every setting in it can be reached
   **Why you:** a render-surface judgement on screenshots (CLAUDE.md "UI changes are reviewed on screenshots"); for the independent reviewer: `fw reviewer judge T-1392 --criterion 1`.
   **Steps:**
   1. Open `docs/reports/T-1392-evidence/settings-top-1024.png`, `-1440.png`, `-1920.png` (Settings just opened) and
@@ -168,6 +168,7 @@ defaults") can be scrolled into view and clicked at all three widths, red on the
   **Expected:** at every width the dialog fits the window and its last controls are reachable by scrolling, with the
   header in view.
   **If not:** name the screenshot and what is cut off or unreachable, and set the task to issues.
+  **Reviewer verdict:** green V-20261111-0dfe6d67 — reviewer-judge-t-1392-r3-644cb766c10c:reviewer (rung rung-3-termlink-single-reviewer), digest 0a675d26c00f; dispatch judge-t-1392-r3-644cb766c10c; evidence: .context/reviews/evidence/T-1392/AC1-judge-t-1392-r3-644cb766c10c.md, .context/reviews/evidence/T-1392/settings-top-1024-judge-t-1392-r3-644cb766c10c.png, .context/reviews/evidence/T-1392/settings-bottom-1024-judge-t-1392-r3-644cb766c10c.png, .context/reviews/evidence/T-1392/settings-top-1440-judge-t-1392-r3-644cb766c10c.png, .context/reviews/evidence/T-1392/settings-bottom-1440-judge-t-1392-r3-644cb766c10c.png, .context/reviews/evidence/T-1392/settings-top-1920-judge-t-1392-r3-644cb766c10c.png, .context/reviews/evidence/T-1392/settings-bottom-1920-judge-t-1392-r3-644cb766c10c.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -427,3 +428,16 @@ the same run (after the harness waits for the field-profile answer) and reach La
 
 ### 2026-11-11T10:36:23Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-11T13:04:08Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7230ed48
+- **Timestamp:** 2026-11-11T13:04:27Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

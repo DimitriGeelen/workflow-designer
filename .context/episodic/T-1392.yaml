@@ -1,0 +1,110 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1392: The Settings dialog does not scroll: taller than the window at 1024x768 (and 1920x1080), its lower settings (View, Labels, Reset to defaults) cannot be reached
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-11T13:04:36Z
+# ============================================================================
+
+task_id: T-1392
+task_name: "The Settings dialog does not scroll: taller than the window at 1024x768 (and 1920x1080), its lower settings (View, Labels, Reset to defaults) cannot be reached"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-11T10:32:27Z
+completed: 2026-11-11T13:04:08Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-11T11:40:36+01:00
+last_commit: 2026-11-11T13:14:44+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the Settings dialog fits the window and its body scrolls under a fixed header (it ran to 1186 px at every width, so Labels and 'Reset to defaults' could not be reached); harness _t1392-settings-reach-cdp (9 legs, poison caught; red on the source before), browser leg 228. Also T-1391: Settings opened before the field-profile answer refreshes in place when it arrives (it stayed hidden until reopened). Visual Verification and the [REVIEW] criterion. correct the Visual Verification note (all six shots come from one run). gate exit 0, advisory sweep 0/0/0. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'At 1024×768, 1440×900 and 1920×1080 the Settings dialog ends inside the window, its body scrolls, and the last'
+  - 'A harness proves it and is red on the source before the fix; the gate exits 0.'
+  - '[REVIEW] Settings fits the window and every setting in it can be reached'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the Settings dialog fits the window and its body scrolls under a fixed header (it ran to 1186 px at every width, so Labels and ''Reset to defaults'' could not be reached); harness _t1392-settings-reach-cdp (9 legs, poison caught; red on the source before), browser leg 228. Also T-1391: Settings opened before the field-profile answer refreshes in place when it arrives (it stayed hidden until reopened)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1392/AC1-judge-t-1392-r3-644cb766c10c.md'
+  - '.context/reviews/evidence/T-1392/settings-bottom-1024-judge-t-1392-r3-644cb766c10c.png'
+  - '.context/reviews/evidence/T-1392/settings-bottom-1440-judge-t-1392-r3-644cb766c10c.png'
+  - '.context/reviews/evidence/T-1392/settings-bottom-1920-judge-t-1392-r3-644cb766c10c.png'
+  - '.context/reviews/evidence/T-1392/settings-top-1024-judge-t-1392-r3-644cb766c10c.png'
+  - '.context/reviews/evidence/T-1392/settings-top-1440-judge-t-1392-r3-644cb766c10c.png'
+  - '.context/reviews/evidence/T-1392/settings-top-1920-judge-t-1392-r3-644cb766c10c.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.fabric/components/tools-_t1392-settings-reach-cdp.yaml'
+  - '.tasks/active/T-1392-the-settings-dialog-does-not-scroll-tall.md'
+  - 'docs/reports/T-1392-evidence/settings-bottom-1024.png'
+  - 'docs/reports/T-1392-evidence/settings-bottom-1440.png'
+  - 'docs/reports/T-1392-evidence/settings-bottom-1920.png'
+  - 'docs/reports/T-1392-evidence/settings-top-1024.png'
+  - 'docs/reports/T-1392-evidence/settings-top-1440.png'
+  - 'docs/reports/T-1392-evidence/settings-top-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1392-settings-reach-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-11T11:40:36'
+    action: 'T-1392: the Settings dialog fits the window and its body scrolls under a fixed header (it ran to 1186 px at every width, so Labels and ''Reset to defaults'' could not be reached); harness _t1392-settings-reach-cdp (9 legs, poison caught; red on the source before), browser leg 228. Also T-1391: Settings opened before the field-profile answer refreshes in place when it arrives (it stayed hidden until reopened)'
+  - time: '2026-11-11T11:41:17'
+    action: 'T-1392: Visual Verification and the [REVIEW] criterion'
+  - time: '2026-11-11T11:41:45'
+    action: 'T-1392: correct the Visual Verification note (all six shots come from one run)'
+  - time: '2026-11-11T11:51:53'
+    action: 'T-1392: gate exit 0, advisory sweep 0/0/0'
+  - time: '2026-11-11T13:14:44'
+    action: 'T-1392: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 151 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 151
+  commits: 6
+  files_changed: 26
+  lines_added: 754
+  lines_removed: 14
+  footprint_refreshed_at: '2026-11-11T13:35:23Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1392-the-settings-dialog-does-not-scroll-tall.md
+generated_by: context-agent-hybrid
