@@ -127,10 +127,16 @@ async function main() {
       for (const [W, H] of [[1024, 768], [1440, 900], [1920, 1080]]) {
         await cmd('Emulation.setDeviceMetricsOverride', { width: W, height: H, deviceScaleFactor: 1, mobile: false });
         await sleep(500);
+        // Settings is taken in a window tall enough for the whole dialog (it does not scroll: a separate, older
+        // defect, filed as its own task), then the window goes back to W x H for the properties shot
+        await cmd('Emulation.setDeviceMetricsOverride', { width: W, height: 1700, deviceScaleFactor: 1, mobile: false }); await sleep(300);
         await ev(cmd, `(openSettings(), true)`); await sleep(400);
-        await ev(cmd, `(function(){ var r = document.getElementById('set-show-all-fields'); if (r) r.scrollIntoView({ block: 'center' }); return true; })()`); await sleep(200);
+        // the place the removed row and section used to be: "Clean layout when opening a file" at the top, so
+        // "Show all fields…" and the Labels heading below it are both in the frame at every width
+        await ev(cmd, `(function(){ var r = document.getElementById('set-clean-on-import'); var row = r && r.closest('.settings-row'); if (row) row.scrollIntoView({ block: 'start' }); return true; })()`); await sleep(200);
         await shot(`settings-${W}.png`);
         await ev(cmd, `(closeSettings(), true)`); await sleep(200);
+        await cmd('Emulation.setDeviceMetricsOverride', { width: W, height: H, deviceScaleFactor: 1, mobile: false }); await sleep(300);
         await ev(cmd, `(renderProperties(), (function(){ var t = Array.prototype.find.call(document.querySelectorAll('#properties .props-section-title'), function(x){ return /^Other extensions/.test(x.textContent); }); if (t) t.scrollIntoView({ block: 'center' }); return !!t; })())`); await sleep(300);
         await shot(`properties-${W}.png`);
       }

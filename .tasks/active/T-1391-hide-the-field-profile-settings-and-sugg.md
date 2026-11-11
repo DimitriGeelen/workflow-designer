@@ -187,6 +187,13 @@ Read: `settings-1440.png` — Routing, Snapping, View ("Clean layout when openin
 properties panel"), then Labels; no field-profile row or section, no gap. `properties-1440.png` — Other extensions · 1:
 costCentre, value CC-1 read-only, "costCentre · on 1 of 1 serviceTask element"; no button.
 
+Advisory sweep (codex worker t1391-sweep-60c47415f14f): **0 blockers, 3 minor, 0 nits** — all three: the Settings
+screenshots cut the dialog off at the bottom, so the View→Labels spot could not be seen at 1024. Not this change: the
+dialog does not scroll and is taller than the window (filed as T-1392, its own defect). The Settings shots were re-taken
+in a window tall enough for the whole dialog (width unchanged, height 1700): `settings-1024.png` now shows the dialog
+from Routing to "Reset to defaults", with "Show all fields in the properties panel" followed directly by Labels. The
+properties shots had no findings.
+
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
      Write your commands BELOW this comment, one per line.
