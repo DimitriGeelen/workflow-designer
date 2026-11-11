@@ -21351,3 +21351,29 @@ scan_id: R-57ec62f6
 task_id: T-1238
 payload:
   task_file: .tasks/active/T-1238-editor-behaviour-leg-t255-pool-width-is-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-11T17:46:04Z'
+scan_id: R-08f88cfc
+task_id: T-1219
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-11T17:46:04Z'
+scan_id: R-08f88cfc
+task_id: T-1219
+payload:
+  task_file: .tasks/active/T-1219-traceable-data-elements-on-aefio-ref-rol.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-11-11T17:46:04Z'
+scan_id: RC-dac226db
+task_id: T-1219
+payload:
+  overall: CONTRADICTED
+  claim_count: 4

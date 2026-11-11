@@ -1,0 +1,113 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1219: Traceable data elements on aef:io (ref, role, cardinality, business types, keep unknown aef: attributes) for aef-greenfield-test T-276
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-11T17:46:32Z
+# ============================================================================
+
+task_id: T-1219
+task_name: "Traceable data elements on aef:io (ref, role, cardinality, business types, keep unknown aef: attributes) for aef-greenfield-test T-276"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-19T16:56:20Z
+completed: 2026-11-11T17:45:57Z
+duration_days: 23
+updates_count: 5
+first_commit: 2026-10-19T18:57:36+02:00
+last_commit: 2026-10-20T15:48:32+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file aef-greenfield-test's reports — T-1217 (save drops linkEventDefinition), T-1218 (unnamed start/end saved with its id as name), T-1219 inception (traceable aef:io) with research note. the go/no-go box is written for the reviewer (inception-decision, reviewer-judgeable); the template's bare [REVIEW] reddened _t1066 in a running bridge run. AEF's answer recorded (preserve now; ref/role/cardinality/dataType go to their v1.1 inception T-4415); T-1220 filed for preserving unknown aef: attributes on aef:io. AEF puts the CURIE prefix -> URL map in v1.1 scope (T-4415). recommendation updated after exploration — GO: preservation built (T-1220), fields follow AEF's v1.1 inception T-4415. reviewer verdict. inception template filled per reviewer amber (problem, hypothesis, assumptions validated, IW-1/2 answered, IW-3 deferred to AEF T-4415, scope fence, go/no-go criteria); 'planned for 0.24.0'. GO recorded by the operator's job 054 (completion still blocked: IW-3 needs a local deferral target); next-session note for the runme batch feature, the AEF write-up and job 057. IW-3 deferred to the local follow-up T-1229 (designer fields after AEF T-4415 is ruled); job 054 retired (its GO is recorded; only the completion failed)
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - 'Go/no-go judged by an independent reviewer, who may escalate to the operator (inception-decision class,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'AEF puts the CURIE prefix -> URL map in v1.1 scope (T-4415)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/evidence/T-1219/AC1-judge-t-1219-r3-8cb1b2078763.md'
+  - '.context/reviews/evidence/T-1219/AC1-judge-t-1219-r3-90b1efab909f.md'
+  - '.context/reviews/evidence/T-1219/AC1-judge-t-1219-r3-9dc792aab403.md'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.context/runme/054-decide-t1219-go/retired'
+  - '.context/working/NEXT-SESSION-runme-batch-and-writeup.md'
+  - '.tasks/active/T-1217-save-drops-bpmnlinkeventdefinition-a-lin.md'
+  - '.tasks/active/T-1218-save-writes-an-unnamed-startend-events-i.md'
+  - '.tasks/active/T-1219-traceable-data-elements-on-aefio-ref-rol.md'
+  - '.tasks/active/T-1220-keep-unknown-aef-attributes-on-aefinputa.md'
+  - '.tasks/active/T-1229-designer-fields-for-aefio-ref-role-cardi.md'
+  - 'docs/reports/T-1219-traceable-aef-io.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T18:57:36'
+    action: 'T-1219: file aef-greenfield-test''s reports — T-1217 (save drops linkEventDefinition), T-1218 (unnamed start/end saved with its id as name), T-1219 inception (traceable aef:io) with research note'
+  - time: '2026-10-19T19:06:55'
+    action: 'T-1219: the go/no-go box is written for the reviewer (inception-decision, reviewer-judgeable); the template''s bare [REVIEW] reddened _t1066 in a running bridge run'
+  - time: '2026-10-19T19:27:23'
+    action: 'T-1219: AEF''s answer recorded (preserve now; ref/role/cardinality/dataType go to their v1.1 inception T-4415); T-1220 filed for preserving unknown aef: attributes on aef:io'
+  - time: '2026-10-19T19:27:51'
+    action: 'T-1219: AEF puts the CURIE prefix -> URL map in v1.1 scope (T-4415)'
+  - time: '2026-10-19T23:05:15'
+    action: 'T-1219: recommendation updated after exploration — GO: preservation built (T-1220), fields follow AEF''s v1.1 inception T-4415'
+  - time: '2026-10-19T23:08:27'
+    action: 'T-1219: reviewer verdict'
+  - time: '2026-10-19T23:08:43'
+    action: 'T-1219: reviewer verdict'
+  - time: '2026-10-19T23:09:47'
+    action: 'T-1219: inception template filled per reviewer amber (problem, hypothesis, assumptions validated, IW-1/2 answered, IW-3 deferred to AEF T-4415, scope fence, go/no-go criteria); ''planned for 0.24.0'''
+  - time: '2026-10-19T23:11:01'
+    action: 'T-1219: reviewer verdict'
+  - time: '2026-10-20T13:52:35'
+    action: 'T-1219: GO recorded by the operator''s job 054 (completion still blocked: IW-3 needs a local deferral target); next-session note for the runme batch feature, the AEF write-up and job 057'
+  - time: '2026-10-20T15:48:32'
+    action: 'T-1219: IW-3 deferred to the local follow-up T-1229 (designer fields after AEF T-4415 is ruled); job 054 retired (its GO is recorded; only the completion failed)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 11 commit(s), 33169 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:structured-io]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 33169
+  commits: 12
+  files_changed: 17
+  lines_added: 2056
+  lines_removed: 70
+  footprint_refreshed_at: '2026-11-11T17:46:52Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1219-traceable-data-elements-on-aefio-ref-rol.md
+generated_by: context-agent-hybrid
