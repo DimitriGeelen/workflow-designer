@@ -1,0 +1,175 @@
+# ============================================================================
+# EPISODIC MEMORY - T-101: Bake Clean layout into the rendered corpus (24 maps)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-12T21:35:42Z
+# ============================================================================
+
+task_id: T-101
+task_name: "Bake Clean layout into the rendered corpus (24 maps)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T10:39:42Z
+completed: 2026-11-12T21:14:02Z
+duration_days: 130
+updates_count: 5
+first_commit: 2026-07-05T18:45:32+02:00
+last_commit: 2026-11-12T22:13:50+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Add re-runnable Clean-layout bake tool (headless editor driver + yaml patcher). Bake Clean layout into all 24 corpus maps. Complete ACs + Recommendation for corpus bake and T-102 metric fix. Document bake-clean-layout tool + re-run procedure in tools/README. Re-bake corpus with align-columns (centre-x) from T-116. operator tidiness verdict recorded (looks tidy — [REVIEW] AC verified in chat, human to tick+finalize); field observation from the review filed as T-301 (inception, DEFER, later): Versions panel keys to workflowMeta.id not loaded store id — empty panel + save forked new project audit-process v1 (bytes verified equal to re-baked corpus modulo one editor aef:anchors line, no data loss); operator store save committed. context in the four required fields; unblocked (T-1402, T-1403 fixed its two drifted checks); its suite line runs the core gate and the browser tier under Node 22
+
+# Key outcomes
+outcomes:
+  - 'A committed, re-runnable pass (script/tool, not manual edits) applies `cleanLayout()` to each of the 24 `examples/aef-processes/rendered/*.bpmn` and writes the cleaned geometry back; documented how to re-run after Clean logic changes — `tools/bake-clean-layout.py` (+ `tools/_clean-layout-cdp.mjs` headless editor driver); re-run: `python3 tools/bake-clean-layout.py`, check: `--check`'
+  - '`build/gallery/rendered/*.bpmn` re-synced byte-identical to `examples/aef-processes/rendered/*.bpmn` after the bake — 0/24 drift (bake mirrors it; `serve-gallery.sh` also regenerates it — gallery is a gitignored build artifact)'
+  - 'Post-bake, `tools/yaml-to-bpmn.py` re-run does NOT clobber the tidied geometry — chose **generator emits tidy output**: geometry lives in the yaml source, tidied y/lane-height baked there, so a naive regen reproduces the tidied bpmn byte-identically (verified 0/24 regen drift)'
+  - 'Idempotent: running the bake twice moves 0 nodes on the second pass — `--check` reports 24/24 Clean fixpoints; `mapMessiness()` < 3 on all 24 (all 0) after the coupled T-102 metric fix'
+  - 'No semantic change: only x/y/lane-height geometry differs (510 ins/510 del, all geometry-only lines) — bridge 31/31, validator 34/34, structured parity OK; corpus-geometry sweep 24 clean'
+  - 'Before/after screenshots of 2–3 representative maps taken and READ — task-lifecycle + harvest-pipeline (`.playwright-mcp/t101-*-{before,after}.png`): main flow rows now snap to a common centre-line, branch stacks preserved, no visual regression'
+  - '[REVIEW] Shipped corpus maps open tidy in the served designer, and the Clean nudge no longer fires on them'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'context in the four required fields; unblocked (T-1402, T-1403 fixed its two drifted checks); its suite line runs the core gate and the browser tier under Node 22'
+    source: git-mined
+  - description: 'Complete ACs + Recommendation for corpus bake and T-102 metric fix'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-07-05 — Where to store baked geometry'
+    chose: 'Bake tidied y/lane-height into the `*.workflow.yaml` SOURCE, then re-render.'
+    rationale: 'Geometry lives in the yaml and `yaml-to-bpmn.py` is a pure projection of it, so baking into the source makes the generator naturally emit tidy output — a naive regen can never silently un-tidy the corpus (strongest form of AC #3). Also keeps `check-lane-bands` (reads yaml) validating the real shipped geometry.'
+    alternatives_rejected: ['Post-processing only the rendered `.bpmn` — a naive `yaml-to-bpmn.py` regen would clobber it; would need a fragile "remember to re-bake" post-step.']
+  - decision: '2026-07-05 — Iterate Clean to a fixpoint'
+    chose: 'Run `cleanLayout()` repeatedly (to a fixpoint, cap 12) per map during the bake.'
+    rationale: 'One Clean pass isn''t idempotent — align-rows snapping merges clusters, so a 2nd pass settles nodes a few px further. Baking the fixpoint makes a re-bake move 0 nodes (AC #4).'
+    alternatives_rejected: ['Single pass — left arc-lifecycle/inception-lifecycle non-idempotent (moved 2/6 on re-check).']
+  - decision: '2026-07-05 — Reuse editor Clean via headless CDP, no dependencies'
+    chose: 'Drive the real editor in headless Chromium over the DevTools Protocol using Node''s native WebSocket/fetch (no npm install).'
+    rationale: 'Reuses `cleanLayout()` verbatim (PL-005: no editor/bridge drift) with zero added dependencies; chromium is the cached Playwright build.'
+    alternatives_rejected: ['Reimplementing Tidy in Python (PL-005 drift risk); `npm install playwright` (adds node_modules to a dependency-free repo).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-29.yaml'
+  - '.context/audits/cron/2026-07-29-1030.yaml'
+  - '.context/audits/cron/2026-07-29-1045.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/designer/projects/audit-process/meta.json'
+  - '.context/designer/projects/audit-process/v1.bpmn'
+  - '.context/designer/projects/audit-process/v1.png'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-101-bake-clean-layout-into-the-rendered-corp.md'
+  - '.tasks/active/T-102-mapmessiness-false-positive-branch-stack.md'
+  - '.tasks/active/T-301-store-card-id-vs-workflowmeta-id-seam-ve.md'
+  - 'examples/aef-processes/arc-lifecycle.workflow.yaml'
+  - 'examples/aef-processes/assumption-validation.workflow.yaml'
+  - 'examples/aef-processes/audit-process.workflow.yaml'
+  - 'examples/aef-processes/context-memory.workflow.yaml'
+  - 'examples/aef-processes/cross-host-dispatch.workflow.yaml'
+  - 'examples/aef-processes/error-escalation-ladder.workflow.yaml'
+  - 'examples/aef-processes/fabric-blast-radius.workflow.yaml'
+  - 'examples/aef-processes/git-commit-flow.workflow.yaml'
+  - 'examples/aef-processes/harvest-pipeline.workflow.yaml'
+  - 'examples/aef-processes/healing-loop.workflow.yaml'
+  - 'examples/aef-processes/inception-lifecycle.workflow.yaml'
+  - 'examples/aef-processes/inception-review.workflow.yaml'
+  - 'examples/aef-processes/promotion-pipeline.workflow.yaml'
+  - 'examples/aef-processes/release-pipeline.workflow.yaml'
+  - 'examples/aef-processes/rendered/arc-lifecycle.bpmn'
+  - 'examples/aef-processes/rendered/assumption-validation.bpmn'
+  - 'examples/aef-processes/rendered/audit-process.bpmn'
+  - 'examples/aef-processes/rendered/context-memory.bpmn'
+  - 'examples/aef-processes/rendered/cross-host-dispatch.bpmn'
+  - 'examples/aef-processes/rendered/error-escalation-ladder.bpmn'
+  - 'examples/aef-processes/rendered/fabric-blast-radius.bpmn'
+  - 'examples/aef-processes/rendered/git-commit-flow.bpmn'
+  - 'examples/aef-processes/rendered/harvest-pipeline.bpmn'
+  - 'examples/aef-processes/rendered/healing-loop.bpmn'
+  - 'examples/aef-processes/rendered/inception-lifecycle.bpmn'
+  - 'examples/aef-processes/rendered/inception-review.bpmn'
+  - 'examples/aef-processes/rendered/promotion-pipeline.bpmn'
+  - 'examples/aef-processes/rendered/release-pipeline.bpmn'
+  - 'examples/aef-processes/rendered/resume-status.bpmn'
+  - 'examples/aef-processes/rendered/review-emission.bpmn'
+  - 'examples/aef-processes/rendered/revisit-due-scan.bpmn'
+  - 'examples/aef-processes/rendered/session-capture.bpmn'
+  - 'examples/aef-processes/rendered/session-handover.bpmn'
+  - 'examples/aef-processes/rendered/task-gate.bpmn'
+  - 'examples/aef-processes/rendered/task-lifecycle.bpmn'
+  - 'examples/aef-processes/rendered/tier0-escalation.bpmn'
+  - 'examples/aef-processes/rendered/upgrade-process.bpmn'
+  - 'examples/aef-processes/rendered/verification-gate.bpmn'
+  - 'examples/aef-processes/resume-status.workflow.yaml'
+  - 'examples/aef-processes/review-emission.workflow.yaml'
+  - 'examples/aef-processes/revisit-due-scan.workflow.yaml'
+  - 'examples/aef-processes/session-capture.workflow.yaml'
+  - 'examples/aef-processes/session-handover.workflow.yaml'
+  - 'examples/aef-processes/task-gate.workflow.yaml'
+  - 'examples/aef-processes/task-lifecycle.workflow.yaml'
+  - 'examples/aef-processes/tier0-escalation.workflow.yaml'
+  - 'examples/aef-processes/upgrade-process.workflow.yaml'
+  - 'examples/aef-processes/verification-gate.workflow.yaml'
+  - 'tools/README.md'
+  - 'tools/_clean-layout-cdp.mjs'
+  - 'tools/bake-clean-layout.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-07-05T18:45:32'
+    action: 'T-101: Add re-runnable Clean-layout bake tool (headless editor driver + yaml patcher)'
+  - time: '2026-07-05T18:59:39'
+    action: 'T-101: Bake Clean layout into all 24 corpus maps'
+  - time: '2026-07-05T19:01:44'
+    action: 'T-101: Complete ACs + Recommendation for corpus bake and T-102 metric fix'
+  - time: '2026-07-05T19:14:36'
+    action: 'T-101: Document bake-clean-layout tool + re-run procedure in tools/README'
+  - time: '2026-07-06T00:40:16'
+    action: 'T-101: Re-bake corpus with align-columns (centre-x) from T-116'
+  - time: '2026-07-29T10:46:20'
+    action: 'T-101: operator tidiness verdict recorded (looks tidy — [REVIEW] AC verified in chat, human to tick+finalize); field observation from the review filed as T-301 (inception, DEFER, later): Versions panel keys to workflowMeta.id not loaded store id — empty panel + save forked new project audit-process v1 (bytes verified equal to re-baked corpus modulo one editor aef:anchors line, no data loss); operator store save committed'
+  - time: '2026-11-12T22:13:50'
+    action: 'T-101: context in the four required fields; unblocked (T-1402, T-1403 fixed its two drifted checks); its suite line runs the core gate and the browser tier under Node 22'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 187834 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 187834
+  commits: 8
+  files_changed: 71
+  lines_added: 1955
+  lines_removed: 652
+  footprint_refreshed_at: '2026-11-12T21:35:59Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-101-bake-clean-layout-into-the-rendered-corp.md
+generated_by: context-agent-hybrid

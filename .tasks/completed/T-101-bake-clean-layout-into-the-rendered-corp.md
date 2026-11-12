@@ -9,21 +9,21 @@ description: >
   in Python (drift risk, PL-005). Makes the T-100 nudge correctly quiet on the shipped
   corpus.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_run
+current_node: frw_end_task
 owner: agent
-horizon: later
+horizon: null
 tags: []
-components: []
+components: [tools/_clean-layout-cdp.mjs, tools/bake-clean-layout.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T10:39:42Z
-last_update: 2026-09-29T17:23:01Z
-date_finished:
+last_update: 2026-11-12T21:14:02Z
+date_finished: 2026-11-12T21:14:02Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -333,12 +333,16 @@ parity OK, 24 clean; regen 0/24 drift; screenshots `.playwright-mcp/t101-*`.
 ### 2026-07-05T16:26:28Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 
+### 2026-11-12T21:14:02Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-ea1c1d4a
-- **Timestamp:** 2026-07-29T13:13:35Z
+- **Scan ID:** R-d3817894
+- **Timestamp:** 2026-11-12T21:35:26Z
 - **Catalogue:** v1.3-seed
 - **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
 - **Needs Human:** no
 - **Findings:** 3
 
@@ -346,14 +350,13 @@ parity OK, 24 clean; regen 0/24 drift; screenshots `.playwright-mcp/t101-*`.
 
 - **AC#1 (Agent)** — A committed, re-runnable pass (script/tool, not manual edits) applies `cleanLayout()` to each of the 24 `examples/aef-processes/rendered/*.bpmn` and writes the cleaned geometry back; documented how to
   - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/bake-clean-layout.py in: A committed, re-runnable pass (script/tool, not manual edits) applies `cleanLayout()` to each of the 24 `examples/aef-processes/rendered/*.bpmn` and w`
+- **AC#3 (Agent)** — Post-bake, `tools/yaml-to-bpmn.py` re-run does NOT clobber the tidied geometry — chose **generator emits tidy output**: geometry lives in the yaml source, tidied y/lane-height baked there, so a naive 
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/yaml-to-bpmn.py in: Post-bake, `tools/yaml-to-bpmn.py` re-run does NOT clobber the tidied geometry — chose **generator emits tidy output**: geometry lives in the yaml sou`
 
 **Verification-level findings:**
 
-  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 31
-     - evidence: `out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "0 known-legacy, 0 new-fail"  # capture-first (L-387) + count-agnostic, T-305`
-  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 34
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 35
      - evidence: `python3 tests/test_editor_bridge_structured_parity.py 2>&1 | grep -q "OK:"`
-
 ### 2026-08-23T10:24:08Z — status-update [task-update-agent]
 - **Change:** horizon: now → later
 - **Change:** status: preserved at started-work (T-1589 shipping evidence)
