@@ -790,7 +790,7 @@ by drift.
 # 2026-11-11: was `bash tests/run-bridge-tests.sh` (every tier, the sweep included); the standard is core + browser
 # (T-1288/T-1374), as for T-347. The render line now matches the harness's current wording (it has 4 arms since the
 # pool half and T-1386), and every node line runs node 22 (the system node 18 has no WebSocket).
-PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tests/run-bridge-tests.sh --tier core
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tools/_t1288-prepush-gate.sh
 PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tests/run-bridge-tests.sh --tier browser > /tmp/.t358-browser.out 2>&1 || { grep -E '\[FAIL\]|^tier ' /tmp/.t358-browser.out; false; }
 PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t356-third-party-fidelity-cdp.mjs
 python3 tools/_t358-corpus-lane-provenance-probe.py
