@@ -21413,3 +21413,21 @@ scan_id: R-d77f88f1
 task_id: T-1396
 payload:
   task_file: .tasks/active/T-1396-upgrade-aef-v1816-be26---v1816-be47-t-50.md
+---
+kind: scan_emitted
+timestamp: '2026-11-12T12:18:15Z'
+scan_id: R-d670e9ce
+task_id: T-358
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-12T12:18:15Z'
+scan_id: R-d670e9ce
+task_id: T-358
+payload:
+  task_file: .tasks/active/T-358-importer-fabricates-lane-and-pool-struct.md

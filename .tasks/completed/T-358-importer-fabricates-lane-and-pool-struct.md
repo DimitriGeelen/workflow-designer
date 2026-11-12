@@ -8,21 +8,21 @@ description: >
   pool. The catalogued import-loss class (T-337/340/347/348) is subtraction; this
   is the opposite direction and needs a different repair.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: agt_2_perform
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_roundtrip-serialization-cdp.mjs, tools/_t358-byteid-thirdparty.mjs, tools/_t358-corpus-lane-provenance-probe.py, tools/_t358-empty-lanes-blast-radius.mjs, tools/_t358-export-determinism.mjs, tools/_t358-lane-provenance-cdp.mjs, tools/_t358-laneless-render-cdp.mjs, tools/_t358-repair-options-cdp.mjs, tools/_t358-teeth.py, tools/validate-workflow.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T16:12:36Z
-last_update: 2026-11-11T17:44:48Z
-date_finished:
+last_update: 2026-11-12T11:55:51Z
+date_finished: 2026-11-12T11:55:51Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -1078,6 +1078,9 @@ fabrication live at `lanes in=0 out=3` across the affected rows.
 ### 2026-11-11T17:44:48Z — status-update [task-update-agent]
 - **Change:** owner: human → agent
 
+### 2026-11-12T11:55:51Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
 ## 2026-09-27 — the T-835 hold is discharged, and the ruling changes the question (T-888)
 
 This task was HELD behind T-835 (recorded 2026-09-23). T-835 reported, four external consults
@@ -1096,3 +1099,13 @@ ruling says anything about fabricating a participant.
 
 **This task's open `[REVIEW]` criterion is the operator's and is untouched.** The choice is
 narrower than when it was written — it is now about the pool, not the lanes.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d670e9ce
+- **Timestamp:** 2026-11-12T12:18:15Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
