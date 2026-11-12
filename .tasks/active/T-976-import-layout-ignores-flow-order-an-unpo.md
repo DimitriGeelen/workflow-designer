@@ -174,7 +174,7 @@ harness, each proven to bite by a poison arm (columns 40 px apart).
 
 | state | control | 1024 | 1440 | 1920 | note |
 |-------|---------|------|------|------|------|
-| map opened | flow order left to right | ok | ok | ok | at 1024/1440 the right part is under the details panel, reached by scrolling |
+| map opened | flow order left to right | ok | ok | ok | at 1024/1440 the right part is under the details panel, reached by scrolling: measured by leg F7 (1024: Done fully visible and clickable at scrollLeft 640 of 1116), added after the advisory sweep said screenshots cannot show it |
 | map opened | nodes in their lanes, no overlap | ok | ok | ok | |
 | map opened | flow labels (yes / no / recheck) | ok | ok | ok | "recheck" runs along the pool's title border (existing loop routing) |
 | map opened | toolbar, palette, details panel | ok | ok | ok | unchanged by T-976 |

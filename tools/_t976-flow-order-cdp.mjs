@@ -107,13 +107,32 @@ async function measure(src, fixture, W, H, shot) {
     }
     await ev(cmd, `adoptImportedXml(${JSON.stringify(MAP)}, { userImport: true }); openingZoom(); true`); await sleep(900);
     const m = await ev(cmd, MEASURE);
+    // F7 (asked by the advisory sweep: "scrolling reachability cannot be verified from screenshots"): scroll the canvas
+    // to its right end; the last node (Done) must then be inside the canvas and be what a click at its centre hits.
+    m.reach = await ev(cmd, `(async () => {
+      const done = state.nodes.find(n => n.name === 'Done'); if (!done) return { ok: false, why: 'no Done node' };
+      const g = document.querySelector('#g-nodes > g[data-id="' + done.id + '"]'); if (!g) return { ok: false, why: 'Done not drawn' };
+      // Step through the whole horizontal scroll range: reachable = at SOME position Done's box lies inside the canvas
+      // and a click at its centre lands on Done (not on the details panel or the palette over it).
+      const max = canvasWrap.scrollWidth - canvasWrap.clientWidth, start = canvasWrap.scrollLeft;
+      let seen = null;
+      for (let s = 0; s <= max + 40 && !seen; s += 40) {
+        canvasWrap.scrollLeft = Math.min(s, max); await new Promise(r => setTimeout(r, 30));
+        const r = g.getBoundingClientRect(), w = canvasWrap.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        const inside = r.left >= w.left && r.right <= w.right && r.top >= w.top && r.bottom <= w.bottom;
+        const hit = document.elementFromPoint(cx, cy);
+        if (inside && hit && g.contains(hit)) seen = canvasWrap.scrollLeft;
+      }
+      canvasWrap.scrollLeft = start;
+      return { ok: seen !== null, why: seen !== null ? 'Done fully visible and hit at scrollLeft ' + seen + ' of ' + max : 'at no scroll position of 0..' + max + ' is Done fully visible and clickable' };
+    })()`);
     if (shot) { mkdirSync(shotDir, { recursive: true }); const s = await cmd('Page.captureScreenshot', { format: 'png' }); writeFileSync(join(shotDir, `${fixture.replace(/\.bpmn$/, '')}-${W}.png`), Buffer.from(s.data, 'base64')); }
     return m;
   } finally { try { cl && cl.close(); } catch (_) {} try { br.kill('SIGKILL'); } catch (_) {} try { py.kill('SIGKILL'); } catch (_) {} }
 }
 
 const LOOP = f => f.from === 'Reject and notify' && f.to === 'Check the order';
-function judge(noDi, partly) {
+function judge(noDi, partly, narrow) {
   const legs = [], leg = (ok, name, what) => legs.push({ ok, name, what });
   const back = noDi.flows.filter(f => !f.forward && !LOOP(f));
   leg(back.length === 0, 'F1', `no-DI map: flows pointing backwards (loop aside): ${back.length}${back.length ? ' — ' + back.map(f => f.from + ' -> ' + f.to).join('; ') : ''}`);
@@ -123,6 +142,7 @@ function judge(noDi, partly) {
   leg(noDi.outOfLane.length === 0, 'F4', `no-DI map: nodes outside their lane's band: ${noDi.outOfLane.length}${noDi.outOfLane.length ? ' — ' + noDi.outOfLane.join(', ') : ''}`);
   leg(noDi.through.length === 0, 'F5', `no-DI map: flows drawn through a node they do not connect: ${noDi.through.length}${noDi.through.length ? ' — ' + noDi.through.join('; ') : ''}`);
   leg(noDi.labelCount >= 8 && noDi.labelHits.length === 0, 'F6', `no-DI map: overlapping node labels: ${noDi.labelHits.length} of ${noDi.labelCount} labels${noDi.labelHits.length ? ' — ' + noDi.labelHits.join('; ') : ''}`);
+  leg(!!(narrow && narrow.reach && narrow.reach.ok), 'F7', `no-DI map at 1024: scrolled right, Done reachable — ${narrow && narrow.reach ? narrow.reach.why : 'not measured'}`);
   const pBack = partly.flows.filter(f => !f.forward && !LOOP(f)).length;
   leg(pBack > 0, 'P1', `partly positioned: today's placement kept (flows backwards: ${pBack}, must be > 0)`);
   leg(partly.xOf['Order received'] === 900, 'P2', `partly positioned: the positioned node at x ${partly.xOf['Order received']} (file: 900)`);
@@ -133,8 +153,9 @@ const report = legs => { for (const l of legs) console.log(`${l.ok ? 'ok  ' : 'F
 async function runAll(src, shots) {
   const noDi = await measure(src, 'flow-order-no-di.bpmn', 1440, 900, false);
   const partly = await measure(src, 'partly-positioned.bpmn', 1440, 900, false);
+  const narrow = await measure(src, 'flow-order-no-di.bpmn', 1024, 768, false);
   if (shots && shotDir) for (const [W, H] of [[1024, 768], [1440, 900], [1920, 1080]]) await measure(src, 'flow-order-no-di.bpmn', W, H, true);
-  return judge(noDi, partly);
+  return judge(noDi, partly, narrow);
 }
 
 async function main() {
