@@ -98,6 +98,17 @@ cost_estimate_proposed:
 
 ## Context
 
+**Background / trigger:** operator request, 2026-07-28, with a screenshot of fw_1_scan (details below).
+
+**Problem / hypothesis:** node-id badges and their halos were painted above edge arrowheads, hiding arrowheads near a
+badge and blocking the edge-endpoint drag handle there.
+
+**Goal:** arrows above id badges by default; a selected element's badge comes to the front.
+
+**Expected outcome:** badges live in their own layers (#g-badges below edges, #g-badges-top for the selection), with
+no pointer events. Built and shipped long ago; this close only modernises the suite line (2026-11-12: it called the
+whole suite under system Node 18, which has no WebSocket).
+
 Operator request (2026-07-28, with screenshot of fw_1_scan): node-id badges + their T-083
 halos paint above edge arrowheads (badges live inside node groups in #g-nodes, above
 #g-edges), which (a) occludes arrowheads entering a node near its badge and (b) makes the
@@ -197,7 +208,8 @@ state-derived nodeVisualBottom, not badge DOM — no cross-render consumers brea
 grep -q 'id="g-badges"' src/aef-workflow-designer.html
 grep -q 'id="g-badges-top"' src/aef-workflow-designer.html
 bash tests/check-corpus-geometry.sh > /tmp/.t286-geom 2>&1 && grep -qi "clean\|pass\|ok" /tmp/.t286-geom
-bash tests/run-bridge-tests.sh > /tmp/.t286-bridge 2>&1
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tools/_t1288-prepush-gate.sh
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tests/run-bridge-tests.sh --tier browser > /tmp/.t286-bridge 2>&1 || { grep -E '\[FAIL\]|^tier ' /tmp/.t286-bridge; false; }
 
 ## RCA
 
