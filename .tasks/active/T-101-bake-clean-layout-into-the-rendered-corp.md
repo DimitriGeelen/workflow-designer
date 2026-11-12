@@ -163,6 +163,11 @@ Operator decision (2026-07-05 dialogue on auto-tidy): option 1 of three (2 = T-0
        `bin/fw reviewer T-101 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+**Blocked from closing (2026-11-12, agent):** two of the checks below are red, and neither runs in the bridge suite, so
+both drifted unnoticed. `tests/run-validator-tests.sh` 79/84 (filed T-1402); `tools/_corpus-adopt-verify.py` 11 maps
+"rendered != latest" (filed T-1403). The full-suite lines also call the suite under system Node 18. T-101 stays open
+until T-1402 and T-1403 are resolved; its verification is not edited to pass around them.
+
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.
