@@ -1,13 +1,25 @@
 ---
 id: T-1398
-name: "Rehearsal reported a config key unknown that the real run accepted (job 132 step 9, be.47 RELEASE_ARTIFACT_PATHS)"
+name: "Rehearsal reported a config key unknown that the real run accepted (job 132
+  step 9, be.47 RELEASE_ARTIFACT_PATHS)"
 description: >
-  In job 132's first dry-run (2026-11-11), step 9 'fw config set RELEASE_ARTIFACT_PATHS ...' in the rehearsal clone was refused: 'Unknown config key ... not in the config registry', AFTER step 2 had upgraded that clone to be.47 (version_sha check passed). In the real run (2026-11-12) the same key is in .agentic-framework/lib/config.sh (count 1, sha256 identical to be.47), and a plain set (no --force) prints 'Set'. AEF could not reproduce from a fresh be.26 consumer. Preserve list and local edits ruled out. So the rehearsal saw an older registry: suspect tools/runme-launcher.sh's clone or environment (private mount namespace, read-only project, PROJECT_ROOT/CONTEXT_DIR/TASKS_DIR unset). A rehearsal that refuses what the real run accepts makes jobs use --force workarounds. Reproduce with a minimal job (upgrade step, then a plain set), then fix.
+  In job 132's first dry-run (2026-11-11), step 9 'fw config set RELEASE_ARTIFACT_PATHS
+  ...' in the rehearsal clone was refused: 'Unknown config key ... not in the config
+  registry', AFTER step 2 had upgraded that clone to be.47 (version_sha check passed).
+  In the real run (2026-11-12) the same key is in .agentic-framework/lib/config.sh
+  (count 1, sha256 identical to be.47), and a plain set (no --force) prints 'Set'.
+  AEF could not reproduce from a fresh be.26 consumer. Preserve list and local edits
+  ruled out. So the rehearsal saw an older registry: suspect tools/runme-launcher.sh's
+  clone or environment (private mount namespace, read-only project, PROJECT_ROOT/CONTEXT_DIR/TASKS_DIR
+  unset). A rehearsal that refuses what the real run accepts makes jobs use --force
+  workarounds. Reproduce with a minimal job (upgrade step, then a plain set), then
+  fix.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +50,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-12T11:37:55Z
-last_update: 2026-11-12T11:37:55Z
-date_finished: null
+last_update: '2026-11-12T17:35:48Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +62,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-12T17:35:48Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1398: Rehearsal reported a config key unknown that the real run accepted (job 132 step 9, be.47 RELEASE_ARTIFACT_PATHS)
@@ -57,20 +89,33 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** job 132's first dry-run (2026-11-11): step 9's `fw config set RELEASE_ARTIFACT_PATHS` was refused
+in the rehearsal clone as an unknown key, after step 2 had upgraded the clone to be.47. In the real run (2026-11-12)
+the same set works. AEF could not reproduce it (msgs 2c2f3bb3 to 295ae01d).
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis (found by reading, 2026-11-12):** `tools/runme-launcher.sh` `rehearse_run` clears PROJECT_ROOT,
+CONTEXT_DIR and TASKS_DIR but not FRAMEWORK_ROOT. The agent's session exports
+`FRAMEWORK_ROOT=/opt/832-Workflow-designer/.agentic-framework` (and FW_ROUTED_FROM). `bin/fw` honours an inherited
+FRAMEWORK_ROOT that is a real framework tree (lib/ and agents/ present, bin/fw ~1574-1592). So the clone's upgraded fw
+ran with the REAL repo's framework, still be.26 at rehearsal time, whose registry predates the key. In the real run
+FRAMEWORK_ROOT pointed at the very tree just upgraded, so it worked; AEF's repro had no stale tree exported.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** a rehearsed step runs with the clone's own framework, never the real repo's.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** rehearse_run clears FRAMEWORK_ROOT and FW_ROUTED_FROM; a test proves a rehearsed step sees them
+unset even when the launcher's caller exports them.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `tests/test_t1286_rehearsal.py` gains a leg: a dry-run with FRAMEWORK_ROOT and FW_ROUTED_FROM exported, whose
+      rehearsed step requires both unset. Red on the launcher before the fix, green after. Leg 11: FAIL before
+      ("inherited FRAMEWORK_ROOT=…"), PASS after.
+- [x] `rehearse_run` clears FRAMEWORK_ROOT and FW_ROUTED_FROM alongside the project pointers; every other leg of the
+      rehearsal test still passes. All legs pass; test_t1055_runme_launcher.py all legs pass too.
+- [x] AEF told the cause was 832's (done in the 0.42.0 announcement, 2026-11-12). AEF msg 11d6ae3c: it is a class in
+      their concerns register (they hit it on their own node1 run); a fix on our side is right for now.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -256,6 +301,10 @@ date_finished: null
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -q "env -u PROJECT_ROOT -u CONTEXT_DIR -u TASKS_DIR -u FRAMEWORK_ROOT -u FW_ROUTED_FROM" tools/runme-launcher.sh
+python3 tests/test_t1286_rehearsal.py > /tmp/.t1398.out 2>&1 && grep -q "^PASS  11 a rehearsed step sees no inherited FRAMEWORK_ROOT" /tmp/.t1398.out
+python3 tests/test_t1055_runme_launcher.py > /tmp/.t1398b.out 2>&1 && grep -q "all legs passed" /tmp/.t1398b.out
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tools/_t1288-prepush-gate.sh
 
 ## RCA
 
@@ -353,3 +402,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1398-rehearsal-reported-a-config-key-unknown-.md
 - **Context:** Initial task creation
+
+### 2026-11-12T17:35:47Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

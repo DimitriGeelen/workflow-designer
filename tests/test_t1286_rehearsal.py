@@ -282,6 +282,20 @@ steps() { step "commit" 'echo y > ident.txt && git add ident.txt && git commit -
         leg(rc == 0 and "ok    step 1/1: commit" in out and "Author identity unknown" not in out,
             "10 a committing step uses the repo's own local identity in the rehearsal (no global identity)", tail(out, 6))
 
+        # 11 T-1398: a rehearsed step runs with the CLONE's framework. The agent's session exports FRAMEWORK_ROOT (the real
+        #    repo's .agentic-framework) and FW_ROUTED_FROM; bin/fw obeys an inherited FRAMEWORK_ROOT that is a real
+        #    framework tree, so job 132's rehearsal ran the clone's upgraded fw with the real repo's older registry and its
+        #    `fw config set` refused a key the real run accepted. Both must be unset inside a rehearsed step.
+        decoy = tempfile.mkdtemp(prefix="t1398-fw-")
+        os.makedirs(os.path.join(decoy, "lib")); os.makedirs(os.path.join(decoy, "agents"))
+        f.job("011-fwroot", '''JOB_TITLE="No inherited framework root in a rehearsed step"
+steps() { step "framework pointers unset" '[ -z "${FRAMEWORK_ROOT:-}" ] && [ -z "${FW_ROUTED_FROM:-}" ] || { echo "inherited FRAMEWORK_ROOT=${FRAMEWORK_ROOT:-} FW_ROUTED_FROM=${FW_ROUTED_FROM:-}"; false; }'; }
+''')
+        rc, out = f.dry("011-fwroot", FRAMEWORK_ROOT=decoy, FW_ROUTED_FROM=decoy)
+        shutil.rmtree(decoy, ignore_errors=True)
+        leg(rc == 0 and "ok    step 1/1: framework pointers unset" in out,
+            "11 a rehearsed step sees no inherited FRAMEWORK_ROOT / FW_ROUTED_FROM (the clone's own fw runs)", tail(out, 6))
+
         # 9 T-1298: two rehearsals of the SAME job name at once (two suite runs, same fixture names) neither remove each
         #   other's clone nor write through it into the project's repo. On a sandbox project with its own repo and a copy
         #   of the launcher, because an escape walks up to the launcher's project: here, never the real one.

@@ -222,7 +222,10 @@ rehearse_run() {  # rehearse_run <clone> <job.sh in it> <command> <output file>:
     # waited for, so INT/TERM reach the trap at once instead of after the step.
     # T-1298: GIT_CEILING_DIRECTORIES stops git's repo discovery at the clone, so a step whose clone lost its .git fails
     # instead of finding the project's repo above it.
-    local inner='cd "$C" && exec setsid env -u PROJECT_ROOT -u CONTEXT_DIR -u TASKS_DIR GIT_CEILING_DIRECTORIES="$(dirname "$C")" "$BASH" --norc --noprofile -c \
+    # T-1398: FRAMEWORK_ROOT and FW_ROUTED_FROM too. bin/fw obeys an inherited FRAMEWORK_ROOT that is a real framework
+    # tree, so the session's (the real repo's .agentic-framework) made the clone's fw run the REAL repo's framework: job
+    # 132's rehearsed `fw config set` used the pre-upgrade registry and refused a key the real run accepted.
+    local inner='cd "$C" && exec setsid env -u PROJECT_ROOT -u CONTEXT_DIR -u TASKS_DIR -u FRAMEWORK_ROOT -u FW_ROUTED_FROM GIT_CEILING_DIRECTORIES="$(dirname "$C")" "$BASH" --norc --noprofile -c \
         '"'"'check() { :; }; step() { :; }; step_outward() { :; }; step_operator() { :; }; source "$1" || exit 97; eval "$2"'"'"' _ "$J" "$X"'
     if [ "$REHEARSE_GUARDED" = 1 ]; then
         # T-1288: a TMPDIR inside the project (the core suite tier's short .context/st) is scratch, not the project:
