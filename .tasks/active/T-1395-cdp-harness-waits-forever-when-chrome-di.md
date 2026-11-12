@@ -11,7 +11,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
+current_node: agt_2_perform
 owner: agent
 horizon: now
 tags: []
@@ -303,7 +303,8 @@ silent hang into `CDP TIMEOUT` after 120 s, instead of a suite stuck for hours.
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
 PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1395-cdp-client-selftest.mjs > /tmp/.t1395.out 2>&1 && grep -q "^PASS" /tmp/.t1395.out && grep -q "control: the old client still waiting" /tmp/.t1395.out
-grep -lE "^function cdp\(ws\) \{ const s = new WebSocket\(ws\); let id = 0; const p = new Map\(\); s.addEventListener\('message'" tools/*.mjs | wc -l | grep -qx 0
+git show 8da98622b~1:tools/_t358-laneless-render-cdp.mjs | grep -qE "^function cdp\(ws\) \{ const s = new WebSocket\(ws\); let id = 0; const p = new Map\(\); s.addEventListener\('message'"
+! grep -qlE "^function cdp\(ws\) \{ const s = new WebSocket\(ws\); let id = 0; const p = new Map\(\); s.addEventListener\('message'" tools/*.mjs
 test "$(grep -l "from './_cdp-client.mjs'" tools/*.mjs | wc -l)" -ge 130
 for f in $(grep -l "from './_cdp-client.mjs'" tools/*.mjs); do node --check "$f" || exit 1; done
 PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tools/_t1288-prepush-gate.sh
