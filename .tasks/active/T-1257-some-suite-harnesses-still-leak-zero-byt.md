@@ -107,6 +107,22 @@ launcher that runs Chromium with TMPDIR=/tmp and kills it hard leaves them. Whic
   the screenshots and may start a browser outside any of our TMPDIRs. That is the next hypothesis.
 - Not removed: the files are root's and cannot yet be shown to be ours.
 
+### Measured 2026-11-12 (agent)
+- `/tmp` holds TWO kinds of Chromium leftover, not one:
+  1. `.org.chromium.Chromium.*` (dotted): 4,935 FILES (4,087 of 256 KB, 845 empty; about 1 GB), up from 3,509 the day
+     before, 947 of them in the last 8 hours, clustered 15-19h local when our closes and release 0.42.0 ran browser
+     tiers (and other projects were busy too: load 40-90).
+  2. `org.chromium.Chromium.*` (no dot): 2,087 empty DIRECTORIES.
+- `TMPDIR=$(mktemp -d /tmp/t1257.XXXX) node tools/_t1395-cdp-client-selftest.mjs` (3 Chrome launches): PASS, and after
+  exit the TMPDIR holds 3 `org.chromium.Chromium.*` directories (one per launch) and NO dotted file. So kind 2 is ours
+  (every launch from a harness leaves one; at least partly the 2,087); kind 1 is still not shown to be ours.
+- A long TMPDIR (the agent's scratchpad path) makes Chrome fail to start ("no devtools port"): the SingletonSocket
+  path passes the ~107-byte limit (the T-1390 class). Any fix that gives Chrome its own temp dir must keep it short.
+- Fix direction for kind 2: give Chrome a private short TMPDIR inside the profile dir `_cdp-profile.mjs` already
+  removes on exit. Each harness spawns Chrome itself, so it reaches them the way T-1395's sweep did.
+- Kind 1: the next step is finding the writing process (the dispatch seats remain the hypothesis). Nothing removed;
+  removal only with the operator's approval and only of files shown to be ours.
+
 ## Acceptance Criteria
 
 ### Agent
