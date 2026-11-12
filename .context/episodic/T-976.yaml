@@ -1,0 +1,115 @@
+# ============================================================================
+# EPISODIC MEMORY - T-976: Import layout ignores flow order: an unpositioned map is laid out in document order, so a generator must hand-compute geometry or get End before its tasks
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-12T15:27:08Z
+# ============================================================================
+
+task_id: T-976
+task_name: "Import layout ignores flow order: an unpositioned map is laid out in document order, so a generator must hand-compute geometry or get End before its tasks"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T18:10:06Z
+completed: 2026-11-12T14:49:03Z
+duration_days: 42
+updates_count: 3
+first_commit: 2026-11-12T13:30:56+01:00
+last_commit: 2026-11-12T15:03:08+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a map whose file positions none of its nodes is laid out along its flows. leg F7 — at 1024 the map's last node is reachable by scrolling and clickable (the advisory sweep: screenshots cannot show reachability); sweep found nothing else. reviewer verdict. reviewer verdict green (V-20261112-aaf05067) on the three-width screenshots. last agent criterion ticked (gate 0, sweep done; the tiers are the close's own verification). reviewer re-judged green (V-20261112-e9f29efc) after the first verdict went stale on a release-notes commit that named this task
+
+# Key outcomes
+outcomes:
+  - 'A file that positions NONE of its nodes is laid out along its sequence flows: on'
+  - 'A file that positions any of its nodes is untouched: `_t308` 24/24 and the third-party byte-identity goldens'
+  - 'Lanes keep their members: every node stays in its declared lane band after the layout.'
+  - 'The "what a person sees" gate exits 0; screenshots of the fixture at 1024/1440/1920 recorded in'
+  - '[REVIEW] A map without positions opens laid out along its flows, readable at three widths'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-976/AC1-judge-t-976-r3-5ecf4fd18ae9.md'
+  - '.context/reviews/evidence/T-976/AC1-judge-t-976-r3-75625f89661c.md'
+  - '.context/reviews/evidence/T-976/flow-order-no-di-1024-judge-t-976-r3-5ecf4fd18ae9.png'
+  - '.context/reviews/evidence/T-976/flow-order-no-di-1024-judge-t-976-r3-75625f89661c.png'
+  - '.context/reviews/evidence/T-976/flow-order-no-di-1440-judge-t-976-r3-5ecf4fd18ae9.png'
+  - '.context/reviews/evidence/T-976/flow-order-no-di-1440-judge-t-976-r3-75625f89661c.png'
+  - '.context/reviews/evidence/T-976/flow-order-no-di-1920-judge-t-976-r3-5ecf4fd18ae9.png'
+  - '.context/reviews/evidence/T-976/flow-order-no-di-1920-judge-t-976-r3-75625f89661c.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.fabric/components/tools-_t976-flow-order-cdp.yaml'
+  - '.tasks/active/T-976-import-layout-ignores-flow-order-an-unpo.md'
+  - 'docs/reports/T-976-evidence/flow-order-no-di-1024.png'
+  - 'docs/reports/T-976-evidence/flow-order-no-di-1440.png'
+  - 'docs/reports/T-976-evidence/flow-order-no-di-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/fixtures/t976/flow-order-no-di.bpmn'
+  - 'tests/fixtures/t976/partly-positioned.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t976-flow-order-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-12T13:30:56'
+    action: 'T-976: a map whose file positions none of its nodes is laid out along its flows'
+  - time: '2026-11-12T13:34:03'
+    action: 'T-976: leg F7 — at 1024 the map''s last node is reachable by scrolling and clickable (the advisory sweep: screenshots cannot show reachability); sweep found nothing else'
+  - time: '2026-11-12T13:36:54'
+    action: 'T-976: reviewer verdict'
+  - time: '2026-11-12T13:37:33'
+    action: 'T-976: reviewer verdict green (V-20261112-aaf05067) on the three-width screenshots'
+  - time: '2026-11-12T13:37:46'
+    action: 'T-976: last agent criterion ticked (gate 0, sweep done; the tiers are the close''s own verification)'
+  - time: '2026-11-12T15:02:27'
+    action: 'T-976: reviewer verdict'
+  - time: '2026-11-12T15:03:08'
+    action: 'T-976: reviewer re-judged green (V-20261112-e9f29efc) after the first verdict went stale on a release-notes commit that named this task'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 60278 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 60278
+  commits: 8
+  files_changed: 27
+  lines_added: 680
+  lines_removed: 22
+  footprint_refreshed_at: '2026-11-12T15:27:18Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-976-import-layout-ignores-flow-order-an-unpo.md
+generated_by: context-agent-hybrid
