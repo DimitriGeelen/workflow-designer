@@ -2,12 +2,20 @@
 id: T-1402
 name: "Validator test runner: 5 of 84 cases red, unnoticed (not in the bridge suite)"
 description: >
-  Found 2026-11-12 closing T-101: bash tests/run-validator-tests.sh -> 79 passed, 5 failed: gw-single-default.xml expected exit 0 got 1; E-XML-IO-EXPECT-CONTRADICTS, W-XML-IO-EXPECT-REDUNDANT, W-XML-IO-FIELD-ENTITY, W-XML-IO-FIELD-UNKNOWN expected their rule, got exit 1 without it. The runner is not a leg of tests/run-bridge-tests.sh, so nothing noticed. Hypothesis (untested): the io rules need the field catalog passed (T-1370) and this runner passes none; the gateway case may follow T-1212's warnings. Find each case's cause, fix the runner or the expectations, and make the runner a suite leg.
+  Found 2026-11-12 closing T-101: bash tests/run-validator-tests.sh -> 79 passed,
+  5 failed: gw-single-default.xml expected exit 0 got 1; E-XML-IO-EXPECT-CONTRADICTS,
+  W-XML-IO-EXPECT-REDUNDANT, W-XML-IO-FIELD-ENTITY, W-XML-IO-FIELD-UNKNOWN expected
+  their rule, got exit 1 without it. The runner is not a leg of tests/run-bridge-tests.sh,
+  so nothing noticed. Hypothesis (untested): the io rules need the field catalog passed
+  (T-1370) and this runner passes none; the gateway case may follow T-1212's warnings.
+  Find each case's cause, fix the runner or the expectations, and make the runner
+  a suite leg.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-12T19:51:52Z
-last_update: 2026-11-12T19:51:52Z
-date_finished: null
+last_update: '2026-11-12T20:33:30Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-12T20:33:30Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=gateway); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1402: Validator test runner: 5 of 84 cases red, unnoticed (not in the bridge suite)
@@ -57,20 +85,35 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** found 2026-11-12 trying to close T-101, whose verification runs `tests/run-validator-tests.sh`:
+79 passed, 5 failed (gw-single-default.xml exit 1 not 0; E-XML-IO-EXPECT-CONTRADICTS, W-XML-IO-EXPECT-REDUNDANT,
+W-XML-IO-FIELD-ENTITY and W-XML-IO-FIELD-UNKNOWN not firing).
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** the runner is not a leg of `tests/run-bridge-tests.sh`, so nothing noticed it drift. Untested
+guess: the io rules need the field catalog passed (T-1370) and the runner passes none; the gateway case may follow a
+later rule change (T-1212 made gateway rules warnings).
 
-**Goal:** <what we are trying to achieve>
+**Goal:** every case's cause named, each fixed in the runner, the fixture or the expectation (never in the validator to
+fit a stale test), and the runner made a suite leg.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** `bash tests/run-validator-tests.sh` all green, and a core leg that runs it.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Each of the five failures has its cause written here, measured, with the fix that follows from it.
+      - **Four io cases** (E-XML-IO-EXPECT-CONTRADICTS, W-XML-IO-EXPECT-REDUNDANT, W-XML-IO-FIELD-ENTITY,
+        W-XML-IO-FIELD-UNKNOWN; T-1370, 2026-11-02): each fixture has a companion catalog
+        `tests/fixtures/catalogs/<RULE>.json`, which tests/test_t1370_catalog_checks.py passes and this runner never
+        did, so the rules could not fire. Fix: the runner passes `--field-catalog` when that file exists.
+      - **gw-single-default.xml** (T-317 boundary fixture): its comment says the one unconditioned branch IS the
+        default, but the file never declared `default`. T-1377 (2026-11-03, the T-1375 GO) deliberately warns on an
+        unconditioned branch that is not the declared default (W-XML-GW-BRANCH-UNCONDITIONED). Fix: the fixture
+        declares `default="f3"`, saying what its comment always said; the T-317 parity test still passes.
+- [x] `bash tests/run-validator-tests.sh` exits 0 with every case passing; no validator rule weakened to get there.
+      84 passed, 0 failed; tools/validate-workflow.py untouched.
+- [x] The runner is a core leg of `tests/run-bridge-tests.sh` (leg 231, `_t1402-validator-fixtures`).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -256,6 +299,12 @@ date_finished: null
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "summary: [0-9]* passed, 0 failed"
+grep -q 'default="f3"' tests/fixtures/valid/gw-single-default.xml
+python3 tests/test_t317_gw_ambiguous_parity.py
+python3 tests/test_t1370_catalog_checks.py
+grep -q 'leg core "_t1402-validator-fixtures" _leg_231' tests/run-bridge-tests.sh
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tools/_t1288-prepush-gate.sh
 
 ## RCA
 
@@ -353,3 +402,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1402-validator-test-runner-5-of-84-cases-red-.md
 - **Context:** Initial task creation
+
+### 2026-11-12T20:33:29Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

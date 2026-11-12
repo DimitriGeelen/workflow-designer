@@ -1928,6 +1928,21 @@ else
 fi
 }
 leg browser "_t1395-cdp-client" _leg_230
+_leg_231() {
+
+# ── T-1402: the validator's fixture runner ──
+# tests/run-validator-tests.sh: every valid/ fixture exits 0, every invalid/<RULE>.* exits 2 with its rule, every
+# warn/<RULE>.* exits 1 with its rule (a fixture with fixtures/catalogs/<RULE>.json gets --field-catalog). It was in no
+# tier, so five cases sat red for ten days, unnoticed, until T-101's close ran it (T-1402).
+if bash "$ROOT/tests/run-validator-tests.sh" > "$TMP/leg-_t1402.out" 2>&1 && grep -q "summary: [0-9]* passed, 0 failed" "$TMP/leg-_t1402.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "a validator fixture no longer exits as its folder says, or its rule stopped firing (run 'bash tests/run-validator-tests.sh'; T-1402)"
+  show_output "$TMP/leg-_t1402.out" "run-validator-tests.sh"
+  fail=$((fail + 1))
+fi
+}
+leg core "_t1402-validator-fixtures" _leg_231
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

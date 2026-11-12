@@ -9,7 +9,12 @@
      gateway in the corpus, and the suite would still look green because the
      warn fixture would keep firing. A rule is only pinned when BOTH sides of
      its boundary are pinned — the positive case alone cannot tell a correct
-     threshold from a threshold that is one too low. -->
+     threshold from a threshold that is one too low.
+
+     T-1402: the gateway now names that branch as its default (default="f3"). Since T-1377 an unconditioned branch
+     that is NOT the declared default warns (W-XML-GW-BRANCH-UNCONDITIONED), so this "valid" fixture had become a
+     warning one; saying in the file what this comment always said keeps it clean and keeps the T-317 boundary. -->
+
 <bpmn:definitions
     xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
     xmlns:aef="http://anchorpoint.framework/aef/extensions">
@@ -30,7 +35,7 @@
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:startEvent id="n_s"/>
-    <bpmn:exclusiveGateway id="n_g" name="confidence sufficient?"/>
+    <bpmn:exclusiveGateway id="n_g" name="confidence sufficient?" default="f3"/>
     <bpmn:scriptTask id="n_a"/>
     <bpmn:scriptTask id="n_b"/>
     <bpmn:scriptTask id="n_c"/>

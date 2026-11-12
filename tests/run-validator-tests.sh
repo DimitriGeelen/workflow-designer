@@ -28,9 +28,15 @@ report() {
 }
 
 # Run the validator, capture output and exit code.
+# T-1402: a fixture whose rule checks io against the field catalog (T-1370) has a companion catalog,
+# fixtures/catalogs/<RULE-ID>.json; it is passed with --field-catalog, as tests/test_t1370_catalog_checks.py does.
+# Without it those rules cannot fire, which left four cases red here, unnoticed, from 2026-11-02 to 2026-11-12.
 run() {
   # $1 = file; sets globals OUT and CODE
-  OUT="$(python3 "$VALIDATOR" "$1" 2>&1)"
+  local base cat
+  base="$(basename "$1")"; cat="$FIXTURES/catalogs/${base%.*}.json"
+  if [ -f "$cat" ]; then OUT="$(python3 "$VALIDATOR" "$1" --field-catalog "$cat" 2>&1)"
+  else OUT="$(python3 "$VALIDATOR" "$1" 2>&1)"; fi
   CODE=$?
 }
 
