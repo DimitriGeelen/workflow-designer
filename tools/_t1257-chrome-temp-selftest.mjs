@@ -12,10 +12,10 @@ import { spawn } from 'node:child_process';
 import { mkdtempSync, mkdirSync, existsSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { makeProfileDir, removeProfileDir, chromeTempOf } from './_cdp-profile.mjs';
 
 const T = mkdtempSync('/tmp/t1257s-');
 process.env.TMPDIR = T;   // before the helper creates anything: os.tmpdir() reads it per call, Chrome inherits it
-const { makeProfileDir, removeProfileDir, chromeTempOf } = await import('./_cdp-profile.mjs');
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
@@ -41,12 +41,13 @@ try {
     leg(!!linked && chromeDirs().length === 0 && !existsSync(udd), 'A', `the launch's dir ${linked ? linked.split('/').pop() : '(link not found)'}; left after removeProfileDir: ${chromeDirs().length}, profile gone ${!existsSync(udd)}`);
     try { p.kill('SIGKILL'); } catch {}
   }
-  // control
+  // control: the same helper profile, removed the way it was before T-1404 (the profile alone, no link followed)
   {
-    const udd = mkdtempSync(join(T, 't1257c-'));
-    const p = await launch(udd);
+    const prof = makeProfileDir('t1257c-');
+    const p = await launch(prof);
     p.kill('SIGKILL'); await sleep(500);
-    rmSync(udd, { recursive: true, force: true });
+    rmSync(prof, { recursive: true, force: true });   // the old removal: the link goes with the profile, unread
+    removeProfileDir(prof);                            // the helper now finds no link, so Chrome's dir stays
     const left = chromeDirs();
     const ok = left.length === 1;
     results.push(ok);
