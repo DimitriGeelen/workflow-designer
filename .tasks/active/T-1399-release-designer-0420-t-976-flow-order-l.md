@@ -99,12 +99,14 @@ there — and T-976 is closed first, so the release cannot overlap its close).
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Release notes `docs/releases/RELEASE-NOTES-0.42.0.md` committed: the four changes, what changes in stored maps
+- [x] Release notes `docs/releases/RELEASE-NOTES-0.42.0.md` committed: the four changes, what changes in stored maps
       (nothing for maps with positions; a map with none gets the flow layout on open), the five endpoints and whether
       AEF serves each.
-- [ ] Operator job written from job 128, rehearsed (dry-run green) and committed, with a preflight check for /tmp
-      space and one for T-976 being closed.
-- [ ] After the operator's run: tag `designer-v0.42.0` on origin, the artifact in dist/, AEF told (version, tag,
+- [x] Operator job written from job 128, rehearsed (dry-run green) and committed, with a preflight check for /tmp
+      space and one for T-976 being closed. Job 133, sha fb7f11342a93; operator ran it 2026-11-12 17:07-17:34 (local),
+      rc 0, all 10 steps: both calibrations PASS, browser and core tiers green, pushed.
+- [ ] After the operator's run: (tag on origin e2f9ff604; artifact sha256 c2fe4a55d839…, 1351062 bytes; AEF told
+      2026-11-12 on consult-832-Workflow-designer; pin BEHIND 1 at announcement — open until CURRENT) tag `designer-v0.42.0` on origin, the artifact in dist/, AEF told (version, tag,
       sha256, bytes, what it brings), and `tools/_t1187-aef-pin-lag.sh` reporting CURRENT.
 
 ### Human
