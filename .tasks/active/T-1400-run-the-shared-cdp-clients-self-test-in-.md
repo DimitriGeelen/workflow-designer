@@ -97,9 +97,9 @@ not a live caller, so closing T-1395 orphaned it. Nothing would now notice a cha
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `tests/run-bridge-tests.sh` has a browser leg running `tools/_t1395-cdp-client-selftest.mjs` and requiring its PASS
+- [x] `tests/run-bridge-tests.sh` has a browser leg running `tools/_t1395-cdp-client-selftest.mjs` and requiring its PASS
       line and its control line ("the old client still waiting").
-- [ ] `python3 tools/_t451-unwired-guard-census.py --ratchet` back at the 94 baseline with no other entry moving.
+- [x] `python3 tools/_t451-unwired-guard-census.py --ratchet` back at the 94 baseline with no other entry moving.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -285,6 +285,10 @@ not a live caller, so closing T-1395 orphaned it. Nothing would now notice a cha
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+bash -n tests/run-bridge-tests.sh
+grep -q 'leg browser "_t1395-cdp-client" _leg_230' tests/run-bridge-tests.sh
+python3 tools/_t451-unwired-guard-census.py --ratchet
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1395-cdp-client-selftest.mjs > /tmp/.t1400.out 2>&1 && grep -q "^PASS" /tmp/.t1400.out && grep -q "control: the old client still waiting" /tmp/.t1400.out
 
 ## RCA
 
