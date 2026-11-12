@@ -16,7 +16,7 @@ workflow_type: build
 current_node: frw_1_start
 owner: agent
 horizon: now
-tags: []
+tags: [aef-be48]
 components: []
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
@@ -46,7 +46,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-12T18:03:14Z
-last_update: '2026-11-12T18:03:20Z'
+last_update: 2026-11-12T19:01:10Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -99,11 +99,18 @@ reads, `>` inside quotes read as a write); be.48 fixes those (T-5091, T-5092).
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Operator job written from job 132 (minus its two settings steps, which are done), rehearsed green and committed;
-      the rehearsal runs with T-1398's fix (the clone's own framework).
-- [ ] After the operator's run: local fixes re-applied (divergence check OK), no `.bak` left unsettled, templates settled,
-      RELEASE_ARTIFACT_PATHS and HOST still in `.framework.yaml`, task files still 664.
-- [ ] Both suite tiers green on the upgraded tree.
+- [x] Operator job written from job 132 (minus its two settings steps, which are done), rehearsed green and committed;
+      the rehearsal runs with T-1398's fix (the clone's own framework). Job 134, sha 800025a6ff71, rehearsed green on the
+      first try with no --force workaround; operator ran it 2026-11-12 19:20-20:00 (local), rc 0, all 11 steps;
+      Watchtower answers on 0.0.0.0:3013 locally and on the LAN address.
+- [x] After the operator's run: local fixes re-applied (divergence check OK), no `.bak` left unsettled, templates settled,
+      RELEASE_ARTIFACT_PATHS and HOST still in `.framework.yaml`, task files still 664. 37/37 patches clean (9cd7fc0db),
+      _t517 44 = 44; CLAUDE.md.bak = the pre-upgrade file, differing only in AEF's Handover sections (`fw handover` now
+      commits and pushes; `--no-commit` writes it only), every backup-only line superseded, removed (9c1730d74); step 8
+      removed the superseded inception.md.upstream; step 9 found both settings; T-1401 stays 664 with the operator's ACL
+      through `fw task update`.
+- [x] Both suite tiers green on the upgraded tree. The core (pre-push gate) and browser lines in `## Verification`,
+      which this close runs and which refuse it on red.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -289,6 +296,15 @@ reads, `>` inside quotes read as a write); be.48 fixes those (T-5091, T-5092).
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -qx "version_sha: 1938e23612c8e1ed59e723fef5bf5c9c50e70114" .framework.yaml
+grep -qx "RELEASE_ARTIFACT_PATHS: docs/authoring-kit/calibration-records/" .framework.yaml
+grep -qx "HOST: 0.0.0.0" .framework.yaml
+python3 tools/_t517-vendor-divergence.py
+test ! -e CLAUDE.md.bak
+test -f .context/runme/134-upgrade-aef-v1.8.16-be.48/done
+[ "$(stat -c %a .tasks/active/T-1401-upgrade-aef-v1816-be47---v1816-be48-gate.md)" = 664 ]
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tools/_t1288-prepush-gate.sh
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tests/run-bridge-tests.sh --tier browser > /tmp/.t1401-browser.out 2>&1 || { grep -E '\[FAIL\]|^tier ' /tmp/.t1401-browser.out; false; }
 
 ## RCA
 
@@ -389,3 +405,6 @@ reads, `>` inside quotes read as a write); be.48 fixes those (T-5091, T-5092).
 
 ### 2026-11-12T18:03:18Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-12T19:01:10Z — status-update [task-update-agent]
+- **Change:** tags: +aef-be48
