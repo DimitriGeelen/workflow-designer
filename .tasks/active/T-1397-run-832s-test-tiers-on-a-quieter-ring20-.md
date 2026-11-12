@@ -202,6 +202,22 @@ We will know that we are successful when we see <measurable signal>.
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-11-12 — operator: does a pool result count for a push?
+- **Chose (operator, in conversation):** trust the pool. "A node is given, made available, not without reason." Isolation
+  is there, and runs can be told apart. Releases keep their local run. For high-impact, high-risk changes: TWO
+  independent runs on two different machines.
+- **Agent's proposals, for the operator to adjust (not yet ruled):**
+  1. High-risk = a fixed list, not a judgement call: releases; framework upgrades; changes to the test gate itself
+     (tests/run-bridge-tests.sh, tools/_t1288-*, the census/ratchet tools); changes to the designer's save/load path
+     (parseBpmnXml, buildBpmnXml and what they call).
+  2. The second machine should differ in setup, not be a second pool node (two nodes share one environment and miss the
+     same drift). Releases: pool + .107 (the release job's local browser run already is that). Others: two pool nodes are
+     acceptable when .107 is too loaded.
+  3. Two runs that disagree is a stop: nothing ships until the difference is explained.
+- **Rejected:** local-only (keeps the hours of waiting the pool exists to remove).
+- **Before building it:** compare a few pool runs with local runs of the same commit, so the trust starts from measured
+  agreement.
+
 ## Decision
 
 <!-- Filled at completion via: fw inception decide T-1397 go|no-go --rationale "..." -->
