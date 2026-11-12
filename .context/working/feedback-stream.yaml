@@ -21485,3 +21485,21 @@ scan_id: R-1e803ce1
 task_id: T-1398
 payload:
   task_file: .tasks/active/T-1398-rehearsal-reported-a-config-key-unknown-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-12T19:46:16Z'
+scan_id: R-c27a6e06
+task_id: T-1401
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-12T19:46:16Z'
+scan_id: R-c27a6e06
+task_id: T-1401
+payload:
+  task_file: .tasks/active/T-1401-upgrade-aef-v1816-be47---v1816-be48-gate.md

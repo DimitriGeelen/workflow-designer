@@ -1,0 +1,171 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1401: Upgrade AEF v1.8.16-be.47 -> v1.8.16-be.48 (gate false-refusal fixes T-5091/T-5092; Watchtower-tick hand-back T-5081)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-12T19:46:34Z
+# ============================================================================
+
+task_id: T-1401
+task_name: "Upgrade AEF v1.8.16-be.47 -> v1.8.16-be.48 (gate false-refusal fixes T-5091/T-5092; Watchtower-tick hand-back T-5081)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-12T18:03:14Z
+completed: 2026-11-12T19:01:52Z
+duration_days: 0
+updates_count: 4
+first_commit: 2026-11-12T19:04:16+01:00
+last_commit: 2026-11-12T20:01:45+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  operator job 134 — upgrade AEF be.47 -> be.48 (job 132's steps; settings checked, not set again). job 134 rehearsed green (sha 800025a6ff71), the first rehearsal with T-1398's fix; ready for the operator. pristine vendor commit — AEF v1.8.16-be.48 (1938e2361) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.16-be.48 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000). CLAUDE.md as be.48 wrote it — only AEF's Handover sections changed (fw handover now commits and pushes; --no-commit writes it only); CLAUDE.md.bak diffed, every backup-only line superseded, removed. re-apply 832's local fixes onto pristine AEF v1.8.16-be.48 (re-vendor protocol step 3, T-1000). criteria ticked with evidence, verification written (both tiers run by the close)
+
+# Key outcomes
+outcomes:
+  - 'Operator job written from job 132 (minus its two settings steps, which are done), rehearsed green and committed;'
+  - 'After the operator''s run: local fixes re-applied (divergence check OK), no `.bak` left unsettled, templates settled,'
+  - 'Both suite tiers green on the upgraded tree. The core (pre-push gate) and browser lines in `## Verification`,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.16-be.48 (re-vendor protocol step 3, T-1000)'
+    source: git-mined
+  - description: 'job 134 rehearsed green (sha 800025a6ff71), the first rehearsal with T-1398''s fix; ready for the operator'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/register.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/mcp/framework_mcp_server.py'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/docs/generated/components/lib-config_components.md'
+  - '.agentic-framework/docs/generated/components/lib-optional_components.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t4239_default_bind_loopback.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t4355_doctor_absent_components.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t4360_watchtower_restart_keeps_host.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5077_sed_i_keeps_file_meta.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5078_pid_alive_reap_race.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5079_declared_release_artifacts_test.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-test_t4359_operator_marker.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-test_t5080_config_components.md'
+  - '.agentic-framework/docs/generated/components/tests-web-test_t5081_owner_handback.md'
+  - '.agentic-framework/docs/generated/components/tests-web-test_t5084_review_completed_state.md'
+  - '.agentic-framework/docs/generated/components/tests-web-test_t5085_review_header_refresh.md'
+  - '.agentic-framework/docs/generated/components/tests-web-test_t5086_review_full_page_state.md'
+  - '.agentic-framework/docs/releases/v1.8.16-notes.md'
+  - '.agentic-framework/docs/reports/T-5006-draft-plan-for-mehdi.md'
+  - '.agentic-framework/docs/reports/field-test-v1.8.16-results.md'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/config.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/issues.py'
+  - '.agentic-framework/lib/optional_components.py'
+  - '.agentic-framework/lib/seeds/tasks/existing-project/T-002-first-governed-commit.md'
+  - '.agentic-framework/lib/seeds/tasks/existing-project/T-003-register-key-components.md'
+  - '.agentic-framework/lib/seeds/tasks/existing-project/T-004-complete-task-lifecycle.md'
+  - '.agentic-framework/lib/seeds/tasks/existing-project/T-005-generate-first-handover.md'
+  - '.agentic-framework/lib/seeds/tasks/existing-project/T-006-add-project-learning.md'
+  - '.agentic-framework/lib/shell_write_scan.py'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/task_updates.py'
+  - '.agentic-framework/lib/templates/claude-project.md'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/review.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/requirements.txt'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/_review_acs.html'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/templates/review.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.context/runme/134-upgrade-aef-v1.8.16-be.48/dryrun.ok'
+  - '.context/runme/134-upgrade-aef-v1.8.16-be.48/job.sh'
+  - '.framework.yaml'
+  - '.tasks/active/T-1401-upgrade-aef-v1816-be47---v1816-be48-gate.md'
+  - 'CLAUDE.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-12T19:04:16'
+    action: 'T-1401: operator job 134 — upgrade AEF be.47 -> be.48 (job 132''s steps; settings checked, not set again)'
+  - time: '2026-11-12T19:07:15'
+    action: 'T-1401: job 134 rehearsed green (sha 800025a6ff71), the first rehearsal with T-1398''s fix; ready for the operator'
+  - time: '2026-11-12T19:52:11'
+    action: 'T-1401: pristine vendor commit — AEF v1.8.16-be.48 (1938e2361) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-11-12T19:56:01'
+    action: 'T-1401: advance the divergence baseline to the pristine AEF v1.8.16-be.48 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000)'
+  - time: '2026-11-12T20:00:53'
+    action: 'T-1401: CLAUDE.md as be.48 wrote it — only AEF''s Handover sections changed (fw handover now commits and pushes; --no-commit writes it only); CLAUDE.md.bak diffed, every backup-only line superseded, removed'
+  - time: '2026-11-12T20:01:08'
+    action: 'T-1401: re-apply 832''s local fixes onto pristine AEF v1.8.16-be.48 (re-vendor protocol step 3, T-1000)'
+  - time: '2026-11-12T20:01:45'
+    action: 'T-1401: criteria ticked with evidence, verification written (both tiers run by the close)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 58 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [aef-be48]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 58
+  commits: 8
+  files_changed: 82
+  lines_added: 5146
+  lines_removed: 3757
+  footprint_refreshed_at: '2026-11-12T19:46:47Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1401-upgrade-aef-v1816-be47---v1816-be48-gate.md
+generated_by: context-agent-hybrid
