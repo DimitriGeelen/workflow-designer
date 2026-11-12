@@ -1,13 +1,21 @@
 ---
 id: T-1403
-name: "Corpus adopt check: 11 rendered maps differ from 'latest' (tools/_corpus-adopt-verify.py, not in the suite)"
+name: "Corpus adopt check: 11 rendered maps differ from 'latest' (tools/_corpus-adopt-verify.py,
+  not in the suite)"
 description: >
-  Found 2026-11-12 closing T-101: python3 tools/_corpus-adopt-verify.py -> FAIL (11): arc-lifecycle, assumption-validation, context-memory, git-commit-flow, harvest-pipeline, healing-loop, resume-status, task-gate, tier0-escalation and 2 more: 'rendered != latest vN'. Not a leg of the bridge suite, so nothing noticed. Unknown yet whether the rendered corpus is stale against a newer source, or the check compares against the wrong source. Measure which side moved (git log of both), decide with evidence, then either re-adopt or retire the check; make what remains a suite leg.
+  Found 2026-11-12 closing T-101: python3 tools/_corpus-adopt-verify.py -> FAIL (11):
+  arc-lifecycle, assumption-validation, context-memory, git-commit-flow, harvest-pipeline,
+  healing-loop, resume-status, task-gate, tier0-escalation and 2 more: 'rendered !=
+  latest vN'. Not a leg of the bridge suite, so nothing noticed. Unknown yet whether
+  the rendered corpus is stale against a newer source, or the check compares against
+  the wrong source. Measure which side moved (git log of both), decide with evidence,
+  then either re-adopt or retire the check; make what remains a suite leg.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-12T19:51:52Z
-last_update: 2026-11-12T19:51:52Z
-date_finished: null
+last_update: '2026-11-12T20:57:59Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-12T20:57:59Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 3
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=3 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L3:keyword=rendered
+      corpus); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1403: Corpus adopt check: 11 rendered maps differ from 'latest' (tools/_corpus-adopt-verify.py, not in the suite)
@@ -57,20 +85,30 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** found 2026-11-12 trying to close T-101: `python3 tools/_corpus-adopt-verify.py` FAIL (11),
+"rendered != latest vN" for every one of its 11 maps. Not a leg of the bridge suite, so nothing noticed.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis (measured):** the check is T-145's gate (2026-07-09) for adopting 11 editor-saved layouts:
+rendered/<id>.bpmn byte-identical to the latest snapshot in .editor-versions/<id>/. Measured over history for four of
+the maps: identical from T-300's re-bake (bdcfbc86e, 2026-07-29) through the commit before T-1168 (a09c7e722~1); different
+from T-1168 on (a09c7e722, 2026-10-13: activities-only node ids, T-1094 GO option 2), which rewrote rendered/ on purpose
+and left the version store alone. Nothing is broken in the corpus; the assertion outlived the adoption it guarded.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** a check that states what is still true, in the suite.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** operator's choice 2026-11-12, option A: retire "rendered == latest save", keep the parse checks,
+add "every indexed version has its snapshot" (what the Versions panel restores from), make it a core leg. Option B
+(adding a v6 to each store, which changes the Versions panel history) was declined.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The cause measured over git history and written above.
+- [x] `tools/_corpus-adopt-verify.py` retires the stale assertion with its reason in the code, keeps the parse checks,
+      and adds the index-completeness check; all 11 maps PASS. Control: a scratch copy with task-gate/v2.bpmn removed
+      FAILs (exit 1) naming the missing file.
+- [x] The check is a core leg of `tests/run-bridge-tests.sh` (leg 232, `_t1403-corpus-adopt`).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -256,6 +294,10 @@ date_finished: null
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+python3 tools/_corpus-adopt-verify.py
+grep -q "T-1403: assertion 3" tools/_corpus-adopt-verify.py
+grep -q 'leg core "_t1403-corpus-adopt" _leg_232' tests/run-bridge-tests.sh
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tools/_t1288-prepush-gate.sh
 
 ## RCA
 
@@ -353,3 +395,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1403-corpus-adopt-check-11-rendered-maps-diff.md
 - **Context:** Initial task creation
+
+### 2026-11-12T20:57:58Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

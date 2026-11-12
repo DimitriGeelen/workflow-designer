@@ -1943,6 +1943,22 @@ else
 fi
 }
 leg core "_t1402-validator-fixtures" _leg_231
+_leg_232() {
+
+# ── T-145, T-1403: the adopted editor layouts and their version store ──
+# For the 11 maps T-145 adopted from editor saves: rendered/<id>.bpmn and every .editor-versions/<id>/v*.bpmn parse,
+# and every version an index.json lists has its snapshot (the Versions panel restores from them). Its old third
+# assertion (rendered == latest save) was retired by T-1403: T-1168 changed rendered/ on purpose on 2026-10-13. It was
+# in no tier, so it sat red for a month, unnoticed, until T-101's close ran it.
+if python3 "$ROOT/tools/_corpus-adopt-verify.py" > "$TMP/leg-_t1403.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "an adopted corpus map or a saved version no longer parses, or a version its index lists is missing (run 'python3 tools/_corpus-adopt-verify.py'; T-145, T-1403)"
+  show_output "$TMP/leg-_t1403.out" "_corpus-adopt-verify.py"
+  fail=$((fail + 1))
+fi
+}
+leg core "_t1403-corpus-adopt" _leg_232
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
