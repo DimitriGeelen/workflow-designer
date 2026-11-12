@@ -1912,6 +1912,22 @@ else
 fi
 }
 leg browser "_t976-flow-order" _leg_229
+_leg_230() {
+
+# ── T-1395, T-1400: the shared CDP client cannot wait for ever ──
+# tools/_cdp-client.mjs, which every CDP harness in tools/ imports: Chrome killed mid-command -> CDP CLOSED within
+# seconds; a command after that -> rejected at once; no answer -> CDP TIMEOUT at cmdMs. Control: the old inline client
+# still waits 5 s after the kill (the 2 h hang of 2026-11-11, reproduced). Was run only by T-1395's own close (T-1400).
+if node "$ROOT/tools/_t1395-cdp-client-selftest.mjs" > "$TMP/leg-_t1395.out" 2>&1 \
+   && grep -q "^PASS" "$TMP/leg-_t1395.out" && grep -q "control: the old client still waiting" "$TMP/leg-_t1395.out"; then
+  pass=$((pass + 1))
+else
+  report FAIL "the shared CDP client can wait for ever again (a Chrome death or a silent command no longer ends a wait with CDP CLOSED / CDP TIMEOUT), or its control no longer reproduces the old hang (run 'node tools/_t1395-cdp-client-selftest.mjs'; T-1395, T-1400)"
+  show_output "$TMP/leg-_t1395.out" "_t1395-cdp-client-selftest.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1395-cdp-client" _leg_230
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
