@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1402: Validator test runner: 5 of 84 cases red, unnoticed (not in the bridge suite)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-12T20:57:46Z
+# ============================================================================
+
+task_id: T-1402
+task_name: "Validator test runner: 5 of 84 cases red, unnoticed (not in the bridge suite)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-12T19:51:52Z
+completed: 2026-11-12T20:37:38Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-12T21:37:27+01:00
+last_commit: 2026-11-12T21:37:27+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the validator fixture runner is green (84/84) and a core leg — it passes each fixture's companion field catalog (four io cases, T-1370), and the T-317 gateway fixture declares the default its comment always named (T-1377 warns otherwise)
+
+# Key outcomes
+outcomes:
+  - 'Each of the five failures has its cause written here, measured, with the fix that follows from it.'
+  - '`bash tests/run-validator-tests.sh` exits 0 with every case passing; no validator rule weakened to get there.'
+  - 'The runner is a core leg of `tests/run-bridge-tests.sh` (leg 231, `_t1402-validator-fixtures`).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the validator fixture runner is green (84/84) and a core leg — it passes each fixture''s companion field catalog (four io cases, T-1370), and the T-317 gateway fixture declares the default its comment always named (T-1377 warns otherwise)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1402-validator-test-runner-5-of-84-cases-red-.md'
+  - 'tests/fixtures/valid/gw-single-default.xml'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/run-validator-tests.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-12T21:37:27'
+    action: 'T-1402: the validator fixture runner is green (84/84) and a core leg — it passes each fixture''s companion field catalog (four io cases, T-1370), and the T-317 gateway fixture declares the default its comment always named (T-1377 warns otherwise)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 45 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 45
+  commits: 2
+  files_changed: 7
+  lines_added: 213
+  lines_removed: 21
+  footprint_refreshed_at: '2026-11-12T20:57:56Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1402-validator-test-runner-5-of-84-cases-red-.md
+generated_by: context-agent-hybrid
