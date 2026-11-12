@@ -39,7 +39,27 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+832's test tiers (core ~17 min, browser ~17 min when quiet, headless Chromium via CDP) run on .107, which sits at load
+40-90 from other projects. Runs wait hours for load < 15; at load ~45 Chrome was killed mid-run and a harness hung 2 h
+(T-358's close, 2026-11-11; T-1395 made that a fast red, not a hang). The operator suggested (2026-11-12) using other
+workers through ring20-manager.
+
+**ring20-manager's answer (conversation 832-test-capacity, 2026-11-12):** likely yes, through its dispatch pool, which
+010-termlink and AEF already use. Four nodes; three are quiet LAN VMs (pool-w1, pool-w2: 8 vCPU, 6-8 GB; pool-132).
+Each job is sandboxed: no network (loopback if the entry asks; CDP needs it), code read-only, its own tmpfs, up to 1 h,
+results back on a topic. Two cmd entries (832.bridge-core, 832.bridge-browser) in a hash-locked environment they build
+once. 832 submits a repo snapshot at the commit (tar via `deploy/remote-node/pool/pool-client.py ref-put` to the .122
+hub) and gets back exit code, the result line and the FAIL lines. Their operator decides on adding the client and entries.
+
+**What 832 told them:** no lockfiles (raw CDP, no npm). Python: flask 3.1.2, jinja2 3.1.6, markupsafe 3.0.3, lxml 5.2.1,
+PyYAML 6.0.3, pytest 9.0.2, playwright 1.55.0. Node 22.22.1, Python 3.12.3, git 2.43.0. Network loopback only. The
+snapshot needs .git (legs read history, tags, a self-clone; ~1 GB packed). Peak RAM not yet measured; to be measured
+and sent. Hard rule: the snapshot is built from git at the commit, never the working tree, because the git-ignored
+build/peer-data/greenfield/ holds a client's documents that must not leave .107.
+
+**Open for 832 (and likely the operator):** the pre-push gate (T-1288) accepts only a green run of THIS tree here. A remote
+green cannot unlock a push unless the gate is taught to trust a pool result for the same commit. That is a design and
+trust question, not a configuration one.
 
 ## Hypothesis
 
