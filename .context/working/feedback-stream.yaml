@@ -21503,3 +21503,21 @@ scan_id: R-c27a6e06
 task_id: T-1401
 payload:
   task_file: .tasks/active/T-1401-upgrade-aef-v1816-be47---v1816-be48-gate.md
+---
+kind: scan_emitted
+timestamp: '2026-11-12T20:16:38Z'
+scan_id: R-73e53791
+task_id: T-041
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-12T20:16:38Z'
+scan_id: R-73e53791
+task_id: T-041
+payload:
+  task_file: .tasks/active/T-041-render-inception-review-and-run-operator.md
