@@ -109,8 +109,10 @@ Still to do: a harness (order + no overlap, red on the source before), `_t308` 2
 - [x] A file that positions any of its nodes is untouched: `_t308` 24/24 and the third-party byte-identity goldens
       unchanged (no re-record), and the harness has a partly-positioned arm that keeps today's placement.
 - [x] Lanes keep their members: every node stays in its declared lane band after the layout.
-- [ ] The "what a person sees" gate exits 0; screenshots of the fixture at 1024/1440/1920 recorded in
-      `## Visual Verification`; advisory sweep run; both suite tiers green.
+- [x] The "what a person sees" gate exits 0; screenshots of the fixture at 1024/1440/1920 recorded in
+      `## Visual Verification`; advisory sweep run; both suite tiers green. Gate exit 0 (266 s); sweep t976-sweep: nothing
+      beyond the stated, asked for reachability evidence (leg F7 added). Both tiers: the core (pre-push gate) and browser
+      lines in `## Verification`, which this close runs and which refuse it on red.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
