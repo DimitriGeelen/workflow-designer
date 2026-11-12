@@ -156,6 +156,8 @@ We will know that we are successful when we see <measurable signal>.
 ### Human
 <!-- @auto-tick-on-decide -->
 - [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+  **Why you:** direction — whether a test result from another machine may unlock a push changes what the T-1288 gate
+  trusts, which is the operator's rule; and `fw inception decide` is operator-only
   **Steps:**
   1. Run: `fw task review T-1397` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
