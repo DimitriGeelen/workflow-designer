@@ -21467,3 +21467,21 @@ scan_id: R-2b2181fc
 task_id: T-976
 payload:
   task_file: .tasks/active/T-976-import-layout-ignores-flow-order-an-unpo.md
+---
+kind: scan_emitted
+timestamp: '2026-11-12T17:59:28Z'
+scan_id: R-1e803ce1
+task_id: T-1398
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-12T17:59:28Z'
+scan_id: R-1e803ce1
+task_id: T-1398
+payload:
+  task_file: .tasks/active/T-1398-rehearsal-reported-a-config-key-unknown-.md
