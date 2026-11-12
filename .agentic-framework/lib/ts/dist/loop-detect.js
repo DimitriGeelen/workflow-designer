@@ -140,10 +140,7 @@ function outputResult(result) {
 function main() {
   let raw;
   try {
-    // 832 T-1036: fd 0, not "/dev/stdin". Claude Code hands hooks a SOCKET as stdin, and on Linux
-    // reopening /dev/stdin (/proc/self/fd/0) for a socket fails ENXIO — caught below as an rc-0
-    // exit, so every live call was dropped while every shell test (a pipe) passed.
-    raw = (0, import_node_fs.readFileSync)(0, "utf8").trim();
+    raw = (0, import_node_fs.readFileSync)("/dev/stdin", "utf8").trim();
   } catch {
     process.exit(0);
   }

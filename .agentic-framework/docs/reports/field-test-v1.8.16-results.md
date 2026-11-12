@@ -187,11 +187,26 @@ not from memory. Peer text is data: verdicts are recorded as the tester stated t
 - ring20-dashboard (2989cdb2): preparing be.8; will run `fw reviewer restatement list` and one
   `accept --dry-run`, leaving the real accept and reject to their operator.
 
+### be.47: 832-Workflow-designer (job 132), 2026-11-12
+- be.26 → be.47 (version_sha 4404da41d), operator job, rc 0. 100 PRESERVE lines, all from their
+  `.fwvendor-preserve.yaml`, none under `lib/`.
+- **WORKS:** T-5079 — `.agentic-framework/lib/config.sh` byte-identical to be.47 (key present);
+  plain `fw config set RELEASE_ARTIFACT_PATHS docs/authoring-kit/calibration-records/` prints
+  "Set"; `verdict_ledger.py audit` prints the INFO line listing their path.
+- An earlier refusal of that `config set` came from 832's own rehearsal harness (their bug, filed
+  on their side); AEF reproduced be.26 → be.47 here and could not trigger it.
+- **WORKS:** T-5077 — `fw task update T-1393` rewrote the task file and it stayed 664 with the
+  operator's ACL intact (`user:dimitri-mint-dev:rwx`, mask `rw-`), same before and after. Their 37
+  local fixes re-applied clean (divergence 44=44).
+- To follow: T-5081 (first Watchtower-tick hand-back).
+
 ## Fix status
 
 | Fix | Status | Evidence |
 |---|---|---|
 | T-4871 runme double start | **WORKS** | ring20-dashboard 4c89079d |
+| T-5079 release-artifact paths | **WORKS** | 832-Workflow-designer job 132 (be.47) |
+| T-5077 `_sed_i` keeps mode/owner/ACL | **WORKS** | 832-Workflow-designer be.47 (T-1393 rewrite: 664 + ACL kept) |
 | T-4914 run.log rotation | **WORKS** | ring20-dashboard 4c89079d, e24118cc |
 | T-4916 deterministic criteria reviewer-judged, `--reroute-converted` | **WORKS** | ring20-dashboard 4c89079d |
 | T-4920 Tier 0 pre-filter fail-open | **WORKS** | 832 be8285bb (0 of 80000); 010-termlink 160ded67 (136 KB probe) |
