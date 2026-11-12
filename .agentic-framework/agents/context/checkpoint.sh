@@ -282,7 +282,14 @@ _auto_handover_at_critical() {
         # memory-loss path, since the session is about to auto-restart. Now a
         # failed budget-critical handover surfaces exactly like a failed
         # pre-compact one. Sibling to T-2506 (pre-compact) / T-2374 (honest log).
-        _ah_capture="$CONTEXT_DIR/working/.checkpoint.handover.stderr"
+        # T-5061 (G-130): the capture is its OWN file. It used to be .checkpoint.handover.stderr,
+        # the very file budget-gate.sh appends this script's stderr to, so the `tail ... >&2`
+        # below read the file it was writing. On the Greenfield laptop that file reached 183 GB.
+        # The handover's output is also capped (head -c): a runaway writer inside the run is
+        # cut off by SIGPIPE instead of filling the disk.
+        _ah_capture="$CONTEXT_DIR/working/.checkpoint.handover.capture"
+        local _ah_cap="${FW_HANDOVER_LOG_MAX_BYTES:-1048576}"
+        case "$_ah_cap" in ''|*[!0-9]*) _ah_cap=1048576 ;; esac
         _ah_log="$CONTEXT_DIR/working/.compact-log"
         _ah_ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
         # T-3917: the handover runs in a subshell whose trap removes the lock on
@@ -296,7 +303,9 @@ _auto_handover_at_critical() {
         local _ah_start _ah_ok=0 _ah_note=""
         _ah_start=$(date +%s)
         if ( trap 'rm -f "$handover_lock"' EXIT INT TERM HUP
-             timeout "$_ah_total_timeout" bash "$FRAMEWORK_ROOT/agents/handover/handover.sh" --commit >"$_ah_capture" 2>&1 ); then
+             set -o pipefail
+             timeout "$_ah_total_timeout" bash "$FRAMEWORK_ROOT/agents/handover/handover.sh" --commit 2>&1 \
+                 | head -c "$_ah_cap" >"$_ah_capture" ); then
             _ah_ok=1
         elif _ah_sha=$(fw_handover_landed "${PROJECT_ROOT:-$(dirname "$CONTEXT_DIR")}" "$_ah_start"); then
             _ah_ok=1
@@ -312,6 +321,9 @@ _auto_handover_at_critical() {
             else
                 _ah_note=" (commit $_ah_sha landed; push did not finish within ${_ah_total_timeout}s — run 'fw push')"
             fi
+        fi
+        if [ "$(stat -c %s "$_ah_capture" 2>/dev/null || echo 0)" -ge "$_ah_cap" ]; then
+            echo "[checkpoint] [auto] Handover output cut at ${_ah_cap} bytes at $_ah_ts — a runaway writer (T-5061, G-130); see $_ah_capture" >> "$_ah_log" 2>/dev/null || true
         fi
         if [ "$_ah_ok" = 1 ]; then
             tail -5 "$_ah_capture" >&2 2>/dev/null || true
@@ -736,31 +748,6 @@ csid = s.get('claude_session_id') or ''
 my_csid = os.environ.get('MY_CLAUDE_SID') or ''
 if csid and my_csid and csid != my_csid:
     reasons.append(f'cache was written by Claude session {csid}, not this one ({my_csid})')
-
-# T-849 (closes the hole left in T-3241's remediation of G-087): the three tests
-# above shut the stale door and the foreign-session door and left the ZERO door
-# open — and the zero door is the one that opens on every compaction, which is
-# exactly when an agent runs /resume and asks for the gauge. Measured
-# 2026-09-25: this reader printed 'level: ok / tokens: 0 / age_seconds: 51' from
-# a cache written fresh by this very session, against a true 98,461. That is
-# verbatim the {'level':'ok','tokens':0} payload the field report was written
-# about, surviving the guard built to stop it. A level without a credible count
-# is not a gauge: report unknown and make the reader run 'checkpoint.sh status'.
-# baseline_tokens rides along in the same write, so the contradiction is
-# MEASURABLE rather than merely suspicious — tokens below a non-zero baseline is
-# impossible, since baseline is what the session had already paid before its
-# first turn.
-_base = s.get('baseline_tokens')
-_base_known = isinstance(_base, int) and not isinstance(_base, bool) and _base > 0
-if not isinstance(tokens, int) or isinstance(tokens, bool):
-    reasons.append(f'cache carries no numeric token count (tokens: {tokens!r}) — a level without a count is not a gauge')
-elif tokens <= 0:
-    if _base_known:
-        reasons.append(f'cache reports tokens: {tokens} while baseline_tokens: {_base} — impossible, a session cannot hold fewer tokens than it had paid before its first turn')
-    else:
-        reasons.append(f'cache reports tokens: {tokens} — the writer recorded no measurement, which is NOT the same as a healthy zero')
-elif _base_known and tokens < _base:
-    reasons.append(f'cache reports tokens: {tokens} below baseline_tokens: {_base} — impossible, so the measurement is not trustworthy')
 
 if reasons:
     print('level: unknown')

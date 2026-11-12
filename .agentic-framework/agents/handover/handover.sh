@@ -135,6 +135,35 @@ _refuse_out_of_project_commit() {
     echo "  The handover was written; nothing was committed or pushed. Set PROJECT_ROOT to the repo that holds HANDOVER_DIR, or pass --no-commit."
 }
 
+# T-5052: stage and commit the handover file(s), and record what happened in
+# HANDOVER_COMMIT_STATUS (ok|failed) so no later line claims a commit that did
+# not happen. A project that ignores .context/ but already tracks handovers
+# (force-added by hand, as 050 did) gets its new handover force-added too; a
+# project that tracks none is left alone and told why nothing was committed.
+# $1: commit message; $2..: files. Needs GIT_AGENT.
+_commit_handover_files() {
+    local _msg="$1"; shift
+    local _add=(add)
+    if [ -n "$(git -C "$PROJECT_ROOT" ls-files -- "$HANDOVER_DIR" 2>/dev/null | head -1)" ]; then
+        _add=(add -f)
+    fi
+    local _err
+    if ! _err=$(git -C "$PROJECT_ROOT" "${_add[@]}" -- "$@" 2>&1); then
+        HANDOVER_COMMIT_STATUS=failed
+        echo -e "${RED}COMMIT FAILED (T-5052): the handover could not be staged — nothing was committed.${NC}"
+        echo "  git: $(printf '%s\n' "$_err" | grep -v '^hint:' | head -2 | tr '\n' ' ')"
+        echo "  The handovers directory is gitignored and holds no tracked handover. To track handovers, force-add one once: git add -f $HANDOVER_DIR/LATEST.md"
+        return 1
+    fi
+    if PROJECT_ROOT="$PROJECT_ROOT" "$GIT_AGENT" commit -m "$_msg" -- "$@"; then
+        HANDOVER_COMMIT_STATUS=ok
+    else
+        HANDOVER_COMMIT_STATUS=failed
+        echo -e "${RED}COMMIT FAILED (T-5052): the handover commit did not go through (see the git output above) — nothing was committed.${NC}"
+        return 1
+    fi
+}
+
 # T-2588: Shared push leg for both normal handovers and --checkpoint commits.
 # Checkpoint commits previously accumulated locally with no push — exactly the
 # state a checkpoint exists to protect gets stranded if the session dies or
@@ -143,6 +172,27 @@ _refuse_out_of_project_commit() {
 _push_to_remotes() {
     _push_summary
     echo ""
+    # T-5051: project-level opt-out. On some consumers a push deploys, so the
+    # push is the operator's decision. Every --commit path (pre-compact hook,
+    # checkpoint auto-handover, fw handover --commit) reaches the push only
+    # through this function, so this one check covers them all. Standing
+    # config, not a bypass, so it is not written to the bypass log.
+    local _hp
+    if declare -f fw_config >/dev/null 2>&1; then
+        _hp=$(fw_config HANDOVER_PUSH 1 2>/dev/null || echo 1)
+    else
+        _hp="${FW_HANDOVER_PUSH:-1}"
+    fi
+    case "$_hp" in
+        0|false|False|FALSE|no|off)
+            if [ "${HANDOVER_COMMIT_STATUS:-}" = failed ]; then
+                echo "  Push skipped: HANDOVER_PUSH=0 for this project — and the handover was NOT committed (COMMIT FAILED above, T-5052)"
+            else
+                echo "  Push skipped: HANDOVER_PUSH=0 for this project — committed locally only (T-5051)"
+            fi
+            return 0
+            ;;
+    esac
     # T-4196: --no-push is an explicit, logged opt-out. Push stays the default
     # (CLAUDE.md §Session End, T-1144) — operator ruling 2026-10-13 on 832 OBS-413.
     if [ "$NO_PUSH" = true ]; then
@@ -194,10 +244,11 @@ _push_to_remotes() {
     fi
     echo -e "  ${CYAN}Push timeout: ${_push_timeout}s (${_push_timeout_source})${NC}"
     # T-1255 (G-007): When >1 remote is configured AND `origin` is one of them,
-    # push ONLY to origin. Mirroring (e.g. github) is OneDev's job via
-    # .onedev-buildspec.yml's PushRepository job. Pushing directly to mirror
-    # remotes caused github-ahead-of-onedev divergence whenever onedev briefly
-    # 502'd at handover time (T-1253 inception, PL-036).
+    # push ONLY to origin; the other remotes are mirrors that `fw mirror sync`
+    # fast-forwards from origin. Pushing directly to mirror remotes caused
+    # mirror-ahead-of-origin divergence whenever origin briefly 502'd at handover
+    # time (T-1253 inception, PL-036). T-5044: origin is GitHub since 2026-11-03;
+    # OneDev (remote `onedev`) is the mirror.
     # T-1474: Guard against the no-origin case. If no remote is named `origin`,
     # there is no canonical source for OneDev to mirror from, so the assumption
     # that other remotes are "mirrors" is invalid — push to all of them.
@@ -210,7 +261,7 @@ _push_to_remotes() {
     while IFS= read -r remote_name; do
         [ -z "$remote_name" ] && continue
         if [ "$_has_origin" = true ] && [ "$_remote_count" -gt 1 ] && [ "$remote_name" != "origin" ]; then
-            echo -e "  ${CYAN}Skipping $remote_name (mirrored from origin via PushRepository)${NC}"
+            echo -e "  ${CYAN}Skipping $remote_name (mirror: fw mirror sync fast-forwards it from origin)${NC}"
             continue
         fi
         if timeout "$_push_timeout" git -C "$PROJECT_ROOT" push --follow-tags "$remote_name" HEAD 2>&1; then
@@ -473,11 +524,12 @@ CHECKPOINT_EOF
             GIT_AGENT="$FRAMEWORK_ROOT/agents/git/git.sh"
         fi
         if [ -n "$GIT_AGENT" ]; then
-            git -C "$PROJECT_ROOT" add "$HANDOVER_FILE"
             # T-3090: scope the commit by pathspec, not by the add. The add
             # bounds the index; without `--` the commit takes the WHOLE index,
             # including a concurrent session's staged-but-uncommitted work.
-            PROJECT_ROOT="$PROJECT_ROOT" "$GIT_AGENT" commit -m "$COMMIT_TASK: Checkpoint handover $SESSION_ID" -- "$HANDOVER_FILE"
+            # T-5052: the helper stages (force when handovers are tracked) and
+            # records the outcome; a failure is printed, never hidden.
+            _commit_handover_files "$COMMIT_TASK: Checkpoint handover $SESSION_ID" "$HANDOVER_FILE" || true
             # T-2588: push immediately — checkpoints exist to survive session
             # death, so a checkpoint commit stranded locally defeats the point.
             _push_to_remotes
@@ -517,164 +569,6 @@ PREDECESSOR=""
 if [ -f "$HANDOVER_DIR/LATEST.md" ]; then
     PREDECESSOR=$(grep "^session_id:" "$HANDOVER_DIR/LATEST.md" 2>/dev/null | cut -d: -f2 | tr -d ' ')
 fi
-
-# ── SUGGESTED FIRST ACTION CARRY-FORWARD (T-862, OBS-383) ──────────────────────
-#
-# Every other section of this document is DERIVED — from git, from the task
-# register, from the audit. Regenerating them from scratch each run is correct.
-# Exactly one section is AUTHORED, and it is the only one a reader is invited to
-# improve: Suggested First Action. Before T-862 the generator overwrote it
-# unconditionally with a single computed line, so a hand-written plan survived
-# precisely one regeneration. Measured four times on 2026-09-25/26; the cleanest
-# pair is cfc7e9ed -> f98bf459, one commit apart, focus unchanged, 4,982 chars
-# replaced by 7 lines.
-#
-# The loss was silent BY CONSTRUCTION. A stub is present, and a stub is not
-# missing, so every completeness check the document has passed. Nothing anywhere
-# compared a handover to its predecessor. That is the same false-green shape as
-# the rest of T-841..T-861: the artefact looks finished because the check cannot
-# tell "nothing to say" from "the words were discarded".
-#
-# WHAT THIS DOES NOT DO. It does not decide where handover content ought to live.
-# OBS-383(b) — render the section from the focus task's body — would relocate
-# authority over the content and is a Sovereign question, left open deliberately.
-# Carrying bytes the generator did not author forward is data preservation and
-# commits to nothing.
-#
-# THE DANGEROUS FAILURE IS NOT "it fails to carry". That shows up the first time
-# anyone looks. It is "it carries always", which would silently present a plan
-# written for a DIFFERENT task as this task's next step — a worse false-green
-# than the one being fixed, and one that reads as authoritative. Hence the focus
-# guard below, and hence the over-firing control in the teeth.
-
-# The session's own focus, read from the same file the generator below consults
-# (focus.yaml:current_task) so the two cannot disagree about what we are on.
-FOCUS_TASK=$(grep -m1 '^current_task:' "$CONTEXT_DIR/working/focus.yaml" 2>/dev/null \
-    | sed 's/^current_task:[[:space:]]*//' | tr -d " '\"" )
-case "$FOCUS_TASK" in T-[0-9]*) ;; *) FOCUS_TASK="" ;; esac
-
-# Resolve LATEST.md to the file it points at. Called BEFORE the symlink is
-# repointed (that happens at the end of this script), so it is the predecessor.
-_sfa_predecessor_file() {
-    local l="$HANDOVER_DIR/LATEST.md"
-    [ -e "$l" ] || return 1
-    if [ -L "$l" ]; then readlink -f "$l"; else printf '%s' "$l"; fi
-}
-
-# Print the body of the Suggested First Action section, minus any carry label a
-# previous run added. Without the strip, repeated carries stack provenance
-# banners until the banner is longer than the content.
-_sfa_extract() {
-    [ -f "${1:-}" ] || return 1
-    awk '
-        /^## Suggested First Action[[:space:]]*$/ { inside=1; next }
-        inside && /^## / { exit }
-        inside && /^<!-- sfa-carry-begin -->$/ { skip=1; next }
-        inside && /^<!-- sfa-carry-end -->$/   { skip=0; next }
-        inside && !skip { print }
-    ' "$1"
-}
-
-# The task id a section was written for. The marker is authoritative and is
-# emitted by this script from T-862 onward; the `Continue T-NNN` fallback reads
-# handovers written before the marker existed. Empty means unknown, and unknown
-# is NOT treated as a match — see _sfa_compose.
-_sfa_origin_focus() {
-    local f="${1:-}" m
-    m=$(grep -m1 -oE '<!-- sfa-focus: (T-[0-9]+) -->' "$f" 2>/dev/null | grep -oE 'T-[0-9]+')
-    [ -n "$m" ] && { printf '%s' "$m"; return 0; }
-    _sfa_extract "$f" | grep -m1 -oE '^Continue (T-[0-9]+)' | grep -oE 'T-[0-9]+'
-}
-
-# Is this section nothing but what the generator itself would have produced?
-# Blank lines, HTML comments, the mergeback nudge, and a lone `Continue T-NNN`
-# / `See active tasks` line are all generator output. If nothing else remains,
-# there is nothing worth preserving and carrying would only add provenance
-# noise to content that has no provenance.
-_sfa_is_stub() {
-    local n
-    n=$(printf '%s\n' "$1" \
-        | grep -vE '^[[:space:]]*$' \
-        | grep -vE '^[[:space:]]*<!--' \
-        | grep -vE '^(Continue T-[0-9]+|See active tasks)' \
-        | grep -vE '^\*\*Mergeback|^>[[:space:]]*\*\*Mergeback' \
-        | grep -c '')
-    [ "$n" -eq 0 ]
-}
-
-# $1 = the freshly generated one-liner. Prints the section body to emit.
-_sfa_compose() {
-    local generated="$1"
-    local cur_focus pred body origin age_note pred_id
-
-    printf '<!-- sfa-focus: %s -->\n' "${FOCUS_TASK:-none}"
-
-    cur_focus="${FOCUS_TASK:-}"
-    pred="$(_sfa_predecessor_file)" || { printf '%s\n' "$generated"; return 0; }
-    body="$(_sfa_extract "$pred")" || { printf '%s\n' "$generated"; return 0; }
-
-    # Nothing authored in the predecessor -> generate, and say nothing about it.
-    if _sfa_is_stub "$body"; then printf '%s\n' "$generated"; return 0; fi
-
-    origin="$(_sfa_origin_focus "$pred")"
-
-    # The focus guard. An authored plan is about a TASK; presenting it under a
-    # different task is the over-firing failure this is built to avoid. When the
-    # origin cannot be established at all, fall back to asking whether the
-    # content itself still names the task we are on — and if it does not, refuse
-    # to carry. Unknown provenance fails CLOSED.
-    if [ -n "$origin" ]; then
-        [ "$origin" = "$cur_focus" ] || { printf '%s\n' "$generated"; return 0; }
-        age_note="focus $origin unchanged"
-    else
-        if [ -z "$cur_focus" ] || ! printf '%s' "$body" | grep -qF -- "$cur_focus"; then
-            printf '%s\n' "$generated"; return 0
-        fi
-        age_note="origin focus not recorded; carried because the text names $cur_focus"
-    fi
-
-    pred_id=$(grep -m1 '^session_id:' "$pred" 2>/dev/null | cut -d: -f2- | tr -d ' ')
-    [ -n "$pred_id" ] || pred_id="$(basename "$pred" .md)"
-
-    # Age, not just provenance. "Carried from S-2026-0926-0154" tells a reader
-    # where the text came from but not whether to trust it; a plan that is two
-    # hours old and one that is nine days old warrant different reactions, and
-    # the session id only encodes the former to someone who does the arithmetic.
-    # Falls back to file mtime, then to saying plainly that the age is unknown —
-    # an unknown age is reported as unknown rather than omitted, because a label
-    # silently missing its age reads as freshness.
-    local pred_ts age_txt now_s then_s mins
-    pred_ts=$(grep -m1 '^timestamp:' "$pred" 2>/dev/null | cut -d: -f2- | sed 's/^[[:space:]]*//')
-    now_s=$(date -u +%s 2>/dev/null)
-    then_s=$(date -u -d "$pred_ts" +%s 2>/dev/null) \
-        || then_s=$(stat -c %Y "$pred" 2>/dev/null)
-    if [ -n "${then_s:-}" ] && [ -n "${now_s:-}" ] && [ "$then_s" -le "$now_s" ] 2>/dev/null; then
-        mins=$(( (now_s - then_s) / 60 ))
-        if   [ "$mins" -lt 60 ]   ; then age_txt="${mins}m old"
-        elif [ "$mins" -lt 2880 ] ; then age_txt="$(( mins / 60 ))h old"
-        else                            age_txt="$(( mins / 1440 ))d old"
-        fi
-    else
-        age_txt="age unknown"
-    fi
-    age_note="$age_note, $age_txt"
-
-    # The label is not decoration. A carried section that reads as freshly
-    # authored is a new false-green: the reader would act on a plan without
-    # knowing when it was written or that nobody has revisited it since.
-    printf '<!-- sfa-carry-begin -->\n'
-    printf '> **Carried forward from `%s`** — %s.\n' "$pred_id" "$age_note"
-    printf '> This section was authored by hand, not generated, so it is preserved rather than\n'
-    printf '> overwritten (T-862/OBS-383). Nobody has re-checked it since it was written: if it\n'
-    printf '> is stale, replace it — regeneration will not, which is the whole point.\n'
-    printf '> The generator would otherwise have written here: `%s`\n' "$generated"
-    printf '<!-- sfa-carry-end -->\n\n'
-    printf '%s\n' "$body"
-}
-# ── end T-862 carry-forward ──
-# tools/_t862-handover-carry-teeth.sh extracts the block between this marker and
-# the banner above, and sources it. Move or rename either marker and the teeth
-# exit 4 announcing they can no longer reach the code — they do not quietly pass.
 
 # Get active tasks — T-3027: classified by status, not by directory membership.
 classify_active_tasks
@@ -1132,28 +1026,8 @@ if [ -f "$ARC_FOCUS_FILE" ]; then
     fi
 fi
 
-# T-1452 / G-053: surface ripe revisit_at deferrals. Silent when the file is absent
-# or empty.
-#
-# T-626: this block used to attribute the two files to a daily cron invocation of
-# revisit-due-scan.sh, and read them without ever running it. That sentence made the omission
-# invisible: it names a producer, so every reader assumed one existed. In this project
-# none did — the only revisit-due-scan cron entry on the host is rooted at another
-# project — so the two files were written exactly once, by hand, and T-155's revisit sat
-# 8 days past its date unseen.
-#
-# The scan costs 14ms (measured). Making a 14ms check depend on a scheduled job is what
-# turned its cost of observation from negligible into infinite (G-044). Handover already
-# runs every session, so it refreshes what it is about to render.
-#
-# Best-effort by design: a handover that aborts because a diagnostic scan failed is a
-# worse outcome than the blindness it replaces, since generating the handover is the
-# load-bearing act and the revisit list is advisory. Failure here is silent by intent.
-_T626_SCAN="$FRAMEWORK_ROOT/agents/context/revisit-due-scan.sh"
-if [ -x "$_T626_SCAN" ]; then
-    PROJECT_ROOT="$PROJECT_ROOT" "$_T626_SCAN" >/dev/null 2>&1 || true
-fi
-
+# T-1452 / G-053: surface ripe revisit_at deferrals (populated by daily
+# revisit-due-scan.sh cron). Silent when the file is absent or empty.
 REVISITS_FILE="$PROJECT_ROOT/.context/working/.revisits-due.txt"
 if [ -s "$REVISITS_FILE" ]; then
     echo "## Revisits Ripe Today"
@@ -1715,11 +1589,24 @@ with open("$GAPS_FILE") as f:
     data = yaml.safe_load(f)
 # T-397: concerns.yaml uses 'concerns' key, fallback to 'gaps'
 items = data.get('concerns', data.get('gaps', []))
+skipped = 0
 for item in items:
-    if item.get('status') != 'watching':
+    if not isinstance(item, dict) or item.get('status') != 'watching':
         continue
+    # T-5053: many concerns carry name/summary rather than title; a missing
+    # key used to raise KeyError and cut this section short with no message.
+    cid = item.get('id')
+    if not cid:
+        skipped += 1
+        continue
+    label = item.get('title') or item.get('name') or item.get('summary') or '(untitled)'
+    label = ' '.join(str(label).split())
+    if len(label) > 160:
+        label = label[:160].rstrip() + '…'
     sev = item.get('severity', 'unknown')
-    print(f"- **{item['id']}** [{sev}]: {item['title']}")
+    print(f"- **{cid}** [{sev}]: {label}")
+if skipped:
+    print(f"- _{skipped} watching concern(s) have no \`id\` and are not listed — check concerns.yaml._")
 PYEOF
         echo ""
         echo "Run \`fw audit\` to check if any trigger conditions are met."
@@ -1794,7 +1681,7 @@ ${VECIDX_LINE}
 
 ${MERGEBACK_NUDGE}
 
-$(_sfa_compose "$(python3 -c "
+$(python3 -c "
 import glob, re, os
 import yaml
 tasks_dir = '$TASKS_DIR/active'
@@ -1894,7 +1781,7 @@ if _why:
           ' filled. Confirm against the task before acting on it._')
 else:
     print('See active tasks')
-" 2>/dev/null || echo "See active tasks")")
+" 2>/dev/null || echo "See active tasks")
 
 ## Files Changed This Session
 
@@ -1974,17 +1861,15 @@ elif [ "$AUTO_COMMIT" = true ]; then
     fi
 
     if [ -n "$GIT_AGENT" ]; then
-        # Stage handover files
-        git -C "$PROJECT_ROOT" add "$HANDOVER_FILE" "$HANDOVER_DIR/LATEST.md"
-
-        # Commit via git agent — pathspec-scoped (T-3090).
+        # Stage and commit via git agent — pathspec-scoped (T-3090), staged
+        # and checked by _commit_handover_files (T-5052).
         #
         # The `git add` above bounds STAGING only. Before T-3090 this commit had
         # no pathspec, so it took the whole index: on 2026-08-19 it swept two
         # files belonging to a concurrent session's T-3089 into d3d3e49db and
         # emptied that session's index mid-compose. The `--` below is what makes
         # the narrow add above actually mean what it looks like it means.
-        PROJECT_ROOT="$PROJECT_ROOT" "$GIT_AGENT" commit -m "$COMMIT_TASK: Session handover $SESSION_ID" -- "$HANDOVER_FILE" "$HANDOVER_DIR/LATEST.md"
+        _commit_handover_files "$COMMIT_TASK: Session handover $SESSION_ID" "$HANDOVER_FILE" "$HANDOVER_DIR/LATEST.md" || true
 
         # Push to all remotes (T-1144: prevent unpushed commit accumulation)
         # T-1277: bound the push so an unreachable remote (e.g. onedev behind a
