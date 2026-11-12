@@ -1,13 +1,19 @@
 ---
 id: T-976
-name: "Import layout ignores flow order: an unpositioned map is laid out in document order, so a generator must hand-compute geometry or get End before its tasks"
+name: "Import layout ignores flow order: an unpositioned map is laid out in document
+  order, so a generator must hand-compute geometry or get End before its tasks"
 description: >
-  Found under T-975 by importing an Evergreen map with its DI stripped: nodes placed in document order (End_12 at x=210 before Assembly at 300), overlapping; Clean layout keeps the order. A flow-aware layering (topological by sequenceFlow, within lane bands) on import would let any generator omit geometry and still get a readable map: the operator's original 'layout is really messy' complaint, at its root.
+  Found under T-975 by importing an Evergreen map with its DI stripped: nodes placed
+  in document order (End_12 at x=210 before Assembly at 300), overlapping; Clean layout
+  keeps the order. A flow-aware layering (topological by sequenceFlow, within lane
+  bands) on import would let any generator omit geometry and still get a readable
+  map: the operator's original 'layout is really messy' complaint, at its root.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -22,8 +28,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T18:10:06Z
-last_update: 2026-10-01T18:10:06Z
-date_finished: null
+last_update: '2026-11-12T12:20:32Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,6 +40,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-12T12:20:32Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 3
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 2
+      F3: 0
+      F1: 2
+    rationale: 'D1=2 (body:learning-ref); D2=0 (no-signal); D3=3 (body:component-discoverability);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=2 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-976: Import layout ignores flow order: an unpositioned map is laid out in document order, so a generator must hand-compute geometry or get End before its tasks
@@ -76,8 +102,15 @@ Still to do: a harness (order + no overlap, red on the source before), `_t308` 2
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A file that positions NONE of its nodes is laid out along its sequence flows: on
+      `tests/fixtures/t976/flow-order-no-di.bpmn` every flow except the loop-back ("recheck") points left-to-right, and no
+      two nodes overlap. Measured by a CDP harness that is red on the source before the change (6 backward flows,
+      2 overlapping pairs) and green after.
+- [x] A file that positions any of its nodes is untouched: `_t308` 24/24 and the third-party byte-identity goldens
+      unchanged (no re-record), and the harness has a partly-positioned arm that keeps today's placement.
+- [x] Lanes keep their members: every node stays in its declared lane band after the layout.
+- [ ] The "what a person sees" gate exits 0; screenshots of the fixture at 1024/1440/1920 recorded in
+      `## Visual Verification`; advisory sweep run; both suite tiers green.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -109,8 +142,48 @@ Still to do: a harness (order + no overlap, red on the source before), `_t308` 2
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+- [ ] [REVIEW] A map without positions opens laid out along its flows, readable at three widths
+  **Why you:** a render-surface judgement on screenshots (CLAUDE.md "UI changes are reviewed on screenshots"); for the independent reviewer: `fw reviewer judge T-976 --criterion 1`.
+  **Steps:**
+  1. Open `docs/reports/T-976-evidence/flow-order-no-di-1024.png`, `-1440.png` and `-1920.png`: the synthetic map
+     `tests/fixtures/t976/flow-order-no-di.bpmn` (no positions, elements listed End-first, lanes Sales and Warehouse)
+     just opened.
+  2. At 1920, follow the flows: Order received → Check the order → In stock? → no: Reject and notify / yes: Pick the
+     items → Ship the order → Merge → Done, each step right of the one before; the loop "recheck" (Reject → Check) is
+     the only flow running back. Check no two nodes overlap, no label collides with another, every node is in its lane.
+  3. At 1024 and 1440, check the map's left part is drawn the same way and the rest is reachable by scrolling (it is
+     wider than the canvas there, as any long map is).
+  **Expected:** the map reads left to right in flow order, uncluttered, in its lanes, at every width.
+  **If not:** name the screenshot and what reads wrong (order, overlap, a flow through a node, a label clash), and
+  set the task to issues.
 
 ## Verification
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t976-flow-order-cdp.mjs --self-test > /tmp/.t976.out 2>&1 && grep -q "poison arm is caught" /tmp/.t976.out
+grep -q "if (nodes.length && nodes.every(n => autoPos.has(n.uid))) layoutByFlowOrder(nodes, edges);" src/aef-workflow-designer.html
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t308-export-byte-identity-cdp.mjs > /tmp/.t976-308.out 2>&1 && grep -q '"identical": 24' /tmp/.t976-308.out
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t358-byteid-thirdparty.mjs > /tmp/.t976-byteid.out 2>&1 && grep -q "PASS" /tmp/.t976-byteid.out
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tools/_t1288-prepush-gate.sh
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tests/run-bridge-tests.sh --tier browser > /tmp/.t976-browser.out 2>&1 || { grep -E '\[FAIL\]|^tier ' /tmp/.t976-browser.out; false; }
+
+## Visual Verification
+
+Screenshots in `docs/reports/T-976-evidence/` (`_t976-flow-order-cdp.mjs --shots`), the fixture just opened, at
+1024/1440/1920. The person-sees gate (exit 0, 266 s) runs over the corpus, which all carries positions, so it does not
+see this layout; its class checks (overlaps, flows through nodes, label collisions, lanes) are legs F3-F6 of the T-976
+harness, each proven to bite by a poison arm (columns 40 px apart).
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| map opened | flow order left to right | ok | ok | ok | at 1024/1440 the right part is under the details panel, reached by scrolling |
+| map opened | nodes in their lanes, no overlap | ok | ok | ok | |
+| map opened | flow labels (yes / no / recheck) | ok | ok | ok | "recheck" runs along the pool's title border (existing loop routing) |
+| map opened | toolbar, palette, details panel | ok | ok | ok | unchanged by T-976 |
+
+Read: `flow-order-no-di-1920.png` — the whole map: Order received, Check the order, In stock?, then Reject and notify
+(Sales) and Pick the items (Warehouse) in one column, Ship the order, Merge and Done; "no" and "yes" labels on their
+flows; the loop "recheck" goes up over Check and In stock? and back into Check. `-1440.png` shows up to Ship the order,
+`-1024.png` up to In stock?; the rest lies under the details panel with a horizontal scrollbar. Trade-off: the layout is
+about 1,100 px wide (old: about 700 px, with nodes on top of each other).
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -334,3 +407,7 @@ Still to do: a harness (order + no overlap, red on the source before), `_t308` 2
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-976-import-layout-ignores-flow-order-an-unpo.md
 - **Context:** Initial task creation
+
+### 2026-11-12T12:20:31Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

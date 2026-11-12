@@ -2934,6 +2934,57 @@ function getInvestigateWorkflow() {
   return result;
 }
 
+// T-976: x for a map whose file gave no node a position. Before this, an unpositioned node was placed by its index in
+// the FILE within its lane, 90 px apart, so a generator that omitted geometry got End before its tasks and overlaps.
+// Columns follow the flows instead: depth = the longest forward path to the node (loop-back flows, found by a DFS
+// from the sources in file order, do not count); nodes of one lane at one depth sit side by side; a column is as wide
+// as its fullest lane. y is left at 0: the parse tail puts each node at its lane's centre.
+function layoutByFlowOrder(nodes, edges) {
+  const PITCH = 160;
+  const byUid = new Map(nodes.map(n => [n.uid, n]));
+  const fwd = edges.filter(e => byUid.has(e.source) && byUid.has(e.target) && e.source !== e.target);
+  const out = new Map(nodes.map(n => [n.uid, []]));
+  for (const e of fwd) out.get(e.source).push(e);
+  const hasIn = new Set(fwd.map(e => e.target));
+  const back = new Set(), state2 = new Map();   // 1 = on the DFS stack, 2 = done
+  const visit = u => {
+    state2.set(u, 1);
+    for (const e of out.get(u)) {
+      const s = state2.get(e.target);
+      if (s === 1) back.add(e);
+      else if (!s) visit(e.target);
+    }
+    state2.set(u, 2);
+  };
+  for (const n of nodes) if (!hasIn.has(n.uid) && !state2.get(n.uid)) visit(n.uid);
+  for (const n of nodes) if (!state2.get(n.uid)) visit(n.uid);
+  const dag = fwd.filter(e => !back.has(e));
+  const indeg = new Map(nodes.map(n => [n.uid, 0]));
+  for (const e of dag) indeg.set(e.target, indeg.get(e.target) + 1);
+  const depth = new Map(nodes.map(n => [n.uid, 0]));
+  const queue = nodes.filter(n => indeg.get(n.uid) === 0).map(n => n.uid);
+  while (queue.length) {
+    const u = queue.shift();
+    for (const e of dag) if (e.source === u) {
+      depth.set(e.target, Math.max(depth.get(e.target), depth.get(u) + 1));
+      indeg.set(e.target, indeg.get(e.target) - 1);
+      if (indeg.get(e.target) === 0) queue.push(e.target);
+    }
+  }
+  const slot = new Map(), perCell = new Map();
+  for (const n of nodes) {
+    const k = n.lane + '\u0000' + depth.get(n.uid);
+    const i = perCell.get(k) || 0;
+    slot.set(n.uid, i); perCell.set(k, i + 1);
+  }
+  const maxD = Math.max(0, ...depth.values());
+  const width = new Array(maxD + 1).fill(1);
+  for (const [k, c] of perCell) { const d = +k.split('\u0000')[1]; width[d] = Math.max(width[d], c); }
+  const colX = [0];
+  for (let d = 1; d <= maxD; d++) colX[d] = colX[d - 1] + width[d - 1] * PITCH;
+  for (const n of nodes) n.x = POOL_X + LANE_HEADER + 30 + colX[depth.get(n.uid)] + slot.get(n.uid) * PITCH;
+}
+
 function getLanes() { return (state && state.lanes) ? state.lanes : defaultLanes(); }
 function findLane(id) { return getLanes().find(l => l.id === id); }
 function laneTop(laneId) {
@@ -15501,6 +15552,7 @@ function parseBpmnXml(text) {
   REVERSE_TYPE['boundaryEvent'] = 'linkEventCatch';
 
   const nodes = [];
+  const autoPos = new Set();   // T-976: uids of nodes the file gave no position (laid out below if it gave none at all)
   const displayIdToUid = new Map(); // for resolving sourceRef/targetRef on edges
 
   const nodeTags = ['startEvent', 'endEvent', 'serviceTask', 'userTask', 'scriptTask',
@@ -15871,6 +15923,7 @@ function parseBpmnXml(text) {
         const sameLane = nodes.filter(n => n.lane === laneId);
         x = POOL_X + LANE_HEADER + 30 + sameLane.length * 90;
         y = 0; // patched below once lanes are inserted into state
+        autoPos.add(uid);
       }
 
       // T-337: `foreignTag` is written ONLY for an out-of-allowlist element. A
@@ -16163,6 +16216,9 @@ function parseBpmnXml(text) {
   // reconcile below never sees those nodes as out-of-band at all. On an
   // ordering-dirty map this is a no-op by construction, so T-310's behaviour
   // there is byte-identical to before.
+  // T-976: a file that positions NONE of its nodes is laid out along its flows. A file that positions any node keeps
+  // today's placement for all of them, so every corpus and third-party file (all carry positions) is byte-identical.
+  if (nodes.length && nodes.every(n => autoPos.has(n.uid))) layoutByFlowOrder(nodes, edges);
   _laneGrowReport = growUnderDeclaredLanes(lanes, nodes);
   for (const n of nodes) {
     const def = dims(n) || NODE_DEFAULTS.serviceTask;

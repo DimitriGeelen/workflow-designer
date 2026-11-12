@@ -1897,6 +1897,21 @@ else
 fi
 }
 leg browser "_t1392-settings-reach" _leg_228
+_leg_229() {
+
+# ── T-976: a map whose file positions none of its nodes is laid out along its flows ──
+# tests/fixtures/t976: every flow but the loop back points left to right, no overlaps, no flow through a node, no label
+# collisions, every node in its lane; a file with ONE position keeps today's placement. Self-test: the source before
+# T-976 is red on F1 and F3 (6 backward flows, 2 overlaps), and columns squeezed to 40 px turn F3, F5 and F6 red.
+if node "$ROOT/tools/_t976-flow-order-cdp.mjs" --self-test > "$TMP/leg-_t976.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a map with no positions is laid out in file order again (End before its tasks, overlaps), or the flow layout crowds, crosses or leaves its lanes, or it ran on a file that has positions (run 'node tools/_t976-flow-order-cdp.mjs --self-test'; T-976)"
+  show_output "$TMP/leg-_t976.out" "_t976-flow-order-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t976-flow-order" _leg_229
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

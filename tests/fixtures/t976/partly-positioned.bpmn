@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-976 fixture (partly positioned arm): Start_order alone carries a position, so the flow layout must NOT run; no DI, elements listed in scrambled document order (End first), two lanes, a branch that merges, and
+     a loop back. A flow-aware layout must place every node right of the nodes that lead to it (loop-back flows aside)
+     and keep nodes that share a lane and a column from overlapping. -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:aef="http://anchorpoint.framework/aef/extensions" id="Defs_t976" targetNamespace="http://example.com/t976">
+  <bpmn:process id="Proc_t976" name="Order handling" isExecutable="false">
+    <bpmn:laneSet id="LS_t976">
+      <bpmn:lane id="Lane_sales" name="Sales">
+        <bpmn:flowNodeRef>End_done</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Start_order</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_check</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_ok</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_reject</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_join</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_wh" name="Warehouse">
+        <bpmn:flowNodeRef>Task_ship</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_pick</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:endEvent id="End_done" name="Done"/>
+    <bpmn:task id="Task_ship" name="Ship the order"/>
+    <bpmn:exclusiveGateway id="Gw_join" name="Merge"/>
+    <bpmn:task id="Task_reject" name="Reject and notify"/>
+    <bpmn:startEvent id="Start_order" name="Order received"><bpmn:extensionElements><aef:position x="900" y="0"/></bpmn:extensionElements></bpmn:startEvent>
+    <bpmn:task id="Task_pick" name="Pick the items"/>
+    <bpmn:exclusiveGateway id="Gw_ok" name="In stock?"/>
+    <bpmn:task id="Task_check" name="Check the order"/>
+    <bpmn:sequenceFlow id="F1" sourceRef="Start_order" targetRef="Task_check"/>
+    <bpmn:sequenceFlow id="F2" sourceRef="Task_check" targetRef="Gw_ok"/>
+    <bpmn:sequenceFlow id="F3" name="yes" sourceRef="Gw_ok" targetRef="Task_pick"/>
+    <bpmn:sequenceFlow id="F4" name="no" sourceRef="Gw_ok" targetRef="Task_reject"/>
+    <bpmn:sequenceFlow id="F5" sourceRef="Task_pick" targetRef="Task_ship"/>
+    <bpmn:sequenceFlow id="F6" sourceRef="Task_ship" targetRef="Gw_join"/>
+    <bpmn:sequenceFlow id="F7" sourceRef="Task_reject" targetRef="Gw_join"/>
+    <bpmn:sequenceFlow id="F8" sourceRef="Gw_join" targetRef="End_done"/>
+    <bpmn:sequenceFlow id="F9" name="recheck" sourceRef="Task_reject" targetRef="Task_check"/>
+  </bpmn:process>
+</bpmn:definitions>

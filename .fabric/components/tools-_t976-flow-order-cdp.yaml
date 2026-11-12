@@ -1,0 +1,21 @@
+id: tools/_t976-flow-order-cdp.mjs
+name: _t976-flow-order-cdp
+type: script
+subsystem: browser-harness
+location: tools/_t976-flow-order-cdp.mjs
+tags: []
+
+purpose: "T-976 — a map whose file positions none of its nodes is laid out along its flows; any position keeps today's placement."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-11-12
+created_by: unknown
