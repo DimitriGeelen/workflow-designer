@@ -109,6 +109,18 @@ cost_estimate_proposed:
 
 ## Context
 
+**Background / trigger:** phase P4 of the T-038 review surface (GO): the A-4 fidelity pilot (details below).
+
+**Problem / hypothesis:** mechanical validation (exit 0) may miss whether a rendered diagram matches the process the
+operator actually lives; only the operator's review can tell.
+
+**Goal:** render the `inception-review` mapping through the T-040 bridge into a map the editor opens, for the
+operator to judge.
+
+**Expected outcome:** the rendered corpus and gallery the operator reviews; done long ago (24 rendered maps, the
+`?load=` deep link, tools/serve-gallery.sh). This close only modernises the suite line (2026-11-12: it called the whole
+suite under system Node 18, which has no WebSocket).
+
 Phase P4 of the T-038 (GO) review surface: the **A-4 fidelity pilot**. Uses the T-040 bridge
 to render the T-039 `inception-review` mapping — the process the operator lives every time an
 inception is presented — into a BPMN the existing editor opens, so the operator can judge
@@ -201,7 +213,8 @@ missed? Agent-side is producing the viewable artifact + steps; the verdict is th
 test "$(ls examples/aef-processes/rendered/*.bpmn | wc -l)" -eq 24
 grep -q "URLSearchParams(location.search).get('load')" src/aef-workflow-designer.html
 test -x tools/serve-gallery.sh
-out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"  # count-agnostic (T-305: suite grew 31->43; totals rot)
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tools/_t1288-prepush-gate.sh
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tests/run-bridge-tests.sh --tier browser > /tmp/.t041-bridge 2>&1 || { grep -E '\[FAIL\]|^tier ' /tmp/.t041-bridge; false; }
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
