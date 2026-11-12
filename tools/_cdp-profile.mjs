@@ -9,9 +9,15 @@
 // first, found by their --user-data-dir argument, so no registration is needed; registerChrome() is optional). It also
 // sweeps os.tmpdir() for dirs with the same prefix whose owner pid is dead, which covers SIGKILL. A dir with no owner
 // file, or whose owner is alive, is never touched. Removal is idempotent, so an existing `finally` cleanup still works.
-import { mkdtempSync, writeFileSync, readFileSync, readdirSync, rmSync, existsSync } from 'node:fs';
+//
+// T-1257: Chrome also makes one dir of its own per launch, <TMPDIR>/org.chromium.Chromium.XXXXXX, holding its
+// SingletonSocket and SingletonCookie, and leaves it behind on SIGKILL and SIGTERM alike (measured 2026-11-12: one per
+// launch; 2,087 such empty dirs in /tmp). The profile's own SingletonSocket is a symlink INTO that dir, so it is found
+// from the profile, not guessed from a shared /tmp: removeChromeTemp() follows the link and removes that dir (only a
+// dir named org.chromium.Chromium.*), before the profile goes.
+import { mkdtempSync, writeFileSync, readFileSync, readdirSync, rmSync, existsSync, readlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, dirname, basename } from 'node:path';
 
 export const OWNER_FILE = '.t1247-owner-pid';
 
@@ -37,10 +43,25 @@ function killUsers(dir) {
   }
 }
 
+/** T-1257: the dir Chrome made for this profile's singleton files, found by the profile's SingletonSocket link. */
+export function chromeTempOf(dir) {
+  try {
+    const target = readlinkSync(join(dir, 'SingletonSocket'));
+    const d = dirname(target);
+    return basename(d).startsWith('org.chromium.Chromium.') ? d : null;
+  } catch { return null; }
+}
+
+function removeChromeTemp(dir) {
+  const d = chromeTempOf(dir);
+  if (d) { try { rmSync(d, { recursive: true, force: true }); } catch {} }
+}
+
 export function removeProfileDir(dir) {
   if (!dir) return;
   if (!process.env.T1247_NO_CLEANUP) {
     killUsers(dir);
+    removeChromeTemp(dir);   // T-1257: read the link before the profile (and the link) is gone
     try { rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 50 }); } catch {}
   }
   dirs.delete(dir);
@@ -75,6 +96,7 @@ function sweep(prefix) {
     try { pid = parseInt(readFileSync(join(d, OWNER_FILE), 'utf8'), 10); } catch { continue; }
     if (!Number.isInteger(pid) || alive(pid)) continue;
     killUsers(d);
+    removeChromeTemp(d);   // T-1257
     try { rmSync(d, { recursive: true, force: true }); } catch {}
   }
 }

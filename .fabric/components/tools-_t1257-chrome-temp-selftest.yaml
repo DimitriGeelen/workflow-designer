@@ -1,0 +1,21 @@
+id: tools/_t1257-chrome-temp-selftest.mjs
+name: _t1257-chrome-temp-selftest
+type: script
+subsystem: instruments
+location: tools/_t1257-chrome-temp-selftest.mjs
+tags: []
+
+purpose: "T-1257 — the shared profile helper removes the temp dir Chrome makes for each launch, and nothing else."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-11-12
+created_by: unknown

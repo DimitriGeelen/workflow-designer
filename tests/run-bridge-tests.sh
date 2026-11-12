@@ -1959,6 +1959,22 @@ else
 fi
 }
 leg core "_t1403-corpus-adopt" _leg_232
+_leg_233() {
+
+# ── T-1257: Chrome's own temp dir goes with the profile ──
+# Chrome makes <TMPDIR>/org.chromium.Chromium.XXXXXX per launch and leaves it on SIGKILL and SIGTERM (2,087 had piled
+# up in /tmp by 2026-11-12). tools/_cdp-profile.mjs, which every CDP harness uses, follows the profile's SingletonSocket
+# link and removes that dir with the profile. Self-test: none left after removeProfileDir; control: the old removal
+# leaves one; a link into a dir not named org.chromium.Chromium.* is never followed.
+if node "$ROOT/tools/_t1257-chrome-temp-selftest.mjs" > "$TMP/leg-_t1257.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "Chrome's per-launch org.chromium.Chromium temp dir is left behind again, or the profile helper follows a link it should not (run 'node tools/_t1257-chrome-temp-selftest.mjs'; T-1257)"
+  show_output "$TMP/leg-_t1257.out" "_t1257-chrome-temp-selftest.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "_t1257-chrome-temp" _leg_233
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──
