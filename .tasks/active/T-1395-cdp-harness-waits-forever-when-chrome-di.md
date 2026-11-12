@@ -103,16 +103,20 @@ silent hang into `CDP TIMEOUT` after 120 s, instead of a suite stuck for hours.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `tools/_cdp-client.mjs` exports `cdp(ws, {cmdMs, onEvent})` with the old `{ready, cmd, close}` interface; a
+- [x] `tools/_cdp-client.mjs` exports `cdp(ws, {cmdMs, onEvent})` with the old `{ready, cmd, close}` interface; a
       waiting command is rejected with `CDP CLOSED` when the socket closes, a later command at once, and a command with
       no answer after `cmdMs` with `CDP TIMEOUT`.
-- [ ] A self-test (`tools/_t1395-cdp-client-selftest.mjs`) proves all three against a real Chrome: kill Chrome while
+- [x] A self-test (`tools/_t1395-cdp-client-selftest.mjs`) proves all three against a real Chrome: kill Chrome while
       an evaluate waits → rejected within 5 s; a command after that → rejected at once; a never-resolving
       `awaitPromise` evaluate with `cmdMs` 1500 → `CDP TIMEOUT`. A control arm runs the OLD inline client against the
       same kill and shows it still waiting after 5 s (the defect, reproduced).
-- [ ] Every byte-identical copy of the old client in tools/*.mjs is replaced by the import; the remaining variants
+- [x] Every byte-identical copy of the old client in tools/*.mjs is replaced by the import; the remaining variants
       either import it too or are listed in this task with the reason. `node --check` passes on every changed file.
-- [ ] Both suite tiers green on the change (core and browser), run when load allows.
+      Result: all of them import it — 133 identical copies, 10 `function cdp` variants (event lists via `onEvent`), 16
+      inline or `cdpClient` clients. The only `new WebSocket` left in tools/ is the self-test's deliberate old copy.
+- [x] Both suite tiers green on the change (core and browser), run when load allows. Browser 139/0 (2026-11-12 10:40,
+      be.47 tree); core 221/0 (11:05). Two reds the sweep caused were fixed on the way (ba16db4d8: the census's
+      missing ES-import edge, and _t1158's copy rewriting imports by name).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -302,7 +306,7 @@ PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t1395-cdp-client-
 grep -lE "^function cdp\(ws\) \{ const s = new WebSocket\(ws\); let id = 0; const p = new Map\(\); s.addEventListener\('message'" tools/*.mjs | wc -l | grep -qx 0
 test "$(grep -l "from './_cdp-client.mjs'" tools/*.mjs | wc -l)" -ge 130
 for f in $(grep -l "from './_cdp-client.mjs'" tools/*.mjs); do node --check "$f" || exit 1; done
-PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tests/run-bridge-tests.sh --tier core
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tools/_t1288-prepush-gate.sh
 PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tests/run-bridge-tests.sh --tier browser > /tmp/.t1395-browser.out 2>&1 || { grep -E '\[FAIL\]|^tier ' /tmp/.t1395-browser.out; false; }
 
 ## RCA
