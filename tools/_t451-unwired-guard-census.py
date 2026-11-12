@@ -356,7 +356,19 @@ def _file_refs(p, text):
         except (SyntaxError, ValueError):   # unreachable: _strip_python parsed it
             pass
         return found, False
-    return set(TOOL_RE.findall(strip_prose(p, text))), False
+    stripped = strip_prose(p, text)
+    found = set(TOOL_RE.findall(stripped))
+    # T-1395: an ES-module import runs the imported file as surely as a path does (the JS twin of T-1191's Python
+    # `import`). A module in tools/ that imports './x.mjs' calls tools/x.mjs: 161 harnesses import _cdp-client.mjs
+    # that way and the census called it unwired, while _cdp-attach.mjs passed only because one shell script happened
+    # to name its path. Comments are already blanked by strip_prose, so a commented-out import is no edge.
+    if os.path.splitext(p)[1].lower() in ('.mjs', '.js', '.cjs') and os.path.basename(os.path.dirname(p)) == 'tools':
+        found.update(ES_IMPORT_RE.findall(stripped))
+    return found, False
+
+
+# `import x from './y.mjs'`, `import './y.mjs'`, `export ... from './y.mjs'`, `import('./y.mjs')`.
+ES_IMPORT_RE = re.compile(r"""(?:\bfrom|\bimport)\s*\(?\s*['"]\./([A-Za-z0-9_.\-]+\.(?:mjs|js))['"]""")
 
 
 # T-1191: per-file results cached by content. The key is the file's sha256 plus this script's own sha256 and the

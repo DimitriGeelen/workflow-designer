@@ -43,11 +43,12 @@ for old, new in (("const HERE = dirname(fileURLToPath(import.meta.url));", f"con
                  ("from './_cdp-attach.mjs';", f"from {root + '/tools/_cdp-attach.mjs'!r};")):
     if s.count(old) != 1: sys.exit(f"MUTATION SETUP FAILED: {old!r} found {s.count(old)}x")
     s = s.replace(old, new)
-# T-1247: the guard now also imports the shared profile helper; the copy lives in a temp dir, so that relative
-# import must point back at tools/ as well. Optional: rewritten only when the guard imports it.
-_prof = "from './_cdp-profile.mjs';"
-if s.count(_prof) > 1: sys.exit(f"MUTATION SETUP FAILED: {_prof!r} found {s.count(_prof)}x")
-s = s.replace(_prof, f"from {root + '/tools/_cdp-profile.mjs'!r};")
+# T-1247, T-1395: the copy lives in a temp dir, so EVERY other relative import of a tools/ helper
+# (_cdp-profile.mjs, _cdp-client.mjs, any added later) must point back at tools/ as well. Listing them by
+# name broke this guard the day a harness gained a new shared import (T-1395, _cdp-client.mjs).
+import re
+s = re.sub(r"""from\s+(['"])\./([A-Za-z0-9_.-]+\.mjs)\1""", lambda m: f"from {root + '/tools/' + m.group(2)!r}", s)
+if re.search(r"""from\s+['"]\./""", s): sys.exit("MUTATION SETUP FAILED: a relative import was left unrewritten")
 if level == "clean":                            # path rewrites only: the control copy
     open(out, "w").write(s); sys.exit(0)
 if s.count(anchor) < 1: sys.exit(f"MUTATION SETUP FAILED: projection anchor not found: {anchor!r}")
