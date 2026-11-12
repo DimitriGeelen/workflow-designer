@@ -11,7 +11,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_3_run
 owner: agent
 horizon: now
 tags: []
@@ -158,7 +158,7 @@ Still to do: a harness (order + no overlap, red on the source before), `_t308` 2
   **Expected:** the map reads left to right in flow order, uncluttered, in its lanes, at every width.
   **If not:** name the screenshot and what reads wrong (order, overlap, a flow through a node, a label clash), and
   set the task to issues.
-  **Reviewer verdict:** green V-20261112-aaf05067 — reviewer-judge-t-976-r3-5ecf4fd18ae9:reviewer (rung rung-3-termlink-single-reviewer), digest 9f94a9f42107; dispatch judge-t-976-r3-5ecf4fd18ae9; evidence: .context/reviews/evidence/T-976/AC1-judge-t-976-r3-5ecf4fd18ae9.md, .context/reviews/evidence/T-976/flow-order-no-di-1024-judge-t-976-r3-5ecf4fd18ae9.png, .context/reviews/evidence/T-976/flow-order-no-di-1440-judge-t-976-r3-5ecf4fd18ae9.png, .context/reviews/evidence/T-976/flow-order-no-di-1920-judge-t-976-r3-5ecf4fd18ae9.png; ledger .context/reviews/verdicts.jsonl
+  **Reviewer verdict:** green V-20261112-e9f29efc — reviewer-judge-t-976-r3-75625f89661c:reviewer (rung rung-3-termlink-single-reviewer), digest 9f94a9f42107; dispatch judge-t-976-r3-75625f89661c; evidence: .context/reviews/evidence/T-976/AC1-judge-t-976-r3-75625f89661c.md, .context/reviews/evidence/T-976/flow-order-no-di-1024-judge-t-976-r3-75625f89661c.png, .context/reviews/evidence/T-976/flow-order-no-di-1440-judge-t-976-r3-75625f89661c.png, .context/reviews/evidence/T-976/flow-order-no-di-1920-judge-t-976-r3-75625f89661c.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" node tools/_t976-flow-order-cdp.mjs --self-test > /tmp/.t976.out 2>&1 && grep -q "poison arm is caught" /tmp/.t976.out
