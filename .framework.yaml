@@ -17,3 +17,4 @@ project_id: pid-6da630d5b53b170f
 MESSAGING_TOOLKIT: 1
 RAIL_IDENTITY_FILE: .context/secrets/termlink-identity.key
 SIDECAR_RAIL_IDENTITY: 1
+RELEASE_ARTIFACT_PATHS: docs/authoring-kit/calibration-records/
