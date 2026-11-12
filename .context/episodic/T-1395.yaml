@@ -1,0 +1,252 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1395: CDP harness waits forever when Chrome dies mid-command (_t358-laneless hung 2 h in T-358's close)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-12T11:49:54Z
+# ============================================================================
+
+task_id: T-1395
+task_name: "CDP harness waits forever when Chrome dies mid-command (_t358-laneless hung 2 h in T-358's close)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-11T22:30:55Z
+completed: 2026-11-12T11:29:17Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-11T23:55:17+01:00
+last_commit: 2026-11-12T12:29:15+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  one CDP client no wait can outlive — rejects on Chrome's death (CDP CLOSED) and after cmdMs (CDP TIMEOUT, 120 s); every tools/ harness imports it. component cards for the shared CDP client and its self-test. the two reds its sweep caused — the census reads ES-module imports as edges, and _t1158's mutant copy rewrites every relative import. agent criteria ticked with evidence; its core verification line uses the cached pre-push gate (same tier, keyed on the tree). its absence check asserts directly (pipefail made 'grep -l | wc -l' fail on the zero it was looking for), with a positive control on the pre-sweep source
+
+# Key outcomes
+outcomes:
+  - '`tools/_cdp-client.mjs` exports `cdp(ws, {cmdMs, onEvent})` with the old `{ready, cmd, close}` interface; a'
+  - 'A self-test (`tools/_t1395-cdp-client-selftest.mjs`) proves all three against a real Chrome: kill Chrome while'
+  - 'Every byte-identical copy of the old client in tools/*.mjs is replaced by the import; the remaining variants'
+  - 'Both suite tiers green on the change (core and browser), run when load allows. Browser 139/0 (2026-11-12 10:40,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_cdp-client.yaml'
+  - '.fabric/components/tools-_t1395-cdp-client-selftest.yaml'
+  - '.tasks/active/T-1395-cdp-harness-waits-forever-when-chrome-di.md'
+  - 'tools/_align-distribute-diag.mjs'
+  - 'tools/_autoload-verify-cdp.mjs'
+  - 'tools/_autosave-verify-cdp.mjs'
+  - 'tools/_bridge-seam-roundtrip-cdp.mjs'
+  - 'tools/_cdp-client.mjs'
+  - 'tools/_clean-layout-cdp.mjs'
+  - 'tools/_edge-straighten-verify-cdp.mjs'
+  - 'tools/_editor-behavior-verify-cdp.mjs'
+  - 'tools/_endpoint-hover-verify-cdp.mjs'
+  - 'tools/_endpoint-overlap-verify-cdp.mjs'
+  - 'tools/_horizontal-spacing-verify-cdp.mjs'
+  - 'tools/_label-overlap-probe.mjs'
+  - 'tools/_node-cuts-cdp.mjs'
+  - 'tools/_roundtrip-serialization-cdp.mjs'
+  - 'tools/_saveproject-verify-cdp.mjs'
+  - 'tools/_selection-align-verify-cdp.mjs'
+  - 'tools/_t1061-deeplink-settled-cdp.mjs'
+  - 'tools/_t1067-side-label-wrap-cdp.mjs'
+  - 'tools/_t1068-corpus-labels.mjs'
+  - 'tools/_t1069-authority-marker-clearance-cdp.mjs'
+  - 'tools/_t1078-advisory-overlap-cdp.mjs'
+  - 'tools/_t1088-lane-abbr-unique-cdp.mjs'
+  - 'tools/_t1089-save-loaded-as-version-cdp.mjs'
+  - 'tools/_t1090-cross-lane-l-routing-cdp.mjs'
+  - 'tools/_t1091-sticky-lanes-cdp.mjs'
+  - 'tools/_t1092-authority-summary-cdp.mjs'
+  - 'tools/_t1096-data-objects-roundtrip-cdp.mjs'
+  - 'tools/_t1102-unique-display-ids-cdp.mjs'
+  - 'tools/_t1109-deeplink-project-load-cdp.mjs'
+  - 'tools/_t1119-collaboration-roundtrip-cdp.mjs'
+  - 'tools/_t1120-collab-pools-drawn-cdp.mjs'
+  - 'tools/_t1124-hide-empty-fields-cdp.mjs'
+  - 'tools/_t1125-field-profile-cdp.mjs'
+  - 'tools/_t1126-field-suggestions-cdp.mjs'
+  - 'tools/_t1127-element-details-cdp.mjs'
+  - 'tools/_t1128-field-defaults-settings-cdp.mjs'
+  - 'tools/_t1129-optional-select-empty-cdp.mjs'
+  - 'tools/_t1131-dangling-refs-thirdparty-cdp.mjs'
+  - 'tools/_t1134-portal-without-endpoints-cdp.mjs'
+  - 'tools/_t1154-pool-label-fit-cdp.mjs'
+  - 'tools/_t1155-doc-title-verify-cdp.mjs'
+  - 'tools/_t1158-witness-per-verdict-teeth.sh'
+  - 'tools/_t1164-lane-findings-cdp.mjs'
+  - 'tools/_t1168-node-id-map.mjs'
+  - 'tools/_t1168-step-numbers-verify-cdp.mjs'
+  - 'tools/_t1176-toolbar-reach-cdp.mjs'
+  - 'tools/_t1177-panels-cdp.mjs'
+  - 'tools/_t1193-slug-readonly-cdp.mjs'
+  - 'tools/_t1194-slug-task-id-cdp.mjs'
+  - 'tools/_t1217-native-link-definition-cdp.mjs'
+  - 'tools/_t1218-unnamed-event-name-cdp.mjs'
+  - 'tools/_t1220-io-extra-attrs-cdp.mjs'
+  - 'tools/_t1241-business-lens-cdp.mjs'
+  - 'tools/_t1243-io-children-cdp.mjs'
+  - 'tools/_t1249-v11-io-cdp.mjs'
+  - 'tools/_t1249-v11-io-shots.mjs'
+  - 'tools/_t125-lane-compaction-cdp.mjs'
+  - 'tools/_t1256-label-clearance-cdp.mjs'
+  - 'tools/_t1261-original-id-cdp.mjs'
+  - 'tools/_t1262-file-identity-cdp.mjs'
+  - 'tools/_t1264-imported-geometry-cdp.mjs'
+  - 'tools/_t1265-condition-language-cdp.mjs'
+  - 'tools/_t1268-node-aef-children-cdp.mjs'
+  - 'tools/_t1271-node-order-cdp.mjs'
+  - 'tools/_t1274-note-box-cdp.mjs'
+  - 'tools/_t1276-name-fit-cdp.mjs'
+  - 'tools/_t1278-sweep-cdp.mjs'
+  - 'tools/_t1282-browse-entry-cdp.mjs'
+  - 'tools/_t1301-io-edit-cdp.mjs'
+  - 'tools/_t1303-io-findings-cdp.mjs'
+  - 'tools/_t1310-req-x-cdp.mjs'
+  - 'tools/_t1312-catalog-picker-cdp.mjs'
+  - 'tools/_t1325-element-passthrough-cdp.mjs'
+  - 'tools/_t1326-process-level-kept-cdp.mjs'
+  - 'tools/_t1327-comments-and-notice-cdp.mjs'
+  - 'tools/_t1327-notice-shots.mjs'
+  - 'tools/_t1339-subprocess-nesting-roundtrip-cdp.mjs'
+  - 'tools/_t1344-boundary-placement-cdp.mjs'
+  - 'tools/_t1345-message-shots.mjs'
+  - 'tools/_t1345-nesting-edit-rules-cdp.mjs'
+  - 'tools/_t1350-dense-boundary-cdp.mjs'
+  - 'tools/_t1365-shots.mjs'
+  - 'tools/_t1365-value-rules-cdp.mjs'
+  - 'tools/_t1366-plain-event-kinds-cdp.mjs'
+  - 'tools/_t1366-shots.mjs'
+  - 'tools/_t1369-documents-cdp.mjs'
+  - 'tools/_t1369-shots.mjs'
+  - 'tools/_t1372-shots.mjs'
+  - 'tools/_t1381-data-stores-cdp.mjs'
+  - 'tools/_t1381-shots.mjs'
+  - 'tools/_t1384-advisory-dock-cdp.mjs'
+  - 'tools/_t1392-settings-reach-cdp.mjs'
+  - 'tools/_t1395-cdp-client-selftest.mjs'
+  - 'tools/_t233-ghost-cards-cdp.mjs'
+  - 'tools/_t249-spike-zoom-cdp.mjs'
+  - 'tools/_t251-visual-shots.mjs'
+  - 'tools/_t253-live-url-probe.mjs'
+  - 'tools/_t255-visual-shots.mjs'
+  - 'tools/_t258-annotation-seam-cdp.mjs'
+  - 'tools/_t259-eventdef-preservation-cdp.mjs'
+  - 'tools/_t263-save-target-cdp.mjs'
+  - 'tools/_t264-save-target-guards-cdp.mjs'
+  - 'tools/_t293-endpoint-reach-cdp.mjs'
+  - 'tools/_t308-bare-catch-render-cdp.mjs'
+  - 'tools/_t308-export-byte-identity-cdp.mjs'
+  - 'tools/_t310-lane-position-conflict-cdp.mjs'
+  - 'tools/_t311-doc-comment-roundtrip-cdp.mjs'
+  - 'tools/_t315-lane-grow-on-import-cdp.mjs'
+  - 'tools/_t338-input-fidelity-cdp.mjs'
+  - 'tools/_t341-orphan-lane-probe.mjs'
+  - 'tools/_t347-accepted-element-content-cdp.mjs'
+  - 'tools/_t355-foreign-tag-render-cdp.mjs'
+  - 'tools/_t356-third-party-fidelity-cdp.mjs'
+  - 'tools/_t358-byteid-thirdparty.mjs'
+  - 'tools/_t358-empty-lanes-blast-radius.mjs'
+  - 'tools/_t358-export-determinism.mjs'
+  - 'tools/_t358-lane-provenance-cdp.mjs'
+  - 'tools/_t358-laneless-render-cdp.mjs'
+  - 'tools/_t358-repair-options-cdp.mjs'
+  - 'tools/_t364-aef-ext-roundtrip.mjs'
+  - 'tools/_t364-tie-permutes-ids.mjs'
+  - 'tools/_t366-uid-shape-agnostic.mjs'
+  - 'tools/_t367-aef-injection-footprint.mjs'
+  - 'tools/_t406-doc-comment-provenance-cdp.mjs'
+  - 'tools/_t407-exporter-passthrough-cdp.mjs'
+  - 'tools/_t423-additive-export-cdp.mjs'
+  - 'tools/_t423-carrier-agreement-cdp.mjs'
+  - 'tools/_t423-di-roundtrip-idempotence-cdp.mjs'
+  - 'tools/_t451-unwired-guard-census.py'
+  - 'tools/_t479-endpoint-roundtrip-cdp.mjs'
+  - 'tools/_t482-scalar-projection-falsify.mjs'
+  - 'tools/_t483-structured-projection-falsify.mjs'
+  - 'tools/_t485-unknown-extension-survival.mjs'
+  - 'tools/_t511-unwired-node-roundtrip.mjs'
+  - 'tools/_t513-thirdparty-identity-roundtrip.mjs'
+  - 'tools/_t515-external-uid-conformance.mjs'
+  - 'tools/_t518-uid-collision.mjs'
+  - 'tools/_t520-uid-xml-safety.mjs'
+  - 'tools/_t523-subprocess-nesting.mjs'
+  - 'tools/_t562-workflow-id-helpers-cdp.mjs'
+  - 'tools/_t563-fallback-id-derivation-cdp.mjs'
+  - 'tools/_t565-workflowmeta-emission-census.mjs'
+  - 'tools/_t566-note-field-cdp.mjs'
+  - 'tools/_t570-meta-carriage-cdp.mjs'
+  - 'tools/_t572-bridge-vocabulary-roundtrip-cdp.mjs'
+  - 'tools/_t573-emits-panel-shape-cdp.mjs'
+  - 'tools/_t589-panel-links-cdp.mjs'
+  - 'tools/_t600-label-wrap.mjs'
+  - 'tools/_t601-lane-boundary.mjs'
+  - 'tools/_t602-documentation-roundtrip.mjs'
+  - 'tools/_t603-multiprocess-import.mjs'
+  - 'tools/_t618-determinism-roundtrip-cdp.mjs'
+  - 'tools/_t821-fault-surface-cdp.mjs'
+  - 'tools/_t884-instance-overlay-cdp.mjs'
+  - 'tools/_t884-live-proof-cdp.mjs'
+  - 'tools/_t889-authority-first-class-cdp.mjs'
+  - 'tools/_t892-lane-default-cdp.mjs'
+  - 'tools/_t893-authority-marker-shots.mjs'
+  - 'tools/_t911-kind-badge-verify-cdp.mjs'
+  - 'tools/_typed-events-cdp.mjs'
+  - 'tools/_undo-verify-cdp.mjs'
+  - 'tools/_versions-verify-cdp.mjs'
+  - 'tools/gen-rendered-thumbs.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-11T23:55:17'
+    action: 'T-1395: one CDP client no wait can outlive — rejects on Chrome''s death (CDP CLOSED) and after cmdMs (CDP TIMEOUT, 120 s); every tools/ harness imports it'
+  - time: '2026-11-11T23:55:39'
+    action: 'T-1395: component cards for the shared CDP client and its self-test'
+  - time: '2026-11-12T09:57:05'
+    action: 'T-1395: the two reds its sweep caused — the census reads ES-module imports as edges, and _t1158''s mutant copy rewrites every relative import'
+  - time: '2026-11-12T12:08:11'
+    action: 'T-1395: agent criteria ticked with evidence; its core verification line uses the cached pre-push gate (same tier, keyed on the tree)'
+  - time: '2026-11-12T12:29:15'
+    action: 'T-1395: its absence check asserts directly (pipefail made ''grep -l | wc -l'' fail on the zero it was looking for), with a positive control on the pre-sweep source'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 778 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 778
+  commits: 6
+  files_changed: 169
+  lines_added: 1106
+  lines_removed: 367
+  footprint_refreshed_at: '2026-11-12T11:50:06Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1395-cdp-harness-waits-forever-when-chrome-di.md
+generated_by: context-agent-hybrid

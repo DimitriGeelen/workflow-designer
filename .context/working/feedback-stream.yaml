@@ -21377,3 +21377,21 @@ task_id: T-1219
 payload:
   overall: CONTRADICTED
   claim_count: 4
+---
+kind: scan_emitted
+timestamp: '2026-11-12T11:49:44Z'
+scan_id: R-ee6ca3b2
+task_id: T-1395
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-12T11:49:44Z'
+scan_id: R-ee6ca3b2
+task_id: T-1395
+payload:
+  task_file: .tasks/active/T-1395-cdp-harness-waits-forever-when-chrome-di.md

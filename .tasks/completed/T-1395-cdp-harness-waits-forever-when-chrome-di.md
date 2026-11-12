@@ -9,13 +9,13 @@ description: >
   tier. The cdp() helper is hand-copied in many tools/*.mjs harnesses, so the class
   is wider than this one file.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: agt_2_perform
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_align-distribute-diag.mjs, tools/_autoload-verify-cdp.mjs, tools/_autosave-verify-cdp.mjs, tools/_bridge-seam-roundtrip-cdp.mjs, tools/_cdp-client.mjs, tools/_clean-layout-cdp.mjs, tools/_edge-straighten-verify-cdp.mjs, tools/_editor-behavior-verify-cdp.mjs, tools/_endpoint-hover-verify-cdp.mjs, tools/_endpoint-overlap-verify-cdp.mjs, tools/_horizontal-spacing-verify-cdp.mjs, tools/_label-overlap-probe.mjs, tools/_node-cuts-cdp.mjs, tools/_roundtrip-serialization-cdp.mjs, tools/_saveproject-verify-cdp.mjs, tools/_selection-align-verify-cdp.mjs, tools/_t1091-sticky-lanes-cdp.mjs, tools/_t1154-pool-label-fit-cdp.mjs, tools/_t1158-witness-per-verdict-teeth.sh, tools/_t1164-lane-findings-cdp.mjs, tools/_t1193-slug-readonly-cdp.mjs, tools/_t1194-slug-task-id-cdp.mjs, tools/_t1217-native-link-definition-cdp.mjs, tools/_t1218-unnamed-event-name-cdp.mjs, tools/_t1220-io-extra-attrs-cdp.mjs, tools/_t1243-io-children-cdp.mjs, tools/_t125-lane-compaction-cdp.mjs, tools/_t1265-condition-language-cdp.mjs, tools/_t1268-node-aef-children-cdp.mjs, tools/_t1301-io-edit-cdp.mjs, tools/_t1325-element-passthrough-cdp.mjs, tools/_t1326-process-level-kept-cdp.mjs, tools/_t1327-comments-and-notice-cdp.mjs, tools/_t1327-notice-shots.mjs, tools/_t1350-dense-boundary-cdp.mjs, tools/_t1384-advisory-dock-cdp.mjs, tools/_t1392-settings-reach-cdp.mjs, tools/_t1395-cdp-client-selftest.mjs, tools/_t233-ghost-cards-cdp.mjs, tools/_t249-spike-zoom-cdp.mjs, tools/_t251-visual-shots.mjs, tools/_t253-live-url-probe.mjs, tools/_t255-visual-shots.mjs, tools/_t258-annotation-seam-cdp.mjs, tools/_t259-eventdef-preservation-cdp.mjs, tools/_t263-save-target-cdp.mjs, tools/_t264-save-target-guards-cdp.mjs, tools/_t293-endpoint-reach-cdp.mjs, tools/_t308-bare-catch-render-cdp.mjs, tools/_t308-export-byte-identity-cdp.mjs, tools/_t310-lane-position-conflict-cdp.mjs, tools/_t311-doc-comment-roundtrip-cdp.mjs, tools/_t315-lane-grow-on-import-cdp.mjs, tools/_t338-input-fidelity-cdp.mjs, tools/_t341-orphan-lane-probe.mjs, tools/_t347-accepted-element-content-cdp.mjs, tools/_t355-foreign-tag-render-cdp.mjs, tools/_t356-third-party-fidelity-cdp.mjs, tools/_t358-byteid-thirdparty.mjs, tools/_t358-empty-lanes-blast-radius.mjs, tools/_t358-export-determinism.mjs, tools/_t358-lane-provenance-cdp.mjs, tools/_t358-laneless-render-cdp.mjs, tools/_t358-repair-options-cdp.mjs, tools/_t364-aef-ext-roundtrip.mjs, tools/_t364-tie-permutes-ids.mjs, tools/_t366-uid-shape-agnostic.mjs, tools/_t367-aef-injection-footprint.mjs, tools/_t406-doc-comment-provenance-cdp.mjs, tools/_t407-exporter-passthrough-cdp.mjs, tools/_t423-additive-export-cdp.mjs, tools/_t423-carrier-agreement-cdp.mjs, tools/_t423-di-roundtrip-idempotence-cdp.mjs, tools/_t451-unwired-guard-census.py, tools/_t479-endpoint-roundtrip-cdp.mjs, tools/_t482-scalar-projection-falsify.mjs, tools/_t483-structured-projection-falsify.mjs, tools/_t485-unknown-extension-survival.mjs, tools/_t511-unwired-node-roundtrip.mjs, tools/_t513-thirdparty-identity-roundtrip.mjs, tools/_t515-external-uid-conformance.mjs, tools/_t518-uid-collision.mjs, tools/_t520-uid-xml-safety.mjs, tools/_t523-subprocess-nesting.mjs, tools/_t562-workflow-id-helpers-cdp.mjs, tools/_t563-fallback-id-derivation-cdp.mjs, tools/_t565-workflowmeta-emission-census.mjs, tools/_t566-note-field-cdp.mjs, tools/_t570-meta-carriage-cdp.mjs, tools/_t572-bridge-vocabulary-roundtrip-cdp.mjs, tools/_t573-emits-panel-shape-cdp.mjs, tools/_t589-panel-links-cdp.mjs, tools/_t600-label-wrap.mjs, tools/_t601-lane-boundary.mjs, tools/_t602-documentation-roundtrip.mjs, tools/_t603-multiprocess-import.mjs, tools/_t618-determinism-roundtrip-cdp.mjs, tools/_t821-fault-surface-cdp.mjs, tools/_t884-instance-overlay-cdp.mjs, tools/_t884-live-proof-cdp.mjs, tools/_t889-authority-first-class-cdp.mjs, tools/_t892-lane-default-cdp.mjs, tools/_t893-authority-marker-shots.mjs, tools/_typed-events-cdp.mjs, tools/_undo-verify-cdp.mjs, tools/_versions-verify-cdp.mjs, tools/gen-rendered-thumbs.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-11T22:30:55Z
-last_update: '2026-11-11T22:46:43Z'
-date_finished:
+last_update: 2026-11-12T11:29:17Z
+date_finished: 2026-11-12T11:29:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -409,3 +409,26 @@ PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tests/run-bridge-tests.s
 
 ### 2026-11-11T22:46:42Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-12T11:29:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ee6ca3b2
+- **Timestamp:** 2026-11-12T11:49:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — `tools/_cdp-client.mjs` exports `cdp(ws, {cmdMs, onEvent})` with the old `{ready, cmd, close}` interface; a
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_cdp-client.mjs in: `tools/_cdp-client.mjs` exports `cdp(ws, {cmdMs, onEvent})` with the old `{ready, cmd, close}` interface; a`
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 138
+     - evidence: `git show 8da98622b~1:tools/_t358-laneless-render-cdp.mjs | grep -qE "^function cdp\(ws\) \{ const s = new WebSocket\(ws\); let id = 0; const p = new Map\(\); s.addEventListener\('message'"`
