@@ -107,6 +107,21 @@ Design notes (decided while building, within the agreed contract):
 - No LAN address in tracked files (the T-1239 gate rewrites them): the hub address is read at run time from the
   git-ignored `build/pool/hub`.
 
+### Runs (2026-11-13)
+- **Local proof 1** (launcher on git-built inputs, here): stopped at `git bundle verify` (needs a repository) — fixed
+  (c2342a5dd): clone first, verify inside it.
+- **Local proof 2:** core 214/9. All nine traced and fixed at their cause (b948180fc, da7734934): a real pipefail risk
+  in submit.sh (T-1331 census); the bundle lacked origin/master (a T-1383 commit an episodic cites); the session's
+  PROJECT_ROOT/FRAMEWORK_ROOT leaked into the clone (the T-1398 class; a local-proof artefact, cleared anyway); .git/hooks
+  is not cloned (the launcher now runs `fw git install-hooks`, then 832's installer).
+- **Local proof 3:** core 221/223, the two red being the hook guards, then fixed and checked by hand in the clone.
+- **Pool run 1:** stopped at staging: part 000 was staged ok in 5.3 s but submit.sh read pool:stage-out from the
+  start of 13,600 records and timed out — fixed (354f98ac5, `--tail`).
+- **Pool run 2** (`832-core-354f98ac55ff-20261113T080156`, pool-w2, 508 s): mechanics end to end; core 194/29. The
+  failing legs group into Watchtower-starting legs (~7; "the Watchtower app did not answer") and framework hook/gate
+  teeth (~20). Probable env gaps: the framework web app's requirements and command-line tools; reported to ring20 with
+  .107's versions. out/ (tier.log) not yet delivered; asked.
+
 ## Acceptance Criteria
 
 ### Agent
