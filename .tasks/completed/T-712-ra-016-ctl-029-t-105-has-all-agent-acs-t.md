@@ -1,15 +1,16 @@
 ---
-id: T-717
-name: "RA-021: CTL-029 T-309 has all Agent ACs ticked but status started-work"
+id: T-712
+name: "RA-016: CTL-029 T-105 has all Agent ACs ticked but status started-work"
 description: >
   Audit WARN cycle 1 2026-09-16: completable, not closed. Sibling of RA-013. Also
-  one of the three D13 inception-limbo tasks.
+  the oldest D5 lifecycle anomaly at 72 days active.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
-tags: [arc-003, audit-remediation, RA-021]
+horizon: null
+tags: [arc-003, audit-remediation, RA-016]
 components: []
 related_tasks: []
 arc_id: arc-003
@@ -17,9 +18,9 @@ arc_id: arc-003
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-16T13:25:49Z
-last_update: 2026-09-29T17:31:20Z
-date_finished:
+created: 2026-09-16T13:25:35Z
+last_update: 2026-11-13T23:39:51Z
+date_finished: 2026-11-13T23:39:51Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -31,7 +32,7 @@ date_finished:
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 bvp_scores_proposed:
-  - ts: '2026-09-16T13:30:37Z'
+  - ts: '2026-09-16T13:30:36Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 4
@@ -48,8 +49,27 @@ bvp_scores_proposed:
       (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
       (prose:process-enablement-incidental)
     rubric_sha: e4a00f38e801
+  - ts: '2026-11-13T23:37:00Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 4
+      D3: 4
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=2 (body:learning-ref); D2=4 (body:fw-audit-or-doctor); D3=4 (body:framework-level-ux);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 cost_estimate_proposed:
-  - ts: '2026-09-16T13:30:53Z'
+  - ts: '2026-09-16T13:30:52Z'
     estimator: bvp-estimator-v1-heuristic
     cost_estimate:
       tier: 2
@@ -59,28 +79,28 @@ cost_estimate_proposed:
     rubric_sha: e4a00f38e801
 ---
 
-# T-717: RA-021: CTL-029 T-309 has all Agent ACs ticked but status started-work
+# T-712: RA-016: CTL-029 T-105 has all Agent ACs ticked but status started-work
 
 ## Context
 
-**Finding RA-021** - cycle 1, 2026-09-16. Source: fw audit. Severity: WARN.
+**Finding RA-016** - cycle 1, 2026-09-16. Source: fw audit. Severity: WARN.
 
 Cycle-1 baseline for regression detection: audit Pass 166 / Warn 31 / Fail 1; doctor 3 warn / 0 fail.
 
 **Verbatim tool output:**
 
 ```
-[WARN] CTL-029: T-309 has all Agent ACs ticked but status='started-work' - completable, not closed
+[WARN] CTL-029: T-105 has all Agent ACs ticked but status='started-work' - completable, not closed
 ```
 
 **The invariant that is not held:**
 
-T-309 has satisfied every criterion the agent can verify and has not moved out of started-work. The invariant not held is that task status reflects task state. Whether T-309 closes clean or lands partial-complete depends on whether it carries unticked Human ACs - which only the operator may tick. Until the status is flipped, T-309 is counted as in-flight work by the velocity, lifecycle and task-debt checks simultaneously, so a single unflipped status inflates four findings at once. This task is also one of the three D13 inception-limbo cases (RA-029).
+T-105 has satisfied every criterion the agent can verify and has not moved out of started-work. The invariant not held is that task status reflects task state. Whether T-105 closes clean or lands partial-complete depends on whether it carries unticked Human ACs - which only the operator may tick. Until the status is flipped, T-105 is counted as in-flight work by the velocity, lifecycle and task-debt checks simultaneously, so a single unflipped status inflates four findings at once.
 
 **Root-cause siblings:** T-723 (RA-027), T-724 (RA-028), T-727 (RA-031)
 
 **Operator action / sovereignty boundary:**
-Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task verify T-309
+Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task verify T-105
 
 **Verification is the next cycle's re-run of the originating check, not this task's own assertion that it is fixed.**
 
@@ -88,9 +108,12 @@ Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task 
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `fw audit --section oe-daily` no longer names T-309 under CTL-029
-- [ ] T-309 is either in .tasks/completed/ with status work-completed, or is explicitly partial-complete with owner: human and its remaining Human ACs enumerated
-- [ ] No skip or force flag was used to achieve either state
+- [x] `fw audit --section oe-daily` no longer names T-105 under CTL-029
+- [x] T-105 is either in .tasks/completed/ with status work-completed, or is explicitly partial-complete with owner: human and its remaining Human ACs enumerated
+- [x] No skip or force flag was used to achieve either state
+
+**Evidence (2026-11-14):** T-105 closed 2026-10-19 (work-completed, in completed/); `fw audit --section oe-daily` at
+~00:45 CET names only T-1212 and T-1241 under CTL-029. Closed through the normal gate, no flag.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -116,11 +139,11 @@ Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task 
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-717`
+         1. Run `bin/fw reviewer T-712`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-717 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-712 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -172,7 +195,8 @@ Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task 
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-# Parked: `fw task update T-309 --status work-completed` on a human-owned task is the operator's act.
+# Parked: `fw task update T-105 --status work-completed` on a human-owned task is the operator's act.
+grep -q '^status: work-completed' .tasks/completed/T-105-*.md
 
 ## RCA
 
@@ -214,6 +238,11 @@ Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task 
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-11-14 — the finding cleared on its own
+- **What changed:** nothing was built here. T-105 was closed through its own path (2026-10-19), and CTL-029 stopped naming it.
+- **Plan impact:** none; the remediation this task planned was the close itself.
+- **Triggered:** nothing new.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -228,7 +257,7 @@ Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task 
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-717 go|no-go|defer --rationale "..."
+     fw inception decide T-712 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -237,10 +266,26 @@ Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task 
 
 ## Updates
 
-### 2026-09-16T13:25:49Z — task-created [task-create-agent]
+### 2026-09-16T13:25:35Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-717-ra-021-ctl-029-t-309-has-all-agent-acs-t.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-712-ra-016-ctl-029-t-105-has-all-agent-acs-t.md
 - **Context:** Initial task creation
 
-### 2026-09-29T17:31:20Z — status-update [task-update-agent]
+### 2026-09-29T17:31:18Z — status-update [task-update-agent]
 - **Change:** owner: human → agent
+
+### 2026-11-13T23:36:58Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-11-13T23:39:51Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9fee8754
+- **Timestamp:** 2026-11-13T23:39:55Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

@@ -4,10 +4,11 @@ name: "RA-020: CTL-029 T-293 has all Agent ACs ticked but status started-work"
 description: >
   Audit WARN cycle 1 2026-09-16: completable, not closed. Sibling of RA-013.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [arc-003, audit-remediation, RA-020]
 components: []
 related_tasks: []
@@ -17,8 +18,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:25:46Z
-last_update: 2026-09-29T17:31:19Z
-date_finished:
+last_update: 2026-11-13T23:40:43Z
+date_finished: 2026-11-13T23:40:43Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -46,6 +47,25 @@ bvp_scores_proposed:
       (body:framework-level-ux); D4=2 (body:env-class-handled); F-RECALL=0 
       (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
       (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-11-13T23:37:11Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 4
+      D3: 4
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=2 (body:learning-ref); D2=4 (body:fw-audit-or-doctor); D3=4 (body:framework-level-ux);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
     rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-09-16T13:30:53Z'
@@ -87,9 +107,12 @@ Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task 
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `fw audit --section oe-daily` no longer names T-293 under CTL-029
-- [ ] T-293 is either in .tasks/completed/ with status work-completed, or is explicitly partial-complete with owner: human and its remaining Human ACs enumerated
-- [ ] No skip or force flag was used to achieve either state
+- [x] `fw audit --section oe-daily` no longer names T-293 under CTL-029
+- [x] T-293 is either in .tasks/completed/ with status work-completed, or is explicitly partial-complete with owner: human and its remaining Human ACs enumerated
+- [x] No skip or force flag was used to achieve either state
+
+**Evidence (2026-11-14):** T-293 closed 2026-10-20 (work-completed, in completed/); `fw audit --section oe-daily` at
+~00:45 CET names only T-1212 and T-1241 under CTL-029. Closed through the normal gate, no flag.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -172,6 +195,7 @@ Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task 
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 # Parked: `fw task update T-293 --status work-completed` on a human-owned task is the operator's act.
+grep -q '^status: work-completed' .tasks/completed/T-293-*.md
 
 ## RCA
 
@@ -213,6 +237,11 @@ Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task 
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-11-14 — the finding cleared on its own
+- **What changed:** nothing was built here. T-293 was closed through its own path (2026-10-20), and CTL-029 stopped naming it.
+- **Plan impact:** none; the remediation this task planned was the close itself.
+- **Triggered:** nothing new.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -243,3 +272,19 @@ Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task 
 
 ### 2026-09-29T17:31:19Z — status-update [task-update-agent]
 - **Change:** owner: human → agent
+
+### 2026-11-13T23:37:09Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-11-13T23:40:43Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-28fb9db7
+- **Timestamp:** 2026-11-13T23:40:46Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

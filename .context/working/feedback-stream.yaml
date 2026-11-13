@@ -21781,3 +21781,219 @@ scan_id: R-5bbb4a46
 task_id: T-1411
 payload:
   task_file: .tasks/active/T-1411-t-568-probe-gives-its-private-watchtower.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T23:35:25Z'
+scan_id: R-637eb2af
+task_id: T-593
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T23:35:25Z'
+scan_id: R-637eb2af
+task_id: T-593
+payload:
+  task_file: .tasks/active/T-593-ewcr-handoff-envelope-records-an-operato.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T23:39:01Z'
+scan_id: R-6b1a6ace
+task_id: T-710
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T23:39:01Z'
+scan_id: R-6b1a6ace
+task_id: T-710
+payload:
+  task_file: .tasks/active/T-710-ra-014-ctl-029-t-101-has-all-agent-acs-t.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T23:39:29Z'
+scan_id: R-7ad18c16
+task_id: T-711
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T23:39:29Z'
+scan_id: R-7ad18c16
+task_id: T-711
+payload:
+  task_file: .tasks/active/T-711-ra-015-ctl-029-t-102-has-all-agent-acs-t.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T23:39:55Z'
+scan_id: R-9fee8754
+task_id: T-712
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T23:39:55Z'
+scan_id: R-9fee8754
+task_id: T-712
+payload:
+  task_file: .tasks/active/T-712-ra-016-ctl-029-t-105-has-all-agent-acs-t.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T23:40:22Z'
+scan_id: R-ba4bb5c4
+task_id: T-714
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T23:40:22Z'
+scan_id: R-ba4bb5c4
+task_id: T-714
+payload:
+  task_file: .tasks/active/T-714-ra-018-ctl-029-t-209-has-all-agent-acs-t.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T23:40:46Z'
+scan_id: R-28fb9db7
+task_id: T-716
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T23:40:46Z'
+scan_id: R-28fb9db7
+task_id: T-716
+payload:
+  task_file: .tasks/active/T-716-ra-020-ctl-029-t-293-has-all-agent-acs-t.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T23:41:09Z'
+scan_id: R-ee0547b3
+task_id: T-717
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T23:41:09Z'
+scan_id: R-ee0547b3
+task_id: T-717
+payload:
+  task_file: .tasks/active/T-717-ra-021-ctl-029-t-309-has-all-agent-acs-t.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T23:41:30Z'
+scan_id: R-a95c6209
+task_id: T-718
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T23:41:30Z'
+scan_id: R-a95c6209
+task_id: T-718
+payload:
+  task_file: .tasks/active/T-718-ra-022-ctl-029-t-344-has-all-agent-acs-t.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T23:41:51Z'
+scan_id: R-d43ba3cc
+task_id: T-719
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T23:41:51Z'
+scan_id: R-d43ba3cc
+task_id: T-719
+payload:
+  task_file: .tasks/active/T-719-ra-023-ctl-029-t-345-has-all-agent-acs-t.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T23:42:08Z'
+scan_id: R-a4c1ba33
+task_id: T-720
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T23:42:08Z'
+scan_id: R-a4c1ba33
+task_id: T-720
+payload:
+  task_file: .tasks/active/T-720-ra-024-ctl-029-t-357-has-all-agent-acs-t.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T23:42:20Z'
+scan_id: R-60b334cd
+task_id: T-721
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T23:42:20Z'
+scan_id: R-60b334cd
+task_id: T-721
+payload:
+  task_file: .tasks/active/T-721-ra-025-ctl-029-t-402-has-all-agent-acs-t.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T23:42:33Z'
+scan_id: R-71d7b5cf
+task_id: T-722
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T23:42:33Z'
+scan_id: R-71d7b5cf
+task_id: T-722
+payload:
+  task_file: .tasks/active/T-722-ra-026-ctl-029-t-681-has-all-agent-acs-t.md
