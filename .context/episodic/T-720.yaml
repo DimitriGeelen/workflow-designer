@@ -63,12 +63,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 84136
-  commits: 1
-  files_changed: 23
-  lines_added: 1613
-  lines_removed: 77
-  footprint_refreshed_at: '2026-11-13T23:43:24Z'
-  footprint_refreshed_by_commit: pre-commit
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+  footprint_refreshed_at: '2026-11-13T23:43:35Z'
+  footprint_refreshed_by_commit: a5d5f1ace
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-720-ra-024-ctl-029-t-357-has-all-agent-acs-t.md
