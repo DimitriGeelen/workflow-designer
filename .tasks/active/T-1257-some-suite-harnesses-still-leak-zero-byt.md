@@ -47,7 +47,7 @@ related_tasks: [T-1247]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:13:51Z
-last_update: 2026-11-12T21:47:25Z
+last_update: 2026-11-13T19:26:34Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -134,6 +134,18 @@ launcher that runs Chromium with TMPDIR=/tmp and kills it hard leaves them. Whic
   run at 22:12 local left only 1, so this is a correlation to test, not a finding. Hypothesis: core's namespace hides
   the Playwright Chromium but not /opt/google/chrome, so a leg that falls back to it would write outside the private
   TMPDIR. Test: count around one isolated core run.
+
+### 2026-11-13 evening (agent): the core-run hypothesis tested against this session's own runs
+New dotted files per window (file mtimes, CET), against what this project ran (commit and runs-log times):
+| window (CET) | ours running | new dotted files |
+|---|---|---|
+| 18:02-18:27 | browser tier, local (T-1409 real run) | 14 |
+| 18:28-18:47 | core tier, local (first T-1409 push) | 48 |
+| 18:50-19:09 | core tier, local (T-1410 push) | **0** |
+| 19:11-20:15 | nothing that starts Chrome (idle, then task-file edits) | **159** |
+An isolated core run left 0, and 159 appeared in an hour with no Chrome of ours. The core-fallback hypothesis is
+weakened; most kind-1 files are written by something else on the machine (load 44 at 19:25Z). Next: a read-only
+watcher (every 2 s, new dotted file -> holder pid, cwd, cgroup, ancestry) for 20 min, to name the writer.
 
 ## Acceptance Criteria
 
