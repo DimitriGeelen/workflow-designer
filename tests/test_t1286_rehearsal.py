@@ -221,9 +221,22 @@ steps() { step "write outside the clone" 'touch @REPO@/stray'; }
 ''')
         rc, out = f.dry("005-reach")
         guarded = "the real repo is read-only to them" in out
-        leg(guarded and rc != 0 and "FAIL  step 1/1: write outside the clone" in out and "Read-only file system" in out
-            and not os.path.exists(os.path.join(f.repo, "stray")) and f.state() == before,
-            "5 guarded: a step writing into the real repo fails (read-only) and nothing lands", tail(out) + " | " + f.state_diff(before))
+        if not guarded and os.environ.get("T1406_POOL") == "1":
+            # T-1406 pool-only exception (agreed with ring20, 2026-11-13): the pool's sandbox refuses user namespaces,
+            # so the launcher cannot make the real repo read-only and the write lands. What must still hold there: the
+            # before/after assertion catches the reach and refuses the dry-run. Only under T1406_POOL=1 (set by
+            # tools/pool/run-tier.sh) — a local run without the guard stays a FAIL of the full leg below.
+            leg(rc != 0 and "THE REHEARSAL CHANGED THE REAL REPO" in out
+                and not os.path.exists(os.path.join(f.jobs, "005-reach", "dryrun.ok")),
+                "5 (pool: no mount namespace, so no read-only guard) the reach still fails the dry-run, caught by the "
+                "before/after assertion", tail(out, 8))
+            stray = os.path.join(f.repo, "stray")
+            if os.path.exists(stray):
+                os.remove(stray)
+        else:
+            leg(guarded and rc != 0 and "FAIL  step 1/1: write outside the clone" in out and "Read-only file system" in out
+                and not os.path.exists(os.path.join(f.repo, "stray")) and f.state() == before,
+                "5 guarded: a step writing into the real repo fails (read-only) and nothing lands", tail(out) + " | " + f.state_diff(before))
 
         # 6 without the guard the before/after assertion catches the same reach: working tree and hooks named
         f.job("006-reach", '''JOB_TITLE="Reach into the real repo, unguarded"
