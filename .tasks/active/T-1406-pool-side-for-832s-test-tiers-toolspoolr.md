@@ -121,18 +121,38 @@ Design notes (decided while building, within the agreed contract):
   failing legs group into Watchtower-starting legs (~7; "the Watchtower app did not answer") and framework hook/gate
   teeth (~20). Probable env gaps: the framework web app's requirements and command-line tools; reported to ring20 with
   .107's versions. out/ (tier.log) not yet delivered; asked.
+- ring20 then fixed their side: failed runs keep out/ (artifacts_on_failure), and toolchain bridge832-2 adds the
+  framework's web stack, ruamel.yaml, ripgrep and sqlite3 (live 10:30Z). submit.sh uses it (POOL_ENV overrides).
+
+**Comparisons (same commit, pool vs local):**
+
+| # | tier | commit | local | pool | the gap |
+|---|---|---|---|---|---|
+| 1 | core | ce4a344d1 | 224/0 | 203/21 (pool-w1) | 832's tests depending on .107 (literal roots, uncommitted ignore rules): T-1407 |
+| 2 | core | f88e4ab7b | 224/0 | 223/1 (pool-w2) | test_t1286 legs 5/6 need a mount namespace (pool-only exception, ece6be247) |
+| 3 | core | ece6be247 | 224/0 (896 s) | **224/0** (pool-w2, 899 s) | none |
+| 4 | browser | ece6be247 | 142/0 | timeout, 59 'no chromium' | the pool lays Chromium out as chrome-linux/; the launcher now resolves both (feb41645a) |
+| 5 | browser | feb41645a | — | 140/2 (pool-w2, 1353 s) | _t611 needed .107's live Watchtower; _t1257's Chrome makes no singleton dir there (T-1407, 86b248e8e) |
+| 6 | browser | 86b248e8e | 142/0 (1732 s at load 95) | **142/0** (pool-w2, 1295 s) | none |
+
+Both tiers agree exactly on the pool and here (IW-3 of T-1397: answered).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `tools/pool/run-tier.sh core|browser` rebuilds the repo from `repo.bundle.*` in the job dir, runs the tier, and
+- [x] `tools/pool/run-tier.sh core|browser` rebuilds the repo from `repo.bundle.*` in the job dir, runs the tier, and
       writes `out/result.json` {tier, commit, exit_code, result_line, fail_lines, duration_s, node, arch} and
-      `out/tier.log`. Proven locally by running it against a bundle of HEAD in a scratch job dir.
-- [ ] `tools/pool/submit.sh core|browser` builds the inputs from git only (never the working tree), stages each part
+      `out/tier.log`. Proven locally by running it against a bundle of HEAD in a scratch job dir. (Local proofs 1-3;
+      every pool run since returned both files.)
+- [x] `tools/pool/submit.sh core|browser` builds the inputs from git only (never the working tree), stages each part
       once by sha256, submits through `pool-client`, waits, and prints the result line and where out/ landed.
-- [ ] A first pool run of each tier completes; its result is compared with a local run of the same commit and the
-      difference, if any, is explained (pool-only namespace exceptions named).
+      (code.tar = `git archive HEAD -- tools/pool`; repo = `git bundle` of HEAD, bleeding-edge, master,
+      origin/master and tags, 4 parts of <= 64 MB; staged answers read with `--tail`.)
+- [x] A first pool run of each tier completes; its result is compared with a local run of the same commit and the
+      difference, if any, is explained (pool-only namespace exceptions named). Six comparisons, table above; the last
+      core (ece6be247) and the last browser (86b248e8e) agree exactly. Pool-only exceptions, both explicit and only
+      under T1406_POOL=1: test_t1286 leg 5 (no mount namespace) and _t1257's A/control (no Chrome singleton dir).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -318,6 +338,12 @@ Design notes (decided while building, within the agreed contract):
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+bash -n tools/pool/run-tier.sh
+bash -n tools/pool/submit.sh
+grep -q "git archive --format=tar HEAD -- tools/pool" tools/pool/submit.sh
+grep -q 'chrome-linux64 chrome-linux' tools/pool/run-tier.sh
+grep -q "GREEN: 224 passed, 0 failed" build/pool/results/832-core-ece6be247bbd-20261113T112352/tier.log
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tools/_t1288-prepush-gate.sh
 
 ## RCA
 

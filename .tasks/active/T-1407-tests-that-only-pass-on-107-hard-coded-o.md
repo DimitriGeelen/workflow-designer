@@ -116,7 +116,7 @@ aside.
 - [x] Kept red logs are `prepush-core.red-<UTC>.log`; `_t1405`'s teeth uses only committed ignore rules and passes in a
       clean clone (its control still fails). It reads `git show HEAD:.gitignore`, counts per file with
       `git check-ignore` (a wholly ignored dir is listed as one line); 4/4, control 1/3.
-- [ ] Local core green, and a pool core run of the same commit agrees except for named pool-only exceptions.
+- [x] Local core green, and a pool core run of the same commit agrees except for named pool-only exceptions.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -302,6 +302,12 @@ aside.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+test -z "$(grep -rlE '^[[:space:]]*(PROJ|ROOT|REPO|PROJECT|SELF|R)[[:space:]]*=[[:space:]]*"?/opt/832-Workflow-designer' tools/*.sh tools/*.py)"
+git show f88e4ab7b~1:tools/_t628-g020-remedy-reachable.sh | grep -qE '^[[:space:]]*(PROJ|ROOT|REPO|PROJECT|SELF|R)[[:space:]]*=[[:space:]]*"?/opt/832-Workflow-designer'
+grep -qF 'PROJ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"' tools/_t628-g020-remedy-reachable.sh
+bash tools/_t1405-red-log-teeth.sh
+python3 tools/_t611-review-card-steps.py
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tools/_t1288-prepush-gate.sh
 
 ## RCA
 
