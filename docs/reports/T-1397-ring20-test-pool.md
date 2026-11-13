@@ -26,6 +26,7 @@ On 2026-11-12 test runs waited hours for load < 15, and T-358's close hung 2 h w
 | 2026-11-13 | 832 | Confirmed with corrections: amd64 only (goldens recorded on x86); harnesses will honour PLAYWRIGHT_BROWSERS_PATH; launcher tools/pool/run-tier.sh; asked about user namespaces; asked for the full log back. |
 | 2026-11-13 | ring20 | Taken over (their commit 074e1a518): amd64 only, argv, out/ kept as artifacts. User namespaces: NO (unprivileged uid, own pid+mount+net namespace, RestrictNamespaces). Needs the staging and results directories. |
 | 2026-11-13 | 832 | Staging build/pool/stage/, results build/pool/results/ (git-ignored); the relay's allowed root must be exactly those, never build/ (build/peer-data). |
+| 2026-11-13 | ring20 | Configured exactly: the stage root is /opt/832-Workflow-designer/build/pool/stage/ (only paths under it, no '..', plain characters), so build/ and build/peer-data/ stay outside; results delivered verified to build/pool/results/<job>/ (owner root). Live with their operator's button, together with the entries. |
 
 ## What is agreed
 
