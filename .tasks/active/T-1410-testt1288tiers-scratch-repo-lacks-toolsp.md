@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-13T17:48:02Z
-last_update: 2026-11-13T17:49:52Z
+last_update: 2026-11-13T18:11:05Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -74,7 +74,8 @@ _t1405/_t1408/_t1409 teeth but not this test before closing, which is how it sli
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] The scratch repo in `test_installer_and_gate` gets `tools/pool/tier-gate.sh` and `high-risk.re`, with
       `T1408_POOL=0` (local; where the tier runs is the _t1408/_t1409 teeth's job); `test_t1288_tiers.py` 0 failed.
-- [ ] The push of the T-1409 commits passes the pre-push gate (core green).
+- [x] The push of the T-1409 commits passes the pre-push gate (core green). (4fbd0795d..6f792c07e: high-risk, pool-w2
+      226/0 and here 226/0, "pool and local both green".)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
