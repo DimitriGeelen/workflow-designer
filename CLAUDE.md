@@ -131,7 +131,8 @@ refuses the push on red.
   - **No pool result for HEAD** (unreachable, refused, timed out): the local run decides, and the output and
     `.context/working/prepush-core.runs.log` say so. `T1408_POOL=0` forces local.
   - Releases are unchanged: the release job keeps its own local runs.
-- **The core tier:** 207 legs, hermetic, about 17 minutes. It must be 100% green. A known non-product red goes into
+- **The core tier:** about 190 legs (`tests/run-bridge-tests.sh --list-legs`; the run's "passed" count is higher, some
+  legs count several checks), hermetic, about 17 minutes. It must be 100% green. A known non-product red goes into
   `tests/quarantine.yaml` with an owner task and a fix-by date, never pushed past silently.
 - **The cache:** a green run is remembered by the tree it tested (src, tools, tests, authoring kit, vendored framework
   at HEAD), so a push that changed none of them passes at once.
