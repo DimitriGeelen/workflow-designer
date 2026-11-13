@@ -45,7 +45,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-11T16:41:05Z
-last_update: 2026-11-12T08:16:16Z
+last_update: 2026-11-13T19:24:25Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -118,6 +118,11 @@ operator jobs run as that user, not root.
   effective. No be-tag yet. Remaining here: repin to that be-tag, then check `fw task update` keeps a 0664 task file
   0664 (then close). Until it ships, any `fw task update` can make one file 600
   again: before handing over an operator job that reads a task file, check its mode.)*
+  *(2026-11-13, close: vendored since be.47 (dfe00676a, 2026-11-12) and be.48; both `_sed_i` copies (lib/compat.sh,
+  the lib/paths.sh fallback) keep the mode. `fw task update T-1393 --add-tag` kept this file 664; the post-commit
+  last_update bump kept T-1409 and T-1410 at 664. One leftover was found: T-1297 at 600, made so by six T-1297 commits
+  on 2026-11-11 evening under the pre-fix code and kept 600 since, because the fix preserves the existing mode. Reset
+  to 664 (dimitri-mint-dev effective rw-); 0 of 1,409 task files are now anything but 664.)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -169,6 +174,8 @@ operator jobs run as that user, not root.
 
 grep -q "_sed_i" .tasks/active/T-1393-task-files-lose-the-operators-access-som.md
 [ "$(stat -c %a .tasks/active/T-1393-task-files-lose-the-operators-access-som.md)" = 664 ]
+[ "$(find .tasks -name '*.md' -perm 600 | wc -l)" -eq 0 ]
+grep -q "T-5077" .agentic-framework/lib/paths.sh
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -412,3 +419,6 @@ grep -q "_sed_i" .tasks/active/T-1393-task-files-lose-the-operators-access-som.m
 
 ### 2026-11-12T08:16:16Z — status-update [task-update-agent]
 - **Change:** tags: +aef-be47
+
+### 2026-11-13T19:23:05Z — status-update [task-update-agent]
+- **Change:** tags: +permcheck
