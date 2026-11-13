@@ -16,6 +16,8 @@ leg() { if [ "$1" = 0 ]; then pass=$((pass + 1)); echo "  PASS  $2"; else fail=$
 cd "$S" || exit 2
 git init -q && mkdir -p tools tests .context/working || exit 2
 cp "${T1405_GATE:-$ROOT/tools/_t1288-prepush-gate.sh}" tools/_t1288-prepush-gate.sh || exit 2   # T1405_GATE: control runs
+mkdir -p tools/pool; cp "$ROOT/tools/pool/tier-gate.sh" "$ROOT/tools/pool/high-risk.re" tools/pool/ 2>/dev/null   # T-1409
+export T1408_POOL=0   # T-1409: this tests the LOCAL red run's kept log; never reach for the real pool from a scratch repo
 git -C "$ROOT" show HEAD:.gitignore > .gitignore 2>/dev/null || exit 2   # the committed root rules, nothing local
 printf '#!/bin/bash\necho "tier core    RED: 1 passed, 1 failed"\necho "  [FAIL] stub leg"\nexit 1\n' > tests/run-bridge-tests.sh
 git add -A && git -c user.name=t -c user.email=t@invalid commit -qm init || exit 2

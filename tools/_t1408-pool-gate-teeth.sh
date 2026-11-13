@@ -24,6 +24,8 @@ W="$S/w"; git init -q -b main "$W" || exit 2
 cd "$W" || exit 2
 mkdir -p tools/pool tests docs .context/working build/pool
 cp "${T1408_GATE:-$ROOT/tools/_t1288-prepush-gate.sh}" tools/_t1288-prepush-gate.sh || exit 2
+# T-1409: the rules live in tools/pool/tier-gate.sh and the one list in tools/pool/high-risk.re (T1408_TIERGATE for controls)
+cp "${T1408_TIERGATE:-$ROOT/tools/pool/tier-gate.sh}" tools/pool/tier-gate.sh 2>/dev/null; cp "$ROOT/tools/pool/high-risk.re" tools/pool/high-risk.re || exit 2
 git -C "$ROOT" show HEAD:.gitignore > .gitignore 2>/dev/null || exit 2
 cat > tests/run-bridge-tests.sh <<'SH'
 #!/bin/bash
@@ -57,7 +59,7 @@ run() {  # run <file-to-change> ; env STUB_POOL / STUB_LOCAL_RC / T1408_POOL set
 }
 
 STUB_POOL=green STUB_LOCAL_RC=0 run docs/a.md
-[ "$RC" = 0 ] && [ "$LOCAL" = no ] && [ "$CACHE" = yes ] && grep -q "normal push: pool green" <<<"$OUT"
+[ "$RC" = 0 ] && [ "$LOCAL" = no ] && [ "$CACHE" = yes ] && grep -q "normal change: pool green" <<<"$OUT"
 leg $? "1 normal push, pool green: pass, local not run, cache written (rc=$RC local=$LOCAL cache=$CACHE)"
 
 STUB_POOL=red STUB_LOCAL_RC=0 run docs/a.md
@@ -73,7 +75,7 @@ STUB_POOL=othercommit STUB_LOCAL_RC=0 run docs/a.md
 leg $? "4 a pool result for another commit is not counted: local fallback (rc=$RC local=$LOCAL)"
 
 STUB_POOL=green STUB_LOCAL_RC=0 run tools/pool/x.sh
-[ "$RC" = 0 ] && [ "$LOCAL" = yes ] && grep -q "high-risk push" <<<"$OUT" && grep -q "pool and local both green" <<<"$OUT"
+[ "$RC" = 0 ] && [ "$LOCAL" = yes ] && grep -q "high-risk change" <<<"$OUT" && grep -q "pool and local both green" <<<"$OUT"
 leg $? "5 high-risk, both green: pass, pool AND local ran (rc=$RC local=$LOCAL)"
 
 STUB_POOL=green STUB_LOCAL_RC=1 run tools/pool/x.sh
