@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1411: T-568 probe gives its private Watchtower ~3 s to start; under load it needs 25 s, so core goes red locally (CANNOT RUN)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-13T22:27:55Z
+# ============================================================================
+
+task_id: T-1411
+task_name: "T-568 probe gives its private Watchtower ~3 s to start; under load it needs 25 s, so core goes red locally (CANNOT RUN)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-13T22:06:06Z
+completed: 2026-11-13T22:27:35Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-11-13T23:11:19+01:00
+last_commit: 2026-11-13T23:11:19+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the T-568 probe waits for the Watchtower it starts up to 120 s while it lives (was ~3 s; 25-46 s needed at load 50-60), so core no longer goes red here and green on the pool; test 3/3 with an in-test control; core leg
+
+# Key outcomes
+outcomes:
+  - '`spawn_watchtower` waits up to a deadline (default 120 s, `T568_START_S` overrides) while the process lives, and'
+  - '`tests/test_t1411_probe_spawn_wait.py`: a stub server that answers only after 6 s is accepted with the default'
+  - 'The probe itself still passes (`python3 tools/_t568-live-card-visibility-probe.py`).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1411-t-568-probe-gives-its-private-watchtower.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t1411_probe_spawn_wait.py'
+  - 'tools/_t568-live-card-visibility-probe.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-13T23:11:19'
+    action: 'T-1411: the T-568 probe waits for the Watchtower it starts up to 120 s while it lives (was ~3 s; 25-46 s needed at load 50-60), so core no longer goes red here and green on the pool; test 3/3 with an in-test control; core leg'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 21 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 21
+  commits: 2
+  files_changed: 9
+  lines_added: 687
+  lines_removed: 15
+  footprint_refreshed_at: '2026-11-13T22:28:06Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1411-t-568-probe-gives-its-private-watchtower.md
+generated_by: context-agent-hybrid

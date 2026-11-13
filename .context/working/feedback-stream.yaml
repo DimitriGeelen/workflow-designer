@@ -21745,3 +21745,39 @@ scan_id: R-f7a73163
 task_id: T-1393
 payload:
   task_file: .tasks/active/T-1393-task-files-lose-the-operators-access-som.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T22:27:29Z'
+scan_id: R-b9152964
+task_id: T-1394
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T22:27:29Z'
+scan_id: R-b9152964
+task_id: T-1394
+payload:
+  task_file: .tasks/active/T-1394-runme-watcher-misses-an-event-written-in.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T22:27:49Z'
+scan_id: R-5bbb4a46
+task_id: T-1411
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T22:27:49Z'
+scan_id: R-5bbb4a46
+task_id: T-1411
+payload:
+  task_file: .tasks/active/T-1411-t-568-probe-gives-its-private-watchtower.md

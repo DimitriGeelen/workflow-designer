@@ -1,15 +1,23 @@
 ---
-id: T-1411
-name: "T-568 probe gives its private Watchtower ~3 s to start; under load it needs 25 s, so core goes red locally (CANNOT RUN)"
+id: T-1394
+observation: OBS-497
+name: "runme watcher misses an event written in the same second as the one that woke
+  it: job 130 logged 'started' and…"
 description: >
-  T-568 probe gives its private Watchtower ~3 s to start; under load it needs 25 s, so core goes red locally (CANNOT RUN)
+  Promoted from observation OBS-497: runme watcher misses an event written in the
+  same second as the one that woke it: job 130 logged 'started' and 'STOPPED' at 15:06:47Z;
+  the watcher woke on 'started', the re-armed watcher only waits for events after
+  it starts, so the STOPPED went unreported for ~2 h. The watch should resume from
+  the last event it reported (line count / event id), not from arm time (T-1368's
+  re-arm rule assumed distinct times).
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -33,13 +41,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1411` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1394` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-11-13T22:06:06Z
-last_update: 2026-11-13T22:06:06Z
-date_finished: null
+created: 2026-11-11T16:57:11Z
+last_update: 2026-11-13T22:26:59Z
+date_finished: 2026-11-13T22:26:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,42 +58,58 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-13T21:16:13Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 3
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=3 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L3:keyword=promote)'
+    rubric_sha: e4a00f38e801
 ---
 
-# T-1411: T-568 probe gives its private Watchtower ~3 s to start; under load it needs 25 s, so core goes red locally (CANNOT RUN)
+# T-1394: runme watcher misses an event written in the same second as the one that woke it: job 130 logged 'started' and…
 
 ## Context
 
+Source: observation OBS-497 (.context/inbox.yaml):
+
+> runme watcher misses an event written in the same second as the one that woke it: job 130 logged 'started' and 'STOPPED' at 15:06:47Z; the watcher woke on 'started', the re-armed watcher only waits for events after it starts, so the STOPPED went unreported for ~2 h. The watch should resume from the last event it reported (line count / event id), not from arm time (T-1368's re-arm rule assumed distinct times).
+
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** 2026-11-13 22:04Z, T-1394's high-risk push: the pool's core run was 227/0, this machine's
-226/1, refused as a DISAGREEMENT. The red leg: `_t568-live-card-visibility-probe.py` printed "CANNOT RUN: no Watchtower
-reachable and none could be started" (log `.context/working/prepush-core.red-20261113T220444Z.log`). Load was 50-60; the
-local run took 2,618 s against the pool's 706 s. Run alone afterwards, the probe passes in 3 s against the deployed
-Watchtower.
+**Background / trigger:** job 130 (2026-11-11) wrote 'started' and 'STOPPED' to `.context/working/runme.events` at
+15:06:47Z; the agent was woken by 'started' only and learned of the stop about 2 h later (OBS-497).
 
-**Problem / hypothesis:** inside the hermetic core run the probe starts its own Watchtower (`spawn_watchtower`) and waits
-for it for about 3 s (6 polls, 0.5 s apart). Measured at load 49-60: a private Watchtower answers after 25.4 s. On a quiet
-machine (the pool) 3 s is enough, so the leg's verdict depends on this machine's load, not on the code.
+**Problem / hypothesis:** `tools/runme-watch.sh` takes its baseline (the event file's line count) when it is ARMED. An
+event written between the moment a watch reports and the moment the next one is armed falls inside the new baseline
+and is never reported. T-1368's "re-arm after every event" rule cannot close that gap, however fast the re-arm is.
 
-**Goal:** the probe waits for its own Watchtower as long as it is alive and starting, up to a generous deadline.
+**Goal:** a watch resumes from the last line a previous watch reported.
 
-**Expected outcome:** under load the leg takes longer instead of turning red; a Watchtower that dies or never answers
-still gives CANNOT RUN.
+**Expected outcome:** every event line in the file is reported by some watch, whatever the timing of the re-arm.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] `spawn_watchtower` waits up to a deadline (default 120 s, `T568_START_S` overrides) while the process lives, and
-  still returns nothing at once if it exits.
-- [x] `tests/test_t1411_probe_spawn_wait.py`: a stub server that answers only after 6 s is accepted with the default
-  deadline; the same stub with `T568_START_S=2` is refused (the control, inside the test); a stub that exits is refused
-  at once. Registered as a core leg.
-- [x] The probe itself still passes (`python3 tools/_t568-live-card-visibility-probe.py`).
-
-**Measured (2026-11-13 ~23:15 CET):** a real private Watchtower through the fixed function answered after 45.9 s at load
-57. A first try with 5 s per request never got through in 120 s: under load "/" itself takes longer than 5 s to render,
-so the per-request timeout stays at the original 20 s.
+- [x] The watch records the line count it reported up to (a cursor beside its `runme.watch` record) and a new watch
+  starts from that cursor; with no cursor, an unreadable one, or one beyond the file (truncated), it starts from arm time.
+- [x] `tests/test_t1394_runme_watch_cursor.py`: an event appended after a watch reported and before the next is armed
+  is reported by the next watch; a fresh arm with no cursor does not report old lines; a cursor past the end of the
+  file is ignored. Its control (the pre-fix watch, from git) fails the first leg. Registered as a core leg.
+- [x] test_t1368 and test_t1050 still pass.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -111,11 +135,11 @@ so the per-request timeout stays at the original 20 s.
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1411`
+         1. Run `bin/fw reviewer T-1394`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1411 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1394 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 <!--
@@ -266,14 +290,14 @@ so the per-request timeout stays at the original 20 s.
 #
 # Vendored-path hint (T-3236, T-4419): if you edited bin/fw, lib/, agents/, policy/,
 # web/, tools/ or .tasks/templates/, run `bin/fw vendor self` and add
-#     bin/fw vendor self --check --task T-1411X
+#     bin/fw vendor self --check --task T-1394X
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
-python3 tests/test_t1411_probe_spawn_wait.py
-python3 tools/_t568-live-card-visibility-probe.py
-grep -q 'tests/test_t1411_probe_spawn_wait.py' tests/run-bridge-tests.sh
+python3 tests/test_t1394_runme_watch_cursor.py
+python3 tests/test_t1368_runme_watch_rearm.py
+grep -q 'tests/test_t1394_runme_watch_cursor.py' tests/run-bridge-tests.sh
 
 ## RCA
 
@@ -358,7 +382,7 @@ grep -q 'tests/test_t1411_probe_spawn_wait.py' tests/run-bridge-tests.sh
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1411 go|no-go|defer --rationale "..."
+     fw inception decide T-1394 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -367,7 +391,23 @@ grep -q 'tests/test_t1411_probe_spawn_wait.py' tests/run-bridge-tests.sh
 
 ## Updates
 
-### 2026-11-13T22:06:06Z — task-created [task-create-agent]
+### 2026-11-11T16:57:11Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1411-t-568-probe-gives-its-private-watchtower.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1394-runme-watcher-misses-an-event-written-in.md
 - **Context:** Initial task creation
+
+### 2026-11-13T21:16:11Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-11-13T22:26:59Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b9152964
+- **Timestamp:** 2026-11-13T22:27:29Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
