@@ -52,8 +52,9 @@ parts=$(ls "$JOB"/repo.bundle.[0-9][0-9][0-9] 2>/dev/null | sort)
 [ -n "$parts" ] || result 2 "no repo.bundle.NNN parts in the job dir"
 # shellcheck disable=SC2086
 cat $parts > "$WORK/repo.bundle" || result 2 "could not join the bundle parts"
-git bundle verify "$WORK/repo.bundle" >> "$LOG" 2>&1 || result 2 "the joined bundle does not verify"
+# `git bundle verify` needs a repository, so the clone comes first (it checks the bundle too), then the verify inside it.
 git clone -q "$WORK/repo.bundle" "$WORK/repo" >> "$LOG" 2>&1 || result 2 "git clone from the bundle failed"
+git -C "$WORK/repo" bundle verify "$WORK/repo.bundle" >> "$LOG" 2>&1 || result 2 "the joined bundle does not verify"
 git -C "$WORK/repo" fetch -q --tags "$WORK/repo.bundle" '+refs/tags/*:refs/tags/*' >> "$LOG" 2>&1 || true
 rm -f "$WORK/repo.bundle"
 echo "== repo at $(git -C "$WORK/repo" rev-parse --short HEAD) ($(git -C "$WORK/repo" log -1 --format=%s | cut -c1-80))" >> "$LOG"
