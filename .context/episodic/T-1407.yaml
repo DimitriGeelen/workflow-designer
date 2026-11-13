@@ -1,0 +1,122 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1407: Tests that only pass on .107: hard-coded /opt/832-Workflow-designer roots and reliance on uncommitted ignore rules (found by the first pool runs)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-13T13:58:25Z
+# ============================================================================
+
+task_id: T-1407
+task_name: "Tests that only pass on .107: hard-coded /opt/832-Workflow-designer roots and reliance on uncommitted ignore rules (found by the first pool runs)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-13T10:51:51Z
+completed: 2026-11-13T13:58:08Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-13T12:02:29+01:00
+last_commit: 2026-11-13T14:10:15+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  tests that only passed on .107 — 36 roots derived from the script's own location instead of the literal /opt/832-Workflow-designer; kept red logs renamed prepush-core.red-<UTC>.log (ignored by the committed root rule, not an uncommitted local one) and _t1405's teeth uses committed rules only. two more tests that needed .107 — _t611 renders the review card through the in-process Flask app when no live Watchtower runs (as _t1171 does); _t1257's self-test reports A/control not applicable only in the pool AND only where this Chrome demonstrably makes no singleton dir
+
+# Key outcomes
+outcomes:
+  - 'No code line in tools/ or tests/ sets a root to the literal `/opt/832-Workflow-designer`; each derives it from'
+  - 'Kept red logs are `prepush-core.red-<UTC>.log`; `_t1405`''s teeth uses only committed ignore rules and passes in a'
+  - 'Local core green, and a pool core run of the same commit agrees except for named pool-only exceptions.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1407-tests-that-only-pass-on-107-hard-coded-o.md'
+  - 'tests/.run-history.tsv'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1257-chrome-temp-selftest.mjs'
+  - 'tools/_t1288-prepush-gate.sh'
+  - 'tools/_t1405-red-log-teeth.sh'
+  - 'tools/_t342-fabric-edge-drop-probe.py'
+  - 'tools/_t381-focus-gate-wedge.sh'
+  - 'tools/_t382-release-lag.py'
+  - 'tools/_t385-python-c-gate-bypass.sh'
+  - 'tools/_t386-drift-remedy-reachable.sh'
+  - 'tools/_t387-manifest-fields.sh'
+  - 'tools/_t390-capture-verbs-nulltask.sh'
+  - 'tools/_t499-ownership-teeth.py'
+  - 'tools/_t611-review-card-steps.py'
+  - 'tools/_t628-g020-remedy-reachable.sh'
+  - 'tools/_t629-g067-remedy-reachable.sh'
+  - 'tools/_t630-p011-stdin-swallow.sh'
+  - 'tools/_t631-tier0-approval-reachable.sh'
+  - 'tools/_t632-read-only-misclassification.sh'
+  - 'tools/_t633-shared-tmp-sinks.sh'
+  - 'tools/_t634-guard-verdict-reaches-caller.sh'
+  - 'tools/_t636-prose-verbs-vetoed-by-their-own-text.sh'
+  - 'tools/_t637-inception-coverage.sh'
+  - 'tools/_t638-commit-exemption-is-clause-scoped.sh'
+  - 'tools/_t639-drift-gate-reads-fixtures.sh'
+  - 'tools/_t640-fetchers-that-write-are-writes.sh'
+  - 'tools/_t738-unrankable-task-census.py'
+  - 'tools/_t767-ownership-correspondence.sh'
+  - 'tools/_t774-create-task-substitution-probe.sh'
+  - 'tools/_t775-create-task-linebreak-probe.sh'
+  - 'tools/_t776-create-task-placeholder-probe.sh'
+  - 'tools/_t777-selection-eligibility-census.py'
+  - 'tools/_t781-bvp-calibration-census.py'
+  - 'tools/_t783-human-ac-queue-extract.py'
+  - 'tools/_t784-endpoint-resolution-census.py'
+  - 'tools/_t840-commit-checkpoint-regression-probe.sh'
+  - 'tools/_t841-scoring-spec-controls.sh'
+  - 'tools/_t842-commit-exemption-spelling-regression.sh'
+  - 'tools/_t843-absence-gate-integration.sh'
+  - 'tools/_t843-absence-gate-tests.sh'
+  - 'tools/_t845-control-recogniser-tests.sh'
+  - 'tools/_t848-realization-check-tests.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-13T12:02:29'
+    action: 'T-1407: tests that only passed on .107 — 36 roots derived from the script''s own location instead of the literal /opt/832-Workflow-designer; kept red logs renamed prepush-core.red-<UTC>.log (ignored by the committed root rule, not an uncommitted local one) and _t1405''s teeth uses committed rules only'
+  - time: '2026-11-13T14:10:15'
+    action: 'T-1407: two more tests that needed .107 — _t611 renders the review card through the in-process Flask app when no live Watchtower runs (as _t1171 does); _t1257''s self-test reports A/control not applicable only in the pool AND only where this Chrome demonstrably makes no singleton dir'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 186 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 186
+  commits: 4
+  files_changed: 47
+  lines_added: 923
+  lines_removed: 72
+  footprint_refreshed_at: '2026-11-13T13:58:31Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1407-tests-that-only-pass-on-107-hard-coded-o.md
+generated_by: context-agent-hybrid

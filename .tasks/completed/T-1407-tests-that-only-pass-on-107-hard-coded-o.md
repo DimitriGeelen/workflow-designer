@@ -14,13 +14,13 @@ description: >
   derive every root from the script's own location; rename the kept logs; make _t1405's
   teeth copy the committed ignore rules only. Then rerun the pool core tier.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t1257-chrome-temp-selftest.mjs, tools/_t1405-red-log-teeth.sh, tools/_t342-fabric-edge-drop-probe.py, tools/_t381-focus-gate-wedge.sh, tools/_t382-release-lag.py, tools/_t385-python-c-gate-bypass.sh, tools/_t386-drift-remedy-reachable.sh, tools/_t387-manifest-fields.sh, tools/_t390-capture-verbs-nulltask.sh, tools/_t499-ownership-teeth.py, tools/_t611-review-card-steps.py, tools/_t628-g020-remedy-reachable.sh, tools/_t629-g067-remedy-reachable.sh, tools/_t630-p011-stdin-swallow.sh, tools/_t631-tier0-approval-reachable.sh, tools/_t632-read-only-misclassification.sh, tools/_t633-shared-tmp-sinks.sh, tools/_t634-guard-verdict-reaches-caller.sh, tools/_t636-prose-verbs-vetoed-by-their-own-text.sh, tools/_t637-inception-coverage.sh, tools/_t638-commit-exemption-is-clause-scoped.sh, tools/_t639-drift-gate-reads-fixtures.sh, tools/_t640-fetchers-that-write-are-writes.sh, tools/_t738-unrankable-task-census.py, tools/_t767-ownership-correspondence.sh, tools/_t774-create-task-substitution-probe.sh, tools/_t775-create-task-linebreak-probe.sh, tools/_t776-create-task-placeholder-probe.sh, tools/_t777-selection-eligibility-census.py, tools/_t781-bvp-calibration-census.py, tools/_t783-human-ac-queue-extract.py, tools/_t784-endpoint-resolution-census.py, tools/_t840-commit-checkpoint-regression-probe.sh, tools/_t841-scoring-spec-controls.sh, tools/_t842-commit-exemption-spelling-regression.sh, tools/_t843-absence-gate-integration.sh, tools/_t843-absence-gate-tests.sh, tools/_t845-control-recogniser-tests.sh, tools/_t848-realization-check-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -49,8 +49,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-13T10:51:51Z
-last_update: '2026-11-13T10:59:28Z'
-date_finished:
+last_update: 2026-11-13T13:58:08Z
+date_finished: 2026-11-13T13:58:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -408,3 +408,21 @@ PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tools/_t1288-prepush-gat
 
 ### 2026-11-13T10:59:27Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-13T13:58:08Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4e19c7ab
+- **Timestamp:** 2026-11-13T13:58:18Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 138
+     - evidence: `git show f88e4ab7b~1:tools/_t628-g020-remedy-reachable.sh | grep -qE '^[[:space:]]*(PROJ|ROOT|REPO|PROJECT|SELF|R)[[:space:]]*=[[:space:]]*"?/opt/832-Workflow-designer'`
