@@ -355,6 +355,13 @@ def test_installer_and_gate():
         os.makedirs(os.path.join(d, "tools"))
         os.makedirs(os.path.join(d, "tests"))
         shutil.copy(GATE, os.path.join(d, "tools"))
+        # T-1410: since T-1409 the gate runs the tier through tools/pool/tier-gate.sh (and its one high-risk list).
+        # These cases test the gate's red/green/lock behaviour, not where the tier runs (_t1408/_t1409 teeth do), so
+        # the scratch repo gets both files and T1408_POOL=0 keeps the run local, never on ring20's pool.
+        os.makedirs(os.path.join(d, "tools", "pool"))
+        for f in ("tier-gate.sh", "high-risk.re"):
+            shutil.copy(os.path.join(ROOT, "tools", "pool", f), os.path.join(d, "tools", "pool"))
+        os.environ["T1408_POOL"] = "0"
         hook = os.path.join(d, ".git", "hooks", "pre-push")
         framework = "#!/bin/bash\n# >>> agentic-framework hook >>>\n(\n_stdin_buf=$(cat)\n)\n"
         open(hook, "w").write(framework)
