@@ -1,0 +1,21 @@
+id: tools/_t1408-pool-gate-teeth.sh
+name: _t1408-pool-gate-teeth
+type: script
+subsystem: instruments
+location: tools/_t1408-pool-gate-teeth.sh
+tags: []
+
+purpose: "_t1408-pool-gate-teeth.sh — T-1408: the pre-push gate's choice of WHERE core runs, with stubbed pool and local runs."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-11-13
+created_by: unknown

@@ -23,6 +23,7 @@ STAGE="$ROOT/build/pool/stage"
 mkdir -p "$STAGE" "$ROOT/build/pool/wait"
 COMMIT=$(git rev-parse HEAD)
 SHORT=${COMMIT:0:12}
+rm -f "$ROOT/build/pool/last-$TIER.result"   # T-1408: never let an older run's outcome stand in for this one
 
 # --- inputs, from git only ---------------------------------------------------------------------------------------
 build_inputs() {
@@ -108,6 +109,22 @@ pool-client --hub "$HUB" submit-cmd "$FOLDER" --name "$NAME" --unit "832/$SHORT"
     --entry "832.bridge-$TIER" --env "$POOL_ENV" --client 832-Workflow-designer --task T-1406 "${REFS[@]}"
 rm -rf "$FOLDER"
 echo "submitted $NAME; waiting (up to 75 min) ..." >&2
-pool-client --hub "$HUB" wait "$NAME" --timeout 4500 --dir "$ROOT/build/pool/wait"
-echo "wait result: $ROOT/build/pool/wait/$NAME/ ; out/: $ROOT/build/pool/results/ (job dir named by the pool)" >&2
+pool-client --hub "$HUB" wait "$NAME" --timeout 4500 --dir "$ROOT/build/pool/wait" || true
+echo "wait result: $ROOT/build/pool/wait/$NAME/ ; out/: $ROOT/build/pool/results/$NAME/" >&2
 cat "$ROOT/build/pool/wait/$NAME/exit_code" 2>/dev/null || true
+
+# T-1408: the outcome for the pre-push gate, one key=value per line, in build/pool/last-<tier>.result (git-ignored).
+# Written only when the pool returned a result.json for THIS commit; the gate reads a missing file as "pool unavailable".
+RES="$ROOT/build/pool/results/$NAME/result.json"
+for _ in 1 2 3 4 5 6; do [ -f "$RES" ] && break; sleep 10; done   # out/ is delivered just after the wait answers
+if [ -f "$RES" ]; then
+    python3 - "$RES" "$NAME" "$ROOT/build/pool/last-$TIER.result" <<'PY'
+import json, sys
+res, name, dest = sys.argv[1:]
+d = json.load(open(res))
+with open(dest, "w") as f:
+    f.write("name=%s\ncommit=%s\nexit_code=%s\nnode=%s\nresult_line=%s\ntier_log=%s\n" % (
+        name, d.get("commit", ""), d.get("exit_code", ""), d.get("node", ""),
+        (d.get("result_line") or "").replace("\n", " "), res.replace("result.json", "tier.log")))
+PY
+fi

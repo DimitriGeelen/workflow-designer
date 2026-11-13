@@ -1990,6 +1990,21 @@ else
 fi
 }
 leg core "_t1405-red-log" _leg_234
+_leg_235() {
+
+# ── T-1408: where the pre-push gate runs core ──
+# Normal push: ring20's pool alone. High-risk push (designer src, validator, framework, the gate and test machinery):
+# pool AND local, both green, a disagreement refuses. No pool result for HEAD: local fallback. Teeth: the real gate in a
+# scratch repo with an upstream, stubbed pool and local runs, eight cases; control: the pre-T-1408 gate fails all eight.
+if bash "$ROOT/tools/_t1408-pool-gate-teeth.sh" > "$TMP/leg-_t1408.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the pre-push gate no longer runs core on the pool for a normal push, or no longer asks pool AND local for a high-risk one, or counts a pool result for another commit (run 'bash tools/_t1408-pool-gate-teeth.sh'; T-1408)"
+  show_output "$TMP/leg-_t1408.out" "_t1408-pool-gate-teeth.sh"
+  fail=$((fail + 1))
+fi
+}
+leg core "_t1408-pool-gate" _leg_235
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

@@ -121,6 +121,16 @@ renders (designer `src/`, Watchtower templates/CSS, anything a person sees):
 
 `.git/hooks/pre-push` runs `tools/_t1288-prepush-gate.sh`, which runs `tests/run-bridge-tests.sh --tier core` and
 refuses the push on red.
+- **Where core runs (operator, 2026-11-12/13; T-1397 GO, T-1408):** on ring20's dispatch pool (`tools/pool/submit.sh`,
+  quiet amd64 VMs, inputs from git only), proven to agree with local runs on both tiers (T-1406).
+  - **A normal push:** the pool alone.
+  - **A high-risk push** (it changes `src/aef-workflow-designer.html`, `tools/validate-workflow.py`,
+    `.agentic-framework/`, `tests/run-bridge-tests.sh`, `tools/_t1288-*` or `tools/pool/*`): two independent runs on
+    two different machines, the pool AND this machine, side by side. Both must be green; a disagreement refuses the push
+    and is investigated, never retried until it agrees.
+  - **No pool result for HEAD** (unreachable, refused, timed out): the local run decides, and the output and
+    `.context/working/prepush-core.runs.log` say so. `T1408_POOL=0` forces local.
+  - Releases are unchanged: the release job keeps its own local runs.
 - **The core tier:** 207 legs, hermetic, about 17 minutes. It must be 100% green. A known non-product red goes into
   `tests/quarantine.yaml` with an owner task and a fix-by date, never pushed past silently.
 - **The cache:** a green run is remembered by the tree it tested (src, tools, tests, authoring kit, vendored framework
