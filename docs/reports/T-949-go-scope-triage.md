@@ -156,6 +156,11 @@ operator rulings, not on filing).
 - **T-281** — *Audience render lenses* (GO 2026-10-20, operator job 063: slice 1, the business lens in the designer).
   The slice is filed as **T-1241** (horizon now, not started), so the decision propagated and the delivery has not.
   Evidence: `docs/reports/T-281-audience-lenses.md`. Added when the triage checker flagged it (2026-10-21).
+- **T-1397** — *Run 832's test tiers on a quieter ring20 worker* (GO 2026-11-13, operator job 136, recording the
+  operator's ruling of 2026-11-12). PARTIAL. The build is **T-1406** (in progress): the launcher tools/pool/run-tier.sh
+  and tools/pool/submit.sh exist, a first pool run went end to end on pool-w2 (core 194/29, env gaps since closed by
+  ring20's bridge832-2); the comparison runs and the push gate's trust change are still to come. Evidence:
+  `docs/reports/T-1397-ring20-test-pool.md`. Added when the triage checker flagged it (2026-11-13, T-1405's close).
 - **T-1219** — *Traceable data elements on aef:io* (GO 2026-10-20). PARTIAL. Its first half, keeping unknown `aef:`
   attributes through a save, shipped as **T-1220** in 0.24.0 (912f8d3e9, 01beb611d). Its second half, designer fields
   for ref/role/cardinality/dataType, waited on AEF T-4415. AEF has since ruled it (DRAFT 2), and 832 took it up as

@@ -98,11 +98,14 @@ for p in $PARTS; do
     REFS+=(--ref "$p=$s")
 done
 
+# The pool toolchain the 832 entries require (ring20 names it; bridge832-2 since 2026-11-13 10:30Z adds the framework's
+# web stack, ruamel.yaml, ripgrep and sqlite3). POOL_ENV overrides it for a one-off run.
+POOL_ENV="${POOL_ENV:-bridge832-2}"
 NAME="832-$TIER-$SHORT-$(date -u +%Y%m%dT%H%M%S)"
 FOLDER=$(mktemp -d "${TMPDIR:-/tmp}/832pool-folder.XXXXXX")
 printf 'tier=%s\ncommit=%s\n' "$TIER" "$COMMIT" > "$FOLDER/job.info"
 pool-client --hub "$HUB" submit-cmd "$FOLDER" --name "$NAME" --unit "832/$SHORT" --step "$TIER" \
-    --entry "832.bridge-$TIER" --env bridge832-1 --client 832-Workflow-designer --task T-1406 "${REFS[@]}"
+    --entry "832.bridge-$TIER" --env "$POOL_ENV" --client 832-Workflow-designer --task T-1406 "${REFS[@]}"
 rm -rf "$FOLDER"
 echo "submitted $NAME; waiting (up to 75 min) ..." >&2
 pool-client --hub "$HUB" wait "$NAME" --timeout 4500 --dir "$ROOT/build/pool/wait"
