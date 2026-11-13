@@ -84,11 +84,16 @@ def reachable(url: str, timeout: float = 20.0) -> bool:
         return False
 
 
-def spawn_watchtower():
+def spawn_watchtower(cmd=None):
     """Start a private Watchtower on an ephemeral port. Returns (url, proc) or (None, None).
 
     Used only when the deployed instance is unreachable, so that this probe can be wired
     into the gating suite instead of depending on an operator's server being up.
+
+    T-1411: waits while the process lives, up to T568_START_S seconds (default 120). The old
+    budget was about 3 s; at load 50-60 a private Watchtower answered after 25 s, so the leg went
+    red on this machine and green on the quiet pool (a DISAGREEMENT on 2026-11-13). A process
+    that exits is still refused at once. `cmd` (a list, "{port}" filled in) is for tests.
     """
     import socket
 
@@ -98,17 +103,20 @@ def spawn_watchtower():
     s.close()
     fw = os.path.join(ROOT, ".agentic-framework")
     env = dict(os.environ, PROJECT_ROOT=ROOT, FW_PORT=str(port))
+    argv = [a.replace("{port}", str(port)) for a in cmd] if cmd else \
+        [sys.executable, "-m", "web.app", "--port", str(port)]
     proc = subprocess.Popen(
-        [sys.executable, "-m", "web.app", "--port", str(port)],
+        argv,
         cwd=fw, env=env,
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
         start_new_session=True,
     )
     url = "http://127.0.0.1:%d" % port
-    for _ in range(6):
+    end = time.time() + float(os.environ.get("T568_START_S") or 120)
+    while time.time() < end:
         if proc.poll() is not None:
             return None, None
-        if reachable(url):
+        if reachable(url):   # the default 20 s per request: under load "/" itself takes longer than 5 s to render
             return url, proc
         time.sleep(0.5)
     proc.terminate()
