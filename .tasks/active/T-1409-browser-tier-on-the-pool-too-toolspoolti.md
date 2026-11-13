@@ -47,7 +47,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-13T14:59:43Z
-last_update: 2026-11-13T17:18:43Z
+last_update: 2026-11-13T17:27:11Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -131,7 +131,10 @@ by side with the pool); the saving is for browser runs on non-high-risk changes 
       gate's teeth still 8/8 with it.
 - [x] Teeth for tier-gate (stubbed pool and local, browser tier): normal → pool only, high-risk → both, disagreement
       refused, no pool result → local; control fails.
-- [ ] CLAUDE.md's browser-tier rule (T-1374) points at `tier-gate.sh browser`; one real browser run through it.
+- [x] CLAUDE.md's browser-tier rule (T-1374) points at `tier-gate.sh browser`; one real browser run through it.
+      (138b0d1b0, high-risk: pool-w2 142/0 and here 142/0 side by side, Node v22.22.1 picked by the gate from a Node 18
+      shell; build/tiergate/tier-browser.runs.log 17:26:51Z "pool and local both green". The first run, 76c8baf25, was
+      refused as a disagreement; the cause was this machine's Node 18, fixed in 138b0d1b0.)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -324,6 +327,7 @@ bash tools/_t1405-red-log-teeth.sh > /tmp/.t1405.out 2>&1
 bash tests/run-bridge-tests.sh --list-legs > /tmp/.legs.out && grep -q "^core _t1409-tier-gate$" /tmp/.legs.out
 grep -q "tier-gate.sh browser" CLAUDE.md
 grep -q "high-risk.re" tools/pool/tier-gate.sh
+grep -q "138b0d1b0850.*pool and local both green" build/tiergate/tier-browser.runs.log
 
 ## RCA
 
