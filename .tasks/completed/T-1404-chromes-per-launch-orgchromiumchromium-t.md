@@ -10,13 +10,13 @@ description: >
   which all 163 Chrome-launching harnesses use: follow the profile's SingletonSocket
   link and remove that dir with the profile.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t1257-chrome-temp-selftest.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -45,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-12T21:49:43Z
-last_update: '2026-11-12T21:49:49Z'
-date_finished:
+last_update: 2026-11-13T00:07:52Z
+date_finished: 2026-11-13T00:07:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -399,3 +399,21 @@ PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tests/run-bridge-tests.s
 
 ### 2026-11-12T21:49:48Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-13T00:07:52Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1c26ad1c
+- **Timestamp:** 2026-11-13T00:36:28Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — `tools/_cdp-profile.mjs` removes the dir the profile's SingletonSocket links to (only a dir named
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_cdp-profile.mjs in: `tools/_cdp-profile.mjs` removes the dir the profile's SingletonSocket links to (only a dir named`

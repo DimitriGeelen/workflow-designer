@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1404: Chrome's per-launch org.chromium.Chromium temp dir is left in TMPDIR by every CDP harness (2,087 in /tmp)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-13T00:36:48Z
+# ============================================================================
+
+task_id: T-1404
+task_name: "Chrome's per-launch org.chromium.Chromium temp dir is left in TMPDIR by every CDP harness (2,087 in /tmp)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-12T21:49:43Z
+completed: 2026-11-13T00:07:52Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-12T22:50:55+01:00
+last_commit: 2026-11-12T23:47:19+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Chrome's per-launch org.chromium.Chromium temp dir goes with its profile — _cdp-profile.mjs follows the profile's SingletonSocket link (only into a dir of that name) and removes it. the self-test uses the profile helper the way the T-1247 census requires (static import; the control arm removes a helper profile the pre-T-1404 way) — census 163/0, self-test PASS with the defect still reproduced
+
+# Key outcomes
+outcomes:
+  - '`tools/_cdp-profile.mjs` removes the dir the profile''s SingletonSocket links to (only a dir named'
+  - 'Self-test `tools/_t1257-chrome-temp-selftest.mjs` (browser leg 233): A none left after removeProfileDir; control'
+  - 'Real harnesses with an isolated TMPDIR leave +0: `_t1395-cdp-client-selftest` (3 before the fix) and'
+  - 'Both suite tiers green: the core (pre-push gate) and browser lines in `## Verification`, which the close runs and'
+  - 'The existing 2,087 dirs in /tmp: none removed; the operator is told (2026-11-12). They carry no owner mark and'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t1257-chrome-temp-selftest.yaml'
+  - '.tasks/active/T-1404-chromes-per-launch-orgchromiumchromium-t.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_cdp-profile.mjs'
+  - 'tools/_t1257-chrome-temp-selftest.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-12T22:50:55'
+    action: 'T-1404: Chrome''s per-launch org.chromium.Chromium temp dir goes with its profile — _cdp-profile.mjs follows the profile''s SingletonSocket link (only into a dir of that name) and removes it'
+  - time: '2026-11-12T23:47:19'
+    action: 'T-1404: the self-test uses the profile helper the way the T-1247 census requires (static import; the control arm removes a helper profile the pre-T-1404 way) — census 163/0, self-test PASS with the defect still reproduced'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 138 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 138
+  commits: 3
+  files_changed: 8
+  lines_added: 670
+  lines_removed: 13
+  footprint_refreshed_at: '2026-11-13T00:37:04Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1404-chromes-per-launch-orgchromiumchromium-t.md
+generated_by: context-agent-hybrid

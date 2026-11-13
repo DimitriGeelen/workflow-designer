@@ -21575,3 +21575,21 @@ scan_id: R-d3817894
 task_id: T-101
 payload:
   task_file: .tasks/active/T-101-bake-clean-layout-into-the-rendered-corp.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T00:36:28Z'
+scan_id: R-1c26ad1c
+task_id: T-1404
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T00:36:28Z'
+scan_id: R-1c26ad1c
+task_id: T-1404
+payload:
+  task_file: .tasks/active/T-1404-chromes-per-launch-orgchromiumchromium-t.md
