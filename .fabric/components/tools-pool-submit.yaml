@@ -1,0 +1,21 @@
+id: tools/pool/submit.sh
+name: submit
+type: script
+subsystem: instruments
+location: tools/pool/submit.sh
+tags: []
+
+purpose: "submit.sh — T-1406: run one of 832's test tiers for HEAD on ring20's dispatch pool (T-1397 GO)."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-11-13
+created_by: unknown

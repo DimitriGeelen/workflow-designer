@@ -1,0 +1,21 @@
+id: tools/pool/run-tier.sh
+name: run-tier
+type: script
+subsystem: instruments
+location: tools/pool/run-tier.sh
+tags: []
+
+purpose: "run-tier.sh — T-1406: run one of 832's test tiers inside ring20's dispatch pool (T-1397 GO)."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-11-13
+created_by: unknown
