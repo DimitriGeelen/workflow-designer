@@ -1975,6 +1975,21 @@ else
 fi
 }
 leg browser "_t1257-chrome-temp" _leg_233
+_leg_234() {
+
+# ── T-1405: the pre-push gate keeps a red run's log ──
+# A red core run's log is kept as .context/working/prepush-core-red-<UTC>.log (newest five, git-ignored) and named in the
+# refusal; prepush-core.log alone was overwritten by the next run, so a green re-run erased _t631's intermittent red.
+# Teeth: the real gate in a scratch repo with a stub suite (seven red runs, one green); control: the old gate fails all four.
+if bash "$ROOT/tools/_t1405-red-log-teeth.sh" > "$TMP/leg-_t1405.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the pre-push gate no longer keeps a red run's log, keeps more than five, or names none in its refusal (run 'bash tools/_t1405-red-log-teeth.sh'; T-1405)"
+  show_output "$TMP/leg-_t1405.out" "_t1405-red-log-teeth.sh"
+  fail=$((fail + 1))
+fi
+}
+leg core "_t1405-red-log" _leg_234
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

@@ -1,13 +1,21 @@
 ---
 id: T-1405
-name: "Pre-push gate discards a failing leg's output, so an intermittent red cannot be diagnosed (_t631, 2026-11-12)"
+name: "Pre-push gate discards a failing leg's output, so an intermittent red cannot
+  be diagnosed (_t631, 2026-11-12)"
 description: >
-  The core tier failed _t631-tier0-approval-reachable.sh in two consecutive pre-push runs (2026-11-12 23:14 and 23:41 UTC, load 36-43), then passed 223/0 at 23:44; run alone it passes 17/17, also inside a --mount --net namespace like core's. tools/_t1288-prepush-gate.sh printed only the tier line and the [FAIL] line; the leg's own output (show_output) was not kept anywhere, so the cause is unknown. Keep the failing legs' output (a log file the gate names in its refusal), then diagnose _t631 the next time it fails. Working guess, untested: a timing budget inside _t631 that is too tight under load.
+  The core tier failed _t631-tier0-approval-reachable.sh in two consecutive pre-push
+  runs (2026-11-12 23:14 and 23:41 UTC, load 36-43), then passed 223/0 at 23:44; run
+  alone it passes 17/17, also inside a --mount --net namespace like core's. tools/_t1288-prepush-gate.sh
+  printed only the tier line and the [FAIL] line; the leg's own output (show_output)
+  was not kept anywhere, so the cause is unknown. Keep the failing legs' output (a
+  log file the gate names in its refusal), then diagnose _t631 the next time it fails.
+  Working guess, untested: a timing budget inside _t631 that is too tight under load.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-13T00:07:04Z
-last_update: 2026-11-13T00:07:04Z
-date_finished: null
+last_update: '2026-11-13T10:13:19Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-13T10:13:19Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1405: Pre-push gate discards a failing leg's output, so an intermittent red cannot be diagnosed (_t631, 2026-11-12)
@@ -57,20 +85,28 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** 2026-11-12, two pre-push core runs failed `_t631-tier0-approval-reachable.sh` (23:14 and
+23:41 UTC, load 36-43); the next run was green; run alone (also in a --mount --net namespace) it passes 17/17.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis (measured 2026-11-13):** the gate does keep the full output, in
+`.context/working/prepush-core.log`, but every run overwrites that file, so the green re-run erased the red run's log
+before anyone read why `_t631` failed. (The task's title said "discards"; it is "overwrites".)
 
-**Goal:** <what we are trying to achieve>
+**Goal:** a red run's log survives the next run.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** each red run's log is kept as `.context/working/prepush-core-red-<UTC>.log` (git-ignored by the
+`*.log` rule there), the newest five kept, and the refusal names the kept copy. The next time `_t631` goes red, its own
+output is there to read.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] On a red core run the gate copies the log to `prepush-core-red-<UTC>.log`, keeps only the newest five, and names
+      the copy in its refusal; a green run changes nothing about kept red logs.
+- [x] Proven with a fake red run (a stub suite that exits 1) in a scratch copy of the gate, including the
+      keep-five pruning; the kept logs are git-ignored. tools/_t1405-red-log-teeth.sh (core leg 234): 4/4; control
+      (the gate before this change, via T1405_GATE): 0/4.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -256,6 +292,9 @@ date_finished: null
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+bash tools/_t1405-red-log-teeth.sh
+grep -q 'leg core "_t1405-red-log" _leg_234' tests/run-bridge-tests.sh
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tools/_t1288-prepush-gate.sh
 
 ## RCA
 
@@ -353,3 +392,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1405-pre-push-gate-discards-a-failing-legs-ou.md
 - **Context:** Initial task creation
+
+### 2026-11-13T10:13:17Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
