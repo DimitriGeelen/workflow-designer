@@ -47,7 +47,7 @@ related_tasks: [T-1247]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:13:51Z
-last_update: '2026-11-11T16:55:50Z'
+last_update: 2026-11-12T21:47:25Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -122,6 +122,18 @@ launcher that runs Chromium with TMPDIR=/tmp and kills it hard leaves them. Whic
   removes on exit. Each harness spawns Chrome itself, so it reaches them the way T-1395's sweep did.
 - Kind 1: the next step is finding the writing process (the dispatch seats remain the hypothesis). Nothing removed;
   removal only with the operator's approval and only of files shown to be ours.
+
+### 2026-11-13 (agent)
+- Kind 2 is done: T-1404 (closed) makes the profile helper remove each launch's dir; the operator's job 135 removed
+  1,942 stale ones (rules: name, > 24 h, singleton-only or empty, socket not listened on; 0 skipped), leaving 145
+  (newer, or holding other content such as Chrome component downloads).
+- Kind 1 (dotted files): 3,245 now, down from 4,935 the day before, so something removes them too. A harness run with the
+  default TMPDIR added 0 (third measurement), while T-1404's browser tier ran Chrome at the same time. Newest file
+  2026-11-12 23:42:43 UTC; no process holds any of the 20 newest. By 10-minute bucket (local time, +0100): 22 files at
+  21:4x and 23 at 00:3x-00:4x, both overlapping core-tier runs (T-1402's close; the two pre-push gate runs), but a core
+  run at 22:12 local left only 1, so this is a correlation to test, not a finding. Hypothesis: core's namespace hides
+  the Playwright Chromium but not /opt/google/chrome, so a leg that falls back to it would write outside the private
+  TMPDIR. Test: count around one isolated core run.
 
 ## Acceptance Criteria
 
