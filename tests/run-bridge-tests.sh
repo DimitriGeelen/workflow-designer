@@ -2005,6 +2005,21 @@ else
 fi
 }
 leg core "_t1408-pool-gate" _leg_235
+_leg_236() {
+
+# ── T-1409: tools/pool/tier-gate.sh runs the BROWSER tier where the push gate's rules say ──
+# Normal change: the pool alone. High-risk change (tools/pool/high-risk.re, the one list): pool AND local, both green, a
+# disagreement refuses. No pool result: local decides. Teeth: the real tier-gate in a scratch repo with an upstream,
+# stubbed pool and local runs, five cases; control: a tier-gate that always runs locally fails all five.
+if bash "$ROOT/tools/_t1409-tier-gate-teeth.sh" > "$TMP/leg-_t1409.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "tier-gate.sh browser no longer runs the pool alone for a normal change, no longer asks pool AND local for a high-risk one, or no longer falls back to local without a pool result (run 'bash tools/_t1409-tier-gate-teeth.sh'; T-1409)"
+  show_output "$TMP/leg-_t1409.out" "_t1409-tier-gate-teeth.sh"
+  fail=$((fail + 1))
+fi
+}
+leg core "_t1409-tier-gate" _leg_236
 _leg_071() {
 
 # ── T-1241: the audience lens narrows the side panel, details view and canvas, and never changes a saved byte ──

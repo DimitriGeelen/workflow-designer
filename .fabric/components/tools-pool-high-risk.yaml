@@ -1,0 +1,21 @@
+id: tools/pool/high-risk.re
+name: high-risk
+type: script
+subsystem: instruments
+location: tools/pool/high-risk.re
+tags: []
+
+purpose: "The one high-risk path list (a single extended regex on line 1) that tier-gate.sh reads for both tiers, so the push gate and the browser-tier gate cannot drift (T-1409)."
+purpose_source: manual
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-11-13
+created_by: unknown

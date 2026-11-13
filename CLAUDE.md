@@ -124,7 +124,7 @@ refuses the push on red.
 - **Where core runs (operator, 2026-11-12/13; T-1397 GO, T-1408):** on ring20's dispatch pool (`tools/pool/submit.sh`,
   quiet amd64 VMs, inputs from git only), proven to agree with local runs on both tiers (T-1406).
   - **A normal push:** the pool alone.
-  - **A high-risk push** (it changes `src/aef-workflow-designer.html`, `tools/validate-workflow.py`,
+  - **A high-risk push** (it matches the one list, `tools/pool/high-risk.re`: it changes `src/aef-workflow-designer.html`, `tools/validate-workflow.py`,
     `.agentic-framework/`, `tests/run-bridge-tests.sh`, `tools/_t1288-*` or `tools/pool/*`): two independent runs on
     two different machines, the pool AND this machine, side by side. Both must be green; a disagreement refuses the push
     and is investigated, never retried until it agrees.
@@ -141,7 +141,9 @@ refuses the push on red.
   not a convenience.
 - **Re-install:** the hook is re-installed by `tools/_t1000-install-hook.sh` after framework upgrades.
 - **A change under `src/`, or to `tools/validate-workflow.py`, also needs the browser tier before it is pushed**
-  (T-1374): `tests/run-bridge-tests.sh --tier browser`, about 17 minutes. The hook runs only core, and the browser legs
+  (T-1374): `bash tools/pool/tier-gate.sh browser` (T-1409: the same rules as the push gate, so the pool alone for a
+  normal change, pool AND here for a high-risk one, local when the pool gives no result; logs under `build/tiergate/`).
+  The hook runs only core, and the browser legs
   (byte-identity goldens, the CDP harnesses) are where a designer change shows. The designer's Check runs the
   validator, so CDP harnesses assert its exact findings too. T-1377 was pushed on core alone and its new warning turned
   `_t1303-io-findings-cdp.mjs` red, caught only by release job 122. T-1366, T-1369 and T-1372 were pushed on core

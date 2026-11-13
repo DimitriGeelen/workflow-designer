@@ -1,0 +1,21 @@
+id: tools/pool/tier-gate.sh
+name: tier-gate
+type: script
+subsystem: instruments
+location: tools/pool/tier-gate.sh
+tags: []
+
+purpose: "tier-gate.sh — T-1409 (logic from T-1408): run one of 832's test tiers WHERE the operator's rules say, for HEAD."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-11-13
+created_by: unknown
