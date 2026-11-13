@@ -21727,3 +21727,21 @@ scan_id: R-ebc19c8c
 task_id: T-1410
 payload:
   task_file: .tasks/active/T-1410-testt1288tiers-scratch-repo-lacks-toolsp.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T19:24:45Z'
+scan_id: R-f7a73163
+task_id: T-1393
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T19:24:45Z'
+scan_id: R-f7a73163
+task_id: T-1393
+payload:
+  task_file: .tasks/active/T-1393-task-files-lose-the-operators-access-som.md

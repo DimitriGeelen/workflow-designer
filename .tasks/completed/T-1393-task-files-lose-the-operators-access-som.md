@@ -10,11 +10,11 @@ description: >
   600. Restore 664 on .tasks/*.md (not .context, which holds secrets that must stay
   600) and find the writer that creates them 600.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [perms, aef-be47]
 components: []
 related_tasks: []
@@ -45,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-11T16:41:05Z
-last_update: 2026-11-13T19:24:25Z
-date_finished:
+last_update: 2026-11-13T19:24:43Z
+date_finished: 2026-11-13T19:24:43Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -174,7 +174,7 @@ operator jobs run as that user, not root.
 
 grep -q "_sed_i" .tasks/active/T-1393-task-files-lose-the-operators-access-som.md
 [ "$(stat -c %a .tasks/active/T-1393-task-files-lose-the-operators-access-som.md)" = 664 ]
-[ "$(find .tasks -name '*.md' -perm 600 | wc -l)" -eq 0 ]
+[ "$(find .tasks -name '*.md' -perm 664 | wc -l)" = "$(find .tasks -name '*.md' | wc -l)" ]
 grep -q "T-5077" .agentic-framework/lib/paths.sh
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
@@ -422,3 +422,16 @@ grep -q "T-5077" .agentic-framework/lib/paths.sh
 
 ### 2026-11-13T19:23:05Z — status-update [task-update-agent]
 - **Change:** tags: +permcheck
+
+### 2026-11-13T19:24:43Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-f7a73163
+- **Timestamp:** 2026-11-13T19:24:45Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
