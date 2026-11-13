@@ -47,7 +47,7 @@ related_tasks: [T-1247]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:13:51Z
-last_update: 2026-11-13T19:26:34Z
+last_update: 2026-11-13T19:54:23Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -146,6 +146,10 @@ New dotted files per window (file mtimes, CET), against what this project ran (c
 An isolated core run left 0, and 159 appeared in an hour with no Chrome of ours. The core-fallback hypothesis is
 weakened; most kind-1 files are written by something else on the machine (load 44 at 19:25Z). Next: a read-only
 watcher (every 2 s, new dotted file -> holder pid, cwd, cgroup, ancestry) for 20 min, to name the writer.
+- Watcher result, 19:33:53-19:53:53Z (4,232 existing): **0 new files**, so nothing to attribute. (A first attempt
+  used `ls -1`, which hides dotfiles, and measured nothing; re-run with `ls -1A`, which sees all 4,232.) The writer
+  works in bursts (03-04h, 09-11h, 13h, 17-20h CET today). Next: run the watcher across a whole burst window (hours,
+  not 20 min), e.g. during the next busy period of other projects, and attribute the first new files it catches.
 
 ## Acceptance Criteria
 
