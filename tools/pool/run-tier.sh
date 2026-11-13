@@ -57,8 +57,11 @@ git clone -q "$WORK/repo.bundle" "$WORK/repo" >> "$LOG" 2>&1 || result 2 "git cl
 git -C "$WORK/repo" bundle verify "$WORK/repo.bundle" >> "$LOG" 2>&1 || result 2 "the joined bundle does not verify"
 git -C "$WORK/repo" fetch -q "$WORK/repo.bundle" '+refs/tags/*:refs/tags/*' '+refs/remotes/*:refs/remotes/*' >> "$LOG" 2>&1 || true
 rm -f "$WORK/repo.bundle"
-# .git/hooks is not cloned; 832 installs its gates there (T-1000, T-1161, T-1239) and core checks they are in place.
-( cd "$WORK/repo" && bash tools/_t1000-install-hook.sh ) >> "$LOG" 2>&1 || echo "== hook install failed (see above)" >> "$LOG"
+# .git/hooks is not cloned; the framework's hooks go in first (fw git install-hooks), then 832 adds its gates to them
+# (T-1000, T-1161, T-1239), and core checks they are in place. Pointers cleared so both target the clone (T-1398 class).
+( cd "$WORK/repo" && env -u PROJECT_ROOT -u FRAMEWORK_ROOT -u CONTEXT_DIR -u TASKS_DIR -u FW_ROUTED_FROM \
+    sh -c '.agentic-framework/bin/fw git install-hooks && bash tools/_t1000-install-hook.sh' ) >> "$LOG" 2>&1 \
+    || echo "== hook install failed (see above)" >> "$LOG"
 echo "== repo at $(git -C "$WORK/repo" rev-parse --short HEAD) ($(git -C "$WORK/repo" log -1 --format=%s | cut -c1-80))" >> "$LOG"
 
 # 2. Environment: a writable HOME with the pool's browsers where the harnesses look; git identity for fixture commits.
