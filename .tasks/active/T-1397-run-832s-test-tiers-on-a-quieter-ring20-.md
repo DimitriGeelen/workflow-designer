@@ -2,18 +2,24 @@
 id: T-1397
 name: "Run 832's test tiers on a quieter ring20 worker (host .107 runs at load 40-90)"
 description: >
-  Operator's suggestion 2026-11-12: use other workers via ring20-manager instead of waiting hours for load < 15 on .107. Asked proxmox-ring20-management (conversation 832-test-capacity) for a host with a TermLink worker: git clone, Node 22, Python 3, Playwright Chromium, ~4 GB RAM. Open: which host, how 832 dispatches, whether a remote green can stand in for the pre-push gate's local cache (it cannot today: the cache keys on the local tree).
+  Operator's suggestion 2026-11-12: use other workers via ring20-manager instead of
+  waiting hours for load < 15 on .107. Asked proxmox-ring20-management (conversation
+  832-test-capacity) for a host with a TermLink worker: git clone, Node 22, Python
+  3, Playwright Chromium, ~4 GB RAM. Open: which host, how 832 dispatches, whether
+  a remote green can stand in for the pre-push gate's local cache (it cannot today:
+  the cache keys on the local tree).
 
-status: captured
+status: started-work
 workflow_type: inception
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: []
 components: []
 related_tasks: []
 created: 2026-11-12T09:20:37Z
-last_update: 2026-11-12T09:20:37Z
-date_finished: null
+last_update: '2026-11-13T00:39:58Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -33,6 +39,26 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-11-13T00:39:58Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F2: 2
+      F4: 2
+      F3: 2
+      F1: 2
+    rationale: D1=2 (voi:open-question~'assumption'); D2=2 
+      (voi:open-question~'assumption'); D3=2 (voi:open-question~'assumption'); 
+      D4=2 (voi:open-question~'assumption'); F-RECALL=2 
+      (voi:open-question~'assumption'); F2=2 (voi:open-question~'assumption'); 
+      F4=2 (voi:open-question~'assumption'); F3=2 
+      (voi:open-question~'assumption'); F1=2 (voi:open-question~'assumption')
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1397: Run 832's test tiers on a quieter ring20 worker (host .107 runs at load 40-90)
@@ -101,9 +127,9 @@ trust question, not a configuration one.
      correction is sticky — set `hypothesis_source: human` in the frontmatter and no
      automatic pass will ever overwrite it. -->
 
-We believe that <change>,
-we will achieve <outcome>.
-We will know that we are successful when we see <measurable signal>.
+We believe that running 832's two test tiers on ring20's sandboxed dispatch pool (quiet amd64 VMs) instead of only on .107,
+we will achieve pushes and closes that no longer wait hours for .107's load to drop below 15,
+We will know that we are successful when we see three pool runs of the same commits as local runs give the same tier results (pass counts and FAIL legs, pool-only namespace exceptions aside), each finishing within the pool's 3600 s limit.
 
 ## Assumptions
 
@@ -127,21 +153,41 @@ We will know that we are successful when we see <measurable signal>.
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
 
+- **IW-1: Is there a quieter host 832 may use for its tiers?**
+  confidence: 3
+  disposition: answered
+  rationale: ring20-manager, 2026-11-12/13 (conversations 832-test-capacity, consult-…/832-Workflow-designer): yes, its
+  sandboxed dispatch pool; ring20's operator gave the GO; entries being built (their T-2651, commit 074e1a518).
+- **IW-2: May a pool result count for a push?**
+  confidence: 3
+  disposition: answered
+  rationale: operator's ruling 2026-11-12 (Decisions below): trust the pool; two independent runs on two different
+  machines for high-risk changes; releases keep their local run.
+- **IW-3: Do pool runs agree with local runs?**
+  confidence: 1
+  disposition: deferred
+  rationale: measurable only once the entries are live; it is the success signal in the Hypothesis and the first job
+  of the build (three same-commit comparisons).
+
 ## Exploration Plan
 
-<!-- How will we validate assumptions? Spikes, prototypes, research? Time-box each. -->
+Done by dialogue with ring20-manager (no spike needed): capacity, contract, sandbox limits, directories. The comparison
+runs (IW-3) are the build's first deliverable, before the push gate trusts a pool result.
 
 ## Technical Constraints
 
-<!-- What platform, browser, network, or hardware constraints apply?
-     For web apps: HTTPS requirements, browser API restrictions, CORS, device support.
-     For hardware APIs (mic, camera, GPS, Bluetooth): access requirements, permissions model.
-     For infrastructure: network topology, firewall rules, latency bounds.
-     Fill this BEFORE building. Discovering constraints after implementation wastes sessions. -->
+- Sandbox: unprivileged uid, no capabilities, own pid+mount+net namespace, loopback only, no user namespaces
+  (RestrictNamespaces), tmpfs write area, up to 3600 s, 1 GiB core / 3 GiB browser, amd64 only (pool-w1, pool-w2).
+- Code from git only: `git archive` + a git bundle split into <= 64 MB parts; never the working tree (build/peer-data
+  holds a client's documents). Staging only from build/pool/stage/, results to build/pool/results/ (both git-ignored).
+- Env: Python 3.12 venv with 832's pins, Node 22.22.1, git 2.43; Chromium 1187 under PLAYWRIGHT_BROWSERS_PATH.
 
 ## Scope Fence
 
-<!-- What's IN scope for this exploration? What's explicitly OUT? -->
+IN: the launcher tools/pool/run-tier.sh; harnesses honouring PLAYWRIGHT_BROWSERS_PATH; pool-only exceptions for the
+mount-namespace tests; staging the bundle; three comparison runs; then teaching the push gate to accept a matching pool
+green, with the two-run rule for high-risk changes.
+OUT: releases moving off .107 (they keep their local browser run); arm64.
 
 ## Acceptance Criteria
 
@@ -169,12 +215,14 @@ We will know that we are successful when we see <measurable signal>.
 
 <!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
 **GO if:**
-- Root cause identified with bounded fix path
-- Fix is scoped, testable, and reversible
+- A host with capacity exists and its owner agrees (yes: ring20's operator, 2026-11-12)
+- The operator agrees a pool result may count (yes, with the two-run rule for high-risk, 2026-11-12)
+- The contract keeps 832's constraints: code from git only, no client data leaves .107 (yes)
 
 **NO-GO if:**
-- Problem requires fundamental redesign or unbounded scope
-- Fix cost exceeds benefit given current evidence
+- The sandbox cannot run the tiers at all (it can: loopback, Chromium 1187, Node 22; only the few mount-namespace
+  tests become pool-only exceptions)
+- Pool runs disagree with local runs and the cause cannot be found (tested by the build's comparison runs)
 
 ## Verification
 
@@ -189,9 +237,14 @@ We will know that we are successful when we see <measurable signal>.
 
 ## Recommendation
 
-**Recommendation:** DEFER
+**Recommendation:** GO
 
-**Rationale:** Nothing to decide until ring20-manager says whether a quieter host with a TermLink worker exists (asked 2026-11-12, conversation 832-test-capacity). Evidence for the need: .107 load 40-90 from other projects; T-358's close hung 2 h at load ~45; test runs wait hours for load < 15.
+**Rationale:** Every GO criterion holds. ring20's operator gave the GO for 832 on its pool and the contract is agreed
+(amd64 only, git-only code, narrow staging root, full log returned). The operator ruled on 2026-11-12 that a pool
+result counts, with two independent runs on different machines for high-risk changes. Evidence for the need: .107 at
+load 40-90 from other projects; on 2026-11-12 test runs waited hours for load < 15, and T-358's close hung 2 h at load
+~45 (now a fast red, T-1395). The remaining risk, disagreement between pool and local runs, is the build's first
+measurement (IW-3), before the push gate trusts the pool.
 
 ## Decisions
 
@@ -228,3 +281,6 @@ We will know that we are successful when we see <measurable signal>.
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-11-13T00:39:55Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
