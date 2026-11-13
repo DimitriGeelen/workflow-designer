@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1408: Pre-push gate uses ring20's pool: one pool core run normally, pool + local for high-risk paths (operator's option A, 2026-11-13)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-13T14:35:58Z
+# ============================================================================
+
+task_id: T-1408
+task_name: "Pre-push gate uses ring20's pool: one pool core run normally, pool + local for high-risk paths (operator's option A, 2026-11-13)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-13T14:04:32Z
+completed: 2026-11-13T14:35:25Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-13T15:07:24+01:00
+last_commit: 2026-11-13T15:35:23+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the pre-push gate runs core on ring20's pool — the pool alone for a normal push, pool AND local side by side for a high-risk one (designer src, validator, framework, gate and test machinery; operator's option A), local fallback when the pool gives no result for HEAD; every decision logged. criteria ticked (teeth 8/8, control 0/8; the first real high-risk push ran pool + local side by side, both 225/0), verification written
+
+# Key outcomes
+outcomes:
+  - 'The gate classifies a push by its changed paths against the upstream (high-risk list above) and runs: pool only'
+  - 'A pool result counts only for the exact HEAD commit it ran; red, missing or a different commit is not green.'
+  - 'Teeth with stubbed pool and local runs: normal-green, normal-red, high-risk both green, high-risk disagreement'
+  - 'CLAUDE.md''s push rule describes the pool and the two-run rule; one real push goes through the pool path.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t1408-pool-gate-teeth.yaml'
+  - '.tasks/active/T-1408-pre-push-gate-uses-ring20s-pool-one-pool.md'
+  - 'CLAUDE.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1288-prepush-gate.sh'
+  - 'tools/_t1408-pool-gate-teeth.sh'
+  - 'tools/pool/submit.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-13T15:07:24'
+    action: 'T-1408: the pre-push gate runs core on ring20''s pool — the pool alone for a normal push, pool AND local side by side for a high-risk one (designer src, validator, framework, gate and test machinery; operator''s option A), local fallback when the pool gives no result for HEAD; every decision logged'
+  - time: '2026-11-13T15:35:23'
+    action: 'T-1408: criteria ticked (teeth 8/8, control 0/8; the first real high-risk push ran pool + local side by side, both 225/0), verification written'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 30 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 30
+  commits: 3
+  files_changed: 10
+  lines_added: 776
+  lines_removed: 26
+  footprint_refreshed_at: '2026-11-13T14:36:13Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1408-pre-push-gate-uses-ring20s-pool-one-pool.md
+generated_by: context-agent-hybrid
