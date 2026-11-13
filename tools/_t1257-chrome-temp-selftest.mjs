@@ -30,19 +30,34 @@ async function launch(udd) {
 const results = [];
 const leg = (ok, name, what) => { results.push(ok); console.log(`${ok ? 'ok  ' : 'FAIL'}  ${name.padEnd(8)} ${what}`); };
 
+// T-1407 pool-only exception: in ring20's pool sandbox this Chrome keeps no process singleton (no SingletonSocket,
+// so no org.chromium.Chromium.* dir is ever made; measured on pool-w2, 2026-11-13). There the defect cannot occur and A
+// and the control are not applicable; they say so instead of failing. Only under T1406_POOL=1 AND only when the launch
+// demonstrably made no such dir — a local run where the dir is missing stays a FAIL.
+let notApplicable = false;
 try {
   // A
   {
     const udd = makeProfileDir('t1257a-');
     const p = await launch(udd);
     const linked = chromeTempOf(udd);
+    const madeAny = chromeDirs().length > 0;
+    if (!linked && !madeAny && process.env.T1406_POOL === '1') {
+      notApplicable = true;
+      console.log('n/a   A        this Chrome made no per-launch org.chromium.Chromium dir and no SingletonSocket (pool sandbox): nothing to leave behind');
+      results.push(true);
+    }
     removeProfileDir(udd);
     await sleep(500);
-    leg(!!linked && chromeDirs().length === 0 && !existsSync(udd), 'A', `the launch's dir ${linked ? linked.split('/').pop() : '(link not found)'}; left after removeProfileDir: ${chromeDirs().length}, profile gone ${!existsSync(udd)}`);
+    if (!notApplicable)
+      leg(!!linked && chromeDirs().length === 0 && !existsSync(udd), 'A', `the launch's dir ${linked ? linked.split('/').pop() : '(link not found)'}; left after removeProfileDir: ${chromeDirs().length}, profile gone ${!existsSync(udd)}`);
     try { p.kill('SIGKILL'); } catch {}
   }
   // control: the same helper profile, removed the way it was before T-1404 (the profile alone, no link followed)
-  {
+  if (notApplicable) {
+    console.log('n/a   control  the defect cannot occur where Chrome makes no such dir (pool sandbox)');
+    results.push(true);
+  } else {
     const prof = makeProfileDir('t1257c-');
     const p = await launch(prof);
     p.kill('SIGKILL'); await sleep(500);

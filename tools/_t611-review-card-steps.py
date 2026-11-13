@@ -132,9 +132,6 @@ def main():
         return self_test()
     task_id = sys.argv[1] if len(sys.argv) > 1 else "589"
     base = watchtower_url()
-    if not base:
-        print("CANNOT MEASURE: no .context/working/watchtower.url — is Watchtower running?")
-        return 2
 
     tf = task_file(task_id)
     if tf is None:
@@ -149,14 +146,34 @@ def main():
               f"pass vacuously (0 == 0) and evidence nothing")
         return 2
 
-    url = f"{base}/review/T-{task_id}"
-    try:
-        with urllib.request.urlopen(url, timeout=20) as r:
-            html = r.read().decode("utf-8", "replace")
-            code = r.status
-    except Exception as exc:
-        print(f"CANNOT MEASURE: {url} — {exc}")
-        return 2
+    if base:
+        url = f"{base}/review/T-{task_id}"
+        try:
+            with urllib.request.urlopen(url, timeout=20) as r:
+                html = r.read().decode("utf-8", "replace")
+                code = r.status
+        except Exception as exc:
+            print(f"CANNOT MEASURE: {url} — {exc}")
+            return 2
+    else:
+        # T-1407: no live Watchtower (a clean checkout, the ring20 pool): render the same card in-process through the
+        # framework's own Flask app, as _t1171/_t1172 do. Still the rendered bytes, never the template source.
+        url = f"(in-process web.app) /review/T-{task_id}"
+        try:
+            import os
+            fw = REPO / ".agentic-framework"
+            os.environ.setdefault("PROJECT_ROOT", str(REPO))
+            sys.path.insert(0, str(fw))
+            cwd = os.getcwd(); os.chdir(fw)
+            try:
+                from web.app import app
+                resp = app.test_client().get(f"/review/T-{task_id}")
+            finally:
+                os.chdir(cwd)
+            html, code = resp.get_data(as_text=True), resp.status_code
+        except Exception as exc:
+            print(f"CANNOT MEASURE: no live Watchtower and the in-process app failed — {exc!r}")
+            return 2
 
     got = rendered_steps(html)
     ok = got == want
