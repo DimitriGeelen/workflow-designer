@@ -55,8 +55,10 @@ cat $parts > "$WORK/repo.bundle" || result 2 "could not join the bundle parts"
 # `git bundle verify` needs a repository, so the clone comes first (it checks the bundle too), then the verify inside it.
 git clone -q "$WORK/repo.bundle" "$WORK/repo" >> "$LOG" 2>&1 || result 2 "git clone from the bundle failed"
 git -C "$WORK/repo" bundle verify "$WORK/repo.bundle" >> "$LOG" 2>&1 || result 2 "the joined bundle does not verify"
-git -C "$WORK/repo" fetch -q --tags "$WORK/repo.bundle" '+refs/tags/*:refs/tags/*' >> "$LOG" 2>&1 || true
+git -C "$WORK/repo" fetch -q "$WORK/repo.bundle" '+refs/tags/*:refs/tags/*' '+refs/remotes/*:refs/remotes/*' >> "$LOG" 2>&1 || true
 rm -f "$WORK/repo.bundle"
+# .git/hooks is not cloned; 832 installs its gates there (T-1000, T-1161, T-1239) and core checks they are in place.
+( cd "$WORK/repo" && bash tools/_t1000-install-hook.sh ) >> "$LOG" 2>&1 || echo "== hook install failed (see above)" >> "$LOG"
 echo "== repo at $(git -C "$WORK/repo" rev-parse --short HEAD) ($(git -C "$WORK/repo" log -1 --format=%s | cut -c1-80))" >> "$LOG"
 
 # 2. Environment: a writable HOME with the pool's browsers where the harnesses look; git identity for fixture commits.
@@ -70,8 +72,11 @@ git config --global user.name "832 pool run" 2>/dev/null
 git config --global user.email "832-pool@invalid" 2>/dev/null
 export T1406_POOL=1
 
-# 3. The tier.
-( cd "$WORK/repo" && bash tests/run-bridge-tests.sh --tier "$TIER" ) </dev/null >> "$LOG" 2>&1
+# 3. The tier, with no project pointer inherited from the caller (the T-1398 class: a session's PROJECT_ROOT or
+#    FRAMEWORK_ROOT made the first local proof's budget and audit legs read the REAL repo's .context/, not the clone's).
+( cd "$WORK/repo" && exec env -u PROJECT_ROOT -u FRAMEWORK_ROOT -u CONTEXT_DIR -u TASKS_DIR -u FW_ROUTED_FROM \
+    -u FW_CLAUDE_FW_SUPERVISED -u CLAUDE_CODE_SESSION_ID -u CLAUDECODE -u CLAUDE_PID \
+    bash tests/run-bridge-tests.sh --tier "$TIER" ) </dev/null >> "$LOG" 2>&1
 rc=$?
 [ "$rc" -le 1 ] || rc=1
 result "$rc" ""

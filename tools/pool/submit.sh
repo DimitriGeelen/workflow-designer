@@ -30,7 +30,9 @@ build_inputs() {
     if [ -f "$dir/.complete" ]; then echo "$dir"; return; fi
     rm -rf "$dir"; mkdir -p "$dir"
     git archive --format=tar HEAD -- tools/pool > "$dir/code.tar"
-    git bundle create "$dir/repo.bundle" HEAD bleeding-edge --tags >/dev/null 2>&1
+    # T-1406: origin/master too. A commit reachable only from it (the T-1383 licence commit) is cited by an episodic,
+    # and the T-567 corpus check needs it in the clone (the first local proof failed there without it).
+    git bundle create "$dir/repo.bundle" HEAD bleeding-edge master refs/remotes/origin/master --tags >/dev/null 2>&1
     git bundle verify "$dir/repo.bundle" >/dev/null 2>&1 || { echo "bundle does not verify" >&2; exit 1; }
     split -b 64M -d -a 3 "$dir/repo.bundle" "$dir/repo.bundle."
     rm -f "$dir/repo.bundle"
@@ -68,13 +70,17 @@ stage_part() {  # stage_part <file>: announce it on pool:stage once per sha256, 
     termlink channel post pool:stage --hub "$HUB" --msg-type stage \
         "$(printf '{"schema":"ring20.pool.stage/1","path":"%s","size":%s,"sha256":"%s","request":"%s","client":"832-Workflow-designer"}' "$f" "$size" "$sha" "$req")" >/dev/null
     local t0; t0=$(date +%s)
+    local answer
     while :; do
-        if termlink channel subscribe pool:stage-out --hub "$HUB" --since "$since" --limit 500 2>/dev/null | grep -F "$req" | grep -qiE '"ok" *: *true|\bok\b'; then
+        # T-1330/T-1331: capture first, then grep the capture (a `cmd | grep -q` under pipefail can fail on SIGPIPE).
+        answer=$(termlink channel subscribe pool:stage-out --hub "$HUB" --since "$since" --limit 500 2>/dev/null || true)
+        answer=$(printf '%s\n' "$answer" | grep -F "$req" || true)
+        if [ -n "$answer" ] && printf '%s\n' "$answer" | grep -iE '"ok" *: *true|\bok\b' >/dev/null; then
             echo "$sha" >> "$STAGED"; echo "$sha"; return
         fi
-        if termlink channel subscribe pool:stage-out --hub "$HUB" --since "$since" --limit 500 2>/dev/null | grep -F "$req" | grep -qiE 'error|refus|fail'; then
+        if [ -n "$answer" ] && printf '%s\n' "$answer" | grep -iE 'error|refus|fail' >/dev/null; then
             echo "staging $(basename "$f") was refused:" >&2
-            termlink channel subscribe pool:stage-out --hub "$HUB" --since "$since" --limit 500 2>/dev/null | grep -F "$req" >&2
+            printf '%s\n' "$answer" >&2
             exit 1
         fi
         [ $(( $(date +%s) - t0 )) -lt 900 ] || { echo "no answer on pool:stage-out for $req within 900 s" >&2; exit 1; }
