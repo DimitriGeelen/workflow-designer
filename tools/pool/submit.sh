@@ -62,18 +62,19 @@ case "$HUB" in 127.*|localhost*) echo "build/pool/hub must not be a loopback add
 STAGED="$ROOT/build/pool/staged.txt"; touch "$STAGED"
 
 stage_part() {  # stage_part <file>: announce it on pool:stage once per sha256, wait for pool:stage-out's answer
-    local f=$1 sha size req since
+    local f=$1 sha size req
     sha=$(sha256sum "$f" | cut -d' ' -f1); size=$(stat -c %s "$f")
     if grep -qx "$sha" "$STAGED"; then echo "$sha"; return; fi
     req="832-$SHORT-$(basename "$f")-$(date +%s)"
-    since=$(( $(date +%s) * 1000 - 5000 ))
     termlink channel post pool:stage --hub "$HUB" --msg-type stage \
         "$(printf '{"schema":"ring20.pool.stage/1","path":"%s","size":%s,"sha256":"%s","request":"%s","client":"832-Workflow-designer"}' "$f" "$size" "$sha" "$req")" >/dev/null
     local t0; t0=$(date +%s)
     local answer
     while :; do
         # T-1330/T-1331: capture first, then grep the capture (a `cmd | grep -q` under pipefail can fail on SIGPIPE).
-        answer=$(termlink channel subscribe pool:stage-out --hub "$HUB" --since "$since" --limit 500 2>/dev/null || true)
+        # --tail: the topic holds thousands of records; without it subscribe reads one page from the START and never
+        # reaches the answer (the first real run waited 900 s for an answer that had come in 5.3 s).
+        answer=$(termlink channel subscribe pool:stage-out --hub "$HUB" --tail 300 2>/dev/null || true)
         answer=$(printf '%s\n' "$answer" | grep -F "$req" || true)
         if [ -n "$answer" ] && printf '%s\n' "$answer" | grep -iE '"ok" *: *true|\bok\b' >/dev/null; then
             echo "$sha" >> "$STAGED"; echo "$sha"; return
