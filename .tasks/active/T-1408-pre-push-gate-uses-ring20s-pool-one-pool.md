@@ -107,12 +107,16 @@ Operator, 2026-11-13: the high-risk list as proposed (option A).
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The gate classifies a push by its changed paths against the upstream (high-risk list above) and runs: pool only
+- [x] The gate classifies a push by its changed paths against the upstream (high-risk list above) and runs: pool only
       (normal), pool + local (high-risk), local (pool unreachable or `T1408_POOL=0`), each said in its output.
-- [ ] A pool result counts only for the exact HEAD commit it ran; red, missing or a different commit is not green.
-- [ ] Teeth with stubbed pool and local runs: normal-green, normal-red, high-risk both green, high-risk disagreement
+- [x] A pool result counts only for the exact HEAD commit it ran; red, missing or a different commit is not green.
+- [x] Teeth with stubbed pool and local runs: normal-green, normal-red, high-risk both green, high-risk disagreement
       (refused), pool unreachable → local, and the cache written only on the required greens; red on the old gate.
-- [ ] CLAUDE.md's push rule describes the pool and the two-run rule; one real push goes through the pool path.
+      tools/_t1408-pool-gate-teeth.sh (core leg 235): 8/8; control on the pre-T-1408 gate: 0/8.
+- [x] CLAUDE.md's push rule describes the pool and the two-run rule; one real push goes through the pool path.
+      The push of c8d84bb58 (2026-11-13 14:07-14:26Z) was classified high-risk (it changed the gate, the suite and
+      submit.sh), ran core on pool-w2 (225/0, 683 s) and here (225/0, 1135 s at load 38) side by side, logged "both
+      green" and pushed.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -298,6 +302,11 @@ Operator, 2026-11-13: the high-risk list as proposed (option A).
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+bash tools/_t1408-pool-gate-teeth.sh
+grep -q 'leg core "_t1408-pool-gate" _leg_235' tests/run-bridge-tests.sh
+grep -q "Where core runs (operator, 2026-11-12/13; T-1397 GO, T-1408)" CLAUDE.md
+grep -q "high-risk push: pool and local both green" .context/working/prepush-core.runs.log
+PATH="$HOME/.nvm/versions/node/v22.22.1/bin:$PATH" bash tools/_t1288-prepush-gate.sh
 
 ## RCA
 
