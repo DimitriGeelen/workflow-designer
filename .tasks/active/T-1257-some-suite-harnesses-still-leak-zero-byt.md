@@ -151,6 +151,15 @@ watcher (every 2 s, new dotted file -> holder pid, cwd, cgroup, ancestry) for 20
   works in bursts (03-04h, 09-11h, 13h, 17-20h CET today). Next: run the watcher across a whole burst window (hours,
   not 20 min), e.g. during the next busy period of other projects, and attribute the first new files it catches.
 
+### 2026-11-13 late (agent): the machine rebooted; /tmp is no longer a tmpfs
+- The machine rebooted at 21:27 CET (kernel 7.0.0-43). /tmp is now a btrfs subvolume on the system disk (`/@tmp`, 921 GB,
+  43% used), not the 32 GB tmpfs that filled on 2026-11-11, and the reboot emptied it: the 4,232 dotted files are gone.
+  The "/tmp full stops a release" risk is much smaller now; the leak itself is not explained.
+- Since the reboot: 2 dotted files (21:42:17 and 21:42:20 CET, root, one 256 KB one empty) while this project ran
+  nothing that starts Chrome, and one kind-2 dir owned by `dimitri-mint-dev` (21:27:45) — another user's Chrome.
+- A near-empty /tmp is the cleanest baseline yet. The probe runs for 6 h from 22:15 CET (covers the 03-04h burst),
+  log in the session scratchpad; the first NEW lines name the writer.
+
 ## Acceptance Criteria
 
 ### Agent
