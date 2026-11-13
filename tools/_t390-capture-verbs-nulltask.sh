@@ -30,7 +30,7 @@
 # census; "0 failures" and "0 tests that ran" are otherwise the same number.
 set -uo pipefail
 
-PROJ=/opt/832-Workflow-designer
+PROJ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # T-1407: derived, not /opt/…
 FW="$PROJ/.agentic-framework/bin/fw"
 HOOK="$PROJ/.agentic-framework/agents/context/check-active-task.sh"
 LIB="$PROJ/.agentic-framework/agents/context/lib/safe-commands.sh"

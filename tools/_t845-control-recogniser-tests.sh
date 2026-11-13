@@ -20,7 +20,7 @@
 # alone.
 
 set -uo pipefail
-REPO="${T845_REPO_ROOT:-/opt/832-Workflow-designer}"
+REPO="${T845_REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"   # T-1407
 exec python3 - "$REPO" <<'PY'
 import sys, importlib.util
 repo = sys.argv[1]

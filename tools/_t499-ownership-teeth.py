@@ -42,7 +42,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # running them against a deliberately broken copy, and mutating the real file in place is
 # how T-576's probe would have destroyed the evidence for its own diagnosis.
 TOOL = os.environ.get("T499_TEETH_TOOL") or os.path.join(REPO, "tools", "_t499-watchtower-ownership.sh")
-SELF = "/opt/832-Workflow-designer"
+SELF = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # T-1407: derived, not /opt/…
 
 
 class Fixture(http.server.BaseHTTPRequestHandler):

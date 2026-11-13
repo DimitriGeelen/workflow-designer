@@ -43,7 +43,7 @@ import hashlib
 import os
 import re
 
-PROJ = "/opt/832-Workflow-designer"
+PROJ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # T-1407: derived, not /opt/…
 SRC = "src/aef-workflow-designer.html"
 MANIFEST = os.path.join(PROJ, "dist/MANIFEST.yaml")
 PEER_PIN = os.path.join(PROJ, ".agentic-framework/policy/designer-pin.yaml")

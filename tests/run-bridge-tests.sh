@@ -1978,7 +1978,7 @@ leg browser "_t1257-chrome-temp" _leg_233
 _leg_234() {
 
 # ── T-1405: the pre-push gate keeps a red run's log ──
-# A red core run's log is kept as .context/working/prepush-core-red-<UTC>.log (newest five, git-ignored) and named in the
+# A red core run's log is kept as .context/working/prepush-core.red-<UTC>.log (newest five, git-ignored) and named in the
 # refusal; prepush-core.log alone was overwritten by the next run, so a green re-run erased _t631's intermittent red.
 # Teeth: the real gate in a scratch repo with a stub suite (seven red runs, one green); control: the old gate fails all four.
 if bash "$ROOT/tools/_t1405-red-log-teeth.sh" > "$TMP/leg-_t1405.out" 2>&1; then

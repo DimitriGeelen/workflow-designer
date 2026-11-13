@@ -1,7 +1,8 @@
-source /opt/832-Workflow-designer/.agentic-framework/agents/context/lib/safe-commands.sh 2>/dev/null
+R="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # T-1407: derived, not /opt/…
+F=$R/.agentic-framework/bin/fw
+source "$R/.agentic-framework/agents/context/lib/safe-commands.sh" 2>/dev/null
 type is_commit_checkpoint_command &>/dev/null || { echo "REFUSE: new predicate not found"; exit 3; }
 t(){ if is_commit_checkpoint_command "$1"; then echo "  ALLOW  $2"; else echo "  BLOCK  $2"; fi; }
-R=/opt/832-Workflow-designer; F=$R/.agentic-framework/bin/fw
 echo "=== 1.7.68 is_commit_checkpoint_command() — same shapes as T-839 ==="
 t "$F git commit -m \"T-1: x\""                      "bare fw git commit"
 t "git commit -m \"T-1: x\""                          "bare git commit"

@@ -9,7 +9,7 @@ Read-only. Writes nothing, ticks nothing.
 """
 import glob, os, re, sys, json
 
-ROOT = "/opt/832-Workflow-designer"
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # T-1407: derived, not /opt/…
 os.chdir(ROOT)
 
 OWNER_RE = re.compile(r"^owner:\s*(\S+)", re.M)

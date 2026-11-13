@@ -11,7 +11,7 @@
 # Exit 0 = every leg was shown to discriminate. Exit 1 = at least one leg is dead.
 
 set -uo pipefail
-REPO="${T841_REPO_ROOT:-/opt/832-Workflow-designer}"
+REPO="${T841_REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"   # T-1407
 PASS=0; FAIL=0
 ok()   { PASS=$((PASS+1)); printf 'ok %d - %s\n' "$((PASS+FAIL))" "$1"; }
 bad()  { FAIL=$((FAIL+1)); printf 'not ok %d - %s\n' "$((PASS+FAIL))" "$1"; }

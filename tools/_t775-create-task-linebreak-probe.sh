@@ -24,7 +24,7 @@
 
 set -uo pipefail
 
-ROOT="/opt/832-Workflow-designer"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # T-1407: derived, not /opt/…
 SCRIPT="$ROOT/.agentic-framework/agents/task-create/create-task.sh"
 PREFIX_COMMIT="fcc9904c"   # T-774: the last commit before the T-775 line-break fix
 PASS=0

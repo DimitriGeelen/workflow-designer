@@ -13,7 +13,7 @@
 # probe fails rather than silently testing a stale copy.
 
 set -uo pipefail
-REPO="${T843_REPO_ROOT:-/opt/832-Workflow-designer}"
+REPO="${T843_REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"   # T-1407
 export PROJECT_ROOT="$REPO"
 UT="$REPO/.agentic-framework/agents/task-create/update-task.sh"
 PASS=0; FAIL=0; N=0

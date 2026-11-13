@@ -23,7 +23,7 @@
 # corpus number and the close decision mean different things.
 
 set -uo pipefail
-REPO="${T843_REPO_ROOT:-/opt/832-Workflow-designer}"
+REPO="${T843_REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"   # T-1407
 LIB="$REPO/.agentic-framework/lib/verification-absence.sh"
 PASS=0; FAIL=0; N=0
 say(){ N=$((N+1)); printf '%s %d - %s\n' "$1" "$N" "$2"; }

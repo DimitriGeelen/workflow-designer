@@ -29,7 +29,7 @@
 
 set -uo pipefail
 
-PROJ=/opt/832-Workflow-designer
+PROJ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # T-1407: derived, not /opt/…
 CTX="$PROJ/.agentic-framework/agents/context"
 HOOK="$CTX/check-active-task.sh"
 LIB="$CTX/lib/safe-commands.sh"

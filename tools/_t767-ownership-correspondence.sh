@@ -17,7 +17,7 @@
 
 set -uo pipefail
 
-PROJECT="${PROJECT:-/opt/832-Workflow-designer}"
+PROJECT="${PROJECT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"   # T-1407
 FW="$PROJECT/.agentic-framework"
 CREATE="$FW/agents/task-create/create-task.sh"
 

@@ -3,7 +3,7 @@
 import glob, re, yaml, os
 from collections import Counter
 
-os.chdir("/opt/832-Workflow-designer")
+os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # T-1407
 files = sorted(glob.glob(".tasks/active/T-*.md") + glob.glob(".tasks/completed/T-*.md"))
 
 rows = []

@@ -59,9 +59,9 @@ grep -E '^tier core ' "$out" >&2
 if [ "$rc" -ne 0 ]; then
     # T-1405: keep each red run's log under its own name (newest five). prepush-core.log is overwritten by the next run,
     # so a green re-run erased the only record of _t631's intermittent red (2026-11-12) before it could be read.
-    red="$ROOT/.context/working/prepush-core-red-$(date -u +%Y%m%dT%H%M%SZ).log"
+    red="$ROOT/.context/working/prepush-core.red-$(date -u +%Y%m%dT%H%M%SZ).log"
     cp "$out" "$red" 2>/dev/null || red=""
-    ls -1t "$ROOT"/.context/working/prepush-core-red-*.log 2>/dev/null | tail -n +6 | while read -r old; do rm -f -- "$old"; done
+    ls -1t "$ROOT"/.context/working/prepush-core.red-*.log 2>/dev/null | tail -n +6 | while read -r old; do rm -f -- "$old"; done
     echo "T-1288 pre-push: core tier is RED (rc=$rc) — push refused. Full output: .context/working/prepush-core.log${red:+ (kept as ${red#"$ROOT"/})}" >&2
     grep -E '^\s*\[(FAIL|QUARANTINED)\]' "$out" | head -20 >&2
     echo "  A known non-product red belongs in tests/quarantine.yaml (leg, reason, owner, fix_by)." >&2

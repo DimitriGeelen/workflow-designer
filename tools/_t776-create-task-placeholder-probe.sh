@@ -18,7 +18,7 @@
 
 set -uo pipefail
 
-ROOT="/opt/832-Workflow-designer"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # T-1407: derived, not /opt/…
 SCRIPT="$ROOT/.agentic-framework/agents/task-create/create-task.sh"
 PREFIX_COMMIT="7892bb66"   # T-775: the last commit before the T-776 reordering
 PLACEHOLDER="T-$(printf 'XXX')"   # assembled, so this file is not itself rewritten by any

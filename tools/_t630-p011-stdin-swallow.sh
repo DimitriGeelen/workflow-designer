@@ -57,7 +57,7 @@
 
 set -uo pipefail
 
-PROJ=/opt/832-Workflow-designer
+PROJ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # T-1407: derived, not /opt/…
 GATE="$PROJ/.agentic-framework/agents/task-create/update-task.sh"
 SCRATCH="${TMPDIR:-/tmp/claude-0/-opt-832-Workflow-designer/500d44d9-1e04-4f5a-b40e-f29988622253/scratchpad}"
 SANDBOX="$SCRATCH/t630-$$-$(date +%s)"

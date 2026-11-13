@@ -22,7 +22,7 @@ import os
 import sys
 from collections import defaultdict
 
-PROJECT = "/opt/832-Workflow-designer"
+PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # T-1407: derived, not /opt/…
 LIB = os.path.join(PROJECT, ".agentic-framework/agents/fabric/lib/enrich.py")
 
 spec = importlib.util.spec_from_file_location("enrich", LIB)

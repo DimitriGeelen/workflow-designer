@@ -10,7 +10,7 @@
 # temptation it guards against is real, because a ledger that reports "6 of 7 predictions holding"
 # by counting untriggered rows as holding is exactly the false green.
 set -uo pipefail
-REPO="${T848_REPO_ROOT:-/opt/832-Workflow-designer}"
+REPO="${T848_REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"   # T-1407
 CHK="$REPO/tools/_t848-realization-check.py"
 S=$(mktemp -d); trap 'rm -rf "$S"' EXIT
 P=0; F=0; N=0

@@ -31,7 +31,7 @@
 
 set -uo pipefail
 
-PROJ=/opt/832-Workflow-designer
+PROJ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # T-1407: derived, not /opt/…
 HOOK="$PROJ/.agentic-framework/agents/context/check-tier0.sh"
 SCRATCH="${TMPDIR:-/tmp/claude-0/-opt-832-Workflow-designer/500d44d9-1e04-4f5a-b40e-f29988622253/scratchpad}"
 SANDBOX="$SCRATCH/t631-$$-$(date +%s)"

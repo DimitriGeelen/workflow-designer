@@ -35,7 +35,7 @@ import re
 import subprocess
 import sys
 
-ROOT = "/opt/832-Workflow-designer"
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # T-1407: derived, not /opt/…
 FW = os.path.join(ROOT, ".agentic-framework/bin/fw")
 
 # Verbs an agent must never invoke. Each is enforced by at least one independent gate;

@@ -15,7 +15,7 @@
 
 set -uo pipefail
 
-PROJ=/opt/832-Workflow-designer
+PROJ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # T-1407: derived, not /opt/…
 SCRIPT="$PROJ/scripts/release-designer.sh"
 SCRATCH="${TMPDIR:-/tmp/claude-0/-opt-832-Workflow-designer/500d44d9-1e04-4f5a-b40e-f29988622253/scratchpad}"
 SB="$SCRATCH/t387-$$-$(date +%s)"

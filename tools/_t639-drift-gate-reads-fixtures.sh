@@ -16,7 +16,7 @@
 
 set -uo pipefail
 
-PROJ=/opt/832-Workflow-designer
+PROJ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # T-1407: derived, not /opt/…
 SUCC="$PROJ/tools/_t1005-drift-target-clause-scoped.py"
 
 if [ ! -f "$SUCC" ]; then

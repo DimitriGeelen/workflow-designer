@@ -16,7 +16,7 @@ Read-only.
 import glob, os, re, sys
 from collections import Counter
 
-ROOT = "/opt/832-Workflow-designer"
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # T-1407: derived, not /opt/…
 FW = os.path.join(ROOT, ".agentic-framework")
 os.chdir(ROOT)
 

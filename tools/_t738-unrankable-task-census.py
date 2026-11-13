@@ -14,7 +14,7 @@ Read-only with respect to task files. Writes one report when --report is given.
 import glob, importlib.util, os, re, subprocess, sys
 from pathlib import Path
 
-ROOT = "/opt/832-Workflow-designer"
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # T-1407: derived, not /opt/…
 os.chdir(ROOT)
 EST = os.path.join(ROOT, ".agentic-framework/agents/termlink/bvp-estimator/estimator.py")
 
