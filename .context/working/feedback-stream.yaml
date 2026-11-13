@@ -21997,3 +21997,21 @@ scan_id: R-71d7b5cf
 task_id: T-722
 payload:
   task_file: .tasks/active/T-722-ra-026-ctl-029-t-681-has-all-agent-acs-t.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T23:50:19Z'
+scan_id: R-0d99be4f
+task_id: T-1257
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T23:50:19Z'
+scan_id: R-0d99be4f
+task_id: T-1257
+payload:
+  task_file: .tasks/active/T-1257-some-suite-harnesses-still-leak-zero-byt.md

@@ -12,13 +12,13 @@ description: >
   that counts new shm files across the run. dimitri-mint-dev's T-115 stays open until
   the rate is zero.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t1257-chromium-holder-probe.sh]
 related_tasks: [T-1247]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -47,8 +47,8 @@ related_tasks: [T-1247]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-21T21:13:51Z
-last_update: 2026-11-13T20:09:42Z
-date_finished:
+last_update: 2026-11-13T23:50:16Z
+date_finished: 2026-11-13T23:50:16Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -160,13 +160,31 @@ watcher (every 2 s, new dotted file -> holder pid, cwd, cgroup, ancestry) for 20
 - A near-empty /tmp is the cleanest baseline yet. The probe runs for 6 h from 22:15 CET (covers the 03-04h burst),
   log in the session scratchpad; the first NEW lines name the writer.
 
+### 2026-11-14 00:05-00:50 CET (agent): the writer is named, and it is not 832
+- The 2 s probe caught 121 new dotted files (23:33-23:52 CET) while this project ran nothing that starts Chrome, but
+  never a holder: each file was already released when it looked. So the method was changed to catch the creation itself.
+- A read-only kernel trace (`bpftrace`, tracepoint `sys_enter_openat`, filter on the path prefix
+  `/tmp/.org.chromium.Chromium.`, printing pid, comm, three ancestors and cgroup) was self-tested (it caught a test file
+  this session created and removed) and then ran 00:25-00:49 CET: **9,697 creations, every one from one place**:
+  Playwright's `headless_shell` under the Playwright driver `node` run by **`/opt/1409-sprind`**'s test suite
+  (`.venv/bin/python3 -m pytest` — `tools/tests/test_layout_regression.py` and pytest-xdist workers — started by its
+  `tools/volle_stufe.py --commit …` via `tools/arbeiter_start.sh` and `tools/stufe_tor.py`), all in that project's
+  runner scope (`agentic.slice/run-r6dfc512….scope`). No creation came from an 832 process (the lines with "832" in them
+  are pid digits).
+- So kind 1 is written by another project's Playwright suite with TMPDIR=/tmp. 832 cannot fix it; that project's owner
+  can (give Chromium a private TMPDIR, as 832's T-1183/T-1404 do).
+- The trace and probe were stopped at 00:50 CET. /tmp now holds 154 dotted files; nothing was removed (they are not ours).
+- 1409-sprind told by sidecar notice (client_msg_id 07ac4eeb-0e92-444a-860e-6193f4907fcc, RECEIVED): the evidence and
+  the fix that worked here (a private short TMPDIR per run). The second criterion holds as written: the writer is not
+  ours, and the leftover that WAS ours (kind 2, the undotted dirs) was fixed by T-1404 and cleaned by job 135.
+
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The launcher that leaves `.org.chromium.Chromium.*` in /tmp is identified by measurement (a run with a count
+- [x] The launcher that leaves `.org.chromium.Chromium.*` in /tmp is identified by measurement (a run with a count
   before and after), or every 832 launcher is shown to leave none and the source is named outside 832.
-- [ ] If it is ours, it is fixed (Chromium's TMPDIR contained and removed) and a run leaves +0; the existing files that
+- [x] If it is ours, it is fixed (Chromium's TMPDIR contained and removed) and a run leaves +0; the existing files that
   are ours are removed with the operator's approval.
 
 ### Human
@@ -352,6 +370,8 @@ watcher (every 2 s, new dotted file -> holder pid, cwd, cgroup, ancestry) for 20
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+grep -q 'removeChromeTemp' tools/_cdp-profile.mjs
+grep -q '/opt/1409-sprind' .tasks/active/T-1257-some-suite-harnesses-still-leak-zero-byt.md
 
 ## RCA
 
@@ -452,3 +472,16 @@ watcher (every 2 s, new dotted file -> holder pid, cwd, cgroup, ancestry) for 20
 
 ### 2026-11-11T16:55:49Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-13T23:50:16Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0d99be4f
+- **Timestamp:** 2026-11-13T23:50:19Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

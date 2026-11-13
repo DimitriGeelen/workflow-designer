@@ -1,0 +1,101 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1257: Some suite harnesses still leak zero-byte /tmp/.org.chromium.Chromium.* shm files (89 during one suite run; dimitri-mint-dev T-115)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-13T23:50:29Z
+# ============================================================================
+
+task_id: T-1257
+task_name: "Some suite harnesses still leak zero-byte /tmp/.org.chromium.Chromium.* shm files (89 during one suite run; dimitri-mint-dev T-115)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-21T21:13:51Z
+completed: 2026-11-13T23:50:16Z
+duration_days: 23
+updates_count: 3
+first_commit: 2026-11-11T17:56:23+01:00
+last_commit: 2026-11-13T22:15:15+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  measurements recorded — none of 832's own launchers (direct harnesses, the gate, the suite, task closes) leaves Chromium shm files in /tmp now; the 3,509 files (326 MB) cluster in hours when review/sweep worker seats ran, the next hypothesis; nothing removed yet. measured — /tmp holds two kinds of Chromium leftover; every harness launch leaves one empty org.chromium.Chromium.* dir (ours), the 1 GB of dotted shm files are still not shown to be ours. operator job 135 — remove stale empty Chromium temp dirs from /tmp (name, > 24 h, singleton-only or empty, socket not listened on); the operator said yes (2026-11-12). job 135 rehearsed (sha 05827ebcf314); its selection rule tested on scratch dirs (old singleton-only and old empty removed; new, other content, other name, and a live listening socket kept). kind 2 done (T-1404 + job 135: 1,942 removed, 0 skipped); kind 1 measured a third time (832's harness adds 0), with a core-tier correlation to test next. core-run hypothesis tested on this session's own runs — an isolated core run left 0 dotted files, 159 appeared in an hour with no Chrome of ours; a holder watcher is running. holder watcher 20 min, 0 new dotted files (writer is bursty); next is a watcher across a whole burst window. the holder watcher as a tool (tools/_t1257-chromium-holder-watch.sh), for a run across a whole burst window. the holder watcher is a one-shot measurement, named as one (_t1257-chromium-holder-probe.sh; rename landed in 210458f0f); unwired-guard ratchet back at 94 after the push was refused on 95. machine rebooted (21:27), /tmp now btrfs on disk and emptied; 2 new dotted files since with none of ours running; 6 h probe started
+
+# Key outcomes
+outcomes:
+  - 'The launcher that leaves `.org.chromium.Chromium.*` in /tmp is identified by measurement (a run with a count'
+  - 'If it is ours, it is fixed (Chromium''s TMPDIR contained and removed) and a run leaves +0; the existing files that'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/135-clean-chromium-tmp-dirs/dryrun.ok'
+  - '.context/runme/135-clean-chromium-tmp-dirs/job.sh'
+  - '.fabric/components/tools-_t1257-chromium-holder-probe.yaml'
+  - '.fabric/components/tools-_t1257-chromium-holder-watch.yaml'
+  - '.tasks/active/T-1257-some-suite-harnesses-still-leak-zero-byt.md'
+  - 'tools/_t1257-chromium-holder-probe.sh'
+  - 'tools/_t1257-chromium-holder-watch.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-11T17:56:23'
+    action: 'T-1257: measurements recorded — none of 832''s own launchers (direct harnesses, the gate, the suite, task closes) leaves Chromium shm files in /tmp now; the 3,509 files (326 MB) cluster in hours when review/sweep worker seats ran, the next hypothesis; nothing removed yet'
+  - time: '2026-11-12T20:50:33'
+    action: 'T-1257: measured — /tmp holds two kinds of Chromium leftover; every harness launch leaves one empty org.chromium.Chromium.* dir (ours), the 1 GB of dotted shm files are still not shown to be ours'
+  - time: '2026-11-12T23:47:40'
+    action: 'T-1257: operator job 135 — remove stale empty Chromium temp dirs from /tmp (name, > 24 h, singleton-only or empty, socket not listened on); the operator said yes (2026-11-12)'
+  - time: '2026-11-12T23:48:48'
+    action: 'T-1257: job 135 rehearsed (sha 05827ebcf314); its selection rule tested on scratch dirs (old singleton-only and old empty removed; new, other content, other name, and a live listening socket kept)'
+  - time: '2026-11-13T01:37:37'
+    action: 'T-1257: kind 2 done (T-1404 + job 135: 1,942 removed, 0 skipped); kind 1 measured a third time (832''s harness adds 0), with a core-tier correlation to test next'
+  - time: '2026-11-13T20:26:34'
+    action: 'T-1257: core-run hypothesis tested on this session''s own runs — an isolated core run left 0 dotted files, 159 appeared in an hour with no Chrome of ours; a holder watcher is running'
+  - time: '2026-11-13T20:54:23'
+    action: 'T-1257: holder watcher 20 min, 0 new dotted files (writer is bursty); next is a watcher across a whole burst window'
+  - time: '2026-11-13T20:54:38'
+    action: 'T-1257: the holder watcher as a tool (tools/_t1257-chromium-holder-watch.sh), for a run across a whole burst window'
+  - time: '2026-11-13T21:09:42'
+    action: 'T-1257: the holder watcher is a one-shot measurement, named as one (_t1257-chromium-holder-probe.sh; rename landed in 210458f0f); unwired-guard ratchet back at 94 after the push was refused on 95'
+  - time: '2026-11-13T22:15:15'
+    action: 'T-1257: machine rebooted (21:27), /tmp now btrfs on disk and emptied; 2 new dotted files since with none of ours running; 6 h probe started'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 10 commit(s), 33276 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 33276
+  commits: 11
+  files_changed: 10
+  lines_added: 402
+  lines_removed: 28
+  footprint_refreshed_at: '2026-11-13T23:50:45Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1257-some-suite-harnesses-still-leak-zero-byt.md
+generated_by: context-agent-hybrid
