@@ -1,0 +1,21 @@
+id: tools/_t1257-chromium-holder-watch.sh
+name: _t1257-chromium-holder-watch
+type: script
+subsystem: instruments
+location: tools/_t1257-chromium-holder-watch.sh
+tags: []
+
+purpose: "_t1257-chromium-holder-watch.sh — T-1257 kind 1: who creates /tmp/.org.chromium.Chromium.* files? Read-only."
+purpose_source: header-comment
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-11-13
+created_by: unknown
