@@ -21709,3 +21709,21 @@ scan_id: R-15b339cc
 task_id: T-1409
 payload:
   task_file: .tasks/active/T-1409-browser-tier-on-the-pool-too-toolspoolti.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T18:11:24Z'
+scan_id: R-ebc19c8c
+task_id: T-1410
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T18:11:24Z'
+scan_id: R-ebc19c8c
+task_id: T-1410
+payload:
+  task_file: .tasks/active/T-1410-testt1288tiers-scratch-repo-lacks-toolsp.md

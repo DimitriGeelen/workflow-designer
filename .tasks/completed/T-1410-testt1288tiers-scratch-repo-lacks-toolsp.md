@@ -4,10 +4,11 @@ name: "test_t1288_tiers' scratch repo lacks tools/pool/tier-gate.sh (T-1409 move
 description: >
   test_t1288_tiers' scratch repo lacks tools/pool/tier-gate.sh (T-1409 moved the gate's logic there): cases 36, 37, 40 red, push refused
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-13T17:48:02Z
-last_update: 2026-11-13T18:11:05Z
-date_finished: null
+last_update: 2026-11-13T18:11:07Z
+date_finished: 2026-11-13T18:11:07Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -373,3 +374,21 @@ tier-gate); and a change to the gate runs the core tier before close, which the 
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1410-testt1288tiers-scratch-repo-lacks-toolsp.md
 - **Context:** Initial task creation
+
+### 2026-11-13T18:11:07Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ebc19c8c
+- **Timestamp:** 2026-11-13T18:11:24Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — The scratch repo in `test_installer_and_gate` gets `tools/pool/tier-gate.sh` and `high-risk.re`, with
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/pool/tier-gate.sh in: The scratch repo in `test_installer_and_gate` gets `tools/pool/tier-gate.sh` and `high-risk.re`, with`

@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1410: test_t1288_tiers' scratch repo lacks tools/pool/tier-gate.sh (T-1409 moved the gate's logic there): cases 36, 37, 40 red, push refused
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-13T18:11:32Z
+# ============================================================================
+
+task_id: T-1410
+task_name: "test_t1288_tiers' scratch repo lacks tools/pool/tier-gate.sh (T-1409 moved the gate's logic there): cases 36, 37, 40 red, push refused"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-13T17:48:02Z
+completed: 2026-11-13T18:11:07Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-11-13T18:49:52+01:00
+last_commit: 2026-11-13T19:11:05+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  test_t1288_tiers' scratch repo carries tools/pool/tier-gate.sh + high-risk.re and runs with T1408_POOL=0 (41/0); the gate called a file the fixture lacked since T-1409. pushed through the gate (core 226/0 on pool and here)
+
+# Key outcomes
+outcomes:
+  - 'The scratch repo in `test_installer_and_gate` gets `tools/pool/tier-gate.sh` and `high-risk.re`, with'
+  - 'The push of the T-1409 commits passes the pre-push gate (core green). (4fbd0795d..6f792c07e: high-risk, pool-w2'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'test_t1288_tiers'' scratch repo carries tools/pool/tier-gate.sh + high-risk.re and runs with T1408_POOL=0 (41/0); the gate called a file the fixture lacked since T-1409'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1410-testt1288tiers-scratch-repo-lacks-toolsp.md'
+  - 'tests/test_t1288_tiers.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-13T18:49:52'
+    action: 'T-1410: test_t1288_tiers'' scratch repo carries tools/pool/tier-gate.sh + high-risk.re and runs with T1408_POOL=0 (41/0); the gate called a file the fixture lacked since T-1409'
+  - time: '2026-11-13T19:11:05'
+    action: 'T-1410: pushed through the gate (core 226/0 on pool and here)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 23 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 23
+  commits: 3
+  files_changed: 5
+  lines_added: 506
+  lines_removed: 6
+  footprint_refreshed_at: '2026-11-13T18:11:39Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1410-testt1288tiers-scratch-repo-lacks-toolsp.md
+generated_by: context-agent-hybrid
