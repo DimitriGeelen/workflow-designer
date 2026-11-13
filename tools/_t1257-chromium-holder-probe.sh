@@ -1,6 +1,6 @@
 #!/bin/bash
-# _t1257-chromium-holder-watch.sh — T-1257 kind 1: who creates /tmp/.org.chromium.Chromium.* files? Read-only.
-#   bash tools/_t1257-chromium-holder-watch.sh [seconds=1200] [logfile=stdout]   (run in the background across a burst)
+# _t1257-chromium-holder-probe.sh — T-1257 kind 1: who creates /tmp/.org.chromium.Chromium.* files? Read-only.
+#   bash tools/_t1257-chromium-holder-probe.sh [seconds=1200] [logfile=stdout]   (run in the background across a burst)
 # Every 2 s: list dotted files newer than the last check; for each, record the holding processes
 # (fuser), their cwd, cgroup unit and a short cmdline (Chrome's own and its ancestors' up to 4 levels).
 dur=${1:-1200}; out=${2:-/dev/stdout}

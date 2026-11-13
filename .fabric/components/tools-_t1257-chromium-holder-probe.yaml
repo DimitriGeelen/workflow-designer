@@ -1,11 +1,11 @@
-id: tools/_t1257-chromium-holder-watch.sh
-name: _t1257-chromium-holder-watch
+id: tools/_t1257-chromium-holder-probe.sh
+name: _t1257-chromium-holder-probe
 type: script
 subsystem: instruments
-location: tools/_t1257-chromium-holder-watch.sh
+location: tools/_t1257-chromium-holder-probe.sh
 tags: []
 
-purpose: "_t1257-chromium-holder-watch.sh — T-1257 kind 1: who creates /tmp/.org.chromium.Chromium.* files? Read-only."
+purpose: "_t1257-chromium-holder-probe.sh — T-1257 kind 1: who creates /tmp/.org.chromium.Chromium.* files? Read-only."
 purpose_source: header-comment
 
 depends_on:
