@@ -21593,3 +21593,29 @@ scan_id: R-1c26ad1c
 task_id: T-1404
 payload:
   task_file: .tasks/active/T-1404-chromes-per-launch-orgchromiumchromium-t.md
+---
+kind: scan_emitted
+timestamp: '2026-11-13T06:40:54Z'
+scan_id: R-1ae1ba3e
+task_id: T-1397
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T06:40:54Z'
+scan_id: R-1ae1ba3e
+task_id: T-1397
+payload:
+  task_file: .tasks/active/T-1397-run-832s-test-tiers-on-a-quieter-ring20-.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-11-13T06:40:54Z'
+scan_id: RC-e83fc9a2
+task_id: T-1397
+payload:
+  overall: CONFIRMED
+  claim_count: 2

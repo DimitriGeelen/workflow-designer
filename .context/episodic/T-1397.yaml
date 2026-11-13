@@ -1,0 +1,97 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1397: Run 832's test tiers on a quieter ring20 worker (host .107 runs at load 40-90)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-13T06:41:05Z
+# ============================================================================
+
+task_id: T-1397
+task_name: "Run 832's test tiers on a quieter ring20 worker (host .107 runs at load 40-90)"
+workflow_type: inception
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-11-12T09:20:37Z
+completed: 2026-11-13T06:40:52Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-12T10:21:02+01:00
+last_commit: 2026-11-13T01:49:37+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception — run 832's test tiers on a quieter ring20 worker (operator's suggestion); ring20-manager asked, DEFER until it answers. ring20-manager's answer (sandboxed pool, two cmd entries, snapshot via ref-put) and what 832 told them; the pre-push trust question named. operator's ruling — a pool result counts for a push; high-risk changes need two independent runs on two different machines; agent's proposed high-risk list recorded for the operator to adjust. the go/no-go criterion names why it is the operator's (direction: what the push gate trusts; fw inception decide is operator-only). inception ready for the operator's decision; hypothesis, three questions disposed, constraints, scope, go/no-go criteria, recommendation GO. operator job 136 records the GO the operator gave on 2026-11-12 (pool green counts; two runs for high-risk). research artifact (the dialogue with ring20 and the operator, the agreed contract); job 136 rehearsed (sha 15e5c997f9a3). ring20 confirmed the relay's allowed root is exactly build/pool/stage/ (build/peer-data stays outside)
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-11-12 — operator: does a pool result count for a push?'
+    alternatives_rejected: ['local-only (keeps the hours of waiting the pool exists to remove).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/136-decide-t1397/dryrun.ok'
+  - '.context/runme/136-decide-t1397/job.sh'
+  - '.tasks/active/T-1397-run-832s-test-tiers-on-a-quieter-ring20-.md'
+  - 'docs/reports/T-1397-ring20-test-pool.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-12T10:21:02'
+    action: 'T-1397: inception — run 832''s test tiers on a quieter ring20 worker (operator''s suggestion); ring20-manager asked, DEFER until it answers'
+  - time: '2026-11-12T10:26:34'
+    action: 'T-1397: ring20-manager''s answer (sandboxed pool, two cmd entries, snapshot via ref-put) and what 832 told them; the pre-push trust question named'
+  - time: '2026-11-12T11:12:42'
+    action: 'T-1397: operator''s ruling — a pool result counts for a push; high-risk changes need two independent runs on two different machines; agent''s proposed high-risk list recorded for the operator to adjust'
+  - time: '2026-11-12T11:41:49'
+    action: 'T-1397: the go/no-go criterion names why it is the operator''s (direction: what the push gate trusts; fw inception decide is operator-only)'
+  - time: '2026-11-13T01:40:16'
+    action: 'T-1397: inception ready for the operator''s decision; hypothesis, three questions disposed, constraints, scope, go/no-go criteria, recommendation GO'
+  - time: '2026-11-13T01:40:55'
+    action: 'T-1397: operator job 136 records the GO the operator gave on 2026-11-12 (pool green counts; two runs for high-risk)'
+  - time: '2026-11-13T01:45:24'
+    action: 'T-1397: research artifact (the dialogue with ring20 and the operator, the agreed contract); job 136 rehearsed (sha 15e5c997f9a3)'
+  - time: '2026-11-13T01:49:37'
+    action: 'T-1397: ring20 confirmed the relay''s allowed root is exactly build/pool/stage/ (build/peer-data stays outside)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 1280 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1280
+  commits: 9
+  files_changed: 8
+  lines_added: 596
+  lines_removed: 32
+  footprint_refreshed_at: '2026-11-13T06:41:08Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1397-run-832s-test-tiers-on-a-quieter-ring20-.md
+generated_by: context-agent-hybrid

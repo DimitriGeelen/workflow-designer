@@ -9,17 +9,17 @@ description: >
   a remote green can stand in for the pre-push gate's local cache (it cannot today:
   the cache keys on the local tree).
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-11-12T09:20:37Z
-last_update: '2026-11-13T00:39:58Z'
-date_finished:
+last_update: 2026-11-13T06:40:52Z
+date_finished: 2026-11-13T06:40:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -193,15 +193,15 @@ OUT: releases moving off .107 (they keep their local browser run); arm64.
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Why you:** direction — whether a test result from another machine may unlock a push changes what the T-1288 gate
   trusts, which is the operator's rule; and `fw inception decide` is operator-only
   **Steps:**
@@ -275,7 +275,11 @@ measurement (IW-3), before the push gate trusts the pool.
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-1397 go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Operator (2026-11-12, in conversation; recorded by job 136): trust the ring20 pool - a node is made available for a reason, runs are isolated and can be told apart. For high-impact, high-risk changes: two independent runs on two different machines; releases keep their local run. ring20's operator gave the GO for 832 on its pool (their T-2651): amd64 only, sandboxed (no network, no user namespaces), code from git only, staging only from build/pool/stage/ so build/peer-data never leaves .107, full log returned. Build: tools/pool/run-tier.sh; harnesses honour PLAYWRIGHT_BROWSERS_PATH; pool-only exceptions for the mount-namespace tests; three pool-vs-local comparison runs of the same commits (the success signal); then the push gate accepts a matching pool green, with the two-run rule for high-risk.
+
+**Date**: 2026-11-13T06:40:51Z
 
 ## Updates
 
@@ -284,3 +288,39 @@ measurement (IW-3), before the push gate trusts the pool.
 
 ### 2026-11-13T00:39:55Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-13T06:40:51Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Operator (2026-11-12, in conversation; recorded by job 136): trust the ring20 pool - a node is made available for a reason, runs are isolated and can be told apart. For high-impact, high-risk changes: two independent runs on two different machines; releases keep their local run. ring20's operator gave the GO for 832 on its pool (their T-2651): amd64 only, sandboxed (no network, no user namespaces), code from git only, staging only from build/pool/stage/ so build/peer-data never leaves .107, full log returned. Build: tools/pool/run-tier.sh; harnesses honour PLAYWRIGHT_BROWSERS_PATH; pool-only exceptions for the mount-namespace tests; three pool-vs-local comparison runs of the same commits (the success signal); then the push gate accepts a matching pool green, with the two-run rule for high-risk.
+
+### 2026-11-13T06:40:52Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1ae1ba3e
+- **Timestamp:** 2026-11-13T06:40:54Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-e83fc9a2
+- **Timestamp:** 2026-11-13T06:40:54Z
+- **Overall:** CONFIRMED
+- **Claims:** 2
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `T-358` | task | ✓ pass |
+| `T-1395` | task | ✓ pass |
