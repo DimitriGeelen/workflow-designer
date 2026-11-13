@@ -21619,3 +21619,21 @@ task_id: T-1397
 payload:
   overall: CONFIRMED
   claim_count: 2
+---
+kind: scan_emitted
+timestamp: '2026-11-13T10:59:08Z'
+scan_id: R-997b0d7a
+task_id: T-1405
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-13T10:59:08Z'
+scan_id: R-997b0d7a
+task_id: T-1405
+payload:
+  task_file: .tasks/active/T-1405-pre-push-gate-discards-a-failing-legs-ou.md
