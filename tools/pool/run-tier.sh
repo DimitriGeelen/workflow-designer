@@ -68,7 +68,26 @@ echo "== repo at $(git -C "$WORK/repo" rev-parse --short HEAD) ($(git -C "$WORK/
 export HOME="$WORK/home"
 mkdir -p "$HOME/.cache"
 if [ -n "${PLAYWRIGHT_BROWSERS_PATH:-}" ] && [ -d "$PLAYWRIGHT_BROWSERS_PATH" ]; then
-    ln -s "$PLAYWRIGHT_BROWSERS_PATH" "$HOME/.cache/ms-playwright"
+    # Every 832 finder (node and python) looks for ~/.cache/ms-playwright/chromium-*/chrome-linux64/chrome. The pool's
+    # read-only tree may lay a build out as chrome-linux/ instead (the first browser run found chromium-1187 but "no
+    # chromium" in 59 legs), so build our own cache dir: each entry linked as is, and for each chromium-NNNN a
+    # chrome-linux64 that points at whichever of chrome-linux64/ or chrome-linux/ holds the chrome binary.
+    PW="$HOME/.cache/ms-playwright"; mkdir -p "$PW"
+    for e in "$PLAYWRIGHT_BROWSERS_PATH"/*; do
+        n=$(basename "$e")
+        case "$n" in
+            chromium-[0-9]*)
+                mkdir -p "$PW/$n"
+                for sub in "$e"/*; do ln -s "$sub" "$PW/$n/$(basename "$sub")"; done
+                if [ ! -e "$PW/$n/chrome-linux64/chrome" ]; then
+                    for alt in chrome-linux64 chrome-linux; do
+                        if [ -x "$e/$alt/chrome" ]; then rm -f "$PW/$n/chrome-linux64"; ln -s "$e/$alt" "$PW/$n/chrome-linux64"; break; fi
+                    done
+                fi
+                echo "== browsers: $n contains [$(ls "$e" | tr '\n' ' ')]; chrome at $(readlink -f "$PW/$n/chrome-linux64/chrome" 2>/dev/null || echo 'NOT FOUND')" >> "$LOG" ;;
+            *) ln -s "$e" "$PW/$n" ;;
+        esac
+    done
     echo "== browsers: $PLAYWRIGHT_BROWSERS_PATH ($(ls "$PLAYWRIGHT_BROWSERS_PATH" | tr '\n' ' '))" >> "$LOG"
 fi
 git config --global user.name "832 pool run" 2>/dev/null
