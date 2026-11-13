@@ -1,0 +1,95 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1409: Browser tier on the pool too: tools/pool/tier-gate.sh core|browser with the push gate's rules, one shared high-risk list
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-13T17:27:36Z
+# ============================================================================
+
+task_id: T-1409
+task_name: "Browser tier on the pool too: tools/pool/tier-gate.sh core|browser with the push gate's rules, one shared high-risk list"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-13T14:59:43Z
+completed: 2026-11-13T17:27:13Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-13T17:36:49+01:00
+last_commit: 2026-11-13T18:27:12+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  browser teeth 5/5 (control 0/5) as core leg _t1409-tier-gate; fabric cards for tier-gate, high-risk.re and the teeth; CLAUDE.md's T-1374 rule points at tier-gate.sh browser. three criteria ticked (tier-gate rules, one list, teeth 5/5 control 0/5); verification written; one real browser run through tier-gate in progress. tier-gate's local run picks a Node with WebSocket (PATH's, else newest nvm); browser with none is CANNOT RUN, not a disagreement. First real run was refused because system Node 18 turned 126 CDP legs red against the pool's 142/0. Teeth 6/6 (case 6 red on the pre-fix gate); 1408 8/8, 1405 4/4. CLAUDE.md core-tier size from --list-legs (192 legs today), not the stale 207. last criterion ticked — one real browser run through tier-gate, pool 142/0 and here 142/0 side by side on a high-risk change
+
+# Key outcomes
+outcomes:
+  - '`tools/pool/tier-gate.sh core|browser` applies the push gate''s rules (pool alone / pool + local side by side for'
+  - 'One high-risk list: `tools/pool/high-risk.re`, read by `_t1288-prepush-gate.sh` and by `tier-gate.sh`; the push'
+  - 'Teeth for tier-gate (stubbed pool and local, browser tier): normal → pool only, high-risk → both, disagreement'
+  - 'CLAUDE.md''s browser-tier rule (T-1374) points at `tier-gate.sh browser`; one real browser run through it.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'tier-gate''s local run picks a Node with WebSocket (PATH''s, else newest nvm); browser with none is CANNOT RUN, not a disagreement. First real run was refused because system Node 18 turned 126 CDP legs red against the pool''s 142/0. Teeth 6/6 (case 6 red on the pre-fix gate); 1408 8/8, 1405 4/4'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t1409-tier-gate-teeth.yaml'
+  - '.fabric/components/tools-pool-high-risk.yaml'
+  - '.fabric/components/tools-pool-tier-gate.yaml'
+  - '.tasks/active/T-1409-browser-tier-on-the-pool-too-toolspoolti.md'
+  - 'CLAUDE.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1409-tier-gate-teeth.sh'
+  - 'tools/pool/tier-gate.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-13T17:36:49'
+    action: 'T-1409: browser teeth 5/5 (control 0/5) as core leg _t1409-tier-gate; fabric cards for tier-gate, high-risk.re and the teeth; CLAUDE.md''s T-1374 rule points at tier-gate.sh browser'
+  - time: '2026-11-13T17:37:36'
+    action: 'T-1409: three criteria ticked (tier-gate rules, one list, teeth 5/5 control 0/5); verification written; one real browser run through tier-gate in progress'
+  - time: '2026-11-13T18:02:00'
+    action: 'T-1409: tier-gate''s local run picks a Node with WebSocket (PATH''s, else newest nvm); browser with none is CANNOT RUN, not a disagreement. First real run was refused because system Node 18 turned 126 CDP legs red against the pool''s 142/0. Teeth 6/6 (case 6 red on the pre-fix gate); 1408 8/8, 1405 4/4'
+  - time: '2026-11-13T18:18:44'
+    action: 'T-1409: CLAUDE.md core-tier size from --list-legs (192 legs today), not the stale 207'
+  - time: '2026-11-13T18:27:12'
+    action: 'T-1409: last criterion ticked — one real browser run through tier-gate, pool 142/0 and here 142/0 side by side on a high-risk change'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 147 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 147
+  commits: 6
+  files_changed: 11
+  lines_added: 285
+  lines_removed: 23
+  footprint_refreshed_at: '2026-11-13T17:27:42Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1409-browser-tier-on-the-pool-too-toolspoolti.md
+generated_by: context-agent-hybrid

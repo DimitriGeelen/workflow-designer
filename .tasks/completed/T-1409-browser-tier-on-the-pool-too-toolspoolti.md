@@ -12,13 +12,13 @@ description: >
   forces local), for core or browser. The high-risk path list moves to one file both
   read (tools/pool/high-risk.re), so they cannot drift. Releases unchanged.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t1409-tier-gate-teeth.sh, tools/pool/tier-gate.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -47,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-13T14:59:43Z
-last_update: 2026-11-13T17:27:11Z
-date_finished:
+last_update: 2026-11-13T17:27:13Z
+date_finished: 2026-11-13T17:27:13Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -428,3 +428,21 @@ grep -q "138b0d1b0850.*pool and local both green" build/tiergate/tier-browser.ru
 
 ### 2026-11-13T14:59:48Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-13T17:27:13Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-15b339cc
+- **Timestamp:** 2026-11-13T17:27:27Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — One high-risk list: `tools/pool/high-risk.re`, read by `_t1288-prepush-gate.sh` and by `tier-gate.sh`; the push
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/pool/high-risk.re in: One high-risk list: `tools/pool/high-risk.re`, read by `_t1288-prepush-gate.sh` and by `tier-gate.sh`; the push`
