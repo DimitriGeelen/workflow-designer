@@ -47,7 +47,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-13T14:59:43Z
-last_update: 2026-11-13T16:36:49Z
+last_update: 2026-11-13T16:37:36Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -115,11 +115,11 @@ by side with the pool); the saving is for browser runs on non-high-risk changes 
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `tools/pool/tier-gate.sh core|browser` applies the push gate's rules (pool alone / pool + local side by side for
+- [x] `tools/pool/tier-gate.sh core|browser` applies the push gate's rules (pool alone / pool + local side by side for
       high-risk / local fallback / T1408_POOL=0), says which in its output and logs it.
-- [ ] One high-risk list: `tools/pool/high-risk.re`, read by `_t1288-prepush-gate.sh` and by `tier-gate.sh`; the push
+- [x] One high-risk list: `tools/pool/high-risk.re`, read by `_t1288-prepush-gate.sh` and by `tier-gate.sh`; the push
       gate's teeth still 8/8 with it.
-- [ ] Teeth for tier-gate (stubbed pool and local, browser tier): normal → pool only, high-risk → both, disagreement
+- [x] Teeth for tier-gate (stubbed pool and local, browser tier): normal → pool only, high-risk → both, disagreement
       refused, no pool result → local; control fails.
 - [ ] CLAUDE.md's browser-tier rule (T-1374) points at `tier-gate.sh browser`; one real browser run through it.
 
@@ -307,6 +307,13 @@ by side with the pool); the saving is for browser runs on non-high-risk changes 
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+
+bash tools/_t1409-tier-gate-teeth.sh > /tmp/.t1409.out 2>&1 && grep -q "5 passed, 0 failed" /tmp/.t1409.out
+bash tools/_t1408-pool-gate-teeth.sh > /tmp/.t1408.out 2>&1 && grep -q "8 passed, 0 failed" /tmp/.t1408.out
+bash tools/_t1405-red-log-teeth.sh > /tmp/.t1405.out 2>&1
+bash tests/run-bridge-tests.sh --list-legs > /tmp/.legs.out && grep -q "^core _t1409-tier-gate$" /tmp/.legs.out
+grep -q "tier-gate.sh browser" CLAUDE.md
+grep -q "high-risk.re" tools/pool/tier-gate.sh
 
 ## RCA
 
