@@ -26,7 +26,24 @@ HIGH_RISK_RE=$(head -1 "$ROOT/tools/pool/high-risk.re" 2>/dev/null)
 [ -n "$HIGH_RISK_RE" ] || HIGH_RISK_RE='.'
 note() { printf '%s\t%s\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${HEAD_SHA:0:12}" "$*" >> "$RUNS"; echo "T-1288 $TIER: $*" >&2; }
 
+node_ok() { "${1:-node}" -e 'process.exit(typeof WebSocket === "function" ? 0 : 1)' 2>/dev/null; }
+pick_node() {  # T-1409: the CDP harnesses need a global WebSocket (Node >= 22). System Node 18 has none, and the browser
+    # tier then reads 126 CANNOT RUN as red, a "disagreement" with the pool that is this machine's PATH, not the product.
+    # Use PATH's node if it has WebSocket, else the newest nvm Node that does; none -> return 1 (no verdict here).
+    local n d
+    node_ok node && return 0
+    for d in $(ls -1d "$HOME"/.nvm/versions/node/v*/bin 2>/dev/null | sort -V -r); do
+        n="$d/node"
+        if [ -x "$n" ] && node_ok "$n"; then PATH="$d:$PATH"; export PATH; echo "T-1288 $TIER: using $("$n" -v) from $d (PATH's node has no WebSocket)" >&2; return 0; fi
+    done
+    return 1
+}
+
 local_run() {  # the tier here; 0 green, 1 red (a red run's log is kept, newest five)
+    if ! pick_node && [ "$TIER" = browser ]; then   # core does not need it, so core runs on regardless
+        echo "T-1288 $TIER: CANNOT RUN here — no Node with a global WebSocket (>= 22) on PATH or under ~/.nvm; the CDP legs would all fail without measuring" >&2
+        return 4
+    fi
     echo "T-1288 $TIER: running the $TIER tier HERE (tests/run-bridge-tests.sh --tier $TIER) ..." >&2
     local out="$WD/$PFX.log" rc red
     ( cd "$ROOT" && bash tests/run-bridge-tests.sh --tier "$TIER" ) </dev/null > "$out" 2>&1 8<&-
@@ -68,7 +85,7 @@ risky=$(printf '%s\n' "$changed" | grep -E "$HIGH_RISK_RE" | head -3 | tr '\n' '
 
 if [ "${T1408_POOL:-1}" = 0 ]; then
     note "T1408_POOL=0: $TIER runs locally only (pool skipped on request)"
-    local_run || refuse "local $TIER is red"
+    local_run || refuse "local $TIER is red, or could not run"
 elif [ -n "$risky" ]; then
     note "high-risk change (${risky% }): $TIER runs on the pool AND here, side by side; both must be green"
     prcf="$WD/$PFX.pool.rc"; rm -f "$prcf"
@@ -76,7 +93,10 @@ elif [ -n "$risky" ]; then
     bg=$!
     local_run; lrc=$?
     wait "$bg"; prc=$(cat "$prcf" 2>/dev/null || echo 3)
-    if [ "$prc" = 3 ]; then
+    if [ "$lrc" = 4 ]; then
+        note "high-risk change: this machine CANNOT RUN $TIER (no Node with WebSocket); pool $(gr $prc) — ONE run, not the two the rule asks for"
+        refuse "this machine cannot run the $TIER tier (install Node >= 22 or put it on PATH); a high-risk change needs both runs"
+    elif [ "$prc" = 3 ]; then
         note "high-risk change: the pool gave no result; local alone ($(gr $lrc)) — ONE run, not the two the rule asks for"
         [ "$lrc" = 0 ] || refuse "local $TIER is red (and the pool gave no result)"
     elif [ "$prc" != "$lrc" ]; then
@@ -91,7 +111,7 @@ else
     pool_run; prc=$?
     if [ "$prc" = 3 ]; then
         note "the pool gave no result: falling back to the local run"
-        local_run || refuse "local $TIER is red (pool unavailable)"
+        local_run || refuse "local $TIER is red or could not run (pool unavailable)"
     elif [ "$prc" != 0 ]; then
         refuse "pool $TIER is red"
     else

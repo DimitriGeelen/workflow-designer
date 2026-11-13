@@ -47,7 +47,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-13T14:59:43Z
-last_update: 2026-11-13T16:37:36Z
+last_update: 2026-11-13T17:02:00Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -99,6 +99,16 @@ one, through one command that any task's verification can call.
 high-risk list lives in one file (`tools/pool/high-risk.re`) that the push gate and tier-gate both read. Honest limit:
 the browser tier is mostly needed for src/validator changes, which are high-risk, so those still run locally too (side
 by side with the pool); the saving is for browser runs on non-high-risk changes (test/tool work, most task closes).
+
+### 2026-11-13, second session: the first real browser run through the gate was REFUSED, correctly
+- Run at 76c8baf25 (high-risk: tools/pool, the runner, the push gate): pool-w2 GREEN 142/0; here RED 16/126, every red a
+  CDP probe failing `ReferenceError: WebSocket is not defined` (tools/_cdp-client.mjs:29). This shell's only `node` is
+  system v18.19.1 (no global WebSocket); earlier local browser runs were green because they put nvm's v22.22.1 first on
+  PATH by hand (T-101's verification lines). The gate's "DISAGREE" was this machine's PATH, not the product.
+- Fix: tier-gate's local run picks a Node with WebSocket (PATH's, else the newest under ~/.nvm, said in the output); for
+  the browser tier with none it returns CANNOT RUN (exit 4), refused as that, never as a disagreement. Teeth case 6 holds
+  it (red on the pre-fix gate); cases 1-5 now use a stub node and an empty HOME, so they no longer depend on this
+  machine's Node.
 
 ### State at session end (2026-11-13, context limit)
 - Done, committed in the WIP commit: `tools/pool/high-risk.re` (the one list); `tools/pool/tier-gate.sh core|browser`
@@ -308,7 +318,7 @@ by side with the pool); the saving is for browser runs on non-high-risk changes 
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
 
-bash tools/_t1409-tier-gate-teeth.sh > /tmp/.t1409.out 2>&1 && grep -q "5 passed, 0 failed" /tmp/.t1409.out
+bash tools/_t1409-tier-gate-teeth.sh > /tmp/.t1409.out 2>&1 && grep -q "6 passed, 0 failed" /tmp/.t1409.out
 bash tools/_t1408-pool-gate-teeth.sh > /tmp/.t1408.out 2>&1 && grep -q "8 passed, 0 failed" /tmp/.t1408.out
 bash tools/_t1405-red-log-teeth.sh > /tmp/.t1405.out 2>&1
 bash tests/run-bridge-tests.sh --list-legs > /tmp/.legs.out && grep -q "^core _t1409-tier-gate$" /tmp/.legs.out

@@ -8,6 +8,7 @@
 #   3 high-risk change, both green  -> 0, pool AND local ran, local asked for "--tier browser"
 #   4 high-risk, pool red, local green -> 1, a DISAGREEMENT
 #   5 no pool result                -> local decides (0), fallback logged
+#   6 high-risk, no Node with WebSocket here -> 1, CANNOT RUN, local not started, not a "disagreement"
 # Control: T1409_TIERGATE=<another script> must fail. Exit 0 all hold; 1 one does not; 2 setup broken.
 set -u
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -39,11 +40,15 @@ SH
 echo x > docs/a.md
 G add -A && G commit -qm init && git remote add origin "$S/origin.git" && G push -q -u origin main || exit 2
 export T1408_POOL_SUBMIT="bash $S/pool-stub.sh"
+# A stub node first on PATH and a HOME with no ~/.nvm: whether "node has WebSocket" is the case's choice
+# ($STUB_NODE_WS, default yes), never this machine's Node (T-1409: system Node 18 has none).
+mkdir -p "$S/bin" "$S/home"
+printf '#!/bin/bash\n[ "${STUB_NODE_WS:-yes}" = yes ]\n' > "$S/bin/node"; chmod +x "$S/bin/node"
 
 run() {
     echo "$RANDOM" >> "$1"; G add -A; G commit -qm "change $1"
     rm -f .local-ran .pool-ran
-    OUT=$(bash tools/pool/tier-gate.sh browser 2>&1); RC=$?
+    OUT=$(PATH="$S/bin:$PATH" HOME="$S/home" bash tools/pool/tier-gate.sh browser 2>&1); RC=$?
     LOCAL=$(cat .local-ran 2>/dev/null || echo no); POOL=$(cat .pool-ran 2>/dev/null || echo no)
     G push -q origin main 2>/dev/null
 }
@@ -67,5 +72,9 @@ leg $? "4 high-risk, pool red and local green: refused as a disagreement (rc=$RC
 STUB_POOL=none STUB_LOCAL_RC=0 run docs/a.md
 [ "$RC" = 0 ] && [ "$LOCAL" = "--tier browser" ] && grep -q "falling back to the local run" <<<"$OUT"
 leg $? "5 no pool result: the local browser run decides, fallback logged (rc=$RC local=$LOCAL)"
+
+STUB_NODE_WS=no STUB_POOL=green STUB_LOCAL_RC=0 run tools/pool/x.sh
+[ "$RC" = 1 ] && [ "$LOCAL" = no ] && grep -q "CANNOT RUN" <<<"$OUT" && ! grep -q "DISAGREE" <<<"$OUT"
+leg $? "6 high-risk, no Node with WebSocket here: refused as CANNOT RUN (local not started), never a disagreement (rc=$RC local=$LOCAL)"
 echo "=== $pass passed, $fail failed ==="
 [ "$fail" -eq 0 ]
