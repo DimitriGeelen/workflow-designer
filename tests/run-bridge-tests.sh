@@ -689,6 +689,7 @@ orphan_legs=(
   "core|tests/test_t1370_catalog_checks.py|the validator no longer checks io fields against the field catalog: an unknown fieldRef, a field of another object, or an aef:expect the attribute's rule forbids or repeats goes unreported, or a catalog changes findings without --field-catalog (T-1370)"
   "core|tests/test_t1377_general_map_checks.py|a general map rule is no longer reported (an incomplete or missing io, a decision branch without a condition, an unknown documentation prefix, an unlinked document, aef:position against DI), an io-free map starts to warn, or --strict stops refusing on them (T-1377)"
   "core|tests/test_t1368_runme_watch_rearm.py|the runme watch no longer ends with RE-ARM NOW and the still-pending jobs, so a re-run of a stopped job can go unwatched again (T-1368)"
+  "core|tests/test_t1394_runme_watch_cursor.py|a runme event written between one watch's report and the next watch's arm (job 130: started and STOPPED in one second) goes unreported again, or a first arm reports old lines (T-1394)"
   "core|tests/test_t1145_decision_handover_guard.py|the Stop hook no longer blocks a reply that hands the operator an unready inception's decision link, blocks a ready or link-free reply, loops, or fails closed (T-1145)"
 )
 # T-1288: each entry is its own leg, its tier the entry's first field (five of these drive a browser).

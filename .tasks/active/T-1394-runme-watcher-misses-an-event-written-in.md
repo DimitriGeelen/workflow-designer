@@ -1,12 +1,19 @@
 ---
 id: T-1394
 observation: OBS-497
-name: "runme watcher misses an event written in the same second as the one that woke it: job 130 logged 'started' and…"
+name: "runme watcher misses an event written in the same second as the one that woke
+  it: job 130 logged 'started' and…"
 description: >
-  Promoted from observation OBS-497: runme watcher misses an event written in the same second as the one that woke it: job 130 logged 'started' and 'STOPPED' at 15:06:47Z; the watcher woke on 'started', the re-armed watcher only waits for events after it starts, so the STOPPED went unreported for ~2 h. The watch should resume from the last event it reported (line count / event id), not from arm time (T-1368's re-arm rule assumed distinct times).
+  Promoted from observation OBS-497: runme watcher misses an event written in the
+  same second as the one that woke it: job 130 logged 'started' and 'STOPPED' at 15:06:47Z;
+  the watcher woke on 'started', the re-armed watcher only waits for events after
+  it starts, so the STOPPED went unreported for ~2 h. The watch should resume from
+  the last event it reported (line count / event id), not from arm time (T-1368's
+  re-arm rule assumed distinct times).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: []
@@ -39,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-11T16:57:11Z
-last_update: 2026-11-11T16:57:11Z
-date_finished: null
+last_update: '2026-11-13T21:16:13Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -51,6 +58,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-13T21:16:13Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 3
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=3 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L3:keyword=promote)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1394: runme watcher misses an event written in the same second as the one that woke it: job 130 logged 'started' and…
@@ -62,20 +89,27 @@ Source: observation OBS-497 (.context/inbox.yaml):
 > runme watcher misses an event written in the same second as the one that woke it: job 130 logged 'started' and 'STOPPED' at 15:06:47Z; the watcher woke on 'started', the re-armed watcher only waits for events after it starts, so the STOPPED went unreported for ~2 h. The watch should resume from the last event it reported (line count / event id), not from arm time (T-1368's re-arm rule assumed distinct times).
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** job 130 (2026-11-11) wrote 'started' and 'STOPPED' to `.context/working/runme.events` at
+15:06:47Z; the agent was woken by 'started' only and learned of the stop about 2 h later (OBS-497).
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** `tools/runme-watch.sh` takes its baseline (the event file's line count) when it is ARMED. An
+event written between the moment a watch reports and the moment the next one is armed falls inside the new baseline
+and is never reported. T-1368's "re-arm after every event" rule cannot close that gap, however fast the re-arm is.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** a watch resumes from the last line a previous watch reported.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** every event line in the file is reported by some watch, whatever the timing of the re-arm.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The watch records the line count it reported up to (a cursor beside its `runme.watch` record) and a new watch
+  starts from that cursor; with no cursor, an unreadable one, or one beyond the file (truncated), it starts from arm time.
+- [x] `tests/test_t1394_runme_watch_cursor.py`: an event appended after a watch reported and before the next is armed
+  is reported by the next watch; a fresh arm with no cursor does not report old lines; a cursor past the end of the
+  file is ignored. Its control (the pre-fix watch, from git) fails the first leg. Registered as a core leg.
+- [x] test_t1368 and test_t1050 still pass.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -261,6 +295,9 @@ Source: observation OBS-497 (.context/inbox.yaml):
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+python3 tests/test_t1394_runme_watch_cursor.py
+python3 tests/test_t1368_runme_watch_rearm.py
+grep -q 'tests/test_t1394_runme_watch_cursor.py' tests/run-bridge-tests.sh
 
 ## RCA
 
@@ -358,3 +395,6 @@ Source: observation OBS-497 (.context/inbox.yaml):
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1394-runme-watcher-misses-an-event-written-in.md
 - **Context:** Initial task creation
+
+### 2026-11-13T21:16:11Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

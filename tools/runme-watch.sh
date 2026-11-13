@@ -39,6 +39,13 @@ WATCH="${RUNME_WATCH_FILE:-$ROOT/.context/working/runme.watch}"
 # The other order let an event written between the record and the baseline count as already seen and be lost (it
 # showed as a 100s hang in tests/test_t1050_runme_alerts.py A2 under load, which waits for the record, then appends).
 f0=$(lines)
+# T-1394: resume from the last event line a watch REPORTED, not from arm time. Job 130 logged 'started' and 'STOPPED' in the
+# same second (2026-11-11 15:06:47Z); the watch woke on 'started', the STOPPED landed before the re-arm, the re-armed watch
+# counted it as already seen, and it went unreported for ~2 h. The cursor is written only when file lines are reported;
+# a missing, unreadable or too-large cursor (the file was truncated) falls back to arm time. RUNME_WATCH_CURSOR: tests.
+CURSOR="${RUNME_WATCH_CURSOR:-$WATCH.cursor}"
+c=$(cat "$CURSOR" 2>/dev/null)
+case "$c" in ''|*[!0-9]*) ;; *) [ "$c" -le "$f0" ] && f0=$c ;; esac
 t0=0; command -v termlink >/dev/null 2>&1 && { t=$(topic_next 0); while [ "$t" != "$t0" ]; do t0=$t; t=$(topic_next "$t0"); done; }
 armer=""; p=$$
 while [ -n "$p" ] && [ "$p" -gt 1 ]; do
@@ -68,7 +75,9 @@ start=$(date +%s)
 while [ "$LIMIT" -eq 0 ] || [ $(( $(date +%s) - start )) -lt "$LIMIT" ]; do
     f=$(lines)
     if [ "$f" -gt "$f0" ]; then
-        echo "runme event (file):"; tail -n +"$((f0 + 1))" "$FILE"; rm -f "$WATCH"; rearm_note; exit 0
+        echo "runme event (file):"; head -n "$f" "$FILE" | tail -n +"$((f0 + 1))"
+        echo "$f" > "$CURSOR" 2>/dev/null   # T-1394: exactly what was printed; a line written after this is the next watch's
+        rm -f "$WATCH"; rearm_note; exit 0
     fi
     if command -v termlink >/dev/null 2>&1; then
         new=$(timeout 20 termlink channel subscribe "$TOPIC" --cursor "$t0" --limit 50 2>/dev/null | grep -E '^\[[0-9]+\]' | grep -F " $LABEL ")
