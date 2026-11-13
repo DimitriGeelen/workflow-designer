@@ -1,0 +1,106 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1406: Pool side for 832's test tiers: tools/pool/run-tier.sh, staging and submit, first comparison runs (T-1397 GO)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-13T13:59:03Z
+# ============================================================================
+
+task_id: T-1406
+task_name: "Pool side for 832's test tiers: tools/pool/run-tier.sh, staging and submit, first comparison runs (T-1397 GO)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-13T06:47:28Z
+completed: 2026-11-13T13:58:54Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-13T07:47:49+01:00
+last_commit: 2026-11-13T13:43:35+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-1397's record gains ring20's go-live, the submit flow and the stage msg-type correction. pool launcher (tools/pool/run-tier.sh) and submit script (tools/pool/submit.sh) — inputs from git only, bundle in <= 64 MB parts staged once by sha256, hub read from the git-ignored build/pool/hub. the launcher verifies the bundle inside the cloned repo (git bundle verify needs a repository; the local proof stopped there). the local proof's nine reds, each fixed at its cause — submit.sh captured-then-grepped (a real pipefail risk the T-1331 census caught), the bundle carries origin/master (a T-1383 commit an episodic cites), the launcher installs 832's hooks in its clone and clears inherited project pointers (the T-1398 class). the launcher installs the framework's hooks first (fw git install-hooks), then 832's gates — the clone has none; local proof 221/223 with only these two hook guards red, now installed. submit.sh reads pool:stage-out's newest records (--tail) — the first real run's part 000 was staged ok in 5.3 s, but the reader paged from the topic's start (13,600 records) and timed out after 900 s. runs recorded — local proofs 1-3 (each red traced and fixed), pool run 2 end to end on pool-w2 in 508 s, core 194/29 with probable env gaps reported to ring20. submit.sh uses ring20's bridge832-2 (POOL_ENV overrides); T-1397 gets its T-949 triage verdict (PARTIAL: the build T-1406 is in progress), the red that stopped T-1405's close. the pool-only exception for the rehearsal guard — without a mount namespace (pool sandbox, T1406_POOL=1) leg 5 checks that the before/after assertion still refuses the reach, then cleans up so leg 6 starts clean; local runs keep the full guarded leg. the launcher builds its own Playwright cache dir so chromium-NNNN/chrome-linux64/chrome resolves whether the pool lays the build out as chrome-linux64/ or chrome-linux/ — the first pool browser run found chromium-1187 but 59 legs said 'no chromium'; it also logs the layout it found
+
+# Key outcomes
+outcomes:
+  - '`tools/pool/run-tier.sh core|browser` rebuilds the repo from `repo.bundle.*` in the job dir, runs the tier, and'
+  - '`tools/pool/submit.sh core|browser` builds the inputs from git only (never the working tree), stages each part'
+  - 'A first pool run of each tier completes; its result is compared with a local run of the same commit and the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'runs recorded — local proofs 1-3 (each red traced and fixed), pool run 2 end to end on pool-w2 in 508 s, core 194/29 with probable env gaps reported to ring20'
+    source: git-mined
+  - description: 'the local proof''s nine reds, each fixed at its cause — submit.sh captured-then-grepped (a real pipefail risk the T-1331 census caught), the bundle carries origin/master (a T-1383 commit an episodic cites), the launcher installs 832''s hooks in its clone and clears inherited project pointers (the T-1398 class)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-pool-run-tier.yaml'
+  - '.fabric/components/tools-pool-submit.yaml'
+  - '.tasks/active/T-1406-pool-side-for-832s-test-tiers-toolspoolr.md'
+  - 'docs/reports/T-1397-ring20-test-pool.md'
+  - 'docs/reports/T-949-go-scope-triage.md'
+  - 'tests/test_t1286_rehearsal.py'
+  - 'tools/pool/run-tier.sh'
+  - 'tools/pool/submit.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-13T07:47:49'
+    action: 'T-1406: T-1397''s record gains ring20''s go-live, the submit flow and the stage msg-type correction'
+  - time: '2026-11-13T07:49:48'
+    action: 'T-1406: pool launcher (tools/pool/run-tier.sh) and submit script (tools/pool/submit.sh) — inputs from git only, bundle in <= 64 MB parts staged once by sha256, hub read from the git-ignored build/pool/hub'
+  - time: '2026-11-13T07:50:28'
+    action: 'T-1406: the launcher verifies the bundle inside the cloned repo (git bundle verify needs a repository; the local proof stopped there)'
+  - time: '2026-11-13T08:28:25'
+    action: 'T-1406: the local proof''s nine reds, each fixed at its cause — submit.sh captured-then-grepped (a real pipefail risk the T-1331 census caught), the bundle carries origin/master (a T-1383 commit an episodic cites), the launcher installs 832''s hooks in its clone and clears inherited project pointers (the T-1398 class)'
+  - time: '2026-11-13T08:45:04'
+    action: 'T-1406: the launcher installs the framework''s hooks first (fw git install-hooks), then 832''s gates — the clone has none; local proof 221/223 with only these two hook guards red, now installed'
+  - time: '2026-11-13T09:00:53'
+    action: 'T-1406: submit.sh reads pool:stage-out''s newest records (--tail) — the first real run''s part 000 was staged ok in 5.3 s, but the reader paged from the topic''s start (13,600 records) and timed out after 900 s'
+  - time: '2026-11-13T09:11:59'
+    action: 'T-1406: runs recorded — local proofs 1-3 (each red traced and fixed), pool run 2 end to end on pool-w2 in 508 s, core 194/29 with probable env gaps reported to ring20'
+  - time: '2026-11-13T11:39:58'
+    action: 'T-1406: submit.sh uses ring20''s bridge832-2 (POOL_ENV overrides); T-1397 gets its T-949 triage verdict (PARTIAL: the build T-1406 is in progress), the red that stopped T-1405''s close'
+  - time: '2026-11-13T12:22:42'
+    action: 'T-1406: the pool-only exception for the rehearsal guard — without a mount namespace (pool sandbox, T1406_POOL=1) leg 5 checks that the before/after assertion still refuses the reach, then cleans up so leg 6 starts clean; local runs keep the full guarded leg'
+  - time: '2026-11-13T13:43:35'
+    action: 'T-1406: the launcher builds its own Playwright cache dir so chromium-NNNN/chrome-linux64/chrome resolves whether the pool lays the build out as chrome-linux64/ or chrome-linux/ — the first pool browser run found chromium-1187 but 59 legs said ''no chromium''; it also logs the layout it found'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 10 commit(s), 431 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 431
+  commits: 11
+  files_changed: 11
+  lines_added: 862
+  lines_removed: 24
+  footprint_refreshed_at: '2026-11-13T13:59:09Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1406-pool-side-for-832s-test-tiers-toolspoolr.md
+generated_by: context-agent-hybrid
